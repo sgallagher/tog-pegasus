@@ -40,6 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 #include <direct.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <winsock.h>
 
 #define ACCESS_EXISTS 0
 #define ACCESS_WRITE 2
@@ -168,6 +169,29 @@ String System::getHostName()
         gethostname(hostname, sizeof(hostname));
 
     return hostname;
+}
+
+Uint32 System::lookupPort(
+    const char * serviceName,
+    Uint32 defaultPort)
+{
+    Uint32 localPort;
+
+    struct servent *serv;
+
+    //
+    // Get wbem-local port from /etc/services
+    //
+    if (  (serv = getservbyname(serviceName, TCP)) != NULL )
+    {
+        localPort = serv->s_port;
+    }
+    else
+    {
+        localPort = defaultPort;
+    }
+
+    return localPort;
 }
 
 String System::getPassword(const char* prompt)

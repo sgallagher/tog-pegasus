@@ -40,6 +40,13 @@
 #include "CIMClient.h"
 
 #include <iostream>
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+# include <winsock.h>
+#else
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <sys/socket.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -114,8 +121,33 @@ void CIMClient::connect(const String& address)
     _connected = true;
 }
 
-void CIMClient::connectLocal(const String& address, const String& userName)
+void CIMClient::connectLocal(
+    const String& portNumber,
+    const String& userName)
 {
+    String address = String::EMPTY;
+    char * port = (char *)malloc(32);
+
+    if (portNumber.size())
+    {
+        port = portNumber.allocateCString();
+    }
+    else
+    {
+        Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        sprintf(port, "%u", portNum);
+    }
+
+    //
+    // Build address string using local host name and port number
+    //
+    address.append(Cat(_getLocalHostName(), ":", port));
+
+    free(port);
+
+    //
+    // Set authentication information
+    //
     if (userName.size())
     {
         _authenticator->setUserName(userName);
@@ -965,6 +997,27 @@ void CIMClient::_checkError(const CIMResponseMessage* responseMessage)
 	throw CIMException(responseMessage->errorCode, 
 	    __FILE__, __LINE__, responseMessage->errorDescription);
     }
+}
+
+String CIMClient::_getLocalHostName()
+{
+    static String hostname;
+
+    if (!hostname.size())
+    {
+#ifdef PEGASUS_ACCEPT_ONLY_LOCAL_CONNECTIONS
+        struct sockaddr_in address;
+
+        memset(&address, 0, sizeof(address));
+
+        address.sin_addr.s_addr = INADDR_LOOPBACK;
+        hostname.assign(inet_ntoa(address.sin_addr));
+#else
+        hostname.assign(System::getHostName());
+#endif
+    }
+
+    return hostname;
 }
 
 PEGASUS_NAMESPACE_END

@@ -33,6 +33,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 
+//
+// Protocal Type
+//
+#define TCP                        "tcp"
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** This is an opaque type which is used to represent dynamic library
@@ -45,7 +50,6 @@ typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
     Values of this type may be casted to the appropriate target type.
 */
 typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
-
 
 /** The System class defines wrappers for operating system related calls.
     These are only placed here if they are extremely light. These are
@@ -107,6 +111,10 @@ public:
 	const char* symbolName);
 
     static String getHostName();
+
+    static Uint32 lookupPort(
+        const char * serviceName,
+        Uint32 defaultPort);
 
     static String getCurrentLoginName();
 

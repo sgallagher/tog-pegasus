@@ -25,6 +25,7 @@
 //
 // Modified By:
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +184,13 @@ void HTTPAcceptor::_bind()
     // Create address:
 
     memset(&_rep->address, 0, sizeof(_rep->address));
+
+#ifdef PEGASUS_ACCEPT_ONLY_LOCAL_CONNECTIONS
+    _rep->address.sin_addr.s_addr = INADDR_LOOPBACK;
+#else
     _rep->address.sin_addr.s_addr = INADDR_ANY;
+#endif
+
     _rep->address.sin_family = AF_INET;
     _rep->address.sin_port = htons(_portNumber);
 

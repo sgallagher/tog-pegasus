@@ -23,6 +23,8 @@
 //
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -117,16 +119,6 @@ const String PROPERTY_NAME_NAMESPACE                         = "root/cimv2";
 */
 const String PG_USER_CLASS                     = "PG_User";
  
-/**
-    The default port string
-*/
-static const char DEFAULT_PORT_STR []          = "5988";
-
-/**
-    The host name used by the command line.
-*/
-static const char HOST_NAME []                 = "localhost";
-
 /**
     The constant representing the string "port".
 */
@@ -270,10 +262,6 @@ static const char   PASSWORD_DOES_NOT_MATCH []  =
 
 static const char   PASSWORD_SAME_ERROR []  =
                         "Error, new and old passwords cannot be same.";
-
-// Contains the address for connecting to CIMOM
-char*     address     = 0;
-
 
 /**
 This is a CLI used to manage users of the CIM Server.  This command supports 
@@ -889,10 +877,9 @@ Uint32 CIMUserCommand::execute (
     ostream& outPrintWriter, 
     ostream& errPrintWriter)
 {
-    Boolean   connected     = false;
-    String    portNumberStr = String::EMPTY;
-    String    addressStr    = String::EMPTY;
     String    pegasusHome   = String::EMPTY;
+    String    portNumber    = String::EMPTY;
+
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
@@ -933,16 +920,11 @@ Uint32 CIMUserCommand::execute (
 	//
 	// Get the port number of the CIMOM
 	//
-        portNumberStr = _configFileHandler->getCurrentValue(PORT);
-
-        if (portNumberStr == String::EMPTY)
-        {
-            portNumberStr.append (DEFAULT_PORT_STR);
-        }
+        portNumber = _configFileHandler->getCurrentValue(PORT);
     }
     catch (NoSuchFile& nsf)
     {
-        portNumberStr = DEFAULT_PORT_STR;
+        portNumber = String::EMPTY;
     }
     catch (FileNotReadable& fnr)
     {
@@ -969,15 +951,8 @@ Uint32 CIMUserCommand::execute (
         HTTPConnector* connector = new HTTPConnector(monitor);
         _client = new CIMClient(monitor, connector);
 
-        addressStr.append(_hostName);
-        addressStr.append(":");
-        addressStr.append(portNumberStr);
+        _client->connectLocal(portNumber);
 
-        address = addressStr.allocateCString ();
-
-        _client->connectLocal(address);
-
-        connected = true;
     }
     catch(Exception& e)
     {
@@ -993,10 +968,7 @@ Uint32 CIMUserCommand::execute (
         case OPERATION_TYPE_ADD:
             try
             {
-                if (connected)
-                {
-		    _AddUser( outPrintWriter, errPrintWriter );
-                }
+                _AddUser( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -1029,16 +1001,18 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << ADD_USER_FAILURE << endl <<
+                    toe.getMessage() << endl;
+                return ( RC_ERROR );
+            }
             break; 
 
             case OPERATION_TYPE_MODIFY:
             try
             {
-                if (connected)
-                {
-                    _ModifyUser( outPrintWriter, errPrintWriter );
-                }
+                _ModifyUser( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -1070,16 +1044,18 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << CHANGE_PASSWORD_FAILURE << endl <<
+                    toe.getMessage() << endl;
+                return ( RC_ERROR );
+            }
             break;
 
         case OPERATION_TYPE_REMOVE:
             try
             {
-                if (connected)
-                {
-                    _RemoveUser( outPrintWriter, errPrintWriter );
-                }
+                _RemoveUser( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -1109,6 +1085,12 @@ Uint32 CIMUserCommand::execute (
                 {
                     errPrintWriter << e.getMessage() << endl;
                 }
+                return ( RC_ERROR );
+            }
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << REMOVE_USER_FAILURE << endl <<
+                    toe.getMessage() << endl;
                 return ( RC_ERROR );
             }
             break;
@@ -1116,14 +1098,7 @@ Uint32 CIMUserCommand::execute (
         case OPERATION_TYPE_LIST:
             try
             {
-                if (connected)
-                {
-                    _ListUsers(
-                         outPrintWriter, 
-                         errPrintWriter);
-                }
-
-                break;
+                _ListUsers(outPrintWriter, errPrintWriter);
             }
             catch (CIMException& e)
             {
@@ -1154,10 +1129,13 @@ Uint32 CIMUserCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (TimedOut& timeout)
+            catch (TimedOut& toe)
             {
+                outPrintWriter << LIST_USERS_FAILURE << endl <<
+                    toe.getMessage() << endl;
                 return ( RC_ERROR );
             }
+            break;
 
         default:
             //
@@ -1196,6 +1174,10 @@ void CIMUserCommand::_AddUser
     catch (CIMException& e)
     {
         throw e;
+    }
+    catch (TimedOut& toe)
+    {
+        throw toe;
     }
 }
 
@@ -1259,6 +1241,10 @@ void CIMUserCommand::_ModifyUser
     {
         throw e;
     }
+    catch (TimedOut& toe)
+    {
+        throw toe;
+    }
 }
 
 //
@@ -1292,6 +1278,10 @@ void CIMUserCommand::_RemoveUser
     catch (CIMException& e)
     {
 	throw e;
+    }
+    catch (TimedOut& toe)
+    {
+        throw toe;
     }
 }
 
@@ -1340,11 +1330,10 @@ void CIMUserCommand::_ListUsers
     {
         throw e;
     }
-    catch (TimedOut& timeout)
+    catch (TimedOut& toe)
     {
-        throw timeout;
+        throw toe;
     }
-
 }
 
 PEGASUS_NAMESPACE_END

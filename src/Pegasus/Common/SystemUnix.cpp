@@ -43,7 +43,7 @@
 #include <pwd.h>
 
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <crypt.h>
+#include <crypt.h> 
 #else
 #include <unistd.h>
 #endif
@@ -53,6 +53,7 @@
 #include <sys/types.h>
 #include <cstdio>
 #include <time.h>
+#include <netdb.h>
 #include <Pegasus/Common/Tracer.h>
 
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
@@ -262,6 +263,29 @@ String System::getHostName()
         gethostname(hostname, sizeof(hostname));
 
     return hostname;
+}
+
+Uint32 System::lookupPort(
+    const char * serviceName, 
+    Uint32 defaultPort)
+{
+    Uint32 localPort;
+
+    struct servent *serv;
+
+    //
+    // Get wbem-local port from /etc/services
+    //
+    if (  (serv = getservbyname(serviceName, TCP)) != NULL )
+    {
+        localPort = serv->s_port;
+    }
+    else
+    {
+        localPort = defaultPort;
+    }
+
+    return localPort;
 }
 
 String System::getPassword(const char* prompt)

@@ -124,16 +124,6 @@ const String ROOT_NAMESPACE                    = "root/cimv2";
 const String PG_AUTH_CLASS                     = "PG_Authorization";
  
 /**
-    The default port string
-*/
-static const char DEFAULT_PORT_STR []          = "5988";
-
-/**
-    The host name used by the command line.
-*/
-static const char HOST_NAME []                 = "localhost";
-
-/**
     The constant representing the string "port".
 */
 static const char PORT []                      = "port";
@@ -148,6 +138,9 @@ static const char NOT_PRIVILEGED_USER []         =
 
 static const char CIMOM_NOT_RUNNING []         = 
                         "CIM Server may not be running.";
+
+static const char FILE_NOT_READABLE []         =
+                        "Unable to read the config file.";
 
 static const char ADD_AUTH_FAILURE []          = 
                         "Failed to add authorizations.";
@@ -230,10 +223,6 @@ static const char   OPTION_REMOVE              = 'r';
     The option character used to specify listing of users.
 */
 static const char   OPTION_LIST                = 'l';
-
-
-// Contains the address for connecting to CIMOM
-char*     address     = 0;
 
 
 /**
@@ -753,8 +742,7 @@ Uint32 CIMAuthCommand::execute (
     ostream& outPrintWriter, 
     ostream& errPrintWriter)
 {
-    String    portNumberStr = String::EMPTY;
-    String    addressStr    = String::EMPTY;
+    String    portNumber    = String::EMPTY;
     String    pegasusHome   = String::EMPTY;
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
@@ -803,24 +791,22 @@ Uint32 CIMAuthCommand::execute (
 	//
 	// Get the port number of the CIMOM
 	//
-        portNumberStr = _configFileHandler->getCurrentValue(PORT);
+        portNumber = _configFileHandler->getCurrentValue(PORT);
 
-        if (portNumberStr == String::EMPTY)
-        {
-            portNumberStr.append (DEFAULT_PORT_STR);
-        }
     }
     catch (NoSuchFile& nsf)
     {
-        portNumberStr = DEFAULT_PORT_STR;
+        portNumber = String::EMPTY;
     }
     catch (FileNotReadable& fnr)
     {
-        portNumberStr = DEFAULT_PORT_STR;
+        errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
+        return 1;
     }
     catch (ConfigFileSyntaxError& cfse)
     {
-        portNumberStr = DEFAULT_PORT_STR;
+        errPrintWriter << cfse.getMessage() << endl;
+        return 1 ;
     }
 
     // 
@@ -835,21 +821,15 @@ Uint32 CIMAuthCommand::execute (
         //
         Monitor* monitor = new Monitor;
         HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
+        _client = new CIMClient(monitor, connector);
 
-        addressStr.append(_hostName);
-        addressStr.append(":");
-        addressStr.append(portNumberStr);
-
-        address = addressStr.allocateCString ();
-
-        client.connectLocal(address);
+        _client->connectLocal(portNumber);
 
     }
     catch(Exception& e)
     {
         outPrintWriter << CIMOM_NOT_RUNNING << endl;
-        return ( RC_ERROR );
+        return 1;
     }
 
     //
@@ -893,7 +873,12 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << ADD_AUTH_FAILURE << endl <<
+                    toe.getMessage() << endl;
+                return ( RC_ERROR );
+            }
             break; 
 
         case OPERATION_TYPE_MODIFY:
@@ -931,7 +916,12 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << MODIFY_AUTH_FAILURE << endl <<
+                    toe.getMessage() << endl;
+                return ( RC_ERROR );
+            }
             break;
 
         case OPERATION_TYPE_REMOVE:
@@ -967,6 +957,12 @@ Uint32 CIMAuthCommand::execute (
                 {
                     errPrintWriter << e.getMessage() << endl;
                 }
+                return ( RC_ERROR );
+            }
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << REMOVE_AUTH_FAILURE << endl <<
+                    toe.getMessage() << endl;
                 return ( RC_ERROR );
             }
             break;
@@ -1005,8 +1001,10 @@ Uint32 CIMAuthCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (TimedOut& timeout)
+            catch (TimedOut& toe)
             {
+                outPrintWriter << LIST_AUTH_FAILURE << endl <<
+                    toe.getMessage() << endl;
                 return ( RC_ERROR );
             }
             break;
@@ -1034,15 +1032,6 @@ void CIMAuthCommand::_AddAuthorization
     
     try
     {
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
-
         CIMInstance newInstance( PG_AUTH_CLASS );
 	newInstance.addProperty ( 
             CIMProperty( PROPERTY_NAME_USERNAME, _userName ) );
@@ -1051,13 +1040,17 @@ void CIMAuthCommand::_AddAuthorization
 	newInstance.addProperty ( 
             CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
-	client.createInstance( ROOT_NAMESPACE, newInstance );
+	_client->createInstance( ROOT_NAMESPACE, newInstance );
 	outPrintWriter << ADD_AUTH_SUCCESS << endl;
 
     }
     catch (CIMException& e)
     {
         throw e;
+    }
+    catch (TimedOut& toe)
+    {
+        throw toe;
     }
 }
 
@@ -1074,15 +1067,6 @@ void CIMAuthCommand::_ModifyAuthorization
     {
         Array<KeyBinding>      kbArray;
         KeyBinding             kb;
-
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
 
 	//
 	// Build the input params
@@ -1111,14 +1095,17 @@ void CIMAuthCommand::_ModifyAuthorization
             CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
         CIMNamedInstance namedInstance( reference, modifiedInst );
-        client.modifyInstance( ROOT_NAMESPACE, namedInstance );
+        _client->modifyInstance( ROOT_NAMESPACE, namedInstance );
         outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
     }
     catch (CIMException& e)
     {
         throw e;
     }
-
+    catch (TimedOut& toe)
+    {
+        throw toe;
+    }
 }
 
 //
@@ -1134,15 +1121,6 @@ void CIMAuthCommand::_RemoveAuthorization
     {
         Array<KeyBinding> kbArray;
         KeyBinding        kb;
-
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
 
 	//
         // If namespace is specified
@@ -1167,7 +1145,7 @@ void CIMAuthCommand::_RemoveAuthorization
             CIMReference reference(
                 _hostName, ROOT_NAMESPACE, PG_AUTH_CLASS, kbArray);
 
-            client.deleteInstance(ROOT_NAMESPACE, reference);
+            _client->deleteInstance(ROOT_NAMESPACE, reference);
         }
         else 
         {
@@ -1177,7 +1155,7 @@ void CIMAuthCommand::_RemoveAuthorization
             // each of the namespaces.
             //
             Array<CIMReference> instanceNames =
-                client.enumerateInstanceNames(ROOT_NAMESPACE, PG_AUTH_CLASS);
+                _client->enumerateInstanceNames(ROOT_NAMESPACE, PG_AUTH_CLASS);
             //
             //
             //
@@ -1198,7 +1176,7 @@ void CIMAuthCommand::_RemoveAuthorization
 
                 if ( String::equal(user, _userName) )
                 {
-                    client.deleteInstance(
+                    _client->deleteInstance(
                         ROOT_NAMESPACE, instanceNames[i]);
                 }
             }
@@ -1209,6 +1187,10 @@ void CIMAuthCommand::_RemoveAuthorization
     catch (CIMException& e)
     {
 	throw e;
+    }
+    catch (TimedOut& toe)
+    {
+        throw toe;
     }
 }
 
@@ -1227,19 +1209,10 @@ void CIMAuthCommand::_ListAuthorization
     try
     {
         //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-        
-        client.connectLocal(address);
-
-        //
         // get all the instances of class PG_Authorization
         //
         authNamedInstances =
-            client.enumerateInstances(ROOT_NAMESPACE, PG_AUTH_CLASS);
+            _client->enumerateInstances(ROOT_NAMESPACE, PG_AUTH_CLASS);
 
         //
         // display all the user names, namespaces, and authorizations
@@ -1278,11 +1251,10 @@ void CIMAuthCommand::_ListAuthorization
     {
         throw e;
     }
-    catch (TimedOut& timeout)
+    catch (TimedOut& toe)
     {
-        throw timeout;
+        throw toe;
     }
-
 }
 
 PEGASUS_NAMESPACE_END

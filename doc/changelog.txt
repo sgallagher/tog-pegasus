@@ -21,6 +21,12 @@ TAG: VERSION_1_07
 5. KS - 19 Feb 2002 - Add workpaper in doc/workpaper defining the Pegasus Qualifiers.
    Note that this version of the paper still needs work.
 
+6. (Nag Boranna - HP) 20 Feb 2002 - Modified HTTPAcceptor to optionally bind to 
+loopback host. Modified CIMClient to connect to loopback host when connectLocal() 
+method is used. Added a new method lookupPort() in System.h to return the system 
+configured wbem port number. Modified cimuser, cimauth and cimconfig CLI's to use 
+modified CIMClient connectLocal() interface.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

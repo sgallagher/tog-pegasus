@@ -40,7 +40,6 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/CIMClient.h>
-//#include <Pegasus/Client/ClientException.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include "CIMConfigCommand.h"
 
@@ -96,19 +95,8 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-// ATTN: TODO change to "root/cimv2"
 const String NAMESPACE                         = "root/cimv2";
  
-/**
-    The default port string
-*/
-static const char DEFAULT_PORT_STR []          = "5988";
-
-/**
-    The host name used by the command line.
-*/
-static const char HOST_NAME []                 = "localhost";
-
 /**
     The constant representing the string "port".
 */
@@ -225,7 +213,6 @@ static const char   OPTION_PLANNED_VALUE       = 'p';
 */
 static const char   OPTION_DEFAULT_VALUE       = 'd';
 
-char*     address     = 0;
 
 
 /**
@@ -582,12 +569,11 @@ Uint32 CIMConfigCommand::execute (
     ostream& errPrintWriter)
 {
     Boolean   connected     = false;
-    String    portNumberStr = String::EMPTY;
-    String    addressStr    = String::EMPTY;
     String    defaultValue  = String::EMPTY;
     String    currentValue  = String::EMPTY;
     String    plannedValue  = String::EMPTY;
     String    pegasusHome   = String::EMPTY;
+    String    portNumber    = String::EMPTY;
 
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
@@ -602,20 +588,27 @@ Uint32 CIMConfigCommand::execute (
     // Get environment variables
     //
 
+    String currentFile;
+    String plannedFile;
+
     const char* env = getenv("PEGASUS_HOME");
 
     if (!env || env == "")
     {
-        cerr << "PEGASUS_HOME environment variable undefined" << endl;
-        exit(1);
+        cerr << "PEGASUS_HOME environment variable undefined," << endl;
+        cerr << "using the configuration files from the current directory." << endl;
+
+        currentFile.append(CURRENT_CONFIG_FILE);
+        plannedFile.append(PLANNED_CONFIG_FILE);
     }
+    else
+    {
+        pegasusHome = env;
+        FileSystem::translateSlashes(pegasusHome);
 
-    pegasusHome = env;
-
-    FileSystem::translateSlashes(pegasusHome);
-
-    String currentFile = pegasusHome + "/" + CURRENT_CONFIG_FILE;
-    String plannedFile = pegasusHome + "/" + PLANNED_CONFIG_FILE;
+        currentFile.append(pegasusHome + "/" + CURRENT_CONFIG_FILE);
+        plannedFile.append(pegasusHome + "/" + PLANNED_CONFIG_FILE);
+    }
 
     try
     {
@@ -626,16 +619,11 @@ Uint32 CIMConfigCommand::execute (
 
         _configFileHandler->loadCurrentConfigProperties();
 
-        portNumberStr = _configFileHandler->getCurrentValue(PORT);
-
-        if (portNumberStr == String::EMPTY)
-        {
-            portNumberStr.append (DEFAULT_PORT_STR);
-        }
+        portNumber = _configFileHandler->getCurrentValue(PORT);
     }
     catch (NoSuchFile& nsf)
     {
-        portNumberStr = DEFAULT_PORT_STR;
+        portNumber = String::EMPTY;
     }
     catch (FileNotReadable& fnr)
     {
@@ -648,7 +636,7 @@ Uint32 CIMConfigCommand::execute (
         return ( RC_ERROR );
     }
 
-    // 
+    //
     // Get local host name
     //
     _hostName.assign(System::getHostName());
@@ -660,15 +648,9 @@ Uint32 CIMConfigCommand::execute (
         //
         Monitor* monitor = new Monitor;
         HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
+        _client = new CIMClient(monitor, connector);
 
-        addressStr.append(_hostName);
-        addressStr.append(":");
-        addressStr.append(portNumberStr);
-
-        address = addressStr.allocateCString ();
-
-        client.connectLocal(address);
+        _client->connectLocal(portNumber);
 
         connected = true;
     }
@@ -680,7 +662,6 @@ Uint32 CIMConfigCommand::execute (
         // config properties in the planned config file, so load only
         // planned config properties. 
         //
-
         _configFileHandler->loadPlannedConfigProperties();
         connected = false;
     }
@@ -743,6 +724,12 @@ Uint32 CIMConfigCommand::execute (
                     errPrintWriter << FAILED_TO_GET_PROPERTY <<
                         e.getMessage() << endl;
                 }
+                return ( RC_ERROR );
+            }
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
+                    toe.getMessage() << endl;
                 return ( RC_ERROR );
             }
 
@@ -868,6 +855,12 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
+                    toe.getMessage() << endl;
+                return ( RC_ERROR );
+            }
             break;
 
         case OPERATION_TYPE_UNSET:
@@ -963,6 +956,12 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
+            catch (TimedOut& toe)
+            {
+                outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
+                    toe.getMessage() << endl;
+                return ( RC_ERROR );
+            }
             break;
 
         case OPERATION_TYPE_LIST:
@@ -1043,10 +1042,10 @@ Uint32 CIMConfigCommand::execute (
 
                 return ( RC_ERROR );
             }
-            catch (TimedOut& timeout)
+            catch (TimedOut& toe)
             {
-                outPrintWriter << FAILED_TO_LIST_PROPERTIES <<
-                    timeout.getMessage() << endl;
+                outPrintWriter << FAILED_TO_LIST_PROPERTIES <<  endl <<
+                    toe.getMessage() << endl;
                 return ( RC_ERROR );
             }
 
@@ -1078,16 +1077,6 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         Array<KeyBinding> kbArray;
         KeyBinding        kb;
 
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
-
-
         kb.setName(PROPERTY_NAME);
         kb.setValue(propName);
         kb.setType(KeyBinding::STRING);
@@ -1097,7 +1086,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         CIMReference reference(
             _hostName, NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
-        CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
+        CIMInstance cimInstance = _client->getInstance(NAMESPACE, reference);
 
         Uint32 pos = cimInstance.findProperty(PROPERTY_NAME);
         prop = (CIMProperty)cimInstance.getProperty(pos);
@@ -1123,6 +1112,10 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
     {
         throw e;
     }
+    catch (TimedOut& toe)
+    {
+        throw toe;
+    }
 }
 
 /**
@@ -1142,16 +1135,6 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         Array<KeyBinding> kbArray;
         KeyBinding        kb;
 
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-
-        client.connectLocal(address);
-
-
         kb.setName(PROPERTY_NAME);
         kb.setValue(propName);
         kb.setType(KeyBinding::STRING);
@@ -1161,7 +1144,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         CIMReference reference(
             _hostName, NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
-        CIMInstance modifiedInst = client.getInstance(NAMESPACE, reference);
+        CIMInstance modifiedInst = _client->getInstance(NAMESPACE, reference);
 
         if ( _currentValueSet )
         {
@@ -1190,12 +1173,16 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         }
 
         CIMNamedInstance namedInstance(reference, modifiedInst);
-        client.modifyInstance(NAMESPACE, namedInstance);
+        _client->modifyInstance(NAMESPACE, namedInstance);
 
     }
     catch (CIMException& e)
     {
         throw e;
+    }
+    catch (TimedOut& toe)
+    {
+        throw toe;
     }
 }
 
@@ -1215,22 +1202,13 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
 
     try
     {
-        //
-        // Open connection with CIMSever
-        //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        CIMClient client(monitor, connector);
-        
-        client.connectLocal(address);
-
         if ( _currentValueSet ||  _plannedValueSet )
         {
             //
             // get all the instances of class PG_ConfigSetting
             //
             configNamedInstances =
-                client.enumerateInstances(NAMESPACE, PG_CONFIG_CLASS);
+                _client->enumerateInstances(NAMESPACE, PG_CONFIG_CLASS);
 
             //
             // copy all the property names and values
@@ -1270,7 +1248,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             // call enumerateInstanceNames
             //
             Array<CIMReference> instanceNames =
-                client.enumerateInstanceNames(NAMESPACE, PG_CONFIG_CLASS);
+                _client->enumerateInstanceNames(NAMESPACE, PG_CONFIG_CLASS);
 
             //
             // copy all the property names
@@ -1291,11 +1269,10 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
     {
         throw e;
     }
-    catch (TimedOut& timeout)
+    catch (TimedOut& toe)
     {
-        throw timeout;
+        throw toe;
     }
-
 }
 
 PEGASUS_NAMESPACE_END

@@ -73,6 +73,13 @@ String System::getHostName()
   else return String();                           
 } 
 
+Uint32 System::lookupPort(
+    const char * serviceName,
+    Uint32 defaultPort)
+{
+    return defaultPort;
+}
+
 String System::getPassword(const char* prompt)
 {
     //ATTN: Implement this method to get password from User with no echo

@@ -46,11 +46,22 @@
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
 
+//
+// Wbem service name
+//
+#define WBEM_SERVICE_NAME          "wbem-local"
+
 PEGASUS_NAMESPACE_BEGIN
 
 class Monitor;
 class CIMOperationResponseDecoder;
 class CIMOperationRequestEncoder;
+
+//
+// Wbem default local port number
+//
+static const Uint32 WBEM_DEFAULT_PORT =  5988;
+
 
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
@@ -133,14 +144,14 @@ public:
         in that the userName is supplied directly with the call.
         Once the authentication characteristics are set, this
         function uses connect() to make the connection.
-        @param address - String defining the URL of the server
+        @param portNumber - String defining the port number of the server
         to which the client should connect.
         @param userName - user name to be used for this connection.
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
     void connectLocal(
-        const String& address,
+        const String& portNumber = String::EMPTY,
         const String& userName = String::EMPTY);
 
     /** The <TT>getClass</TT> method  executes a CIM operation that returns a single CIM Class from the
@@ -382,6 +393,8 @@ private:
 	const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     void _checkError(const CIMResponseMessage* responseMessage);
+
+    String _getLocalHostName();
 
     Monitor* _monitor;
     HTTPConnector* _httpConnector;

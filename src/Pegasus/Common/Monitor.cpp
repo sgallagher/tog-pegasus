@@ -298,9 +298,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    
 	    if(_async == true && _entries[i]._type == Monitor::CONNECTION)
 	    {
+
 	       if( static_cast<HTTPConnection *>(queue)->refcount.value() == 0 )
 	       {
-		  
 		  Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 				"Monitor::run dispatching thread to idle connection");
 		  static_cast<HTTPConnection *>(queue)->refcount++;
@@ -310,11 +310,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		     static_cast<HTTPConnection *>(queue)->refcount--;
 	       }
 	       else
-	       {
-		  Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-				"Monitor::run connection not idle, returning");
-	       }
-	       
+		  pegasus_sleep(1);
 	    }
 	    else 
 	    {

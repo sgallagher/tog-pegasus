@@ -1,4 +1,4 @@
 LIBRARIES = \
     pegcommon \
     pegrepository \
-    pegexportclient \
+    pegexportclient

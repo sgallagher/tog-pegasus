@@ -57,7 +57,7 @@ CIMPropertyList *getList(char** l) {
 }
 
 CIMClass* mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop) {
-   DDD(cout<<"--- mbGetClass()"<<std::endl);
+   DDD(cout<<"--- mbGetClass()"<<endl);
    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
    String clsId=cop.getNameSpace().getString()+":"+cop.getClassName().getString();
    CIMClass *ccp;
@@ -82,14 +82,14 @@ CIMClass* mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop) {
       return ccp;
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbGetClass - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbGetClass - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
    }
    return NULL;
 }
 
 static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char **properties, CMPIStatus *rc) {
-   DDD(cout<<"--- mbGetInstance()"<<std::endl);
+   DDD(cout<<"--- mbGetInstance()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
@@ -111,7 +111,7 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
       return (CMPIInstance*)new CMPI_Object(new CIMInstance(ci));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbGetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbGetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    delete props;
@@ -120,7 +120,7 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIObjectPath* mbCreateInstance(CMPIBroker *mb, CMPIContext *ctx,
                 CMPIObjectPath *cop, CMPIInstance *ci, CMPIStatus *rc) {
-   DDD(cout<<"--- mbCreateInstance()"<<std::endl);
+   DDD(cout<<"--- mbCreateInstance()"<<endl);
 
    AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
    try {
@@ -132,7 +132,7 @@ static CMPIObjectPath* mbCreateInstance(CMPIBroker *mb, CMPIContext *ctx,
       return (CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(ncop));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbCreateInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbCreateInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERROR);
@@ -141,7 +141,7 @@ static CMPIObjectPath* mbCreateInstance(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
 		CMPIObjectPath *cop, CMPIInstance *ci) {
-   DDD(cout<<"--- mbSetInstance()"<<std::endl);
+   DDD(cout<<"--- mbSetInstance()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
 
    AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
@@ -155,7 +155,7 @@ static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
       CMReturn(CMPI_RC_OK);
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbSetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbSetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       CMReturn((CMPIrc)e.getCode());
    }
    CMReturn(CMPI_RC_ERR_FAILED);
@@ -163,7 +163,7 @@ static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop) {
-   DDD(cout<<"--- mbDeleteInstance()"<<std::endl);
+   DDD(cout<<"--- mbDeleteInstance()"<<endl);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
@@ -177,7 +177,7 @@ static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
       CMReturn(CMPI_RC_OK);
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbDeleteInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbDeleteInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       CMReturn((CMPIrc)e.getCode());
    }
    CMReturn(CMPI_RC_ERROR);
@@ -185,7 +185,7 @@ static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char *query, char *lang, CMPIStatus *rc) {
-   DDD(cout<<"--- mbExecQuery()"<<std::endl);
+   DDD(cout<<"--- mbExecQuery()"<<endl);
 
    AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
    try {
@@ -198,7 +198,7 @@ static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbExecQuery - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbExecQuery - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -207,7 +207,7 @@ static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char **properties, CMPIStatus *rc) {
-   DDD(cout<<"--- mbEnumInstances()"<<std::endl);
+   DDD(cout<<"--- mbEnumInstances()"<<endl);
 
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
@@ -228,7 +228,7 @@ static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_InstEnumeration(new Array<CIMInstance>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -238,7 +238,7 @@ static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIEnumeration* mbEnumInstanceNames(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, CMPIStatus *rc) {
-   DDD(cout<<"--- mbEnumInstanceNames()"<<std::endl);
+   DDD(cout<<"--- mbEnumInstanceNames()"<<endl);
 
    AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
   try {
@@ -250,7 +250,7 @@ static CMPIEnumeration* mbEnumInstanceNames(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_OpEnumeration(new Array<CIMObjectPath>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -260,7 +260,7 @@ static CMPIEnumeration* mbEnumInstanceNames(CMPIBroker *mb, CMPIContext *ctx,
 static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char *assocClass, char *resultClass,
                  char *role, char *resultRole, char **properties, CMPIStatus *rc) {
-   DDD(cout<<"--- mbAssociators()"<<std::endl);
+   DDD(cout<<"--- mbAssociators()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
@@ -285,7 +285,7 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -296,7 +296,7 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
 static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char *assocClass, char *resultClass,
 		 char *role, char *resultRole, CMPIStatus *rc) {
-   DDD(cout<<"--- mbAssociatorsNames()"<<std::endl);
+   DDD(cout<<"--- mbAssociatorsNames()"<<endl);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
@@ -315,7 +315,7 @@ static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_OpEnumeration(new Array<CIMObjectPath>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -325,7 +325,7 @@ static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
 static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop,  char *resultClass, char *role ,
 		 char **properties, CMPIStatus *rc) {
-   DDD(cout<<"--- mbReferences()"<<std::endl);
+   DDD(cout<<"--- mbReferences()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
@@ -348,7 +348,7 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -359,7 +359,7 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
 static CMPIEnumeration* mbReferenceNames(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char *resultClass, char *role,
                  CMPIStatus *rc) {
-   DDD(cout<<"--- mbReferencesNames()"<<std::endl);
+   DDD(cout<<"--- mbReferencesNames()"<<endl);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
@@ -376,7 +376,7 @@ static CMPIEnumeration* mbReferenceNames(CMPIBroker *mb, CMPIContext *ctx,
       return new CMPI_OpEnumeration(new Array<CIMObjectPath>(en));
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -394,7 +394,7 @@ static CMPIData mbInvokeMethod(CMPIBroker *mb, CMPIContext *ctx,
 static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char *name, CMPIValue *val,
                  CMPIType type) {
-   DDD(cout<<"--- mbSetProperty()"<<std::endl);
+   DDD(cout<<"--- mbSetProperty()"<<endl);
    CMPIrc rc;
    CIMValue v=value2CIMValue(val,type,&rc);
 
@@ -409,7 +409,7 @@ static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
       CMReturn(CMPI_RC_OK);
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbSetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbSetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       CMReturn((CMPIrc)e.getCode());
    }
    CMReturn(CMPI_RC_ERR_FAILED);
@@ -417,7 +417,7 @@ static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop,char *name, CMPIStatus *rc) {
-   DDD(cout<<"--- mbGetProperty()"<<std::endl);
+   DDD(cout<<"--- mbGetProperty()"<<endl);
    CMPIData data={0,0,{0}};
 
    AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
@@ -434,7 +434,7 @@ static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,
       return data;
    }
    catch (CIMException &e) {
-      DDD(cout<<"### exception: mbGetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<std::endl);
+      DDD(cout<<"### exception: mbGetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
       if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
    }
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -442,7 +442,7 @@ static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,
 }
 
 static CMPIContext* mbPrepareAttachThread(CMPIBroker* mb, CMPIContext* eCtx) {
-   DDD(cout<<"--- mbPrepareAttachThread()"<<std::endl);
+   DDD(cout<<"--- mbPrepareAttachThread()"<<endl);
    OperationContext *ctx=(OperationContext*)((CMPI_Context*)eCtx)->ctx;
    OperationContext nctx=*ctx;
    CMPIContext* neCtx=new CMPI_Context(*(new OperationContext(nctx)));
@@ -455,20 +455,20 @@ static CMPIContext* mbPrepareAttachThread(CMPIBroker* mb, CMPIContext* eCtx) {
 }
 
 static CMPIStatus mbAttachThread(CMPIBroker* mb, CMPIContext* eCtx) {
-    DDD(cout<<"--- mbAttachThread()"<<std::endl);
+    DDD(cout<<"--- mbAttachThread()"<<endl);
     ((CMPI_Context*)eCtx)->thr=new CMPI_ThreadContext(mb,eCtx);
     CMReturn(CMPI_RC_OK);
 }
 
 static CMPIStatus mbDetachThread(CMPIBroker* mb, CMPIContext* eCtx) {
-   DDD(cout<<"--- mbDetachThread()"<<std::endl);
+   DDD(cout<<"--- mbDetachThread()"<<endl);
    delete ((CMPI_Context*)eCtx)->thr;
    CMReturn(CMPI_RC_OK);
 }
 
 static CMPIStatus mbDeliverIndication(CMPIBroker* eMb, CMPIContext* eCtx,
              char* ns, CMPIInstance* ind) {
-   DDD(cout<<"--- mbDeliverIndication()"<<std::endl);
+   DDD(cout<<"--- mbDeliverIndication()"<<endl);
    CMPI_Broker *mb=(CMPI_Broker*)eMb;
    CMPIProviderManager::indProvRecord *prec;
    

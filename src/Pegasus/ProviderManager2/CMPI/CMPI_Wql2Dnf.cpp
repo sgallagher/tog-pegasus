@@ -40,6 +40,7 @@
 
 #include "CMPI_Wql2Dnf.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T term_el
@@ -434,20 +435,20 @@ void CMPI_Wql2Dnf::print(void)
 for (Uint32 i=0, n=eval_heap.size();i < n;i++) {
     WQLOperation wop = eval_heap[i].op;
     if (wop == WQL_IS_TRUE) continue;
-    std::cout << "Eval element " << i << ": ";
-    if (eval_heap[i].is_terminal1) std::cout << "T(";
-    else std::cout << "E(";
-    std::cout << eval_heap[i].opn1 << ") ";
-    std::cout << WQLOperationToString(eval_heap[i].op);
-    if (eval_heap[i].is_terminal2) std::cout << " T(";
-    else std::cout << " E(";
-    std::cout << eval_heap[i].opn2 << ")" << std::endl;
+    cout << "Eval element " << i << ": ";
+    if (eval_heap[i].is_terminal1) cout << "T(";
+    else cout << "E(";
+    cout << eval_heap[i].opn1 << ") ";
+    cout << WQLOperationToString(eval_heap[i].op);
+    if (eval_heap[i].is_terminal2) cout << " T(";
+    else cout << " E(";
+    cout << eval_heap[i].opn2 << ")" << endl;
 }
 for (Uint32 i=0, n=terminal_heap.size();i < n;i++) {
-    std::cout << "Terminal expression " << i << ": ";
-    std::cout << terminal_heap[i].opn1.toString() << " ";
-    std::cout << WQLOperationToString(terminal_heap[i].op) << " "
-         << terminal_heap[i].opn2.toString() << std::endl;
+    cout << "Terminal expression " << i << ": ";
+    cout << terminal_heap[i].opn1.toString() << " ";
+    cout << WQLOperationToString(terminal_heap[i].op) << " "
+         << terminal_heap[i].opn2.toString() << endl;
 }
 }
 
@@ -455,13 +456,13 @@ void CMPI_Wql2Dnf::printTableau(void)
 {
    for(Uint32 i=0,n = _tableau.size(); i < n; i++)
    {
-       std::cout << "Tableau " << i << std::endl;
+       cout << "Tableau " << i << endl;
        TableauRow tr = _tableau[i];
        for(Uint32 j=0,m = tr.size(); j < m; j++)
        {
-           std::cout << tr[j].opn1.toString() << " ";
-           std::cout << WQLOperationToString(tr[j].op) << " "
-                << tr[j].opn2.toString() << std::endl;
+           cout << tr[j].opn1.toString() << " ";
+           cout << WQLOperationToString(tr[j].op) << " "
+                << tr[j].opn2.toString() << endl;
        }
 
    }

@@ -39,6 +39,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
     CMPILocalProviderManager *my_instance = 0;
@@ -598,7 +599,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getProvider(
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
     catch (Exception e) {
-       std::cerr<<"--- loading proxy: "<<e.getMessage()<<std::endl;
+       cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
        PEG_METHOD_EXIT();
         throw;
    }

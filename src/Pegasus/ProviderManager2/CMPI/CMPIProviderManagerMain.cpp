@@ -34,6 +34,7 @@
 
 #include "CMPIProviderManager.h"
 
+PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
@@ -41,7 +42,7 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
 {
     if(String::equalNoCase(providerManagerName, "CMPI"))
     {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
+        cerr<<"--- CMPI Provider Manager activated"<<endl;
         return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
     }
     return(0);

@@ -58,6 +58,7 @@
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CMPILocalProviderManager providerManager;
@@ -83,17 +84,18 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
 
 CMPIProviderManager::~CMPIProviderManager(void)
 {
-    delete _repository;
+    cout<<"--- ~CMPIProviderManager(void)"<<endl;
+   delete _repository;
 }
 
-Boolean CMPIProviderManager::insertProvider(const ProviderName & name, 
+Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
             const String &ns, const String &cn)
 {
     String key(ns+String("::")+cn+String("::")+CIMValue(name.getCapabilitiesMask()).toString());
     return provReg.insert(key,name);
 }
-         
-	    
+
+
 Message * CMPIProviderManager::processMessage(Message * request) throw()
 {
       PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -315,7 +317,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getInstance: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::getInstance"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::getInstance"<<endl);
 
         const char **props=NULL;
 
@@ -409,7 +411,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstances: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::enumerateInstances"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::enumerateInstances"<<endl);
 
         const char **props=NULL;
 
@@ -501,7 +503,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstanceNames: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::enumerateInstanceNames"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::enumerateInstanceNames"<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -581,7 +583,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             "Calling provider.createInstance: " +
             ph.GetProvider().getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::createInstances"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::createInstances"<<endl);
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -661,7 +663,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.modifyInstance: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::modifyInstance"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::modifyInstance"<<endl);
 
         const char **props=NULL;
 
@@ -872,8 +874,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associators: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::associators"<<" role: >"<<request->role<<"< aCls "<<
-	   request->assocClass<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::associators"<<" role: >"<<request->role<<"< aCls "<<
+	   request->assocClass<<endl);
 
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -976,8 +978,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associatorNames: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::associatorNames"<<" role: >"<<request->role<<"< aCls "<<
-	   request->assocClass<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::associatorNames"<<" role: >"<<request->role<<"< aCls "<<
+	   request->assocClass<<endl);
 
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1066,8 +1068,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
+	   request->resultClass<<endl);
 
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1167,8 +1169,8 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.referenceNames: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
+	   request->resultClass<<endl);
 
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1341,12 +1343,12 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    }
    catch (CIMException &e) {
       _repository->read_unlock ();
-      std::cout<<"??? CMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<std::endl;
+      cout<<"??? CMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<endl;
       abort();
   }
    catch (...) {
       _repository->read_unlock ();
-      std::cout<<"??? What Happend ???"<<std::endl;
+      cout<<"??? What Happend ???"<<endl;
       abort();
    }
 }
@@ -1417,7 +1419,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.createSubscriptionRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::createSubscriptionRequest"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::createSubscriptionRequest"<<endl);
 
         for(Uint32 i = 0, n = request->classNames.size(); i < n; i++) {
             CIMObjectPath className(
@@ -1524,7 +1526,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.deleteSubscriptionRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::deleteSubscriptionRequest"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::deleteSubscriptionRequest"<<endl);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1587,7 +1589,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.EnableIndicationRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<endl);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1644,7 +1646,7 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.DisableIndicationRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- CMPIProviderManager::disableIndicationRequest"<<std::endl);
+        DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest"<<endl);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 

@@ -42,6 +42,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -206,11 +207,11 @@ Boolean CMPIProvider::tryTerminate(void)
 void CMPIProvider::_terminate(void)
 {
     if (broker.clsCache) {
-        std::cerr<<"--- CMPIProvider::_terminate() deleting ClassCache "<<std::endl;
+        cerr<<"--- CMPIProvider::_terminate() deleting ClassCache "<<endl;
 	ClassCache::Iterator i=broker.clsCache->start();
 	for (; i; i++) {
-	   std::cerr<<"--- CMPIProvider::_terminate() deleting class "
-	      <<i.value()->getClassName().getString()<<std::endl;
+	   cerr<<"--- CMPIProvider::_terminate() deleting class "
+	      <<i.value()->getClassName().getString()<<endl;
 	   delete i.value(); }
 	delete broker.clsCache;
     }

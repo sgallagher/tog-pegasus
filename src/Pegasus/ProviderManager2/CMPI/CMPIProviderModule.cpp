@@ -40,6 +40,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderManager.h>
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CMPIProviderModule::CMPIProviderModule(const String & fileName,

@@ -46,6 +46,7 @@
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
+#include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -40,6 +40,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+//
+// ValueResponseHandler (used internally to implement property operations)
+//
+class PEGASUS_PPM_LINKAGE ValueResponseHandler : virtual public ResponseHandler
+{
+public:
+    virtual void deliver(const CIMValue & value) = 0;
+
+    virtual void deliver(const Array<CIMValue> & values) = 0;
+};
+
+
+//
+// SimpleResponseHandler
+//
 class PEGASUS_SERVER_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
 {
 public:

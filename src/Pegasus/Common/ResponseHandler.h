@@ -44,8 +44,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ResponseHandlerRep;
-
 /**
 <p>The <tt>ResponseHandler</tt> class allows a provider
 to report operation progress and results to the CIM Server.
@@ -294,21 +292,6 @@ public:
     */
     virtual void deliver(const Array<CIMObject> & objects) = 0;
 };
-
-
-#ifdef PEGASUS_INTERNALONLY
-// This type is used in CIMPropertyProvider which Pegasus does not support
-//
-// ValueResponseHandler
-//
-class PEGASUS_COMMON_LINKAGE ValueResponseHandler : virtual public ResponseHandler
-{
-public:
-    virtual void deliver(const CIMValue & value) = 0;
-
-    virtual void deliver(const Array<CIMValue> & values) = 0;
-};
-#endif
 
 
 #ifdef PEGASUS_INTERNALONLY

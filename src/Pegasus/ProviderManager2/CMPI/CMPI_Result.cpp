@@ -35,6 +35,8 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 
+#include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 

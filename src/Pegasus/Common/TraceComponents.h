@@ -27,12 +27,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-// REVIEW: Pegasus namespace wrappers are missing.
-
 // REVIEW: Ask how tracing works (note to myself).
 
 #ifndef Pegasus_TraceComponents_h
 #define Pegasus_TraceComponents_h
+
+PEGASUS_NAMESPACE_BEGIN
 
 /** Steps for adding tracing to a new component:
 
@@ -92,9 +92,13 @@ static char const* TRACE_COMPONENT_LIST[] =
     "OsAbstraction",
     "Config",
     "IndDelivery",
+    "IndHandler",
     "Authentication",
+    "Authorization",
     "UserManager",
-    "SubscriptionService"
+    "SubscriptionService",
+    "Registration",
+    "Shutdown"
 };
 
 /** Constants identifying the Trace components. These constants are used by 
@@ -126,9 +130,15 @@ enum TRACE_COMPONENT_ID
     TRC_OS_ABSTRACTION,
     TRC_CONFIG,
     TRC_IND_DELIVERY,
+    TRC_IND_HANDLER,
     TRC_AUTHENTICATION,
+    TRC_AUTHORIZATION,
     TRC_USER_MANAGER,
-    TRC_SUBSCRIPTION_SERVICE
+    TRC_SUBSCRIPTION_SERVICE,
+    TRC_REGISTRATION,
+    TRC_SHUTDOWN
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_TraceComponents */

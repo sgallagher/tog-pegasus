@@ -96,100 +96,100 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
-void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
-{
-   if( size == 0 )
-      size = 1;
-   void *p;
-   while(1)
-   {
-#if defined(PEGASUS_DEBUG_MEMORY)
-      p = peg_suballocator::get_instance()->vs_malloc(size, 
-				       &(peg_suballocator::get_instance()->get_handle()),
-				       NORMAL, 
-				       "BUILTIN NEW", 
-				       __FILE__, __LINE__) ;
+// void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
+// {
+//    if( size == 0 )
+//       size = 1;
+//    void *p;
+//    while(1)
+//    {
+// #if defined(PEGASUS_DEBUG_MEMORY)
+//       p = peg_suballocator::get_instance()->vs_malloc(size, 
+// 				       &(peg_suballocator::get_instance()->get_handle()),
+// 				       NORMAL, 
+// 				       "BUILTIN NEW", 
+// 				       __FILE__, __LINE__) ;
 
       
-#else 
-      p = peg_suballocator::get_instance()->vs_malloc(size); 
-#endif
-      if( p )
-	 return p;
-      new_handler global = set_new_handler(0);
-      set_new_handler(global);
-      if( global) 
-	 (*global)();
-      else
-	 throw PEGASUS_STD(bad_alloc());
-   }
-}
+// #else 
+//       p = peg_suballocator::get_instance()->vs_malloc(size); 
+// #endif
+//       if( p )
+// 	 return p;
+//       new_handler global = set_new_handler(0);
+//       set_new_handler(global);
+//       if( global) 
+// 	 (*global)();
+//       else
+// 	 throw PEGASUS_STD(bad_alloc());
+//    }
+// }
 
 
-void operator delete(void *dead) throw()
-{
-   if( dead == 0 )
-      return;
-#if defined(PEGASUS_DEBUG_MEMORY)
-   peg_suballocator::get_instance()->vs_free(dead,  
-			      &(peg_suballocator::get_instance()->get_handle()), 
-			      NORMAL, 
-			      "internal", 
-			      __FILE__, 
-			      __LINE__);
+// void operator delete(void *dead) throw()
+// {
+//    if( dead == 0 )
+//       return;
+// #if defined(PEGASUS_DEBUG_MEMORY)
+//    peg_suballocator::get_instance()->vs_free(dead,  
+// 			      &(peg_suballocator::get_instance()->get_handle()), 
+// 			      NORMAL, 
+// 			      "internal", 
+// 			      __FILE__, 
+// 			      __LINE__);
 
-#else
-   peg_suballocator::get_instance()->vs_free(dead);
-#endif 
-   return;
-}
+// #else
+//    peg_suballocator::get_instance()->vs_free(dead);
+// #endif 
+//    return;
+// }
 
-void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
-{
-   if( size == 0 )
-      size = 1;
-    void *p;  
+// void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
+// {
+//    if( size == 0 )
+//       size = 1;
+//     void *p;  
    
-   while(1)
-   {
-#if defined(PEGASUS_DEBUG_MEMORY)
-      p = peg_suballocator::get_instance()->vs_malloc(size, 
-				       &(peg_suballocator::get_instance()->get_handle()), 
-				       ARRAY, 
-				       "BUILTIN ARRAY NEW", 
-				       __FILE__, __LINE__) ;
+//    while(1)
+//    {
+// #if defined(PEGASUS_DEBUG_MEMORY)
+//       p = peg_suballocator::get_instance()->vs_malloc(size, 
+// 				       &(peg_suballocator::get_instance()->get_handle()), 
+// 				       ARRAY, 
+// 				       "BUILTIN ARRAY NEW", 
+// 				       __FILE__, __LINE__) ;
 
-#else
-      p = peg_suballocator::get_instance()->vs_malloc(size);
-#endif
-      if( p )
-	 return p;
-      new_handler global = set_new_handler(0);
-      set_new_handler(global);
-      if( global)  
-	 (*global)();
-      else 
-	 throw PEGASUS_STD(bad_alloc());
-   }
-}
+// #else
+//       p = peg_suballocator::get_instance()->vs_malloc(size);
+// #endif
+//       if( p )
+// 	 return p;
+//       new_handler global = set_new_handler(0);
+//       set_new_handler(global);
+//       if( global)  
+// 	 (*global)();
+//       else 
+// 	 throw PEGASUS_STD(bad_alloc());
+//    }
+// }
 
-void operator delete [] (void *dead) throw()
-{
-   if( dead == 0 )
-      return;
-#if defined(PEGASUS_DEBUG_MEMORY)
-   peg_suballocator::get_instance()->vs_free(dead, 
-			      &(peg_suballocator::get_instance()->get_handle()), 
-			      ARRAY, 
-			      "internal",
-			      __FILE__, 
-			      __LINE__);
+// void operator delete [] (void *dead) throw()
+// {
+//    if( dead == 0 )
+//       return;
+// #if defined(PEGASUS_DEBUG_MEMORY)
+//    peg_suballocator::get_instance()->vs_free(dead, 
+// 			      &(peg_suballocator::get_instance()->get_handle()), 
+// 			      ARRAY, 
+// 			      "internal",
+// 			      __FILE__, 
+// 			      __LINE__);
 
-#else
-   peg_suballocator::get_instance()->vs_free(dead);
-#endif
-   return;
-}
+// #else
+//    peg_suballocator::get_instance()->vs_free(dead);
+// #endif
+//    return;
+// }
 
 
 PEGASUS_NAMESPACE_BEGIN

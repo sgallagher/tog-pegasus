@@ -49,7 +49,8 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-// ATTN: add a resolve method to this class to verify that the
+// ATTN: KS May 2002 P0 Add resolve method to CIMReference.
+// Add a resolve method to this class to verify that the
 // reference is correct (that the class name corresponds to a real
 // class and that the property names are really keys and that all keys
 // of the class or used. Also be sure that there is a valid conversion
@@ -370,7 +371,7 @@ void CIMReference::set(
     const String& host,
     const String& nameSpace,
     const String& className,
-    const Array<KeyBinding>& keyBindings)
+    const Array<KeyBinding>& keyBindings)  throw(IllformedObjectName, IllegalName)
 {
    setHost(host);
    setNameSpace(nameSpace);
@@ -381,7 +382,7 @@ void CIMReference::set(
 Boolean CIMReference::_parseHostElement(
     const String& objectName,
     char*& p,
-    String& host)
+    String& host) throw(IllformedObjectName)
 {
     // See if there is a host name (true if it begins with "//"):
     // Host is of the from <hostname>-<port> and begins with "//"
@@ -556,7 +557,7 @@ Boolean CIMReference::_parseNamespaceElement(
 void CIMReference::_parseKeyBindingPairs(
     const String& objectName,
     char*& p,
-    Array<KeyBinding>& keyBindings)
+    Array<KeyBinding>& keyBindings)  throw(IllformedObjectName)
 {
     // Get the key-value pairs:
 
@@ -694,7 +695,7 @@ void CIMReference::_parseKeyBindingPairs(
     _BubbleSort(keyBindings);
 }
 
-void CIMReference::set(const String& objectName)
+void CIMReference::set(const String& objectName)  throw(IllformedObjectName)
 {
     clear();
 
@@ -778,7 +779,7 @@ const String& CIMReference::getNameSpace() const
     return _rep->_nameSpace;
 }
 
-void CIMReference::setNameSpace(const String& nameSpace)
+void CIMReference::setNameSpace(const String& nameSpace) throw(IllegalName)
 {
     String temp;
 
@@ -812,7 +813,7 @@ const Boolean CIMReference::equalClassName(const String& classname) const
     return (String::equalNoCase(classname, CIMReference::getClassName()));
 }
 
-void CIMReference::setClassName(const String& className)  throw(IllegalName)
+void CIMReference::setClassName(const String& className) throw(IllegalName)
 {
     if (!CIMName::legal(className))
 	throw IllegalName();
@@ -963,7 +964,6 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 }
 
 #ifdef PEGASUS_INTERNALONLY
-//ATTNKS: At this point, I simply created the function
 void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
 {
     if (putValueWrapper)

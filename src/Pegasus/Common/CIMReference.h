@@ -403,12 +403,14 @@ public:
     /** Sets this reference from constituent elements. The effect is same
 	as if the object was initialized using the constructor above that
 	has the same arguments.
+	@exception throws IllformedObjectName if host name is illformed.
     */
     void set(
 	const String& host,
 	const String& nameSpace,
 	const String& className,
-	const KeyBindingArray& keyBindings = getKeyBindingArray());
+	const KeyBindingArray& keyBindings = getKeyBindingArray()) 
+	throw(IllformedObjectName, IllegalName);
 
     /** Set the reference from an object name . */
       void set(const String& objectName);
@@ -450,7 +452,7 @@ public:
 	@exception Throws IllegalName if form of the namespace is illegal.
 	Pegasus does a limited check on name
     */
-    void setNameSpace(const String& nameSpace);
+    void setNameSpace(const String& nameSpace) throw(IllegalName);
 
     /** Accessor for className attribute.
 	@return String containing the classname.
@@ -479,7 +481,6 @@ public:
         CIMReference representing all of the key/value pairs defined in the
 	Reference.
 	@return Array of KeyBinding objects from the CIMReference.
-	ATTN
     */
     const Array<KeyBinding>& getKeyBindings() const;
 
@@ -567,7 +568,7 @@ private:
     Boolean _parseHostElement(
         const String& objectName,
         char*& p,
-        String& host);
+        String& host) throw(IllformedObjectName);
 
     Boolean _parseNamespaceElement(
         const String& objectName,
@@ -577,7 +578,7 @@ private:
     void _parseKeyBindingPairs(
         const String& objectName,
         char*& p,
-        Array<KeyBinding>& keyBindings);
+        Array<KeyBinding>& keyBindings) throw(IllformedObjectName) ;
 
     CIMReferenceRep* _rep;
 };

@@ -37,6 +37,7 @@
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include "ConfigExceptions.h"
@@ -717,14 +718,13 @@ void ConfigManager::_loadConfigProperties()
             }
             catch(UnrecognizedConfigProperty& ucp)
             {
-                cerr << ucp.getMessage() <<
-                    " : Default value is used." << endl;
+                PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, ucp.getMessage());
                 continue;
             }
             catch(InvalidPropertyValue& ipv)
             {
-                cerr << ipv.getMessage() << 
-                    " : Default value is used." << endl;
+                PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, 
+                    ipv.getMessage() + " : default value is used.");
                 continue;
             }
         }

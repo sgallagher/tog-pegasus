@@ -33,7 +33,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 #include "ConfigFileHandler.h"
 #include "ConfigManager.h"
 
@@ -256,10 +256,10 @@ Boolean ConfigFileHandler::updateCurrentValue (
     {
         //
         // Back up creation failed
+        // FUTURE: Log this message in a log file.
         //
-        Logger::put(Logger::ERROR_LOG, "CIMConfig", Logger::WARNING,
-            "Renaming config file as backup config file failed: $0.", 
-            e.getMessage());
+        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
+            "Backup configuration file creation failed: " + e.getMessage());
 
         return false;
     }
@@ -333,10 +333,10 @@ Boolean ConfigFileHandler::updatePlannedValue (
     {
         //
         // Back up creation failed
+        // FUTURE: Log this message in a log file.
         //
-        Logger::put(Logger::ERROR_LOG, "CIMConfig", Logger::WARNING,
-            "Renaming config file as backup config file failed: $0.", 
-            e.getMessage());
+        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
+            "Backup configuration file creation failed: " + e.getMessage());
 
         return false;
     }

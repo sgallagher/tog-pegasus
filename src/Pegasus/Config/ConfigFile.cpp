@@ -33,7 +33,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigFile.h"
@@ -235,9 +235,10 @@ void ConfigFile::load (ConfigTable* confTable)
         {
             //
             // Duplicate property, ignore the new property value.
+            // FUTURE: Log this message in a log file.
             //
-            Logger::put(Logger::ERROR_LOG, "CIMConfig", Logger::INFORMATION,
-            "Duplicate property: $0, value $1 ignores.", name, value);
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
+                "Duplicate property '" + name + "', value '" + value + "' is ignored.");
         }
     }
 

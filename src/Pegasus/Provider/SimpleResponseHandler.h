@@ -37,77 +37,86 @@
 PEGASUS_NAMESPACE_BEGIN
 
 template<class T>
-
-/**
-*/
 class SimpleResponseHandler : public ResponseHandler<T>
 {
 public:
-	/**  ATTN:
-	*/
-	SimpleResponseHandler(void) {};
-	
-	/** ATTN:
-	*/
-	virtual ~SimpleResponseHandler(void) {};
+    /**  ATTN:
+    */
+    SimpleResponseHandler(void)
+    {
+    };
 
-	/** ATTN:
-	*/
-	virtual void deliver(const T & object);
-	
-	/** ATTN:
-	*/
-	virtual void deliver(const Array<T> & objects);
-	
-	/** ATTN:
-	*/
-	virtual void reserve(const Uint32 size);
-	
-	/** ATTN:
-	*/
-	virtual void processing(void);
-	virtual void processing(OperationContext * context);
-	
-	/** ATTN:
-	*/
-	virtual void complete(void);
-	virtual void complete(OperationContext * context);
+    /** ATTN:
+    */
+    virtual ~SimpleResponseHandler(void)
+    {
+    };
 
-	const Array<T> & getObjects(void) const;
+    /** ATTN:
+    */
+    virtual void deliver(const T & object);
+    virtual void deliver(const OperationContext & context, const T & object);
+
+    /** ATTN:
+    */
+    virtual void deliver(const Array<T> & objects);
+    virtual void deliver(const OperationContext & context, const Array<T> & objects);
+
+    /** ATTN:
+    */
+    virtual void reserve(const Uint32 size);
+
+    /** ATTN:
+    */
+    virtual void processing(void);
+
+    /** ATTN:
+    */
+    virtual void complete(void);
+    virtual void complete(const OperationContext & context);
+
+    const Array<T> & getObjects(void) const;
 
 public:
-	Array<T> _objects;
+    Array<T> _objects;
 
 };
 
 template<class T>
 inline void SimpleResponseHandler<T>::deliver(const T & object)
 {
-	_objects.append(object);
+    _objects.append(object);
 }
-	
+
+template<class T>
+inline void SimpleResponseHandler<T>::deliver(const OperationContext & context, const T & object)
+{
+    deliver(object);
+}
+
 template<class T>
 inline void SimpleResponseHandler<T>::deliver(const Array<T> & objects)
 {
-	for(Uint32 i = 0,n = objects.size(); i < n; i++)
-	{
-		deliver(objects[i]);
-	}
+    for(Uint32 i = 0,n = objects.size(); i < n; i++)
+    {
+	deliver(objects[i]);
+    }
 }
-	
+
+template<class T>
+inline void SimpleResponseHandler<T>::deliver(const OperationContext & context, const Array<T> & objects)
+{
+    deliver(objects);
+}
+
 template<class T>
 inline void SimpleResponseHandler<T>::reserve(const Uint32 size)
 {
-	_objects.reserve(size);
+    _objects.reserve(size);
 }
 
 template<class T>
 inline void SimpleResponseHandler<T>::processing(void)
-{
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::processing(OperationContext *context)
 {
 }
 
@@ -117,14 +126,14 @@ inline void SimpleResponseHandler<T>::complete(void)
 }
 
 template<class T>
-inline void SimpleResponseHandler<T>::complete(OperationContext *context)
+inline void SimpleResponseHandler<T>::complete(const OperationContext & context)
 {
 }
 
 template<class T>
 inline const Array<T> & SimpleResponseHandler<T>::getObjects(void) const
 {
-	return(_objects);
+    return(_objects);
 }
 
 PEGASUS_NAMESPACE_END

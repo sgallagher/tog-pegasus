@@ -50,10 +50,11 @@ public:
       /** ATTN:
       */
       virtual void deliver(const object_type & object) = 0;
+      virtual void deliver(const OperationContext & context, const object_type & object) = 0;
 
       /** ATTN:
       */
-      virtual void deliver(const Array<object_type> & objects) = 0;
+      virtual void deliver(const OperationContext & context, const Array<object_type> & objects) = 0;
 
       /** ATTN:
       */
@@ -63,13 +64,11 @@ public:
       */
       virtual void processing(void) = 0;
 
-      virtual void processing(OperationContext *context) = 0;
-
       /** ATTN:
       */
       virtual void complete(void) = 0;
 
-      virtual void complete(OperationContext *context) = 0;
+      virtual void complete(const OperationContext & context) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -152,6 +152,13 @@ public:
 	return _rep->getValue().getType();
     }
 
+    /** Check if the property is an array type. */
+    Boolean isArray() const
+    {
+	_checkRep();
+	return _rep->getValue().isArray();
+    }
+
     /** setValue Sets the Value in the Property object from the input 
         parameter.
 	@param value CIMValue containing the value to be put into the 
@@ -484,6 +491,12 @@ public:
     {
 	_checkRep();
 	return _rep->getValue().getType();
+    }
+
+    Boolean isArray() const
+    {
+	_checkRep();
+	return _rep->getValue().isArray();
     }
 
     Uint32 getArraySize() const

@@ -2350,8 +2350,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 Uint32 methodPos = cimClass.findMethod(request->methodName);
                 if (methodPos == PEG_NOT_FOUND)
                 {
-                    // ATTN-RK-P2-20020221: Handle this error condition
-                    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+                    throw CIMException(CIM_ERR_METHOD_NOT_FOUND);
                 }
                 method = cimClass.getMethod(methodPos);
 
@@ -2383,7 +2382,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                                  param.isArray())
                     {
                         // ATTN-RK-P1-20020222: Who catches this?  They aren't.
-                        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+                        throw CIMException(CIM_ERR_TYPE_MISMATCH);
                     }
                     else
                     {
@@ -2439,8 +2438,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
     Uint32 propertyPos = cimClass.findProperty(request->propertyName);
     if (propertyPos == PEG_NOT_FOUND)
     {
-        // ATTN-RK-P2-20020221: Handle this error condition
-        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
     }
     CIMProperty property = cimClass.getProperty(propertyPos);
 
@@ -2452,15 +2450,13 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
 
     if (inValue.isNull())
     {
-        newValue.setNullValue(property.getType(), Boolean(property.getArraySize()>0));
+        newValue.setNullValue(property.getType(), property.isArray());
     }
-// ATTN-RK-P1-20020222: How can one tell if a property is supposed to be an
-// array?  CIMProperty does not have an isArray() method.
-//    else if (inValue.isArray() != property.isArray())
-//    {
-//        // ATTN-RK-P1-20020222: Who catches this?  They aren't.
-//        throw CIMException(CIM_ERR_INVALID_PARAMETER);
-//    }
+    else if (inValue.isArray() != property.isArray())
+    {
+        // ATTN-RK-P1-20020222: Who catches this?  They aren't.
+        throw CIMException(CIM_ERR_TYPE_MISMATCH);
+    }
     else
     {
         newValue = _convertValueType(inValue, property.getType());

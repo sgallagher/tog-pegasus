@@ -791,52 +791,52 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), if [ $(i) != $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR) ]; then \
                                                       if [ $(i) != $(PEGASUS_REPOSITORY_DIR) ]; then \
-                   $(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi;) 
-	@$(ECHO-E) "%dir %attr(1555,root,root) $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+                   $(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi;) 
+	@$(ECHO-E) "%dir %attr(1555,$(CIMSERVER_USR),$(CIMSERVER_GRP)) $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_MOF_DIR)/Pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr(-,$(CIMSERVER_USR),$(CIMSERVER_GRP)) $(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LICENSE), \
-	           $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_PROD_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	           $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_PROD_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), \
-                   $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), \
-                   $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(CIM28_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(INTERNAL_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(INTEROP_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__),root,root) \
+	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP)) \
                    $(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config %attr($(Pr_x______),root,root) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config %attr($(Pr__r__r__),root,root) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config %attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_ADMIN_CMDS), \
-                   $(ECHO-E) "%attr($(Pr_x______),root,root) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(ECHO-E) "%attr($(Pr_x______),root,root) $(PEGASUS_SBIN_DIR)/init_repository" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+                   $(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+	@$(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/init_repository" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(INSTALL_SCRIPT_FILES), \
-                   $(ECHO-E) "%attr($(Pr_x______),root,root) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_USER_CMDS), \
-                   $(ECHO-E) "%attr($(Pr_xr_xr_x),root,root) $(PEGASUS_BIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_BIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LIBRARIES), \
-                   $(ECHO-E) "%attr($(Pr_xr_xr_x),root,root) $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
                    $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
-                   $(ECHO-E) "%attr($(Pr_xr_xr_x),root,root) $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
                    $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

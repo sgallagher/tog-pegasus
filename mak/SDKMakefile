@@ -241,38 +241,39 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Include Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(INCLUDE_DIRS), $(ECHO-E) \
-              "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h"  \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h"  \
                        >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Sample Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxrwxrwx),root,root) $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Prwxrwxrwx),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(SAMPLES_DIRS), $(ECHO-E) \
-              "%dir %attr($(Prwxrwxrwx),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%dir %attr($(Prwxrwxrwx),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/mak/%PEGASUS_HARDWARE_PLATFORM.mak"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/mak/%PEGASUS_HARDWARE_PLATFORM.mak"  \
+                        >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH3FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PROVIDERSRCPATH2FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PROVIDERSRCPATH3FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PROVIDERSRCPATH4FILES), $(ECHO-E) \
-              "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Documentation"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr(-,root,root) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr(-,$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 removeSampleProviderNamespace:

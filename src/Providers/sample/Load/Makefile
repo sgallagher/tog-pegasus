@@ -72,12 +72,10 @@ repositoryServer:
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
-endif
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)

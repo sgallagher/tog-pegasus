@@ -95,7 +95,7 @@ CQLIdentifier QueryContext::findClass(const String& inAlias)
 	_class = CQLIdentifier(inAlias);
 	Array<CQLIdentifier> _identifiers = getFromList();
 	for(Uint32 i = 0; i < _identifiers.size(); i++){
-		if(_class == _identifiers[i]) return _identifiers[i];
+		if(_class == _identifiers[i].getName()) return _identifiers[i];
 	}	
 
 	// could not find inAlias

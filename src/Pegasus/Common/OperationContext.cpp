@@ -31,6 +31,7 @@
 
 #include "OperationContext.h"
 #include "ArrayInternal.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -101,7 +102,11 @@ const OperationContext::Container & OperationContext::get(
         }
     }
 
-    throw Exception("object not found");
+	//l10n
+	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+							 "object not found");
+    throw Exception(parms);
+    //throw Exception("object not found");
 }
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -117,7 +122,11 @@ const OperationContext::Container & OperationContext::get(const Uint32 key) cons
         }
     }
 
-    throw Exception("object not found");
+	//l10n
+	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+							 "object not found");
+    throw Exception(parms);
+    //throw Exception("object not found");
 }
 #endif
 
@@ -138,7 +147,11 @@ void OperationContext::set(const OperationContext::Container & container)
         }
     }
 
-    throw Exception("object not found");
+	//l10n
+	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+							 "object not found");
+    throw Exception(parms);
+    //throw Exception("object not found");
 }
 
 void OperationContext::insert(const OperationContext::Container & container)
@@ -147,7 +160,11 @@ void OperationContext::insert(const OperationContext::Container & container)
     {
         if(container.getName() == _rep->containers[i]->getName())
         {
-            throw Exception("object already exists.");
+        	//l10n
+			MessageLoaderParms parms("Common.OperationContext.OBJECT_ALREADY_EXISTS",
+							 "object already exists.");
+    		throw Exception(parms);
+            //throw Exception("object already exists.");
         }
     }
 
@@ -167,9 +184,13 @@ void OperationContext::remove(const String& containerName)
         }
     }
 
-    throw Exception("object not found");
+	//l10n
+	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+							 "object not found");
+    throw Exception(parms);
+    //throw Exception("object not found");
 }
-
+ 
 #ifndef PEGASUS_REMOVE_DEPRECATED
 void OperationContext::remove(const Uint32 key)
 {
@@ -184,7 +205,11 @@ void OperationContext::remove(const Uint32 key)
         }
     }
 
-    throw Exception("object not found");
+	//l10n
+	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+							 "object not found");
+    throw Exception(parms);
+    //throw Exception("object not found");
 }
 #endif
 

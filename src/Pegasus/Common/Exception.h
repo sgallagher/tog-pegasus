@@ -102,7 +102,7 @@ class PEGASUS_COMMON_LINKAGE AlreadyExistsException : public Exception
 public:
     ///
     AlreadyExistsException(const String& message);
-//  AlreadyExistsException(const MessageLoaderParms& msgParms);
+    AlreadyExistsException(MessageLoaderParms& msgParms);
 };
 
 ///
@@ -111,7 +111,7 @@ class PEGASUS_COMMON_LINKAGE InvalidNameException : public Exception
 public:
     ///
     InvalidNameException(const String& name);
-//	InvalidNameException(const MessageLoaderParms& msgParms);    
+	InvalidNameException(MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -120,7 +120,7 @@ class PEGASUS_COMMON_LINKAGE InvalidNamespaceNameException : public Exception
 public:
     ///
     InvalidNamespaceNameException(const String& name);
-//	InvalidNamespaceNameException(const MessageLoaderParms& msgParms);    
+	InvalidNamespaceNameException(MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -165,7 +165,7 @@ class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception
 public:
     ///
     MalformedObjectNameException(const String& objectName);
-//	MalformedObjectNameException(const MessageLoaderParms& msgParms);    
+	MalformedObjectNameException(MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -174,7 +174,7 @@ class PEGASUS_COMMON_LINKAGE BindFailedException : public Exception
 public:
     ///
     BindFailedException(const String& message);
-//	BindFailedException(const MessageLoaderParms& msgParms);    
+	BindFailedException(MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -183,7 +183,7 @@ class PEGASUS_COMMON_LINKAGE InvalidLocatorException : public Exception
 public:
     ///
     InvalidLocatorException(const String& locator);
-//	InvalidLocatorException(const MessageLoaderParms& msgParms);   
+	InvalidLocatorException(MessageLoaderParms& msgParms);   
 };
 
 ///
@@ -200,7 +200,7 @@ class PEGASUS_COMMON_LINKAGE CannotConnectException : public Exception
 public:
     ///
     CannotConnectException(const String& message);
-//	CannotConnectException(const MessageLoaderParms& msgParms);   
+	CannotConnectException(MessageLoaderParms& msgParms);   
 };
 
 ///
@@ -233,7 +233,7 @@ class PEGASUS_COMMON_LINKAGE SSLException: public Exception
 public:
     ///
     SSLException(const String& message);
-//	SSLException(const MessageLoaderParms& msgParms);    
+	SSLException(MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -242,7 +242,7 @@ class PEGASUS_COMMON_LINKAGE DateTimeOutOfRangeException : public Exception
 public:
     ///
     DateTimeOutOfRangeException(const String& message);
-//	DateTimeOutOfRangeException(const MessageLoaderParms& msgParms);     
+	DateTimeOutOfRangeException(MessageLoaderParms& msgParms);     
 }; 
 
 /** The CIMException defines the CIM exceptions that are formally defined in

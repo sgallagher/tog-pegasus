@@ -51,7 +51,7 @@ static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
 /** Service name for pam_start */
 const char *service = "wbem";
 
-char* userPassword = 0;
+CString userPassword;
 
 /* constructor. */
 PAMBasicAuthenticator::PAMBasicAuthenticator() 
@@ -104,8 +104,12 @@ Boolean PAMBasicAuthenticator::authenticate(
     pconv.conv = PAMBasicAuthenticator::PAMCallback;
     pconv.appdata_ptr = NULL;
 
-    userPassword = (char *)malloc(PAM_MAX_MSG_SIZE);
-    strcpy(userPassword, (const char*) password.getCString());
+    userPassword = password.getCString();
+
+//    WARNING: Should only be uncommented for debugging in a secure environment.
+//    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+//       "PAMBasicAuthenticator::authenticate() - userName = %s; userPassword = %s",
+//       (const char *)userName.getCString(), (const char *)userPassword);
 
     //
     //Call pam_start since you need to before making any other PAM calls
@@ -113,8 +117,6 @@ Boolean PAMBasicAuthenticator::authenticate(
     if ( ( pam_start(service, 
         (const char *)userName.getCString(), &pconv, &phandle) ) != PAM_SUCCESS ) 
     {
-        free(userPassword);
-        userPassword = 0;
         PEG_METHOD_EXIT();
         return (authenticated);
     }
@@ -124,6 +126,8 @@ Boolean PAMBasicAuthenticator::authenticate(
     //
     if ( ( pam_authenticate(phandle, 0) ) == PAM_SUCCESS ) 
     {
+       Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+         "PAMBasicAuthenticator::authenticate() pam_authenticate successful.");
         //
         //Call pam_acct_mgmt, to check if the user account is valid. This includes 
         //checking for password and account expiration, as well as verifying access 
@@ -131,6 +135,8 @@ Boolean PAMBasicAuthenticator::authenticate(
         //
         if ( ( pam_acct_mgmt(phandle, 0) ) == PAM_SUCCESS ) 
         {
+           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+              "PAMBasicAuthenticator::authenticate() pam_acct_mgmt successful.");
             authenticated = true;
         }
     }
@@ -140,8 +146,6 @@ Boolean PAMBasicAuthenticator::authenticate(
     //
     pam_end(phandle, 0);
 
-    free(userPassword);
-    userPassword = 0;
     PEG_METHOD_EXIT();
 
     return (authenticated);
@@ -167,8 +171,13 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
     return (responseHeader);
 }
 
+#if defined PEGASUS_OS_LINUX
+Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, const struct pam_message **msg,
+        struct pam_response **resp, void *appdata_ptr)
+#else
 Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **msg,
         struct pam_response **resp, void *appdata_ptr)
+#endif
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::PAMCallback()");
@@ -191,7 +200,7 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
         return PAM_CONV_ERR;
     }
 
-    for ( Uint32 i = 0; i < num_msg; i++ ) 
+    for ( Sint32 i = 0; i < num_msg; i++ ) 
     {
         switch ( msg[i]->msg_style ) 
         {

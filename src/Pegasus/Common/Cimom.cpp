@@ -83,7 +83,7 @@ Boolean message_module::operator == (const String & name ) const
 
 Boolean message_module::operator == (const message_module & mm) const
 {
-   if(*this == mm)
+   if(this == &mm)
       return true;
    if( _name == mm._name )
       if ( _capabilities == mm._capabilities)

@@ -21,15 +21,17 @@
       <p><b><a href="#NameSpace">NameSpace</a></b>
         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp; String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information.
-      <p><b><a href="#ObjectName">ObjectName</a></b> <INPUT TYPE="text" NAME="ObjectName" SIZE=33>&nbsp;&nbsp; Defines
+      <p><b><a href="#ObjectName">ObjectName</a>&nbsp;&nbsp;</b> <INPUT TYPE="text" NAME="ObjectName" SIZE=33>&nbsp;&nbsp; Defines
       name of the Class
       for which instance names are to be retrieved.&nbsp; This must be a legal
-      class in the repository<p><b>AssocClass&nbsp;</b>&nbsp;&nbsp;&nbsp; <input type="text" name="AssocClass" size="20"><p><b><a href="#ResultClass">ResultClass</a></b>&nbsp;&nbsp;&nbsp;
+      class in the repository<p><b><a href="#assocClass">AssocClass</a>&nbsp;</b>&nbsp;&nbsp;&nbsp; <input type="text" name="AssocClass" size="33">&nbsp;&nbsp;
+      NULL or association Class that acts as filter<p><b><a href="#ResultClass">ResultClass</a></b>&nbsp;&nbsp;&nbsp;
       <input type="text" name="ResultClass" size="34"> NULL or a valid CIM class name
       that acts as a filter on returned set of Object Names.<p><b><a href="#Role">Role</a></b><a href="#Role">&nbsp;&nbsp;&nbsp;</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="text" name="Role" size="34"> Null or valid CIM Property name.
-      Acts as filter on returned set of object names.<p>ResultRole&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="text" name="ResultRole" size="34">
+      Acts as filter on returned set of object names.<p><b><a href="#resultRole">ResultRole</a></b>&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="text" name="ResultRole" size="34">&nbsp;&nbsp;&nbsp; Null or
+      Valid CIM Property name that acts as filter on returned set of names.
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
@@ -47,24 +49,24 @@
     <a name="ObjectName">
     ObjectName</a></b>&nbsp; The <TT>objectName</TT> input parameter defines the target    CIM Object whose referring object names are to be returned. It may be either    a Class name or an Instance name (model path).<br>
     <br>
-    <b>assocClass</b> The <TT>assocClass</TT> input parameter, if not NULL,
+    <b><a name="assocClass">assocClass</a></b> The <TT>assocClass</TT> input parameter, if not NULL,
     MUST be a valid CIM Association Class name. It acts as a filter on the
     returned set of names by mandating that each returned name identifies an
     Object that MUST be associated to the source Object via an Instance of this
     Class or one of its subclasses.&nbsp;
-    <p><b>resultClass</b> The <TT>resultClass</TT> input parameter, if not NULL,
+    <p><b><a name="resultClass">resultClass</a></b> The <TT>resultClass</TT> input parameter, if not NULL,
     MUST be a valid CIM Class name. It acts as a filter on the returned set of
     names by mandating that each returned name identifies an Object that MUST be
     either an Instance of this Class (or one of its subclasses) or be this Class
     (or one of its subclasses).&nbsp;
-    <p><b>role</b> The <TT>role</TT> input parameter, if not NULL, MUST be a valid
+    <p><b><a name="role">role</a></b> The <TT>role</TT> input parameter, if not NULL, MUST be a valid
     CIMProperty name. It acts as a filter on the returned set of names by
     mandating that each returned name identifies an Object that MUST be
     associated to the source Object via an Association in which the source
     Object plays the specified role (i.e. the name of the CIMProperty in the
     Association Class that refers to the source Object MUST match the value of
     this parameter).&nbsp;
-    <p><b>resultRole</b> The <TT>resultRole</TT> input parameter, if not
+    <p><b><a name="resultRole">resultRole</a></b> The <TT>resultRole</TT> input parameter, if not
     <TT>NULL</TT>, MUST be a valid CIMProperty name. It acts as a filter on the
     returned set of names by mandating that each returned name identifies an
     Object that MUST be associated to the source Object via an Association in
@@ -113,7 +115,7 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:59:20 PM<!--webbot bot="Timestamp" i-CheckSum="54859" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, July 06, 2001 08:43:53 PM<!--webbot bot="Timestamp" i-CheckSum="55129" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
     <pre>&nbsp;</pre>

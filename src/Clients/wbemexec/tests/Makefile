@@ -87,12 +87,6 @@ poststarttests:
 	@$(ECHO) +++ Test passed +++
 
 poststarttests_ignoreerror:
-	@$(ECHO) "Multiple CIM operation request" >> $(RESULTFILE)
-	@$(ECHO) "Times out -- not yet supported by CIM Server" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -t 1 ./cimrequest04.xml" >> $(RESULTFILE)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -t 1 ./cimrequest04.xml >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "Error cases:" >> $(RESULTFILE)
 	@$(ECHO) "Missing argument for -h option" >> $(RESULTFILE)
 	@$(ECHO) "wbemexec -h < ./cimrequest.xml" >> $(RESULTFILE)
@@ -634,6 +628,14 @@ defect:
 	@$(ECHO) "wbemexec ./cimrequest.http" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec ./cimrequest.http >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "  " >> $(RESULTFILE)
+#       ATTN-SF-P3-04/02/2002: Times out some times but gets a valid response
+#	other times.
+	@$(ECHO) "Multiple CIM operation request" >> $(RESULTFILE)
+	@$(ECHO) "Times out -- not yet supported by CIM Server" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -t 1 ./cimrequest04.xml" >> $(RESULTFILE)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@wbemexec -t 1 ./cimrequest04.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "  " >> $(RESULTFILE)
 
 depend:

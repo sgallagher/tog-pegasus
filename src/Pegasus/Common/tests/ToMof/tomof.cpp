@@ -37,6 +37,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // #define IO
+static char * verbose;
 
 template<class T>
 void test01(const T& x)
@@ -45,14 +46,15 @@ void test01(const T& x)
     CIMValue v2(v);
     CIMValue v3;
     v3 = v2;
-// #ifdef IO
-   v3.print(true, cout);
-// #endif
+    if (verbose)
+        v3.print(true, cout);
+
     Array<Sint8> tmp1;
     v3.toMof(tmp1);
 
     tmp1.append('\0');
-    cout << "\nMOF = " << tmp1.getData() << PEGASUS_STD(endl);
+    if (verbose)
+        cout << "\nMOF = " << tmp1.getData() << PEGASUS_STD(endl);
     try
     {
 	T t;
@@ -66,8 +68,10 @@ void test01(const T& x)
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     // Test values
 
     Array<Uint32> aa;
@@ -95,24 +99,22 @@ int main()
     arr.append("Three");
     CIMValue v(arr);
 
-#ifdef IO
-    v.print();
-#endif
-
     // Test Properties
     {
     CIMProperty p1("message", "Hi There");
     Array<Sint8> tmp;
     p1.toMof(tmp);
     tmp.append('\0');
-    cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
+    if (verbose)
+        cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
     }
     {
     CIMProperty p2("message","test");
     Array<Sint8> tmp;
     p2.toMof(tmp);
     tmp.append('\0');
-    cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
+    if (verbose)
+        cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
     }
 
     // Test CimClass none Association
@@ -128,18 +130,22 @@ int main()
 	    .addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
 		.addParameter(CIMParameter("hostname", CIMType::STRING))
 		.addParameter(CIMParameter("port", CIMType::UINT32)));
-	class1.print();
+        if (verbose)
+	    class1.print();
 	Array<Sint8> tmp;
 	class1.toMof(tmp);
 	tmp.append('\0');
-	cout << "\nClass MOF = " << tmp.getData() << PEGASUS_STD(endl);
+        if (verbose)
+	    cout << "\nClass MOF = " << tmp.getData() << PEGASUS_STD(endl);
 
     }
     
     
     // Test CimClass This is not really an association class.
     {
-	cout << "Class test\n";
+	
+        if (verbose)
+            cout << "Class test\n";
 	CIMClass class1("MyClass", "YourClass");
 
 	class1
@@ -151,11 +157,13 @@ int main()
 	    .addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
 		.addParameter(CIMParameter("hostname", CIMType::STRING))
 		.addParameter(CIMParameter("port", CIMType::UINT32)));
-	class1.print();
+        if (verbose)
+	    class1.print();
 	Array<Sint8> tmp;
 	class1.toMof(tmp);
 	tmp.append('\0');
-	cout << "\nClass MOF = " << tmp.getData() << PEGASUS_STD(endl);
+        if (verbose)
+	    cout << "\nClass MOF = " << tmp.getData() << PEGASUS_STD(endl);
 
     }
     // Test CimClass This is not really an association class.
@@ -174,7 +182,9 @@ int main()
 	boolean OneParmMethod([in] boolean FastFormat);
 	}; */
     {
-	cout << "Class test of class1\n";
+        if (verbose)
+	    cout << "Class test of class1\n";
+
 	CIMClass class1("MyClass", "YourClass");
 
 	class1
@@ -215,12 +225,14 @@ int main()
 
 		     )
                      ;
-	class1.print();
+        if (verbose)
+	    class1.print();
 	//Array<Sint8> tmp;
 	//class1.toMof(tmp);
 	//tmp.append('\0');
 
-	class1.printMof();
+        if (verbose)
+	    class1.printMof();
     }
 
     {
@@ -263,17 +275,20 @@ int main()
 		CIMFlavor::OVERRIDABLE)
 	    ;
 
-	    qual1.print();
+            if (verbose)
+	        qual1.print();
 	    Array<Sint8> tmp;
 	    qual1.toMof(tmp);
 	    tmp.append('\0');
-	    cout << "Qualifier Test\n" << tmp.getData() << "\n\n";
-
-	    q2.print();
+            if (verbose)
+	        cout << "Qualifier Test\n" << tmp.getData() << "\n\n";
+            if (verbose)
+	        q2.print();
 	    Array<Sint8> tmp1;
 	    q2.toMof(tmp1);
 	    tmp1.append('\0');
-	    cout << "Qualifier Test\n" << tmp1.getData() << "\n\n";
+            if (verbose)
+	        cout << "Qualifier Test\n" << tmp1.getData() << "\n\n";
 	}
 	catch(Exception& e)
 	{
@@ -281,7 +296,7 @@ int main()
 	}
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -95,7 +95,7 @@ static String _cimmofMessages[] = {
   "Error applying property $0 to an instance of class $1: $2",
 	                                  // GET_INSTANCE_PROPERTY_ERROR
   "Error getting property $0 from an instance: $1", 
-  "Error getting property $0 from class $1: $3", //GET_CLASS_PROPERTY_ERROR
+  "Error getting class $0 from name space $1: $2", //GET_CLASS_ERROR
   "Error getting value of property $0: $1", //GET_PROPERTY_VALUE_ERROR
   "Error creating new instance of class $0: $1", // NEW_INSTANCE_ERROR
                                           // INSTANCE_PROPERTY_EXISTS_WARNING
@@ -151,7 +151,7 @@ static String _cimmofMessagesKeys [] = {
     "Compiler.cimmofMessages.CLONING_PROPERTY_ERROR",
     "Compiler.cimmofMessages.APPLY_INSTANCE_PROPERTY_ERROR",
     "Compiler.cimmofMessages.GET_INSTANCE_PROPERTY_ERROR",
-    "Compiler.cimmofMessages.GET_CLASS_PROPERTY_ERROR",
+    "Compiler.cimmofMessages.GET_CLASS_ERROR",
     "Compiler.cimmofMessages.GET_PROPERTY_VALUE_ERROR",
     "Compiler.cimmofMessages.NEW_INSTANCE_ERROR",
     "Compiler.cimmofMessages.INSTANCE_PROPERTY_EXISTS_WARNING",

@@ -1178,11 +1178,11 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
       return new CIMProperty(c.getProperty(pos));
     }
   } catch (Exception &e) {
-    arglist.append(getNamespacePath());
     arglist.append(className.getString());
+    arglist.append(getNamespacePath());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::GET_CLASS_PROPERTY_ERROR,
+			       cimmofMessages::GET_CLASS_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);

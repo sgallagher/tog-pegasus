@@ -918,6 +918,15 @@ void BinaryStreamer::toBin(Array<char> & out, const CIMValue& val)
                }
             }
             break;
+         case CIMTYPE_OBJECT: {
+                for (Uint32 i=0; i<as; i++) {
+                  String obs=(*(_rep->_u._objectArray))[i].toString();
+                  Sint32 obl=obs.size();
+                  out.append((char*)&obl,sizeof(Sint32));
+                  out.append((char*)obs.getChar16Data(),obl*sizeof(Char16));
+               }
+            }
+            break;
          }
       }
 
@@ -965,6 +974,13 @@ void BinaryStreamer::toBin(Array<char> & out, const CIMValue& val)
             Sint32 rfl=rfs.size();
             out.append((char*)&rfl,sizeof(Sint32));
             out.append((char*)rfs.getChar16Data(),rfl*sizeof(Char16));
+         }
+         break;
+      case CIMTYPE_OBJECT: {
+            String obs=_rep->_u._objectValue->toString();
+            Sint32 obl=obs.size();
+            out.append((char*)&obl,sizeof(Sint32));
+            out.append((char*)obs.getChar16Data(),obl*sizeof(Char16));
          }
          break;
       }

@@ -61,6 +61,7 @@ CIMParamValueRep::~CIMParamValueRep()
 //     <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
 //     <!ATTLIST PARAMVALUE
 //         %CIMName;
+//         %EmbeddedObject; #IMPLIED
 //         %ParamType;>
 //
 //------------------------------------------------------------------------------
@@ -72,7 +73,20 @@ void CIMParamValueRep::toXml(Array<char>& out) const
 
     if (_isTyped)
     {
-        out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
+        // If the property type is CIMObject, then 
+        //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
+        //   (there is not currently a CIM-XML "object" datatype)
+        // else
+        //   output the real type
+        if (type == CIMTYPE_OBJECT)
+        {
+            out << " PARAMTYPE=\"string\"";
+            out << " EMBEDDEDOBJECT=\"object\"";
+        }
+        else
+        {
+            out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
+        }
     }
 
     out << ">\n";

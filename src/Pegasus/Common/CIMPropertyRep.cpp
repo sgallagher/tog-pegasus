@@ -104,7 +104,17 @@ void CIMPropertyRep::resolve(
     // Check the type:
 
     if (!inheritedProperty.getValue().typeCompatible(_value))
-	throw TypeMismatchException();
+    {
+        if (!(
+            (inheritedProperty.getValue().getType() == CIMTYPE_OBJECT) &&
+            (_value.getType() == CIMTYPE_STRING) &&
+            (_qualifiers.find(CIMName("EmbeddedObject")) != PEG_NOT_FOUND) &&
+            (inheritedProperty.getValue().isArray() == _value.isArray())
+            ))
+        {
+            throw TypeMismatchException();
+        }
+    }
 
     // Validate the qualifiers of the property (according to
     // superClass's property with the same name). This method
@@ -218,9 +228,45 @@ void CIMPropertyRep::toXml(Array<char>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-	out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    // If the property array type is CIMObject, then 
+    //   encode the property in CIM-XML as a string array with the EMBEDDEDOBJECT attribute
+    //   (there is not currently a CIM-XML "object" datatype)
+    // else
+    //   output the real type
+    if (_value.getType() == CIMTYPE_OBJECT)
+    {
+        Array<CIMObject> a;
+        _value.get(a);
+        out << " TYPE=\"string\"";
+        // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
+        if (a.size() > 0 && a[0].isInstance())
+            out << " EMBEDDEDOBJECT=\"object\"";
+        // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
+        // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
+        // the EmbeddedObject qualifier will always be added, whether it's a class or
+        // an instance.
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+        else
+        {
+#endif
+            if (_qualifiers.find(CIMName("EmbeddedObject")) == PEG_NOT_FOUND)
+            {
+                // Note that _qualifiers is not defined as const, and neither is add(),
+                // but this method toXml() *is* const. However, in this case we really
+                // do want to add the EmbeddedObject qualifier, so we cast away the
+                // implied const-ness of _qualifiers.
+                ((CIMQualifierList)_qualifiers).add(CIMQualifier(CIMName("EmbeddedObject"), true));
+            }
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+        }
+#endif
+    }
+    else
+    {
+        out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    }
 
-	if (_arraySize)
+    if (_arraySize)
 	{
 	    char buffer[32];
 	    sprintf(buffer, "%d", _arraySize);
@@ -277,7 +323,43 @@ void CIMPropertyRep::toXml(Array<char>& out) const
 	if (_propagated != false)
 	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
 
-	out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    // If the property type is CIMObject, then 
+    //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
+    //   (there is not currently a CIM-XML "object" datatype)
+    // else
+    //   output the real type
+    if (_value.getType() == CIMTYPE_OBJECT)
+    {
+        CIMObject a;
+        _value.get(a);
+        out << " TYPE=\"string\"";
+        // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
+        if (a.isInstance())
+            out << " EMBEDDEDOBJECT=\"object\"";
+        // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
+        // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
+        // the EmbeddedObject qualifier will always be added, whether it's a class or
+        // an instance.
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+        else
+        {
+#endif
+            if (_qualifiers.find(CIMName("EmbeddedObject")) == PEG_NOT_FOUND)
+            {
+                // Note that _qualifiers is not defined as const, and neither is add(),
+                // but this method toXml() *is* const. However, in this case we really
+                // do want to add the EmbeddedObject qualifier, so we cast away the
+                // implied const-ness of _qualifiers.
+                ((CIMQualifierList)_qualifiers).add(CIMQualifier(CIMName("EmbeddedObject"), true));
+            }
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+        }
+#endif
+    }
+    else
+    {
+        out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    }
 
 	out << ">\n";
 

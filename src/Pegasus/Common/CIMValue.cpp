@@ -530,8 +530,15 @@ void CIMValue::assign(const CIMValue& x)
                 break;
             
             case CIMTYPE_OBJECT:
-                _rep->_u._objectValue =
-                    new CIMObject(x._rep->_u._objectValue->clone());
+                if (x._rep->_u._objectValue->isUninitialized())
+                {
+                    _rep->_u._objectValue = new CIMObject();
+                }
+                else
+                {
+                    _rep->_u._objectValue =
+                        new CIMObject(x._rep->_u._objectValue->clone());
+                }
                 break;
 
             // Should never get here. testing complete enum

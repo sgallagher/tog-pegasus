@@ -876,7 +876,6 @@ inline void _xmlWritter_appendValue(Array<char>& out, const CIMObjectPath& x)
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
-// DJS -- temporary for testing until encode/decode issues resolved
 inline void _xmlWritter_appendValue(Array<char>& out, const CIMObject& x)
 {
     out << x.toString();
@@ -1052,7 +1051,6 @@ void XmlWriter::appendValueElement(
                 break;
             }
 
-            // DJS -- temporary for testing until encode/decode issues resolved
             case CIMTYPE_OBJECT:
             {
                 Array<CIMObject> a;
@@ -1190,7 +1188,6 @@ void XmlWriter::appendValueElement(
                 break;
             }
 
-            // DJS -- temporary for testing until encode/decode issues resolved
             case CIMTYPE_OBJECT:
             {
                 CIMObject v;
@@ -2165,6 +2162,7 @@ void XmlWriter::_appendErrorElement(
 //
 // <!ELEMENT RETURNVALUE (VALUE|VALUE.REFERENCE)>
 // <!ATTLIST RETURNVALUE
+//     %EmbeddedObject; #IMPLIED
 //     %ParamType;>
 //
 //------------------------------------------------------------------------------
@@ -2176,7 +2174,20 @@ void XmlWriter::appendReturnValueElement(
     out << "<RETURNVALUE";
 
     CIMType type = value.getType();
-    out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
+    // If the property type is CIMObject, then 
+    //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
+    //   (there is not currently a CIM-XML "object" datatype)
+    // else
+    //   output the real type
+    if (type == CIMTYPE_OBJECT)
+    {
+        out << " PARAMTYPE=\"string\"";
+        out << " EMBEDDEDOBJECT=\"object\"";
+    }
+    else
+    {
+        out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
+    }
 
     out << ">\n";
 

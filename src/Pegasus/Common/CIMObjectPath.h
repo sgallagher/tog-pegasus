@@ -279,13 +279,16 @@ class XmlWriter;
     sint32 - NUMERIC
     uint64 - NUMERIC
     sint64 - NUMERIC
-    char16 - NUMERIC
+    char16 - STRING
     string - STRING
     datetime - STRING
+    reference - REFERENCE
     </pre>
 
     Notice that real32 and real64 are missing. Properties of these types
     cannot be used as keys.
+   
+    Also, properties of CIMTYPE_OBJECT cannot be used as keys.
 
     Notice that the keys in the object name may appear in any order.
     That is the following object names refer to the same object:

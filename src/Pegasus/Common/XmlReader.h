@@ -138,6 +138,11 @@ public:
 	const XmlEntry& entry,
 	const char* tagName);
 
+    static String getEmbeddedObjectAttribute(
+	Uint32 lineNumber, 
+	const XmlEntry& entry,
+	const char* tagName);
+
     static CIMName getReferenceClassAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,

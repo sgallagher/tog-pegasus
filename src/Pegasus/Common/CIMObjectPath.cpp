@@ -220,10 +220,11 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
     case CIMTYPE_REFERENCE:
         kbType = REFERENCE;
         break;
+//  case CIMTYPE_REAL32:
+//  case CIMTYPE_REAL64:
     case CIMTYPE_OBJECT:
+        // From PEP 194: EmbeddedObjects cannot be keys.
         throw TypeMismatchException();
-        // From PEP 194:
-        // Open Issue for the DMTF: Are EmbeddedObject properties permitted to be keys? 
         break;
     default:
         kbType = NUMERIC;
@@ -308,10 +309,11 @@ Boolean CIMKeyBinding::equal(CIMValue value)
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
                                                value.getType());
             break;
+//      case CIMTYPE_REAL32:
+//      case CIMTYPE_REAL64:
         case CIMTYPE_OBJECT:
+            // From PEP 194: EmbeddedObjects cannot be keys.
             return false;
-            // From PEP 194:
-            // Open Issue for the DMTF: Are EmbeddedObject properties permitted to be keys? 
             break;
         default:  // Numerics
             if (getType() != NUMERIC) return false;

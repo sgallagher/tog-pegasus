@@ -668,7 +668,7 @@ public:
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
-         nameSpace_,String::EMPTY,
+         nameSpace_,CIMName(),
 	 contentLanguages_, acceptLanguages_,
 	 TYPE_QUERY),
         queryLanguage(queryLanguage_),
@@ -927,7 +927,7 @@ public:
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMOperationRequestMessage(
         CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
-	 nameSpace_,String::EMPTY,
+	 nameSpace_,CIMName(),
 	 contentLanguages_, acceptLanguages_,
 	 TYPE_CLASS),
         qualifierName(qualifierName_),
@@ -955,7 +955,7 @@ public:
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMOperationRequestMessage(
         CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
-	 nameSpace_,String::EMPTY,
+	 nameSpace_,CIMName(),
 	 contentLanguages_, acceptLanguages_,
 	 TYPE_CLASS),
         qualifierDeclaration(qualifierDeclaration_),
@@ -983,7 +983,7 @@ public:
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMOperationRequestMessage(
         CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
-	 nameSpace_,String::EMPTY,
+	 nameSpace_,CIMName(),
 	 contentLanguages_, acceptLanguages_,
 	 TYPE_CLASS),
         qualifierName(qualifierName_),
@@ -1010,7 +1010,7 @@ public:
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMOperationRequestMessage(
         CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 nameSpace_,String::EMPTY,
+	 nameSpace_,CIMName(),
 	 contentLanguages_, acceptLanguages_,
 	 TYPE_CLASS),
         authType(authType_),
@@ -1275,7 +1275,6 @@ public:
         authType(authType_),
         userName(userName_)
     {
-       std::cout<<"--- classNames.size(): "<<classNames.size()<<std::endl;
     }
 
     CIMNamespaceName nameSpace;
@@ -1364,7 +1363,6 @@ public:
         authType(authType_),
         userName(userName_)
     {
-       std::cout<<"--- classNames.size(): "<<classNames.size()<<std::endl;
     }
 
     CIMNamespaceName nameSpace;

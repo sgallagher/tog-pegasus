@@ -116,22 +116,22 @@ PEGASUS_NAMESPACE_BEGIN
 struct SUBALLOC_HANDLE;
 
 #if defined(PEGASUS_DEBUG_MEMORY)
-PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, 
+PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t, 
 					      void *,
 					      int type, 
 					      const Sint8 *classname, 
 					      Sint8 *file, 
 					      Uint32 line );
 
-PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead, 
+PEGASUS_COMMON_LINKAGE void pegasus_free(void *dead, 
 					   void *,
 					   int type, 
 					   Sint8 *classname, 
 					   Sint8 *file, 
 					   Uint32 line);
 #else
-PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t);
-PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
+PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t);
+PEGASUS_COMMON_LINKAGE void pegasus_free(void *);
 #endif 
 
 
@@ -217,7 +217,7 @@ class peg_suballoc;
 #endif 
 
 
-class PEGASUS_SUBALLOC_LINKAGE peg_suballocator 
+class PEGASUS_COMMON_LINKAGE peg_suballocator 
 {
    private:
       peg_suballocator(const peg_suballocator &);
@@ -306,7 +306,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 
       inline Boolean PEGASUS_DEBUG_ALLOC(void) { return _debug; }
 
-      typedef class PEGASUS_SUBALLOC_LINKAGE _suballocHandle 
+      typedef class PEGASUS_COMMON_LINKAGE _suballocHandle 
       { 
 	 public:
 	    Sint8 logpath[MAX_PATH_LEN + 1];

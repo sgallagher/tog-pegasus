@@ -33,7 +33,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 peg_suballocator *peg_suballocator::_suballoc_instance = 0;
 
-PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
+PEGASUS_COMMON_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 {
    if(peg_suballocator::_suballoc_instance == 0)
    {
@@ -43,7 +43,7 @@ PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 }
 
 #if defined(PEGASUS_DEBUG_MEMORY)
-PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
+PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t size, 
 					      void * handle,
 					      int type,
 					      const Sint8 *classname, 
@@ -58,7 +58,7 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size,
 				       line) ;
 }
 
-PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead,
+PEGASUS_COMMON_LINKAGE void pegasus_free(void * dead,
 					   void * handle,
 					   int type, 
 					   Sint8 *classname, 
@@ -78,12 +78,12 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead,
 
 #else
 
-PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
+PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t size)
 {
    return peg_suballocator::get_instance()->vs_malloc(size);
 }
 
-PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
+PEGASUS_COMMON_LINKAGE void pegasus_free(void *dead)
 {
    peg_suballocator::get_instance()->vs_free(dead);
 }

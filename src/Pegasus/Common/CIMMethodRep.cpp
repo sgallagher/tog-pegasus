@@ -77,15 +77,15 @@ void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
     if (x.isUninitialized())
-	throw UninitializedObjectException();
+        throw UninitializedObjectException();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND){
-    	//l10n
-		//throw AlreadyExistsException
+        //l10n
+                //throw AlreadyExistsException
             //("parameter \"" + x.getName().getString () + "\"");
         MessageLoaderParms parms("Common.CIMMethodRep.PARAMETER",
-        						 "parameter \"$0\"",
-        						 x.getName().getString());
+                                                         "parameter \"$0\"",
+                                                         x.getName().getString());
         throw AlreadyExistsException(parms);
     }
 
@@ -96,8 +96,8 @@ Uint32 CIMMethodRep::findParameter(const CIMName& name) const
 {
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
-	if (name.equal(_parameters[i].getName()))
-	    return i;
+        if (name.equal(_parameters[i].getName()))
+            return i;
     }
 
     return PEG_NOT_FOUND;
@@ -106,7 +106,7 @@ Uint32 CIMMethodRep::findParameter(const CIMName& name) const
 CIMParameter CIMMethodRep::getParameter(Uint32 index)
 {
     if (index >= _parameters.size())
-	throw IndexOutOfBoundsException();
+        throw IndexOutOfBoundsException();
 
     return _parameters[index];
 }
@@ -114,7 +114,7 @@ CIMParameter CIMMethodRep::getParameter(Uint32 index)
 void CIMMethodRep::removeParameter(Uint32 index)
 {
     if (index >= _parameters.size())
-	throw IndexOutOfBoundsException();
+        throw IndexOutOfBoundsException();
 
     _parameters.remove (index);
 }
@@ -141,17 +141,17 @@ void CIMMethodRep::resolve(
     // will throw an exception if the validation fails.
 
     _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	CIMScope::METHOD,
-	false,
-	inheritedMethod._rep->_qualifiers,
-	true);
+        declContext,
+        nameSpace,
+        CIMScope::METHOD,
+        false,
+        inheritedMethod._rep->_qualifiers,
+        true);
 
     // Validate each of the parameters:
 
-    for (size_t i = 0; i < _parameters.size(); i++)
-	Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
+    for (Uint32 i = 0; i < _parameters.size(); i++)
+        Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
 
     _classOrigin = inheritedMethod.getClassOrigin();
 }
@@ -165,17 +165,17 @@ void CIMMethodRep::resolve(
     CIMQualifierList dummy;
 
     _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	CIMScope::METHOD,
-	false,
-	dummy,
-	true);
+        declContext,
+        nameSpace,
+        CIMScope::METHOD,
+        false,
+        dummy,
+        true);
 
     // Validate each of the parameters:
 
-    for (size_t i = 0; i < _parameters.size(); i++)
-	Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
+    for (Uint32 i = 0; i < _parameters.size(); i++)
+        Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
 }
 
 static const char* _toString(Boolean x)
@@ -192,27 +192,27 @@ void CIMMethodRep::toXml(Array<char>& out) const
     out << " TYPE=\"" << cimTypeToString (_type) << "\"";
 
     if (!_classOrigin.isNull())
-	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+        out << " CLASSORIGIN=\"" << _classOrigin << "\"";
 
     if (_propagated != false)
-	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+        out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
 
     out << ">\n";
 
     _qualifiers.toXml(out);
 
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
-	XmlWriter::appendParameterElement(out, _parameters[i]);
+        XmlWriter::appendParameterElement(out, _parameters[i]);
 
     out << "</METHOD>\n";
 }
 
 /**
     The BNF for this is;
-    methodDeclaration 	=  [ qualifierList ] dataType methodName
-			   "(" [ parameterList ] ")" ";"
+    methodDeclaration   =  [ qualifierList ] dataType methodName
+                           "(" [ parameterList ] ")" ";"
 
-    parameterList 	=  parameter *( "," parameter )
+    parameterList       =  parameter *( "," parameter )
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
 */
@@ -220,22 +220,22 @@ void CIMMethodRep::toMof(Array<char>& out) const   //ATTNKS:
 {
     // Output the qualifier list starting on new line
     if (_qualifiers.getCount())
-	out << "\n";
+        out << "\n";
 
     _qualifiers.toMof(out);
 
-    // output the type,	MethodName and ParmeterList left enclosure
+    // output the type, MethodName and ParmeterList left enclosure
     out << "\n" << cimTypeToString (_type) << " " << _name << "(";
 
     // output the param list separated by commas.
     
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
-	// If not first, output comma separator
-	if (i)
-	    out << ", ";
+        // If not first, output comma separator
+        if (i)
+            out << ", ";
 
-	MofWriter::appendParameterElement(out, _parameters[i]);
+        MofWriter::appendParameterElement(out, _parameters[i]);
     }
 
     // output the parameterlist and method terminator
@@ -260,27 +260,27 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
     _parameters.reserveCapacity(x._parameters.size());
 
     for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
-	_parameters.append(x._parameters[i].clone());
+        _parameters.append(x._parameters[i].clone());
 }
 
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 {
     if (!_name.equal (x->_name))
-	return false;
+        return false;
 
     if (_type != x->_type)
-	return false;
+        return false;
 
     if (!_qualifiers.identical(x->_qualifiers))
-	return false;
+        return false;
 
     if (_parameters.size() != x->_parameters.size())
-	return false;
+        return false;
 
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
-	if (!_parameters[i].identical(x->_parameters[i]))
-	    return false;
+        if (!_parameters[i].identical(x->_parameters[i]))
+            return false;
     }
 
     return true;

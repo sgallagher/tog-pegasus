@@ -432,21 +432,17 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     CIMException cimException;
     CIMObjectPath instanceName;
 
-    cout << "ProviderMessageFaced::_handleModifyInstanceRequest" << endl;
+    cout << "ProviderMessageFacade::_handleModifyInstanceRequest" << endl;
 
 
     try
     {
 	// make target object path
-        // ATTN-RK-P2-20020329: The KeyBinding array does not get set
-        // [correctly] here.
 	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
 	    request->modifiedInstance.getPath ().getClassName(),
 	    request->modifiedInstance.getPath ().getKeyBindings());
-// ATTN:    request->modifiedInstance.getInstance().getPath().getClassName(),
-// ATTN:    request->modifiedInstance.getInstance().getPath().getKeyBindings());
 
 	// convert arguments
 	OperationContext context;

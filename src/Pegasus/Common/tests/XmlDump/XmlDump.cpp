@@ -44,6 +44,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
+
 static void _processFile(const char* fileName)
 {
     Array<char> text;
@@ -59,6 +61,9 @@ static void _processFile(const char* fileName)
 
 int main(int argc, char** argv)
 {
+
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+
     if (argc != 2)
     {
 	cerr << "Usage: " << argv[0] << " xml-filename" << endl;

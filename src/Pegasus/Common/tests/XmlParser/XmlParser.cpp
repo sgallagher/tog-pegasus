@@ -42,6 +42,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
+
 static void _parseFile(const char* fileName)
 {
     // cout << "Parsing: " << fileName << endl;
@@ -57,7 +59,7 @@ static void _parseFile(const char* fileName)
 	XmlEntry entry;
 
 	while (parser.next(entry))
-	    ; // entry.print();
+	  if (verbose) entry.print();
     }
     catch (Exception& e)
     {
@@ -67,6 +69,9 @@ static void _parseFile(const char* fileName)
 
 int main(int argc, char** argv)
 {
+
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+  
     if (argc < 2)
     {
 	cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
@@ -85,6 +90,7 @@ int main(int argc, char** argv)
 	    exit(1);
 	}
     }
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

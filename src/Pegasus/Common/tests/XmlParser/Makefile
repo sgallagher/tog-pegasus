@@ -11,8 +11,7 @@ SOURCES = XmlParser.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	@ $(PROGRAM) x.xml
-	@ $(ECHO) +++++ passed all tests
+	$(PROGRAM) x.xml
 
 poststarttests:
 install:

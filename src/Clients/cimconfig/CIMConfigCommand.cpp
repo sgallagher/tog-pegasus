@@ -635,7 +635,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         _propertyName = options [i].Value ();
                     }
-                    catch (InvalidNameException& e)
+                    catch (const InvalidNameException&)
                     {
                         throw InvalidOptionArgumentException(
                             options[i].Value(), OPTION_GET);
@@ -687,7 +687,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         _propertyName = CIMName (property.subString
                             (0, equalsIndex));
                     }
-                    catch (InvalidNameException& e)
+                    catch (const InvalidNameException&)
                     {
                         throw InvalidOptionArgumentException(
                             property, OPTION_SET);
@@ -722,7 +722,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         _propertyName = options [i].Value ();
                     }
-                    catch (InvalidNameException& e)
+                    catch (const InvalidNameException&)
                     {
                         throw InvalidOptionArgumentException(
                             options[i].Value(), OPTION_UNSET);
@@ -952,17 +952,17 @@ Uint32 CIMConfigCommand::execute (
         //
         _configFileHandler = new ConfigFileHandler(currentFile, plannedFile, true);
     }
-    catch (NoSuchFile& nsf)
+    catch (const NoSuchFile&)
     {
     }
-    catch (FileNotReadable& fnr)
+    catch (const FileNotReadable& fnr)
     {
     	//l10n
         //errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
         errPrintWriter << localizeMessage(MSG_PATH, FILE_NOT_READABLE_KEY, FILE_NOT_READABLE) << fnr.getMessage() << endl;
         return ( RC_ERROR );
     }
-    catch (ConfigFileSyntaxError& cfse)
+    catch (const ConfigFileSyntaxError& cfse)
     {
         errPrintWriter << cfse.getMessage() << endl;
         return ( RC_ERROR );
@@ -980,7 +980,7 @@ Uint32 CIMConfigCommand::execute (
         _client = new CIMClient;
         _client->setRequestDefaultLanguages(); //l10n
     }
-    catch (Exception & e)
+    catch (const Exception & e)
     {
         errPrintWriter << e.getMessage() << endl;
         return ( RC_ERROR );        
@@ -995,7 +995,7 @@ Uint32 CIMConfigCommand::execute (
 
         connected = true;
     }
-    catch(Exception& e)
+    catch(const Exception&)
     {
         //
         // Failed to connect, so process the request offline.
@@ -1051,7 +1051,7 @@ Uint32 CIMConfigCommand::execute (
                     }
                 }
             }
-            catch (CIMException& e)
+            catch (const CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1092,7 +1092,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (Exception& e)
+            catch (const Exception& e)
             {
             	//l10n
                 //outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
@@ -1237,7 +1237,7 @@ Uint32 CIMConfigCommand::execute (
                    
                 }
             }
-            catch (CIMException& e)
+            catch (const CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1315,7 +1315,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (Exception& e)
+            catch (const Exception& e)
             {
             	//l10n
                 //outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
@@ -1403,7 +1403,7 @@ Uint32 CIMConfigCommand::execute (
                 }
 
             }
-            catch (CIMException& e)
+            catch (const CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1483,7 +1483,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 return ( RC_ERROR );
             }
-            catch (Exception& e)
+            catch (const Exception& e)
             {
             	//l10n
                 //outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
@@ -1558,7 +1558,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 break;
             }
-            catch (CIMException& e)
+            catch (const CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1593,7 +1593,7 @@ Uint32 CIMConfigCommand::execute (
 
                 return ( RC_ERROR );
             }
-            catch (Exception& e)
+            catch (const Exception& e)
             {
             	//l10n
                 //outPrintWriter << FAILED_TO_LIST_PROPERTIES <<  endl <<
@@ -1666,9 +1666,9 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         prop = (CIMProperty)cimInstance.getProperty(pos);
         propValues.append(prop.getValue().toString());
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
-        throw e;
+        throw;
     }
 }
 
@@ -1733,9 +1733,9 @@ void CIMConfigCommand::_updatePropertyInCIMServer
             false,
             CIMPropertyList(propertyList));
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
-        throw e;
+        throw;
     }
 }
 
@@ -1823,9 +1823,9 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
  
         }
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
-        throw e;
+        throw;
     }
 }
 
@@ -1900,7 +1900,7 @@ int main (int argc, char* argv [])
     {
         command->setCommand (argc, argv);
     } 
-    catch (CommandFormatException& cfe) 
+    catch (const CommandFormatException& cfe) 
     {
         if (!String::equal(cfe.getMessage (), ""))
         {

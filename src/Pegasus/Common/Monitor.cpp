@@ -594,13 +594,17 @@ void monitor_2_entry::set_sock(pegasus_socket& s)
   
 }
 
-static monitor_2 _m2_instance;
+static monitor_2* _m2_instance;
 
 AsyncDQueue<HTTPConnection2> monitor_2::_connections(true, 0);
 
 monitor_2* monitor_2::get_monitor2(void)
 {
-   return &_m2_instance;
+   if(_m2_instance == 0 )
+      _m2_instance = new monitor_2();
+   PEGASUS_STD(cout) << "_m2_instance: " << _m2_instance << PEGASUS_STD(endl);
+   
+      return _m2_instance;
 }
 
 monitor_2::monitor_2(void)

@@ -62,7 +62,7 @@ const char* QUIT  = "QUIT\n\0";
 
 AtomicInt cmd_tx, cmd_rx, ready, domain_ready, accept_error;
 
-monitor_2 mon;
+monitor_2* mon;
 void pipe_handler(int signum)
 {
    return;
@@ -90,7 +90,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
 {
    Thread * my_handle = reinterpret_cast<Thread *>(parm);
    ready = 1;
-   mon.run();
+   mon->run();
    return 0;
 }
 
@@ -174,16 +174,17 @@ int main(int argc, char** argv)
 #else
    signal(SIGPIPE, SIG_IGN);
 #endif
-
+   mon = monitor_2::get_monitor2();
+   
 
    // set up the monitor and acceptor, start the service thread
    #ifdef PEGASUS_OS_TYPE_WINDOWS
 #else
    signal(SIGPIPE, SIG_IGN);
 #endif
-   mon.set_session_dispatch(&test_dispatch);
+   mon->set_session_dispatch(&test_dispatch);
    MessageQueue* output_queue = 0;
-   pegasus_acceptor accept(&mon, output_queue, false, PORTNO, 0);
+   pegasus_acceptor accept(mon, output_queue, false, PORTNO, 0);
    accept.bind();
 
    pegasus_acceptor* found = pegasus_acceptor::find_acceptor(false, PORTNO);
@@ -240,7 +241,7 @@ int main(int argc, char** argv)
    while( cmd_rx.value() < cmd_tx.value() )
       pegasus_sleep(1);
 
-   mon.stop();
+   mon->stop();
 
    th_listener.cancel();
    th_listener.join();

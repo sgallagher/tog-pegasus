@@ -312,7 +312,7 @@ class PEGASUS_COMMON_LINKAGE monitor_2
 
    public:
       
-      monitor_2(void);
+
       ~monitor_2(void);
       monitor_2_entry* add_entry(pegasus_socket& , monitor_2_entry_type, void*, void*);
       Boolean remove_entry(Sint32 );
@@ -336,7 +336,7 @@ class PEGASUS_COMMON_LINKAGE monitor_2
       
 
    private:
-      
+            monitor_2(void);
 
       void _dispatch(void);
       void (*_session_dispatch)(monitor_2_entry*);

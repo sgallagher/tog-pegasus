@@ -1142,10 +1142,7 @@ MessageLoader::_useProcessLocale = false;
 
 
 #if defined(PEGASUS_OS_OS400) || defined(PEGASUS_MONITOR2) 
-	monitor_2* monitor = monitor_2::get_monitor2();
-	CIMServer server(monitor);
-	
-	
+	CIMServer server(monitor_2::get_monitor2());
 #else
 
 	Monitor monitor(true);

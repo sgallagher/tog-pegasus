@@ -93,11 +93,6 @@ public:
 
     SimpleResponseHandler & operator=(const SimpleResponseHandler & handler)
     {
-        if(this == &handler)
-        {
-            return(*this);
-        }
-
         ResponseHandler<T>::operator=(handler);
 
         return(*this);

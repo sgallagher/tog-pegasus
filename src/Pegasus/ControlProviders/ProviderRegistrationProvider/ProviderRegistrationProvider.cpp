@@ -150,9 +150,9 @@ static const char _START_PROVIDER[]   = "Start";
 /**
    Provider status
 */
-static const Uint16 _MODULE_UNKNOWN     = 0;
-
 static const Uint16 _MODULE_OK        = 2;
+
+static const Uint16 _MODULE_STOPPING   = 9;
 
 static const Uint16 _MODULE_STOPPED   = 10;
 
@@ -468,7 +468,7 @@ void ProviderRegistrationProvider::createInstance(
 	if (!instanceObject.existsProperty(_PROPERTY_OPERATIONALSTATUS))
 	{
 	    Array<Uint16> _operationalStatus;
-	    _operationalStatus.append(_MODULE_UNKNOWN);
+	    _operationalStatus.append(_MODULE_OK);
 	    instance.addProperty (CIMProperty
 		(_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
 	}
@@ -643,7 +643,8 @@ void ProviderRegistrationProvider::invokeMethod(
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already disabled
-	    if (_OperationalStatus[i] == _MODULE_STOPPED)
+	    if (_OperationalStatus[i] == _MODULE_STOPPED || 
+		_OperationalStatus[i] == _MODULE_STOPPING)
 	    {
 		ret_value = 1;
 		CIMValue retValue(ret_value);
@@ -724,13 +725,24 @@ void ProviderRegistrationProvider::invokeMethod(
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already enabled
-	    if (_OperationalStatus[i] == _MODULE_OK)
+	    if (_OperationalStatus[i] == _MODULE_OK) 
 	    {
 		ret_value = 1;
 		CIMValue retValue(ret_value);
 		handler.deliver(retValue);
     		handler.complete();
 		return;
+	    }
+
+	    // retValue equals 2 if module is stopping
+	    // at this stage, module can not be started
+	    if (_OperationalStatus[i] == _MODULE_STOPPING)
+	    {
+		ret_value = 2;
+		CIMValue retValue(ret_value);
+                handler.deliver(retValue);
+                handler.complete();
+                return;
 	    }
 	}
 

@@ -53,6 +53,8 @@ PEGASUS_NAMESPACE_BEGIN
 */
 static const Uint16 _MODULE_OK        = 2;
 
+static const Uint16 _MODULE_STOPPING   = 9;
+
 static const Uint16 _MODULE_STOPPED   = 10;
 
 static ProviderManager providerManager;
@@ -99,7 +101,8 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
 
     for(Uint32 i = 0; i < operationalStatus.size(); i++)
     {
-        if(operationalStatus[i] == _MODULE_STOPPED)
+        if(operationalStatus[i] == _MODULE_STOPPED ||
+	   operationalStatus[i] == _MODULE_STOPPING)
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Provider blocked.");
@@ -2056,8 +2059,8 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 
     mInstance.getProperty(pos).getValue().get(moduleName);
 
-    // set module status to be Stopped
-    operationalStatus.append(_MODULE_STOPPED);
+    // set module status to be Stopping
+    operationalStatus.append(_MODULE_STOPPING);
 
     if(_providerRegistrationManager->setProviderModuleStatus
         (moduleName, operationalStatus) == false)
@@ -2073,6 +2076,16 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         Pair<String, String> pair = _getProviderRegPair(_pInstances[i], mInstance);
 
         providerManager.unloadProvider(pair.second, pair.first);
+    }
+
+    // set module status to be Stopped
+    operationalStatus.clear();
+    operationalStatus.append(_MODULE_STOPPED);
+
+    if(_providerRegistrationManager->setProviderModuleStatus
+        (moduleName, operationalStatus) == false)
+    {
+        throw CIMException(CIM_ERR_FAILED, "set module status failed.");
     }
 
     CIMDisableModuleResponseMessage * response =

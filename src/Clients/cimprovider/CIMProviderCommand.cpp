@@ -154,6 +154,9 @@ static const char PROVIDER_ALREADY_STOPPED []  =
 static const char PROVIDER_ALREADY_STARTED []  = 
                         "Provider module already enabled.";
 
+static const char CANNOT_START_PROVIDER []  = 
+                        "Provider module can not be enabled since it is disabling.";
+
 static const char PROVIDER_NOT_REGISTERED[] =
 		"Specified provider was not registered.";
 
@@ -1063,6 +1066,10 @@ void CIMProviderCommand::_StartProvider
 	if (retValue == 1)
 	{
    	    outPrintWriter << PROVIDER_ALREADY_STARTED << endl;
+	}
+	else if (retValue == 2)
+	{
+   	    outPrintWriter << CANNOT_START_PROVIDER << endl;
 	}
 	else if (retValue == 0)
 	{

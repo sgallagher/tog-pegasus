@@ -115,6 +115,18 @@ public:
     void handleInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* request);
 
+    void handleCancelIndicationRequest(
+	CIMCancelIndicationRequestMessage* request);
+
+    void handleCheckIndicationRequest(
+	CIMCheckIndicationRequestMessage* request);
+
+    void handleProvideIndicationRequest(
+	CIMProvideIndicationRequestMessage* request);
+    
+    void handleUpdateIndicationRequest(
+	CIMUpdateIndicationRequestMessage* request);
+
 protected:
 
     void _enqueueResponse(

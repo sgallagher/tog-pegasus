@@ -755,6 +755,112 @@ public:
     Array<CIMParamValue> inParameters;
 };
 
+class CIMCancelIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMCancelIndicationRequestMessage(
+        const String& messageId_,
+	const CIMReference& instanceName_,
+	QueueIdStack queueIds_)
+	:
+	CIMRequestMessage(
+	    CIM_CANCEL_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	instanceName(instanceName_)
+    {
+
+    }
+
+    CIMReference instanceName;
+};
+
+class CIMCheckIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMCheckIndicationRequestMessage(
+        const String& messageId_,
+	const CIMReference& instanceName_,
+	const Array<String>& propertyList_,
+	QueueIdStack queueIds_)
+	:
+	CIMRequestMessage(
+	    CIM_CHECK_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	instanceName(instanceName_),
+	propertyList(propertyList_)
+    {
+
+    }
+
+    CIMReference instanceName;
+    Array<String> propertyList;
+};
+
+class CIMProvideIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMProvideIndicationRequestMessage(
+        const String& messageId_,
+	const CIMReference& classRef_,
+	const CIMReference& filterRef_,
+	const CIMReference& handlerRef_,
+	const CIMDateTime & minimumInterval_,
+	const CIMDateTime & maximumInterval_,
+	const Array<String>& propertyList_,
+	QueueIdStack queueIds_)
+	:
+	CIMRequestMessage(
+	    CIM_PROVIDE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	classRef(classRef_),
+	filterRef(filterRef_),
+	handlerRef(handlerRef_),
+	minimumInterval(minimumInterval_),
+	maximumInterval(maximumInterval_),
+	propertyList(propertyList_)
+    {
+
+    }
+
+    CIMReference filterRef;
+    CIMReference handlerRef;
+    CIMReference classRef;
+    CIMDateTime minimumInterval;
+    CIMDateTime maximumInterval;
+    Array<String> propertyList;
+};
+
+class CIMUpdateIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMUpdateIndicationRequestMessage(
+        const String& messageId_,
+	const String& className_,
+	const CIMReference& instanceName_,
+	const CIMDateTime & minimumInterval_,
+	const CIMDateTime & maximumInterval_,
+	const Array<String>& propertyList_,
+	QueueIdStack queueIds_)
+	:
+	CIMRequestMessage(
+	    CIM_UPDATE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	className(className_),
+	instanceName(instanceName_),
+	minimumInterval(minimumInterval_),
+	maximumInterval(maximumInterval_),
+	propertyList(propertyList_)
+    {
+
+    }
+
+    CIMReference instanceName;
+    String className;
+    CIMDateTime minimumInterval;
+    CIMDateTime maximumInterval;
+    Array<String> propertyList;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
     : public CIMResponseMessage
 {

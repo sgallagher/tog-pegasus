@@ -232,8 +232,9 @@ MessageQueue* MessageQueue::lookup(const char *name)
       throw NullPointer();
    for(QueueTable::Iterator i = _queueTable.start(); i; i++)
    {
-      if(! strncmp( ((MessageQueue *)i.value())->_name, name, 16) )
-	 return( (MessageQueue *)i.value());
+        // ATTN: Need to decide how many characters to compare in queue names
+	if(! strncmp( ((MessageQueue *)i.value())->getQueueName(), name, 25) )
+	    return( (MessageQueue *)i.value());
    }
    return 0;
 }

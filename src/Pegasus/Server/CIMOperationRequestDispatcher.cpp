@@ -1,5 +1,7 @@
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -27,11 +29,16 @@
 //
 // Modified By:  Yi Zhou (yi_zhou@hp.com)
 //
+// Modified By:  Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Provider2/CIMIndicationProvider.h>
+#include <Pegasus/Provider2/SimpleResponseHandler.h>
+#include <Pegasus/Provider2/CIMBaseProviderFacade.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -220,8 +227,28 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 	    break;
 
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	    //handleInvokeMethodRequest(
-		//(CIMInvokeMethodRequestMessage*)request);
+	    handleInvokeMethodRequest(
+		(CIMInvokeMethodRequestMessage*)request);
+	    break;
+
+	case CIM_CANCEL_INDICATION_REQUEST_MESSAGE:
+	    handleCancelIndicationRequest(
+		(CIMCancelIndicationRequestMessage*)request);
+	    break;
+
+	case CIM_CHECK_INDICATION_REQUEST_MESSAGE:
+	    handleCheckIndicationRequest(
+		(CIMCheckIndicationRequestMessage*)request);
+	    break;
+
+	case CIM_PROVIDE_INDICATION_REQUEST_MESSAGE:
+	    handleProvideIndicationRequest(
+		(CIMProvideIndicationRequestMessage*)request);
+	    break;
+
+	case CIM_UPDATE_INDICATION_REQUEST_MESSAGE:
+	    handleUpdateIndicationRequest(
+		(CIMUpdateIndicationRequestMessage*)request);
 	    break;
     }
 
@@ -484,8 +511,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 	if(providerName.size() != 0)
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    instanceName = provider->createInstance(
 		OperationContext(),
@@ -1168,7 +1195,6 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
     _enqueueResponse(request, response);
 }
 
-/*
 void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     CIMInvokeMethodRequestMessage* request)
 {
@@ -1179,9 +1205,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
     Array<CIMParamValue> outParameters;
 
-    Array<CIMParamValue> outParams;
-    Array<CIMParamValue> inParams;
-
     try
     {
 	// get provider for class
@@ -1190,20 +1213,16 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 	if(providerName.size() != 0)
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
-    	// converting Array<CIMargument> to Array<CIMvalue>
-		for (Uint8 i = 0; i < request->inParameters.size(); i++)
-			inParams.append(request->inParameters[i].getValue());
-
-	    retValue = provider->invokeMethod(
-			OperationContext(),
+    	    retValue = provider->invokeMethod(
+		OperationContext(),
 		request->nameSpace,
 		request->instanceName,
 		request->methodName,
-		inParams,
-		outParams);
+		request->inParameters,
+		outParameters);
 	}
 	else
 	{
@@ -1223,22 +1242,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	errorDescription = exception.getMessage();
     }
 
-    // converting Array<CIMvalue> to Array<CIMvalue> Array<CIMargument>
-    //for (Uint8 j = 0; j < outParams.size(); j++)
-    //{
-	//outParameters.append(CIMParamValue(
-	//    CIMParameter("ATTN: What's name?", outParams[j].getType()),
-	//    outParams[j]));
-    //}
-
-    // ATTN: Assuming provider returned true and following parameters
-    outParameters.append(CIMParamValue(
-	CIMParameter("param1", CIMType::STRING),
-	CIMValue("HP")));
-    outParameters.append(CIMParamValue(
-	CIMParameter("param2", CIMType::STRING),
-	CIMValue("CA")));
-
     CIMInvokeMethodResponseMessage* response =
 	new CIMInvokeMethodResponseMessage(
 	    request->messageId,
@@ -1251,6 +1254,33 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
     _enqueueResponse(request, response);
 }
-*/
+
+void CIMOperationRequestDispatcher::handleCancelIndicationRequest(
+    CIMCancelIndicationRequestMessage* request)
+{
+    //ATTN: Implement loading of provider and then call cancelIndication()
+    cout << "ATTN : implement cancelIndication" << endl;
+}
+
+void CIMOperationRequestDispatcher::handleCheckIndicationRequest(
+    CIMCheckIndicationRequestMessage* request)
+{
+    //ATTN: Implement loading of provider and then call checkIndication()
+    cout << "ATTN : implement checkIndication" << endl;
+}
+
+void CIMOperationRequestDispatcher::handleProvideIndicationRequest(
+    CIMProvideIndicationRequestMessage* request)
+{
+    //ATTN: Implement loading of provider and then call provideIndication()
+    cout << "ATTN : implement provideIndication" << endl;
+}
+
+void CIMOperationRequestDispatcher::handleUpdateIndicationRequest(
+    CIMUpdateIndicationRequestMessage* request)
+{
+    //ATTN: Implement loading of provider and then call updateIndication()
+    cout << "ATTN : implement updateIndication" << endl;
+}
 
 PEGASUS_NAMESPACE_END

@@ -8,6 +8,7 @@ include $(ROOT)/mak/config.mak
 #Directories to recurse
 DIRS = \
     generic \
+    ManagedSystem \
 	sample
 
 # ATTN: Comment this out: it was breaking the build:

@@ -1062,6 +1062,34 @@ public:
     String providerName;    
 };
 
+class CIMHandleIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMHandleIndicationRequestMessage(
+        const String& messageId_,
+	const String & nameSpace_,
+	const CIMInstance& handlerInstance_,
+	const CIMInstance& indicationInstance_,
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
+	:
+	CIMRequestMessage(
+	    CIM_HANDLE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	nameSpace(nameSpace_),
+	handlerInstance(handlerInstance_),
+	indicationInstance(indicationInstance_),
+        userName(userName_)
+    {
+
+    }
+
+    String nameSpace;
+    CIMInstance handlerInstance;
+    CIMInstance indicationInstance;
+    String userName;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
     : public CIMResponseMessage
 {
@@ -1597,6 +1625,22 @@ public:
         :
         CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
             messageId_, errorCode_, errorDescription_, queueIds_)
+    {
+    }
+};
+
+class CIMHandleIndicationResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMHandleIndicationResponseMessage(
+        const String& messageId_,
+	CIMStatusCode errorCode_,
+	const String& errorDescription_,
+	const QueueIdStack& queueIds_)
+	:
+	CIMResponseMessage(CIM_HANDLE_INDICATION_RESPONSE_MESSAGE, 
+	    messageId_, errorCode_, errorDescription_, queueIds_)
     {
     }
 };

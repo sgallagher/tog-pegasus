@@ -1,0 +1,230 @@
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/XmlWriter.h>
+
+#include "IndicationHandlerService.h"
+
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
+
+PEGASUS_NAMESPACE_BEGIN
+
+Boolean IndicationHandlerService::messageOK(const Message *msg)
+{
+   if(msg->getMask() & message_mask::ha_async)
+   {
+      if( msg->getType() == 0x04100000 ||
+	  msg->getType() == async_messages::CIMSERVICE_STOP || 
+	  msg->getType() == async_messages::CIMSERVICE_PAUSE || 
+	  msg->getType() == async_messages::ASYNC_LEGACY_OP_START ||
+	  msg->getType() == async_messages::CIMSERVICE_RESUME )
+      return true;
+   }
+   return false;
+}
+
+
+void IndicationHandlerService::handle_CimServiceStop(CimServiceStop *req)
+{
+    AsyncReply *resp =  
+	new AsyncReply(async_messages::REPLY,
+	    req->getKey(),
+	    req->getRouting(), 
+	    0, 
+	    req->op, 
+	    async_results::CIM_SERVICE_STOPPED, 
+	    req->resp, 
+	    req->block);
+    
+    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+    
+    dienow++;
+}
+
+void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
+{
+    if ( req->getType() == async_messages::CIMSERVICE_STOP )
+    {
+	req->op->processing();
+	handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+    }
+    else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+    {
+	req->op->processing();
+	handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
+    }
+    else
+	Base::_handle_async_request(req);
+}
+
+void IndicationHandlerService::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
+{
+    Message *legacy = req->act;
+    
+    switch (legacy->getType())
+    {
+	case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+	    handle_handleIndcication(legacy);
+	    break;
+
+	default:
+	    // Ignore this
+	    break;
+    }
+   
+    AsyncReply *resp =  
+	new AsyncReply(async_messages::REPLY,
+	    req->getKey(),
+	    req->getRouting(), 
+	    0, 
+	    req->op, 
+	    async_results::OK, 
+	    req->resp, 
+	    req->block);
+    
+    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+}
+
+void IndicationHandlerService::handle_handleIndcication(const Message* message)
+{
+    CIMHandleIndicationRequestMessage* request = 
+	(CIMHandleIndicationRequestMessage*) message;
+
+    String className = request->handlerInstance.getClassName();
+    
+    String nameSpace = request->nameSpace;
+
+    CIMInstance indication = request->indicationInstance;
+    CIMInstance handler = request->handlerInstance;
+
+    Uint32 pos = handler.findProperty("destination");
+    if (pos == PEG_NOT_FOUND)
+    {
+	// malformed handler instance, no destination
+	throw CIMException(CIM_ERR_FAILED);
+    }
+
+    CIMProperty prop = handler.getProperty(pos);
+    String destination = prop.getValue().toString();
+    
+    if (destination.size() == 0)
+	throw CIMException(CIM_ERR_FAILED);
+ 
+    if ((className == "CIM_IndicationHandlerCIMXML") &&
+	(String::equalNoCase(destination, String("localhost"))))
+    {
+	// Listener is build with Cimom, so send message to ExportServer
+	
+	CIMExportIndicationRequestMessage* exportmessage =
+	    new CIMExportIndicationRequestMessage(
+		XmlWriter::getNextMessageId(),
+		destination,
+		indication,
+		QueueIdStack());
+	
+	Array<Uint32> exportServer;
+
+	find_services(String("ExportServer"), 0, 0, &exportServer);
+	    
+	AsyncLegacyOperationStart *req =
+	    new AsyncLegacyOperationStart(
+		get_next_xid(),
+		0,
+                exportServer[0],
+                exportmessage,
+		getQueueId());
+
+	AsyncMessage* reply = SendWait(req);
+	delete req;
+	delete exportmessage;
+    }
+    else
+    {
+	// generic handler. So load it and let it to do.
+	CIMHandler* handlerLib = _lookupHandlerForClass(nameSpace, className);
+
+	if (handlerLib)
+	{
+	    handlerLib->handleIndication(
+		handler,
+		indication,
+		nameSpace);
+	}
+	else
+	    throw CIMException(CIM_ERR_FAILED);
+    }
+
+    delete request;
+}
+
+CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
+    const String& nameSpace,
+    const String& className)
+{
+    //----------------------------------------------------------------------
+    // Look up the class:
+    //----------------------------------------------------------------------
+
+    CIMClass cimClass = _repository->getClass(nameSpace, className);
+
+    if (!cimClass)
+        throw CIMException(CIM_ERR_INVALID_CLASS);
+
+    //----------------------------------------------------------------------
+    // Get the handler qualifier:
+    //----------------------------------------------------------------------
+
+    Uint32 pos = cimClass.findQualifier("Handler");
+
+    if (pos == PEG_NOT_FOUND)
+        return 0;
+
+    CIMQualifier q = cimClass.getQualifier(pos);
+    String handlerId;
+
+    q.getValue().get(handlerId);
+
+    CIMHandler* handler = _handlerTable.lookupHandler(handlerId);
+
+    if (!handler)
+    {
+        handler = _handlerTable.loadHandler(handlerId);
+
+        if (!handler)
+            throw CIMException(CIM_ERR_FAILED);
+
+        handler->initialize(_repository);
+    }
+
+    return handler;
+}
+
+PEGASUS_NAMESPACE_END

@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.h,v 1.1 2003/05/21 15:14:09 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.h,v 1.2 2003/05/21 19:05:50 mday Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -170,14 +170,14 @@ extern "C" {
     struct ldap_filter_struct_head  *next;
     struct ldap_filter_struct_head  *prev;
     BOOL isHead;
-    int operator; 
+    int _operator; 
   } filterHead;
 
   typedef struct ldap_filter_struct {
     struct ldap_filter_struct *next;
     struct ldap_filter_struct *prev;
     BOOL isHead;
-    int operator; 
+    int _operator; 
     int nestingLevel;
     BOOL logical_value;
     filterHead children ;
@@ -848,7 +848,7 @@ char *slp_get_host_name( char *buf, int buf_size  );
 
   /* ldap filter and parser */
 
- lslpLDAPFilter *lslpAllocFilter(int operator);
+ lslpLDAPFilter *lslpAllocFilter(int _operator);
  void lslpFreeFilter(lslpLDAPFilter *filter);
  void lslpFreeFilterList(lslpLDAPFilter *head, BOOL static_flag);
  void lslpInitFilterList(void );
@@ -993,6 +993,10 @@ SLP_STORAGE_DECL uint32 test_srv_reg(int8 *type,
 SLP_STORAGE_DECL uint32 test_query(int8 *type,
 				   int8 *predicate, 
 				   int8 *scopes);
+
+
+
+
 
 #ifdef	__cplusplus
 }

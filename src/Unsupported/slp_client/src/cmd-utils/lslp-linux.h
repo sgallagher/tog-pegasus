@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-linux.h,v 1.1 2003/05/21 15:14:08 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-linux.h,v 1.2 2003/05/21 19:05:50 mday Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -68,9 +68,8 @@ typedef unsigned int uint32;
 typedef long long int64;
 typedef unsigned long long uint64;
 typedef uint32 BOOL;
-
 #ifdef __cplusplus
-extern "c" {
+extern "C" {
 #endif
 
 void _lslp_term(int sig) ;

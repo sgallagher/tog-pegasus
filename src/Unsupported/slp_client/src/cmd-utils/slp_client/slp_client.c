@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.c,v 1.2 2003/05/21 16:32:25 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.c,v 1.3 2003/05/21 19:05:50 mday Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -2944,28 +2944,28 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
   if( ! (_LSLP_IS_HEAD(filter->next)) && (! _LSLP_IS_EMPTY(filter->next)) ) {
     lslpEvaluateFilterTree(filter->next, attrs);
   }
-  if(filter->operator == ldap_and || filter->operator == ldap_or || filter->operator == ldap_not) {
-    /* evaluate ldap logical operators by evaluating filter->children as a list of filters */
+  if(filter->_operator == ldap_and || filter->_operator == ldap_or || filter->_operator == ldap_not) {
+    /* evaluate ldap logical _operators by evaluating filter->children as a list of filters */
     lslpLDAPFilter *child_list = (lslpLDAPFilter *)filter->children.next;
     /* initialize  the filter's logical value to TRUE */
-    if(filter->operator == ldap_or)
+    if(filter->_operator == ldap_or)
       filter->logical_value = FALSE;
     else
       filter->logical_value = TRUE;
     while(! _LSLP_IS_HEAD(child_list)) {
       if(child_list->logical_value == TRUE)  {
-	if(filter->operator == ldap_or) {
+	if(filter->_operator == ldap_or) {
 	  filter->logical_value = TRUE;
 	  break;
 	}
-	if(filter->operator == ldap_not) {
+	if(filter->_operator == ldap_not) {
 	  filter->logical_value = FALSE;
 	  break;
 	}
-	/* for an & operator keep going  */
+	/* for an & _operator keep going  */
       } else {
 	/* child is FALSE */
-	if(filter->operator == ldap_and) {
+	if(filter->_operator == ldap_and) {
 	  filter->logical_value = FALSE;
 	  break;
 	}
@@ -2984,10 +2984,10 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
       /* either we have traversed the list or found the first matching attribute */
       if( ! _LSLP_IS_HEAD(attrs) ) {
 	/* we found the first matching attribute, now do the comparison */
-	if (filter->operator == expr_present || filter->operator == expr_approx) 
+	if (filter->_operator == expr_present || filter->_operator == expr_approx) 
 	  filter->logical_value = TRUE;
 	else
-	  filter->logical_value = lslpEvaluateAttributes(filter->attrs.next, attrs, filter->operator );
+	  filter->logical_value = lslpEvaluateAttributes(filter->attrs.next, attrs, filter->_operator );
       }
     }
   }

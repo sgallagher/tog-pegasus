@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_srvreg/Attic/slp_srvreg.c,v 1.1 2003/05/21 15:14:09 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_srvreg/Attic/slp_srvreg.c,v 1.2 2003/05/21 19:05:50 mday Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -30,8 +30,6 @@
  *  DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-
-
 
 
 #define SLP_LIB_IMPORT

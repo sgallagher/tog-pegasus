@@ -39,14 +39,8 @@
    #define _XOPEN_SOURCE 600
 #endif
 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-# include <features.h>
-#endif
-
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-# include <sched.h>
-#endif
-
+#include <features.h>
+#include <sched.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
@@ -54,15 +48,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-// ATTN: RK - Need to determine HP-UX equivalent
-typedef int PEGASUS_CRIT_TYPE;
-#else
-
-
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
-#endif
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
@@ -78,11 +64,8 @@ typedef struct {
     pthread_t owner;
 } PEGASUS_MUTEX_HANDLE ;
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-   typedef void *PEGASUS_CLEANUP_HANDLE ;
-#else
-   typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE ;
-#endif
+typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE ;
+
 
 typedef void *PEGASUS_THREAD_RETURN;
 
@@ -97,7 +80,7 @@ typedef struct {
 /// Conditionals to support native or generic Conditional Semaphore
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #define PEGASUS_CONDITIONAL_NATIVE = 1
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
@@ -117,7 +100,7 @@ typedef struct {
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
 
 typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
@@ -128,14 +111,8 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-// ATTN: RK - Need this definition to compile on HP-UX (or else
-// PEGASUS_RWLOCK_HANDLE is undefined)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #define PEGASUS_READWRITE_NATIVE = 1
-#else
-// #define PEGASUS_READWRITE_NATIVE = 1
-#endif
 
 typedef struct {
     pthread_rwlock_t rwlock;

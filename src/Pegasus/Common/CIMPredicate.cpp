@@ -26,12 +26,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/CIMReference.h>
+#include "CIMPredicate.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
 
 #define PEGASUS_ARRAY_T Predicate
 # include <Pegasus/Common/ArrayImpl.h>
@@ -165,13 +162,13 @@ Predicate::Predicate(void) : KeyBinding() { }
 Predicate::Predicate(const Predicate& x) 
    : KeyBinding(x), _op(x._op), _truth_value(x._truth_value) { }
 
-Predicate(const KeyBinding& x, ExpressionOperator op = Equal, Boolean truth = true)
+Predicate::Predicate(const KeyBinding& x, ExpressionOperator op = EQUAL, Boolean truth = true)
 {
    if(this != &x)
    {
       KeyBinding::operator=(x);
       _op = op;
-      _truth = truth;
+      _truth_value = truth;
    }
    
 }
@@ -179,7 +176,7 @@ Predicate(const KeyBinding& x, ExpressionOperator op = Equal, Boolean truth = tr
 Predicate::Predicate(const String& name, 
 		     const String& value, 
 		     Type type,
-		     ExpressionOperator op = Equal,
+		     ExpressionOperator op = EQUAL,
 		     Boolean truth = true) 
    : KeyBinding(name, value, type), _op(op), _truth_value(truth) { }
 
@@ -194,7 +191,7 @@ Predicate& Predicate::operator=(const Predicate& x)
    return *this;
 }
 
-void Predicate::evaluate(KeyBinding& key)
+Boolean  Predicate::evaluate(KeyBinding& key)
 {
    _truth_value = false;
    if(true == CIMName::equal(this->getName() , key.getName()))
@@ -218,11 +215,7 @@ void Predicate::evaluate(KeyBinding& key)
 	 }
       }
    }
+   return _truth_value;
 }
-
-
-
-
-
 
 PEGASUS_NAMESPACE_END

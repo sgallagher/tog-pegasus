@@ -44,17 +44,30 @@ PEGASUS_NAMESPACE_BEGIN
 
 class DeclContext;
 
+
+/* ATTN: KS P3 DEFER 1 May 2002. We have list processors (really array processors) for
+    qualifiers, properties, methods(???) but they are all slightly different.
+    Should we create a common base??
+*/
+/** This class is for representing Qualifier lists in the CIM interface.
+
+    Members are provided for accessing elements of the the internal property
+    list. There are none for modifying elements (the entire array must be
+    formed and passed to the constructor or replaced by calling set()).
+*/
+
 class PEGASUS_COMMON_LINKAGE CIMQualifierList
 {
 public:
 
-    ///
+    /// constructor - Constructs a NULL qualifier list.
     CIMQualifierList();
 
     ///
     ~CIMQualifierList();
 
-    ///
+    /** add adds a single CIMQualifier to a CIMQualifierList
+    */
     CIMQualifierList& add(const CIMQualifier& qualifier);
 
     /**	 getCount - Returns the count of qualifiers in the list

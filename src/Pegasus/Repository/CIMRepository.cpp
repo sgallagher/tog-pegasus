@@ -71,12 +71,17 @@ void _LoadObject(
     const String& path,
     Object& object)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_LoadObject");
+
     // Get the real path of the file:
 
     String realPath;
 
     if (!FileSystem::existsNoCase(path, realPath))
+    {
+        PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
+    }
 
     // Load file into memory:
 
@@ -87,6 +92,8 @@ void _LoadObject(
     XmlParser parser((char*)data.getData());
 
     XmlReader::getObject(parser, object);
+
+    PEG_METHOD_EXIT();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,6 +108,8 @@ void _LoadObject(
 template<class Object>
 void _SaveObject(const String& path, const Object& object)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
+
     Array<Sint8> out;
     object.toXml(out);
 
@@ -108,7 +117,10 @@ void _SaveObject(const String& path, const Object& object)
     PEGASUS_STD(ofstream) os(destroyer.getPointer() PEGASUS_IOS_BINARY);
 
     if (!os)
+    {
+        PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
+    }
 
 #ifdef INDENT_XML_FILES
     out.append('\0');
@@ -116,14 +128,20 @@ void _SaveObject(const String& path, const Object& object)
 #else
     os.write((char*)out.getData(), out.size());
 #endif
+
+    PEG_METHOD_EXIT();
 }
 
 static String _MakeAssocInstPath(
     const String& nameSpace,
     const String& repositoryRoot)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocInstPath");
+
     String tmp = nameSpace;
     tmp.translate('/', '#');
+
+    PEG_METHOD_EXIT();
     return String(Cat(repositoryRoot, "/", tmp, "/instances/associations"));
 }
 
@@ -131,8 +149,12 @@ static String _MakeAssocClassPath(
     const String& nameSpace,
     const String& repositoryRoot)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocClassPath");
+
     String tmp = nameSpace;
     tmp.translate('/', '#');
+
+    PEG_METHOD_EXIT();
     return String(Cat(repositoryRoot, "/", tmp, "/classes/associations"));
 }
 
@@ -157,37 +179,61 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
      _lock(), _resolveInstance(true)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
+
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
         "repositoryIsDefaultInstanceProvider") == "true");
     _providerName = ConfigManager::getInstance()->getCurrentValue(
         "repositoryProviderName");
+
+    PEG_METHOD_EXIT();
 }
 
 CIMRepository::~CIMRepository()
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::~CIMRepository");
+
     delete _context;
+
+    PEG_METHOD_EXIT();
 }
 
 
 void CIMRepository::read_lock(void) throw(IPCException)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::read_lock");
+
    _lock.wait_read(pegasus_thread_self());
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::read_unlock(void)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::read_unlock");
+
    _lock.unlock_read(pegasus_thread_self());
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::write_lock(void) throw(IPCException)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::write_lock");
+
    _lock.wait_write(pegasus_thread_self());
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::write_unlock(void)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::write_unlock");
+
    _lock.unlock_write(pegasus_thread_self());
+
+    PEG_METHOD_EXIT();
 }
 
 CIMClass CIMRepository::getClass(
@@ -198,6 +244,8 @@ CIMClass CIMRepository::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getClass");
+
     // ATTN: localOnly, includeQualifiers, and includeClassOrigin are ignored
     // for now.
 
@@ -214,9 +262,11 @@ CIMClass CIMRepository::getClass(
     }
     catch (Exception&)
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className);
     }
 
+    PEG_METHOD_EXIT();
     return cimClass;
 }
 
@@ -228,6 +278,8 @@ Boolean CIMRepository::_getInstanceIndex(
     Uint32& size,
     Boolean searchSuperClasses) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstanceIndex");
+
     //
     // Get all descendent classes of this class:
     //
@@ -263,10 +315,12 @@ Boolean CIMRepository::_getInstanceIndex(
         if (InstanceIndexFile::lookupEntry(path, tmpInstanceName, index, size))
         {
             className = classNames[i];
+            PEG_METHOD_EXIT();
             return true;
         }
     }
 
+    PEG_METHOD_EXIT();
     return false;
 }
 
@@ -278,6 +332,8 @@ CIMInstance CIMRepository::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getInstance");
+
     //
     // Get the index for this instance:
     //
@@ -285,8 +341,6 @@ CIMInstance CIMRepository::getInstance(
     String className;
     Uint32 index;
     Uint32 size;
-
-    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::getInstance");
 
     if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
     {
@@ -325,6 +379,8 @@ void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteClass");
+
     //
     // Get the class and check to see if it is an association class:
     //
@@ -341,14 +397,24 @@ void CIMRepository::deleteClass(
     String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
 
     if (InstanceIndexFile::hasNonFreeEntries(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_INSTANCES, className);
+    }
 
     //
     // Delete the class. The NameSpaceManager::deleteClass() method throws
     // and exception if the class has sublclasses.
     //
-
-    _nameSpaceManager.deleteClass(nameSpace, className);
+    try
+    {
+        _nameSpaceManager.deleteClass(nameSpace, className);
+    }
+    catch (CIMException& e)
+    {
+        PEG_METHOD_EXIT();
+        throw e;
+    }
 
     FileSystem::removeFileNoCase(indexFilePath);
     FileSystem::removeFileNoCase(dataFilePath);
@@ -368,12 +434,16 @@ void CIMRepository::deleteClass(
         if (FileSystem::exists(assocFileName))
             AssocClassTable::deleteAssociation(assocFileName, className);
     }
+
+    PEG_METHOD_EXIT();
 }
 
 void _CompactInstanceRepository(
     const String& indexFilePath, 
     const String& dataFilePath)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_CompactInstanceRepository");
+
     //
     // Compact the data file first:
     //
@@ -386,18 +456,27 @@ void _CompactInstanceRepository(
     if (!InstanceIndexFile::enumerateEntries(
 	indexFilePath, freeFlags, indices, sizes, instanceNames, true))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
     }
 
     if (!InstanceDataFile::compact(dataFilePath, freeFlags, indices, sizes))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
+    }
 
     //
     // Now compact the index file:
     //
 
     if (!InstanceIndexFile::compact(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::deleteInstance(
@@ -521,6 +600,8 @@ void CIMRepository::_createAssocClassEntries(
     const String& nameSpace,
     const CIMConstClass& assocClass)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocClassEntries");
+
     // Open input file:
 
 
@@ -528,7 +609,10 @@ void CIMRepository::_createAssocClassEntries(
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
+    {
+        PEG_METHOD_EXIT();
         throw CannotOpenFile(assocFileName);
+    }
 
     // Get the association's class name:
 
@@ -567,12 +651,16 @@ void CIMRepository::_createAssocClassEntries(
             }
         }
     }
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
+
     // -- Resolve the class:
         CIMClass cimClass(newClass);
         
@@ -593,6 +681,8 @@ void CIMRepository::createClass(
     // -- Create the class file:
 
     _SaveObject(classFilePath, cimClass);
+
+    PEG_METHOD_EXIT();
 }
 
 /*------------------------------------------------------------------------------
@@ -632,13 +722,18 @@ void CIMRepository::_createAssocInstEntries(
     const CIMInstance& cimInstance,
     const CIMReference& instanceName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocInstEntries");
+
     // Open input file:
 
     String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
+    {
+        PEG_METHOD_EXIT();
         throw CannotOpenFile(assocFileName);
+    }
 
     // Get the association's instance name and class name:
 
@@ -693,6 +788,8 @@ void CIMRepository::_createAssocInstEntries(
             }
         }
     }
+
+    PEG_METHOD_EXIT();
 }
 
 CIMReference CIMRepository::createInstance(
@@ -854,6 +951,8 @@ void CIMRepository::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
+
     //
     // Resolve the class:
     //
@@ -884,6 +983,7 @@ void CIMRepository::modifyClass(
 
     if (!FileSystem::removeFileNoCase(classFilePath))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "failed to remove file in CIMRepository::modifyClass()");
     }
@@ -893,6 +993,8 @@ void CIMRepository::modifyClass(
     //
 
     _SaveObject(classFilePath, cimClass);
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::modifyInstance(
@@ -901,6 +1003,8 @@ void CIMRepository::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
+
     //
     // Get paths of index and data files:
     //
@@ -918,20 +1022,32 @@ void CIMRepository::modifyInstance(
     //
 
     if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+    }
 
     if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+    }
 
     //
     // Begin the transaction:
     //
 
     if (!InstanceIndexFile::beginTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+    }
 
     if (!InstanceDataFile::beginTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+    }
 
     //
     // Do this:
@@ -1129,6 +1245,7 @@ void CIMRepository::modifyInstance(
                         propertyList.getPropertyName(i)))
                     {
                         // ATTN: This exception may be returned by setProperty
+                        PEG_METHOD_EXIT();
                         throw PEGASUS_CIM_EXCEPTION(
                             CIM_ERR_NO_SUCH_PROPERTY, "modifyInstance()");
                     }
@@ -1153,6 +1270,7 @@ void CIMRepository::modifyInstance(
 
     if (instanceName != modifiedInstance.getInstanceName())
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "Attempted to modify a key property");
     }
@@ -1165,6 +1283,7 @@ void CIMRepository::modifyInstance(
     if (!InstanceIndexFile::lookupEntry(
 	indexFilePath, instanceName, oldIndex, oldSize))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
@@ -1182,6 +1301,7 @@ void CIMRepository::modifyInstance(
 	{
 	    errMessage.append("Failed to modify instance ");
 	    errMessage.append(instanceName.toString());
+            PEG_METHOD_EXIT();
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
 	}
     }
@@ -1197,6 +1317,7 @@ void CIMRepository::modifyInstance(
     {
         errMessage.append("Failed to modify instance ");
         errMessage.append(instanceName.toString());
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
@@ -1205,10 +1326,16 @@ void CIMRepository::modifyInstance(
     //
 
     if (!InstanceIndexFile::commitTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
+    }
 
     if (!InstanceDataFile::commitTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
+    }
 
     //
     // Compact the index and data files if the free count max was
@@ -1223,6 +1350,8 @@ void CIMRepository::modifyInstance(
     //
 
     cimInstance.resolve(_context, nameSpace, cimClass, true);
+
+    PEG_METHOD_EXIT();
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -1233,7 +1362,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
 
     Array<String> classNames;
 
@@ -1248,6 +1377,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
             includeQualifiers, includeClassOrigin));
     }
 
+    PEG_METHOD_EXIT();
     return result;
 }
 
@@ -1256,11 +1386,14 @@ Array<String> CIMRepository::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasNames");
+
     Array<String> classNames;
 
     _nameSpaceManager.getSubClassNames(
         nameSpace, className, deepInheritance, classNames);
 
+    PEG_METHOD_EXIT();
     return classNames;
 }
 
@@ -1269,6 +1402,8 @@ Boolean CIMRepository::_loadAllInstances(
     const String& className,
     Array<CIMNamedInstance>& namedInstances)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadAllInstances");
+
     Array<CIMReference> instanceNames;
     Array<Sint8> data;
     Array<Uint32> indices;
@@ -1295,6 +1430,7 @@ Boolean CIMRepository::_loadAllInstances(
     if (!InstanceIndexFile::enumerateEntries(
         indexFilePath, freeFlags, indices, sizes, instanceNames, true))
     {
+        PEG_METHOD_EXIT();
         return false;
     }
 
@@ -1309,7 +1445,10 @@ Boolean CIMRepository::_loadAllInstances(
 	//
 
         if (!InstanceDataFile::loadAllInstances(dataFilePath, data))
+        {
+            PEG_METHOD_EXIT();
             return false;
+        }
  
         //
         // for each instance loaded, call XML parser to parse the XML
@@ -1337,6 +1476,7 @@ Boolean CIMRepository::_loadAllInstances(
         }
     }
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -1349,6 +1489,8 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateInstances");
+
     //
     // Get all descendent classes of this class:
     //
@@ -1369,10 +1511,12 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
         {
             String errMessage = "Failed to load instances in class ";
             errMessage.append(classNames[i]);
+            PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         }
     }
 
+    PEG_METHOD_EXIT();
     return namedInstances;
 }
 
@@ -1440,9 +1584,12 @@ Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,
     const String& query)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::execQuery");
+
+    PEG_METHOD_EXIT();
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
 
-
+    PEG_METHOD_EXIT();
     return Array<CIMInstance>();
 }
 
@@ -1457,6 +1604,8 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associators");
+
     Array<CIMReference> names = associatorNames(
         nameSpace,
         objectName,
@@ -1510,6 +1659,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
         }
     }
 
+    PEG_METHOD_EXIT();
     return result;
 }
 
@@ -1521,8 +1671,7 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
-
-
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associatorNames");
 
     Array<String> associatorNames;
 
@@ -1568,6 +1717,7 @@ Array<CIMReference> CIMRepository::associatorNames(
         result.append(r);
     }
 
+    PEG_METHOD_EXIT();
     return result;
 }
 
@@ -1580,6 +1730,8 @@ Array<CIMObjectWithPath> CIMRepository::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::references");
+
     Array<CIMReference> names = referenceNames(
         nameSpace,
         objectName,
@@ -1628,6 +1780,7 @@ Array<CIMObjectWithPath> CIMRepository::references(
         }
     }
 
+    PEG_METHOD_EXIT();
     return result;
 }
 
@@ -1637,6 +1790,8 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::referenceNames");
+
     Array<String> tmpReferenceNames;
 
     if (objectName.isClassName())
@@ -1683,6 +1838,7 @@ Array<CIMReference> CIMRepository::referenceNames(
         result.append(r);
     }
 
+    PEG_METHOD_EXIT();
     return result;
 }
 
@@ -1691,6 +1847,8 @@ CIMValue CIMRepository::getProperty(
     const CIMReference& instanceName,
     const String& propertyName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getProperty");
+
     //
     // Get the index for this instance:
     //
@@ -1700,7 +1858,10 @@ CIMValue CIMRepository::getProperty(
     Uint32 size;
 
     if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
+    }
 
     //
     // Load the instance into memory:
@@ -1711,6 +1872,7 @@ CIMValue CIMRepository::getProperty(
 
     if (!_loadInstance(path, cimInstance, index, size))
     {
+        PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
     }
 
@@ -1722,7 +1884,10 @@ CIMValue CIMRepository::getProperty(
 
     // ATTN: This breaks if the property is simply null
     if (pos == PEGASUS_NOT_FOUND)
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "getProperty()");
+    }
 
     CIMProperty prop = cimInstance.getProperty(pos);
 
@@ -1730,6 +1895,7 @@ CIMValue CIMRepository::getProperty(
     // Return the value:
     //
 
+    PEG_METHOD_EXIT();
     return prop.getValue();
 }
 
@@ -1739,6 +1905,8 @@ void CIMRepository::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setProperty");
+
     //
     // Create the instance to pass to modifyInstance()
     //
@@ -1759,12 +1927,16 @@ void CIMRepository::setProperty(
     // Modify the instance to set the value of the given property
     //
     modifyInstance(nameSpace, namedInstance, false, propertyList);
+
+    PEG_METHOD_EXIT();
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getQualifier");
+
     //
     // Get path of qualifier file:
     //
@@ -1784,9 +1956,11 @@ CIMQualifierDecl CIMRepository::getQualifier(
     }
     catch (CannotOpenFile&)
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, qualifierName);
     }
 
+    PEG_METHOD_EXIT();
     return qualifierDecl;
 }
 
@@ -1794,6 +1968,8 @@ void CIMRepository::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDecl)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
+
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1803,6 +1979,7 @@ void CIMRepository::setQualifier(
 
     if (FileSystem::existsNoCase(qualifierFilePath))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_ALREADY_EXISTS, qualifierDecl.getName());
     }
@@ -1810,12 +1987,16 @@ void CIMRepository::setQualifier(
     // -- Save qualifier:
 
     _SaveObject(qualifierFilePath, qualifierDecl);
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMRepository::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteQualifier");
+
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1824,18 +2005,26 @@ void CIMRepository::deleteQualifier(
     // -- Delete qualifier:
 
     if (!FileSystem::removeFileNoCase(qualifierFilePath))
+    {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, qualifierName);
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const String& nameSpace)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateQualifiers");
+
     String qualifiersRoot = _nameSpaceManager.getQualifiersRoot(nameSpace);
 
     Array<String> qualifierNames;
 
     if (!FileSystem::getDirectoryContents(qualifiersRoot, qualifierNames))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateQualifiers(): internal error");
     }
@@ -1848,24 +2037,37 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
         qualifiers.append(qualifier);
     }
 
+    PEG_METHOD_EXIT();
     return qualifiers;
 }
 
 void CIMRepository::createNameSpace(const String& nameSpace)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
+
     _nameSpaceManager.createNameSpace(nameSpace);
+
+    PEG_METHOD_EXIT();
 }
 
 Array<String> CIMRepository::enumerateNameSpaces() const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateNameSpaces");
+
     Array<String> nameSpaceNames;
     _nameSpaceManager.getNameSpaceNames(nameSpaceNames);
+
+    PEG_METHOD_EXIT();
     return nameSpaceNames;
 }
 
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
+
     _nameSpaceManager.deleteNameSpace(nameSpace);
+
+    PEG_METHOD_EXIT();
 }
 
 //----------------------------------------------------------------------
@@ -1880,10 +2082,14 @@ String CIMRepository::_getInstanceIndexFilePath(
     const String& nameSpace,
     const String& className) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstanceIndexFilePath");
+
     String tmp = _nameSpaceManager.getInstanceDataFileBase(
 	nameSpace, className);
 
     tmp.append(".idx");
+
+    PEG_METHOD_EXIT();
     return tmp;
 }
 
@@ -1899,9 +2105,13 @@ String CIMRepository::_getInstanceDataFilePath(
     const String& nameSpace,
     const String& className) const
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstanceDataFilePath");
+
     String tmp = _nameSpaceManager.getInstanceDataFileBase(
 	nameSpace, className);
     tmp.append(".instances");
+
+    PEG_METHOD_EXIT();
     return tmp;
 }
 
@@ -1911,6 +2121,8 @@ Boolean CIMRepository::_loadInstance(
     Uint32 index,
     Uint32 size)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadInstance");
+
     //
     // Load instance (in XML) from instance file into memory:
     //
@@ -1918,7 +2130,10 @@ Boolean CIMRepository::_loadInstance(
     Array<Sint8> data;
 
     if (!InstanceDataFile::loadInstance(path, index, size, data))
+    {
+        PEG_METHOD_EXIT();
         return false;
+    }
 
     //
     // Convert XML into an actual object:
@@ -1927,12 +2142,17 @@ Boolean CIMRepository::_loadInstance(
     XmlParser parser((char*)data.getData());
     XmlReader::getObject(parser, object);
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
 void CIMRepository::setDeclContext(RepositoryDeclContext *context)
 {
-  _context = context;
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setDeclContext");
+
+    _context = context;
+
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

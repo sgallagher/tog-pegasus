@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.12  2001/04/08 20:31:55  mike
+// Fixed
+//
 // Revision 1.11  2001/04/08 20:29:41  mike
 // Added std:: before cout and endl
 //
@@ -69,8 +72,9 @@
 #include "Destroyer.h"
 #include "FileSystem.h"
 #include "Dir.h"
-//DEBUG ONLY
-#include <iostream.h>
+#include <iostream>
+
+using namespace std;
 
 // ATTN-B: porting!
 
@@ -294,8 +298,8 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
 
 	else{
 	    // ATTN: Mike the second is the problem.
-	    std::cout << "DEBUG RMFIL " << q.getPointer() <<std::endl;
-	    std::cout << "DEBUG RMFIL " << fileList[i] <<std::endl;
+	    cout << "DEBUG RMFIL " << q.getPointer() << endl;
+	    cout << "DEBUG RMFIL " << fileList[i] << endl;
 	    removeFile(fileList[i]);
 	}
     }

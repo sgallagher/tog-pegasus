@@ -103,7 +103,8 @@ public:
 	}
 	catch(Exception& e)
         {
-            PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+            PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: " << e.getMessage() 
+	    << PEGASUS_STD(endl);
         }
     }
 };

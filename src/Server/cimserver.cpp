@@ -112,7 +112,7 @@
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
 
-int cimserver_run( int argc, char** argv, Pegasus::Boolean shutdownOption );
+int cimserver_run( int argc, char** argv, Boolean shutdownOption );
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "cimserver_windows.cpp"

@@ -192,6 +192,12 @@ public:
 	<pre>
 	    String test = "abc";
             printf("test = %s\n", (const char*)test.getCString());
+
+            NOTE:  Do not do the following:
+            const char * p = (const char *)test.getCString();
+            The pointer p will be invalid.  This is because
+            the CString object is destructed, which deletes
+            the heap space for p.
 	</pre>
     */
     CString getCString() const;

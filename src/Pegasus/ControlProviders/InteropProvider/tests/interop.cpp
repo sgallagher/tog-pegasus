@@ -353,6 +353,9 @@ Array<CIMObjectPath> _getCIMNamespaceInstanceNames(CIMClient& client)
     @param keyName - Name of the key to find.
     @return value of name property
     @exceptions CIMInvalidParameterException
+    NOTE: This one is a real NO NO. Should never have been written this
+    way.  We should be getting the value from the instance, not the
+    keys.
 */
 String _getKeyValue(const CIMObjectPath& instanceName, const CIMName& keyName)
 {
@@ -415,7 +418,112 @@ Array<CIMNamespaceName> _getNamespacesNew(CIMClient& client)
     return(rtns);
 }
 
-void _showNamespaceList(const Array<CIMNamespaceName> names, const String title)
+/** get one string property from an instance. Note that these functions simply
+    return the default value if the property cannot be found or is of the wrong
+    type thus, in reality being a maintenance problem since there is no 
+    error indication.
+    @param instance CIMInstance from which we get property value
+    @param propertyName String name of the property containing the value
+    @param default String optional parameter that is substituted if the property does
+    not exist, is Null, or is not a string type. The substitute is String::EMPTY
+    @return String value found or defaultValue.
+*/
+String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName, const String& defaultValue)
+{
+    String output = defaultValue;
+    Uint32 pos;
+    if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
+    {
+        CIMConstProperty p1 = instance.getProperty(pos);
+        if (p1.getType() == CIMTYPE_STRING)
+        {
+            CIMValue v1  = p1.getValue();
+
+            if (!v1.isNull())
+                v1.get(output);
+        }
+    }
+    return(output);
+}
+
+// Overload of _getPropertyValue for boolean type
+Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName, const Boolean defaultValue)
+{
+    Boolean output = defaultValue;
+    Uint32 pos;
+    if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
+    {
+        CIMConstProperty p1 = instance.getProperty(pos);
+        if (p1.getType() == CIMTYPE_BOOLEAN)
+        {
+            CIMValue v1  = p1.getValue();
+
+            if (!v1.isNull())
+                v1.get(output);
+        }
+    }
+    return(output);
+}
+
+void _showNamespaceInfo(CIMClient& client, const String& title)
+{
+    Array<CIMInstance> instances;
+    instances = _getCIMNamespaceInstances(client);
+
+    cout << title << " size = " << instances.size() << endl;
+    Array<CIMNamespaceName> rtns;
+    for (Uint32 i = 0 ; i < instances.size(); i++)
+    {
+        String isSharable = String::EMPTY;
+        String updatesAllowed = String::EMPTY;
+        String parent = String::EMPTY;
+        String name = String::EMPTY;
+
+        // get the namespace name from the name property.
+        if ((instances[i].findProperty(NAMESPACE_PROPERTYNAME)) == PEG_NOT_FOUND)
+            isSharable = "ERROR: Name Property Not Found";
+        else
+        {
+            name = _getPropertyValue(instances[i],NAMESPACE_PROPERTYNAME, String("ERROR: No Name Property Value"));
+        }
+
+        // if this is a PG_Namespace, get the other characteristics.
+        if (instances[i].getClassName() == PG_NAMESPACE_CLASSNAME)
+        {
+            // Get the sharable property
+            if ((instances[i].findProperty("IsShareable")) == PEG_NOT_FOUND)
+                isSharable = "Property Not Found";
+            else
+            {
+                isSharable = (_getPropertyValue(instances[i],"IsShareable", false)) ?
+                    "true" : "false";
+            }
+
+            // get the schemUpdatesAllowed property information
+            if ((instances[i].findProperty("SchemaUpdatesAllowed")) == PEG_NOT_FOUND)
+                isSharable = "Property Not Found";
+            else
+            {
+                updatesAllowed = (_getPropertyValue(instances[i],"SchemaUpdatesAllowed", false)) ?
+                    "true" : "false";
+            }
+                        // get the schemUpdatesAllowed property information
+            if ((instances[i].findProperty("ParentNamespace")) == PEG_NOT_FOUND)
+                isSharable = "Property Not Found";
+            else
+            {
+                parent = _getPropertyValue(instances[i],"ParentNamespace", String("No parent"));
+            }
+
+        }
+        
+        printf("%-20s %-10s %-10s %-10s\n", (const char *)name.getCString(), 
+                                            (const char *)isSharable.getCString(),
+                                            (const char *)updatesAllowed.getCString(),
+                                            (const char *)parent.getCString());
+    }
+}
+void _showNamespaceList(const Array<CIMNamespaceName> names, const String& title)
 {
     cout << title << " size = " << names.size() << endl;
     for (Uint32 i = 0; i < names.size(); i++)
@@ -546,6 +654,24 @@ Boolean _namespaceCreateCIM_Namespace(CIMClient& client, const CIMNamespaceName&
     return(true);
 }
 
+//ATTN: This test is not done and therefore always returns true.
+// 28 Sept 2004. KS.
+Boolean _testPGNamespace( CIMClient& client, const CIMNamespaceName& name,
+    Boolean shared, Boolean updatesAllowed, const String& parent)
+{
+    //ATTN: Build the get and test properties.
+
+    // get the instance
+
+    // test for shared property
+
+    // test for updatesAllowed property
+
+    // test for parent property
+
+
+    return(true);
+}
 
 /** Create a single namespace using CIM_Namespace
 */
@@ -568,12 +694,9 @@ Boolean _namespaceCreatePG_Namespace(CIMClient& client, const CIMNamespaceName& 
 
     CIMClass thisClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
                                         PG_NAMESPACE_CLASSNAME,
-                                        true,true,true);
+                                        false,true,true);
 
-
-    // El cheapo code Modify one existing instance and send it back as
-    // method to construct the correct keys.
-    CIMInstance instance = thisClass.buildInstance(false,false,CIMPropertyList());
+    CIMInstance instance = thisClass.buildInstance(true, false, CIMPropertyList());
 
     // Modify the name property value for new name
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
@@ -824,32 +947,40 @@ int main(int argc, char** argv)
     assert(nameListTemp.size() == nameListNew.size());
 
     if (verbose)
-    {
         cout << "Basic Namespace Tests passed" << endl;
-    }
-
 
     /****************************************************************
     // Test characteristics of shared namespaces.
     //***************************************************************/
+    try
+    {
 
-    /*
     CIMNamespaceName testNameSharable = CIMNamespaceName("root/junk/interoptest/sharable");
     CIMNamespaceName testNameShared = CIMNamespaceName("root/junk/interoptest/shared");
+
+    // Create a sharable namespace
     _namespaceCreatePG_Namespace(client, testNameSharable, true, false, String::EMPTY);
 
+    // create a namespace with the previous sharable as parent.
     _namespaceCreatePG_Namespace(client, testNameShared, false, false, testNameSharable.getString());
 
+    // Confirm that both exist
     assert(_existsNew(client, testNameSharable));
 
     assert(_existsNew(client, testNameShared));
 
-    // Should add test to confirm that these are really shared.  
+    if (verbose)
+    {
+        _showNamespaceInfo(client, "Namespaces with one shared and one sharable created");
+    }
 
-    // Confirm that they are sharable and shared.
+    // Should add test to confirm that these are really shared.
+    // No. Not in this version.
+    assert(_testPGNamespace(client, testNameSharable, true, false, String::EMPTY));
+    assert(_testPGNamespace(client, testNameShared, false, false, testNameSharable.getString()));
 
 
-    // Now delete them
+    // Now delete the two namespaces
 
     _namespaceDeleteCIM_Namespace(client, testNameSharable);
     _namespaceDeleteCIM_Namespace(client, testNameShared);
@@ -858,7 +989,22 @@ int main(int argc, char** argv)
     assert(!_existsNew(client, testNameSharable));
 
     assert(!_existsNew(client, testNameShared));
-    */
+
+    }
+
+    // Catch block for all of the CIM_ObjectManager Tests.
+    catch(CIMException& e)
+    {
+        cerr << argv[0] << " Shared Namespace test CIMException: " << e.getMessage() << endl;
+    }
+    catch(Exception& e)
+    {
+        cerr << argv[0] << " Shared Namespace test Pegasus Exception: " << e.getMessage()  << endl;
+    }
+    catch(...)
+    {
+        cerr << argv[0] << " Shared Namespace test Caught General Exception:" << endl;
+    }
     /****************************************************************
     // Test the characteristics of the CIM_ObjectManager Class and Instances
     //***************************************************************/

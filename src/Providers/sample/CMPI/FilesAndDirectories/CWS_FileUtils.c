@@ -50,7 +50,7 @@ static char fsn[] = CWS_FILEROOT;
 int silentMode()
 {
    return SILENT;
-}   
+}
 
 char * CSCreationClassName()
 {
@@ -63,8 +63,8 @@ char * CSName()
 #if defined SIMULATED
     strcpy(csn,"localhost");
 #else
-    gethostname(csn,sizeof(csn)); 
-#endif    
+    gethostname(csn,sizeof(csn));
+#endif
   return csn;
 }
 
@@ -79,34 +79,34 @@ char * FSName()
 }
 
 
-CMPIObjectPath *makePath(CMPIBroker *broker, const char * classname, 
+CMPIObjectPath *makePath(CMPIBroker *broker, const char * classname,
 			 const char * Namespace, CWS_FILE *cwsf)
 {
   CMPIObjectPath *op;
-  op = CMNewObjectPath(broker, 
+  op = CMNewObjectPath(broker,
 		       (char*)Namespace,
 		       (char*)classname,
-		       NULL);
+		       NULL);  CMSetHostname(op,CSName());
   if (!CMIsNullObject(op)) {
-    CMAddKey(op,"CSCreationClassName",CSCreationClassName(),CMPI_chars); 
-    CMAddKey(op,"CSName",CSName(),CMPI_chars); 
-    CMAddKey(op,"FSCreationClassName",FSCreationClassName(),CMPI_chars); 
-    CMAddKey(op,"FSName",FSName(),CMPI_chars); 
-    CMAddKey(op,"CreationClassName",classname,CMPI_chars); 
-    CMAddKey(op,"Name",cwsf->cws_name,CMPI_chars); 
+    CMAddKey(op,"CSCreationClassName",CSCreationClassName(),CMPI_chars);
+    CMAddKey(op,"CSName",CSName(),CMPI_chars);
+    CMAddKey(op,"FSCreationClassName",FSCreationClassName(),CMPI_chars);
+    CMAddKey(op,"FSName",FSName(),CMPI_chars);
+    CMAddKey(op,"CreationClassName",classname,CMPI_chars);
+    CMAddKey(op,"Name",cwsf->cws_name,CMPI_chars);
   }
   return op;
 }
 
-CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname, 
+CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname,
 			     const char * Namespace, CWS_FILE *cwsf)
 {
   CMPIInstance   *in = NULL;
   CMPIValue       val;
-  CMPIObjectPath *op = CMNewObjectPath(broker, 
+  CMPIObjectPath *op = CMNewObjectPath(broker,
 				       (char*)Namespace,
 				       (char*)classname,
-				       NULL);
+				       NULL);  CMSetHostname(op,CSName());
   
   if (!CMIsNullObject(op)) {
     in = CMNewInstance(broker,op,NULL);

@@ -27,6 +27,8 @@ repository:
 	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_System$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) RT_Indication.mof
@@ -37,6 +39,10 @@ repository:
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) TST_Family.mof
 	@ echo +++++ Registering FamilyProvider schema Providers  ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) FamilyProviderSchemaR.mof
+	@ echo +++++ Installing the MOF file for CMPI Providers
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) CWS_FilesAndDir.mof
+	@ echo +++++ Registering FilesAndDir schema Providers  ...
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) CWS_FilesAndDirR.mof
 
 # Load the sample mofe through the Client interface compiler but do not
 # clean out the existing version.
@@ -45,6 +51,8 @@ repositoryServer:
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_System$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) RT_Indication.mof
@@ -55,6 +63,10 @@ repositoryServer:
 	@ cimmof -n$(SAMPLEPROVIDERNS) TST_Family.mof
 	@ echo +++++ Registering FamilyProvider schema Providers  ...
 	@ cimmof -n$(INTEROPNS) FamilyProviderSchemaR.mof
+	@ echo +++++ Installing the MOF file for CMPI Providers
+	@ cimmof -n$(SAMPLEPROVIDERNS) CWS_FilesAndDir.mof
+	@ echo +++++ Registering FilesAndDir schema Providers  ...
+	@ cimmof -n$(INTEROPNS) CWS_FilesAndDirR.mof
 
 removerepository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
@@ -71,6 +83,7 @@ unregisterproviders:
 	cimprovider -r -m RT_IndicationProviderModule
 	cimprovider -r -m SampleLocalizedProviderModule
 	cimprovider -r -m SimpleDisplayConsumerModule
+	cimprovider -r -m FilesAndDirectoriesModule
 
 depend:
 

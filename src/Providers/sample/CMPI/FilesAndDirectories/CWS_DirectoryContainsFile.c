@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CWS_FileUtils.h" 
+#include "CWS_FileUtils.h"
 #include "cwsutil.h"
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -46,11 +46,11 @@
 static CMPIBroker * _broker;
 
 /* ------------------------------------------------------------------ *
- * Instance MI Cleanup 
+ * Instance MI Cleanup
  * ------------------------------------------------------------------ */
 
-CMPIStatus CWS_DirectoryContainsFileCleanup( CMPIInstanceMI * mi, 
-				 CMPIContext * ctx) 
+CMPIStatus CWS_DirectoryContainsFileCleanup( CMPIInstanceMI * mi,
+				 CMPIContext * ctx)
 {
   CMReturn(CMPI_RC_OK);
 }
@@ -60,15 +60,15 @@ CMPIStatus CWS_DirectoryContainsFileCleanup( CMPIInstanceMI * mi,
  * ------------------------------------------------------------------ */
 
 
-CMPIStatus CWS_DirectoryContainsFileEnumInstanceNames( CMPIInstanceMI * mi, 
-					   CMPIContext * ctx, 
-					   CMPIResult * rslt, 
-					   CMPIObjectPath * ref) 
+CMPIStatus CWS_DirectoryContainsFileEnumInstanceNames( CMPIInstanceMI * mi,
+					   CMPIContext * ctx,
+					   CMPIResult * rslt,
+					   CMPIObjectPath * ref)
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryContainsFileEnumInstances( CMPIInstanceMI * mi, 
+CMPIStatus CWS_DirectoryContainsFileEnumInstances( CMPIInstanceMI * mi,
 				       CMPIContext * ctx, 
 				       CMPIResult * rslt, 
 				       CMPIObjectPath * ref, 
@@ -79,7 +79,7 @@ CMPIStatus CWS_DirectoryContainsFileEnumInstances( CMPIInstanceMI * mi,
 
 
 CMPIStatus CWS_DirectoryContainsFileGetInstance( CMPIInstanceMI * mi, 
-				     CMPIContext * ctx, 
+				     CMPIContext * ctx,
 				     CMPIResult * rslt, 
 				     CMPIObjectPath * cop, 
 				     char ** properties) 
@@ -187,10 +187,10 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
       } else {
 	while (CWS_Next_Enum(enumhdl,&filebuf)) {
 	  /* build object path from file buffer */
-	  op = makePath(_broker, 
+	  op = makePath(_broker,
 			FILECLASS,
 			CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
-			&filebuf);
+			&filebuf);  CMSetHostname(op,CSName());
 	  if (CMIsNullObject(op)) {
 	    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 				 "Could not construct object path");
@@ -211,7 +211,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
 	op = makePath(_broker,
 		      DIRECTORYCLASS,
 		      CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
-		      &filebuf);
+		      &filebuf);  CMSetHostname(op,CSName());
 	if (CMIsNullObject(op)) {
 	  CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			       "Could not construct object path");
@@ -268,9 +268,9 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
     if (strcasecmp(DIRECTORYCLASS,CMGetCharPtr(clsname))==0) {
       /* we have a directory and can return the children */
       data = CMGetKey(cop,"Name",NULL);
-      
+
       enumhdl = CWS_Begin_Enum(CMGetCharPtr(data.value.string),CWS_TYPE_PLAIN);
-      
+
       if (enumhdl == NULL) {
 	CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			     "Could not begin file enumeration");
@@ -278,9 +278,9 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
       } else {
 	while (CWS_Next_Enum(enumhdl,&filebuf)) {
 	  /* build object path from file buffer */
-	  op = makePath(_broker, 
+	  op = makePath(_broker,
 			FILECLASS,
-			CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+			CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 			&filebuf);
 	  if (CMIsNullObject(op)) {
 	    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -289,9 +289,9 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 	  }
 	  /* make reference object path */
 	  opRef = CMNewObjectPath(_broker,
-				  CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+				  CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 				  LOCALCLASSNAME,
-				  NULL);
+				  NULL);  CMSetHostname(opRef,CSName());
 	  if (CMIsNullObject(op)) {
 	    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 				 "Could not construct object path");
@@ -305,7 +305,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
       }
 
     }
-    
+
     if (strcasecmp(FILECLASS,CMGetCharPtr(clsname))==0 ||
 	strcasecmp(DIRECTORYCLASS,CMGetCharPtr(clsname))==0) {
       /* we can always return the parent */
@@ -313,18 +313,18 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
       if (CWS_Get_File(dirname(CMGetCharPtr(data.value.string)),&filebuf)) {
 	op = makePath(_broker,
 		      DIRECTORYCLASS,
-		      CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+		      CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 		      &filebuf);
 	if (CMIsNullObject(op)) {
 	  CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			       "Could not construct object path");
-	  return st;  
+	  return st;
 	}
 	/* make reference object path */
 	opRef = CMNewObjectPath(_broker,
-				CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+				CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 				LOCALCLASSNAME,
-				NULL);
+				NULL);  CMSetHostname(opRef,CSName());
 	if (CMIsNullObject(op)) {
 	  CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			       "Could not construct object path");
@@ -334,15 +334,15 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 	CMAddKey(opRef,"PartComponent",&cop,CMPI_ref);
 	CMReturnObjectPath(rslt,opRef);
       }
-      
+
     }
-    
+
     else {
       if (!silentMode()) fprintf(stderr,"--- CWS_DirectoryContainsFileReferenceNames() unsupported class \n");
     }
     CMReturnDone(rslt);
-  } /* if (clsname) */    
-  
+  } /* if (clsname) */
+
   return st;
 }
 

@@ -7,6 +7,8 @@ DIRS = \
 	IndicationProvider \
 	SNMPIndicationProvider \
 	RT_Indication \
+	CMPI/FilesAndDirectories \
+	CMPI/FilesAndDirectories/tests \
 	FamilyProvider \
 	FamilyProvider/tests \
 	LocalizedProvider \

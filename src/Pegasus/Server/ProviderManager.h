@@ -37,7 +37,6 @@
 #include <Pegasus/Common/Thread.h>
 
 #include <Pegasus/Server/ProviderModule.h>
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ProviderBlockedEntry.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -45,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderManager
 {
 public:
-	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository, CIMServer * server);
+	ProviderManager(MessageQueue * outputQueue);
 	virtual ~ProviderManager(void);
 
 	CIMBaseProvider * getProvider(const String & providerName, const String & className);
@@ -64,7 +63,6 @@ protected:
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);
 
 	CIMOMHandle _cimom;
-	ServiceCIMOMHandle _serviceCimom;
 	Array<ProviderModule> _providers;
 	Array<ProviderBlockedEntry> _providerBT;
 

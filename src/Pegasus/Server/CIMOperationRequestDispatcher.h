@@ -42,10 +42,12 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Server/ProviderManager.h>
 
+#include <Pegasus/Server/ProviderManager.h>
+#include <Pegasus/Server/CIMServer.h>
+
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

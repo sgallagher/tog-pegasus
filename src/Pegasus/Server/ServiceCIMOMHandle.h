@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Server/ProviderManager.h>
 #include <Pegasus/Server/CIMServer.h>
 
 #include <Pegasus/Provider/CIMOMHandle.h>
@@ -45,7 +46,11 @@ public:
 	ServiceCIMOMHandle(void);
 
 	/** */
-	ServiceCIMOMHandle(MessageQueue* outputQueue, CIMRepository * repository, CIMServer * cimserver);
+	ServiceCIMOMHandle(
+		MessageQueue* outputQueue,
+		CIMRepository * repository,
+		ProviderManager * providerManager,
+		CIMServer * cimserver);
 
 	/** */
 	virtual ~ServiceCIMOMHandle(void);
@@ -57,10 +62,14 @@ public:
 	CIMServer * getServer(void) { return(_server); }
 
 	CIMRepository * getRepository(void) { return(_repository); }
+	
+	ProviderManager * getProviderManager(void) { return(_providerManager); }
 
 protected:	
 	CIMServer * _server;
 	CIMRepository * _repository;
+	ProviderManager * _providerManager;
+
 };
 
 PEGASUS_NAMESPACE_END

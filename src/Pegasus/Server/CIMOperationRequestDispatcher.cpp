@@ -52,14 +52,13 @@ PEGASUS_USING_STD;
 
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
-
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
     CIMServer* server)
    :
    Base("CIMOpRequestDispatcher", true),
    _repository(repository),
-   _providerManager(this, repository, server)
+   _providerManager(this)
 {
 
     DDD(cout << _DISPATCHER << endl;)
@@ -71,13 +70,9 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 
 }
 
-
-
 // ATTN
-// this needs to return an array of names. i.e., there could be
-// more than one provider per class
-//
-
+// this needs to return an array of names if it is possible
+// to have more than one provider per class.
 String CIMOperationRequestDispatcher::_lookupProviderForClass(
     const String& nameSpace,
     const String& className)

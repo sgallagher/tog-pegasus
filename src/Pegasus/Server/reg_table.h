@@ -190,6 +190,9 @@ class PEGASUS_SERVER_LINKAGE DynamicRoutingTable
       static const Uint32 ENCODE_HOOK;  // hook to process outbound messages
       static const Uint32 DECODE_HOOK; // hook to process incoming messages
       static const Uint32 EXTENDED;
+
+
+      void dump_table(void);
       
    private:
       reg_table_rep *_rep;

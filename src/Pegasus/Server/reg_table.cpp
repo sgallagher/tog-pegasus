@@ -87,6 +87,8 @@ class reg_table_record
       
       reg_table_record(const reg_table_record & );
       reg_table_record & operator =(const reg_table_record & );
+
+      void dump(void);
       
       CIMName class_name;
       CIMNamespaceName namespace_name;
@@ -232,15 +234,50 @@ reg_table_record::operator =(const reg_table_record & other)
    return *this;
 }
 
+
+void 
+reg_table_record::dump(void)
+{
+   PEGASUS_STD(cout) << "----Dumping Reg Table Record:----" << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << class_name.getString() << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << namespace_name.getString() << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << type << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << "---------------------------------" << PEGASUS_STD(endl);
+}
+
+
 // instead of concatenating class, namespace, type into a single key, use a 3-level set-associative cache 
 // implemented with hash tables for namespace, class, and type. Because key composition is not 
 // necessary it should be faster than a fully associative cache. 
 
-typedef HashTable<String,  struct reg_table_record *, EqualFunc<String>, HashFunc<String> > routing_table;
+struct RegTableEqual
+{
+    static Boolean equal(const String & x, const String & y)
+    {
+        if (0 == String::compareNoCase(x, y))
+            return true;
+        return false;
+    }
+};
+
+struct RegTableHash
+{
+    static Uint32 hash(const String & str)
+    {
+        String cpy(str);
+        cpy.toLower();
+        Uint32 h = 0;
+        for(Uint32 i = 0, n = cpy.size(); i < n; i++)
+            h = 5 * h + cpy[i];
+        return h;
+    }
+};
+
+typedef HashTable<String,  struct reg_table_record *, RegTableEqual, RegTableHash > routing_table;
 
 typedef HashTable<Uint32, routing_table *, EqualFunc<Uint32>, HashFunc<Uint32> > type_table;
 
-typedef HashTable<String, type_table *, EqualFunc<String>, HashFunc<String> > namespace_table;
+typedef HashTable<String, type_table *, RegTableEqual, RegTableHash  > namespace_table;
 
 class reg_table_rep : public Sharable
 {
@@ -305,7 +342,8 @@ class reg_table_rep : public Sharable
 
       Boolean _extended_match(const reg_table_record & rec_a, 
 			      const reg_table_record & rec_b) const;
-      
+
+      void _dump_table();
       namespace_table _table;
       Mutex _mutex;
 
@@ -328,6 +366,7 @@ reg_table_rep::_insert(const reg_table_record &rec)
    auto_mutex monitor(&_mutex);
    
    type_table *tt = 0;
+   
    if(false ==  _table.lookup(rec.namespace_name.getString(), tt))
    {
       type_table *temp = new type_table();
@@ -616,6 +655,28 @@ reg_table_rep::_extended_match(const reg_table_record & rec_a,
    return true;
 }
 
+void 
+reg_table_rep::_dump_table()
+{
+   PEGASUS_STD(cout) <<"******** Dumping Reg Table ********"  << PEGASUS_STD(endl);
+   auto_mutex monitor(&_mutex);
+   for(namespace_table::Iterator i = _table.start(); i; i++)
+   {
+      PEGASUS_STD(cout) << "Namespace: "  << i.key() << PEGASUS_STD(endl);
+      
+      for(type_table::Iterator y = i.value()->start(); y != 0 ; y++)
+      {
+
+	 PEGASUS_STD(cout) << "Type: " << y.key()  << PEGASUS_STD(endl);
+	 
+	 for(routing_table::Iterator x = y.value()->start(); x != 0; x++)
+	 {
+	       reg_table_record *tmp = x.value();
+	       tmp->dump();
+	 }
+      }
+   }
+}
 
 
 const Uint32 DynamicRoutingTable:: INTERNAL       = 0x00000001;
@@ -978,6 +1039,12 @@ DynamicRoutingTable::remove_router_records(const MessageQueueService* router)
    return _rep->remove_by_router(rec);
 }
 
+
+void
+DynamicRoutingTable::dump_table(void)
+{
+   _rep->_dump_table();
+}
 
 
 PEGASUS_NAMESPACE_END

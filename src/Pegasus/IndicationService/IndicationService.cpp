@@ -6986,6 +6986,12 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
                     WQLOperand(property.getValue().toString(),
                     WQL_STRING_VALUE_TAG));
                 break;
+
+            case CIMTYPE_REFERENCE:
+                //
+                //  ATTN: reference properties are not allowed in indications; ignore
+                //
+                break;
             }
         }
     }

@@ -15,7 +15,7 @@ _NEW_SOURCES = \
     HTTPConnector.cpp 
 
 SOURCES = \
-    $(NEW_SOURCES) \
+    $(_NEW_SOURCES) \
     OptionManager.cpp \
     Socket.cpp \
     CIMStatusCode.cpp \

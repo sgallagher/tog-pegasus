@@ -792,7 +792,7 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    else   // so ret was 64 (only returns -1, 32, or 64)
    {
        // Use a pipe to invoke kmtune (since don't have gettune on all OSs)
-       if ((mtuneInfo = popen("kmtune -q maxdsiz_64bit "
+       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz_64bit "
                               "-q maxssiz_64bit -q maxtsiz_64bit "
                               "2> /dev/null","r")) != NULL)
        {

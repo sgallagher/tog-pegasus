@@ -43,6 +43,11 @@ PEGASUS_NAMESPACE_BEGIN
 //#define CDEBUG(X)
 //#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "CIMOpReqDsptchr", Logger::INFORMATION, "$0", X)
 
+// Defined here because apparently not all platforms support max and min.
+#define LOCAL_MAX(a, b) ((a > b) ? a : b)
+#define LOCAL_MIN(a, b) ((a < b) ? a : b)
+
+
 typedef int     CommandID;
 typedef int     OutputType;
 const OutputType    OUTPUT_XML                  = 1;
@@ -199,6 +204,7 @@ struct  OPTION_STRUCT
     Boolean time;
     Stopwatch elapsedTime;
     double saveElapsedTime;
+    Uint32 termCondition;
     
 };
 

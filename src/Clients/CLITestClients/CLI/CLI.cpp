@@ -201,6 +201,7 @@ int main(int argc, char** argv)
     opts.count= 97832;
     opts.repeat = 0;
     opts.time = false;
+    opts.termCondition = 0;
 
     CheckCommonOptionValues(om, argv, opts);
     
@@ -510,9 +511,7 @@ int main(int argc, char** argv)
                 if (opts.time)
                 {
                     totalTime += opts.saveElapsedTime;
-#define LOCAL_MAX(a, b) ((a > b) ? a : b)
                     maxTime = LOCAL_MAX(maxTime, opts.saveElapsedTime);
-#define LOCAL_MIN(a, b) ((a < b) ? a : b)
                     minTime = LOCAL_MIN(minTime, opts.saveElapsedTime);
                 }
             }
@@ -558,7 +557,7 @@ int main(int argc, char** argv)
     {
         cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << endl;
     }
-    return(0);
+    return(opts.termCondition);
 }
 
 //PEGASUS_NAMESPACE_END

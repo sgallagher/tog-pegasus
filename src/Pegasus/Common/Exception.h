@@ -112,7 +112,7 @@ public:
 class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
 {
 public:
-
+  
     static const char MSG[];
 
     AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
@@ -678,6 +678,19 @@ public:
     static const char MSG[];
 
     TimedOut() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE BufferTooSmall
+{
+ public:
+  BufferTooSmall(Uint32 needed)  
+    {
+      required_size = needed;
+    }
+  Uint32 required_size;
+      
+ private:
+  BufferTooSmall(void);
 };
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();

@@ -258,7 +258,7 @@ int Semaphore::count()
 
 
 //-----------------------------------------------------------------
-/// Native Unix implementation of AtomicInt class
+/// Native Windows  implementation of AtomicInt class
 //-----------------------------------------------------------------
 #if defined(PEGASUS_ATOMIC_INT_NATIVE)
 

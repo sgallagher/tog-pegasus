@@ -11,5 +11,5 @@ DYNAMIC_LIBRARIES= \
     $(LIB_DIR)/$(LIB_PREFIX)pegrepository.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegexportserver.x
 else
- DYNAMIC_LIBRARIES=-lpegcommon -lpegexportserver
+ DYNAMIC_LIBRARIES=-lpegcommon -lpegexportserver -lpegrepository
 endif

@@ -29,7 +29,6 @@
 
 #ifndef Pegasus_Thread_h
 #define Pegasus_Thread_h
-
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
@@ -142,7 +141,11 @@ class PEGASUS_EXPORT SimpleThread
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void default_delete(void * data) { delete [] (char *) data; }
+static void default_delete(void * data) 
+{ 
+   if( data != NULL)
+      std::operator delete(data); 
+}
 
 class  PEGASUS_EXPORT thread_data
 {
@@ -151,28 +154,45 @@ class  PEGASUS_EXPORT thread_data
       thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
       {
 	 PEGASUS_ASSERT(key != NULL);
-	 _key = strdup(key) ; 
+	 size_t keysize = strlen(key);
+	 _key = new Sint8 [keysize + 1];
+	 memcpy(_key, key, keysize);
+	 _key[keysize] = 0x00;
+	 
       }
   
-      thread_data(Sint8 *key, int size)
+      thread_data(Sint8 *key, size_t size) : _delete_func(default_delete), _size(size)
       {
 	 PEGASUS_ASSERT(key != NULL);
-	 _delete_func = default_delete;
-	 _data = new char [size];
-	 _size = size;
+	 size_t keysize = strlen(key);
+	 _key = new Sint8 [keysize + 1];
+	 memcpy(_key, key, keysize);
+	 _key[keysize] = 0x00;
+	 _data = std:: operator new ( _size );
+
       }
 
-      thread_data(Sint8 *key, int size, void *data)
+      thread_data(Sint8 *key, size_t size, void *data) : _delete_func(default_delete), _size(size)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 PEGASUS_ASSERT(data != NULL);
-	 _delete_func = default_delete;
-	 _data = new char [size];
+	 size_t keysize = strlen(key);
+
+	 _key = new Sint8[keysize + 1];
+	 memcpy(_key, key, keysize);
+	 _key[keysize] = 0x00;
+	 _data = std::operator new(_size);
 	 memcpy(_data, data, size);
-	 _size = size;
       }
 
-      ~thread_data() { if( _data != NULL) _delete_func( _data ); }  
+      ~thread_data() 
+      { 
+	 if( _data != NULL) 
+	    if(_delete_func != NULL)
+	       _delete_func( _data ); 
+	 if( _key != NULL )
+	    delete [] _key;
+      }  
 
       void *get_data(void );
       Uint32 get_size(void);
@@ -199,7 +219,7 @@ class  PEGASUS_EXPORT thread_data
       void (*_delete_func) (void *data) ;
       thread_data();
       void *_data;
-      Uint32 _size;
+      size_t _size;
       Sint8 *_key;
       friend class DQueue<thread_data>;
       friend class Thread;

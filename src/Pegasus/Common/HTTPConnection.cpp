@@ -140,7 +140,7 @@ void HTTPConnection::handleEnqueue()
 	    const Array<Sint8>& buffer = httpMessage->message;
 	    const Uint32 CHUNK_SIZE = 16 * 1024;
 
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#if 0
             SignalHandler::ignore(SIGPIPE);
 
             getSigHandle()->registerHandler(SIGSEGV,sig_act);

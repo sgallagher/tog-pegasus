@@ -81,7 +81,7 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-    CGIQueryString.cpp
+    CGIQueryString.cpp \
 
 ##
 ## Took these out again. They broke the NT build.

@@ -119,54 +119,92 @@ public:
 class Cql2Dnf
 {
 public:
+/*
     Cql2Dnf();
 
     Cql2Dnf(CQLSelectStatement& cqs);
 
     Cql2Dnf(CQLSelectStatement * cqs);
+*/
+
+   /**
+      Contructs Cql2Dnf object.  The predicate passed in is converted to DNF.
+                                                                                                                                                             
+      @param  - topLevel.  CQLPredicate to convert to DNF.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
 
     Cql2Dnf(CQLPredicate& topLevel);
 
+  /**
+      Destructs the Cql2Dnf object.  
+                                                                                                                                                             
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
     ~Cql2Dnf();
-
+/*
     void compile (CQLSelectStatement * cqs);
+*/
+
     void compile (CQLPredicate& topLevel);
+/*
     void print();
+*/
+    /**
+      Gets the DNF converted CQLPredicate.
+                                                                                                                                                             
+      @param  - None.
+      @return - The CQLPredicate in DNF.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
     CQLPredicate getDnfPredicate();
 
 protected:
+
+   /**
+      Preps the DNF algorithm.  Fills the _operations and _operands objects for later processing.
+                                                                                                                                                             
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
     void _buildEvalHeap();
 
     void _pushNOTDown(void);
 
     void _factoring(void);
 
-	//
-	// _strip_ops_operands(CQLSelectStatement *cqs)
-	//
-	// This function takes a CQLSelectStatement and does a depth first search looking for the operations and operands.
-	// The operations are appended to the _operations array and the operands appended to the _operands array
-	// When finished, we will have two arrays, representing the statement tree, from which we can start the process
-	// to put the statement into DNF.
-	//
-	// Example:  a=b^(!c=d v e=f)
-	// _operations array will look like:
-	//	[=][=][!][=][v][^]
-	// _operands array will look like:
-	// 	[a][b][c][d][e][f]
-	//
+    /**
+	
+	This function takes a CQLSelectStatement and does a depth first search looking for the operations and operands.
+	The operations are appended to the _operations array and the operands appended to the _operands array
+	When finished, we will have two arrays, representing the statement tree, from which we can start the process
+	to put the statement into DNF.
+	
+	Example:  a=b^(!c=d v e=f)
+	 _operations array will look like:
+		[=][=][!][=][v][^]
+	 _operands array will look like:
+	 	[a][b][c][d][e][f]
+	
+	@param  - topLevel. CQLPredicate to extract operations and operands from
+	@return - None.
+	@throw  - None.
+ 
+   */
 
     void _strip_ops_operands(CQLPredicate& topLevel);
 
-	//
-	// _destruct(const CQLPredicate& _p
-	//
-	// Recursively does a depth first search of the statement tree and extracts the operations
-	// and operands.
-	// 
-
     void _destruct(CQLPredicate& _p);
 
+    /**
 	//
 	// _construct()
     	//
@@ -204,26 +242,38 @@ protected:
         //      CQLPredicate(e==f v !c==d) [index = 1]
         //      CQLPredicate((e==f v !c==d) ^ a==b) [index = 2]  (the rebuilt tree)
         //
+
+	@param  - None.
+	@return - None.
+	@throw  - None.
+
+    */
+
     void _construct();
 
-	//
-	// _flattenANDappend()
-	//
-        // this is to prevent appending complex predicates to the top level predicate
-        // the final DNFed predicate must only have simple predicates inside its predicate array
-        //
-        // example:
-        // say P = A AND B
-        // say P1 = C AND D
-        // say we need to OR them together
-        // we cant call P.appendPredicate(P1,OR) because this creates one more complex predicate layer
-        // instead we would:
-        // -> get P1s predicates (which should all be simple)
-        // -> append its first predicate to P along with the operator passed into us
-        // -> so conceptually at this point we have P = A AND B OR C
-        // -> then go through P1s remaining predicates and append them and P1s operators to P
-        // -> when done we have P = A AND B OR C AND D INSTEAD of having P = A AND B OR P1 where P1 is a complex predicate
-        //
+    /**
+        this is to prevent appending complex predicates to the top level predicate
+        the final DNFed predicate must only have simple predicates inside its predicate array
+        
+        example:
+           say P = A AND B
+           say P1 = C AND D
+           say we need to OR them together
+           we cant call P.appendPredicate(P1,OR) because this creates one more complex predicate layer
+           instead we would:
+         -> get P1s predicates (which should all be simple)
+         -> append its first predicate to P along with the operator passed into us
+         -> so conceptually at this point we have P = A AND B OR C
+         -> then go through P1s remaining predicates and append them and P1s operators to P
+         -> when done we have P = A AND B OR C AND D INSTEAD of having P = A AND B OR P1 where P1 is a complex predicate
+        
+
+	@param topLevel, CQLPredicate that will contain CQLPredicate p
+	@param op, The operation AND / OR
+	@param p, CQLPredicate to add to topLevel.
+	@return - None.
+	@throw  - None.
+    */
     CQLPredicate _flattenANDappend(CQLPredicate& topLevel, BooleanOpType op, CQLPredicate& p);
 
     OperationType _convertOpType(ExpressionOpType op);

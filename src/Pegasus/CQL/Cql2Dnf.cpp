@@ -32,6 +32,7 @@
 
 #include "Cql2Dnf.h"
 #include <Pegasus/Common/Stack.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -135,7 +136,7 @@ static bool operator==(const term_el& x, const term_el& y)
 //
 // CQL Compiler methods
 //
-    
+/*    
 Cql2Dnf::Cql2Dnf() 
 {
     eval_heap.reserveCapacity(16);
@@ -155,7 +156,7 @@ Cql2Dnf::Cql2Dnf(CQLSelectStatement * cqs)
     terminal_heap.reserveCapacity(16);
     compile(cqs);
 }
-
+*/
 Cql2Dnf::Cql2Dnf(CQLPredicate& topLevel){
     eval_heap.reserveCapacity(16);
     terminal_heap.reserveCapacity(16);
@@ -163,24 +164,30 @@ Cql2Dnf::Cql2Dnf(CQLPredicate& topLevel){
 }
 
 Cql2Dnf::~Cql2Dnf() {}
-
+/*
 void Cql2Dnf::compile(CQLSelectStatement * cqs){
 	CQLPredicate topLevel = cqs->getPredicate();
 	compile(topLevel);
 }
-
+*/
 void Cql2Dnf::compile(CQLPredicate& topLevel)
 {
+	PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::compile");
+
     _strip_ops_operands(topLevel);
     _buildEvalHeap();
     _pushNOTDown();
     _factoring();
     _construct();
     eval_heap.clear();
+
+	PEG_METHOD_EXIT();
 }
 
 void Cql2Dnf::_buildEvalHeap()
 {
+	PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_buildEvalHeap");
+
     Stack<stack_el> stack;
 
     // Counter for Operands
@@ -276,10 +283,14 @@ void Cql2Dnf::_buildEvalHeap()
     }
 
     PEGASUS_ASSERT(stack.size() == 1);
+
+    PEG_METHOD_EXIT();
 }
 
 void Cql2Dnf::_pushNOTDown()
 {
+    PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_pushNOTDown");
+
     for (int i=eval_heap.size()-1; i >= 0; i--)
     {
         Boolean _found = false;
@@ -360,10 +371,13 @@ void Cql2Dnf::_pushNOTDown()
              }
         }
     }
+	PEG_METHOD_EXIT();
 }
 
 void Cql2Dnf::_factoring(void)
 {
+	PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_factoring");
+
     int i = 0,n = eval_heap.size();
     //for (int i=eval_heap.size()-1; i >= 0; i--)
     while (i < n)
@@ -450,10 +464,13 @@ void Cql2Dnf::_factoring(void)
 
         i++; // increase pointer
     }
+
+	PEG_METHOD_EXIT();
 }
 
 void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
 {
+	PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_strip_ops_operands");
 	//
 	// depth first search for all operations and operands
 	// extract operations and operands and store in respective arrays for later processing
@@ -462,6 +479,7 @@ void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
 	if(topLevel.getInverted()){
         	_operations.append(CQL_NOT);
         }
+	PEG_METHOD_EXIT();
 }
 
 OperationType Cql2Dnf::_convertOpType(ExpressionOpType op){
@@ -523,6 +541,8 @@ void Cql2Dnf::_destruct(CQLPredicate& _p){
 }
 
 void Cql2Dnf::_construct(){
+
+	PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_construct");
 	//
 	// Each eval_el on the eval heap contains all the information needed to make a CQLPredicate.  
 	// We will build a CQLPredicate for every element in the eval heap. So there is a 1 to 1 correspondence
@@ -737,6 +757,8 @@ void Cql2Dnf::_construct(){
 		PEGASUS_ASSERT(terminal_heap.size() == 1);
 		_dnfPredicate = CQLPredicate(terminal_heap[0]._simplePredicate,false);
 	}
+
+	PEG_METHOD_EXIT();
 }
 
 CQLPredicate Cql2Dnf::getDnfPredicate(){
@@ -744,6 +766,8 @@ CQLPredicate Cql2Dnf::getDnfPredicate(){
 }
 
 CQLPredicate Cql2Dnf::_flattenANDappend(CQLPredicate& topLevel, BooleanOpType op, CQLPredicate& p){
+
+	PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_flattenANDappend");
 	//
 	// this is to prevent appending complex predicates to the top level predicate
 	// the final DNFed predicate must only have simple predicates inside its predicate array
@@ -771,6 +795,8 @@ CQLPredicate Cql2Dnf::_flattenANDappend(CQLPredicate& topLevel, BooleanOpType op
 	}else{
 		topLevel.appendPredicate(p,op);
 	}
+
+	PEG_METHOD_EXIT();
 	return topLevel;
 }
 

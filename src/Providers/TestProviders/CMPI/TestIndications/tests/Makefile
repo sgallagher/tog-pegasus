@@ -9,7 +9,9 @@ XMLSCRIPTS =  \
 	CreateFilter02 CreateHandler02 CreateSubscription02 \
 	DeleteSubscription02 DeleteFilter02 DeleteHandler02 \
 	CreateFilter03 CreateHandler03 CreateSubscription03 \
-	DeleteSubscription03 DeleteFilter03 DeleteHandler03 
+	DeleteSubscription03 DeleteFilter03 DeleteHandler03 \
+	CreateFilter04 CreateHandler04 CreateSubscription04 \
+	DeleteSubscription04 DeleteFilter04 DeleteHandler04 
 
 
 LOGFILES =   TestCMPIIndication
@@ -24,6 +26,9 @@ removeclasses:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription03.xml
 	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter03.xml
 	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler03.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription04.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter04.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler04.xml
 
 # I am redefining the poststarttests here.
 LOGREQUESTS = $(foreach i, $(LOGFILES), $i.loggood)

@@ -252,3 +252,75 @@
  --- TestCMPI_Indication CMPI DeActivateFilter() called
  -- Query is [SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA']
  --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI ActivateFilter() called
+ -- #1 Clone
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ -- #1.1 CMNewSelectExp
+ ---- CMPI_RC_ERR_FAILED
+ -- #2 MakeObjectPath
+ --- make_ObjectPath: CMNewObjectPath
+ ----- CMPI_RC_OK
+ ---- CMPIObjectPath (CMPI_RC_OK)
+ -- #3 Instance
+ ---- CMPI_RC_OK
+ ---- CMPIInstance (CMPI_RC_OK)
+ - CMGetPropertyCount: 6
+ -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
+ -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
+ -- 2: s(CMPI_string: CMPI_goodValue: s) [CMPI_RC_OK]
+ -- 3: n(CMPI_uint64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- #4 Evaluate using instance
+ ---- CMPI_RC_OK
+ --- True
+ -- #4.1 Evalute using accessor
+ -- #4.2 instance_accessor
+ -- Property: s
+ ----  (CMPI_RC_OK)
+ -- #4.2 instance_accessor
+ -- Property: n
+ ----  (CMPI_RC_OK)
+ ---- CMPI_RC_OK
+ --- True
+ -- #5 CMGetSelExpString
+ ---- CMPI_RC_OK
+ -- #5.1 Query is [SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (n IS NULL)]
+ -- #5.2 Query is [TestCMPI_Indication]
+ -- #6 Continue evaluating using GetDOC
+ ---- CMPI_RC_OK
+ --- #6.1 CMGetSubCondCountAndType 
+ ---- CMPI_RC_OK
+ ---- Number of disjunctives: 2, Type: 0
+ --- #6.2 CMGetSubCondAt @ 0 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 1
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_SIMPLE , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.s, RS: NULL_VALUE
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.2 CMGetSubCondAt @ 1 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 1
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_SIMPLE , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n, RS: NULL_VALUE
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ -- #7 GetCOD
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() called
+ -- Query is [SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (n IS NULL)]
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited

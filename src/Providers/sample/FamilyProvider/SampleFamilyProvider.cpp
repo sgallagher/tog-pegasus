@@ -147,7 +147,7 @@ _validClassRow _validClassTable[] =
 
 const Uint32 NUMVALIDCLASSES = sizeof(_validClassTable) / sizeof(_validClassTable[0]);
 
-
+*/
 /* Verify that this is one of the legal classnames and
    return indicator which.
    @param - Classname
@@ -449,7 +449,8 @@ Array<CIMInstance> _filterReferenceNames(
     ...
     @return CIMInstance built from the input.
 */
-CIMInstance _buildPersonDynamicInstance(CIMClass thisClass, String& name, String& secondProperty, Uint32 counterProperty)
+CIMInstance _buildPersonDynamicInstance(const CIMClass& thisClass, const String& name,
+    const String& secondProperty, const Uint32 counterProperty)
 {
     CIMInstance instance(personDynamicClassName);
     instance.addProperty(CIMProperty("Name", name));   // key
@@ -460,7 +461,8 @@ CIMInstance _buildPersonDynamicInstance(CIMClass thisClass, String& name, String
     return(instance);
 }
 
-CIMInstance _buildInstanceLineageDynamic(CIMClass thisClass, CIMObjectPath parent, CIMObjectPath child)
+CIMInstance _buildInstanceLineageDynamic(const CIMClass& thisClass, 
+    const CIMObjectPath& parent, const CIMObjectPath& child)
 {
     // Note that this is a nasty assumption. May be a different namespace. Need
     // to build dynamically
@@ -482,8 +484,8 @@ CIMInstance _buildInstanceLineageDynamic(CIMClass thisClass, CIMObjectPath paren
     return(instance);
 }
 
-CIMInstance _buildInstanceLabeledLineageDynamic(CIMClass thisClass,
-    CIMObjectPath parent, CIMObjectPath child, String label)
+CIMInstance _buildInstanceLabeledLineageDynamic(const CIMClass& thisClass,
+    const CIMObjectPath& parent, const CIMObjectPath& child, const String& label)
 {
     // Note that this is a nasty assumption. May be a different namespace. Need
     // to build dynamically

@@ -291,7 +291,11 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
 
     char buffer[9];
     sprintf(buffer, "%08x", fileSize);
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    fs.write(buffer, strlen(buffer));
+#else
     fs.write(buffer, static_cast<streamsize>(strlen(buffer)));
+#endif
 
     if (!fs)
     {

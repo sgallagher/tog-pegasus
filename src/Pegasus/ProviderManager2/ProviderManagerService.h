@@ -122,7 +122,6 @@ private:
      */
     AtomicInt _unloadIdleProvidersBusy;
 
-	friend class CMPIProviderManager;
 
 };
 

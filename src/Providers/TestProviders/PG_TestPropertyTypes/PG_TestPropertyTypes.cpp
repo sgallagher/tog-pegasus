@@ -1,21 +1,21 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -24,7 +24,7 @@
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
+//              Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -68,10 +68,10 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 	// create default instances
 	CIMInstance instance1("PG_TestPropertyTypes");
 
-	instance1.addProperty(CIMProperty("CreationClassName", 
+	instance1.addProperty(CIMProperty("CreationClassName",
 			String("PG_TestPropertyTypes")));   // key
 	instance1.addProperty(CIMProperty("InstanceId", Uint64(1))); //key
-	instance1.addProperty(CIMProperty("PropertyString", 
+	instance1.addProperty(CIMProperty("PropertyString",
 				String("PG_TestPropertyTypes_Instance1")));
 	instance1.addProperty(CIMProperty("PropertyUint8", Uint8(120)));
 	instance1.addProperty(CIMProperty("PropertyUint16", Uint16(1600)));
@@ -91,10 +91,10 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 
 	CIMInstance instance2("PG_TestPropertyTypes");
 
-	instance2.addProperty(CIMProperty("CreationClassName", 
+	instance2.addProperty(CIMProperty("CreationClassName",
 			String("PG_TestPropertyTypes")));   // key
 	instance2.addProperty(CIMProperty("InstanceId", Uint64(2))); //key
-	instance2.addProperty(CIMProperty("PropertyString", 
+	instance2.addProperty(CIMProperty("PropertyString",
 				String("PG_TestPropertyTypes_Instance2")));
 
 	instance2.addProperty(CIMProperty("PropertyUint8", Uint8(122)));
@@ -409,7 +409,7 @@ void PG_TestPropertyTypes::deleteInstance(
 	
 	for(; (index < references.size()) && (instanceReference != references[index]); index++);
 
-	// we do not remove instance 
+	// we do not remove instance
 	// complete processing the request
 	handler.complete();
 
@@ -442,7 +442,7 @@ Array<CIMObjectPath> PG_TestPropertyTypes::_enumerateInstanceNames(
 
 	enumerateInstanceNames(context, classReference, handler);
 
-	return(handler._objects);
+	return(handler.getObjects());
 }
 
 // private method: _testPropertyTypesValue
@@ -465,91 +465,91 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 	     case CIMType::UINT8:
 	    	Uint8 propertyValueUint8;
 		propertyValue.get(propertyValueUint8);	
-		if (propertyValueUint8 >= 255) 
+		if (propertyValueUint8 >= 255)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::UINT16:
 	    	Uint16 propertyValueUint16;
 		propertyValue.get(propertyValueUint16);	
-		if (propertyValueUint16 >= 10000) 
+		if (propertyValueUint16 >= 10000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::UINT32:
 	    	Uint32 propertyValueUint32;
 		propertyValue.get(propertyValueUint32);	
-		if (propertyValueUint32 >= 10000000) 
+		if (propertyValueUint32 >= 10000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::UINT64:
 	    	Uint64 propertyValueUint64;
 		propertyValue.get(propertyValueUint64);	
-		if (propertyValueUint64 >= 1000000000) 
+		if (propertyValueUint64 >= 1000000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::SINT8:
 	    	Sint8 propertyValueSint8;
 		propertyValue.get(propertyValueSint8);	
-		if (propertyValueSint8 <= -120) 
+		if (propertyValueSint8 <= -120)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::SINT16:
 	    	Sint16 propertyValueSint16;
 		propertyValue.get(propertyValueSint16);	
-		if (propertyValueSint16 < -10000) 
+		if (propertyValueSint16 < -10000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::SINT32:
 	    	Sint32 propertyValueSint32;
 		propertyValue.get(propertyValueSint32);	
-		if (propertyValueSint32 <= -10000000) 
+		if (propertyValueSint32 <= -10000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::SINT64:
 	    	Sint64 propertyValueSint64;
 		propertyValue.get(propertyValueSint64);	
-		if (propertyValueSint64 <= -1000000000) 
+		if (propertyValueSint64 <= -1000000000)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::REAL32:
 	    	Real32 propertyValueReal32;
 		propertyValue.get(propertyValueReal32);	
-		if (propertyValueReal32 >= 10000000.32) 
+		if (propertyValueReal32 >= 10000000.32)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     case CIMType::REAL64:
 	    	Real64 propertyValueReal64;
 		propertyValue.get(propertyValueReal64);	
-		if (propertyValueReal64 >= 1000000000.64) 
+		if (propertyValueReal64 >= 1000000000.64)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
-		} 
+		}
 		break;
 
 	     default:

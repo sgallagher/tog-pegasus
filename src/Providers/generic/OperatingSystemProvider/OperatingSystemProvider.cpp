@@ -219,7 +219,7 @@ Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 
 	enumerateInstances(context, classReference, 0xffffffff, Array<String>(), handler);
 
-	return(handler._objects);
+	return(handler.getObjects());
 }
 
 Array<CIMObjectPath> OperatingSystemProvider::_enumerateInstanceNames(
@@ -230,7 +230,7 @@ Array<CIMObjectPath> OperatingSystemProvider::_enumerateInstanceNames(
 
 	enumerateInstanceNames(context, classReference, handler);
 
-	return(handler._objects);
+	return(handler.getObjects());
 }
 
 PEGASUS_NAMESPACE_END

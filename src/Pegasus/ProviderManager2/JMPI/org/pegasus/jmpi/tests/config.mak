@@ -9,9 +9,9 @@ PASSWORD = -w guest
 SSL =
 
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-  DIFF = mu compare
+    DIFF = mu compare
 else
-  DIFF = diff -w
+    DIFF = diff -w
 endif
 
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
@@ -23,4 +23,4 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp | cd .
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
-	@ echo +++ $* passed successfully +++
+	@ $(ECHO) +++ $* passed successfully +++

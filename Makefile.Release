@@ -65,7 +65,9 @@ PEGASUS_LIBRARIES = \
 PEGASUS_LIBRARY_LINKS = \
    libpegclient \
    libpegcommon \
-   libpegprovider
+   libpegprovider \
+   libCMPIProviderManager \
+   libDefaultProviderManager
 
 PEGASUS_PROVIDERS = \
    libComputerSystemProvider \

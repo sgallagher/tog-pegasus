@@ -297,12 +297,9 @@ String CQLValue::toString()const
    return _rep->toString();
 }
 
-void CQLValue::applyContext(Pegasus::QueryContext& _ctx){
-	_rep->applyContext(_ctx);
-}
-
-void CQLValue::applyScopes(Array<CQLScope> inScope)
+void CQLValue::applyContext(Pegasus::QueryContext& _ctx)
 {
+	_rep->applyContext(_ctx);
 }
 
 

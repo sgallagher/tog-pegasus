@@ -1814,34 +1814,6 @@ String CQLValueRep::toString()const
    return String();
 }
 
-void CQLValueRep::applyScopes(Array<CQLScope> inScope)
-{
- /*  if(_CQLChainId == NULL)
-   {
-      return;
-   }*/
-
-   CQLChainedIdentifier sci;
-
-   for(Uint32 i = 0; i < inScope.size(); ++i)
-   {
-      sci = inScope[i].getTarget();
-  
-      if(!_CQLChainId.isSubChain(sci))
-      {
-         return;
-      }
-
-      for(Uint32 j = 0; j < _CQLChainId.size(); ++j)
-      {
-         if(sci.getLastIdentifier().getName() == (_CQLChainId)[j].getName())
-         {
-            // Will need to do more processing. When spec better defined.
-            (_CQLChainId)[i].applyScope(inScope[i].getScope().getString());
-         }
-      }
-   }
-}
 
 
 Boolean CQLValueRep::_validate(const CQLValueRep& x)
@@ -2198,8 +2170,9 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
    return;
 }
 
-void CQLValueRep::applyContext(QueryContext& _ctx){
-        
+void CQLValueRep::applyContext(QueryContext& _ctx)
+{
+   _CQLChainId.applyContext(_ctx);        
 }
 
 PEGASUS_NAMESPACE_END

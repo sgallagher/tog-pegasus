@@ -300,7 +300,6 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    CIMClass getClass()const;
    String toString()const;
    void applyContext(QueryContext& _ctx);
-   void applyScopes(Array<CQLScope> inScopes);
    friend class CQLFactory; 
    friend class CQLValue;
   private:

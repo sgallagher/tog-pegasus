@@ -1494,7 +1494,7 @@ const char REPOSITORY[] = "/repository";
 CIMServer::CIMServer(
     Selector* selector,
     const String& rootPath)
-    : _rootPath(rootPath)
+  : _rootPath(rootPath), _dieNow(0)
 {
     // -- Save the selector or create a new one:
 
@@ -1558,7 +1558,11 @@ void CIMServer::bind(const char* address)
 
 void CIMServer::runForever()
 {
-    for (;;)
+
+
+  
+
+  while( ! _dieNow )
 	_selector->select(5000);
 }
 

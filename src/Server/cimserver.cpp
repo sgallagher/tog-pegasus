@@ -9,6 +9,10 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+//
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -21,9 +25,48 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Mike Day (mdday@us.ibm.com) 
+=======
 // Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// Notes on deamon operation (Unix) and service operation (Win 32):
+//
+// To run pegasus as a daemon on Unix platforms, use the -d option:
+//
+// cimserver -d
+//
+// The -d option has no effect on windows operation. 
+//
+// To run pegasus as an NT service, there are FOUR  different possibilities:
+//
+// To INSTALL the Pegasus service, 
+//
+// cimserver -install
+//
+// To REMOVE the Pegasus service, 
+//
+// cimserver -remove
+//
+// To START the Pegasus service, 
+//
+// net start cimserver
+//
+// To STOP the Pegasus service, 
+//
+// net stop cimserver
+//
+// Alternatively, you can use the windows service manager. Pegasus shows up 
+// in the service database as "Pegasus CIM Object Manager"
+//
+// Mike Day, mdday@us.ibm.com
+// 
+//////////////////////////////////////////////////////////////////////
+
 
 #include <iostream>
 #include <cstdlib>
@@ -36,10 +79,17 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include "cimserver_windows.cpp"
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+# include "cimserver_unix.cpp"
+#else
+# error "Unsupported platform"
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-
 
 void GetEnvironmentVariables(
     const char* arg0,
@@ -79,9 +129,12 @@ void GetOptions(
 	{"options", "false", false, Option::BOOLEAN, 0, 0, "options",
 			" Displays the settings of the Options "},
 	{"severity", "ALL", false, Option::STRING, 0, 0, "s",
+
 		    "Sets the severity level that will be logged "},
 	{"logs", "ALL", false, Option::STRING, 0, 0, "X", 
 			"Not Used "},
+	{"daemon", "false", false, Option::BOOLEAN, 0, 0, "d", 
+			"Detach Pegasus from the console and run it in the background "},
 	{"logdir", "./logs", false, Option::STRING, 0, 0, "logdir", 
 			"Directory for log files"},
 	{"cleanlogs", "false", false, Option::BOOLEAN, 0, 0, "clean", 
@@ -92,6 +145,10 @@ void GetOptions(
 			"Displays Pegasus Version "},
 	{"help", "false", false, Option::BOOLEAN, 0, 0, "h",
 		    "Prints help message with command line options "},
+	{"install", "false", false, Option::BOOLEAN, 0, 0, "install",
+		    "Installs Pegasus as a Windows NT Service "},
+	{"remove", "false", false, Option::BOOLEAN, 0, 0, "remove",
+		    "Removes Pegasus as a Windows NT Service "},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
 			"Not Used "}
     };
@@ -105,8 +162,8 @@ void GetOptions(
 
     if (FileSystem::exists(configFile))
 	om.mergeFile(configFile);
-
-    om.mergeCommandLine(argc, argv);
+    if(argc && argv != NULL)
+      om.mergeCommandLine(argc, argv);
 
     om.checkRequiredOptions();
 }
@@ -129,9 +186,15 @@ void PrintHelp(const char* arg0)
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
+  
+    // on Windows NT if there are no command-line options, run as a service
+    if (argc == 1 )
+      cim_server_service(argc, argv) ;
+  
     // Get environment variables:
 
     String pegasusHome;
+
     GetEnvironmentVariables(argv[0], pegasusHome);
 
     // Get options (from command line and from configuration file); this
@@ -163,6 +226,27 @@ int main(int argc, char** argv)
 	cout << endl;
 	exit(1);
     }
+
+    // Check to see if we should (can) install as a NT service
+
+    String installOption;
+    if(om.lookupValue("install", installOption) && installOption == "true")
+      {
+	if( 0 != cimserver_install_nt_service( pegasusHome ))
+	  cout << "\nPegasus installed as NT Service";
+	exit(0);
+      }
+
+    // Check to see if we should (can) remove Pegasus as an NT service
+
+    String removeOption;
+    if(om.lookupValue("remove", removeOption) && removeOption == "true")
+      {
+	if( 0 != cimserver_remove_nt_service() )
+	  cout << "\nPegasus removed as NT Service";
+	exit(0);
+	  
+      }
 
     // Check to see if user asked for the version (-v otpion):
 
@@ -249,6 +333,15 @@ int main(int argc, char** argv)
 		address,
 		(pegasusIOTrace ? " Tracing": " "));
 
+    // do we need to run as a daemon ?
+    String daemonOption;
+    if(om.lookupValue("daemon", daemonOption) && daemonOption == "true") 
+      {
+	if(-1 == cimserver_fork())
+	  exit(-1);
+      }
+
+
     // try loop to bind the address, and run the server
     try
     {
@@ -274,3 +367,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+

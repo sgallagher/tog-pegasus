@@ -75,6 +75,7 @@ public:
     /** runForever Main runloop for the server.
     */
     void runForever();
+    void killServer() { _dieNow = 1 ; }
 
 private:
 
@@ -82,6 +83,7 @@ private:
     String _repositoryRootPath;
     Selector* _selector;
     ChannelAcceptor* _acceptor;
+    int _dieNow;
 };
 
 PEGASUS_NAMESPACE_END

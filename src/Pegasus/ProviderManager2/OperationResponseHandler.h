@@ -209,12 +209,15 @@ public:
         // The normalizer expects an object path embedded in instances even
         // though it is not required by this operation. Use the requested
         // object path is missing from the instance.
-        if(cimInstance.getPath().getKeyBindings().size() == 0)
+        CIMInstance localInstance(cimInstance);
+
+        if(localInstance.getPath().getKeyBindings().size() == 0)
         {
-            cimInstance.setPath(request->instanceName);
+            // ATTN: should clone before modification
+            localInstance.setPath(static_cast<CIMGetInstanceRequestMessage *>(getRequest())->instanceName);
         }
 
-        SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
+        SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(localInstance));
         #else
         SimpleInstanceResponseHandler::deliver(cimInstance);
         #endif

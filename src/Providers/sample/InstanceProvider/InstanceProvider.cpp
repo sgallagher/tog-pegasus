@@ -84,10 +84,16 @@ void InstanceProvider::getInstance(
 	// begin processing the request
 	handler.processing();
 
+	// only compare class name and keys
+	CIMReference localReference(instanceReference);
+
+	localReference.setHost(String::EMPTY);
+	localReference.setNameSpace(String::EMPTY);
+
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(instanceReference == _instances[i].first)
+		if(localReference == _instances[i].first)
 		{
 			// deliver requested instance
 			handler.deliver(_instances[i].second);

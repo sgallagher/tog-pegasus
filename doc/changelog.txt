@@ -7,6 +7,7 @@ TAG: VERSION_1_07
 
 1. KS - Updated pegsusversion to 1.07  and tagged file.
 
+2. (Markus Mueller) 05 Feb 2002 - AIX support.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

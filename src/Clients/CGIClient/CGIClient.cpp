@@ -1538,8 +1538,12 @@ static void CreateNameSpace(const CGIQueryString& qs)
     if ((tmp = qs.findValue("NewNameSpace")))
 	nameSpaceName = tmp;
 
-    // Create the instance
-    CIMInstance newInstance("__Namespace");
+    // Create the instance with full instancename since this is the key.
+    String instanceName = "__Namespace";
+    instanceName.append( ".name=\"");
+    instanceName.append(nameSpaceName);
+    instanceName.append("\"");
+    CIMInstance newInstance(instanceName);
     newInstance.addProperty(CIMProperty("name", nameSpaceName));
     try
     {

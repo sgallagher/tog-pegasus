@@ -7,11 +7,12 @@ DIR = Clients/repupgrade
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
     peggetoopt \
     pegrepository \
     pegcliutils \
-    pegclient 
+    pegclient \
+    pegconfig \
+    pegcommon 
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

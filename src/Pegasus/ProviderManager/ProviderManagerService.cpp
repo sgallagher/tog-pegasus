@@ -476,6 +476,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleEnumerateInstancesRequest);
 
 		// wait for specialized method to initialize
@@ -483,6 +484,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleEnumerateInstanceNamesRequest);
 
 		// wait for specialized method to initialize
@@ -490,6 +492,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleCreateInstanceRequest);
 
 		// wait for specialized method to initialize
@@ -497,6 +500,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleModifyInstanceRequest);
 
 		// wait for specialized method to initialize
@@ -504,6 +508,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleDeleteInstanceRequest);
 
 		// wait for specialized method to initialize
@@ -511,6 +516,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleExecuteQueryRequest);
 
 		// wait for specialized method to initialize
@@ -518,6 +524,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleAssociatorsRequest);
 
 		// wait for specialized method to initialize
@@ -525,6 +532,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleAssociatorNamesRequest);
 
 		// wait for specialized method to initialize
@@ -532,6 +540,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_REFERENCES_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleReferencesRequest);
 
 		// wait for specialized method to initialize
@@ -539,6 +548,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleReferenceNamesRequest);
 
 		// wait for specialized method to initialize
@@ -546,6 +556,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleGetPropertyRequest);
 
 		// wait for specialized method to initialize
@@ -553,6 +564,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleSetPropertyRequest);
 
 		// wait for specialized method to initialize
@@ -560,6 +572,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleInvokeMethodRequest);
 
 		// wait for specialized method to initialize
@@ -567,6 +580,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleEnableIndicationRequest);
 
 		// wait for specialized method to initialize
@@ -574,6 +588,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleModifyIndicationRequest);
 
 		// wait for specialized method to initialize
@@ -581,6 +596,7 @@ void ProviderManagerService::handleOperation(void)
 
 		break;
 	case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+		// forward request to specialized method
 		_threadPool.allocate_and_awaken((void *)this, handleDisableIndicationRequest);
 
 		// wait for specialized method to initialize
@@ -675,31 +691,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 	// create response message
 	CIMGetInstanceResponseMessage * response =
 		new CIMGetInstanceResponseMessage(
-		request->messageId,
-		CIMStatusCode(status.getCode()),
-		status.getMessage(),
-		request->queueIds.copyAndPop(),
-		cimInstance);
+			request->messageId,
+			CIMStatusCode(status.getCode()),
+			status.getMessage(),
+			request->queueIds.copyAndPop(),
+			cimInstance);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -783,31 +788,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 	// create response message
 	CIMEnumerateInstancesResponseMessage * response =
 		new CIMEnumerateInstancesResponseMessage(
-		request->messageId,
-		CIMStatusCode(status.getCode()),
-		status.getMessage(),
-		request->queueIds.copyAndPop(),
-		cimInstances);
+			request->messageId,
+			CIMStatusCode(status.getCode()),
+			status.getMessage(),
+			request->queueIds.copyAndPop(),
+			cimInstances);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -880,31 +874,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 	// create response message
 	CIMEnumerateInstanceNamesResponseMessage * response =
 		new CIMEnumerateInstanceNamesResponseMessage(
-		request->messageId,
-		CIMStatusCode(status.getCode()),
-		status.getMessage(),
-		request->queueIds.copyAndPop(),
-		cimReferences);
+			request->messageId,
+			CIMStatusCode(status.getCode()),
+			status.getMessage(),
+			request->queueIds.copyAndPop(),
+			cimReferences);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1003,21 +986,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateI
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1103,21 +1075,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1194,21 +1155,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteI
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1232,31 +1182,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleAssocia
 	
 	CIMAssociatorsResponseMessage * response =
 		new CIMAssociatorsResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimObjects);
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop(),
+			cimObjects);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1280,33 +1219,23 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleExecute
 
 	CIMExecQueryResponseMessage * response =
 		new CIMExecQueryResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimInstances);
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop(),
+			cimInstances);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleAssociatorNamesRequest(void * arg) throw()
 {
 	// get the service from argument
@@ -1327,31 +1256,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleAssocia
 
 	CIMAssociatorNamesResponseMessage * response =
 		new CIMAssociatorNamesResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimReferences);
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop(),
+			cimReferences);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1375,11 +1293,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleReferen
 	
 	CIMReferencesResponseMessage * response =
 		new CIMReferencesResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimObjects);
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop(),
+			cimObjects);
 
 	// preserve message key
 	response->setKey(request->getKey());
@@ -1423,31 +1341,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleReferen
 	
 	CIMReferenceNamesResponseMessage * response =
 		new CIMReferenceNamesResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimReferences);
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop(),
+			cimReferences);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1472,31 +1379,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetProp
 	// create response message
 	CIMGetPropertyResponseMessage * response =
 		new CIMGetPropertyResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop(),
-		cimValue);
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop(),
+			cimValue);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1519,30 +1415,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleSetProp
 	// create response message
 	CIMSetPropertyResponseMessage * response =
 		new CIMSetPropertyResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop());
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop());
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1627,33 +1512,22 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeM
 	// create response message
 	CIMInvokeMethodResponseMessage * response =
 		new CIMInvokeMethodResponseMessage(
-		request->messageId,
-		CIMStatusCode(status.getCode()),
-		status.getMessage(),
-		request->queueIds.copyAndPop(),
-		returnValue,
-		outParameters,
-		request->methodName);
+			request->messageId,
+			CIMStatusCode(status.getCode()),
+			status.getMessage(),
+			request->queueIds.copyAndPop(),
+			returnValue,
+			outParameters,
+			request->methodName);
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1698,7 +1572,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 			//  operation context
 			//
 			facade.enableIndication(
-				OperationContext (),
+				OperationContext(),
 				request->nameSpace,
 				request->classNames,
 				request->providerName,
@@ -1736,30 +1610,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 
 	CIMEnableIndicationSubscriptionResponseMessage * response =
 		new CIMEnableIndicationSubscriptionResponseMessage(
-		request->messageId,
-		errorCode,
-		errorDescription,
-		request->queueIds.copyAndPop());
+			request->messageId,
+			errorCode,
+			errorDescription,
+			request->queueIds.copyAndPop());
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1781,30 +1644,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 
 	CIMModifyIndicationSubscriptionResponseMessage * response =
 		new CIMModifyIndicationSubscriptionResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop());
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop());
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
@@ -1826,32 +1678,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDisable
 
 	CIMDisableIndicationSubscriptionResponseMessage * response =
 		new CIMDisableIndicationSubscriptionResponseMessage(
-		request->messageId,
-		CIM_ERR_FAILED,
-		"not implemented",
-		request->queueIds.copyAndPop());
+			request->messageId,
+			CIM_ERR_FAILED,
+			"not implemented",
+			request->queueIds.copyAndPop());
 
 	// preserve message key
 	response->setKey(request->getKey());
 
 	// call the message queue service method to see if this is an async envelope
-	if(service->_enqueueResponse((Message *)request, (Message *)response))
-	{
-		return(0);
-	}
-
-	/*
-	// lookup the message queue
-	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-	PEGASUS_ASSERT(queue != 0);
-
-	// enqueue the response
-	queue->enqueue(response);
-	*/
-
+	service->_enqueueResponse((Message *)request, (Message *)response);
+	
+	delete request;
+		
 	return(0);
 }
 
 PEGASUS_NAMESPACE_END
-	

@@ -55,40 +55,8 @@ class CIMRepository;
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
 public:
-      typedef void (CIMOperationRequestDispatcher::*p_handler)(AsyncOpNode *);
-      typedef struct op_async
-      {
-	    CIMOperationRequestDispatcher *dispatcher;
-	    p_handler top_half;
-	    p_handler bottom_half;
-	    AsyncOpNode *work;
-	    op_async(CIMOperationRequestDispatcher *d, 
-			       p_handler top, 
-			       p_handler bottom,
-			       AsyncOpNode *op)
-	    {
-	       dispatcher = d;
-	       top_half = top;
-	       bottom_half = bottom;
-	       work = op;
-	    }
-	    
-	    inline Boolean operator==(const void *key) const 
-	    { 
-	       if ( this == key) 
-		  return(true); 
-	       return(false);
-	    } 
-	    inline Boolean operator==(const struct op_async & b) const
-	    {
-	       return(operator==((const void *)this));
-	    }
-// call (dispatcher->*top)(work_node);
-//	(dispatcher->*bottom)(work_node);    
-
-      }CIMOperation_async;
       
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL async_dispatcher(void *parm);
+      typedef MessageQueue Base;
       
       CIMOperationRequestDispatcher(CIMRepository* repository, CIMServer* server);
       
@@ -193,24 +161,7 @@ protected:
 
       CIMRepository* _repository;
       ProviderManager _providerManager;
-      
-      Thread _dispatch_thread;
-      ThreadPool _dispatch_pool; 
-      
-      static  PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _qthread (void *);
-           
-      DQueue<AsyncOpNode> _opnode_cache;
-      AsyncDQueue<AsyncOpNode> _waiting_ops;
-      AsyncDQueue<AsyncOpNode> _started_ops;
-      AsyncDQueue<AsyncOpNode> _completed_ops;
-      
       AtomicInt _dying ;
-      friend void async_operation_dispatch(CIMOperationRequestDispatcher *d, 
-					   void (CIMOperationRequestDispatcher::*top)(AsyncOpNode *),
-					   void (CIMOperationRequestDispatcher::*bottom)(AsyncOpNode *),
-					   int rh_type,
-					   Message *request) 
-	 throw(IPCException) ;
 };
 
 PEGASUS_NAMESPACE_END

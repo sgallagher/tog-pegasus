@@ -108,6 +108,7 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
    }
    _exit_code = exit_code;
    exit_thread(exit_code);
+   _handle.thid = 0;
 }
 
 

@@ -51,6 +51,9 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueue
 {
 public:
 
+  typedef MessageQueue Base;
+  
+
     /** Constructor. */
     HTTPAuthenticatorDelegator(
 	Uint32 operationMessageQueueId,

@@ -59,10 +59,13 @@ static Uint32 _GetNextQueueId() throw(IPCException)
 
 Uint32 MessageQueue::_CIMOM_Q_ID = 1;
 
-MessageQueue::MessageQueue(const char * name)
+MessageQueue::MessageQueue(const char * name, Boolean async = false)
 	: _mut( ), _count(0), _front(0), _back(0),
-	_workThread(MessageQueue::workThread, this, false),
-	_workSemaphore(0)
+	  _async(async),
+	  _workThread(MessageQueue::workThread, this, false),
+	  _workSemaphore(0)
+
+
 {
    if(name != NULL)
    {
@@ -78,7 +81,14 @@ MessageQueue::MessageQueue(const char * name)
        ;
     q_table_mut.unlock();
 
-	_workThread.run();
+// << Wed Dec 19 16:34:26 2001 mdd >>
+    _async = false;
+    
+    if(_async == true)
+    {
+       _workThread.run();
+    }
+    
 }
 
 MessageQueue::~MessageQueue()
@@ -89,10 +99,15 @@ MessageQueue::~MessageQueue()
     _queueTable.remove(_queueId);
     q_table_mut.unlock();
 	
-	_workThread.cancel();	// cancel thread
-	_workSemaphore.signal();// wake thread
-	_workThread.join();		// wait for thread to complete
+    if(_async == true)
+    {
+       _workThread.cancel();	// cancel thread
+       _workSemaphore.signal();// wake thread
+       _workThread.join();     // wait for thread to complete
+    }
+    
 }
+
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 {
@@ -168,9 +183,10 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
     _count++;
     _mut.unlock();
 
-//    _workSemaphore.signal();
-
-    handleEnqueue();
+    if( _async == true )
+       _workSemaphore.signal();
+    else 
+       handleEnqueue();
 }
 
 Message* MessageQueue::dequeue() throw(IPCException)

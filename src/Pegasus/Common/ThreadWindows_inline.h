@@ -83,6 +83,7 @@ inline void Thread::join(void)
       }
       while( exit_code == STILL_ACTIVE);
    }
+   _handle.thid = 0;
 }
 
 inline void Thread::thread_init(void)

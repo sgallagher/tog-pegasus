@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
     Uint32 exportMessageQueueId)
-    : 
+   : Base("HTTPAuthDelator", true),
     _operationMessageQueueId(operationMessageQueueId),
     _exportMessageQueueId(exportMessageQueueId)
 {

@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher(
     CIMRepository* repository)
-    : _repository(repository)
+    : Base("CIMExportDispatcher", true), _repository(repository)
 {
 
 }

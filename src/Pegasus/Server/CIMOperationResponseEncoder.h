@@ -41,6 +41,9 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMOperationResponseEncoder : public MessageQueue
 {
 public:
+  
+  typedef MessageQueue Base;
+  
 
     CIMOperationResponseEncoder();
 

@@ -81,6 +81,7 @@ inline void Thread::join(void)
 { 
    if((! _is_detached) && (_handle.thid != 0))
       pthread_join(_handle.thid, &_exit_code) ; 
+   _handle.thid = 0;
 }
 
 inline void Thread::thread_init(void)

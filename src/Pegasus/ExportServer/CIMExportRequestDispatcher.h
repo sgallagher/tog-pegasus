@@ -53,7 +53,8 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
 {
 public:
 
-    
+  typedef MessageQueue Base;
+  
     CIMExportRequestDispatcher(CIMRepository* repository);
 
     virtual ~CIMExportRequestDispatcher();

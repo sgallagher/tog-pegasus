@@ -43,6 +43,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseEncoder::CIMExportResponseEncoder()
+   : Base("ExportResponseEncoder", true)
 {
 
 }

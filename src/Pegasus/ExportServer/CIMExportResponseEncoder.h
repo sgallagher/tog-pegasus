@@ -43,7 +43,8 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder
     : public MessageQueue
 {
 public:
-
+  typedef MessageQueue Base;
+  
     CIMExportResponseEncoder();
 
     ~CIMExportResponseEncoder();

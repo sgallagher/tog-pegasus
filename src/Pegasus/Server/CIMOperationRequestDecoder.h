@@ -46,7 +46,8 @@ class XmlParser;
 class CIMOperationRequestDecoder : public MessageQueue
 {
 public:
-
+  typedef MessageQueue Base;
+    
     CIMOperationRequestDecoder(
 	MessageQueue* outputQueue,
 	Uint32 returnQueueId);

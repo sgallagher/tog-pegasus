@@ -75,8 +75,8 @@ struct HTTPAcceptorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
-    : _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0),
-      _sslcontext(NULL)
+    : Base("HTTPAcceptor", true), _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
+      _rep(0), _sslcontext(NULL)
 {
     Socket::initializeInterface();
 }

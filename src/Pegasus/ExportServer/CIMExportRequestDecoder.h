@@ -49,6 +49,8 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 {
 public:
 
+  typedef MessageQueue Base;
+  
     CIMExportRequestDecoder(
 	MessageQueue* outputQueue,
 	Uint32 returnQueueId);

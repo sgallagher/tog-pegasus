@@ -40,6 +40,7 @@ ProviderManager::ProviderManager(
 :
     _cimom(outputQueue, repository),
     _serviceCimom(outputQueue, repository, server)
+
 {
     Thread * thread = new Thread(monitorThread, this, false);
 

@@ -45,7 +45,8 @@ struct HTTPAcceptorRep;
 class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
 public:
-
+  typedef MessageQueue Base;
+  
     /** Constructor.
 	@param monitor pointer to monitor object which this class uses to
 	    solicit SocketMessages on the server port (socket).

@@ -51,7 +51,7 @@ public:
 	may be obtained by calling getQueueId()). The queue-id may be passed
 	to lookupQueue() to obtain a pointer to the corresponding queue).
     */
-    MessageQueue(const char * name = 0);
+    MessageQueue(const char * name = 0, Boolean async = false);
 
     /** Removes this queue from the queue table. */
     virtual ~MessageQueue();
@@ -170,9 +170,10 @@ private:
     Message* _back;
     // Wed Oct 17 11:26:22 2001 mdday
     char _name[26];
-	
-	Thread _workThread;
-	Semaphore _workSemaphore;
+    Boolean _async;
+    
+    Thread _workThread;
+    Semaphore _workSemaphore;
 };
 
 inline const Message* MessageQueue::findByType(Uint32 type) const

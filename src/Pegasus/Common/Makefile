@@ -70,7 +70,6 @@ SOURCES = \
     XmlReader.cpp \
     XmlWriter.cpp \
     Stopwatch.cpp \
-    TimeValue.cpp \
-    System.cpp
+    TimeValue.cpp
 
 include $(ROOT)/mak/library.mak

@@ -163,6 +163,11 @@ int main(int argc, char** argv)
 	const char FILE1[] = "file1.txt";
 	const char FILE2[] = "file2.txt";
 
+  	ofstream of1(FILE1);
+	of1 << "test" << endl;
+	of1.close();
+	assert(FileSystem::exists(FILE1));
+
 	assert(FileSystem::exists(FILE1));
 	assert(!FileSystem::exists(FILE2));
 	assert(FileSystem::renameFile(FILE1, FILE2));

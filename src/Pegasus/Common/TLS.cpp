@@ -26,6 +26,7 @@
 // Modified By:
 //         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,7 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
+#include <Pegasus/Common/IPC.h>
 
 #include "TLS.h"
 
@@ -96,11 +98,25 @@ SSLSocket::~SSLSocket()
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::read()");
+
+    #define MAX_READ_RETRIES 5
+    #define SLEEP_TIME_TO_RETRY 50
+
     Sint32 rc;
+    Uint32 retryCount = 0;
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
-    rc = SSL_read(_SSLConnection, (char *)ptr, size);
+
+    while (true)
+    {
+	rc = SSL_read(_SSLConnection, (char *)ptr, size);
+	if ((rc > 0) || (++retryCount > MAX_READ_RETRIES))
+	{
+	    break;
+	}
+	pegasus_sleep(SLEEP_TIME_TO_RETRY);
+    }
 
     PEG_METHOD_EXIT();
     return rc;

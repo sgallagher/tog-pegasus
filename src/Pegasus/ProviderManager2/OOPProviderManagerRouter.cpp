@@ -478,6 +478,7 @@ void ProviderAgentContainer::_startAgentProcess()
             pipeToAgent->exportReadHandle(readHandle);
             pipeFromAgent->exportWriteHandle(writeHandle);
 
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT
             // Set the user context of the Provider Agent process
             if (_userName != System::getEffectiveUserName())
             {
@@ -494,6 +495,7 @@ void ProviderAgentContainer::_startAgentProcess()
                     _exit(1);
                 }
             }
+#endif
 
             execl(agentCommandPathCString, agentCommandPathCString,
                 readHandle, writeHandle,

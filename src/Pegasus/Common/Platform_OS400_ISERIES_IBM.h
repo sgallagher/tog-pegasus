@@ -56,9 +56,11 @@
 
 #define OS400_DEFAULT_MESSAGE_SOURCE "/QIBM/ProdData/OS400/CIM/msg" // l10n
 
+#ifdef PEGASUS_INTERNALONLY
 #define PEGASUS_HAS_ICU  // l10n ICU libraries are available, this switch
                          // is defined as part of the various platform make files
-                         
+#endif
+                  
 #define PEGASUS_HAS_MESSAGES  // turns on localized message loading
 
 #define PEGASUS_USE_EXPERIMENTAL_INTERFACES

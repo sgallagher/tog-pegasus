@@ -12,13 +12,18 @@
 #define CQLIDENTIFIER 2
 #define CQLFUNCTION 3
 #define CQLCHAINEDIDENTIFIER 4
-#define DEBUG 1
+
+#ifdef CQL_DEBUG_GRAMMAR
+#define DEBUG_GRAMMAR 1
+#else
+#define DEBUG_GRAMMAR 0
+#endif
 
 int yylex();
 int yyerror(char * err){printf("%s\n", err); return 1;}
 char msg[100];
 void printf_(char * msg){
-	if(DEBUG == 1)
+	if(DEBUG_GRAMMAR == 1)
 		printf("%s\n",msg);
 }
 extern char * yytext;

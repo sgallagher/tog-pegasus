@@ -6,6 +6,12 @@ extern int CQL_error(const char*);
 #define YY_INPUT(BUF, NREAD, NREQUESTED) CQLInput(BUF, NREAD, NREQUESTED)
 #endif
 
+#ifdef CQL_DEBUG_LEXER
+#define DEBUG_LEX 1
+#else
+#define DEBUG_LEX 0
+#endif
+
 #include <Pegasus/Common/Config.h>
 #include "CQLParserState.h"
 #include <stdlib.h>
@@ -18,6 +24,12 @@ PEGASUS_NAMESPACE_BEGIN
 extern CQLParserState* globalParserState;
                                                                                 
 PEGASUS_NAMESPACE_END
+
+char msg_[100];
+void printf__(char * msg){
+        if(DEBUG_LEX == 1)
+                printf("%s\n",msg);
+}
 
 %}
 SIGN [+-]
@@ -61,140 +73,161 @@ Z [Zz]
 
 {S}{E}{L}{E}{C}{T} {
 
-    printf("LEX: %s [SELECT] ", yytext);
+    sprintf(msg_,"LEX: %s [SELECT] ", yytext);
+    printf__(msg_);
     return SELECT;
 }
 
 {F}{R}{O}{M} {
 
-    printf("LEX: %s [FROM] ", yytext);
+    sprintf(msg_,"LEX: %s [FROM] ", yytext);
+    printf__(msg_);
     return FROM;
 }
 
 {W}{H}{E}{R}{E} {
 
-    printf("LEX: %s [WHERE] ", yytext);
+    sprintf(msg_,"LEX: %s [WHERE] ", yytext);
+    printf__(msg_);
     return WHERE;
 }
 
 {A}{N}{Y} {
 
-    printf("LEX: %s [ANY] ", yytext);
+    sprintf(msg_,"LEX: %s [ANY] ", yytext);
+    printf__(msg_);
     return ANY;
 }
 
 {A}{S} {
-                                                                                                                                                             
-    printf("LEX: %s [AS] ", yytext);
+    sprintf(msg_,"LEX: %s [AS] ", yytext);
+    printf__(msg_);
     return AS;
 }
 
 {A}{S}{C} {
-                                                                                                                                                             
-    printf("LEX: %s [ASC] ", yytext);
+    sprintf(msg_,"LEX: %s [ASC] ", yytext);
+    printf__(msg_);
+
     return ASC;
 }
 
 {B}{Y} {
-                                                                                                                                                             
-    printf("LEX: %s [BY] ", yytext);
+    sprintf(msg_,"LEX: %s [BY] ", yytext);
+    printf__(msg_);
+
     return BY;
 }
 
 {D}{E}{S}{C} {
-                                                                                                                                                             
-    printf("LEX: %s [DESC] ", yytext);
+    sprintf(msg_,"LEX: %s [DESC] ", yytext);
+    printf__(msg_);
+
     return DESC;
 }
 
 
 {D}{I}{S}{T}{I}{N}{C}{T} {
-                                                                                                                                                             
-    printf("LEX: %s [DISTINCT] ", yytext);
+    sprintf(msg_,"LEX: %s [DISTINCT] ", yytext);
+    printf__(msg_);
+
     return DISTINCT;
 }
 
 {E}{V}{E}{R}{Y} {
-                                                                                                                                                             
-    printf("LEX: %s [EVERY] ", yytext);
+    sprintf(msg_,"LEX: %s [EVERY] ", yytext);
+    printf__(msg_);
+
     return EVERY;
 }
 
 {F}{I}{R}{S}{T} {
-                                                                                                                                                             
-    printf("LEX: %s [FIRST] ", yytext);
+    sprintf(msg_,"LEX: %s [FIRST] ", yytext);
+    printf__(msg_);
+
     return FIRST;
 }
 
 {I}{N} {
-                                                                                                                                                             
-    printf("LEX: %s [IN] ", yytext);
+    sprintf(msg_,"LEX: %s [IN] ", yytext);
+    printf__(msg_);
+
     return IN;
 }
 
 {I}{S} {
-                                                                                                                                                             
-    printf("LEX: %s [IS] ", yytext);
+    sprintf(msg_,"LEX: %s [IS] ", yytext);
+    printf__(msg_);
+
     return IS;
 }
 
 {I}{S}{A} {
-                                                                                                                                                             
-    printf("LEX: %s [ISA] ", yytext);
+    sprintf(msg_,"LEX: %s [ISA] ", yytext);
+    printf__(msg_);
+
     return _ISA;
 }
 
 {L}{I}{K}{E} {
-                                                                                                                                                             
-    printf("LEX: %s [LIKE] ", yytext);
+    sprintf(msg_,"LEX: %s [LIKE] ", yytext);
+    printf__(msg_);
+
     return _LIKE;
 }
 
 {O}{R}{D}{E}{R} {
-                                                                                                                                                             
-    printf("LEX: %s [ORDER] ", yytext);
+    sprintf(msg_,"LEX: %s [ORDER] ", yytext);
+    printf__(msg_);
+
     return ORDER;
 }
 
 {S}{A}{T}{I}{S}{F}{I}{E}{S} {
-                                                                                                                                                             
-    printf("LEX: %s [SATISFIES] ", yytext);
+    sprintf(msg_,"LEX: %s [SATISFIES] ", yytext);
+    printf__(msg_);
+
     return SATISFIES;
 }
 
 {T}{R}{U}{E} {
+    sprintf(msg_,"LEX: %s [_TRUE] ", yytext);
+    printf__(msg_);
 
-    printf("LEX: %s [_TRUE] ", yytext);
     return _TRUE;
 }
 
 {F}{A}{L}{S}{E} {
+    sprintf(msg_,"LEX: %s [_FALSE] ", yytext);
+    printf__(msg_);
 
-    printf("LEX: %s [_FALSE] ", yytext);
     return _FALSE;
 }
 
 {N}{U}{L}{L} {
+    sprintf(msg_,"LEX: %s [_NULL] ", yytext);
+    printf__(msg_);
 
-    printf("LEX: %s [_NULL] ", yytext);
     return _NULL;
 }
 
 {N}{O}{T} {
+    sprintf(msg_,"LEX: %s [NOT] ", yytext);
+    printf__(msg_);
 
-    printf("LEX: %s [NOT] ", yytext);
     return NOT;
 }
 
 {A}{N}{D} {
+    sprintf(msg_,"LEX: %s [AND] ", yytext);
+    printf__(msg_);
 
-    printf("LEX: %s [AND] ", yytext);
     return _AND;
 }
 
 {O}{R} {
-
-    printf("LEX: %s [OR] ", yytext);
+    sprintf(msg_,"LEX: %s [OR] ", yytext);
+    printf__(msg_);
     return _OR;
 }
 
@@ -205,12 +238,15 @@ Z [Zz]
     CQL_lval.strValue = new char[n+1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
-    printf("LEX: %s [SCOPED_PROPERTY] ", CQL_lval.strValue);
+    sprintf(msg_,"LEX: %s [SCOPED_PROPERTY] ", CQL_lval.strValue);
+    printf__(msg_);
     return SCOPED_PROPERTY;
 }
 
 [-]{1}[0][Xx]{HEX_DIGIT}{HEX_DIGIT}* {
-    printf("LEX: %s [NEGATIVE_HEXADECIMAL] ", yytext);
+    sprintf(msg_,"LEX: %s [NEGATIVE_HEXADECIMAL] ", yytext);
+    printf__(msg_);
+
     /* copy the hex value */
     {
         size_t n = strlen(yytext);
@@ -224,7 +260,9 @@ Z [Zz]
 }
 
 [+]?[0][Xx]{HEX_DIGIT}{HEX_DIGIT}* {
-    printf("LEX: %s [HEXADECIMAL] ", yytext);
+    sprintf(msg_,"LEX: %s [HEXADECIMAL] ", yytext);
+    printf__(msg_);
+
     /* copy the hex value */
     {
         size_t n = strlen(yytext);
@@ -238,7 +276,9 @@ Z [Zz]
 }
 
 [-]{1}{BINARY_DIGIT}{BINARY_DIGIT}*{B} {
-    printf("LEX: %s [NEGATIVE_BINARY] ", yytext);
+    sprintf(msg_,"LEX: %s [NEGATIVE_BINARY] ", yytext);
+    printf__(msg_);
+
     /* copy the bin value */ 
     {
         size_t n = strlen(yytext);
@@ -252,7 +292,9 @@ Z [Zz]
 }
 
 [+]?{BINARY_DIGIT}{BINARY_DIGIT}*{B} {
-    printf("LEX: %s [BINARY] ", yytext);
+    sprintf(msg_,"LEX: %s [BINARY] ", yytext);
+    printf__(msg_);
+
     /* copy the bin value */
     {
         size_t n = strlen(yytext);
@@ -268,7 +310,9 @@ Z [Zz]
 
 [-]{1}{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {
 
-    printf("LEX: %s [NEGATIVE_INTEGER] ", yytext);
+    sprintf(msg_,"LEX: %s [NEGATIVE_INTEGER] ", yytext);
+    printf__(msg_);
+
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
 	    delete [] CQL_lval.strValue;
@@ -282,7 +326,9 @@ Z [Zz]
 
 [+]?{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {
                                                                                                                                        
-    printf("LEX: %s [INTEGER] ", yytext);
+    sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
+    printf__(msg_);
+
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
             delete [] CQL_lval.strValue;
@@ -297,7 +343,9 @@ Z [Zz]
 
 [+-]?0 {
 
-    printf("LEX: %s [INTEGER] ", yytext);
+    sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
+    printf__(msg_);
+
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
 	    delete [] CQL_lval.strValue;
@@ -310,7 +358,9 @@ Z [Zz]
 
 [-]{1}{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
 
-    printf("LEX: %s [NEGATIVE_REAL] ", yytext);
+    sprintf(msg_,"LEX: %s [NEGATIVE_REAL] ", yytext);
+    printf__(msg_);
+
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
             delete [] CQL_lval.strValue;
@@ -324,7 +374,9 @@ Z [Zz]
 
 [+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
                                                                                                                                        
-    printf("LEX: %s [REAL] ", yytext);
+    sprintf(msg_,"LEX: %s [REAL] ", yytext);
+    printf__(msg_);
+
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
             delete [] CQL_lval.strValue;
@@ -342,7 +394,8 @@ Z [Zz]
     /* ATTN-B: handle long literals by using yyinput(). */
     /* ATTN-B: Handle expansion of special characters */
 
-    printf("LEX: %s [STRING] ", yytext);
+    sprintf(msg_,"LEX: %s [STRING] ", yytext);
+    printf__(msg_);
 
     /* Copy the string (but remove the surrounding quotes */
 
@@ -360,112 +413,152 @@ Z [Zz]
 
 \'[^\'\n]*$ {
 
-    printf("Unterminated string");
+    sprintf(msg_,"Unterminated string");
+    printf__(msg_);
 }
 
 \*{1} {
-   printf("LEX: [STAR] ");
+   sprintf(msg_,"LEX: [STAR] ");
+   printf__(msg_);
+
    return STAR;
 }
 
 \/{1} {
-   printf("LEX: [DIV] ");
+   sprintf(msg_,"LEX: [DIV] ");
+   printf__(msg_);
+
    return DIV;
 }
 
 \+{1} {
-   printf("LEX: [PLUS] ");
+   sprintf(msg_,"LEX: [PLUS] ");
+   printf__(msg_);
+
    return PLUS;
 }
 
 \-{1} {
-   printf("LEX: [MINUS] ");
+   sprintf(msg_,"LEX: [MINUS] ");
+   printf__(msg_);
+
    return MINUS;
 }
 
 \,{1} {
-   printf("LEX: [COMMA] ");
+   sprintf(msg_,"LEX: [COMMA] ");
+   printf__(msg_);
+
    return COMMA;
 }
 
 \.{2} {
-    printf("LEX: [DOTDOT] ");
+    sprintf(msg_,"LEX: [DOTDOT] ");
+    printf__(msg_);
+
     return DOTDOT;
 }
 
 \.{1} {
-    printf("LEX: [DOT] ");
+    sprintf(msg_,"LEX: [DOT] ");
+    printf__(msg_);
+
     return DOT;
 }
 
 \[{1} {
-    printf("LEX: [LBRKT] ");
+    sprintf(msg_,"LEX: [LBRKT] ");
+    printf__(msg_);
+
     return LBRKT;
 }
 
 \]{1} {
-    printf("LEX: [RBRKT] ");
+    sprintf(msg_,"LEX: [RBRKT] ");
+    printf__(msg_);
+
     return RBRKT;
 }
 
 \({1} {
-    printf("LEX: [LPAR] ");
+    sprintf(msg_,"LEX: [LPAR] ");
+    printf__(msg_);
+
     return LPAR;
 }
 
 \){1} {
-    printf("LEX: [RPAR] ");
+    sprintf(msg_,"LEX: [RPAR] ");
+    printf__(msg_);
+
     return RPAR;
 }
 
 "||" {
-    printf("LEX: %s [DBL_PIPE] ", yytext);
+    sprintf(msg_,"LEX: %s [DBL_PIPE] ", yytext);
+    printf__(msg_);
+
     return DBL_PIPE;
 }
 
 "_" {
-    printf("LEX: %s [UNDERSCORE] ", yytext);
+    sprintf(msg_,"LEX: %s [UNDERSCORE] ", yytext);
+    printf__(msg_);
+
     return UNDERSCORE;
 }
 
 "=" { 
-    printf("LEX: %s [_EQ] ", yytext);
+    sprintf(msg_,"LEX: %s [_EQ] ", yytext);
+    printf__(msg_);
+
     return _EQ; 
 }
 
 "!=" { 
 
-    printf("LEX: %s [_NE] ", yytext);
+    sprintf(msg_,"LEX: %s [_NE] ", yytext);
+    printf__(msg_);
+
     return _NE; 
 }
 
 "<=" { 
 
-    printf("LEX: %s [_LE] ", yytext);
+    sprintf(msg_,"LEX: %s [_LE] ", yytext);
+    printf__(msg_);
+
     return _LE; 
 }
 
 "<" { 
 
-    printf("LEX: %s [_LT] ", yytext);
+    sprintf(msg_,"LEX: %s [_LT] ", yytext);
+    printf__(msg_);
+
     return _LT; 
 }
 
 ">=" { 
 
-    printf("LEX: %s [_GE] ", yytext);
+    sprintf(msg_,"LEX: %s [_GE] ", yytext);
+    printf__(msg_);
+
     return _GE; 
 }
 
 ">" { 
 
-    printf("LEX: %s [_GT] ", yytext);
+    sprintf(msg_,"LEX: %s [_GT] ", yytext);
+    printf__(msg_);
+
     return _GT; 
 }
 
 {IDENT_CHAR}({IDENT_CHAR}|{DECIMAL_DIGIT})*  {
 
-    printf("LEX: %s [IDENTIFIER] ", yytext);
+    sprintf(msg_,"LEX: %s [IDENTIFIER] ", yytext);
+    printf__(msg_);
 
     {
 	size_t n = strlen(yytext);
@@ -494,7 +587,9 @@ Z [Zz]
 
 . {
     CQL_lval.strValue = 0;
-    printf("LEX::UNEXPECTED_CHAR\n");
+    sprintf(msg_,"LEX::UNEXPECTED_CHAR\n");
+    printf__(msg_);
+
     return UNEXPECTED_CHAR;
 }
 

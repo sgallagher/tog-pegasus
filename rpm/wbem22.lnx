@@ -71,7 +71,7 @@ if [ "$isUnited" ] || [ "$isSUSE" ]; then
 	;;
     stop)
 	echo -n "Shutting down Pegasus CIMOM daemon  "	
-	killproc -TERM /usr/sbin/cimserver 
+	cimserver -s || killproc -TERM /usr/sbin/cimserver 
 	rc_status -v
 	;;
     try-restart)

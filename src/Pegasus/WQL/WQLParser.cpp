@@ -40,6 +40,7 @@
 PEGASUS_USING_STD;
 
 extern int WQL_parse();
+extern void WQL_restart (FILE *input_file);
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -133,6 +134,11 @@ int WQL_error(const char* errorMessage)
 
     globalParserState->error = true;
     globalParserState->errorMessage = errorMessage;
+
+    //
+    //  flex does not automatically flush the input buffer in case of error
+    //
+    WQL_restart (0);
 
     PEG_METHOD_EXIT();
     return -1;

@@ -35,7 +35,7 @@ XMLSCRIPTS = \
     DeleteHandler09 EnumerateSubscriptions04 \
     DeleteFilter01 \
     CreateFilter07 CreateFilter08 CreateFilter09 CreateFilter10 \
-    CreateFilter11 \
+    CreateFilter11 CreateFilter12 \
     CreateHandler04 CreateHandler05 CreateHandler06 CreateHandler07 \
     CreateHandler08 \
     CreateHandler10 CreateHandler11 CreateHandler12 CreateHandler13 \
@@ -63,10 +63,6 @@ XMLSCRIPTS = \
 #   GetSubscription04 GetSubscription05 GetSubscription06 \
 #   GetSubscription07 GetSubscription08 GetSubscription09 \
 #
-# Create filter instance with invalid query (parse error) is not currently run 
-# -- causes subsequent requests to time out (See bugzilla #18)
-#
-#   CreateFilter11 CreateFilter12 \
 
 testcleanup:
 	$(MAKE) -i removeproviders

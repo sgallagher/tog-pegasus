@@ -3944,12 +3944,14 @@ WQLSelectStatement IndicationService::_getSelectStatement (
     catch (ParseError & pe)
     {
         String exceptionStr = pe.getMessage ();
+        _mutex.unlock();
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }
     catch (MissingNullTerminator & mnt)
     {
         String exceptionStr = mnt.getMessage ();
+        _mutex.unlock();
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }

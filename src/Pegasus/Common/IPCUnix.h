@@ -56,6 +56,7 @@ typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
+
 #ifndef PEGASUS_OS_ZOS_ZSERIES_IBM
 typedef struct {
     sem_t sem;
@@ -193,10 +194,11 @@ inline void enable_cancel(void)
    pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
 }
 
-inline void sleep(int msec)
+inline void pegasus_sleep(int msec)
 {
   struct timespec timeout;
   timeout.tv_sec = msec / 1000;
+  msec -=  timeout.tv_sec * 1000;
   timeout.tv_nsec = (msec & 1000) * 1000;
   nanosleep(&timeout,NULL);
 }

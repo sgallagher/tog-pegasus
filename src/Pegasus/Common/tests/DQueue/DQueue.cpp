@@ -118,7 +118,7 @@ int main(int argc, char **argv)
 
    while(requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS)
    {
-      sleep(1000);
+      pegasus_sleep(1000);
 
       cout << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
    }

@@ -68,8 +68,9 @@ inline void Thread::resume()
 
 inline void Thread::sleep(Uint32 msec)
 {
-  struct timespec timeout;
+   struct timespec timeout;
   timeout.tv_sec = msec / 1000;
+  msec -=  timeout.tv_sec * 1000;
   timeout.tv_nsec = (msec & 1000) * 1000;
   nanosleep(&timeout,NULL);
 }

@@ -32,7 +32,7 @@
 #include <Pegasus/Common/IPC.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "ThreadWindows.cpp"
+# include "ThreadWindows.cpp" 
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "ThreadUnix.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)

@@ -188,7 +188,7 @@ inline void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc)
   _endthreadex(rc);
 }
 
-inline void PEGASUS_EXPORT sleep(int ms)
+inline void PEGASUS_EXPORT pegasus_sleep(int ms)
 {
   Sleep(ms);
 }

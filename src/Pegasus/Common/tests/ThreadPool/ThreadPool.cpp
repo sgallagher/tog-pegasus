@@ -52,7 +52,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
    Uint32 sleep_interval = (Uint32)parm;
    
    cout << "thread " << (Uint32)pegasus_thread_self() << " sleeping..." << endl;
-   sleep(sleep_interval);
+   pegasus_sleep(sleep_interval);
    cout << "thread " << (Uint32)pegasus_thread_self() << " awakening..." << endl;
    return reinterpret_cast<PEGASUS_THREAD_RETURN>(0);
 }
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	 tp.allocate_and_awaken((void *)14, work_func );
 	 tp.allocate_and_awaken((void *)15, work_func );
 	 tp.allocate_and_awaken((void *)16, work_func );
-      }
+      }  
       catch(Deadlock & dl)
       {
 	 cout << "thread " << (Uint32)dl.get_owner() << " timeout waiting for thread " << endl;
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
       
    }
    cout << "deliberitaly causing deadlock detection to occur ..." << endl;
-   sleep( 7000 );
+   pegasus_sleep( 7000 ) ;
    tp.kill_dead_threads( );  
    tp.kill_dead_threads( ) ;
     

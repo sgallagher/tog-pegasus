@@ -70,7 +70,7 @@ int main(int argc, char **argv)
       writers[i] = new Thread(writing_thread, rw, false);
       writers[i]->run();
    }
-   sleep(20000); 
+   pegasus_sleep(20000); 
    die = true;
   
    for(i = 0; i < 40; i++)

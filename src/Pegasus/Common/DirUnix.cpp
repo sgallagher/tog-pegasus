@@ -42,10 +42,6 @@ typedef struct os400_pnstruct
 } OS400_PNSTRUCT;
 #endif
 
-#ifdef PEGASUS_OS_SOLARIS
-#include <sys/param.h>
-#endif
-
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -132,7 +132,7 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 
 ifdef PEGASUS_CIM_SCHEMA
   CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
-  ifeq ($(PEGASUS_CIM_SCHEMA),CIMPrelim29)
+  ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)  
      CIM_SCHEMA_VER=
   else
      CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))

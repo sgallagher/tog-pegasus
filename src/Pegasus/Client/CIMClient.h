@@ -38,6 +38,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
@@ -161,7 +162,7 @@ public:
     */
     void connect(
         const String& address,
-        SSLContext * sslContext,
+        SSLContext* sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY);
 
@@ -418,6 +419,10 @@ public:
 
 private:
 
+    void _connect(
+        const String& address,
+        SSLContext* sslContext);
+
     Message* _waitForResponse(
 	const Uint32 messageType,
 	const String& messageId,
@@ -434,7 +439,7 @@ private:
     Boolean _connected;
     CIMOperationResponseDecoder* _responseDecoder;
     CIMOperationRequestEncoder* _requestEncoder;
-    ClientAuthenticator* _authenticator;
+    ClientAuthenticator _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

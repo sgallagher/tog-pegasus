@@ -65,16 +65,11 @@ CIMClient::CIMClient(Uint32 timeOutMilliseconds)
     //
     _monitor = new Monitor();
     _httpConnector = new HTTPConnector(_monitor);
-
-    //
-    // Create client authenticator
-    //
-    _authenticator = new ClientAuthenticator();    
 }
 
 CIMClient::~CIMClient()
 {
-   delete _authenticator;
+   disconnect();
    delete _httpConnector;
    delete _monitor;
 }
@@ -89,24 +84,19 @@ const char* CIMClient::getQueueName() const
     return "CIMClient";
 }
 
-void CIMClient::connect(
+void CIMClient::_connect(
     const String& address,
-    SSLContext * sslContext,
-    const String& userName,
-    const String& password)
+    SSLContext* sslContext)
 {
-    // If already connected, bail out!
-    
-    if (_connected)
-	throw AlreadyConnected();
-    
+    //
     // Create response decoder:
-    
+    //
     _responseDecoder = new CIMOperationResponseDecoder(
-        this, _requestEncoder, _authenticator);
+        this, _requestEncoder, &_authenticator);
     
+    //
     // Attempt to establish a connection:
-    
+    //
     try
     {
 	_httpConnection = _httpConnector->connect(address,
@@ -119,35 +109,67 @@ void CIMClient::connect(
 	throw e;
     }
     
+    //
     // Create request encoder:
-    
+    //
     _requestEncoder = new CIMOperationRequestEncoder(
-        _httpConnection, _authenticator);
+        _httpConnection, &_authenticator);
 
     _responseDecoder->setEncoderQueue(_requestEncoder);
-    
+
+    _connected = true;
+}
+
+void CIMClient::connect(
+    const String& address,
+    SSLContext* sslContext,
+    const String& userName,
+    const String& password)
+{
+    //
+    // If already connected, bail out!
+    //
+    if (_connected)
+	throw AlreadyConnected();
+
+    //
+    // If the address is empty, reject it
+    //
+    if (address == String::EMPTY)
+	throw InvalidLocator(address);
+
     //
     // Set authentication information
     //
+    _authenticator.clearRequest(true);
+
     if (userName.size())
     {
-        _authenticator->setUserName(userName);
+        _authenticator.setUserName(userName);
     }
 
     if (password.size())
     {
-        _authenticator->setPassword(password);
+        _authenticator.setPassword(password);
     }
-    _connected = true;
+
+    _connect(address, sslContext);
 }
 
 void CIMClient::connectLocal()
 {
-    String address = String::EMPTY;
+    //
+    // If already connected, bail out!
+    //
+    if (_connected)
+	throw AlreadyConnected();
+
+    String address;
 
 #ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
-    // ATTN-RK-P3-20020307: Fix this so the connect() method does not have to
-    // accept an empty address to support PEGASUS_LOCAL_DOMAIN_SOCKET
+    //
+    // Look up the WBEM port number for the local system
+    //
     Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
     char port[32];
     sprintf(port, "%u", portNum);
@@ -163,9 +185,10 @@ void CIMClient::connectLocal()
     //
     // Set authentication type
     //
-    _authenticator->setAuthType(ClientAuthenticator::LOCAL);
+    _authenticator.clearRequest(true);
+    _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-    connect(address);
+    _connect(address, NULL);
 }
 
 void CIMClient::disconnect()
@@ -178,6 +201,7 @@ void CIMClient::disconnect()
         if (_responseDecoder)
         {
             delete _responseDecoder;
+            _responseDecoder = 0;
         }
 
         //
@@ -198,9 +222,10 @@ void CIMClient::disconnect()
         if (_requestEncoder)
         {
             delete _requestEncoder;
+            _requestEncoder = 0;
         }
 
-        _authenticator->clearRequest(true);
+        _authenticator.clearRequest(true);
 
         _connected = false;
     }
@@ -228,7 +253,7 @@ CIMClass CIMClient::getClass(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -266,7 +291,7 @@ CIMInstance CIMClient::getInstance(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -296,7 +321,7 @@ void CIMClient::deleteClass(
 	className,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -323,7 +348,7 @@ void CIMClient::deleteInstance(
 	instanceName,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -350,7 +375,7 @@ void CIMClient::createClass(
 	newClass,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -377,7 +402,7 @@ CIMReference CIMClient::createInstance(
 	newInstance,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -406,7 +431,7 @@ void CIMClient::modifyClass(
 	modifiedClass,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -437,7 +462,7 @@ void CIMClient::modifyInstance(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -472,7 +497,7 @@ Array<CIMClass> CIMClient::enumerateClasses(
 	includeClassOrigin,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -504,7 +529,7 @@ Array<String> CIMClient::enumerateClassNames(
 	deepInheritance,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -544,7 +569,7 @@ Array<CIMNamedInstance> CIMClient::enumerateInstances(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -574,7 +599,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
 	className,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -604,7 +629,7 @@ Array<CIMInstance> CIMClient::execQuery(
 	query,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -647,7 +672,7 @@ Array<CIMObjectWithPath> CIMClient::associators(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -684,7 +709,7 @@ Array<CIMReference> CIMClient::associatorNames(
 	resultRole,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -723,7 +748,7 @@ Array<CIMObjectWithPath> CIMClient::references(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -756,7 +781,7 @@ Array<CIMReference> CIMClient::referenceNames(
 	role,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -788,7 +813,7 @@ CIMValue CIMClient::getProperty(
 	propertyName,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -821,7 +846,7 @@ void CIMClient::setProperty(
 	newValue,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -848,7 +873,7 @@ CIMQualifierDecl CIMClient::getQualifier(
 	qualifierName,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -877,7 +902,7 @@ void CIMClient::setQualifier(
 	qualifierDeclaration,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -904,7 +929,7 @@ void CIMClient::deleteQualifier(
 	qualifierName,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -929,7 +954,7 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
 	nameSpace,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     
@@ -969,7 +994,7 @@ CIMValue CIMClient::invokeMethod(
 	inParameters,
 	QueueIdStack());
     
-    _authenticator->clearRequest();
+    _authenticator.clearRequest();
 
     _requestEncoder->enqueue(request);
     

@@ -91,6 +91,9 @@ static struct ConfigPropertyRow properties[] =
 #endif
     {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 0},
     {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    {"authorizedUserGroups", "", 0, 0, 0, 1},
+#endif
     {"enableSSLExportClientVerification", "false", 0, 0, 0, 1}
 };
 
@@ -115,6 +118,9 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 #endif
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
     _enableSubscriptionsForNonprivilegedUsers = new ConfigProperty();
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    _authorizedUserGroups = new ConfigProperty();
+#endif
     _enableSSLExportClientVerification = new ConfigProperty();
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         _kerberosServiceName = new ConfigProperty();
@@ -139,6 +145,9 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
 #endif
     delete _enableRemotePrivilegedUserAccess;
     delete _enableSubscriptionsForNonprivilegedUsers;
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    delete _authorizedUserGroups;
+#endif
     delete _enableSSLExportClientVerification;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
      delete _kerberosServiceName;
@@ -356,6 +365,19 @@ void SecurityPropertyOwner::initialize()
             _enableSubscriptionsForNonprivilegedUsers->domainSize = properties[i].domainSize;
             _enableSubscriptionsForNonprivilegedUsers->externallyVisible = properties[i].externallyVisible;
         }
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+        else if (String::equalNoCase(properties[i].propertyName, "authorizedUserGroups"))
+        {
+            _authorizedUserGroups->propertyName = properties[i].propertyName;
+            _authorizedUserGroups->defaultValue = properties[i].defaultValue;
+            _authorizedUserGroups->currentValue = properties[i].defaultValue;
+            _authorizedUserGroups->plannedValue = properties[i].defaultValue;
+            _authorizedUserGroups->dynamic = properties[i].dynamic;
+            _authorizedUserGroups->domain = properties[i].domain;
+            _authorizedUserGroups->domainSize = properties[i].domainSize;
+            _authorizedUserGroups->externallyVisible = properties[i].externallyVisible;
+        }
+#endif
         else if (String::equalNoCase(
             properties[i].propertyName, "enableSSLExportClientVerification"))
         {
@@ -447,6 +469,12 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _enableSubscriptionsForNonprivilegedUsers;
     }
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    else if (String::equalNoCase(_authorizedUserGroups->propertyName, name))
+    {
+        return _authorizedUserGroups;
+    }
+#endif
     else if (String::equalNoCase(
                  _enableSSLExportClientVerification->propertyName, name))
     {
@@ -826,6 +854,12 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             retVal = true;
         }
     }
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    else if (String::equalNoCase(_authorizedUserGroups->propertyName, name))
+    {
+        retVal = true;
+    }
+#endif
     else if (String::equalNoCase(_enableSSLExportClientVerification->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))

@@ -49,6 +49,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
+//
+// Set group name separator
+//
+const char CIMOperationRequestAuthorizer::_GROUPNAME_SEPARATOR = ',';
 
 CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
    MessageQueueService* outputQueue)
@@ -59,6 +63,10 @@ CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
 {
    PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::"
                     "CIMOperationRequestAuthorizer");
+
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+   _authorizedUserGroups = _getAuthorizedUserGroups();
+#endif
 
    PEG_METHOD_EXIT();
 }
@@ -378,6 +386,93 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
    }
 
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+   //
+   // If the user is not privileged and authorized user group is specified, 
+   // then perform the user group authorization check.
+   //
+   try
+   {
+       if ( ! System::isPrivilegedUser(userName) )
+       {
+           Uint32 size = _authorizedUserGroups.size();
+
+           if (size > 0)
+           {
+               Boolean authorized = false;
+
+               //
+               // Check if the user name is in the authorized user groups.
+               //
+               for (Uint32 i = 0; i < size; i++)
+               {
+                   //
+                   // Check if the user is a member of the group
+                   //
+                   if ( System::isGroupMember(userName.getCString(),
+                            _authorizedUserGroups[i].getCString()) )
+                   {
+                       authorized = true;
+                       break;
+                   }
+               }
+
+               //
+               // If the user is not a member of any of the authorized
+               // user groups then generate error response.
+               //
+               if (!authorized)
+               {
+                   PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+                       "Authorization Failed: User '" + userName +
+                       "' is not a member of the authorized groups");
+
+                   MessageLoaderParms msgLoaderParms(
+                       "Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP",
+                       "User '$0' is not authorized to access CIM data.",
+                       userName);
+                   //
+                   // user is not in the authorized user groups, send an
+                   // error message to the requesting client.
+                   //
+                   if (cimMethodName == "InvokeMethod")
+                   {
+                       PEG_METHOD_EXIT();
+                       // l10n
+                       sendMethodError(
+                           queueId,
+                           request->getHttpMethod(),
+                           ((CIMRequestMessage*)request)->messageId,
+                           ((CIMInvokeMethodRequestMessage*)request)->methodName,
+                           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, msgLoaderParms));
+                   }
+                   else
+                   {
+                       PEG_METHOD_EXIT();
+                       // l10n
+                       sendIMethodError(
+                           queueId,
+                           request->getHttpMethod(),
+                           ((CIMRequestMessage*)request)->messageId,
+                           cimMethodName,
+                           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, msgLoaderParms));
+                   }
+               }
+           }
+       }
+   }
+   catch (InternalSystemError &ise)
+   {
+       PEG_METHOD_EXIT();
+       sendIMethodError(
+               queueId,
+               request->getHttpMethod(),
+               ((CIMRequestMessage*)request)->messageId,
+               cimMethodName,
+               PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, ise.getMessage()));
+   }
+#endif  // #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+
    //
    // Get a config manager instance
    //
@@ -553,4 +648,56 @@ void CIMOperationRequestAuthorizer::setServerTerminating(Boolean flag)
    PEG_METHOD_EXIT();
 }
 
+Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
+{
+   PEG_METHOD_ENTER(TRC_SERVER,
+       "CIMOperationRequestAuthorizer::getAuthorizedUserGroups");
+
+   Array<String> authorizedGroups;
+
+   String groupNames = String::EMPTY;
+
+   //
+   // Get a config manager instance
+   //
+   ConfigManager* configManager = ConfigManager::getInstance();
+
+   groupNames = configManager->getCurrentValue("authorizedUserGroups");
+
+   //
+   // Check if the group name is empty
+   //
+   if (groupNames == String::EMPTY || groupNames == "")
+   {
+       PEG_METHOD_EXIT();
+       return authorizedGroups;
+   }
+
+   //
+   // Append _GROUPNAME_SEPARATOR to the end of the groups
+   //
+   groupNames.append(_GROUPNAME_SEPARATOR);
+
+   Uint32   position = 0;
+   String   groupName = String::EMPTY;
+
+   while (groupNames != String::EMPTY)
+   {
+       //
+       // Get a group name from user groups
+       // User groups are separated by _GROUPNAME_SEPARATOR
+       //
+       position = groupNames.find(_GROUPNAME_SEPARATOR);
+       groupName = groupNames.subString(0,(position));
+
+       authorizedGroups.append(groupName);
+
+       // Remove the searched group name
+       groupNames.remove(0, position + 1);
+   }
+
+   PEG_METHOD_EXIT();
+
+   return authorizedGroups;
+}
 PEGASUS_NAMESPACE_END

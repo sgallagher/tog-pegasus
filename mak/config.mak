@@ -265,6 +265,16 @@ ifdef PEGASUS_SUPPORT_UTF8_FILENAME
 	endif
 endif
 
+#
+# PEP 142
+# The following flag need to be set to enable
+# user group authorization functionality.
+#
+ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+ DEFINES += -DPEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+endif
+
+
 # is the pegasus slp classes
 ifdef PEGASUS_SLP_CLASSES
 	DEFINES+= -DPEGASUS_SLP_CLASSES

@@ -143,6 +143,13 @@ String System::getPrivilegedUserName()
     return (String(""));
 }
 
+Boolean System::isGroupMember(const char* userName, const char* groupName)
+{
+    //ATTN: Implement this method to verify that the user name
+    //      is a member of the group
+    return true;
+}
+
 Uint32 System::getPID()
 {
     // ATTN: Implement this to get the process ID of the current process

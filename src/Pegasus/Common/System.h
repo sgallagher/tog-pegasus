@@ -196,6 +196,22 @@ public:
     static String getPrivilegedUserName();
 
     /**
+    This function is used to verify whether the specified user is a member
+    of the specified user group.
+
+    @param userName     User name to be verified.
+
+    @param groupName    User group name.
+
+    @return             true if the user is a member of the user group,
+                        false otherwise.
+
+    @throw              InternalSystemError - If there is an error
+                        accessing the specified user or group information.
+    */
+    static Boolean isGroupMember(const char* userName, const char* groupName);
+
+    /**
     This function is used to get the process ID of the calling process.
 
     @return             Process ID

@@ -185,6 +185,8 @@ const char InvalidAuthHeader::KEY[] = "Common.InternalException.INVALID_AUTH_HEA
 const char UnauthorizedAccess::MSG[] = "Unauthorized access";
 const char UnauthorizedAccess::KEY[] = "Common.InternalException.UNAUTHORIZED_ACCESS";  
 
+const char InternalSystemError::MSG[] = "Unable to authenticate user";
+
 IncompatibleTypesException::IncompatibleTypesException()
     : Exception("incompatible types")
 {

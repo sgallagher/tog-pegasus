@@ -1863,6 +1863,12 @@ en:table {
 
         Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED:string {"PGS05201: Access is not enabled for remote users with superuser authority."}
 
+        /**
+        * @note  PGS05202
+        *    Substitution {0} is the user name requesting a CIM operation (a string)
+        */
+        Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:string {"PGS05202: User '{0}' is not authorized to access CIM data."}
+
 
         // ==========================================================
         // Messages for CIMOperationRequestDecoder

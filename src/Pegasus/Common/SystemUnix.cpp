@@ -52,6 +52,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
+#include <grp.h>
 
 #include <errno.h>
 #if defined(PEGASUS_OS_SOLARIS) 
@@ -852,6 +853,108 @@ String System::getPrivilegedUserName()
     }
 
     return (userName);
+}
+
+Boolean System::isGroupMember(const char* userName, const char* groupName)
+{
+    struct group                        grp;
+    char                                *member;
+    Boolean                             retVal = false;
+    const unsigned int                  PWD_BUFF_SIZE = 1024;
+    const unsigned int                  GRP_BUFF_SIZE = 1024;
+    struct passwd                       pwd;
+    struct passwd                       *result;
+    struct group                        *grpresult;
+    char                                pwdBuffer[PWD_BUFF_SIZE];
+    char                                grpBuffer[GRP_BUFF_SIZE];
+
+    //
+    // Search Primary group information.
+    //
+
+    // Find the entry that matches "userName"
+
+    if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
+    {
+        String errorMsg = String("getpwnam_r failure : ") +
+                            String(strerror(errno));
+        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                  errorMsg);
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+                                  errorMsg);
+        throw InternalSystemError();
+    }
+
+    if ( result != NULL )
+    {
+        // User found, check for group information.
+        gid_t           group_id;
+        group_id = pwd.pw_gid;
+
+        // Get the group name using group_id and compare with group passed.
+        if ( getgrgid_r(group_id, &grp,
+                 grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0)
+        {
+            String errorMsg = String("getgrgid_r failure : ") +
+                                 String(strerror(errno));
+            Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                      errorMsg);
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+                                  errorMsg);
+            throw InternalSystemError();
+        }
+
+        // Compare the user's group name to groupName.
+        if ( strcmp (grp.gr_name, groupName) == 0 )
+        {
+             // User is a member of the group.
+             return true;
+        }
+    }
+
+    //
+    // Search supplemental groups.
+    // Get a user group entry
+    //
+    if ( getgrnam_r(groupName, &grp,
+              grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0 )
+    {
+        String errorMsg = String("getgrnam_r failure : ") +
+                            String(strerror(errno));
+        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                  errorMsg);
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+                                  errorMsg);
+        throw InternalSystemError();
+    }
+
+    // Check if the requested group was found.
+    if (grpresult == NULL)
+    {
+        return false;
+    }
+
+    Uint32 j = 0;
+
+    //
+    // Get all the members of the group
+    //
+    member = grp.gr_mem[j++];
+
+    while (member)
+    {
+        //
+        // Check if the user is a member of the group
+        //
+        if ( strcmp(userName, member) == 0 )
+        {
+            retVal = true;
+            break;
+        }
+        member = grp.gr_mem[j++];
+    }
+
+    return retVal;
 }
 
 Uint32 System::getPID()

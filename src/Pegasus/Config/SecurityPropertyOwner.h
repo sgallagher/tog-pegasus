@@ -234,6 +234,10 @@ private:
 
     struct ConfigProperty*      _enableSubscriptionsForNonprivilegedUsers;
 
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    struct ConfigProperty*      _authorizedUserGroups;
+#endif
+
     struct ConfigProperty*      _enableSSLExportClientVerification;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION

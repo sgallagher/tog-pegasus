@@ -82,6 +82,14 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 
    private:
 
+      // Constant defining the user group name separator
+      static const char  _GROUPNAME_SEPARATOR;
+
+      // Get a list of authorized user groups
+      Array<String> _getAuthorizedUserGroups();
+
+      Array<String> _authorizedUserGroups;
+
       MessageQueueService* _outputQueue;
 
       // Flag to indicate whether or not the CIMServer is shutting down.

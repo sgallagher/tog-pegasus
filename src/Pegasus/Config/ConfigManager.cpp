@@ -159,6 +159,9 @@ static struct OwnerEntry _properties[] =
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSubscriptionsForNonprivilegedUsers", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSSLExportClientVerification", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    {"authorizedUserGroups", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#endif
     {"messageDir",          (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"enableProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
 };

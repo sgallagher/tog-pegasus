@@ -565,6 +565,16 @@ public:
     IncompatibleTypesException();    
 };
 
+class PEGASUS_COMMON_LINKAGE InternalSystemError : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    InternalSystemError()
+        : Exception(MSG) { }
+};
+
 
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.  TraceableCIMException allows

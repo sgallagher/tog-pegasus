@@ -33,17 +33,17 @@
 /**
     Default file name for the current configuration.
 */
-static char CURRENT_CONFIG_FILE [] = "/opt/freeware/pegasus/cimserver_current.conf";
+static char CURRENT_CONFIG_FILE [] = "/opt/freeware/cimom/pegasus/cimserver_current.conf";
 
 /**
     Default file name for the planned configuration.
 */
-static char PLANNED_CONFIG_FILE [] = "/opt/freeware/pegasus/cimserver_planned.conf";
+static char PLANNED_CONFIG_FILE [] = "/opt/freeware/cimom/pegasus/cimserver_planned.conf";
 
 /**
     Default file name for the cimserver startup file containing the PID.
 */
-static char CIMSERVER_START_FILE [] = "/var/pegasus/cimserver_start.conf";
+static char CIMSERVER_START_FILE [] = "/tmp/cimserver_start.conf";
 #else
 /**
     Default file name for the current configuration.

@@ -391,26 +391,40 @@ Z [Zz]
     return REAL;
 }
 
-
-\'[^\'\n]*\' {
-
+\'((\\')|(\\)|[^'(\\')])+\' {
+	/* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
     /* ATTN-B: Handle expansion of special characters */
 
     sprintf(msg_,"LEX: %s [STRING] ", yytext);
     printf__(msg_);
 
+    /* remove any escaped \ OR escaped ' */
+
+    String _esc_doubleslash = "\\\\";
+    String _esc_singlequote = "\\'";
+    String s(yytext);
+
+    Uint32 index = 1;
+    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND){
+	if(index == s.size() - 2) // make sure we dont remove the slash from say 'abc\'
+		break;
+	s.remove(index,1);
+    }
+    printf("%s\n",(const char*)s.getCString());
+    CString cstr = s.getCString();
+    const char* string = (const char*)cstr;
+
     /* Copy the string (but remove the surrounding quotes */
 
     {
-	size_t n = strlen(yytext) - 2;
+	size_t n = strlen(string) - 2;
 	if(CQL_lval.strValue)
 		delete [] CQL_lval.strValue;
 	CQL_lval.strValue = new char[n + 1];
-	memcpy(CQL_lval.strValue, yytext + 1, n);
+	memcpy(CQL_lval.strValue, string + 1, n);
 	CQL_lval.strValue[n] = '\0';
     }
-
     return STRING_LITERAL;
 }
 
@@ -592,7 +606,7 @@ Z [Zz]
    }
 
 <<EOF>> {
-             exit(0);
+             return 0;
         }
 
 . {

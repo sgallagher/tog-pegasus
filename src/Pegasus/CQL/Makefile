@@ -4,7 +4,7 @@ DIR = Pegasus/CQL
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY -DCQLINPUT
 
 ifneq ($(OS), HPUX) 
 EXTRA_INCLUDES = -Int_includes
@@ -46,8 +46,7 @@ SOURCES = \
    SelectStatement.cpp \
    SelectStatementRep.cpp \
    CQLValue.cpp \
-   CQLValueRep.cpp \
-   CQLRegularExpression.cpp
+   CQLValueRep.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

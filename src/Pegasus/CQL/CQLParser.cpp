@@ -61,6 +61,7 @@ void CQLParser::parse(
     }
 
     statement.clear();
+    CQL_restart (0);
 
     globalParserState = new CQLParserState;
     globalParserState->error = false;
@@ -68,7 +69,6 @@ void CQLParser::parse(
     globalParserState->textSize = strlen(text) + 1;
     globalParserState->offset = 0;
     globalParserState->statement = &statement;
-
     	CQL_parse();
 
     if (globalParserState->error)
@@ -118,8 +118,10 @@ void CQLParser::cleanup()
 
     Array<char*>& arr = globalParserState->outstandingStrings;
 
-    for (Uint32 i = 0, n = arr.size(); i < n; i++)
+    for (Uint32 i = 0, n = arr.size(); i < n; i++){
+	printf("%s\n",arr[i]);
 	delete [] arr[i];
+	}
 
     arr.clear();
 

@@ -45,6 +45,7 @@
 #include <utmpx.h>
 #include <regex.h>
 #include <dirent.h>
+#include <dl.h>
 
 /* ==========================================================================
    Type Definitions
@@ -272,6 +273,8 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
  
     if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
     {
+cout << "pstat failed" << endl;
+
 	return false;
     }
     // Get the boot time and convert to local time. 
@@ -645,62 +648,40 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFile
     return true;
 }
 
-/**
-   getMaxProcessMemorySize method for HP-UX implementation of OS Provider
-
-   Calculate values by summing kernel tunable values for max data size, max
-   stack size, and max text size.  Different names if 32-bit vs. 64-bit.
-   NOT the pstat() pst_maxmem value; that is the amount of physical 
-   memory available to all user processes when the system first boots.
-
-   Could use the gettune(2) system call on some systems, but it isn't 
-   available for 11.0, so used kmtune for all releases.             
-   */
-Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
+static Boolean getMaxProcMemViaKmtune(Boolean are32bit, 
+                                      Uint64& maxProcMemSize)
 {
     char               mline[80];
     FILE             * mtuneInfo;
-    Uint32             maxdsiz;
-    Uint32             maxssiz;
-    Uint32             maxtsiz;
-    Uint64             maxdsiz_64bit;
-    Uint64             maxssiz_64bit;
-    Uint64             maxtsiz_64bit;
-    long               ret;
-
-    // Initialize the return parameter in case kmtune is not available. 
-    maxProcessMemorySize = 0;
-    
-    ret = sysconf (_SC_KERNEL_BITS);
-    if (ret == -1)
-    { 
-       return false;
-    }
-    
-   // Need to check if 32-bit or 64-bit to use the suitable name
-   if (ret == 32) 
-   {   // we're 32 bit
-       // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
+    Uint32             maxdsiz = 0;
+    Uint32             maxssiz = 0;
+    Uint32             maxtsiz = 0;
+    Uint64             maxdsiz_64bit = 0;
+    Uint64             maxssiz_64bit = 0;
+    Uint64             maxtsiz_64bit = 0;
+   
+    if (are32bit)
+    {
+       // Use a pipe to invoke kmtune (since don't have gettune on 11.0)
        if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz -q maxssiz "
                               "-q maxtsiz 2>/dev/null", "r")) != NULL)
        {
-           // Now extract the three values and sum them
-           while (fgets(mline, 80, mtuneInfo))
-           {
-              sscanf(mline, "maxdsiz %x", &maxdsiz);
-              sscanf(mline, "maxssiz %x", &maxssiz);
-              sscanf(mline, "maxtsiz %x", &maxtsiz);
-           }  // end while 
+          // Now extract the three values and sum them
+          while (fgets(mline, 80, mtuneInfo))
+          {
+             sscanf(mline, "maxdsiz %x", &maxdsiz);
+             sscanf(mline, "maxssiz %x", &maxssiz);
+             sscanf(mline, "maxtsiz %x", &maxtsiz);
+          }    // end while 
 
-           (void)pclose (mtuneInfo);
-           maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
-           return true;
+          (void)pclose (mtuneInfo);
+          maxProcMemSize = (maxdsiz + maxssiz + maxtsiz);
+          return true;
        } // end if popen worked
        return false;
-   } // end if (ret == 32)
-
-   else   // so ret was 64 (only returns -1, 32, or 64)
-   {   
+    }  // end if are32bit
+    else   // are 64bit, different parameter names must be used
+    {
        // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
        if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz_64bit " 
                               "-q maxssiz_64bit -q maxtsiz_64bit "
@@ -715,11 +696,138 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
            }  // end while 
 
            (void)pclose (mtuneInfo);
-           maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
+           maxProcMemSize = (maxdsiz_64bit + maxssiz_64bit
                                   + maxtsiz_64bit);
            return true;
        } // end if popen worked
        return false;
+    }
+}
+
+static Boolean getMaxProcMemViaGettune(Boolean are32bit,
+                                       Uint64& maxProcMemSize)
+{
+    uint64_t         maxdsiz = 0;
+    uint64_t         maxssiz = 0;
+    uint64_t         maxtsiz = 0;
+    uint64_t         maxdsiz_64bit = 0;
+    uint64_t         maxssiz_64bit = 0;
+    uint64_t         maxtsiz_64bit = 0;
+    uint64_t         total = 0;
+                                      
+    // we may be compiling on a system without gettune, but 
+    // run-time would have checked version and only be here
+    // if we expect to have the gettune system call in libc
+
+    // if handle is NULL, findsym is supposed to check currently
+    // loaded libraries (and we know libc should be loaded)
+
+    // get the procedure pointer for gettune
+    int (*gettune_sym) (const char *, uint64_t *) = NULL;
+    shl_t handle = NULL;
+
+    if (shl_findsym(&handle,
+                    "gettune",
+                    TYPE_PROCEDURE,
+                    (void *)&gettune_sym) != 0)
+    {
+       return false;
+    }
+    if (gettune_sym == NULL)
+    {
+       return false;
+    }       
+    
+    if (are32bit)
+    {
+       if (gettune_sym("maxdsiz", &maxdsiz) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxssiz", &maxssiz) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxtsiz", &maxtsiz) != 0)
+          return false;  // fail if can't get info
+       total  = maxdsiz + maxtsiz + maxssiz;
+       maxProcMemSize = total;
+       return true;
+    }  // end if are32bit
+    else
+    {  // are 64bit
+       if (gettune_sym("maxdsiz_64bit", &maxdsiz_64bit) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxssiz_64bit", &maxssiz_64bit) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxtsiz_64bit", &maxtsiz_64bit) != 0)
+          return false;  // fail if can't get info
+       total  = maxdsiz_64bit + maxtsiz_64bit + maxssiz_64bit;
+       maxProcMemSize = total;
+       return true;
+    }       
+}
+
+/**
+   getMaxProcessMemorySize method for HP-UX implementation of OS Provider
+
+   Calculate values by summing kernel tunable values for max data size, max
+   stack size, and max text size.  Different names if 32-bit vs. 64-bit.
+   NOT the pstat() pst_maxmem value; that is the amount of physical 
+   memory available to all user processes when the system first boots.
+
+   Could use the gettune(2) system call on some systems, but it isn't 
+   available for 11.0.  kmtune format changes in release 11.20, so will
+   have separate paths anyway (vs. same kmtune parsing for all releases).
+   Thus, chose to parse for 11.0, and use gettune for other releases.
+   */
+Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
+{
+    long               ret;
+
+    // Initialize the return parameter in case kmtune is not available. 
+    maxProcessMemorySize = 0;
+    
+    ret = sysconf (_SC_KERNEL_BITS);
+    if (ret == -1)
+    { 
+       return false;
+    }
+   
+    // First, check if we're an 11.0 system, if so, use kmtune parsing 
+    // If have many such checks, can store off Release/Version versus
+    // getting as needed.
+
+    struct utsname  unameInfo;
+    // Call uname and check for any errors. 
+    if (uname(&unameInfo) < 0)
+    {
+       return false;
+    }
+
+    // Need to check if 32-bit or 64-bit to use the suitable name
+    if (ret == 32) 
+    {  // we're 32 bit
+       if (strcmp(unameInfo.release,"B.11.00")==0) 
+       {
+          // Use kmtune on 11.0 (since don't have gettune)
+          return (getMaxProcMemViaKmtune(true, maxProcessMemorySize));
+       }
+       else 
+       { 
+          // can use gettune call 11.11 and onwards (won't be WBEM pre-11.0)
+          return (getMaxProcMemViaGettune(true, maxProcessMemorySize));
+       }
+    } // end if (ret == 32)
+
+    else   // so ret was 64 (only returns -1, 32, or 64)
+    {   
+       if (strcmp(unameInfo.release,"B.11.00")==0) 
+       {
+          // Use kmtune on 11.0 (since don't have gettune)
+          return (getMaxProcMemViaKmtune(false, maxProcessMemorySize));
+       }
+       else 
+       { 
+          // can use gettune call 11.11 and onwards (won't be WBEM pre-11.0)
+          return (getMaxProcMemViaGettune(false, maxProcessMemorySize));
+       }
     }  // end else
 }
 

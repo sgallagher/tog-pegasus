@@ -45,6 +45,7 @@
 #include <netdb.h>          // for gethostbyname
 #include <utmpx.h>          // for utxent calls
 #include <sys/pstat.h>      // for pstat 
+#include <dl.h>             // for shl_findsym
 
 typedef struct Timestamp {
 char year[4];
@@ -326,7 +327,7 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
    
    if (verbose) {
       cout<<" Should be close to " << currentDT.getString() << endl;
-      printf(" Actual delta (want < 360 seconds) = %lld\n",delta);
+      printf( " Delta should be within 360 seconds, is %lld\n",delta);
       fflush(stdout);
    }
    // arbitrary choice of expecting them to be within 360 seconds
@@ -546,16 +547,20 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
    Uint64 mTotalSwapSpaceSize = 0;
 
    if (verbose) 
-      // want to print it out, but it's Uint64, cast for now
-      cout<<"Checking TotalSwapSpaceSize "<<Uint32(totalswap)<<endl;
+   {
+      printf("Checking TotalSwapSpaceSize %lld\n", totalswap);
+      fflush(stdout);
+   }
 
    mTotalSwapSpaceSize = _totalVM();
    if (mTotalSwapSpaceSize == 0)
       return false;
 
    if (verbose)
-     cout << " Should be " << Uint32(mTotalSwapSpaceSize) <<endl;
-
+   {
+      printf(" Should be %lld\n", mTotalSwapSpaceSize);
+      fflush(stdout);
+   }
    return (totalswap == mTotalSwapSpaceSize);
 }
 
@@ -620,12 +625,15 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
 
    if (verbose)
    {
-      printf (" Delta should be within 2048, is %lld\n", delta); 
+      printf (" Delta should be within 65536, is %lld\n", delta); 
       fflush(stdout);
    }
 
-   // arbitrary choice of valid delta
-   return (delta < 2048 );   
+   // arbitrary choice of valid delta - typically ran within 
+   // 2048, but with many client connections, went as high as 
+   // 36,000+.  Thus chose 2^16 = 65536 (still helps weed out
+   // garbage values).
+   return (delta < 65536 );   
 }
 /**
    goodFreePhysicalMemory method for HP-UX implementation of
@@ -714,6 +722,125 @@ Boolean OSTestClient::goodFreeSpaceInPagingFiles(const Uint64 &freepg,
    return (freepg == 0);   
 }
 
+static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
+                                      Uint64& maxProcMemSize)
+{
+    char               mline[80];
+    FILE             * mtuneInfo;
+    Uint32             maxdsiz = 0;
+    Uint32             maxssiz = 0;
+    Uint32             maxtsiz = 0;
+    Uint64             maxdsiz_64bit = 0;
+    Uint64             maxssiz_64bit = 0;
+    Uint64             maxtsiz_64bit = 0;
+
+    if (are32bit)
+    {
+       // Use a pipe to invoke kmtune (since don't have gettune on 11.0)
+       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz -q maxssiz "
+                              "-q maxtsiz 2>/dev/null", "r")) != NULL)
+       {
+          // Now extract the three values and sum them
+          while (fgets(mline, 80, mtuneInfo))
+          {
+             sscanf(mline, "maxdsiz %x", &maxdsiz);
+             sscanf(mline, "maxssiz %x", &maxssiz);
+             sscanf(mline, "maxtsiz %x", &maxtsiz);
+          }    // end while
+
+          (void)pclose (mtuneInfo);
+          maxProcMemSize = (maxdsiz + maxssiz + maxtsiz);
+          return true;
+       } // end if popen worked
+       return false;
+    }  // end if are32bit
+    else   // are 64bit, different parameter names must be used
+    {
+       // Use a pipe to invoke kmtune (since don't have gettune on all OSs)
+       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz_64bit "
+                              "-q maxssiz_64bit -q maxtsiz_64bit "
+                              "2> /dev/null","r")) != NULL)
+       {
+           // Now extract the three values and sum them
+           while (fgets(mline, 80, mtuneInfo))
+           {
+              sscanf(mline, "maxdsiz_64bit %llx", &maxdsiz_64bit);
+              sscanf(mline, "maxssiz_64bit %llx", &maxssiz_64bit);
+              sscanf(mline, "maxtsiz_64bit %llx", &maxtsiz_64bit);
+           }  // end while
+
+           (void)pclose (mtuneInfo);
+           maxProcMemSize = (maxdsiz_64bit + maxssiz_64bit
+                                  + maxtsiz_64bit);
+           return true;
+       } // end if popen worked
+       return false;
+    }
+}
+           
+
+static Boolean getMaxProcMemViaGettune(Boolean are32bit,
+                                       Uint64& maxProcMemSize)
+{
+    uint64_t             maxdsiz = 0;
+    uint64_t             maxssiz = 0;
+    uint64_t             maxtsiz = 0;
+    uint64_t             maxdsiz_64bit = 0;
+    uint64_t             maxssiz_64bit = 0;
+    uint64_t             maxtsiz_64bit = 0;
+    uint64_t             total = 0;
+
+
+    // we may be compiling on a system without gettune, but
+    // run-time would have checked version and only be here
+    // if we expect to have the gettune system call in libc
+
+    // if handle is NULL, findsym is supposed to check currently
+    // loaded libraries (and we know libc should be loaded)
+
+    // get the procedure pointer for gettune
+    int (*gettune_sym) (const char *, uint64_t *) = NULL;
+    shl_t handle = NULL;
+
+    if (shl_findsym(&handle,
+                    "gettune",
+                    TYPE_PROCEDURE,
+                    (void *)&gettune_sym) != 0)
+    {
+       return false;
+    }
+
+    if (gettune_sym == NULL)
+    {
+       return false;
+    }
+
+
+    if (are32bit)
+    {
+       if (gettune_sym("maxdsiz", &maxdsiz) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxssiz", &maxssiz) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxtsiz", &maxtsiz) != 0)
+          return false;  // fail if can't get info
+       total  = maxdsiz + maxtsiz + maxssiz;
+       maxProcMemSize = total;
+       return true;
+    }  // end if are32bit
+    else
+    {  // are 64bit
+       if (gettune_sym("maxdsiz_64bit", &maxdsiz_64bit) != 0)
+          return false;  // fail if can't get info     
+       if (gettune_sym("maxssiz_64bit", &maxssiz_64bit) != 0)
+          return false;  // fail if can't get info
+       if (gettune_sym("maxtsiz_64bit", &maxtsiz_64bit) != 0) 
+          return false;  // fail if can't get info
+       total  = maxdsiz_64bit + maxtsiz_64bit + maxssiz_64bit;
+       maxProcMemSize = total;
+       return true;
+    }
+}    
 /**
    goodMaxProcessMemorySize method for HP-UX implementation of OS Provider
 
@@ -728,14 +855,6 @@ Boolean OSTestClient::goodFreeSpaceInPagingFiles(const Uint64 &freepg,
 Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
 					       Boolean verbose)
 {
-   char               mline[80];
-   FILE             * mtuneInfo;
-   Uint32             maxdsiz;
-   Uint32             maxssiz;
-   Uint32             maxtsiz;
-   Uint64             maxdsiz_64bit;
-   Uint64             maxssiz_64bit;
-   Uint64             maxtsiz_64bit;
    long               ret;    
 
    if (verbose) 
@@ -752,66 +871,57 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    {
       return false;  // fail if no validation info
    }
-    
+   
+   // First, check if we're an 11.0 system, if so, use kmtune parsing
+   // If have many such checks, can store off Release/Version versus
+   // getting as needed.
+
+   struct utsname  unameInfo;
+   // Call uname and check for any errors.
+   if (uname(&unameInfo) < 0)
+   {
+      return false;
+   }
+
    // Need to check if 32-bit or 64-bit to use the suitable name
    if (ret == 32)
-   {   // we're 32 bit
-       // Use a pipe to invoke kmtune (since don't have gettune on all OSs)
-       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz -q maxssiz "
-                              "-q maxtsiz 2>/dev/null", "r")) != NULL)
-       {
-           // Now extract the three values and sum them
-           while (fgets(mline, 80, mtuneInfo))
-           {
-              sscanf(mline, "maxdsiz %x", &maxdsiz);
-              sscanf(mline, "maxssiz %x", &maxssiz);
-              sscanf(mline, "maxtsiz %x", &maxtsiz);
-           } // end while
-
-           (void)pclose (mtuneInfo);
-           maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
-           if (verbose) 
-           {
-              printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
-                     maxProcessMemorySize);
-              fflush(stdout);
-           }
-       } // end if popen worked
-       else 
-       {
-          return false;
-       }
+   {  // we're 32 bit
+      if (strcmp(unameInfo.release,"B.11.00")==0)
+      {
+         // Use kmtune on 11.0 (since don't have gettune)
+         if (getMaxProcMemViaKmtune(true, maxProcessMemorySize) == false)
+            return false;  //fail if can't get info to check
+      }
+      else
+      {
+         // can use gettune call 11.11 and onwards (won't be WBEM pre-11.0)
+         if (getMaxProcMemViaGettune(true, maxProcessMemorySize) == false)
+            return false;  //fail if can't get info to check
+      }
    } // end if (ret == 32)
+
    else   // so ret was 64 (only returns -1, 32, or 64)
    {
-       // Use a pipe to invoke kmtune (since don't have gettune on all OSs)
-       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz_64bit "
-                              "-q maxssiz_64bit -q maxtsiz_64bit "
-                              "2> /dev/null","r")) != NULL)
-       {
-           // Now extract the three values and sum them
-           while (fgets(mline, 80, mtuneInfo))
-           {
-              sscanf(mline, "maxdsiz_64bit %llx", &maxdsiz_64bit);
-              sscanf(mline, "maxssiz_64bit %llx", &maxssiz_64bit);
-              sscanf(mline, "maxtsiz_64bit %llx", &maxtsiz_64bit);
-           }  // end while 
+      if (strcmp(unameInfo.release,"B.11.00")==0)
+      {
+         // Use kmtune on 11.0 (since don't have gettune)
+         if (getMaxProcMemViaKmtune(false, maxProcessMemorySize) == false)
+            return false;  //fail if can't get info to check
+      }
+      else
+      {
+         // can use gettune call 11.11 and onwards (won't be WBEM pre-11.0)
+         if (getMaxProcMemViaGettune(false, maxProcessMemorySize) == false)
+            return false;  //fail if can't get info to check
+      }
+   }  // end else      
 
-           (void)pclose (mtuneInfo);
-           maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
-                                  + maxtsiz_64bit);
-           if (verbose)
-           {
-              printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
-                     maxProcessMemorySize);
-              fflush(stdout);
-           }
-       } // end if popen worked
-       else 
-       {
-          return false;
-       }
-   }  // end else for 64 bit
+   if (verbose) 
+   {
+      printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
+             maxProcessMemorySize);
+      fflush(stdout);
+   }
 
    return (maxpmem == maxProcessMemorySize);
 }
@@ -876,7 +986,7 @@ Boolean OSTestClient::goodOSCapability(const String &cap, Boolean verbose)
 }
 
 /**
-   goodSystemUPTime method of HP-UX OS Provider Test Client
+   goodSystemUpTime method of HP-UX OS Provider Test Client
 
    checks the value of uptime versus the value presently.  Expect the
    current value to be greater (by no more than one hour).  Return 
@@ -900,13 +1010,17 @@ Boolean OSTestClient::goodSystemUpTime(const Uint64 &uptime, Boolean verbose)
    timeval = (time_t)((long)timeval - (long)pst.boot_time);
    Uint64 calcUpTime = Uint64(timeval);
 
-   if (verbose)
-      // want to print out the Uint64, for now cheat with cast
-      cout<<" Should be >= to " << Uint32(calcUpTime) << endl;
-   
+   if (verbose) 
+   {
+      printf (" Should be slightly > %lld\n", calcUpTime);
+      fflush(stdout);
+   }
+ 
    Uint32 delta = calcUpTime - uptime;
+   
    if (verbose)
-      cout << " The delta (seconds) is " << delta << endl;
+      cout << " Delta should be within 360 seconds, is " << delta << endl;
+   
    return (delta <= 360);   
 }
 

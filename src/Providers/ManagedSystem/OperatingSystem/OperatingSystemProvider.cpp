@@ -165,6 +165,7 @@ OperatingSystemProvider::enumerateInstances(
 {
     String className;
     CIMInstance instance;
+    CIMObjectPath newref;
 
     className = ref.getClassName();
     
@@ -175,7 +176,9 @@ OperatingSystemProvider::enumerateInstances(
     if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
         handler.processing();
+        newref = _fill_reference(ref.getNameSpace(), className);
         instance = _build_instance(ref);
+        instance.setPath(newref);
         handler.deliver(instance);
         handler.complete();
     }

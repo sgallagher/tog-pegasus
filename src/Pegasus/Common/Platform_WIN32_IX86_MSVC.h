@@ -46,7 +46,7 @@
 #define PEGASUS_UINT64 unsigned __int64
 
 #define PEGASUS_SINT64 __int64
-
+	
 #define PEGASUS_SINT64_LITERAL(X) Sint64(X)
 #define PEGASUS_UINT64_LITERAL(X) Uint64(X)
 
@@ -63,6 +63,11 @@
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
 #define PEGASUS_HAVE_IOS_BINARY
+
+// Exclude rarely-used stuff from Windows headers
+// Note: this is also an easy way to avoid the often introduced 
+// winsock.h/winsock2.h mixing compiler error problems.
+#define WIN32_LEAN_AND_MEAN
 
 // Suppress this warning: "identifier was truncated to '255' characters in the
 // debug information":

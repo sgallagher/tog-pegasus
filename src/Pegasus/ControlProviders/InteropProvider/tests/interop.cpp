@@ -1305,7 +1305,7 @@ void InteropTest::testStatisticsEnable()
         CIMPropertyList myPropertyList(plA);
 
         // Don't need this.
-        sendInstance.filter(false, false, CIMPropertyList());
+        //sendInstance.filter(false, false, CIMPropertyList());
 
         CDEBUG("testStats. filtered");
         //??? Error here since we only have the one property in the instance.
@@ -1323,8 +1323,8 @@ void InteropTest::testStatisticsEnable()
         }
         catch(CIMException& e)
             {
-                cout <<" CIM_ObjectManager Test CIMException: " << e.getMessage() << endl;
-                throw e;
+                cout <<" CIM_ObjectManager Test Modify Instance CIMException: " << e.getMessage() << endl;
+                assert(false);
             }
 
 

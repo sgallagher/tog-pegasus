@@ -1,0 +1,276 @@
+// ==================================================================
+// CQL_TestElement 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_TestElement is an abstract class that provides a common "  
+        "superclass (or top of the inheritance tree) for the "
+        "non-association classes in the test Schema.")]
+   class CQL_TestElement
+   {  
+      [Key, 
+       Description (  
+          "An identifier that uniquely identifies each instance "
+          "of the CQL_TestElement hierarchy.") ]   
+     uint64 InstanceId;  
+   };
+
+     
+
+// ===================================================================
+// CQL_TestPropertyTypes
+// ===================================================================
+   
+   [Version ("2.2.0"), Description (
+   "CQL_TestPropertyTypes is a concrete class derived from CQL_TestElement"),
+    provider("CQL_TestPropertyTypes")
+   ] 
+class CQL_TestPropertyTypes:CQL_TestElement 
+{
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyString;
+
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyStringUint;
+
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyStringSint;
+
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyStringReal;
+
+      [Description ("A string array"),
+       ArrayType ( "Indexed" ) ]
+   string PropertyStringArray[];
+
+      [Description (
+       "a uint8 property of CQL_TestPropertyTypes")]
+   uint8 PropertyUint8;
+
+      [Description ("A uint8 array"),
+       ArrayType ( "Indexed" ) ]
+   uint8 PropertyUint8Array[];
+
+      [Description (
+      "a uint16 property of CQL_TestPropertyTypes")]
+   uint16 PropertyUint16;
+
+      [Description ("A uint16 array"),
+       ArrayType ( "Indexed" ) ]
+   uint16 PropertyUint16Array[];
+
+      [Description (
+      "a uint32 property of CQL_TestPropertyTypes")]
+   uint32 PropertyUint32;
+
+      [Description ("A uint32 array"),
+       ArrayType ( "Indexed" ) ]
+   uint32 PropertyUint32Array[];
+
+      [Description (
+      "a uint64 property of CQL_TestPropertyTypes")]
+   uint64 PropertyUint64;
+
+      [Description ("A uint64 array"),
+       ArrayType ( "Indexed" ) ]
+   uint64 PropertyUint64Array[];
+
+      [Description (
+      "a sint8 property of CQL_TestPropertyTypes")]
+   sint8 PropertySint8;
+
+      [Description ("A sint8 array"),
+       ArrayType ( "Indexed" ) ]
+   sint8 PropertySint8Array[];
+
+      [Description (
+       "a sint16 property of CQL_TestPropertyTypes")]
+   sint16 PropertySint16;
+
+      [Description ("A sint16 array"),
+       ArrayType ( "Indexed" ) ]
+    sint16 PropertySint16Array[];
+
+      [Description (
+      "a sint32 property of CQL_TestPropertyTypes")]
+   sint32 PropertySint32;
+
+      [Description ("A sint32 array"),
+       ArrayType ( "Indexed" ) ]
+   sint32 PropertySint32Array[];
+
+      [Description (
+      "a sint64 property of CQL_TestPropertyTypes")]
+   sint64 PropertySint64;
+
+      [Description ("A sint64 array"),
+       ArrayType ( "Indexed" ) ]
+   sint64 PropertySint64Array[];
+
+      [Description (
+      "a boolean property of CQL_TestPropertyTypes")]
+   boolean PropertyBoolean;
+
+      [Description ("A boolean array"),
+       ArrayType ( "Indexed" ) ]
+   boolean PropertyBooleanArray[];
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32;
+
+     [Description ("A real32 array"),
+       ArrayType ( "Indexed" ) ]
+   real32 PropertyReal32Array[];
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64;
+
+     [Description ("A real64 array"),
+       ArrayType ( "Indexed" ) ]
+   real64 PropertyReal64Array[];
+
+      [Description (
+      "a datetime property of CQL_TestPropertyTypes")]
+   datetime PropertyDatetime;
+
+      [Description ("A datetime array"),
+       ArrayType ( "Indexed" ) ]
+   datetime PropertyDatetimeArray[];
+
+      [Description (
+      "a char16 property of CQL_TestPropertyTypes")]
+   char16 PropertyChar16;
+
+      [Description ("A char16 array"),
+       ArrayType ( "Indexed" ) ]
+   char16 PropertyChar16Array[];
+   
+      [Description ("A valuemap array"),
+       ValueMap { "1", "2", "3", "4", "5" },
+       Values { "Other", "Unknown", "Disabled", "Enabled",
+          "Not Implemented" }]
+   uint16 PropertyValueMap;
+   
+};
+
+// ===================================================================
+// CQL_TestPropertyTypesMissing
+// ===================================================================
+   
+   [Version ("2.2.0"), Description (
+   "CQL_TestPropertyTypesMissing is a concrete class derived from CQL_TestElement"
+   "that is used by testcases that need a property to be missing.")
+   ] 
+class CQL_TestPropertyTypesMissing:CQL_TestElement 
+{
+      [Description (  
+          "This property will be removed by the test driver "
+          "for the missing property tests.") ]   
+     uint64 MissingProperty;   
+};
+
+
+// ==================================================================
+// CQL_EmbeddedBase 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedBase is a class that provides a common "  
+        "superclass for classes used to test embedded objects.")]
+   class CQL_EmbeddedBase
+   {  
+      [Key, 
+       Description (  
+          "An identifier that uniquely identifies each instance "
+          "of the CQL_TestElement hierarchy.") ]   
+     uint64 InstanceId;  
+
+      [Description (
+          "An embedded object on the base class "), 
+        EmbeddedObject]
+     string EmbObjBase;
+   };
+
+// ==================================================================
+// CQL_EmbeddedSubClass 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedSubClass is a class used to test embedded objects.")]
+   class CQL_EmbeddedSubClass : CQL_EmbeddedBase
+   {  
+      [Description (
+          "An embedded object on the base class "), 
+        EmbeddedObject]
+     string EmbObjSub;
+   };
+
+
+// ==================================================================
+// CQL_EmbeddedTestElement 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedTestElement is a class that provides a common "  
+        "superclass for classes used to test nested embedded objects.")]
+   class CQL_EmbeddedTestElement
+   {  
+      [Key, 
+       Description (  
+          "An identifier that uniquely identifies each instance "
+          "of the CQL_TestElement hierarchy.") ]   
+     uint64 InstanceId;  
+
+      [Description (
+          "An array of embedded objects of type CQL_TestElement "), 
+        EmbeddedObject]
+     string TEArray[];
+
+      [Description (
+          "An embedded object of type CQL_TestElement "), 
+        EmbeddedObject]
+     string TE;
+
+      [Description (
+          "An embedded object of type CIM_ComputerSystem "), 
+        EmbeddedObject]
+     string CS;
+
+      [Description (
+          "An embedded class"), 
+        EmbeddedObject]
+     string SomeClass;
+
+      [Description (
+          "Just a plain old string ")]
+     string SomeString;
+   };
+
+// ==================================================================
+// CQL_EmbeddedTestPropertyTypes 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedTestPropertyTypes is a class used to test nested embedded objects.")]
+   class CQL_EmbeddedTestPropertyTypes : CQL_EmbeddedTestElement
+   {  
+      [Description (
+          "An array of embedded objects of type CQL_TestPropertyTypes "), 
+        EmbeddedObject]
+     string TPTArray[];
+
+      [Description (
+          "An embedded object of type CQL_TestPropertyTypes "), 
+        EmbeddedObject]
+     string TPT;
+
+      [Description (
+          "An embedded class"), 
+        EmbeddedObject]
+     string SomeClass;
+
+      [Description (
+          "Just a plain old uint8 ")]
+     uint8 SomeUint8;
+   };

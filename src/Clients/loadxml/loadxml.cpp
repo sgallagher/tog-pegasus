@@ -1,3 +1,34 @@
+
+//%////////////////////////////////////////////////////////////////////////////
+//
+//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #include <Pegasus/Common/Config.h>
 #include <fstream>
 #include <iostream>
@@ -185,9 +216,13 @@ static void _processFile(const char* xmlFileName,
     }
 }
 
-static void Usage(String& name, String& message)
+static void Usage(const char* name, const char* message)
 {
 	cerr << "Usage: " << name << "  xmlfile namespace repository-root" << endl;
+        cerr << name << "Installs an XML file containing CIM classes and instances ";
+        cerr << "into the repository." << endl;
+        cerr << "ex. " << name << " x.xml /root/cimv2/ " << endl;
+        cerr << message;
 }
 
 //------------------------------------------------------------------------------
@@ -198,6 +233,8 @@ static void Usage(String& name, String& message)
 
 int main(int argc, char** argv)
 {
+    String name = argv[0];
+    String message = "";
     if ((argc > 4) || (argc < 2))
     {
         Usage(argv[0], "");
@@ -207,30 +244,39 @@ int main(int argc, char** argv)
 
     try
     {
-        String repositoryRoot;
-        String nameSpace = "CIMv2";
-
+        char* repositoryRoot;
+        char* nameSpace = "CIMv2";
         if (argc == 3)
         {
         repositoryRoot = argv[3];
         }
         else
         {
-            static char * tmp;
+            static char* tmp;
             
             tmp = getenv("PEGASUS_HOME");
             
-            repositoryRoot =
+            if (tmp)
+            {
+                repositoryRoot = tmp;    
+            }
+            else
+            {
+                Usage(argv[0], "The Environment variable PEGASUS_HOME could not be found");
+                exit(1);
+            }
+            
         }
         if (argc == 2)
         {
-        namespace = argv[2];  
-        } 
-        String xmlFile = argv[1];
+        nameSpace = argv[2];  
+        }
+
+        char* xmlFile = argv[1];
         
 	cout << argv[0] << " loading " << xmlFile << " to namespace "
              << nameSpace << " in repository " << repositoryRoot << endl;
-        _processFile(argv[1], argv[2], argv[3]);
+        _processFile(argv[1], nameSpace, repositoryRoot);
     }
     catch (Exception& e)
     {

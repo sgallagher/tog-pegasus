@@ -61,6 +61,7 @@ typedef void PEGASUS_SIGINFO_T;
 # define PEGASUS_SIGHUP   1
 # define PEGASUS_SIGABRT  11
 # define PEGASUS_SIGPIPE  13
+# define PEGASUS_SIGUSR1  16
 
 #endif // PEGASUS_HAS_SIGNALS
 

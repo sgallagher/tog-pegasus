@@ -163,21 +163,20 @@ public:
         Array<Uint32>& sizes,
 	Array<CIMReference>& instanceNames);
 
-
     /** Begin a transaction to modify this file. The effect of subsequent
 	modifications can be rolled back by calling rollbackTransaction().
 	The current implementation simply copies the index file to a a file
 	with the same name but with ".rollback" appended to it.
     */
-    static Boolean beginTransacation(const String& path);
+    static Boolean beginTransaction(const String& path);
 
     /** Roll back any changes to the file since the last time 
-        beginTransacation() was called. The current implementation deletes
+        beginTransaction() was called. The current implementation deletes
 	the current file and renames the rollback file to the same name.
     */
     static Boolean rollbackTransaction(const String& path);
 
-    /** Commit changes made after beginTransacation() was called. The curent
+    /** Commit changes made after beginTransaction() was called. The curent
 	implementation simply removes the .rollback file.
     */
     static Boolean commitTransaction(const String& path);

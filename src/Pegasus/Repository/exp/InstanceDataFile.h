@@ -116,12 +116,12 @@ public:
         @param out the buffer containing the CIM/XML encoding of the 
         @param path the file path of the instance file
         @param index the byte positon of the instance record
-        @param size the size of the instance record 
         @return true on success
     */
     static Boolean appendInstance(
 	const String& path, 
-        const Array<Sint8>& data);
+        const Array<Sint8>& data,
+	Uint32& index);
 
     /** Begin a transaction to modify this file. The effect of subsequent
 	modifications can be rolled back by calling rollbackTransaction().

@@ -672,7 +672,7 @@ Boolean InstanceIndexFile::compact(
     return true;
 }
 
-Boolean InstanceIndexFile::beginTransacation(const String& path)
+Boolean InstanceIndexFile::beginTransaction(const String& path)
 {
     //
     // Create a rollback file which is a copy of the index file. The
@@ -692,17 +692,22 @@ Boolean InstanceIndexFile::beginTransacation(const String& path)
 Boolean InstanceIndexFile::rollbackTransaction(const String& path)
 {
     //
+    // If the rollback file does not exist, then everything is fine (nothing
+    // to roll back).
+    //
+
+    if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+	return true;
+
+    //
     // To roll back, simply delete the index file and rename
     // the rollback file over it.
     //
 
-    if (!FileSystem::removeFile(path))
+    if (!FileSystem::removeFileNoCase(path))
 	return false;
 
-    String rollbackPath = path;
-    rollbackPath += ".rollback";
-
-    return FileSystem::renameFile(rollbackPath, path);
+    return FileSystem::renameFileNoCase(Cat(path, ".rollback"), path);
 }
 
 Boolean InstanceIndexFile::commitTransaction(const String& path)

@@ -12,18 +12,18 @@ LIBRARIES = pegcommon pegconfig
 
 LIBRARY = pegrepository
 
-SOURCES = \
-    InstanceIndexFile.cpp \
-    InstanceDataFile.cpp
-
-SOURCESX = \
+XSOURCES = \
+    CIMRepository.cpp \
     AssocClassTable.cpp \
     AssocInstTable.cpp \
     NameSpaceManager.cpp \
     InheritanceTree.cpp \
+    RepositoryDeclContext.cpp
+
+SOURCES = \
+    CIMRepository.cpp \
+    InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
-    InstanceFile.cpp \
-    RepositoryDeclContext.cpp \
-    CIMRepository.cpp
+    $(XXSOURCES)
 
 include $(ROOT)/mak/library.mak

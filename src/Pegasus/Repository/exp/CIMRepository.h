@@ -350,7 +350,7 @@ private:
 
         @return  a string containing the index file path
      */
-    String _getIndexFilePath(
+    String _getInstanceIndexFilePath(
         const String& nameSpace,
         const String& className) const;
 

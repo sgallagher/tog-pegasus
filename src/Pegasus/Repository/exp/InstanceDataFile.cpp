@@ -142,7 +142,8 @@ Boolean InstanceDataFile::loadAllInstances(
 
 Boolean InstanceDataFile::appendInstance(
     const String& path, 
-    const Array<Sint8>& data)
+    const Array<Sint8>& data,
+    Uint32& index)
 {
     //
     // Open the file for append:
@@ -152,6 +153,12 @@ Boolean InstanceDataFile::appendInstance(
 
     if (!_openFile(fs, path, ios::binary | ios::app | ios::out))
 	return false;
+
+    //
+    // Save index to data:
+    //
+
+    index = fs.tellp();
 
     //
     // Write the instance:
@@ -213,6 +220,14 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
 
 Boolean InstanceDataFile::rollbackTransaction(const String& path)
 {
+    //
+    // If rollback file does not exist, then everything is fine, just
+    // return.
+    //
+
+    if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+	return true;
+
     //
     // Open the rollback file:
     //
@@ -339,10 +354,10 @@ Boolean InstanceDataFile::compact(
     // Copy the new file over the old one:
     //
 
-    if (!FileSystem::removeFile(path))
+    if (!FileSystem::removeFileNoCase(path))
 	return false;
 
-    if (!FileSystem::renameFile(Cat(path, ".tmp"), path))
+    if (!FileSystem::renameFileNoCase(Cat(path, ".tmp"), path))
 	return false;
 
     return true;

@@ -1,0 +1,58 @@
+
+Notes from San Jose Meeting (February 8 - 9, 2001):
+===================================================
+
+Ideas:
+
+    *	Write "The Pegasus Data Object" paper.
+
+    *	Tony might be able to help with GUI (will talk
+	to Management).
+
+    *	Use MOF compiler to generate CreateInstance()
+        functions.
+
+    *	See about porting to Tandem (see if BMC has a
+	Tandem box).
+
+    *	Take a look at HTTPerf for beautiful code.
+
+    *	Implement process provider.
+
+    *	Take a look at UDG (Unix Design Guide); It proposed
+	common Unix OS intrumentation.
+
+    * 	What about dynmaic invocation of MOF?
+
+    *	Can we remove ACE earlier than planned?
+
+    *	Enumerate for Comapaq what level-1 SQL involves.
+
+    *	Client authentication.
+
+    *	We need a Java client.
+
+    *	Perform interoperability testing between "Sun WBEM
+	Services" client and Pegasus server.
+
+    *	Need a whole Java discussion.
+
+    *	Provider writer's guide (start from writing provider,
+	compiling MOF, and accessing it from a client).
+
+    *	DevCon: Paris in April.
+
+    *	DevCon: San Jose in June.
+
+    *	Compaq may contribute providers.
+
+    *	Installation using Install Shield.
+
+Compaq Priorities:
+
+    *	Get ACE going on Tandem.
+
+    *	Finalizing provider interface.
+
+    *	Query (Need SQL Parser).
+

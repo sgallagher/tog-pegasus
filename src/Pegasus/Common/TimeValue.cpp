@@ -20,36 +20,57 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author:
+// Author: Michael E. Brasher
 //
-// $Log: Stopwatch.cpp,v $
-// Revision 1.2  2001/04/10 23:01:53  mike
+// $Log: TimeValue.cpp,v $
+// Revision 1.1  2001/04/10 23:01:52  mike
 // Added new TimeValue class and regression tests for it.
 // Modified Stopwatch class to use TimeValue class.
-//
-// Revision 1.1  2001/02/17 20:08:06  mike
-// new
-//
 //
 //
 //END_HISTORY
 
-#include <iostream>
-#include <cassert>
-#include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/Config.h>
+#include "TimeValue.h"
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_NAMESPACE_BEGIN
 
-int main()
+#include <cstdio>
+#include <cstdlib>
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+# include <windows.h>
+# include <sys/types.h>
+# include <sys/timeb.h>
+#elif PEGASUS_OS_TYPE_UNIX
+# include <time.h>
+#elif
+# error not implemented on this platform
+#endif
+
+void _GetCurrentTime(Uint32& seconds, Uint32& milliseconds)
 {
-    Stopwatch sw;
-    sw.sleep(5);
-    // sw.printElapsed();
-    double elapsed = sw.getElapsed();
-    assert(elapsed >= 4.5 && elapsed <= 5.5);
-
-    cout << "+++++ passed all tests" << endl;
-
-    return 0;
+#ifdef PEGASUS_OS_TYPE_UNIX
+    timeval tv;
+    gettimeofday(&tv, 0);
+    seconds  = (int)tv.tv_sec;
+    milliseconds = (int)tv.tvusec;
+#else
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    ULARGE_INTEGER largeInt = { ft.dwLowDateTime, ft.dwHighDateTime };
+    largeInt.QuadPart -= 0x19db1ded53e8000;
+    seconds = long(largeInt.QuadPart / (10000 * 1000));
+    milliseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
+#endif
 }
+
+TimeValue TimeValue::getCurrentTime()
+{
+    Uint32 seconds;
+    Uint32 milliseconds;
+    _GetCurrentTime(seconds, milliseconds);
+    return TimeValue(seconds, milliseconds);
+}
+
+PEGASUS_NAMESPACE_END

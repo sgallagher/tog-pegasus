@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.14  2001/04/10 23:01:52  mike
+// Added new TimeValue class and regression tests for it.
+// Modified Stopwatch class to use TimeValue class.
+//
 // Revision 1.13  2001/04/10 22:42:55  karl
 // Correct error in String find
 //
@@ -342,7 +346,8 @@ public:
 	If the matching substring is not found, -1 is returned.
 	@param s -  String object to be found in the String
 	@return Position of the substring in the String or -1 if not 
-	found. */
+	found. 
+    */
     Uint32 find(const String& s) const;
 
     /** Find substring
@@ -350,6 +355,7 @@ public:
 	@seealso find
     */
     Uint32 find(const Char16* s) const;
+
     /** find substring
 	@param char* to substring
     */

@@ -1,12 +1,16 @@
 #include <iostream>
 #include "Stopwatch.h"
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <time.h>
-# include <windows.h>
-#endif
+#include "TimeValue.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#   include <windows.h>
+#elif PEGASUS_OS_TYPE_UNIX
+#   include <unistd.h>
+#else
+#   error "Unsupported platform"
+#endif
 
 Stopwatch::Stopwatch() 
 {
@@ -15,20 +19,14 @@ Stopwatch::Stopwatch()
 
 void Stopwatch::reset() 
 {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    _start = clock();
-#else
-    _start = 0;
-#endif
+    _start = TimeValue::getCurrentTime();
 }
 
 double Stopwatch::getElapsed() const
 {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return (double)(clock() - (clock_t)_start) / CLOCKS_PER_SEC;
-#else
-    return 0.0;
-#endif
+    Uint32 stop = TimeValue::getCurrentTime().toMilliseconds();
+    Uint32 start = _start.toMilliseconds();
+    return double(stop - start) / 1000.0;
 }
 
 void Stopwatch::printElapsed()
@@ -40,6 +38,10 @@ void Stopwatch::sleep(double seconds)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     Sleep(seconds * 1000);
+#elif PEGASUS_OS_TYPE_UNIX
+    sleep(seconds);
+#else
+#   error "Unsupported platform"
 #endif
 }
 

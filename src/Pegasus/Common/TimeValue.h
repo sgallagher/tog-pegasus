@@ -20,36 +20,70 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author:
+// Author: Michael E. Brasher
 //
-// $Log: Stopwatch.cpp,v $
-// Revision 1.2  2001/04/10 23:01:53  mike
+// $Log: TimeValue.h,v $
+// Revision 1.1  2001/04/10 23:01:52  mike
 // Added new TimeValue class and regression tests for it.
 // Modified Stopwatch class to use TimeValue class.
-//
-// Revision 1.1  2001/02/17 20:08:06  mike
-// new
-//
 //
 //
 //END_HISTORY
 
-#include <iostream>
-#include <cassert>
-#include <Pegasus/Common/Stopwatch.h>
+#ifndef Pegasus_TimeValue_h
+#define Pegasus_TimeValue_h
 
-using namespace Pegasus;
-using namespace std;
+#include <Pegasus/Common/Config.h>
 
-int main()
+PEGASUS_NAMESPACE_BEGIN
+
+/** The TimeValue class represents time expressed in seconds plus microseconds.
+*/
+class PEGASUS_COMMON_LINKAGE TimeValue
 {
-    Stopwatch sw;
-    sw.sleep(5);
-    // sw.printElapsed();
-    double elapsed = sw.getElapsed();
-    assert(elapsed >= 4.5 && elapsed <= 5.5);
+public:
 
-    cout << "+++++ passed all tests" << endl;
+    TimeValue() : _seconds(0), _microseconds(0)
+    {
+    }
 
-    return 0;
-}
+    TimeValue(Uint32 seconds, Uint32 microseconds) 
+	: _seconds(seconds), _microseconds(microseconds)
+    {
+    }
+
+    Uint32 getSeconds() const 
+    {
+	return _seconds;
+    }
+
+    void setSeconds(Uint32 seconds)
+    {
+	_seconds = seconds;
+    }
+
+    Uint32 getMicroseconds() const 
+    {
+	return _microseconds;
+    }
+
+    void setMicroseconds(Uint32 microseconds)
+    {
+	_microseconds = microseconds;
+    }
+
+    Uint32 toMilliseconds() const 
+    {
+	return _seconds * 1000 + _microseconds / 1000; 
+    }
+
+    static TimeValue getCurrentTime();
+
+private:
+    Uint32 _seconds;
+    Uint32 _microseconds;
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_TimeValue_h */

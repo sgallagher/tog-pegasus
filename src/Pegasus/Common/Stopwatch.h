@@ -23,6 +23,10 @@
 // Author: Mike Brasher
 //
 // $Log: Stopwatch.h,v $
+// Revision 1.5  2001/04/10 23:01:52  mike
+// Added new TimeValue class and regression tests for it.
+// Modified Stopwatch class to use TimeValue class.
+//
 // Revision 1.4  2001/04/08 19:20:04  mike
 // more TCP work
 //
@@ -42,18 +46,18 @@
 #define Pegasus_Stopwatch_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/TimeValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /** Stopwatch - A class for measuring elapsed time
-Stopwatch is a class for measuring time intervals within the environment. It 
-is intended to be a developers tool primarily.
-
+    Stopwatch is a class for measuring time intervals within the environment. 
+    It is intended to be a developers tool primarily.
 */
 class PEGASUS_COMMON_LINKAGE Stopwatch
 {
 private:
-    Uint64 _start;
+    TimeValue _start;
 
 public:
 

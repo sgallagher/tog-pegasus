@@ -17,6 +17,7 @@ WINDOWS_SOURCES = \
 endif
 
 SOURCES = \
+    TimeValue.cpp \
     $(WINDOWS_SOURCES) \
     Logger.cpp \
     Formatter.cpp \

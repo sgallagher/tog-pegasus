@@ -47,6 +47,10 @@
 #include "HTTPMessage.h"
 #include "Tracer.h"
 
+#ifdef PEGASUS_CCOVER
+# include <ccover.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -223,6 +227,9 @@ void HTTPConnection::handleEnqueue(Message *message)
             "_requestCount = %d", _requestCount.value());
 
 	 _socket->disableBlocking();
+#ifdef PEGASUS_CCOVER
+      cov_write();
+#endif
 	 break;
       }
 

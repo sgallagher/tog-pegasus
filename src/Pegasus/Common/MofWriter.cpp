@@ -30,8 +30,10 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -147,7 +149,8 @@ inline void _mofWriter_appendValue(Array<char>& out, Char16 x)
 inline void _mofWriter_appendValue(Array<char>& out, const String& x)
 {
     out << "\"";
-    for (Uint32 i = 0; i < x.size(); i++)
+    const Uint32 size = x.size();
+    for (Uint32 i = 0; i < size; i++)
     {
         switch (x[i])
         {
@@ -683,7 +686,7 @@ void MofWriter::appendQualifierDeclElement(
 
 String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
 {
-    String tmp = "";
+    String tmp;
 
     if (!(flavor.hasFlavor (CIMFlavor::OVERRIDABLE)))
         tmp.append("DisableOverride, ");
@@ -725,4 +728,3 @@ String MofWriter::getQualifierScope (const CIMScope & scope)
 }
 
 PEGASUS_NAMESPACE_END
-

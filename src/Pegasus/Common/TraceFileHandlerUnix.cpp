@@ -25,7 +25,7 @@
 //
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -87,12 +87,67 @@ void TraceFileHandler::handleMessage(
                 return;
         }
     }
+
     retCode = fcntl(fileno(_fileHandle), F_SETLKW, &lock);
 
     if (retCode != -1)
     {
 	// Got the Lock on the File. Seek to the end of File
 	fseek(_fileHandle,0,SEEK_END);
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+        long pos = ftell(_fileHandle);
+        // Check if the file size is approaching 2GB - which is the
+        // maximum size a file on 32 bit Linux can grow (ofcourse if
+        // not using large-files option). If this is not checked, the 
+        // cimserver may get a SIGXFSZ signal and shutdown. See Bug#1527.
+        if(pos >= 0x7ff00000) 
+        {
+           // If the file size is almost 2 GB in size, close this trace
+           // file and open a new trace file which would have _fileCount
+           // as the suffix. So, if "cimserver.trc" is the trace file that
+           // approaches 2GB, the next file which gets created would be
+           // named "cimserver.trc.1" and so on ...
+
+           // Free the Lock on the File
+           lock.l_type = F_UNLCK;
+           retCode = fcntl(fileno(_fileHandle), F_SETLK, &lock);
+
+           if (retCode == -1)
+           {  
+              Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+                     "Common.TraceFileHandlerUnix.FAILED_TO_RELEASE_WRITE_LOCK",
+                     "Failed to release write lock on File $0",_fileName);
+           }
+           fclose(_fileHandle);
+           sprintf(_fileName,"%s.%u",_baseFileName,++_fileCount);
+           _fileHandle = fopen(_fileName,"a+");
+           if (!_fileHandle)
+           {
+             // Unable to open file, log a message
+             if (!_wroteToLog)
+             {
+               Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+                     "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
+                     "Failed to open File $0",_fileName);
+               _wroteToLog = true;
+             }
+              return;
+            }
+            retCode = fcntl(fileno(_fileHandle), F_SETLKW, &lock);
+
+            if (retCode == -1)
+            {
+             if (!_wroteToLog)
+             {
+              Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+                      "Common.TraceFileHandlerUnix.FAILED_TO_OBTAIN_WRITE_LOCK",
+                      "Failed to obtain write lock on File $0",_fileName);
+              _wroteToLog = true;
+             }
+             return;
+            }
+        }
+#endif
 
 	// Write the message to the file
         fprintf (_fileHandle, "%s",message);

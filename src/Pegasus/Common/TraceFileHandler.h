@@ -25,7 +25,7 @@
 //
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,6 +52,16 @@ private:
     /* File path to write messages
      */
     char* _fileName;
+
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    /* Base File path to write messages
+     */
+    char* _baseFileName;
+
+    /* Count for the suffix of the trace file
+     */
+    Uint32 _fileCount;
+#endif
 
     /* Handle to the File
      */

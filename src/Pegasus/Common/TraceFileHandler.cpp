@@ -27,6 +27,7 @@
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
 //              added nsk platform support
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,10 @@ TraceFileHandler::TraceFileHandler ()
     _fileName = 0;
     _fileHandle = 0;
     _wroteToLog = false;
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    _baseFileName = 0;
+    _fileCount = 0;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +81,12 @@ TraceFileHandler::~TraceFileHandler ()
     {
         delete []_fileName;
     }
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    if (_baseFileName)
+    {
+        delete []_baseFileName;
+    }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +127,10 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
         }
         _fileName = new char [strlen(fileName)+1];
         strcpy (_fileName,fileName);
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+        _baseFileName = new char [strlen(fileName)+1];
+        strcpy (_baseFileName,fileName);
+#endif
     }
 
     //

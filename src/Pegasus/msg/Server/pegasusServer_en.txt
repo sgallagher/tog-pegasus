@@ -2930,6 +2930,12 @@ en:table {
         */
         Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"{0}\"."}
 
+        /**
+        * @note  PGS09670:
+        *   Do not translate the word 'EMBEDDEDOBJECT' since it is a standard attribute name for CIM in XML
+        */
+        Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE:string {"PGS09670:  The EMBEDDEDOBJECT attribute is only valid on string types."}
+
 
         // ==========================================================
         // Messages for src.Server.cimserver

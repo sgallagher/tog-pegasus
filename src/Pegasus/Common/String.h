@@ -329,6 +329,10 @@ public:
     */
     void toLower();
 
+    /** Translate any occurences of fromChar to toChar.
+    */
+    void translate(Char16 fromChar, Char16 toChar);
+
     /** Compare the first n characters of the two strings. 
     	@param s1 - First null-terminated string for the comparison
 	@param s2 - Second null-terminated string for the comparison

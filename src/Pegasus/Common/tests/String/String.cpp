@@ -306,6 +306,11 @@ int main()
 	s = "aaaapple";
 	assert(s.find("apple")==3);
 
+	{
+	    String nameSpace = "a#b#c";
+	    nameSpace.translate('#', '/');
+	    assert(nameSpace == "a/b/c");
+	}
     }
 
 

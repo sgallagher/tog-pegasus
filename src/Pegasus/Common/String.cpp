@@ -385,6 +385,15 @@ void String::toLower()
     }
 }
 
+void String::translate(Char16 fromChar, Char16 toChar)
+{
+    for (Char16* p = &_rep[0]; *p; p++)
+    {
+	if (*p == fromChar)
+	    *p = toChar;
+    }
+}
+
 int String::compare(const Char16* s1, const Char16* s2)
 {
     while (*s1 && *s2)

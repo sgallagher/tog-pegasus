@@ -104,6 +104,8 @@ _HashTableIteratorBase::_HashTableIteratorBase(
     _BucketBase** first, 
     _BucketBase** last) : _first(first), _last(last)
 {
+    _bucket = 0;
+
     while (_first != last)
     {
         if (*_first)

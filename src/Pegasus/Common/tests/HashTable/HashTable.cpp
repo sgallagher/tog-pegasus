@@ -82,10 +82,25 @@ void test02()
     assert(n == N);
 }
 
+void test03()
+{
+    // Test iteration of an empty hash table:
+
+    typedef HashTable<Uint32, Uint32> HT;
+    HT ht;
+    Uint32 n = 0;
+
+    for (HT::Iterator i = ht.start(); i; i++)
+	n++;
+
+    assert(n == 0);
+}
+
 int main()
 {
     test01();
     test02();
+    test03();
 
     cout << "+++++ passed all tests" << endl;
 

@@ -34,6 +34,7 @@
 //              Adrian Schuur (schuur@de.ibm.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com) 
+//              Josephine Eskaline Joyce(jojustin@in.ibm.com) for Bug #1664
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -248,31 +249,6 @@ Array<String> _tokenize(const String& input, const Char16 separator)
     return tokens;
 }
 
-/** Determine if valid CIMType input. 
-    @param typeString String containing type keyword.
-    @return Sint32 defining type or -1 if invalid keyword.
-    NOTE: This should use the system functions somewhere 
-*/
-Sint32 validType(const String& typeString)
-{
-	static const char* _typeStrings[] =
-	{
-		"boolean", "uint8", "sint8", "uint16", "sint16", "uint32", "sint32",
-		"uint64", "sint64", "real32", "real64", "char16", "string", "datetime",
-		"reference"
-	};
-	static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);
-
-
-	for (Uint32 i = 0 ; i < _NUM_TYPES ; i++ )
-	{
-		if (typeString == _typeStrings[i])
-		{
-			return i;
-		}
-	}
-	return -1;
-}
 Boolean _tokenPair(const String& input, String& key, String& value)
 {
 

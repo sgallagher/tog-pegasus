@@ -59,10 +59,10 @@ static CString _clonePath(const String& path)
     return clone.getCString();
 }
 
-// ATTN-RK-20021111: Perhaps this should be enabled for all Unix platforms?
-#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PLATFORM_PEGASUS_SOLARIS_SPARC_CC)
+// ATTN: If a platform is found that does not have the readdir_r interface,
+// this next line should be conditionally compiled out for that platform.
+// Otherwise, the old readdir code can be removed.
 #define PEGASUS_HAS_READDIR_R
-#endif
 
 struct DirRep
 {

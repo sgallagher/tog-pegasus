@@ -225,21 +225,12 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       String cimObject;
 
       if (!HTTPMessage::lookupHeader(
-	     headers, "*-CIMOperation", cimOperation, true))
+	     headers, "*CIMOperation", cimOperation, true))
       {
-         // Specification for CIM Operations over HTTP says:
-         //     3.3.4. CIMOperation
-         //     If a CIM Server receives a CIM Operation request without
-         //     this [CIMOperation] header, it MUST NOT process it as if
-         //     it were a CIM Operation Request.  The status code returned
-         //     by the CIM Server in response to such a request is outside
-         //     of the scope of this specification.
-         // The author has chosen to send a 400 Bad Request error, but
-         // without the CIMError header since this request must not be
-         // processed as a CIM operation request.
-         sendBadRequestError(queueId);
-         PEG_METHOD_EXIT();
-	 return;
+         // This should never happen.  If the CIMOperation header was missing,
+         // the HTTPAuthenticatorDelegator would not have passed the message
+         // to us.
+         PEGASUS_ASSERT(0);
       }
 
       if (!String::equalNoCase(cimOperation, "MethodCall"))
@@ -258,7 +249,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       }
 
       // Save these headers for later checking
-      if (HTTPMessage::lookupHeader(headers, "*-CIMMethod", cimMethod, true))
+      if (HTTPMessage::lookupHeader(headers, "*CIMMethod", cimMethod, true))
       {
          if (cimMethod == String::EMPTY)
          {
@@ -268,7 +259,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	    return;
          }
       }
-      if (HTTPMessage::lookupHeader(headers, "*-CIMObject", cimObject, true))
+      if (HTTPMessage::lookupHeader(headers, "*CIMObject", cimObject, true))
       {
          if (cimObject == String::EMPTY)
          {

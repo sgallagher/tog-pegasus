@@ -301,7 +301,33 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
             else
             {
-                // ATTN: error discarded at this time!
+                // We don't recognize this request message type
+
+                // The Specification for CIM Operations over HTTP reads:
+                //
+                //     3.3.4. CIMOperation
+                //
+                //     If a CIM Server receives a CIM Operation request without
+                //     this [CIMOperation] header, it MUST NOT process it as if
+                //     it were a CIM Operation Request.  The status code
+                //     returned by the CIM Server in response to such a request
+                //     is outside of the scope of this specification.
+                //
+                //     3.3.5. CIMExport
+                //
+                //     If a CIM Listener receives a CIM Export request without
+                //     this [CIMExport] header, it MUST NOT process it.  The
+                //     status code returned by the CIM Listener in response to
+                //     such a request is outside of the scope of this
+                //     specification.
+                //
+                // The author has chosen to send a 400 Bad Request error, but
+                // without the CIMError header since this request must not be
+                // processed as a CIM request.
+
+                Array<Sint8> message;
+                XmlWriter::appendBadRequestResponseHeader(message);
+                _sendResponse(queueId, message);
                 return;
             }
         }

@@ -68,6 +68,8 @@
 #   define PEGASUS_PLATFORM_OS400_ISERIES_IBM 
 # endif
 # include <Pegasus/Common/Platform_OS400_ISERIES_IBM.h>
+#elif defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+# include <Pegasus/Common/Platform_DARWIN_PPC_GNU.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

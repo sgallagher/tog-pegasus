@@ -93,11 +93,15 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 	_new_thread( _new_proc, this, false), 
 	_pending_thread( _pending_proc, this, false),
 	_completed_thread( _completed_proc, this, false),
-	_die(0)  {  }
+	_die(0)  
+      { 
+	 pegasus_gettimeofday(&_last_module_change);
+      }
             
       ~cimom(void) ;
             
-
+      Boolean moduleChange(struct timeval last);
+      
       Uint32 getModuleCount(void);
       Uint32 getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException);
       
@@ -112,8 +116,9 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       void _enqueueResponse(Request *req, Reply *rep);
       
    private:
+      struct timeval _last_module_change;
       DQueue<message_module> _modules;
-      DQueue<AsyncOpNode> _internal_ops; 
+      DQueue<Message> _internal_ops; 
 
       AsyncDQueue<AsyncOpNode> _new_ops;
       AsyncDQueue<AsyncOpNode> _pending_ops;
@@ -132,6 +137,8 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       CIMRepository *_repository;
                   
 };
+
+
 
 inline Boolean message_module::operator ==(Uint32 q) const
 {
@@ -173,6 +180,16 @@ inline Boolean message_module::operator == (const message_module & mm) const
 inline Boolean message_module::operator == (const void *key) const
 {
    return operator == ( (*(reinterpret_cast<const message_module *>(key) ) ) );
+}
+
+
+// returns true if the list of registered modules changes since the parameter
+inline Boolean cimom::moduleChange(struct timeval last)
+{
+   if( (last.tv_sec >= _last_module_change.tv_sec)) 
+      if(last.tv_usec >_last_module_change.tv_usec )
+	 return false;
+   return true;
 }
 
 

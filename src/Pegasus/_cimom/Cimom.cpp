@@ -75,168 +75,10 @@ void cimom::_enqueueResponse(
 
 
 
-
-
-// << Thu Dec 27 15:51:47 2001 mdd >>
-// get rid of the new list, just use the pending list
-// in handle_enqueue:
-// if an async message, link msg->op to pending queue; call accept_async() for each recipient
-//  accept_async is guaranteed to return without calling handleEnqueue()
-// else (not async)
-//   create an async_op message
-//   create an asyncopnode, link to async_op message
-//    link original synchronous message to asyncopnode
-//    link to op node to pending queue
-//    handle in separate thread by calling enqueue() for the recipient 
-//    recipient extracts opnode from async_op messsage
-//    recipient deletes async_op message, extracts original message 
-//    from opnode, handles message synchronously, updates op node, deletes message
-//
-//
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_new_proc(void *parm)
-{
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   cimom *cim_manager = reinterpret_cast<cimom *>(myself->get_parm());
-   Uint32 *module_ids;
-   Uint32 id_buffer_size  = 5 + cim_manager->getModuleCount();
-   module_ids = new Uint32[ id_buffer_size ] ;
-
-
-   // all of this code is just a way to cache the q ids of registered modules
-   // so we don't need to lock the module list every time we need a queue ID
-
-   Uint32 module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-   
-   if( module_count > id_buffer_size )
-   {
-      delete module_ids;
-      id_buffer_size = 3 + cim_manager->getModuleCount() ;
-      module_ids = new Uint32[ id_buffer_size ];
-      module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-   }
-   
-   while( 0 == cim_manager->_die.value() )
-   {
-
-      struct timeval now;
-      pegasus_gettimeofday(&now);
-      
-      // always refresh our array of q ids for registered modules, it 
-      // could be different each time through the loop !
-      module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-      if( module_count > id_buffer_size )
-      {
-	 delete module_ids;
-	 id_buffer_size = 1 + cim_manager->getModuleCount() ;
-	 module_ids = new Uint32[ id_buffer_size ];
-	 module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-      }
-      
-      AsyncOpNode *work ;
-            
-      // try to pull an async op node of the new  list 
-      work = cim_manager->_new_ops.remove_first();
-      while  (work != 0 )
-      {
-	 Message *msg = const_cast<Message *>(work->get_request());
-	 if(msg != 0)
-	 {
-	    work->_start.tv_sec = now.tv_sec;
-	    work->_start.tv_usec = now.tv_usec;
-	    
-	    MessageQueue *dst_q;
-	    Uint32 i;
-	    if( msg->getMask() & (message_mask::type_service | message_mask::type_broadcast ))
-	    {
-	       // contains a message to one of the registered modules
-	       // use mask to determine modules that may handle this 
-	       // message. Give each eligible module the opportunity to 
-	       // handle the message. More than one module may choose to do so. 
-	       
-	       
-	       for( i = 2; i < id_buffer_size ; i++)
-	       {
-		  dst_q = MessageQueue::lookup( module_ids[i] );
-		  if( dst_q != 0 )
-		  {
-		     work->_state |= ASYNC_OPSTATE_OFFERED;
-		     if( true == dst_q->accept_async(msg)) 
-			work->_state |= ASYNC_OPSTATE_ACCEPTED;
-		  }
-		  else
-		     break;
-	       }
-	    }
-	    else if( msg->getMask() & message_mask::type_legacy)
-	    {
-	       // one of the CIM-related messages in Pegasus
-	       // start an asynchronous operation by creating and enqueuing a start_async message
-	       // ATTN << Thu Dec 27 16:17:49 2001 mdd >>
-	       ServiceAsyncOpStart *async_msg = 
-		  new ServiceAsyncOpStart( Message::getNextKey(),
-					   QueueIdStack( MessageQueue::_CIMOM_Q_ID, MessageQueue::_CIMOM_Q_ID ),
-					   work );
-	       
-	       work->_state |= ASYNC_OPSTATE_OFFERED;
-	       if(true  == cim_manager->_cim_dispatcher->accept_async(async_msg))
-		  work->_state |= ASYNC_OPSTATE_ACCEPTED;
-	       else
-	       {
-		  work->_state |= ASYNC_OPSTATE_CANCELLED ;
-		  delete async_msg;
-	       }
-	    }
-	 }
-	 else 
-	    work->_state |= ASYNC_OPSTATE_CANCELLED;
-	 if( ! (work->_state & ASYNC_OPSTATE_ACCEPTED) )
-	    work->_state |= ASYNC_OPSTATE_CANCELLED;
-	 
-	 if(work->_state & ASYNC_OPSTATE_CANCELLED)
-	 {
-	    cim_manager->_completed_ops.insert_last_wait(work);
-	 }
-	 work = cim_manager->_new_ops.remove_first();
-      } // while work on the new ops list
-
-      // now that all the work is dispatched, handle internal messages 
-      work = cim_manager->_internal_ops.remove_first();
-      while(work != 0)
-      {
-	 cim_manager->handle_internal(work);
-	 work = cim_manager->_internal_ops.remove_first();
-      }
-   } // while alive 
-   
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
-   return(0);
-}
-   
-
-
-
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_pending_proc(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
    cimom *cim_manager = reinterpret_cast<cimom *>(myself->get_parm());
-   Uint32 *module_ids;
-   Uint32 id_buffer_size  = 5 + cim_manager->getModuleCount();
-   module_ids = new Uint32[ id_buffer_size ] ;
-
-
-   // all of this code is just a way to cache the q ids of registered modules
-   // so we don't need to lock the module list every time we need a queue ID
-
-   Uint32 module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-   
-   if( module_count > id_buffer_size )
-   {
-      delete module_ids;
-      id_buffer_size = 3 + cim_manager->getModuleCount() ;
-      module_ids = new Uint32[ id_buffer_size ];
-      module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-   }
    
    while( 0 == cim_manager->_die.value() )
    {
@@ -251,24 +93,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
    cimom *cim_manager = reinterpret_cast<cimom *>(myself->get_parm());
-   Uint32 *module_ids;
-   Uint32 id_buffer_size  = 5 + cim_manager->getModuleCount();
-   module_ids = new Uint32[ id_buffer_size ] ;
-
-
-   // all of this code is just a way to cache the q ids of registered modules
-   // so we don't need to lock the module list every time we need a queue ID
-
-   Uint32 module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-   
-   if( module_count > id_buffer_size )
-   {
-      delete module_ids;
-      id_buffer_size = 3 + cim_manager->getModuleCount() ;
-      module_ids = new Uint32[ id_buffer_size ];
-      module_count = cim_manager->getModuleIDs(module_ids, id_buffer_size );
-   }
-   
    while( 0 == cim_manager->_die.value() )
    {
       myself->sleep(1);
@@ -283,6 +107,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
 // the cimom's mutex is UNLOCKED upon entry into this routine
 void cimom::handleEnqueue(void)
 {
+
     Message* request = dequeue();
 
     if (!request)
@@ -294,35 +119,110 @@ void cimom::handleEnqueue(void)
        return;
     }
     
-    
-   // at a gross level, look at the message and decide if it is for the cimom or
-   // for another module
+
+    //----- PREPROCESSING -----//
+    // at a gross level, look at the message and decide if it is for the cimom or
+    // for another module
     Uint32 mask = request->getMask();
-    if(mask & message_mask::ha_async)
+    AsyncOpNode *op;
+    
+    if(mask & message_mask::type_cimom)
     {
-       AsyncOpNode *op = (static_cast<AsyncRequest *>(request))->op;
-       if (mask & (message_mask::type_cimom | message_mask::type_broadcast))
-       {
-	  op->write_state( ASYNC_OPSTATE_UNKNOWN ) ;
-	  op->write_flags( ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_SINGLE);
-	  _internal_ops.insert_last(op);
-       } // control message for the cimom
-       else 
-       {
-	  op->write_state( ASYNC_OPSTATE_UNKNOWN ) ;
-	  op->write_flags( ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_SINGLE);
-	  _new_ops.insert_last_wait(op);
-       }
+       // should be almost all reply messages 
+       _internal_ops.insert_last(request);
+       return;
     }
+    else if(mask & message_mask::ha_async)
+    {
+       // an async request or reply 
+       op = (static_cast<AsyncRequest *>(request))->op;
+       if(op == 0)
+       {
+	  // something is wrong, just drop this message
+	  delete request;
+	  return;
+       }
 
-
+       // if this is a request, ensure that the opnode and
+       // message are mutually referrent
+       if(mask & message_mask::ha_request)
+	  op->put_request(request);
+    }
     else if ( mask & message_mask::type_legacy )
     {
+       // create an asynchronous "envelope" for this message
+       op = new AsyncOpNode();
        
-//       _new_ops.insert_last_wait( op_node ) ;
-       
-    }
+       op->_flags = (ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_SINGLE );
+       op->_state = ASYNC_OPFLAGS_UNKNOWN;
 
+       // place the original (legacy) request within the "envelope"
+       op->put_request(request);
+       
+
+       ServiceAsyncOpStart *async_request = 
+	  new ServiceAsyncOpStart(Message::getNextKey(),
+				  QueueIdStack(_CIMOM_Q_ID, _CIMOM_Q_ID),
+				  op);
+
+       // redirect the message pointer to point the the "envelope"
+       request = static_cast<Message *>(async_request);
+       // reinitialize the mask to reflect the envelope
+       mask = request->getMask();
+       
+       // NOTE: there is no mutual reference between the request and the opnode:
+       // the reference map is as follows:
+       // request->op->legacy_request 
+    }
+    
+
+    //----- ROUTING -----//
+    if(mask & message_mask::ha_request)
+    {
+       // now give each registered module a chance to handle this request message
+       // for now we bail after one module has accepted the message. 
+       // in the future, multiple modules can concurrently handle the
+       // same message
+
+       MessageQueue *dst_q;
+       
+       _modules.lock();
+       message_module *module = _modules.next(0);
+       while(module != 0)
+       {
+	  dst_q = MessageQueue::lookup(module->_q_id);
+	  if (dst_q != 0 )
+	  {
+	     if( true == dst_q->accept_async(request))
+	     {
+		op->_state |= ASYNC_OPSTATE_ACCEPTED;
+		break;
+	     }
+	     
+	  }
+	  module = _modules.next(module);
+       }
+       _modules.unlock();
+       
+       if(op->_state & ASYNC_OPSTATE_ACCEPTED)
+	  _pending_ops.insert_last(op);
+       else
+       {
+	  delete request;
+	  return;
+       }
+    }
+    else if(mask & message_mask::ha_reply)
+    {
+       // replies should get handled by the cimom on its internal ops queue 
+       _internal_ops.insert_last(request);
+       return;
+    }
+    else 
+    {
+       delete request;
+    }
+    
     return;
 }
 

@@ -59,9 +59,9 @@ class cimom_results
 
       // mbrasher: I appended "_" to these since MSVC #defines these 
       // which causes a compiler error here.
-
       // <<< Thu Dec 27 19:39:02 2001 mdd >>> sorry !
       // changed all instances of SERVICE to CIM_SERVICE
+
       static const Uint32 CIM_SERVICE_STOPPED;
       static const Uint32 CIM_SERVICE_PAUSED;
 
@@ -106,7 +106,8 @@ class PEGASUS_CIMOM_LINKAGE Request : public Message
 	      QueueIdStack queue_ids,
 	      Uint32 mask,
 	      Uint32 routing = 0)
-	 : Message(type, key, routing, mask), queues(queue_ids) {   }
+	 : Message(type, key, routing, mask | message_mask::ha_request), 
+	   queues(queue_ids) {   }
 
       virtual ~Request(void) { }
 
@@ -121,7 +122,7 @@ class PEGASUS_CIMOM_LINKAGE Reply : public Message
 	    Uint32 result_code,
 	    Uint32 mask,
 	    Uint32 routing = 0)
-	 : Message(type, key, routing, mask),
+	 : Message(type, key, routing, mask | message_mask::ha_reply),
 	   result(result_code) {  }
 
       virtual ~Reply(void) { };

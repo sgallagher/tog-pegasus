@@ -32,6 +32,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Constants.h>
 #include <iostream>
 #ifdef PEGASUS_OS_OS400
 #include "OS400ConvertChar.h"
@@ -419,23 +420,42 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			checkDefaultMsgLoading();
 		PEG_METHOD_EXIT();
 	} 
-	
 	void MessageLoader::initPegasusMsgHome(){
-		//cout << "INITPEGASUSMSGHOME:" << endl;
-		#ifdef PEGASUS_OS_OS400
-			pegasus_MSG_HOME = OS400_DEFAULT_MESSAGE_SOURCE;
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(37)
+		const char* env = getenv("PEGASUS_HOME");
+		EtoA(env);
+#pragma convert(0)
+#else
+		const char* env = getenv("PEGASUS_HOME");
+#endif
+#ifdef PEGASUS_DEFAULT_MESSAGE_SOURCE
+		if(System::is_absolute_path(
+				(const char *)PEGASUS_DEFAULT_MESSAGE_SOURCE))
+		{
+			pegasus_MSG_HOME = PEGASUS_DEFAULT_MESSAGE_SOURCE;
 			pegasus_MSG_HOME.append('/');
-		#else
-			const char* env = getenv("PEGASUS_HOME");
-    		if (env != NULL){
-				pegasus_MSG_HOME = env;
-				pegasus_MSG_HOME.append("/msg/");
+		}
+		else
+		{
+		    if(env != NULL)
+			pegasus_MSG_HOME = env;
+
+			pegasus_MSG_HOME.append(PEGASUS_DEFAULT_MESSAGE_SOURCE);
+			pegasus_MSG_HOME.append('/');
+		}
+#else
+    		if (env != NULL)
+		{
+			pegasus_MSG_HOME = env;
+			pegasus_MSG_HOME.append("/msg/");
     		}
-		
-		// TODO: remove the next call once test cases are compatible with ICU messages
+		else
+		{
+			pegasus_MSG_HOME = "msg/";
+ 		}	
+#endif 
 		checkDefaultMsgLoading();
-		
-		#endif 
 	}
 	
 	void MessageLoader::checkDefaultMsgLoading(){

@@ -278,6 +278,12 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 # endif
 #endif
 
+// Constant defines for path to icu resource bundles
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/QIBM/ProdData/OS400/CIM/msg"
+#else
+#undef PEGASUS_DEFAULT_MESSAGE_SOURCE
+#endif
 
 //
 // Miscellaneous Constants

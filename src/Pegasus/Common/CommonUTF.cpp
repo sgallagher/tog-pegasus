@@ -259,4 +259,21 @@ int UTF8toUTF16 (const Uint8** srcHead,
     *tgtHead = tgt;
     return returnCode;
 }
+
+Boolean isUTF8(const char *legal)
+{
+    char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
+
+    // Validate that the string is long enough to hold all the expected bytes.
+    // Note that if legal[0] == 0, numBytes will be 1.
+    for (char i=1; i<numBytes; i++)
+    {
+        if (legal[i] == 0)
+        {
+            return false;
+        }
+    }
+
+    return (isValid_U8((const Uint8 *)legal, numBytes));
+}
 PEGASUS_NAMESPACE_END

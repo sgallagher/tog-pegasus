@@ -47,7 +47,13 @@
 #include <Pegasus/Common/Linkage.h>
 
 const char STRING_FLAG_ASCII[] = "ASCII";
-const char STRING_FLAG_UTF8[]  = "UTF8";   
+const char STRING_FLAG_UTF8[]  = "UTF8"; 
+
+// Locale constants
+// These constants need to be defined as follows:
+// lower case language; underscore; Uppercase Country
+const char ENGLISH_US[] = "en_US";
+ 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -137,6 +143,7 @@ public:
 
     /** Initialize from a plain C-String:
     @param str Specifies the name of the String instance.
+    API supports UTF8
     */
     String(const char* str);
 
@@ -151,6 +158,7 @@ public:
     /** Initialize from the first n characters of a plain C-String:
     @param str Specifies the name of the String instance.
     @param u Specifies the Uint32 size.
+    API supports UTF8
     */
     String(const char* str, Uint32 n);
 
@@ -172,6 +180,7 @@ public:
     /** Assign this string with String str.
         @param str String to assign.
         @return Returns the String.
+        API supports UTF8
     */
     String& assign(const String& str);
 
@@ -187,12 +196,14 @@ public:
 
     /** Assign this string with the plain C-String str.
     @param str REVIEWERS: Insert text here.
+    API supports UTF8
     */
     String& assign(const char* str);
 
     /** Assign this string with first n characters of the plain C-String str.
     @param str REVIEWERS: Insert text here.
     @param n REVIEWERS: Insert text here.
+    API supports UTF8
     */
     String& assign(const char* str, Uint32 n);
 
@@ -239,7 +250,7 @@ public:
 
     /** Create an 8-bit representation of this String object. For example,
 
-        @return CString object that provides access to the 8-bit String
+        @return CString object that provides access to the UTF8 String
         representation.
 
 	<pre>
@@ -368,9 +379,29 @@ public:
     */
     Uint32 reverseFind(Char16 c) const;
 
-    /** Converts all characters in this string to lowercase characters.
+    /** Converts all characters in this string to lowercase characters,
+        ICU    : Operation will use default locale or the locale provided
+        NON ICU: Operattion will use c runtime function
     */
     void toLower();
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** @param strLocale const char * is the locale to use for the operation.
+               If NULL will use the default locale for the process.
+        Refer to Locale constants for formating.
+    */
+    void toLower(const char * strLocale);
+#endif
+
+    /** Converts all characters in this string to lowercase characters.
+        @param strLocale const char * is the locale to use for the operation.
+               If NULL will use the default locale for the process.
+        ICU    : Operation will use default locale or the locale provided
+        NON ICU: Operattion will use c runtime function 
+        Refer to Locale constants for formating.   
+    */
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    void toUpper(const char * strLocale = NULL);
+#endif
 
     /** Compare the first n characters of the two strings.
     	@param s1 First null-terminated string for the comparison.
@@ -400,8 +431,17 @@ public:
 
 	NOTE: Use the comparison operators <,<= > >= to compare
 	String objects.
+        ICU    : Operation will use default locale or the locale provided
+        NON ICU: Operattion will use c runtime function
     */
     static int compareNoCase(const String& s1, const String& s2);
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** @param strLocale const char * is the locale to use for the operation.
+               If NULL will use the default locale for the process.
+        Refer to Locale constants for formating.
+    */
+    static int compareNoCase(const String& s1, const String& s2, const char * strLocale);
+#endif
 
     /** Compare two String objects for equality.
 	@param s1 First <TT>String</TT> for comparison.
@@ -423,8 +463,18 @@ public:
 	@param str2 Second String parameter.
 	@return true If strings are equal independent of case, flase
         otherwise.
+
+        ICU    : Operation will use default locale or the locale provided
+        NON ICU: Operation will use c runtime function
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** @param strLocale const char * is the locale to use for the operation.
+               If NULL will use the default locale for the process.
+        Refer to Locale constants for formating.
+    */
+    static Boolean equalNoCase(const String& str1, const String& str2, const char * strLocale);
+#endif
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     // UTF8 specific code:
@@ -440,10 +490,7 @@ public:
     */
     CString getCStringUTF8() const;
 
-    /** Tests whether a C string contains valid UTF-8 characters.
-	@param str The C string
-    */
-    static Boolean isUTF8(const char*);
+    
 #endif
 
 private:

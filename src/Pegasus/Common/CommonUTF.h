@@ -81,6 +81,8 @@ int UTF8toUTF16 (const Uint8** srcHead,
 		 Uint16** tgtHead,
 		 Uint16* tgtEnd);
 
+Boolean isUTF8(const char*);
+
 PEGASUS_NAMESPACE_END
 
 #endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES

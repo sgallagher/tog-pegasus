@@ -64,7 +64,7 @@ static const char PASSWORD_BLANK []  =
 static const Uint32 MAX_PW_RETRIES =  3;
 
 
-static Boolean verifyServerCertificate(CertificateInfo &certInfo)
+static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
     //ATTN-NB-03-05132002: Add code to handle server certificate verification.
     return true;

@@ -847,7 +847,7 @@ static void TestEnumerateInstances( CIMClient& client,
     }
 }
 
-static Boolean verifyCertificate(CertificateInfo &certInfo)
+static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
     //ATTN-NB-03-05132002: Add code to handle server certificate verification.
     return true;
@@ -1112,8 +1112,8 @@ int main(int argc, char** argv)
                             randFile = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
-                            SSLContext * sslcontext =
-                                new SSLContext(certpath, verifyCertificate, randFile, true);
+                            SSLContext* sslcontext = new SSLContext(
+                                certpath, verifyCertificate, randFile, true);
 
                             cout << "connecting to " << connectionList[i] << " using SSL" << endl;
 		            client.connect(connectionList[i], sslcontext, userName, password);

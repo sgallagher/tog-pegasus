@@ -23,8 +23,8 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,29 +39,36 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class SSLCertificateInfoRep;
 class SSLContextRep;
+class SSLSocket;
 
 
 /** This class provides the interface that a client gets as argument
     to certificate verification call back function.
 */
-class PEGASUS_COMMON_LINKAGE CertificateInfo
+class PEGASUS_COMMON_LINKAGE SSLCertificateInfo
 {
 public:
-    /** Constructor for a CertificateInfo object.
+    /** Constructor for a SSLCertificateInfo object.
     @param subjectName subject name of the certificate
     @param issuerName  issuer name of the certificate
     @param errorDepth  depth of the certificate chain
     @param errorCode   error code from the default verification of the
     certificates by the Open SSL library.
     */
-    CertificateInfo(
+    SSLCertificateInfo(
         const String subjectName,
         const String issuerName,
         const int errorDepth,
         const int errorCode);
 
-    ~CertificateInfo();
+    /** Copy constructor for a SSLCertificateInfo object.
+    @param certificateInfo SSLCertificateInfo object to copy
+    */
+    SSLCertificateInfo(const SSLCertificateInfo& certificateInfo);
+
+    ~SSLCertificateInfo();
 
     /** Gets the subject name of the certificate
     @return a string containing the subject name.
@@ -90,18 +97,11 @@ public:
 
 private:
 
-    String _subjectName;
-
-    String _issuerName;
-
-    int    _errorDepth;
-
-    int    _errorCode;
-
-    int    _respCode;
+    SSLCertificateInfoRep* _rep;
 };
 
-typedef Boolean (*VERIFY_CERTIFICATE) (CertificateInfo &certInfo);
+
+typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
 /** This class provides the interface that a client uses to create
     SSL context.
@@ -125,13 +125,15 @@ public:
     @param isCIMClient  flag indicating that the context is created by
     the client.
 
-    @exception SSLException  exception indicating failure to create a context.
+    @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
         const String& certPath,
-        VERIFY_CERTIFICATE verifyCert = NULL,
+        SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY,
         Boolean isCIMClient = false);
+
+    SSLContext(const SSLContext& sslContext);
 
     ~SSLContext();
 

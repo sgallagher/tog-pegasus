@@ -23,8 +23,8 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +58,8 @@ PEGASUS_NAMESPACE_BEGIN
 // certificate handling routine
 //
 
-VERIFY_CERTIFICATE verify_certificate;
+// ATTN-RK-20020905: This global variable is unsafe with multiple SSL contexts
+SSLCertificateVerifyFunction* verify_certificate;
 
 static int cert_verify(SSL_CTX *ctx, const char *cert_file, const char *key_file)
 {
@@ -151,7 +152,7 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
     //
     // Call the verify_certificate() callback
     //
-    CertificateInfo certInfo(subjectName, issuerName, depth, err);
+    SSLCertificateInfo certInfo(subjectName, issuerName, depth, err);
 
     if (verify_certificate(certInfo))
     {
@@ -184,7 +185,7 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 //
 //
 SSLContextRep::SSLContextRep(const String& certPath,
-                       VERIFY_CERTIFICATE verifyCert,
+                       SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile,
                        Boolean isCIMClient)
 {
@@ -246,53 +247,23 @@ SSLContextRep::SSLContextRep(const String& certPath,
 
 #endif // end of PEGASUS_SSL_RANDOMFILE
 
-    //
-    // create SSL Context Area
-    //
-
-    if (!( _SSLContext = SSL_CTX_new(SSLv23_method()) ))
-    {
-        PEG_METHOD_EXIT();
-        throw( SSLException("Could not get SSL CTX"));
-    }
-
-#ifdef PEGASUS_OS_HPUX
-    if (!(SSL_CTX_set_cipher_list(_SSLContext, SSL_TXT_EXP40)))
-        throw( SSLException("Could not set the cipher list"));
-#endif
-
-    //
-    // set overall SSL Context flags
-    //
-
-    SSL_CTX_set_quiet_shutdown(_SSLContext, 1);
-    SSL_CTX_set_mode(_SSLContext, SSL_MODE_AUTO_RETRY);
-    SSL_CTX_set_options(_SSLContext,SSL_OP_ALL);
-
-#ifdef CLIENT_CERTIFY
-    SSL_CTX_set_verify(_SSLContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
-        prepareForCallback);
-#else
-    if (verifyCert != NULL)
-    {
-        SSL_CTX_set_verify(_SSLContext, 
-            SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
-    }
-#endif
-
-    //
-    // check certificate given to me
-    //
-
-    if (!cert_verify(_SSLContext, _certPath, _certPath))
-    {
-        PEG_METHOD_EXIT();
-        throw( SSLException("Could not get certificate and/or private key"));
-    }
+    _sslContext = _makeSSLContext();
 
     PEG_METHOD_EXIT();
 }
 
+SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
+{
+    PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
+
+    _certPath = sslContextRep._certPath;
+    // ATTN: verify_certificate is set implicitly in global variable
+    _randomFile = sslContextRep._randomFile;
+    _isCIMClient = sslContextRep._isCIMClient;
+    _sslContext = _makeSSLContext();
+
+    PEG_METHOD_EXIT();
+}
   
 //
 // Destructor
@@ -302,29 +273,87 @@ SSLContextRep::~SSLContextRep()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::~SSLContextRep()");
 
-    SSL_CTX_free(_SSLContext);
+    SSL_CTX_free(_sslContext);
 
     PEG_METHOD_EXIT();
 }
 
+SSL_CTX * SSLContextRep::_makeSSLContext()
+{
+    PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
+
+    SSL_CTX * sslContext = 0;
+
+    //
+    // create SSL Context Area
+    //
+
+    if (!( sslContext = SSL_CTX_new(SSLv23_method()) ))
+    {
+        PEG_METHOD_EXIT();
+        throw( SSLException("Could not get SSL CTX"));
+    }
+
+#ifdef PEGASUS_OS_HPUX
+    if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40)))
+        throw( SSLException("Could not set the cipher list"));
+#endif
+
+    //
+    // set overall SSL Context flags
+    //
+
+    SSL_CTX_set_quiet_shutdown(sslContext, 1);
+    SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
+    SSL_CTX_set_options(sslContext,SSL_OP_ALL);
+
+#ifdef CLIENT_CERTIFY
+    SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
+        prepareForCallback);
+#else
+    if (verifyCert != NULL)
+    {
+        SSL_CTX_set_verify(sslContext, 
+            SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
+    }
+#endif
+
+    //
+    // check certificate given to me
+    //
+
+    if (!cert_verify(sslContext, _certPath, _certPath))
+    {
+        PEG_METHOD_EXIT();
+        throw( SSLException("Could not get certificate and/or private key"));
+    }
+
+    PEG_METHOD_EXIT();
+    return sslContext;
+}
+
 SSL_CTX * SSLContextRep::getContext() const 
 {
-    return _SSLContext;
+    return _sslContext;
 }
 #else 
 
 //
-// these definitions are used if ssl is not availabel
+// these definitions are used if ssl is not available
 //
 
 SSLContextRep::SSLContextRep(const String& certPath,
-                       VERIFY_CERTIFICATE verifyCert,
+                       SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile,
                        Boolean isCIMClient) {}
 
+SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
+
 SSLContextRep::~SSLContextRep() {}
 
-SSL_CTX * SSLContextRep::getContext() const { return NULL; }
+SSL_CTX * SSLContextRep::_makeSSLContext() { return 0; }
+
+SSL_CTX * SSLContextRep::getContext() const { return 0; }
 
 #endif // end of PEGASUS_HAS_SSL
 
@@ -337,11 +366,16 @@ SSL_CTX * SSLContextRep::getContext() const { return NULL; }
 
 SSLContext::SSLContext(
     const String& certPath,
-    VERIFY_CERTIFICATE verifyCert,
+    SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile,
     Boolean isCIMClient)
 {
     _rep = new SSLContextRep(certPath, verifyCert, randomFile, isCIMClient);
+}
+
+SSLContext::SSLContext(const SSLContext& sslContext)
+{
+    _rep = new SSLContextRep(*sslContext._rep);
 }
 
 SSLContext::~SSLContext() 
@@ -352,52 +386,74 @@ SSLContext::~SSLContext()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// CertificateInfo
+// SSLCertificateInfo
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-CertificateInfo::CertificateInfo(
+class SSLCertificateInfoRep
+{
+public:
+    String subjectName;
+    String issuerName;
+    int    errorDepth;
+    int    errorCode;
+    int    respCode;
+};
+
+
+SSLCertificateInfo::SSLCertificateInfo(
     const String subjectName,
     const String issuerName,
     const int errorDepth,
     const int errorCode)
-    :
-    _subjectName(subjectName),
-    _issuerName(issuerName),
-    _errorDepth(errorDepth),
-    _errorCode(errorCode)
 {
-    _respCode = 0;
+    _rep = new SSLCertificateInfoRep();
+    _rep->subjectName = subjectName;
+    _rep->issuerName = issuerName;
+    _rep->errorDepth = errorDepth;
+    _rep->errorCode = errorCode;
+    _rep->respCode = 0;
 }
 
-CertificateInfo::~CertificateInfo()
+SSLCertificateInfo::SSLCertificateInfo(
+    const SSLCertificateInfo& certificateInfo)
 {
-
+    _rep = new SSLCertificateInfoRep();
+    _rep->subjectName = certificateInfo._rep->subjectName;
+    _rep->issuerName = certificateInfo._rep->issuerName;
+    _rep->errorDepth = certificateInfo._rep->errorDepth;
+    _rep->errorCode = certificateInfo._rep->errorCode;
+    _rep->respCode = certificateInfo._rep->respCode;
 }
 
-String CertificateInfo::getSubjectName() const
+SSLCertificateInfo::~SSLCertificateInfo()
 {
-    return (_subjectName);
+    delete _rep;
 }
 
-String CertificateInfo::getIssuerName() const
+String SSLCertificateInfo::getSubjectName() const
 {
-    return (_issuerName);
+    return (_rep->subjectName);
 }
 
-int CertificateInfo::getErrorDepth() const
+String SSLCertificateInfo::getIssuerName() const
 {
-    return (_errorDepth);
+    return (_rep->issuerName);
 }
 
-int CertificateInfo::getErrorCode() const
+int SSLCertificateInfo::getErrorDepth() const
 {
-    return (_errorCode);
+    return (_rep->errorDepth);
 }
 
-void CertificateInfo::setResponseCode(const int respCode)
+int SSLCertificateInfo::getErrorCode() const
 {
-    _respCode = respCode;
+    return (_rep->errorCode);
+}
+
+void SSLCertificateInfo::setResponseCode(const int respCode)
+{
+    _rep->respCode = respCode;
 }
 
 PEGASUS_NAMESPACE_END

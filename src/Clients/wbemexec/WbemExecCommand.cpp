@@ -140,7 +140,7 @@ static const char PASSWORD_PROMPT []  =
 static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
 
-static Boolean verifyCertificate(CertificateInfo &certInfo)
+static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
     //ATTN-NB-03-05132002: Add code to handle server certificate verification.
     return true;

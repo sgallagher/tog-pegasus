@@ -303,7 +303,7 @@ private:
     SSLContext* _connectSSLContext;
 };
 
-static Boolean verifyServerCertificate(CertificateInfo &certInfo)
+static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
     //ATTN-NB-03-05132002: Add code to handle server certificate verification.
     return true;

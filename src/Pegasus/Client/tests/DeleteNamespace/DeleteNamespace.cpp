@@ -77,7 +77,7 @@ static void testEnd(const double elapsedTime)
     cout << "In " << elapsedTime << " Seconds\n\n";
 }
 
-static Boolean verifyServerCertificate(CertificateInfo &certInfo)
+static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
     //ATTN-NB-03-05132002: Add code to handle server certificate verification.
     return true;
@@ -539,14 +539,14 @@ int main(int argc, char** argv)
                         String certpath = FileSystem::getAbsolutePath(
                             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
+			String randFile;
 #ifdef PEGASUS_SSL_RANDOMFILE
-			String randFile = FileSystem::getAbsolutePath(
+			randFile = FileSystem::getAbsolutePath(
                             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
 
                         SSLContext * sslcontext = new SSLContext(certpath,verifyServerCertificate, randFile, true);
-#else
-                        SSLContext * sslcontext = new SSLContext(certpath);
-#endif
+
 			if (om.isTrue("local"))
 			{
 			     cout << "Using local SSL connection mechanism " << endl;

@@ -87,7 +87,7 @@ static Message * controlProviderReceiveMessageCallback(
     return mpf->handleRequestMessage(message);
 }
 
-static Boolean verifyClientCertificate(CertificateInfo &certInfo)
+static Boolean verifyClientCertificate(SSLCertificateInfo &certInfo)
 {
 #ifdef CLIENT_CERTIFY
     //ATTN-NB-03-05132002: Add code to handle client certificate verification.

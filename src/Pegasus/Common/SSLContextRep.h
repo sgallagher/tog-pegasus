@@ -61,9 +61,11 @@ public:
     */
     SSLContextRep(
         const String& certPath,
-        VERIFY_CERTIFICATE verifyCert = NULL,
+        SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY,
         Boolean isCIMClient = false);
+
+    SSLContextRep(const SSLContextRep& sslContextRep);
 
     ~SSLContextRep();
 
@@ -71,9 +73,12 @@ public:
 
 private:
 
-    SSL_CTX * _SSLContext;
+    SSL_CTX * _makeSSLContext();
 
     CString _certPath;
+    String _randomFile;
+    Boolean _isCIMClient;
+    SSL_CTX * _sslContext;
 };
 
 PEGASUS_NAMESPACE_END

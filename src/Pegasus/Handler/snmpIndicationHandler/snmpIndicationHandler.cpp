@@ -78,7 +78,7 @@ void snmpIndicationHandler::handleIndication(
     String mapstr2;
 
     CIMClass indicationClass = _repository->getClass(
-	nameSpace, indication.getClassName(), false);
+	nameSpace, indication.getClassName(), false, true, false, CIMPropertyList());
 
     Uint32 propertyCount = indication.getPropertyCount();
 
@@ -156,9 +156,12 @@ void snmpIndicationHandler::handleIndication(
             PEG_NOT_FOUND))
     {
 	// properties from the handler instance
-        String targetHost, otherTargetHostFormat;
-	String securityName, engineID;
-	Uint16 targetHostFormat, snmpVersion;
+        String targetHost;
+	String otherTargetHostFormat = String();
+	String securityName = String();
+	String engineID = String();
+	Uint16 targetHostFormat = 0;
+	Uint16 snmpVersion = 0;
 	Uint32 portNumber;
 
 	String trapOid;
@@ -208,12 +211,24 @@ void snmpIndicationHandler::handleIndication(
 
 	handler.getProperty(targetHostPos).getValue().get(targetHost);
 	handler.getProperty(targetHostFormatPos).getValue().get(targetHostFormat);
-	handler.getProperty(otherTargetHostFormatPos).getValue().get
+	if (otherTargetHostFormatPos != PEG_NOT_FOUND)
+	{ 
+	    handler.getProperty(otherTargetHostFormatPos).getValue().get
 		(otherTargetHostFormat);
-	handler.getProperty(portNumberPos).getValue().get(portNumber);
+	}
+	if (portNumberPos != PEG_NOT_FOUND)
+	{
+	    handler.getProperty(portNumberPos).getValue().get(portNumber);
+	}
 	handler.getProperty(snmpVersionPos).getValue().get(snmpVersion);
-	handler.getProperty(securityNamePos).getValue().get(securityName);
-	handler.getProperty(engineIDPos).getValue().get(engineID);
+	if (securityNamePos != PEG_NOT_FOUND)
+	{
+	    handler.getProperty(securityNamePos).getValue().get(securityName);
+	}
+	if (engineIDPos != PEG_NOT_FOUND)
+	{
+	    handler.getProperty(engineIDPos).getValue().get(engineID);
+	}
 
 	emanateTrap.deliverTrap(
             trapOid,

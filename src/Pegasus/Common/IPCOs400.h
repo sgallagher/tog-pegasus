@@ -57,8 +57,8 @@ PEGASUS_NAMESPACE_BEGIN
 typedef class __pegasus_os400_thread_type {
   public:
     pthread_t thid;           // An opaque struct on OS/400
-    PEGASUS_UINT64 pegasusValue; // Needed because Pegasus sets PEGASUS_THREAD_TYPE's to 0
-                              // to indicate the thread is 'dead', but
+    PEGASUS_UINT64 pegasusValue; // Needed because Pegasus sets PEGASUS_THREAD_TYPEs to 0
+                              // to indicate the thread is dead, but
                               // pthread_t structs cannot be changed on OS/400.
 
    // Overloaded operators.
@@ -66,7 +66,6 @@ typedef class __pegasus_os400_thread_type {
     operator pthread_t*();
     operator pthread_t();
     operator Uint32 ();
-    operator PEGASUS_UINT64 ();
 } PEGASUS_THREAD_TYPE;
 
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
@@ -297,12 +296,9 @@ inline __pegasus_os400_thread_type::operator pthread_t ()
 
 inline __pegasus_os400_thread_type::operator Uint32 ()
 {
-    return Uint32(pegasusValue);
-}
-
-inline __pegasus_os400_thread_type::operator PEGASUS_UINT64 ()
-{
-    return pegasusValue;
+  pthread_id_np_t   tid;
+  pthread_getunique_np(&thid, &tid);
+  return (Uint32)(tid.intId.lo);
 }
 
 PEGASUS_NAMESPACE_END

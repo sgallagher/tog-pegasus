@@ -48,6 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 ////////////////////////////////////////////////////////////////////////////////
+
 //
 // _toString routines:
 //
@@ -92,7 +93,7 @@ inline void _toString(Array<Sint8>& out, Char16 x)
 		&strtgt,
 		endtgt);
 
-    out.append((Sint8 *)str,trailingBytesForUTF8[Uint32(str[0])]+1);
+    out.append((Sint8 *)str, UTF_8_COUNT_TRAIL_BYTES(str[0]) +1);
 }
 
 inline void _toString(Array<Sint8>& out, const String& x)

@@ -205,9 +205,9 @@ private:
 };
 
 
-/*
- * MessageLoader is a static class resposible for looking up messages in message resources. 
- * For specific behaviour details of this class see the Globalization HOWTO.
+/** <I><B>Experimental Interface</B></I><BR>
+  MessageLoader is a static class resposible for looking up messages in message resources. 
+  For specific behaviour details of this class see the Globalization HOWTO.
  */
 
 class PEGASUS_COMMON_LINKAGE MessageLoader{

@@ -124,7 +124,8 @@ Thread * Thread::getCurrent()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::getCurrent");	
 	if (!Thread::_key_initialized)
-		return NULL;    
+		return NULL;  
+    PEG_METHOD_EXIT();  
 	return (Thread *)pegasus_get_thread_specific(_platform_thread_key); 
 }
 
@@ -239,8 +240,18 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    // l10n
    if (!Thread::_key_initialized)
    {
-	   pegasus_key_create(&Thread::_platform_thread_key);
-	   Thread::_key_initialized = true;	
+	if (pegasus_key_create(&Thread::_platform_thread_key) == 0)
+	{
+        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "ThreadPool: able to create a thread key");   
+	   	Thread::_key_initialized = true;	
+	}
+	else
+	{
+       		Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "ThreadPool: ERROR - unable to create a thread key");   
+printf("ThreadPool: ERROR - unable to create a thread key\n");
+	}
    }
 }
 
@@ -300,9 +311,6 @@ ThreadPool::~ThreadPool(void)
    catch(...)
    {
    }
-   
-   // l10n
-   pegasus_key_delete(Thread::_platform_thread_key);   
 }
 
 // make this static to the class
@@ -319,10 +327,27 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    
 // l10n
    // Set myself into thread specific storage
-   // This will allow code to get its own Thread  
-   pegasus_set_thread_specific(Thread::_platform_thread_key, (void *) myself);
-   Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-          "just set myself into thread specific storage");   
+   // This will allow code to get its own Thread
+   if (Thread::_key_initialized)  
+   {
+   	if (pegasus_set_thread_specific(Thread::_platform_thread_key,
+								 (void *) myself) == 0)
+        {
+        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "just set myself into thread specific storage");   
+        }
+        else
+        {
+printf("ThreadPool: ERROR setting tls\n");
+        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "ERROR: got error setting thread specific storage");   
+        }
+   }
+   else
+   {
+        Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	          "ERROR: thread key is not initialized");   
+   }
    
    ThreadPool *pool = (ThreadPool *)myself->get_parm();
    if(pool == 0 ) 

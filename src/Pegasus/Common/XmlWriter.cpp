@@ -1731,10 +1731,11 @@ void XmlWriter::appendMethodCallHeader(
 		// encoding. The default is on. to turn off, set this variable to zero.
 		// This should be removed when stable. This should only be turned off in
 		// a debugging/testing environment.
-
+#ifdef PEGASUS_DEBUG
 		static const char *clientTransferEncodingOff = 
 			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
 		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+#endif
 			out << "TE: chunked, trailers" << "\r\n";
 
     if (httpMethod == HTTP_METHOD_M_POST)
@@ -2867,10 +2868,11 @@ void XmlWriter::appendEMethodRequestHeader(
 		// encoding. The default is on. to turn off, set this variable to zero.
 		// This should be removed when stable. This should only be turned off in
 		// a debugging/testing environment.
-
+#ifdef PEGASUS_DEBUG
 		static const char *clientTransferEncodingOff = 
 			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
 		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+#endif
 			out << "TE: chunked, trailers" << "\r\n";
 
     if (httpMethod == HTTP_METHOD_M_POST)

@@ -37,6 +37,7 @@
 #include "Union.h"
 #include "Indentor.h"
 #include "XmlWriter.h"
+#include "CommonUTF.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -68,8 +69,28 @@ inline void _toString(Array<Sint8>& out, Real64 x) { XmlWriter::append(out, x); 
 
 inline void _toString(Array<Sint8>& out, Char16 x)
 {
-    // ATTN: How to convert 16-bit characters to printable form?
-    out.append(Sint8(x));
+    // We need to convert the Char16 to UTF8 then append the UTF8
+    // character into the array.
+    // NOTE: The UTF8 character could be several bytes long.
+    // WARNING: This function will put in replacement character for
+    // all characters that have surogate pairs.
+
+    char str[6];
+    memset(str,0x00,sizeof(str));
+    char* charIN = (char *)&x;
+
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[1];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[5];
+
+    UTF16toUTF8(&strsrc,
+		endsrc, 
+		&strtgt,
+		endtgt);
+
+    out.append((Sint8 *)str,trailingBytesForUTF8[Uint32(str[0])]+1);
 }
 
 inline void _toString(Array<Sint8>& out, const String& x)

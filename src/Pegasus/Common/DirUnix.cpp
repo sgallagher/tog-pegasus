@@ -32,6 +32,16 @@
 #include "InternalException.h"
 
 #include <dirent.h>
+#include <iostream.h>
+
+#ifdef PEGASUS_OS_OS400
+typedef struct os400_pnstruct
+{
+  Qlg_Path_Name_T qlg_struct;
+  char * pn; 
+} OS400_PNSTRUCT;
+#endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,9 +66,17 @@ static CString _clonePath(const String& path)
 struct DirRep
 {
     DIR* dir;
+#ifdef PEGASUS_OS_OS400
+    struct dirent_lg* entry;
+#else
     struct dirent* entry;
+#endif
 #ifdef PEGASUS_HAS_READDIR_R
+#ifdef PEGASUS_OS_OS400
+    struct dirent_lg buffer;
+#else
     struct dirent buffer;
+#endif
 #endif
 };
 
@@ -66,13 +84,34 @@ Dir::Dir(const String& path)
     : _path(path)
 {
     _rep = new DirRep;
-    _rep->dir = opendir(_clonePath(_path));
 
+#ifdef PEGASUS_OS_OS400
+    CString tmpPathclone = _clonePath(_path);
+    const char* tmpPath = tmpPathclone;
+    OS400_PNSTRUCT pathname;
+    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
+    pathname.qlg_struct.CCSID = 1208;
+#pragma convert(37)
+    memcpy(pathname.qlg_struct.Country_ID,"US",2);
+    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
+#pragma convert(0)
+    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
+    pathname.qlg_struct.Path_Length = strlen(tmpPath);
+    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
+    pathname.pn = (char *)tmpPath;
+    _rep->dir = QlgOpendir((Qlg_Path_Name_T *)&pathname);
+#else
+    _rep->dir = opendir(_clonePath(_path));
+#endif
     if (_rep->dir)
     {
 #ifdef PEGASUS_HAS_READDIR_R
 	// Need to use readdir_r since we are multithreaded
+#ifdef PEGASUS_OS_OS400
+	if (QlgReaddir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
+#else
 	if (readdir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
+#endif
         {
 	    _more = false;
 	    throw CannotOpenDirectory(_path);
@@ -99,7 +138,12 @@ Dir::~Dir()
 
 const char* Dir::getName() const
 {
+#ifdef PEGASUS_OS_OS400
+    _rep->entry->d_lg_name[_rep->entry->d_lg_qlg.Path_Length] = 0x00;
+    return _more ? _rep->entry->d_lg_name : "";
+#else
     return _more ? _rep->entry->d_name : "";
+#endif
 }
 
 void Dir::next()
@@ -108,7 +152,11 @@ void Dir::next()
     {
 #ifdef PEGASUS_HAS_READDIR_R
 	// Need to use readdir_r since we are multithreaded
+#ifdef PEGASUS_OS_OS400
+	if (QlgReaddir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
+#else
 	if (readdir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
+#endif
         {
 	    _more = false;
 	    throw CannotOpenDirectory(_path);

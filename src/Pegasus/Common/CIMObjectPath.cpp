@@ -565,7 +565,7 @@ Boolean _parseNamespaceElement(
     // regular expression: "[A-Za-z_]+(/[A-Za-z_]+)*"
     //----------------------------------------------------------------------
 
-    String namespaceName = String(p, colon - p);
+    String namespaceName = String(p, (Uint32)(colon - p));
     if (!CIMNamespaceName::legal(namespaceName))
     {
         throw MalformedObjectNameException(objectName);
@@ -789,7 +789,7 @@ void CIMObjectPath::set(const String& objectName)
 
     // Convert to a C String first:
 
-    CString pCString = objectName.getCString();
+    CString pCString = objectName.getCStringUTF8();
     char* p = const_cast<char*>((const char*) pCString);
     Boolean gotHost;
     Boolean gotNamespace;
@@ -820,7 +820,7 @@ void CIMObjectPath::set(const String& objectName)
         return;
     }
 
-    String className = String(p, dot - p);
+    String className = String(p, (Uint32)(dot - p));
     if (!CIMName::legal(className))
     {
         throw MalformedObjectNameException(objectName);
@@ -956,7 +956,7 @@ String CIMObjectPath::_toStringCanonical() const
     // ATTN-RK-P2-20020510: Need to make hostname and namespace lower case?
 
     String classNameLower = ref._rep->_className.getString ();
-    classNameLower.toLower();
+    classNameLower.toLower(); // ICU_TODO:  
     ref._rep->_className = classNameLower;
 
     for (Uint32 i = 0, n = ref._rep->_keyBindings.size(); i < n; i++)

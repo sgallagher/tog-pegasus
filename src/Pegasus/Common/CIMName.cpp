@@ -31,6 +31,7 @@
 
 #include <cctype>
 #include "CIMName.h"
+#include "CommonUTF.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -118,17 +119,21 @@ void CIMName::clear()
 Boolean CIMName::legal(const String& name)
 {
     Uint32 length = name.size();
+    Uint32 i = 0;
+    
 
-    if (length == 0 || !(isalpha(name[0]) || name[0] == '_'))
+    if (length == 0)
         return false;
 
-    for (Uint32 i=1; i<length; i++)
-    {
-        // ATTN-RK-20020729: Is this check necessary?  Add it to namespace name?
-        if (name[i] > PEGASUS_MAX_PRINTABLE_CHAR)
-            return false;
+    CString temp = name.getCStringUTF8();
+    const char* UTF8name = temp;
 
-        if (!(isalnum(name[i]) || name[i] == '_'))
+    char currentChar;
+
+    while(i<length)
+    {
+	UTF8_NEXT(UTF8name,i,currentChar);
+        if (!(String::isUTF8(&UTF8name[i])))
             return false;
     }
 
@@ -229,34 +234,22 @@ void CIMNamespaceName::clear()
 
 Boolean CIMNamespaceName::legal(const String& name)
 {
+    Uint32 i = 0;
     Uint32 length = name.size();
     if (length == 0) return true;    // ATTN: Cheap hack!
 
-    // ATTN-RK-20020729: Hack: Skip leading '/' because spec is ambiguous
-    Uint32 start = 0;
-    if (name[0] == '/')
+    if (length == 0) return true;    // ATTN: Cheap hack!
+
+    CString temp = name.getCStringUTF8();
+    const char* UTF8name = temp;
+
+    char currentChar;
+
+    while(i<length)
     {
-        start++;
-    }
-
-    for (Uint32 i=start; i<length; )
-    {
-        if (!name[i] || (!isalpha(name[i]) && name[i] != '_'))
-        {
-            return false;
-        }
-
-        i++;
-
-        while (isalnum(name[i]) || name[i] == '_')
-        {
-            i++;
-        }
-
-        if (name[i] == '/')
-        {
-            i++;
-        }
+	UTF8_NEXT(UTF8name,i,currentChar);
+	if (!(String::isUTF8(&UTF8name[i])))
+	    return false;
     }
 
     return true;

@@ -46,7 +46,9 @@
 #include "CIMObject.h"
 #include "CIMParamValue.h"
 #include "System.h"
-
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#include "OS400ConvertChar.h"
+#endif
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -1235,7 +1237,7 @@ CIMValue XmlReader::stringToValue(
 
 	case CIMTYPE_STRING:
 	{
-	    return CIMValue(String(valueString));
+	    return CIMValue(String(valueString, STRING_FLAG_UTF8));
 	}
 
 	case CIMTYPE_CHAR16:
@@ -1600,7 +1602,7 @@ Boolean XmlReader::getStringValueElement(
 	expectEndTag(parser, "VALUE");
     }
 
-    str = valueString;
+    str = String(valueString,STRING_FLAG_UTF8);
     return true;
 }
 
@@ -2244,7 +2246,7 @@ Boolean XmlReader::getHostElement(
 	    throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
 
 	if (entry.type == XmlEntry::CONTENT)
-	    host = entry.text;
+	    host = String(entry.text,STRING_FLAG_UTF8);
 	else
     {
 	    parser.putBack(entry);
@@ -2268,7 +2270,7 @@ Boolean XmlReader::getHostElement(
 	
     }
 
-    host = entry.text;
+    host = String(entry.text,STRING_FLAG_UTF8);
 #endif
     expectEndTag(parser, "HOST");
     return true;
@@ -2528,7 +2530,7 @@ Boolean XmlReader::getKeyValueElement(
 	    throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
 
 	if (entry.type == XmlEntry::CONTENT)
-	    value = entry.text;
+	    value = String(entry.text,STRING_FLAG_UTF8);
 	else
 	    parser.putBack(entry);
 

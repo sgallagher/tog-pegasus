@@ -57,6 +57,7 @@
 #include "XmlParser.h"
 #include "Tracer.h"
 #include <Pegasus/Common/StatisticalData.h>
+#include "CommonUTF.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -144,14 +145,33 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os,
 
 inline void _appendChar(Array<Sint8>& out, const Char16& c)
 {
-    out.append(Sint8(c));
+    // We need to convert the Char16 to UTF8 then append the UTF8
+    // character into the array.
+    // NOTE: The UTF8 character could be several bytes long.
+    // WARNING: This function will put in replacement character for
+    // all characters that have surogate pairs.
+
+    char str[6];
+    memset(str,0x00,sizeof(str));
+    char* charIN = (char *)&c;
+
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[1];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[5];
+
+    UTF16toUTF8(&strsrc,
+		endsrc, 
+		&strtgt,
+		endtgt);
+
+    out.append((Sint8 *)str,trailingBytesForUTF8[Uint32(str[0])]+1);
 }
 
 inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
 {
-    // ATTN-B: Only UTF-8 handled for now.
-
-    if ( (c < Char16(0x20)) || (c == Char16(0x7f)) )
+    if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
     {
         char charref[7];
         sprintf(charref, "&#%u;", (Uint16)c);
@@ -182,17 +202,79 @@ inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
                 break;
 
             default:
-                out.append(Sint8(c));
+		{
+		    // We need to convert the Char16 to UTF8 then append the UTF8
+		    // character into the array.
+		    // NOTE: The UTF8 character could be several bytes long.
+		    // WARNING: This function will put in replacement character for
+		    // all characters that have surogate pairs.
+		    char str[6];
+		    memset(str,0x00,sizeof(str));
+		    char* charIN = (char *)&c;
+
+		    const Uint16 *strsrc = (Uint16 *)charIN;
+		    Uint16 *endsrc = (Uint16 *)&charIN[1];
+
+		    Uint8 *strtgt = (Uint8 *)str;
+		    Uint8 *endtgt = (Uint8 *)&str[5];
+
+		    UTF16toUTF8(&strsrc,
+				endsrc, 
+				&strtgt,
+				endtgt);
+
+		    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
+		    out.append((Sint8 *)str,number1);
+		}
         }
     }
 }
+
+inline void _appendSpecialChar(Array<Sint8>& out, char c)
+{
+    if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
+    {
+        char charref[7];
+        sprintf(charref, "&#%u;", (Uint8)c);
+        out.append(charref, strlen(charref));
+    }
+    else
+    {
+        switch (c)
+        {
+            case '&':
+                out.append("&amp;", 5);
+                break;
+
+            case '<':
+                out.append("&lt;", 4);
+                break;
+
+            case '>':
+                out.append("&gt;", 4);
+                break;
+
+            case '"':
+                out.append("&quot;", 6);
+                break;
+
+            case '\'':
+                out.append("&apos;", 6);
+                break;
+
+            default:
+		out.append(Sint8(c));
+        }
+    }
+}
+
 
 static inline void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
     if ( (c < Char16(0x20)) || (c == Char16(0x7f)) )
     {
         char charref[7];
-        sprintf(charref, "&#%u;", (Uint16)c);
+        sprintf(charref, "&#%u;", (Uint8)c);
         os << charref;
     }
     else
@@ -223,6 +305,28 @@ static inline void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
                 os << c;
         }
     }
+}
+
+void _appendSurrogatePair(Array<Sint8>& out, Uint16 high, Uint16 low)
+{
+    char str[6];
+    char charIN[5];
+    memset(str,0x00,sizeof(str));
+    memcpy(&charIN,&high,2);
+    memcpy(&charIN[2],&low,2);
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[3];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[5];
+
+    UTF16toUTF8(&strsrc,
+		endsrc, 
+		&strtgt,
+		endtgt);
+
+    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
+    out.append((Sint8 *)str,number1);
 }
 
 static inline void _appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
@@ -304,7 +408,7 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const Char16& x)
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, char x)
 {
-    _appendSpecialChar(out, Char16(x));
+    _appendSpecialChar(out, x);
 }
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, const char* str)
@@ -317,7 +421,18 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 {
     for (Uint32 i = 0; i < str.size(); i++)
     {
-        _appendSpecialChar(out, str[i]);
+	if(((str[i] >= FIRST_HIGH_SURROGATE) && (str[i] <= LAST_HIGH_SURROGATE)) ||
+	   ((str[i] >= FIRST_LOW_SURROGATE) && (str[i] <= LAST_LOW_SURROGATE)))
+	{
+	    Char16 highSurrogate = str[i];
+	    Char16 lowSurrogate = str[++i];
+	    
+	    _appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
+	}
+	else
+	{
+	    _appendSpecialChar(out, str[i]);
+	}
     }
 }
 
@@ -330,11 +445,32 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 //   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
 inline void _encodeURIChar(String& outString, Char16 char16)
 {
-    // ATTN: Handle non-UTF-8 character sets
-    char c = char16 & 0x007f;
+    // We need to convert the Char16 to UTF8 then append the UTF8
+    // character into the array.
+    // NOTE: The UTF8 character could be several bytes long.
+    // WARNING: This function will put in replacement character for
+    // all characters that have surogate pairs.
+
+    char* str = new char[6];
+    Uint16* charIN = (Uint16 *)&char16;
+
+    const Uint16 *strsrc = (Uint16*)charIN;
+    Uint16 *endsrc = &charIN[1];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[6];
+
+    UTF16toUTF8(&strsrc,
+		endsrc, 
+		&strtgt,
+		endtgt);
+
+    // Since multi-byte UTF8 charactors fall above the 7F
+    // range we only need to check the first byte.
+    char c = str[0];
 
 #ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
-    if ( (c <= 0x20) ||                     // Control characters + space char
+    if ( ((c <= 0x20) && (c >= 0x00)) ||    // Control characters + space char
          ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
          (c == 0x2b) ||                     // '+'
          (c == 0x2c) ||                     // ','
@@ -353,7 +489,7 @@ inline void _encodeURIChar(String& outString, Char16 char16)
     else
 #endif
     {
-        outString.append(c);
+	outString.append(char16);
     }
 }
 
@@ -395,7 +531,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
 {
     out << "<LOCALNAMESPACEPATH>\n";
 
-    char* nameSpaceCopy = strdup(nameSpace.getString().getCString());
+    char* nameSpaceCopy = strdup(nameSpace.getString().getCStringUTF8());
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
     char *last;
     for (const char* p = strtok_r(nameSpaceCopy, "/", &last); p;

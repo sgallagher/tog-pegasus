@@ -489,11 +489,13 @@ void XmlParser::_skipWhitespace(char*& p)
 
 Boolean XmlParser::_getElementName(char*& p)
 {
-    if (!isalpha(*p) && *p != '_')
+    if (!String::isUTF8(p))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
 
-    while (*p && 
-	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while ((*p) &&
+	   (((*p >= 'A') && (*p <= 'Z')) ||
+	    ((*p >= 'a') && (*p <= 'z')) ||
+	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
     // The next character must be a space:
@@ -517,11 +519,13 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 {
     openCloseElement = false;
 
-    if (!isalpha(*p) && *p != '_')
+    if (!String::isUTF8(p))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
 
-    while (*p && 
-	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while ((*p) &&
+	   (((*p >= 'A') && (*p <= 'Z')) ||
+	    ((*p >= 'a') && (*p <= 'z')) ||
+	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
     // The next character must be a space:
@@ -551,11 +555,13 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 
 void XmlParser::_getAttributeNameAndEqual(char*& p)
 {
-    if (!isalpha(*p) && *p != '_')
+    if (!String::isUTF8(p))
 	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
 
-    while (*p && 
-	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while ((*p) &&
+	   (((*p >= 'A') && (*p <= 'Z')) ||
+	    ((*p >= 'a') && (*p <= 'z')) ||
+	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
     char* term = p;
@@ -871,7 +877,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
 	return;
     }
-    else if (isalpha(*p) || *p == '_')
+    else if (String::isUTF8(p))
     {
 	entry.type = XmlEntry::START_TAG;
 	entry.text = p;
@@ -1095,7 +1101,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
     if (!getAttributeValue(name, tmp))
 	return false;
 
-    value = tmp;
+    value = String(tmp,STRING_FLAG_UTF8);
     return true;
 }
 

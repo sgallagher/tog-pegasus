@@ -39,6 +39,12 @@
 #include "System.h"  // for strcasecmp
 #endif
 
+#include "CommonUTF.h"
+
+#ifdef PEGASUS_HAS_ICU
+#include <unistr.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -199,6 +205,20 @@ String::String(const char* str)
 {
     _rep = new StringRep;
     assign(str);
+}
+
+String::String(const char* str, const char* utfFlag)
+{
+    _rep = new StringRep;
+
+    if(!memcmp(utfFlag,STRING_FLAG_UTF8,sizeof(STRING_FLAG_UTF8)))
+    {
+	assignUTF8(str);
+    }
+    else
+    {
+	assign(str);
+    }
 }
 
 String::String(const char* str, Uint32 n)
@@ -445,11 +465,20 @@ Uint32 String::reverseFind(Char16 c) const
 // ATTN-RK-P3-20020509: Define case-sensitivity for non-English characters
 void String::toLower()
 {
+#ifdef PEGASUS_HAS_ICU
+    Char16* utf16str; 
+    UnicodeString UniStr((const UChar *)_rep->c16a.getData(), (int32_t)size());
+    UniStr = UniStr.toLower();
+    utf16str = (Char16 *)UniStr.getTerminatedBuffer();
+    assign(utf16str);
+    delete utf16str;
+#else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
 	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
 	    *p = tolower(*p);
     }
+#endif
 }
 
 int String::compare(const String& s1, const String& s2, Uint32 n)
@@ -491,6 +520,13 @@ int String::compare(const String& s1, const String& s2)
 
 int String::compareNoCase(const String& s1, const String& s2)
 {
+#ifdef PEGASUS_HAS_ICU
+    UnicodeString UniStr1((const UChar *)s1.getChar16Data(), (int32_t)s1.size());
+    UnicodeString UniStr2((const UChar *)s2.getChar16Data(), (int32_t)s2.size());
+    UniStr1 = UniStr1.toLower();
+    UniStr2 = UniStr2.toLower();
+    return (UniStr2.compare(UniStr1));    
+#else
     const Char16* _s1 = s1.getChar16Data();
     const Char16* _s2 = s2.getChar16Data();
 
@@ -518,6 +554,7 @@ int String::compareNoCase(const String& s1, const String& s2)
 	return 1;
 
     return 0;
+#endif
 }
 
 Boolean String::equal(const String& str1, const String& str2)
@@ -527,6 +564,13 @@ Boolean String::equal(const String& str1, const String& str2)
 
 Boolean String::equalNoCase(const String& str1, const String& str2)
 {
+#ifdef PEGASUS_HAS_ICU
+    UnicodeString UniStr1((const UChar *)str1.getChar16Data(), (int32_t)str1.size());
+    UnicodeString UniStr2((const UChar *)str2.getChar16Data(), (int32_t)str2.size());
+    UniStr1 = UniStr1.toLower();
+    UniStr2 = UniStr2.toLower();
+    return (UniStr1 == UniStr2);    
+#else
     if (str1.size() != str2.size())
 	return false;
 
@@ -548,8 +592,66 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
     }
 
     return true;
+#endif
 }
 
+// UTF8 specific code:
+String& String::assignUTF8(const char* str)
+{
+    _rep->c16a.clear();
+    Uint32 n = strlen(str) + 1;
+
+    const Uint8 *strsrc = (Uint8 *)str;
+    Uint8 *endsrc = (Uint8 *)&str[n-1];
+
+    Char16 *msg16 = new Char16[n];
+    Uint16 *strtgt = (Uint16 *)msg16;
+    Uint16 *endtgt = (Uint16 *)&msg16[n];
+
+    UTF8toUTF16(&strsrc,
+		endsrc,
+		&strtgt,
+		endtgt);
+
+    Uint32 count;
+
+    for(count = 0; ((msg16[count]) != Char16(0x00)) && (count <= n); ++count);
+
+    _rep->c16a.append(msg16, count);
+
+    _rep->c16a.append('\0');
+
+    delete [] msg16;
+
+    return *this;
+}
+
+CString String::getCStringUTF8() const
+{
+    Uint32 n = size() + 1;
+    char* str = new char[n];
+
+    const Char16* msg16 = getChar16Data();
+
+    const Uint16 *strsrc = (Uint16 *)msg16;
+    Uint16 *endsrc = (Uint16 *)&msg16[2*n];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[n];
+
+    UTF16toUTF8 (&strsrc,
+		 endsrc,
+		 &strtgt,
+		 endtgt);
+
+    return CString(str);
+}
+
+Boolean String::isUTF8(const char *legal)
+{
+    return (isValid_U8((const Uint8 *)legal,
+		       trailingBytesForUTF8[*legal]+1));
+}
 
 #if 0
 // ATTN-RK-P3-20020603: This code is not completely correct
@@ -576,11 +678,13 @@ typedef Uint16 MatchChar;
 
 inline Uint16 _ToLower(Uint16 ch)
 {
+    // ICU_TODO:  If ICU is available we should do this the correct way.
     return ch <= PEGASUS_MAX_PRINTABLE_CHAR ? tolower(char(ch)) : ch;
 }
 
 inline Boolean _Equal(MatchChar ch1, MatchChar ch2, int nocase)
 {
+    // ICU_TODO:  If ICU is available we should do this the correct way.
     if (nocase)
 	return _ToLower(ch1) == _ToLower(ch2);
     else
@@ -747,20 +851,28 @@ Boolean operator!=(const String& str1, const String& str2)
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
-#ifdef PEGASUS_OS_OS400
-    int inc = 0;
-    int	newbuf = 0;
-    char *buffer = NULL;
-    char buffer1[201];
-    char temp[2];
-    if (str.size() > 200)
-    {
-	buffer = new char[str.size()+1];
-	newbuf = 1;
-    }
-    else
-	buffer = buffer1;
-#endif
+/*
+#if defined(PEGASUS_OS_OS400)
+    CString cstr = str.getCStringUTF8();
+    const char* utf8str = cstr;
+
+    os << utf8str;
+
+#elif defined(PEGASUS_HAS_ICU)
+*/
+#if defined(PEGASUS_HAS_ICU)
+    char *buf = NULL;
+    UnicodeString UniStr((const UChar *)str.getChar16Data(), (int32_t)str.size());
+
+    Uint32 bufsize = UniStr.extract(0,0,buf);
+    buf = new char[bufsize+1];
+    UniStr.extract(0,bufsize,buf);
+
+    os << buf;
+
+    delete buf;
+#else
+
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
@@ -768,27 +880,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 
         if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
         {
-#ifdef PEGASUS_OS_OS400
-            // process so messages don't get displayed as one char per line on OS/400.
-            // Uint16 is a 2 byte character where byte 1 is '00' and byte 2 is
-            // the character.  Also, the entire string needs to be sent to os instead
-            // of one "byte/Unit16" at a time.  Sending one "byte/Uint16" at a time also  
-            // causes one character per line.  On OS/400 use of os << char(code) is a 
-            // restriction and no available c/cpp alternative was available. The 
-            // following was created to compensate for this restriction.
-	    memcpy(temp, &code, 2);
-	    memcpy(buffer+inc, &temp[1], 1);  // do not include the '00'
-	    if ((i+1) == n)  // last character
-	    {
-		memset(buffer+n, 0x00, 1); // add null terminator
-		os << buffer;  // return 1-byte per character string
-		if (buffer && newbuf != 0)		
-		    delete [] buffer;  // okay; this is the end of the loop
-	    }
-	    inc++;
-#else
             os << char(code);
-#endif
         }
         else
         {
@@ -798,6 +890,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
             os << buffer;
         }
     }
+#endif // End of PEGASUS_HAS_ICU #else leg.
 
     return os;
 }

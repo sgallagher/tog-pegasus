@@ -26,6 +26,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) for bug#3101.
+
 #include <cstdlib>
 
 #include <iostream>
@@ -166,7 +169,45 @@ void drive_AcceptLanguageElement(){
 
 	assert( al1 > al2 );  // only compares quality values
 
-	
+        // AcceptLanguageElement - Array Tests
+        Array<AcceptLanguageElement> al_arr1(3);
+        assert( 8 == al_arr1.getCapacity() );
+        Array<AcceptLanguageElement> al_arr2(3,al1);
+        assert( 3 == al_arr2.size() && al_arr2[0].toString() == tag1);
+        al_arr1 = al_arr2;
+        assert( 3 == al_arr1.size() && al_arr1[0].toString() == tag1 );
+        AcceptLanguageElement *al5 = new AcceptLanguageElement("en-US"); 
+        Array<AcceptLanguageElement> al_arr3(al5,1);
+        assert( 1 == al_arr3.size() && al_arr3[0].toString() != tag1 );
+        Array<AcceptLanguageElement> al_arr4(al_arr1);
+        assert( 3 == al_arr4.size() && al_arr4[0].toString() == tag1 );
+        al_arr3.append(al5,1);
+        assert( 2 == al_arr3.size() && al_arr3[0].toString() != tag1 );
+        al_arr2.appendArray(al_arr1);
+        assert( 6 == al_arr2.size() && al_arr2[4].toString() == tag1 );
+        assert( al_arr1.getData() != al_arr3.getData() );
+        al_arr3.grow(2,al1);
+        assert( 4 == al_arr3.size() && al_arr3[0].toString() != tag1 );
+        al_arr3.insert(1,al1);     
+        assert( 5 == al_arr3.size() && al_arr3[4].toString() == tag1 );
+        al_arr3.insert(1,al5,1);
+        assert( 6 == al_arr3.size() && al_arr3[5].toString() == tag1 );
+        al_arr3[5] = al1;
+        assert( al_arr3[5].toString() == tag1 );
+        al_arr3.prepend(al1);
+        assert( 7 == al_arr3.size() && al_arr3[6].toString() == tag1 );
+        al_arr3.prepend(al5,1);
+        assert( 8 == al_arr3.size() && al_arr3[7].toString() == tag1 );
+        al_arr3.remove(1);
+        assert( 7 == al_arr3.size() );
+        al_arr3.remove(1,2);
+        assert( 5 == al_arr3.size() );
+        al_arr3.swap(al_arr1);
+        assert( 5 == al_arr1.size() && 3 == al_arr3.size() &&
+                                     al_arr1[0].toString() != tag1 );
+        al_arr3.clear();
+        assert( 0 == al_arr3.size() );
+        delete al5;
 
 }
 

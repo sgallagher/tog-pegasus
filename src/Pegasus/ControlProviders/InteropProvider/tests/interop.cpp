@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,7 +25,7 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +77,7 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
 {
     CIMName className = "__NameSpace";
     Array<CIMNamespaceName> namespaceNames;
-    
+
     // Build the namespaces incrementally starting at the root
     // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
     // starting with null (no directoyr) but today we get an xml error return in Pegasus
@@ -97,7 +97,7 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
             CIMNamespaceName next;
             if (end != 0)
             {
-                next = namespaceNames[range]; 
+                next = namespaceNames[range];
             }
             Array<CIMInstance> instances = client.enumerateInstances(next, className);
             for (Uint32 i = 0 ; i < instances.size(); i++)
@@ -147,12 +147,12 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
                 returnNamespaceNames.append(namespaceNames[i]);
         }
     }
-    return(returnNamespaceNames); 
+    return(returnNamespaceNames);
 }
 
 Boolean _deleteOneLevelOfNamespace(CIMClient& client, const CIMNamespaceName& parent, const String & child)
 {
-    
+
     try
     {
         CIMObjectPath myReference(String::EMPTY, parent, child);
@@ -173,9 +173,9 @@ Boolean _deleteOneLevelOfNamespace(CIMClient& client, const CIMNamespaceName& pa
 */
 Boolean _deleteNamespaceOld(CIMClient& client, const String & name)
 {
-    
+
     Uint32 pos;
-    while((pos = name.reverseFind('/')) != PEG_NOT_FOUND)    
+    while((pos = name.reverseFind('/')) != PEG_NOT_FOUND)
     {
         String parent = name.subString(0, pos);
         String child = name.subString (pos + 1);
@@ -189,8 +189,8 @@ Boolean _deleteNamespaceOld(CIMClient& client, const String & name)
 Boolean _validateNamespaces(CIMClient& client, Array<CIMNamespaceName>& namespaceNames)
 {
     // Validate that these are all namespaces.  This is not a certain
-    // Test but we simply check to see if there is an association 
-    // qualifier in the namespace. If the call returns the 
+    // Test but we simply check to see if there is an association
+    // qualifier in the namespace. If the call returns the
     // invalidNamespace exception, assume this is not valid namespace.
     Array<CIMNamespaceName> returnNamespaces;
 
@@ -214,7 +214,7 @@ Boolean _validateNamespaces(CIMClient& client, Array<CIMNamespaceName>& namespac
     cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
     if (verbose)
     {
-        for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ ) 
+        for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
         {
             cout << returnNamespaces[cnt] << endl;;
         }
@@ -232,7 +232,7 @@ Boolean _existsOld(CIMNamespaceName& name)
     String parent = String::EMPTY;
     String child;
     String nameString = name.getString();
-    if((pos = nameString.reverseFind('/')) != PEG_NOT_FOUND)    
+    if((pos = nameString.reverseFind('/')) != PEG_NOT_FOUND)
     {
         parent = nameString.subString(0, pos);
         child = nameString.subString (pos + 1);
@@ -273,12 +273,12 @@ Array<CIMInstance> _getCIMNamespaceInstances(CIMClient& client)
     Array<CIMInstance> instances;
     try
     {
-        instances = client.enumerateInstances(InteropNamespace, 
+        instances = client.enumerateInstances(InteropNamespace,
                                               CIM_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() 
+        cerr << "Error: " << e.getMessage()
             << " Conection term abnormal" << endl;
         // Instead of this returns emptyexit(1);
     }
@@ -292,12 +292,12 @@ Array<CIMObjectPath> _getCIMNamespaceInstanceNames(CIMClient& client)
     Array<CIMObjectPath> objectNames;
     try
     {
-        objectNames = client.enumerateInstanceNames(InteropNamespace, 
+        objectNames = client.enumerateInstanceNames(InteropNamespace,
                                               CIM_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() 
+        cerr << "Error: " << e.getMessage()
             << " Conection term abnormal" << endl;
         // Instead of this returns emptyexit(1);
     }
@@ -341,11 +341,11 @@ String _getKeyValue(const CIMInstance& instance, const CIMName& keyName)
              << " not found " << endl;
         return(String::EMPTY);
     }
-    
+
     propertyValue = instance.getProperty(pos).getValue();
     if (propertyValue.getType() != CIMTYPE_STRING)
     {
-        cerr << "Key Property " << keyName.getString() 
+        cerr << "Key Property " << keyName.getString()
              << " incorrect type" << endl;
         return(String::EMPTY);
     }
@@ -386,8 +386,8 @@ void _showNamespaceList(const Array<CIMNamespaceName> names, const String title)
 Boolean _existsNew(CIMClient& client, const CIMNamespaceName& name)
 {
     //Get all namespace instances
-    
-    Array<CIMNamespaceName> namespaceNames = 
+
+    Array<CIMNamespaceName> namespaceNames =
         _getNamespacesNew(client);
 
     for(Uint32 i = 0; i < namespaceNames.size(); i++)
@@ -407,7 +407,7 @@ Boolean _namespaceCreateOld(CIMClient& client, const CIMNamespaceName& parent, c
     {
         // Build the new instance
         CIMInstance newInstance(__NAMESPACE_CLASSNAME);
-        newInstance.addProperty(CIMProperty(CIMName (NAMESPACE_PROPERTYNAME), 
+        newInstance.addProperty(CIMProperty(CIMName (NAMESPACE_PROPERTYNAME),
             childName));
         newInstanceName = client.createInstance(parent,
                                                  newInstance);
@@ -433,7 +433,7 @@ Boolean _namespaceCreateOld(CIMClient& client, const CIMNamespaceName& parent, c
         PEGASUS_STD(cerr) << "Exception NameSpace Creation: " << e.getMessage() << PEGASUS_STD(endl);
         return(true);
     }
-    // 
+    //
     return(true);
 }
 
@@ -447,7 +447,12 @@ Boolean _namespaceCreateNew(CIMClient& client, const CIMNamespaceName& name)
     // collection of keys that are required. Easy way was to simply
     // use an existing instance and change the name field.
     Array<CIMInstance> instances = _getCIMNamespaceInstances(client);
-    
+
+    if(instances.size() == 0)
+    {
+        return(false);
+    }
+
     // El cheapo code Modify one existing instance and send it back as
     // method to construct the correct keys.
     CIMInstance instance = instances[0];
@@ -456,7 +461,7 @@ Boolean _namespaceCreateNew(CIMClient& client, const CIMNamespaceName& name)
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
     {
-            cerr << "Error in property on create. No " 
+            cerr << "Error in property on create. No "
                 <<  NAMESPACE_PROPERTYNAME << " property" << endl;
             return(false);
     }
@@ -477,7 +482,7 @@ Boolean _namespaceCreateNew(CIMClient& client, const CIMNamespaceName& name)
     }
     catch(Exception& e)
     {
-        cerr << "Error during Creation of " << name.getString() << ": " << e.getMessage() 
+        cerr << "Error during Creation of " << name.getString() << ": " << e.getMessage()
             << " Instance Creation error" << endl;
         // Instead of this returns emptyexit(1);
         return(false);
@@ -521,7 +526,7 @@ Boolean _namespaceDeleteNew(CIMClient& client, const CIMNamespaceName& name)
     }
     catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() 
+        cerr << "Error: " << e.getMessage()
             << " Instance deletion error  for " << name.getString() << endl;
         // Instead of this returns emptyexit(1);
         return(false);
@@ -539,7 +544,7 @@ int main(int argc, char** argv)
     Uint32 portNumber = 5988;
     String userName = String::EMPTY;
     String password = String::EMPTY;
-    
+
     try
     {
         client.connect (host, portNumber,
@@ -558,7 +563,7 @@ int main(int argc, char** argv)
     {
         cout << "Error exit, Invalid namespace returned" << endl;
     }
-    
+
     Array<CIMNamespaceName> nameListNew = _getNamespacesNew(client);
 
     CDEBUG("Got Namespaces with CIM_Namespace. Now Validate");
@@ -570,7 +575,7 @@ int main(int argc, char** argv)
     if(verbose)
     {
         _showNamespaceList(nameListNew, "From CIM_Namespace");
-    
+
         _showNamespaceList(nameListOld, "From __Namespace");
     }
 
@@ -599,7 +604,7 @@ int main(int argc, char** argv)
 
     //PEGASUS_ASSERT(!_existsNew(client, testNameNew));
 
-    
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
@@ -625,10 +630,10 @@ int main(int argc, char** argv)
     // Note that this is tries to delete the multiple levels all at the same time.
 
 
-    _deleteNamespaceOld(client, String(testNameOldComplete.getString())); 
+    _deleteNamespaceOld(client, String(testNameOldComplete.getString()));
 
     assert(!_existsNew(client, testNameOldComplete));
-    
+
 
     if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
        _namespaceDeleteNew(client, CIMNamespaceName(testNameOldComplete));

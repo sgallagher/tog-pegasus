@@ -77,6 +77,16 @@ const char TMP_AUTH_FILE_NAME []  =  "/cimclient_";
 const Uint32 INT_BUFFER_SIZE = 16;
 
 //
+// Constant representing the random device name
+//
+const char DEV_URANDOM []    =  "/dev/urandom";
+
+//
+// Constant representing the size of random entropy needed
+//
+const Uint32 RANDOM_BYTES_NEEDED = 20;  // require minimum 160 bits = 20 bytes of randomness
+
+//
 // A unique sequence number used in random file name creation.
 //
 static Uint32 sequenceCount = 1;
@@ -308,7 +318,33 @@ String LocalAuthFile::_generateRandomTokenString()
 
     String randomToken = String::EMPTY;
 
-    char token[INT_BUFFER_SIZE];
+    String randFile = String(DEV_URANDOM);
+    FILE *fh;
+
+    //
+    // If /dev/urandom exists then read random token from /dev/urandom
+    //
+    if ( ( fh = fopen( (const char *)randFile.getCString(), "r") ) != NULL )
+    {
+        char token[RANDOM_BYTES_NEEDED+1];
+
+        setvbuf(fh, NULL, _IONBF, 0);   // need unbuffered input
+        Uint32 n = fread( (unsigned char *)token, 1, RANDOM_BYTES_NEEDED, fh );
+        fclose(fh);
+        token[n]=0;
+
+        randomToken.clear();
+        char hexChar[10];
+
+        for (Uint32 i=0; i < n; i++)
+        {
+            sprintf(hexChar, "%X", (unsigned char)token[i]);
+            randomToken.append(String(hexChar));
+            memset(hexChar, 0x00, sizeof(hexChar));
+        }
+    }
+
+    char token[2*INT_BUFFER_SIZE];
     Uint32 seconds, milliseconds;
 
     System::getCurrentTime(seconds, milliseconds);

@@ -272,9 +272,14 @@ void IndicationService::_initialize (void)
         {
             //
             //  There are no providers that can support this subscription
+            //  Implement the subscription's On Fatal Error Policy
+            //  If subscription is not disabled or removed,
             //  Append this subscription to no provider list
             //
-            noProviderSubscriptions.append (activeSubscriptions [i]);
+            if (!_handleError (activeSubscriptions [i]))
+            {
+                noProviderSubscriptions.append (activeSubscriptions [i]);
+            }
             continue;
         }
     
@@ -293,7 +298,16 @@ void IndicationService::_initialize (void)
             propertyList, condition, queryLanguage,
             activeSubscriptions [i], creator))
         {
-            noProviderSubscriptions.append (activeSubscriptions [i]);
+            //
+            //  No providers accepted this subscription
+            //  Implement the subscription's On Fatal Error Policy
+            //  If subscription is not disabled or removed,
+            //  Append this subscription to no provider list
+            //
+            if (!_handleError (activeSubscriptions [i]))
+            {
+                noProviderSubscriptions.append (activeSubscriptions [i]);
+            }
             continue;
         }
 
@@ -416,15 +430,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //  allow addition of property to an instance, without adding 
                 //  property to class
                 //
-                CIMClass theClass = _repository->getClass
-                    (request->nameSpace, instance.getClassName ());
-                theClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
-                    CIMValue (String::EMPTY)));
-    
                 _repository->write_lock ();
     
                 try
                 {
+                    CIMClass theClass = _repository->getClass
+                        (request->nameSpace, instance.getClassName ());
+                    theClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
+                        CIMValue (String::EMPTY)));
+    
                     _repository->modifyClass (request->nameSpace,
                         theClass);
                 }
@@ -545,9 +559,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 //  Unlock repository in case of exception
                 //
+                _repository->write_unlock ();
+
                 errorCode = CIM_ERR_FAILED;
                 errorDescription = exception.getMessage ();
-                _repository->write_unlock ();
+
                 CIMCreateInstanceResponseMessage* response =
                     new CIMCreateInstanceResponseMessage(
                         request->messageId,
@@ -659,6 +675,8 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
     String errorDescription;
     CIMInstance instance;
 
+    _repository->read_lock ();
+
     try
     {
         //
@@ -698,6 +716,8 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         errorDescription = exception.getMessage ();
     }
 
+    _repository->read_unlock ();
+
     CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage
         (request->messageId,
         errorCode,
@@ -736,12 +756,15 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     String errorDescription;
     CIMInstance cimInstance;
 
+    _repository->read_lock ();
+
     try
     {
         enumInstances = _repository->enumerateInstances (request->nameSpace, 
             request->className, request->deepInheritance, request->localOnly, 
             request->includeQualifiers, request->includeClassOrigin, 
             request->propertyList);
+
         
         //
         //  Remove Creator property from instances before returning
@@ -776,6 +799,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
     }
+
+    _repository->read_unlock ();
 
     CIMEnumerateInstancesResponseMessage* response = 
         new CIMEnumerateInstancesResponseMessage(
@@ -815,6 +840,8 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    _repository->read_lock ();
+
     try
     {
         enumInstanceNames = _repository->enumerateInstanceNames 
@@ -830,6 +857,8 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
     }
+
+    _repository->read_unlock ();
 
     CIMEnumerateInstanceNamesResponseMessage* response =
         new CIMEnumerateInstanceNamesResponseMessage(
@@ -878,8 +907,22 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         //
         //  Get instance from repository
         //
-        CIMInstance instance = _repository->getInstance
-            (request->nameSpace, instanceReference);
+        _repository->read_lock ();
+
+        CIMInstance instance;
+
+        try
+        {
+            instance = _repository->getInstance (request->nameSpace, 
+                instanceReference);
+        } 
+        catch (Exception e)
+        {
+            _repository->read_unlock ();
+            throw e;
+        }
+
+        _repository->read_unlock ();
 
         if (_canModify (request, instanceReference, instance))
         {
@@ -925,7 +968,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     (_PROPERTY_STATE)).getValue ();
     
                 subscriptionStateValue.get (newState);
-        
+    
                 //
                 //  If Subscription State has changed,
                 //  Set Time of Last State Change to current date time
@@ -971,7 +1014,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         }
                     }
                 }
-    
+
                 //
                 //  If subscription is to be enabled, determine if there are 
                 //  any indication providers that can serve the subscription
@@ -1000,12 +1043,14 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         //  There are no providers that can support this 
                         //  subscription
                         //
+                        _handleError (CIMNamedInstance (instanceReference,
+                            instance));
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                             _MSG_NO_PROVIDERS);
                     }
                 }
-    
+
                 //
                 //  Modify the instance in the repository
                 //
@@ -1172,8 +1217,20 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 CIMInstance subscriptionInstance;
                 Array <ProviderClassList> indicationProviders;
 
+                _repository->read_lock ();
+
+                try
+                {
                 subscriptionInstance = _repository->getInstance 
                     (request->nameSpace, request->instanceName);
+                }
+                catch (Exception e)
+                {
+                    _repository->read_unlock ();
+                    throw e;
+                }
+
+                _repository->read_unlock ();
 
                 indicationProviders = _getDisableParams 
                     (request->nameSpace, subscriptionInstance);
@@ -1376,6 +1433,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 //
                 //  ATTN-CAKG-P1-20020326: Check for error - implement 
                 //  subscription's OnFatalErrorPolicy
+                //  How do we determine that the handler failed, since 
+                //  we don't get a response??
                 //
 
                  //response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
@@ -1685,6 +1744,146 @@ void IndicationService::_handleNotifyProviderTerminationRequest
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
+Boolean IndicationService::_handleError (
+    const CIMNamedInstance subscription)
+{
+    const char METHOD_NAME [] = "IndicationService::_handleError";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    Boolean handleError = false;
+
+    //
+    //  Get the value of the On Fatal Error Policy property
+    //
+    CIMValue errorPolicyValue;
+    Uint16 onFatalErrorPolicy;
+    errorPolicyValue = subscription.getInstance ().getProperty 
+        (subscription.getInstance ().findProperty 
+        (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
+    errorPolicyValue.get (onFatalErrorPolicy);
+
+    if (errorPolicyValue == _ERRORPOLICY_DISABLE)
+    {
+        //
+        //  ATTN-CAKG-P2-20020329: Failure Trigger Time Interval should be 
+        //  allowed to pass before implementing On Fatal Error Policy
+        //
+        //  Set the Subscription State to disabled
+        //
+        _disableSubscription (subscription);
+        handleError = true;
+    }
+    else if (errorPolicyValue == _ERRORPOLICY_REMOVE)
+    {
+        //
+        //  ATTN-CAKG-P2-20020329: Failure Trigger Time Interval should be 
+        //  allowed to pass before implementing On Fatal Error Policy
+        //
+        //  Delete the subscription
+        //
+        _deleteSubscription (subscription);
+        handleError = true;
+    }
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return handleError;
+}
+
+void IndicationService::_disableSubscription (
+    CIMNamedInstance subscription)
+{
+    const char METHOD_NAME [] = "IndicationService::_disableSubscription";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Create property list
+    //
+    CIMPropertyList propertyList;
+    Array <String> properties;
+    properties.append (_PROPERTY_STATE);
+    propertyList = CIMPropertyList (properties);
+
+    //
+    //  Set Time of Last State Change to current date time
+    //  ATTN: need method to get current date time in CIMDateTime 
+    //  format
+    //
+    CIMInstance instance = subscription.getInstance ();
+    CIMDateTime currentDateTime = CIMDateTime ();
+    if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
+    {
+        instance.addProperty 
+            (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
+    }
+    else 
+    {
+        CIMProperty lastChange = instance.getProperty 
+            (instance.findProperty (_PROPERTY_LASTCHANGE));
+        lastChange.setValue (CIMValue (currentDateTime));
+    }
+
+    //
+    //  Set Subscription State to Disabled
+    //
+    CIMProperty state = instance.getProperty (instance.findProperty 
+        (_PROPERTY_STATE));
+    state.setValue (CIMValue (_STATE_DISABLED));
+
+    //
+    //  Modify the instance in the repository
+    //
+    _repository->write_lock ();
+   
+    try
+    {
+        _repository->modifyInstance 
+            (subscription.getInstanceName ().getNameSpace (),
+            subscription, false, propertyList);
+    }
+    catch (Exception & exception)
+    {
+        //
+        //  ATTN: Log a message??
+        //
+    }
+
+    _repository->write_unlock ();
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+
+void IndicationService::_deleteSubscription (
+    const CIMNamedInstance subscription)
+{
+    const char METHOD_NAME [] = "IndicationService::_deleteSubscription";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Delete referencing subscription instance from repository
+    //
+    _repository->write_lock ();
+
+    try
+    {
+        _repository->deleteInstance 
+            (subscription.getInstanceName ().getNameSpace (), 
+            subscription.getInstanceName ());
+    }
+    catch (Exception & exception)
+    {
+        //
+        //  ATTN: Log a message??
+        //
+    }
+
+    _repository->write_unlock ();
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+
 //
 //  ATTN-CAKG-P1-20020325: To Be Removed -- the repository is to be 
 //  modified to allow addition of property to an instance, without adding 
@@ -1699,7 +1898,20 @@ void IndicationService::_checkClasses (void)
     //
     //  Get list of namespaces in repository
     //
-    Array <String> nameSpaceNames = _repository->enumerateNameSpaces ();
+    Array <String> nameSpaceNames;
+    _repository->read_lock ();
+
+    try
+    {
+        nameSpaceNames = _repository->enumerateNameSpaces ();
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Check for subscription classes in each namespace in the repository
@@ -1709,6 +1921,8 @@ void IndicationService::_checkClasses (void)
         //
         //  Make sure subscription classes include Creator property
         //
+        _repository->write_lock ();
+
         try
         {
             CIMClass subscriptionClass = _repository->getClass 
@@ -1717,8 +1931,6 @@ void IndicationService::_checkClasses (void)
             {
                 subscriptionClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
                     CIMValue (String::EMPTY)));
-
-                _repository->write_lock ();
 
                 try
                 {
@@ -1731,8 +1943,6 @@ void IndicationService::_checkClasses (void)
                     //  ATTN: Log a message??
                     //
                 }
-
-                _repository->write_unlock ();
             }
             CIMClass filterClass = _repository->getClass (nameSpaceNames [i], 
                 PEGASUS_CLASSNAME_INDFILTER);
@@ -1740,8 +1950,6 @@ void IndicationService::_checkClasses (void)
             {
                 filterClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
                     CIMValue (String::EMPTY)));
-
-                _repository->write_lock ();
 
                 try
                 {
@@ -1753,8 +1961,6 @@ void IndicationService::_checkClasses (void)
                     //  ATTN: Log a message??
                     //
                 }
-
-                _repository->write_unlock ();
             }
             CIMClass cimxmlHandlerClass = _repository->getClass 
                 (nameSpaceNames [i], PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
@@ -1762,8 +1968,6 @@ void IndicationService::_checkClasses (void)
             {
                 cimxmlHandlerClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
                     CIMValue (String::EMPTY)));
-
-                _repository->write_lock ();
 
                 try
                 {
@@ -1776,8 +1980,6 @@ void IndicationService::_checkClasses (void)
                     //  ATTN: Log a message??
                     //
                 }
-
-                _repository->write_unlock ();
             }
             CIMClass snmpHandlerClass = _repository->getClass 
                 (nameSpaceNames [i], PEGASUS_CLASSNAME_INDHANDLER_SNMP);
@@ -1785,8 +1987,6 @@ void IndicationService::_checkClasses (void)
             {
                 snmpHandlerClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
                     CIMValue (String::EMPTY)));
-
-                _repository->write_lock ();
 
                 try
                 {
@@ -1799,8 +1999,6 @@ void IndicationService::_checkClasses (void)
                     //  ATTN: Log a message??
                     //
                 }
-
-                _repository->write_unlock ();
             }
         }
         catch (CIMException e)
@@ -1809,6 +2007,8 @@ void IndicationService::_checkClasses (void)
             //  Some namespaces may not include the subscription class
             //  In that case, just continue with the next namespace
             //
+            _repository->write_unlock ();
+
             if (e.getCode () == CIM_ERR_INVALID_CLASS)
             {
                 continue;
@@ -1819,6 +2019,8 @@ void IndicationService::_checkClasses (void)
                 throw e;
             }
         }
+
+        _repository->write_unlock ();
     }
 }
 
@@ -2360,8 +2562,21 @@ Boolean IndicationService::_canDelete (
     //
     //  Get the instance to be deleted from the respository
     //
-    CIMInstance instance = _repository->getInstance
-        (nameSpace, instanceReference);
+    CIMInstance instance;
+
+    _repository->read_lock ();
+
+    try
+    {
+        instance = _repository->getInstance (nameSpace, instanceReference);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Get creator from instance
@@ -2387,8 +2602,21 @@ Boolean IndicationService::_canDelete (
     //
     //  Get the class and superclass of the instance to be deleted
     //
-    CIMClass refClass = _repository->getClass (nameSpace,
-        instanceReference.getClassName());
+    CIMClass refClass;
+    _repository->read_lock ();
+
+    try
+    {
+        refClass = _repository->getClass (nameSpace,
+            instanceReference.getClassName ());
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     superClass = refClass.getSuperClassName();
 
@@ -2426,9 +2654,21 @@ Boolean IndicationService::_canDelete (
         //
         //  Get all the subscriptions from the respository
         //
-        Array <CIMNamedInstance> subscriptions = 
-            _repository->enumerateInstances (nameSpace, 
+        Array <CIMNamedInstance> subscriptions;
+        _repository->read_lock ();
+
+        try
+        {
+            subscriptions = _repository->enumerateInstances (nameSpace, 
                 PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+        }
+        catch (Exception e)
+        {
+            _repository->read_unlock ();
+            throw e;
+        }
+
+        _repository->read_unlock ();
 
         CIMValue propValue;
 
@@ -2484,7 +2724,19 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
     //
     //  Get list of namespaces in repository
     //
-    nameSpaceNames = _repository->enumerateNameSpaces ();
+    _repository->read_lock ();
+
+    try
+    {
+        nameSpaceNames = _repository->enumerateNameSpaces ();
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -2495,13 +2747,17 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
         //
         //  Get existing subscriptions in current namespace
         //
+        _repository->read_lock ();
+
         try
         {
-        subscriptions = _repository->enumerateInstances (nameSpaceNames [i], 
-            PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+            subscriptions = _repository->enumerateInstances 
+                (nameSpaceNames [i], PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         }
         catch (CIMException e)
         {
+            _repository->read_unlock ();
+
             //
             //  Some namespaces may not include the subscription class
             //  In that case, just continue with the next namespace
@@ -2516,6 +2772,8 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
                 throw e;
             }
         }
+
+        _repository->read_unlock ();
     
         //
         //  Process each subscription
@@ -2554,7 +2812,7 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
     }  // for each namespace
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (activeSubscriptions);
+    return activeSubscriptions;
 }
 
 
@@ -2577,7 +2835,19 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
     //
     //  Get list of namespaces in repository
     //
-    nameSpaceNames = _repository->enumerateNameSpaces ();
+    _repository->read_lock ();
+
+    try
+    {
+        nameSpaceNames = _repository->enumerateNameSpaces ();
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -2588,13 +2858,17 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
         //
         //  Get existing subscriptions in current namespace
         //
+        _repository->read_lock ();
+
         try
         {
-        subscriptions = _repository->enumerateInstances (nameSpaceNames [i], 
-            PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+            subscriptions = _repository->enumerateInstances 
+                (nameSpaceNames [i], PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         }
         catch (CIMException e)
         {
+            _repository->read_unlock ();
+
             //
             //  Some namespaces may not include the subscription class
             //  In that case, just continue with the next namespace
@@ -2609,6 +2883,8 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
                 throw e;
             }
         }
+
+        _repository->read_unlock ();
     
         //
         //  Process each subscription
@@ -2654,8 +2930,20 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
                 //
                 //  Get list of subclass names for indication class
                 //
-                indicationSubclasses = _repository->enumerateClassNames 
-                    (nameSpaceNames [i], indicationClassName, true);
+                _repository->read_lock ();
+
+                try
+                {
+                    indicationSubclasses = _repository->enumerateClassNames 
+                        (nameSpaceNames [i], indicationClassName, true);
+                }
+                catch (Exception e)
+                {
+                    _repository->read_unlock ();
+                    throw e;
+                }
+
+                _repository->read_unlock ();
                 indicationSubclasses.append (indicationClassName);
 
                 //
@@ -2737,7 +3025,7 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
     }  // for each namespace
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (matchingSubscriptions);
+    return matchingSubscriptions;
 }
 
 void IndicationService::_getModifiedSubscriptions (
@@ -2765,7 +3053,19 @@ void IndicationService::_getModifiedSubscriptions (
     //
     //  Get list of namespaces in repository
     //
-    nameSpaceNames = _repository->enumerateNameSpaces ();
+    _repository->read_lock ();
+
+    try
+    {
+        nameSpaceNames = _repository->enumerateNameSpaces ();
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -2776,13 +3076,17 @@ void IndicationService::_getModifiedSubscriptions (
         //
         //  Get existing subscriptions in current namespace
         //
+        _repository->read_lock ();
+
         try
         {
-        subscriptions = _repository->enumerateInstances (nameSpaceNames [i], 
-            PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+            subscriptions = _repository->enumerateInstances 
+                (nameSpaceNames [i], PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         }
         catch (CIMException e)
         {
+            _repository->read_unlock ();
+
             //
             //  Some namespaces may not include the subscription class
             //  In that case, just continue with the next namespace
@@ -2797,6 +3101,8 @@ void IndicationService::_getModifiedSubscriptions (
                 throw e;
             }
         }
+
+        _repository->read_unlock ();
     
         //
         //  Process each subscription
@@ -2843,8 +3149,21 @@ void IndicationService::_getModifiedSubscriptions (
                 //
                 //  Get list of subclass names for indication class
                 //
-                indicationSubclasses = _repository->enumerateClassNames 
-                    (nameSpaceNames [i], indicationClassName, true);
+                _repository->read_lock ();
+
+                try
+                {
+                    indicationSubclasses = _repository->enumerateClassNames 
+                        (nameSpaceNames [i], indicationClassName, true);
+                }
+                catch (Exception e)
+                {
+                    _repository->read_unlock ();
+                    throw e;
+                }
+            
+                _repository->read_unlock ();
+
                 indicationSubclasses.append (indicationClassName);
 
                 //
@@ -3014,7 +3333,7 @@ Array <CIMNamedInstance> IndicationService::_getProviderSubscriptions (
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (providerSubscriptions);
+    return providerSubscriptions;
 }
 
 void IndicationService::_getFilterProperties (
@@ -3037,7 +3356,20 @@ void IndicationService::_getFilterProperties (
 
     filterValue.get (filterReference);
 
-    filterInstance = _repository->getInstance (nameSpaceName, filterReference);
+    _repository->read_lock ();
+
+    try
+    {
+        filterInstance = _repository->getInstance (nameSpaceName, 
+            filterReference);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
@@ -3071,7 +3403,20 @@ void IndicationService::_getFilterProperties (
 
     filterValue.get (filterReference);
 
-    filterInstance = _repository->getInstance (nameSpaceName, filterReference);
+    _repository->read_lock ();
+
+    try
+    {
+        filterInstance = _repository->getInstance (nameSpaceName, 
+            filterReference);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
@@ -3100,7 +3445,20 @@ void IndicationService::_getFilterProperties (
 
     filterValue.get (filterReference);
 
-    filterInstance = _repository->getInstance (nameSpaceName, filterReference);
+    _repository->read_lock ();
+
+    try
+    {
+        filterInstance = _repository->getInstance (nameSpaceName, 
+            filterReference);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
@@ -3160,8 +3518,21 @@ String IndicationService::_getIndicationClassName (
     //  The Indication Qualifier should exist and have the value True
     //
     Boolean validClass = false;
-    CIMClass theClass = _repository->getClass
-        (nameSpaceName, indicationClassName);
+    CIMClass theClass;
+    _repository->read_lock ();
+
+    try
+    {
+        theClass = _repository->getClass (nameSpaceName, indicationClassName);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
+
     if (theClass.existsQualifier (_QUALIFIER_INDICATION))
     {
         CIMQualifier theQual = theClass.getQualifier (theClass.findQualifier 
@@ -3190,7 +3561,7 @@ String IndicationService::_getIndicationClassName (
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (indicationClassName);
+    return indicationClassName;
 }
 
 Array <ProviderClassList> 
@@ -3275,7 +3646,7 @@ Array <ProviderClassList>
     }  // for each indication subclass
         
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (indicationProviders);
+    return indicationProviders;
 }
 
 CIMPropertyList IndicationService::_getPropertyList 
@@ -3338,8 +3709,22 @@ CIMPropertyList IndicationService::_getPropertyList
     //  Check if list includes all properties in class
     //  If so, must be set to NULL
     //
-    CIMClass indicationClass = _repository->getClass 
-        (nameSpaceName, indicationClassName);
+    CIMClass indicationClass;
+    _repository->read_lock ();
+
+    try
+    {
+        indicationClass = _repository->getClass (nameSpaceName, 
+            indicationClassName);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
+
     Boolean allProperties = true;
     for (Uint32 k = 0; 
          k < indicationClass.getPropertyCount () && allProperties; k++)
@@ -3362,7 +3747,7 @@ CIMPropertyList IndicationService::_getPropertyList
     else
     {
         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        return (CIMPropertyList (propertyList));
+        return CIMPropertyList (propertyList);
     }
 }
 
@@ -3384,7 +3769,7 @@ String IndicationService::_getCondition
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (condition);
+    return condition;
 }
 
 
@@ -3410,8 +3795,20 @@ CIMNamedInstance IndicationService::_getHandler (
     //
     //  Get Handler instance from the repository
     //
-    handlerInstance = _repository->getInstance 
-        (subscription.getInstanceName ().getNameSpace (), handlerRef);
+    _repository->read_lock ();
+
+    try
+    {
+        handlerInstance = _repository->getInstance 
+            (subscription.getInstanceName ().getNameSpace (), handlerRef);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Set namespace and create CIMNamedInstance
@@ -3421,7 +3818,7 @@ CIMNamedInstance IndicationService::_getHandler (
     CIMNamedInstance handlerNamedInstance (handlerRef, handlerInstance);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (handlerNamedInstance);
+    return handlerNamedInstance;
 }
 
 Boolean IndicationService::_isTransient (
@@ -3437,7 +3834,20 @@ Boolean IndicationService::_isTransient (
     //
     //  Get the instance from the respository
     //
-    CIMInstance instance = _repository->getInstance (nameSpace, handler);
+    CIMInstance instance;
+    _repository->read_lock ();
+
+    try
+    {
+        instance = _repository->getInstance (nameSpace, handler);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Get Persistence Type
@@ -3476,8 +3886,20 @@ void IndicationService::_deleteReferencingSubscriptions (
     //
     //  Get existing subscriptions in the namespace
     //
-    subscriptions = _repository->enumerateInstances (nameSpace,
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    _repository->read_lock ();
+
+    try
+    {
+        subscriptions = _repository->enumerateInstances (nameSpace,
+            PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
 
     //
     //  Check each subscription for a reference to the specified instance 
@@ -3734,8 +4156,21 @@ void IndicationService::_getEnableParams (
     //
     //  Get list of subclass names for indication class
     //
-    indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
-        indicationClassName, true);
+    _repository->read_lock ();
+
+    try
+    {
+        indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
+            indicationClassName, true);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
+
     indicationSubclasses.append (indicationClassName);
     
     //
@@ -3851,8 +4286,21 @@ Array <ProviderClassList> IndicationService::_getDisableParams (
     //
     //  Get list of subclass names for indication class
     //
-    indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
-        indicationClassName, true);
+    _repository->read_lock ();
+
+    try
+    {
+        indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
+            indicationClassName, true);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        throw e;
+    }
+
+    _repository->read_unlock ();
+
     indicationSubclasses.append (indicationClassName);
     
     //
@@ -4217,7 +4665,7 @@ String IndicationService::_generateKey (
     //cout << "Generated Key: " << tableKey << endl;
     //cout << endl;
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (tableKey);
+    return tableKey;
 }
 
 void IndicationService::_insertEntry (
@@ -4289,7 +4737,7 @@ CIMInstance IndicationService::_createAlertInstance (
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return (indicationInstance);
+    return indicationInstance;
 }
 
 void IndicationService::_sendAlerts (
@@ -4482,7 +4930,7 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
         }
     }
 
-    return (source);
+    return source;
 }
 
 

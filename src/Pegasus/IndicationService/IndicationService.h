@@ -161,6 +161,48 @@ private:
     void _handleNotifyProviderTerminationRequest(const Message * message);
 
     /**
+        Implements the subscription's On Fatal Error Policy.
+        This function is called when a fatal error has occurred in the
+        indication provider or indication handler, and the subscription can no
+        longer be served.
+        If the subscription's policy is Disable, the Subscription State is
+        set to Disabled.
+        If the subscription's policy is Remove, the subscription instance is 
+        deleted.
+
+        @param   subscription          the subscription named instance
+
+        @return  True if the subscription has been disabled or deleted
+                 False otherwise
+     */
+    Boolean _handleError (
+        const CIMNamedInstance subscription);
+
+    /**
+        Disables the subscription.
+        This function is called when a fatal error has occurred in the
+        indication provider or indication handler, the subscription can no
+        longer be served, and the subscription's policy is Disable.
+        The Subscription State is set to Disabled.
+
+        @param   subscription          the subscription named instance
+     */
+    void _disableSubscription (
+        CIMNamedInstance subscription);
+
+    /**
+        Deletes the subscription instance.
+        This function is called when a fatal error has occurred in the
+        indication provider or indication handler, the subscription can no
+        longer be served, and the subscription's policy is Remove.
+        The subscription instance is deleted.
+
+        @param   subscription          the subscription named instance
+     */
+    void _deleteSubscription (
+        const CIMNamedInstance subscription);
+
+    /**
         Ensures that all subscription classes in the repository include the
         Creator property.
 

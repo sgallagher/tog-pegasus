@@ -253,7 +253,6 @@ void Logger::_putInternal(
 	    // Prepend the systemId to the incoming message
 	    String messageString(systemId);
 	    messageString.append(": ");
-
 	    messageString.append(localizedMsg);  // l10n 
 
 	    const char* tmp = "";
@@ -292,7 +291,8 @@ void Logger::put(
 			systemId,
 			logComponent,
 			logLevel,
-			formatString, //l10n
+			formatString,
+//l10n
 			String::EMPTY,
 			arg0,
 			arg1,

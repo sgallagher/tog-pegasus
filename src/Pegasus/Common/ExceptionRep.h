@@ -42,7 +42,6 @@ class ExceptionRep
 {
 public:
     String message;
-
 // l10n
     String cimMessage;  // Contains the message for the CIM error code
 // l10n

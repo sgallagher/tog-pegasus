@@ -145,7 +145,6 @@ public:
     */
     const CIMFlavor & getFlavor() const;
 
-
     /** Gets the Propagated flag for the qualifier.
         (Note: Although this method is intended to return a Boolean value,
         changing the return type would break interface compatibility.)

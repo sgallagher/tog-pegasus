@@ -29,6 +29,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,8 +55,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class CIMClientInterface;
 
-class CIMClientRep;
 
 /** This class provides the interface that a client uses to communicate
     with a CIM Server.
@@ -220,6 +221,43 @@ public:
         opening a new connection.
     */
     void disconnect();
+
+// l10n start
+    /** Sets the accept languages that will be used on the next request.
+     * Accept languages are the preferred languages that are to be
+     * returned on the response to the next request.
+    */	
+	void setRequestAcceptLanguages(AcceptLanguages& langs);
+
+    /** Gets the accept languages that will be used on the next request.
+     * Accept languages are the preferred languages that are to be
+     * returned on the response to the next request.
+    */
+	AcceptLanguages getRequestAcceptLanguages() const;
+	
+    /** Sets the content languages that will be used on the next request.
+     * These content languages are the languages of the CIM objects that will
+     * sent on the next request.
+    */  	
+	void setRequestContentLanguages(ContentLanguages& langs);
+
+    /** Gets the content languages that will be used on the next request.
+     * These content languages are the languages of the CIM objects that will
+     * sent on the next request.
+    */    
+	ContentLanguages getRequestContentLanguages() const;
+	
+    /** Gets the content languages of the last response.
+     * These content languages are the languages of the CIM objects, or 
+     * CIM exceptions, that were returned on the last response..
+    */    	
+	ContentLanguages getResponseContentLanguages() const;
+	
+	/**
+	 * 
+	 */
+	void setRequestDefaultLanguages();
+// l10n end	
 
 
 // l10n start
@@ -516,7 +554,7 @@ public:
 
 private:
 
-    CIMClientRep* _rep;
+    CIMClientInterface* _rep;
 };
 
 PEGASUS_NAMESPACE_END

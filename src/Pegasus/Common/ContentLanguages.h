@@ -126,16 +126,13 @@ public:
 	 * @return ostream - Returns a representation of this object in ContentLanguage header format
 	 * according to the RFC
 	 */
-
 	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, ContentLanguages cl);
 
 	/**
 	 * Assignment 
 	 * @param rhs ContentLanguages
 	 */
-	ContentLanguages operator=(ContentLanguages rhs)  ;
-		
-	
+	ContentLanguages operator=(ContentLanguages rhs);
 
 private:	
 
@@ -146,3 +143,4 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif
+

@@ -932,7 +932,6 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         instance.removeProperty (instance.findProperty 
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
-
 // l10n start
         //
         //  Remove the language properties from instance before returning
@@ -1043,7 +1042,6 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             enumInstances [i].removeProperty 
                 (enumInstances [i].findProperty 
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
-
 
 // l10n start
 	    propIndex = enumInstances [i].findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
@@ -1373,7 +1371,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         propertyList.set (properties);
                     }
                 }
-
 
 // l10n
                 // Add the language properties to the modified instance.
@@ -2168,7 +2165,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
-
 // l10n start
             String acceptLangs = String::EMPTY;
             Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);  			
@@ -2183,6 +2179,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                  instance.getProperty(propIndex).getValue().get(contentLangs);
             }
 // l10n end
+
             //
             //  Look up the subscription in the active subscriptions table
             //

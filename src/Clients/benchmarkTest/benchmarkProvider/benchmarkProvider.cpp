@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Denise Eckstein, Hewlett-Packard Company
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,12 +48,14 @@ benchmarkProvider::~benchmarkProvider(void)
 
 CIMObjectPath benchmarkProvider::_buildObjectPath(
                          const CIMName& className,
-                         CIMKeyBinding keyBinding)
+                         CIMValue Identifier)
 {
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append(keyBinding);
-    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE),
-                                className, keyBindings);
+    Array<CIMKeyBinding> keys;
+
+    keys.append(CIMKeyBinding("Idenitifier", Identifier.toString(),
+               CIMKeyBinding::NUMERIC));
+
+    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), className, keys);
 }
 
 CIMInstance benchmarkProvider::_buildInstance(
@@ -66,33 +66,54 @@ CIMInstance benchmarkProvider::_buildInstance(
 
 {
     char propertyName[20];
-    char propertyValue[100000];
+    char propertyValue[10000];
 
-   if (propertySize > 99999)
-   {
-      throw CIMException (CIM_ERR_INVALID_PARAMETER);
-   }
-
-    for (Uint32 i = 0; i < propertySize; i++)
+    try
     {
-       propertyValue[i] = 'a';
+
+       for (Uint32 i = 0; i < propertySize; i++)
+       {
+          propertyValue[i] = 'a';
+       }
+       propertyValue[propertySize] = 0;
+
+       CIMInstance instance(className);
+       instance.addProperty(CIMProperty("Identifier", Identifier));
+
+       for(Uint32 i = 0; i < numberOfProperties;  i++)
+       {
+          sprintf(propertyName, "Property%4.4d", i);
+          instance.addProperty(CIMProperty(propertyName, propertyValue));
+       }
+
+       CIMObjectPath reference = _buildObjectPath(className, Identifier);
+       instance.setPath(reference);
+       return(instance);
     }
-    propertyValue[propertySize] = 0;
 
-    CIMInstance instance(className);
-    instance.addProperty(CIMProperty(CIMName("Identifier"), Identifier));
-
-    for(Uint32 i = 1; i <= numberOfProperties;  i++)
+    catch (CIMException& e)
     {
-       sprintf(propertyName, "Property%4.4u", i);
-       instance.addProperty(
-           CIMProperty(CIMName(propertyName), String(propertyValue)));
+#ifdef DEBUG
+        cout << "benchmarkProvider::initialize(): Got CIMException:";
+        cout << e.getMessage() << endl;
+#endif
+        throw;
     }
-
-    CIMObjectPath reference = _buildObjectPath(className,
-               CIMKeyBinding(CIMName("Identifier"), Identifier));
-    instance.setPath(reference);
-    return(instance);
+    catch (Exception& e)
+    {
+#ifdef DEBUG
+        cout << "benchmarkProvider::initialize(): Got Exception: ";
+        cout << e.getMessage() << endl;
+#endif
+        throw;
+    }
+    catch (...)
+    {
+#ifdef DEBUG
+        cout << "benchmarkProvider::initialize(): Got Unknown Exception: ";
+#endif
+        throw;
+    }
 }
 
 void benchmarkProvider::initialize(CIMOMHandle & cimom)
@@ -104,12 +125,12 @@ void benchmarkProvider::terminate(void)
 }
 
 void benchmarkProvider::getInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
     CIMInstance _instance;
     Uint32 numberOfProperties;
@@ -126,18 +147,13 @@ void benchmarkProvider::getInstance(
        throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
+    String Identifier = keyBindings[0].getValue();
+
     // begin processing the request
     handler.processing();
 
-    Uint32 ID;
-    if (sscanf (keyBindings[0].getValue().getCString(), "%u", &ID) != 1)
-    {
-        throw CIMException (CIM_ERR_INVALID_PARAMETER);
-    }
-
     _instance = _buildInstance(className, numberOfProperties,
-                        sizeOfPropertyValue , CIMValue(ID));
-
+                        sizeOfPropertyValue , CIMValue(Identifier));   
     handler.deliver(_instance);
 
     // complete processing the request
@@ -145,12 +161,12 @@ void benchmarkProvider::getInstance(
 }
 
 void benchmarkProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
     CIMInstance _instance;
     Uint32 numberOfProperties;
@@ -167,7 +183,7 @@ void benchmarkProvider::enumerateInstances(
     for (Uint32 i = 1; i <= numberOfInstances; i++)
     {
        _instance = _buildInstance(className, numberOfProperties,
-                        sizeOfPropertyValue , CIMValue(i));
+                        sizeOfPropertyValue , CIMValue(i));   
        handler.deliver(_instance);
     }
 
@@ -176,9 +192,9 @@ void benchmarkProvider::enumerateInstances(
 }
 
 void benchmarkProvider::enumerateInstanceNames(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    ObjectPathResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	ObjectPathResponseHandler & handler)
 {
     CIMObjectPath _instanceName;
     Uint32 numberOfProperties;
@@ -194,39 +210,38 @@ void benchmarkProvider::enumerateInstanceNames(
 
     for (Uint32 i = 1; i <= numberOfInstances; i++)
     {
-       _instanceName = _buildObjectPath(className,
-               CIMKeyBinding(CIMName("Identifier"), CIMValue(i)));
+       _instanceName = _buildObjectPath(className, CIMValue(i)); 
        handler.deliver(_instanceName);
     }
-
+ 
     // complete processing the request
     handler.complete();
 }
 
 void benchmarkProvider::modifyInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance & instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList & propertyList,
-    ResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const CIMInstance & instanceObject,
+	const Boolean includeQualifiers,
+	const CIMPropertyList & propertyList,
+	ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void benchmarkProvider::createInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance & instanceObject,
-    ObjectPathResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const CIMInstance & instanceObject,
+	ObjectPathResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void benchmarkProvider::deleteInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    ResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }

@@ -154,5 +154,4 @@ ContentLanguages cimStatusCodeToString_Thread(String & message, CIMStatusCode co
 	return parms.contentlanguages;
 }
 
-
 PEGASUS_NAMESPACE_END

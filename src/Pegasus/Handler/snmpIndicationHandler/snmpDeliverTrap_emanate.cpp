@@ -167,6 +167,83 @@ void snmpDeliverTrap_emanate::deliverTrap(
     TransportInfo   global_ti;
     global_ti.type = SR_IP_TRANSPORT;
 
+    switch (targetHostFormat)
+    {
+	case _HOST_NAME:
+	{
+	    char * ipAddr = _getIPAddress(trap_dest); 
+
+	    if (ipAddr == NULL)
+	    {
+
+	      // l10n
+
+	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+	      //   _MSG_DESTINATION_NOT_FOUND);
+
+	      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+					     MessageLoaderParms(_MSG_DESTINATION_NOT_FOUND_KEY,
+								_MSG_DESTINATION_NOT_FOUND));
+
+ 	    }
+    	    global_ti.t_ipAddr = inet_addr(trap_dest);
+	    break;	    
+	}
+	case _IPV4_ADDRESS:
+	{
+    	    global_ti.t_ipAddr = inet_addr(trap_dest);
+	    break;	    
+	}
+	default:
+	{
+
+	  // l10n
+
+	  // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+	  // _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED);
+
+	  throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+					 MessageLoaderParms(_MSG_TARGETHOSTFORMAT_NOT_SUPPORTED_KEY,
+							    _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED,
+							    _MSG_HOSTNAME,
+							    _MSG_IPV4,
+							    _MSG_TARGETHOSTFORMAT));
+
+	    break;	    
+	}
+    } 
+
+    global_ti.t_ipPort = htons((unsigned short)portNumber);
+
+    // Community Name, default is public
+    CString _community;
+    if (securityName.size() == 0)
+    {
+	String community;
+	community.assign("public");
+	_community = community.getCString();
+    }
+    else
+    {
+	_community = securityName.getCString();
+    }
+
+    OctetString* community_name = MakeOctetStringFromText(_community);
+
+    if (community_name == NULL)
+    {
+
+      // l10n
+
+      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+      //   _MSG_INVALID_SECURITY_NAME);
+
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+				    MessageLoaderParms(_MSG_INVALID_SECURITY_NAME_KEY,
+						       _MSG_INVALID_SECURITY_NAME,
+						       _MSG_SECURITY_NAME));
+						       
+    }
 
     switch (targetHostFormat)
     {
@@ -276,7 +353,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 				  MessageLoaderParms(_MSG_INVALID_OCTET_VALUE_KEY,
 						     _MSG_INVALID_OCTET_VALUE));
     }
-
+ 
     // create an empty 4 length OctetString
 
     agent_addr = MakeOctetString(NULL,4);
@@ -495,6 +572,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
             if (value == NULL)
             {
+
 	      // l10n
 
 	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
@@ -511,6 +589,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 					INTEGER_TYPE, 
 					value)) == NULL)
             {
+
 	      // l10n
 
 	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
@@ -576,7 +655,6 @@ void snmpDeliverTrap_emanate::deliverTrap(
             SR_SECURITY_MODEL_V2C,		// securityModel
             &global_ti,				// TransportInfo
             0);					// cfg_chk
-
 	    break;
 	}
 	default:

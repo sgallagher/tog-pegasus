@@ -25,7 +25,6 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
@@ -159,7 +158,6 @@ public:
             Uint32 colon = dest.find (":");
 
             Uint32 portNumber = 0;
-
             Boolean useHttps = false;
             String destStr = dest;
 	    String hostName;
@@ -186,7 +184,6 @@ public:
 		    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, httpStr);
 		}
             }
-
 	    else
 	    {
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, dest);

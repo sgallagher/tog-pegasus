@@ -91,9 +91,7 @@ void Exception::setContentLanguages(const ContentLanguages& langs)
 	_rep->contentLanguages = langs;
 } 
 
-
 /*
-
 IndexOutOfBoundsException::IndexOutOfBoundsException()
     : Exception("index out of bounds")
 {
@@ -170,6 +168,7 @@ InvalidNamespaceNameException::InvalidNamespaceNameException(MessageLoaderParms&
 }
 
 /*
+
 UninitializedObjectException::UninitializedObjectException()
     : Exception("uninitialized object")
 {
@@ -181,6 +180,7 @@ UninitializedObjectException::UninitializedObjectException()
     								"uninitialized object"))
 {
 }
+
 
 /*
 TypeMismatchException::TypeMismatchException()
@@ -243,6 +243,7 @@ MalformedObjectNameException::MalformedObjectNameException(MessageLoaderParms& m
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
 
+
 /*
 BindFailedException::BindFailedException(const String& message)
     : Exception("Bind failed: " + message)
@@ -286,6 +287,7 @@ InvalidLocatorException::InvalidLocatorException(MessageLoaderParms& msgParms)
 }
 
 /*
+
 CannotCreateSocketException::CannotCreateSocketException()
     : Exception("Cannot create socket")
 {

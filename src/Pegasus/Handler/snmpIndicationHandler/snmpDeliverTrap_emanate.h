@@ -64,8 +64,84 @@
 
 #include "snmpDeliverTrap.h"
 
-
 PEGASUS_NAMESPACE_BEGIN
+
+// l10n
+// lots of hacking to make up these messages
+
+static const char _MSG_INITSUBAGENT_FAILED [] = "$0 Failed to initialize";
+static const char _MSG_INITSUBAGENT [] = "InitSubagent";
+static const char _MSG_INITSUBAGENT_FAILED_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INITSUBAGENT_FAILED";
+
+static const char _MSG_INVALID_TRAPOID [] = "Invalid $0.";
+static const char _MSG_TRAPOID [] = "trapOid";
+static const char _MSG_INVALID_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID";
+
+static const char _MSG_DESTINATION_NOT_FOUND [] = "Can not find trap destination.";
+static const char _MSG_DESTINATION_NOT_FOUND_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_DESTINATION_NOT_FOUND";
+
+static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED [] = 
+    "$0 and $1 are the only supported $2 values.";
+static const char _MSG_HOSTNAME [] = "Host Name";
+static const char _MSG_IPV4 [] = "IPV4 Address";
+static const char _MSG_TARGETHOSTFORMAT [] = "TargetHostFormat";
+static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_TARGETHOSTFORMAT_NOT_SUPPORTED";
+
+static const char _MSG_INVALID_SECURITY_NAME [] = "Invalid $0.";
+static const char _MSG_SECURITY_NAME [] = "SNMP SecurityName";
+static const char _MSG_INVALID_SECURITY_NAME_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID";
+
+static const char _MSG_INVALID_OCTET_VALUE [] = 
+    "Invalid octet value in trap destination.";
+static const char _MSG_INVALID_OCTET_VALUE_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_OCTET_VALUE";
+
+static const char _MSG_CREATE_OCTET_FAILED [] = 
+    "Creation of empty 4 length $0 failed.";
+static const char _MSG_OCTETSTRING [] = "OctetString";
+static const char _MSG_CREATE_OCTET_FAILED_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_CREATE_OCTET_FAILED";
+
+static const char _MSG_INVALID_ENTERPRISEOID [] = "Invalid $0.";
+static const char _MSG_ENTERPRISEOID [] = "enterpriseOid.";
+static const char _MSG_INVALID_ENTERPRISEOID_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID";
+
+static const char _MSG_INVALID_PROPERTYOID [] = "Invalid $0 of $1 Property.";
+static const char _MSG_OID [] = "OID";
+static const char _MSG_CIM [] = "CIM";
+static const char _MSG_INVALID_PROPERTYOID_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTYOID";
+
+static const char _MSG_INVALID_PROPERTYVALUE [] = "Invalid value of $0 Property.";
+// declared above static const char _MSG_CIM [] = "CIM";
+static const char _MSG_INVALID_PROPERTYVALUE_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTY";
+
+static const char _MSG_MAKE_VARBIND_FAILED [] = 
+    "Failed to $0 for type $1.";
+static const char _MSG_MAKE_VARBIND_FAILED_KEY [] = 
+   "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_FAILED";
+static const char _MSG_VARBIND [] = "MakeVarBindWithValue";
+
+static const char _MSG_OCTET_PRIM_TYPE [] = "OCTET_PRIM_TYPE";
+
+static const char _MSG_OBJECT_ID_TYPE [] = "OBJECT_ID_TYPE";
+
+static const char _MSG_INTEGER_TYPE [] = "INTEGER_TYPE";
+
+static const char _MSG_VERSION_NOT_SUPPORTED [] = 
+    "$0 and $1 are the only supported $2 values.";
+static const char _MSG_SNMPv1 [] = "SNMPv1 Trap";
+static const char _MSG_SNMPv2C [] = "SNMPv2C Trap";
+static const char _MSG_SNMPVersion [] = "SNMPVersion";
+static const char _MSG_VERSION_NOT_SUPPORTED_KEY [] = 
+    "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_VERSION_NOT_SUPPORTED";
 
 // l10n
 // lots of hacking to make up these messages

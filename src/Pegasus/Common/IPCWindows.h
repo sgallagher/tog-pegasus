@@ -239,7 +239,6 @@ inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void)
    return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
 }
 
-
 // l10n start
 typedef DWORD PEGASUS_THREAD_KEY_TYPE;
 

@@ -95,7 +95,6 @@ const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] =
 DuplicateOptionException::DuplicateOptionException (char duplicateOption) :
     CommandFormatException (String ())
 {
-
 	//l10n
     //_rep->message = _MESSAGE_DUPLICATE_OPTION1;
     //_rep->message.append (duplicateOption);
@@ -160,6 +159,19 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
     						 String().append(option));
     _rep->message.append(MessageLoader::getMessage(parms));
     					
+
+	//l10n
+    //_rep->message = _MESSAGE_INVALID_ARG1;
+    //_rep->message.append (invalidArgument);
+    //_rep->message.append (_MESSAGE_INVALID_ARG2);
+    //_rep->message.append (option);
+    //_rep->message.append (_MESSAGE_INVALID_ARG3);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_ARG",
+    						 "argument \"$0\" is not valid for option \"-$1\"",
+    						 invalidArgument,
+    						 String().append(option));
+    _rep->message.append(MessageLoader::getMessage(parms));
+    					
 }
 
 /**
@@ -190,7 +202,7 @@ const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] =
 InvalidOptionException::InvalidOptionException (char invalidOption) :
     CommandFormatException (String ())
 {
-				 
+
 	//l10n
     //_rep->message = _MESSAGE_INVALID_OPTION1;
     //_rep->message.append (invalidOption);
@@ -271,7 +283,6 @@ const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] =
 MissingOptionException::MissingOptionException (char missingOption) :
     CommandFormatException (String ())
 {
-
 	//l10n
     //_rep->message = _MESSAGE_MISSING_OPTION1;
     //_rep->message.append (missingOption);
@@ -351,7 +362,6 @@ const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] =
 UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
     CommandFormatException (String ())
 {
-
 	//l10n
     //_rep->message = _MESSAGE_UNEXPECTED_OPT1;
     //_rep->message.append (optionValue);

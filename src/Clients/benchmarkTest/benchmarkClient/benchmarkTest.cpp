@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Denise Eckstein, Hewlett-Packard Company 
+//         Significant portions of the code in this application were copied 
+//         from the wbemexec application.
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -41,7 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Common/Stopwatch.h>
 
 #include <Pegasus/Common/Tracer.h>
 
@@ -50,11 +50,9 @@
 #include "benchmarkTest.h"
 #include "../benchmarkDefinition/benchmarkDefinition.h"
 
-FILE *_resultsFileHandle = NULL;
-String _startTime;
 
 #ifndef PLATFORM_PRODUCT_VERSION
-# define PLATFORM_PRODUCT_VERSION "1.0.0"
+ #define PLATFORM_PRODUCT_VERSION "1.0.0"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -99,9 +97,6 @@ const char benchmarkTestCommand::_OPTION_ITERATIONS     = 'i';
 //    The option character used to specify the TESTID parameter.
 const char benchmarkTestCommand::_OPTION_TESTID         = 'n';
 
-//    The option character used to specify the TESTID parameter.
-const char benchmarkTestCommand::_OPTION_RESULTS_DIRECTORY  = 'D';
-
 //    The option character used to specify that a debug option is requested.
 const char   benchmarkTestCommand::_OPTION_DEBUG        = 'd';
 
@@ -114,13 +109,13 @@ const Uint32 benchmarkTestCommand::_MAX_PORTNUMBER      = 65535;
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  =
+static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
 
-//    The debug option argument value used to enable client-side tracing.
+//    The debug option argument value used to enable client-side tracing. 
 const char   benchmarkTestCommand::_DEBUG_OPTION1       = '1';
 
-//    The debug option argument value used to disable printing verbose report.
+//    The debug option argument value used to disable printing verbose report. 
 const char   benchmarkTestCommand::_DEBUG_OPTION2       = '2';
 
 
@@ -129,22 +124,21 @@ static const Uint32 MAX_PW_RETRIES = 3;
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
 
-#if 0
+#ifdef DEBUG
     outPrintWriter << certInfo.getSubjectName() << endl;
 #endif
     return true;
 }
 
 /**
-
+  
     Constructs a benchmarkTestCommand and initializes instance variables.
-
+  
  */
 benchmarkTestCommand::benchmarkTestCommand ()
 {
 
     _hostName            = String ();
-    _resultsDirectory        = String ();
     _hostNameSet         = false;
     _portNumber          = WBEM_DEFAULT_HTTP_PORT;
     _portNumberSet       = false;
@@ -172,10 +166,8 @@ benchmarkTestCommand::benchmarkTestCommand ()
     String usage = String (_USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
-#ifdef PEGASUS_HAS_SSL
     usage.append (_OPTION_SSL);
     usage.append (" ] [ -");
-#endif
     usage.append (_OPTION_VERSION);
     usage.append (" ] [ -");
     usage.append (_OPTION_HOSTNAME);
@@ -188,12 +180,10 @@ benchmarkTestCommand::benchmarkTestCommand ()
     usage.append (" password ] [ -");
     usage.append (_OPTION_TIMEOUT);
     usage.append (" timeout ] [ -");
-    usage.append (_OPTION_RESULTS_DIRECTORY);
-    usage.append (" resultsDirectory ] [ -");
     usage.append (_OPTION_ITERATIONS);
     usage.append (" iterations ] [ -");
     usage.append (_OPTION_TESTID);
-    usage.append (" testNumber ] [ -");
+    usage.append (" test number ] [ -");
     usage.append (_OPTION_DEBUG);
     usage.append (_DEBUG_OPTION1);
     usage.append (" [ -");
@@ -203,7 +193,7 @@ benchmarkTestCommand::benchmarkTestCommand ()
     setUsage (usage);
 }
 
-String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
+String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter ) 
 {
   //
   // Password is not set, prompt for non-blank password
@@ -235,18 +225,19 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 }
 
 /**
-
+  
     Connects to cimserver.
-
+  
     @param   outPrintWriter     the ostream to which error output should be
                                 written
-
+  
     @exception       Exception  if an error is encountered in creating
                                the connection
-
+  
  */
  void benchmarkTestCommand::_connectToServer( CIMClient& client,
-                         ostream& outPrintWriter )
+				         ostream& outPrintWriter ) 
+    throw (Exception)
 {
     String                 host                  = String ();
     Uint32                 portNumber            = 0;
@@ -256,8 +247,7 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet) && \
-        (!_userNameSet) && (!_passwordSet))
+    if ((!_hostNameSet) && (!_portNumberSet) && (!_userNameSet) && (!_passwordSet))
     {
         connectToLocal = true;
     }
@@ -271,12 +261,8 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
            if( _useSSL )
            {
-#ifdef PEGASUS_HAS_SSL
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
-#else
-               PEGASUS_TEST_ASSERT(false);
-#endif
            }
            else
            {
@@ -297,21 +283,18 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
     }
     else if( _useSSL )
     {
-#ifdef PEGASUS_HAS_SSL
         //
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
+	
+	String certpath = FileSystem::getAbsolutePath(
+           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+	
+	String randFile = String::EMPTY;
 
-        String certpath = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-
-        String randFile = String::EMPTY;
-
-#ifdef PEGASUS_SSL_RANDOMFILE
-        randFile = FileSystem::getAbsolutePath(
-             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif
+	randFile = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
         if (!_userNameSet)
@@ -323,13 +306,10 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
             _password = _promptForPassword( outPrintWriter );
         }
-        client.connect(host, portNumber, sslcontext,  _userName, _password );
-#else
-        PEGASUS_TEST_ASSERT(false);
-#endif
+	client.connect(host, portNumber, sslcontext,  _userName, _password );
     }
     else
-    {
+    { 
         if (!_passwordSet)
         {
             _password = _promptForPassword( outPrintWriter );
@@ -339,24 +319,27 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 }
 
 /**
-
+  
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
-
+  
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-
+  
     @exception  CommandFormatException  if an error is encountered in parsing
                                         the command line
-
+  
  */
-void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
+void benchmarkTestCommand::setCommand (Uint32 argc, char* argv []) 
+    throw (CommandFormatException)
 {
-    String httpVersion;
-    String httpMethod;
-    String timeoutStr;
-    String GetOptString;
-    getoopt getOpts;
+    Uint32         i              = 0;
+    Uint32         c              = 0;
+    String         httpVersion    = String ();
+    String         httpMethod     = String ();
+    String         timeoutStr     = String ();
+    String         GetOptString   = String ();
+    getoopt        getOpts;
 
     //
     //  Construct GetOptString
@@ -366,16 +349,12 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (_OPTION_PORTNUMBER);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_VERSION);
-#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
-#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_PASSWORD);
-    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    GetOptString.append (_OPTION_RESULTS_DIRECTORY);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_ITERATIONS);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
@@ -394,205 +373,203 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        throw CommandFormatException(getOpts.getErrorStrings()[0]);
+        CommandFormatException e (getOpts.getErrorStrings () [0]);
+        throw e;
     }
-
+    
     //
     //  Get options and arguments from the command line
     //
-    for (Uint32 i = getOpts.first(); i < getOpts.last(); i++)
+    for (i =  getOpts.first (); i <  getOpts.last (); i++)
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
-        }
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
+        } 
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
-        }
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
+        } 
         else /* getOpts [i].getType () == FLAG */
         {
-            Uint32 c = getOpts [i].getopt () [0];
-
-            switch (c)
+            c = getOpts [i].getopt () [0];
+    
+            switch (c) 
             {
-                case _OPTION_HOSTNAME:
+                case _OPTION_HOSTNAME: 
                 {
                     if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
                     {
                         //
                         // More than one hostname option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HOSTNAME);
+                        DuplicateOptionException e (_OPTION_HOSTNAME); 
+                        throw e;
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
                     break;
                 }
-
-                case _OPTION_PORTNUMBER:
+    
+                case _OPTION_PORTNUMBER: 
                 {
                     if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
                     {
                         //
                         // More than one portNumber option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
+                        DuplicateOptionException e (_OPTION_PORTNUMBER); 
+                        throw e;
                     }
-
+    
                     _portNumberStr = getOpts [i].Value ();
-
+    
                     try
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (const TypeMismatchException&)
+                    catch (TypeMismatchException)
                     {
-                        throw InvalidOptionArgumentException(
-                            _portNumberStr,
+                        InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
+                        throw e;
                     }
-                    _portNumberSet = true;
+		    _portNumberSet = true;
                     break;
                 }
-#ifdef PEGASUS_HAS_SSL
-                case _OPTION_SSL:
+    
+                case _OPTION_SSL: 
                 {
                     //
                     // Use port 5989 as the default port for SSL
                     //
-                    _useSSL = true;
+		    _useSSL = true;
                     if (!_portNumberSet)
                        _portNumber = 5989;
                     break;
                 }
-#endif
-                case _OPTION_VERSION:
+      
+                case _OPTION_VERSION: 
                 {
-            _displayVersion = true;
+		    _displayVersion = true;
                     break;
                 }
-
-                case _OPTION_TIMEOUT:
+      
+                case _OPTION_TIMEOUT: 
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
                     {
                         //
                         // More than one timeout option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TIMEOUT);
+                        DuplicateOptionException e (_OPTION_TIMEOUT); 
+                        throw e;
                     }
-
+    
                     timeoutStr = getOpts [i].Value ();
-
+    
                     try
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (const TypeMismatchException&)
+                    catch (TypeMismatchException)
                     {
-                        throw InvalidOptionArgumentException(
-                            timeoutStr,
+                        InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
+                        throw e;
                     }
                     break;
                 }
-
-                case _OPTION_USERNAME:
+    
+                case _OPTION_USERNAME: 
                 {
                     if (getOpts.isSet (_OPTION_USERNAME) > 1)
                     {
                         //
                         // More than one username option was found
                         //
-                        throw DuplicateOptionException(_OPTION_USERNAME);
+                        DuplicateOptionException e (_OPTION_USERNAME); 
+                        throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
                     break;
                 }
-
-                case _OPTION_PASSWORD:
+    
+                case _OPTION_PASSWORD: 
                 {
                     if (getOpts.isSet (_OPTION_PASSWORD) > 1)
                     {
                         //
                         // More than one password option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PASSWORD);
+                        DuplicateOptionException e (_OPTION_PASSWORD); 
+                        throw e;
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
                     break;
                 }
 
-                case _OPTION_RESULTS_DIRECTORY:
-                {
-                    if (getOpts.isSet (_OPTION_RESULTS_DIRECTORY) > 1)
-                    {
-                        //
-                        // More than one log directory option was found
-                        //
-                        throw DuplicateOptionException(
-                            _OPTION_RESULTS_DIRECTORY);
-                    }
-                    _resultsDirectory = getOpts [i].Value ();
-                    break;
-                }
-
-                case _OPTION_ITERATIONS:
+                case _OPTION_ITERATIONS: 
                 {
                     if (getOpts.isSet (_OPTION_ITERATIONS) > 1)
                     {
                         //
                         // More than one iteration option was found
                         //
-                        throw DuplicateOptionException(_OPTION_ITERATIONS);
+                        DuplicateOptionException e (_OPTION_ITERATIONS); 
+                        throw e;
                     }
-
+    
                     _iterationsStr = getOpts [i].Value ();
-
+    
                     try
                     {
                         getOpts [i].Value (_iterations);
                     }
-                    catch (const TypeMismatchException&)
+                    catch (TypeMismatchException)
                     {
-                        throw InvalidOptionArgumentException(
-                            _iterationsStr,
+                        InvalidOptionArgumentException e (_iterationsStr,
                             _OPTION_ITERATIONS);
+                        throw e;
                     }
-                    _iterationsSet = true;
+		    _iterationsSet = true;
                     break;
                 }
 
-                case _OPTION_TESTID:
+                case _OPTION_TESTID: 
                 {
                     if (getOpts.isSet (_OPTION_TESTID) > 1)
                     {
                         //
                         // More than one TESTID option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TESTID);
+                        DuplicateOptionException e (_OPTION_TESTID); 
+                        throw e;
                     }
-
+    
                     _testIDStr = getOpts [i].Value ();
 
                     try
                     {
                         getOpts [i].Value (_testID);
                     }
-                    catch (const TypeMismatchException&)
+                    catch (TypeMismatchException)
                     {
-                        throw InvalidOptionArgumentException(
-                            _testIDStr,
+                        InvalidOptionArgumentException e (_testIDStr,
                             _OPTION_TESTID);
+                        throw e;
                     }
-                    _testIDSet = true;
+		    _testIDSet = true;
                     break;
                 }
-
-                case _OPTION_DEBUG:
+    
+                case _OPTION_DEBUG: 
                 {
                     //
                     //
@@ -605,9 +582,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        throw InvalidOptionArgumentException(
-                            debugOptionStr,
+                        InvalidOptionArgumentException e (debugOptionStr,
                             _OPTION_DEBUG);
+                        throw e;
                     }
 
                     if (debugOptionStr [0] == _DEBUG_OPTION1)
@@ -623,15 +600,15 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        throw InvalidOptionArgumentException(
-                            debugOptionStr,
+                        InvalidOptionArgumentException e (debugOptionStr,
                             _OPTION_DEBUG);
+                        throw e;
                     }
                     break;
                 }
-
-
-
+    
+    
+    
                 default:
                     //
                     //  This path should not be hit
@@ -648,17 +625,17 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
-    }
-    else
+    } 
+    else 
     {
         if (_portNumber > _MAX_PORTNUMBER)
         {
             //
             //  Portnumber out of valid range
             //
-            throw InvalidOptionArgumentException(
-                _portNumberStr,
+            InvalidOptionArgumentException e (_portNumberStr,
                 _OPTION_PORTNUMBER);
+            throw e;
         }
     }
 
@@ -669,15 +646,17 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
-    }
-    else
+    } 
+    else 
     {
-        if (_timeout == 0)
+        if (_timeout <= 0) 
         {
             //
             //  Timeout out of valid range
             //
-            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
+            InvalidOptionArgumentException e (timeoutStr,
+                _OPTION_TIMEOUT);
+            throw e;
         }
     }
 
@@ -728,7 +707,7 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
         isConnected = true;
 
         Boolean deepInheritance = true;
-        Boolean localOnly = false;
+        Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Array<CIMInstance> cimNInstances =
@@ -746,12 +725,9 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
         CIMObjectPath instanceRef = cimNInstances[0].getPath();
         if ( !(instanceRef.getClassName().equal(CSINFO_CLASSNAME)))
         {
-           errPrintWriter << "Returned ClassName = "
-               << instanceRef.getClassName().getString() << endl;
-           errPrintWriter << "Expected ClassName = "
-               << CSINFO_CLASSNAME.getString() << endl;
-           errorExit(errPrintWriter,
-               "EnumerateInstances failed.  Incorrect class name returned.");
+           errPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
+           errPrintWriter << "Expected ClassName = " << CSINFO_CLASSNAME.getString() << endl;
+           errorExit(errPrintWriter, "EnumerateInstances failed");
         }
 
         for (Uint32 j = 0; j < cimNInstances[0].getPropertyCount(); j++)
@@ -759,9 +735,8 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
            CIMName propertyName = cimNInstances[0].getProperty(j).getName();
            if (propertyName.equal(CIMName("OtherIdentifyingInfo")))
            {
-               outPrintWriter << "Model = "
-                   << cimNInstances[0].getProperty(j).getValue().toString()
-                   << endl;
+               outPrintWriter << "Model = " 
+                 << cimNInstances[0].getProperty(j).getValue().toString() << endl;
            }
         }
 
@@ -771,7 +746,7 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
     {
        if (isConnected)
           client.disconnect();
-       return;
+       return; 
     }
 
     client.disconnect();
@@ -795,7 +770,7 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
         isConnected = true;
 
         Boolean deepInheritance = true;
-        Boolean localOnly = false;
+        Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Array<CIMInstance> cimNInstances =
@@ -817,12 +792,9 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
         CIMObjectPath instanceRef = cimNInstances[0].getPath();
         if ( !(instanceRef.getClassName().equal(OSINFO_CLASSNAME)) )
         {
-           errPrintWriter << "Returned ClassName = "
-               << instanceRef.getClassName().getString() << endl;
-           errPrintWriter << "Expected ClassName = "
-               << OSINFO_CLASSNAME.getString() << endl;
-           errorExit(errPrintWriter,
-               "enumerateInstances failed.  Incorrect class name returned.");
+           errPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
+           errPrintWriter << "Expected ClassName = " << OSINFO_CLASSNAME.getString() << endl;
+           errorExit(errPrintWriter, "EnumerateInstances failed");
         }
 
         for (Uint32 j = 0; j < cimNInstances[0].getPropertyCount(); j++)
@@ -830,16 +802,14 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
            CIMName propertyName = cimNInstances[0].getProperty(j).getName();
            if (propertyName.equal(CIMName("CSName")))
            {
-               outPrintWriter << "Computer System Name = "
-                   << cimNInstances[0].getProperty(j).getValue().toString()
-                   << endl;
+               outPrintWriter << "Computer System Name = " 
+                 << cimNInstances[0].getProperty(j).getValue().toString() << endl;
            }
 
            if (propertyName.equal(CIMName("Version")))
            {
                outPrintWriter << "Version = "
-                   << cimNInstances[0].getProperty(j).getValue().toString()
-                   << endl;
+                 << cimNInstances[0].getProperty(j).getValue().toString() << endl;
            }
         }
 
@@ -849,7 +819,7 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
     {
        if (isConnected)
           client.disconnect();
-       return;
+       return; 
     }
 
     client.disconnect();
@@ -864,57 +834,6 @@ void benchmarkTestCommand::_getSystemConfiguration(
    outPrintWriter << endl << endl;
 }
 
-void benchmarkTestCommand::_getTestConfiguration(
-                      ostream& outPrintWriter,
-                      ostream& errPrintWriter)
-{
-    Boolean isConnected = false;
-    CIMClient client;
-    client.setTimeout( _timeout );
-
-    try
-    {
-        _connectToServer( client, outPrintWriter);
-        isConnected = true;
-
-        Boolean deepInheritance = true;
-
-        Array<CIMName> classNames = client.enumerateClassNames(
-                  NAMESPACE, CIMName(), deepInheritance);
-
-
-        Uint32 numberOfProperties;
-        Uint32 sizeOfPropertyValue;
-        Uint32 numberOfInstances;
-
-        for (Uint32 i = 0, n = classNames.size(); i < n; i++)
-        {
-            if (CIM_ERR_SUCCESS == test.getConfiguration(classNames[i],
-                 numberOfProperties, sizeOfPropertyValue, numberOfInstances))
-            {
-               _testClassNames.append (classNames[i]);
-            }
-        }
-
-    }  // end try
-
-    catch (const Exception&)
-    {
-        if (isConnected)
-           client.disconnect();
-        throw;
-    }
-
-    catch (const exception&)
-    {
-        if (isConnected)
-           client.disconnect();
-        throw;
-    }
-
-    client.disconnect();
-}
-
 
 CIMObjectPath benchmarkTestCommand::_buildObjectPath(
                          const CIMName& className,
@@ -922,10 +841,10 @@ CIMObjectPath benchmarkTestCommand::_buildObjectPath(
 {
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("Identifier", Identifier.toString(),
-        CIMKeyBinding::NUMERIC));
+    keys.append(CIMKeyBinding("Idenitifier", Identifier.toString(), 
+                              CIMKeyBinding::NUMERIC));
 
-    return CIMObjectPath(String(),CIMNamespaceName(NAMESPACE),className,keys);
+    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), className, keys);
 }
 
 Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
@@ -938,6 +857,7 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
     Boolean isConnected = false;
     Sint16 retValue = -1;
     client.setTimeout( _timeout );
+
     CIMObjectPath moduleRef;
     try
     {
@@ -951,7 +871,7 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
         moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
         moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
         CIMKeyBinding kb1(CIMName ("Name"), moduleName,
-            CIMKeyBinding::STRING);
+                CIMKeyBinding::STRING);
         Array<CIMKeyBinding> keys;
         keys.append(kb1);
 
@@ -971,14 +891,14 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
         client.disconnect();
     }
 
-    catch (const Exception&)
+    catch (Exception& e)
     {
         if (isConnected)
            client.disconnect();
-        throw;
+        throw e;
     }
 
-    if ((retValue == 0) || (retValue == 1))
+    if ((retValue == 0) || (retValue == 1)) 
         return true;
     else return false;
 }
@@ -994,8 +914,7 @@ void benchmarkTestCommand::dobenchmarkTest1(
     try
     {
         Stopwatch stopwatchTime;
-
-        stopwatchTime.start();
+        stopwatchTime.reset();
 
         for (Uint32 i = 0; i < _iterations; i++)
         {
@@ -1003,27 +922,16 @@ void benchmarkTestCommand::dobenchmarkTest1(
            client.disconnect();
         }
 
-        stopwatchTime.stop();
-
         double elapsedTime = stopwatchTime.getElapsed();
-
         outPrintWriter << testID;
-        outPrintWriter <<  ": Benchmark Test #1: Connect/Disconnect Test"
-            << endl;
-        outPrintWriter << _iterations << " requests processed in "
-            << stopwatchTime.getElapsed() << " Seconds "
-            << "(Average Elapse Time = " << elapsedTime/_iterations
-            << ")" << endl << endl;
-
-        if (_resultsFileHandle != NULL)
-        {
-            fprintf(_resultsFileHandle,
-            "Connect/Disconnect\t%f\t", elapsedTime);
-        }
-
+        outPrintWriter <<  ": Benchmark Test #1: Connect/Disconnect Test" << endl;
+        outPrintWriter << _iterations << " requests processed in " 
+                       << elapsedTime << " Seconds " 
+                       << "(Average Elapse Time = " << elapsedTime/_iterations
+                       << ")" << endl << endl;
     }  // end try
 
-    catch(const Exception& e)
+    catch(Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1041,17 +949,13 @@ void benchmarkTestCommand::dobenchmarkTest2(
     try
     {
         Stopwatch stopwatchTime;
-
-        stopwatchTime.start();
+        stopwatchTime.reset();
 
         _connectToServer(client, outPrintWriter);
-
-        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
         stopwatchTime.reset();
-        stopwatchTime.start();
 
         if (_invokeProviderModuleMethod(MODULENAME, CIMName("stop"),
                                         outPrintWriter, errPrintWriter))
@@ -1060,54 +964,39 @@ void benchmarkTestCommand::dobenchmarkTest2(
                                         outPrintWriter, errPrintWriter);
         }
 
-        stopwatchTime.stop();
-
         double _unloadModuleTime = stopwatchTime.getElapsed();
 
         stopwatchTime.reset();
-        stopwatchTime.start();
 
-        CIMObjectPath reference =
+        CIMObjectPath reference = 
            benchmarkTestCommand::_buildObjectPath(className, CIMValue(99));
         CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
 
         CIMObjectPath instanceRef = cimInstance.getPath();
         if ( !(instanceRef.getClassName().equal(className)))
         {
-            outPrintWriter << "Returned ClassName = "
-                << instanceRef.getClassName().getString() << endl;
-            outPrintWriter << "Expected ClassName = "
-                << className.getString() << endl;
-            errorExit(errPrintWriter,
-                "getInstance failed.  Incorrect class name returned.");
+            outPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
+            outPrintWriter << "Expected ClassName = " << className.getString() << endl;
+            errorExit(errPrintWriter, "getInstance failed");
         }
-
-        stopwatchTime.stop();
 
         double elapsedTime = stopwatchTime.getElapsed();
 
-        outPrintWriter << testID
-            << ": Benchmark Test #2: Load Provider Test on class "
-            << className.getString() << endl;
+        outPrintWriter << testID << ": Benchmark Test #2: Load Provider Test on class " 
+                       << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
         outPrintWriter << "Unload Module time = " << _unloadModuleTime << endl;
-        outPrintWriter << "First getInstance request processed in "
-            << elapsedTime << " Seconds "
-            << endl << endl;
-
-        if (_resultsFileHandle != NULL)
-        {
-            fprintf(_resultsFileHandle,
-            "Load/Unload\t%f\t", elapsedTime);
-        }
+        outPrintWriter << "First getInstance request processed in " 
+                       << elapsedTime << " Seconds " 
+                       << endl << endl;
 
         client.disconnect();
 
     }  // end try
 
-    catch(const Exception& e)
+    catch(Exception& e)
     {
-         errorExit(errPrintWriter, e.getMessage());
+      errorExit(errPrintWriter, e.getMessage());
     }
 }
 
@@ -1123,13 +1012,9 @@ void benchmarkTestCommand::dobenchmarkTest3(
     try
     {
         Stopwatch stopwatchTime;
-
         stopwatchTime.reset();
-        stopwatchTime.start();
 
         _connectToServer( client, outPrintWriter);
-
-        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
@@ -1141,9 +1026,8 @@ void benchmarkTestCommand::dobenchmarkTest3(
                  sizeOfPropertyValue, expectedNumberOfInstances);
 
         stopwatchTime.reset();
-        stopwatchTime.start();
 
-        CIMObjectPath reference =
+        CIMObjectPath reference = 
             benchmarkTestCommand::_buildObjectPath(className, CIMValue(99));
 
         for (Uint32 i = 0; i < _iterations; i++)
@@ -1152,51 +1036,30 @@ void benchmarkTestCommand::dobenchmarkTest3(
             CIMObjectPath instanceRef = cimInstance.getPath();
             if ( !(instanceRef.getClassName().equal(className)))
             {
-                outPrintWriter << "Returned ClassName = "
-                    << instanceRef.getClassName().getString() << endl;
-                outPrintWriter << "Expected ClassName = "
-                    << className.getString() << endl;
-                errorExit(errPrintWriter,
-                    "getInstance failed. Incorrect class name returned.");
-            }
-
-            if ( cimInstance.getPropertyCount() != numberOfProperties+1)
-            {
-                errorExit(errPrintWriter, "getInstance failed. "
-                   "Incorrect number of properties returned.");
+                outPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
+                outPrintWriter << "Expected ClassName = " << className.getString() << endl;
+                errorExit(errPrintWriter, "getInstance failed");
             }
         }
-
-        stopwatchTime.stop();
 
         double elapsedTime = stopwatchTime.getElapsed();
 
         outPrintWriter << testID << ": Benchmark Test #3: getInstance Test on "
-            << className.getString() << endl;
+                       << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
-        outPrintWriter << "Number of Non-Key Properties Returned  = "
-            << numberOfProperties << endl
-            << "Size of Each Non-Key Property Returned  = "
-            << sizeOfPropertyValue << endl
-            << "Number of Instances Returned = " << 1 << endl;
-        outPrintWriter << _iterations << " requests processed in "
-            << elapsedTime << " Seconds "
-            << "(Average Elapse Time = " << elapsedTime/_iterations
-            << ")" << endl << endl;
-
-        if (_resultsFileHandle != NULL)
-        {
-            fprintf(_resultsFileHandle,
-                "getInstance\t%s\t%f\t",
-                (const char *)className.getString().getCString(),
-                elapsedTime/_iterations);
-        }
+        outPrintWriter << "Number of Non-Key Properties Returned  = " << numberOfProperties << endl
+                       << "Size of Each Non-Key Property Returned  = " << sizeOfPropertyValue << endl
+                       << "Number of Instances Returned = " << 1 << endl;
+        outPrintWriter << _iterations << " requests processed in " 
+                       << elapsedTime << " Seconds " 
+                       << "(Average Elapse Time = " << elapsedTime/_iterations
+                       << ")" << endl << endl;
 
         client.disconnect();
 
     }  // end try
 
-    catch(const Exception& e)
+    catch(Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1215,13 +1078,9 @@ void benchmarkTestCommand::dobenchmarkTest4(
     try
     {
         Stopwatch stopwatchTime;
-
         stopwatchTime.reset();
-        stopwatchTime.start();
 
         _connectToServer( client, outPrintWriter);
-
-        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
@@ -1235,7 +1094,6 @@ void benchmarkTestCommand::dobenchmarkTest4(
         Uint32 numberInstances;
 
         stopwatchTime.reset();
-        stopwatchTime.start();
 
         for (Uint32 i = 0; i < _iterations; i++)
         {
@@ -1245,51 +1103,34 @@ void benchmarkTestCommand::dobenchmarkTest4(
            numberInstances = cimInstanceNames.size();
            if (numberInstances != expectedNumberOfInstances)
            {
-              errorExit(errPrintWriter,
-                  "enumerateInstanceNames failed. "
-                  "Incorrect number of instances returned.");
+              errorExit(errPrintWriter, "enumerateInstanceNames failed");
            }
 
            for (Uint32 j = 0; j < numberInstances; j++)
            {
               if ( !(cimInstanceNames[j].getClassName().equal(className)))
               {
-                 errorExit(errPrintWriter, "enumerateInstanceNames failed. "
-                    "Incorrect class name returned.");
+                 errorExit(errPrintWriter, "enumerateInstanceNames failed");
               }
 
             }   // end for looping through instances
         }
 
-        stopwatchTime.stop();
-
         double elapsedTime = stopwatchTime.getElapsed();
-
-        outPrintWriter << testID
-            << ": Benchmark Test #4: enumerateInstanceNames Test on class "
-            << className.getString() << endl;
+        outPrintWriter << testID << ": Benchmark Test #4: enumerateInstanceNames Test on class "
+                       << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
-        outPrintWriter << "Number of Non-Key Properties Returned  = "
-            << 0 << endl
-            << "Number of Instances Returned = "
-            << expectedNumberOfInstances << endl;
-        outPrintWriter << _iterations << " requests processed in "
-            << elapsedTime << " Seconds "
-            << "(Average Elapse Time = " << elapsedTime/_iterations
-            << ")" << endl << endl;
-
-        if (_resultsFileHandle != NULL)
-        {
-            fprintf(_resultsFileHandle,
-                "enumerateInstanceNames\t%s\t%f\t",
-                (const char *)className.getString().getCString(),
-                elapsedTime/_iterations);
-        }
+        outPrintWriter << "Number of Non-Key Properties Returned  = " << 0 << endl
+                       << "Number of Instances Returned = " << expectedNumberOfInstances << endl;
+        outPrintWriter << _iterations << " requests processed in " 
+                       << elapsedTime << " Seconds " 
+                       << "(Average Elapse Time = " << elapsedTime/_iterations
+                       << ")" << endl << endl;
 
         client.disconnect();
     }  // end try
 
-    catch(const Exception& e)
+    catch(Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1309,13 +1150,9 @@ void benchmarkTestCommand::dobenchmarkTest5(
     try
     {
         Stopwatch stopwatchTime;
-
         stopwatchTime.reset();
-        stopwatchTime.start();
 
-        _connectToServer(client, outPrintWriter);
-
-        stopwatchTime.stop();
+        _connectToServer( client, outPrintWriter);
 
         double connectTime = stopwatchTime.getElapsed();
 
@@ -1329,10 +1166,10 @@ void benchmarkTestCommand::dobenchmarkTest5(
         Uint32 numberInstances;
 
         stopwatchTime.reset();
-        stopwatchTime.start();
+
 
         Boolean deepInheritance = true;
-        Boolean localOnly = false;
+        Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
@@ -1347,9 +1184,7 @@ void benchmarkTestCommand::dobenchmarkTest5(
            numberInstances = cimNInstances.size();
            if (numberInstances != expectedNumberOfInstances)
            {
-              errorExit(errPrintWriter,
-                  "enumerateInstances failed. "
-                  "Incorrect number of instances returned.");
+              errorExit(errPrintWriter, "enumerateInstances failed");
            }
 
            for (Uint32 j = 0; j < numberInstances; j++)
@@ -1357,207 +1192,131 @@ void benchmarkTestCommand::dobenchmarkTest5(
               CIMObjectPath instanceRef = cimNInstances[j].getPath ();
               if ( !(instanceRef.getClassName().equal(className)))
               {
-                 errorExit(errPrintWriter, "enumerateInstances failed. "
-                    "Incorrect class name returned.");
-              }
-
-              if ( cimNInstances[j].getPropertyCount() != numberOfProperties+1)
-              {
-                 errorExit(errPrintWriter, "enumerateInstances failed. "
-                    "Incorrect number of properties returned.");
+                 errorExit(errPrintWriter, "enumerateInstances failed");
               }
 
             }   // end for looping through instances
         }
 
-        stopwatchTime.stop();
-
         double elapsedTime = stopwatchTime.getElapsed();
-
-        outPrintWriter << testID
-            << ": Benchmark Test #5: enumerateInstances Test on class "
-            << className.getString() << endl;
+        outPrintWriter << testID << ": Benchmark Test #5: enumerateInstances Test on class " 
+                       << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
-        outPrintWriter << "Number of Non-Key Properties Returned  = "
-            << numberOfProperties << endl
-            << "Size of Each Non-Key Property Returned  = "
-            << sizeOfPropertyValue << endl
-            << "Number of Instances Returned = "
-            << expectedNumberOfInstances << endl;
-        outPrintWriter << _iterations << " requests processed in "
-            << elapsedTime << " Seconds "
-            << "(Average Elapse Time = " << elapsedTime/_iterations
-            << ")" << endl << endl;
-
-        if (_resultsFileHandle != NULL)
-        {
-            fprintf(_resultsFileHandle,
-                "enumerateInstances\t%s\t%f\t",
-                (const char *)className.getString().getCString(),
-                elapsedTime/_iterations);
-        }
+        outPrintWriter << "Number of Non-Key Properties Returned  = " << numberOfProperties << endl
+                       << "Size of Each Non-Key Property Returned  = " << sizeOfPropertyValue << endl
+                       << "Number of Instances Returned = " << expectedNumberOfInstances << endl;
+        outPrintWriter << _iterations << " requests processed in " 
+                       << elapsedTime << " Seconds " 
+                       << "(Average Elapse Time = " << elapsedTime/_iterations
+                       << ")" << endl << endl;
 
         client.disconnect();
     }  // end try
 
-    catch(const Exception& e)
+    catch(Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
+
 }
 
 
 /**
-
+  
     Executes the command and writes the results to the PrintWriters.
-
+  
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-
+  
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-
+  
  */
-Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
-                                      ostream& errPrintWriter)
+Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter, 
+                                      ostream& errPrintWriter) 
 {
 
-    benchmarkDefinition test;
-
-    if (_resultsDirectory != String::EMPTY)
-    {
-        String resultsFile = _resultsDirectory;
-        resultsFile.append("/benchmarkTestResults0001.txt");
-        _resultsFileHandle = fopen(resultsFile.getCString(), "a+");
-    }
-    else
-    {
-        _resultsFileHandle = NULL;
-    }
-
-    if (_resultsFileHandle != NULL)
-    {
-        _startTime = System::getCurrentASCIITime().getCString();
-        fprintf(_resultsFileHandle, "%s\t",
-            (const char *)_startTime.getCString());
-    }
+     benchmarkDefinition test;
 
     try
     {
         if (_debugOption1)
         {
-          Tracer::setTraceFile("benchmarkTest.trc");
-          Tracer::setTraceComponents("ALL");
-          Tracer::setTraceLevel(Tracer::LEVEL4);
+          Tracer::setTraceFile("benchmarkTest.trc"); 
+          Tracer::setTraceComponents("ALL");  
+          Tracer::setTraceLevel(Tracer::LEVEL4); 
         }
 
-        Uint32 testID = 0;
+	Uint32 testID = 0;
 
-        if (_generateReport)
-        {
-             benchmarkTestCommand::_getSystemConfiguration(
-                 outPrintWriter, errPrintWriter);
+	if (_generateReport)
+	{
+           benchmarkTestCommand::_getSystemConfiguration(outPrintWriter, errPrintWriter);
         }
 
-        benchmarkTestCommand::_getTestConfiguration(outPrintWriter,
-            errPrintWriter);
 
-        testID++;
-        if (!_testIDSet || (testID == _testID))
-        {
-             benchmarkTestCommand::dobenchmarkTest1(
-                 testID, outPrintWriter, errPrintWriter);
+#if 0
+	testID++;
+	if (!_testIDSet || (testID == _testID))
+	{
+           benchmarkTestCommand::dobenchmarkTest1(testID, outPrintWriter, errPrintWriter);
+        }
+#endif
+
+	testID++;
+	if (!_testIDSet || (testID == _testID))
+	{
+           benchmarkTestCommand::dobenchmarkTest2(testID, test.getClassName(0),
+                                                  outPrintWriter, errPrintWriter);
         }
 
-        testID++;
-        if (!_testIDSet || (testID == _testID))
-        {
-             benchmarkTestCommand::dobenchmarkTest2(
-                 testID, _testClassNames[0], outPrintWriter, errPrintWriter);
-        }
+        for (Uint32 i = 0, n = test.getNumberOfClassDefinitions(); i < n; i++)
 
-        for (Uint32 i = 0, n = _testClassNames.size(); i < n; i++)
-
-        {
-            if ((_resultsFileHandle != NULL) && ((i+1) % 10) == 0)
-            {
-               fclose(_resultsFileHandle);
-               String resultsFile = _resultsDirectory;
-               char s[40];
-               sprintf(s, "/benchmarkTestResults%.4u.txt", (i/10)+1);
-               resultsFile.append(s);
-               _resultsFileHandle = fopen(resultsFile.getCString(), "a+");
-               if (_resultsFileHandle != NULL)
-               {
-                   fprintf(_resultsFileHandle, "%s\t",
-                       (const char *)_startTime.getCString());
-               }
+	{
+	    testID++;	
+	    if (!_testIDSet || (testID == _testID))
+	    {
+                benchmarkTestCommand::dobenchmarkTest3(testID, test.getClassName(i),
+                                                  outPrintWriter, errPrintWriter);
             }
 
-            testID++;
-            if (!_testIDSet || (testID == _testID))
-            {
-                 benchmarkTestCommand::dobenchmarkTest3(testID,
-                     _testClassNames[i], outPrintWriter, errPrintWriter);
+	    testID++;
+	    if (!_testIDSet || (testID == _testID))
+	    {
+                benchmarkTestCommand::dobenchmarkTest4(testID, test.getClassName(i),
+                                                  outPrintWriter, errPrintWriter);
             }
 
-            testID++;
-            if (!_testIDSet || (testID == _testID))
-            {
-                 benchmarkTestCommand::dobenchmarkTest4(testID,
-                     _testClassNames[i], outPrintWriter, errPrintWriter);
-            }
-
-            testID++;
-            if (!_testIDSet || (testID == _testID))
-            {
-                  benchmarkTestCommand::dobenchmarkTest5(testID,
-                      _testClassNames[i], outPrintWriter, errPrintWriter);
+	    testID++;
+	    if (!_testIDSet || (testID == _testID))
+	    {
+                benchmarkTestCommand::dobenchmarkTest5(testID, test.getClassName(i),
+                                                  outPrintWriter, errPrintWriter);
             }
         }
-    }
-    catch (const benchmarkTestException& e)
-    {
-      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
-            e.getMessage () << endl;
-      return (RC_ERROR);
-    }
 
-    catch (const Exception& e)
-    {
-      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
-            e.getMessage () << endl;
-      return (RC_ERROR);
     }
-
-    catch (const exception& e)
+    catch (benchmarkTestException& e)
     {
-      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
-            e.what () << endl;
-      return (RC_ERROR);
-     }
-
-    if (_resultsFileHandle != NULL)
-    {
-        fprintf(_resultsFileHandle, "\n");
-        fclose(_resultsFileHandle);
+      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " << 
+	e.getMessage () << endl;
+        return (RC_ERROR);
     }
-
     return (RC_SUCCESS);
 }
 
 /**
-
+    
     Parses the command line, and executes the command.
-
+  
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-
+  
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-
+  
  */
 PEGASUS_NAMESPACE_END
 
@@ -1565,18 +1324,18 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char* argv [])
+int main (int argc, char* argv []) 
 {
     benchmarkTestCommand    command = benchmarkTestCommand ();
     int                rc;
 
-    try
+    try 
     {
         command.setCommand (argc, argv);
-    }
-    catch (const CommandFormatException& cfe)
+    } 
+    catch (CommandFormatException& cfe) 
     {
-        cerr << benchmarkTestCommand::COMMAND_NAME << ": " << cfe.getMessage ()
+        cerr << benchmarkTestCommand::COMMAND_NAME << ": " << cfe.getMessage () 
              << endl;
         cerr << command.getUsage () << endl;
         exit (Command::RC_ERROR);

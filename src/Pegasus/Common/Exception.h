@@ -86,7 +86,6 @@ protected:
     ExceptionRep * _rep;
 };
 
-
 ///
 class PEGASUS_COMMON_LINKAGE IndexOutOfBoundsException : public Exception
 {

@@ -87,6 +87,11 @@ PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages 
 	return stream;
 }
 
+AcceptLanguages AcceptLanguages::operator=(AcceptLanguages rhs){
+	LanguageElementContainer::operator=(rhs);
+	return *this;	
+}
+
 AcceptLanguageElement AcceptLanguages::getLanguageElement(int index) const{
 	return AcceptLanguageElement(container[index].getTag(), container[index].quality);
 }
@@ -125,8 +130,10 @@ void AcceptLanguages::remove(Uint32 index){
 }
 
 int AcceptLanguages::remove(AcceptLanguageElement element){
-	LanguageElementContainer::remove(element);
-	prioritize();
+	int rc;
+	if ((rc = LanguageElementContainer::remove(element)) != -1)
+		prioritize();
+	return rc;
 }
 
 int AcceptLanguages::find(AcceptLanguageElement element) { 

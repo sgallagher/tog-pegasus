@@ -210,7 +210,6 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("CreateClass"), message->messageId,
         message->getHttpMethod(), 
-
         _authenticator->buildRequestAuthHeader(), 
         message->acceptLanguages,
         message->contentLanguages,
@@ -261,7 +260,6 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("ModifyClass"), message->messageId,
         message->getHttpMethod(),
-
         _authenticator->buildRequestAuthHeader(),
         message->acceptLanguages,
         message->contentLanguages,        
@@ -439,7 +437,6 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerateInstanceNames"), 
         message->messageId, message->getHttpMethod(),
-
         _authenticator->buildRequestAuthHeader(),
         message->acceptLanguages,
         message->contentLanguages,        

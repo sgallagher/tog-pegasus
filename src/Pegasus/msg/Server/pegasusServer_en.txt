@@ -807,10 +807,6 @@ en:table {
 
 	ExportServer.CIMExportRequestDispatcher.NO_REGISTRATION:string {"There is no {0} registered for this location."}
 
-	ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPORT_METHOD:string {"The export method {0} was not recognized."}
-
-	ExportServer.CIMExportRequestDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
-
 	ExportClient.CIMExportRequestDispatcher.INVALID_REGISTRATION:string {"The {0} registration data is invalid."} // possibly obsolete
 
 	ExportClient.CIMExportRequestDispatcher.NO_REGISTRATION:string {"There is no {0} registered for this location."} // possibly obsolete
@@ -835,5 +831,29 @@ en:table {
 
 	ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID:string {"The response message ID {0} does not match the expected response message ID {1}."}
 	ExportClient.CIMExportClient.MISMATCHED_RESPONSE:string {"The response message type is mismatched."}
+
+	Client.CIMClient.MISMATCHED_RESPONSE:string {"A mismatched response message ID was received. {0} was received when {1} was expected."}
+	Client.CIMClient.MISMATCHED_RESPONSE_TYPE:string {"A mismatched response message type was received."}
+
+
+	Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+
+	Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT:string {"A {0} or {1} element was expected."}
+
+	Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME:string {"The {0} name {1} was not recognized."}
+
+	Client.CIMOperationResponseDecoder.EMPTY_RESPONSE:string {"The HTTP response message was empty."}
+
+	Client.CIMOperationResponseDecoder.MALFORMED_RESPONSE:string {"The HTTP response message was malformed."}
+
+	Client.CIMOperationResponseDecoder.AUTHENTICATION_FAILED:string {"The authentication failed."}
+
+	Client.CIMOperationResponseDecoder.MALFORMED_CONTENT:string {"The Content-Language header is malformed."}
+
+	Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER:string {"The {0} HTTP header is missing."}
+
+	Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a {0} HTTP header value of \"{1}\" when it expected \"{2}\"."}
+
+	Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
 
 }

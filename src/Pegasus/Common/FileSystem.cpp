@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
-// Revision 1.14  2001/04/11 19:53:22  mike
-// More porting
+// Revision 1.15  2001/04/12 09:57:39  mike
+// Post Channel Port to Linux
 //
 // Revision 1.13  2001/04/08 21:57:13  karl
 // dir hier tested
@@ -63,6 +63,7 @@
 //END_HISTORY
 
 #include <iostream>
+#include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include "Destroyer.h"
@@ -232,7 +233,7 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
 Boolean FileSystem::removeFile(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-    return unlink(p.getPointer()) == 0;	
+    return System::removeFile(p.getPointer());
 }
 
 void FileSystem::loadFileToMemory(

@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
-// Revision 1.25  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Revision 1.26  2001/04/12 09:57:39  mike
+// Post Channel Port to Linux
 //
 // Revision 1.23  2001/04/07 12:01:18  karl
 // remove namespace support
@@ -94,6 +93,7 @@ Pegasus.
 
 #include <cassert>
 #include <cstdlib>
+#include <cstdio>
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
@@ -1449,7 +1449,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	    // Strip off all but the namespace itself
 	    String work = tmpInstanceNames[i];
 	    Uint32 pos = work.find('\"');
-	    if (pos != -1)
+	    if (pos != Uint32(-1))
 		work = tmpInstanceNames[i].subString((pos+1), -1);
 
 	    // remove trailing quote
@@ -1760,7 +1760,7 @@ static void ClassTree(const CGIQueryString& qs)
 	   superClassNames.append(myClass.getSuperClassName());
 	}
  	TraverseClassTree(nameSpace, rootClass, superClassNames,
-			    classNames,classNames.getSize(),-1);
+			    classNames,classNames.getSize(),Uint32(-1));
 
 	// Close the Page
 	cout << "<p>Returned " << classNames.getSize() << " getClasses ";

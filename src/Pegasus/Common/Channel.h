@@ -23,9 +23,8 @@
 // Author: Michael E. Brasher
 //
 // $Log: Channel.h,v $
-// Revision 1.5  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Revision 1.6  2001/04/12 09:57:39  mike
+// Post Channel Port to Linux
 //
 //
 //END_HISTORY
@@ -119,6 +118,10 @@ public:
     /** Returns true if the last error was a would block error:
     */
     virtual Boolean wouldBlock() const = 0;
+
+    /** Returns true if blocking mode is on.
+    */
+    virtual Boolean getBlocking() const = 0;
 
     /** Get the ChannelHandler for this channel.
     */

@@ -2,18 +2,22 @@
 				TO-DO List
 				==========
 
-    - Should ChannelHandler::handleOpen() do the registration with the
-      selector?
+    - 	The TCPChannel::writeN() method blocks when the client and server
+	are in the same process. That is because the client cannot read
+	anything as long as writeN() is blocked on a synchronous write.
 
-    - Figure out how to handle getProperty() return type.
+    - 	Should ChannelHandler::handleOpen() do the registration with the
+      	selector?
 
-    - Having problems with reference on Repository::createInstance() and
-      Repository::getInstance(). References not always in standard form.
-      Also, resolve() fails when instance has properties of difference
-      case.
+    - 	Figure out how to handle getProperty() return type.
 
-    - Super class name does not seem to be set in enumerateClasses operation.
+    - 	Having problems with reference on Repository::createInstance() and
+      	Repository::getInstance(). References not always in standard form.
+      	Also, resolve() fails when instance has properties of difference
+      	case.
 
+    - 	Super class name does not seem to be set in enumerateClasses 
+	operation.
 
     ------------------------------------------------------------------------
 

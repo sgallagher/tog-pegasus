@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: Handler.cpp,v $
-// Revision 1.3  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Revision 1.4  2001/04/12 09:57:40  mike
+// Post Channel Port to Linux
 //
 // Revision 1.1.1.1  2001/01/14 19:53:51  mike
 // Pegasus import
@@ -36,6 +35,7 @@
 #include <iostream>
 #include <cctype>
 #include <cassert>
+#include <cstdlib>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlParser.h>

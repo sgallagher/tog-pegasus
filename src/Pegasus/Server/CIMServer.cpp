@@ -23,9 +23,8 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
-// Revision 1.8  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Revision 1.9  2001/04/12 09:57:40  mike
+// Post Channel Port to Linux
 //
 // Revision 1.5  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
@@ -59,6 +58,8 @@
 //END_HISTORY
 
 #include <cassert>
+#include <cstdio>
+#include <cctype>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>

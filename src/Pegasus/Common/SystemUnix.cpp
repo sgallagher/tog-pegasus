@@ -23,8 +23,8 @@
 // Author: Michael E. Brasher
 //
 // $Log: SystemUnix.cpp,v $
-// Revision 1.4  2001/04/12 07:53:08  mike
-// new
+// Revision 1.5  2001/04/12 09:57:39  mike
+// Post Channel Port to Linux
 //
 // Revision 1.2  2001/04/11 07:03:02  mike
 // Port to Unix
@@ -32,6 +32,7 @@
 //
 //END_HISTORY
 
+#include <dlfcn.h>
 #include <unistd.h>
 #include <dirent.h>
 #include "System.h"
@@ -67,14 +68,14 @@ Boolean System::exists(const char* path)
     return access(path, F_OK) == 0;
 }
 
-Boolean FileSystem::canRead(const char* path)
+Boolean System::canRead(const char* path)
 {
     return access(path, R_OK) == 0;
 }
 
 Boolean System::canWrite(const char* path)
 {
-    return _access(path, W_OK) == 0;
+    return access(path, W_OK) == 0;
 }
 
 Boolean System::getCurrentDirectory(char* path, Uint32 size)
@@ -86,7 +87,7 @@ Boolean System::isDirectory(const char* path)
 {
     struct stat st;
 
-    if (stat(p.getPointer(), &st) != 0)
+    if (stat(path, &st) != 0)
 	return false;
 
     return S_ISDIR(st.st_mode);

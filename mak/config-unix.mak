@@ -6,11 +6,13 @@ OS_TYPE=unix
 
 DEPEND_INCLUDES = -I/usr/include/g++-3
 
-DEFINES =
+DEFINES = -DPEGASUS_OS_TYPE_UNIX
 
-FLAGS = -DPEGASUS_OS_TYPE_UNIX -O2 -W -Wall -pipe -Wno-unused -fcheck-new
+FLAGS = -O2 -W -Wall -pipe -Wno-unused -fcheck-new
 
 RM = rm -f
+
+SYS_LIBS = -ldl
 
 RMDIRHIER = rm -rf
 

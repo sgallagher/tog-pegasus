@@ -23,8 +23,8 @@
 // Author: Michael E. Brasher
 //
 // $Log: TCPChannelUnix.cpp,v $
-// Revision 1.1  2001/04/11 07:03:02  mike
-// Port to Unix
+// Revision 1.2  2001/04/12 09:57:39  mike
+// Post Channel Port to Linux
 //
 // Revision 1.1  2001/04/11 04:30:33  mike
 // More porting
@@ -70,8 +70,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-TCPChannel::TCPChannel(Uint32 desc, ChannelHandler* handler) 
-    : _desc(desc), _blocking(true), _handler(handler)
+TCPChannel::TCPChannel(
+    Selector* selector, Uint32 desc, ChannelHandler* handler) 
+    : _selector(selector), _desc(desc), _blocking(true), _handler(handler)
 {
 
 }
@@ -104,7 +105,7 @@ Sint32 TCPChannel::write(const void* ptr, Uint32 size)
 void TCPChannel::enableBlocking()
 {
     int flags = fcntl(_desc, F_GETFL, 0);
-    flags |= ~O_NONBLOCK;
+    flags &= ~O_NONBLOCK;
     fcntl(_desc, F_SETFL, flags);
     _blocking = true;
 }
@@ -112,9 +113,9 @@ void TCPChannel::enableBlocking()
 void TCPChannel::disableBlocking()
 {
     int flags = fcntl(_desc, F_GETFL, 0);
-    flags &= O_NONBLOCK;
+    flags |= O_NONBLOCK;
     fcntl(_desc, F_SETFL, flags);
-    _blocking = true;
+    _blocking = false;
 }
 
 Boolean TCPChannel::wouldBlock() const
@@ -247,7 +248,7 @@ Channel* TCPChannelConnector::connect(const char* addressString)
     // Create the channel:
 
     ChannelHandler* handler = _factory->create();
-    TCPChannel* channel = new TCPChannel(desc, handler);
+    TCPChannel* channel = new TCPChannel(_selector, desc, handler);
 
     // ATTN-B: at this time, the selector does not manage the lifetime
     // of channel objects. The selector is responsible for this. When
@@ -368,7 +369,7 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 	return true;
 
     ChannelHandler* handler = _factory->create();
-    TCPChannel* channel = new TCPChannel(slaveDesc, handler);
+    TCPChannel* channel = new TCPChannel(_selector, slaveDesc, handler);
 
     // Register the channel to receive events:
 

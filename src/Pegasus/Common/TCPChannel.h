@@ -23,9 +23,8 @@
 // Author: Michael E. Brasher
 //
 // $Log: TCPChannel.h,v $
-// Revision 1.2  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Revision 1.3  2001/04/12 09:57:39  mike
+// Post Channel Port to Linux
 //
 // Revision 1.2  2001/04/08 19:20:04  mike
 // more TCP work
@@ -51,7 +50,7 @@ class PEGASUS_COMMON_LINKAGE TCPChannel
 {
 public:
 
-    TCPChannel(Uint32 desc, ChannelHandler* handler);
+    TCPChannel(Selector* selector, Uint32 desc, ChannelHandler* handler);
 
     virtual ~TCPChannel();
 
@@ -69,13 +68,14 @@ public:
 
     virtual Boolean wouldBlock() const;
 
-    Boolean getBlocking() const { return _blocking; }
+    virtual Boolean getBlocking() const { return _blocking; }
 
     virtual Boolean handle(Sint32 desc, Uint32 reasons);
 
     virtual ChannelHandler* getChannelHandler() { return _handler; }
 
 private:
+    Selector* _selector;
     Sint32 _desc;
     Boolean _blocking;
     ChannelHandler* _handler;

@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: ClientServer.cpp,v $
-// Revision 1.1  2001/04/12 07:25:20  mike
-// Replaced ACE with new Channel implementation.
-// Removed all ACE dependencies.
+// Revision 1.2  2001/04/12 09:57:40  mike
+// Post Channel Port to Linux
 //
 // Revision 1.8  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
@@ -248,11 +247,11 @@ int main(int argc, char** argv)
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
 
-	const char ADDRESS[] = "8888";
+	const char ADDRESS[] = "9999";
 	server.bind(ADDRESS);
 
 	CIMClient client(&selector, CIMClient::DEFAULT_TIMEOUT_MILLISECONDS);
-	client.connect("localhost:8888");
+	client.connect("localhost:9999");
 	TestQualifierOperations(client);
 	TestClassOperations(client);
 	TestInstanceOperations(client);

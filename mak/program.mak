@@ -11,7 +11,7 @@ endif
 FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
 $(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
-	$(CXX) $(FLAGS) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(LIBRARIES)
+	$(CXX) $(FLAGS) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(LIBRARIES) $(SYS_LIBS)
 	@ $(ECHO)
 
 include $(ROOT)/mak/objects.mak

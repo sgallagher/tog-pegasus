@@ -40,12 +40,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     : 
-    _authStatus(NEW_REQUEST), 
     _authUser(String::EMPTY),
-    _authChallenge(String::EMPTY), 
+    _authChallenge(String::EMPTY),
     _authSecret(String::EMPTY),
-    _privileged(false), 
-    _authType(String::EMPTY)
+    _privileged(false),
+    _authType(String::EMPTY),
+    _authStatus(NEW_REQUEST)
 { 
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");

@@ -125,7 +125,7 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
         return retArray;
 
     //  comment
-    for (int i=0; i < str.length();i+=4)
+    for (size_t i=0; i < str.length();i+=4)
     {
         char c1='A',c2='A',c3='A',c4='A';
 

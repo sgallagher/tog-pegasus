@@ -54,7 +54,7 @@ AssertionFailureException::AssertionFailureException(
     const String& message) : Exception(String())
 {
     char lineStr[32];
-    sprintf(lineStr, "%d", line);
+    sprintf(lineStr, "%u", line);
 
     _message = file;
     _message.append("(");

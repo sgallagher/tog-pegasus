@@ -252,6 +252,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(capabilityKey, providerCapability))
         {
+            PEG_METHOD_EXIT();
             throw CIMException(CIM_ERR_FAILED, "provider capability has not been registered yet");
         }
 
@@ -261,6 +262,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
 
         if (pos == PEG_NOT_FOUND)
         {
+            PEG_METHOD_EXIT();
     	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
         }
 
@@ -280,6 +282,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         Uint32 pos2 = instances[0].findProperty(_PROPERTY_PROVIDERMODULENAME);
         if (pos2 == PEG_NOT_FOUND)
         {
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
         }
 
@@ -295,6 +298,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_FAILED, "can not find the provider");
         }
 
@@ -306,6 +310,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
         }
 
@@ -331,6 +336,9 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     CIMInstance & provider,
     CIMInstance & providerModule)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+	"ProviderRegistrationManager::lookupMethodProvider");
+
     String providerName;
     String providerModuleName;
     Array<CIMInstance> instances;
@@ -360,6 +368,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 	Uint32 pos = instances[0].findProperty(_PROPERTY_PROVIDERNAME);
     	if (pos == PEG_NOT_FOUND)
     	{
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	}
 
@@ -371,6 +380,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 	Uint32 pos2 = instances[0].findProperty(_PROPERTY_PROVIDERMODULENAME);
     	if (pos2 == PEG_NOT_FOUND)
     	{
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	}
 
@@ -396,6 +406,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 	    Uint32 pos = instances[0].findProperty(_PROPERTY_PROVIDERNAME);
     	    if (pos == PEG_NOT_FOUND)
     	    {
+                PEG_METHOD_EXIT();
 	    	throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	    }
 
@@ -407,12 +418,14 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 	    Uint32 pos2 = instances[0].findProperty(_PROPERTY_PROVIDERMODULENAME);
     	    if (pos2 == PEG_NOT_FOUND)
     	    {
+                PEG_METHOD_EXIT();
 	    	throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	    }
     	    instances[0].getProperty(pos2).getValue().get(providerModuleName);
 	}
 	else
 	{
+            PEG_METHOD_EXIT();
             throw CIMException(CIM_ERR_FAILED, "provider has not been registered yet");
 	}
 	
@@ -433,6 +446,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     //
     if (!_registrationTable->table.lookup(_providerKey, _provider))
     {
+        PEG_METHOD_EXIT();
 	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
     }
 
@@ -444,6 +458,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     //
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
+        PEG_METHOD_EXIT();
 	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
     }
     
@@ -453,9 +468,11 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
   }
   catch(CIMException & exception)
   {
+        PEG_METHOD_EXIT();
 	return (false);
   }
 
+    PEG_METHOD_EXIT();
     return (true);
 }
 
@@ -477,6 +494,9 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     Array<CIMInstance> & provider,
     Array<CIMInstance> & providerModule)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+	"ProviderRegistrationManager::getIndicationProviders");
+
     Array <CIMInstance> _providerInstances;
     Array <CIMInstance> _providerModuleInstances;
 
@@ -504,6 +524,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     //
     if (! _registrationTable->table.lookup(capabilityKey, providerCapability))
     {
+        PEG_METHOD_EXIT();
         throw CIMException(CIM_ERR_FAILED, "provider capability has not been registered yet");
     }
 
@@ -520,6 +541,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	Uint32 pos = instances[i].findProperty(_PROPERTY_SUPPORTEDPROPERTIES);
     	if (pos == PEG_NOT_FOUND)
     	{
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	}
 
@@ -535,6 +557,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	Uint32 pos2 = instances[i].findProperty(_PROPERTY_PROVIDERNAME);
     	if (pos2 == PEG_NOT_FOUND)
     	{
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	}
 	instances[i].getProperty(pos2).getValue().get(providerName);
@@ -550,6 +573,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	Uint32 pos3 = instances[i].findProperty(_PROPERTY_PROVIDERMODULENAME);
     	if (pos3 == PEG_NOT_FOUND)
     	{
+            PEG_METHOD_EXIT();
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	}
 	instances[i].getProperty(pos3).getValue().get(providerModuleName);
@@ -567,6 +591,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    //
 	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    {
+                PEG_METHOD_EXIT();
         	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
     	    }
 	    
@@ -585,6 +610,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    //
 	    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     	    {
+                PEG_METHOD_EXIT();
         	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
     	    }
 	    
@@ -629,6 +655,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    	    //
 	    	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    	    {
+                        PEG_METHOD_EXIT();
         		throw CIMException(CIM_ERR_FAILED, "can not find the provider");
     	    	     }
 	    
@@ -648,6 +675,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             	     //
             	     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
             	     {
+                         PEG_METHOD_EXIT();
                          throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
             	     }
 
@@ -669,9 +697,11 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
   }
   catch (CIMException & exception)
   {
+        PEG_METHOD_EXIT();
 	return (false);
   }
-    
+
+    PEG_METHOD_EXIT();
     return (true);
 }
 
@@ -1337,6 +1367,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			}
 			else
 			{
+                            PEG_METHOD_EXIT();
 			    throw CIMException(CIM_ERR_INVALID_PARAMETER);
 			}
 
@@ -1381,6 +1412,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			//
 			//  Error condition: provider type not supported
 			//
+                        PEG_METHOD_EXIT();
 			throw CIMException (CIM_ERR_NOT_SUPPORTED);
 			break;
 		}
@@ -1498,6 +1530,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 		//
 		// the provider module class is not registered
 		//
+                PEG_METHOD_EXIT();
 		throw CIMException(CIM_ERR_FAILED, "PG_ProviderModule class"
 			" needs to be registered before register the PG_Provider class");
 	    }
@@ -1579,6 +1612,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 				if (_registrationTable->table.contains(_capabilityKey))
 				{
 				    // the instance was already registered
+                                    PEG_METHOD_EXIT();
 				    throw CIMException(CIM_ERR_ALREADY_EXISTS);
 				}
 				else
@@ -1704,6 +1738,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 			    }
 			    else
 			    {
+		                PEG_METHOD_EXIT();
 				throw CIMException(CIM_ERR_INVALID_PARAMETER);
 			    }
 
@@ -1729,6 +1764,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 				    if (_registrationTable->table.contains(_capabilityKey))
 			            {
 				        // the instance was already registered
+                                        PEG_METHOD_EXIT();
 				        throw CIMException(CIM_ERR_ALREADY_EXISTS);
 			            }
 
@@ -1750,6 +1786,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 					if (_registrationTable->table.contains(_capabilityKey))
 					{
 					    // the instance already registered
+                                            PEG_METHOD_EXIT();
                                     	    throw CIMException(CIM_ERR_ALREADY_EXISTS);
 
 					}
@@ -1769,6 +1806,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
             		    //
             		    //  Error condition: provider type not supported
             		    //
+		            PEG_METHOD_EXIT();
             		    throw CIMException (CIM_ERR_NOT_SUPPORTED);
             		    break;
 		    }
@@ -1781,6 +1819,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	    else
 	    {
                 // the provider class was not registered
+		PEG_METHOD_EXIT();
                 throw CIMException(CIM_ERR_FAILED, "PG_Provider class needs "
                    "to be registered before register the Provider capabilities class");
 	    }
@@ -1802,7 +1841,8 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	throw (exception);
     }
 
-    PEG_METHOD_EXIT();
+    // Should never get here
+    PEGASUS_ASSERT(0);
 }
 
 // Unregister a provider

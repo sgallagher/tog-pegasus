@@ -36,8 +36,8 @@
 PEGASUS_USING_PEGASUS;
 
 cimmofClient::cimmofClient() :
-  _client(0),
-  _ot(compilerCommonDefs::USE_REPOSITORY)
+  _ot(compilerCommonDefs::USE_REPOSITORY),
+  _client(0)
 {
 }
 

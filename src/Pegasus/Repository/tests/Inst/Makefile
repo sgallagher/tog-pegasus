@@ -12,3 +12,4 @@ tests:
 	$(RM) X.idx
 	$(TOUCH) X.idx
 	Inst
+	$(RM) X.idx

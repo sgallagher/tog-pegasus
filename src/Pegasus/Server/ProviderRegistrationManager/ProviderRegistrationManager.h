@@ -437,7 +437,7 @@ private:
 
 };
 
-class WildCardNamespaceNames {
+class PEGASUS_PRM_LINKAGE WildCardNamespaceNames {
    static Array<String> _nsstr;
    static Array<CIMNamespaceName> _ns;
    static Array<Uint32> _nsl;

@@ -38,13 +38,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-#define HTTP_STATUSCODE_OK 200
-#define HTTP_REASONPHRASE_OK "OK"
 
 typedef Pair<String, String> HTTPHeader;
 
@@ -89,45 +85,6 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 String& httpVersion,
 	 Uint32& statusCode,
 	 String& reasonPhrase);
-};
-
-/**
-    This message contains information about an HTTP error response.
-*/
-class PEGASUS_COMMON_LINKAGE HTTPErrorMessage : public Message
-{
-   public:
-      typedef Message Base;
-
-      HTTPErrorMessage(
-         Uint32 httpStatusCode_,
-         const String& cimError_,
-         const String& pegasusError_)
-         : Message(HTTP_ERROR_MESSAGE),
-           httpStatusCode(httpStatusCode_),
-           cimError(cimError_),
-           pegasusError(pegasusError_)
-      { }
-
-
-      HTTPErrorMessage(HTTPErrorMessage & msg)
-         : Base(msg)
-      {
-         if( this != &msg)
-         {
-            httpStatusCode = msg.httpStatusCode;
-            const_cast<String &>(cimError) = msg.cimError;
-            const_cast<String &>(pegasusError) = msg.pegasusError;
-         }
-      }
-
-      virtual ~HTTPErrorMessage()
-      {
-      }
-
-      Uint32 httpStatusCode;
-      const String cimError;
-      const String pegasusError;
 };
 
 PEGASUS_NAMESPACE_END

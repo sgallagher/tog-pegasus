@@ -113,13 +113,13 @@ void CIMOperationRequestDecoder::sendHttpError(
    Uint32 queueId, 
    const String& status,
    const String& cimError,
-   const String& messageBody) 
+   const String& pegasusError) 
 {
     Array<Sint8> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,
-        messageBody);
+        pegasusError);
     
     sendResponse(queueId, message);
 }

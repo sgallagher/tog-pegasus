@@ -50,12 +50,6 @@ class CIMConstQualifierDecl;
 class CIMConstClass;
 class CIMConstInstance;
 
-#define HTTP_STATUS_BADREQUEST          "400 Bad Request"
-#define HTTP_STATUS_UNAUTHORIZED        "401 Unauthorized"
-#define HTTP_STATUS_INTERNALSERVERERROR "500 Internal Server Error"
-#define HTTP_STATUS_NOTIMPLEMENTED      "501 Not Implemented"
-#define HTTP_STATUS_SERVICEUNAVAILABLE  "503 Service Unavailable"
-
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:

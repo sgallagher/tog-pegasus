@@ -461,7 +461,7 @@ void XmlWriter::appendMethodResponseHeader(
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-    out << "HTTP/1.1 200 OK\r\n";
+    out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Ext:\r\n";
@@ -1301,7 +1301,7 @@ void XmlWriter::appendEMethodResponseHeader(
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-    out << "HTTP/1.1 200 OK\r\n";
+    out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Ext:\r\n";

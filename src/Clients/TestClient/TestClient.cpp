@@ -41,6 +41,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/XmlWriter.h>
 #if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
 #include <slp/slp.h>
 #endif
@@ -228,7 +229,7 @@ static void TestGetClass(CIMClient& client, Boolean activeTest,
     CIMClass c = client.getClass(
 		 globalNamespace, "CIM_ComputerSystem", false, false, true);
 
-    c.print();
+    XmlWriter::printClassElement(c);
 }
 
 static void TestClassOperations(CIMClient& client, Boolean ActiveTest, 
@@ -505,8 +506,8 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     //CIMReference::instanceNameToReference(instanceName, ref);
     CIMInstance tmp = client.getInstance(globalNamespace, instanceName);
 
-    // cimInstance.print();
-    // tmp.print();
+    // XmlWriter::printInstanceElement(cimInstance);
+    // XmlWriter::printInstanceElement(tmp);
     // assert(cimInstance.identical(tmp));
 
     // Test timeout methods

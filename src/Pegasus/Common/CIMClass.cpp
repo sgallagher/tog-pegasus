@@ -275,18 +275,6 @@ Boolean CIMClass::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMClass::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMClass::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 void CIMClass::toMof(Array<Sint8>& out) const
 {
     _checkRep();
@@ -496,18 +484,6 @@ Uint32 CIMConstClass::getMethodCount() const
 Boolean CIMConstClass::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstClass::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstClass::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMConstClass::identical(const CIMConstClass& x) const

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -91,7 +92,7 @@ void test01()
     context->addClass(NAMESPACE, class1);
 
 	if(verbose) {
-		class1.print();
+		XmlWriter::printClassElement(class1);
 	}
 
     CIMInstance instance0("//localhost/root/cimv2:MyClass.Foo=1");
@@ -112,12 +113,12 @@ void test01()
     assert(instance1.getPropertyCount() == 1);
 
 	if(verbose)
-		instance1.print();
+		XmlWriter::printInstanceElement(instance1);
 
     instance1.resolve(context, NAMESPACE, true);
 
 	if(verbose)
-		instance1.print();
+		XmlWriter::printInstanceElement(instance1);
 
     // Now test for properties after resolution.
 
@@ -160,7 +161,7 @@ void test01()
           instance2.getQualifier(instance2.findQualifier("classcounter"));
 
 	if(verbose)
-		instance2.print();
+		XmlWriter::printInstanceElement(instance2);
 
     // Tests for CIMConstInstance 
     CIMConstInstance cinstance1("MyClass"), cinstance3;
@@ -193,7 +194,7 @@ void test01()
 
 
 	if(verbose)
-		cinstance1.print();
+		XmlWriter::printInstanceElement(cinstance1);
   
     cinstance1.getInstanceName(class1);
  

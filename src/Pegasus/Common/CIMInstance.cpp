@@ -220,18 +220,6 @@ void CIMInstance::resolve(
     _rep->resolve(declContext, nameSpace, cimClassOut, propagateQualifiers);
 }
 
-void CIMInstance::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMInstance::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 void CIMInstance::toMof(Array<Sint8>& out) const
 {
     _checkRep();
@@ -384,18 +372,6 @@ Uint32 CIMConstInstance::getPropertyCount() const
 Boolean CIMConstInstance::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstInstance::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstInstance::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMConstInstance::identical(const CIMConstInstance& x) const

@@ -111,13 +111,9 @@ void _LoadObject(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-template<class Object>
-void _SaveObject(const String& path, const Object& object)
+void _SaveObject(const String& path, Array<Sint8>& objectXml)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
-
-    Array<Sint8> out;
-    object.toXml(out);
 
     ArrayDestroyer<char> destroyer(path.allocateCString());
     PEGASUS_STD(ofstream) os(destroyer.getPointer() PEGASUS_IOS_BINARY);
@@ -129,10 +125,10 @@ void _SaveObject(const String& path, const Object& object)
     }
 
 #ifdef INDENT_XML_FILES
-    out.append('\0');
-    XmlWriter::indentedPrint(os, out.getData(), 2);
+    objectXml.append('\0');
+    XmlWriter::indentedPrint(os, objectXml.getData(), 2);
 #else
-    os.write((char*)out.getData(), out.size());
+    os.write((char*)objectXml.getData(), objectXml.size());
 #endif
 
     PEG_METHOD_EXIT();
@@ -702,7 +698,9 @@ void CIMRepository::createClass(
 
     // -- Create the class file:
 
-    _SaveObject(classFilePath, cimClass);
+    Array<Sint8> classXml;
+    XmlWriter::appendClassElement(classXml, cimClass);
+    _SaveObject(classFilePath, classXml);
 
     PEG_METHOD_EXIT();
 }
@@ -922,7 +920,7 @@ CIMReference CIMRepository::createInstance(
 
     {
 	Array<Sint8> data;
-	cimInstance.toXml(data);
+	XmlWriter::appendInstanceElement(data, cimInstance);
 	size = data.size();
 
 	if (!InstanceDataFile::appendInstance(dataFilePath, data, index))
@@ -1014,7 +1012,9 @@ void CIMRepository::modifyClass(
     // Create new class file:
     //
 
-    _SaveObject(classFilePath, cimClass);
+    Array<Sint8> classXml;
+    XmlWriter::appendClassElement(classXml, cimClass);
+    _SaveObject(classFilePath, classXml);
 
     PEG_METHOD_EXIT();
 }
@@ -1315,7 +1315,7 @@ void CIMRepository::modifyInstance(
 
     {
 	Array<Sint8> out;
-	cimInstance.toXml(out);
+	XmlWriter::appendInstanceElement(out, cimInstance);
 
 	newSize = out.size();
 
@@ -2053,7 +2053,10 @@ void CIMRepository::setQualifier(
 
     // -- Save qualifier:
 
-    _SaveObject(qualifierFilePath, qualifierDecl);
+    Array<Sint8> qualifierDeclXml;
+    qualifierDecl.toXml(qualifierDeclXml);
+    //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
+    _SaveObject(qualifierFilePath, qualifierDeclXml);
 
     PEG_METHOD_EXIT();
 }

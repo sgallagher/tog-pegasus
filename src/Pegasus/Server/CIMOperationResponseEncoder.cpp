@@ -374,7 +374,7 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
    }
 
    Array<Sint8> body;
-   response->cimClass.toXml(body);
+   XmlWriter::appendClassElement(body, response->cimClass);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetClass", response->messageId, body);
@@ -461,7 +461,7 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimClasses.size(); i++)
-      response->cimClasses[i].toXml(body);
+      XmlWriter::appendClassElement(body, response->cimClasses[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateClasses", response->messageId, body);
@@ -542,7 +542,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
    }
 
    Array<Sint8> body;
-   response->cimInstance.toXml(body);
+   XmlWriter::appendInstanceElement(body, response->cimInstance);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetInstance", response->messageId, body);

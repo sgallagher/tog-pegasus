@@ -253,19 +253,10 @@ public:
     */
     Boolean identical(const CIMConstInstance& x) const;
 
-    /**	toXml - Creates an XML transformation of the CIMInstance
-	compatible with the DMTF CIM Operations over HTTP defintions.
-	ATTN: This is incorrect and needs to be corrected.
-    */
-    void toXml(Array<Sint8>& out) const;
-
     /**	toMof - Creates an MOF transformation of the CIMInstance
 	compatible with the DMTF specification.
     */
     void toMof(Array<Sint8>& out) const;
-
-    /**	prints the class in XML format. */
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 
 #ifdef PEGASUS_INTERNALONLY
     /**	isNull() - ATTN: */
@@ -290,7 +281,6 @@ private:
 
     CIMInstanceRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     CIMInstance(CIMInstanceRep* rep);
 
     void _checkRep() const;
@@ -298,7 +288,7 @@ private:
     friend class CIMConstInstance;
     friend class CIMObject;
     friend class CIMConstObject;
-#endif
+    friend class XmlWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -359,10 +349,6 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
 
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
-
     String toString() const;
 #endif
 
@@ -370,13 +356,12 @@ private:
 
     CIMInstanceRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     void _checkRep() const;
 
     friend class CIMInstance;
     friend class CIMObject;
     friend class CIMConstObject;
-#endif
+    friend class XmlWriter;
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(

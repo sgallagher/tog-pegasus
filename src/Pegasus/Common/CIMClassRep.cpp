@@ -545,14 +545,6 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     out << "\n};\n";
 }
 
-void CIMClassRep::print(PEGASUS_STD(ostream) &os) const
-{
-    Array<Sint8> tmp;
-    toXml(tmp);
-    tmp.append('\0');
-    XmlWriter::indentedPrint(os, tmp.getData(), 4);
-}
-
 void CIMClassRep::printMof(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
@@ -564,7 +556,6 @@ void CIMClassRep::printMof(PEGASUS_STD(ostream) &os) const
 
 CIMClassRep::CIMClassRep()
 {
-
 }
 
 CIMClassRep::CIMClassRep(const CIMClassRep& x) :

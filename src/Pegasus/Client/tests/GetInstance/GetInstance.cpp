@@ -29,6 +29,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -44,7 +45,7 @@ int main(int argc, char** argv)
 
 	CIMReference reference = "Process.pid=123456";
 	CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
-	cimInstance.print();
+        XmlWriter::printInstanceElement(cimInstance);
     }
     catch(CIMClientException& e)
     {

@@ -633,7 +633,7 @@ int main(int argc, char** argv)
 
                     // Note we get and print ourselves rather than use the generic printMof
                     if(isXMLOutput)
-                        cimClass.print(cout);
+                        XmlWriter::printClassElement(cimClass, cout);
                     else
                     {
                         Array<Sint8> x;
@@ -715,7 +715,7 @@ int main(int argc, char** argv)
 
                             CIMInstance instance = namedInstances[i].getInstance();
                             if(isXMLOutput)
-                                instance.print(cout);
+                                XmlWriter::printInstanceElement(instance, cout);
                             else
                             {
                                 Array<Sint8> x;

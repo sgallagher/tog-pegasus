@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 		.addParameter(CIMParameter("hostname", CIMType::STRING))
 		.addParameter(CIMParameter("port", CIMType::UINT32)));
         if (verbose)
-	    class1.print();
+            XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
 	class1.toMof(tmp);
 	tmp.append('\0');
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 		.addParameter(CIMParameter("hostname", CIMType::STRING))
 		.addParameter(CIMParameter("port", CIMType::UINT32)));
         if (verbose)
-	    class1.print();
+            XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
 	class1.toMof(tmp);
 	tmp.append('\0');
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 		     )
                      ;
         if (verbose)
-	    class1.print();
+            XmlWriter::printClassElement(class1);
 	//Array<Sint8> tmp;
 	//class1.toMof(tmp);
 	//tmp.append('\0');

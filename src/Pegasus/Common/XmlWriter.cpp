@@ -35,7 +35,9 @@
 #include "Constants.h"
 #include "Destroyer.h"
 #include "CIMClass.h"
+#include "CIMClassRep.h"
 #include "CIMInstance.h"
+#include "CIMInstanceRep.h"
 #include "CIMValue.h"
 #include "CIMQualifierDecl.h"
 #include "XmlWriter.h"
@@ -575,6 +577,13 @@ void _appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
 //    XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,
 //    or <VALUE.REFARRAY> tags. If the CIMValue is Null, nothing is appended.
 //
+//    <!ELEMENT VALUE (#PCDATA)>
+//    <!ELEMENT VALUE.ARRAY (VALUE*)>
+//    <!ELEMENT VALUE.REFERENCE
+//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
+//         INSTANCENAME)>
+//    <!ELEMENT VALUE.REFARRAY (VALUE.REFERENCE*)>
+//
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendValueElement(
@@ -852,6 +861,65 @@ void XmlWriter::printValueElement(
 {
     Array<Sint8> tmp;
     appendValueElement(tmp, value);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendClassElement()
+//
+//     <!ELEMENT CLASS
+//         (QUALIFIER*,(PROPERTY|PROPERTY.ARRAY|PROPERTY.REFERENCE)*,METHOD*)>
+//     <!ATTLIST CLASS 
+//         %CIMName;
+//         %SuperClass;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendClassElement(
+    Array<Sint8>& out, 
+    const CIMConstClass& cimclass)
+{
+    cimclass._checkRep();
+    cimclass._rep->toXml(out);
+}
+
+void XmlWriter::printClassElement(
+    const CIMConstClass& cimclass,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendClassElement(tmp, cimclass);
+    tmp.append('\0');
+    indentedPrint(os, tmp.getData(), 4);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstanceElement()
+//
+//     <!ELEMENT INSTANCE
+//         (QUALIFIER*,(PROPERTY|PROPERTY.ARRAY|PROPERTY.REFERENCE)*)>
+//     <!ATTLIST INSTANCE
+//         %ClassName;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendInstanceElement(
+    Array<Sint8>& out, 
+    const CIMConstInstance& instance)
+{
+    instance._checkRep();
+    instance._rep->toXml(out);
+}
+
+void XmlWriter::printInstanceElement(
+    const CIMConstInstance& instance,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendInstanceElement(tmp, instance);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
@@ -1373,7 +1441,7 @@ void XmlWriter::appendClassIParameter(
     const CIMConstClass& cimClass)
 {
     _appendIParamValueElementBegin(out, name);
-    cimClass.toXml(out);
+    appendClassElement(out, cimClass);
     _appendIParamValueElementEnd(out);
 }
 
@@ -1389,7 +1457,7 @@ void XmlWriter::appendInstanceIParameter(
     const CIMConstInstance& instance)
 {
     _appendIParamValueElementBegin(out, name);
-    instance.toXml(out);
+    appendInstanceElement(out, instance);
     _appendIParamValueElementEnd(out);
 }
 

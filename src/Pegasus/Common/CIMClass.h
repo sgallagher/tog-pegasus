@@ -331,21 +331,11 @@ public:
     */
     Boolean identical(const CIMConstClass& x) const;
 
-    /** toXML  - prepares an XML representation of the CIMClass object
-    	in the provided Sint8 variable.
-	@param out Sint8 array for the XML representation
-    */
-    void toXml(Array<Sint8>& out) const;
-
     /** toMof  - prepares a MOF representation of the CIMClass object
     	in the provided Sint8 variable.
 	@param out Sint8 array for the XML representation
     */
     void toMof(Array<Sint8>& out) const;
-
-    /** print -  Prints the toXML output to cout
-    */
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 
 #ifdef PEGASUS_INTERNALONLY
     /** Resolve -  Resolve the class: inherit any properties and
@@ -370,7 +360,6 @@ private:
 
     CIMClassRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     CIMClass(CIMClassRep* rep);
 
     void _checkRep() const;
@@ -378,7 +367,7 @@ private:
     friend class CIMConstClass;
     friend class CIMObject;
     friend class CIMConstObject;
-#endif
+    friend class XmlWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMClass
@@ -457,17 +446,12 @@ public:
 
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
-
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 #endif
 
 private:
 
     CIMClassRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     void _checkRep() const;
 
     friend class CIMClassRep;
@@ -475,7 +459,7 @@ private:
     friend class CIMInstanceRep;
     friend class CIMObject;
     friend class CIMConstObject;
-#endif
+    friend class XmlWriter;
 };
 
 PEGASUS_NAMESPACE_END

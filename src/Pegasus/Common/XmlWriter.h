@@ -132,6 +132,22 @@ public:
         const CIMValue& value,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
+    static void appendClassElement(
+        Array<Sint8>& out,
+        const CIMConstClass& cimclass);
+
+    static void printClassElement(
+        const CIMConstClass& cimclass,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendInstanceElement(
+        Array<Sint8>& out,
+        const CIMConstInstance& instance);
+
+    static void printInstanceElement(
+        const CIMConstInstance& instance,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
     static void appendMethodCallHeader(
 	Array<Sint8>& out,
 	const char* host,

@@ -31,6 +31,7 @@
 #include <iostream>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 // ATTN-P3-KS - 20 March 2002 - Extend exception tests.
 PEGASUS_USING_PEGASUS;
@@ -178,14 +179,14 @@ void test01()
 
 	if(verbose)
 	{
-		class1.print();
+		XmlWriter::printClassElement(class1);
 		class1.printMof();
 	}
 
     Array<Sint8> out;
     class1.toMof(out);
     out.clear();
-    class1.toXml(out);
+    XmlWriter::appendClassElement(out, class1);
     
     assert(!class1.isAbstract());
 
@@ -257,7 +258,7 @@ void test01()
 
     if(verbose) 
     {
-	c5.print();
+	XmlWriter::printClassElement(c5);
     }
 
     try

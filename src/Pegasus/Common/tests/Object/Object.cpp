@@ -200,8 +200,6 @@ void test02()
 
     if (verbose)
     {
-        ccloneObj.print(cout);
-
         Array<Sint8> xmlOut;
         ccloneObj.toXml(xmlOut);
     }

@@ -61,6 +61,7 @@
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -174,8 +175,8 @@ void test01()
 
     if(verbose)
 	{
-		class1.print();
-		class2.print();
+		XmlWriter::printClassElement(class1);
+		XmlWriter::printClassElement(class2);
 	}
 	if(verbose)	cout << "Resolve class 1 " << endl;
 
@@ -190,8 +191,8 @@ void test01()
     if(verbose)
 	{
 		cout << "after resolve " << endl;
-		class1.print();
-		class2.print();
+		XmlWriter::printClassElement(class1);
+		XmlWriter::printClassElement(class2);
 	}
 
     }
@@ -391,8 +392,8 @@ void test02()
     if(verbose)
 	{
 		cout << "Classes before resolution " << endl;
-		superClass.print();
-		subClass.print();
+		XmlWriter::printClassElement(superClass);
+		XmlWriter::printClassElement(subClass);
 	}
     try{
         subClass.resolve(context, NAMESPACE);
@@ -406,8 +407,8 @@ void test02()
     if(verbose)
 	{
 		cout << "Classes after resolution " << endl;
-		superClass.print();
-		subClass.print();
+		XmlWriter::printClassElement(superClass);
+		XmlWriter::printClassElement(subClass);
 	}
 
 	// Resolved. Now throughly test the results
@@ -693,8 +694,8 @@ void test04()
 
     if(verbose)
 	{
-		class1.print();
-		class2.print();
+		XmlWriter::printClassElement(class1);
+		XmlWriter::printClassElement(class2);
 	}
     try{
         class1.resolve(context, NAMESPACE);
@@ -708,8 +709,8 @@ void test04()
     if(verbose)
 	{
 		cout << "after resolve " << endl;
-		class1.print();
-		class2.print();
+		XmlWriter::printClassElement(class1);
+		XmlWriter::printClassElement(class2);
 	}
 
     }
@@ -780,7 +781,7 @@ void test05()
 
     resolved = false;
     if(verbose)
-		classWithPropertyQualifier.print();
+		XmlWriter::printClassElement(classWithPropertyQualifier);
 
 	try
 	{
@@ -789,7 +790,7 @@ void test05()
 		if(verbose)
 		{
 			cout << "Test05 Error - Should not have resolved class " << endl;
-			classWithPropertyQualifier.print();
+			XmlWriter::printClassElement(classWithPropertyQualifier);
 
 		}
     }
@@ -819,7 +820,7 @@ void test05()
 			.addParameter(CIMParameter("hostname", CIMType::STRING)));
 	
     if(verbose)
-		classWithBadProperty.print();
+		XmlWriter::printClassElement(classWithBadProperty);
 
 	try
 	{
@@ -857,7 +858,7 @@ void test05()
 		exit(1);
 	}
     if(verbose)
-		classAssoc.print();
+		XmlWriter::printClassElement(classAssoc);
 	
 	try
 	{

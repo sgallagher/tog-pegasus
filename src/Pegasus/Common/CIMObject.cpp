@@ -401,12 +401,6 @@ void CIMConstObject::toXml(Array<Sint8>& out) const
     _rep->toXml(out);
 }
 
-void CIMConstObject::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 Boolean CIMConstObject::identical(const CIMConstObject& x) const
 {
     x._checkRep();

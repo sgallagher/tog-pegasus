@@ -30,6 +30,7 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -65,7 +66,7 @@ public:
 	const CIMInstance& indicationInstance)
     {
 	Array<Sint8> buffer;
-	indicationInstance.toXml(buffer);
+	XmlWriter::appendInstanceElement(buffer, indicationInstance);
 	cout << buffer.getData() << endl;
     }
 };

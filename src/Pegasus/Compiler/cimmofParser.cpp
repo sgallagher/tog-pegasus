@@ -47,6 +47,7 @@
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -493,7 +494,7 @@ cimmofParser::addClass(CIMClass *classdecl)
       if (classdecl)
       {
         cout << "<VALUE.OBJECT>" << endl;
-	classdecl->print(PEGASUS_STD(cout));
+	XmlWriter::printClassElement(*classdecl, PEGASUS_STD(cout));
         cout << "</VALUE.OBJECT>" << endl;
         cout << endl;
       }
@@ -503,7 +504,7 @@ cimmofParser::addClass(CIMClass *classdecl)
       cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
       trace(header,""); 
       if (classdecl)
-	classdecl->print(_cmdline->traceos());
+	XmlWriter::printClassElement(*classdecl, _cmdline->traceos());
     } 
   }
   if (_cmdline &&
@@ -586,7 +587,7 @@ cimmofParser::addInstance(CIMInstance *instance)
       if (instance)
       {
 	cout << "<VALUE.OBJECT>" << endl;
-	instance->print(PEGASUS_STD(cout));
+	XmlWriter::printInstanceElement(*instance, PEGASUS_STD(cout));
 	cout << "</VALUE.OBJECT>" << endl;
 	cout << endl;
       }
@@ -598,7 +599,7 @@ cimmofParser::addInstance(CIMInstance *instance)
       cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
       trace(header, "");
       if (instance)
-	instance->print(_cmdline->traceos());
+	XmlWriter::printInstanceElement(*instance, _cmdline->traceos());
     }
   }
   if (_cmdline &&

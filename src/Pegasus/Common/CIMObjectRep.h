@@ -130,8 +130,6 @@ public:
 
     virtual void toXml(Array<Sint8>& out) const = 0;
 
-    virtual void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const = 0;
-
     virtual CIMObjectRep* clone() const = 0;
 
 protected:

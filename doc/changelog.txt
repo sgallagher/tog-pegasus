@@ -76,21 +76,24 @@ repository implementation.
     Created new class SignalHandler that allow registration, activation and
     deactivation of signal handler functions (Linux only !).
 
-22. (Nitin Upasani - HP) 27 Sep 2001 - Modification of ExportServer and ExportClient 
-    to support ExportIndication. DisplayConsumer, a sample consumer is added which 
-    will consume (by displaying on screen) the indication exported by 
-    CIMExportRequestDispatcher. This complete implementation is based on 
-    CIM_EXPORT_INDICATION_REQUEST and RESPONSE messages. CIMMessage.h, Message.cpp 
-    and Message.h files are modified to implement above messages. 
+22. (Nitin Upasani - HP) 27 Sep 2001 - Modification of ExportServer and
+    ExportClient to support ExportIndication. DisplayConsumer, a sample
+    consumer is added which will consume (by displaying on screen) the
+    indication exported by CIMExportRequestDispatcher. This complete
+    implementation is based on CIM_EXPORT_INDICATION_REQUEST and
+    RESPONSE messages. CIMMessage.h, Message.cpp and Message.h files
+    are modified to implement above messages. 
 
-    XmlIndicationDispatcher test program is modified to test complete operation. 
-    It now creates a consumer, handler and indication instance and then calls 
-    CIMExportRequestDispatcher to export the indication to consumer. This
-    program needs src/Pegasus/Server/tests/XmlIndicationDispatcher/TestSoftwarePkg.mof 
-    and Schemas/Pegasus/PG_ConsumerRegistration.mof files to be loaded in the repository
-    to complete the test successfully. This test program also needs Handler qualifier 
-    defined in repository and modify CIM_Event25.mof for CIM_IndicationHandlerXMLHTTP 
-    class as below:
+    XmlIndicationDispatcher test program is modified to test complete
+    operation. It now creates a consumer, handler and indication
+    instance and then calls CIMExportRequestDispatcher to export the
+    indication to consumer. This program needs
+    src/Pegasus/Server/tests/XmlIndicationDispatcher/TestSoftwarePkg.mof 
+    and Schemas/Pegasus/PG_ConsumerRegistration.mof files to be loaded
+    in the repository to complete the test successfully. This test
+    program also needs Handler qualifier defined in repository and
+    modify CIM_Event25.mof for CIM_IndicationHandlerXMLHTTP class as
+    below:
 
     //====================================================================
     //  CIM_IndicationHandlerXMLHTTP
@@ -104,51 +107,64 @@ repository implementation.
     ProviderTable.cpp and SystemUnix.cpp to indicate progress of loading
     a provider library.
 
-24. (Nitin Upasani - HP) 05 Oct 2001 - implementation of InvokeMethod interface for the 
-    provider. InvokeMethod currently uses CIMValue as type for inParameters and 
-    outParameters, which are unable to give information about param name, type and value.
-    This should be changed to CIMParamValue which will help providers to know details of
-    the parameter name and type along with value passed through InvoleMethod call. 
-    Current implementation uses CIMParamValue as parameters while travelling through message 
-    queues and converts it back to array of CIMValue before calling Provider API (which 
-    needs to be changed later). 
+24. (Nitin Upasani - HP) 05 Oct 2001 - implementation of InvokeMethod
+    interface for the provider. InvokeMethod currently uses CIMValue as
+    type for inParameters and outParameters, which are unable to give
+    information about param name, type and value. This should be changed
+    to CIMParamValue which will help providers to know details of the
+    parameter name and type along with value passed through InvoleMethod
+    call. Current implementation uses CIMParamValue as parameters while
+    travelling through message queues and converts it back to array of
+    CIMValue before calling Provider API (which needs to be changed
+    later). 
 
     Also added are two test programs: 
 	
-    src/Pegasus/Common/tests/ParamValue - which demonstrate use of CIMParamValue class.
+    src/Pegasus/Common/tests/ParamValue - which demonstrate use of
+        CIMParamValue class.
 	
-    src/Pegasus/Client/tests/InvokeMethod - which makes call to InvokeMethod and 
-    displays the return value. Current implementation assumes that provider had returned 
-    true value and outParameters (which are now hard coded in CIMOperationRequestDispatcher 
-    to implement functionality) which are passed as response of InvokeMethod to client.
+    src/Pegasus/Client/tests/InvokeMethod - which makes call to
+        InvokeMethod and displays the return value. Current
+        implementation assumes that provider had returned true value
+        and outParameters (which are now hard coded in
+        CIMOperationRequestDispatcher to implement functionality)
+        which are passed as response of InvokeMethod to client.
 
 25. (Nag Boranna - HP) 05 Oct 2001 - Added first level implementation of
-    authentication to the pegasus code. Created an Authentication Manager and 
-    authenticator interfaces. The file based local authentication module has
-    been modified to implement the local authenticator interface, to generate 
-    the challenge for the unauthorized requests and to verify the authentication.
-    A skeleton program has been created for the Basic Authenticator. This code is
-    in the Security/Authentication directory which is not yet linked into the build.
+    authentication to the pegasus code. Created an Authentication Manager
+    and authenticator interfaces. The file based local authentication
+    module has been modified to implement the local authenticator
+    interface, to generate the challenge for the unauthorized requests
+    and to verify the authentication.
 
-26. (Nitin Upasani - HP) 08 Oct 2001 - Changes to Operation and Export Decoders. Earlier
-    decoders were sending requests and responses before finishing complete Xml parse.
-    This was prone to send request/response even the Xml is wrong after the MethodCall.
-    New changes collects the Message* as return value from the appropriate functions
-    while parsing the Xml and sends on _outputQueue only when Xml is parsed successfully.
+    A skeleton program has been created for the Basic Authenticator.
+    This code is in the Security/Authentication directory which is not
+    yet linked into the build.
 
-27. (Nag Boranna - HP) 11 Oct 2001 - Modified ProviderModule.cpp to fix the problem with 
-    constructing provider name and loading the providers for unix platforms. Also moved 
-    the shared library name construction (appending .sl or .so) from 
-    CIMOperationRequestDispatcher.cpp/SystemUnix.cpp to ProviderModule.cpp and included 
-    it in a method that returns provider file path name.
+26. (Nitin Upasani - HP) 08 Oct 2001 - Changes to Operation and Export
+    Decoders. Earlier decoders were sending requests and responses
+    before finishing complete Xml parse. This was prone to send
+    request/response even the Xml is wrong after the MethodCall.
+    New changes collects the Message* as return value from the
+    appropriate functions while parsing the Xml and sends on
+    _outputQueue only when Xml is parsed successfully.
 
-28. (Nitin Upasani - HP) 12 Oct 2001 - Implementation of SNMP Indication Handler. 
-    This handler extracts MappingStrings qualifier from class definition and converts it 
-    into SNMP specific trap data. The trap structure is defined in a abstract class in 
-    snmpDeliverTrap.h file. Every one has his or her own SNMP agent, which will talk with 
-    master agent to deliver the trap or may have some other mechanism. Extending 
-    snmpDeliverTrap class and deliverTrap method will help to implement specific trap 
-    delivery mechanism. 
+27. (Nag Boranna - HP) 11 Oct 2001 - Modified ProviderModule.cpp to
+    fix the problem with constructing provider name and loading the
+    providers for unix platforms. Also moved the shared library name
+    construction (appending .sl or .so) from
+    CIMOperationRequestDispatcher.cpp/SystemUnix.cpp to
+    ProviderModule.cpp and included it in a method that returns
+    provider file path name.
+
+28. (Nitin Upasani - HP) 12 Oct 2001 - Implementation of SNMP Indication
+    Handler. This handler extracts MappingStrings qualifier from class
+    definition and converts it into SNMP specific trap data. The trap
+    structure is defined in a abstract class in snmpDeliverTrap.h file.
+    Every one has his or her own SNMP agent, which will talk with master
+    agent to deliver the trap or may have some other mechanism.
+    Extending snmpDeliverTrap class and deliverTrap method will help to
+    implement specific trap delivery mechanism. 
 
 29. (Yi Zhou - HP) 09 Oct 2001 - Changed cimconfig to allow setting property to
     be NULL. Also, if -u -p specified in the cimconfig, instead of updating
@@ -173,13 +189,73 @@ repository implementation.
 32. (Jenny Yu - HP) 29 Oct 2001 - Fixed CIMReference constructor to allow
     commas (,) in the string values of key properties.
     
-33. (Karl Schopmeyer 30 October 2001- Move the repository load to CIM schema 2.6
+33. (Karl Schopmeyer) 30 October 2001- Move the repository load to CIM schema 2.6
 
 34. (Rudy Schuet - Compaq) 30 Oct 2001 - Fixed a problem in
     pegasus/mak/program-windows.mak that prevented program builds for
     the windows platform (related to change from 28 Oct). Replaced
     leading whitespace in front of commands with tabs as required
     in make files.
+
+35. (Roger Kumpf - HP) 30 Oct 2001 - Association classes have keys
+    whose types are references.  These reference values must be
+    treated specially in the XML encoding, using the VALUE.REFERENCE
+    tag structure.
+
+    Pegasus had been passing reference values simply as String values.
+    For example, EnumerateInstanceNames returned KEYVALUEs of string
+    type rather than VALUE.REFERENCEs.
+
+    I've modified the XmlReader::getKeyBindingElement() and
+    CIMReference::instanceNameToXml() methods to read and write the
+    XML in the proper format.  However, making that change required
+    that a CIMReference object be able to distinguish between a key
+    of String type and a key of reference type.
+
+    I've modified the String format of CIMReferences slightly to
+    allow efficient processing of references whose keys are also of
+    reference type.  The "official" form uses the same encoding for
+    key values of String type and of reference type, and so it
+    would be necessary to retrieve the class definition and look up
+    the types of the key properties to determine how to treat the
+    key values.  This is clearly too inefficient for internal
+    transformations between CIMReferences and String values.
+
+    The workaround is to encode a 'R' at the beginning of the value
+    for a key of reference type (before the opening '"').  This allows
+    the parser to know a priori whether the key is of String or
+    reference type.
+
+    In this example:
+
+        MyClass.Key1="StringValue",Key2=R"RefClass.KeyA="StringA",KeyB=10"
+
+    Property Key1 of class MyClass is of String type, and so it gets
+    the usual encoding.  Key2 is a reference property, so the extra 'R'
+    is inserted before its encoded value.  Note that this algorithm is
+    recursive, such that RefClass could include KeyC of reference type,
+    which would also get encoded with the 'R' notation.
+
+    The toString() method inserts the 'R' to provide symmetry.  A new
+    KeyBinding type (REFERENCE) has been defined to denote keys in a
+    CIMReference that are of reference type.  This KeyBinding type must
+    be used appropriately for CIMReference::ttoString() to behave
+    correctly.
+
+    The files that have been modified to make this change are
+    CIMReference.h, CIMReference.cpp, and CIMInstanceRep.cpp.
+
+    A result of this change is that instances names in the instance
+    repository will include this extra 'R' character.  Thus, you will
+    need to repopulate your repository when you download the latest
+    CIMOM version.
+
+    Note that for user-facing uses of the String encoding of instance
+    names (such as might appear in MOF for static association
+    instances or in the CGI client), this solution is non-standard and
+    therefore unacceptable.  It is likely that these points will need
+    to process the more expensive operation of retrieving the class
+    definition to determine the key property types.
 
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch

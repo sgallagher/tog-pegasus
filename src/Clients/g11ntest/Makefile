@@ -12,7 +12,7 @@ endif
 
 LIBRARIES = \
     peglistener \
-    pegExportServer \
+    pegexportserver \
     pegconfig \
     pegclient \
     pegcommon

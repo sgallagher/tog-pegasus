@@ -108,6 +108,29 @@ static void TestSplit()
 	assert(result);
 	assert(fields[2] == "five");
     }
+
+    {
+    Array<String> fields;
+    fields.append("./associations.txt");
+    fields.append("A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"");
+    fields.append("A");
+    fields.append("X.key=\"one\"");
+    fields.append("X");
+    fields.append("left");
+    fields.append("Y");
+    fields.append("right");
+    fields.append("Y.key=\"two\"");
+
+    String line;
+    String::join(fields, line);
+
+    Array<String> tmpFields;
+    String::split(line, tmpFields);
+
+    assert(tmpFields.size() == fields.size());
+    for (Uint32 i = 0; i < fields.size(); i++)
+	assert(fields[i] == tmpFields[i]);
+    }
 }
 
 int main()

@@ -1,0 +1,8 @@
+
+
+    1.	May associations span namespaces? And if so, how can one
+	make sense of references referring to object names with no
+	namespace. And since the CIM operation specifies a target
+	namespace anyhow, what is the target namespace for? Is it 
+	the namespace to place the new association in on a 
+	createInstance().

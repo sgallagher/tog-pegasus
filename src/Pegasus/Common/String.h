@@ -29,6 +29,7 @@
 #define Pegasus_String_h
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
@@ -677,6 +678,30 @@ PEGASUS_COMMON_LINKAGE const Array<String>& EmptyStringArray();
 
 PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
 
+inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
+{
+    char* tmpPath = path.allocateCString();
+    is.open(tmpPath);
+    delete [] tmpPath;
+    return !!is;
+}
+
+inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
+{
+    char* tmpPath = path.allocateCString();
+    os.open(tmpPath);
+    delete [] tmpPath;
+    return !!os;
+}
+
+inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
+{
+    char* tmpPath = path.allocateCString();
+    os.open(tmpPath, PEGASUS_STD(ios::app));
+    delete [] tmpPath;
+    return !!os;
+}
+
 #define PEGASUS_ARRAY_T String
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
@@ -684,5 +709,3 @@ PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */
-
-

@@ -353,23 +353,35 @@ public:
 };
 
 /// ATTN:
-class PEGASUS_COMMON_LINKAGE FailedToRemoveDirectory : public Exception
+class PEGASUS_COMMON_LINKAGE CannotRemoveDirectory : public Exception
 {
 public:
 
     static const char MSG[];
 
-    FailedToRemoveDirectory(const String& path) : Exception(MSG + path) { }
+    CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
 };
+
 /// ATTN:
-class PEGASUS_COMMON_LINKAGE FailedToRemoveFile : public Exception
+class PEGASUS_COMMON_LINKAGE CannotRemoveFile : public Exception
 {
 public:
 
     static const char MSG[];
 
-    FailedToRemoveFile(const String& path) : Exception(MSG + path) { }
+    CannotRemoveFile(const String& path) : Exception(MSG + path) { }
 };
+
+/// ATTN:
+class PEGASUS_COMMON_LINKAGE CannotRenameFile : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotRenameFile(const String& path) : Exception(MSG + path) { }
+};
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchDirectory : public Exception
 {
@@ -620,6 +632,15 @@ public:
     static const char MSG[];
 
     CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
+};
+
+class PEGASUS_COMMON_LINKAGE CorruptFile : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CorruptFile(const String& path) : Exception(MSG + path) { }
 };
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();

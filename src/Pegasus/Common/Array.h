@@ -210,6 +210,20 @@ void BubbleSort(Array<PEGASUS_ARRAY_T>& x)
 }
 
 template<class PEGASUS_ARRAY_T>
+void Unique(Array<PEGASUS_ARRAY_T>& x) 
+{
+    Array<PEGASUS_ARRAY_T> result;
+
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
+    {
+	if (i == 0 || x[i] != x[i-1])
+	    result.append(x[i]);
+    }
+
+    x.swap(result);
+}
+
+template<class PEGASUS_ARRAY_T>
 void Print(Array<PEGASUS_ARRAY_T>& x)
 {
     for (Uint32 i = 0, n = x.size(); i < n; i++)

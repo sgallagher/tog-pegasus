@@ -1033,7 +1033,6 @@ public:
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
-
     virtual Array<CIMInstance> associators(
         const String& nameSpace,
         const CIMReference& objectName,
@@ -1193,7 +1192,7 @@ public:
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
      </UL>
     */
-     virtual Array<CIMInstance> references(
+    virtual Array<CIMInstance> references(
  	const String& nameSpace,
  	const CIMReference& objectName,
  	const String& resultClass = String::EMPTY,
@@ -1201,6 +1200,7 @@ public:
  	Boolean includeQualifiers = false,
  	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList= EmptyStringArray()) = 0;
+
     /**
     The <TT>referenceNames</TT> operation enumerates the association
     objects that refer to a particular target CIM Object (Class or Instance).

@@ -588,7 +588,39 @@ void String::split(const String& line, Array<String>& fields)
 	else
 	{
 	    for (; *p && !isspace(*p); p++)
-		field.append(*p);
+	    {
+		if (*p == '\\')
+		{
+		    p++;
+
+		    switch (*p)
+		    {
+			case '\0':
+			    break;
+
+			case 'n':
+			    field.append('\n');
+			    break;
+
+			case 't':
+			    field.append('\t');
+			    break;
+
+			case 'r':
+			    field.append('\r');
+			    break;
+
+			case 'f':
+			    field.append('\f');
+			    break;
+
+			default:
+			    field.append(*p);
+		    }
+		}
+		else
+		    field.append(*p);
+	    }
 
 	    fields.append(field);
 	}
@@ -605,12 +637,12 @@ void String::join(Array<String>& fields, String& line)
 	String tmp;
 	Boolean hasSpaces = escape(fields[i], tmp);
 
-	if (hasSpaces)
+	if (hasSpaces || tmp.size() == 0)
 	    line += '"';
 
 	line += tmp;
 
-	if (hasSpaces)
+	if (hasSpaces || tmp.size() == 0)
 	    line += '"';
 
 	if (i + 1 != n)

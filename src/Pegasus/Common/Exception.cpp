@@ -121,7 +121,7 @@ const char CannotBindToAddress::MSG[] = "cannot bind to address: ";
 
 const char NoSuchDirectory::MSG[] = "no such directory: ";
 
-const char ChangeDirectoryFailed::MSG[] = "failed to change directory: ";
+const char ChangeDirectoryFailed::MSG[] = "cannot change directory: ";
 
 const char CannotCreateDirectory::MSG[] = "cannot create directory: ";
 
@@ -131,9 +131,11 @@ const char CannotOpenFile::MSG[] = "cannot open file: ";
 
 const char NotImplemented::MSG[] = "not implemented: ";
 
-const char FailedToRemoveDirectory::MSG[] = "failed to remove directory: ";
+const char CannotRemoveDirectory::MSG[] = "cannot remove directory: ";
 
-const char FailedToRemoveFile::MSG[] = "failed to remove file: ";
+const char CannotRemoveFile::MSG[] = "cannot remove file: ";
+
+const char CannotRenameFile::MSG[] = "cannot rename file: ";
 
 const char StackUnderflow::MSG[] = "stack overflow";
 
@@ -153,6 +155,8 @@ const char DynamicLookupFailed::MSG[] =
     "lookup of symbol in dynamic library failed: ";
 
 const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
+
+const char CorruptFile::MSG[] = "corrupt file: ";
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -66,20 +66,20 @@ int main(int argc, char** argv)
 
     {
 #ifdef HAVE_SSTREAM
-	stringstream os;
+        stringstream os;
 #endif
 #ifdef HAVE_STRSTREAM
-	ostrstream os;	
-#endif	
-	os << s4;
+        ostrstream os;
+#endif
+        os << s4;
 #ifdef HAVE_STRSTREAM
-	os.put('\0');
+        os.put('\0');
 #endif
 #ifndef PEGASUS_HAS_ICU
-	const char EXPECTED[] = "Hello\\x0000\\x1234\\x5678\\x9CDE\\xFFFF";
+        const char EXPECTED[] = "Hello\\x0000\\x1234\\x5678\\x9CDE\\xFFFF";
 #else
-	CString cstr = s4.getCString();
-	const char * EXPECTED = (const char *)cstr;
+        CString cstr = s4.getCString();
+        const char * EXPECTED = (const char *)cstr;
 #endif
 
 #ifdef HAVE_SSTREAM
@@ -87,292 +87,293 @@ int main(int argc, char** argv)
     const char* tmp = os_str.c_str();
 #endif
 #ifdef HAVE_STRSTREAM
-	char *tmp = os.str();
+        char *tmp = os.str();
 #endif
 
-	assert(strcmp(EXPECTED, tmp) == 0);
+        assert(strcmp(EXPECTED, tmp) == 0);
 #ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
         os.freeze(false);
 #else
 
 #ifdef HAVE_STRSTREAM
-	delete tmp;
+        delete tmp;
 #endif
 
 #endif
     }
 
     {
-	// Test getCString
-	const char STR0[] = "one two three four";
-	String s = STR0;
-	assert(strcmp(s.getCString(), STR0) == 0);
+        // Test getCString
+        const char STR0[] = "one two three four";
+        String s = STR0;
+        assert(strcmp(s.getCString(), STR0) == 0);
     }
 
     {
-	// Test remove
-	String s = "abcdefg";
-	s.remove(3, 3);
-	assert(String::equal(s, "abcg"));
-	assert(s.size() == 4);
+        // Test remove
+        String s = "abcdefg";
+        s.remove(3, 3);
+        assert(String::equal(s, "abcg"));
+        assert(s.size() == 4);
 
-	s = "abcdefg";
-	s.remove(3, 4);
-	assert(String::equal(s, "abc"));
-	assert(s.size() == 3);
+        s = "abcdefg";
+        s.remove(3, 4);
+        assert(String::equal(s, "abc"));
+        assert(s.size() == 3);
 
-	s = "abcdefg";
-	s.remove(3);
-	assert(String::equal(s, "abc"));
-	assert(s.size() == 3);
+        s = "abcdefg";
+        s.remove(3);
+        assert(String::equal(s, "abc"));
+        assert(s.size() == 3);
 
-	s = "abc";
-	s.remove(3);
-	assert(String::equal(s, "abc"));
-	assert(s.size() == 3);
+        s = "abc";
+        s.remove(3);
+        assert(String::equal(s, "abc"));
+        assert(s.size() == 3);
 
-	s = "abc";
-	s.remove(0);
-	assert(String::equal(s, ""));
-	assert(s.size() == 0);
+        s = "abc";
+        s.remove(0);
+        assert(String::equal(s, ""));
+        assert(s.size() == 0);
 
-	s = "abc";
-	s.remove(0, 1);
-	assert(String::equal(s, "bc"));
-	assert(s.size() == 2);
+        s = "abc";
+        s.remove(0, 1);
+        assert(String::equal(s, "bc"));
+        assert(s.size() == 2);
 
-	String t1 = "HELLO";
-	String t2 = t1;
-	t2.toLower();
-	assert(String::equal(t1, "HELLO"));
-	assert(String::equal(t2, "hello"));
+        String t1 = "HELLO";
+        String t2 = t1;
+        t2.toLower();
+        assert(String::equal(t1, "HELLO"));
+        assert(String::equal(t2, "hello"));
     }
 
     {
-	// another test of the append method
-	String t1 = "one";
-	t1.append(" two");
-    	assert(String::equal(t1, "one two"));
-	t1.append(' ');
-	t1.append('t');
-	t1.append('h');
-	t1.append('r');
-	t1.append("ee");
-	assert(String::equal(t1,"one two three"));
-	
-	// used as example in Doc.
-	String test = "abc";
-	test.append("def");
-	assert(test == "abcdef");
+        // another test of the append method
+        String t1 = "one";
+        t1.append(" two");
+        assert(String::equal(t1, "one two"));
+        t1.append(' ');
+        t1.append('t');
+        t1.append('h');
+        t1.append('r');
+        t1.append("ee");
+        assert(String::equal(t1,"one two three"));
+
+        // used as example in Doc.
+        String test = "abc";
+        test.append("def");
+        assert(test == "abcdef");
     }
 
     // Test of the different overload operators
     {
-	// Test the == overload operator
-	String t1 = "one";
-	String t2 = "one";
-	assert(t1 == "one");
-	assert("one" == t1);
-	assert(t1 == t2);
-	assert(t2 == t1);
-	assert(String("one") == "one");
+        // Test the == overload operator
+        String t1 = "one";
+        String t2 = "one";
+        assert(t1 == "one");
+        assert("one" == t1);
+        assert(t1 == t2);
+        assert(t2 == t1);
+        assert(String("one") == "one");
 
-	const char STR0[] = "one two three four";
-	String s = STR0;
-	CString tmp = s.getCString();
-	assert(tmp == s);
-	assert(s == tmp);
+        const char STR0[] = "one two three four";
+        String s = STR0;
+        CString tmp = s.getCString();
+        assert(tmp == s);
+        assert(s == tmp);
     }
 
     {
-	// Tests of the + Overload operator
-	String t1 = "abc";
-	String t2 = t1 + t1;
-	assert(t2 == "abcabc");
-	t1 = "abc";
-	t2 = t1 + "def";
-	assert(t2 == "abcdef");
+        // Tests of the + Overload operator
+        String t1 = "abc";
+        String t2 = t1 + t1;
+        assert(t2 == "abcabc");
+        t1 = "abc";
+        t2 = t1 + "def";
+        assert(t2 == "abcdef");
 
-	t1 = "ghi";
-	assert(t1 == "ghi");
+        t1 = "ghi";
+        assert(t1 == "ghi");
 
-	// ATTN: the following fails because there
-	// is no single character overload operator
-	// KS: Apr 2001
-	// t2 = t1 + 'k' + 'l' + 'm' + "nop";
-	t2 = t1 + "k" + "l" + "m" + "nop";
-	assert(t2 == "ghiklmnop");
-	assert(String::equal(t2,"ghiklmnop"));
+        // ATTN: the following fails because there
+        // is no single character overload operator
+        // KS: Apr 2001
+        // t2 = t1 + 'k' + 'l' + 'm' + "nop";
+        t2 = t1 + "k" + "l" + "m" + "nop";
+        assert(t2 == "ghiklmnop");
+        assert(String::equal(t2,"ghiklmnop"));
 
-	// add tests for != operator.
+        // add tests for != operator.
 
-	t1 = "abc";
-	assert(t1 != "ghi");
-	assert(t1 != t2);
+        t1 = "abc";
+        assert(t1 != "ghi");
+        assert(t1 != t2);
 
-	// add tests for other compare operators
+        // add tests for other compare operators
 
-	// Operater <
-	t1 = "ab";
-	t2 = "cde";
-	assert(t1 < t2);
-	assert(t1 <= t2);
-	assert(t2 > t1);
-	assert(t2 >=t1);
-	t2 = t1;
-	assert(t1 <= t2);
-	assert(t1 >= t2);
+        // Operater <
+        t1 = "ab";
+        t2 = "cde";
+        assert(t1 < t2);
+        assert(t1 <= t2);
+        assert(t2 > t1);
+        assert(t2 >=t1);
+        t2 = t1;
+        assert(t1 <= t2);
+        assert(t1 >= t2);
 
-	// comparison and equals
-	// the compare is for null term strings.
-	// Therefore following does not work
-	// the compare operators cover the problem
-	// for String objects.
-	// assert(String::compare(t1,t2) == -1);
+        // comparison and equals
+        // the compare is for null term strings.
+        // Therefore following does not work
+        // the compare operators cover the problem
+        // for String objects.
+        // assert(String::compare(t1,t2) == -1);
 
 
-	// Tests for compare with same length
-	t1 = "abc";
-	t2 = "def";
-	assert(t1 < t2);
+        // Tests for compare with same length
+        t1 = "abc";
+        t2 = "def";
+        assert(t1 < t2);
 
-	// comparison and equals
-	// compare is for null term strings
-	// therefore following does not work.
-	//assert(String::compare(t1,t2) == -1);
+        // comparison and equals
+        // compare is for null term strings
+        // therefore following does not work.
+        //assert(String::compare(t1,t2) == -1);
     }
 
     {
-	// Test of the [] operator
-	String t1 = "abc";
-	Char16 c = t1[1];
-	// note c is Char16
-	assert(c == 'b');
+        // Test of the [] operator
+        String t1 = "abc";
+        Char16 c = t1[1];
+        // note c is Char16
+        assert(c == 'b');
 
-	//ATTN: test for outofbounds exception
-	try
-	{
-	    c = t1[200];
-	}
-	catch (IndexOutOfBoundsException&)
-	{
-	assert(true);
-	}
+        //ATTN: test for outofbounds exception
+        try
+        {
+            c = t1[200];
+        }
+        catch (IndexOutOfBoundsException&)
+        {
+        assert(true);
+        }
     }
 
     {
-	// Test the find function
-	String t1 = "abcdef";
-	String t2 = "cde";
-	String t3 = "xyz";
-	String t4 = "abc";
-	String t5 = "abd";
-	String t6 = "defg";
-	assert(t1.find('c') == 2);
-	assert(t1.find(t2)==2);
-	assert(t1.find(t3)==(Uint32)-1);
-	assert(t1.find(t4)==0);
-	assert(t1.find(t5)==(Uint32)-1);
-	assert(t1.find(t6)==(Uint32)-1);
-	assert(t1.find("cde")==2);
-	assert(t1.find("def")==3);
-	assert(t1.find("xyz")==(Uint32)-1);
-	assert(t1.find("a") ==0);
+        // Test the find function
+        String t1 = "abcdef";
+        String t2 = "cde";
+        String t3 = "xyz";
+        String t4 = "abc";
+        String t5 = "abd";
+        String t6 = "defg";
+        assert(t1.find('c') == 2);
+        assert(t1.find(t2)==2);
+        assert(t1.find(t3)==(Uint32)-1);
+        assert(t1.find(t4)==0);
+        assert(t1.find(t5)==(Uint32)-1);
+        assert(t1.find(t6)==(Uint32)-1);
+        assert(t1.find("cde")==2);
+        assert(t1.find("def")==3);
+        assert(t1.find("xyz")==(Uint32)-1);
+        assert(t1.find("a") ==0);
 
-	// test for the case where string
-	// partly occurs and then later
-	// completely occurs
+        // test for the case where string
+        // partly occurs and then later
+        // completely occurs
         String s = "this is an apple";
-	assert(s.find("apple")==11);
-	assert(s.find("appld")==(Uint32)-1);
-	assert(s.find("this")==0);
-	assert(s.find("t")==0);
-	assert(s.find("e")==15);
-	s = "a";
-	assert(s.find("b")==(Uint32)-1);
-	assert(s.find("a")==0);
-	assert(s.find(s)==0);
-	s = "aaaapple";
-	assert(s.find("apple")==3);
+        assert(s.find("apple")==11);
+        assert(s.find("appld")==(Uint32)-1);
+        assert(s.find("this")==0);
+        assert(s.find("t")==0);
+        assert(s.find("e")==15);
+        s = "a";
+        assert(s.find("b")==(Uint32)-1);
+        assert(s.find("a")==0);
+        assert(s.find(s)==0);
+        s = "aaaapple";
+        assert(s.find("apple")==3);
 
         // 20020715-RK This method was removed from the String class
-	//{
-	//    String nameSpace = "a#b#c";
-	//    nameSpace.translate('#', '/');
-	//    assert(nameSpace == "a/b/c");
-	//}
+        //{
+        //    String nameSpace = "a#b#c";
+        //    nameSpace.translate('#', '/');
+        //    assert(nameSpace == "a/b/c");
+        //}
     }
 
     {
-	// Test String unicode enablement
-	char utf8chr[]    = {
-                              0xCE,0x99,0xCE,0xBF,0xCF,0x8D,0xCE,0xBD,0xCE,
-                              0xB9,0xCE,0xBA,0xCE,0xBF,0xCE,0xBD,0xCF,0x84,
-                              0x00
+        // Test String unicode enablement
+        char utf8chr[]    = {
+                              '\xCE', '\x99', '\xCE', '\xBF', '\xCF', '\x8D',
+                              '\xCE', '\xBD', '\xCE', '\xB9', '\xCE', '\xBA',
+                              '\xCE', '\xBF', '\xCE', '\xBD', '\xCF', '\x84',
+                              '\0'
                             }; // utf8 string with mutliple byte characters
-	char utf8bad[]    = {
-                              0xFF,0xFF,0xFF
+        char utf8bad[]    = {
+                              '\xFF','\xFF', '\xFF'
                             }; // utf8 string with mutliple byte characters
-        Char16 utf16chr[] =	{
-					  0x0399,0x03BF,0x03CD,0x03BD,0x03B9,
+        Char16 utf16chr[] = {
+                              0x0399,0x03BF,0x03CD,0x03BD,0x03B9,
                               0x03BA,0x03BF,0x03BD,0x03C4,0x00
                             };  // utf16 representation of the utf8 string
 
-	String utf16string(utf16chr);
-	String utf8string(utf8chr);
-	String utf16merge(utf8string.getChar16Data());
+        String utf16string(utf16chr);
+        String utf8string(utf8chr);
+        String utf16merge(utf8string.getChar16Data());
 
-	CString temp = utf8string.getCString();
-	CString temp2 = utf16string.getCString();
+        CString temp = utf8string.getCString();
+        CString temp2 = utf16string.getCString();
 
-	const char*  tmp = (const char *)temp;
-	const char*  tmp2 = (const char *)temp2;
-	
-	assert(utf16string == utf8string);
-	assert(utf16string == utf16merge);
+        const char*  tmp = (const char *)temp;
+        const char*  tmp2 = (const char *)temp2;
+
+        assert(utf16string == utf8string);
+        assert(utf16string == utf16merge);
         assert(utf16string == utf16chr);
-	assert(utf8string  == utf16chr);
+        assert(utf8string  == utf16chr);
 
-	assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
-	assert(strcmp(utf8string.getCString(),utf8chr) == 0);
+        assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
+        assert(strcmp(utf8string.getCString(),utf8chr) == 0);
         assert(strcmp(utf16string.getCString(),utf8chr) == 0);
-	assert(strcmp(tmp,utf8chr) == 0);
-	assert(strcmp(tmp2,utf8chr) == 0);
+        assert(strcmp(tmp,utf8chr) == 0);
+        assert(strcmp(tmp2,utf8chr) == 0);
 
         Uint32 count = 0;
-	Uint32 size = sizeof(utf8chr);
-	while(count<size)
-	{
-	  	assert(isUTF8(&utf8chr[count]) == true);
-	   	UTF8_NEXT(utf8chr,count);
-       	}
+        Uint32 size = sizeof(utf8chr);
+        while(count<size)
+        {
+                assert(isUTF8(&utf8chr[count]) == true);
+                UTF8_NEXT(utf8chr,count);
+        }
 
-	count = 0;
-	size = sizeof(utf8bad);
-	while(count<size)
-	{
-	  	assert(isUTF8(&utf8bad[count]) == false);
-	   	UTF8_NEXT(utf8bad,count);
-       	}
+        count = 0;
+        size = sizeof(utf8bad);
+        while(count<size)
+        {
+                assert(isUTF8(&utf8bad[count]) == false);
+                UTF8_NEXT(utf8bad,count);
+        }
         String little("the quick brown fox jumped over the lazy dog");
         String    big("THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG");
 
-	String tmpBig = big;
-	String tmpLittle = little;
+        String tmpBig = big;
+        String tmpLittle = little;
 
-	tmpBig.toLower(ENGLISH_US);
-	assert(tmpBig == little);
+        tmpBig.toLower(ENGLISH_US);
+        assert(tmpBig == little);
 
-	tmpBig.toUpper();	
-	assert(tmpBig == big);
+        tmpBig.toUpper();
+        assert(tmpBig == big);
 
-	Char16 utf16Chars[] =
+        Char16 utf16Chars[] =
         {
-        0x6A19,	0x6E96,	0x842C, 0x570B,	0x78BC,
+        0x6A19, 0x6E96, 0x842C, 0x570B, 0x78BC,
         0x042E, 0x043D, 0x0438, 0x043A, 0x043E, 0x0434,
         0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE,
         0x10E3, 0x10DC, 0x10D8, 0x10D9, 0x10DD, 0x10D3, 0x10D8,
-	0xdbc0,	0xdc01,
+        0xdbc0, 0xdc01,
         0x05D9, 0x05D5, 0x05E0, 0x05D9, 0x05E7, 0x05D0, 0x05B8, 0x05D3,
         0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
         0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
@@ -382,18 +383,18 @@ int main(int argc, char** argv)
         0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9,
         0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E,
         0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
-	0xdbc0,	0xdc01,
+        0xdbc0, 0xdc01,
         0x00};
 
-	String ugly(utf16Chars);
-	assert(ugly == utf16Chars);
+        String ugly(utf16Chars);
+        assert(ugly == utf16Chars);
 
 #ifdef PEGASUS_HAS_ICU
-	ugly.toLower("zh_CN");
-	assert(ugly != utf16Chars);
+        ugly.toLower("zh_CN");
+        assert(ugly != utf16Chars);
 
-	ugly.toUpper("zh_CN");
-	assert(ugly != utf16Chars);
+        ugly.toUpper("zh_CN");
+        assert(ugly != utf16Chars);
 #endif
 
     }

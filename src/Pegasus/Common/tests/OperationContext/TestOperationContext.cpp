@@ -34,7 +34,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-void main(void)
+int main(void)
 {
     OperationContext context;
 

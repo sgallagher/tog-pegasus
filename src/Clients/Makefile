@@ -21,7 +21,6 @@ DIRS = \
     benchmarkTest \
     cimperf \
     MCCATestClient \
-    ssltrustmgr
 
 ifeq ($(OS),HPUX)
   DIRS += \
@@ -30,6 +29,12 @@ ifeq ($(OS),HPUX)
     nisinfo
 endif
 
+DIRS_SSLTRUSTMGR = \
+    ssltrustmgr 
+
+ifdef PEGASUS_HAS_SSL
+  DIRS += $(DIRS_SSLTRUSTMGR)
+endif
 
 #The following tests are NOT included as part of the standard
 #regession test.  The cimuser tests require PrivilegedUser

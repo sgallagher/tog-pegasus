@@ -190,7 +190,24 @@ inline void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc)
 
 inline void PEGASUS_EXPORT pegasus_sleep(int ms)
 {
-   Sleep(ms);
+   if(ms == 0)
+   {
+      Sleep(0);
+      return;
+   }
+   
+   struct _timeb end, now;
+   _ftime( &end );
+   end.time += (ms / 1000);
+   ms -= (ms / 1000);
+   end.millitm += ms;
+	
+   do 
+   {
+      Sleep(0);
+      _ftime(&now);
+      
+   } while( end.millitm > now.millitm && end.time >= now.time);
 }
 
 

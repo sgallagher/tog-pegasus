@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,7 +53,6 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Common/ObjectNormalizer.h>
 #include <Pegasus/Common/QueryExpressionRep.h>
 #include <Pegasus/Common/AutoPtr.h>
 
@@ -155,7 +154,7 @@ public:
 											 String queryLanguage = String::EMPTY);
 
     virtual ~OperationAggregate();
-			
+
     // Tests validity by checking the magic number we put into the
     // packet.
 
@@ -169,7 +168,7 @@ public:
     // whether this response is the last one expected
 
     Boolean appendResponse(CIMResponseMessage* response);
-    
+
     Uint32 numberResponses() const;
 
     CIMRequestMessage* getRequest();
@@ -427,7 +426,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
         const String& controlProviderName,
         CIMRequestMessage* request);
 
-			Boolean _enqueueResponse(OperationAggregate *&poA, 
+			Boolean _enqueueResponse(OperationAggregate *&poA,
 															 CIMResponseMessage *&response);
 
       void _enqueueResponse(
@@ -442,7 +441,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void _checkExistenceOfClass(const CIMNamespaceName& nameSpace,
 		                          const CIMName& className,
 		                          CIMException& cimException);
-	
+
 	  CIMClass _getClass(const CIMNamespaceName& nameSpace,
 		                 const CIMName& className,
 		                 CIMException& cimException);
@@ -473,8 +472,6 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void applyQueryToEnumeration(CIMResponseMessage* msg,
          QueryExpressionRep* query);
 */
-      ObjectNormalizer _normalizer;
-
    private:
       static void _handle_enqueue_callback(AsyncOpNode *, MessageQueue *, void *);
 

@@ -280,8 +280,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       :
       Base(PEGASUS_QUEUENAME_OPREQDISPATCHER),
       _repository(repository),
-      _providerRegistrationManager(providerRegistrationManager),
-      _normalizer(*repository)
+      _providerRegistrationManager(providerRegistrationManager)
 {
 
    PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -2254,18 +2253,6 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 		  "CIMOperationRequestDispatcher::handleGetClassRequest - Name Space: $0  Class name: $1",
 		  request->nameSpace.getString(),
 		  request->className.getString());
-
-      /*
-      // normalize class. currently, the repository does not properly normalize. this code can be removed
-      // once it does.
-      cimClass =
-          _normalizer.normalizeClass(
-              cimClass,
-              request->localOnly,
-              request->includeQualifiers,
-              request->includeClassOrigin,
-              request->propertyList);
-       */
    }
    catch(CIMException& exception)
    {
@@ -2352,6 +2339,10 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 			providerIdContainer = NULL;
 		}
 
+        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // TODO: create CachedClassDefinitionContainer
+        #endif
+
     	_forwardRequestToProviderManager(className, serviceName,
             controlProviderName, requestCopy);
 
@@ -2376,18 +2367,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     	    request->includeQualifiers,
     	    request->includeClassOrigin,
     	    request->propertyList);
-
-         /*
-         // normalize instance. currently, the repository does not properly normalize. this code can be removed
-         // once it does.
-         cimInstance =
-             _normalizer.normalizeInstance(
-                 cimInstance,
-                 request->localOnly,
-                 request->includeQualifiers,
-                 request->includeClassOrigin,
-                 request->propertyList);
-        */
       }
       catch(CIMException& exception)
       {
@@ -3393,6 +3372,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 			if (providerInfo.providerIdContainer.get() != 0)
 				requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
 
+            #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+            // TODO: create CachedClassDefinitionContainer
+            #endif
+
 			CIMException checkClassException;
 			if (request->deepInheritance && request->propertyList.isNull())
 			{
@@ -3686,7 +3669,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 			if(providerInfo.providerIdContainer.get() != 0)
 				requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
 
-			_forwardRequestForAggregation(providerInfo.serviceName,
+            #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+            // TODO: create CachedClassDefinitionContainer
+            #endif
+
+            _forwardRequestForAggregation(providerInfo.serviceName,
 																		providerInfo.controlProviderName,
 																		requestCopy, poA);
 
@@ -5749,71 +5736,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
         (request->localOnly == true ? "true" : "false"),
         (request->includeQualifiers == true ? "true" : "false"),
         (request->includeClassOrigin == true ? "true" : "false"));
-
-    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-
-    Array<CIMInstance> normalizedInstances;
-
-    // normalize responses
-    for(Uint32 i = 0, n = toResponse->cimNamedInstances.size(); i < n; i++)
-    {
-        // update the namespace and class name elements in the object's embedded object path as
-        // as the normalizer expects.
-        CIMObjectPath objectPath = toResponse->cimNamedInstances[i].getPath();
-
-        objectPath.setNameSpace(request->nameSpace);                                    // get from request
-        objectPath.setClassName(toResponse->cimNamedInstances[i].getClassName());       // get from object
-
-        toResponse->cimNamedInstances[i].setPath(objectPath);
-
-        try
-        {
-            // normalize instance
-            CIMInstance normalizedInstance =
-                _normalizer.normalizeInstance(
-                    toResponse->cimNamedInstances[i],
-                    request->localOnly,
-                    request->includeQualifiers,
-                    request->includeClassOrigin,
-                    request->propertyList);
-
-            normalizedInstances.append(normalizedInstance);
-        }
-        catch(CIMException & e)
-        {
-            // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
-            // Reporting this error to the provider would be ideal, but what can be done at this point?
-
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0 ($1: $2)",
-                toResponse->cimNamedInstances[i].getPath().toString(),
-                cimStatusCodeToString(e.getCode()),
-                e.getMessage());
-        }
-        catch(Exception & e)
-        {
-            // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
-            // Reporting this error to the provider would be ideal, but what can be done at this point?
-
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0 ($1)",
-                toResponse->cimNamedInstances[i].getPath().toString(),
-                e.getMessage());
-        }
-        catch(...)
-        {
-            // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
-            // Reporting this error to the provider would be ideal, but what can be done at this point?
-
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0 (unknown error)",
-                toResponse->cimNamedInstances[i].getPath().toString());
-        }
-    }
-
-    toResponse->cimNamedInstances = normalizedInstances;
-
-    #endif
 
     PEG_METHOD_EXIT();
 }

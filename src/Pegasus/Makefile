@@ -70,6 +70,10 @@ ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
       DIRS += \
          ProviderManager2/JMPI
   endif
+  ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+      DIRS += \
+          ProviderManager2/JMPI
+  endif 
 endif
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC

@@ -137,7 +137,7 @@ const METHOD_STRUCT instanceMethodNames[]={
 /*32*/ { 19,"cInst",         "()I" },
 /*33*/ { 13,"<init>",        "(ILjava/lang/String;)V" },
 /*34*/ { 13,"getCode",       "()I" },
-/*35*/ { 12,"<init>",        "(I)V" },
+/*35*/ { 24,"<init>",        "(I)V" },
 /*36*/ { 25,"<init>",        "(I)V" },
 /*37*/ { 26,"<init>",        "(I)V" },
 /*38*/ { 28,"<init>",        "(I)V" },

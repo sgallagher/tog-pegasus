@@ -1,0 +1,53 @@
+#pragma Locale ("en_US")
+
+
+// ==================================================================
+// WBEM SLP Template
+// ==================================================================
+
+class CIM_WBEMSLPTemplate {
+
+   string template_type="wbem";
+
+   string template_version="1.0";
+
+   string template_description="This template describes the attributes used for advertising CIM Servers.";
+
+   string template_url_syntax;
+
+   string service_hi_name;
+
+   string service_hi_description;
+
+   [Key]
+   string service_id;
+
+   string service_location_tcp;
+
+   string CommunicationMechanism;
+
+   string OtherCommunicationMechanismDescription;
+
+   string ProtocolVersion;
+
+   string CIM_InteropSchemaNamespace;
+
+   string ProfilesSupported;
+
+   string OtherProfileDescription;
+
+   boolean MultipleOperationsSupported;
+
+   string AuthenticationMechanismsSupported;
+
+   string OtherAuthenticationDescription;
+
+   string Namespace;
+
+   string classinfo;
+
+   // Following 2 properties are a part of PEP30 but not a part of template. Not sure ig this needs to be included ?
+      
+   //string FunctionalProfilesSupported;
+   //string FunctionalProfileDescriptions;
+};

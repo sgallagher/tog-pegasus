@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	Thread t( test1_thread, 0, false );
 	t.run();
 	t.join();
-	if( t.get_exit() != 32 )
+	if( t.get_exit() != (PEGASUS_THREAD_RETURN)32 )
 	{
 		cerr << "Error test return code" << endl;
 		return 1;

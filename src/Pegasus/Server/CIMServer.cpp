@@ -47,6 +47,9 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+# include <Pegasus/Common/Signal.h>
+#endif
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include "ProviderMessageFacade.h"
@@ -65,6 +68,7 @@
 #include "CIMOperationRequestAuthorizer.h"
 #include "HTTPAuthenticatorDelegator.h"
 #include "ShutdownProvider.h"
+#include "ShutdownService.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
@@ -86,15 +90,23 @@ static Message * controlProviderReceiveMessageCallback(
     return mpf->handleRequestMessage(message);
 }
 
-CIMServer::CIMServer(
-    Monitor* monitor,
-    Boolean useSSL)
-   : _dieNow(false), _useSSL(useSSL)
+Boolean handleSigHup = false;
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+void sigHupHandler(int s_n, siginfo_t * s_info, void * sig)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "sigHupHandler");
+
+    handleSigHup = true;
+
+    PEG_METHOD_EXIT();
+}
+#endif
+
+
+CIMServer::CIMServer(Monitor* monitor)
+   : _dieNow(false)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
-
-    static String PROPERTY_NAME__SSLCERT_FILEPATH = 
-                                "sslCertificateFilePath"; 
 
     String repositoryRootPath = String::EMPTY;
 
@@ -255,36 +267,7 @@ CIMServer::CIMServer(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
-    // Create SSL context
-    if (_useSSL)
-    {
-        //
-        // Get an instance of the ConfigManager.
-        //
-        ConfigManager*  configManager;
-        configManager = ConfigManager::getInstance();
-
-        //
-        // Get the CertificateFilePath property from the Config Manager.
-        //
-        String certPath;
-        certPath = configManager->getCurrentValue(
-                               PROPERTY_NAME__SSLCERT_FILEPATH);
-
-        String randFile = String::EMPTY;
-
-#ifdef PEGASUS_SSL_RANDOMFILE
-        // NOTE: It is technically not necessary to set up a random file on
-        // the server side, but it is easier to use a consistent interface
-        // on the client and server than to optimize out the random file on
-        // the server side.
-        randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif
-
-        _sslcontext = new SSLContext(certPath, 0, randFile);
-    }
-    else
-        _sslcontext = 0;
+    _sslcontext = 0;
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -298,7 +281,11 @@ CIMServer::CIMServer(
             (_repository, _providerRegistrationManager);
     }
 
-    _acceptor = new HTTPAcceptor(_monitor, _httpAuthenticatorDelegator, _sslcontext);
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+    // Enable the signal handler to shutdown gracefully on SIGHUP
+    getSigHandle()->registerHandler(SIGHUP, sigHupHandler);
+    getSigHandle()->activate(SIGHUP);
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -321,23 +308,44 @@ CIMServer::~CIMServer()
     PEG_METHOD_EXIT();
 }
 
-void CIMServer::bind(Uint32 port)
+void CIMServer::addAcceptor(
+    Boolean localConnection,
+    Uint32 portNumber,
+    Boolean useSSL)
+{
+    HTTPAcceptor* acceptor;
+    acceptor = new HTTPAcceptor(_monitor,
+                                _httpAuthenticatorDelegator,
+                                localConnection,
+                                portNumber,
+                                useSSL ? _getSSLContext() : 0);
+
+    _acceptors.append(acceptor);
+}
+
+void CIMServer::bind()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
 
-    // not the best place to build the service url, but it works for now
-    // because the address string is accessible  mdday
+    if (_acceptors.size() == 0)
+    {
+        throw BindFailedException("No CIM Server connections are enabled.");
+    }
 
-    _acceptor->bind(port);
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->bind();
+    }
 
     PEG_METHOD_EXIT();
 }
 
 void CIMServer::runForever()
 {
+   // Note: Trace code in this method will be invoked frequently.
+
    static int modulator = 0;
    
-    //ATTN: Do not add Trace code in this method.
    if(!_dieNow)
    {
       if(false == _monitor->run(100))
@@ -346,14 +354,27 @@ void CIMServer::runForever()
 	 if( ! (modulator % 1000) )
 	    ThreadPool::kill_idle_threads();
       }
+
+      if (handleSigHup)
+      {
+         Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+            "CIMServer::runForever - HUP signal received.  Shutting down.");
+
+         ShutdownService::getInstance(this)->shutdown(true, 10, false);
+         handleSigHup = false;
+      }
    }
    
 }
+
 void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    _acceptor->closeConnectionSocket();
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->closeConnectionSocket();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -371,7 +392,10 @@ void CIMServer::resume()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::resume()");
 
-    _acceptor->reopenConnectionSocket();
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->reopenConnectionSocket();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -437,10 +461,43 @@ Uint32 CIMServer::getOutstandingRequestCount()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getOutstandingRequestCount()");
 
-    Uint32 requestCount = _acceptor->getOutstandingRequestCount();
+    Uint32 requestCount = 0;
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        requestCount += _acceptors[i]->getOutstandingRequestCount();
+    }
 
     PEG_METHOD_EXIT();
     return requestCount;
+}
+
+SSLContext* CIMServer::_getSSLContext()
+{
+    static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath"; 
+
+    if (_sslcontext == 0)
+    {
+        //
+        // Get the CertificateFilePath property from the Config Manager.
+        //
+        String certPath;
+        certPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLCERT_FILEPATH);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        // NOTE: It is technically not necessary to set up a random file on
+        // the server side, but it is easier to use a consistent interface
+        // on the client and server than to optimize out the random file on
+        // the server side.
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
+
+        _sslcontext = new SSLContext(certPath, 0, randFile);
+    }
+
+    return _sslcontext;
 }
 
 PEGASUS_NAMESPACE_END

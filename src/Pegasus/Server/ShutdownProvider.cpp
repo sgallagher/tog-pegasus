@@ -102,7 +102,7 @@ void ShutdownProvider::invokeMethod(
 
     try
     {
-        _shutdownService->shutdown(force, timeoutValue);
+        _shutdownService->shutdown(force, timeoutValue, true);
     }
     catch (CIMException& e)
     {

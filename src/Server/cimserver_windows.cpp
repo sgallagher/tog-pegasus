@@ -27,6 +27,7 @@
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Tony Fiorentino (fiorentino_tony@emc.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -121,26 +122,57 @@ static void __cdecl cimserver_windows_thread(void *parm)
       pegasusIOLog = true;
     }
 
-  Boolean useSSL = false;
+  // The "SSL" property overrides the enableHttp*Connection properties and
+  // enables only the HTTPS connection.
+  Boolean enableHttpConnection = (String::equal(
+    configManager->getCurrentValue("enableHttpConnection"), "true") &&
+    !String::equal(configManager->getCurrentValue("SSL"), "true"));
+  Boolean enableHttpsConnection = (String::equal(
+    configManager->getCurrentValue("enableHttpsConnection"), "true") ||
+    String::equal(configManager->getCurrentValue("SSL"), "true"));
 
-  if (String::equal(configManager->getCurrentValue("SSL"), "true"))
-    {
-      useSSL =  true;
-    }
-
-  // Grab the port otpion:
-
-  String portOption;
-
-  if (useSSL)
+  if (!enableHttpConnection && !enableHttpsConnection)
   {
-      portOption = configManager->getCurrentValue("httpsPort");
+    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+      "Neither HTTP nor HTTPS connection is enabled.  "
+      "CIMServer will not be started.");
+    cerr << "Neither HTTP nor HTTPS connection is enabled.  "
+      "CIMServer will not be started." << endl;
+    exit(1);
   }
-  else
+
+  // Get the connection port configurations
+
+  Uint32 portNumberHttps;
+  Uint32 portNumberHttp;
+
+  if (enableHttpsConnection)
   {
-      portOption = configManager->getCurrentValue("httpPort");
+    String httpsPort = configManager->getCurrentValue("httpsPort");
+    CString portString = httpsPort.getCString();
+    char* end = 0;
+    Uint32 port = strtol(portString, &end, 10);
+    assert(end != 0 && *end == '\0');
+
+    //
+    // Look up the WBEM-HTTPS port number
+    //
+    portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, port);
   }
-  CString address = portOption.getCString();
+
+  if (enableHttpConnection)
+  {
+    String httpPort = configManager->getCurrentValue("httpPort");
+    CString portString = httpPort.getCString();
+    char* end = 0;
+    Uint32 port = strtol(portString, &end, 10);
+    assert(end != 0 && *end == '\0');
+
+    //
+    // Look up the WBEM-HTTP port number
+    //
+    portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
+  }
 
   // Set up the Logger
   String logsDirectory = String::EMPTY;
@@ -153,19 +185,32 @@ static void __cdecl cimserver_windows_thread(void *parm)
   Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
   "Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
   (const char*)address, (pegasusIOTrace ? " Tracing": " "));
+  // ATTN: Should this really be: ...?
+  //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+  //            "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
+
    // try loop to bind the address, and run the server
   try
   {
     Monitor monitor(true);
     
-    CIMServer server(&monitor, useSSL);
+    CIMServer server(&monitor);
     server_windows = &server;
 
-    char* end = 0;
-    long portNumber = strtol(address, &end, 10);
-    assert(end != 0 && *end == '\0');
+    if (enableHttpConnection)
+    {
+      server_windows->addAcceptor(false, portNumberHttp, false);
+      Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                  "Listening on HTTP port $0.", portNumberHttp);
+    }
+    if (enableHttpsConnection)
+    {
+      server_windows->addAcceptor(false, portNumberHttps, true);
+      Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                  "Listening on HTTPS port $0.", portNumberHttps);
+    }
 
-    server_windows->bind(portNumber);
+    server_windows->bind();
 
     while(!server_windows->terminated())
       {

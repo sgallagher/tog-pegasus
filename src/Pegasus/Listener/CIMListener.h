@@ -63,7 +63,8 @@ public:
 	const String& rootPath,
         Boolean dynamicReg,
 	Boolean staticConsumers,
-	Boolean persistence);
+	Boolean persistence,
+	Uint32 portNumber);
 
     ~CIMListener();
 
@@ -72,7 +73,7 @@ public:
 	@exception - This function may receive exceptions from
 	Channel specific subfunctions.
     */
-    void bind(Uint32 port);
+    void bind();
 
     /** runForever Main runloop for the server.
     */
@@ -117,6 +118,8 @@ private:
     CIMExportRequestDecoder* _cimExportRequestDecoder;
 
     HTTPAcceptor*   _acceptor;
+
+    Uint32 _portNumber;
 };
 
 PEGASUS_NAMESPACE_END

@@ -42,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct HTTPAcceptorRep;
+class HTTPAcceptorRep;
 
 /** Instances of this class listen on a port and accept conections.
 */
@@ -54,13 +54,22 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       /** Constructor.
 	  @param monitor pointer to monitor object which this class uses to
 	  solicit SocketMessages on the server port (socket).
-	  @param outputMessageQueue ouptut message queue for connections
+	  @param outputMessageQueue output message queue for connections
 	  created by this acceptor.
+	  @param localConnection Boolean indicating whether this acceptor is
+	  only for local connections.  If true, the portNumber argument is
+	  ignored.
+	  @param portNumber Specifies which port number this acceptor is to
+	  listen on.
+	  @param sslcontext If null, this acceptor does not create SSL
+	  connections.  If non-null, the argument specifies an SSL context to
+	  use for connections established by this acceptor.
       */
-      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
-
-      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue, 
-		   SSLContext * sslcontext);
+      HTTPAcceptor(Monitor* monitor,
+                   MessageQueue* outputMessageQueue,
+                   Boolean localConnection,
+                   Uint32 portNumber,
+                   SSLContext * sslcontext);
 
       /** Destructor. */
       ~HTTPAcceptor();
@@ -73,15 +82,11 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
     
       virtual void handleEnqueue();
 
-      /** Bind to the given port (the port on which this acceptor listens for 
-	  connections).
-	  @param portNumber the number of the port used to listen for
-	  connection requests.
-	  @exception throws BindFailedException if unable to bind to the given
-	  port (either because the port number is invalid or the
-	  port is in use).
+      /** Bind the specified listen socket.
+          @exception throws BindFailedException if unable to bind (either
+          because the listen socket is invalid or the socket is in use).
       */
-      void bind(Uint32 portNumber);
+      void bind();
 
       /** Unbind from the given port.
        */
@@ -111,10 +116,11 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       MessageQueue* _outputMessageQueue;
       HTTPAcceptorRep* _rep;
 
-      SSLContext * _sslcontext;
-      Uint32  _portNumber;
       int _entry_index;
-      
+
+      Boolean _localConnection;
+      Uint32  _portNumber;
+      SSLContext * _sslcontext;
 };
 
 PEGASUS_NAMESPACE_END

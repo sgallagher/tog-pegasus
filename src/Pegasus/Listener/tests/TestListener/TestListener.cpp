@@ -67,12 +67,13 @@ int main()
 
         Monitor* monitor = new Monitor;
 
-	CIMListener listener(monitor, pegasusHome, false, false, false);
-		
 	char* end = 0;
 	long portNumber = strtol("8888", &end, 10);
 	assert(end != 0 && *end == '\0');
-	listener.bind(portNumber);
+
+	CIMListener listener(monitor, pegasusHome, false, false, false,
+                             portNumber);
+	listener.bind();
 
         //
         // Loop to call Listener's runForever() method until CIMListener

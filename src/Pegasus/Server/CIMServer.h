@@ -76,18 +76,28 @@ public:
         @param monitor	  monitor object for the server.
         @exception - ATTN
     */
-    CIMServer(
-	Monitor* monitor,
-        Boolean useSSL);
+    CIMServer(Monitor* monitor);
 
     ~CIMServer();
 
-    /** bind Binds the port address to the Server.
-	@param address char* to the port address for TCP.
+    /** Adds a connection acceptor for the specified listen socket.
+        @param localConnection Boolean specifying whether the acceptor should
+               listen on a local-system-only connection.
+        @param portNumber Port number that should be used by the listener.
+               This parameter is ignored if localConnection=true.
+        @param useSSL Boolean specifying whether SSL should be used for
+               connections created by this acceptor.
+    */
+    void addAcceptor(
+        Boolean localConnection,
+        Uint32 portNumber,
+        Boolean useSSL);
+
+    /** Bind the acceptors to the specified listen sockets.
 	@exception - This function may receive exceptions from
 	Channel specific subfunctions.
     */
-    void bind(Uint32 port);
+    void bind();
 
     /** runForever Main runloop for the server.
     */
@@ -121,9 +131,9 @@ public:
 
 private:
 
-    Boolean _dieNow;
+    SSLContext* _getSSLContext();
 
-    Boolean _useSSL;
+    Boolean _dieNow;
 
     Monitor* _monitor;
     CIMRepository* _repository;
@@ -137,7 +147,7 @@ private:
     CIMExportRequestDecoder* _cimExportRequestDecoder;
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
-    HTTPAcceptor*   _acceptor;
+    Array<HTTPAcceptor*> _acceptors;
     CIMServerState* _serverState;
 
     ModuleController* _controlService;

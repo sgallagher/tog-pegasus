@@ -109,7 +109,10 @@ ShutdownService* ShutdownService::getInstance(CIMServer* cimserver)
     The shutdown method to be called by the ShutdownProvider to
     process a shutdown request from the CLI client.
 */
-void ShutdownService::shutdown(Boolean force, Uint32 timeout)
+void ShutdownService::shutdown(
+    Boolean force,
+    Uint32 timeout,
+    Boolean requestPending)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::shutdown");
 
@@ -139,9 +142,9 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
         //
         Uint32 requestCount = _cimserver->getOutstandingRequestCount();
 
-        if (requestCount > 1)
+        if (requestCount > (requestPending ? 1 : 0))
         {
-            noMoreRequests = _waitUntilNoMoreRequests();
+            noMoreRequests = _waitUntilNoMoreRequests(requestPending);
         }
         else
         {
@@ -368,7 +371,7 @@ void ShutdownService::_shutdownProviders()
     return;
 }
 
-Boolean ShutdownService::_waitUntilNoMoreRequests()
+Boolean ShutdownService::_waitUntilNoMoreRequests(Boolean requestPending)
 {
     Uint32 maxWaitTime = _shutdownTimeout;  // maximum wait time in seconds
     Uint32 waitInterval = 1;                // one second wait interval
@@ -385,7 +388,8 @@ Boolean ShutdownService::_waitUntilNoMoreRequests()
     // Loop and wait one second until either there is no more requests
     // or until timeout expires.
     //
-    while ( requestCount > 1 && maxWaitTime > 0)
+    while (requestCount > (requestPending ? 1 : 0) &&
+           maxWaitTime > 0)
     {
          // lock the mutex
          _mutex.lock(pegasus_thread_self());

@@ -206,7 +206,7 @@ HTTPConnection* HTTPConnector::connect(
 
       sockaddr_un address;
       address.sun_family = AF_UNIX;
-      strcpy(address.sun_path, "/var/opt/wbem/cimxml.socket");
+      strcpy(address.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 
       socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
       if (socket < 0)

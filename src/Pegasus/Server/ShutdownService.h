@@ -121,8 +121,10 @@ public:
 
     /**
     Shutdown CIMOM.
+    @param requestPending Boolean indicating whether the shutdown was
+           initiated through a synchronous CIM request (true) or not (false).
     */
-    void shutdown(Boolean force, Uint32 timeout);
+    void shutdown(Boolean force, Uint32 timeout, Boolean requestPending);
 
 protected:
 
@@ -159,7 +161,7 @@ private:
 
     void _initTimeoutValues(Uint32 timeoutParmValue);
 
-    Boolean _waitUntilNoMoreRequests();
+    Boolean _waitUntilNoMoreRequests(Boolean requestPending);
 
 };
 

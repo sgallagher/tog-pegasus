@@ -61,11 +61,13 @@ CIMListener::CIMListener(
     const String& rootPath,
     Boolean dynamicReg,
     Boolean staticConsumers,
-    Boolean persistence)
+    Boolean persistence,
+    Uint32 portNumber)
     : _dieNow(false), _rootPath(rootPath),
     _dynamicReg(dynamicReg), 
     _staticConsumers(staticConsumers), 
-    _persistence(persistence)
+    _persistence(persistence),
+    _portNumber(portNumber)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::CIMListener()");
 
@@ -87,7 +89,7 @@ CIMListener::CIMListener(
 
     SSLContext * sslcontext = NULL;
 
-    _acceptor = new HTTPAcceptor(_monitor, _cimExportRequestDecoder, sslcontext);
+    _acceptor = new HTTPAcceptor(_monitor, _cimExportRequestDecoder, false, portNumber, sslcontext);
 
     PEG_METHOD_EXIT();
 }
@@ -102,14 +104,11 @@ CIMListener::~CIMListener()
     PEG_METHOD_EXIT();
 }
 
-void CIMListener::bind(Uint32 port)
+void CIMListener::bind()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::bind()");
 
-    // not the best place to build the service url, but it works for now
-    // because the address string is accessible  mdday
-
-    _acceptor->bind(port);
+    _acceptor->bind();
 
     PEG_METHOD_EXIT();
 }

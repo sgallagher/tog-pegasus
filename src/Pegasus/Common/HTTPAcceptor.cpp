@@ -67,15 +67,39 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct HTTPAcceptorRep
+class HTTPAcceptorRep
 {
+public:
+    HTTPAcceptorRep(Boolean local)
+    {
+        if (local)
+        {
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-      struct sockaddr_un address;
+            address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
+            address_size = sizeof(struct sockaddr_un);
 #else
-      struct sockaddr_in address;
+            PEGASUS_ASSERT(false);
 #endif
-      Sint32 socket;
-      Array<HTTPConnection*> connections;
+        }
+        else
+        {
+            address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
+            address_size = sizeof(struct sockaddr_in);
+        }
+    }
+
+    struct sockaddr* address;
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+   size_t address_size;
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+   socklen_t address_size;
+#else
+   int address_size;
+#endif
+
+    Sint32 socket;
+    Array<HTTPConnection*> connections;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,22 +108,19 @@ struct HTTPAcceptorRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
-   : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
-     _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
-     _rep(0), _sslcontext(NULL), _entry_index(-1)
-{
-
-   Socket::initializeInterface();
-}
-
-HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
+HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
+                           MessageQueue* outputMessageQueue,
+                           Boolean localConnection,
+                           Uint32 portNumber,
                            SSLContext * sslcontext)
-   :       Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
-	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
-	   _rep(0),
-	   _sslcontext(sslcontext),
-	   _entry_index(-1)
+   : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
+     _monitor(monitor),
+     _outputMessageQueue(outputMessageQueue),
+     _rep(0),
+     _entry_index(-1),
+     _localConnection(localConnection),
+     _portNumber(portNumber),
+     _sslcontext(sslcontext)
 {
    Socket::initializeInterface();
 }
@@ -107,6 +128,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
 HTTPAcceptor::~HTTPAcceptor()
 {
    unbind();
+   // ATTN: Is this correct in a multi-HTTPAcceptor server?
    Socket::uninitializeInterface();
 }
 
@@ -176,14 +198,12 @@ void HTTPAcceptor::handleEnqueue()
 
 }
 
-void HTTPAcceptor::bind(Uint32 portNumber)
+void HTTPAcceptor::bind()
 {
    if (_rep)
       throw BindFailedException("HTTPAcceptor already bound");
 
-   _rep = new HTTPAcceptorRep;
-
-   _portNumber = portNumber;
+   _rep = new HTTPAcceptorRep(_localConnection);
 
    // bind address
    _bind();
@@ -201,25 +221,40 @@ void HTTPAcceptor::_bind()
 
    // Create address:
 
-   memset(&_rep->address, 0, sizeof(_rep->address));
+   memset(_rep->address, 0, sizeof(*_rep->address));
 
+   if (_localConnection)
+   {
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-   _rep->address.sun_family = AF_UNIX;
-   strcpy(_rep->address.sun_path, "/var/opt/wbem/cimxml.socket");
-   ::unlink(_rep->address.sun_path);
+       reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
+           AF_UNIX;
+       strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
+              PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+       ::unlink(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-   _rep->address.sin_addr.s_addr = INADDR_ANY;
-   _rep->address.sin_family = AF_INET;
-   _rep->address.sin_port = htons(_portNumber);
+       PEGASUS_ASSERT(false);
 #endif
+   }
+   else
+   {
+       reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_addr.s_addr =
+           INADDR_ANY;
+       reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_family =
+           AF_INET;
+       reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_port =
+           htons(_portNumber);
+   }
 
    // Create socket:
     
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-   _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
-#else
-   _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#endif
+   if (_localConnection)
+   {
+       _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
+   }
+   else
+   {
+       _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+   }
 
    if (_rep->socket < 0)
    {
@@ -245,9 +280,7 @@ void HTTPAcceptor::_bind()
 
    // Bind socket to port:
 
-   if (::bind(_rep->socket, 
-	      reinterpret_cast<struct sockaddr*>(&_rep->address), 
-	      sizeof(_rep->address)) < 0)
+   if (::bind(_rep->socket, _rep->address, _rep->address_size) < 0)
    {
       Socket::close(_rep->socket);
       delete _rep;
@@ -330,6 +363,17 @@ void HTTPAcceptor::unbind()
    if (_rep)
    {
       Socket::close(_rep->socket);
+
+      if (_localConnection)
+      {
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+         ::unlink(
+             reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#else
+         PEGASUS_ASSERT(false);
+#endif
+      }
+
       delete _rep;
       _rep = 0;
    }
@@ -368,22 +412,33 @@ void HTTPAcceptor::_acceptConnection()
 
    // Accept the connection (populate the address):
 
-   sockaddr_in address;
-
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) 
-   size_t n = sizeof(address);
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-   socklen_t n = sizeof(address);
+   struct sockaddr* accept_address;
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+   size_t address_size;
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+   socklen_t address_size;
 #else
-   int n = sizeof(address);
+   int address_size;
 #endif
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-   Sint32 socket = accept(
-      _rep->socket, (struct sockaddr*)&address, (socklen_t *)&n);
+   if (_localConnection)
+   {
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+       accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
+       address_size = sizeof(struct sockaddr_un);
 #else
-   Sint32 socket = accept(_rep->socket, reinterpret_cast<struct sockaddr*>(&address), &n);
+       PEGASUS_ASSERT(false);
 #endif
+   }
+   else
+   {
+       accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
+       address_size = sizeof(struct sockaddr_in);
+   }
+
+   Sint32 socket = accept(_rep->socket, accept_address, &address_size);
+
+   delete accept_address;
 
    if (socket < 0)
    {

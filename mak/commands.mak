@@ -142,7 +142,7 @@ endif
 
 ifeq ($(OS),zos)
     STRIPCRS =
-    DIFF =
+    DIFF = diff
     REDIRECTERROR =
     CIMSERVER_START_SERVICE = cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = cimserver -s
@@ -160,7 +160,7 @@ endif
 
 ifeq ($(OS),VMS)
     STRIPCRS =
-    DIFF = 
+    DIFF = mu compare
     REDIRECTERROR =
     CIMSERVER_START_SERVICE = cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = cimserver -s
@@ -177,7 +177,7 @@ endif
 
 ifeq ($(OS),aix)
     STRIPCRS =
-    DIFF = 
+    DIFF = diff
     REDIRECTERROR =
     CIMSERVER_START_SERVICE = cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = cimserver -s

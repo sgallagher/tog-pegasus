@@ -204,8 +204,9 @@ void CIMServer::_init(void)
 
 #endif
 
-#if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
-    chdir( PEGASUS_CORE_DIR );
+#if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
+    && defined(PEGASUS_USE_RELEASE_DIRS)
+    chdir(PEGASUS_CORE_DIR);
 #endif
     // -- Save the monitor or create a new one:
     repositoryRootPath =

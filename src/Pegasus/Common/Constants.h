@@ -391,7 +391,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_SSLSERVER_RANDOMFILE      "/opt/freeware/cimom/pegasus/etc/cimserver.rnd"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/opt/freeware/cimom/pegasus/etc/cimxml.socket"
-# elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
+# elif defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_LSB)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/tog-pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -402,6 +402,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/tog-pegasus/cache/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/run/tog-pegasus/socket/cimxml.socket"
+#  undef PEGASUS_CORE_DIR
+#  define PEGASUS_CORE_DIR                  "/var/opt/tog-pegasus/cache"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/tog-pegasus/sbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
@@ -416,6 +418,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/lsb-pegasus/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/opt/lsb-pegasus/socket/cimxml.socket"
+#  undef PEGASUS_CORE_DIR
+#  define PEGASUS_CORE_DIR                  "/var/opt/lsb-pegasus"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/lsb-pegasus/sbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME

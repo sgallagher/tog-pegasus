@@ -7,13 +7,17 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon
+    pegcommon \
+    pegclient
 
 LIBRARY = pegprovider
 
 SOURCES = \
     ProviderException.cpp \
     CIMOMHandle.cpp \
+    CIMOMHandleRep.cpp \
+    InternalCIMOMHandleRep.cpp \
+    ClientCIMOMHandleRep.cpp \
     CIMProvider.cpp \
     CIMInstanceProvider.cpp \
     CIMClassProvider.cpp \

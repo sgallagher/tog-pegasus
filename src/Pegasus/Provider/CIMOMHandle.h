@@ -55,7 +55,7 @@ class CIMProviderOS400UserState;
 class CIMProviderOS400SystemState;
 #endif
 
-class cimom_handle_op_semaphore;
+class CIMOMHandleRep;
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
@@ -253,12 +253,10 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 #endif
 
    private:      
-      class _cimom_handle_rep;
-      _cimom_handle_rep *_rep;
+      CIMOMHandleRep* _rep;
 
       friend class Provider;
       friend class CMPIProvider;
-      friend class cimom_handle_op_semaphore;
 #ifdef PEGASUS_OS_OS400
       friend class CIMProviderOS400UserState;
       CIMOMHandle(Uint32 os400UserStateKey);

@@ -152,7 +152,10 @@ template<class T>
 inline void InitializeRaw(T* items, Uint32 size)
 {
     while (size--)
-	items++->~T();
+    {
+	new(items) T();
+	items++;
+    }
 }
 
 #define PEGASUS_MEMORY_FUNCTIONS(T) \

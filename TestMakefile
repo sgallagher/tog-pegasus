@@ -32,8 +32,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
   MUEXE = mu.exe
-  COPYMU = copy src\utils\mu\$(MUEXE) /y $(MUEXE)
-  MKDIR = src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -42,8 +41,7 @@ ifeq ($(OS),HPUX)
   CIMSERVER_STOP_SERVICE = cimserver -s; true
   SLEEP = sleep 5
   MUEXE = mu
-  COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -52,8 +50,7 @@ ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   CIMSERVER_STOP_SERVICE = cimserver -s; true
   SLEEP = sleep 5
   MUEXE = mu
-  COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -63,7 +60,6 @@ error:
 buildmu:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 	$(MKDIR) $(BIN_DIR)
-	$(COPYMU)
 
 rebuild: clean buildmu all
 

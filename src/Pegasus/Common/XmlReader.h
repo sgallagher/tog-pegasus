@@ -102,12 +102,6 @@ public:
 
     static void testCimStartTag(XmlParser& parser);
 
-    static Boolean getIsArrayAttribute(
-	Uint32 lineNumber,
-	const XmlEntry& entry,
-	const char* tagName,
-	Boolean& value);
-
     static String getCimNameAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,

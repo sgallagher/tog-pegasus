@@ -301,40 +301,6 @@ void XmlReader::testCimStartTag(XmlParser& parser)
 
 //------------------------------------------------------------------------------
 //
-// getIsArrayAttribute()
-//
-//------------------------------------------------------------------------------
-
-Boolean XmlReader::getIsArrayAttribute(
-    Uint32 lineNumber,
-    const XmlEntry& entry,
-    const char* tagName,
-    Boolean& value)
-{
-    const char* tmp;
-
-    if (!entry.getAttributeValue("ISARRAY", tmp))
-	return false;
-
-    if (strcmp(tmp, "true") == 0)
-    {
-	value = true;
-	return true;
-    }
-    else if (strcmp(tmp, "false") == 0)
-    {
-	value = false;
-	return true;
-    }
-
-    char buffer[62];
-    sprintf(buffer, "Bad %s.%s attribute value", "ISARRAY", tagName);
-    throw XmlSemanticError(lineNumber, buffer);
-    return false;
-}
-
-//------------------------------------------------------------------------------
-//
 // getCimNameAttribute()
 //
 //     <!ENTITY % CIMName "NAME CDATA #REQUIRED">
@@ -2467,9 +2433,9 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // Get ISARRAY attribute:
 
-    Boolean isArray = false;
-    getIsArrayAttribute(
-	parser.getLine(), entry, "QUALIFIER.DECLARATION", isArray); 
+    Boolean isArray = getCimBooleanAttribute(
+        parser.getLine(), entry, "QUALIFIER.DECLARATION", "ISARRAY",
+        false, false); 
 
     // Get ARRAYSIZE attribute:
 
@@ -2841,9 +2807,9 @@ Boolean XmlReader::getBooleanValueElement(
 
     expectContentOrCData(parser, entry);
 
-    if (strcmp(entry.text, "TRUE") == 0)
+    if (CompareNoCase(entry.text, "TRUE") == 0)
 	result = true;
-    else if (strcmp(entry.text, "FALSE") == 0)
+    else if (CompareNoCase(entry.text, "FALSE") == 0)
 	result = false;
     else
 	throw XmlSemanticError(parser.getLine(), 

@@ -113,8 +113,8 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     if (pos == PEG_NOT_FOUND)
     {
-        return (authenticated);
         PEG_METHOD_EXIT();
+        return (authenticated);
     }
 
     String userName = decodedStr.subString(0, pos);

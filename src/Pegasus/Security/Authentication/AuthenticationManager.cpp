@@ -40,7 +40,7 @@
 #include "AuthenticationManager.h"
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Security/Authentication/KerberosAuthenticationHandler.h>
+#include "KerberosAuthenticationHandler.h"
 #endif
 
 

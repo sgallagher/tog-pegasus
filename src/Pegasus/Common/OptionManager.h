@@ -231,11 +231,16 @@ public:
     void checkRequiredOptions() const;
 
     /** Lookup the option with the given name.
+	@param - name provides the name of the option.
 	@return 0 if no such option.
     */
     const Option* lookupOption(const String& name) const;
 
     /** Lookup value of an option.
+	@param - name provides the name of the option (ex. "port")
+	@param - String parameter contains the String that contains the
+	value for this parameter (in String format).
+	@return - Boolean return. True if the option found.
     */
     Boolean lookupValue(const String& name, String& value) const;
 
@@ -336,7 +341,9 @@ public:
         _defaultValue = defaultValue;
     }
 
-    /** Accessor */
+    /** Accessor 
+	@return - Returns string representation of value
+    */
     const String& getValue() const
     {
         return _value;

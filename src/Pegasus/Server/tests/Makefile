@@ -3,10 +3,11 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-	MyProvider \
 	LoadProcessClass \
 	SendMailIndicationDispatcher \
 	XmlIndicationDispatcher \
 	DisplayConsumer
+
+#	MyProvider \
 
 include $(ROOT)/mak/recurse.mak

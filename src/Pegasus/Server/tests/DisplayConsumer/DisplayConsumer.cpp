@@ -29,8 +29,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
-#include <Pegasus/Common/CIMOMHandle.h>
-#include <Pegasus/Provider2/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Provider/CIMIndicationConsumer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

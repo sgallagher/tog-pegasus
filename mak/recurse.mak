@@ -38,3 +38,7 @@ strip-license: $(RECURSE_DEPENDS) $(ERROR)
 
 prepend-license: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) prepend-license $(NL) )
+
+#l10n
+messages: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) messages $(NL) )

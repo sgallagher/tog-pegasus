@@ -23,6 +23,11 @@ pegasus_root_undefined:
 	@ exit 1
 endif
 
+# l10n
+ifdef ICU_ROOT
+    ICUROOT =  $(subst \,/,$(ICU_ROOT))
+endif
+
 ifdef PEGASUS_TMP
   TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
 else
@@ -63,6 +68,10 @@ endif
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
+
+# l10n
+# define the location for the compiled messages
+MSG_ROOT = $(HOME_DIR)/msg
 
 # define the location for the repository
 REPOSITORY_DIR = $(HOME_DIR)

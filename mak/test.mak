@@ -28,6 +28,8 @@ endif
 
 default:
 
+#l10n
+messages: $(ERROR)
 
 cimstop:
 	$(CIMSERVER_STOP_SERVICE)

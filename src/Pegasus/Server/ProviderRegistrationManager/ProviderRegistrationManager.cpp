@@ -951,7 +951,7 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
         enumInstances = _repository->enumerateInstances(
             PEGASUS_NAMESPACENAME_INTEROP,
             ref.getClassName(),
-            true,
+            false,
             false,
             false,
             false,
@@ -1387,7 +1387,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstances(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERMODULE,
-            true,
+            false,
             false,
             false,
             false,
@@ -1516,7 +1516,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstances(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDER,
-            true,
+            false,
             false,
             false,
             false,
@@ -1557,7 +1557,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstances(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
-            true,
+            false,
             false,
             false,
             false,
@@ -1598,7 +1598,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstances(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
-            true,
+            false,
             false,
             false,
             false,
@@ -2548,7 +2548,7 @@ void ProviderRegistrationManager::_deleteInstance(
 
             enumCapInstanceNames = _repository->enumerateInstanceNames(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION); 
+                PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
 
             for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
             {
@@ -2708,7 +2708,7 @@ void ProviderRegistrationManager::_deleteInstance(
 
             enumProviderInstanceNames = _repository->enumerateInstanceNames(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PROVIDER); 
+                PEGASUS_CLASSNAME_PROVIDER);
 
             for (Uint32 i = 0, n = enumProviderInstanceNames.size(); i < n; i++)
             {
@@ -2751,7 +2751,7 @@ void ProviderRegistrationManager::_deleteInstance(
 
             enumCapInstanceNames = _repository->enumerateInstanceNames(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION); 
+                PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
 
             for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
             {

@@ -183,8 +183,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
       }
       if( operation )
       {
-	 
-	 service->_handle_incoming_operation(operation, myself, service);
+	 operation->_thread_ptr = myself;
+	 operation->_service_ptr = service;
+	 service->_handle_incoming_operation(operation);
       }
    }
    
@@ -211,9 +212,9 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
 }
 
 
-void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation, 
-						     Thread *thread, 
-						     MessageQueue *queue)
+void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation) 
+//						     Thread *thread, 
+//						     MessageQueue *queue)
 {
    if ( operation != 0 )
    {
@@ -252,8 +253,9 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
 	 // ATTN: optimization
 	 // << Wed Mar  6 15:00:39 2002 mdd >>
 	 // put thread and queue into the asyncopnode structure. 
-	 (static_cast<AsyncMessage *>(rq))->_myself = thread;
-	 (static_cast<AsyncMessage *>(rq))->_service = queue;
+         //  (static_cast<AsyncMessage *>(rq))->_myself = operation->_thread_ptr;
+         //   (static_cast<AsyncMessage *>(rq))->_service = operation->_service_ptr;
+	 // done << Tue Mar 12 14:49:07 2002 mdd >>
 	 operation->unlock();
 	 _handle_async_request(static_cast<AsyncRequest *>(rq));
       }
@@ -448,8 +450,8 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
       case AsyncIoctl::IO_CLOSE:
       {
 	 // save my bearings 
-	 Thread *myself = req->_myself;
-	 MessageQueueService *service = static_cast<MessageQueueService *>(req->_service);
+	 Thread *myself = req->op->_thread_ptr;
+	 MessageQueueService *service = static_cast<MessageQueueService *>(req->op->_service_ptr);
 	 
 	 // respond to this message.
 	 _make_response(req, async_results::OK);
@@ -475,7 +477,9 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 	    }
 	    if( operation )
 	    {
-	       service->_handle_incoming_operation(operation, myself, service);
+	       operation->_thread_ptr = myself;
+	       operation->_service_ptr = service;
+	       service->_handle_incoming_operation(operation);
 	    }
 	    else
 	       break;

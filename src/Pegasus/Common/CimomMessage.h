@@ -123,8 +123,8 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
       Boolean operator ==(const AsyncMessage& msg);
       
       AsyncOpNode *op;
-      Thread *_myself;
-      MessageQueue *_service;
+//      Thread *_myself;
+//      MessageQueue *_service;
 };
 
 

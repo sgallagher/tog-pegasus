@@ -191,7 +191,6 @@ protected:
       virtual void _handle_async_request(AsyncRequest *req);
    private:
       static void _handle_enqueue_callback(AsyncOpNode *, MessageQueue *, void *);
-      
 
 };
 

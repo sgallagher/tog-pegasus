@@ -1,10 +1,107 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en"><head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>XML Pointer Language (XPointer) Version 1.0</title><style type="text/css">
+
+body {
+  margin: 2em 1em 2em;
+  font-family: sans-serif;
+  color: black;
+  background: white;
+  background-position: top left;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+:link { color: #00C; background: transparent }
+:visited { color: #609; background: transparent }
+:active { color: #C00; background: transparent }
+
+th, td { /* ns 4 */
+  font-family: sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 { text-align: left }
+/* background should be transparent, but WebTV has a bug */
+h1, h2, h3 { color: #005A9C; background: white }
+h1 { font: 170% sans-serif }
+h2 { font: 140% sans-serif }
+h3 { font: 120% sans-serif }
+h4 { font: bold 100% sans-serif }
+h5 { font: italic 100% sans-serif }
+h6 { font: small-caps 100% sans-serif }
+
+.hide { display: none }
+
+div.head { margin-bottom: 1em }
+div.head h1 { margin-top: 2em; clear: both }
+div.head table { margin-left: 2em; margin-top: 2em }
+div.head img { color: white; border: none } /* remove border from top image */
+
+p.copyright { font-size: small }
+p.copyright small { font-size: small }
+
+pre { margin-left: 2em }
+/*
+p {
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+}
+*/
+dt, dd { margin-top: 0; margin-bottom: 0 } /* opera 3.50 */
+dt { font-weight: bold }
+
+pre, code { font-family: monospace } /* navigator 4 requires this */
+
+ul.toc {
+  list-style: disc;		/* Mac NS has problem with 'none' */
+  list-style: none;
+}
+
+code           { font-family: monospace; }
+
+div.constraint,
+div.issue,
+div.note,
+div.notice     { margin-left: 2em; }
+
+li p           { margin-top: 0.3em;
+                 margin-bottom: 0.3em; }
+      
+div.exampleInner pre { margin-left: 1em;
+                       margin-top: 0em; margin-bottom: 0em}
+div.exampleOuter {border: 4px double gray;
+                  margin: 0em; padding: 0em}
+div.exampleInner { background-color: #d5dee3;
+                   border-top-width: 4px;
+                   border-top-style: double;
+                   border-top-color: #d3d3d3;
+                   border-bottom-width: 4px;
+                   border-bottom-style: double;
+                   border-bottom-color: #d3d3d3;
+                   padding: 4px; margin: 0em }
+div.exampleWrapper { margin: 4px }
+div.exampleHeader { font-weight: bold;
+                    margin: 4px}
+
+table { background-color: #d5dee3;
+        width: 85% ;
+        border-style: double;
+        border-width: 4px;
+        border-color: #d3d3d3;
+}
+        </style>
+  
 <html>
   <head>
     <title>Pegasus Meta Dispatcher</title>
   </head>
 
   <body>
+
+<p class="copyright">this is copyright text</p>
+
+<div class="constraint">this is a constraint</div>
+
+<div class="exampleInner"><code>this is an inner example</code></div>
     <h1>Pegasus Meta Dispatcher</h1>
     <p>
       The Pegasus Meta Dispatcher is a set of classes that extend the
@@ -12,18 +109,20 @@
       asynchronous, and multithreaded. The primary classes consist of the
       folowing:
     </p>
-    <table border="1" bgcolor="#cdcdc1" cellpadding="3" width="80%">
-      <tr align="left"><th>Class</th><th>Derived from</th><th>Source file</th></tr>
-	<tr><td>cimom</td><td>MessageQueue</td><td>Pegasus/Common/Cimom.h</td></tr>
-	<tr><td>MessageQueueService</td><td>MessageQueue</td><td>Pegasus/Common/MessageQueueServices.h</td></tr>
-	<tr><td>CimomMessage</td><td>Message</td><td>Pegasus/Common/CimomMessage.h</td></tr>
+	<table> 
+	    <tr align="left"><th>Class</th><th>Derived from</th><th>Source file</th></tr>
+	    <tr><td><div class="exampleInner">cimom</div></td><td>MessageQueue</td><td>Pegasus/Common/Cimom.h</td></tr>
+	    <tr><td>MessageQueueService</td><td>MessageQueue</td><td>Pegasus/Common/MessageQueueServices.h</td></tr>
+	    <tr><td>CimomMessage</td><td>Message</td><td>Pegasus/Common/CimomMessage.h</td></tr>
 	<tr><td>AsyncOpNode</td><td>n/a</td><td>Pegasus/Common/AsyncOpNode.h</td></tr>
-	<tr><td>AsyncDQueue</td><td>unlocked_dq</td><td>Pegasus/Common/DQueue.h</td></tr>
-	<tr><td>IPC classes</td><td>n/a</td><td>Pegasus/Common/IPC.h</td></tr>
-	<tr><td>Threading classes</td><td>n/a</td><td>Pegasus/Common/Thread.h</td></tr>
-    </table>
-    <br>
-    <br>
+	    <tr><td>AsyncDQueue</td><td>unlocked_dq</td><td>Pegasus/Common/DQueue.h</td></tr>
+	    <tr><td>IPC classes</td><td>n/a</td><td>Pegasus/Common/IPC.h</td></tr>
+	    <tr><td>Threading classes</td><td>n/a</td><td>Pegasus/Common/Thread.h</td></tr>
+
+	</table>
+	
+	<br>
+	<br>
 
       <h2>Purposes of Meta Dispatcher</h2>
     <p>
@@ -103,7 +202,7 @@
       The Meta Dispatcher therefore acts as a central message
       hub. Services communicate with each other <i>via</i> the Meta
       Dispatcher.
-
+	<div class="exampleOuter"><div class="exampleInner">
       <pre>
       Service A--Message----1----> (block on semaphore)
                                   |
@@ -119,6 +218,7 @@
 
     </pre>
 
+	  </div></div>
     The numbered steps above are as follows:
     <ol>
       <li><b>Service A</b> creates a new <code>AsyncMessage</code> and
@@ -694,6 +794,64 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 </ol>
 
     <hr>
+
+
+
+<h2>Sending Messages without Blocking (Async with Callback)</h2>
+
+	      <p>
+		Whenever there is a possibility that the processing of
+		one message may generate a nested message (message
+		generated within the handler of a message) it is
+		necessary to send messages without blocking, and to
+		receive responses via callback routines. The diagram
+		below shows the (more complicated) flow of
+		non-blocking messages. 
+	      </p>
+<br>
+	      <div class="exampleOuter"><div class="exampleInner">
+      <pre>
+      Service A--Message----1----> 
+                               |
+        . <-----------(return)-+----->-(loop)--->-+
+        .                      |  Meta Dispatcher | 
+        .                      +----<-----<---<---+
+        .                                      Message---2-->Service B
+        .                                                            |
+        .                                        <--Response--3------+
+        .                                        | 
+        .                        +--<--<-----<-----+--(return)---->
+        .                        | Meta Dispatcher |  
+      Service A <--Callback--4---+--->-(loop)-->---+
+                   |       ^
+                   +-------+
+    </pre>
+		</div></div>
+
+	      <h3>Test Program</h3>
+	      
+	      <p>
+		There is a test program that sends and receives
+		non-blocking messages in 
+		<code>$(PEGASUS_ROOT)/src/Pegasus/Common/tests/async_callback/</code>
+	      </p>
+
+	      <h3>SendAsync method</h3>
+
+	      <p>
+		The <code>MessageQueueService</code> class sends
+		non-blocking messages using the <code>SendAsync</code>
+		method from <code>MessageQueueService.h</code>.
+	      </p>
+<pre>
+      Boolean <b><font color=#000000>SendAsync</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> 
+			Uint32 destination<font color=#990000>,</font>
+			<font color=#009900>void</font> <font color=#990000>(</font><font color=#990000>*</font>callback<font color=#990000>)</font><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>,</font>
+			MessageQueue <font color=#990000>*</font>callback_q<font color=#990000>,</font>
+			<font color=#009900>void</font> <font
+							      color=#990000>*</font>callback_ptr<font color=#990000>)</font><font color=#990000>;</font>
+</pre>
+
 <h2>Class Definitions</h2>
 
 <h3>cimom (Meta Dispatcher)</h3>
@@ -1434,7 +1592,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
     <address><a href="mailto:mdday@us.ibm.com">Michael Day</a></address>
 <!-- Created: Tue Feb  5 13:21:55 EST 2002 -->
 <!-- hhmts start -->
-Last modified: Thu Feb  7 11:48:22 EST 2002
+Last modified: Tue Mar 12 17:48:45 EST 2002
 <!-- hhmts end -->
   </body>
 </html>

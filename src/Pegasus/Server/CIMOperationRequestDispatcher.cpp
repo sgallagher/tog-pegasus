@@ -67,8 +67,6 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 
 void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
-	cout << "_handle_async_request" << endl;
-
    	// pass legacy operations to handleEnqueue
 	if(req->getType() == async_messages::ASYNC_LEGACY_OP_START)
 	{
@@ -180,6 +178,7 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 	
    queue->enqueue(response);
 }
+
 
 void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 {

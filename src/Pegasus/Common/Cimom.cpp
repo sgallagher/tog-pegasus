@@ -461,10 +461,9 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
    {
       _make_response(msg, async_results::CIM_NAK);
    }
+   op->_thread_ptr = thread;
+   op->_service_ptr = queue;
    
-   static_cast<AsyncMessage *>(msg)->_myself = thread;
-   static_cast<AsyncMessage *>(msg)->_service = queue;
-
    if( mask & message_mask::ha_request)
    {
       op->processing();
@@ -601,8 +600,8 @@ void cimom::ioctl(AsyncIoctl *msg)
       case AsyncIoctl::IO_CLOSE:
       {
 	 // save my bearings 
-	 Thread *myself = msg->_myself;
-	 cimom *service = static_cast<cimom *>(msg->_service);
+	 Thread *myself = msg->op->_thread_ptr;
+	 cimom *service = static_cast<cimom *>(msg->op->_service_ptr);
 	 
 	 // respond to this message.
 	 AsyncReply *reply = new AsyncReply( async_messages::REPLY,

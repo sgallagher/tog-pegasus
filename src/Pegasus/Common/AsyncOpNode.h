@@ -77,6 +77,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_RELEASED          0x00002000
 
 class Cimom;
+class Thread;
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
@@ -159,11 +160,17 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void (*_async_callback)(AsyncOpNode *, 
 			      MessageQueue *, 
 			      void *);
+      // << Tue Mar 12 14:44:51 2002 mdd >>
+      // pointers for async callbacks  - don't use 
       AsyncOpNode *_callback_node;
       MessageQueue *_callback_response_q;
       void *_callback_ptr;
       MessageQueue *_callback_request_q;
-      
+      //      << Tue Mar 12 14:44:53 2002 mdd >>
+      // pointers to help static class message handlers - don't use 
+      MessageQueue *_service_ptr;
+      Thread *_thread_ptr;
+            
       friend class cimom;
       friend class MessageQueueService;
       

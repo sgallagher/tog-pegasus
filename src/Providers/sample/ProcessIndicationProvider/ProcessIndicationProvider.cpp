@@ -58,7 +58,7 @@ void ProcessIndicationProvider::enableIndications (
 //cout << "enable ProcessIndicationProvider" << endl;
     handler.processing ();
 
-    CIMInstance indicationInstance ("root/cimv2:CIM_ProcessIndication");
+    CIMInstance indicationInstance ("root/PG_Interop:CIM_ProcessIndication");
 
     indicationInstance.addProperty
         (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));

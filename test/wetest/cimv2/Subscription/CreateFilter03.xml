@@ -27,6 +27,9 @@
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 
               <VALUE> WQL1 </VALUE>
             </PROPERTY>
+            <PROPERTY NAME="SourceNamespace" TYPE="string">
+              <VALUE> root/PG_InterOp </VALUE>
+            </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>
       </IMETHODCALL>

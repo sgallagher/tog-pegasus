@@ -616,12 +616,31 @@ private:
         filter query select statement.
 
         @param   selectStatement       the WQL select statement
+        @param   nameSpaceName         the namespace
+        @param   indicationClassName   the indciation class name
 
-        @return  list of properties referenced by the filter query select
-                 statement
+        @return  CIMPropertyList of properties referenced by the filter query 
+                 select statement
      */
     CIMPropertyList _getPropertyList (
         const WQLSelectStatement & selectStatement,
+        const String & nameSpaceName,
+        const String & indicationClassName) const;
+
+    /**
+        Checks if the property list includes all properties in the specified 
+        class.  If so, a NULL CIMPropertyList is returned.  Otherwise, a
+        CIMPropertyList containing all the properties is returned.
+
+        @param   propertyList          the list of property names
+        @param   nameSpaceName         the namespace
+        @param   indicationClassName   the indciation class name
+
+        @return  CIMPropertyList of properties referenced by the filter query 
+                 select statement
+     */
+    CIMPropertyList _checkPropertyList (
+        const Array <String> & propertyList,
         const String & nameSpaceName,
         const String & indicationClassName) const;
 

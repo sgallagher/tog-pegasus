@@ -58,7 +58,7 @@ void AlertIndicationProvider::enableIndications (
 //cout << "enable AlertIndicationProvider" << endl;
     handler.processing ();
 
-    CIMInstance indicationInstance ("root/cimv2:CIM_AlertIndication");
+    CIMInstance indicationInstance ("root/PG_InterOp:CIM_AlertIndication");
 
     indicationInstance.addProperty
         (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));

@@ -37,7 +37,8 @@ PEGASUS_NAMESPACE_BEGIN
 extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider
     (const String & providerName)
 {
-    if (String::equalNoCase (providerName, "ProcessIndicationProvider"))
+    if ((String::equalNoCase (providerName, "ProcessIndicationProvider")) ||
+        (String::equalNoCase (providerName, "ProcessIndicationProvider2")))
     {
 	return (new ProcessIndicationProvider ());
     }

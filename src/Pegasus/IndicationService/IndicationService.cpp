@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
-
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
@@ -192,38 +191,44 @@ void IndicationService::_initialize (void)
     Array <Uint32> pmservices;
     find_services (PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &pmservices);
     pegasus_yield ();
-    if (pmservices.size () > 0)
-    {
-        _providerManager = pmservices [0];
+    PEGASUS_ASSERT (pmservices.size () == 1);
+    _providerManager = pmservices [0];
+
+    //if (pmservices.size () > 0)
+    //{
+        //_providerManager = pmservices [0];
 
         //
         //  ATTN: What should be done if more than one service is found??
         //
-    }
-    else
-    {
+    //}
+    //else
+    //{
         //
         //  ATTN: What should be done if no service is found??
         //
-    }
+    //}
 
     Array <Uint32> hmservices;
     find_services (PEGASUS_QUEUENAME_INDHANDLERMANAGER, 0, 0, &hmservices);
     pegasus_yield ();
-    if (hmservices.size () > 0)
-    {
-        _handlerService = hmservices [0];
+    PEGASUS_ASSERT (hmservices.size () == 1);
+    _handlerService = hmservices [0];
+
+    //if (hmservices.size () > 0)
+    //{
+        //_handlerService = hmservices [0];
 
         //
         //  ATTN: What should be done if more than one service is found??
         //
-    }
-    else
-    {
+    //}
+    //else
+    //{
         //
         //  ATTN: What should be done if no service is found??
         //
-    }
+    //}
 
     //
     //  FUTURE: Add code to find repository service, if repository becomes a 
@@ -1386,7 +1391,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             request->queueIds.copyAndPop());
 
     String filterQuery;
-    Array<String> propertyList;
+    Array <String> propertyList;
     Boolean match;
 
     Array <CIMNamedInstance> matchedSubscriptions;
@@ -1396,6 +1401,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
+//cout << "Received indication: " << indication.getClassName () << endl;
 
     try
     {
@@ -1404,6 +1410,11 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
         for (Uint8 i = 0; i < indication.getPropertyCount(); i++)
             propertyList.append(indication.getProperty(i).getName());
+
+        //
+        //  ATTN: Check if property list contains all properties of class
+        //  If so, set to null
+        //
 
         Array <String> nameSpaces;
         nameSpaces.append (request->nameSpace);
@@ -1507,7 +1518,13 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      handler_request,
                      _queueId);
 
+                //
+                //  ATTN-CAKG-P1-20020424: Temporarily commented out - causing 
+                //  core dumps
+                //
+/*
                  SendForget(async_req);
+*/
 
                 //
                 //  ATTN-CAKG-P1-20020326: Check for error - implement 
@@ -1519,17 +1536,22 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                  //response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
                  //    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
 
-                 delete async_req;
+                //
+                //  Recipient deletes request
+                //
+
                  //delete async_reply;
             }
         }
     }
     catch (CIMException& exception)
     {
+        //cout << "Process Indication Exception: " << exception.getMessage () << endl;
         response->cimException = exception;
     }
     catch (Exception& exception)
     {
+        //cout << "Process Indication Exception: " << exception.getMessage () << endl;
         response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                        exception.getMessage());
     }
@@ -1548,7 +1570,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         "IndicationService::_handleNotifyProviderRegistrationRequest";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
-//cout << "IndicationService::_handleNotifyProviderRegistrationRequest" << endl;
 
     CIMNotifyProviderRegistrationRequestMessage* request = 
         (CIMNotifyProviderRegistrationRequestMessage*) message;
@@ -1563,6 +1584,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMPropertyList newPropertyNames = request->newPropertyNames;
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
 
+
     Array <CIMNamedInstance> newSubscriptions;
     Array <CIMNamedInstance> formerSubscriptions;
     Array <ProviderClassList> indicationProviders;
@@ -1575,7 +1597,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     {
         case OP_CREATE:
         {
-//cout << "OP_CREATE" << endl;
             //
             //  Get matching subscriptions
             //
@@ -1587,7 +1608,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
         case OP_DELETE:
         {
-//cout << "OP_DELETE" << endl;
             //
             //  Get matching subscriptions
             //
@@ -1599,7 +1619,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
         case OP_MODIFY:
         {
-//cout << "OP_MODIFY" << endl;
             //
             //  Get lists of affected subscriptions
             //
@@ -1626,13 +1645,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     indicationProvider.classList.append (className);
     indicationProviders.append (indicationProvider);
 
+//cout << "newSubscriptions.size (): " << newSubscriptions.size () << endl;
     if (newSubscriptions.size () > 0)
     {
         CIMPropertyList requiredProperties;
         String condition;
         String queryLanguage;
 
-//cout << "newSubscriptions.size (): " << newSubscriptions.size () << endl;
         //
         //  Send enable or modify request for each subscription that can newly 
         //  be supported
@@ -1703,9 +1722,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         }
     }
 
+//cout << "formerSubscriptions.size (): " << formerSubscriptions.size () << endl;
     if (formerSubscriptions.size () > 0)
     {
-//cout << "formerSubscriptions.size (): " << formerSubscriptions.size () << endl;
         CIMPropertyList requiredProperties;
         String condition;
         String queryLanguage;
@@ -1727,35 +1746,57 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
             //
             //  Look up the subscription-provider pair in the subscription table
-            //  If the entry is there, send a modify request, 
-            //  Otherwise, send an enable request
+            //  If class list contains only the class name from the current
+            //  operation, send a disable request
+            //  Otherwise, send a modify request
             //
             String tableKey = _generateKey 
                 (formerSubscriptions [i], indicationProviders [i].provider);
-            if (_subscriptionTable.contains (tableKey))
+            SubscriptionTableEntry tableValue;
+            if (_subscriptionTable.lookup (tableKey, tableValue))
             {
 //cout << "table contains key" << endl;
-                String sourceNameSpace;
-                _getEnableParams 
-                    (formerSubscriptions [i].getInstanceName ().getNameSpace (),
-                    formerSubscriptions [i].getInstance (), 
-                    requiredProperties, sourceNameSpace, condition, 
-                    queryLanguage);
+                //
+                //  If class list contains only the class name from the current
+                //  delete, send a disable request
+                //
+                if ((tableValue.classList.size () == 1) &&
+                    (tableValue.classList [0] == className))
+                {
+                    _sendDisableRequests (indicationProviders,
+                        formerSubscriptions [i].getInstanceName 
+                        ().getNameSpace (), formerSubscriptions [i], creator);
+                }
 
                 //
-                //  Send modify requests
+                //  Otherwise, send a modify request
                 //
-                _sendModifyRequests (indicationProviders,
-                    formerSubscriptions [i].getInstanceName ().getNameSpace (), 
-                    requiredProperties, condition, queryLanguage, 
-                    formerSubscriptions [i], creator);
+                else
+                {
+                    String sourceNameSpace;
+                    _getEnableParams 
+                        (formerSubscriptions [i].getInstanceName 
+                        ().getNameSpace (),
+                        formerSubscriptions [i].getInstance (), 
+                        requiredProperties, sourceNameSpace, condition, 
+                        queryLanguage);
+
+                    //
+                    //  Send modify requests
+                    //
+                    _sendModifyRequests (indicationProviders,
+                        formerSubscriptions [i].getInstanceName 
+                        ().getNameSpace (), 
+                        requiredProperties, condition, queryLanguage, 
+                        formerSubscriptions [i], creator);
+                }
             }
             else
             {
-//cout << "table does not contain key" << endl;
-                _sendDisableRequests (indicationProviders,
-                    formerSubscriptions [i].getInstanceName ().getNameSpace (),
-                    formerSubscriptions [i], creator);
+                //
+                //  An error condition
+                //
+                //cout << "Error on delete: table does not contain key" << endl;
             }
         }
 
@@ -3641,6 +3682,19 @@ CIMPropertyList IndicationService::_getPropertyList
         }
     }
 
+    return _checkPropertyList (propertyList, nameSpaceName, 
+        indicationClassName);
+}
+
+CIMPropertyList IndicationService::_checkPropertyList 
+    (const Array <String> & propertyList,
+     const String & nameSpaceName,
+     const String & indicationClassName) const
+{
+    const char METHOD_NAME [] = "IndicationService::_checkPropertyList";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
     //
     //  Check if list includes all properties in class
     //  If so, must be set to NULL
@@ -3663,11 +3717,11 @@ CIMPropertyList IndicationService::_getPropertyList
     _repository->read_unlock ();
 
     Boolean allProperties = true;
-    for (Uint32 k = 0; 
-         k < indicationClass.getPropertyCount () && allProperties; k++)
+    for (Uint32 i = 0; 
+         i < indicationClass.getPropertyCount () && allProperties; i++)
     {
         if (!Contains (propertyList, 
-            indicationClass.getProperty (k).getName ()))
+            indicationClass.getProperty (i).getName ()))
         {
             allProperties = false;
         }
@@ -4110,8 +4164,6 @@ void IndicationService::_getEnableParams (
     indicationProviders = _getIndicationProviders 
         (sourceNameSpace, indicationClassName, indicationSubclasses, 
          propertyList);
-//cout << "Indication Providers to enable: " << indicationProviders.size () 
-//<< endl;
 
     if (indicationProviders.size () > 0)
     {
@@ -4226,8 +4278,6 @@ Array <ProviderClassList> IndicationService::_getDisableParams (
     indicationProviders = _getIndicationProviders 
         (sourceNameSpace, indicationClassName, indicationSubclasses, 
          propertyList);
-//cout << "Indication Providers to disable: " << indicationProviders.size () 
-//<< endl;
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return indicationProviders;
@@ -4283,12 +4333,6 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
       //cout << response->cimException.getMessage () << endl;
    }
    
-   //
-   //  ATTN: This is temporary... because requests are not accepted yet
-   //
-   //service->_insertEntry(*(epl->cni), epl->pcl->provider, epl->pcl->classList);
-//   service->_insertEntry (subscription, indicationProviders [i].provider,
-//			  indicationProviders [i].classList);
    delete epl;
    delete request;
    delete response;
@@ -4369,15 +4413,8 @@ Boolean IndicationService::_sendEnableRequests
 		  this, 
 		  (void *)epl);
 	
-//cout << "Create sent: " << request->messageId << endl;
 
         // AsyncReply * async_reply = SendWait (async_req);
-
-        //
-        //  ATTN: Check for return value indicating invalid queue ID
-        //  If received, need to find Provider Manager Service queue ID
-        //  again
-        //
     }
 
     //
@@ -4391,56 +4428,79 @@ Boolean IndicationService::_sendEnableRequests
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
-void IndicationService::_sendModifyRequestsCallBack(AsyncOpNode *op,
-						    MessageQueue *q,
-						    void *parm)
+void IndicationService::_sendModifyRequestsCallBack (
+    AsyncOpNode * op,
+    MessageQueue * q,
+    void * parm)
 {
-   
-   IndicationService *service = 
-      static_cast<IndicationService *>(q);
-   struct enableProviderList *epl = 
-      reinterpret_cast<struct enableProviderList *>(parm);
-   
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+    const char METHOD_NAME [] = 
+        "IndicationService::_sendModifyRequestsCallBack";
 
-   //
-   //  ATTN: Check for return value indicating invalid queue ID
-   //  If received, need to find Provider Manager Service queue ID
-   //  again
-   //
-   
-   //
-   //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
-   //  Indication providers may ignore modify requests, so I don't think
-   //  we care whether they accept or reject the modification...
-   //
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
-   CIMModifySubscriptionResponseMessage * response =
-      reinterpret_cast
-      <CIMModifySubscriptionResponseMessage *>
-      ((static_cast <AsyncLegacyOperationResult *>
-	(asyncReply))->get_result());
-   PEGASUS_ASSERT(response != 0);
+    IndicationService *service = static_cast <IndicationService *> (q);
+    struct enableProviderList * epl = reinterpret_cast
+        <struct enableProviderList *> (parm);
    
+    AsyncRequest * asyncRequest = static_cast <AsyncRequest *>
+        (op->get_request ());
+    AsyncReply * asyncReply = static_cast <AsyncReply *> (op->get_response ());
+    CIMRequestMessage * request = reinterpret_cast <CIMRequestMessage *>
+        ((static_cast <AsyncLegacyOperationStart *> 
+        (asyncRequest))->get_action ());
+
+    //
+    //  ATTN: Check for return value indicating invalid queue ID
+    //  If received, need to find Provider Manager Service queue ID
+    //  again
+    //
    
+    //
+    //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
+    //  Indication providers may ignore modify requests, so I don't think
+    //  we care whether they accept or reject the modification...
+    //
+
+    CIMModifySubscriptionResponseMessage * response = reinterpret_cast
+        <CIMModifySubscriptionResponseMessage *>
+        ((static_cast <AsyncLegacyOperationResult *>
+	(asyncReply))->get_result ());
    
-   //
-   //  Remove old entry from subscription table and insert 
-   //  updated entry
-   //
-   String tableKey = service->_generateKey(*(epl->cni), epl->pcl->provider);
-   service->_subscriptionTable.remove (tableKey);
-   service->_insertEntry (*(epl->cni), epl->pcl->provider, epl->pcl->classList);
-   delete epl;
-   delete request;
-   delete response;
-   delete asyncRequest;
-   delete asyncReply;
-   op->release();
-   service->return_op(op);
+    PEGASUS_ASSERT(response != 0);
+    if (response->cimException.getCode () == CIM_ERR_SUCCESS)
+    {
+        //cout << "Modify accepted: " << response->messageId << endl;
+   
+        //
+        //  Remove old entry from subscription table and insert 
+        //  updated entry
+        //
+        String tableKey = service->_generateKey
+            (* (epl->cni), epl->pcl->provider);
+        service->_subscriptionTable.remove (tableKey);
+        //cout << "Old entry removed: " << tableKey << endl;
+        service->_insertEntry (* (epl->cni), epl->pcl->provider, 
+            epl->pcl->classList);
+    }
+    else
+    {
+        //
+        //  ATTN-CAKG-P3-20020326: Any action required?
+        //  Should a message be logged?
+        //  Should the table entry be updated anyway??
+        //
+        //cout << "Modify rejected: " << response->messageId << endl;
+        //cout << "Error code: " << response->cimException.getCode () << endl;
+        //cout << response->cimException.getMessage () << endl;
+    }
+
+    delete epl;
+    delete request;
+    delete response;
+    delete asyncRequest;
+    delete asyncReply;
+    op->release ();
+    service->return_op (op);
 }
 
 
@@ -4493,6 +4553,7 @@ void IndicationService::_sendModifyRequests
 	     QueueIdStack (_providerManager, getQueueId ()),
 	     authType,
 	     userName);
+//cout << "Modify message ID: " << request->messageId << endl;
 
         AsyncOpNode* op = this->get_op();
 
@@ -4511,62 +4572,75 @@ void IndicationService::_sendModifyRequests
 		  (void *)epl);
 
         // AsyncReply * async_reply = SendWait (async_req);
-
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
 
-void IndicationService::_sendDisableRequestsCallBack(AsyncOpNode *op, 
-						     MessageQueue *q, 
-						     void *parm)
+void IndicationService::_sendDisableRequestsCallBack (
+    AsyncOpNode * op, 
+    MessageQueue * q, 
+    void * parm)
 {
+    const char METHOD_NAME [] = 
+        "IndicationService::_sendDisableRequestsCallBack";
 
-   IndicationService *service = 
-      static_cast<IndicationService *>(q);
-   struct enableProviderList *epl = 
-      reinterpret_cast<struct enableProviderList *>(parm);
-   
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
-   CIMDeleteSubscriptionResponseMessage * response =
-      reinterpret_cast
-      <CIMDeleteSubscriptionResponseMessage *>
-      ((static_cast <AsyncLegacyOperationResult *>
+    IndicationService * service = static_cast <IndicationService *> (q);
+    struct enableProviderList * epl = 
+        reinterpret_cast <struct enableProviderList *> (parm);
+
+    AsyncRequest * asyncRequest = static_cast <AsyncRequest *>
+        (op->get_request ());
+    AsyncReply * asyncReply = static_cast <AsyncReply *> (op->get_response ());
+    CIMRequestMessage * request = reinterpret_cast <CIMRequestMessage *>
+        ((static_cast <AsyncLegacyOperationStart *> 
+        (asyncRequest))->get_action ());
+
+    CIMDeleteSubscriptionResponseMessage * response =
+        reinterpret_cast <CIMDeleteSubscriptionResponseMessage *>
+        ((static_cast <AsyncLegacyOperationResult *>
 	(asyncReply))->get_result());
    
-
-        //  ATTN: Check for return value indicating invalid queue ID
-        //  If received, need to find Provider Manager Service queue ID
-        //  again
+    //
+    //  ATTN: Check for return value indicating invalid queue ID
+    //  If received, need to find Provider Manager Service queue ID again
+    //
    
-        //
-        //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
-        //  I don't think there is any action to take if the disable is
-        //  rejected (perhaps log a message?)
-        //
-
+    PEGASUS_ASSERT (response != 0);
+    if (response->cimException.getCode () == CIM_ERR_SUCCESS)
+    {
+        //cout << "Delete accepted: " << response->messageId << endl;
         //
         //  Remove entry from subscription table 
         //
+        String tableKey = service->_generateKey 
+            (*(epl->cni), epl->pcl->provider);
+        service->_subscriptionTable.remove (tableKey);
+        //cout << "Entry removed: " << tableKey << endl;
+    }
+    else
+    {
+        //
+        //  ATTN-CAKG-P3-20020326: Any action required?
+        //  Should a message be logged?
+        //  Should the table entry be removed anyway??
+        //
+        //cout << "Delete rejected: " << response->messageId << endl;
+        //cout << "Error code: " << response->cimException.getCode () << endl;
+        //cout << response->cimException.getMessage () << endl;
+    }
 
-   String tableKey = service->_generateKey 
-      (*(epl->cni), epl->pcl->provider);
-   service->_subscriptionTable.remove (tableKey);
-      delete epl;
-
-   delete request;
-   delete response;
-   delete asyncRequest;
-   delete asyncReply;
-   op->release();
-   service->return_op(op);
+    delete epl;
+    delete request;
+    delete response;
+    delete asyncRequest;
+    delete asyncReply;
+    op->release ();
+    service->return_op (op);
 }
-
 
 
 void IndicationService::_sendDisableRequests
@@ -4601,6 +4675,7 @@ void IndicationService::_sendDisableRequests
 	     QueueIdStack (_providerManager, getQueueId ()),
 	     authType,
 	     userName);
+//cout << "Delete message ID: " << request->messageId << endl;
 	
         AsyncOpNode* op = this->get_op();
 
@@ -4620,7 +4695,6 @@ void IndicationService::_sendDisableRequests
 
 	// <<< Fri Apr  5 06:05:55 2002 mdd >>>
 	// AsyncReply * async_reply = SendWait (async_req);
-
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -4682,8 +4756,6 @@ String IndicationService::_generateKey (
     tableKey.append (providerName);
     tableKey.append (providerModuleName);
 
-    //cout << "Generated Key: " << tableKey << endl;
-    //cout << endl;
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return tableKey;
 }
@@ -4704,6 +4776,7 @@ void IndicationService::_insertEntry (
     entry.provider = provider;
     entry.classList = classList;
     _subscriptionTable.insert (tableKey, entry);
+//cout << "Entry inserted: " << tableKey << endl;
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -4765,6 +4838,10 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
 					    MessageQueue *q, 
 					    void *parm)
 {
+    const char METHOD_NAME [] = 
+        "IndicationService::_sendAlertsCallBack";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
    IndicationService *service = 
       static_cast<IndicationService *>(q);
@@ -4781,9 +4858,21 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
       ((static_cast<AsyncLegacyOperationResult *>
 	(asyncReply))->get_result());
 
+   PEGASUS_ASSERT(response != 0);
+   if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+   {
+      //cout << "Alert accepted: " << response->messageId << endl;
+   }
+   else
+   {
+      //cout << "Alert rejected: " << response->messageId << endl;
+      //cout << "Error code: " << response->cimException.getCode () << endl;
+      //cout << response->cimException.getMessage () << endl;
+   }
+   
    //
    //  ATTN: Check for return value indicating invalid queue ID
-   //  If received, need to find Provider Manager Service queue ID
+   //  If received, need to find Handler Manager Service queue ID
    //  again
    //
 
@@ -4854,29 +4943,32 @@ void IndicationService::_sendAlerts (
                 _handler->getInstance (),
                 alertInstance,
                 QueueIdStack (_handlerService, getQueueId ()));
+//cout << "Alert message ID: " << handler_request->messageId << endl;
 
         AsyncOpNode* op = this->get_op();
      
         AsyncLegacyOperationStart *async_req = 
             new AsyncLegacyOperationStart(
                 get_next_xid(),
-
                 op,
                 _handlerService,
                 handler_request,
                 _queueId);
 
+        //
+        //  ATTN-CAKG-P1-20020424: Temporarily commented out - causing 
+        //  core dumps
+        //
+/*
 	SendAsync(op, 
 		  _handlerService, 
 		  IndicationService::_sendAlertsCallBack,
 		  this, 
 		  (void *)_handler);
-	
-		  
+*/
 
 	// <<< Fri Apr  5 06:24:14 2002 mdd >>>
 	// AsyncReply *async_reply = SendWait(async_req);
-
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -4949,6 +5041,7 @@ void IndicationService::_sendStart (
              startProvider.provider,
              startProvider.providerModule,
              QueueIdStack (_providerManager, getQueueId ()));
+//cout << "Enable message ID: " << request->messageId << endl;
 
     AsyncOpNode* op = this->get_op (); 
 
@@ -4965,10 +5058,9 @@ void IndicationService::_sendStart (
 	       IndicationService::_sendStartCallBack,
 	       this, 
 	       NULL);
+
     //    AsyncReply * async_reply = SendWait (async_req);
     // << Wed Apr 10 12:26:16 2002 mdd >>
-
-//cout << "Enable sent: " << request->messageId << endl;
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -4983,7 +5075,6 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
         "IndicationService::_getPropertySourceFromInstance";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
-
 
     for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
     {

@@ -6,11 +6,11 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL
 
-#LIBRARIES = \
-#    pegcommon \
-#    pegconfig \
-#    peggetoopt \
-#    pegclient
+LIBRARIES = \
+    pegcommon \
+    pegconfig \
+    peggetoopt \
+    pegclient
 
 SOURCES = snmpIndicationHandler.cpp
 

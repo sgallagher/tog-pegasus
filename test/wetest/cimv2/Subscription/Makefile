@@ -18,8 +18,12 @@ XMLSCRIPTS = \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \
     ModifySubscription03 ModifySubscription04 ModifySubscription05 \
+    ModifySubscription07 \
+    CreateProvider03 CreateCapability03 \
+    ModifyCapability01 ModifyCapability02 \
+    DeleteCapability03 DeleteProvider03 \
     DeleteFilter07 DeleteHandler04 \
-    DeleteSubscription01 DeleteSubscription02 DeleteSubscription03 \
+    DeleteSubscription01 DeleteSubscription03 \
     DeleteSubscription04 DeleteSubscription05 DeleteSubscription06 \
     DeleteSubscription07 DeleteSubscription08 DeleteSubscription09 \
     DeleteFilter02 DeleteFilter03 DeleteFilter04 \
@@ -50,11 +54,9 @@ XMLSCRIPTS = \
 #   GetSubscription01 GetSubscription02 GetSubscription03 \
 #   GetSubscription04 GetSubscription05 GetSubscription06 \
 #   GetSubscription07 GetSubscription08 GetSubscription09 \
+#   CreateSubscription26 ModifySubscription06 \
 #   CreateFilter13 CreateSubscription15 \
 #   DeleteSubscription15 DeleteFilter13 \
 #   CreateFilter11 CreateFilter12 \
-#   CreateModule03 CreateProvider03 CreateCapability03 \
-#   ModifyCapability01 ModifyCapability02 \
-#   DeleteCapability03 DeleteProvider03 DeleteModule03
 
 include $(ROOT)/test/configend.mak

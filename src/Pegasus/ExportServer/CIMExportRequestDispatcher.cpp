@@ -31,7 +31,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/PegasusVersion.h>
-
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 #include "CIMExportRequestDispatcher.h"
@@ -148,7 +147,14 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     }
     else
     {
-	CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
+        CIMIndicationConsumer* consumer;
+        try
+        {
+            consumer = _lookupConsumer(request->url);
+        }
+        catch (Exception e)
+        {
+        }
 
 	if (consumer)
 	{

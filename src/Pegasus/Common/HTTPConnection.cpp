@@ -141,19 +141,21 @@ void HTTPConnection::handleEnqueue(Message *message)
       return;
    }
    
-#ifdef ENABLETIMEOUTWORKAROUNDHACK
+// #ifdef ENABLETIMEOUTWORKAROUNDHACK
+// << Wed Mar  6 12:30:38 2002 mdd >>
    static Mutex handleEnqueue_mut = Mutex();
    Boolean LockAcquired = false;
-#endif
+// #endif
 
 
-#ifdef ENABLETIMEOUTWORKAROUNDHACK
+// #ifdef ENABLETIMEOUTWORKAROUNDHACK
+// << Wed Mar  6 12:30:48 2002 mdd >>
    if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
    {
       handleEnqueue_mut.lock(pegasus_thread_self());
       LockAcquired = true;
    }
-#endif
+// #endif
 
    switch (message->getType())
    {
@@ -231,12 +233,13 @@ void HTTPConnection::handleEnqueue(Message *message)
 
    delete message;
 
-#ifdef ENABLETIMEOUTWORKAROUNDHACK
+// #ifdef ENABLETIMEOUTWORKAROUNDHACK
+// << Wed Mar  6 12:31:03 2002 mdd >>
    if (LockAcquired)
    {
       handleEnqueue_mut.unlock();
    }
-#endif
+// #endif
 
    PEG_METHOD_EXIT();
 }

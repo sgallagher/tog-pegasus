@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
     list. There are none for modifying elements (the entire array must be
     formed and passed to the constructor or replaced by calling set()).
 */
-class CIMPropertyList
+class PEGASUS_COMMON_LINKAGE CIMPropertyList
 {
 public:
 

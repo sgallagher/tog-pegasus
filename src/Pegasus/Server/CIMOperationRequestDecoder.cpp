@@ -1014,51 +1014,12 @@ void CIMOperationRequestDecoder::handleMethodCall(
          }
 
 	 //
-	 // Check for <LOCALINSTANCEPATHELEMENT ...>
+	 // Check for <LOCALINSTANCEPATHELEMENT> or <LOCALCLASSPATHELEMENT>
 	 //
-	 if ( XmlReader::testStartTag (parser, entry,
-				       XML_ELEMENT_LOCALINSTANCEPATH))
+         if (!(XmlReader::getLocalInstancePathElement(parser, reference) ||
+               XmlReader::getLocalClassPathElement(parser, reference)))
 	 {
-	    parser.putBack(entry);
-	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
-	    {
-
-	      // l10n
-
-	      // throw XmlValidationError(parser.getLine(),
-	      // "expected LOCALINSTANCEPATH element");
-	      
-	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALINSTANCEPATH_ELEMENT",
-					 "expected LOCALINSTANCEPATH element");
-
-	      throw XmlValidationError(parser.getLine(),mlParms);
-
-				       
-	    }
-	 }
-	 //
-	 // Check for <LOCALCLASSPATHELEMENT ...>
-	 //
-	 else if ( XmlReader::testStartTag( parser, entry,
-					    XML_ELEMENT_LOCALCLASSPATH))
-	 {
-	    parser.putBack(entry);
-	    if (!XmlReader::getLocalClassPathElement(parser, reference))
-	    {
-	      // l10n
-
-	      // throw XmlValidationError(parser.getLine(),
-	      // "expected LOCALCLASSPATH element");
-
-	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALCLASSPATH_ELEMENT",
-					 "expected LOCALCLASSPATH element");
-
-	      throw XmlValidationError(parser.getLine(),mlParms);
-
-	    }
-	 }
-	 else
-	 {
+           // l10n TODO
 	   throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
 	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
 	   // is a hardcoded variable, not a message

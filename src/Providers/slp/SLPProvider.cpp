@@ -254,13 +254,78 @@ String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNam
     return(output);
 }
 
+
+/** Set the value of a property defined by property name in the instance provided.
+    Sets a String into the value field unless the property name cannot be found.
+    If the property cannot be found, it simply returns.
+    ATTN: This function does not pass an error back if property not found.
+    @param instance CIMInstance in which to set property value
+    @param propertyName CIMName of property in which value will be set.
+    @param value String value to set into property
+    
+*/
+void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const String& value)
+{
+    Uint32 pos;
+    if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
+        instance.getProperty(pos).setValue(CIMValue(value));
+}
+
 //*******************************************************************
 //
 // SLPProvider Protected and private methods
 //
 //*******************************************************************
 
+/** builds one instance of the class named className. Gets Class definition and
+    fills in the correct properties from the class.  This requires a repository
+    getclass request for each instance built. The skeleton is built by
+    creating the instance and copying qualifiers and properties from
+    the class. Finally the instance is cloned to separate it from the
+    original objects.
+    NOTE: This is very inefficient for anything larger than a few instances.
+    We should separate the get from the createSkeleton.
+    @param className CIMName of the class for which the instance is to be built
+    @return CIMInstance of this class with properties complete.
+    @exception passes on any exceptions received from the repository request.
+*/
+CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className)
+{
+    CIMClass myClass;
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+            "InteropProvider::_buildInstanceSkeleton()");
 
+    CIMInstance skeleton(className);
+        myClass = _cimomHandle.getClass(OperationContext(), _nameSpace,
+                                className, false, true, true,CIMPropertyList());
+    
+    // copy the qualifiers
+    for (Uint32 i = 0 ; i < myClass.getQualifierCount() ; i++)
+        skeleton.addQualifier(myClass.getQualifier(i));
+
+    // copy the properties
+    for (Uint32 i = 0 ; i < myClass.getPropertyCount() ; i++)
+        skeleton.addProperty(myClass.getProperty(i));
+
+    PEG_METHOD_EXIT();
+    return(skeleton.clone());
+}
+/* remove the instances created as part of the registration and unregister.
+  This is completely unregisters this this provider and disconnects it
+  from the slp agent.
+  ATTN: We could also change status so it could be unloaded.
+*/
+void SLPProvider::deregisterSLP()
+{
+    // clear existing instances
+    _instanceNames.clear();
+    _instances.clear();
+    
+    // unregister from the agent
+    slp_agent.unregister();
+    initFlag = false;
+    
+}
 /** gets the list of registered profiles for the SLP template.
     Until we start using CIM 28, there are no template classes
     and no templates.  We are doing a temporary hack here of
@@ -304,7 +369,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     try
     {
     // ATTN: KS In the future get only the fields we want based on property list.
-        CIMNamespaceInstances = _ch.enumerateInstances(
+        CIMNamespaceInstances = _cimomHandle.enumerateInstances(
                                          OperationContext(),
                                          PEGASUS_NAMESPACENAME_INTEROP,
                                          CIMName(CIMNamespaceClassName),
@@ -329,19 +394,6 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
         else
             CDEBUG("Must log error here if property not found");
 
-        /*****************************************
-        Uint32 pos;
-        if ((pos = CIMNamespaceInstances[i].findProperty(namePropertyName)) != PEG_NOT_FOUND) 
-        {
-            CIMProperty p1= CIMNamespaceInstances[i].getProperty(pos);
-            CIMValue v1=p1.getValue();
-            _appendCSV(names,v1.toString());
-
-            _appendCSV(classInfo, _getPropertyValue(CIMNamespaceInstances[i], CIMName(classinfoAttribute), " "));
-        }
-        else
-            CDEBUG("Must log error here if property not found");
-        ****************************************/
     }
     
     PEG_METHOD_EXIT();
@@ -356,14 +408,17 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     NOTE: There are two fieldName parameters because there may be different names for 
     these fields in the instance and registration (this is due to the fact that the
     - used in slp templates is illegal in CIMNames.
-    
-    @param instance CIMInstance being created. This is an instance of WBEMSlpTemplate.
+    @param slpTemplateInstance string for registration information. Each call adds the defined
+    attribute to this string.
+    @param instance CIMInstance being created. This is an instance of WBEMSlpTemplate. Each call
+    adds the defined property value to the instance in the property defined by instanceFieldName
     @param insstanceFieldName String defining the name of the field to populate in the instance.
     @param regfieldName String defining the name of the field to populate in the registration
     @param value String defining the value with which to populate the field
 */
 
-void SLPProvider::populateTemplateField(CIMInstance& instance, 
+void SLPProvider::populateTemplateField(String& slpTemplateInstance,
+                                        CIMInstance& instance, 
                                         const String& instanceFieldName, 
                                         const String& regFieldName,
                                         const String& value)
@@ -374,14 +429,17 @@ void SLPProvider::populateTemplateField(CIMInstance& instance,
     CDEBUG("Populate TemplateField name= " << instanceFieldName << ", " << regFieldName <<". Value= " << value);
     instance.addProperty(CIMProperty(CIMName(instanceFieldName), value));
 
-    if (_slpTemplateInstance.size() != 0)
-        _slpTemplateInstance.append(",\n");
+    // if not first entry, set newline
+    if (slpTemplateInstance != String::EMPTY)
+        slpTemplateInstance.append(",\n");
 
-    _slpTemplateInstance.append("(");
-    _slpTemplateInstance.append(regFieldName);
-    _slpTemplateInstance.append("=");
-    _slpTemplateInstance.append(value);
-    _slpTemplateInstance.append(")");
+    // Add entry as (name=value)
+    slpTemplateInstance.append("(" + regFieldName + "=" + value + ")");
+    //_slpTemplateInstance.append("(");
+    //_slpTemplateInstance.append(regFieldName);
+    //_slpTemplateInstance.append("=");
+    //_slpTemplateInstance.append(value);
+    //_slpTemplateInstance.append(")");
 
     PEG_METHOD_EXIT();
 }
@@ -406,7 +464,7 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
       "SLPProvider::populateRegistrationData()");
 
     // Clear the template instance
-    _slpTemplateInstance = "";
+    String slpTemplateInstance = String::EMPTY;
     Uint32 index=10;
     CIMInstance instance1(SlpTemplateClassName);
 
@@ -454,15 +512,18 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
 
     sprintf(buffer, "%u", portNumber);
     String serviceUrlSyntaxValue = protocol + "://" + IPAddress + ":" + buffer;
-    populateTemplateField(instance1, serviceUrlSyntaxProperty, serviceUrlSyntax, serviceUrlSyntaxValue);
+    populateTemplateField(slpTemplateInstance, instance1, serviceUrlSyntaxProperty,
+        serviceUrlSyntax, serviceUrlSyntaxValue);
 
-    populateTemplateField(instance1, serviceLocationTCPProperty, serviceLocationTCP,IPAddress);
+    populateTemplateField(slpTemplateInstance, instance1, serviceLocationTCPProperty,
+        serviceLocationTCP,IPAddress);
 
 
     //service-id=string L
     //# The ID of this WBEM Server. The value MUST be the 
     //# CIM_ObjectManager.Name property value.
-    populateTemplateField(instance1, serviceIDProperty, serviceIDAttribute, strUUID);
+    populateTemplateField(slpTemplateInstance, instance1, serviceIDProperty,
+        serviceIDAttribute, strUUID);
 
     // get the properties from the cimobject class.
     for(Uint32 j=0; j < instance_ObjMgr.getPropertyCount(); j++)
@@ -476,25 +537,31 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
         // # interfaces. This attribute MUST be the
         // # CIM_ObjectManager.ElementName property value.
         if (n1.equal(elementNamePropertyName))
-            populateTemplateField(instance1, serviceHiName, serviceHiNameAttribute, v1.toString());
+            populateTemplateField(slpTemplateInstance, instance1, serviceHiName,
+                serviceHiNameAttribute, v1.toString());
 
         // service-hi-description=string O
         // # This string is used as a description of the CIM service for
         // # human interfaces.This attribute MUST be the 
         // # CIM_ObjectManager.Description property value.
         else if (n1.equal(descriptionPropertyName))
-          populateTemplateField(instance1, serviceHiDescription, serviceHiDescriptionAttribute, v1.toString());
+          populateTemplateField(slpTemplateInstance, instance1, serviceHiDescription,
+              serviceHiDescriptionAttribute, v1.toString());
     }
 
     // Default properties for PG_SLPWBEMClass
-    populateTemplateField(instance1, templateTypeProperty, templateType, String("wbem"));
+    populateTemplateField(slpTemplateInstance, instance1, templateTypeProperty,
+        templateType, String("wbem"));
     
-    populateTemplateField(instance1, templateVersionProperty, templateVersionAttribute, String(templateVersion));
+    populateTemplateField(slpTemplateInstance, instance1, templateVersionProperty,
+       templateVersionAttribute, String(templateVersion));
     
-    populateTemplateField(instance1, templateDescriptionProperty, templateDescriptionAttribute,String(templateDescription));
+    populateTemplateField(slpTemplateInstance, instance1, templateDescriptionProperty,
+        templateDescriptionAttribute,String(templateDescription));
     
     // InterOp Schema
-    populateTemplateField(instance1, InteropSchemaNamespaceAttribute, InteropSchemaNamespaceAttribute, InteropSchemaNamespace);
+    populateTemplateField(slpTemplateInstance, instance1, InteropSchemaNamespaceAttribute,
+        InteropSchemaNamespaceAttribute, InteropSchemaNamespace);
 
     // ATTN: KS Loop through all properties Note: This does not make it easy to
     // distinguish requied vs. optional
@@ -507,18 +574,21 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
         if (n1.equal(otherCommunicationMechanismAttribute))
         {
     
-            populateTemplateField(instance1, communicationMechanismAttribute, communicationMechanismAttribute,v1.toString());
+            populateTemplateField(slpTemplateInstance, instance1, communicationMechanismAttribute,
+                communicationMechanismAttribute,v1.toString());
             
             if (String::equalNoCase(v1.toString(),"1"))
             {
                  //index = instance_ObjMgrComm.findProperty(CIMName(otherCommunicationMechanismDescriptionAttribute));
                  //CIMConstProperty temppr = instance_ObjMgrComm.getProperty(index);
                  String tmp = _getPropertyValue(instance_ObjMgrComm, CIMName(otherCommunicationMechanismDescriptionAttribute));
-                 populateTemplateField(instance1, otherCommunicationMechanismDescriptionAttribute, otherCommunicationMechanismDescriptionAttribute,tmp);
+                 populateTemplateField(slpTemplateInstance, instance1, otherCommunicationMechanismDescriptionAttribute,
+                     otherCommunicationMechanismDescriptionAttribute,tmp);
             }
         }
         else if (n1.equal("Version"))
-          populateTemplateField(instance1, protocolVersionAttribute,  protocolVersionAttribute,v1.toString());
+          populateTemplateField(slpTemplateInstance, instance1, protocolVersionAttribute,
+              protocolVersionAttribute,v1.toString());
 
         else if (n1.equal("FunctionalProfileDescriptions"))
         {  
@@ -526,18 +596,21 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
             v1.get(descriptions);
 
             String desList = _arrayToString(descriptions);
-            populateTemplateField(instance1,functionalProfilesSupportedAttribute, functionalProfilesSupportedAttribute, desList);
+            populateTemplateField(slpTemplateInstance, instance1,functionalProfilesSupportedAttribute,
+                functionalProfilesSupportedAttribute, desList);
             if (String::equalNoCase(v1.toString(),"Other"))
             {
               Uint32 pos = instance_ObjMgrComm.findProperty(CIMName(otherProfileDescriptionAttribute));
               CIMConstProperty temppr = instance_ObjMgrComm.getProperty(pos);
               String tmp = _getPropertyValue(instance_ObjMgrComm, CIMName(otherProfileDescriptionAttribute));
-              populateTemplateField(instance1, otherProfileDescriptionAttribute, otherProfileDescriptionAttribute, tmp);
+              populateTemplateField(slpTemplateInstance, instance1, otherProfileDescriptionAttribute,
+                  otherProfileDescriptionAttribute, tmp);
             }
         }
 
         else if (n1.equal(multipleOperationsSupportedAttribute))
-            populateTemplateField(instance1, multipleOperationsSupportedAttribute, multipleOperationsSupportedAttribute,v1.toString());
+            populateTemplateField(slpTemplateInstance, instance1,
+                multipleOperationsSupportedAttribute, multipleOperationsSupportedAttribute,v1.toString());
         
         else if (n1.equal(authenticationMechanismDescriptionsAttribute))
         {
@@ -545,7 +618,9 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
             v1.get(authenticationDescriptions);
             String authList = _arrayToString(authenticationDescriptions);
 
-            populateTemplateField(instance1, authenticationMechanismsSupportedAttribute, authenticationMechanismsSupportedAttribute, authList);
+            populateTemplateField(slpTemplateInstance, instance1,
+                authenticationMechanismsSupportedAttribute, authenticationMechanismsSupportedAttribute,
+                authList);
         }
     }
         
@@ -553,23 +628,25 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     String classInfoList;
     String nameSpaceList =  getNameSpaceInfo( PEGASUS_NAMESPACENAME_INTEROP, classInfoList);
 
-    populateTemplateField(instance1, namespaceAttribute, namespaceAttribute, nameSpaceList);
-    populateTemplateField(instance1, classinfoAttribute, classinfoAttribute, classInfoList);
+    populateTemplateField(slpTemplateInstance, instance1, namespaceAttribute,
+        namespaceAttribute, nameSpaceList);
+    populateTemplateField(slpTemplateInstance, instance1, classinfoAttribute,
+        classinfoAttribute, classInfoList);
 
     // set the current time into the instance
     instance1.addProperty(CIMProperty(CIMName("registeredTime"), CIMDateTime::getCurrentDateTime()));
 
     // populate the RegisteredProfiles Supported attribute.
 
-    populateTemplateField(instance1,registeredProfilesSupportedAttribute, registeredProfilesSupportedAttribute,
-        getRegisteredProfileList());
+    populateTemplateField(slpTemplateInstance, instance1,registeredProfilesSupportedAttribute, 
+        registeredProfilesSupportedAttribute, getRegisteredProfileList());
 
 
     //Begin registering the service. Keep this debug.
-    CDEBUG("Template:\n" << _slpTemplateInstance);
+    CDEBUG("Template:\n" << slpTemplateInstance);
     
     // Add the template to the instance as a diagnostic for the moment.
-    instance1.addProperty(CIMProperty(CIMName("RegisteredTemplate"), _slpTemplateInstance));
+    instance1.addProperty(CIMProperty(CIMName("RegisteredTemplate"), slpTemplateInstance));
     
     // Create the service ID from the serviceName and UUID for this system
     // ATTN: All of this will be moved to issueSLPRegistrations()
@@ -580,7 +657,7 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     // Append the instance and reference and serviceID to the maintained object list.
     
     // Make a Cstring from the registration information
-    CString CstrREgistration = _slpTemplateInstance.getCString();
+    CString CstrREgistration = slpTemplateInstance.getCString();
     
     // Test the registration
     Uint32 errorCode;
@@ -638,14 +715,14 @@ Boolean SLPProvider::issueSLPRegistrations()
     // ATTN: Protect against exceptions here.
     // Get the CIM_ObjectManager instance
     CDEBUG("issueSLPRegistrations. Get object manager from namespace= " << PEGASUS_NAMESPACENAME_INTEROP.getString());
-    Array<CIMInstance> instances_ObjMgr = _ch.enumerateInstances(
+    Array<CIMInstance> instances_ObjMgr = _cimomHandle.enumerateInstances(
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerClassName),
                                              false, false, false,false, CIMPropertyList());
     
     // get instances of CIM_ObjectManagerCommMechanism and subclasses
-    Array<CIMInstance> instances_ObjMgrComm = _ch.enumerateInstances(
+    Array<CIMInstance> instances_ObjMgrComm = _cimomHandle.enumerateInstances(
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerCommMechName),
@@ -706,10 +783,11 @@ void SLPProvider::initialize(CIMOMHandle & handle)
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::initialize()");
 
-   _ch = handle;
+   _cimomHandle = handle;
    initFlag = false;
 
-   _ch.disallowProviderUnload();
+   // Do not allow unload.
+   _cimomHandle.disallowProviderUnload();
    
    PEG_METHOD_EXIT();
 }
@@ -793,10 +871,6 @@ void SLPProvider::enumerateInstances(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::enumerateInstances()");
-    CDEBUG("enumerateInstances");
-    // if this is the first call, create the registration.    
-    //if(initFlag == false)
-    //    issueSLPRegistrations();
     
     // begin processing the request
     handler.processing();
@@ -888,6 +962,8 @@ void SLPProvider::invokeMethod(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::invokeMethod()");
     CDEBUG("invokeMethod. method= " << methodName.getString());
+
+    _nameSpace = objectReference.getNameSpace();
     // convert a fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -915,8 +991,7 @@ void SLPProvider::invokeMethod(
         {
             if(initFlag == true)
             {
-            // ATTN: delete any existing instances.
-            slp_agent.unregister();
+                deregisterSLP();
             }
         }
         else if (methodName.equal ("update"))
@@ -949,7 +1024,7 @@ Boolean SLPProvider::tryterminate(void)
 */ 
 void SLPProvider::terminate(void)
 {
-    slp_agent.unregister();
+    deregisterSLP();
     delete this;
 }
 

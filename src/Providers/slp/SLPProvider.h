@@ -92,7 +92,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 	       const CIMObjectPath & ref,
 	       ResponseHandler & handler);
 
-	    Boolean tryterminate(void);
+	    //Boolean tryterminate(void);
 
         virtual void invokeMethod(
             const OperationContext & context,
@@ -100,22 +100,11 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const CIMName & methodName,
             const Array<CIMParamValue> & inParameters,
             MethodResultResponseHandler & handler);
-
 	
 	protected:
-	  
-	    // Defines instances of registration class 
-        // that have been registered.
-        Array<CIMObjectPath> _instanceNames;
-	    Array<CIMInstance> _instances;
+        CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className);
 
-	    //Array<String> PropertyArray;
-	    slp_service_agent slp_agent;
-	    CIMOMHandle _ch;
-	    //int i;
-        String _slpTemplateInstance;
-
-        CIMNamespaceName _interopNamespace;
+        void deregisterSLP();
 
         Boolean populateRegistrationData(const String &protocol,
             const String& IPAddress,
@@ -126,12 +115,32 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
 
-        void populateTemplateField(CIMInstance& instance, 
+        void populateTemplateField(String& slpTemplateInstance,
+            CIMInstance& instance, 
             const String& instanceFieldName,
             const String& regFieldName,
             const String& value);
 
         String getRegisteredProfileList();
+   private:
+
+       // Save instances of registration class 
+       // that have been registered.
+       Array<CIMObjectPath> _instanceNames;
+       Array<CIMInstance> _instances;
+       CIMNamespaceName _nameSpace;
+
+       slp_service_agent slp_agent;
+
+       // Save CIMOMHandle from initialization
+       CIMOMHandle _cimomHandle;
+
+       // Temporary String where we build 
+       // registration information.
+       //String _slpTemplateInstance;
+
+       CIMNamespaceName _interopNamespace;
+
    };
 
 PEGASUS_NAMESPACE_END

@@ -43,6 +43,17 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
   TESTS = prestarttests poststarttests
 endif
 
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  CIMSERVER_START_SERVICE = cimserver -d
+  CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
+  SLEEP = sleep 5
+  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
+  MUEXE = mu
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
 error: 
 	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
 

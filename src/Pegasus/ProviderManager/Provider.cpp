@@ -33,7 +33,23 @@
 PEGASUS_NAMESPACE_BEGIN
 
 Provider::Provider(const String & name, const String & path)
-    : ProviderFacade(0), _module(path, name), _status(UNKNOWN)
+    : ProviderFacade(0), _status(UNKNOWN), _module(path, name)
+{
+}
+
+Provider::Provider(const String & name, const String & path,
+                   const String & interfaceName)
+    : ProviderFacade(0), _status(UNKNOWN), _module(path, name ,interfaceName)
+{
+    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
+    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
+    //PEG_METHOD_EXIT();
+}
+
+
+Provider::Provider(const Provider & p)
+    : ProviderFacade(p._module.getProvider()), _status(UNKNOWN),
+      _module(p._module)
 {
 }
 

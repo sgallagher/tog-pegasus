@@ -46,12 +46,18 @@ public:
     virtual ~ProviderManager(void);
 
 public:
-    Provider getProvider(const String & fileName, const String & providerName);
+    Provider getProvider(const String & fileName, const String & providerName,
+                         const String & interfaceName = String::EMPTY);
 
-    void loadProvider(const String & fileName, const String & providerName);
+    void loadProvider(const String & fileName, const String & providerName,
+                         const String & interfaceName = String::EMPTY);
     void unloadProvider(const String & fileName, const String & providerName);
 
     void shutdownAllProviders(void);
+
+private:
+    //Provider _loadProvider(const String & fileName, const String & providerName,
+    //                     const String & interfaceName = String::EMPTY);
 
 protected:
     Mutex _mutex;

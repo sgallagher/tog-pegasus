@@ -57,7 +57,8 @@ ProviderManager::~ProviderManager(void)
 
 Provider ProviderManager::getProvider(
     const String & fileName,
-    const String & providerName)
+    const String & providerName,
+    const String & interfaceName = String::EMPTY)
 {
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
@@ -68,16 +69,19 @@ Provider ProviderManager::getProvider(
         }
     }
 
-    loadProvider(fileName, providerName);
+    loadProvider(fileName, providerName, interfaceName);
 
-    return(getProvider(fileName, providerName));
+    return(getProvider(fileName, providerName, interfaceName));
 }
 
 void ProviderManager::loadProvider(
     const String & fileName,
-    const String & providerName)
+    const String & providerName,
+    const String & interfaceName = String::EMPTY)
 {
     MutexLock lock(_mutex);
+
+    //_loadProvider(fileName, providerName, interfaceName);
 
     // NOTE:
     // check the list before attempting to load the provider
@@ -92,9 +96,8 @@ void ProviderManager::loadProvider(
             return;
         }
     }
-
     // create provider module
-    Provider provider(providerName, fileName);
+    Provider provider(providerName, fileName, interfaceName);
 
     // ATTN: need optimization - create CIMOMHandle once
 
@@ -114,6 +117,17 @@ void ProviderManager::loadProvider(
 
     _providers.append(provider);
 }
+
+
+#if 0
+Provider ProviderManager::_loadProvider(
+    const String & fileName,
+    const String & providerName,
+    const String & interfaceName = String::EMPTY)
+{
+    // NOTE: _loadProvider SHOULD ONLY BE CALLED AFTER OBTAINING THE LOCK
+    //
+#endif
 
 void ProviderManager::unloadProvider(
     const String & fileName,

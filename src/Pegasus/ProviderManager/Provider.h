@@ -54,6 +54,11 @@ public:
 public:
     Provider(void);
     Provider(const String & name, const String & path);
+
+    Provider(const String & name, const String & path,
+             const String & interfaceName);
+    Provider(const Provider & p);
+
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);

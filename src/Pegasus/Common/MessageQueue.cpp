@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2076
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -136,6 +137,13 @@ MessageQueue::~MessageQueue()
     // Free the name:
     
     delete [] _name;
+
+    while(_front) 
+    {
+       Message* tmp = _front;
+       _front = _front->_next;
+       delete tmp;
+    }
 
     PEG_METHOD_EXIT();
 }

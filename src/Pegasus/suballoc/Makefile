@@ -20,6 +20,8 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 SYS_LIBS = ws2_32.lib advapi32.lib
 
+AIX_LIB_PRIORITY = -100
+
 include $(ROOT)/mak/library.mak
 
 run:

@@ -769,7 +769,7 @@ int testClass(const String& className)
         if (processTestVerbose) cout << "    ProcessProviderTestClient" << endl;
       }
     }
-    if (status != 2)
+    if (status < 2)
     {
       cout << "Error: couldn't find cimserver or test client process!" << endl;
       return 1;

@@ -3,7 +3,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/CQL/CQLFactory.h>
-#include "memobjs.h"
+#include "CQLObjects.h"
 #include <stdio.h>
 
 #define yyparse CQL_parse

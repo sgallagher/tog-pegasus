@@ -17,7 +17,7 @@ extern int CQL_error(const char*);
 #include <stdlib.h>
 #include <stdio.h>
 #include <cstring>
-#include "memobjs.h"
+#include "CQLObjects.h"
 #include "CQLYACC.h"
 PEGASUS_NAMESPACE_BEGIN
                                                                                 

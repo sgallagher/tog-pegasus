@@ -85,6 +85,7 @@ class cimmofMessages {
     INSTANCE_PROPERTY_EXISTS_WARNING,
     INSTANCE_EXISTS_WARNING,
     ADD_INSTANCE_ERROR,
+    GENERAL_ERROR,
     END
   };
   typedef Array<String> arglist;

@@ -98,6 +98,7 @@ static String _cimmofMessages[] = {
   "Warning: the instance already exists.\nIn this"
   " implementation, that means it cannot be changed.",
   "Error adding an instance: %1", // ADD_INSTANCE_ERROR
+  "Error: %1", // GENERAL_ERROR
   ""
 };
 

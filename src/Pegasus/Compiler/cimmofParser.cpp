@@ -139,14 +139,22 @@ cimmofParser::setRepository(void) {
 	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
 	  // Not a problem.  Happens all the time.
 	} else {
-               arglist.append(s);
 	       arglist.append(e.getMessage());
-               cimmofMessages::getMessage(message, 
-                     cimmofMessages::NAMESPACE_CREATE_ERROR, arglist);
+	       cimmofMessages::getMessage(message,
+				  cimmofMessages::GENERAL_ERROR,
+				  arglist);
                elog(message);
                return false;
 	}
       }
+      catch(Exception &e) {
+        arglist.append(e.getMessage());
+        cimmofMessages::getMessage(message,
+			  cimmofMessages::GENERAL_ERROR,
+			  arglist);
+        elog(message);
+        return false;
+      } 
     } else {
       cimmofMessages::getMessage(message, 
 				 cimmofMessages::SETREPOSITORY_BLANK_NAME);

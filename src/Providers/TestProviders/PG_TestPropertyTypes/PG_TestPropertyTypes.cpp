@@ -493,7 +493,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 	     case CIMTYPE_SINT8:
 	    	Sint8 propertyValueSint8;
 		propertyValue.get(propertyValueSint8);	
-		if (propertyValueSint8 <= -120)
+		if (propertyValueSint8 <= (Sint8)-120)
 		{
 		   throw CIMException(CIM_ERR_INVALID_PARAMETER);
 		}

@@ -73,7 +73,6 @@ POSTSTARTTEST_FILES = \
 
 POSTSTARTTEST_CMDS = \
    $(PEGASUS_TEST_DIR)/bin/TestClient@@-local \
-   $(PEGASUS_TEST_DIR)/bin/OSTestClient \
    $(PEGASUS_TEST_DIR)/bin/InvokeMethod2
 
 TESTSUITE_CMDS_1 = \

@@ -28,6 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 
@@ -39,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher(
    Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
-   : Base("CIMExportRequestDispatcher", MessageQueue::getNextQueueId()),
+   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER),
      _dynamicReg(dynamicReg),
      _staticConsumers(staticConsumers),
      _persistence(persistence)
@@ -57,11 +58,6 @@ CIMExportRequestDispatcher::CIMExportRequestDispatcher()
 CIMExportRequestDispatcher::~CIMExportRequestDispatcher()
 {
 
-}
-
-const char* CIMExportRequestDispatcher::getQueueName() const
-{
-    return "CIMExportRequestDispatcher";
 }
 
 void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)

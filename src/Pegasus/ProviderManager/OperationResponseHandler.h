@@ -341,7 +341,7 @@ public:
 	{
 	    Array<Uint32> serviceIds;
 
-	    _source->find_services(PEGASUS_SERVICENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
+	    _source->find_services(PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
 
 	    PEGASUS_ASSERT(serviceIds.size() != 0);
 

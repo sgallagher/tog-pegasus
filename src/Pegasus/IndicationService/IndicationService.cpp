@@ -55,7 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 IndicationService::IndicationService (
     CIMRepository * repository,
     ProviderRegistrationManager * providerRegManager)
-    : Base (PEGASUS_SERVICENAME_INDICATIONSERVICE, 
+    : Base (PEGASUS_QUEUENAME_INDICATIONSERVICE, 
             MessageQueue::getNextQueueId ()),
          _repository (repository),
          _providerRegManager (providerRegManager)
@@ -188,7 +188,7 @@ void IndicationService::_initialize (void)
     //  Find required services
     //
     Array <Uint32> pmservices;
-    find_services (PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, 0, 0, &pmservices);
+    find_services (PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &pmservices);
     pegasus_yield ();
     if (pmservices.size () > 0)
     {
@@ -206,7 +206,7 @@ void IndicationService::_initialize (void)
     }
 
     Array <Uint32> hmservices;
-    find_services (PEGASUS_SERVICENAME_HANDLERMANAGER, 0, 0, &hmservices);
+    find_services (PEGASUS_QUEUENAME_INDHANDLERMANAGER, 0, 0, &hmservices);
     pegasus_yield ();
     if (hmservices.size () > 0)
     {

@@ -72,8 +72,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
       
       AtomicInt dienow;
 
-      virtual const char* getQueueName() const;
-        
    private:
 
       void _handleExportIndicationRequest(

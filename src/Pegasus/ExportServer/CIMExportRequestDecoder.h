@@ -78,8 +78,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       void handleHTTPMessage(HTTPMessage* httpMessage);
 
       void handleMethodRequest(

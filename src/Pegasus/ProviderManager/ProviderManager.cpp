@@ -28,6 +28,7 @@
 
 #include "ProviderManager.h"
 
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -71,7 +72,7 @@ Provider ProviderManager::getProvider(
     Provider provider(providerName, fileName);
 
     // create a CIMOMHandle
-    MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
     PEGASUS_ASSERT(queue != 0);
 

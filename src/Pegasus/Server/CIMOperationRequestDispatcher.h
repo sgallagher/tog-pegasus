@@ -69,8 +69,6 @@ public:
 
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       void handleGetClassRequest(
 	 CIMGetClassRequestMessage* request);
 

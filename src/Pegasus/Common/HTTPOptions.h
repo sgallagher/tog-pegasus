@@ -92,8 +92,6 @@ class PEGASUS_COMMON_LINKAGE HTTPOptions : public MessageQueueService
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       void handleHTTPMessage(HTTPMessage* httpMessage);
 
    private:

@@ -129,12 +129,12 @@ CIMServer::CIMServer(
 
     // Create the control service
     ModuleController* controlService =
-        new ModuleController(PEGASUS_SERVICENAME_CONTROLSERVICE);
+        new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     // Create the Configuration control provider
     ProviderMessageFacade * configProvider =
         new ProviderMessageFacade(new ConfigSettingProvider());
-    ModuleController::register_module(PEGASUS_SERVICENAME_CONTROLSERVICE,
+    ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_CONFIGPROVIDER,
                                       configProvider,
                                       controlProviderReceiveMessageCallback,
@@ -143,7 +143,7 @@ CIMServer::CIMServer(
     // Create the User/Authorization control provider
     ProviderMessageFacade * userAuthProvider =
         new ProviderMessageFacade(new UserAuthProvider(_repository));
-    ModuleController::register_module(PEGASUS_SERVICENAME_CONTROLSERVICE,
+    ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_USERAUTHPROVIDER,
                                       userAuthProvider,
                                       controlProviderReceiveMessageCallback,
@@ -152,7 +152,7 @@ CIMServer::CIMServer(
     // Create the Provider Registration control provider
     ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
         new ProviderRegistrationProvider(_providerRegistrationManager));
-    ModuleController::register_module(PEGASUS_SERVICENAME_CONTROLSERVICE,
+    ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_PROVREGPROVIDER,
                                       provRegProvider,
                                       controlProviderReceiveMessageCallback,

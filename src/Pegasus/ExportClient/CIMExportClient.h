@@ -74,9 +74,6 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 
-      /** Returns the queue name. */
-      virtual const char* getQueueName() const;
-
       ///
       Uint32 getTimeOut() const
       {

@@ -30,6 +30,7 @@
 #include "Cimom.h"
 
 #include <iostream>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -270,7 +271,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 
 cimom::cimom(void)
-   : MessageQueue("pegasus meta dispatcher", true, CIMOM_Q_ID ),
+   : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true, CIMOM_Q_ID ),
      _modules(true),
      _recycle(true),
      _routed_ops(true, 0), 

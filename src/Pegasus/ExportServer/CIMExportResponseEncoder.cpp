@@ -30,6 +30,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cctype>
 #include <cstdio>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -43,7 +44,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseEncoder::CIMExportResponseEncoder()
-   : Base("CIMExportResponseEncoder", MessageQueue::getNextQueueId())
+   : Base(PEGASUS_QUEUENAME_EXPORTRESPENCODER)
 {
 
 }
@@ -117,11 +118,6 @@ void CIMExportResponseEncoder::handleEnqueue()
    Message* message = dequeue();
    if(message)
       handleEnqueue(message);
-}
-
-const char* CIMExportResponseEncoder::getQueueName() const
-{
-   return "CIMExportResponseEncoder";
 }
 
 void CIMExportResponseEncoder::encodeExportIndicationResponse(

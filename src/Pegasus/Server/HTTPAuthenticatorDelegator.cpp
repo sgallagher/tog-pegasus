@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
     Uint32 exportMessageQueueId)
-   : Base(PEGASUS_SERVICENAME_HTTPAUTHDELEGATOR,
+   : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
           MessageQueue::getNextQueueId()),
     _operationMessageQueueId(operationMessageQueueId),
     _exportMessageQueueId(exportMessageQueueId)
@@ -408,15 +408,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     }
 
     PEG_METHOD_EXIT();
-}
-
-const char* HTTPAuthenticatorDelegator::getQueueName() const
-{
-    PEG_METHOD_ENTER(TRC_HTTP,
-        "HTTPAuthenticatorDelegator::getQueueName");
-
-    PEG_METHOD_EXIT();
-    return PEGASUS_SERVICENAME_HTTPAUTHDELEGATOR;
 }
 
 PEGASUS_NAMESPACE_END

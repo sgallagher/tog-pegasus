@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Config.h"
+#include "Constants.h"
 #include <iostream>
 #include "Socket.h"
 
@@ -83,7 +84,7 @@ struct HTTPAcceptorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue)
-   : Base("HTTPAcceptor", MessageQueue::getNextQueueId()), 
+   : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
      _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
      _rep(0), _sslcontext(NULL)
 {
@@ -93,7 +94,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQ
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue,
                            SSLContext * sslcontext)
-   :       Base("HTTPAcceptor", MessageQueue::getNextQueueId()), 
+   :       Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
 	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0),
 	   _sslcontext(sslcontext)
 {
@@ -170,11 +171,6 @@ void HTTPAcceptor::handleEnqueue()
    
    handleEnqueue(message);
 
-}
-
-const char* HTTPAcceptor::getQueueName() const
-{
-   return "HTTPAcceptor";
 }
 
 void HTTPAcceptor::bind(Uint32 portNumber)

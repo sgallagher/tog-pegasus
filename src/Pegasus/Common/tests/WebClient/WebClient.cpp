@@ -46,9 +46,15 @@ PEGASUS_USING_STD;
 class WebClientQueue : public MessageQueue
 {
 public:
+    WebClientQueue();
 
     virtual void handleEnqueue();
 };
+
+WebClientQueue::WebClientQueue()
+    : MessageQueue("WebClientQueue TEST")
+{
+}
 
 void WebClientQueue::handleEnqueue()
 {

@@ -65,8 +65,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder
 
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       void encodeExportIndicationResponse(
 	 CIMExportIndicationResponseMessage* response);
 };

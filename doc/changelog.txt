@@ -51,9 +51,18 @@ TAG: Version_1_09.
    with a propertyList parameter must be modified in accordance with this
    change.  All providers linked into the Pegasus build have been updated.
 
-8. (Roger Kumpf - HP) 11 Apr 2002 - Defined an HTTP error message to be
+9. (Roger Kumpf - HP) 11 Apr 2002 - Defined an HTTP error message to be
    returned to the CIMClient when an HTTP error response is returned.
    Added a method to parse the status line of an HTTP response.
+
+10. (Roger Kumpf - HP) 11 Apr 2002 - Changed the MessageQueue::getQueueName()
+    method from virtual to non-virtual, and removed that method definition
+    from all the subclasses.  To make sure that the MessageQueue class gets
+    the queue name value, the default value for the queue name parameter to
+    the MessageQueue constructor was removed.  Constants were defined in
+    Constants.h for all the queue names currently used in Pegasus.  The
+    places where those queue names were being used for lookup were also
+    changed to use the constants.
 
 ========================================================================
 

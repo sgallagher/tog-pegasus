@@ -48,8 +48,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
     ProviderRegistrationManager* providerRegistrationManager)
       :
-      Base(PEGASUS_SERVICENAME_CIMOPREQDISPATCHER,
-           MessageQueue::getNextQueueId()),
+      Base(PEGASUS_QUEUENAME_OPREQDISPATCHER),
       _repository(repository),
       _providerRegistrationManager(providerRegistrationManager)
 {
@@ -100,7 +99,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
     if (String::equalNoCase(className, PEGASUS_CLASSNAME_CONFIGSETTING))
     {
-        service = PEGASUS_SERVICENAME_CONTROLSERVICE;
+        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_CONFIGPROVIDER;
         PEG_METHOD_EXIT();
         return true;
@@ -108,7 +107,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     if (String::equalNoCase(className, PEGASUS_CLASSNAME_AUTHORIZATION) ||
         String::equalNoCase(className, PEGASUS_CLASSNAME_USER))
     {
-        service = PEGASUS_SERVICENAME_CONTROLSERVICE;
+        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
         PEG_METHOD_EXIT();
         return true;
@@ -117,7 +116,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) ||
         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
-        service = PEGASUS_SERVICENAME_CONTROLSERVICE;
+        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_PROVREGPROVIDER;
         PEG_METHOD_EXIT();
         return true;
@@ -128,7 +127,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
         String::equalNoCase(className, PEGASUS_CLASSNAME_INDFILTER))
     {
-        service = PEGASUS_SERVICENAME_INDICATIONSERVICE;
+        service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
         provider = String::EMPTY;
         PEG_METHOD_EXIT();
         return true;
@@ -567,11 +566,6 @@ void CIMOperationRequestDispatcher::handleEnqueue()
    PEG_METHOD_EXIT();
 }
 
-const char* CIMOperationRequestDispatcher::getQueueName() const
-{
-   return(_name);
-}
-
 void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMGetClassRequestMessage* request)
 {
@@ -666,7 +660,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
           new CIMGetInstanceRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -813,7 +807,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
           new CIMDeleteInstanceRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
 
       PEG_METHOD_EXIT();
@@ -964,7 +958,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
       Array<Uint32> iService;
 
-      find_services(PEGASUS_SERVICENAME_INDICATIONSERVICE, 0, 0, &iService);
+      find_services(PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &iService);
 
       AsyncOpNode* op = this->get_op();
 
@@ -1000,7 +994,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
           new CIMCreateInstanceRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
 
       PEG_METHOD_EXIT();
@@ -1148,7 +1142,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
           new CIMModifyInstanceRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
 
       PEG_METHOD_EXIT();
@@ -1346,7 +1340,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
           new CIMEnumerateInstancesRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1452,7 +1446,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
           new CIMEnumerateInstanceNamesRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1528,7 +1522,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
           new CIMAssociatorsRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1611,7 +1605,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
           new CIMAssociatorNamesRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1691,7 +1685,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
           new CIMReferencesRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1772,7 +1766,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
           new CIMReferenceNamesRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1849,7 +1843,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
           new CIMGetPropertyRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1960,7 +1954,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
           new CIMSetPropertyRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -2299,7 +2293,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
           new CIMInvokeMethodRequestMessage(*request);
 
       _forwardRequestToService(
-          PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -2338,7 +2332,7 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
 
    // lookup IndicationService
    MessageQueue * queue =
-       MessageQueue::lookup(PEGASUS_SERVICENAME_INDICATIONSERVICE);
+       MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
    PEGASUS_ASSERT(queue != 0);
 

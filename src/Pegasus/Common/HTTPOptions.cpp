@@ -27,6 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnection.h>
@@ -40,6 +42,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 HTTPOptions::HTTPOptions()
+    : MessageQueue(PEGASUS_QUEUENAME_HTTPOPTIONS)
 {
 #error  "this class does not appear to be used" // <<< Sat Feb  9 17:33:07 2002 mdd >>>
 }
@@ -127,10 +130,5 @@ void HTTPOptions::handleHTTPMessage(HTTPMessage* httpMessage)
    // ATTN: KS Add the else here for Post, etc.  Also go to OPTIONS here.
 }
 
-
-const char* HTTPOptions::getQueueName() const
-{
-   return "HTTPOptions";
-}
 
 PEGASUS_NAMESPACE_END

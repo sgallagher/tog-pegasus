@@ -88,7 +88,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  queue id.
       */
       MessageQueue(
-	 const char *name = 0,
+	 const char *name,
 	 Boolean async = false,
 	 Uint32 queueId = MessageQueue::getNextQueueId());
       
@@ -190,7 +190,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 
       /** Provide a string name for this queue to be used by the print method.
        */
-      virtual const char* getQueueName() const;
+      const char* getQueueName() const;
 
       /** This method is called after a message has been enqueued. This default
 	  implementation does nothing. Derived classes may override this to

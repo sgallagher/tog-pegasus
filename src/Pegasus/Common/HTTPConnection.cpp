@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <Pegasus/Common/Signal.h>
@@ -106,7 +107,7 @@ HTTPConnection::HTTPConnection(
     MessageQueueService* ownerMessageQueue,
     MessageQueueService* outputMessageQueue)
     : 
-   Base("HTTPConnection", MessageQueue::getNextQueueId()), 
+   Base(PEGASUS_QUEUENAME_HTTPCONNECTION), 
    _monitor(monitor),
    _socket(socket), 
    _ownerMessageQueue(ownerMessageQueue),
@@ -259,11 +260,6 @@ void HTTPConnection::handleEnqueue()
     if (!message)
         return;
     handleEnqueue(message);
-}
-
-const char* HTTPConnection::getQueueName() const
-{
-    return "HTTPConnection";
 }
 
 Boolean _IsBodylessMessage(const char* line)

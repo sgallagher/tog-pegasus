@@ -51,7 +51,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
-   : Base(PEGASUS_SERVICENAME_CIMOPREQENCODER, MessageQueue::getNextQueueId())
+   : Base(PEGASUS_QUEUENAME_OPRESPENCODER)
 {
 
 }
@@ -318,11 +318,6 @@ void CIMOperationResponseEncoder::handleEnqueue()
    Message* message = dequeue();
    if(message)
       handleEnqueue(message);
-}
-
-const char* CIMOperationResponseEncoder::getQueueName() const
-{
-   return PEGASUS_SERVICENAME_CIMOPREQENCODER;
 }
 
 void CIMOperationResponseEncoder::encodeCreateClassResponse(

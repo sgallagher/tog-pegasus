@@ -63,8 +63,6 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       /** Sets the flag to indicate whether or not the CIMServer is
 	  shutting down.
       */

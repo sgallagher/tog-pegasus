@@ -50,7 +50,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 
       typedef MessageQueue Base;
       
-      MessageQueueService(const char *name, Uint32 queueID, 
+      MessageQueueService(const char *name,
+			  Uint32 queueID = MessageQueue::getNextQueueId(),
 			  Uint32 capabilities = 0, 
 			  Uint32 mask = message_mask::type_cimom | 
 			  message_mask::type_service | 

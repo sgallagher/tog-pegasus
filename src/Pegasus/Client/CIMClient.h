@@ -98,9 +98,6 @@ public:
     */
     virtual void handleEnqueue();
 
-    /** Returns the queue name. */
-    virtual const char* getQueueName() const;
-
     /** TBD
     */
     Uint32 getTimeOut() const

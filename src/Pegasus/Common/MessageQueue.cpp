@@ -322,9 +322,7 @@ void MessageQueue::unlock()
 
 const char* MessageQueue::getQueueName() const
 {
-   if(_name[0] != 0x00)
-      return _name;
-   return "unknown";
+   return _name;
 }
 
 MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)

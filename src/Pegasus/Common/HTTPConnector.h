@@ -71,8 +71,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       /** Establishes a new connection and creates an HTTPConnection object
 	  to represent it.
 

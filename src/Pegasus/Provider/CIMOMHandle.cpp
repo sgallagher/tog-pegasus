@@ -51,7 +51,7 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
    : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER)
 {
     MessageQueue * queue =
-        MessageQueue::lookup(PEGASUS_SERVICENAME_CIMOPREQDISPATCHER);
+        MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
 
     _cimom = dynamic_cast<MessageQueueService *>(queue);
     _controller = &(ModuleController::get_client_handle(_id, &_client_handle));

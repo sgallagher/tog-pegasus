@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -43,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMExportRequestEncoder::CIMExportRequestEncoder(
    MessageQueue* outputQueue, ClientAuthenticator* authenticator)
    : 
-   Base("CIMExportRequestEncoder", MessageQueue::getNextQueueId()),
+   Base(PEGASUS_QUEUENAME_EXPORTREQENCODER),
    _outputQueue(outputQueue),
    _authenticator(authenticator)
 {
@@ -85,11 +86,6 @@ void CIMExportRequestEncoder::handleEnqueue()
    Message* message = dequeue();
    if( message != 0 )
       handleEnqueue(message);
-}
-
-const char* CIMExportRequestEncoder::getQueueName() const
-{
-   return "CIMExportRequestEncoder";
 }
 
 void CIMExportRequestEncoder::_encodeExportIndicationRequest(

@@ -87,8 +87,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       /** Return socket this connection is using. */
       Sint32 getSocket() { return _socket->getSocket();}
 

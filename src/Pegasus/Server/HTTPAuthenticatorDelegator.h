@@ -65,8 +65,6 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       void handleHTTPMessage(HTTPMessage* httpMessage, Boolean & deleteMessage);
 
    private:

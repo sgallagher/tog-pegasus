@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
    MessageQueueService* outputQueue)
    :
-   Base(PEGASUS_SERVICENAME_CIMOPREQAUTHORIZER, MessageQueue::getNextQueueId()),
+   Base(PEGASUS_QUEUENAME_OPREQAUTHORIZER),
    _outputQueue(outputQueue),
    _serverTerminating(false)
 {
@@ -406,14 +406,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
       handleEnqueue(request);
 
    PEG_METHOD_EXIT();
-}
-
-const char* CIMOperationRequestAuthorizer::getQueueName() const
-{
-   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::getQueueName");
-
-   PEG_METHOD_EXIT();
-   return PEGASUS_SERVICENAME_CIMOPREQAUTHORIZER;
 }
 
 void CIMOperationRequestAuthorizer::setServerTerminating(Boolean flag)

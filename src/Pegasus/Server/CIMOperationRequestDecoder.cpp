@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
    MessageQueueService* outputQueue,
    Uint32 returnQueueId)
-   :  Base(PEGASUS_SERVICENAME_CIMOPREQDECODER, MessageQueue::getNextQueueId()),
+   :  Base(PEGASUS_QUEUENAME_OPREQDECODER),
       _outputQueue(outputQueue),
       _returnQueueId(returnQueueId),
       _serverTerminating(false)
@@ -146,11 +146,6 @@ void CIMOperationRequestDecoder::handleEnqueue()
    Message* message = dequeue();
    if(message)
       handleEnqueue(message);
-}
-
-const char* CIMOperationRequestDecoder::getQueueName() const
-{
-   return PEGASUS_SERVICENAME_CIMOPREQDECODER;
 }
 
 //------------------------------------------------------------------------------

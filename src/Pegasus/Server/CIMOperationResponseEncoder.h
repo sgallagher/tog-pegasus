@@ -76,8 +76,6 @@ class CIMOperationResponseEncoder : public MessageQueueService
       virtual void handleEnqueue();
 
 
-      virtual const char* getQueueName() const;
-
       void encodeCreateClassResponse(
 	 CIMCreateClassResponseMessage* response);
 

@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -50,7 +51,7 @@ CIMExportClient::CIMExportClient(
    HTTPConnector* httpConnector,
    Uint32 timeOutMilliseconds)
    : 
-   Base("CIMExportClient", MessageQueue::getNextQueueId()),
+   Base(PEGASUS_QUEUENAME_EXPORTCLIENT),
    _monitor(monitor), 
    _httpConnector(httpConnector),
    _timeOutMilliseconds(timeOutMilliseconds),
@@ -80,11 +81,6 @@ void CIMExportClient::handleEnqueue(Message *message)
 void CIMExportClient::handleEnqueue()
 {
 
-}
-
-const char* CIMExportClient::getQueueName() const
-{
-   return "CIMExportClient";
 }
 
 void CIMExportClient::connect(const String& address)

@@ -29,6 +29,7 @@
 #include "ProviderManagerService.h"
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -54,7 +55,7 @@ static struct timeval deadwait = { 1, 0};
 
 ProviderManagerService::ProviderManagerService(
     ProviderRegistrationManager * providerRegistrationManager)
-    : MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId()),
+    : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP),
     _threadPool(10, "ProviderManagerService", 2, 7, await, dwait, deadwait),
     _providerRegistrationManager(providerRegistrationManager)
 {

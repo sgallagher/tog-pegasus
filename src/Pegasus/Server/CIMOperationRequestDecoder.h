@@ -82,8 +82,6 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
-
       void handleHTTPMessage(HTTPMessage* httpMessage);
 
       void handleMethodCall(

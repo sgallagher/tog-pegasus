@@ -50,6 +50,7 @@ CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     MessageQueue* encoderQueue,
     ClientAuthenticator* authenticator)
     :
+    MessageQueue(PEGASUS_QUEUENAME_OPRESPDECODER),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
     _authenticator(authenticator)
@@ -90,11 +91,6 @@ void CIMOperationResponseDecoder::handleEnqueue()
     }
 
     delete message;
-}
-
-const char* CIMOperationResponseDecoder::getQueueName() const
-{
-    return "CIMOperationResponseDecoder";
 }
 
 void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)

@@ -31,6 +31,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -54,6 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClient::CIMClient(Uint32 timeOutMilliseconds)
     : 
+    MessageQueue(PEGASUS_QUEUENAME_CLIENT),
     _httpConnection(0),
     _timeOutMilliseconds(timeOutMilliseconds),
     _connected(false),
@@ -77,11 +79,6 @@ CIMClient::~CIMClient()
 void CIMClient::handleEnqueue()
 {
 
-}
-
-const char* CIMClient::getQueueName() const
-{
-    return "CIMClient";
 }
 
 void CIMClient::_connect(

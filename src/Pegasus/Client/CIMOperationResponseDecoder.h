@@ -68,9 +68,6 @@ public:
     /** This method is called when a message is enqueued on this queue. */
     virtual void handleEnqueue();
 
-    /** Returns the queue name. */
-    virtual const char* getQueueName() const;
-
 private:
 
     void _handleHTTPMessage(

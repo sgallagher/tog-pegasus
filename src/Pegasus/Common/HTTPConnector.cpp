@@ -29,6 +29,7 @@
 
 #include "Config.h"
 #include <iostream>
+#include "Constants.h"
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -140,7 +141,7 @@ struct HTTPConnectorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
-   : Base("HTTPConnector", MessageQueue::getNextQueueId()),
+   : Base(PEGASUS_QUEUENAME_HTTPCONNECTOR),
      _monitor(monitor)
 {
    _rep = new HTTPConnectorRep;
@@ -205,11 +206,6 @@ void HTTPConnector::handleEnqueue()
       return;
 
    handleEnqueue(message);
-}
-
-const char* HTTPConnector::getQueueName() const
-{
-   return "HTTPConnector";
 }
 
 HTTPConnection* HTTPConnector::connect(

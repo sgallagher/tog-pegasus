@@ -245,7 +245,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 	    
 	    ~callback_handle()
 	    {
-	       if( _module->get_name() == String(PEGASUS_CONTROL_TEMP_MODULE) )
+	       if( _module->get_name() == String(PEGASUS_MODULENAME_TEMP) )
 		  delete _module;
 	    }
 	    

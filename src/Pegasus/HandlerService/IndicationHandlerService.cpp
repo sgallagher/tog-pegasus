@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 
@@ -38,7 +39,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_NAMESPACE_BEGIN
 
 IndicationHandlerService::IndicationHandlerService(void)
-   : Base("IndicationHandlerService", MessageQueue::getNextQueueId())
+   : Base(PEGASUS_QUEUENAME_INDHANDLERMANAGER)
 {
 
 }
@@ -47,11 +48,6 @@ IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
    : Base("IndicationHandlerService", MessageQueue::getNextQueueId()),
      _repository(repository)
 {
-}
-
-const char* IndicationHandlerService::getQueueName() const
-{
-   return "IndicationHandlerService";
 }
 
 void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
@@ -165,7 +161,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
    {
       Array<Uint32> exportServer;
 
-      find_services(String("CIMExportRequestDispatcher"), 0, 0, &exportServer);
+      find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0, &exportServer);
         
       // Listener is build with Cimom, so send message to ExportServer
 	

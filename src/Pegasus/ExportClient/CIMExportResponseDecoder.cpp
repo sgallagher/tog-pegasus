@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/System.h>
@@ -48,7 +49,7 @@ CIMExportResponseDecoder::CIMExportResponseDecoder(
    MessageQueueService* encoderQueue,
    ClientAuthenticator* authenticator)
    :
-   Base("CIMExportResponseDecoder", MessageQueue::getNextQueueId()),
+   Base(PEGASUS_QUEUENAME_EXPORTRESPDECODER),
    _outputQueue(outputQueue),
    _encoderQueue(encoderQueue),
    _authenticator(authenticator)
@@ -94,11 +95,6 @@ void CIMExportResponseDecoder::handleEnqueue()
    Message* message = dequeue();
    if(message)
       handleEnqueue(message);
-}
-
-const char* CIMExportResponseDecoder::getQueueName() const
-{
-   return "CIMExportResponseDecoder";
 }
 
 void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)

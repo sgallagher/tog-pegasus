@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -43,6 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     MessageQueue* outputQueue, ClientAuthenticator* authenticator)
     :
+    MessageQueue(PEGASUS_QUEUENAME_OPREQENCODER),
     _outputQueue(outputQueue),
     _authenticator(authenticator)
 {
@@ -190,11 +192,6 @@ void CIMOperationRequestEncoder::handleEnqueue()
     // the decoder after receiving the valid response from thr server.
     //
     //delete message;
-}
-
-const char* CIMOperationRequestEncoder::getQueueName() const
-{
-    return "CIMOperationRequestEncoder";
 }
 
 void CIMOperationRequestEncoder::_encodeCreateClassRequest(

@@ -838,7 +838,7 @@ ModuleController & ModuleController::get_client_handle(const pegasus_identity & 
       
    Array<Uint32> services;
    
-   MessageQueue *message_queue = MessageQueue::lookup(PEGASUS_SERVICENAME_CONTROLSERVICE);
+   MessageQueue *message_queue = MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
    
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {
@@ -904,7 +904,7 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
    if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC)) 
       throw Permission(pegasus_thread_self());
    pegasus_module *temp = new pegasus_module(this, 
-					     String(PEGASUS_CONTROL_TEMP_MODULE),
+					     String(PEGASUS_MODULENAME_TEMP),
 					     this, 
 					     0, 
 					     async_callback, 
@@ -931,7 +931,7 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
       throw Permission(pegasus_thread_self());
    
    pegasus_module *temp = new pegasus_module(this, 
-					     String(PEGASUS_CONTROL_TEMP_MODULE),
+					     String(PEGASUS_MODULENAME_TEMP),
 					     this, 
 					     0, 
 					     async_callback, 

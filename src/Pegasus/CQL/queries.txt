@@ -17,3 +17,4 @@ select class.prop from class where class = max(20) AND class != objectpath(class
 select * from CIM_InstModification where SourceInstance ISA CIM_FCPort AND PreviousInstance ISA CIM_FCPort AND SourceInstance.CIM_FCPort::OperationalStatus[0] != PreviousInstance.CIM_FCPort::OperationalStatus[0]
 select DetectionTime, SystemIPAddress, PerceivedSeverity, MonitorEventID, UPSttyPath from ACME_UPSAlertIndication where UPSttyPath = '/dev/tty0p1' AND MonitorEventID = 20
 select * from class where class = 'blah' AND NOT class > 10
+select * from class where class = 'blah' AND max(*) IS NOT NULL

@@ -182,6 +182,16 @@ String CQLSimplePredicateRep::toString()
 	   }
 	   s.append(_rightSide.toString());
 	}
+	switch(_operator){
+		case IS_NULL:
+        		s.append(" IS NULL ");
+                        break;
+                case IS_NOT_NULL:
+                        s.append(" IS NOT NULL ");
+                        break;
+		default:
+			break;
+	}
 	return s;
 }
 Boolean CQLSimplePredicateRep::isSimple(){

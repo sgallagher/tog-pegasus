@@ -471,35 +471,44 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    if( _dying.value() > 0)
       return false;
    
-   fd_set fdread, fdwrite;
-   struct timeval tv = { 0, 0 };
+   Boolean handled_events = false;
+   int events = 0;
    
-   FD_ZERO(&fdread);
-   FD_ZERO(&fdwrite);
-   FD_SET(getSocket(), &fdread);
-   FD_SET(getSocket(), &fdwrite);
-   int events = select(FD_SETSIZE, &fdread, &fdwrite, NULL, &tv);
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-   if(events && events != SOCKET_ERROR && _dying.value() == 0 )
-#else
-   if(events && events != -1 && _dying.value() == 0 )
-#endif
+   fd_set fdread, fdwrite;
+   do 
    {
-      events = 0;
-      if( FD_ISSET(getSocket(), &fdread))
-      {
-	 events |= SocketMessage::READ;
-      }
       
-      if (FD_ISSET(getSocket(), &fdwrite))
+      struct timeval tv = { 0, 0 };
+      
+      FD_ZERO(&fdread);
+      FD_ZERO(&fdwrite);
+      FD_SET(getSocket(), &fdread);
+      FD_SET(getSocket(), &fdwrite);
+      events = select(FD_SETSIZE, &fdread, &fdwrite, NULL, &tv);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+      if(events && events != SOCKET_ERROR && _dying.value() == 0 )
+#else
+      if(events && events != -1 && _dying.value() == 0 )
+#endif
       {
-	 events |= SocketMessage::WRITE;
+	 events = 0;
+	 if( FD_ISSET(getSocket(), &fdread))
+	 {
+	    events |= SocketMessage::READ;
+	 }
+	 
+	 if (FD_ISSET(getSocket(), &fdwrite))
+	 {
+	    events |= SocketMessage::WRITE;
+	 }
+	 Message *msg = new SocketMessage(getSocket(), events);
+	 handleEnqueue(msg);
+	 handled_events = true;
       }
-      Message *msg = new SocketMessage(getSocket(), events);
-      handleEnqueue(msg);
-      return true;
-   }
-   return false;
+      else
+	 break;
+   } while(events != 0 );
+   return handled_events;
 }
 
 PEGASUS_NAMESPACE_END

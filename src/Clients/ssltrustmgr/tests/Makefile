@@ -19,7 +19,8 @@ else
 CURRENT_USER=`whoami`
 endif
 
-CIMSERVER_CONFIG_OPTIONS=sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
+# authentication and HTTPS are not enabled by default on windows
+CIMSERVER_CONFIG_OPTIONS=enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
 TESTCERT_HOME=$(PEGASUS_HOME)/src/Clients/ssltrustmgr/scripts
 
 include $(ROOT)/mak/commands.mak

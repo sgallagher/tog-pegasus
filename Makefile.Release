@@ -29,6 +29,7 @@ install: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusDirectories 
 	$(MAKE) -f $(ROOT)/Makefile.Release copyPegasusFiles 
 	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusFiles 
+	$(MAKE) -f $(ROOT)/mak/SDKMakefile stageSDK
 
 PEGASUS_LICENSE = \
    license.txt
@@ -298,7 +299,7 @@ createPegasusRepositoryDirectory: FORCE
 
 createPegasusUnixManPageDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man1.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
-	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man1m.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man8.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
 
 copyCIMSchemaFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)

@@ -111,7 +111,8 @@ CIMServer::CIMServer(
     // -- Save the monitor or create a new one:
 
     _monitor = monitor;
-
+//    _monitor->set_async(true);
+    
     repositoryRootPath =
 	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 

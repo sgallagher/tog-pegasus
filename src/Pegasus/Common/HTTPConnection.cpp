@@ -145,6 +145,7 @@ void HTTPConnection::handleEnqueue(Message *message)
       PEG_METHOD_EXIT();
       return;
    }
+
    
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:38 2002 mdd >>
@@ -166,9 +167,10 @@ void HTTPConnection::handleEnqueue(Message *message)
    {
       case SOCKET_MESSAGE:
       {
+
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
-
+	 
 	 SocketMessage* socketMessage = (SocketMessage*)message;
 
 	 if (socketMessage->events & SocketMessage::READ)
@@ -181,7 +183,7 @@ void HTTPConnection::handleEnqueue(Message *message)
       {
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
-
+	 
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
 
 	 // ATTN: convert over to asynchronous write scheme:
@@ -248,7 +250,7 @@ void HTTPConnection::handleEnqueue(Message *message)
       handleEnqueue_mut.unlock();
    }
 // #endif
-
+   
    PEG_METHOD_EXIT();
 }
 
@@ -385,7 +387,7 @@ void HTTPConnection::_handleReadEvent()
     }
    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
      "_socket->read bytesRead = %d", bytesRead);
-
+   
     // -- If still waiting for beginning of content!
 
     if (_contentOffset == -1)
@@ -409,7 +411,7 @@ void HTTPConnection::_handleReadEvent()
         _requestCount++;
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "_requestCount = %d", _requestCount.value());
-
+	
 	message->dest = _outputMessageQueue->getQueueId();
 //	SendForget(message);
 	
@@ -420,7 +422,7 @@ void HTTPConnection::_handleReadEvent()
 	{
             Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
                "HTTPConnection::_handleReadEvent - bytesRead == 0 - Conection being closed.");
-
+	    
 	    _closeConnection();
 
             //
@@ -429,7 +431,7 @@ void HTTPConnection::_handleReadEvent()
             _requestCount--;
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                "_requestCount = %d", _requestCount.value());
-
+	    
             PEG_METHOD_EXIT();
 	    return;
 	}
@@ -441,5 +443,6 @@ Uint32 HTTPConnection::getRequestCount()
 {
     return(_requestCount.value());
 }
+
 
 PEGASUS_NAMESPACE_END

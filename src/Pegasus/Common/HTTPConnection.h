@@ -94,7 +94,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	  instances.
       */
       Uint32 getRequestCount();
-
+      
    private:
 
       void _clearIncoming();
@@ -118,6 +118,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       AuthenticationInfo* _authInfo;
 
       static AtomicInt _requestCount;
+      AtomicInt _sync;
+      
 };
 
 PEGASUS_NAMESPACE_END

@@ -86,6 +86,8 @@ PEGASUS_NAMESPACE_BEGIN
     PEGASUS_QUEUENAME_CONTROLSERVICE "::NamespaceProvider"
 #define PEGASUS_MODULENAME_TEMP \
     PEGASUS_QUEUENAME_CONTROLSERVICE "::temp::do not use this name"
+#define PEGASUS_MODULENAME_MONITOR \
+    PEGASUS_QUEUENAME_CONTROLSERVICE "::Monitor"
 
 //
 // CIM Class Names
@@ -105,6 +107,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_CLASSNAME_SHUTDOWN             "PG_ShutdownService"
 #define PEGASUS_CLASSNAME___NAMESPACE          "__Namespace"
 #define PEGASUS_CLASSNAME_NAMESPACE            "CIM_Namespace"
+
 
 
 //

@@ -33,13 +33,21 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/ModuleController.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct _MonitorEntry
+class  _MonitorEntry
 {
-    Sint32 socket;
-    Uint32 queueId;
+   public:
+      Sint32 socket;
+      Uint32 queueId;
+      AtomicInt busy;
+      _MonitorEntry(Sint32 sock, Uint32 q)
+	 : socket(sock), queueId(q), busy(0)
+      {
+      }
+      
 };
 
 struct MonitorRep;
@@ -81,6 +89,7 @@ public:
 	Monitor monitor;
 	Sint32 socket;
 	Uint32 queueId;
+
 
 	...
 
@@ -148,14 +157,57 @@ public:
 	@param socket on which to unsolicit messages.
 	@return false if no such solicitation has been made on the given socket.
     */
-    Boolean unsolicitSocketMessages(Sint32 socket);
+      Boolean unsolicitSocketMessages(Sint32 socket);
+
+      /** dispatch a message to the cimom on an independent thread 
+       */
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
+
+      class monitor_dispatch 
+      {
+	 public:
+	    Monitor *_myself;
+	    MessageQueue *_decoder;
+	    Uint32 _entry;
+	    Sint32 _socket;
+	    Uint32 _events;
+	    
+	    
+	    monitor_dispatch(Monitor *myself, 
+			     MessageQueue *decoder,
+			     Uint32 entry, 
+			     Sint32 socket,
+			     Uint32 events)
+	       : _myself(myself),  
+		 _decoder(decoder),
+		 _entry(entry),
+		 _socket(socket),
+		 _events(events)
+	    {
+	       
+	    }
+	    
+	    ~monitor_dispatch(void) 
+	    {
+	    }
+	    
+	 private:
+	    monitor_dispatch(void);
+	    monitor_dispatch(const monitor_dispatch &);
+	    monitor_dispatch & operator = (const monitor_dispatch &);
+      };
+      void set_async(Boolean async);
 
 private:
 
     Uint32 _findEntry(Sint32 socket) const;
 
-    Array<_MonitorEntry> _entries;
-    MonitorRep* _rep;
+      Array<_MonitorEntry> _entries;
+      MonitorRep* _rep;
+      pegasus_module * _module_handle;
+      ModuleController * _controller;
+      Boolean _async;
+      
 };
 
 PEGASUS_NAMESPACE_END

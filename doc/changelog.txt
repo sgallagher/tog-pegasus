@@ -1,7 +1,19 @@
 CHANGE LOG FOR PEGASUS
 
+----------------------------------------------------------------
+Version 0.97.2
+
+1. Extend HP UX port to correctly load Dynamic Load Libraries.
+2. Extend Formatter for Boolean and Uint32 types.
+3. Change CIM Server to use Trace (-t) flag.  This also changed
+   Handler.h to work off of flag.
+4. Minor corrections to __Namespace Provider.
+5. Extend tests for Formatter, String, and other modules.
+6. Correct errors in documentation.
+7. New working papers (provider interface).
+8. Add Providerreg tool
 -----------------------------------------------------------------------
-23 May 2001 Version 0.97.1 Tages as version_0_971
+23 May 2001 Version 0.97.1 Tags as version_0_971
 
 1. Add PEG_NOT_FOUND symbol to replace Uint32(-1) in any of the object
 find functions.  Note: This symbol is defined in config.h. (ks).

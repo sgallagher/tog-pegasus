@@ -57,7 +57,7 @@ class NTPTestClient
      void testGetInstance(CIMClient &client, Boolean verbose);
 
      // utility methods for common test functions
-     void errorExit(const String &message);
+     void errorExit(const String &message, Boolean AbnormalTerminiation);
      void testLog(const String &message);
 
 	// Return TRUE if CreationClassName property is ok

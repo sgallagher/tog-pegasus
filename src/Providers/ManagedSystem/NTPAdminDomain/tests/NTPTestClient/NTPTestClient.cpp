@@ -67,11 +67,11 @@ NTPTestClient::~NTPTestClient(void)
     @exception - This function terminates the program
 */
 void 
-NTPTestClient::errorExit(const String& message)
+NTPTestClient::errorExit(const String& message, Boolean AbnormalTermination)
 {
     cerr << "Error: " << message << endl;
     cerr << "Re-run with verbose for details (NTPTestClient verbose)" <<endl;
-    exit(1);
+    exit(AbnormalTermination?1:0);
 }
 
 // testLog method used for messages to really stand out
@@ -107,11 +107,11 @@ NTPTestClient::_validateKeys(CIMObjectPath &cimRef,
       
 	  	if ((keyName.equal ("CreationClassName")) &&
           	(goodCreationClassName(keyVal, verboseTest) == false)) { 
-         	errorExit ("CreationClassName not PG_NTPAdminDomain");
+         	errorExit ("CreationClassName not PG_NTPAdminDomain", true);
       	}
       	else if ((keyName.equal ("Name")) &&
                  (goodName(keyVal, verboseTest) == false)) { 
-         	errorExit ("Name not correct");
+         	errorExit ("Name not correct", true);
      	}
    }
 }
@@ -141,7 +141,7 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
          	if (goodCreationClassName(propertyValue, 
                 verboseTest) == false)
          	{ 
-            	errorExit ("'CreationClassName' is not PG_NTPAdminDomain");
+            	errorExit ("'CreationClassName' is not PG_NTPAdminDomain", true);
          	}
       	}  // end if CreationClassName
       	else if (propertyName.equal ("Name"))
@@ -150,7 +150,7 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
          	inst.getProperty(j).getValue().get(propertyValue); 
          	if (goodName(propertyValue, verboseTest) == false) 
          	{ 
-            	errorExit ("'Name' not correct");
+            	errorExit ("'Name' not correct", true);
          	}
       	}  // end if Name
 
@@ -160,7 +160,7 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
          	inst.getProperty(j).getValue().get(propertyValue); 
          	if (goodCaption(propertyValue, verboseTest) == false) 
          	{ 
-            	errorExit ("'Caption' not correct");
+            	errorExit ("'Caption' not correct", true);
          	}
       	}  // end if Caption
 
@@ -170,7 +170,7 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
          	inst.getProperty(j).getValue().get(propertyValue); 
          	if (goodDescription(propertyValue, verboseTest) == false) 
          	{ 
-            	errorExit ("'Description' not correct");
+            	errorExit ("'Description' not correct", true);
          	}
       	}  // end if Description
 
@@ -180,7 +180,7 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
          	inst.getProperty(j).getValue().get(propertyValue); 
          	if (goodServerAddress(propertyValue, verboseTest) == false) 
          	{ 
-            	errorExit ("'ServerAddress' not correct");
+            	errorExit ("'ServerAddress' not correct", true);
          	}
       	}  // end if ServerAddress
 
@@ -190,7 +190,7 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
          	inst.getProperty(j).getValue().get(propertyValue); 
          	if (goodNameFormat(propertyValue, verboseTest) == false) 
          	{ 
-            	errorExit ("'NameFormat' not correct");
+            	errorExit ("'NameFormat' not correct", true);
         	}
       	}  // end if NameFormat
    }
@@ -223,7 +223,7 @@ NTPTestClient::testEnumerateInstanceNames(CIMClient &client,
       		CIMName className = cimReferences[i].getClassName();
          	if (!className.equal (CLASS_NAME))
          	{
-	    		errorExit("EnumInstanceNames failed - wrong class");
+	    		errorExit("EnumInstanceNames failed - wrong class", true);
 	 		}
 
          	_validateKeys(cimReferences[i], verboseTest);
@@ -231,11 +231,23 @@ NTPTestClient::testEnumerateInstanceNames(CIMClient &client,
       	}   // end for looping through instances
     
     	testLog("NTP Provider Test EnumInstanceNames Passed");
-    }  // end try 
+    }  // end try
+
+    catch(CIMException& e)
+    {
+      if (e.getCode() == CIM_ERR_NOT_FOUND)
+      {
+        errorExit(e.getMessage(), false);
+      }
+      else
+      {
+        errorExit(e.getMessage(), true);
+      }
+    } 
    
     catch(Exception& e)
     {
-      errorExit(e.getMessage());
+      errorExit(e.getMessage(), true);
     }
 }
 
@@ -275,7 +287,7 @@ NTPTestClient::testEnumerateInstances(CIMClient &client,
              	cout<<"Instance ClassName is "<< instanceRef.getClassName() << endl; 
 		 	if(!instanceRef.getClassName().equal (CLASS_NAME))
          	{
-	    		errorExit("EnumInstances failed");
+	    		errorExit("EnumInstances failed", true);
 	 		}
 
          	// now validate the properties
@@ -287,7 +299,7 @@ NTPTestClient::testEnumerateInstances(CIMClient &client,
    
     catch(Exception& e)
     {
-      errorExit(e.getMessage());
+      errorExit(e.getMessage(), true);
     }
 }
 
@@ -319,7 +331,7 @@ NTPTestClient::testGetInstance (CIMClient &client,
          	CIMName className = cimReferences[i].getClassName();
          	if (!className.equal (CLASS_NAME))
          	{
-	    		errorExit("EnumInstanceNames failed - wrong class");
+	    		errorExit("EnumInstanceNames failed - wrong class", true);
 	 		}
          	// add in some content checks on the keys returned
 
@@ -348,7 +360,7 @@ NTPTestClient::testGetInstance (CIMClient &client,
    
     catch(Exception& e)
     {
-      errorExit(e.getMessage());
+      errorExit(e.getMessage(), true);
     }
 }
 

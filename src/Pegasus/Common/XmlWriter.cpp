@@ -32,6 +32,7 @@
 //                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1779,7 +1780,6 @@ void XmlWriter::appendMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
-    STAT_SERVERTIME
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
 		OUTPUT_CONTENTLENGTH;
 
@@ -1800,6 +1800,40 @@ void XmlWriter::appendMethodResponseHeader(
         out << "CIMOperation: MethodResponse\r\n\r\n";
     }
 }
+
+
+ void XmlWriter::appendMethodResponseHeader(
+     Array<Sint8>& out,
+     HttpMethod httpMethod,
+     const ContentLanguages & contentLanguages,
+     Uint32 contentLength,
+     Uint64 serverResponseTime)
+ {
+     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+                                                                                             
+     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
+     STAT_SERVERTIME
+     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
+     OUTPUT_CONTENTLENGTH;
+
+     if (contentLanguages.size() > 0)
+     {
+         out << "Content-Language: " << contentLanguages << "\r\n";
+     }
+     if (httpMethod == HTTP_METHOD_M_POST)
+     {
+         out << "Ext:\r\n";
+         out << "Cache-Control: no-cache\r\n";
+         out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+         out << nn <<"\r\n";
+         out << nn << "-CIMOperation: MethodResponse\r\n\r\n";
+     }
+     else
+     {
+         out << "CIMOperation: MethodResponse\r\n\r\n";
+     }
+ }
+
 
 //------------------------------------------------------------------------------
 //
@@ -2540,6 +2574,47 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
 	return out;
 }
 
+
+//PEP 128 adding serverRsponseTime to header
+Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
+    const CIMName& methodName,
+    const String& messageId,
+    HttpMethod httpMethod,
+    const ContentLanguages & httpContentLanguages,
+    const Array<Sint8>& body,
+	Uint64 serverResponseTime,
+		Boolean isFirst,
+		Boolean isLast)
+{
+	Array<Sint8> out;
+
+	if (isFirst == true)
+	{
+		// NOTE: temporarily put zero for content length. the http code
+		// will later decide to fill in the length or remove it altogether
+		appendMethodResponseHeader(out, httpMethod, httpContentLanguages, 0, serverResponseTime);
+		_appendMessageElementBegin(out, messageId);
+		_appendSimpleRspElementBegin(out);
+		_appendMethodResponseElementBegin(out, methodName);
+	}
+	
+	if (body.size() != 0)
+	{
+		out << body;
+	}
+	
+	if (isLast == true)
+	{
+		_appendMethodResponseElementEnd(out);
+		_appendSimpleRspElementEnd(out);
+		_appendMessageElementEnd(out);
+	}
+	
+	return out;
+}
+
+
+
 //------------------------------------------------------------------------------
 //
 // XmlWriter::formatSimpleMethodErrorRspMessage()
@@ -2662,6 +2737,50 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
 
     return out;
 }
+
+
+
+Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
+    const CIMName& iMethodName,
+    const String& messageId,
+    HttpMethod httpMethod,
+    const ContentLanguages & httpContentLanguages,    
+    const Array<Sint8>& body,
+	Uint64 serverResponseTime,
+		Boolean isFirst,
+		Boolean isLast)
+{
+    Array<Sint8> out;
+
+		if (isFirst == true)
+		{
+			// NOTE: temporarily put zero for content length. the http code
+			// will later decide to fill in the length or remove it altogether
+			appendMethodResponseHeader(out, httpMethod, httpContentLanguages, 0, serverResponseTime);
+			_appendMessageElementBegin(out, messageId);
+			_appendSimpleRspElementBegin(out);
+			_appendIMethodResponseElementBegin(out, iMethodName);
+			if (body.size() != 0)
+				_appendIReturnValueElementBegin(out);
+		}
+
+    if (body.size() != 0)
+    {
+			out << body;
+    }
+
+		if (isLast == true)
+		{
+			if (body.size() != 0)
+				_appendIReturnValueElementEnd(out);
+			_appendIMethodResponseElementEnd(out);
+			_appendSimpleRspElementEnd(out);
+			_appendMessageElementEnd(out);
+		}
+
+    return out;
+}
+
 
 //------------------------------------------------------------------------------
 //

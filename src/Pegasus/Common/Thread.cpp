@@ -64,7 +64,7 @@ void language_delete(void * data)
 
 Boolean Thread::_signals_blocked = false;
 // l10n
-PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
+PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key = -1;
 Boolean Thread::_key_initialized = false;
 Boolean Thread::_key_error = false;
 
@@ -426,7 +426,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    Semaphore *blocking_sem = 0;
    
    struct timeval *deadlock_timer = 0;
-   int* in_loop;
    
    try
    {
@@ -434,10 +433,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       myself->dereference_tsd();
       deadlock_timer = (struct timeval *)myself->reference_tsd("deadlock timer");
       myself->dereference_tsd(); 
-      in_loop = (int*) myself->reference_tsd("in loop");
-      if(in_loop)
-	 *in_loop = 1;
-      myself->dereference_tsd();
    }
    catch(IPCException &)
    {
@@ -930,10 +925,6 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
   
-
-   // put a special object in the tsd that allows the ThreadPool destructor to 
-   // see if the thread has successfully entered ThreadPool:: _loop
-   
    th->run();
    _current_threads++;
    pegasus_yield();

@@ -63,7 +63,13 @@ main(int argc, char ** argv) {
   int ret = 0;
 
 #ifdef PEGASUS_OS_OS400
+  // Check to ensure the user is authorized to use the command
   if(FALSE == ycmCheckCmdAuthorities())
+  { 
+    return -9;
+  }
+  // Check to make sure the Pegasus Server is not running
+  if ( FALSE != ycmServerIsActive( YCMSERVER_ACTIVE, YCMCIMMOF ) )
   { 
     return -9;
   }

@@ -561,7 +561,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		  }
 		  
 		  // put the thread on the dead  list
-		  //_dead.insert_first(th);
+		  _dead.insert_first(th);
 		  bodies++;
 		  sleep_sem->signal();
 		  
@@ -616,9 +616,8 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
       myself->detach();
       myself->_handle.thid = 0;
       myself->cancel();
-      delete myself;
-      Thread::test_cancel();
-      Thread::exit_self(0);
+      myself->test_cancel();
+      myself->exit_self(0);
    }
    return((PEGASUS_THREAD_RETURN)0);
 }

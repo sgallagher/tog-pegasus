@@ -346,11 +346,11 @@ private:
 };
 
 
+PEGASUS_NAMESPACE_END
+
 // ATTN-RK-20020815: Remove this dependency
 #ifdef PEGASUS_INTERNALONLY
 #include <Pegasus/Common/InternalException.h>
 #endif
-
-PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Exception_h */

@@ -48,9 +48,9 @@
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiDateTime : public CmpiObject {
 
 protected:
-   void *CmpiDateTime::makeDateTime(CMPIBroker *mb);
-   void *CmpiDateTime::makeDateTime(CMPIBroker *mb, const char* utcTime);
-   void *CmpiDateTime::makeDateTime(CMPIBroker *mb, const CMPIUint64 binTime,
+   void *makeDateTime(CMPIBroker *mb);
+   void *makeDateTime(CMPIBroker *mb, const char* utcTime);
+   void *makeDateTime(CMPIBroker *mb, const CMPIUint64 binTime,
                                     const CmpiBoolean interval);
 private:
 public:

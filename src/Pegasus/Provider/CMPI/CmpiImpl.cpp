@@ -47,6 +47,14 @@
 #include "CmpiCharData.h"
 #include "CmpiBooleanData.h"
 
+#ifdef CMPI_STANDALONE
+# define PEGASUS_USING_STD using namespace std
+#else
+#  include <Pegasus/Common/Config.h>
+#endif
+
+PEGASUS_USING_STD;
+
 //---------------------------------------------------
 //--
 //	C to C++ base provider function drivers
@@ -77,7 +85,7 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup
    }
    return rc.status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 
     return stat.status();
   }
@@ -99,7 +107,7 @@ CmpiStatus CmpiBaseMI::initialize(const CmpiContext& ctx) {
 }
 
 CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) { 
-    std::cerr << "cleaning up provider" << std::endl;
+    cerr << "cleaning up provider" << endl;
    return CmpiStatus(CMPI_RC_OK); 
 }
 
@@ -121,7 +129,7 @@ CMPIStatus CmpiInstanceMI::driveEnumInstanceNames
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->enumInstanceNames(ctx,rslt,cop).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -139,7 +147,7 @@ CMPIStatus CmpiInstanceMI::driveEnumInstances
    return imi->enumInstances
       (ctx,rslt,cop,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -157,7 +165,7 @@ CMPIStatus CmpiInstanceMI::driveGetInstance
    return imi->getInstance
       (ctx,rslt,cop,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -176,7 +184,7 @@ CMPIStatus CmpiInstanceMI::driveCreateInstance
    return imi->createInstance
       (ctx,rslt,cop,inst).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -195,7 +203,7 @@ CMPIStatus CmpiInstanceMI::driveSetInstance
    return imi->setInstance
       (ctx,rslt,cop,inst,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -213,7 +221,7 @@ CMPIStatus CmpiInstanceMI::driveDeleteInstance
    return imi->deleteInstance
       (ctx,rslt,cop).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -231,7 +239,7 @@ CMPIStatus CmpiInstanceMI::driveExecQuery
    return imi->execQuery
     (ctx,rslt,cop,language,query).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -309,7 +317,7 @@ CMPIStatus CmpiAssociationMI::driveAssociators
        (const char*)assocClass,resultClass,
        role,resultRole,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -329,7 +337,7 @@ CMPIStatus CmpiAssociationMI::driveAssociatorNames
        assocClass,resultClass,
        role,resultRole).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -348,7 +356,7 @@ CMPIStatus CmpiAssociationMI::driveReferences
       (ctx,rslt,cop,
        resultClass,role,(const char**)properties).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -366,7 +374,7 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames
       (ctx,rslt,cop,
        resultClass,role).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -432,7 +440,7 @@ CMPIStatus CmpiMethodMI::driveInvokeMethod
    return mmi->invokeMethod
       (ctx,rslt,cop,methodName,in,out).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -479,7 +487,7 @@ CMPIStatus CmpiPropertyMI::driveSetProperty
    return pmi->setProperty
       (ctx,rslt,cop,name,data).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -496,7 +504,7 @@ CMPIStatus CmpiPropertyMI::driveGetProperty
    return pmi->getProperty
       (ctx,rslt,cop,name).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -544,7 +552,7 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter
    return nmi->authorizeFilter
       (ctx,rslt,se,ns,cop,user).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }
@@ -563,7 +571,7 @@ CMPIStatus CmpiIndicationMI::driveMustPoll
       (ctx,rslt,se,ns,cop).status();
   } catch (CmpiStatus& stat) {
     return stat.status();
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
   }
 }
 
@@ -581,7 +589,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter
       (ctx,rslt,se,ns,cop,first).status();
   } catch (CmpiStatus& stat) {
     return stat.status();
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
   }
 }
 
@@ -598,7 +606,7 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter
    return nmi->deActivateFilter
       (ctx,rslt,se,ns,cop,last).status();
   } catch (CmpiStatus& stat) {
-    std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
+    cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
     return stat.status();
   }
 }

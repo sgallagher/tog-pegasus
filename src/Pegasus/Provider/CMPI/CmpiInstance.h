@@ -75,8 +75,8 @@ private:
 
    /** Internal make function
    */
-   void *CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop);
-   
+   void *makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop);
+
    CmpiBoolean doInstanceIsA(CMPIBroker *mb, const char *className);
 
 public:

@@ -57,6 +57,53 @@ PEGASUS_NAMESPACE_BEGIN
 CQLParserState* globalParserState = 0;
 PEGASUS_NAMESPACE_END
 
+Boolean _applyProjection(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
+	/*
+                        CIMInstance projInst = _instances[0].clone();
+                        _statements[i].applyProjection(projInst);
+                        for (Uint32 n = 0; n < projInst.getPropertyCount(); n++)
+                          {
+                            CIMProperty prop = projInst.getProperty(n);
+                            CIMValue val = prop.getValue();
+                            cout << "Prop #" << n << " name = " << prop.getName().getString();
+                            cout << " Value = " << val.toString() << endl;
+                          }
+        */
+	return true;
+}
+
+Boolean _validateProperties(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
+        return true;                                                                                        
+}
+
+Boolean _getPropertyList(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
+        /*
+                        CIMObjectPath cname(String::EMPTY,
+                                            "root/cimv2",
+                                            "CIM_Indication");
+                        CIMPropertyList list = _statements[i].getPropertyList(cname);
+                        Array<CIMName> names = list.getPropertyNameArray();
+                        for (Uint32 n = 0; n < names.size(); n++)
+                          {
+                            cout << "Required: " << names[i].getString() << endl;
+                          }
+        */
+	return true;
+}
+
+Boolean _evaluate(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
+	for(Uint32 i = 0; i < _statements.size(); i++){
+        	printf("Evaluating query %d...\n",i);
+           	for(Uint32 j = 0; j < _instances.size(); j++){
+        		Boolean result = _statements[i].evaluate(_instances[j]);
+			cout << _statements[i].toString() << " = ";
+			if(result) printf("TRUE\n");
+                	else printf("FALSE\n");
+	   	}
+	}                                                                            
+	return true;
+}
+
 int main(int argc, char ** argv)
 {
 	Array<CQLSelectStatement> _statements;
@@ -74,10 +121,11 @@ int main(int argc, char ** argv)
 	char text[255];
 	char* _text;
 
-	// setup Instances
+	// setup Test Instances
         const CIMName _testclass(String("CQL_TestPropertyTypes"));
+	const CIMName _testclass1(String("CIM_ComputerSystem"));
         Array<CIMInstance> _instances = _rep->enumerateInstances( _ns, _testclass );
-        cout << "instances.size = " << _instances.size() << endl;
+	_instances.appendArray(_rep->enumerateInstances( _ns, _testclass1 ));
 
 	// setup input stream
 	if(argc > 1){
@@ -104,22 +152,19 @@ int main(int argc, char ** argv)
 			}else{
 				cout << "COMMENT = " << _text;
 			}
-	
-			
 		}
 		queryInputSource.close();
-		Boolean result = false;
-		for(Uint32 i=0; i < _statements.size(); i++){
-			printf("Evaluating query %d...\n",i);
-		   try{
-                        result = _statements[i].evaluate(_instances[0]);
-			cout << _statements[i].toString() << " = ";
-                        if(result) printf("TRUE\n");
-                        else printf("FALSE\n");
-		   }catch(Exception e){ cout << e.getMessage() << endl; }
-		    catch(...){
-				 cout << "CAUGHT ... BADNESS HAPPENED!!!" << endl;
-		    }
+		try{
+			_applyProjection(_statements,_instances);
+			_validateProperties(_statements,_instances);
+			_getPropertyList(_statements,_instances);
+			_evaluate(_statements,_instances);
+		}
+		catch(Exception e){ 
+			cout << e.getMessage() << endl; 
+		}
+		catch(...){
+			cout << "CAUGHT ... BADNESS HAPPENED!!!" << endl;
 		}
 	}else{
 		// manually setup parser state

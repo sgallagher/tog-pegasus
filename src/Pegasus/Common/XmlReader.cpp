@@ -700,7 +700,7 @@ Boolean XmlReader::stringToSignedInteger(
 
     while (first != last)
     {
-        if (x < -922337203685477580LL /* -(1<<63) / 10 */)
+        if (x < PEGASUS_LLONG_MIN/10)
         {
             return false;
         }
@@ -777,13 +777,13 @@ Boolean XmlReader::stringToUnsignedInteger(
 
     while (first != last)
     {
-        if (x > 1844674407370955161ULL /* (1<<64 - 1) / 10 */)
+        if (x > PEGASUS_ULLONG_MAX/10)
         {
             return false;
         }
         x = 10 * x;
         Uint64 newDigit = (*first++ - '0');
-        if (18446744073709551615ULL - x < newDigit)
+        if (PEGASUS_ULLONG_MAX - x < newDigit)
         {
             return false;
         }

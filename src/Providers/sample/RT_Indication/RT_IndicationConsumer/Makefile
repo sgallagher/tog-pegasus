@@ -16,7 +16,7 @@ SOURCES = \
    RT_IndicationConsumerMain.cpp \
    RT_IndicationConsumer.cpp 
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 install:

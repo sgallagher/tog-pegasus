@@ -12,5 +12,5 @@ SOURCES = \
 	ProcessIndicationProviderMain.cpp \
 	ProcessIndicationProvider.cpp
 
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(PEGASUS_ROOT)/mak/dynamic-library.mak
 install:

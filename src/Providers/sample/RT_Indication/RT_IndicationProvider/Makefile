@@ -13,5 +13,5 @@ SOURCES = \
 	RT_IndicationProviderMain.cpp \
 	RT_IndicationProvider.cpp
 
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(PEGASUS_ROOT)/mak/dynamic-library.mak
 install:

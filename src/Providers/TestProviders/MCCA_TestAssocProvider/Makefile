@@ -14,7 +14,7 @@ SOURCES = \
    MCCA_TestAssocProviderMain.cpp \
    MCCA_TestAssocProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 install:

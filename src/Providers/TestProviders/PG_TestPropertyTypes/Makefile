@@ -13,7 +13,7 @@ LIBRARIES = \
 SOURCES = \
    PG_TestPropertyTypes.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 install:

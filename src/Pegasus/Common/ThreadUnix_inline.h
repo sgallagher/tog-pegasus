@@ -186,7 +186,7 @@ inline void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPC
 
 inline void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 {
-   cleanup_handler *cu ;
+   cleanup_handler *cu = 0;
    try { cu = static_cast<cleanup_handler *>(_cleanup.remove_first()) ;}
    catch(IPCException& e) { PEGASUS_ASSERT(0); }
    _pthread_cleanup_pop(&(cu->_cleanup_buffer), execute);

@@ -55,7 +55,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     XmlParser parser(buffer);
     XmlEntry entry;
 
-    CIMMessage* message;
+    CIMMessage* message = 0;
     String messageID;
     String typeString;
     Uint32 type;
@@ -113,7 +113,7 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
 
     if (XmlReader::testStartTag(parser, entry, "PGOPREQ"))
     {
-        CIMOperationRequestMessage* cimOpReqMessage;
+        CIMOperationRequestMessage* cimOpReqMessage = 0;
         CIMValue genericValue;
         CIMNamespaceName nameSpace;
         CIMName className;
@@ -206,7 +206,7 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     }
     else if (XmlReader::testStartTag(parser, entry, "PGINDREQ"))
     {
-        CIMIndicationRequestMessage* cimIndReqMessage;
+        CIMIndicationRequestMessage* cimIndReqMessage = 0;
         switch (type)
         {
         case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:

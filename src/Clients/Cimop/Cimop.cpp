@@ -28,7 +28,10 @@
 #include <Pegasus/Common/Constants.h>
 #include "Cimop.h"
 #include <iostream>
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#else
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 
 static const int TIMEOUT = 60000;
@@ -1307,7 +1310,13 @@ String _displayProperty(const CIMProperty &p)
   if (v.isArray())
   {
     s.append("[");
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    char buf[40];
+    sprintf( buf, "%d", v.getArraySize() );
+#else
     s.append(ultoa(v.getArraySize()));
+#endif
     s.append("]");
   }
   

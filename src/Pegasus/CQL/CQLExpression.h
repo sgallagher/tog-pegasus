@@ -240,3 +240,4 @@ class PEGASUS_CQL_LINKAGE CQLExpression
 PEGASUS_NAMESPACE_END
 
 #endif 
+#endif 

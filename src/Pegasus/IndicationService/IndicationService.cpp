@@ -536,7 +536,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             CIMPropertyList requiredProperties;
             CIMNamespaceName sourceNameSpace;
             Array <ProviderClassList> indicationProviders;
-            if (instance.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+            if (instance.getClassName ().equal 
+                (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
             {
                 //
                 //  Get subscription state
@@ -668,7 +669,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             //  and subscription state is enabled, send Create request to 
             //  indication providers
             //
-            if (instance.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+            if (instance.getClassName ().equal 
+                (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
             {
                 if ((subscriptionState == _STATE_ENABLED) ||
                     (subscriptionState == _STATE_ENABLEDDEGRADED))
@@ -771,8 +773,8 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         //  If a subscription with a duration, calculate subscription time 
         //  remaining, and add property to the instance
         //
-        if (request->instanceName.getClassName () == 
-            PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+        if (request->instanceName.getClassName ().equal 
+            (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
         {
             _setTimeRemaining (instance);
         }
@@ -846,7 +848,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             //  If a subscription with a duration, calculate subscription time 
             //  remaining, and add property to the instance
             //
-            if (request->className == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+            if (request->className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
             {
                 _setTimeRemaining (enumInstances [i]);
             }
@@ -1310,8 +1312,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
         if (_canDelete (request->instanceName, request->nameSpace,
             request->userName))
         {
-            if (request->instanceName.getClassName () == 
-                PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+            if (request->instanceName.getClassName ().equal
+                (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
             {
                 CIMInstance subscriptionInstance;
                 Array <ProviderClassList> indicationProviders;
@@ -1817,7 +1819,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //  delete, send a Delete request
                 //
                 if ((tableValue.classList.size () == 1) &&
-                    (tableValue.classList [0] == className))
+                    (tableValue.classList [0].equal (className)))
                 {
                     _sendDeleteRequests (indicationProviders,
                         formerSubscriptions [i].getPath ().getNameSpace (), 
@@ -2085,7 +2087,7 @@ Boolean IndicationService::_canCreate (
     //  null, add or set property with default value
     //  For a property that has a specified set of valid values, validate
     //
-    if (instance.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+    if (instance.getClassName ().equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
     {
         //
         //  Filter and Handler are key properties for Subscription
@@ -2129,7 +2131,7 @@ Boolean IndicationService::_canCreate (
         _checkPropertyWithDefault (instance, _PROPERTY_SYSTEMCREATIONCLASSNAME, 
             System::getSystemCreationClassName ());
 
-        if (instance.getClassName () == PEGASUS_CLASSNAME_INDFILTER)
+        if (instance.getClassName ().equal (PEGASUS_CLASSNAME_INDFILTER))
         {
             //
             //  Query and QueryLanguage properties are required for Filter
@@ -2164,16 +2166,17 @@ Boolean IndicationService::_canCreate (
         //  class are supported -- further subclassing is not currently 
         //  supported
         //
-        else if ((instance.getClassName () == 
-                  PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-                 (instance.getClassName () == 
-                  PEGASUS_CLASSNAME_INDHANDLER_SNMP))
+        else if ((instance.getClassName ().equal 
+                  (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) ||
+                 (instance.getClassName ().equal
+                  (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
         {
             _checkPropertyWithOther (instance, _PROPERTY_PERSISTENCETYPE,
                 _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
                 (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes);
 
-            if (instance.getClassName () == PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
+            if (instance.getClassName ().equal 
+                (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
             {
                 //
                 //  Destination property is required for CIMXML 
@@ -2183,7 +2186,8 @@ Boolean IndicationService::_canCreate (
                     _MSG_PROPERTY);
             }
 
-            if (instance.getClassName () == PEGASUS_CLASSNAME_INDHANDLER_SNMP)
+            if (instance.getClassName ().equal 
+                (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
             {
                 //
                 //  Trap Destination property is required for SNMP 
@@ -2432,7 +2436,8 @@ Boolean IndicationService::_canModify (
     //  Currently, only modification allowed is of Subscription State 
     //  property in Subscription class
     //
-    if (instanceReference.getClassName () != PEGASUS_CLASSNAME_INDSUBSCRIPTION)
+    if (!instanceReference.getClassName ().equal 
+        (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
@@ -2468,7 +2473,7 @@ Boolean IndicationService::_canModify (
     //  If one property specified, it must be Subscription State property
     //
     else if ((request->propertyList.size () == 1) &&
-             (request->propertyList[0] != _PROPERTY_STATE))
+             (!request->propertyList[0].equal (_PROPERTY_STATE)))
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
@@ -2580,17 +2585,18 @@ Boolean IndicationService::_canDelete (
     //  If the class or superclass is Filter or Handler, check for 
     //  subscription instances referring to the instance to be deleted
     //
-    if ((superClass == PEGASUS_CLASSNAME_INDFILTER) ||
-        (superClass == PEGASUS_CLASSNAME_INDHANDLER) ||
-        (instanceReference.getClassName() == PEGASUS_CLASSNAME_INDFILTER) ||
-        (instanceReference.getClassName() == PEGASUS_CLASSNAME_INDHANDLER))
+    if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
+        (superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
+        (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDFILTER)) 
+     || (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDHANDLER)))
     {
-        if ((superClass == PEGASUS_CLASSNAME_INDFILTER) ||
-            (instanceReference.getClassName() == PEGASUS_CLASSNAME_INDFILTER))
+        if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
+            (instanceReference.getClassName().equal 
+            (PEGASUS_CLASSNAME_INDFILTER)))
         {
             propName = _PROPERTY_FILTER;
         }
-        else if (superClass == PEGASUS_CLASSNAME_INDHANDLER)
+        else if (superClass.equal (PEGASUS_CLASSNAME_INDHANDLER))
         {
             propName = _PROPERTY_HANDLER;
 
@@ -4704,13 +4710,13 @@ CIMInstance IndicationService::_createAlertInstance (
     //  one of the properties will be a list of affected subscriptions
     //  It is for that reason that subscriptions is passed in as a parameter
     // 
-    if (alertClassName == _CLASS_CIMOM_SHUTDOWN_ALERT)
+    if (alertClassName.equal (_CLASS_CIMOM_SHUTDOWN_ALERT))
     {
     }
-    else if (alertClassName == _CLASS_NO_PROVIDER_ALERT)
+    else if (alertClassName.equal (_CLASS_NO_PROVIDER_ALERT))
     {
     }
-    else if (alertClassName == _CLASS_PROVIDER_TERMINATED_ALERT)
+    else if (alertClassName.equal (_CLASS_PROVIDER_TERMINATED_ALERT))
     {
     }
 

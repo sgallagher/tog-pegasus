@@ -134,6 +134,17 @@ private:
     Boolean _isHTTPOk( String startLine );
 
 /**
+  
+    Prompt for password.
+  
+    @param   estream             the ostream to which errors should be written
+
+    @return  String value of the user entered password
+
+ */
+    String _promptForPassword( ostream&  eStream );
+
+/**
        
     Check the HTTP response message for authentication challenge or data.
   
@@ -200,6 +211,8 @@ private:
 
     @param   ostream             the ostream to which output should be written
 
+    @param   estream             the ostream to which errors should be written
+
     @return  true = wait for data from challenge response
     @return  false = client response has been received
   
@@ -210,7 +223,8 @@ private:
                              Array <Sint8>          httpHeaders,
                              ClientAuthenticator*   clientAuthenticator,
                              Boolean                useAuthentication,
-                             ostream&               outS
+			     ostream&               oStream,
+			     ostream&               eStream
                           );
 
     /**
@@ -309,9 +323,19 @@ private:
     String _userName;
 
     /**
+        Indicates that the user name is set.
+     */
+    Boolean _userNameSet;
+
+    /**
         The password to be used for authorization of the operation.
      */
     String _password;
+
+    /**
+        Indicates that the password is set.
+     */
+    Boolean _passwordSet;
 
     /**
         The path of the input file containing a CIM request encoded in XML.

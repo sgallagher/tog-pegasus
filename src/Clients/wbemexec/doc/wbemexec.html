@@ -1,3 +1,4 @@
+
 <html>
 <head>
 <title>
@@ -80,7 +81,8 @@ Options
   <dd>
     Use the specified host.  A CIM Server must be running on the 
     specified host. If this option is not specified, wbemexec will
-    connect to the local host and authenticate itself.
+    connect to the local host and authenticate itself. If a host is specified
+    and no password has been specified, the user will prompted for a password.
   <dt>
     <code>-p <i>portnumber</i></code>
   <dd>
@@ -107,11 +109,15 @@ Options
   <dt>
     <code>-u <i>username</i></code>
   <dd>
-    Authorize the operation using the specified username.
+    Authorize the operation using the specified username. If username is not 
+specified, the current logged in user will be used for authentication and
+authorization.
   <dt>
     <code>-w <i>password</i></code>
   <dd>
-    Authorize the operation using the specified password.  
+    Authorize the operation using the specified password. If the password is
+not specified and the remote host requests authentication, the user will be
+prompted for a password.
   <dt>
     <code>-d <i>debugoption</i></code>
   <dd>

@@ -126,6 +126,12 @@ const char   WbemExecCommand::_DEBUG_OPTION1       = '1';
 */
 const char   WbemExecCommand::_DEBUG_OPTION2       = '2';
 
+static const char PASSWORD_PROMPT []  =
+                     "Please enter your password: ";
+
+static const char PASSWORD_BLANK []  = 
+                     "Password cannot be blank. Please re-enter your password.";
+
 /**
   
     Constructs a WbemExecCommand and initializes instance variables.
@@ -150,7 +156,9 @@ WbemExecCommand::WbemExecCommand ()
     _debugOutput1        = false;
     _debugOutput2        = false;
     _userName            = String ();
+    _userNameSet         = false;
     _password            = String ();
+    _passwordSet         = false;
     _inputFilePath       = String ();
     _inputFilePathSet    = false;
 
@@ -286,6 +294,37 @@ Boolean WbemExecCommand::_isHTTPOk( String startLine )
 
 /**
   
+    Prompt for password.
+  
+    @param   estream             the ostream to which errors should be written
+
+    @return  String value of the user entered password
+
+ */
+String WbemExecCommand::_promptForPassword( ostream&  eStream )
+{
+  //
+  // Password is not set, prompt for the old password once
+  //
+  String pw = String::EMPTY;
+
+  do
+    {
+      pw = System::getPassword( PASSWORD_PROMPT );
+      
+      if ( pw == String::EMPTY || pw == "" )
+	{
+	  eStream << PASSWORD_BLANK << endl;
+	  pw = String::EMPTY;
+	  continue;
+	}
+    }
+  while ( pw == String::EMPTY );
+  return( pw );
+}
+
+/**
+  
     Check the HTTP response message for authentication challenge or data.
   
     @param   channel             Connection to cimserver
@@ -303,6 +342,8 @@ Boolean WbemExecCommand::_isHTTPOk( String startLine )
 
     @param   ostream             the ostream to which output should be written
 
+    @param   estream             the ostream to which errors should be written
+
     @return  true  = wait for data from challenge response
     @return  false = client response has been received
   
@@ -313,7 +354,8 @@ Boolean WbemExecCommand::_handleResponse( Channel*               channel,
                                           Array <Sint8>          httpHeaders,
                                           ClientAuthenticator*   clientAuthenticator,
                                           Boolean                useAuthentication,
-                                          ostream&               oStream
+                                          ostream&               oStream,
+                                          ostream&               eStream
                                        )
 {
     Array <Sint8>                responseMessage;
@@ -349,8 +391,32 @@ Boolean WbemExecCommand::_handleResponse( Channel*               channel,
 	    // Get the original request, send with authentication challenge
 	    // response. 
 	    //
-	    Array <Sint8>                challengeResponse;
-	    
+	    Array <Sint8>  challengeResponse;
+	    char           userNameChars[256];
+
+	    if( _hostNameSet )
+	      {
+		// This a remote request. Username and password are required
+		// for authentication.
+		// Get the username & password if missing
+
+		if( !_userNameSet )
+		  {
+		    _userName = System::getCurrentLoginName();
+		    clientAuthenticator->setUserName( _userName );
+		    _userNameSet = true;
+		  }
+		if( !_passwordSet )
+		  {
+		    _password = _promptForPassword( eStream );
+		    _passwordSet = true;
+		  }
+		if( _password.size() )
+		  {
+		    clientAuthenticator->setPassword( _password );
+		  }
+	      }
+
 	    challengeResponse << httpHeaders;
 	    
 	    String authHeader = clientAuthenticator->buildRequestAuthHeader();
@@ -606,7 +672,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     //
     if( _handleResponse( channel, handler, content, httpHeaders,
                          clientAuthenticator, useAuthentication,
-                         outPrintWriter ) == true )
+                         outPrintWriter, errPrintWriter ) == true )
     {
       // Wait for final response
       
@@ -618,7 +684,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         }
       _handleResponse( channel, handler, content, httpHeaders,
 		       clientAuthenticator, false,
-		       outPrintWriter );
+		       outPrintWriter, errPrintWriter );
     }
     handler->printContent();
 }
@@ -820,6 +886,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
                     _userName = getOpts [i].Value ();
+                    _userNameSet = true;
                     break;
                 }
     
@@ -834,6 +901,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
                     _password = getOpts [i].Value ();
+                    _passwordSet = true;
                     break;
                 }
     
@@ -882,22 +950,6 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     break;
             }
         }
-    }
-
-    if (getOpts.isSet (_OPTION_USERNAME) < 1)
-    {
-        //
-        //  No username specified
-        //  TODO: Default to current username
-        //
-    }
-
-    if (getOpts.isSet (_OPTION_PASSWORD) < 1)
-    {
-        //
-        //  No password specified
-        //  TODO: Prompt for password
-        //
     }
 
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)

@@ -36,6 +36,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class XmlParser;
+
 /** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.
 */
@@ -59,65 +61,71 @@ public:
 
 private:
 
+    void _handleHTTPMessage(
+	HTTPMessage* message);
+
+    void _handleMethodResponse(
+	char* content);
+
     void _decodeCreateClassResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeGetClassResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeModifyClassResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeEnumerateClassNamesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeEnumerateClassesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeDeleteClassResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeCreateInstanceResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeGetInstanceResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeModifyInstanceResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeEnumerateInstanceNamesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeEnumerateInstancesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeDeleteInstanceResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeSetQualifierResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeGetQualifierResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeEnumerateQualifiersResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeDeleteQualifierResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeReferenceNamesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeReferencesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeAssociatorNamesResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     void _decodeAssociatorsResponse(
-	HTTPMessage* httpMessage);
+	XmlParser& parser, const String& messageId);
 
     MessageQueue* _outputQueue;
 };

@@ -23,4 +23,8 @@ endif
 include $(ROOT)/mak/program.mak
 include $(ROOT)/mak/install.mak
 
+tests:
+
+poststarttests:
+
 # DO NOT DELETE

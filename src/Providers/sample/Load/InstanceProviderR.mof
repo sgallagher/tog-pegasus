@@ -26,7 +26,7 @@ instance of PG_ProviderCapabilities
     ProviderName = "SampleInstanceProvider (PROVIDER)";
     CapabilityID = "SampleInstanceProvider";
     ClassName = "Sample_InstanceProviderClass";
-    Namespaces[] = { "root/cimv2" };
+    Namespaces[] = { "root/SampleProvider" };
     ProviderType[] = { 2 };
     //SupportedProperties = {};
     //SupportedMethods = {};

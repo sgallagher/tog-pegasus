@@ -312,7 +312,11 @@ Boolean String::equalNoCase(const String& x, const String& y)
 
     while (n--)
     {
+#ifdef PEGASUS_HAS_EBCDIC
+	if (*p <= 255 && *q <= 255)
+#else
 	if (*p <= 127 && *q <= 127)
+#endif
 	{
 	    if (tolower(*p++) != tolower(*q++))
 		return false;
@@ -415,7 +419,11 @@ void String::toLower()
 {
     for (Char16* p = &_rep[0]; *p; p++)
     {
+#ifdef PEGASUS_HAS_EBCDIC
+	if (*p <= 255)
+#else
 	if (*p <= 127)
+#endif
 	    *p = tolower(*p);
     }
 }
@@ -487,7 +495,11 @@ String ToLower(const String& str)
     {
 	Char16 c = tmp[i];
 
+#ifdef PEGASUS_HAS_EBCDIC
+	if (c <= 255)
+#else
 	if (c <= 127)
+#endif
 	    tmp[i] = tolower(c);
     }
 
@@ -644,7 +656,11 @@ typedef Uint16 Tcl_Char;
 
 inline Uint16 _ToLower(Uint16 ch)
 {
+#ifdef PEGASUS_HAS_EBCDIC
+    return ch <= 255 ? tolower(char(ch)) : ch;
+#else
     return ch <= 127 ? tolower(char(ch)) : ch;
+#endif
 }
 
 inline Boolean _Equal(Uint16 ch1, Uint16 ch2, int nocase)

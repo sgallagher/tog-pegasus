@@ -222,7 +222,7 @@ public:
 	queue id an monotonically increases and finally wraps (to one)
 	after reaching the maximum unsigned 32 bit integer.
     */
-    static Uint32 MessageQueue::getNextQueueId();
+    static Uint32 MessageQueue::getNextQueueId() throw(IPCException);
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
 

@@ -78,6 +78,10 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
             
       Boolean  operator == (const void *key) const;
       Boolean operator == (const AsyncOpNode & node) const;
+
+      void get_timeout_interval(struct timeval *buffer) const;
+      void set_timeout_interval(const struct timeval *interval);
+      
       Boolean timeout(void)  ;
 
       OperationContext & get_context(void) ;
@@ -125,6 +129,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       void _reset(unlocked_dq<AsyncOpNode> *dst_q);
 
+      // the lifetime member is for cache management by the cimom
       void _set_lifetime(struct timeval *lifetime) ;
       Boolean _check_lifetime(void) const ;
 
@@ -151,13 +156,35 @@ inline Boolean AsyncOpNode::operator == (const AsyncOpNode & node) const
    return AsyncOpNode::operator==((const void *)&node);
 }
 
+
+inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer) const
+{
+   if(buffer != 0)
+   {
+      buffer->tv_sec = _timeout_interval.tv_sec;
+      buffer->tv_usec = _timeout_interval.tv_usec;
+   }
+   return;
+}
+
+inline void AsyncOpNode::set_timeout_interval(const struct timeval *interval)
+{
+   if(interval != 0)
+   {
+      _timeout_interval.tv_sec = interval->tv_sec;
+      _timeout_interval.tv_usec = interval->tv_usec;
+   }
+   gettimeofday(&_updated, NULL);
+}
+
+
 inline Boolean AsyncOpNode::timeout(void) 
 {
    struct timeval now;
    gettimeofday(&now, NULL);
    
-   if((_updated.tv_sec + _timeout_interval.tv_sec ) >= now.tv_sec)
-      if((_updated.tv_usec + _timeout_interval.tv_usec ) >= now.tv_usec)
+   if((_updated.tv_sec + _timeout_interval.tv_sec ) <= now.tv_sec)
+      if((_updated.tv_usec + _timeout_interval.tv_usec ) <= now.tv_usec)
 	 return true;
    return false;
 }
@@ -165,49 +192,57 @@ inline Boolean AsyncOpNode::timeout(void)
 // context is now a locked list
 inline OperationContext & AsyncOpNode::get_context(void)
 {
+   gettimeofday(&_updated, NULL);
    return _operation_list;
-}
 
+}
 
 inline  void AsyncOpNode::put_request(const Message *request) 
 {
-
+   gettimeofday(&_updated, NULL);
    _request = const_cast<Message *>(request);
 
 }
 
 inline const Message * AsyncOpNode::get_request(void) 
 {
+   gettimeofday(&_updated, NULL);
    return _request ;
 }
 
 inline void AsyncOpNode::put_response(const Message *response) 
 {
+   gettimeofday(&_updated, NULL);
    _response.insert_last( const_cast<Message *>(response) );
 }
 
 inline const Message * AsyncOpNode::get_response(void) 
 {
+   gettimeofday(&_updated, NULL);
    return  _response.remove_first();
 }
 
 inline Uint32 AsyncOpNode::read_state(void)
 {
+   gettimeofday(&_updated, NULL);
    return _state;
 }
 
 inline void AsyncOpNode::write_state(Uint32 state)
 {
+   gettimeofday(&_updated, NULL);
    _state = state;
 }
 
 inline Uint32 AsyncOpNode::read_flags(void)
 {
+   gettimeofday(&_updated, NULL);
    return _flags;
 }
 
 inline void AsyncOpNode::write_flags(Uint32 flags)
-{
+{   
+   gettimeofday(&_updated, NULL);
    _flags = flags;
 }
 

@@ -19,3 +19,24 @@ NOTES/QUESTIONS:
     7.	Don't use System class directly.
 
     8. 	Reconcile all the queues (DQueue, MT_MessageQueue, MessageQueue, etc.).
+
+<<< Fri Dec 28 10:11:50 2001 mdd >>>
+-     MT_MessageQueue is not used
+
+    DQueue and MessageQueue are significantly different and are both needed in Pegasus. 
+    
+    DQueue is a series of doubly-linked list containers that range from unlocked 
+    void * containers to template classes with conditional locks and capacity controls. 
+    The differences between the DQueue classes and the MessageQueue class are as follows:
+
+ -    DQueue is a doubly-linked list container heirarchy
+ -    DQueue is a container that can managed many different types of objects. 
+ -    Contained objects do not need to be aware that they are contained by DQueue.
+ -    Contained objects do not need to inherit from a base class.  
+ -    DQueue supports traversing of the list and referring to the contained 
+      objects while expecting contention; i.e., requires all traversals and 
+      referrals to be done only by the owner of the queue mutex or condition
+-     There is no central registry of DQueue objects, and DQueue objects are not named
+
+DQueue and its base class is used heavily throughout the thread and ipc classes, 
+and in other places where lists of objects are subject to heavy access contention. 

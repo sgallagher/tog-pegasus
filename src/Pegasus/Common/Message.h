@@ -66,7 +66,6 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 ha_synchronous;
       static Uint32 ha_async;
       
-
       // more for documentation than for use 
 
       inline Uint32 get_type(Uint32 flags)

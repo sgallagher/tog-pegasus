@@ -62,8 +62,7 @@ class PEGASUS_CIMOM_LINKAGE message_module
 		     Uint32 capabilities,
 		     Uint32 mask,
 		     Uint32 queue)
-      
-	 : _name(name), _capabilities(capabilities),
+      	 : _name(name), _capabilities(capabilities),
 	   _mask(mask), _q_id(queue)  { }
       
       Boolean operator == (const message_module *mm) const;
@@ -94,6 +93,8 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 	_die(0)  
       { 
 	 pegasus_gettimeofday(&_last_module_change);
+	 _default_op_timeout.tv_sec = 30;
+	 _default_op_timeout.tv_usec = 100;
       }
             
       ~cimom(void) ;
@@ -103,6 +104,10 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       Uint32 getModuleCount(void);
       Uint32 getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException);
       
+      void set_default_op_timeout(const struct timeval *buffer);
+      void get_default_op_timeout(struct timeval *timeout) const ;
+      
+
       virtual void handleEnqueue();
       void handle_internal(AsyncOpNode *internal_op);
       void register_module(CimomRegisterService *msg);
@@ -111,13 +116,15 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 
    protected:
       Uint32 get_module_q(const String & name);
-      void _enqueueResponse(Request *req, Reply *rep);
+      void _enqueueResponse(Request *, Message *);
       
    private:
+      struct timeval _default_op_timeout;
       struct timeval _last_module_change;
       DQueue<message_module> _modules;
       DQueue<Message> _internal_ops; 
-
+      DQueue<AsyncOpNode> _recycle;
+      
       AsyncDQueue<AsyncOpNode> _new_ops;
       AsyncDQueue<AsyncOpNode> _pending_ops;
       AsyncDQueue<AsyncOpNode> _completed_ops;
@@ -183,7 +190,7 @@ inline Boolean message_module::operator == (const void *key) const
 inline Boolean cimom::moduleChange(struct timeval last)
 {
    if( (last.tv_sec >= _last_module_change.tv_sec)) 
-      if(last.tv_usec >_last_module_change.tv_usec )
+      if(last.tv_usec >= _last_module_change.tv_usec )
 	 return false;
    return true;
 }
@@ -221,6 +228,27 @@ inline Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
    
    return _modules.count();
 }
+
+inline void cimom::set_default_op_timeout(const struct timeval *buffer)
+{
+   if (buffer != 0)
+   {
+      _default_op_timeout.tv_sec = buffer->tv_sec;
+      _default_op_timeout.tv_usec = buffer->tv_usec;
+   }
+   return;
+}
+
+inline void cimom::get_default_op_timeout(struct timeval *timeout) const 
+{
+   if (timeout != 0)
+   {
+      timeout->tv_sec = _default_op_timeout.tv_sec;
+      timeout->tv_usec = _default_op_timeout.tv_usec;
+   }
+   return;
+}
+
 
 PEGASUS_NAMESPACE_END
 

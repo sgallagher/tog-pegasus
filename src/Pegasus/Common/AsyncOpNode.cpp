@@ -34,9 +34,8 @@ AsyncOpNode::AsyncOpNode(void)
    : _client_sem(1), _mut(), _request(0), _response(0), 
      _state(0), _flags(0), _total_ops(0), _completed_ops(0), 
      _parent(0), _children(true)
-      
 {
-   memset(&_start, 0x00, sizeof(struct timeval));
+   gettimeofday(&_start, NULL);
    memset(&_lifetime, 0x00, sizeof(struct timeval));
    memset(&_updated, 0x00, sizeof(struct timeval));
    memset(&_timeout_interval, 0xff, sizeof(struct timeval));

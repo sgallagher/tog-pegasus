@@ -146,10 +146,10 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       inline void *remove(void *key)
       {
-	 void *ret = 0;
 	 if(key == 0)
-	    return ret;
-	 
+	    return 0;
+	 void *ret = 0;
+
 	 if(_count > 0)
 	 {
 	    internal_dq *temp = _next;
@@ -251,11 +251,16 @@ public:
 
       inline virtual void insert_first(L *element) 
       {
+	 if( element == 0 )
+	    return;
+	 
 	 Base::insert_first(static_cast<void *>(element));
       }
 
       inline virtual void insert_last(L *element) 
       {
+	 if( element == 0 )
+	    return;
 	 Base::insert_last(static_cast<void *>(element));
       }
       
@@ -274,6 +279,21 @@ public:
 	 return static_cast<L *>(Base::remove_last());
       }
       
+      inline virtual L *remove_no_lock(L *key)
+      {
+	 if(key == 0)
+	    return 0;
+	 
+	 L *ret = static_cast<L *>(Base::next(0));
+	 while(ret != 0)
+	 {
+	    if(ret->operator==(key))
+	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
+	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	 }
+	 return 0;
+      }
+            
       inline virtual L *remove_no_lock(void *key) 
       {
 	 if(key == 0)
@@ -291,6 +311,8 @@ public:
 
       inline virtual L *remove(void *key) 
       {
+	 if(key == 0)
+	    return 0;
 	 L *ret = 0;
 	 if( count() > 0 ) 
 	 {
@@ -298,8 +320,6 @@ public:
 	 }
 	 return(ret);
       }
-      
-      
       
       inline virtual L *reference(void *key) 
       {
@@ -339,6 +359,8 @@ public:
 
       inline virtual L *remove(L *key)
       {
+	 if(key == 0)
+	    return 0;
 	 L *ret = unlocked_dq::reference(key);
 	 if(ret != 0)
 	    ret =  static_cast<L *>(Base::remove(static_cast<void *>(ret)));

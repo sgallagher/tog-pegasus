@@ -156,16 +156,15 @@ typedef union {
 #define DESC 313
 #define AS 314
 #define UNEXPECTED_CHAR 315
-#define arg_list_sub 316
 const short CQL_lhs[] = {                                        -1,
     1,    2,    3,    4,    5,    6,    6,    7,    7,    8,
     8,    9,    9,   10,   10,   10,   10,   10,   10,   10,
    11,   12,   13,   13,   13,   13,   13,   13,   13,   13,
    13,   13,   14,   14,   15,   16,   17,   18,   19,   19,
    20,   20,   20,   20,   20,   20,   21,   21,   21,   21,
-   21,   21,   21,   22,   22,   23,   23,   24,   24,   25,
-   25,   25,   26,   26,   26,   27,   28,   28,   29,   29,
-   30,   31,   31,   32,   33,   33,    0,
+   21,   21,   21,   21,   22,   22,   23,   23,   24,   24,
+   25,   25,   25,   26,   26,   26,   27,   28,   28,   29,
+   29,   30,   31,   31,   32,   33,   33,    0,
 };
 const short CQL_len[] = {                                         2,
     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -173,76 +172,76 @@ const short CQL_len[] = {                                         2,
     1,    1,    1,    3,    1,    3,    1,    4,    3,    3,
     5,    4,    1,    3,    1,    1,    1,    2,    1,    1,
     1,    1,    1,    1,    1,    1,    1,    4,    3,    3,
-    3,    3,    3,    1,    2,    1,    3,    1,    3,    0,
-    1,    1,    1,    3,    2,    1,    1,    3,    1,    1,
-    2,    0,    3,    1,    0,    2,    5,
+    3,    3,    3,    3,    1,    2,    1,    3,    1,    3,
+    0,    1,    1,    1,    3,    2,    1,    1,    3,    1,
+    1,    2,    0,    3,    1,    0,    2,    5,
 };
 const short CQL_defred[] = {                                      0,
     0,    0,    1,    5,    6,    7,    8,    9,   10,   11,
-   12,   13,   19,   20,    4,    0,    0,    0,   67,    0,
+   12,   13,   19,   20,    4,    0,    0,    0,   68,    0,
    27,   14,   16,   17,   15,   18,   23,    0,    0,   36,
-   37,    0,    0,   54,   56,    0,    0,   70,    0,    0,
-    0,    0,   38,   55,    0,    0,    0,    0,    0,    0,
+   37,    0,    0,   55,   57,    0,    0,   71,    0,    0,
+    0,    0,   38,   56,    0,    0,    0,    0,    0,    0,
    41,   42,   43,   44,   45,   46,    0,    0,    0,    0,
-    0,    0,    0,   71,    0,    0,   24,   61,    0,    0,
-   26,   68,    0,   29,   22,    0,    0,    0,   49,    0,
-   52,   53,   39,   40,   50,   51,   57,    0,    0,    2,
-    3,    0,   66,    0,   28,    0,   32,   48,   73,    0,
-   65,    0,   77,   31,   64,    0,   76,
+    0,    0,    0,   72,    0,    0,   24,   62,    0,    0,
+   26,   69,    0,   29,   22,    0,    0,    0,   49,    0,
+   53,   54,   39,   40,   50,   51,   52,   58,    0,    0,
+    2,    3,    0,   67,    0,   28,    0,   32,   48,   74,
+    0,   66,    0,   78,   31,   65,    0,   77,
 };
 const short CQL_dgoto[] = {                                       2,
-   20,   91,   92,   21,   22,   23,   24,   25,   26,   27,
+   20,   92,   93,   21,   22,   23,   24,   25,   26,   27,
    75,   76,   41,   29,   30,   31,   32,   33,   85,   59,
-   34,   35,   36,   37,   70,   93,   94,   38,   39,   40,
-   64,  107,  103,
+   34,   35,   36,   37,   70,   94,   95,   38,   39,   40,
+   64,  108,  104,
 };
 const short CQL_sindex[] = {                                   -295,
  -155,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,  -93, -241,  -30,    0, -256,
     0,    0,    0,    0,    0,    0,    0, -255, -257,    0,
-    0, -220, -247,    0,    0, -265, -264,    0, -231, -259,
+    0, -220, -247,    0,    0, -265, -264,    0, -231, -254,
  -237, -261,    0,    0, -109, -241, -249,  -93,  -12, -273,
-    0,    0,    0,    0,    0,    0, -210, -241,  -30,  -12,
-  -93,  -93, -155,    0, -210, -244,    0,    0, -264, -217,
-    0,    0, -221,    0,    0, -219, -264, -237,    0, -230,
-    0,    0,    0,    0,    0,    0,    0, -265, -231,    0,
-    0, -251,    0, -252,    0, -241,    0,    0,    0, -210,
-    0,  -93,    0,    0,    0, -264,    0,
+    0,    0,    0,    0,    0,    0, -210, -241,  -30,  -30,
+  -93,  -93, -155,    0, -210, -244,    0,    0, -264, -216,
+    0,    0, -215,    0,    0, -219, -264, -237,    0, -227,
+    0,    0,    0,    0,    0,    0,    0,    0, -265, -231,
+    0,    0, -251,    0, -248,    0, -241,    0,    0,    0,
+ -210,    0,  -93,    0,    0,    0, -264,    0,
 };
 const short CQL_rindex[] = {                                      0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    3,
     0,    0,    0,    0,    0,    0,    0,  -82,   98,    0,
-    0,  101,    0,    0,    0,  124, -270,    0, -248,    0,
-   52,    0,    0,    0, -212,    0,    0,    0,    0,    0,
+    0,  101,    0,    0,    0,  124, -270,    0, -243,    0,
+   52,    0,    0,    0, -211,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,    0, -206,    0,
-    0,    0,   29,    0,    0,    0, -214,   75,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,  127, -248,    0,
-    0,    1,    0,   74,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,   76,    0,
+    0,    0,    0,    0,    0,    0,    0,    0, -197,    0,
+    0,    0,   29,    0,    0,    0, -199,   75,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,  127, -243,
+    0,    0,    1,    0,   77,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,   78,    0,
 };
 const short CQL_gindex[] = {                                      0,
   -42,    0,    0,  -38,  -13,    0,    0,    0,    0,    0,
-    0,    0,   -1,    0,    0,    0,  -33,   18,    0,   45,
-   61,   19,   20,  -14,    0,    0,    0,    0,   21,    0,
-   -8,    0,    0,
+    0,    0,   -1,    0,    0,    0,  -33,  -10,    0,   46,
+   62,   20,   21,  -14,    0,    0,    0,    0,   19,    0,
+   -5,    0,    0,
 };
 #define YYTABLESIZE 435
 const short CQL_table[] = {                                      28,
-   63,   42,   25,   43,   73,    3,   69,    3,   74,   67,
+   64,   42,   25,   43,   73,    3,   70,    3,   74,   67,
     1,   79,    3,   45,   81,   46,    4,   47,   48,   15,
-   80,   49,   90,   73,   15,   83,   86,   74,   30,   61,
-   69,   62,   71,   77,   62,   66,   48,   69,   51,   52,
-   53,   54,   55,   56,   82,   63,    3,   78,   65,  101,
-   96,   33,   72,   95,   98,   97,  102,  105,   60,   72,
-   21,   28,  100,   50,   62,   51,   52,   53,   54,   55,
-   56,   57,   58,   75,   34,   74,   84,   60,   44,   87,
-   99,   88,  104,   89,    0,    0,    0,  106,    0,    0,
+   80,   49,   91,   73,   15,   83,   86,   74,   30,   61,
+   69,   62,   71,   77,   62,   66,   48,   70,   51,   52,
+   53,   54,   55,   56,   82,   63,    3,   78,   84,   87,
+  102,   33,   72,   65,   96,   98,   97,   99,  106,   61,
+  103,   28,  101,   50,   73,   51,   52,   53,   54,   55,
+   56,   57,   58,   63,   34,   21,   76,   75,   60,   44,
+   88,   90,   89,  105,  100,    0,    0,    0,  107,    0,
     0,    0,    0,    0,    0,    0,    0,   35,    0,    0,
    47,    3,    4,    5,    6,    7,    8,    9,   10,   11,
    12,   13,   14,   15,   16,    0,   17,    0,    0,    0,
-    0,    0,    0,   58,    0,    0,   59,    0,    0,    0,
+    0,    0,    0,   59,    0,    0,   60,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,   18,    0,
     0,    0,    0,    0,    0,    0,   19,    3,    4,    5,
     6,    7,    8,    9,   10,   11,   12,   13,   14,   15,
@@ -260,7 +259,7 @@ const short CQL_table[] = {                                      28,
     0,    0,    0,   25,    0,   25,   25,   25,    0,   25,
     0,   25,    0,    0,    0,    0,   25,    0,   25,   25,
    25,   25,   25,   25,   25,   25,    0,   25,   25,   30,
-    0,   30,   30,   30,    0,   30,    0,   30,    0,   63,
+    0,   30,   30,   30,    0,   30,    0,   30,    0,   64,
    25,    0,   30,    0,   30,   30,   30,   30,   30,   30,
    30,   30,   33,   30,   30,    0,   33,    0,   33,    0,
    33,    0,    0,    0,    0,   33,   30,   33,   33,   33,
@@ -269,22 +268,22 @@ const short CQL_table[] = {                                      28,
    34,   34,   34,   34,   34,   34,   34,   34,   35,   34,
    34,   47,   35,    0,   35,   47,    0,   47,    0,    0,
     0,   35,   34,   35,   35,   35,   35,   35,   35,   35,
-   35,    0,   35,   35,   58,   47,   47,   59,   58,    0,
-   58,   59,    0,   59,    0,   35,    0,    0,   47,    0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,   58,
-    0,    0,   59,    0,    0,    0,    0,    0,    0,    0,
-    0,   58,    0,    0,   59,
+   35,    0,   35,   35,   59,   47,   47,   60,   59,    0,
+   59,   60,    0,   60,    0,   35,    0,    0,   47,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,   59,
+    0,    0,   60,    0,    0,    0,    0,    0,    0,    0,
+    0,   59,    0,    0,   60,
 };
 const short CQL_check[] = {                                       1,
     0,   16,    0,   17,   47,  257,  277,  257,   47,  271,
   306,  285,  257,  270,   57,  272,  258,  273,  274,  269,
   294,  279,   65,   66,  269,   59,   60,   66,    0,  295,
    45,  296,   46,   48,  296,  273,  274,  308,  286,  287,
-  288,  289,  290,  291,   58,  277,  257,   49,  308,   92,
-  272,    0,  302,  271,  285,  275,  309,  100,  271,  308,
-  275,   63,  314,  284,  271,  286,  287,  288,  289,  290,
-  291,  292,  293,    0,    0,    0,   59,   33,   18,   61,
-   89,   62,   96,   63,   -1,   -1,   -1,  102,   -1,   -1,
+  288,  289,  290,  291,   58,  277,  257,   49,   59,   60,
+   93,    0,  302,  308,  271,  275,  272,  285,  101,  271,
+  309,   63,  314,  284,  308,  286,  287,  288,  289,  290,
+  291,  292,  293,  271,    0,  275,    0,    0,   33,   18,
+   61,   63,   62,   97,   90,   -1,   -1,   -1,  103,   -1,
    -1,   -1,   -1,   -1,   -1,   -1,   -1,    0,   -1,   -1,
     0,  257,  258,  259,  260,  261,  262,  263,  264,  265,
   266,  267,  268,  269,  270,   -1,  272,   -1,   -1,   -1,
@@ -325,7 +324,7 @@ const short CQL_check[] = {                                       1,
 #ifndef YYDEBUG
 #define YYDEBUG 0
 #endif
-#define YYMAXTOKEN 316
+#define YYMAXTOKEN 315
 #if YYDEBUG
 const char * const CQL_name[] = {
 "end-of-file",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -341,7 +340,7 @@ const char * const CQL_name[] = {
 "DBL_PIPE","PLUS","MINUS","TIMES","DIV","IS","_NULL","_EQ","_NE","_GT","_LT",
 "_GE","_LE","_ISA","_LIKE","NOT","_AND","_OR","SCOPE","ANY","EVERY","IN",
 "SATISFIES","STAR","DOTDOT","SHARP","DISTINCT","SELECT","FIRST","FROM","WHERE",
-"ORDER","BY","ASC","DESC","AS","UNEXPECTED_CHAR","arg_list_sub",
+"ORDER","BY","ASC","DESC","AS","UNEXPECTED_CHAR",
 };
 const char * const CQL_rule[] = {
 "$accept : select_statement",
@@ -396,6 +395,7 @@ const char * const CQL_rule[] = {
 "comp : arith IS _NULL",
 "comp : arith comp_op arith_or_value_symbol",
 "comp : value_symbol comp_op arith",
+"comp : value_symbol comp_op value_symbol",
 "comp : arith _ISA identifier",
 "comp : arith _LIKE literal_string",
 "expr_factor : comp",
@@ -646,7 +646,7 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 156 "CQL.y"
+#line 155 "CQL.y"
 { 
                  sprintf(msg,"BISON::identifier\n");
 		 printf_(msg);
@@ -655,7 +655,7 @@ case 1:
              }
 break;
 case 2:
-#line 165 "CQL.y"
+#line 164 "CQL.y"
 {
                  sprintf(msg,"BISON::class_name = %s\n", (const char *)(yyvsp[0]._identifier->getName().getString().getCString())); 
 		 printf_(msg);
@@ -663,7 +663,7 @@ case 2:
              }
 break;
 case 3:
-#line 173 "CQL.y"
+#line 172 "CQL.y"
 { 
                  sprintf(msg,"BISON::class_path\n"); 
 		 printf_(msg);
@@ -671,7 +671,7 @@ case 3:
              }
 break;
 case 4:
-#line 191 "CQL.y"
+#line 190 "CQL.y"
 {
 			/*
 			   SCOPED_PROPERTY can be:
@@ -688,7 +688,7 @@ case 4:
                   }
 break;
 case 5:
-#line 209 "CQL.y"
+#line 208 "CQL.y"
 { 
 		/*
 		   We make sure the literal is valid UTF8, then make a String
@@ -705,7 +705,7 @@ case 5:
              }
 break;
 case 6:
-#line 227 "CQL.y"
+#line 226 "CQL.y"
 { 
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
@@ -714,7 +714,7 @@ case 6:
                }
 break;
 case 7:
-#line 234 "CQL.y"
+#line 233 "CQL.y"
 { 
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
@@ -723,7 +723,7 @@ case 7:
                }
 break;
 case 8:
-#line 244 "CQL.y"
+#line 243 "CQL.y"
 { 
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
@@ -732,7 +732,7 @@ case 8:
             }
 break;
 case 9:
-#line 251 "CQL.y"
+#line 250 "CQL.y"
 { 
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
@@ -741,7 +741,7 @@ case 9:
             }
 break;
 case 10:
-#line 261 "CQL.y"
+#line 260 "CQL.y"
 { 
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
@@ -750,7 +750,7 @@ case 10:
                 }
 break;
 case 11:
-#line 268 "CQL.y"
+#line 267 "CQL.y"
 { 
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
@@ -759,7 +759,7 @@ case 11:
                 }
 break;
 case 12:
-#line 278 "CQL.y"
+#line 277 "CQL.y"
 { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
@@ -767,7 +767,7 @@ case 12:
              }
 break;
 case 13:
-#line 284 "CQL.y"
+#line 283 "CQL.y"
 { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
@@ -775,7 +775,7 @@ case 13:
              }
 break;
 case 14:
-#line 293 "CQL.y"
+#line 292 "CQL.y"
 {
               sprintf(msg,"BISON::literal->literal_string\n");
 	      printf_(msg);
@@ -784,7 +784,7 @@ case 14:
           }
 break;
 case 15:
-#line 300 "CQL.y"
+#line 299 "CQL.y"
 {
               sprintf(msg,"BISON::literal->decimal_value\n");
 	      printf_(msg);
@@ -792,7 +792,7 @@ case 15:
           }
 break;
 case 16:
-#line 306 "CQL.y"
+#line 305 "CQL.y"
 {
               sprintf(msg,"BISON::literal->binary_value\n");
 	      printf_(msg);
@@ -800,7 +800,7 @@ case 16:
           }
 break;
 case 17:
-#line 312 "CQL.y"
+#line 311 "CQL.y"
 {
               sprintf(msg,"BISON::literal->hex_value\n");
 	      printf_(msg);
@@ -808,7 +808,7 @@ case 17:
           }
 break;
 case 18:
-#line 318 "CQL.y"
+#line 317 "CQL.y"
 {
               sprintf(msg,"BISON::literal->real_value\n");
 	      printf_(msg);
@@ -816,7 +816,7 @@ case 18:
           }
 break;
 case 19:
-#line 324 "CQL.y"
+#line 323 "CQL.y"
 {
               sprintf(msg,"BISON::literal->_TRUE\n");
 	      printf_(msg);
@@ -825,7 +825,7 @@ case 19:
           }
 break;
 case 20:
-#line 331 "CQL.y"
+#line 330 "CQL.y"
 {
               sprintf(msg,"BISON::literal->_FALSE\n");
 	      printf_(msg);
@@ -834,7 +834,7 @@ case 20:
           }
 break;
 case 21:
-#line 341 "CQL.y"
+#line 340 "CQL.y"
 {
                   sprintf(msg,"BISON::array_index->expr\n");
 		  printf_(msg);
@@ -846,7 +846,7 @@ case 21:
               }
 break;
 case 22:
-#line 354 "CQL.y"
+#line 353 "CQL.y"
 {
                        sprintf(msg,"BISON::array_index_list->array_index\n");
 		       printf_(msg);
@@ -854,7 +854,7 @@ case 22:
                    }
 break;
 case 23:
-#line 363 "CQL.y"
+#line 362 "CQL.y"
 {
             sprintf(msg,"BISON::chain->literal\n");
 	    printf_(msg);
@@ -865,7 +865,7 @@ case 23:
         }
 break;
 case 24:
-#line 372 "CQL.y"
+#line 371 "CQL.y"
 {
             sprintf(msg,"BISON::chain-> ( expr )\n");
 	    printf_(msg);
@@ -875,7 +875,7 @@ case 24:
         }
 break;
 case 25:
-#line 380 "CQL.y"
+#line 379 "CQL.y"
 {
            sprintf(msg,"BISON::chain->identifier\n");
 	   printf_(msg);
@@ -886,7 +886,7 @@ case 25:
         }
 break;
 case 26:
-#line 389 "CQL.y"
+#line 388 "CQL.y"
 {
             sprintf(msg,"BISON::chain->identifier#literal_string\n");
 	    printf_(msg);
@@ -900,7 +900,7 @@ case 26:
         }
 break;
 case 27:
-#line 401 "CQL.y"
+#line 400 "CQL.y"
 {
 	    sprintf(msg,"BISON::chain-> scoped_property\n");
 	    printf_(msg);
@@ -911,7 +911,7 @@ case 27:
         }
 break;
 case 28:
-#line 410 "CQL.y"
+#line 409 "CQL.y"
 {
             sprintf(msg,"BISON::chain-> identifier( arg_list )\n");
 	    printf_(msg);
@@ -923,7 +923,7 @@ case 28:
         }
 break;
 case 29:
-#line 420 "CQL.y"
+#line 419 "CQL.y"
 {
 	    sprintf(msg,"BISON::chain-> chain DOT scoped_property : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -952,7 +952,7 @@ case 29:
         }
 break;
 case 30:
-#line 447 "CQL.y"
+#line 446 "CQL.y"
 {
             sprintf(msg,"BISON::chain->chain.identifier : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -979,7 +979,7 @@ case 30:
         }
 break;
 case 31:
-#line 472 "CQL.y"
+#line 471 "CQL.y"
 {
             sprintf(msg,"BISON::chain->chain.identifier#literal_string : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -1016,7 +1016,7 @@ case 31:
         }
 break;
 case 32:
-#line 507 "CQL.y"
+#line 506 "CQL.y"
 {
             sprintf(msg,"BISON::chain->chain[ array_index_list ] : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -1054,7 +1054,7 @@ case 32:
         }
 break;
 case 33:
-#line 545 "CQL.y"
+#line 544 "CQL.y"
 {
              sprintf(msg,"BISON::concat->chain\n");
 	     printf_(msg);
@@ -1063,7 +1063,7 @@ case 33:
          }
 break;
 case 34:
-#line 552 "CQL.y"
+#line 551 "CQL.y"
 {
              sprintf(msg,"BISON::concat||chain\n");
 	     printf_(msg);
@@ -1081,7 +1081,7 @@ case 34:
          }
 break;
 case 35:
-#line 570 "CQL.y"
+#line 569 "CQL.y"
 {
              sprintf(msg,"BISON::factor->concat\n");
 	     printf_(msg);
@@ -1090,7 +1090,7 @@ case 35:
          }
 break;
 case 36:
-#line 594 "CQL.y"
+#line 593 "CQL.y"
 {
            sprintf(msg,"BISON::term->factor\n");
 	   printf_(msg);
@@ -1099,7 +1099,7 @@ case 36:
        }
 break;
 case 37:
-#line 617 "CQL.y"
+#line 616 "CQL.y"
 {
             sprintf(msg,"BISON::arith->term\n");
 	    printf_(msg);
@@ -1110,7 +1110,7 @@ case 37:
         }
 break;
 case 38:
-#line 642 "CQL.y"
+#line 641 "CQL.y"
 {
                    sprintf(msg,"BISON::value_symbol->#literal_string\n");
                    printf_(msg);
@@ -1123,7 +1123,7 @@ case 38:
                }
 break;
 case 39:
-#line 655 "CQL.y"
+#line 654 "CQL.y"
 {
                             sprintf(msg,"BISON::arith_or_value_symbol->arith\n");
 			    printf_(msg);
@@ -1132,7 +1132,7 @@ case 39:
                         }
 break;
 case 40:
-#line 662 "CQL.y"
+#line 661 "CQL.y"
 {
 			    /* make into predicate */
                             sprintf(msg,"BISON::arith_or_value_symbol->value_symbol\n");
@@ -1144,7 +1144,7 @@ case 40:
                         }
 break;
 case 41:
-#line 674 "CQL.y"
+#line 673 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_EQ\n");
 	      printf_(msg);
@@ -1152,7 +1152,7 @@ case 41:
           }
 break;
 case 42:
-#line 680 "CQL.y"
+#line 679 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_NE\n");
 	      printf_(msg);
@@ -1160,7 +1160,7 @@ case 42:
           }
 break;
 case 43:
-#line 686 "CQL.y"
+#line 685 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_GT\n");
 	      printf_(msg);
@@ -1168,7 +1168,7 @@ case 43:
           }
 break;
 case 44:
-#line 692 "CQL.y"
+#line 691 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_LT\n");
 	      printf_(msg);
@@ -1176,7 +1176,7 @@ case 44:
           }
 break;
 case 45:
-#line 698 "CQL.y"
+#line 697 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_GE\n");
 	      printf_(msg);
@@ -1184,7 +1184,7 @@ case 45:
           }
 break;
 case 46:
-#line 704 "CQL.y"
+#line 703 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_LE\n");
 	      printf_(msg);
@@ -1192,7 +1192,7 @@ case 46:
           }
 break;
 case 47:
-#line 712 "CQL.y"
+#line 711 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith\n");
 	   printf_(msg);
@@ -1201,7 +1201,7 @@ case 47:
        }
 break;
 case 48:
-#line 719 "CQL.y"
+#line 718 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith IS NOT _NULL\n");
 	   printf_(msg);
@@ -1213,7 +1213,7 @@ case 48:
        }
 break;
 case 49:
-#line 729 "CQL.y"
+#line 728 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith IS _NULL\n");
 	   printf_(msg);
@@ -1225,7 +1225,7 @@ case 49:
        }
 break;
 case 50:
-#line 739 "CQL.y"
+#line 738 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith comp_op arith_or_value_symbol\n");
 	   printf_(msg);
@@ -1242,7 +1242,7 @@ case 50:
        }
 break;
 case 51:
-#line 754 "CQL.y"
+#line 753 "CQL.y"
 {
            sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
 	   printf_(msg);
@@ -1260,7 +1260,19 @@ case 51:
        }
 break;
 case 52:
-#line 770 "CQL.y"
+#line 769 "CQL.y"
+{
+		sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
+           	printf_(msg);
+                                                                                                                                                             
+                CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject(yyvsp[-2]._value, Expression));
+                CQLExpression* _exp2 = (CQLExpression*)(_factory.makeObject(yyvsp[0]._value,Expression));
+                CQLSimplePredicate _sp(*_exp1, *_exp2, yyvsp[-1]._opType);
+                yyval._predicate = new CQLPredicate(_sp);
+       }
+break;
+case 53:
+#line 779 "CQL.y"
 {
 	   /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            sprintf(msg,"BISON::comp->arith _ISA identifier\n");
@@ -1275,8 +1287,8 @@ case 52:
 	   delete yyvsp[0]._identifier;
        }
 break;
-case 53:
-#line 784 "CQL.y"
+case 54:
+#line 793 "CQL.y"
 {
 	    /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            sprintf(msg,"BISON::comp->arith _LIKE literal_string\n");
@@ -1291,8 +1303,8 @@ case 53:
 	   delete yyvsp[0]._string;
        }
 break;
-case 54:
-#line 799 "CQL.y"
+case 55:
+#line 808 "CQL.y"
 {
                   sprintf(msg,"BISON::expr_factor->comp\n");
 	          printf_(msg);
@@ -1300,8 +1312,8 @@ case 54:
 		  yyval._predicate = yyvsp[0]._predicate;
               }
 break;
-case 55:
-#line 806 "CQL.y"
+case 56:
+#line 815 "CQL.y"
 {
                   sprintf(msg,"BISON::expr_factor->NOT comp\n");
 	 	  printf_(msg);
@@ -1310,8 +1322,8 @@ case 55:
 		  yyval._predicate = yyvsp[0]._predicate;
               }
 break;
-case 56:
-#line 816 "CQL.y"
+case 57:
+#line 825 "CQL.y"
 {
                 sprintf(msg,"BISON::expr_term->expr_factor\n");
 		printf_(msg);
@@ -1319,8 +1331,8 @@ case 56:
 		yyval._predicate = yyvsp[0]._predicate;
             }
 break;
-case 57:
-#line 823 "CQL.y"
+case 58:
+#line 832 "CQL.y"
 {
 		sprintf(msg,"BISON::expr_term->expr_term AND expr_factor\n");
 		printf_(msg);
@@ -1330,8 +1342,8 @@ case 57:
            	yyval._predicate->appendPredicate(*yyvsp[0]._predicate, AND);	
             }
 break;
-case 58:
-#line 834 "CQL.y"
+case 59:
+#line 843 "CQL.y"
 {
           sprintf(msg,"BISON::expr->expr_term\n");
 	  printf_(msg);
@@ -1339,8 +1351,8 @@ case 58:
 	  yyval._predicate = yyvsp[0]._predicate; 	   
        }
 break;
-case 59:
-#line 841 "CQL.y"
+case 60:
+#line 850 "CQL.y"
 {
            sprintf(msg,"BISON::expr->expr OR expr_term\n");
 	   printf_(msg);
@@ -1349,12 +1361,12 @@ case 59:
 	   yyval._predicate->appendPredicate(*yyvsp[0]._predicate, OR);
        }
 break;
-case 60:
-#line 850 "CQL.y"
+case 61:
+#line 859 "CQL.y"
 {;}
 break;
-case 61:
-#line 852 "CQL.y"
+case 62:
+#line 861 "CQL.y"
 {
                sprintf(msg,"BISON::arg_list->STAR\n");
 	       printf_(msg);
@@ -1364,8 +1376,8 @@ case 61:
 	       _arglist.append(*_pred);
            }
 break;
-case 62:
-#line 861 "CQL.y"
+case 63:
+#line 870 "CQL.y"
 {
                    sprintf(msg,"BISON::arg_list_sub->expr\n");
                    printf_(msg);
@@ -1373,8 +1385,8 @@ case 62:
                    _arglist.append(*yyvsp[0]._predicate);
            }
 break;
-case 63:
-#line 915 "CQL.y"
+case 64:
+#line 924 "CQL.y"
 {
                      sprintf(msg,"BISON::from_specifier->class_path\n");
 		     printf_(msg);
@@ -1383,8 +1395,8 @@ case 63:
 		     delete yyvsp[0]._identifier;
                  }
 break;
-case 64:
-#line 924 "CQL.y"
+case 65:
+#line 933 "CQL.y"
 {
 			sprintf(msg,"BISON::from_specifier->class_path AS identifier\n");
 			printf_(msg);
@@ -1396,8 +1408,8 @@ case 64:
 			delete yyvsp[-2]._identifier; delete yyvsp[0]._identifier;
 		  }
 break;
-case 65:
-#line 935 "CQL.y"
+case 66:
+#line 944 "CQL.y"
 {
 			sprintf(msg,"BISON::from_specifier->class_path identifier\n");
 			printf_(msg);
@@ -1409,15 +1421,15 @@ case 65:
 			delete yyvsp[-1]._identifier; delete yyvsp[0]._identifier;
 		  }
 break;
-case 66:
-#line 948 "CQL.y"
+case 67:
+#line 957 "CQL.y"
 {
                     sprintf(msg,"BISON::from_criteria->from_specifier\n");
 		    printf_(msg);
                 }
 break;
-case 67:
-#line 955 "CQL.y"
+case 68:
+#line 964 "CQL.y"
 {
                 sprintf(msg,"BISON::star_expr->STAR\n");
 		printf_(msg);
@@ -1426,8 +1438,8 @@ case 67:
 		yyval._chainedIdentifier = (CQLChainedIdentifier*)(_factory.makeObject(&_id,ChainedIdentifier));
             }
 break;
-case 68:
-#line 963 "CQL.y"
+case 69:
+#line 972 "CQL.y"
 {
 		sprintf(msg,"BISON::star_expr->chain.*\n");
                 printf_(msg);
@@ -1438,8 +1450,8 @@ case 68:
                 yyval._chainedIdentifier = _cid;
 	    }
 break;
-case 69:
-#line 975 "CQL.y"
+case 70:
+#line 984 "CQL.y"
 {
                      sprintf(msg,"BISON::selected_entry->expr\n");
 		     printf_(msg);
@@ -1453,60 +1465,60 @@ case 69:
 		     }
                  }
 break;
-case 70:
-#line 988 "CQL.y"
+case 71:
+#line 997 "CQL.y"
 {
                      sprintf(msg,"BISON::selected_entry->star_expr\n");
 		     printf_(msg);
 		     globalParserState->statement->appendSelectIdentifier(*yyvsp[0]._chainedIdentifier);
                  }
 break;
-case 71:
-#line 996 "CQL.y"
+case 72:
+#line 1005 "CQL.y"
 {
                 sprintf(msg,"BISON::select_list->selected_entry select_list_tail\n");
 		printf_(msg);
             }
 break;
-case 72:
-#line 1002 "CQL.y"
+case 73:
+#line 1011 "CQL.y"
 {;}
 break;
-case 73:
-#line 1004 "CQL.y"
+case 74:
+#line 1013 "CQL.y"
 {
                        sprintf(msg,"BISON::select_list_tail->COMMA selected_entry select_list_tail\n");
 		       printf_(msg);
                    }
 break;
-case 74:
-#line 1011 "CQL.y"
+case 75:
+#line 1020 "CQL.y"
 {
                         sprintf(msg,"BISON::search_condition->expr\n");
 			printf_(msg);
 			globalParserState->statement->setPredicate(*yyvsp[0]._predicate);
                    }
 break;
-case 75:
-#line 1018 "CQL.y"
+case 76:
+#line 1027 "CQL.y"
 {;}
 break;
-case 76:
-#line 1020 "CQL.y"
+case 77:
+#line 1029 "CQL.y"
 {
                      sprintf(msg,"BISON::optional_where->WHERE search_condition\n");
 		     printf_(msg);
 		     globalParserState->statement->setHasWhereClause();
                  }
 break;
-case 77:
-#line 1028 "CQL.y"
+case 78:
+#line 1037 "CQL.y"
 {
                        sprintf(msg,"select_statement\n\n");
 		       printf_(msg);
                    }
 break;
-#line 1510 "y.tab.c"
+#line 1522 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

@@ -370,25 +370,21 @@ Boolean AssocClassTable::getReferencedClassNames(
 
     Array<String> fields;
     Boolean found = false;
-    //for (Uint32 i = 0 ; i < classNameList.size() ; i++)
-    //{
-    //    cout << " KSTest ReferencedNames assoc Classname " << classNameList[i].getString() << endl;
-    //}
+    
     // For each line in the table:
-
     while (_GetRecord(is, fields))
     {
-        CIMName className;
         for (Uint32 i = 0; i < classNameList.size(); i++)
         {
             if (_MatchNoCase(classNameList[i].getString(), fields[FROM_CLASS_NAME_INDEX]) &&
-            //if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
                 _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
                         resultClass.getString()) &&
                 _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
             {
-                if (!Contains(referencedNames, className))
-                referencedNames.append(className);
+                if (!Contains(referencedNames, classNameList[i]))
+                {
+                    referencedNames.append(classNameList[i]);
+                }
                 found = true;
             }
         }

@@ -1958,6 +1958,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     Array<String> tmpReferenceNames;
 
     CIMName className = objectName.getClassName();
+
     Array<CIMName> classList;
     _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
     classList.prepend(className);
@@ -2046,8 +2047,9 @@ Array<CIMName> CIMRepository::referencedClassNames(
             // Ignore error! It's okay not to have references.
         }
     // ATTN: KS 030301 Probably need a test here to clip off anything above the class names
-     PEG_METHOD_EXIT();
-     return referencedNames;
+    PEG_METHOD_EXIT();
+    
+    return referencedNames;
  }
 
 CIMValue CIMRepository::getProperty(

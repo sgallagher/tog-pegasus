@@ -130,14 +130,14 @@ void IndicationHandlerService::_handleIndication(const Message* message)
    CIMHandleIndicationRequestMessage* request = 
       (CIMHandleIndicationRequestMessage*) message;
 
+   CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_SUCCESS, String::EMPTY);
+
    String className = request->handlerInstance.getClassName();
     
    String nameSpace = request->nameSpace;
 
    CIMInstance indication = request->indicationInstance;
    CIMInstance handler = request->handlerInstance;
-
-   CIMExportIndicationResponseMessage* response;
 
    Uint32 pos = PEG_NOT_FOUND;
 
@@ -148,74 +148,83 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    if (pos == PEG_NOT_FOUND)
    {
-      // malformed handler instance, no destination
-      throw CIMException(CIM_ERR_FAILED);
+       cimException = 
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Handler without destination"));
    }
-
-   CIMProperty prop = handler.getProperty(pos);
-   String destination = prop.getValue().toString();
-
-   if (destination.size() == 0)
-      throw CIMException(CIM_ERR_FAILED);
- 
-   if ((className == "PG_IndicationHandlerCIMXML") &&
-       (destination.subString(0, 9) == String("localhost")))
+   else
    {
-      Array<Uint32> exportServer;
+       CIMProperty prop = handler.getProperty(pos);
+       String destination = prop.getValue().toString();
 
-      find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0, &exportServer);
+       if (destination.size() == 0)
+       {
+           cimException = 
+               PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
+       }
+       else if ((className == "PG_IndicationHandlerCIMXML") &&
+           (destination.subString(0, 9) == String("localhost")))
+       {
+          Array<Uint32> exportServer;
 
-      // Listener is build with Cimom, so send message to ExportServer
+          find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0, &exportServer);
+
+          // Listener is build with Cimom, so send message to ExportServer
 	
-      CIMExportIndicationRequestMessage* exportmessage =
-	 new CIMExportIndicationRequestMessage(
-	    "1234",
-	    destination.subString(15), //taking localhost:5988 portion out from reg
-	    indication,
-	    QueueIdStack(exportServer[0], getQueueId()));
+          CIMExportIndicationRequestMessage* exportmessage =
+	     new CIMExportIndicationRequestMessage(
+	        "1234",
+	        destination.subString(15), //taking localhost:5988 portion out from reg
+	        indication,
+	        QueueIdStack(exportServer[0], getQueueId()));
 	
-      AsyncOpNode* op = this->get_op();
+          AsyncOpNode* op = this->get_op();
 
-      AsyncLegacyOperationStart *req =
-	 new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    op,
-	    exportServer[0],
-	    exportmessage,
-	    _queueId);
-      //getQueueId());
+          AsyncLegacyOperationStart *req =
+	     new AsyncLegacyOperationStart(
+	        get_next_xid(),
+	        op,
+	        exportServer[0],
+	        exportmessage,
+	        _queueId);
 
-      PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4, 
+          PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4, 
 		       "Indication handler forwarding message to " +
 		       ((MessageQueue::lookup(exportServer[0])) ? 
 			String( ((MessageQueue::lookup(exportServer[0]))->getQueueName()) ) : 
 			String("BAD queue name")));
             
-      SendAsync(op, 
+          SendAsync(op, 
 		exportServer[0],
 		IndicationHandlerService::_handleIndicationCallBack,
 		this, 
 		(void *)request->queueIds.top());
 
-   }
-   else
-   {
-      // generic handler. So load it and let it to do.
-      CIMHandler* handlerLib = _lookupHandlerForClass(className);
+       }
+       else
+       {
+          // generic handler. So load it and let it to do.
+          CIMHandler* handlerLib = _lookupHandlerForClass(className);
 
-      if (handlerLib)
-      {
-	 handlerLib->handleIndication(
-	    handler,
-	    indication,
-	    nameSpace);
-      }
-      else
-	 throw CIMException(CIM_ERR_FAILED);
+          if (handlerLib)
+          {
+	     handlerLib->handleIndication(
+	        handler,
+	        indication,
+	        nameSpace);
+          }
+          else
+             cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Failed to load Handler"));
+       }
    }
 
-//   delete request;
-   return;
+   CIMExportIndicationResponseMessage* response =
+         new CIMExportIndicationResponseMessage(
+            request->messageId,
+            cimException,
+            request->queueIds.copyAndPop());
+
+    _enqueueResponse(request, response);
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(

@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
@@ -164,6 +165,8 @@ public:
         Operation types for the NotifyProviderRegistration message
      */
     enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
+
+    static Mutex _mutex;
 
 private:
 

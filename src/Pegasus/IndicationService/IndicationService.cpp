@@ -53,6 +53,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+Mutex IndicationService::_mutex;
+
 IndicationService::IndicationService (
     CIMRepository * repository,
     ProviderRegistrationManager * providerRegManager)
@@ -1570,45 +1572,37 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      handler_request,
                      _queueId);
 
-                //
-                //  ATTN-CAKG-P1-20020426: Need to SendAsync instead of 
-                //  SendForget, so the callback can implement the subscription's
-                //  On Fatal Error Policy if message to handler was not 
-                //  successful
-                //
 		 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
-				  "Sending (SendForget) Indication to " + 
-				  ((MessageQueue::lookup(_handlerService)) ? 
-				   String( ((MessageQueue::lookup(_handlerService))->getQueueName()) ) : 
-				   String("BAD queue name")) + 
-				  "via CIMHandleIndicationRequestMessage" );
+			  "Sending (SendForget) Indication to " + 
+			  ((MessageQueue::lookup(_handlerService)) ? 
+			   String( ((MessageQueue::lookup(_handlerService))->getQueueName())) : 
+			   String("BAD queue name")) + 
+			  "via CIMHandleIndicationRequestMessage");
 		 		 
-                 SendForget(async_req);
+                AsyncReply *async_reply = SendWait(async_req);
 
                 //
                 //  ATTN-CAKG-P1-20020326: Check for error - implement 
                 //  subscription's OnFatalErrorPolicy
                 //
 
-                 //response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
-                 //    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
+                 response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
+                     ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
 
                 //
                 //  Recipient deletes request
                 //
 
-                 //delete async_reply;
+                delete async_reply;
             }
         }
     }
     catch (CIMException& exception)
     {
-        //cout << "Process Indication Exception: " << exception.getMessage () << endl;
         response->cimException = exception;
     }
     catch (Exception& exception)
     {
-        //cout << "Process Indication Exception: " << exception.getMessage () << endl;
         response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                        exception.getMessage());
     }
@@ -3362,11 +3356,12 @@ WQLSelectStatement IndicationService::_getSelectStatement (
     try
     {
         selectStatement.clear ();
-        //
-        //  ATTN-CAKG-P1-20020326: this method is not thread safe - it must be 
-        //  guarded with mutexes by the caller
-        //
+
+        _mutex.lock(pegasus_thread_self());
+
         WQLParser::parse (filterQuery, selectStatement);
+
+        _mutex.unlock();
     }
     catch (ParseError & pe)
     {

@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-LocalProviderManager *my_instance = 0;
+static LocalProviderManager *my_instance = 0;
 
 LocalProviderManager::LocalProviderManager(void)
     : _idle_timeout(300), _unload_idle_flag(1)

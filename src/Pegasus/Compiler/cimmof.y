@@ -312,7 +312,7 @@ propertyBody: dataType propertyName array typedDefaultValue
   }
 
   delete $2;
-  delete $4;
+  delete $4->value;
   delete v;
 } ;
 

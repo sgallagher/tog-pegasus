@@ -1198,7 +1198,7 @@ case 25:
   }
 
   delete yyvsp[-2].strval;
-  delete yyvsp[0].typedinitializer;
+  delete yyvsp[0].typedinitializer->value;
   delete v;
 ;
     break;}

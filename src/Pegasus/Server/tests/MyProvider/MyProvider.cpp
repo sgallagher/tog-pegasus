@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.9  2001/02/18 21:56:12  karl
+// conflicts fix
+//
 // Revision 1.8  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
@@ -119,9 +122,9 @@ public:
 // to form a symbol name. This function is called by the ProviderTable
 // to load this provider.
 
-extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider_MyProvider()
-{
-    // std::cout << "Called PegasusCreateProvider_MyProvider" << std::endl;
+extern "C" PEGASUS_EXPORT CIMProvider* 
+    PegasusCreateProvider_MyProvider() {
+    // std::cout << "Called PegasusCreateProvider_MyProvider" << std::endl; 
     return new MyProvider;
 }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: NameSpace.cpp,v $
+// Revision 1.3  2001/02/18 21:56:12  karl
+// conflicts fix
+//
 // Revision 1.2  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
@@ -37,13 +40,22 @@
 
 using namespace Pegasus;
 using namespace std;
-
+/** Test of the namespace functions for the repository.
+This test creates a set of namespaces in a local repository
+then enumerates them and compares the original
+names to the resulting names.
+The repository is created is a location determined
+by the calling program.  Since this is tied to a
+local makefile, typically it is in the same directory as
+the makefile.
+*/
 void test()
 {
     CIMRepository r(".");
 
     try
     {
+	// Create an array of names
 	Array<String> arr1;
 	arr1.append("/zzz");
 	arr1.append("/xxx/yyy");
@@ -51,9 +63,11 @@ void test()
 
 	BubbleSort(arr1);
 
+	// create the namespaces
 	for (Uint32 i = 0; i < arr1.getSize(); i++)
 	    r.createNameSpace(String(arr1[i]));
 
+	//retrieve the namespaces from rep. as array
 	Array<String> arr2 = r.enumerateNameSpaces();
 
 	BubbleSort(arr2);
@@ -63,9 +77,19 @@ void test()
 	    cout << "===>" << arr2[i] << endl;
 #endif
 
+	//confirm that the input and return are equal
 	assert(arr1.getSize() == 3);
 	assert(arr2.getSize() == 3);
 	assert(arr1 == arr2);
+
+	// Delete the namespaces test. Put in when delete installed
+	//for (Uint32 i = 0; i < arr1.getSize(); i++)
+	//    r.deleteNameSpace(String(arr1[i]));
+
+	//enumerate the namespaces
+	//Array<String> arr3 = r.enumerateNameSpaces();
+	//assert(arr3.getSize() == 0);
+
     }
     catch (AlreadyExists&)
     {

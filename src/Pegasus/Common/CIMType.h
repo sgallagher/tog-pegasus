@@ -39,17 +39,16 @@ symbolic constants for the CIM data types.
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-The CIMType Class defines the CIMType enumeration which introduces
-symbolic constants for the CIM data types.
+    The CIMType Class defines the CIMType enumeration which introduces
+    symbolic constants for the CIM data types.
 
-The table below shows each CIM type, its symbolic constant, and its
-representation type.
-<PRE>
+    The table below shows each CIM type, its symbolic constant, and its
+    representation type.
 
-
+    <pre>
 	    CIM CIMType	Constant	C++ CIMType
 	    -------------------------------------------------------
-	    boolean	CIMType::BOOLEAN		Boolean
+	    boolean	CIMType::BOOLEAN	Boolean
 	    uint8	CIMType::UINT8		Uint8
 	    sint8	CIMType::SINT8		Sint8
 	    uint16	CIMType::UINT16		Uint16
@@ -62,10 +61,10 @@ representation type.
 	    real64	CIMType::REAL64		Real64
 	    char16	CIMType::CHAR16		Char16
 	    string	CIMType::STRING		String
-	    datetime	CIMType::DATETIME		CIMDateTime
-	    reference	CIMType::REFERENCE		CIMReference
+	    datetime	CIMType::DATETIME	CIMDateTime
+	    reference	CIMType::REFERENCE	CIMReference
 
-</PRE>
+    </pre>
 */
 class PEGASUS_COMMON_LINKAGE CIMType
 {

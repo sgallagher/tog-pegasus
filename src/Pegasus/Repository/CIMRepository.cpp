@@ -423,11 +423,51 @@ void CIMRepository::createClass(
 void CIMRepository::_createAssociationEntries(
     const String& nameSpace, 
     const CIMConstClass& cimClass, 
-    const CIMInstance& cimInstance)
+    const CIMInstance& cimInstance,
+    const CIMReference& instanceName)
 {
-    // -- Validate that the references are valid (that they refer to real
-    // -- objects) and that the type they reference is compatible with the
-    // -- type of the value.
+    // Get the association's instance name and class name:
+
+    String assocInstanceName = instanceName.toString();
+    String assocClassName = instanceName.getClassName();
+
+    // For each property:
+
+    for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
+    {
+	CIMConstProperty iProp = cimInstance.getProperty(i);
+
+	// If a reference property:
+
+	if (iProp.getType() == CIMType::REFERENCE)
+	{
+	    // For each property:
+
+	    for (Uint32 j = 0, n = cimInstance.getPropertyCount(); j < n; j++)
+	    {
+		CIMConstProperty jProp = cimInstance.getProperty(j);
+
+		// If a reference property and not the same property:
+
+		if (jProp.getType() == CIMType::REFERENCE &&
+		    iProp.getName() != jProp.getName())
+		{
+		    CIMReference iRef;
+		    iProp.getValue().get(iRef);
+
+		    CIMReference jRef;
+		    jProp.getValue().get(jRef);
+
+		    String fromObjectName;
+		    String fromClassName;
+		    String fromPropertyName;
+		    String toObjectName;
+		    String toClassName;
+		    String toPropertyName;
+		}
+	    }
+	}
+    }
 }
 
 void CIMRepository::createInstance(
@@ -455,7 +495,7 @@ void CIMRepository::createInstance(
     if (cimClass.isAssociation())
     {
 	_createAssociationEntries(nameSpace, 
-	    cimClass, newInstance);
+	    cimClass, newInstance, instanceName);
     }
 
     // -- Get common base (of instance file and index file):

@@ -3,7 +3,7 @@
 Development Conventions
 =======================
 
-1.  Indent by increments of four.
+1.  Indent by increments of four (tabsize of 8).
 
 2.  Use "char* x" rather than "char *x".
 
@@ -113,4 +113,3 @@ Development Conventions
 
 31. Be mindful that the tests must run on all supported platforms and
     that a commit may break another platform.
-

@@ -51,7 +51,10 @@ PEGASUS_NAMESPACE_BEGIN
 // reference is correct (that the class name corresponds to a real
 // class and that the property names are really keys and that all keys
 // of the class or used. Also be sure that there is a valid conversion
-// between the string value and the value of that property.
+// between the string value and the value of that property).
+//
+// ATTN: also check to see that the reference refers to a class that is the
+// same or derived from the _className member.
 
 static String _escapeSpecialCharacters(const String& str)
 {

@@ -264,7 +264,8 @@ private:
     void _createAssociationEntries(
 	const String& nameSpace, 
 	const CIMConstClass& cimClass, 
-	const CIMInstance& cimInstance);
+	const CIMInstance& cimInstance,
+	const CIMReference& instanceName);
 
     String _repositoryRoot;
     RepositoryDeclContext* _context;

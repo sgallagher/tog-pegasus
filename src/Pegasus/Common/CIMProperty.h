@@ -116,7 +116,7 @@ public:
         <pre>
         CIMProperty p1("count", Uint32(231));
     	assert(p1.getName() == Uint32(231));
-    </pre>
+	</pre>
     */
     const String& getName() const
     {
@@ -136,11 +136,18 @@ public:
 	_rep->setName(name);
     }
 
-    /// getValue - ATTN:
+    /** Get the value of the property. */
     const CIMValue& getValue() const
     {
 	_checkRep();
 	return _rep->getValue();
+    }
+
+    /** Get the type of the property. */
+    CIMType getType() const
+    {
+	_checkRep();
+	return _rep->getValue().getType();
     }
 
     /** setValue Sets the Value in the Property object from the input 
@@ -457,6 +464,12 @@ public:
     {
 	_checkRep();
 	return _rep->getValue();
+    }
+
+    CIMType getType() const
+    {
+	_checkRep();
+	return _rep->getValue().getType();
     }
 
     Uint32 getArraySize() const

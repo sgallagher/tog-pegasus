@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Stopwatch.h,v $
+// Revision 1.3  2001/02/17 20:09:23  mike
+// new
+//
 // Revision 1.2  2001/02/17 19:58:54  karl
 // Add Linkage
 //
@@ -44,7 +47,7 @@ Stopwatch is a class for measuring time intervals within the environment. It
 is intended to be a developers tool primarily.
 
 */
-class PEGASUS_COMMON_LINKAGE  Stopwatch
+class PEGASUS_COMMON_LINKAGE Stopwatch
 {
 private:
     Uint64 _start;

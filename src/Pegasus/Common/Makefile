@@ -9,6 +9,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    Stopwatch.cpp \
     Array.cpp \
     CGIQueryString.cpp \
     CIMClass.cpp \

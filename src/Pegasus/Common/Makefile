@@ -20,7 +20,9 @@ SOURCES = \
     Array.cpp \
     AsyncOpNode.cpp \
     AuthenticationInfoRep.cpp \
+    AutoStreamer.cpp \
     Base64.cpp \
+    BinaryStreamer.cpp \
     LanguageParser.cpp \
     LanguageElement.cpp \
     LanguageElementRep.cpp \
@@ -120,6 +122,7 @@ SOURCES = \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
+    XmlStreamer.cpp \
     XmlWriter.cpp \
     MofWriter.cpp \
     peg_authorization.cpp \

@@ -401,6 +401,7 @@ private:
     friend class CIMPropertyRep;
     friend class CIMQualifierRep;
     friend class CIMQualifierDeclRep;
+    friend class BinaryStreamer;
 };
 
 /** operator == compares two CIMValue objects for equality.

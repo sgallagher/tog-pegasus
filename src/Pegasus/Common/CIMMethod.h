@@ -464,6 +464,7 @@ private:
     friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class BinaryStreamer;
 };
 
 /** The CIMConstMethod class is used to represent CIM methods in the

@@ -28,6 +28,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Adriann Schuur (schuur@de.ibm.com) PEP 164
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -313,6 +314,7 @@ private:
     friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class BinaryStreamer;
 };
 
 #define PEGASUS_ARRAY_T CIMClass
@@ -423,6 +425,7 @@ private:
     friend class CIMConstObject;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class BinaryStreamer;
 };
 
 PEGASUS_NAMESPACE_END

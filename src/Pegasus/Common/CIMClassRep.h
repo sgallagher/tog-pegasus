@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Adriann Schuur (schuur@de.ibm.com) PEP 164
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -122,6 +123,7 @@ private:
 
     friend class CIMClass;
     friend class CIMInstanceRep;
+    friend class BinaryStreamer;
 };
 
 PEGASUS_NAMESPACE_END

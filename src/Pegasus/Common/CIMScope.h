@@ -28,6 +28,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Adrian Schuur (schuur@de.ibm.com) PEP 164
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -177,6 +178,8 @@ private:
     CIMScope (const Uint32 scope);
     // Private member for storing he CIMScope
     Uint32 cimScope;
+    
+    friend class BinaryStreamer;
 };
 
 PEGASUS_NAMESPACE_END

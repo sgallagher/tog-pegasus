@@ -229,6 +229,7 @@ private:
     friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class BinaryStreamer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

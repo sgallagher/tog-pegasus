@@ -22,13 +22,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
+// 
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Adriann Schuur (schuur@de.ibm.com) PEP 164
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,8 @@
 #include "Indentor.h"
 #include "XmlWriter.h"
 #include "CommonUTF.h"
+
+#include "CIMValueRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -120,39 +123,6 @@ void _toString(Array<Sint8>& out, const T* p, Uint32 size)
         out << " ";
     }
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMValueRep
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class CIMValueRep
-{
-public:
-    CIMValueRep()
-    {
-        reset();
-    }
-
-    ~CIMValueRep()
-    {
-    }
-
-    void reset()
-    {
-        _type = CIMTYPE_BOOLEAN;
-        _isArray = false;
-        _isNull = true;
-        _u._booleanValue = false;
-    }
-
-    CIMType _type;
-    Boolean _isArray;
-    Boolean _isNull;
-    Union _u;
-};
 
 
 ////////////////////////////////////////////////////////////////////////////////

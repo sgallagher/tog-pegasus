@@ -29,6 +29,7 @@
 // 				Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //              Carol Ann Krug Graves, Hewlett-Packard Company 
 //                  (carolann_graves@hp.com)
+//              Adriann Schuur (schuur@de.ibm.com) PEP 164
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -258,6 +259,7 @@ private:
     friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class BinaryStreamer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -345,6 +347,7 @@ private:
     friend class CIMConstObject;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class BinaryStreamer;
 };
 
 #define PEGASUS_ARRAY_T CIMInstance

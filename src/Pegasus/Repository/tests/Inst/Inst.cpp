@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Inst.cpp,v $
+// Revision 1.2  2001/02/13 01:28:15  mike
+// new
+//
 // Revision 1.1  2001/02/11 17:18:43  mike
 // new
 //
@@ -32,132 +35,20 @@
 #include <fstream>
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Common/Destroyer.h>
+#include "InstanceIndexFile.h"
 
 using namespace Pegasus;
 using namespace std;
-
-class InstanceIndexFile
-{
-public:
-    
-    static Uint32 lookupIndex(
-	const String& path, 
-	const String& instanceName);
-
-    static Uint32 insertEntry(
-	const String& path, 
-	const String& instanceName);
-};
-
-Uint32 InstanceIndexFile::lookupIndex(
-    const String& path, 
-    const String& instanceName)
-{
-    return 0;
-}
-
-Boolean GetLine(istream& is, Array<char>& x)
-{
-    x.clear();
-    x.reserve(1024);
-
-    char c;
-
-    while (is.get(c) && c != '\n')
-	x.append(c);
-
-    x.append('\0');
-
-    return is ? true : false;
-}
-
-struct CorruptInstanceIndexFile { };
-
-Uint32 InstanceIndexFile::insertEntry(
-    const String& path, 
-    const String& instanceName)
-{
-    // First scan the file looking for the next available index.
-
-    Uint32 index = Uint32(-1);
-
-    Destroyer<char> p(path.allocateCString());
-
-    ifstream is(p.getPointer());
-
-    if (is)
-    {
-	Array<char> line;
-	Array<Uint8> used;
-	used.reserve(4096);
-
-	while (GetLine(is, line))
-	{
-	    // cout << "line[" << line.getData() << "]" << endl;
-
-	    // Find the space that separates the index from the instance
-	    // name.
-
-	    const char* instanceName = line.getData();
-	    char* sep = strrchr(instanceName, ' ');
-
-	    if (!sep)
-		throw CorruptInstanceIndexFile();
-
-	    *sep = '\0';
-	    const char* indexString = sep + 1;
-
-	    cout << "instanceName=[" << instanceName << "]" << endl;
-	    // cout << "indexString=" << indexString << endl;
-
-	    char* end = 0;
-	    long tmpIndex = strtol(indexString, &end, 10);
-
-	    if (!end || *end != '\0')
-		throw CorruptInstanceIndexFile();
-
-	    cout << "tmpIndex=" << tmpIndex << endl;
-
-	    if (used.getSize() < tmpIndex)
-		used.grow(tmpIndex, false);
-
-	    used[tmpIndex-1] = true;
-	}
-
-	// Find the first unused index:
-
-	index = Uint32(-1);
-
-	for (Uint32 i = 0, n = used.getSize(); i < n; i++)
-	{
-	    if (!used[i])
-	    {
-		index = i + 1;
-		break;
-	    }
-	}
-
-	if (index == Uint32(-1))
-	    index = used.getSize() + 1;
-
-    }
-    else
-	index = 1;
-
-    cout << "available index=" << index << endl;
-
-    return 0;
-}
 
 int main(int argc, char** argv)
 {
     try
     {
-	InstanceIndexFile::insertEntry("X.idx", "X.key1=123");
+	InstanceIndexFile::insertEntry("X.idx", "X.key=1666");
     }
-    catch (CorruptInstanceIndexFile&)
+    catch (Exception& e)
     {
-	cerr << "Exception: CorruptInstanceIndexFile" << endl;
+	cerr << "Error: " << e.getMessage() << endl;
 	exit(1);
     }
     return 0;

@@ -540,6 +540,11 @@ PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
+inline EqualNoCase(const char* s1, const char* s2)
+{
+    return CompareNoCase(s1, s2) == 0;
+}
+
 /** Get the next line from the input file.
 */
 PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);

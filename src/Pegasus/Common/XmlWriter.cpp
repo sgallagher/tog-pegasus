@@ -769,6 +769,7 @@ Array<Sint8> XmlWriter::formatSimpleReqMessage(
     const char* host,
     const String& nameSpace,
     const char* iMethodName,
+    const String& messageId,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMPostHeader(
@@ -777,7 +778,7 @@ Array<Sint8> XmlWriter::formatSimpleReqMessage(
 	iMethodName,
 	nameSpace,
 	XmlWriter::formatMessageElement(
-	    XmlWriter::getNextMessageId(),
+	    messageId,
 	    XmlWriter::formatSimpleReqElement(
 		XmlWriter::formatIMethodCallElement(
 		    iMethodName,
@@ -876,6 +877,7 @@ Array<Sint8> XmlWriter::formatSimpleIndicationReqMessage(
     const char* host,
     const String& nameSpace,
     const char* iMethodName,
+    const String& messageId,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMPostIndicationHeader(
@@ -884,7 +886,7 @@ Array<Sint8> XmlWriter::formatSimpleIndicationReqMessage(
         iMethodName,
         nameSpace,
         XmlWriter::formatMessageElement(
-            XmlWriter::getNextMessageId(),
+            messageId,
             XmlWriter::formatSimpleExportReqElement(
                 XmlWriter::formatEMethodCallElement(
                     iMethodName,

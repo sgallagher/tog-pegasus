@@ -138,9 +138,7 @@ void CIMExportClient::deliverIndication(
 	params, "NewIndication", indicationInstance);
 	
     Array<Sint8> message = XmlWriter::formatSimpleIndicationReqMessage(
-	_getHostName(),
-	//nameSpace, "CreateInstance", params);
-	nameSpace, "ExportIndication", params);
+	_getHostName(), nameSpace, "ExportIndication", messageId, params);
 
     _channel->writeN(message.getData(), message.size());
 

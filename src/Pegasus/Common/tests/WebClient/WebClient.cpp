@@ -57,7 +57,7 @@ void WebClientQueue::handleEnqueue()
     if (message->getType() == HTTP_MESSAGE)
     {
 	HTTPMessage* httpMessage = (HTTPMessage*)message;
-	httpMessage->print(cout);
+	httpMessage->printAll(cout);
 	exit(0);
     }
 }

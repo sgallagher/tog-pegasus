@@ -190,6 +190,7 @@ public:
 	const char* host,
 	const String& nameSpace,
 	const char* iMethodName,
+	const String& messageId,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleRspMessage(
@@ -203,6 +204,7 @@ public:
 	const char* host,
     	const String& nameSpace,
     	const char* iMethodName,
+	const String& messageId,
     	const Array<Sint8>& body);
 
     static Array<Sint8> formatEMethodCallElement(

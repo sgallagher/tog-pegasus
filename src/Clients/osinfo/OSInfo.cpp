@@ -273,22 +273,8 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
     {
         client.connectLocal();
     }
-    else if( _useSSL )
+    else 
     {
-        //
-        // Get environment variables:
-        //
-        const char* pegasusHome = getenv("PEGASUS_HOME");
-	
-	String certpath = FileSystem::getAbsolutePath(
-           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-	
-	String randFile = String::EMPTY;
-
-	randFile = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-        SSLContext  sslcontext (certpath, verifyCertificate, randFile);
-
         if (!_userNameSet)
         {
            _userName = System::getEffectiveUserName();
@@ -298,15 +284,28 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
         {
             _password = _promptForPassword( outPrintWriter );
         }
-	client.connect(host, portNumber, sslcontext,  _userName, _password );
-    }
-    else
-    { 
-        if (!_passwordSet)
+        if( _useSSL )
         {
-            _password = _promptForPassword( outPrintWriter );
-        }
-        client.connect(host, portNumber, _userName, _password );
+           //
+           // Get environment variables:
+           //
+           const char* pegasusHome = getenv("PEGASUS_HOME");
+	
+	   String certpath = FileSystem::getAbsolutePath(
+              pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+	
+	   String randFile = String::EMPTY;
+
+	   randFile = FileSystem::getAbsolutePath(
+               pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+           SSLContext  sslcontext (certpath, verifyCertificate, randFile);
+
+	   client.connect(host, portNumber, sslcontext,  _userName, _password );
+         }
+         else
+         { 
+           client.connect(host, portNumber, _userName, _password );
+         }
      }
 }
 

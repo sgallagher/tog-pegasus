@@ -134,6 +134,9 @@ public:
 	Array<Sint8>& out,
         const String& cimError = String::EMPTY);
 
+    static void appendNotImplementedResponseHeader(
+	Array<Sint8>& out);
+
     static void appendReturnValueElement(
 	Array<Sint8>& out,
 	const CIMValue& value);

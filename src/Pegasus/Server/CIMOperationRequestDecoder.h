@@ -78,6 +78,9 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId, 
 	 const String& cimError = String::EMPTY);
 
+      void sendNotImplementedError(
+	 Uint32 queueId);
+
       virtual void handleEnqueue(Message *);
 
       virtual void handleEnqueue();

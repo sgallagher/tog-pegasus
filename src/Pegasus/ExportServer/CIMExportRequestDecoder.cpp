@@ -26,6 +26,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,6 +92,22 @@ void CIMExportRequestDecoder::sendEMethodError(
     sendResponse(queueId, message);
 }
 
+void CIMExportRequestDecoder::sendBadRequestError(
+    Uint32 queueId,
+    const String& cimError)
+{
+    Array<Sint8> message;
+    XmlWriter::appendBadRequestResponseHeader(message, cimError);
+    sendResponse(queueId, message);
+}
+
+void CIMExportRequestDecoder::sendNotImplementedError(
+    Uint32 queueId)
+{
+    Array<Sint8> message;
+    XmlWriter::appendNotImplementedResponseHeader(message);
+    sendResponse(queueId, message);
+}
 
 void CIMExportRequestDecoder::handleEnqueue(Message *message)
 {
@@ -187,14 +204,49 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       else
 	 return;
 
-      // Search for "CIMOperation" header:
-      String cimOperation;
+      String cimExport;
+      String cimExportBatch;
+      Boolean cimExportBatchFlag;
+
+      // Validate the "CIMExport" header:
 
       if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMExport", cimOperation, true))
+	     headers, "*CIMExport", cimExport, true))
       {
-	 // ATTN: error discarded at this time!
-	 return;
+         // This should never happen.  If the CIMExport header was missing,
+         // the HTTPAuthenticatorDelegator would not have passed the message
+         // to us.
+         PEGASUS_ASSERT(0);
+      }
+
+      if (!String::equalNoCase(cimExport, "MethodRequest"))
+      {
+         // The Specification for CIM Operations over HTTP reads:
+         //     3.3.5. CIMExport
+         //     If a CIM Listener receives CIM Export request with this
+         //     header, but with a missing value or a value that is not
+         //     "MethodRequest", then it MUST fail the request with
+         //     status "400 Bad Request". The CIM Server MUST include a
+         //     CIMError header in the response with a value of
+         //     unsupported-operation.
+         sendBadRequestError(queueId, "unsupported-operation");
+         return;
+      }
+
+      // Validate the "CIMExportBatch" header:
+
+      cimExportBatchFlag = HTTPMessage::lookupHeader(
+             headers, "*CIMExportBatch", cimExportBatch, true);
+      if (cimExportBatchFlag)
+      {
+         // The Specification for CIM Operations over HTTP reads:
+         //     3.3.10. CIMExportBatch
+         //     If a CIM Listener receives CIM Export Request for which the
+         //     CIMExportBatch header is present, but the Listener does not
+         //     support Multiple Exports, then it MUST fail the request and
+         //     return a status of "501 Not Implemented".
+         sendNotImplementedError(queueId);
+         return;
       }
 
       // Zero-terminate the message:
@@ -209,12 +261,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	 httpMessage->message.size() - contentLength - 1;
 
       // If it is a method call, then dispatch it to be handled:
-
-      if (!String::equalNoCase(cimOperation, "MethodRequest"))
-      {
-	 // ATTN: error discarded at this time!
-	 return;
-      }
 
       handleMethodRequest(queueId, content, userName);
    }
@@ -394,8 +440,6 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
    const String& messageId,
    const String& url)
 {
-   // ATTN: handle property lists!
-
    CIMInstance instanceName;
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)

@@ -121,6 +121,14 @@ void CIMOperationRequestDecoder::sendBadRequestError(
     sendResponse(queueId, message);
 }
 
+void CIMOperationRequestDecoder::sendNotImplementedError(
+    Uint32 queueId)
+{
+    Array<Sint8> message;
+    XmlWriter::appendNotImplementedResponseHeader(message);
+    sendResponse(queueId, message);
+}
+
 void CIMOperationRequestDecoder::handleEnqueue(Message *message)
 {
 
@@ -218,11 +226,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    if (methodName == "M-POST" || methodName == "POST")
    {
-      // Search for "CIMOperation" header:
-
       String cimOperation;
       String cimMethod;
       String cimObject;
+      String cimBatch;
+      Boolean cimBatchFlag;
+
+      // Validate the "CIMOperation" header:
 
       if (!HTTPMessage::lookupHeader(
 	     headers, "*CIMOperation", cimOperation, true))
@@ -235,7 +245,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
       if (!String::equalNoCase(cimOperation, "MethodCall"))
       {
-         // Specification for CIM Operations over HTTP says:
+         // The Specification for CIM Operations over HTTP reads:
          //     3.3.4. CIMOperation
          //     If a CIM Server receives CIM Operation request with this
          //     [CIMOperation] header, but with a missing value or a value
@@ -246,6 +256,23 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          sendBadRequestError(queueId, "unsupported-operation");
          PEG_METHOD_EXIT();
 	 return;
+      }
+
+      // Validate the "CIMBatch" header:
+
+      cimBatchFlag = HTTPMessage::lookupHeader(
+	     headers, "*CIMBatch", cimBatch, true);
+      if (cimBatchFlag)
+      {
+         // The Specification for CIM Operations over HTTP reads:
+         //     3.3.9. CIMBatch
+         //     If a CIM Server receives CIM Operation Request for which the
+         //     CIMBatch header is present, but the Server does not support
+         //     Multiple Operations, then it MUST fail the request and
+         //     return a status of "501 Not Implemented".
+         sendNotImplementedError(queueId);
+         PEG_METHOD_EXIT();
+         return;
       }
 
       // Save these headers for later checking
@@ -358,7 +385,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
       {
          // ATTN-RK-P3-20020304: Return "unsupported".
          // Future: When MULTIREQ is supported, must ensure CIMMethod and
-         // CIMObject headers are absent.
+         // CIMObject headers are absent, and CIMBatch header is present.
       }
 
       // Expect <SIMPLEREQ ...>
@@ -369,7 +396,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       if (XmlReader::getIMethodCallStartTag(parser, cimMethodName))
       {
-         // Specification for CIM Operations over HTTP says:
+         // The Specification for CIM Operations over HTTP reads:
          //     3.3.6. CIMMethod
          //
          //     This header MUST be present in any CIM Operation Request
@@ -418,7 +445,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 				     "expected LOCALNAMESPACEPATH element");
 	 }
 
-         // Specification for CIM Operations over HTTP says:
+         // The Specification for CIM Operations over HTTP reads:
          //     3.3.7. CIMObject
          //
          //     This header MUST be present in any CIM Operation Request
@@ -577,7 +604,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	 CIMReference reference;
 	 XmlEntry        entry;
 
-         // Specification for CIM Operations over HTTP says:
+         // The Specification for CIM Operations over HTTP reads:
          //     3.3.6. CIMMethod
          //
          //     This header MUST be present in any CIM Operation Request
@@ -648,7 +675,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 				     MISSING_ELEMENT_LOCALPATH);
 	 }
 
-         // Specification for CIM Operations over HTTP says:
+         // The Specification for CIM Operations over HTTP reads:
          //     3.3.7. CIMObject
          //
          //     This header MUST be present in any CIM Operation Request

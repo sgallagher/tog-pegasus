@@ -26,6 +26,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +68,13 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 	 const String& methodName,
 	 CIMStatusCode code,
 	 const String& description);
+
+      void sendBadRequestError(
+         Uint32 queueId,
+         const String& cimError = String::EMPTY);
+
+      void sendNotImplementedError(
+         Uint32 queueId);
 
       virtual void handleEnqueue(Message *);
 

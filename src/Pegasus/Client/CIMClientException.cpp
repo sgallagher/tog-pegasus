@@ -137,6 +137,7 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
 
 CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     const CIMClientHTTPErrorException& httpError)
+    : Exception(*this)
 {
     CIMClientHTTPErrorExceptionRep * tmp =
         new CIMClientHTTPErrorExceptionRep ();

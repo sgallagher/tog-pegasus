@@ -29,20 +29,35 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef _CMPI_Enumeration_H_
+#define _CMPI_Enumeration_H_
 
-#include "CMPIProviderManager.h"
+#include "CMPI_Object.h"
 
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+PEGASUS_NAMESPACE_BEGIN
+
+struct CMPI_ObjEnumeration : CMPIEnumeration {
+   CMPI_Object *next,*prev;
+   int max,cursor;
+   CMPI_ObjEnumeration(Array<CIMObject>* ia);
+};
+
+struct CMPI_InstEnumeration : CMPIEnumeration {
+   CMPI_Object *next,*prev;
+   int max,cursor;
+   CMPI_InstEnumeration(Array<CIMInstance>* ia);
+};
+
+struct CMPI_OpEnumeration : CMPIEnumeration {
+   CMPI_Object *next,*prev;
+   int max,cursor;
+   CMPI_OpEnumeration(Array<CIMObjectPath>* opa);
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif
+

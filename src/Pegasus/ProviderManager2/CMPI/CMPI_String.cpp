@@ -29,20 +29,52 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
 
-#include "CMPIProviderManager.h"
+#include "CMPI_String.h"
+#include "CMPI_Ftabs.h"
 
-PEGASUS_USING_PEGASUS;
+#include <string.h>
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
+PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
+
+CMPI_String* string2CMPIString(const String &s) {
+  const CString st=s.getCString();
+  char *cp=strdup((const char*)st);
+  CMPI_Object *obj= new CMPI_Object((void*)cp,CMPI_String_Ftab);
+//  CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
+  return (CMPI_String*)obj;
 }
+
+static CMPIStatus stringRelease(CMPIString *eStr) {
+//   cout<<"--- stringRelease()"<<endl;
+   CMReturn(CMPI_RC_OK);
+}
+
+static CMPIString* stringClone(CMPIString *eStr, CMPIStatus* rc) {
+   char* str=(char*)eStr->hdl;
+   char* newstr=::strdup(str);
+   CMPI_Object * obj=new CMPI_Object(newstr,CMPI_String_Ftab);
+//   CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
+   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   return (CMPIString*)obj;
+}
+
+static char * stringGetCharPtr(CMPIString *eStr, CMPIStatus* rc) {
+   char* ptr=(char*)eStr->hdl;
+   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   return ptr;
+}
+
+static CMPIStringFT string_FT={
+     CMPICurrentVersion,
+     stringRelease,
+     stringClone,
+     stringGetCharPtr,
+};
+
+CMPIStringFT *CMPI_String_Ftab=&string_FT;
+
+
+PEGASUS_NAMESPACE_END
+

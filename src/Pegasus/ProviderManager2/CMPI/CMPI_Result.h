@@ -29,20 +29,58 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef _CMPI_Result_H_
+#define _CMPI_Result_H_
 
-#include "CMPIProviderManager.h"
+#include "cmpidt.h"
+#include "cmpift.h"
+#include "CMPI_Ftabs.h"
+#include "CMPI_Object.h"
+#include "CMPI_Broker.h"
 
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/ResponseHandler.h>
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+PEGASUS_NAMESPACE_BEGIN
+
+#define RESULT_Instance   1
+#define RESULT_Object     2
+#define RESULT_ObjectPath 4
+#define RESULT_Value      8
+#define RESULT_Method     16
+#define RESULT_Indication 32
+#define RESULT_Response   64
+#define RESULT_set        128
+#define RESULT_done       256
+
+typedef struct _CMPIResultRefFT : public CMPIResultFT {
+} CMPIResultRefFT;
+typedef struct _CMPIResultInstFT : public CMPIResultFT {
+} CMPIResultInstFT;
+typedef struct _CMPIResultDataFT : public CMPIResultFT {
+} CMPIResultDataFT;
+typedef struct _CMPIResultMethFT : public CMPIResultFT {
+} CMPIResultMethFT;
+
+struct CMPI_Result : CMPIResult {
+   CMPI_Object *next,*prev;
+   long flags;
+   CMPI_Broker *xBroker;
+};
+
+struct CMPI_ResultOnStack : CMPIResult {
+   CMPI_Object *next,*prev;
+   long flags;
+   CMPI_Broker *xBroker;
+   CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
+   CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
+   CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
+   CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
+   CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
+   ~CMPI_ResultOnStack();
+};
+
+CIMClass *mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop);
+
+PEGASUS_NAMESPACE_END
+
+#endif

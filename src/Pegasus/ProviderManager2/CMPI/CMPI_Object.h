@@ -29,20 +29,47 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#ifndef _CMPI_Object_H_
+#define _CMPI_Object_H_
+
+#include "cmpidt.h"
+
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/OperationContext.h>
 
-#include "CMPIProviderManager.h"
+#include "CMPI_ThreadContext.h"
 
-PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+class CMPI_Object {
+   friend class CMPI_ThreadContext;
+   void *hdl;
+   void *ftab;
+   CMPI_Object *next,*prev;
+ public:
+   void *priv;    // CMPI type specific usage
+   void *getHdl()  { return hdl; }
+   void *getFtab() { return ftab; }
+   CMPI_Object(CIMInstance*);
+   CMPI_Object(CIMObjectPath*);
+   CMPI_Object(CIMDateTime*);
+   CMPI_Object(OperationContext*);
+   CMPI_Object(const String&);
+   CMPI_Object(char*);
+   CMPI_Object(void*,void*);
+   CMPI_Object(Array<CIMParamValue>*);
+   CMPI_Object(CMPIData*);
+   CMPI_Object(CMPI_Object*);
+   CMPI_Object(CMPISelectCond*);
+   ~CMPI_Object();
+   void unlinkAndDelete();
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif

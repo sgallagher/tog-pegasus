@@ -29,20 +29,22 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef _CMPI_Value_H_
+#define _CMPI_Value_H_
 
-#include "CMPIProviderManager.h"
+#include "cmpidt.h"
+#include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
-PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc);
+CMPIrc value2CMPIData(const CIMValue&,CMPIType,CMPIData *data);
+CMPIrc key2CMPIData(const String& v, KeyBinding::Type t, CMPIData *data);
+CMPIType type2CMPIType(CIMType pt, int array);
+
+PEGASUS_NAMESPACE_END
+
+#endif
+

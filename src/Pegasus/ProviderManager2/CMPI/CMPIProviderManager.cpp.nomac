@@ -64,10 +64,6 @@ int _cmpi_trace=0;
 
 #define DDD(x) if (_cmpi_trace) x;
 
-CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
-CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
-CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
-
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
    mode=m;
@@ -76,34 +72,29 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    String repositoryRootPath =
 	ConfigManager::getHomedPath(
 	ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+   std::cout<<"--- repositoryDir "<<repositoryRootPath<<std::endl;
    _repository = new CIMRepository(repositoryRootPath);
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
 {
-    delete _repository;
+   delete _repository;
 }
 
-Boolean CMPIProviderManager::insertProvider(const ProviderName & name, 
-            const String &ns, const String &cn)
-{
-    String key(ns+String("::")+cn+String("::")+CIMValue(name.getCapabilitiesMask()).toString());
-    return provReg.insert(key,name);
-}
-         
-	    
 Message * CMPIProviderManager::processMessage(Message * request) throw()
 {
       PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
 
     Message * response = 0;
-    
+    OperationResponseHandler *orh=NULL;
+
+    try {
     // pass the request message to a handler method based on message type
     switch(request->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request);
+        response = handleGetInstanceRequest(request,orh);
 
         break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
@@ -193,15 +184,34 @@ Message * CMPIProviderManager::processMessage(Message * request) throw()
 
         break;
     }
- 
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        orh->setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        orh->setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        orh->setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
+    if (orh) delete orh;
+
     PEG_METHOD_EXIT();
 
     return(response);
-}
-
-void CMPIProviderManager::unload_idle_providers(void) 
-{
-     providerManager.unload_idle_providers();  
 }
 
 #define STRDUPA(s,o) \
@@ -213,8 +223,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
-
-#define HandlerIntroBase(type,type1,message,request,response,handler,respType) \
+#define HandlerIntro(type,message,request,response,handler,orh) \
     CIM##type##RequestMessage * request = \
         dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *>(message)); \
     PEGASUS_ASSERT(request != 0); \
@@ -222,58 +231,47 @@ void CMPIProviderManager::unload_idle_providers(void)
         new CIM##type##ResponseMessage( \
         request->messageId, \
         CIMException(), \
-        request->queueIds.copyAndPop() \
-        respType \
+        request->queueIds.copyAndPop(), \
+        CIMInstance()); \
     PEGASUS_ASSERT(response != 0); \
     response->setKey(request->getKey()); \
     response->setHttpMethod(request->getHttpMethod()); \
-    type1##ResponseHandler handler(request, response); 
+    type##ResponseHandler *handler=new type##ResponseHandler(request, response); \
+    orh=handler;
 
-#define VOIDINTRO );
-#define NOVOIDINTRO(type) ,type);
-#define METHODINTRO ,CIMValue(), Array<CIMParamValue>(), request->methodName );
-
-
-#define HandlerIntroVoid(type,message,request,response,handler) \
-     HandlerIntroBase(type,type,message,request,response,handler,VOIDINTRO)
-
-#define HandlerIntroMethod(type,message,request,response,handler) \
-     HandlerIntroBase(type,type,message,request,response,handler,METHODINTRO)
-
-#define HandlerIntroInd(type,message,request,response,handler) \
-     HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
-
-#define HandlerIntro(type,message,request,response,handler,respType) \
-     HandlerIntroBase(type,type,message,request,response,handler,NOVOIDINTRO(respType))
-     
-#define HandlerCatch(handler) \
-    catch(CIMException & e)  \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
-                "Exception: " + e.getMessage()); \
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); \
-    } \
-    catch(Exception & e) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
-                "Exception: " + e.getMessage()); \
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); \
-    } \
-    catch(...) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
-                "Exception: Unknown"); \
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
-    }
-
-
-
-Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message,
+          OperationResponseHandler *orh) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
+    HandlerIntro(GetInstance,message,request,response,handler,orh);
+/*    CIMGetInstanceRequestMessage * request =
+        dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
 
-    HandlerIntro(GetInstance,message,request,response,handler,CIMInstance());
+    PEGASUS_ASSERT(request != 0);
 
-    try {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    CIMGetInstanceResponseMessage * response =
+        new CIMGetInstanceResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        CIMInstance());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod(request->getHttpMethod());
+
+    // create a handler for this request
+    GetInstanceResponseHandler *handler=new GetInstanceResponseHandler(request, response);
+    orh=handler;
+*/
+ //   try
+ //   {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CmpiProviderManager::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
@@ -291,7 +289,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::INSTANCE);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -322,7 +320,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(*handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         if (!propertyList.isNull()) {
@@ -351,9 +349,30 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
-    }   
-    HandlerCatch(handler);
-    
+/*    }
+
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler->setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler->setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler->setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+*/
     PEG_METHOD_EXIT();
 
     return(response);
@@ -364,10 +383,32 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
 
-    HandlerIntro(EnumerateInstances,message,request,response,
-                 handler,Array<CIMInstance>());
-    try {  
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    CIMEnumerateInstancesRequestMessage * request =
+        dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMEnumerateInstancesResponseMessage * response =
+        new CIMEnumerateInstancesResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        Array<CIMInstance>());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    EnumerateInstancesResponseHandler handler(request, response);
+
+    try
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
@@ -384,7 +425,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::INSTANCE);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -448,8 +489,28 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         STAT_PMS_PROVIDEREND;
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -459,16 +520,39 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
-    HandlerIntro(EnumerateInstanceNames,message,request,response,
-                 handler,Array<CIMObjectPath>());
-    try {
+    CIMEnumerateInstanceNamesRequestMessage * request =
+        dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMEnumerateInstanceNamesResponseMessage * response =
+        new CIMEnumerateInstanceNamesResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        Array<CIMObjectPath>());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //set HTTP method in response from request
+    response->setHttpMethod(request->getHttpMethod());;
+
+    // create a handler for this request
+    EnumerateInstanceNamesResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->className.getString());
-       
-       // make target object path
+
+        // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
             request->nameSpace,
@@ -480,7 +564,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::INSTANCE);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -523,8 +607,25 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
 
     PEG_METHOD_EXIT();
 
@@ -536,9 +637,32 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleCreateInstanceRequest");
 
-    HandlerIntro(CreateInstance,message,request,response,
-                 handler,CIMObjectPath());
-    try {
+    CIMCreateInstanceRequestMessage * request =
+        dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    // create response message
+    CIMCreateInstanceResponseMessage * response =
+        new CIMCreateInstanceResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        CIMObjectPath());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    CreateInstanceResponseHandler handler(request, response);
+
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleCreateInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -557,7 +681,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::INSTANCE);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -605,8 +729,29 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -617,9 +762,31 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleModifyInstanceRequest");
 
-    HandlerIntroVoid(ModifyInstance,message,request,response,
-                 handler);
-    try {
+    CIMModifyInstanceRequestMessage * request =
+        dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    // create response message
+    CIMModifyInstanceResponseMessage * response =
+        new CIMModifyInstanceResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    ModifyInstanceResponseHandler handler(request, response);
+
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "DefaultProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -638,7 +805,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::INSTANCE);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -699,8 +866,28 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -711,9 +898,31 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleDeleteInstanceRequest");
 
-    HandlerIntroVoid(DeleteInstance,message,request,response,
-                 handler);
-    try {
+    CIMDeleteInstanceRequestMessage * request =
+        dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    // create response message
+    CIMDeleteInstanceResponseMessage * response =
+        new CIMDeleteInstanceResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    DeleteInstanceResponseHandler handler(request, response);
+
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "DefaultProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -732,7 +941,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::INSTANCE);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -775,8 +984,28 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -817,6 +1046,26 @@ Message * CMPIProviderManager::handleExecuteQueryRequest(const Message * message
     PEG_METHOD_EXIT();
 
     return(response);
+/*
+   DDD(cerr<<"--- CMPIProviderManager::executeQuery"<<endl);
+   CMPIStatus rc;
+
+   CMPI_ContextOnStack eCtx(context);
+   CMPI_ThreadContext thr(&broker,&eCtx);
+   CMPI_ResultOnStack eRes(handler,&broker);
+   CMPIObjectPath *nop=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(nameSpace));
+   CString qLang=queryLanguage.getCString();
+   CString qry=query.getCString();
+
+   CMPIFlags flgs=0;
+   eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+   rc=miVector.instMI->ft->execQuery(
+             miVector.instMI,&eCtx,&eRes,nop,CHARS(qLang),CHARS(qry));
+
+   if (rc.rc==CMPI_RC_OK) return;
+   else throw CIMException((CIMStatusCode)rc.rc);
+*/
 }
 
 Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message) throw()
@@ -824,9 +1073,29 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorsRequest");
 
-    HandlerIntro(Associators,message,request,response,
-                 handler,Array<CIMObject>());
-    try {
+    CIMAssociatorsRequestMessage * request =
+        dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMAssociatorsResponseMessage * response =
+        new CIMAssociatorsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        Array<CIMObject>());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    // create a handler for this request
+    AssociatorsResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -916,8 +1185,28 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -928,9 +1217,29 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorNamesRequest");
 
-    HandlerIntro(AssociatorNames,message,request,response,
-                 handler,Array<CIMObjectPath>());
-    try {
+    CIMAssociatorNamesRequestMessage * request =
+        dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMAssociatorNamesResponseMessage * response =
+        new CIMAssociatorNamesResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        Array<CIMObjectPath>());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    // create a handler for this request
+    AssociatorNamesResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleAssociatorNamesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -949,8 +1258,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             System::getHostName(),
             request->nameSpace,
             request->assocClass.getString());
-      
-      ProviderName name(
+	    
+        ProviderName name(
             assocPath.toString(),
             String::EMPTY,
             String::EMPTY,
@@ -1006,8 +1315,28 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1018,9 +1347,32 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleReferencesRequest");
 
-    HandlerIntro(References,message,request,response,
-                 handler,Array<CIMObject>());
-    try {
+    CIMReferencesRequestMessage * request =
+        dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMReferencesResponseMessage * response =
+        new CIMReferencesResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        Array<CIMObject>());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    ReferencesResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "DefaultProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -1108,8 +1460,28 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1120,9 +1492,30 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
 
-    HandlerIntro(ReferenceNames,message,request,response,
-                 handler,Array<CIMObjectPath>());
-    try {
+    CIMReferenceNamesRequestMessage * request =
+        dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMReferenceNamesResponseMessage * response =
+        new CIMReferenceNamesResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        Array<CIMObjectPath>());
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    ReferenceNamesResponseHandler handler(request, response);
+
+    // process the request
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -1194,9 +1587,30 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
+   
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1207,9 +1621,34 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
 
-    HandlerIntroMethod(InvokeMethod,message,request,response,
-                 handler);
-    try {
+    CIMInvokeMethodRequestMessage * request =
+        dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    // create response message
+    CIMInvokeMethodResponseMessage * response =
+        new CIMInvokeMethodResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        CIMValue(),
+        Array<CIMParamValue>(),
+        request->methodName);
+
+    PEGASUS_ASSERT(response != 0);
+
+    // propagate message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    // create a handler for this request
+    InvokeMethodResponseHandler handler(request, response);
+
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -1228,7 +1667,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            ProviderType::METHOD);
+            0);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1283,14 +1722,34 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
        for (int i=0,s=outArgs.size(); i<s; i++)
            handler.deliverParamValue(outArgs[i]);
        handler.complete();
+   }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
-    HandlerCatch(handler);
-    
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
     PEG_METHOD_EXIT();
 
-    return(response); 
+    return(response);
 }
-/*
+
 struct indProvRecord {
    indProvRecord() : enabled(false), count(1), handler(NULL) {}
    Boolean enabled;
@@ -1309,17 +1768,6 @@ typedef HashTable<String,indSelectRecord*,EqualFunc<String>,HashFunc<String> > I
 
 IndProvTab provTab;
 IndSelectTab selxTab;
-*/
-int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
-                                  String& providerName, String& location)
-{
-    Uint32 pos = pInstance.findProperty(CIMName ("Name"));
-    pInstance.getProperty(pos).getValue().get(providerName);
-
-    pos = pmInstance.findProperty(CIMName ("Location"));
-    pmInstance.getProperty(pos).getValue().get(location);
-    return 0;
-}
 
 String CMPIProviderManager::getFilter(CIMInstance &subscription)
 {
@@ -1329,6 +1777,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    CIMObjectPath filterReference;
    filterValue.get(filterReference);
    CIMNamespaceName ns("root/PG_InterOp");
+   std::cout<<"--- namespace: "<<ns<<" "<<filterReference.toString()<<std::endl;
 
    _repository->read_lock ();
    CIMInstance filter=_repository->getInstance(ns,filterReference);
@@ -1356,35 +1805,83 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
 
-    HandlerIntroInd(CreateSubscription,message,request,response,
-                 handler);
-    try {
-        const CIMObjectPath &x=request->subscriptionInstance.getPath();
+    CIMCreateSubscriptionRequestMessage * request =
+        dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
-	String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
-	   providerName,providerLocation);
+    PEGASUS_ASSERT(request != 0);
+
+    CIMCreateSubscriptionResponseMessage * response =
+        new CIMCreateSubscriptionResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    OperationResponseHandler handler(request, response);
+
+    const CIMObjectPath &x=request->subscriptionInstance.getPath();
+    std::cout<<"--- path "<<x.toString()<<std::endl;
+    try
+    {
+        String temp;
+
+        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
+        {
+            temp.append(request->classNames[i].getString());
+
+            if(i == (n - 1))
+            {
+                temp.append(", ");
+            }
+        }
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+            "CMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            providerName);
+            temp);
 
-        String fileName = resolveFileName(providerLocation);
+        // NOTE: the provider and provider module name are embedded in the request, presumably to reduce
+        // the number of provider lookups (but this should be trivial if the data is cached and accessed
+        // from the same source). to keep the lookups consistent, use the first class name, combined
+        // with the other information in the request, and create an object path that can be used to
+        // resolve the provider using the ProviderRegistrar.
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->classNames[0].getString());
+
+        ProviderName name(
+            objectPath.toString(),
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            ProviderType::INDICATION);
+
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         indProvRecord *prec=NULL;
-	provTab.lookup(providerName,prec);
+	provTab.lookup(name.getLogicalName(),prec);
 	if (prec) prec->count++;
         else {
 	   prec=new indProvRecord();
-	   provTab.insert(providerName,prec);
-	}
-
+	   provTab.insert(name.getLogicalName(),prec);
+	}   
+	
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 	selxTab.insert(sPath.toString(),srec);
@@ -1412,7 +1909,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
 	   getFilter(request->subscriptionInstance),
 	   request->queryLanguage);
-	srec->eSelx=eSelx;
+	srec->eSelx=eSelx;   
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -1454,9 +1951,30 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
+
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -1466,30 +1984,76 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDeleteSubscriptionRequest");
 
-    HandlerIntroInd(DeleteSubscription,message,request,response,
-                 handler);
-    try {
-	String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
-	   providerName,providerLocation);
+    CIMDeleteSubscriptionRequestMessage * request =
+        dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMDeleteSubscriptionResponseMessage * response =
+        new CIMDeleteSubscriptionResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    OperationResponseHandler handler(request, response);
+
+    try     {
+        String temp;
+        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)  {
+            temp.append(request->classNames[i].getString());
+            if(i == (n - 1)) {
+                temp.append(", ");
+            }
+        }
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+            "CMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            providerName);
+            temp);
 
-        String fileName = resolveFileName(providerLocation);
+        // NOTE: the provider and provider module name are embedded in the request, presumably to reduce
+        // the number of provider lookups (but this should be trivial if the data is cached and accessed
+        // from the same source). to keep the lookups consistent, use the first class name, combined
+        // with the other information in the request, and create an object path that can be used to
+        // resolve the provider using the ProviderRegistrar.
+
+	std::cout<<"--- request->classNames.size(): "<<request->classNames.size()<<std::endl;
+asm("int $3");
+        std::cout<<"--- request->classNames[0].getString(): "<<request->classNames[0].getString()<<std::endl;
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->classNames[0].getString());
+asm("int $3");
+        ProviderName name(
+            objectPath.toString(),
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            ProviderType::INDICATION);
+
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
-
+            providerManager.getProvider(name.getPhysicalName(), 
+	    name.getLogicalName(), String::EMPTY);
 
         indProvRecord *prec=NULL;
-	provTab.lookup(providerName,prec);
+	provTab.lookup(name.getLogicalName(),prec);
 	if (--prec->count<=0) {
-	   provTab.remove(providerName);
+	   provTab.remove(name.getLogicalName());
 	   prec=NULL;
 	}
 
@@ -1497,11 +2061,11 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 	String sPathString=sPath.toString();
 	selxTab.lookup(sPathString,srec);
-
+	
         CMPI_SelectExp *eSelx=srec->eSelx;
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
 	selxTab.remove(sPathString);
-
+        
 	// convert arguments
         OperationContext context;
 
@@ -1536,43 +2100,98 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
            CHARS(request->nameSpace.getString().getCString()),&eRef,prec==NULL);
 
        delete eSelx;
-
+       	   
        STAT_PMS_PROVIDEREND;
 
         if (rc.rc!=CMPI_RC_OK)
 	   throw CIMException((CIMStatusCode)rc.rc);
+
     }
-    HandlerCatch(handler);
-    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+    }
+
     PEG_METHOD_EXIT();
 
     return(response);
+}
+
+int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
+                                  String& providerName, String& location)
+{
+    Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+    pInstance.getProperty(pos).getValue().get(providerName);
+    
+    pos = pmInstance.findProperty(CIMName ("Location"));
+    pmInstance.getProperty(pos).getValue().get(location);
+    return 0;
 }
 
 Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleEnableIndicationsRequest");
 
-    HandlerIntroInd(EnableIndications,message,request,response,
-                 handler);
-    try {
+    CIMEnableIndicationsRequestMessage * request =
+        dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMEnableIndicationsResponseMessage * response =
+        new CIMEnableIndicationsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    CIMEnableIndicationsResponseMessage * responseforhandler =
+        new CIMEnableIndicationsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod(request->getHttpMethod());
+
+    response->dest = request->queueIds.top();
+
+    try { 
         String providerName,providerLocation;
 	LocateIndicationProviderNames(request->provider, request->providerModule,
 	   providerName,providerLocation);
-
+        
         indProvRecord *provRec;
         if (provTab.lookup(providerName,provRec)) {
            provRec->enabled=true;
            provRec->handler=new EnableIndicationsResponseHandler(request, response,
               request->provider, ProviderManagerService::providerManagerService);
         }
-
+	
         String fileName = resolveFileName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(fileName, providerName, String::EMPTY);
-
+	
         // convert arguments
         OperationContext context;
 
@@ -1599,37 +2218,88 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
 
        STAT_PMS_PROVIDEREND;
     }
-    HandlerCatch(handler);
+    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+        response->cimException = CIMException(e);
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+        //l10n
+        //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "ProviderManager.CMPIProviderManager.INTERNAL_ERROR",
+            "Internal Error"));
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+        //l10n
+        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "ProviderManager.CMPIProviderManager.UNKNOWN_ERROR",
+            "Unknown Error"));
+    }
     
     PEG_METHOD_EXIT();
 
-    return(response);
+    return(response); 
 }
 
 Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleDisableIndicationsRequest");
 
-    HandlerIntroInd(DisableIndications,message,request,response,
-                 handler);
-    try {
+    CIMDisableIndicationsRequestMessage * request =
+        dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMDisableIndicationsResponseMessage * response =
+        new CIMDisableIndicationsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    CIMDisableIndicationsResponseMessage * responseforhandler =
+        new CIMDisableIndicationsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod(request->getHttpMethod());
+
+    response->dest = request->queueIds.top();
+
+    try { 
         String providerName,providerLocation;
 	LocateIndicationProviderNames(request->provider, request->providerModule,
 	   providerName,providerLocation);
-
+        
         indProvRecord *provRec;
         if (provTab.lookup(providerName,provRec)) {
            provRec->enabled=false;
            if (provRec->handler) delete provRec->handler;
 	   provRec->handler=NULL;
         }
-
+	
         String fileName = resolveFileName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
             providerManager.getProvider(fileName, providerName, String::EMPTY);
-
+	
         // convert arguments
         OperationContext context;
 
@@ -1656,7 +2326,33 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 
        STAT_PMS_PROVIDEREND;
     }
-    HandlerCatch(handler);
+    
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+        response->cimException = CIMException(e);
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+        //l10n
+        //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "ProviderManager.CMPIProviderManager.INTERNAL_ERROR",
+            "Internal Error"));
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+        //l10n
+        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "ProviderManager.CMPIProviderManager.UNKNOWN_ERROR",
+            "Unknown Error"));
+    }
     
     PEG_METHOD_EXIT();
 

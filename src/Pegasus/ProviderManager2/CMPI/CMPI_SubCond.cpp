@@ -29,20 +29,62 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include "CMPI_SubCond.h"
+#include "CMPI_Ftabs.h"
+#include "CMPI_Value.h"
+#include "CMPI_String.h"
 
-#include "CMPIProviderManager.h"
+PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
+CMPIStatus sbcRelease(CMPISubCond* sc) {
+   CMReturn(CMPI_RC_OK);
 }
+
+CMPISubCond* sbcClone(CMPISubCond* eSc, CMPIStatus* rc) {
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+      return NULL;
+}
+
+CMPICount sbcGetCount(CMPISubCond* eSbc, CMPIStatus* rc) {
+    CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
+    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+    return sbc->row->size();
+}
+
+CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
+    CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
+    if (index<=sbc->row->size()) {
+       const term_el *term=sbc->row[index].getData();
+        std::cout<<"--- "<<term->opn1.toString()<<std::endl;
+       CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
+       if (rc) CMSetStatus(rc,CMPI_RC_OK);
+       return prd;
+    }   
+    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+    return NULL; 
+}
+
+CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, char* name, CMPIStatus* rc) {
+    CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
+    return NULL;
+}
+
+static CMPISubCondFT scnd_FT={ 
+     CMPICurrentVersion,
+     sbcRelease,
+     sbcClone,
+     sbcGetCount,
+     sbcGetPredicateAt,
+     sbcGetPredicate
+ };
+
+CMPISubCondFT *CMPI_SubCond_Ftab=&scnd_FT;
+
+CMPI_SubCond::CMPI_SubCond(const TableauRow* tblor)
+  : row(tblor) {
+   ft=CMPI_SubCond_Ftab;
+}
+
+
+PEGASUS_NAMESPACE_END

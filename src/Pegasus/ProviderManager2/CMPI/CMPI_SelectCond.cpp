@@ -29,20 +29,57 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include "CMPI_SelectCond.h"
+#include "CMPI_Ftabs.h"
+#include "CMPI_Value.h"
+#include "CMPI_String.h"
 
-#include "CMPIProviderManager.h"
+PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
+CMPIStatus scndRelease(CMPISelectCond* sc) {
+   CMReturn(CMPI_RC_OK);
 }
+
+CMPISelectCond* scndClone(CMPISelectCond* eSc, CMPIStatus* rc) {
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+      return NULL;
+}
+
+CMPICount scndGetCountAndType(CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
+    CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
+    if (type!=NULL) *type=sc->type;
+    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+    return sc->tableau->size();
+}
+
+CMPISubCond* scndGetSubCondAt(CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
+    CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
+    if (index<=sc->tableau->size()) {
+       const TableauRow *row=sc->tableau[index].getData();
+       CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
+       if (rc) CMSetStatus(rc,CMPI_RC_OK);
+       return sbc;
+    }   
+    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+    return NULL; 
+}    
+
+
+static CMPISelectCondFT scnd_FT={
+     CMPICurrentVersion,
+     scndRelease,
+     scndClone,
+     scndGetCountAndType,
+     scndGetSubCondAt,
+ };
+
+CMPISelectCondFT *CMPI_SelectCond_Ftab=&scnd_FT;
+
+CMPI_SelectCond::CMPI_SelectCond(Tableau* tblo, int t)
+  : tableau(tblo), type(t) {
+   ft=CMPI_SelectCond_Ftab;
+}
+
+
+PEGASUS_NAMESPACE_END

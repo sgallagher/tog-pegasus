@@ -1,0 +1,189 @@
+//%2003////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================//
+//
+// Author:       Markus Mueller (sedgewick_de@yahoo.de)
+//
+// Modified By:  Adrian Schuur, schuur@de.ibm.com
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef CMPI_Wql2Dnf_h
+#define CMPI_Wql2Dnf_h
+
+#include "cmpidt.h"
+
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Stack.h>
+#include <Pegasus/WQL/WQLOperation.h>
+#include <Pegasus/WQL/WQLOperand.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+class term_el
+{
+public:
+    Boolean mark;
+    WQLOperation op;
+    WQLOperand opn1;
+    WQLOperand opn2;
+
+    void negate(void);
+    int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const;
+};
+
+class stack_el
+{
+public:
+   int   opn;     // either to terminals or eval_heap
+   Boolean is_terminal;
+};
+
+
+class eval_el
+{
+public:
+    Boolean mark;
+    WQLOperation op;
+    int opn1;
+    Boolean is_terminal1; // if yes, look in terminal Array
+    int opn2;
+    Boolean is_terminal2; // if no, look in eval heap
+
+    stack_el getFirst();
+
+    stack_el getSecond();
+
+    void setFirst(const stack_el s);
+    
+    void setSecond(const stack_el s);
+    
+    void assign_unary_to_first(const eval_el & assignee);
+
+    void assign_unary_to_second(const eval_el & assignee);
+
+    // Ordering operators, so that op1 > op2 for all non-terminals
+    // and terminals appear in the second operand first
+    void order(void);
+};
+
+
+#define PEGASUS_ARRAY_T term_el
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T eval_el
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T stack_el
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+typedef Array<term_el> TableauRow;
+
+#define PEGASUS_ARRAY_T TableauRow
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+typedef Array<TableauRow> Tableau;
+
+
+class CMPI_Wql2Dnf
+{
+public:
+    CMPI_Wql2Dnf();
+
+    CMPI_Wql2Dnf(const WQLSelectStatement& wqs);
+
+    CMPI_Wql2Dnf(const WQLSelectStatement * wqs);
+
+    CMPI_Wql2Dnf(const String condition, const String pref); 
+    
+    ~CMPI_Wql2Dnf();
+
+    void compile (const WQLSelectStatement * wqs);
+
+    Tableau* getTableau() {return &_tableau;}
+
+    Boolean evaluate(WQLPropertySource * source) const;
+
+    void print();
+
+    void printTableau();
+
+
+protected:
+    void _buildEvalHeap(const WQLSelectStatement * wqs);
+
+    void _pushNOTDown(void);
+
+    void _factoring(void);
+
+    void _gatherDisj(Array<stack_el>& stk);
+
+    void _gatherConj(Array<stack_el>& stk, stack_el sel);
+
+    void _gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag);
+    
+    static inline void _ResolveProperty(
+        WQLOperand& op,
+        const WQLPropertySource* source)
+    {
+        //
+        // Resolve the operand: if it's a property name, look up its value:
+        //
+
+        if (op.getType() == WQLOperand::PROPERTY_NAME)
+        {
+            const String& propertyName = op.getPropertyName();
+
+            if (!source->getValue(propertyName, op))
+                throw NoSuchProperty(propertyName);
+        }
+    }
+
+
+    // Structure to contain the compiled DNF form
+
+    Tableau _tableau;
+
+    //
+    // The eval_heap structure contains an ordered tree of non-terminal
+    // expressions, the term_heap structure the corresponding terminal
+    // expressions
+    //
+
+    Stack<term_el> terminal_heap;
+
+    Array<eval_el> eval_heap;
+
+    //friend WQLSelectStatement;
+};
+
+
+PEGASUS_NAMESPACE_END
+
+#endif /* CMPI_Wql2Dnf_h */

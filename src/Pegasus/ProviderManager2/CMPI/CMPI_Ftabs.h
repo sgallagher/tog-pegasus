@@ -29,20 +29,52 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
 
-#include "CMPIProviderManager.h"
+#ifndef _CMPI_Ftabs_H_
+#define _CMPI_Ftabs_H_
 
-PEGASUS_USING_PEGASUS;
+#include <iostream>
+#include <stdlib.h>
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+#include "cmpidt.h"
+#include "cmpift.h"
+
+#include <Pegasus/Common/CIMType.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+extern CMPIInstanceFT *CMPI_Instance_Ftab;
+extern CMPIInstanceFT *CMPI_InstanceOnStack_Ftab;
+
+extern CMPIObjectPathFT *CMPI_ObjectPath_Ftab;
+extern CMPIObjectPathFT *CMPI_ObjectPathOnStack_Ftab;
+
+extern CMPIArgsFT *CMPI_Args_Ftab;
+extern CMPIArgsFT *CMPI_ArgsOnStack_Ftab;
+
+extern CMPIContextFT *CMPI_Context_Ftab;
+extern CMPIContextFT *CMPI_ContextOnStack_Ftab;
+
+extern CMPIResultFT *CMPI_ResultRefOnStack_Ftab;
+extern CMPIResultFT *CMPI_ResultInstOnStack_Ftab;
+extern CMPIResultFT *CMPI_ResultData_Ftab;
+extern CMPIResultFT *CMPI_ResultMethOnStack_Ftab;
+extern CMPIResultFT *CMPI_ResultResponseOnStack_Ftab;
+
+extern CMPIDateTimeFT *CMPI_DateTime_Ftab;
+extern CMPIArrayFT *CMPI_Array_Ftab;
+extern CMPIStringFT *CMPI_String_Ftab;
+
+extern CMPISelectExpFT *CMPI_SelectExp_Ftab;
+extern CMPISelectCondFT *CMPI_SelectCond_Ftab;
+
+extern CMPIBrokerFT *CMPI_Broker_Ftab;
+extern CMPIBrokerEncFT *CMPI_BrokerEnc_Ftab;
+
+extern CMPIEnumerationFT *CMPI_ObjEnumeration_Ftab;
+extern CMPIEnumerationFT *CMPI_InstEnumeration_Ftab;
+extern CMPIEnumerationFT *CMPI_OpEnumeration_Ftab;
+
+PEGASUS_NAMESPACE_END
+
+#endif

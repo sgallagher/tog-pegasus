@@ -1,9 +1,7 @@
-//%2003////////////////////////////////////////////////////////////////////////
+//%/////////////////////-*-c++-*-///////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
-// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
-// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -23,26 +21,19 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur, IBM (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include "CMPIResolverModule.h"
 
-#include "CMPIProviderManager.h"
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+PEGASUS_NAMESPACE_END
+
+

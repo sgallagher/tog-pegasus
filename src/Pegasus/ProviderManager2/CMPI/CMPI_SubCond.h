@@ -29,20 +29,24 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef _CMPI_SubCond_H_
+#define _CMPI_SubCond_H_
 
-#include "CMPIProviderManager.h"
+#include "CMPI_Wql2Dnf.h"
+#include "CMPI_Predicate.h"
+#include "CMPI_Object.h"
+#include "CMPI_Ftabs.h"
 
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/OperationContext.h>
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+PEGASUS_NAMESPACE_BEGIN
+
+struct CMPI_SubCond : CMPISubCond {
+   CMPI_Object *next,*prev;
+   const TableauRow* row;
+   CMPI_SubCond(const TableauRow* tblor);
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif

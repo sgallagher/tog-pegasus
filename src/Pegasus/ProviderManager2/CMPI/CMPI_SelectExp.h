@@ -29,20 +29,30 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef _CMPI_SelectExp_H_
+#define _CMPI_SelectExp_H_
 
-#include "CMPIProviderManager.h"
+#include "CMPI_SelectCond.h"
+#include "CMPI_Wql2Dnf.h"
+#include "CMPI_Object.h"
+#include "CMPI_Ftabs.h"
 
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/OperationContext.h>
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+PEGASUS_NAMESPACE_BEGIN
+
+struct CMPI_SelectExp : CMPISelectExp {
+   CMPI_Object *next,*prev;
+   const char **props;
+   Array<CIMObjectPath> classNames;
+   const OperationContext& ctx;
+   CMPI_SelectExp(const OperationContext& ct, String cond_, String lang_);
+   SubscriptionFilterConditionContainer* fcc;
+   String cond,lang;
+   CMPI_Wql2Dnf *dnf;
+   Tableau* tableau;
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif

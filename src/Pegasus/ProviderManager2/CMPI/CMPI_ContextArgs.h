@@ -29,20 +29,41 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#ifndef _CMPI_ContextArgs_H_
+#define _CMPI_ContextArgs_H_
 
-#include "CMPIProviderManager.h"
+#include "CMPI_Object.h"
 
-PEGASUS_USING_PEGASUS;
+#include "cmpidt.h"
+#include "cmpift.h"
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+#include <Pegasus/Common/OperationContext.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+extern CMPIArgsFT *CMPI_Args_Ftab;
+
+class CMPI_ThreadContext;
+
+struct CMPI_Context : CMPIContext {
+   CMPI_Object *next,*prev;
+   OperationContext* ctx;
+   CMPI_ThreadContext *thr;
+   CMPI_Context(const OperationContext& ct);
+};
+
+struct CMPI_ArgsOnStack : CMPIArgs {
+   CMPI_Object *next,*prev;
+   CMPI_ArgsOnStack(const Array<CIMParamValue>& args);
+};
+
+struct CMPI_ContextOnStack : CMPIContext {
+   CMPI_Object *next,*prev;
+   OperationContext* ctx;
+   CMPI_ContextOnStack(const OperationContext& ct);
+   ~CMPI_ContextOnStack();
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif

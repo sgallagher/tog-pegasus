@@ -29,20 +29,65 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include "CMPI_SelectExp.h"
 
-#include "CMPIProviderManager.h"
+#include "CMPI_Ftabs.h"
+#include "CMPI_Value.h"
+#include "CMPI_String.h"
 
-PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
+static CMPIStatus selxRelease(CMPISelectExp* eSx) {
+   CMReturn(CMPI_RC_OK);
 }
+
+static CMPISelectExp* selxClone(CMPISelectExp* eSx, CMPIStatus* rc) {
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+      return NULL;
+}
+
+static CMPIBoolean selxEvaluate(CMPISelectExp* eSx, CMPIInstance* inst, CMPIStatus* rc) {
+      return false;
+}
+
+static CMPIString* selxGetString(CMPISelectExp* eSx, CMPIStatus* rc) {
+   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+   return string2CMPIString(sx->cond);
+}
+
+static CMPISelectCond* selxGetDOC(CMPISelectExp* eSx, CMPIStatus* rc) {
+   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+   if (sx->dnf==NULL) {
+      sx->dnf=new CMPI_Wql2Dnf(String(sx->cond),String::EMPTY);
+      sx->tableau=sx->dnf->getTableau();
+   }
+   CMPISelectCond *sc=(CMPISelectCond*)new CMPI_SelectCond(sx->tableau,0);
+   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   return sc; 
+}
+/*
+static CMPISelectCond* selxGetCOD(CMPISelectExp* eSx, CMPIStatus* rc) {
+      return NULL;
+}
+*/
+static CMPISelectExpFT selx_FT={
+     CMPICurrentVersion,
+     selxRelease,
+     selxClone,
+     selxEvaluate,
+     selxGetString,
+     selxGetDOC,
+     NULL  //selxGetCOD
+};
+
+CMPISelectExpFT *CMPI_SelectExp_Ftab=&selx_FT;
+
+CMPI_SelectExp::CMPI_SelectExp(const OperationContext& ct, String cond_, String lang_)
+  : ctx(ct), cond(cond_), lang(lang_) {
+   props=NULL;
+   ft=CMPI_SelectExp_Ftab;
+   dnf=NULL;
+}
+
+PEGASUS_NAMESPACE_END

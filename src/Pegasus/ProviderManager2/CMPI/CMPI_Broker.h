@@ -29,20 +29,56 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#ifndef _CMPI_Broker_H_
+#define _CMPI_Broker_H_
+
+#include "cmpidt.h"
+#include "cmpift.h"
+
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/IPC.h>
 
-#include "CMPIProviderManager.h"
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
+#define CM_CIMOM(mb) ((CIMOMHandle*)mb->hdl)
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
-}
+#define CM_Context(ctx) (((CMPI_Context*)ctx)->ctx)
+#define CM_Instance(ci) ((CIMInstance*)ci->hdl)
+#define CM_ObjectPath(cop) ((CIMObjectPath*)cop->hdl)
+
+#define CM_LocalOnly(flgs) (((flgs) & CMPI_FLAG_LocalOnly)!=0)
+#define CM_ClassOrigin(flgs) (((flgs) & CMPI_FLAG_IncludeClassOrigin)!=0)
+#define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)
+#define CM_DeepInheritance(flgs) (((flgs) & CMPI_FLAG_DeepInheritance)!=0)
+
+class AutoMutex {
+ private:
+  Mutex *mutx;
+ public:
+  AutoMutex(Mutex *mtx) {
+     mutx=mtx;
+//     std::cout<<"--- AutoMutex() lock: "<<(void*)mutx<<std::endl;
+     mtx->lock(pegasus_thread_self());
+  }
+  ~AutoMutex() {
+//     std::cout<<"--- AutoMutex() unlock: "<<(void*)mutx<<std::endl;
+     mutx->unlock();
+  }
+};
+
+CIMClass *mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop);
+
+typedef HashTable<String, CIMClass *,
+      EqualFunc<String>,  HashFunc<String> > ClassCache;
+
+struct CMPI_Broker : CMPIBroker {
+   ClassCache *clsCache;
+   Mutex mtx;
+   String name;
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif

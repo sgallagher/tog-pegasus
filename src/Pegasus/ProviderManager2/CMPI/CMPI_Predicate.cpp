@@ -29,20 +29,56 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include "CMPI_Predicate.h"
+#include "CMPI_Ftabs.h"
+#include "CMPI_Value.h"
+#include "CMPI_String.h"
 
-#include "CMPIProviderManager.h"
+PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
-{
-    if(String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        std::cerr<<"--- CMPI Provider Manager activated"<<std::endl;
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
-    }
-    return(0);
+CMPIStatus prdRelease(CMPIPredicate* sc) {
+   CMReturn(CMPI_RC_OK);
 }
+
+CMPIPredicate* prdClone(CMPIPredicate* ePrd, CMPIStatus* rc) {
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+      return NULL;
+}
+     
+CMPIStatus prdGetData(CMPIPredicate* ePrd, CMPIType* type,
+               CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
+     CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
+     String o1,o2;
+     CMPIPredOp o;
+     CMPIType t;
+     prd->term->toStrings(t,o,o1,o2);
+     if (type) *type=t;
+     if (op) *op=o;
+     if (lhs) *lhs=string2CMPIString(o1);
+     if (rhs) *rhs=string2CMPIString(o2);
+     CMReturn(CMPI_RC_OK);
+}
+
+int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
+               CMPIType type, CMPIStatus* rc) {
+      return 0;	       
+}
+
+static CMPIPredicateFT prd_FT={ 
+     CMPICurrentVersion,
+     prdRelease,
+     prdClone,
+     prdGetData,
+     prdEvaluate,
+ };
+
+CMPIPredicateFT *CMPI_Predicate_Ftab=&prd_FT;
+
+CMPI_Predicate::CMPI_Predicate(const term_el* t)
+  : term(t) {
+   ft=CMPI_Predicate_Ftab;
+}
+
+
+PEGASUS_NAMESPACE_END

@@ -29,9 +29,16 @@
 #ifndef Pegasus_DQueue_h
 #define Pegasus_DQueue_h
 
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Config.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
+const int PEG_DQUEUE_FIRST = 0;
+const int PEG_DQUEUE_LAST = 1;
+
 template<class L> class PEGASUS_EXPORT DQueue {
+
 
  private: 
 
@@ -50,13 +57,50 @@ template<class L> class PEGASUS_EXPORT DQueue {
       _next->_prev = _prev; 
     }
 
-  // insert this node into list owned by head 
-  // this node becomes the first node 
-  inline void insert(DQueue & head) {  _prev = head; 
-                      _next = head._next; 
-                     head._next->_prev = this; 
-                     head._next = this;   
-                     head._count++; }
+  inline L *remove( int code ) throw(IPCException)
+    {
+      L *ret = NULL;
+      
+      if( _count > 0 ) {
+	_mutex.lock(pegasus_thread_self());
+	DQueue *temp = NULL;
+	if(code == PEG_DQUEUE_FIRST )
+	  temp = _next;
+	else
+	  temp = _prev;
+	
+	temp->unlink();
+	ret = temp->_rep;
+	// unhinge ret from temp so it doesn't get destroyed 
+	temp->_rep = NULL ;
+	delete temp;
+	_count--;
+	_mutex.unlock( );
+      }
+      return(ret);
+    }
+
+  inline void insert_first(DQueue & head) throw (IPCException)
+    { 
+      head._mutex.lock(pegasus_thread_self());
+      _prev = head; 
+      _next = head._next; 
+      head._next->_prev = this; 
+      head._next = this;   
+      head._count++; 
+      head._mutex.unlock( );
+    }
+
+  inline void insert_last(DQueue & head) throw(IPCException)
+    {
+      head._mutex.lock(pegasus_thread_self()) ;
+      _next = head;
+      _prev = head._prev;
+      head._prev->next = this;
+      head._prev = this;
+      head._count++;
+      head._mutex.unlock( );
+    }
 
 public:
   DQueue(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0) 
@@ -67,15 +111,42 @@ public:
     }
 
   ~DQueue() { empty_list() ; }
-  void insert(L *);
-  void empty_list( void ) ;
-  L *remove( void ) ;
-  L *remove(Sint8 *key) ;
-  L *reference(Sint8 *key);
-  L *next( L * ); // poor man's iterators 
-  L *prev( L * );
-  Boolean exists(Sint8 *key);
-  int count(void);
+
+  void insert_first(L *) throw(IPCException);
+  void insert_last(L *) throw(IPCException);
+  void empty_list( void ) throw(IPCException);
+  inline L *remove_first ( void ) throw(IPCException) { return(remove(PEG_DQUEUE_FIRST) );}
+  inline L *remove_last ( void ) throw(IPCException) { return(remove(PEG_DQUEUE_LAST) );}
+  L *remove(void *key) throw(IPCException);
+  L *reference(void *key) throw(IPCException);
+  inline L *next( L * ref) throw(IPCException)
+    {
+      if (_mutex.owner() != pegasus_thread_self())
+	throw(Permission(pegasus_thread_self()));
+      if( ref == NULL)
+	_cur = _next;
+      else {
+	PEGASUS_ASSERT(ref == _cur->_rep);
+	_cur = _cur->next;
+      }
+      return(_cur->rep);
+    }
+
+  inline L *prev( L * ref) throw(IPCException)
+    {
+      if (_mutex.owner() != pegasus_thread_self())
+	throw(Permission(pegasus_thread_self()));
+      if( ref == NULL)
+	_cur = _prev;
+      else {
+	PEGASUS_ASSERT(ref == _cur->_rep);
+	_cur = _cur->prev;
+      }
+      return(_cur->rep);
+    }
+
+  Boolean exists(void *key) throw(IPCException) ;
+  inline int count(void) { return _count ; }
 } ;
 
 PEGASUS_NAMESPACE_END

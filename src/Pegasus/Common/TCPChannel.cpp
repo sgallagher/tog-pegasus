@@ -45,7 +45,6 @@ Sint32 TCPChannel::readN(void* ptr, Uint32 size)
     // ATTN-A: need a timeout here!
 
     // Enable blocking temporarily:
-
     Boolean blocking = getBlocking();
 
     if (!blocking)

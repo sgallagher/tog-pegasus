@@ -50,43 +50,44 @@ typedef struct {
   pthread_t owner;
 } PEGASUS_COND_HANDLE;
 
-#define PEGASUS_SEM_HANDLE struct \
-{\
-sem_t sem;\
-PEGASUS_THREAD_TYPE owner;\
-}
+typedef struct {
+  sem_t sem;
+  pthread_t owner;
+} PEGASUS_SEM_HANDLE ;
 
-#define PEGASUS_MUTEX_HANDLE struct \
-{\
-pthread_mutex_t mut;\
-pthread_mutexattr_t mutatt;\
-PEGASUS_THREAD_TYPE owner;\
-}
+typedef struct {
+  pthread_mutex_t mut;
+  pthread_mutexattr_t mutatt;
+  pthread_t owner;
+} PEGASUS_MUTEX_HANDLE ;
 
-#define PEGASUS_RWLOCK_HANDLE struct \
-{\
-pthread_rwlock_t rwlock;\
-PEGASUS_THREAD_TYPE owner;\
-}
+typedef struct {
+  pthread_rwlock_t rwlock;
+  pthread_t owner;
+} PEGASUS_RWLOCK_HANDLE;
+
 
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-# define PEGASUS_CLEANUP_HANDLE void *
+typedef void *PEGASUS_CLEANUP_HANDLE ;
 #else
-# define PEGASUS_CLEANUP_HANDLE struct _pthread_cleanup_buffer
+typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE ;
 #endif
 
-#define PEGASUS_THREAD_RETURN void *
+typedef void *PEGASUS_THREAD_RETURN;
+
 #define PEGASUS_THREAD_CDECL
 
-#define PEGASUS_THREAD_HANDLE struct {\
-PEGASUS_THREAD_TYPE thid;\
-pthread_attr_t thatt;\
-}
+typedef struct {
+  pthread_t thid;
+  pthread_attr_t thatt;
+} PEGASUS_THREAD_HANDLE ;
+
 
 // linux offers a built-in integer type for atomic access
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#define PEGASUS_ATOMIC_INT_NATIVE = 1
 typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 #endif
 

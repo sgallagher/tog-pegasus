@@ -10,6 +10,7 @@ LIBRARY = pegcommon
 
 SOURCES = \
     CIMStatusCode.cpp \
+#   IPC.cpp\
     CIMMessage.cpp \
     Message.cpp \
     MessageQueue.cpp \
@@ -43,9 +44,10 @@ SOURCES = \
     CIMType.cpp \
     CIMValue.cpp \
     CIMIndication.cpp \
-	 CIMOMHandle.cpp \
+    CIMOMHandle.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
+#   Dqueue.cpp\
     Dir.cpp \
     Exception.cpp \
     FileSystem.cpp \
@@ -73,7 +75,7 @@ SOURCES = \
     CGIQueryString.cpp
 
 ifeq ($(OS),linux)
-SOURCES += MT_MessageQueue.cpp IPC.cpp
+SOURCES += MT_MessageQueue.cpp IPC.cpp DQueue.cpp Thread.cpp
 endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib

@@ -55,7 +55,7 @@ static int pegasus_gettimeofday(struct timeval *tv)
 	return(0);
 }
 	
-static int gettimeofday(struct timeval *tv, struct timezone *tz)
+int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz)
 {
    return(pegasus_gettimeofday(tv));
 }

@@ -52,6 +52,8 @@
 // certificate handling routine
 //
 
+VERIFY_CERTIFICATE verify_certificate;
+
 static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
 {
 
@@ -78,8 +80,88 @@ static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
    return -1;
 }
 
-PEGASUS_NAMESPACE_BEGIN
+static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
+{
+    //PEG_METHOD_ENTER(TRC_SSL, "CertificateManager::prepareForCallback()");
 
+    char   buf[256];
+    X509   *err_cert;
+    int    err; 
+    int    depth;
+    String subjectName;
+    String issuerName;
+    int    verify_depth = 0;
+    int    verify_error = X509_V_OK;
+
+    err_cert = X509_STORE_CTX_get_current_cert(ctx);
+    err = X509_STORE_CTX_get_error(ctx);
+
+    depth = X509_STORE_CTX_get_error_depth(ctx);
+
+    //FUTURE: Not sure what to do with these...?
+    //ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+    //mydata = SSL_get_ex_data(ssl, mydata_index);
+
+    X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
+    subjectName = String(buf);
+
+    if (verify_depth >= depth)
+    {
+        preverifyOk = 1;
+        verify_error = X509_V_OK;
+    }
+    else
+    {
+        preverifyOk = 0;
+        verify_error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
+        X509_STORE_CTX_set_error(ctx, verify_error);
+    }
+
+    if (!preverifyOk)
+    {
+        TLS_DEBUG(cerr << "---> verify error: num = " << err << ", " 
+            << X509_verify_cert_error_string(err) << ", " << depth 
+            << ", " << buf <<  endl;)
+    }
+
+    if (!preverifyOk && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT))
+    {
+        X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), buf, 256);
+        issuerName = String(buf);
+    }
+    else
+    {
+        X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
+        issuerName = String(buf);
+    }
+
+    //
+    // Call the verify_certificate() callback
+    //
+    CertificateInfo *certInfo = 
+        new CertificateInfo(subjectName, issuerName, depth, err);
+
+    if (verify_certificate(certInfo))
+    {
+        preverifyOk = 1;
+    }
+
+    delete certInfo;
+
+    // ATTN-NB-03-05102002: Overriding the default verification result, may
+    // need to be changed to make it more generic.
+    if (preverifyOk)
+    {
+        X509_STORE_CTX_set_error(ctx, verify_error);
+    }
+
+    TLS_DEBUG(cerr << "verify return: " << preverifyOk << endl;)
+
+    //PEG_METHOD_EXIT();
+    return(preverifyOk);
+}
+
+PEGASUS_NAMESPACE_BEGIN
 
 
 //
@@ -95,10 +177,15 @@ PEGASUS_NAMESPACE_BEGIN
 //
 SSLContext::SSLContext(const String& certPath,
                        const String& randomFile,
-                       Boolean isCIMClient)
+                       Boolean isCIMClient,
+                       VERIFY_CERTIFICATE verifyCert)
     throw(SSL_Exception)
 {
+    TLS_DEBUG(cout << "Entering SSLContext::SSLContext()\n";)
+
     _certPath = certPath.allocateCString();
+
+    verify_certificate = verifyCert;
 
     // load SSL library
     SSL_load_error_strings();
@@ -168,17 +255,25 @@ SSLContext::SSLContext(const String& certPath,
     SSL_CTX_set_mode(_SSLContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_options(_SSLContext,SSL_OP_ALL);
 
-
 #ifdef CLIENT_CERTIFY
-   SSL_CTX_set_verify(_SSLContext,SSL_VERIFY_PEER, NULL);
+   SSL_CTX_set_verify(_SSLContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
+       prepareForCallback);
+#else   
+    if (verifyCert != NULL)
+    {
+        SSL_CTX_set_verify(_SSLContext, 
+            SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
+    }
 #endif
-   
+
     //
     // check certificate given to me
     //
 
     if (!cert_verify(_SSLContext, _certPath, _certPath))
         throw( SSL_Exception("Could not get certificate and/or private key"));
+
+    TLS_DEBUG(cout << "Leaving SSLContext::SSLContext()\n";)
 }
 
   
@@ -188,8 +283,12 @@ SSLContext::SSLContext(const String& certPath,
 
 SSLContext::~SSLContext()
 {
+    TLS_DEBUG(cout << "Entering SSLContext::~SSLContext()\n";)
+
     free(_certPath);
     SSL_CTX_free(_SSLContext);
+
+    TLS_DEBUG(cout << "Leaving SSLContext::~SSLContext()\n";)
 }
 
 //
@@ -201,10 +300,10 @@ SSL_CTX * SSLContext::getContext()
     return _SSLContext;
 }
 
+
 //
 // Basic SSL socket
 //
-
 
 SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
    throw(SSL_Exception) :
@@ -281,6 +380,8 @@ void SSLSocket::uninitializeInterface()
 
 Sint32 SSLSocket::accept()
 {
+    //PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
+
     Sint32 ssl_rc,ssl_rsn;
 
     SSL_do_handshake(_SSLConnection);
@@ -312,7 +413,7 @@ redo_accept:
 
        return -1;
     }
-    TLS_DEBUG(else cerr << "Accepted\n";)
+    TLS_DEBUG(cerr << "Accepted\n";)
 
 #ifdef CLIENT_CERTIFY
     // get client's certificate
@@ -320,7 +421,16 @@ redo_accept:
     X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
     if (client_cert != NULL)
     {
-       TLS_DEBUG(cerr << "Client certified\n";)
+       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+       {
+           TLS_DEBUG(cerr << "Client Certificate verified.\n";)
+       }
+       else
+       {
+           TLS_DEBUG(cerr << "Client Certificate not verified\n");    
+           return -1;
+       }
+
        X509_free (client_cert);
     }
     else
@@ -330,11 +440,13 @@ redo_accept:
     }
 #endif
 
+    //PEG_METHOD_EXIT();
     return ssl_rc;
 }
 
 Sint32 SSLSocket::connect()
 {
+    //PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
     Sint32 ssl_rc,ssl_rsn;
 
     SSL_set_connect_state(_SSLConnection);
@@ -346,7 +458,7 @@ redo_connect:
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       TLS_DEBUG(cerr << "Not connected " << ssl_rsn << endl;)
+       TLS_DEBUG(cerr << "--->Not connected " << ssl_rsn << endl;)
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -356,17 +468,26 @@ redo_connect:
     }
     else if (ssl_rc == 0)
     {
-       TLS_DEBUG(cerr << "Shutdown SSL_connect()\n";)
+       TLS_DEBUG(cerr << "--->Shutdown SSL_connect()\n";)
        ERR_print_errors_fp(stderr);
        return -1;
     }
-    TLS_DEBUG(else cerr << "Connected\n";)
+    TLS_DEBUG(cerr << "--->Connected\n";)
 
     // get server's certificate
     X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
     if (server_cert != NULL)
     {
-       TLS_DEBUG(cerr << "Server certified\n";)
+       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+       {
+           TLS_DEBUG(cerr << "Server Certificate verified.\n";)
+       }
+       else
+       {
+           TLS_DEBUG(cerr << "Server Certificate NOT verified\n");    
+           return -1;
+       }
+
        X509_free (server_cert);
     }
     else
@@ -375,6 +496,7 @@ redo_connect:
        return -1;
     }
 
+    //PEG_METHOD_EXIT();
     return ssl_rc;
 }
 

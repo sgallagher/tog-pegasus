@@ -40,10 +40,14 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CertificateInfo.h>
 
 // REVIEW: Figure out how this works (note to myself)?
 
+
 PEGASUS_NAMESPACE_BEGIN
+
+typedef Boolean (*VERIFY_CERTIFICATE) (CertificateInfo *);
 
 class PEGASUS_EXPORT SSLContext
 {
@@ -51,7 +55,8 @@ public:
 
    SSLContext(const String& certPath,
               const String& randomFile = String::EMPTY,
-              Boolean isCIMClient = false)
+              Boolean isCIMClient = false,
+              VERIFY_CERTIFICATE verifyCert = NULL)
               throw(SSL_Exception);
 
     ~SSLContext();

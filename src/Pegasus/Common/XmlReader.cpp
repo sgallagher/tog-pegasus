@@ -542,11 +542,6 @@ CIMType XmlReader::getCimTypeAttribute(
 	type = CIMType::REAL32;
     else if (strcmp(typeName, "real64") == 0)
 	type = CIMType::REAL64;
-    else if (strcmp(typeName, "reference") == 0)
-	type = CIMType::REFERENCE;
-
-    // ATTN: "reference" is not legal according to the DTD; however, it is
-    // used by the XML version of the CIM schema.
 
     if (type == CIMType::NONE)
     {
@@ -1045,13 +1040,12 @@ Boolean XmlReader::getPropertyValue(
        return true;
 
     // Test for Value.reference type
-    // ATTN:This returns a different type (CIMReference)
-    // ATTN: Possibly change to simply return result after
-    // we figure out the type differences.
-
-   CIMReference reference;
-   if(XmlReader::getValueReferenceElement(parser, reference))
-      return true;
+    CIMReference reference;
+    if(XmlReader::getValueReferenceElement(parser, reference))
+    {
+        cimValue.set(reference);
+        return true;
+    }
 
    return false;
 }
@@ -1877,7 +1871,8 @@ Boolean XmlReader::getKeyBindingElement(
 //     <!ATTLIST INSTANCENAME
 //         %ClassName;>
 //
-// ATTN-B: VALUE.REFERENCE sub-element not accepted yet.
+// Note: An empty key name is used in the keyBinding when the INSTANCENAME is
+// specified using a KEYVALUE or a VALUE.REFERENCE.
 //
 //------------------------------------------------------------------------------
 
@@ -1898,18 +1893,35 @@ Boolean XmlReader::getInstanceNameElement(
 
     className = getClassNameAttribute(parser.getLine(), entry, "INSTANCENAME");
 
-    if (!empty)
+    if (empty)
     {
-	String name;
-	KeyBinding::Type type;
-	String value;
+        return true;
+    }
 
+    String name;
+    KeyBinding::Type type;
+    String value;
+    CIMReference reference;
+
+    if (getKeyValueElement(parser, type, value))
+    {
+        // Use empty key name because none was specified
+        keyBindings.append(KeyBinding(name, value, type));
+    }
+    else if (getValueReferenceElement(parser, reference))
+    {
+        // Use empty key name because none was specified
+        type = KeyBinding::REFERENCE;
+        value = reference.toString();
+        keyBindings.append(KeyBinding(name, value, type));
+    }
+    else
+    {
 	while (getKeyBindingElement(parser, name, value, type))
 	    keyBindings.append(KeyBinding(name, value, type));
-
-	if (!empty)
-	    expectEndTag(parser, "INSTANCENAME");
     }
+
+    expectEndTag(parser, "INSTANCENAME");
 
     return true;
 }

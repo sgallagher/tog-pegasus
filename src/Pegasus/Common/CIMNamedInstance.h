@@ -98,7 +98,7 @@ public:
 
         @return A CIMReference object containing the instance name.
     */
-    const CIMReference& getReference() const { return _instanceName; }
+    const CIMReference& getInstanceName() const { return _instanceName; }
 
     /**
         Accessor for the instance portion of the CIMNamedInstance object.
@@ -112,7 +112,7 @@ public:
 
         @return A CIMReference object containing the instance name.
     */
-    CIMReference& getReference() { return _instanceName; }
+    CIMReference& getInstanceName() { return _instanceName; }
 
     /**
         Accessor for the instance portion of the CIMNamedInstance object.

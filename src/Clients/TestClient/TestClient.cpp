@@ -333,10 +333,18 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
        }
        else
        {
-           instanceNames = client.enumerateInstanceNames(globalNamespace,classNames[i]);
-           if (instanceNames.size() > 0)
+           try
+           {
+               instanceNames = client.enumerateInstanceNames(globalNamespace,classNames[i]);
+               if (instanceNames.size() > 0)
 		   cout << "Class " << classNames[i] << " " 
  		        << instanceNames.size() << " Instances" << endl;
+           }
+           catch(CIMClientException& e)
+           {
+                 cout << "CIMClientException : " << classNames[i] << endl;
+                 cout << e.getMessage() << endl;
+           }
        }
     }
     /*
@@ -433,6 +441,26 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
 						    instanceName,
 						    TESTPROPVALNAME );
     assert( returnedPropVal == testPropVal );
+
+    // Test modify instance client method
+    // Change the "nick" property and compare.
+
+    CIMInstance testInstance =
+      client.getInstance(globalNamespace, instanceName);
+    Uint32 propertyPos = testInstance.findProperty( TESTPROPVALNAME );
+    testInstance.removeProperty( propertyPos );
+    CIMProperty nickProperty = CIMProperty( TESTPROPVALNAME, "Duke" );
+    nickProperty.setClassOrigin( className );
+    testInstance.addProperty( nickProperty );
+    CIMNamedInstance namedTestInstance = CIMNamedInstance( instanceName,
+                                                           testInstance
+                                                           );
+    client.modifyInstance( globalNamespace,
+                           namedTestInstance
+                           );
+    CIMInstance currentInstance =
+      client.getInstance( globalNamespace, instanceName );
+    assert( currentInstance.identical( testInstance ) );
 
     client.deleteInstance(globalNamespace, instanceName);
 

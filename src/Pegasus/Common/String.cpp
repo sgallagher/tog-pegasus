@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.5  2001/03/09 19:49:32  karl
+// long lines
+//
 // Revision 1.4  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
+// Fixed many places where cim names compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
 //
 // Revision 1.3  2001/02/11 17:19:30  mike
@@ -69,12 +72,12 @@ inline Uint32 StrLen(const Char16* str)
     return n;
 }
 
-String::String() 
+String::String()
 {
-    _rep.append('\0'); 
+    _rep.append('\0');
 }
 
-String::String(const String& x) : _rep(x._rep) 
+String::String(const String& x) : _rep(x._rep)
 {
 
 }
@@ -85,14 +88,14 @@ String::String(const String& x, Uint32 n)
     append(x.getData(), n);
 }
 
-String::String(const Char16* x) : _rep(x, StrLen(x) + 1) 
-{ 
+String::String(const Char16* x) : _rep(x, StrLen(x) + 1)
+{
 
 }
 
-String::String(const Char16* x, Uint32 n) 
-{ 
-    assign(x, n); 
+String::String(const Char16* x, Uint32 n)
+{
+    assign(x, n);
 }
 
 String::String(const char* str)
@@ -104,7 +107,7 @@ String::String(const char* str)
 	_rep.append(*str++);
 }
 
-String::String(const char* str, Uint32 n_) 
+String::String(const char* str, Uint32 n_)
 {
     Uint32 n = _min(strlen(str), n_);
     reserve(n + 1);
@@ -115,11 +118,11 @@ String::String(const char* str, Uint32 n_)
     _rep.append('\0');
 }
 
-String& String::assign(const Char16* x) 
+String& String::assign(const Char16* x)
 {
     _rep.clear();
     _rep.append(x, StrLen(x) + 1);
-    return *this; 
+    return *this;
 }
 
 String& String::assign(const Char16* str, Uint32 n)
@@ -131,7 +134,7 @@ String& String::assign(const Char16* str, Uint32 n)
     return *this;
 }
 
-String& String::assign(const char* x) 
+String& String::assign(const char* x)
 {
     _rep.clear();
     Uint32 n = strlen(x);
@@ -142,7 +145,7 @@ String& String::assign(const char* x)
 
     _rep.append('\0');
 
-    return *this; 
+    return *this;
 }
 
 String& String::assign(const char* x, Uint32 n_)
@@ -157,7 +160,7 @@ String& String::assign(const char* x, Uint32 n_)
 
     _rep.append('\0');
 
-    return *this; 
+    return *this;
 }
 
 char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
@@ -180,8 +183,8 @@ char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
 }
 
 void String::appendToCString(
-    char* str, 
-    Uint32 length, 
+    char* str,
+    Uint32 length,
     Boolean noThrow) const
 {
     if (!str)
@@ -204,12 +207,12 @@ void String::appendToCString(
     *p = '\0';
 }
 
-Char16& String::operator[](Uint32 i) 
+Char16& String::operator[](Uint32 i)
 {
     if (i > getLength())
 	ThrowOutOfBounds();
 
-    return _rep[i]; 
+    return _rep[i];
 }
 
 const Char16 String::operator[](Uint32 i) const
@@ -217,7 +220,7 @@ const Char16 String::operator[](Uint32 i) const
     if (i > getLength())
 	ThrowOutOfBounds();
 
-    return _rep[i]; 
+    return _rep[i];
 }
 
 String& String::append(const Char16* str, Uint32 n)

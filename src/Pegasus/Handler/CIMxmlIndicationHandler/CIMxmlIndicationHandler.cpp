@@ -37,6 +37,7 @@
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -115,22 +116,24 @@ public:
             //
             // Get the sslCertificateFilePath property from the Config Manager.
             //
+            ConfigManager* configManager = ConfigManager::getInstance();
+
             String certPath;
-            certPath = ConfigManager::getInstance()->getCurrentValue(
+            certPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLCERT_FILEPATH);
 
             //
             // Get the sslKeyFilePath property from the Config Manager.
             //
             String keyPath;
-            keyPath = ConfigManager::getInstance()->getCurrentValue(
+            keyPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLKEY_FILEPATH);
 
             //
             // Get the sslKeyFilePath property from the Config Manager.
             //
             String trustPath = String::EMPTY;
-            trustPath = ConfigManager::getInstance()->getCurrentValue(
+            trustPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLTRUST_FILEPATH);
 
             String randFile = String::EMPTY;
@@ -145,9 +148,10 @@ public:
 
             SSLContext sslcontext(trustPath, certPath, keyPath, verifyListenerCertificate, randFile);
 
-	    Monitor* monitor = new Monitor;
-	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-	    CIMExportClient exportclient(monitor, httpConnector);
+            Monitor monitor;
+            HTTPConnector httpConnector( &monitor );
+            CIMExportClient exportclient( &monitor, &httpConnector );
+
             Uint32 colon = dest.find (":");
             Uint32 doubleSlash = dest.find ("//");
             Uint32 portNumber = 0;

@@ -33,6 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/CQL/SubRange.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                                           
@@ -68,16 +69,18 @@ String SubRange::toString()const{
 void SubRange::parse(String range){
         /*
           Look for the following possibilities:
-          - "3"   start is set to 3, end is set to 3
-          - "3-5" start is set to 3, end is set to 5
-          - "3.." start is set to 3, end is set to END_OF_ARRAY
-          - "..3" start is set to 0, end is set to 3
-          = ".."  start is set to 0, end is set to END_OF_ARRAY
-          - ""    start is set to NO_INDEX
-          - "*"   start is set to 0, end is set to END_OF_ARRAY
+	  *** NOTE: 2-7 are currently not supported ***
+          1. "3"   start is set to 3, end is set to 3
+          2. "3-5" start is set to 3, end is set to 5
+          3. "3.." start is set to 3, end is set to END_OF_ARRAY
+          4. "..3" start is set to 0, end is set to 3
+          5. ".."  start is set to 0, end is set to END_OF_ARRAY
+          6. ""    start is set to NO_INDEX
+          7. "*"   start is set to 0, end is set to END_OF_ARRAY
         */
         Uint32 index;
         CString _cstr;
+/*
         if(range == String::EMPTY){
                 start = SUBRANGE_NO_INDEX;
                 end = SUBRANGE_NO_INDEX;
@@ -88,6 +91,7 @@ void SubRange::parse(String range){
                 end = SUBRANGE_END_OF_ARRAY;
                 return;
         }
+*/
         if(range.size() == 1){
                 _cstr = range.getCString();
                 if(isNum(_cstr)){
@@ -95,10 +99,17 @@ void SubRange::parse(String range){
                         end = start;
                 }else{
                         // error
-			 printf("SubRange::parse() error\n");
+			String msg("SubRange parse error, index is not a number\n");
+			throw ParseError(msg);
                 }
                 return;
-        }
+        }else{
+		// error
+                String msg("SubRange parse error, index is not a single unsigned integer\n");
+                throw ParseError(msg);
+	}
+	
+/*
 	if((index = range.find('-')) != PEG_NOT_FOUND){
                 String s = range.subString(0,index);
                 String e = range.subString(index+1);
@@ -148,7 +159,7 @@ void SubRange::parse(String range){
                 end = SUBRANGE_END_OF_ARRAY;
                 return;
         }
-                                                                                                                                       
+*/                                                                                                                                     
 }
 
 Boolean SubRange::isNum(CString cstr){

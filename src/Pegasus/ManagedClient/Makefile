@@ -35,6 +35,7 @@ SOURCES = \
     ../Client/CIMOperationResponseDecoder.cpp \
     ../Client/ClientAuthenticator.cpp \
     ../Client/CIMClientException.cpp \
+    ../Client/ClientPerfDataStore.cpp\
     CIMClientConnection.cpp \
     CIMDefaultClientConnectionManager.cpp    
 

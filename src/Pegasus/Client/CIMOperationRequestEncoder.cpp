@@ -35,6 +35,7 @@
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Willis White, IBM (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -862,7 +863,24 @@ void CIMOperationRequestEncoder::_sendRequest(Array<char>& buffer)
         buffer.remove(buffer.size() - 1);
     }
 #endif
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+
+    HTTPMessage * http_request = new HTTPMessage(buffer);
+
+            /* collecting statistical information 
+                - requestSize (contentLength) and network Start Time
+            */
+    ClientPerfDataStore* dataStore_prt = ClientPerfDataStore::current();
+
+        //these variables are needed to call HTTPMessage::parse, all we need is contentLength
+    String startLine;
+    Array<HTTPHeader>  headers;
+	Uint32  contentLength;
+
+    http_request->parse(startLine, headers, contentLength);
+    dataStore_prt->setRequestSize(contentLength);
+    dataStore_prt->setStartNetworkTime();
+    
+    _outputQueue->enqueue(http_request);
 }
 
 

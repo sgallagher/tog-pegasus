@@ -30,6 +30,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Willis White, IBM (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,8 @@
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
+#include "ClientPerfDataStore.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 

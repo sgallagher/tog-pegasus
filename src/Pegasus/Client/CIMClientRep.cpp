@@ -35,6 +35,7 @@
 //               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //               Amit Arora (amita@in.ibm.com) for Bug#2040
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Willis White, IBM <whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1076,6 +1077,12 @@ Message* CIMClientRep::_doRequest(
 
 	request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages));
     request->operationContext.set(ContentLanguageListContainer(requestContentLanguages));
+
+
+        //gathering statistical information about client operation
+     perfDataStore.reset();
+     CIMOperationType currentMessageType = perfDataStore.setOperationType(request->getType());
+     perfDataStore.setMessageID(request->messageId);
 
 
     // Sending a new request, so clear out the response Content-Languages

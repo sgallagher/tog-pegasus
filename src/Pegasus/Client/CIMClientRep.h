@@ -32,6 +32,7 @@
 //               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#2040
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Willis White, IBM (whiwill@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +68,8 @@
 #include "CIMOperationResponseDecoder.h"
 #include "CIMOperationRequestEncoder.h"
 #include "ClientAuthenticator.h"
+#include "ClientPerfDataStore.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -323,6 +326,9 @@ private:
     AcceptLanguages requestAcceptLanguages;
     ContentLanguages requestContentLanguages;
     ContentLanguages responseContentLanguages;
+
+    //PEP 128
+     ClientPerfDataStore perfDataStore;
 
 	// mszer : Additions Stage1 PEP#139
 

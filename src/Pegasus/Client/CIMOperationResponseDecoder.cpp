@@ -38,6 +38,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//              Willis White, IBM (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,8 +54,11 @@
 #include <Pegasus/Common/Exception.h>
 #include "CIMOperationResponseDecoder.h"
 
+
 // l10n
-#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/MessageLoader.h> 
+
+
 
 PEGASUS_USING_STD;
 
@@ -113,6 +117,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Parse the HTTP message:
     //
+
+    ClientPerfDataStore* dataStore = ClientPerfDataStore::current();
+    CIMDateTime networkEndTime = CIMDateTime::getCurrentDateTime();
 
     String startLine;
     Array<HTTPHeader> headers;
@@ -380,6 +387,14 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
+    String serverTime;
+    if(HTTPMessage::lookupHeader(headers, "WBEMServerResponseTime", serverTime, true))
+    {
+        //cout << "serverTime was set it is " << serverTime.getCString() << endl;
+        Uint32 sTime = (Uint32) atol(serverTime.getCString());
+        dataStore->setServerTime(sTime);
+    }
+
 
     //
     // Zero-terminate the message:
@@ -419,6 +434,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
+    dataStore->setResponseSize(contentLength);
+    dataStore->setEndNetworkTime(networkEndTime);
+    //dataStore->print();
     _handleMethodResponse(content, httpMessage->contentLanguages);  // l10n
 }
 

@@ -29,12 +29,13 @@ endif
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-	CIMClientRep.cpp \
+    ClientPerfDataStore.cpp \
+    CIMClientRep.cpp \
     CIMClient.cpp \
     CIMOperationRequestEncoder.cpp \
     CIMOperationResponseDecoder.cpp \
     ClientAuthenticator.cpp \
-    CIMClientException.cpp
+    CIMClientException.cpp  \
 
 SOURCES_SLP = \
     CIMServerDiscovery.cpp

@@ -31,6 +31,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veriats.com)
+//              Willis White, IBM (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
+#include "ClientPerfDataStore.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -29,6 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <string.h>    // for memcpy()
 #include <Pegasus/Common/Tracer.h>
 
 #include "CIMOMHandleRep.h"

@@ -265,11 +265,6 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     PEG_METHOD_EXIT();
 }
 
-// Dummy constructor made private to disallow default construction
-SSLContextRep::SSLContextRep()
-{
-}
-
 //
 // Destructor
 //
@@ -381,6 +376,11 @@ SSLContext::SSLContext(
 SSLContext::SSLContext(const SSLContext& sslContext)
 {
     _rep = new SSLContextRep(*sslContext._rep);
+}
+
+// Dummy constructor made private to disallow default construction
+SSLContext::SSLContext()
+{
 }
 
 SSLContext::~SSLContext() 

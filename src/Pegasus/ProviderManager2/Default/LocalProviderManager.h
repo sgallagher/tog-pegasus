@@ -37,12 +37,11 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/HashTable.h>
-
 #include <Pegasus/Provider/CIMNullProvider.h>
 
+#include <Pegasus/ProviderManager2/Lockable.h>
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
-#include <Pegasus/ProviderManager2/Lockable.h>
 
 #include <Pegasus/Server/Linkage.h>
 
@@ -50,7 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE LocalProviderManager
 {
-
 public:
     LocalProviderManager(void);
     virtual ~LocalProviderManager(void);
@@ -59,13 +57,21 @@ public:
     OpProviderHolder getProvider(const String & fileName, const String & providerName,
         const String & interfaceName = String::EMPTY) ;
 
-    void unloadProvider(const String & fileName, const String & providerName);
+    void unloadProvider(const String & fileName, const String & providerName) ;
 
-    void shutdownAllProviders(void);
+    void shutdownAllProviders(void) ;
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
 
-    void unload_idle_providers(void);
+    void unload_idle_providers(void) ;
+
+    Sint16 disableProvider(const String & fileName, const String & providerName);
+    //
+    // If there are pending requests, do not disable the provider and return 0;
+    // Otherwise, disable the provider. If success, return 1, otherwise, return -1
+    //
+    Sint16 disableIndicationProvider(const String & fileName,
+        const String & providerName);
 
 private:
     enum CTRL
@@ -89,6 +95,7 @@ private:
     typedef HashTable<String, ProviderModule *,
         EqualFunc<String>, HashFunc<String> > ModuleTable;
 
+
     typedef struct
     {
         const String *providerName;
@@ -97,7 +104,7 @@ private:
     } CTRL_STRINGS;
 
     friend class ProviderManagerService;
-
+    friend class ProviderModule;
     ProviderTable _providers;
     ModuleTable _modules;
     Uint32 _idle_timeout;
@@ -114,4 +121,3 @@ protected:
 PEGASUS_NAMESPACE_END
 
 #endif
-

@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -38,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
 Provider::Provider(const String & name,
-		   ProviderModule *module, 
+		   ProviderModule *module,
 		   CIMProvider *pr)
    : Base(pr), _module(module), _cimom_handle(0), _name(name),
      _no_unload(0)
@@ -49,7 +49,7 @@ Provider::Provider(const String & name,
 
 Provider::~Provider(void)
 {
-   
+
 }
 
 
@@ -70,7 +70,7 @@ String Provider::getName(void) const
 
 void Provider::initialize(CIMOMHandle & cimom)
 {
-   
+
     _status = INITIALIZING;
 
     try
@@ -89,72 +89,25 @@ void Provider::initialize(CIMOMHandle & cimom)
 
     _status = INITIALIZED;
     _current_operations = 0;
+    _current_ind_operations = 0;
 }
-
-Boolean Provider::tryTerminate(void)
-{
-   
-   if(false == unload_ok())
-   {
-      return false;
-   }
-
-   _status = TERMINATING;
-   Boolean terminated = false;
-   
-   try
-   {
-      // yield before a potentially lengthy operation.
-      pegasus_yield();
-      try 
-      {
-#ifdef PEGASUS_PRESERVE_TRYTERMINATE
-	terminated =  ProviderFacade::tryTerminate();
-#else
-	terminated = true;
-	ProviderFacade::terminate();
-#endif
-      }
-      catch(...)
-      {
-	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-			  "Exception caught in ProviderFacade::tryTerminate() for " + 
-			  _name);
-      }
-      // yield before a potentially lengthy operation.
-      pegasus_yield();
-      if(terminated == true)
-	 _module->unloadModule();
-   }
-   catch(...)
-   {
-      _status = UNKNOWN;
-   }
-
-   if (terminated == true)
-   {
-      _status = TERMINATED;
-   }
-   return terminated;
-}
-
 
 void Provider::terminate(void)
 {
    _status = TERMINATING;
-    
+
     try
     {
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
-	try 
+	try
        {
 	ProviderFacade::terminate();
        }
        catch(...)
        {
-	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-			       "Exception caught in ProviderFacade::Terminate for " + 
+	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+			       "Exception caught in ProviderFacade::Terminate for " +
 			       _name);
        }
 	// yield before a potentially lengthy operation.
@@ -165,7 +118,7 @@ void Provider::terminate(void)
     catch(...)
     {
 	_status = UNKNOWN;
-   
+
 	throw;
     }
 
@@ -173,7 +126,7 @@ void Provider::terminate(void)
 
 }
 
-Boolean Provider::operator == (const void *key) const 
+Boolean Provider::operator == (const void *key) const
 {
    if( (void *)this == key)
       return true;
@@ -211,7 +164,7 @@ Boolean Provider::unload_ok(void)
 {
    if(_no_unload.value() )
       return false;
-   
+
    if(_cimom_handle)
       return _cimom_handle->unload_ok();
    return true;
@@ -223,7 +176,7 @@ void Provider::protect(void)
    _no_unload++;
 }
 
-// allow provider manager to unload when idle 
+// allow provider manager to unload when idle
 void Provider::unprotect(void)
 {
    _no_unload--;

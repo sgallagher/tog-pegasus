@@ -26,6 +26,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,20 +34,21 @@
 #define Pegasus_OperationResponseHandler_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
+
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMIndication.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Logger.h>
 
 #include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
+#include <Pegasus/Common/Logger.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -413,6 +415,7 @@ public:
     EnableIndicationsResponseHandler(
         CIMEnableIndicationsRequestMessage * request,
         CIMEnableIndicationsResponseMessage * response,
+        CIMInstance & provider,
         MessageQueueService * source,
         MessageQueueService * target = 0)
     : OperationResponseHandler(request, response),
@@ -422,6 +425,8 @@ public:
 	_response_copy(*response)
     {
         PEGASUS_ASSERT(_source != 0);
+
+        _provider = provider;
 
         // get indication service
         if(_target == 0)
@@ -457,14 +462,22 @@ public:
         // ATTN: temporarily convert indication to instance
         CIMInstance cimInstance(cimIndication);
 
-        //
+	//
         //  Get list of subscription instance names from context
         //
-        SubscriptionInstanceNamesContainer container = context.get
-            (SubscriptionInstanceNamesContainer::NAME);
+        Array<CIMObjectPath> subscriptionInstanceNames;
+        try
+        {
+            SubscriptionInstanceNamesContainer container = context.get
+                 (SubscriptionInstanceNamesContainer::NAME);
 
-        Array<CIMObjectPath> subscriptionInstanceNames =
-            container.getInstanceNames();
+            subscriptionInstanceNames =
+                container.getInstanceNames();
+        }
+        catch (Exception& e)
+        {
+            subscriptionInstanceNames.clear();
+        }
 
 // l10n
 		ContentLanguages contentLangs;
@@ -476,8 +489,7 @@ public:
 				(ContentLanguageListContainer::NAME);
 						
 			contentLangs = langContainer.getLanguages();		
-		}
-        catch (Exception &)
+		} catch (Exception & e)
 		{
 			// The provider did not explicitly set a Content-Language for
 			// the indication.  Fall back to the lang set in this object.
@@ -492,9 +504,11 @@ public:
 	     _request_copy.messageId,
             cimInstance.getPath().getNameSpace(),
             cimInstance,
-            subscriptionInstanceNames,
+	    subscriptionInstanceNames,
+            _provider,
             QueueIdStack(_target->getQueueId(), _source->getQueueId()),
             contentLangs);
+        request->operationContext = context;
 
         // send message
         // <<< Wed Apr 10 21:04:00 2002 mdd >>>

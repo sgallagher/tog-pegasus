@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
@@ -68,8 +69,6 @@ public:
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
-
-    virtual Boolean tryTerminate(void);
     virtual void terminate(void);
 
     Status getStatus(void) const;
@@ -87,9 +86,9 @@ public:
     virtual Boolean pending_operation(void);
     virtual Boolean unload_ok(void);
 
-//   force provider manager to keep in memory
+    //   force provider manager to keep in memory
     virtual void protect(void);
-// allow provider manager to unload when idle
+    // allow provider manager to unload when idle
     virtual void unprotect(void);
 
 protected:

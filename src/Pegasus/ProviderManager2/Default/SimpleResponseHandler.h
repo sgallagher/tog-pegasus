@@ -265,6 +265,8 @@ public:
         return _objects;
     }
 
+    CIMInstance _provider;
+
 private:
     Array<CIMIndication> _objects;
 

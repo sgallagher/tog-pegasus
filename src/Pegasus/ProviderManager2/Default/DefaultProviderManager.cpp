@@ -2207,8 +2207,12 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 
     try
     {
-        ProviderName name("");
-
+        ProviderName name(
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            0);
         /*
         ProviderName name(
             String::EMPTY,
@@ -2305,7 +2309,12 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 
     try
     {
-        ProviderName name("");
+        ProviderName name(
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            0);
 
         /*
         ProviderName name(

@@ -29,6 +29,7 @@
 //              Sushma Fernandes, Hewlett-Packard Company
 //                  (sushma_fernandes@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,7 @@
 
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 #include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
 
@@ -517,6 +518,7 @@ void ProviderFacade::executeQuery(
 void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 {
     _current_operations++;
+    op_counter ind_ops(&_current_ind_operations);
 
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
@@ -541,6 +543,7 @@ void ProviderFacade::createSubscription(
     const Uint16 repeatNotificationPolicy)
 {
     op_counter ops(&_current_operations);
+    op_counter ind_ops(&_current_ind_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -560,6 +563,7 @@ void ProviderFacade::modifySubscription(
     const Uint16 repeatNotificationPolicy)
 {
     op_counter ops(&_current_operations);
+    op_counter ind_ops(&_current_ind_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -577,6 +581,9 @@ void ProviderFacade::deleteSubscription(
     const Array<CIMObjectPath> & classNames)
 {
     op_counter ops(&_current_operations);
+
+    op_counter ind_ops(&_current_ind_operations);
+
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -586,23 +593,20 @@ void ProviderFacade::deleteSubscription(
         classNames);
 }
 
-// CIMIndicationConsumer interface
+// CIMIndicationConsumerProvider interface
 void ProviderFacade::consumeIndication(
     const OperationContext & context,
-    const String & url,
-    const CIMInstance& indicationInstance)
+    const String & destinationPath,
+    const CIMInstance & indication)
 {
-    /*
     op_counter ops(&_current_operations);
 
-    CIMIndicationConsumer * provider = getInterface<CIMIndicationConsumer>(_provider);
+    CIMIndicationConsumerProvider * provider = getInterface<CIMIndicationConsumerProvider>(_provider);
 
-    // handler should be unused
-    provider->handleIndication(
-       context,
-       indication,
-       handler);
-    */
+    provider->consumeIndication(
+        context,
+        destinationPath,
+        indication);
 }
 
 PEGASUS_NAMESPACE_END

@@ -384,8 +384,6 @@ int ClientHandler::handleMethodResponse()
     // Create a parser:
     //--------------------------------------------------------------------------
 
-PEGASUS_OUT(getContent());
-
     _message.append('\0');
     XmlParser parser((char*)getContent());
     XmlEntry entry;
@@ -2025,6 +2023,7 @@ void CIMClient::setQualifier(
     XmlWriter::appendQualifierDeclarationParameter(
 	params, "QualifierDeclaration", qualifierDeclaration);
 
+    {
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
 	nameSpace, "SetQualifier", params);
@@ -2041,6 +2040,10 @@ void CIMClient::setQualifier(
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
+    }
+
+    int x = 5;
+    x++;
 }
 
 void CIMClient::deleteQualifier(

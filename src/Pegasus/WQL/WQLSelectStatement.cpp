@@ -226,7 +226,7 @@ static inline void _ResolveProperty(
 	const CIMName& propertyName = op.getPropertyName();
 
 	if (!source->getValue(propertyName, op))
-	    throw NoSuchProperty(propertyName.getString());
+	    op = WQLOperand();
     }
 }
 

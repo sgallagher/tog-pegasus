@@ -15,7 +15,7 @@
 
 ###############################################################################
 ##
-## Platform specific settings for HP-UX
+## Platform specific settings for several platforms.
 ##
 ## NOTE: Please add platform specific environment variables as appropriate. 
 ##
@@ -23,8 +23,12 @@
 
 include pegasus/mak/config.mak
 
+# There is a start command for cimserver but no stop today.  Because of problems with
+# the use of cimserver as a service, we simply used the start command to allow us to
+# get on with testing. I know of no CLI to stop a window started with start so that
+# field is blank.  ks 7 April 2002
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  CIMSERVER_START_SERVICE =
+  CIMSERVER_START_SERVICE = start cimserver -l
   CIMSERVER_STOP_SERVICE =
   SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus

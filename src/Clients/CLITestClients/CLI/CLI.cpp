@@ -104,6 +104,7 @@ int main(int argc, char** argv)
     opts.includeQualifiers = false;
     opts.includeClassOrigin = false;
     opts.resultClassName = String::EMPTY;
+    opts.resultClass = CIMName();
     opts.role = String::EMPTY;
     opts.resultRole = String::EMPTY;
     opts.propertyListText = String::EMPTY;

@@ -595,7 +595,7 @@ int referenceNames(CIMClient& client, Options& opts)
         cout << "ReferenceNames "
             << "Namespace = " << opts.nameSpace
             << ", ObjectPath = " << opts.objectName
-            << ", resultClass = " << opts.resultClassName
+            << ", resultClass = " << opts.resultClass
             << ", role = " << opts.role
             << endl;
     }
@@ -641,7 +641,7 @@ int references(CIMClient& client, Options& opts)
         cout << "References "
             << "Namespace = " << opts.nameSpace
             << ", Object = " << opts.objectName
-            << ", resultClass = " << opts.resultClassName
+            << ", resultClass = " << opts.resultClass
             << ", role = " << opts.role
             << ", includeQualifiers = " << opts.includeQualifiers
             << ", includeClassOrigin = " << opts.includeClassOrigin
@@ -700,15 +700,19 @@ int associatorNames(CIMClient& client, Options& opts)
         cout << "associatorNames "
             << "Namespace = " << opts.nameSpace
             << ", Object = " << opts.objectName
-            << ", resultClass = " << opts.resultClassName
+            << ", assocClass = " << opts.assocClass
+            << ", resultClass = " << opts.resultClass
             << ", role = " << opts.role
+            << ", resultRole = " << opts.resultRole
             << endl;
     }
     Array<CIMObjectPath> associatorNames = 
     
     client.associatorNames( opts.nameSpace, opts.objectName,
+        opts.assocClass,
         opts.resultClass,
-        opts.role);
+        opts.role,
+        opts.resultRole);
     
     /*
 	const CIMNamespaceName& nameSpace,
@@ -999,25 +1003,38 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
        if (verboseTest)
            cout << "CIM ObjectPath = " << opts.cimObjectPath << endl;
     }
-    
-    if(om.lookupValue("role", opts.role))
+    String temprole;
+    if(om.lookupValue("role", temprole))
     {
-       if (verboseTest)
-           cout << "role = " << opts.role << endl;
+        if (verboseTest)
+           cout << "role = " << temprole << endl;
     }
-    
+    if (temprole != "unknown")
+    {
+        opts.role = temprole;
+        ////cout << "KSTEST role after setting " << opts.role << endl;
+    }
+    else
+        opts.role = String::EMPTY;
+
+    /////cout << "KSTEST role output " << opts.role;
+
+    opts.role = String::EMPTY;
     if(om.lookupValue("resultClass", opts.resultClassName))
     {
        if (verboseTest)
            cout << "resultClassName = " << opts.resultClassName << endl;
-       try
+       if (opts.resultClassName != "unknown")
        {
-           opts.resultClass = opts.resultClassName;
-       }
-       catch(Exception& e)
-       {
-           cout << "Error in Result Class. Exception " << e.getMessage() << endl;
-           exit(1);
+           try
+           {
+               opts.resultClass = opts.resultClassName;
+           }
+           catch(Exception& e)
+           {
+               cout << "Error in Result Class. Exception " << e.getMessage() << endl;
+               exit(1);
+           }
        }
     }
     
@@ -1100,11 +1117,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // Note that this makes no notice of a not found
     if (cnt != NUM_OUTPUTS)
         opts.outputFormatType = cnt;
-    if (om.lookupValue("role", opts.role))
-    {
-        if (verboseTest)
-            cout << "Role = " << opts.role << endl;
-    }
     
     return 0;
 }

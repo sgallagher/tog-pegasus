@@ -537,6 +537,9 @@ void ProviderRegistrationProvider::deleteInstance(
     }
     catch(CIMException& e)
     {
+       cout << " caught exception in ProviderRegistrationProvider" << endl;
+       cout << " rethrowing " << endl;
+       
         throw (e);
     }
 

@@ -391,7 +391,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
 		     "to " + serviceName + "response should go to queue " + 
 		     ((MessageQueue::lookup(request->queueIds.top())) ? 
-		      String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
 		      String("BAD queue name")));
     SendAsync(op, 
 	      serviceIds[0],
@@ -479,7 +479,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
 		     "to " + serviceName + "::" + controlProviderName + " response should go to queue " + 
 		     ((MessageQueue::lookup(request->queueIds.top())) ? 
-		      String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
 		      String("BAD queue name")));
     SendAsync(op, 
  	      serviceIds[0],

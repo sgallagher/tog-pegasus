@@ -47,6 +47,9 @@ ProviderMessageFacade::~ProviderMessageFacade(void)
 
 Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 {
+   try 
+   {
+      
     // pass the request message to a handler method based on message type
     switch(message->getType())
     {
@@ -62,11 +65,22 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
 	return _handleCreateInstanceRequest(message);
 	break;
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	return _handleModifyInstanceRequest(message);
-	break;
+       case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+       {
+	  
+       cout << " ProviderMessageFacade::handleRequestMessage " << endl;
+       
+       Message *ret = _handleModifyInstanceRequest(message);
+       cout << " modify instance response " << "type " << ret->getType() << " dest " << ret->dest << endl;
+       
+       cout << " leaving ProviderMessageFacade::handleRequestMessage " << endl;
+       return ret;
+       }
+       
+       break;
+
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	return _handleDeleteInstanceRequest(message);
+       return _handleDeleteInstanceRequest(message);
 	break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
 	return _handleExecuteQueryRequest(message);
@@ -102,7 +116,13 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 	// unsupported messages are ignored
 	break;
     }
-
+   }
+   catch( ... ) 
+   {
+      cout << "caught exception in ProviderMessageFacade::handleRequestMessage" << endl;
+      ;
+   }
+   
     return(0);
 }
 
@@ -158,7 +178,9 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	// error? provider claims success, but did not deliver an instance.
 	if(handler.getObjects().size() == 0)
 	{
-	    throw CIMException(CIM_ERR_NOT_FOUND);
+	   // << Mon Apr 29 12:40:36 2002 mdd >>
+//	    throw CIMException(CIM_ERR_NOT_FOUND);
+	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}
 
 	// save returned instance
@@ -385,7 +407,9 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	// instance name.
 	if(handler.getObjects().size() == 0)
 	{
-	    throw CIMException(CIM_ERR_NOT_FOUND);
+//	    throw CIMException(CIM_ERR_NOT_FOUND);
+	   // << Mon Apr 29 12:40:57 2002 mdd >>
+	    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}
 
 	// save returned instance name
@@ -427,6 +451,9 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
     CIMException cimException;
     CIMReference instanceName;
+
+    cout << "ProviderMessageFaced::_handleModifyInstanceRequest" << endl;
+    
 
     try
     {
@@ -765,7 +792,9 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	// error? provider claims success, but did not deliver a CIMValue.
 	if(handler.getObjects().size() == 0)
 	{
-	    throw CIMException(CIM_ERR_NOT_FOUND);
+//	    throw CIMException(CIM_ERR_NOT_FOUND);
+// << Mon Apr 29 12:41:15 2002 mdd >>
+	    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}
 
 	returnValue = handler.getObjects()[0];

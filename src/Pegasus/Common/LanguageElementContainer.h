@@ -86,7 +86,7 @@ public:
 	 * Deep copy
 	 * @param rhs LanguageElementContainer
 	 */
-	virtual LanguageElementContainer operator=(LanguageElementContainer rhs);
+	LanguageElementContainer operator=(LanguageElementContainer rhs);
 
 	/** Gets an AcceptLanguageElement object at position index
 	 * @param index int position of AcceptLanguageElement
@@ -152,19 +152,19 @@ public:
 	/**
 	 * Equality based on language fields only
 	 */
-	virtual Boolean operator==(LanguageElementContainer rhs);
+	Boolean operator==(LanguageElementContainer rhs);
 
 	/**
 	 * Inequality based on language fields only
 	 */
-	virtual Boolean operator!=(LanguageElementContainer rhs);
+	Boolean operator!=(LanguageElementContainer rhs);
 	
 	/**
 	 * Finds the element in the container and returns its position.
 	 * @param element LanguageElement - element to find
 	 * @return int index of element if found, otherwise -1
 	 */
-	virtual int find(LanguageElement element)const;
+	int find(LanguageElement element)const;
 
 protected:
 
@@ -172,7 +172,7 @@ protected:
 
 private:
 	
-	virtual void buildLanguageElements(Array<String> values);
+	void buildLanguageElements(Array<String> values);
 
 	void updateIterator();
 	

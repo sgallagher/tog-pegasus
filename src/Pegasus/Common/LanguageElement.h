@@ -103,13 +103,13 @@ public:
 	/**
 	 * Assignment operator, deep copy
 	 */
-	virtual LanguageElement operator=(LanguageElement rhs);
+	LanguageElement operator=(LanguageElement rhs);
 	
 	/**
 	 * Builds the language tag representation of this object
 	 * @return String - language-country-variant 
 	 */
-	virtual String getLanguageTag() const;
+	String getLanguageTag() const;
 
 	/** Gets the language value
 	 * @return String - language
@@ -142,12 +142,12 @@ public:
 	/**
 	 * Equality based on case INSENSITIVE comparison of the language tags
 	 */
-	virtual Boolean operator==(LanguageElement rhs);
+	Boolean operator==(LanguageElement rhs);
 	
 	/**
 	 * Inequality based on case INSENSITIVE comparison of the language tags
 	 */
-	virtual Boolean operator!=(LanguageElement rhs);
+	Boolean operator!=(LanguageElement rhs);
 	
 	/**
 	 * Writes the String representation of this object to the stream

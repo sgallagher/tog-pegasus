@@ -200,7 +200,6 @@ scoped_property : SCOPED_PROPERTY
 			printf_(msg);
 
 		        String tmp(CQL_lval.strValue);
-			//String tmp1("A::prop#OK");
 		        $$ = new CQLIdentifier(tmp);
                   }
 ;   

@@ -684,12 +684,11 @@ case 4:
 			printf_(msg);
 
 		        String tmp(CQL_lval.strValue);
-			/*String tmp1("A::prop#OK");*/
 		        yyval._identifier = new CQLIdentifier(tmp);
                   }
 break;
 case 5:
-#line 210 "CQL.y"
+#line 209 "CQL.y"
 { 
 		/*
 		   We make sure the literal is valid UTF8, then make a String
@@ -706,7 +705,7 @@ case 5:
              }
 break;
 case 6:
-#line 228 "CQL.y"
+#line 227 "CQL.y"
 { 
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
@@ -715,7 +714,7 @@ case 6:
                }
 break;
 case 7:
-#line 235 "CQL.y"
+#line 234 "CQL.y"
 { 
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
@@ -724,7 +723,7 @@ case 7:
                }
 break;
 case 8:
-#line 245 "CQL.y"
+#line 244 "CQL.y"
 { 
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
@@ -733,7 +732,7 @@ case 8:
             }
 break;
 case 9:
-#line 252 "CQL.y"
+#line 251 "CQL.y"
 { 
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
@@ -742,7 +741,7 @@ case 9:
             }
 break;
 case 10:
-#line 262 "CQL.y"
+#line 261 "CQL.y"
 { 
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
@@ -751,7 +750,7 @@ case 10:
                 }
 break;
 case 11:
-#line 269 "CQL.y"
+#line 268 "CQL.y"
 { 
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
@@ -760,7 +759,7 @@ case 11:
                 }
 break;
 case 12:
-#line 279 "CQL.y"
+#line 278 "CQL.y"
 { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
@@ -768,7 +767,7 @@ case 12:
              }
 break;
 case 13:
-#line 285 "CQL.y"
+#line 284 "CQL.y"
 { 
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
@@ -776,7 +775,7 @@ case 13:
              }
 break;
 case 14:
-#line 294 "CQL.y"
+#line 293 "CQL.y"
 {
               sprintf(msg,"BISON::literal->literal_string\n");
 	      printf_(msg);
@@ -785,7 +784,7 @@ case 14:
           }
 break;
 case 15:
-#line 301 "CQL.y"
+#line 300 "CQL.y"
 {
               sprintf(msg,"BISON::literal->decimal_value\n");
 	      printf_(msg);
@@ -793,7 +792,7 @@ case 15:
           }
 break;
 case 16:
-#line 307 "CQL.y"
+#line 306 "CQL.y"
 {
               sprintf(msg,"BISON::literal->binary_value\n");
 	      printf_(msg);
@@ -801,7 +800,7 @@ case 16:
           }
 break;
 case 17:
-#line 313 "CQL.y"
+#line 312 "CQL.y"
 {
               sprintf(msg,"BISON::literal->hex_value\n");
 	      printf_(msg);
@@ -809,7 +808,7 @@ case 17:
           }
 break;
 case 18:
-#line 319 "CQL.y"
+#line 318 "CQL.y"
 {
               sprintf(msg,"BISON::literal->real_value\n");
 	      printf_(msg);
@@ -817,7 +816,7 @@ case 18:
           }
 break;
 case 19:
-#line 325 "CQL.y"
+#line 324 "CQL.y"
 {
               sprintf(msg,"BISON::literal->_TRUE\n");
 	      printf_(msg);
@@ -826,7 +825,7 @@ case 19:
           }
 break;
 case 20:
-#line 332 "CQL.y"
+#line 331 "CQL.y"
 {
               sprintf(msg,"BISON::literal->_FALSE\n");
 	      printf_(msg);
@@ -835,7 +834,7 @@ case 20:
           }
 break;
 case 21:
-#line 342 "CQL.y"
+#line 341 "CQL.y"
 {
                   sprintf(msg,"BISON::array_index->expr\n");
 		  printf_(msg);
@@ -847,7 +846,7 @@ case 21:
               }
 break;
 case 22:
-#line 355 "CQL.y"
+#line 354 "CQL.y"
 {
                        sprintf(msg,"BISON::array_index_list->array_index\n");
 		       printf_(msg);
@@ -855,7 +854,7 @@ case 22:
                    }
 break;
 case 23:
-#line 364 "CQL.y"
+#line 363 "CQL.y"
 {
             sprintf(msg,"BISON::chain->literal\n");
 	    printf_(msg);
@@ -866,7 +865,7 @@ case 23:
         }
 break;
 case 24:
-#line 373 "CQL.y"
+#line 372 "CQL.y"
 {
             sprintf(msg,"BISON::chain-> ( expr )\n");
 	    printf_(msg);
@@ -876,7 +875,7 @@ case 24:
         }
 break;
 case 25:
-#line 381 "CQL.y"
+#line 380 "CQL.y"
 {
            sprintf(msg,"BISON::chain->identifier\n");
 	   printf_(msg);
@@ -887,7 +886,7 @@ case 25:
         }
 break;
 case 26:
-#line 390 "CQL.y"
+#line 389 "CQL.y"
 {
             sprintf(msg,"BISON::chain->identifier#literal_string\n");
 	    printf_(msg);
@@ -901,7 +900,7 @@ case 26:
         }
 break;
 case 27:
-#line 402 "CQL.y"
+#line 401 "CQL.y"
 {
 	    sprintf(msg,"BISON::chain-> scoped_property\n");
 	    printf_(msg);
@@ -912,7 +911,7 @@ case 27:
         }
 break;
 case 28:
-#line 411 "CQL.y"
+#line 410 "CQL.y"
 {
             sprintf(msg,"BISON::chain-> identifier( arg_list )\n");
 	    printf_(msg);
@@ -924,7 +923,7 @@ case 28:
         }
 break;
 case 29:
-#line 421 "CQL.y"
+#line 420 "CQL.y"
 {
 	    sprintf(msg,"BISON::chain-> chain DOT scoped_property : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -953,7 +952,7 @@ case 29:
         }
 break;
 case 30:
-#line 448 "CQL.y"
+#line 447 "CQL.y"
 {
             sprintf(msg,"BISON::chain->chain.identifier : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -980,7 +979,7 @@ case 30:
         }
 break;
 case 31:
-#line 473 "CQL.y"
+#line 472 "CQL.y"
 {
             sprintf(msg,"BISON::chain->chain.identifier#literal_string : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -1017,7 +1016,7 @@ case 31:
         }
 break;
 case 32:
-#line 508 "CQL.y"
+#line 507 "CQL.y"
 {
             sprintf(msg,"BISON::chain->chain[ array_index_list ] : chain_state = %d\n",chain_state);
 	    printf_(msg);
@@ -1055,7 +1054,7 @@ case 32:
         }
 break;
 case 33:
-#line 546 "CQL.y"
+#line 545 "CQL.y"
 {
              sprintf(msg,"BISON::concat->chain\n");
 	     printf_(msg);
@@ -1064,7 +1063,7 @@ case 33:
          }
 break;
 case 34:
-#line 553 "CQL.y"
+#line 552 "CQL.y"
 {
              sprintf(msg,"BISON::concat||chain\n");
 	     printf_(msg);
@@ -1082,7 +1081,7 @@ case 34:
          }
 break;
 case 35:
-#line 571 "CQL.y"
+#line 570 "CQL.y"
 {
              sprintf(msg,"BISON::factor->concat\n");
 	     printf_(msg);
@@ -1091,7 +1090,7 @@ case 35:
          }
 break;
 case 36:
-#line 595 "CQL.y"
+#line 594 "CQL.y"
 {
            sprintf(msg,"BISON::term->factor\n");
 	   printf_(msg);
@@ -1100,7 +1099,7 @@ case 36:
        }
 break;
 case 37:
-#line 618 "CQL.y"
+#line 617 "CQL.y"
 {
             sprintf(msg,"BISON::arith->term\n");
 	    printf_(msg);
@@ -1111,7 +1110,7 @@ case 37:
         }
 break;
 case 38:
-#line 643 "CQL.y"
+#line 642 "CQL.y"
 {
                    sprintf(msg,"BISON::value_symbol->#literal_string\n");
                    printf_(msg);
@@ -1124,7 +1123,7 @@ case 38:
                }
 break;
 case 39:
-#line 656 "CQL.y"
+#line 655 "CQL.y"
 {
                             sprintf(msg,"BISON::arith_or_value_symbol->arith\n");
 			    printf_(msg);
@@ -1133,7 +1132,7 @@ case 39:
                         }
 break;
 case 40:
-#line 663 "CQL.y"
+#line 662 "CQL.y"
 {
 			    /* make into predicate */
                             sprintf(msg,"BISON::arith_or_value_symbol->value_symbol\n");
@@ -1145,7 +1144,7 @@ case 40:
                         }
 break;
 case 41:
-#line 675 "CQL.y"
+#line 674 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_EQ\n");
 	      printf_(msg);
@@ -1153,7 +1152,7 @@ case 41:
           }
 break;
 case 42:
-#line 681 "CQL.y"
+#line 680 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_NE\n");
 	      printf_(msg);
@@ -1161,7 +1160,7 @@ case 42:
           }
 break;
 case 43:
-#line 687 "CQL.y"
+#line 686 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_GT\n");
 	      printf_(msg);
@@ -1169,7 +1168,7 @@ case 43:
           }
 break;
 case 44:
-#line 693 "CQL.y"
+#line 692 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_LT\n");
 	      printf_(msg);
@@ -1177,7 +1176,7 @@ case 44:
           }
 break;
 case 45:
-#line 699 "CQL.y"
+#line 698 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_GE\n");
 	      printf_(msg);
@@ -1185,7 +1184,7 @@ case 45:
           }
 break;
 case 46:
-#line 705 "CQL.y"
+#line 704 "CQL.y"
 {
               sprintf(msg,"BISON::comp_op->_LE\n");
 	      printf_(msg);
@@ -1193,7 +1192,7 @@ case 46:
           }
 break;
 case 47:
-#line 713 "CQL.y"
+#line 712 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith\n");
 	   printf_(msg);
@@ -1202,7 +1201,7 @@ case 47:
        }
 break;
 case 48:
-#line 720 "CQL.y"
+#line 719 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith IS NOT _NULL\n");
 	   printf_(msg);
@@ -1214,7 +1213,7 @@ case 48:
        }
 break;
 case 49:
-#line 730 "CQL.y"
+#line 729 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith IS _NULL\n");
 	   printf_(msg);
@@ -1226,7 +1225,7 @@ case 49:
        }
 break;
 case 50:
-#line 740 "CQL.y"
+#line 739 "CQL.y"
 {
            sprintf(msg,"BISON::comp->arith comp_op arith_or_value_symbol\n");
 	   printf_(msg);
@@ -1243,7 +1242,7 @@ case 50:
        }
 break;
 case 51:
-#line 755 "CQL.y"
+#line 754 "CQL.y"
 {
            sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
 	   printf_(msg);
@@ -1261,7 +1260,7 @@ case 51:
        }
 break;
 case 52:
-#line 771 "CQL.y"
+#line 770 "CQL.y"
 {
 	   /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            sprintf(msg,"BISON::comp->arith _ISA identifier\n");
@@ -1277,7 +1276,7 @@ case 52:
        }
 break;
 case 53:
-#line 785 "CQL.y"
+#line 784 "CQL.y"
 {
 	    /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            sprintf(msg,"BISON::comp->arith _LIKE literal_string\n");
@@ -1293,7 +1292,7 @@ case 53:
        }
 break;
 case 54:
-#line 800 "CQL.y"
+#line 799 "CQL.y"
 {
                   sprintf(msg,"BISON::expr_factor->comp\n");
 	          printf_(msg);
@@ -1302,7 +1301,7 @@ case 54:
               }
 break;
 case 55:
-#line 807 "CQL.y"
+#line 806 "CQL.y"
 {
                   sprintf(msg,"BISON::expr_factor->NOT comp\n");
 	 	  printf_(msg);
@@ -1312,7 +1311,7 @@ case 55:
               }
 break;
 case 56:
-#line 817 "CQL.y"
+#line 816 "CQL.y"
 {
                 sprintf(msg,"BISON::expr_term->expr_factor\n");
 		printf_(msg);
@@ -1321,7 +1320,7 @@ case 56:
             }
 break;
 case 57:
-#line 824 "CQL.y"
+#line 823 "CQL.y"
 {
 		sprintf(msg,"BISON::expr_term->expr_term AND expr_factor\n");
 		printf_(msg);
@@ -1332,7 +1331,7 @@ case 57:
             }
 break;
 case 58:
-#line 835 "CQL.y"
+#line 834 "CQL.y"
 {
           sprintf(msg,"BISON::expr->expr_term\n");
 	  printf_(msg);
@@ -1341,7 +1340,7 @@ case 58:
        }
 break;
 case 59:
-#line 842 "CQL.y"
+#line 841 "CQL.y"
 {
            sprintf(msg,"BISON::expr->expr OR expr_term\n");
 	   printf_(msg);
@@ -1351,11 +1350,11 @@ case 59:
        }
 break;
 case 60:
-#line 851 "CQL.y"
+#line 850 "CQL.y"
 {;}
 break;
 case 61:
-#line 853 "CQL.y"
+#line 852 "CQL.y"
 {
                sprintf(msg,"BISON::arg_list->STAR\n");
 	       printf_(msg);
@@ -1366,7 +1365,7 @@ case 61:
            }
 break;
 case 62:
-#line 862 "CQL.y"
+#line 861 "CQL.y"
 {
                    sprintf(msg,"BISON::arg_list_sub->expr\n");
                    printf_(msg);
@@ -1375,7 +1374,7 @@ case 62:
            }
 break;
 case 63:
-#line 916 "CQL.y"
+#line 915 "CQL.y"
 {
                      sprintf(msg,"BISON::from_specifier->class_path\n");
 		     printf_(msg);
@@ -1385,7 +1384,7 @@ case 63:
                  }
 break;
 case 64:
-#line 925 "CQL.y"
+#line 924 "CQL.y"
 {
 			sprintf(msg,"BISON::from_specifier->class_path AS identifier\n");
 			printf_(msg);
@@ -1398,7 +1397,7 @@ case 64:
 		  }
 break;
 case 65:
-#line 936 "CQL.y"
+#line 935 "CQL.y"
 {
 			sprintf(msg,"BISON::from_specifier->class_path identifier\n");
 			printf_(msg);
@@ -1411,14 +1410,14 @@ case 65:
 		  }
 break;
 case 66:
-#line 949 "CQL.y"
+#line 948 "CQL.y"
 {
                     sprintf(msg,"BISON::from_criteria->from_specifier\n");
 		    printf_(msg);
                 }
 break;
 case 67:
-#line 956 "CQL.y"
+#line 955 "CQL.y"
 {
                 sprintf(msg,"BISON::star_expr->STAR\n");
 		printf_(msg);
@@ -1428,7 +1427,7 @@ case 67:
             }
 break;
 case 68:
-#line 964 "CQL.y"
+#line 963 "CQL.y"
 {
 		sprintf(msg,"BISON::star_expr->chain.*\n");
                 printf_(msg);
@@ -1440,7 +1439,7 @@ case 68:
 	    }
 break;
 case 69:
-#line 976 "CQL.y"
+#line 975 "CQL.y"
 {
                      sprintf(msg,"BISON::selected_entry->expr\n");
 		     printf_(msg);
@@ -1455,7 +1454,7 @@ case 69:
                  }
 break;
 case 70:
-#line 989 "CQL.y"
+#line 988 "CQL.y"
 {
                      sprintf(msg,"BISON::selected_entry->star_expr\n");
 		     printf_(msg);
@@ -1463,25 +1462,25 @@ case 70:
                  }
 break;
 case 71:
-#line 997 "CQL.y"
+#line 996 "CQL.y"
 {
                 sprintf(msg,"BISON::select_list->selected_entry select_list_tail\n");
 		printf_(msg);
             }
 break;
 case 72:
-#line 1003 "CQL.y"
+#line 1002 "CQL.y"
 {;}
 break;
 case 73:
-#line 1005 "CQL.y"
+#line 1004 "CQL.y"
 {
                        sprintf(msg,"BISON::select_list_tail->COMMA selected_entry select_list_tail\n");
 		       printf_(msg);
                    }
 break;
 case 74:
-#line 1012 "CQL.y"
+#line 1011 "CQL.y"
 {
                         sprintf(msg,"BISON::search_condition->expr\n");
 			printf_(msg);
@@ -1489,11 +1488,11 @@ case 74:
                    }
 break;
 case 75:
-#line 1019 "CQL.y"
+#line 1018 "CQL.y"
 {;}
 break;
 case 76:
-#line 1021 "CQL.y"
+#line 1020 "CQL.y"
 {
                      sprintf(msg,"BISON::optional_where->WHERE search_condition\n");
 		     printf_(msg);
@@ -1501,13 +1500,13 @@ case 76:
                  }
 break;
 case 77:
-#line 1029 "CQL.y"
+#line 1028 "CQL.y"
 {
                        sprintf(msg,"select_statement\n\n");
 		       printf_(msg);
                    }
 break;
-#line 1511 "y.tab.c"
+#line 1510 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

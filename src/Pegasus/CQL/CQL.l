@@ -1,3 +1,4 @@
+%option never-interactive
 %{
 extern int CQLInput(char* buffer, int& numRead, int numRequested);
 extern int CQL_error(const char*);

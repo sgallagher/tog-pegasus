@@ -32,6 +32,8 @@ Topical To-Do List
 
 -   Exceptions:
 
+    -   Force __FILE__ and __LINE__ argument on every usage of CIMException.
+
     -	Clean up and consolidate exception classes.
 
     - 	Propagate underlying error messages across the CIM protocol.

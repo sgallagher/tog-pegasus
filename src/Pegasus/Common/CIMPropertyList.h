@@ -56,9 +56,12 @@ class CIMPropertyListRep;
 	<li>Null - Operations where there is no propertyList filter.</li>
     </ul>
 
-    To create a null property list use the default constructor. Otherwise 
-    use the constructor which takes a property array (pass an empty property
-    array to get an empty property list object).
+    To create a null property list use the default constructor or use the
+    clear() method.
+    
+    To create an empty property list use the constructor which takes
+    a property array (pass an empty property array which produces an empty
+    but not Null property list object).
 
     Methods are provided for accessing elements of the the internal property
     list. There are none for modifying elements (the entire array must be
@@ -132,6 +135,10 @@ public:
     Boolean isNull() const;
 
     /** Get the number of propertyNames in the list.
+        @return Uint32 with count of number of properties in the
+        list. Returns 0 if property list is Null but this is not
+        sufficient to determine if it is Null. Use isNull to determine
+        if it is Null.
     */
     Uint32 size() const;
 

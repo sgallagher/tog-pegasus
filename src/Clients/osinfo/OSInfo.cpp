@@ -174,8 +174,18 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 #ifdef DEBUG
     cout << certInfo.getSubjectName() << endl;
 #endif
-    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
-    return true;
+    //
+    // If server certificate was found in trust store and validated, then
+    // return 'true' to accept the certificate, otherwise return 'false'.
+    //
+    if (certInfo.getResponseCode() == 1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /**
@@ -350,7 +360,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
 	
 	   String certpath = FileSystem::getAbsolutePath(
               pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-	
+
 	   String randFile = String::EMPTY;
 
 	   randFile = FileSystem::getAbsolutePath(

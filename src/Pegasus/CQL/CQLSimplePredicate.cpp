@@ -54,5 +54,9 @@ String CQLSimplePredicate::toString()
 {
 	return _rep->toString();
 }
+
+Boolean CQLSimplePredicate::isSimpleValue(){
+	return _rep->isSimpleValue();
+}
  
 PEGASUS_NAMESPACE_END

@@ -147,10 +147,36 @@ void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryTyp
 		case Function:
 			return NULL;
 		case Value:
-			return NULL;
+			return getObject(((CQLValue*)inObject),targetType);
+		case ChainedIdentifier:
+			return getObject(((CQLChainedIdentifier*)inObject),targetType);
 		default:
 			return NULL;
 	}
+}
+
+void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){
+	switch(target){
+          case Identifier:
+		if(obj->_rep->_subIdentifiers.size() > 0){
+                	_identifier = obj->_rep->_subIdentifiers[0];
+                	return &_identifier;
+		}
+		return NULL;
+          default:
+                return NULL;
+        }
+}
+
+void* CQLFactory::getObject(CQLValue* obj, FactoryType target){
+	switch(target){
+          case ChainedIdentifier:
+                _chainedIdentifier = obj->getChainedIdentifier();
+                return &_chainedIdentifier;
+          default:
+                return NULL;
+                break;
+        }
 }
 
 void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){

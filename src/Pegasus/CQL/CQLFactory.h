@@ -5,13 +5,14 @@
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLValue.h>
-//#include <Pegasus/CQL/CQLChainedIdentifier.h>
+#include <Pegasus/CQL/CQLChainedIdentifier.h>
+#include <Pegasus/CQL/CQLChainedIdentifierRep.h>
 //#include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLPredicateRep.h>
 #include <Pegasus/CQL/CQLSimplePredicate.h>
 #include <Pegasus/CQL/CQLSimplePredicateRep.h>
-//#include <Pegasus/CQL/CQLIdentifier.h>
+#include <Pegasus/CQL/CQLIdentifier.h>
 
 #include <Pegasus/CQL/CQLTerm.h>
 #include <Pegasus/CQL/CQLTermRep.h>
@@ -38,12 +39,17 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   void* makeObject(CQLTerm* obj, FactoryType target);
   void* makeObject(CQLExpression* obj, FactoryType target);
   void* makeObject(CQLSimplePredicate* obj, FactoryType target);
+
   CQLValue getValue(CQLFactor* obj);
   CQLValue getValue(CQLTerm* obj);
   CQLValue getValue(CQLExpression* obj);
   CQLValue getValue(CQLSimplePredicate* obj);
   CQLValue getValue(CQLPredicate* obj);
- void* getObject(void* inObject, FactoryType inObjectType, FactoryType targetType);
+
+  void* getObject(void* inObject, FactoryType inObjectType, FactoryType targetType);
+
+  void* getObject(CQLChainedIdentifier* obj, FactoryType target);
+  void* getObject(CQLValue* obj, FactoryType target);
   void* getObject(CQLFactor* obj, FactoryType target);
   void* getObject(CQLTerm* obj, FactoryType target);
   void* getObject(CQLExpression* obj, FactoryType target);
@@ -58,6 +64,8 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   CQLTerm _term;
   CQLFactor _factor;
   CQLFunction _function;
+  CQLChainedIdentifier _chainedIdentifier;
+  CQLIdentifier _identifier;
 };                                                                          
 PEGASUS_NAMESPACE_END
 #endif

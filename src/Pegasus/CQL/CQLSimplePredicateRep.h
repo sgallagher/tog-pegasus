@@ -67,6 +67,8 @@ class CQLSimplePredicateRep
 
     String toString();
 
+    Boolean isSimpleValue();
+
     friend class CQLFactory;
   private:
     CQLExpression _leftSide;

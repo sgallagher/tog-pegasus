@@ -49,17 +49,18 @@ Functions that support the invocation of methods defined
 for a CIM class.
 
 <p>The <i>Method Provider</i> supports the client InvokeMethod
-operation, which is used to invoke any method(s)
+operation that invokes any method(s)
 defined on a CIM class of object. In addition to the
-functions inherited from the {@link CIMProvider CIMProvider}
-interface, the Method Provider interface defines one function:</p>
+methods from the {@link CIMProvider CIMProvider}
+interface that the functions inherit, the Method Provider interface
+defines one function:</p>
 
 <ul>
 <li>{@link invokeMethod invokeMethod}</li>
 </ul>
 
 <p>The arguments to <tt>invokeMethod</tt> specify the instance
-on which the method is being invoked, the method name, and its
+that the method invokes, the method name, and its
 parameters.</p>
 
 <p>Providers that derive from this class <i>must</i> implement
@@ -70,7 +71,7 @@ may throw a {@link CIMNotSupportedException CIMNotSupportedException} exception.
 CIM methods defined for a class; there can be more than one
 method provider for a class. Each provider
 may implement a subset of the defined methods, leaving other
-methods to be implemented by other method providers. No method
+methods providers to implemente methods. No method
 can be implemented by more than one provider. The
 methods that are implemented by a provider must be specified to
 the CIM Server through provider registration in the
@@ -80,9 +81,11 @@ the CIM Server through provider registration in the
 class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMProvider
 {
 public:
-    ///
+    /** Constructs a CIMMethodProvider object with null values (default constructor).
+	*/
     CIMMethodProvider(void);
-    ///
+    /** CIMMethodProvider destructor.
+	*/
     virtual ~CIMMethodProvider(void);
 
     /**
@@ -92,24 +95,25 @@ public:
     <tt>methodName</tt> parameter on the object
     specified in the <tt>objectReference</tt> parameter.
 
-    @param context specifies the client user's context for this operation,
-    including the User ID.
+    @param context Specifies the client user's context for this operation,
+    including the user ID.
 
-    @param objectReference specifies the fully qualified object path
+    @param objectReference Specifies the fully qualified object path
     of the class or instance of interest.
 
-    @param methodName specifies the name of the method of interest.
+    @param methodName Specifies the name of the method of interest.
 
-    @param inParameters specifies the input parameters of the method.
+    @param inParameters Specifies the input parameters of the method.
 
-    @param handler a {@link ResponseHandler ResponseHandler} object used
+    @param handler A {@link ResponseHandler ResponseHandler} object used
     to deliver results to the CIM Server.
 
-    @exception CIMNotSupportedException
-    @exception CIMInvalidParameterException
-    @exception CIMObjectNotFoundException
-    @exception CIMAccessDeniedException
-    @exception CIMOperationFailedException
+    @exception CIMNotSupportedException If the method is not supported.
+    @exception CIMInvalidParameterException If the parameter is invalid.
+    @exception CIMObjectNotFoundException If the object is not found.
+    @exception CIMAccessDeniedException If the user requesting the action 
+    is not authorized to perform the action.
+    @exception CIMOperationFailedException If the operation fails.
     */
     virtual void invokeMethod(
 	const OperationContext & context,

@@ -54,8 +54,8 @@ manipulation of CIM instances and their properties</li>
 invocation of methods defined on CIM instances</li>
 </ul>
 
-<p>A provider may inherit from either or both of these
-interface classes. A provider <i>must</i> implement every
+<p>A provider may inherit from either of these
+interface classes or both. A provider <i>must</i> implement every
 function in the chosen interface(s). However, it is not
 required that all operations be supported. If an operation
 is not supported, then a minimal implementation of
@@ -80,8 +80,8 @@ CIM object on which the operation is to be performed. This
 parameter specifies the hostname, namespace, classname, and key values that
 uniquely identify an instance of a CIM object.
 <p><b>hostname</b> - specifies the name of the system on which
-the object resides. This is not required to be the system on
-which the CIM server is running, but generally will be.</p>
+the object resides. This does not need to be the system that the CIM server
+is running on, but it generally will be the same system.</p>
 
 <p><b>namespace</b> - specifies the <i>namespace</i> on the
 aforementioned host in which the object resides.</p>
@@ -169,33 +169,33 @@ implementation may simply return to the caller.</p>
 class PEGASUS_PROVIDER_LINKAGE CIMProvider
 {
 public:
-    ///
+    /** Creates a CIMProvider instance with null values (default constructor).
+	*/
     CIMProvider(void);
 
-    ///
+    /**CIMProvider destructor.
+	*/
     virtual ~CIMProvider(void);
 
     /**
-    Perform any setup required before normal operation.
+    Performs any setup required before normal operation.
     <p>The <TT>initialize</TT> function allows the provider to conduct the
     necessary preparations to handle requests.
-    It is called only once during the lifetime of the provider. This
-    function must complete before the CIM Server invokes any other function of
+    The initialize function is called only once during the lifetime of the provider. 
+    This function must complete before the CIM server invokes any other function of
     the provider, other than terminate.</p>
 
     @param cimom Reserved for future use.
-
-    @exception None
     */
     virtual void initialize(CIMOMHandle & cimom) = 0;
 
     /**
-    Perform any cleanup required before termination.
+    Performs any cleanup required before termination.
     <p>The <TT>terminate</TT> function allows the provider to conduct the
     necessary preparations for termination. This function
     may be called by the CIM Server
     at any time, including initialization. Once invoked, no other provider
-    functions are invoked until after an eventual call to <tt>initialize</tt>.</p>
+    functions are invoked until after a call to <tt>initialize</tt>.</p>
     <p>The provider may, for example, do the following in the
     <tt>terminate</tt> function:</p>
     <ul>
@@ -205,7 +205,7 @@ public:
     requests to complete immediately (this may be done by
     setting a global flag)</li>
     <li>kill subprocesses</li>
-    <li>etc.</li>
+    <li>and others</li>
     </ul>
     <p>If the provider instance was created on the heap with
     <i>new</i> in <tt>PegasusCreateProvider</tt>, then it must
@@ -217,8 +217,6 @@ public:
     ...
     return;
     }</pre>
-
-    @exception None
     */
     virtual void terminate(void) = 0;
 
@@ -226,10 +224,9 @@ public:
     /** 
     Allow a provider to decline a terminate call. If the provider
     is unable to terminate, it should return false. Otherwise, 
-    it should call its <code>terminate</code> function and then
-    return true, as in the default implementation.
-
-    @exception None
+    it calls its <code>terminate</code> function and then
+    returns true, as in the default implementation.
+    @return	False If the provider is unable to terminate.  Otherwise, true is returned.
     */
     virtual Boolean tryTerminate(void) 
       {

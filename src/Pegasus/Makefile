@@ -31,11 +31,6 @@ DIRS = \
     ManagedClient \
     DynListener
 
-ifdef PEGASUS_ENABLE_SLP
-DIRS += \
-    ControlProviders/InteropProvider \
-    ControlProviders/InteropProvider/tests
-endif
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
@@ -99,9 +94,19 @@ endif
 ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \
 	ControlProviders/Statistic \
-	ControlProviders/Statistic/test \
-	ControlProviders/InteropProvider
+	ControlProviders/Statistic/test
+endif
 
+ifdef PEGASUS_ENABLE_SLP
+DIRS += \
+    ControlProviders/InteropProvider \
+    ControlProviders/InteropProvider/tests
+else
+    ifndef PEGASUS_DISABLE_PERFINST
+    DIRS += \
+        ControlProviders/InteropProvider \
+        ControlProviders/InteropProvider/tests
+	endif
 endif
 
 ifndef PEGASUS_DISABLE_CQL

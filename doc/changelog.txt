@@ -51,6 +51,13 @@ been updated to support the new interfaces. Needs testing.
 repository you make world, make rebuild or make repository. ks
 
 12. Added associators() and associatorNames() operations to CIM repository.
+    (MEB)
+
+13. More on association implementation (all four operations supported).
+    Need to handle deletion of associations and protocol stubs still.
+    Need to test class associations (rather than just instance associations).
+    Need to handle deleteInstance().
+    (MEB)
 
 --------------------------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001

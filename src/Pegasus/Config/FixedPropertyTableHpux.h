@@ -32,16 +32,12 @@
 #define Pegasus_FixedPropertyTableHpux_h
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"trace",               "false"},
-    {"logtrace",            "false"},
-    {"cleanlogs",           "false"},
     {"logLevel",            "INFORMATION"},
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
     {"home",                ""},
     {"daemon",              "true"},
     {"slp",                 "false"},
-    {"SSL",                 "false"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
     {"enableIndicationService", "true"},
@@ -61,7 +57,6 @@
     {"sslCertificateFilePath", "/var/opt/wbem/server.pem"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/opt/wbem/providers/lib"},
-    {"consumerDir",         "/opt/wbem/providers/lib"}
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

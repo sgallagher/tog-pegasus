@@ -195,8 +195,6 @@ private:
 
     struct ConfigProperty*      _providerDir;
 
-    struct ConfigProperty*      _consumerDir;
-
 };
 
 PEGASUS_NAMESPACE_END

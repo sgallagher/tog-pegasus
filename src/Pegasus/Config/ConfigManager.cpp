@@ -119,10 +119,7 @@ static struct OwnerEntry _properties[] =
     {"traceLevel",          (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceComponents",     (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceFilePath",       (ConfigPropertyOwner* )ConfigManager::traceOwner},
-    {"trace",               (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"logdir",              (ConfigPropertyOwner* )ConfigManager::logOwner},
-    {"logtrace",            (ConfigPropertyOwner* )ConfigManager::logOwner},
-    {"cleanlogs",           (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"logLevel",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"enableHttpConnection", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableHttpsConnection",(ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -131,7 +128,6 @@ static struct OwnerEntry _properties[] =
     {"home",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"SSL",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableClientCertification", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAssociationTraversal", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -146,7 +142,6 @@ static struct OwnerEntry _properties[] =
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
-    {"consumerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 };
 

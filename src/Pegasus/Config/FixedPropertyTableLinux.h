@@ -28,9 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"trace",               "false"},
-    {"logtrace",            "false"},
-    {"cleanlogs",           "false"},
     {"logLevel",            "INFORMATION"},
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
@@ -39,7 +36,6 @@
     {"install",             "false"},
     {"remove",              "false"},
     {"slp",                 "false"},
-    {"SSL",                 "false"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
     {"enableIndicationService", "false"},
@@ -55,7 +51,6 @@
     {"sslCertificateFilePath", "/var/cache/pegasus/server.pem"},
     {"repositoryDir",       "/var/cache/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
-    {"consumerDir",         "/usr/lib/pegasus/providers"}
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"} // Remove this line if others are added

@@ -56,7 +56,6 @@ static struct ConfigPropertyRow properties[] =
 {
     {"repositoryDir", "repository", 0, 0, 0},
     {"providerDir", "lib", 0, 0, 0},
-    {"consumerDir", "", 0, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -67,7 +66,6 @@ FileSystemPropertyOwner::FileSystemPropertyOwner()
 {
     _repositoryDir = new ConfigProperty;
     _providerDir = new ConfigProperty;
-    _consumerDir = new ConfigProperty;
 }
 
 /** Destructor  */
@@ -75,7 +73,6 @@ FileSystemPropertyOwner::~FileSystemPropertyOwner()
 {
     delete _repositoryDir;
     delete _providerDir;
-    delete _consumerDir;
 }
 
 /**
@@ -121,17 +118,6 @@ void FileSystemPropertyOwner::initialize()
             _providerDir->domain = properties[i].domain;
             _providerDir->domainSize = properties[i].domainSize;
         }
-        else if (String::equalNoCase(properties[i].propertyName, "consumerDir"
-))
-        {
-            _consumerDir->propertyName = properties[i].propertyName;
-            _consumerDir->defaultValue = properties[i].defaultValue;
-            _consumerDir->currentValue = properties[i].defaultValue;
-            _consumerDir->plannedValue = properties[i].defaultValue;
-            _consumerDir->dynamic = properties[i].dynamic;
-            _consumerDir->domain = properties[i].domain;
-            _consumerDir->domainSize = properties[i].domainSize;
-        }
     }
 }
 
@@ -145,10 +131,6 @@ struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     else if (String::equalNoCase(_providerDir->propertyName, name))
     {
         return _providerDir;
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        return _consumerDir;
     }
     else
     {

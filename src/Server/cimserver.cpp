@@ -396,7 +396,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
 int main(int argc, char** argv)
 {
     String pegasusHome  = String::EMPTY;
-    Boolean pegasusIOLog = false;
     String logsDirectory = String::EMPTY;
     Boolean useSLP = false;
     Boolean daemonOption = false;
@@ -634,14 +633,10 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    // The "SSL" property overrides the enableHttp*Connection properties and
-    // enables only the HTTPS connection.
-    Boolean enableHttpConnection = (String::equal(
-        configManager->getCurrentValue("enableHttpConnection"), "true") &&
-        !String::equal(configManager->getCurrentValue("SSL"), "true"));
-    Boolean enableHttpsConnection = (String::equal(
-        configManager->getCurrentValue("enableHttpsConnection"), "true") ||
-        String::equal(configManager->getCurrentValue("SSL"), "true"));
+    Boolean enableHttpConnection = String::equal(
+        configManager->getCurrentValue("enableHttpConnection"), "true");
+    Boolean enableHttpsConnection = String::equal(
+        configManager->getCurrentValue("enableHttpsConnection"), "true");
 
     // Make sure at least one connection is enabled
 #ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -667,15 +662,6 @@ int main(int argc, char** argv)
             daemonOption = true;
         }
 	
-        //
-        // Check the log trace options and set global variable
-        //
-
-        if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
-        {
-            pegasusIOLog = true;
-        }
-
         // Get the log file directory definition.
         // We put String into Cstring because
         // Directory functions only handle Cstring.
@@ -719,11 +705,6 @@ int main(int argc, char** argv)
 !defined(PEGASUS_OS_OS400)
         cout << "Logs Directory = " << logsDirectory << endl;
 #endif
-
-        if (String::equal(configManager->getCurrentValue("cleanlogs"), "true"))
-        {
-            Logger::clean(logsDirectory);;
-        }
 
         if (String::equal(configManager->getCurrentValue("slp"), "true"))
         {
@@ -778,7 +759,6 @@ int main(int argc, char** argv)
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
     cout <<"Starting..."
-         << (pegasusIOLog ? " Tracing to Log ": " ")
 	 << (useSLP ? " SLP reg. " : " No SLP ")
 	<< endl;
 #endif

@@ -127,11 +127,6 @@ public:
     */
     static void setHomeDirectory(const String& homeDirectory);
 
-    /* clean - Cleans the logger files.
-    @param directory Defines the directory that the logs are in
-    */
-    static void clean(const String& directory);
-
     /** setlogLevelMask
     */
     static void setlogLevelMask(const String logLevelList);

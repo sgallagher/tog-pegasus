@@ -304,19 +304,6 @@ void Logger::trace(
 			arg9);
 }
 
-void Logger::clean(const String& directory)
-{
-    //String logFiles = logsDirectory;
-    //logFiles.append("/PegasusTrace.log");
-    //cout << "Delete logs in " << logFiles << endl;
-    //System::removeFile(logFiles.getCString());
-    //for (i = xx; i < yy; i++)
-    //(
-    //_allocateLogFileName(directory, i)
-    //removeFile(
-    //}
-}
-
 void Logger::setHomeDirectory(const String& homeDirectory)
 {
     _homeDirectory = homeDirectory;

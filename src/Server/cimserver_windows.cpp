@@ -105,31 +105,10 @@ static void __cdecl cimserver_windows_thread(void *parm)
       exit(1);
     }
 
-  //
-  // Check the options and set global variable
-  //
-  Boolean pegasusIOTrace = false;
-
-  if (String::equal(configManager->getCurrentValue("trace"), "true"))
-    {
-      pegasusIOTrace = true;
-    }
-
-  Boolean pegasusIOLog = false;
-
-  if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
-    {
-      pegasusIOLog = true;
-    }
-
-  // The "SSL" property overrides the enableHttp*Connection properties and
-  // enables only the HTTPS connection.
-  Boolean enableHttpConnection = (String::equal(
-    configManager->getCurrentValue("enableHttpConnection"), "true") &&
-    !String::equal(configManager->getCurrentValue("SSL"), "true"));
-  Boolean enableHttpsConnection = (String::equal(
-    configManager->getCurrentValue("enableHttpsConnection"), "true") ||
-    String::equal(configManager->getCurrentValue("SSL"), "true"));
+  Boolean enableHttpConnection = String::equal(
+    configManager->getCurrentValue("enableHttpConnection"), "true");
+  Boolean enableHttpsConnection = String::equal(
+    configManager->getCurrentValue("enableHttpsConnection"), "true");
 
   if (!enableHttpConnection && !enableHttpsConnection)
   {
@@ -183,11 +162,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
   // Put server start message to the logger
   Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
-  "Start $0 %1 $2 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
-  (pegasusIOTrace ? " Tracing": " "));
-  // ATTN: Should this really be: ...?
-  //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-  //            "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
+              "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
 
    // try loop to bind the address, and run the server
   try

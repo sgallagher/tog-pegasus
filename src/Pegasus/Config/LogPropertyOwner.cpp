@@ -50,10 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"logtrace", "false", 0, 0, 0},
     {"logdir", "./logs", 1, 0, 0},
-    {"cleanlogs", "false", 0, 0, 0},
-    {"trace", "false", 0, 0, 0},
     {"logLevel", "INFORMATION", 1, 0, 0}
 };
 
@@ -63,20 +60,14 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 LogPropertyOwner::LogPropertyOwner()
 {
-    _logtrace    = new ConfigProperty;
-    _logdir        = new ConfigProperty;
-    _cleanlogs    = new ConfigProperty;
-    _trace       = new ConfigProperty;
+    _logdir      = new ConfigProperty;
     _logLevel    = new ConfigProperty;
 }
 
 /** Destructor  */
 LogPropertyOwner::~LogPropertyOwner()
 {
-    delete _logtrace;
     delete _logdir;
-    delete _cleanlogs;
-    delete _trace;
     delete _logLevel;
 }
 
@@ -91,17 +82,7 @@ void LogPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName, "logtrace"))
-        {
-            _logtrace->propertyName = properties[i].propertyName;
-            _logtrace->defaultValue = properties[i].defaultValue;
-            _logtrace->currentValue = properties[i].defaultValue;
-            _logtrace->plannedValue = properties[i].defaultValue;
-            _logtrace->dynamic = properties[i].dynamic;
-            _logtrace->domain = properties[i].domain;
-            _logtrace->domainSize = properties[i].domainSize;
-        }
-        else if (String::equalNoCase(properties[i].propertyName, "logdir"))
+        if (String::equalNoCase(properties[i].propertyName, "logdir"))
         {
             _logdir->propertyName = properties[i].propertyName;
             _logdir->defaultValue = properties[i].defaultValue;
@@ -110,26 +91,6 @@ void LogPropertyOwner::initialize()
             _logdir->dynamic = properties[i].dynamic;
             _logdir->domain = properties[i].domain;
             _logdir->domainSize = properties[i].domainSize;
-        }
-        else if (String::equalNoCase(properties[i].propertyName, "cleanlogs"))
-        {
-            _cleanlogs->propertyName = properties[i].propertyName;
-            _cleanlogs->defaultValue = properties[i].defaultValue;
-            _cleanlogs->currentValue = properties[i].defaultValue;
-            _cleanlogs->plannedValue = properties[i].defaultValue;
-            _cleanlogs->dynamic = properties[i].dynamic;
-            _cleanlogs->domain = properties[i].domain;
-            _cleanlogs->domainSize = properties[i].domainSize;
-        }
-        else if (String::equalNoCase(properties[i].propertyName, "trace"))
-        {
-            _trace->propertyName = properties[i].propertyName;
-            _trace->defaultValue = properties[i].defaultValue;
-            _trace->currentValue = properties[i].defaultValue;
-            _trace->plannedValue = properties[i].defaultValue;
-            _trace->dynamic = properties[i].dynamic;
-            _trace->domain = properties[i].domain;
-            _trace->domainSize = properties[i].domainSize;
         }
         else if (String::equalNoCase(properties[i].propertyName, "logLevel"))
         {
@@ -149,21 +110,9 @@ void LogPropertyOwner::initialize()
 struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     const String& name)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        return _logtrace;
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
+    if (String::equalNoCase(_logdir->propertyName, name))
     {
         return _logdir;
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-        return _cleanlogs;
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        return _trace;
     }
     else if (String::equalNoCase(_logLevel->propertyName, name))
     {

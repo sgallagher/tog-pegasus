@@ -202,14 +202,7 @@ private:
     /**
     The log properties owned by this class
     */
-    struct ConfigProperty*      _logtrace;
-
     struct ConfigProperty*      _logdir;
-
-    struct ConfigProperty*      _cleanlogs;
-
-    struct ConfigProperty*      _trace;
-
     struct ConfigProperty*      _logLevel;
 
 };

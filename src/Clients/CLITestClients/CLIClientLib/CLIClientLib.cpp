@@ -821,13 +821,13 @@ void GetOptions(
         {"includeClassOrigin", "false", false, Option::BOOLEAN, 0, 0, "ic",
                                         "If set includeClassOriginOption True"},
 
-        {"propertyList", "unknown", false, Option::STRING, 0, 0, "-pl",
+        {"propertyList", "unknown", false, Option::STRING, 0, 0, "pl",
                                         "This parameter defines a propertyNameList "},
         
-        {"resultClass", "unknown", false, Option::STRING, 0, 0, "-rc",
+        {"resultClass", "unknown", false, Option::STRING, 0, 0, "rc",
                                         "This parameter defines a resultClass string for References, etc. "},
         
-        {"role", "unknown", false, Option::STRING, 0, 0, "-pl",
+        {"role", "unknown", false, Option::STRING, 0, 0, "role",
                                         "This parameter defines a role string for References, etc. "},
         
         {"version", "false", false, Option::BOOLEAN, 0, 0, "-v",
@@ -893,10 +893,12 @@ void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
     om.printOptionsHelpTxt(usage, extraHelp);
     //om.printHelp(const char* pgmName, OptionManager om);
     
-    cout << "\nPossible CIMOperations are: ";
+    cout << "\nPossible CIMOperations are\n     name      (short Cut Name) Usage: \n";
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ ) 
     {
-        cout << "    " << CommandTable[i].CommandName << CommandTable[i].UsageText << endl;
+        cout << "    " << CommandTable[i].CommandName 
+             << " ( " << CommandTable[i].ShortCut << " ) "
+             << CommandTable[i].UsageText << endl;
     }
     cout << endl;
     

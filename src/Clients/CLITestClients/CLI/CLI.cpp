@@ -91,13 +91,13 @@ int main(int argc, char** argv)
 
     CheckCommonOptionValues(om, argv, opts);
     
-    /****** Show the args diagnostic display */
+    /****** Show the args diagnostic display
     cout << "argc = " << argc << endl;
     for (Uint32 i = 0; i < argc; i++)
     {
         cout << "argv[" << i << "] = " << argv[i] << endl;
     }
-    /**/
+    */
     // if there is still an arg1, assume it is the command name.
     if (argc > 1)
     {
@@ -147,13 +147,18 @@ int main(int argc, char** argv)
     {
         Uint32 i = 0;
         opts.cimCmd.toLower();
-        cout << "TEST Command = " << opts.cimCmd << endl;
+        if (opts.verboseTest)
+            cout << "TEST Command = " << opts.cimCmd << endl;
         
+        // Find the command
         for( ; i <= NUM_COMMANDS; i++ ) 
         {
-            if (opts.cimCmd == CommandTable[i].CommandName)
-            break;
+            if ((opts.cimCmd == CommandTable[i].CommandName) || 
+                (opts.cimCmd == CommandTable[i].ShortCut))
+
+                break;
         }
+        // or exit with error
         if ( i > NUM_COMMANDS)
         {
             cout << "Invalid Command - " << argv[1] 

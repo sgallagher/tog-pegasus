@@ -37,6 +37,7 @@
 #include "CIMQualifierDecl.h"
 #include "XmlWriter.h"
 #include "XmlParser.h"
+#include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -738,6 +739,9 @@ void XmlWriter::_appendErrorElement(
     Array<Sint8>& out,
     const CIMException& cimException)
 {
+    PEG_TRACE_STRING(TRC_XML_WRITER, Tracer::LEVEL2,
+                     cimException.getTraceMessage());
+
     out << "<ERROR";
     out << " CODE=\"" << Uint32(cimException.getCode()) << "\"";
     if (cimException.getMessage() != String::EMPTY)

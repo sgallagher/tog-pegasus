@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,11 +35,114 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-Boolean CIMParamValue::identical(const CIMConstParamValue& x) const
+
+CIMParamValue::CIMParamValue()
+    : _rep(0)
+{
+}
+
+CIMParamValue::CIMParamValue(const CIMParamValue& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMParamValue::CIMParamValue(CIMParamValueRep* rep)
+    : _rep(rep)
+{
+}
+
+CIMParamValue& CIMParamValue::operator=(const CIMParamValue& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+        Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+CIMParamValue::CIMParamValue(
+    String parameterName,
+    CIMValue value,
+    Boolean isTyped)
+{
+    _rep = new CIMParamValueRep(parameterName, value, isTyped);
+}
+
+CIMParamValue::~CIMParamValue()
+{
+    Dec(_rep);
+}
+
+String CIMParamValue::getParameterName() const 
+{ 
+    _checkRep();
+    return _rep->getParameterName();
+}
+
+CIMValue CIMParamValue::getValue() const 
+{ 
+    _checkRep();
+    return _rep->getValue();
+}
+
+Boolean CIMParamValue::isTyped() const 
+{ 
+    _checkRep();
+    return _rep->isTyped();
+}
+
+void CIMParamValue::setParameterName(String& parameterName)
+{ 
+    _checkRep();
+    _rep->setParameterName(parameterName);
+}
+
+void CIMParamValue::setValue(CIMValue& value)
+{ 
+    _checkRep();
+    _rep->setValue(value);
+}
+
+void CIMParamValue::setIsTyped(Boolean isTyped)
+{ 
+    _checkRep();
+    _rep->setIsTyped(isTyped);
+}
+
+CIMParamValue::operator int() const
+{
+    return (_rep != 0);
+}
+
+void CIMParamValue::toXml(Array<Sint8>& out) const
+{
+    _checkRep();
+    _rep->toXml(out);
+}
+
+void CIMParamValue::print(PEGASUS_STD(ostream) &o) const
+{
+    _checkRep();
+    _rep->print(o);
+}
+
+Boolean CIMParamValue::identical(const CIMParamValue& x) const
 {
     x._checkRep();
     _checkRep();
     return _rep->identical(x._rep);
+}
+
+CIMParamValue CIMParamValue::clone() const
+{
+    return CIMParamValue(_rep->clone());
+}
+
+void CIMParamValue::_checkRep() const
+{
+    if (!_rep)
+        ThrowUnitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

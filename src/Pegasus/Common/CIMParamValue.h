@@ -31,7 +31,9 @@
 #define Pegasus_ParamValue_h
 
 #include <Pegasus/Common/Config.h>
+#ifdef PEGASUS_INTERNALONLY
 #include <Pegasus/Common/CIMParamValueRep.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,232 +43,54 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class CIMConstParamValue;
-
 class PEGASUS_COMMON_LINKAGE CIMParamValue
 {
 public:
 
-    CIMParamValue() : _rep(0)
-    {
+    CIMParamValue();
 
-    }
+    CIMParamValue(const CIMParamValue& x);
 
-    CIMParamValue(const CIMParamValue& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMParamValue& operator=(const CIMParamValue& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMParamValue& operator=(const CIMParamValue& x);
 
     CIMParamValue(
 	String parameterName,
 	CIMValue value,
-	Boolean isTyped=true)
-    {
-	_rep = new CIMParamValueRep(parameterName, value, isTyped);
-    }
+	Boolean isTyped=true);
 
-    ~CIMParamValue()
-    {
-	Dec(_rep);
-    }
+    ~CIMParamValue();
 
-    String getParameterName() const 
-    { 
-	_checkRep();
-	return _rep->getParameterName();
-    }
+    String getParameterName() const;
 
-    CIMValue getValue() const 
-    { 
-	_checkRep();
-	return _rep->getValue();
-    }
+    CIMValue getValue() const;
 
-    Boolean isTyped() const 
-    { 
-	_checkRep();
-	return _rep->isTyped();
-    }
+    Boolean isTyped() const;
 
-    void setParameterName(String& parameterName)
-    { 
-	_checkRep();
-	_rep->setParameterName(parameterName);
-    }
+    void setParameterName(String& parameterName);
 
-    void setValue(CIMValue& value)
-    { 
-	_checkRep();
-	_rep->setValue(value);
-    }
+    void setValue(CIMValue& value);
 
-    void setIsTyped(Boolean isTyped=true)
-    { 
-	_checkRep();
-	_rep->setIsTyped(isTyped);
-    }
+    void setIsTyped(Boolean isTyped=true);
 
-    operator int() const { return _rep != 0; }
+    CIMParamValue clone() const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    operator int() const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    Boolean identical(const CIMConstParamValue& x) const;
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
-    CIMParamValue clone() const
-    {
-	return CIMParamValue(_rep->clone());
-    }
+    Boolean identical(const CIMParamValue& x) const;
 
 private:
 
-    CIMParamValue(CIMParamValueRep* rep) : _rep(rep)
-    {
-    }
+    CIMParamValue(CIMParamValueRep* rep);
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMParamValueRep* _rep;
-    friend class CIMConstParamValue;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMConstParamValue
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class PEGASUS_COMMON_LINKAGE CIMConstParamValue
-{
-public:
-
-    CIMConstParamValue() : _rep(0)
-    {
-
-    }
-
-    CIMConstParamValue(const CIMConstParamValue& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstParamValue(const CIMParamValue& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstParamValue& operator=(const CIMConstParamValue& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
-
-    CIMConstParamValue& operator=(const CIMParamValue& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
-
-    // Throws IllegalName if name argument not legal CIM identifier.
-
-    CIMConstParamValue(
-	String parameterName,
-	CIMValue value,
-	Boolean isTyped=true)
-    {
-	_rep = new CIMParamValueRep(parameterName, value, isTyped);
-    }
-
-    ~CIMConstParamValue()
-    {
-	Dec(_rep);
-    }
-
-    String getParameterName() const 
-    { 
-	_checkRep();
-	return _rep->getParameterName();
-    }
-
-    CIMValue getValue() const 
-    { 
-	_checkRep();
-	return _rep->getValue();
-    }
-
-    Boolean isTyped() const 
-    { 
-	_checkRep();
-	return _rep->isTyped();
-    }
-
-    operator int() const { return _rep != 0; }
-
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
-
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
-
-    Boolean identical(const CIMConstParamValue& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
-
-    CIMParamValue clone() const
-    {
-	return CIMParamValue(_rep->clone());
-    }
-
-private:
-
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
-
-    CIMParamValueRep* _rep;
-    friend class CIMParamValue;
+#endif
 };
 
 #define PEGASUS_ARRAY_T CIMParamValue

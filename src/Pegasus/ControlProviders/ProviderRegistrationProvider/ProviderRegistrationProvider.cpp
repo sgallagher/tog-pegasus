@@ -603,40 +603,69 @@ void ProviderRegistrationProvider::createInstance(
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
             PEG_NOT_FOUND)
 	{
-//L10N_TODO
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+//L10N_ TODO DONE
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		//"Missing ProviderModuleName which is required property in PG_ConsumerCapabilities class.");
+	    MessageLoaderParms parms(
+		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_MODULE_NAME_WHICH_IS_REQUIRED",
 		"Missing ProviderModuleName which is required property in PG_ConsumerCapabilities class.");
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
             PEG_NOT_FOUND)
 	{
-//L10N_TODO
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+//L10N_ TODO DONE
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		//"Missing ProviderName which is required property in PG_ConsumerCapabilities class.");
+
+	    MessageLoaderParms parms(
+		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_NAME_WHICH_IS_REQUIRED",
 		"Missing ProviderName which is required property in PG_ConsumerCapabilities class.");
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
             PEG_NOT_FOUND)
 	{
-//L10N_TODO
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+//L10N_ TODO DONE
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		//"Missing CapabilityID which is required property in PG_ConsumerCapabilities class.");
+
+	    MessageLoaderParms parms(
+		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CAPABILITY_ID_WHICH_IS_REQUIRED",
 		"Missing CapabilityID which is required property in PG_ConsumerCapabilities class.");
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
 	{
-//L10N_TODO
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+//L10N_ TODO DONE
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		//"Missing ProviderType which is required property in PG_ConsumerCapabilities class.");
+
+	    MessageLoaderParms parms(
+		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_TYPE_WHICH_IS_REQUIRED",
 		"Missing ProviderType which is required property in PG_ConsumerCapabilities class.");
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_INDICATIONDESTINATIONS) == 
 	    PEG_NOT_FOUND)
 	{
-//L10N_TODO
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+//L10N_ TODO DONE
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+		//"Missing Destinations which is required property in PG_ConsumerCapabilities class.");
+
+	    MessageLoaderParms parms(
+		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESTINATIONS_TYPE_WHICH_IS_REQUIRED",
 		"Missing Destinations which is required property in PG_ConsumerCapabilities class.");
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	}
     }
     else // PEGASUS_CLASSNAME_PROVIDER

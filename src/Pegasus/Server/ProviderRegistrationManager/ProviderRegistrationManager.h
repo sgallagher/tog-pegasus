@@ -174,9 +174,9 @@ static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
 static const char PROVIDER_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND";
 static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
 static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
-//L10N TODO
+//L10N TODO DONE
 static const char CONSUMER_NOT_REGISTERED [] = " Consumer capability has not been registered yet.";
-
+static const char CONSUMER_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
 /**
    Registered instance provider type
 */

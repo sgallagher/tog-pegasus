@@ -789,9 +789,11 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
         if (!_registrationTable->table.lookup(
                   consumerKey, consumerCapability))
         {
-	    //L10N TODO
+	    //L10N TODO DONE
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CONSUMER_NOT_REGISTERED);
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CONSUMER_NOT_REGISTERED);
+            MessageLoaderParms parms(CONSUMER_NOT_REGISTERED_KEY, CONSUMER_NOT_REGISTERED);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
         }
 
         Array<CIMInstance> instances = consumerCapability->getInstances();
@@ -800,10 +802,14 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
 
         if (pos == PEG_NOT_FOUND)
         {
-	    //L10N TODO
+	    //L10N TODO DONE
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Missing ProviderName which is key in PG_ConsumerCapabilities class.");
+    	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		//"Missing ProviderName which is key in PG_ConsumerCapabilities class.");
+		
+			MessageLoaderParms parms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME_KEY_IN_CONSUMER_CAPABILITIES",
+								 	 "Missing ProviderName which is key in PG_ConsumerCapabilities class.");
+			throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
         }
 
         //
@@ -818,10 +824,13 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
             (CIMName (_PROPERTY_PROVIDERMODULENAME));
         if (pos2 == PEG_NOT_FOUND)
         {
-	    //L10N TODO
+	    //L10N TODO DONE
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Missing ProviderModuleName which is key in PG_ConsumerCapabilities class.");
+    	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		//"Missing ProviderModuleName which is key in PG_ConsumerCapabilities class.");
+			MessageLoaderParms parms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERMODULENAME_KEY_IN_CONSUMER_CAPABILITIES",
+								 	 "Missing ProviderModuleName which is key in PG_ConsumerCapabilities class.");
+			throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
         }
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -841,9 +850,11 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
         //
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
-	    //L10N TODO
+	    //L10N TODO DONE
             PEG_METHOD_EXIT();
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+	    MessageLoaderParms parms(PROVIDER_NOT_FOUND_KEY, PROVIDER_NOT_FOUND);
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
 
         Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -854,9 +865,11 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
         //
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
-	    //L10N TODO
+	    //L10N_ TODO DONE
             PEG_METHOD_EXIT();
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+	    MessageLoaderParms parms(MODULE_NOT_FOUND_KEY, MODULE_NOT_FOUND);
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
 
         Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
@@ -1952,7 +1965,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 		    {
     	    		_repository->write_unlock();
 		  	// the instance was already registered
-//L10N_TODO
+//L10N_TODO DONE
                         PEG_METHOD_EXIT();
 		        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
 		    }
@@ -1976,12 +1989,15 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 	    {
     	    	_repository->write_unlock();
 
-//L10N_TODO
+//L10N_TODO DONE
 		// the provider class was not registered
-
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class "
-                    "needs to be registered before register the consumer "
-                    "capabilities class");
+	
+		//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class "
+                    //"needs to be registered before register the consumer "
+                    //"capabilities class");
+                MessageLoaderParms parms("Server.ProviderRegistrationManager.ProviderRegistrationManager.PGPROVIDER_NEEDS_TO_BE_REGISTERED_BEFORE_CONSUMER_CAPABILITIES",
+                						 "PG_Provider class needs to be registered before register the consumer capabilities class");
+        		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	    }
 
 	}
@@ -2068,7 +2084,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 				{
 				    _repository->write_unlock();
 				    // the instance was already registered
-//L10N_TODO
+//L10N_TODO DONE
                                     PEG_METHOD_EXIT();
 				    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
 				}

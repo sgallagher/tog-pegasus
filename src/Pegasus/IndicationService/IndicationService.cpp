@@ -436,12 +436,15 @@ void IndicationService::_initialize (void)
             //
             //  This instance from the repository is corrupted
             //  Log a message and skip it
-            //  L10N TODO -- new log message
+            //  L10N TODO DONE -- new log message
             //
             if (!warningLogged)
             {
-                Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, 
-                             Logger::WARNING, _MSG_INVALID_INSTANCES);
+                //Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, 
+                             //Logger::WARNING, _MSG_INVALID_INSTANCES);
+				Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
+                              Logger::WARNING, _MSG_INVALID_INSTANCES_KEY,
+					  _MSG_INVALID_INSTANCES);
                 warningLogged = true;
             }
             break;
@@ -957,11 +960,14 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         {
             //
             //  This instance from the repository is corrupted
-            //  L10N TODO -- new throw of exception
+            //  L10N TODO DONE -- new throw of exception
             //
             PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
-                _MSG_INVALID_INSTANCES);
+            //throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
+                //_MSG_INVALID_INSTANCES);
+	    	MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY, _MSG_INVALID_INSTANCES);
+	    	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+							 
         }
         instance.removeProperty (instance.findProperty 
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
@@ -1322,11 +1328,13 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 {
                     //
                     //  This instance from the repository is corrupted
-                    //  L10N TODO -- new throw of exception
+                    //  L10N TODO DONE -- new throw of exception
                     //
                     PEG_METHOD_EXIT ();
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
-                        _MSG_INVALID_INSTANCES);
+                    //throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
+                        //_MSG_INVALID_INSTANCES);
+					MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY, _MSG_INVALID_INSTANCES);
+		    		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
                 }
         
                 //
@@ -3028,15 +3036,28 @@ void IndicationService::_checkPropertyWithOther (
         //
         if ((theValue.getType () != CIMTYPE_UINT16) || (theValue.isArray ()))
         {
-            //  L10N TODO -- new throw of exception
-            String exceptionStr = _MSG_INVALID_TYPE;
+            //  L10N TODO DONE -- new throw of exception
+	    
+        	String exceptionStr;
             if (theValue.isArray ())
             {
-                exceptionStr.append (_MSG_ARRAY_OF);
+				MessageLoaderParms parms(
+						"IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY", 
+						"Invalid type array of $0 for property $1",
+						cimTypeToString(theValue.getType()),
+						propertyName.getString());
+ 
+				exceptionStr.append(MessageLoader::getMessage(parms));
             }
-            exceptionStr.append (cimTypeToString (theValue.getType ()));
-            exceptionStr.append (_MSG_FOR_PROPERTY);
-            exceptionStr.append (propertyName.getString ());
+            else{
+            	MessageLoaderParms parms(
+						"IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY", 
+						"Invalid type $0 for property $1",
+						cimTypeToString(theValue.getType()),
+						propertyName.getString());
+ 
+				exceptionStr.append(MessageLoader::getMessage(parms));		
+            }
             PEG_METHOD_EXIT ();
             throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
                 exceptionStr);
@@ -3291,11 +3312,13 @@ Boolean IndicationService::_canModify (
     {
         //
         //  This instance from the repository is corrupted
-        //  L10N TODO -- new throw of exception
+        //  L10N TODO DONE -- new throw of exception
         //
         PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
-            _MSG_INVALID_INSTANCES);
+        //throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, 
+            //_MSG_INVALID_INSTANCES);
+		MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY, _MSG_INVALID_INSTANCES);
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
     }
 
     //
@@ -3529,12 +3552,16 @@ Boolean IndicationService::_getActiveSubscriptionsFromRepository (
                 //
                 //  This instance from the repository is corrupted
                 //  Skip it
-                //  L10N TODO -- new log message
+                //  L10N TODO DONE -- new log message
                 //
                 if (!warningLogged)
                 {
-                    Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, 
-                                 Logger::WARNING, _MSG_INVALID_INSTANCES);
+                    //Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, 
+                                 //Logger::WARNING, _MSG_INVALID_INSTANCES);
+                    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
+                                 Logger::WARNING, 
+                                 _MSG_INVALID_INSTANCES_KEY,
+                                 _MSG_INVALID_INSTANCES);
                     warningLogged = true;
                 }
                 break;
@@ -6682,5 +6709,8 @@ const char IndicationService::_MSG_CLASS_NOT_SERVED_KEY [] =
 
 const char IndicationService::_MSG_INVALID_INSTANCES [] =
     "One or more invalid Subscription instances were ignored";
+
+const char IndicationService::_MSG_INVALID_INSTANCES_KEY [] =
+    "IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
 
 PEGASUS_NAMESPACE_END

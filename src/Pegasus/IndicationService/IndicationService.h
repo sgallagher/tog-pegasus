@@ -1579,6 +1579,8 @@ private:
     static const char _MSG_CLASS_NOT_SERVED_KEY [];
 
     static const char _MSG_INVALID_INSTANCES [];
+    
+    static const char _MSG_INVALID_INSTANCES_KEY [];
 };
 
 PEGASUS_NAMESPACE_END

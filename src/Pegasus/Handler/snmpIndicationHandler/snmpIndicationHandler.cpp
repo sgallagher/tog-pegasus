@@ -198,8 +198,11 @@ void snmpIndicationHandler::handleIndication(
 	    }
 	    else
 	    {
-		//L10N_TODO
-	        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Qualifier MappingStrings can not be found");
+		//L10N_ TODO DONE
+	        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Qualifier MappingStrings can not be found");
+		MessageLoaderParms parms("Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND",
+								 "Qualifier MappingStrings can not be found");
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 	    }
 	}
 

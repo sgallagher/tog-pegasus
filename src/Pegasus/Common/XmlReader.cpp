@@ -912,7 +912,7 @@ CIMValue XmlReader::stringToValue(
 
 // The Specification for the Representation of CIM in XML does not indicate
 // that a default value should be used when a VALUE element is empty.
-#if 0
+//#if 0
     // If strlen == 0, set to default value for type
 
     if (strlen(valueString)==0) 
@@ -934,7 +934,7 @@ CIMValue XmlReader::stringToValue(
 	    case CIMType::REAL64: return CIMValue(Real64(0));
         }
     }
-#endif
+//#endif
 
     // Create value per type
     switch (type)

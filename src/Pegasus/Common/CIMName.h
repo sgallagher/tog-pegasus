@@ -201,7 +201,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     <p>
     A CIM namespace name must match the following expression:
     <PRE>
-        &ltCIMName&gt[ / &ltCIMName&gt]*
+        &lt;CIMName&gt;[ / &lt;CIMName&gt; ]*
     </PRE>
     </p>
     <B>Examples</B>
@@ -210,7 +210,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     <LI>root/test
     </UL>
     NOTE: Pegasus uses namespaces starting with the top level name (ex. root).  It does
-    not use the form /root/test with a leading slash.  The legal test in this class
+    not use the form /root/test with a leading slash.  The legal() test method in this class
     allows that form as a legal entity however.
 */
 class PEGASUS_COMMON_LINKAGE CIMNamespaceName

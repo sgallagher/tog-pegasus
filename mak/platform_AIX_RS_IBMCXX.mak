@@ -24,6 +24,15 @@ endif
 
 FLAGS += -qrtti=dyna 
 
+# Build using fixed release settings
+#
+ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+FLAGS += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
+endif
+ifdef PEGASUS_USE_RELEASE_DIRS
+FLAGS += -DPEGASUS_USE_RELEASE_DIRS
+endif
+
 SYS_LIBS = -ldl 
 
 # SSL support

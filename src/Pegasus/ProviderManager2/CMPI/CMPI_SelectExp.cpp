@@ -42,62 +42,67 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static CMPIStatus selxRelease(CMPISelectExp* eSx) {
-   CMReturn(CMPI_RC_OK);
-}
+extern "C" {
 
-static CMPISelectExp* selxClone(CMPISelectExp* eSx, CMPIStatus* rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-      return NULL;
-}
-
-static CMPIBoolean selxEvaluate(CMPISelectExp* eSx, CMPIInstance* inst, CMPIStatus* rc) {
-   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-   WQLInstancePropertySource ips(*(CIMInstance*)inst->hdl);
-   try {
-      return sx->stmt->evaluateWhereClause(&ips);
+   static CMPIStatus selxRelease(CMPISelectExp* eSx) {
+      CMReturn(CMPI_RC_OK);
    }
-   catch (...) {
+
+   static CMPISelectExp* selxClone(CMPISelectExp* eSx, CMPIStatus* rc) {
+         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+         return NULL;
+   }
+
+   static CMPIBoolean selxEvaluate(CMPISelectExp* eSx, CMPIInstance* inst, CMPIStatus* rc) {
+      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+      WQLInstancePropertySource ips(*(CIMInstance*)inst->hdl);
+      try {
+         return sx->stmt->evaluateWhereClause(&ips);
+      }
+      catch (...) {
+         return false;
+      }
+         return false;
+   }
+
+   #ifdef CMPI_VER_87
+   static CMPIBoolean selxEvaluateUsingAccessor(CMPISelectExp* eSx,
+               CMPIAccessor* accessor, void *parm, CMPIStatus* rc) {
+      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+      CMPI_SelectExpAccessor ips(accessor,parm);
+      try {
+         return sx->stmt->evaluateWhereClause(&ips);
+      }
+      catch (...) {
+         return false;
+      }
       return false;
    }
-      return false;
+   #endif
+
+   static CMPIString* selxGetString(CMPISelectExp* eSx, CMPIStatus* rc) {
+      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+      return string2CMPIString(sx->cond);
+   }
+
+   static CMPISelectCond* selxGetDOC(CMPISelectExp* eSx, CMPIStatus* rc) {
+      CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+      if (sx->dnf==NULL) {
+         sx->dnf=new CMPI_Wql2Dnf(String(sx->cond),String::EMPTY);
+         sx->tableau=sx->dnf->getTableau();
+      }
+      CMPISelectCond *sc=(CMPISelectCond*)new CMPI_SelectCond(sx->tableau,0);
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return sc;
+   }
+   /*
+   static CMPISelectCond* selxGetCOD(CMPISelectExp* eSx, CMPIStatus* rc) {
+         return NULL;
+   }
+   */
+
 }
 
-#ifdef CMPI_VER_87
-static CMPIBoolean selxEvaluateUsingAccessor(CMPISelectExp* eSx,
-            CMPIAccessor* accessor, void *parm, CMPIStatus* rc) {
-   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-   CMPI_SelectExpAccessor ips(accessor,parm);
-   try {
-      return sx->stmt->evaluateWhereClause(&ips);
-   }
-   catch (...) {
-      return false;
-   }
-   return false;
-}
-#endif
-
-static CMPIString* selxGetString(CMPISelectExp* eSx, CMPIStatus* rc) {
-   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-   return string2CMPIString(sx->cond);
-}
-
-static CMPISelectCond* selxGetDOC(CMPISelectExp* eSx, CMPIStatus* rc) {
-   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
-   if (sx->dnf==NULL) {
-      sx->dnf=new CMPI_Wql2Dnf(String(sx->cond),String::EMPTY);
-      sx->tableau=sx->dnf->getTableau();
-   }
-   CMPISelectCond *sc=(CMPISelectCond*)new CMPI_SelectCond(sx->tableau,0);
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return sc; 
-}
-/*
-static CMPISelectCond* selxGetCOD(CMPISelectExp* eSx, CMPIStatus* rc) {
-      return NULL;
-}
-*/
 static CMPISelectExpFT selx_FT={
      CMPICurrentVersion,
      selxRelease,

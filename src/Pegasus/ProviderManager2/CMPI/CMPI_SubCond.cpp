@@ -39,40 +39,44 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-CMPIStatus sbcRelease(CMPISubCond* sc) {
-   CMReturn(CMPI_RC_OK);
-}
+extern "C" {
 
-CMPISubCond* sbcClone(CMPISubCond* eSc, CMPIStatus* rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+   CMPIStatus sbcRelease(CMPISubCond* sc) {
+      CMReturn(CMPI_RC_OK);
+   }
+
+   CMPISubCond* sbcClone(CMPISubCond* eSc, CMPIStatus* rc) {
+         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+         return NULL;
+   }
+
+   CMPICount sbcGetCount(CMPISubCond* eSbc, CMPIStatus* rc) {
+      CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return sbc->row->size();
+   }
+
+   CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
+      CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
+      if (index<=sbc->row->size()) {
+         const term_el *term=sbc->row[index].getData();
+
+         CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
+         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         return prd;
+      }   
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      return NULL; 
+   }
+
+   CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
+      CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
       return NULL;
+   }
+
 }
 
-CMPICount sbcGetCount(CMPISubCond* eSbc, CMPIStatus* rc) {
-    CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
-    if (rc) CMSetStatus(rc,CMPI_RC_OK);
-    return sbc->row->size();
-}
-
-CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
-    CMPI_SubCond *sbc=(CMPI_SubCond*)eSbc;
-    if (index<=sbc->row->size()) {
-       const term_el *term=sbc->row[index].getData();
-        
-       CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
-       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-       return prd;
-    }   
-    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-    return NULL; 
-}
-
-CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
-    CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
-    return NULL;
-}
-
-static CMPISubCondFT scnd_FT={ 
+static CMPISubCondFT scnd_FT={
      CMPICurrentVersion,
      sbcRelease,
      sbcClone,

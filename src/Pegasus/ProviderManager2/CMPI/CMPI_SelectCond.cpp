@@ -39,34 +39,37 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-CMPIStatus scndRelease(CMPISelectCond* sc) {
-   CMReturn(CMPI_RC_OK);
+extern "C" {
+
+   CMPIStatus scndRelease(CMPISelectCond* sc) {
+      CMReturn(CMPI_RC_OK);
+   }
+
+   CMPISelectCond* scndClone(CMPISelectCond* eSc, CMPIStatus* rc) {
+         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+         return NULL;
+   }
+
+   CMPICount scndGetCountAndType(CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
+      CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
+      if (type!=NULL) *type=sc->type;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return sc->tableau->size();
+   }
+
+   CMPISubCond* scndGetSubCondAt(CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
+      CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
+      if (index<=sc->tableau->size()) {
+         const TableauRow *row=sc->tableau[index].getData();
+         CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
+         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         return sbc;
+      }   
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      return NULL; 
+   }
+
 }
-
-CMPISelectCond* scndClone(CMPISelectCond* eSc, CMPIStatus* rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-      return NULL;
-}
-
-CMPICount scndGetCountAndType(CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
-    CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
-    if (type!=NULL) *type=sc->type;
-    if (rc) CMSetStatus(rc,CMPI_RC_OK);
-    return sc->tableau->size();
-}
-
-CMPISubCond* scndGetSubCondAt(CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
-    CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
-    if (index<=sc->tableau->size()) {
-       const TableauRow *row=sc->tableau[index].getData();
-       CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
-       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-       return sbc;
-    }   
-    if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-    return NULL; 
-}    
-
 
 static CMPISelectCondFT scnd_FT={
      CMPICurrentVersion,

@@ -39,35 +39,39 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-CMPIStatus prdRelease(CMPIPredicate* sc) {
-   CMReturn(CMPI_RC_OK);
-}
+extern "C" {
 
-CMPIPredicate* prdClone(CMPIPredicate* ePrd, CMPIStatus* rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-      return NULL;
-}
-     
-CMPIStatus prdGetData(CMPIPredicate* ePrd, CMPIType* type,
-               CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
-     CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
-     String o1,o2;
-     CMPIPredOp o;
-     CMPIType t;
-     prd->term->toStrings(t,o,o1,o2);
-     if (type) *type=t;
-     if (op) *op=o;
-     if (lhs) *lhs=string2CMPIString(o1);
-     if (rhs) *rhs=string2CMPIString(o2);
-     CMReturn(CMPI_RC_OK);
-}
+   CMPIStatus prdRelease(CMPIPredicate* sc) {
+      CMReturn(CMPI_RC_OK);
+   }
 
-int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
-               CMPIType type, CMPIStatus* rc) {
-      return 0;	       
-}
+   CMPIPredicate* prdClone(CMPIPredicate* ePrd, CMPIStatus* rc) {
+         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+         return NULL;
+   }
 
-static CMPIPredicateFT prd_FT={ 
+   CMPIStatus prdGetData(CMPIPredicate* ePrd, CMPIType* type,
+                  CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
+      CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
+      String o1,o2;
+      CMPIPredOp o;
+      CMPIType t;
+      prd->term->toStrings(t,o,o1,o2);
+      if (type) *type=t;
+      if (op) *op=o;
+      if (lhs) *lhs=string2CMPIString(o1);
+      if (rhs) *rhs=string2CMPIString(o2);
+      CMReturn(CMPI_RC_OK);
+   }
+
+   int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
+                  CMPIType type, CMPIStatus* rc) {
+         return 0;
+   }
+
+}
+   
+static CMPIPredicateFT prd_FT={
      CMPICurrentVersion,
      prdRelease,
      prdClone,

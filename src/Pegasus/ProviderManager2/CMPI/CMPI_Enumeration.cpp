@@ -38,130 +38,132 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+extern "C" {
 
-static CMPIStatus enumRelease(CMPIEnumeration* eEnum) {
-   //cout<<"--- enumRelease()"<<endl;
-   CIMInstance* enm=(CIMInstance*)eEnum->hdl;
-   if (enm) {
-      delete enm;
-      ((CMPI_Object*)eEnum)->unlinkAndDelete();
-   }
-   CMReturn(CMPI_RC_OK);
-}
-
-//static CMPIStatus enumReleaseNop(CMPIEnumeration* eEnum) {
-//   CMReturn(CMPI_RC_OK);
-//}
-
-static CMPIEnumeration* enumClone(CMPIEnumeration* eEnum, CMPIStatus* rc) {
-//   CIMInstance* enm=(CIMInstance*)eEnum->hdl;
-//   CIMInstance* cInst=new CIMInstance(enum->clone());
-//   CMPIEnumeration* neEnum=(CMPIEnumeration*)new CMPI_Object(cInst,CMPI_Instance_Ftab);
-//   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-//   return neEnum;
-   return NULL;
-}
-
-static CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
-   CMPIData data={0,0,{0}};
-   if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
-      CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
-      data.type=CMPI_instance;
-      Array<CIMInstance>* ia=(Array<CIMInstance>*)ie->hdl;
-      if (ie->cursor<ie->max) {
-         data.value.inst=(CMPIInstance*)
-	    new CMPI_Object(new CIMInstance((*ia)[ie->cursor++]));
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   static CMPIStatus enumRelease(CMPIEnumeration* eEnum) {
+      //cout<<"--- enumRelease()"<<endl;
+      CIMInstance* enm=(CIMInstance*)eEnum->hdl;
+      if (enm) {
+         delete enm;
+         ((CMPI_Object*)eEnum)->unlinkAndDelete();
       }
-      else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      CMReturn(CMPI_RC_OK);
    }
 
-   else if ((void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
-      CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
-      data.type=CMPI_instance;
-      Array<CIMInstance>* ia=(Array<CIMInstance>*)ie->hdl;
-      if (ie->cursor<ie->max) {
-         data.value.inst=(CMPIInstance*)
-	    new CMPI_Object(new CIMInstance((*ia)[ie->cursor++]));
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      }
-      else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   //static CMPIStatus enumReleaseNop(CMPIEnumeration* eEnum) {
+   //   CMReturn(CMPI_RC_OK);
+   //}
+
+   static CMPIEnumeration* enumClone(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   //   CIMInstance* enm=(CIMInstance*)eEnum->hdl;
+   //   CIMInstance* cInst=new CIMInstance(enum->clone());
+   //   CMPIEnumeration* neEnum=(CMPIEnumeration*)new CMPI_Object(cInst,CMPI_Instance_Ftab);
+   //   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   //   return neEnum;
+      return NULL;
    }
 
-   else {
-      CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
-      data.type=CMPI_ref;
-      Array<CIMObjectPath>* opa=(Array<CIMObjectPath>*)oe->hdl;
-      if (oe->cursor<oe->max) {
-         data.value.ref=(CMPIObjectPath*)
-	    new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++]));
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      }
-      else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-   }
-   return data;
-}
-
-static CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
-      CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
-      if (ie->cursor<ie->max) return true;
-   }
-   else if ((void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
-      CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
-      if (ie->cursor<ie->max) return true;
-   }
-   else {
-      CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
-      if (oe->cursor<oe->max) return true;
-   }
-   return false;
-}
-
-extern CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
-                                CMPIStatus *rc);
-extern CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
-                                    CMPIValue *val, CMPIType type);
-
-static CMPIArray* enumToArray(CMPIEnumeration* eEnum, CMPIStatus* rc) {
-   Uint32 size;
-   CMPI_Object* obj;
-   CMPIArray *nar=NULL;
-
-   if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab ||
-       (void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
-      Array<CIMInstance>* ia;
+   static CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+      CMPIData data={0,0,{0}};
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
          CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
-         ia=(Array<CIMInstance>*)ie->hdl;
+         data.type=CMPI_instance;
+         Array<CIMInstance>* ia=(Array<CIMInstance>*)ie->hdl;
+         if (ie->cursor<ie->max) {
+            data.value.inst=(CMPIInstance*)
+         new CMPI_Object(new CIMInstance((*ia)[ie->cursor++]));
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         }
+         else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      }
+
+      else if ((void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
+         CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
+         data.type=CMPI_instance;
+         Array<CIMInstance>* ia=(Array<CIMInstance>*)ie->hdl;
+         if (ie->cursor<ie->max) {
+            data.value.inst=(CMPIInstance*)
+         new CMPI_Object(new CIMInstance((*ia)[ie->cursor++]));
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         }
+         else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      }
+
+      else {
+         CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
+         data.type=CMPI_ref;
+         Array<CIMObjectPath>* opa=(Array<CIMObjectPath>*)oe->hdl;
+         if (oe->cursor<oe->max) {
+            data.value.ref=(CMPIObjectPath*)
+         new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++]));
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         }
+         else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      }
+      return data;
+   }
+
+   static CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
+         CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
+         if (ie->cursor<ie->max) return true;
+      }
+      else if ((void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
+         CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
+         if (ie->cursor<ie->max) return true;
       }
       else {
-         CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
-         ia=(Array<CIMInstance>*)ie->hdl;
+         CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
+         if (oe->cursor<oe->max) return true;
       }
-      size=ia->size();
-      nar=mbEncNewArray(NULL,size,CMPI_instance,NULL);
-      for (Uint32 i=0; i<size; i++) {
-         CIMInstance &inst=(*ia)[i];
-         obj=new CMPI_Object(new CIMInstance(inst));
-         arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
-      }
+      return false;
    }
-   else {
-      CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
-      Array<CIMObjectPath>* opa=(Array<CIMObjectPath>*)oe->hdl;
-      size=opa->size();
-      nar=mbEncNewArray(NULL,size,CMPI_ref,NULL);
-      for (Uint32 i=0; i<size; i++) {
-         CIMObjectPath &op=(*opa)[i];
-         obj=new CMPI_Object(new CIMObjectPath(op));
-         arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
-      }
-   }
-   return nar;
-}
 
+   extern CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
+                                 CMPIStatus *rc);
+   extern CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
+                                       CMPIValue *val, CMPIType type);
+
+   static CMPIArray* enumToArray(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+      Uint32 size;
+      CMPI_Object* obj;
+      CMPIArray *nar=NULL;
+
+      if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab ||
+         (void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
+         Array<CIMInstance>* ia;
+         if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
+            CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
+            ia=(Array<CIMInstance>*)ie->hdl;
+         }
+         else {
+            CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
+            ia=(Array<CIMInstance>*)ie->hdl;
+         }
+         size=ia->size();
+         nar=mbEncNewArray(NULL,size,CMPI_instance,NULL);
+         for (Uint32 i=0; i<size; i++) {
+            CIMInstance &inst=(*ia)[i];
+            obj=new CMPI_Object(new CIMInstance(inst));
+            arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
+         }
+      }
+      else {
+         CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
+         Array<CIMObjectPath>* opa=(Array<CIMObjectPath>*)oe->hdl;
+         size=opa->size();
+         nar=mbEncNewArray(NULL,size,CMPI_ref,NULL);
+         for (Uint32 i=0; i<size; i++) {
+            CIMObjectPath &op=(*opa)[i];
+            obj=new CMPI_Object(new CIMObjectPath(op));
+            arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
+         }
+      }
+      return nar;
+   }
+
+}
 
 static CMPIEnumerationFT objEnumeration_FT={
      CMPICurrentVersion,

@@ -40,170 +40,173 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static CMPIStatus refRelease(CMPIObjectPath* eRef) {
-//   cout<<"--- refRelease()"<<endl;
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   if (ref) {
-      delete ref;
-      ((CMPI_Object*)eRef)->unlinkAndDelete();
+extern "C" {
+
+   static CMPIStatus refRelease(CMPIObjectPath* eRef) {
+   //   cout<<"--- refRelease()"<<endl;
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      if (ref) {
+         delete ref;
+         ((CMPI_Object*)eRef)->unlinkAndDelete();
+      }
+      CMReturn(CMPI_RC_OK);
    }
-   CMReturn(CMPI_RC_OK);
-}
 
-static CMPIStatus refReleaseNop(CMPIObjectPath* eRef) {
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIObjectPath* refClone(CMPIObjectPath* eRef, CMPIStatus* rc) {
-//   cout<<"--- refClone()"<<endl;
-   CIMObjectPath *ref=(CIMObjectPath*)eRef->hdl;
-   CIMObjectPath *nRef=new CIMObjectPath(ref->getHost(),
-                                          ref->getNameSpace(),
-					  ref->getClassName());
-   Array<CIMKeyBinding> kb=ref->getKeyBindings();
-   nRef->setKeyBindings(kb);
-   CMPI_Object* obj=new CMPI_Object(nRef);
-   obj->unlink();
-   CMPIObjectPath* neRef=(CMPIObjectPath*)obj;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return neRef;
-}
-
-static CMPIStatus refSetNameSpace(CMPIObjectPath* eRef, const char *ns) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   ref->setNameSpace(String(ns));
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIString* refGetNameSpace(CMPIObjectPath* eRef, CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const CIMNamespaceName &ns=ref->getNameSpace();
-   CMPIString *eNs=(CMPIString*)string2CMPIString(ns.getString());
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return eNs;
-}
-
-static CMPIStatus refSetHostname(CMPIObjectPath* eRef, const char *hn) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   ref->setHost(String(hn));
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIString* refGetHostname(CMPIObjectPath* eRef, CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const String &hn=ref->getHost();
-   CMPIString *eHn=(CMPIString*)string2CMPIString(hn);
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return eHn;
-}
-
-static CMPIStatus refSetClassName(CMPIObjectPath* eRef, const char *cn) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   ref->setClassName(String(cn));
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIString* refGetClassName(CMPIObjectPath* eRef, CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const CIMName &cn=ref->getClassName();
-   CMPIString* eCn=(CMPIString*)string2CMPIString(cn.getString());
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return eCn;
-}
-
-
-static long locateKey(const Array<CIMKeyBinding> &kb, const CIMName &eName) {
-   for (unsigned long i=0,s=kb.size(); i<s; i++) {
-      const String &n=kb[i].getName().getString();
-      if (String::equalNoCase(n,eName.getString())) return i;
+   static CMPIStatus refReleaseNop(CMPIObjectPath* eRef) {
+      CMReturn(CMPI_RC_OK);
    }
-   return -1;
-}
 
-static CMPIStatus refAddKey(CMPIObjectPath* eRef, const char *name,
-          CMPIValue* data, CMPIType type) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   Array<CIMKeyBinding> keyBindings=ref->getKeyBindings();
-   CIMName key(name);
-   CMPIrc rc;
-
-   long i=locateKey(keyBindings,key);
-   if (i>=0) keyBindings.remove(i);
-
-   CIMValue val=value2CIMValue(data,type,&rc);
-   keyBindings.append(CIMKeyBinding(key,val));
-   ref->setKeyBindings(Array<CIMKeyBinding>(keyBindings));
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIData refGetKey(CMPIObjectPath* eRef, const char *name, CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const CIMName eName(name);
-   const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-   CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-
-   long i=locateKey(akb,eName);
-   if (i>=0)  {
-       key2CMPIData(akb[i].getValue(),akb[i].getType(),&data);
-       return data;
+   static CMPIObjectPath* refClone(CMPIObjectPath* eRef, CMPIStatus* rc) {
+   //   cout<<"--- refClone()"<<endl;
+      CIMObjectPath *ref=(CIMObjectPath*)eRef->hdl;
+      CIMObjectPath *nRef=new CIMObjectPath(ref->getHost(),
+                                             ref->getNameSpace(),
+                  ref->getClassName());
+      Array<CIMKeyBinding> kb=ref->getKeyBindings();
+      nRef->setKeyBindings(kb);
+      CMPI_Object* obj=new CMPI_Object(nRef);
+      obj->unlink();
+      CMPIObjectPath* neRef=(CMPIObjectPath*)obj;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return neRef;
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
-   return data;
-}
 
-static CMPIData refGetKeyAt(CMPIObjectPath* eRef, unsigned pos, CMPIString** name,
-          CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-   CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   static CMPIStatus refSetNameSpace(CMPIObjectPath* eRef, const char *ns) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      ref->setNameSpace(String(ns));
+      CMReturn(CMPI_RC_OK);
+   }
 
-   if (pos>=akb.size()) {
+   static CMPIString* refGetNameSpace(CMPIObjectPath* eRef, CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      const CIMNamespaceName &ns=ref->getNameSpace();
+      CMPIString *eNs=(CMPIString*)string2CMPIString(ns.getString());
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return eNs;
+   }
+
+   static CMPIStatus refSetHostname(CMPIObjectPath* eRef, const char *hn) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      ref->setHost(String(hn));
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIString* refGetHostname(CMPIObjectPath* eRef, CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      const String &hn=ref->getHost();
+      CMPIString *eHn=(CMPIString*)string2CMPIString(hn);
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return eHn;
+   }
+
+   static CMPIStatus refSetClassName(CMPIObjectPath* eRef, const char *cn) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      ref->setClassName(String(cn));
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIString* refGetClassName(CMPIObjectPath* eRef, CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      const CIMName &cn=ref->getClassName();
+      CMPIString* eCn=(CMPIString*)string2CMPIString(cn.getString());
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return eCn;
+   }
+
+
+   static long locateKey(const Array<CIMKeyBinding> &kb, const CIMName &eName) {
+      for (unsigned long i=0,s=kb.size(); i<s; i++) {
+         const String &n=kb[i].getName().getString();
+         if (String::equalNoCase(n,eName.getString())) return i;
+      }
+      return -1;
+   }
+
+   static CMPIStatus refAddKey(CMPIObjectPath* eRef, const char *name,
+            CMPIValue* data, CMPIType type) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      Array<CIMKeyBinding> keyBindings=ref->getKeyBindings();
+      CIMName key(name);
+      CMPIrc rc;
+
+      long i=locateKey(keyBindings,key);
+      if (i>=0) keyBindings.remove(i);
+
+      CIMValue val=value2CIMValue(data,type,&rc);
+      keyBindings.append(CIMKeyBinding(key,val));
+      ref->setKeyBindings(Array<CIMKeyBinding>(keyBindings));
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIData refGetKey(CMPIObjectPath* eRef, const char *name, CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      const CIMName eName(name);
+      const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
+      CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+
+      long i=locateKey(akb,eName);
+      if (i>=0)  {
+         key2CMPIData(akb[i].getValue(),akb[i].getType(),&data);
+         return data;
+      }
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
       return data;
    }
 
-   key2CMPIData(akb[pos].getValue(),akb[pos].getType(),&data);
+   static CMPIData refGetKeyAt(CMPIObjectPath* eRef, unsigned pos, CMPIString** name,
+            CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
+      CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
-   if (name) {
-      const String &n=akb[pos].getName().getString();
-      *name=(CMPIString*)string2CMPIString(n);
+      if (pos>=akb.size()) {
+         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+         return data;
+      }
+
+      key2CMPIData(akb[pos].getValue(),akb[pos].getType(),&data);
+
+      if (name) {
+         const String &n=akb[pos].getName().getString();
+         *name=(CMPIString*)string2CMPIString(n);
+      }
+      return data;
    }
-   return data;
-}
 
-static CMPICount refGetKeyCount(CMPIObjectPath* eRef, CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return akb.size();
-}
+   static CMPICount refGetKeyCount(CMPIObjectPath* eRef, CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return akb.size();
+   }
 
-static CMPIStatus refSetNameSpaceFromObjectPath(CMPIObjectPath* eRef,
-          CMPIObjectPath* eSrc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   CIMObjectPath* src=(CIMObjectPath*)eSrc->hdl;
-   ref->setNameSpace(src->getNameSpace());
-   CMReturn(CMPI_RC_OK);
-}
+   static CMPIStatus refSetNameSpaceFromObjectPath(CMPIObjectPath* eRef,
+            CMPIObjectPath* eSrc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      CIMObjectPath* src=(CIMObjectPath*)eSrc->hdl;
+      ref->setNameSpace(src->getNameSpace());
+      CMReturn(CMPI_RC_OK);
+   }
 
-static CMPIStatus refSetHostAndNameSpaceFromObjectPath(CMPIObjectPath* eRef,
-          CMPIObjectPath* eSrc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   CIMObjectPath* src=(CIMObjectPath*)eSrc->hdl;
-   ref->setNameSpace(src->getNameSpace());
-   ref->setHost(src->getHost());
-   CMReturn(CMPI_RC_OK);
-}
+   static CMPIStatus refSetHostAndNameSpaceFromObjectPath(CMPIObjectPath* eRef,
+            CMPIObjectPath* eSrc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      CIMObjectPath* src=(CIMObjectPath*)eSrc->hdl;
+      ref->setNameSpace(src->getNameSpace());
+      ref->setHost(src->getHost());
+      CMReturn(CMPI_RC_OK);
+   }
 
-static CMPIString *refToString(CMPIObjectPath* eRef, CMPIStatus* rc) {
-   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-   String str=ref->toString();
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return (CMPIString*) new CMPI_Object(str);
-}
+   static CMPIString *refToString(CMPIObjectPath* eRef, CMPIStatus* rc) {
+      CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+      String str=ref->toString();
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return (CMPIString*) new CMPI_Object(str);
+   }
 
+}
 
 CMPIObjectPathFT objectPath_FT={
      CMPICurrentVersion,

@@ -43,97 +43,100 @@ PEGASUS_NAMESPACE_BEGIN
 
 // CMPIArgs section
 
-static CMPIStatus argsRelease(CMPIArgs* eArg) {
-   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   if (arg) {
-      delete arg;
-      (reinterpret_cast<CMPI_Object*>(eArg))->unlinkAndDelete();
+extern "C" {
+
+   static CMPIStatus argsRelease(CMPIArgs* eArg) {
+      Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      if (arg) {
+         delete arg;
+         (reinterpret_cast<CMPI_Object*>(eArg))->unlinkAndDelete();
+      }
+      CMReturn(CMPI_RC_OK);
    }
-   CMReturn(CMPI_RC_OK);
-}
 
-static CMPIStatus argsReleaseNop(CMPIArgs* eArg) {
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIArgs* argsClone(CMPIArgs* eArg, CMPIStatus* rc) {
-   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   Array<CIMParamValue>* cArg=new Array<CIMParamValue>();
-   for (long i=0,s=arg->size(); i<s; i++) {
-      const CIMParamValue &v=(*arg)[i];
-      cArg->append(v.clone());
+   static CMPIStatus argsReleaseNop(CMPIArgs* eArg) {
+      CMReturn(CMPI_RC_OK);
    }
-   CMPI_Object* obj=new CMPI_Object(cArg);
-   obj->unlink();
-   CMPIArgs* neArg=(CMPIArgs*)obj;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return neArg;
-}
 
-static long locateArg(const Array<CIMParamValue> &a, const CIMName &eName) {
-   for (long i=0,s=a.size(); i<s; i++) {
-      const String &n=a[i].getParameterName();
-      if (String::equalNoCase(n,eName.getString())) return i;
+   static CMPIArgs* argsClone(CMPIArgs* eArg, CMPIStatus* rc) {
+      Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      Array<CIMParamValue>* cArg=new Array<CIMParamValue>();
+      for (long i=0,s=arg->size(); i<s; i++) {
+         const CIMParamValue &v=(*arg)[i];
+         cArg->append(v.clone());
+      }
+      CMPI_Object* obj=new CMPI_Object(cArg);
+      obj->unlink();
+      CMPIArgs* neArg=(CMPIArgs*)obj;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return neArg;
    }
-   return -1;
-}
 
-static CMPIStatus argsAddArg(CMPIArgs* eArg, const char *name, CMPIValue* data, CMPIType type) {
-   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   CMPIrc rc;
-   CIMValue v=value2CIMValue(data,type,&rc);
-   CIMName sName(name);
+   static long locateArg(const Array<CIMParamValue> &a, const CIMName &eName) {
+      for (long i=0,s=a.size(); i<s; i++) {
+         const String &n=a[i].getParameterName();
+         if (String::equalNoCase(n,eName.getString())) return i;
+      }
+      return -1;
+   }
 
-   long i=locateArg(*arg,sName);
-   if (i>=0) arg->remove(i);
+   static CMPIStatus argsAddArg(CMPIArgs* eArg, const char *name, CMPIValue* data, CMPIType type) {
+      Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      CMPIrc rc;
+      CIMValue v=value2CIMValue(data,type,&rc);
+      CIMName sName(name);
 
-   arg->append(CIMParamValue(sName.getString(),v));
-   CMReturn(CMPI_RC_OK);
-}
+      long i=locateArg(*arg,sName);
+      if (i>=0) arg->remove(i);
 
-static CMPIData argsGetArgAt(CMPIArgs* eArg, CMPICount pos, CMPIString** name,
-               CMPIStatus* rc) {
-   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
+      arg->append(CIMParamValue(sName.getString(),v));
+      CMReturn(CMPI_RC_OK);
+   }
 
-   if (pos>arg->size()) {
+   static CMPIData argsGetArgAt(CMPIArgs* eArg, CMPICount pos, CMPIString** name,
+                  CMPIStatus* rc) {
+      Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
+
+      if (pos>arg->size()) {
+         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+         return data;
+      }
+
+      CIMValue v=(*arg)[pos].getValue();
+      CIMType pType=v.getType();
+      CMPIType t=type2CMPIType(pType,v.isArray());
+
+      value2CMPIData(v,t,&data);
+
+      if (name) {
+         String n=(*arg)[pos].getParameterName();
+         *name=(CMPIString*)string2CMPIString(n);
+      }
+
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return data;
+   }
+
+   static CMPIData argsGetArg(CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
+      Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      CIMName eName(name);
+
+      long i=locateArg(*arg,eName);
+      if (i>=0) return argsGetArgAt(eArg,i,NULL,rc);
+
+      CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
       return data;
    }
 
-   CIMValue v=(*arg)[pos].getValue();
-   CIMType pType=v.getType();
-   CMPIType t=type2CMPIType(pType,v.isArray());
-
-   value2CMPIData(v,t,&data);
-
-   if (name) {
-      String n=(*arg)[pos].getParameterName();
-      *name=(CMPIString*)string2CMPIString(n);
+   static CMPICount argsGetArgCount(CMPIArgs* eArg, CMPIStatus* rc) {
+      Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return arg->size();
    }
 
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return data;
 }
-
-static CMPIData argsGetArg(CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
-   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   CIMName eName(name);
-
-   long i=locateArg(*arg,eName);
-   if (i>=0) return argsGetArgAt(eArg,i,NULL,rc);
-
-   CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
-   return data;
-}
-
-static CMPICount argsGetArgCount(CMPIArgs* eArg, CMPIStatus* rc) {
-   Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return arg->size();
-}
-
 
 static CMPIArgsFT args_FT={
      CMPICurrentVersion,
@@ -163,39 +166,42 @@ CMPIArgsFT *CMPI_ArgsOnStack_Ftab=&argsOnStack_FT;
 
 // CMPIContext Session
 
+extern "C" {
+
 static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
    CMReturn(CMPI_RC_OK);
 }
 
-static CMPIData contextGetEntry(CMPIContext* eCtx, const char *name, CMPIStatus* rc) {
-   return argsGetArg((CMPIArgs*)eCtx,name,rc);
-}
-
-CMPIData contextGetEntryAt(CMPIContext* eCtx, CMPICount pos,
-            CMPIString** name, CMPIStatus* rc) {
-   return argsGetArgAt((CMPIArgs*)eCtx,pos,name,rc);
-}
-
-static CMPICount contextGetEntryCount(CMPIContext* eCtx, CMPIStatus* rc) {
-   return argsGetArgCount((CMPIArgs*)eCtx,rc);
-}
-
-static CMPIStatus contextAddEntry(CMPIContext* eCtx, const char *name,
-            CMPIValue* data, CMPIType type) {
-   if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
-      OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;
-      if (type==CMPI_chars) {
-         ctx->insert(SnmpTrapOidContainer((char*)data));
-         CMReturn(CMPI_RC_OK);
-      }
-      else if (type==CMPI_string) {
-         ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
-         CMReturn(CMPI_RC_OK);
-      }
+   static CMPIData contextGetEntry(CMPIContext* eCtx, const char *name, CMPIStatus* rc) {
+      return argsGetArg((CMPIArgs*)eCtx,name,rc);
    }
-   return argsAddArg((CMPIArgs*)eCtx,name,data,type);
-}
 
+   CMPIData contextGetEntryAt(CMPIContext* eCtx, CMPICount pos,
+               CMPIString** name, CMPIStatus* rc) {
+      return argsGetArgAt((CMPIArgs*)eCtx,pos,name,rc);
+   }
+
+   static CMPICount contextGetEntryCount(CMPIContext* eCtx, CMPIStatus* rc) {
+      return argsGetArgCount((CMPIArgs*)eCtx,rc);
+   }
+
+   static CMPIStatus contextAddEntry(CMPIContext* eCtx, const char *name,
+               CMPIValue* data, CMPIType type) {
+      if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
+         OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;
+         if (type==CMPI_chars) {
+            ctx->insert(SnmpTrapOidContainer((char*)data));
+            CMReturn(CMPI_RC_OK);
+         }
+         else if (type==CMPI_string) {
+            ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
+            CMReturn(CMPI_RC_OK);
+         }
+      }
+      return argsAddArg((CMPIArgs*)eCtx,name,data,type);
+   }
+
+}
 
 static CMPIContextFT context_FT={
      CMPICurrentVersion,

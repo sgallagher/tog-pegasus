@@ -38,123 +38,127 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static CMPIStatus resultReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
-   CMPIrc rc;
-   CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
-   if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
-      MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
+extern "C" {
+
+   static CMPIStatus resultReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
+      CMPIrc rc;
+      CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
+      if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
+         MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
+         if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
+            res->processing();
+            ((CMPI_Result*)eRes)->flags|=RESULT_set;
+         }
+         res->deliver(v);
+      }
+      else {
+         ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
+         if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
+            res->processing();
+            ((CMPI_Result*)eRes)->flags|=RESULT_set;
+         }
+         res->deliver(v);
+      }
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIStatus resultReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
+      InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
       }
-      res->deliver(v);
+      CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+      CMPI_Result *xRes=(CMPI_Result*)eRes;
+      const CIMObjectPath& op=inst.getPath();
+      CIMClass *cc=mbGetClass(xRes->xBroker,op);
+      CIMObjectPath iop=inst.buildPath(*cc);
+      iop.setNameSpace(op.getNameSpace());
+      inst.setPath(iop);
+      res->deliver(inst);
+      CMReturn(CMPI_RC_OK);
    }
-   else {
+
+   static CMPIStatus resultReturnObject(CMPIResult* eRes, CMPIInstance* eInst) {
+      ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
+         res->processing();
+         ((CMPI_Result*)eRes)->flags|=RESULT_set;
+      }
+      CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+      CMPI_Result *xRes=(CMPI_Result*)eRes;
+      const CIMObjectPath& op=inst.getPath();
+      CIMClass *cc=mbGetClass(xRes->xBroker,op);
+      CIMObjectPath iop=inst.buildPath(*cc);
+      iop.setNameSpace(op.getNameSpace());
+      inst.setPath(iop);
+      res->deliver(inst);
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIStatus resultReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
+      ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
+         res->processing();
+         ((CMPI_Result*)eRes)->flags|=RESULT_set;
+      }
+      CIMObjectPath& ref=*(CIMObjectPath*)(eRef->hdl);
+      res->deliver(ref);
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIStatus resultReturnInstDone(CMPIResult* eRes) {
+      InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
+      res->complete();
+      ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+      CMReturn(CMPI_RC_OK)}
+
+   static CMPIStatus resultReturnRefDone(CMPIResult* eRes) {
+      ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
+      res->complete();
+      ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIStatus resultReturnDataDone(CMPIResult* eRes) {
       ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
-      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
-         res->processing();
-         ((CMPI_Result*)eRes)->flags|=RESULT_set;
-      }
-      res->deliver(v);
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
+      res->complete();
+      ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+      CMReturn(CMPI_RC_OK);
    }
-   CMReturn(CMPI_RC_OK);
-}
 
-static CMPIStatus resultReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
-   InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
-      res->processing();
-      ((CMPI_Result*)eRes)->flags|=RESULT_set;
+   static CMPIStatus resultReturnMethDone(CMPIResult* eRes) {
+      MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
+   //   res->complete();    // Do not close the handle
+      ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+      CMReturn(CMPI_RC_OK);
    }
-   CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
-   CMPI_Result *xRes=(CMPI_Result*)eRes;
-   const CIMObjectPath& op=inst.getPath();
-   CIMClass *cc=mbGetClass(xRes->xBroker,op);
-   CIMObjectPath iop=inst.buildPath(*cc);
-   iop.setNameSpace(op.getNameSpace());
-   inst.setPath(iop);
-   res->deliver(inst);
-   CMReturn(CMPI_RC_OK);
-}
 
-static CMPIStatus resultReturnObject(CMPIResult* eRes, CMPIInstance* eInst) {
-   ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
-      res->processing();
-      ((CMPI_Result*)eRes)->flags|=RESULT_set;
+   static CMPIStatus resultReturnObjDone(CMPIResult* eRes) {
+      ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
+      res->complete();
+      ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+      CMReturn(CMPI_RC_OK);
    }
-   CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
-   CMPI_Result *xRes=(CMPI_Result*)eRes;
-   const CIMObjectPath& op=inst.getPath();
-   CIMClass *cc=mbGetClass(xRes->xBroker,op);
-   CIMObjectPath iop=inst.buildPath(*cc);
-   iop.setNameSpace(op.getNameSpace());
-   inst.setPath(iop);
-   res->deliver(inst);
-   CMReturn(CMPI_RC_OK);
-}
 
-static CMPIStatus resultReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
-   ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
-      res->processing();
-      ((CMPI_Result*)eRes)->flags|=RESULT_set;
+   static CMPIStatus resultBadReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
+      CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
-   CIMObjectPath& ref=*(CIMObjectPath*)(eRef->hdl);
-   res->deliver(ref);
-   CMReturn(CMPI_RC_OK);
-}
 
-static CMPIStatus resultReturnInstDone(CMPIResult* eRes) {
-   InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
-   res->complete();
-   ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
-   CMReturn(CMPI_RC_OK)}
+   static CMPIStatus resultBadReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
+      CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+   }
 
-static CMPIStatus resultReturnRefDone(CMPIResult* eRes) {
-   ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
-   res->complete();
-   ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
-   CMReturn(CMPI_RC_OK);
-}
+   static CMPIStatus resultBadReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
+      CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+   }
 
-static CMPIStatus resultReturnDataDone(CMPIResult* eRes) {
-   ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
-   res->complete();
-   ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIStatus resultReturnMethDone(CMPIResult* eRes) {
-   MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
-//   res->complete();    // Do not close the handle
-   ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIStatus resultReturnObjDone(CMPIResult* eRes) {
-   ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
-   if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
-   res->complete();
-   ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIStatus resultBadReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
-   CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
-}
-
-static CMPIStatus resultBadReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
-   CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
-}
-
-static CMPIStatus resultBadReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
-   CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
-}
+}   
 
 static CMPIResultFT resultMethOnStack_FT={
      CMPICurrentVersion,

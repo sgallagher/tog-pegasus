@@ -93,110 +93,114 @@ static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoole
    return dt;
 }
 
-CMPIDateTime *newDateTime() {
-   struct timeval tv;
-   struct timezone tz;
-   gettimeofday(&tv,&tz);
-   return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tv.tv_sec,tv.tv_usec,0));
-}
+extern "C" {
 
-CMPIDateTime *newDateTime(CMPIUint64 tim, CMPIBoolean interval) {
-   return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tim/1000000,tim%1000000,interval));
-}
-
-CMPIDateTime *newDateTime(char *strTime) {
-   CIMDateTime *dt=new CIMDateTime();
-   *dt=String(strTime);
-   return (CMPIDateTime*)new CMPI_Object(dt);
-}
-
-static CMPIStatus dtRelease(CMPIDateTime* eDt) {
-//   cout<<"--- dtRelease()"<<endl;
-   CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-   if (dt) {
-      delete dt;
-      ((CMPI_Object*)eDt)->unlinkAndDelete();
-   }
-   CMReturn(CMPI_RC_OK);
-}
-
-static CMPIDateTime* dtClone(CMPIDateTime* eDt, CMPIStatus* rc) {
-   CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-   CIMDateTime* cDt=new CIMDateTime(dt->toString());
-   CMPI_Object* obj=new CMPI_Object(cDt);
-   obj->unlink();
-   CMPIDateTime* neDt=(CMPIDateTime*)obj;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return neDt;
-}
-
-static CMPIBoolean dtIsInterval(CMPIDateTime* eDt, CMPIStatus* rc) {
-   CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return dt->isInterval();
-}
-
-static CMPIString *dtGetStringFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
-   CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-   CMPIString *str=(CMPIString*)new CMPI_Object(dt->toString());
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return str;
-}
-
-static CMPIUint64 dtGetBinaryFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
-   CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-   CMPIUint64 days,hours,mins,secs,usecs,utc,lTime;
-   struct tm tm,tmt;
-   CString tStr=dt->toString().getCString();
-   char *cStr=strdup((const char*)tStr);
-
-   if (dt->isInterval()) {
-      cStr[21]=0;
-      usecs=atoi(cStr+15);
-      cStr[15]=0;
-      secs=atoi(cStr+12);
-      cStr[12]=0;
-      mins=atoi(cStr+10);
-      cStr[10]=0;
-      hours=atoi(cStr+8);
-      cStr[8]=0;
-      days=atoi(cStr);
-      lTime=(days*PEGASUS_UINT64_LITERAL(86400000000))+
-            (hours*PEGASUS_UINT64_LITERAL(3600000000))+
-            (mins*60000000)+(secs*1000000)+usecs;
+   static CMPIStatus dtRelease(CMPIDateTime* eDt) {
+   //   cout<<"--- dtRelease()"<<endl;
+      CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      if (dt) {
+         delete dt;
+         ((CMPI_Object*)eDt)->unlinkAndDelete();
+      }
+      CMReturn(CMPI_RC_OK);
    }
 
-   else {
-      time_t tt=time(NULL);
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-      tmt=*localtime(&tt);
-#else
-      localtime_r(&tt,&tmt);
-#endif
-      memset(&tm,0,sizeof(tm));
-      tm.tm_isdst=tmt.tm_isdst;
-      utc=atoi(cStr+21);
-      cStr[21]=0;
-      usecs=atoi(cStr+15);
-      cStr[15]=0;
-      tm.tm_sec=atoi(cStr+12);
-      cStr[12]=0;
-      tm.tm_min=atoi(cStr+10);
-      cStr[10]=0;
-      tm.tm_hour=atoi(cStr+8);
-      cStr[8]=0;
-      tm.tm_mday=atoi(cStr+6);
-      cStr[6]=0;
-      tm.tm_mon=(atoi(cStr+4)-1);
-      cStr[4]=0;
-      tm.tm_year=(atoi(cStr)-1900);
-
-      lTime=mktime(&tm);
-      lTime*=1000000;
-      lTime+=usecs;
+   CMPIDateTime *newDateTime() {
+      struct timeval tv;
+      struct timezone tz;
+      gettimeofday(&tv,&tz);
+      return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tv.tv_sec,tv.tv_usec,0));
    }
 
-   return lTime;
+   CMPIDateTime *newDateTimeBin(CMPIUint64 tim, CMPIBoolean interval) {
+      return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tim/1000000,tim%1000000,interval));
+   }
+
+   CMPIDateTime *newDateTimeChar(char *strTime) {
+      CIMDateTime *dt=new CIMDateTime();
+      *dt=String(strTime);
+      return (CMPIDateTime*)new CMPI_Object(dt);
+   }
+
+   static CMPIDateTime* dtClone(CMPIDateTime* eDt, CMPIStatus* rc) {
+      CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      CIMDateTime* cDt=new CIMDateTime(dt->toString());
+      CMPI_Object* obj=new CMPI_Object(cDt);
+      obj->unlink();
+      CMPIDateTime* neDt=(CMPIDateTime*)obj;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return neDt;
+   }
+
+   static CMPIBoolean dtIsInterval(CMPIDateTime* eDt, CMPIStatus* rc) {
+      CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return dt->isInterval();
+   }
+
+   static CMPIString *dtGetStringFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
+      CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      CMPIString *str=(CMPIString*)new CMPI_Object(dt->toString());
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return str;
+   }
+
+   static CMPIUint64 dtGetBinaryFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
+      CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      CMPIUint64 days,hours,mins,secs,usecs,utc,lTime;
+      struct tm tm,tmt;
+      CString tStr=dt->toString().getCString();
+      char *cStr=strdup((const char*)tStr);
+
+      if (dt->isInterval()) {
+         cStr[21]=0;
+         usecs=atoi(cStr+15);
+         cStr[15]=0;
+         secs=atoi(cStr+12);
+         cStr[12]=0;
+         mins=atoi(cStr+10);
+         cStr[10]=0;
+         hours=atoi(cStr+8);
+         cStr[8]=0;
+         days=atoi(cStr);
+         lTime=(days*PEGASUS_UINT64_LITERAL(86400000000))+
+               (hours*PEGASUS_UINT64_LITERAL(3600000000))+
+               (mins*60000000)+(secs*1000000)+usecs;
+      }
+
+      else {
+         time_t tt=time(NULL);
+   #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+         tmt=*localtime(&tt);
+   #else
+         localtime_r(&tt,&tmt);
+   #endif
+         memset(&tm,0,sizeof(tm));
+         tm.tm_isdst=tmt.tm_isdst;
+         utc=atoi(cStr+21);
+         cStr[21]=0;
+         usecs=atoi(cStr+15);
+         cStr[15]=0;
+         tm.tm_sec=atoi(cStr+12);
+         cStr[12]=0;
+         tm.tm_min=atoi(cStr+10);
+         cStr[10]=0;
+         tm.tm_hour=atoi(cStr+8);
+         cStr[8]=0;
+         tm.tm_mday=atoi(cStr+6);
+         cStr[6]=0;
+         tm.tm_mon=(atoi(cStr+4)-1);
+         cStr[4]=0;
+         tm.tm_year=(atoi(cStr)-1900);
+
+         lTime=mktime(&tm);
+         lTime*=1000000;
+         lTime+=usecs;
+      }
+
+      return lTime;
+   }
+
 }
 
 static CMPIDateTimeFT dateTime_FT={

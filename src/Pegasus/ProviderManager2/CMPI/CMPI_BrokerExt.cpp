@@ -56,180 +56,184 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static char *resolveFileName (const char *filename)
-{
-   String pn=ProviderManager::_resolvePhysicalName(filename);
-   CString n=pn.getCString();
-   return strdup((const char*)n);
-}
+extern "C" {
 
-struct thrd_data {
-   CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
-   void *parm;
-};
-
-static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
-{
-    Thread* my_thread = (Thread*)parm;
-    thrd_data *pp = (thrd_data*)my_thread->get_parm();
-    thrd_data data=*pp;
-    delete pp;
-
-    return (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
-}
-
-static CMPI_THREAD_TYPE newThread
-        (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
-{
-   thrd_data *data=new thrd_data();
-   data->pgm=(CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *)(void*))start;
-   data->parm=parm;
-
-   Thread *t=new Thread(
-        (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void*))start_driver,data,detached==1);
-   t->run();
-   return (CMPI_THREAD_TYPE)t;
-}
-
-
-
-static int joinThread (CMPI_THREAD_TYPE thread, CMPI_THREAD_RETURN *returnCode)
-{
-   ((Thread*)thread)->join();
-   *returnCode=(CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
-   return 0;
-}
-
- static int exitThread(CMPI_THREAD_RETURN return_code)
- {
-    Thread::getCurrent()->exit_self((PEGASUS_THREAD_RETURN)return_code);
-    return 0;
- }
-
- static int cancelThread(CMPI_THREAD_TYPE thread)
- {
-    ((Thread*)thread)->cancel();
-    return 0;
- }
-
- static int threadSleep(CMPIUint32 msec)
- {
-    Thread::getCurrent()->sleep(msec);
-    return 0;
- }
-
-static int threadOnce (int *once, void (*init)(void))
-{
-   if (*once==0) {
-      *once=1;
-      (init)();
+   static char *resolveFileName (const char *filename)
+   {
+      String pn=ProviderManager::_resolvePhysicalName(filename);
+      CString n=pn.getCString();
+      return strdup((const char*)n);
    }
-   return *once;
-}
 
+   struct thrd_data {
+      CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
+      void *parm;
+   };
 
-static int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
-{
-   return pegasus_key_create((PEGASUS_THREAD_KEY_TYPE*)key);
-}
+   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
+   {
+      Thread* my_thread = (Thread*)parm;
+      thrd_data *pp = (thrd_data*)my_thread->get_parm();
+      thrd_data data=*pp;
+      delete pp;
 
-static int destroyThreadKey(CMPI_THREAD_KEY_TYPE key)
-{
-   return pegasus_key_delete(key);
-}
-
-static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
-{
-   return pegasus_get_thread_specific(key);
-}
-
-static  int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
-{
-   return pegasus_set_thread_specific(key,value);
-}
-
-
-static CMPI_MUTEX_TYPE newMutex (int opt)
-{
-   Mutex *m=new Mutex();
-   return m;
-}
-
-static void destroyMutex (CMPI_MUTEX_TYPE m)
-{
-   delete ((Mutex*)m);
-}
-
-static void lockMutex (CMPI_MUTEX_TYPE m)
-{
-   ((Mutex*)m)->lock(pegasus_thread_self());
-}
-
-static void unlockMutex (CMPI_MUTEX_TYPE m)
-{
-   ((Mutex*)m)->unlock();
-}
-
-
-
-static CMPI_COND_TYPE newCondition (int opt)
-{
-   Condition *c=new Condition();
-   return c;
-}
-
-static void destroyCondition (CMPI_COND_TYPE c)
-{
-   delete (Condition*)c;
-}
-
-static int condWait (CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
-{
-   // need to take care of mutex
-   ((Condition*)c)->unlocked_wait(Thread::getCurrent()->self());
-   return 0;
-}
-
-static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
-{
-
-/* this is not truely mapping to pthread_timed_wait
-   but will work for the time beeing
-*/
-   int msec;
-   struct timespec next=*wait;
-
-#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
-   struct timeval {
-      long tv_sec;
-      long tv_usec;
-   }now;
-   struct _timeb timebuffer;
-
-   _ftime( &timebuffer );
-   now.tv_sec=timebuffer.time;
-   now.tv_usec=timebuffer.millitm*1000; 
-#else 
-   struct timeval now;
-   gettimeofday(&now, NULL);
-#endif
-
-   if (next.tv_nsec>1000000000) {
-      next.tv_sec+=next.tv_nsec/1000000000;
-      next.tv_nsec=next.tv_nsec%1000000000;
+      return (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
    }
-   msec=(next.tv_sec-now.tv_sec)*1000;
-   msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
 
-   Thread::getCurrent()->sleep(msec);
-   return 0;
-}
+   static CMPI_THREAD_TYPE newThread
+         (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
+   {
+      thrd_data *data=new thrd_data();
+      data->pgm=(CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *)(void*))start;
+      data->parm=parm;
+
+      Thread *t=new Thread(
+         (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void*))start_driver,data,detached==1);
+      t->run();
+      return (CMPI_THREAD_TYPE)t;
+   }
 
 
-static int signalCondition(CMPI_COND_TYPE cond)
-{
-   ((Condition*)cond)->signal(Thread::getCurrent()->self());
-   return 0;
+
+   static int joinThread (CMPI_THREAD_TYPE thread, CMPI_THREAD_RETURN *returnCode)
+   {
+      ((Thread*)thread)->join();
+      *returnCode=(CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
+      return 0;
+   }
+
+   static int exitThread(CMPI_THREAD_RETURN return_code)
+   {
+      Thread::getCurrent()->exit_self((PEGASUS_THREAD_RETURN)return_code);
+      return 0;
+   }
+
+   static int cancelThread(CMPI_THREAD_TYPE thread)
+   {
+      ((Thread*)thread)->cancel();
+      return 0;
+   }
+
+   static int threadSleep(CMPIUint32 msec)
+   {
+      Thread::getCurrent()->sleep(msec);
+      return 0;
+   }
+
+   static int threadOnce (int *once, void (*init)(void))
+   {
+      if (*once==0) {
+         *once=1;
+         (init)();
+      }
+      return *once;
+   }
+
+
+   static int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
+   {
+      return pegasus_key_create((PEGASUS_THREAD_KEY_TYPE*)key);
+   }
+
+   static int destroyThreadKey(CMPI_THREAD_KEY_TYPE key)
+   {
+      return pegasus_key_delete(key);
+   }
+
+   static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
+   {
+      return pegasus_get_thread_specific(key);
+   }
+
+   static  int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
+   {
+      return pegasus_set_thread_specific(key,value);
+   }
+
+
+   static CMPI_MUTEX_TYPE newMutex (int opt)
+   {
+      Mutex *m=new Mutex();
+      return m;
+   }
+
+   static void destroyMutex (CMPI_MUTEX_TYPE m)
+   {
+      delete ((Mutex*)m);
+   }
+
+   static void lockMutex (CMPI_MUTEX_TYPE m)
+   {
+      ((Mutex*)m)->lock(pegasus_thread_self());
+   }
+
+   static void unlockMutex (CMPI_MUTEX_TYPE m)
+   {
+      ((Mutex*)m)->unlock();
+   }
+
+
+
+   static CMPI_COND_TYPE newCondition (int opt)
+   {
+      Condition *c=new Condition();
+      return c;
+   }
+
+   static void destroyCondition (CMPI_COND_TYPE c)
+   {
+      delete (Condition*)c;
+   }
+
+   static int condWait (CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
+   {
+      // need to take care of mutex
+      ((Condition*)c)->unlocked_wait(Thread::getCurrent()->self());
+      return 0;
+   }
+
+   static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
+   {
+
+   /* this is not truely mapping to pthread_timed_wait
+      but will work for the time beeing
+   */
+      int msec;
+      struct timespec next=*wait;
+
+   #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+      struct timeval {
+         long tv_sec;
+         long tv_usec;
+      }now;
+      struct _timeb timebuffer;
+
+      _ftime( &timebuffer );
+      now.tv_sec=timebuffer.time;
+      now.tv_usec=timebuffer.millitm*1000;
+   #else
+      struct timeval now;
+      gettimeofday(&now, NULL);
+   #endif
+
+      if (next.tv_nsec>1000000000) {
+         next.tv_sec+=next.tv_nsec/1000000000;
+         next.tv_nsec=next.tv_nsec%1000000000;
+      }
+      msec=(next.tv_sec-now.tv_sec)*1000;
+      msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
+
+      Thread::getCurrent()->sleep(msec);
+      return 0;
+   }
+
+
+   static int signalCondition(CMPI_COND_TYPE cond)
+   {
+      ((Condition*)cond)->signal(Thread::getCurrent()->self());
+      return 0;
+   }
+
 }
 
 static CMPIBrokerExtFT brokerExt_FT={

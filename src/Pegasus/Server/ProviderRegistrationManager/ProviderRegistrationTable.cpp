@@ -46,7 +46,7 @@ ProviderRegistrationTable::ProviderRegistrationTable(
     for (Uint32 i=0; i < _instances.size(); i++)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                         _instances[i].toString());
+                         _instances[i].getPath().toString());
     }
     PEG_METHOD_EXIT();
 }

@@ -69,8 +69,6 @@ public:
 
     CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
-    String toString() const;
-
 private:
 
     CIMInstanceRep();

@@ -202,12 +202,6 @@ CIMObjectPath CIMInstance::buildPath(const CIMConstClass& cimClass) const
     return _rep->buildPath(cimClass);
 }
 
-String CIMInstance::toString() const
-{
-    _checkRep();
-    return _rep->toString();
-}
-
 void CIMInstance::_checkRep() const
 {
     if (!_rep)
@@ -348,12 +342,6 @@ CIMObjectPath CIMConstInstance::buildPath(const CIMConstClass& cimClass) const
 {
     _checkRep();
     return _rep->buildPath(cimClass);
-}
-
-String CIMConstInstance::toString() const
-{
-    _checkRep();
-    return _rep->toString();
 }
 
 void CIMConstInstance::_checkRep() const

@@ -247,10 +247,6 @@ public:
      */
     Boolean isUninitialized() const;
 
-#ifdef PEGASUS_INTERNALONLY
-    String toString() const;
-#endif
-
 private:
 
     CIMInstanceRep* _rep;
@@ -318,10 +314,6 @@ public:
     Boolean identical(const CIMConstInstance& x) const;
 
     Boolean isUninitialized() const;
-
-#ifdef PEGASUS_INTERNALONLY
-    String toString() const;
-#endif
 
 private:
 

@@ -69,6 +69,9 @@ Exception::Exception(const MessageLoaderParms& msgParms)
 
 Exception::Exception()
 {
+    _rep = new ExceptionRep();
+    _rep->message = String::EMPTY;
+    _rep->contentLanguages = ContentLanguages::EMPTY;  // l10n
 }
 
 Exception::~Exception()

@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 // 		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -318,6 +319,11 @@ String IdentityContainer::getUserName(void) const
     return(_rep->userName);
 }
 
+// Unimplemented, hidden constructor not intended for actual use
+IdentityContainer::IdentityContainer()
+{
+}
+
 //
 // SubscriptionInstanceContainer
 //
@@ -398,6 +404,10 @@ CIMInstance SubscriptionInstanceContainer::getInstance(void) const
     return(_rep->subscriptionInstance);
 }
 
+// Unimplemented, hidden constructor not intended for actual use
+SubscriptionInstanceContainer::SubscriptionInstanceContainer()
+{
+}
 
 //
 // SubscriptionInstanceNamesContainer
@@ -481,6 +491,11 @@ Array<CIMObjectPath>
     SubscriptionInstanceNamesContainer::getInstanceNames(void) const
 {
     return(_rep->subscriptionInstanceNames);
+}
+
+// Unimplemented, hidden constructor not intended for actual use
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer()
+{
 }
 
 //
@@ -577,6 +592,14 @@ String SubscriptionFilterConditionContainer::getQueryLanguage(void) const
     return(_rep->queryLanguage);
 }
 
+// Unimplemented, hidden constructor not intended for actual use
+SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer()
+{
+}
+
+//
+// TimeoutContainer
+//
 
 const String TimeoutContainer::NAME = "TimeoutContainer";
 
@@ -698,6 +721,11 @@ AcceptLanguages AcceptLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
+// Unimplemented, hidden constructor not intended for actual use
+AcceptLanguageListContainer::AcceptLanguageListContainer()
+{
+}
+
 //
 // SubscriptionLanguageListContainer
 //
@@ -776,6 +804,11 @@ void SubscriptionLanguageListContainer::destroy(void)
 AcceptLanguages SubscriptionLanguageListContainer::getLanguages(void) const
 {
     return(_rep->languages);
+}
+
+// Unimplemented, hidden constructor not intended for actual use
+SubscriptionLanguageListContainer::SubscriptionLanguageListContainer()
+{
 }
 
 //
@@ -858,6 +891,10 @@ ContentLanguages ContentLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
+// Unimplemented, hidden constructor not intended for actual use
+ContentLanguageListContainer::ContentLanguageListContainer()
+{
+}
 
 // l10n end
 
@@ -940,4 +977,10 @@ String SnmpTrapOidContainer::getSnmpTrapOid(void) const
 {
     return(_rep->snmpTrapOid);
 }
+
+// Unimplemented, hidden constructor not intended for actual use
+SnmpTrapOidContainer::SnmpTrapOidContainer()
+{
+}
+
 PEGASUS_NAMESPACE_END

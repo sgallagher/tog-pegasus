@@ -51,6 +51,8 @@ public:
     */
     MessageQueue();
 
+    MessageQueue(char *name);
+    
     /** Removes this queue from the queue table. */
     virtual ~MessageQueue();
 
@@ -148,13 +150,16 @@ public:
 
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId);
-
+    static  MessageQueue* lookup(const char *name);
+    
 private:
 
     Uint32 _queueId;
     Uint32 _count;
     Message* _front;
     Message* _back;
+    // Wed Oct 17 11:26:22 2001 mdday
+    char _name[16];
 };
 
 inline const Message* MessageQueue::findByType(Uint32 type) const

@@ -1,147 +1,152 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%///////////-*-c++-*-//////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Day (mdday@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 
 #ifndef Pegasus_AsyncOpNode_h
 #define Pegasus_AsyncOpNode_h
 
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Linkable.h>
-#include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ASYNC_OPFLAGS_UNKNOWN           0x00000000
-#define ASYNC_OPFLAGS_FIRE_AND_FORGET   0x00000001
-#define ASYNC_OPFLAGS_CALLBACK          0x00000002
-#define ASYNC_OPFLAGS_PSEUDO_CALLBACK   0x00000004
 
-#define ASYNC_OPSTATE_UNKNOWN           0x00000000
-#define ASYNC_OPSTATE_COMPLETE          0x00000001
-
-class PEGASUS_COMMON_LINKAGE AsyncOpNode : public Linkable
+class PEGASUS_COMMON_LINKAGE AsyncOpFlags 
 {
-public:
-
-    AsyncOpNode();
-    ~AsyncOpNode();
-
-    void setRequest(Message* request);
-    Message* getRequest();
-    Message* removeRequest();
-
-    void setResponse(Message* response);
-    Message* getResponse();
-    Message* removeResponse();
-    void complete();
-    Uint32 getState();
-private:
-    AsyncOpNode(const AsyncOpNode&);
-    AsyncOpNode& operator=(const AsyncOpNode&);
-
-    Semaphore _client_sem;
-    AutoPtr<Message> _request;
-    AutoPtr<Message> _response;
-
-    Uint32 _state;
-    Uint32 _flags;
-    MessageQueue *_op_dest;
-
-    void (*_async_callback)(AsyncOpNode *, MessageQueue *, void *);
-
-    // pointers for async callbacks  - don't use
-    AsyncOpNode *_callback_node;
-    MessageQueue *_callback_response_q;
-    void *_callback_ptr;
-
-    friend class cimom;
-    friend class MessageQueueService;
-    friend class ProviderManagerService;
+   public:
+      static const Uint32 UNKNOWN;
+      static const Uint32 DELIVER;
+      static const Uint32 RESERVE;
+      static const Uint32 PROCESSING;
+      static const Uint32 COMPLETE;
+      static const Uint32 INTERVAL_REPEAT;;
+      static const Uint32 INDICATION;
+      static const Uint32 REMOTE;
+      static const Uint32 LOCAL_OUT_OF_PROC;
 };
 
-
-inline void AsyncOpNode::setRequest(Message* request)
+class PEGASUS_COMMON_LINKAGE AsyncOpState
 {
-    PEGASUS_ASSERT(_request.get() == 0);
-    PEGASUS_ASSERT(request != 0);
-    _request.reset(request);
-}
+   public:
+      static const Uint32 NORMAL;
+      static const Uint32 PHASED;
+      static const Uint32 PARTIAL;
+      static const Uint32 TIMEOUT;
+      static const Uint32 SINGLE;
+      static const Uint32 MULTIPLE;
+      static const Uint32 TOTAL;
+};
 
-inline Message* AsyncOpNode::getRequest()
+enum ResponseHandlerType 
 {
-    PEGASUS_ASSERT(_request.get() != 0);
-    return _request.get();
-}
+   CIM_CLASS,
+   CIM_INSTANCE,
+   CIM_OBJECT,
+   CIM_OBJECT_WITH_PATH,
+   CIM_VALUE,
+   CIM_INDICATION,
+   CIM_REFERENCE
+};
 
-inline Message* AsyncOpNode::removeRequest()
-{
-    PEGASUS_ASSERT(_request.get() != 0);
-    Message* request = _request.get();
-    _request.release();
-    return request;
-}
+// ok, create a wrapper facade around the responsehandler, 
+//  include type info and acces functions, 
+// use static casting to retrieve from array<object_type>
 
-inline void AsyncOpNode::setResponse(Message* response)
-{
-    PEGASUS_ASSERT(_response.get() == 0);
-    PEGASUS_ASSERT(response != 0);
-    _response.reset(response);
-}
 
-inline Message* AsyncOpNode::getResponse()
-{
-    PEGASUS_ASSERT(_response.get() != 0);
-    return _response.get();
-}
 
-inline Message* AsyncOpNode::removeResponse()
+class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
-    PEGASUS_ASSERT(_response.get() != 0);
-    Message* response = _response.get();
-    _response.release();
-    return response;
-}
+  
+   public:
+      AsyncOpNode(void) { }
+      virtual ~AsyncOpNode(void) { }
+      
+      //-------- Pure Virtual Methods --------//
 
-inline void AsyncOpNode::complete()
-{
-    _state = ASYNC_OPSTATE_COMPLETE;
-}
+      // clear the node so it can be reused
+      virtual void reset(void) throw(IPCException) = 0;
+      virtual void operator == (const void *key) const = 0;
+      virtual void operator == (const AsyncOpNode & node) const = 0;
+      virtual Uint32 timeout(void) throw(IPCException) = 0;
 
-inline Uint32 AsyncOpNode::getState()
-{
-    return _state;
-}
+      virtual void enqueue_as_child(AsyncOpNode *parent) throw(IPCException) = 0;
+      virtual void enqueue_child(AsyncOpNode *child) throw(IPCException) = 0;
+      virtual void enqueue_as_sibling(DQueue<AsyncOpNode> list) throw (IPCException) = 0;
+      virtual void make_parent(DQueue<AsyncOpNode> child_list) throw(IPCException) = 0;
+      
+      virtual void notify_parents(void *key, 
+				  const OperationContext& context, 
+				  const Uint32 flag, 
+				  const Uint32 state) throw(IPCException) = 0;
+      virtual void notify_children(void *key, 
+				   const OperationContext& context, 
+				   const Uint32 flag, 
+				   const Uint32 state) throw(IPCException) = 0;
+      virtual void notify(void *key,
+			  const OperationContext& context,
+			  const Uint32 flag,
+			  const Uint32 state) throw(IPCException) = 0;
+
+      virtual void put_req_context(OperationContext *context) throw(IPCException) = 0;
+      virtual void put_proc_context(OperationContext *context) throw(IPCException)= 0;
+      virtual void put_completion_context(OperationContext *context) throw(IPCException) = 0;
+      
+      virtual OperationContext *take_req_context(void) throw(IPCException) = 0;
+      virtual OperationContext *take_proc_context(void) throw(IPCException) = 0;
+      virtual OperationContext *take_completion_context(void) throw(IPCException) = 0;
+      
+      virtual void put_request(Message *request) throw(IPCException) = 0;
+      virtual Message *take_request(void) throw(IPCException) = 0;
+      
+      virtual void put_response(Message *response) throw(IPCException) = 0;
+      virtual Message *take_response(void) throw(IPCException) = 0;
+      
+      virtual void set_state_bits(Uint32 bits) throw(IPCException) = 0;
+      virtual void clear_state_bits(Uint32 bits) throw(IPCException) = 0;
+      virtual Uint32 get_state(void) throw(IPCException) = 0;
+      virtual Boolean test_state_bit(Uint32 mask) throw(IPCException) = 0;
+      
+      virtual void set_flag_bits(Uint32 bits) throw(IPCException) = 0;
+      virtual void clear_flag_bits(Uint32 bits) throw(IPCException) = 0;
+      virtual Uint32 get_flag_bits(void) throw(IPCException) = 0;
+      virtual Boolean test_flag_bit(Uint32 mask) throw(IPCException) = 0;
+      
+      virtual void set_lifetime(struct timeval *lifetime) throw(IPCException) = 0;
+      virtual Boolean check_lifetime(void) const throw(IPCException) = 0;
+            
+      virtual void lock(void)  throw(IPCException) = 0;
+      virtual void unlock(void) throw(IPCException) = 0;
+      virtual void check_owner(void) throw(IPCException) = 0;
+      
+      virtual get_rh_type(void)
+};
 
 PEGASUS_NAMESPACE_END
 

@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/OperationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,18 +61,18 @@ public:
       /** ATTN:
       */
       virtual void reserve(const Uint32 size) = 0;
-//    virtual CIMPredicate *processing(
-//	 ProcessingClass pc = POLL,
-//	 FilteringClass fc = INDISCRETE ) = 0;
 
       /** ATTN:
       */
       virtual void processing(void) = 0;
-
+      
+      virtual void processing(OperationContext *context) = 0;
+      
       /** ATTN:
       */
       virtual void complete(void) = 0;
-
+      
+      virtual void complete(OperationContext *context) = 0;
 };
 
 PEGASUS_NAMESPACE_END

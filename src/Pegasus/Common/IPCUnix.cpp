@@ -163,7 +163,7 @@ inline void exit_thread(PEGASUS_THREAD_RETURN rc)
   pthread_exit(rc);
 }
 
-PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
+inline PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
 { 
    return(pthread_self());
 }

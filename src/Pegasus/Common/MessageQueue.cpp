@@ -54,9 +54,25 @@ MessageQueue::MessageQueue() : _count(0), _front(0), _back(0)
 {
     // ATTN-A: thread safety!
 
+   memset(_name, 0x00, 16);
     while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
 	;
 }
+
+MessageQueue::MessageQueue(char *name) : _count(0), _front(0), _back(0)
+{
+   if(name != NULL)
+   {
+      strncpy(_name, name, 15);
+      _name[15] = 0x00;
+   }
+   
+   else
+      memset(_name, 0x00,16);
+    while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
+       ;
+}
+
 
 MessageQueue::~MessageQueue()
 {
@@ -193,7 +209,9 @@ void MessageQueue::unlock()
 
 const char* MessageQueue::getQueueName() const
 {
-    return "Unknown";
+   if(_name[0] != 0x00)
+      return _name;
+   return "unknown";
 }
 
 MessageQueue* MessageQueue::lookup(Uint32 queueId)
@@ -206,6 +224,20 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId)
     // Not found!
     return 0;
 }
+
+
+MessageQueue* MessageQueue::lookup(const char *name)
+{
+   if(name == NULL)
+      throw NullPointer();
+   for(QueueTable::Iterator i = _queueTable.start(); i; i++)
+   {
+      if(! strncmp( ((MessageQueue *)i.value())->_name, name, 16) )
+	 return( (MessageQueue *)i.value());
+   }
+   return 0;
+}
+
 
 void MessageQueue::handleEnqueue()
 {

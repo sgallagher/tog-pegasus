@@ -29,7 +29,7 @@
 #if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
 
 /** Array Class.
-    This clas is used to represent arrays of intrinsic data types in CIM. And
+    This class is used to represent arrays of intrinsic data types in CIM. And
     it is also used by the implementation to represent arrays of other kinds of
     objects (e.g., it is used to implement the String class). However, the user
     will only use it directly to manipulate arrays of CIM data types.

@@ -176,7 +176,15 @@ CIMClass CIMRepository::getClass(
     classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className);
 
     CIMClass cimClass;
-    _LoadObject(classFilePath, cimClass);
+
+    try
+    {
+        _LoadObject(classFilePath, cimClass);
+    }
+    catch (Exception & e)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className);
+    }
 
     return cimClass;
 }
@@ -1161,7 +1169,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
     }
     catch (CannotOpenFile&)
     {
-        return CIMQualifierDecl();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, qualifierName);
     }
 
     return qualifierDecl;

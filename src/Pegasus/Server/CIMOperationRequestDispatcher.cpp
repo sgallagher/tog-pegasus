@@ -79,11 +79,24 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
     // Look up the class:
     //----------------------------------------------------------------------
 
-    CIMClass cimClass = _repository->getClass(nameSpace, className);
-    DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
+    CIMClass cimClass;
 
-    if (!cimClass)
-	throw CIMException(CIM_ERR_INVALID_CLASS);
+    try
+    {
+        cimClass = _repository->getClass(nameSpace, className);
+        DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() == CIM_ERR_NOT_FOUND)
+        {
+	    throw CIMException(CIM_ERR_INVALID_CLASS);
+        }
+        else
+        {
+            throw e;
+        }
+    }
 
     //----------------------------------------------------------------------
     // Get the provider qualifier:

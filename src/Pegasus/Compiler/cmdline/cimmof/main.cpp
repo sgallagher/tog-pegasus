@@ -105,7 +105,9 @@ main(int argc, char ** argv) {
 	  ycmSend_Message_Escape(CPFDF80_RC,
 				 NULL,
 				 NULL,
+#pragma convert(37)
 				 "*CTLBDY   ",
+#pragma convert(0)
 				 1);
 	  return CPFDF80_RC;
 	}

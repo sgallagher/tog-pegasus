@@ -19,6 +19,10 @@ Urgent
 Topical To-Do List
 ==================
 
+    - 	GetInstances() and GetClasses() need to use iterators on 
+	provider and repository end. Otherwise, all classes or instance
+	to be enumerated, must be sucked into memory.
+    
     -   Template bloat reduction.
 
     -	Use YACC on Linux.

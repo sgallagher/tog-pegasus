@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.7  2001/04/14 07:46:47  mike
+// new
+//
 // Revision 1.6  2001/04/14 07:35:04  mike
 // Added config file loading to OptionManager
 //
@@ -203,8 +206,8 @@ public:
 	of the option; the caller must not delete this object.
 
 	@param option - option to be registerd.
-	@throw NullPointer excpetion is option argument is null.
-	@throw DuplicateOption is option already defined.
+	@exception NullPointer exception if option argument is null.
+	@exception DuplicateOption if option already defined.
     */
     void registerOption(Option* option);
 
@@ -229,8 +232,8 @@ public:
 
 	&param argc - number of argument on the command line.
 	&param argv - list of command line arguments.
-	&throw InvalidOptionValue when validation fails.
-	&throw MissingCommandLineOptionArgument
+	&exception InvalidOptionValue if validation fails.
+	&exception MissingCommandLineOptionArgument
     */
     void mergeCommandLine(int& argc, char**& argv);
 
@@ -240,7 +243,7 @@ public:
 	on each option value  obtained by calling Option::isValid(). Valid
 	option values are set by calling Option::setValue().
 
-	&throw BadEnvironmentOption when validation fails.
+	&exception BadEnvironmentOption if validation fails.
     */
     void mergeEnvironment();
 
@@ -251,15 +254,15 @@ public:
 	Option::setValue().
 
 	&param fileName - name of file to be merged.
-	&throw NoSuchFile
-	&throw BadConfigFileOption
+	&exception NoSuchFile if file cannot be opened.
+	&exception BadConfigFileOption
     */
     void mergeFile(const String& fileName);
 
     /** After merging, this method is called to check for required options
 	that were not merged (specified).
 
-	&throw UnspecifiedRequiredOption
+	&exception UnspecifiedRequiredOption
     */
     void checkRequiredOptions() const;
 

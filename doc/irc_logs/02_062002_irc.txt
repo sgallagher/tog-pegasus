@@ -1,0 +1,389 @@
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc05.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc04.icq.com sets modes [#pegasus +nt]
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--> BARB039 (~BARB039@palrel2.hp.com) has joined #pegasus
+<-- BARB039 has quit (Client Exiting)
+--> Karl (~karl@slip32-106-67-49.mlv.fr.prserv.net) has joined #pegasus
+<-- Karl has quit (Ping timeout: 180 seconds)
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- irc03.icq.com sets modes [#pegasus +nt]
+--> Karl (~karl@slip32-106-67-120.mlv.fr.prserv.net) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> Hi Karl
+<-- Karl has quit (Client Exiting)
+--> NIU (~NIU@156.153.254.42) has joined #pegasus
+<NIU> Mike... are you there?
+<mdday> What's up ?
+<NIU> Yiur document is really great. I have some questions and what's the best time to ask?
+<mdday> Now is just fine
+<NIU> I am still confused about usage of CIMMessage with this new service. Where shall I use and build messages using this classes? How shall I send them?
+<NIU> 2. Do we need to derive all classes from MessageQueueService which earlier were derived from Messagequeue?
+<mdday> Oh, you have a question about _that_. It's not in the document :-). 
+<mdday> There is a special message called AsyncLegacyOperation that is an envelope for CIMMessages and other existing messages. 
+<NIU> I have not seen in document.
+<mdday> Tell you what. Give me 1/2 or so and I will add it to the document and send the updated doc to you. Then we can discuss it. 
+<NIU> It will be great if you can document some like migration of a class derived from MessageQue to MessageQueueservice and then how to use the new class. Current document says that each service should have a client and server. It that true?
+<mdday> No, that's just the test program. The only requirement is that each message needs a request and a response. The most convenient way to do that in the test program was to make a client and a server. 
+<mdday> In Pegasus services will be sending request/response message to each other.
+<NIU> 3. Got it. So we have to define new request and response messages from AsyncRequest and AsyncResponse? Then what should be in message field? Will you please elaborate this usage of this in document? Thanks!
+<mdday> Yes, I'll do that right now. 
+--> Karl (~karl@slip32-106-67-190.mlv.fr.prserv.net) has joined #pegasus
+<mdday> Hi Karl
+<Karl> hi
+<Karl> for some reason this has been a mess getting on today
+<mdday> my proxy has kicked me off a couple of times. 
+--- Offering DCC CHAT to karl
+<mdday> Karl did you see my chat request?
+<Karl> since I don't have a proxy, it was apparently the ICQ server for me
+<NIU> And last question:- like handleEnqueue, which calls the new class should implement?
+<Karl> Kicked me off after a few seconds regularly
+<Karl> did you get note with work list for cim operation processor?
+<NIU> Mike :- just give me a call once you will be ready with modified document. Thanks! & Bye...
+<mdday> Good question. They are messageOK, accept_async, ... ok Bye Nitin
+<mdday> Karl - yes I got the note
+<Karl> if you agree with the list now, I need to work with brasher on next level 
+<Karl> and on the holes in the interface
+<Karl> meantime, right now, interop telecon.  back in an hour.
+<mdday> I OK, see you.
+* Karl is away: Interop telecon for one hour
+--> BARB039 (~BARB039@atlrel1.hp.com) has joined #Pegasus
+<-- BARB039 has quit (Client Exiting)
+--> kumpf (~kumpfr@atlwebproxy1.core.hp.com) has joined #pegasus
+--> Barbara (~BARB039@palrel1.hp.com) has joined #pegasus
+<-- Barbara has quit (Client Exiting)
+<-- NIU (~NIU@156.153.254.42) has left #pegasus
+* Karl is back (gone 00:17:00)
+<Karl> Mike Yes did receive your chat request earlier but when clicked it said failed
+<mdday> OK, just wondering
+<Karl> Roger, did you get note from me this morning about compile problem in consumer...
+<kumpf> Yeah, we're looking into it.
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--> NIU (~NIU@cupwebproxy2.core.hp.com) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<NIU> Are you there?
+<-- NIU has quit (Client Exiting)
+<Karl> this thing needs a bell.  It goes behind the other windows and I forget it.
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<kumpf> Mike, do you have any new data on the Control Services function?  Have you found any of Chip's work on that?
+<-- Karl has quit (Ping timeout: 180 seconds)
+* kumpf is away: I'm busy
+<mdday> Roger - I'll find out if he has code that is not checked in. 
+<mdday> Also I will have the documentation for sending CIMMessages through the meta dispatcher before I leave today. 
+<mdday> Nitin was asking about that function.
+<mdday> To enable a beep when receiving new messages settings:setup:IRC and click the checkbox Beep on Channel Messages
+* mdday is away: I'm busy
+<mdday> Roger - Chip's code is in $PEGASUS_HOME/src/Pegasus/_ProviderManager
+--> NIU (~NIU@cupwebproxy1.core.hp.com) has joined #pegasus
+<mdday> But I'm not certain is that is what you are calling the control services function. 
+<mdday> Hi Nitin, what is the Control Services function that Chip and Roger defined?
+<mdday> Is it a shell that loads/starts/stops services? 
+<NIU> I think so.
+<NIU> I have some question to build request for meta-dispatcher.
+<mdday> OK go ahead
+<NIU> What is AsyncOpNode is Request block? Do we need to build that? 
+<NIU> I modified your test program for send_test_request and can it be like this?
+<NIU> void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
+<NIU> {
+<NIU>    String messageId = XmlWriter::getNextMessageId();
+<NIU>    String url;
+<NIU>    CIMInstance instance;
+<NIU>     // Build Request
+<NIU>     Message* request = new CIMExportIndicationRequestMessage(
+<NIU>         messageId,
+<NIU>         url,
+<NIU>         instance,
+<NIU>         QueueIdStack());
+<NIU>    AsyncOpNode* op;
+<NIU>    op->put_request(request);
+<NIU>    test_request *req =
+<NIU>       new test_request(Base::get_next_xid(),
+<NIU>                        op,
+<NIU>                        qid,
+<NIU>                        _queueId,
+<NIU>                        greeting);
+<NIU>    AsyncMessage *response = SendWait(req);
+<NIU>    if( response != 0  )
+<NIU>    {
+<NIU>       msg_count++;
+<NIU>       delete response;
+<NIU>       cout << " test message " << msg_count.value() << endl;
+<NIU>    }
+<NIU>    delete req;
+<NIU>    delete request;
+<NIU> }
+<NIU> Is it valid operation : op->put_request(request)?
+<mdday> It is if you construct the op node first !! :-_
+<mdday> How did you read the file into the channel window?
+<NIU> so we have to construct op node before building AsyncRequest and then pass as one parameter.
+<NIU> I just paste my program block in cnahhel window.
+<mdday> Not necessarily. The SendWait API will do that for you. Let me get some code and past it into the window for you. 
+<NIU> Thanks!
+<mdday> Message* cim_request = new CIMExportIndicationRequestMessage(
+<mdday>    messageId,
+<mdday>    url,
+<mdday>    instance,
+<mdday>    QueueIdStack());
+<mdday> AsyncOpNode *op = get_op();
+<mdday> AsyncLegacyOperationStart *async_request = 
+<mdday>     new AsyncLegacyOperationStart(get_next_xid(),
+<mdday>       op, 
+<mdday>       destination_QID,
+<mdday>       cim_request);
+<mdday> AsyncMessageResponse = SendWait(async_request);
+<mdday> Nitin did you see the code?
+<NIU> I just tried and say's Message* cannot be converted into char*. When I typecase cim_request, I got bus error.
+<mdday> OK, I'll add it to the test program for you. It's going to be a couple of hours though if that's OK. 
+<mdday> Do you see how the async message is an envelope for the CIMMessage ?
+<NIU> Ok. Thanks! Yes, I saw that and now looking in more detail.
+<NIU> Bye ...!
+<-- NIU has quit (Client Exiting)
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+* kumpf is back (gone 00:55:02)
+<kumpf> Mike, thanks for the pointer to Chip's code.  That looks like his work in progress on the Provider Manager.  The Control Services module is the thing that manages "internal" providers, such as for configuration, user/authorization management, provider reistration, etc.
+<kumpf> The idea is that these rarely used providers can share a service rather than each of them using the significant resources (threads) that a service requires.
+<kumpf> One tricky part, though, is how these providers interact with other parts of the system.  They may need to interact with the repository, for instance.  The provider registration provider needs to interact with the indication service.  And the provider that handles CIMOM shutdown will be all over the place.
+<kumpf> So at the top end, the interface can stay the same (using the provider API).  But the interactions with other services will need to use message queues.
+<kumpf> The Control Service module will need to be smart enough to convert incoming messages to provider calls, and route them to the correct provider.
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--> NIU (~NIU@cupwebproxy1.core.hp.com) has joined #pegasus
+<NIU> Mike...Sorry to interrupt you. Just one last question. I got everything done.
+<NIU> How to imterpret msg->getType() with CIM_* MESSAGES. I mean msg->getType() gives me value 68157440 and how shall I compare that for CIM_EXPORT_INDICATION_REQUEST_MESSAGE?
+<NIU> I got all other things going smoothly.
+<-- NIU has quit (irc02.icq.com irc05.icq.com)
+<mdday> Nitin - when you get back send me your code. That message type looks like something is wrong. I will look at your code to see if I can see my problem. 
+<mdday> Roger - did you and Chip work out an interface for the control service or did you just discuss the requirements. 
+--> NIU (~NIU@cupwebproxy1.core.hp.com) has joined #pegasus
+<NIU> Mike - How to read AsyncLegacyOperationStart type request message from Server side? I am able to send from client byt get ignored by server. Which call needs to be implemented?
+<mdday> Hi Nitin. Sorry I was in talking with my boss. There are some virtual methods that you can override to receive the message. 
+<mdday> These include messageOK, _handleIncomingOperation, and _handleAsyncRequest
+<mdday> If you look in the document I sent yesterday under "Handling Incoming Messages" you will see the calls. 
+* mdday is away: stepping out for a bio-break
+<NIU> Message is not comming upto _handle_incoming_operation call.
+<NIU> not even at messageOK
+* mdday is back (gone 00:02:55)
+<mdday> OK, let me look at the service code and see what is going on. I'm impressed that you've got it working this far, 
+<mdday> I was assuming that Chip and I would do all the message translation, etc. 
+<NIU> I had send you a file, your test program where I am trying to use CIMExportIndicationRequestMessage and pass it to server.
+<mdday> email ?
+<NIU> Yah ...!
+<mdday> OK - I'll look for it!
+<NIU> Thanks ! meanwhile I will go and have some coffee. Do you want same over chat?
+<mdday> great :-)
+<NIU> I am back.
+<mdday> still no email message. 
+<mdday> I have a question - would it be useful to add a destination queue ID for the "legacy" message 
+<mdday> inside the AsyncLegacyOperationStart message ?  
+<mdday> I think we need it, right now every message queue has a hardcoded destination queue but that might not always be true. 
+<NIU> you are right. We should be able to configure destination queue, thogh hardcoded might be default.
+<mdday> Yup, I just added it. still no email message. I usually takes a while around here for email ...
+<NIU> We should get destination queue is by something like lookup() call.
+<NIU> how can I send file over this?
+<mdday> you can try /dcc send mdday 
+<NIU> canyou get it now?
+<mdday> I got the dcc offer and I accepted it but the socks firewall would not allow the incoming connection. 
+<mdday> Woudl you mind trying again ? 
+<NIU> Shall I paste it here. It's only one function I modified from your test program.
+<mdday> OK - that's a good idea. 
+<NIU> Here you go:
+<NIU> =======================
+<NIU> void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
+<NIU> {
+<NIU>     String messageId = XmlWriter::getNextMessageId();
+<NIU>     String url;
+<NIU>     CIMInstance instance;
+<NIU>     
+<NIU>     Message* cim_request = new CIMExportIndicationRequestMessage(
+<NIU>  messageId,
+<NIU>  url,
+<NIU>  instance,
+<NIU>  QueueIdStack());
+<NIU>     AsyncOpNode *op = get_op();
+<NIU>     
+<NIU>     AsyncLegacyOperationStart *async_request = 
+<NIU>  new AsyncLegacyOperationStart(get_next_xid(),
+<NIU>  op,
+<NIU>  _queueId,
+<NIU>  cim_request);
+<NIU>     AsyncMessage* response = SendWait(async_request);
+<NIU>  
+<NIU>     if( response != 0  )
+<NIU>     {
+<NIU>  msg_count++; 
+<NIU>  delete response;
+<NIU>  cout << " test message " << msg_count.value() << endl;      
+<NIU>     }
+<NIU>     delete async_request;
+<NIU>     delete cim_request;
+<NIU> }
+<NIU> ===================END===================
+<NIU> This helped me to send message but not able to receive on Server side. _handle_incoming_operation() call never gets it.
+<NIU> void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
+<NIU> {
+<NIU>    cout << "Incoming operation : " << operation << endl;
+<NIU>    if ( operation != 0 )
+<NIU>    {
+<NIU>       Message *rq = operation->get_request();
+<NIU>       PEGASUS_ASSERT(rq != 0 );
+<NIU>       PEGASUS_ASSERT(rq->getMask() & message_mask::ha_async );
+<NIU>       PEGASUS_ASSERT(rq->getMask() & message_mask::ha_request);
+<NIU>       _handle_async_request(static_cast<AsyncRequest *>(rq));
+<NIU>    }
+<NIU>      
+<NIU>    return;
+<NIU>    
+<NIU> }
+<NIU> =====
+<mdday> One thing I see is that you are sending the message to yourself. 
+<NIU> above call never get the request send by send_test_request()
+<NIU> You mean _queueId?
+<mdday> The _queueId attribute is the _clients_ queueID and you want to send to the _server_
+<mdday> Yes, that's right. 
+<NIU> How to get server _queueId? Is there any call for that?
+<mdday> I'm curious, do you return from SendWait? 
+<mdday> Yes, if you notice in the test program the client thread looks for the server, I'll paste the code in the buffer. 
+<NIU> Yes...! I am. This program works fine. Only serevr doesn't see any request message, only stop message.
+<mdday> very cool, you can send a blocking message to yourself !
+<mdday>    while( services.size() == 0 )
+<mdday>    {
+<mdday>       q_client->find_services(String("test server"), 0, 0, &services); 
+<mdday>       my_handle->sleep(10);  
+<mdday>    }
+<mdday> note that services is Array<Uint32> services;
+<mdday> then to send to the server:
+<mdday>       q_client->send_test_request("i am the test client" , services[0]);
+<NIU> Still same result. I am not able to get to server.
+<mdday> Is the server::messageOK method being called? 
+<NIU> No.
+<mdday> puzzling. Let me see if I can get it to work on my system. sounds like a bug. 
+<NIU> It sends message to server qid 2.
+<mdday> OK, that's usually the MessageQueueServer in the test program because it grabs the next available qid after the meta dispatcher. 
+<mdday> Is that where you intended the message to go?
+<NIU> yes.
+<mdday> But you are not receiving the message?
+<NIU> That's again right. 
+<mdday> Are you getting a NAK response?
+<NIU> I am able to send message from client to serevr 2.
+<NIU> I am.
+<NIU> actually, I am getting some response. How shall I check for response type?
+<mdday> Look at (AsyncReply *)->result, if it is 0x0000000f that is a NAK. 0 means OK
+<NIU> Test program prints this cout.
+<NIU> AsyncMessage* response = SendWait(async_request);
+<NIU>     if( response != 0  )
+<NIU>     {
+<NIU>         msg_count++;
+<NIU>         delete response;
+<NIU>         cout << " test message " << msg_count.value() << endl;
+<NIU>     }
+<NIU>     delete async_request;
+<NIU>     delete cim_request;
+<NIU> ====
+<mdday> change it to cout << "test message" << (static_cast<AsyncResponse *>(response))->result << endl;
+<NIU> It gives value 15
+<mdday> OK, that is a NAK, meaning that somene is rejecting the message. Can you paste in MessageQueueServer::messageOK >
+<NIU> ====
+<NIU> Boolean MessageQueueServer::messageOK(const Message *msg)
+<NIU> {
+<NIU>    if(msg->getMask() & message_mask::ha_async)
+<NIU>    {
+<NIU>       if( msg->getType() == 0x04100000 ||
+<NIU>           msg->getType() == async_messages::CIMSERVICE_STOP ||
+<NIU>           msg->getType() == async_messages::CIMSERVICE_PAUSE ||
+<NIU>           msg->getType() == async_messages::CIMSERVICE_RESUME )
+<NIU>       return true;
+<NIU>    }
+<NIU>    return false;
+<NIU> }
+<NIU> ====
+<mdday> OK, add msg->getType() == async_messages::ASYNC_LEGACY_OP_START || 
+<mdday> this will allow the meta dispatcher to enqueue the AsyncLegacyOperationStart message on the test server's queue
+<NIU> messageOK returns true but not coming to imcoming_operation.
+<mdday> OK, just a second ...
+<mdday> Are you sure that MessageQueueServer::_handle_incoming_operation is not getting called? 
+<mdday> the test program is confusing because there are two classes, MessageQueueClient::_handle_incoming_operation is there too.
+<NIU> Yes, I am sure that I am checking right one.
+<NIU> Do we need to implement accept_async()?
+<mdday> no, you don't have to. it should be OK. it seems like you are doing everything right. 
+<mdday> let me work on this for a few minutes. 
+<NIU> That's what I feel. Let me re-check everything again. 
+<NIU> do we need to do some with Server constructor? those message_mask:: are too confusing and will need some documentation for that.
+<mdday> those are meant to be hidden from programmers. I need to document them. But you shouldn't need to worry about them. 
+<NIU> Ok. 
+<NIU> You know, I commented all cout and put one msg->print(cout) in messageOK of server and I got this:
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 8]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 10]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 12]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 14]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 16]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 18]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 20]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 22]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 24]
+<NIU> [CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, 26]
+<NIU> [CIM_CREATE_CLASS_REQUEST_MESSAGE, 27]
+<NIU> [CIM_CREATE_CLASS_REQUEST_MESSAGE, 29]
+<NIU> [CIM_CREATE_CLASS_REQUEST_MESSAGE, 31]
+<NIU> exiting server
+<mdday> Nitin - my test program works with the legacy message now. would you like me to check it in ?
+<NIU> Pl go ahead. Thanks!
+<mdday> OK, look for MessageQueueServier::handle_LegacyOpStart, that's the handler for the test server .
+<mdday> OK, checked in. make sure and refresh the common directory as well as common/tests/MessageQueueService. It works!
+<mdday> Nitin, can you get a message to Roger for me? 
+<NIU> go ahead.
+<NIU> I just refreshed my view and will look into it.
+<NIU> I hope it should work now.
+<mdday> Have roger make a short list of requirements for the control service and I will work on a class definition in the morning so we can have something before the phone call.
+<NIU> I just told him.
+<NIU> Anything else I can do for you?
+<mdday> If the test program does hang it may be a timing issue with the pause/resume messages I put in. just take those out. 
+<NIU> Will you be around or leaving. It might be late for you.
+<NIU> I will take care.
+<mdday> I'm going to go home now :-). Bye and thanks for being patient. 
+--- Disconnected ().

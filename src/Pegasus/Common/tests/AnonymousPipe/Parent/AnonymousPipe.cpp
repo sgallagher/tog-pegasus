@@ -226,6 +226,7 @@ int main ()
             cerr << "Parent read response length of 0" << endl;
             PEGASUS_ASSERT (0);
         }
+
         AutoArrayPtr <char> responseBuffer (new char [bufferLength + 1]);
         do
         {
@@ -238,6 +239,7 @@ int main ()
                 << readBufferStatus << endl;
             PEGASUS_ASSERT (0);
         }
+        responseBuffer.get () [bufferLength] = 0;
         if (verbose)
         {
             cout << "Response received by parent: " << responseBuffer.get () 

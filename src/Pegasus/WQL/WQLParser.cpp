@@ -43,6 +43,11 @@ static int _offset;
 
 void WQLParser::parse(const Array<Sint8>& text)
 {
+    // ATTN: raise error here:
+
+    if (text.size() == 0 || text[text.size() - 1] != '\0')
+	return;
+
     _text = text;
     _offset = 0;
     WQL_parse();
@@ -54,7 +59,12 @@ PEGASUS_USING_PEGASUS;
 
 int WQLInput(char* buffer, int& numRead, int numRequested)
 {
-    int remaining = _text.size() - _offset;
+    //
+    // Be sure to account for the null terminator (the size of the text will
+    // be one or more; this is fixed checked beforehand by WQLParser::parse()).
+    //
+
+    int remaining = _text.size() - _offset - 1;
 
     if (remaining == 0)
     {

@@ -53,6 +53,7 @@ int main(int argc, char** argv)
     text.append(argv[1], strlen(argv[1]));
     text.append('\0');
 
+
     cout << "text=[" << text.getData() << "]" << endl;
 
     WQLParser::parse(text);

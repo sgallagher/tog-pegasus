@@ -10,6 +10,9 @@ EXTRA_INCLUDES = -Int_includes
 
 LIBRARY = pegwql
 
+LIBRARIES = \
+    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
+
 SOURCES = \
     WQLYACC.cpp \
     WQLLEX.cpp \
@@ -49,6 +52,5 @@ else
 	$(YACC) -vd -oWQLtemp -p WQL_ WQL.y
 	$(COPY) WQLtemp WQLYACC.cpp
 	$(COPY) WQLtemp.h WQLYACC.h
-	$(RM) WQLtemp WQLtemp.h
+	$(RM) WQLtemp WQLtemp.h WQLtemp.output
 endif
-

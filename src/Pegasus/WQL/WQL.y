@@ -19,6 +19,12 @@
 # include <alloca.h>
 #endif
 
+#if 0
+# define WQL_TRACE(X) printf(X)
+#else
+# define WQL_TRACE(X)
+#endif
+
 extern int WQL_lex();
 extern int WQL_error(char*);
 
@@ -50,23 +56,28 @@ extern int WQL_error(char*);
 
 %token <intValue> TOK_INTEGER
 %token <doubleValue> TOK_DOUBLE
-%token <strValue> STRING_LITERAL
-%token <intValue> EQ
-%token <intValue> NE
-%token <intValue> LT
-%token <intValue> LE
-%token <intValue> GT
-%token <intValue> GE
-%token <intValue> TOK_SELECT
-%token <intValue> WHERE
-%token <intValue> FROM
+%token <strValue> TOK_STRING
+%token <intValue> TOK_TRUE
+%token <intValue> TOK_FALSE
+
+%token <intValue> TOK_EQ
+%token <intValue> TOK_NE
+%token <intValue> TOK_LT
+%token <intValue> TOK_LE
+%token <intValue> TOK_GT
+%token <intValue> TOK_GE
+
+%token <intValue> TOK_NOT
+%token <intValue> TOK_OR
+%token <intValue> TOK_AND
+%token <intValue> TOK_ISA
+
 %token <strValue> TOK_IDENTIFIER
-%token <intValue> NOT
-%token <intValue> OR
-%token <intValue> AND
-%token <intValue> ISA
-%token <intValue> WQL_TRUE
-%token <intValue> WQL_FALSE
+%token <intValue> TOK_SELECT
+%token <intValue> TOK_WHERE
+%token <intValue> TOK_FROM
+
+%token <strValue> TOK_UNEXPECTED_CHAR
 
 %type <nodeValue> constant
 %type <nodeValue> property
@@ -82,9 +93,11 @@ extern int WQL_error(char*);
 %type <nodeValue> functionParameterList
 %type <nodeValue> functionParameter
 
-%left OR
-%left AND
-%nonassoc NOT
+%left TOK_OR
+%left TOK_AND
+%nonassoc TOK_NOT
+
+%%
 
 /*
 **==============================================================================
@@ -94,54 +107,37 @@ extern int WQL_error(char*);
 **==============================================================================
 */
 
-%%
-
-/*
-**------------------------------------------------------------------------------
-**
-** start rule:
-**
-**------------------------------------------------------------------------------
-*/
-
 start
     : selectStatement
     {
+	WQL_TRACE(("YACC: start: selectStatement\n"));
     }
-
-/* BOOKMARK */
-
-/*
-**------------------------------------------------------------------------------
-**
-** Select Statement
-**
-**------------------------------------------------------------------------------
-*/
 
 selectStatement
     : TOK_SELECT propertyListOrStar fromClass
     {
-
+	WQL_TRACE(("YACC: selectStatement\n"));
     } 
     | TOK_SELECT propertyListOrStar fromClass whereClause
     {
-
+	WQL_TRACE(("YACC: selectStatement\n"));
     }
 
-fromClass : FROM className
+fromClass : TOK_FROM className
     {
+	WQL_TRACE(("YACC: fromClass : TOK_FROM %s\n", $2));
 	$$ = $2;
     }
 
 className : TOK_IDENTIFIER
     {
+	WQL_TRACE(("YACC: className : %s\n", $1));
 	$$ = $1
     }
 
-whereClause : WHERE expression
+whereClause : TOK_WHERE expression
     {
-
+	WQL_TRACE(("YACC: whereClause : TOK_WHERE expression\n"));
     }
 
 propertyListOrStar 
@@ -151,7 +147,7 @@ propertyListOrStar
     }
     | '*'
     {
-
+	WQL_TRACE(("YACC: propertyListOrStar: '*'\n"));
     }
 
 propertyList : property
@@ -174,15 +170,15 @@ property
     }
 
 expression 
-    : expression OR expression
+    : expression TOK_OR expression
     {
 
     }
-    | expression AND expression
+    | expression TOK_AND expression
     {
 
     }
-    | NOT expression
+    | TOK_NOT expression
     {
 
     }
@@ -196,103 +192,103 @@ expression
     }
 
 expressionTerm
-    : property LT constant
+    : property TOK_LT constant
     {
 
     }
-    | property GT constant
+    | property TOK_GT constant
     {
 
     }
-    | property LE constant
+    | property TOK_LE constant
     {
 
     }
-    | property GE constant
+    | property TOK_GE constant
     {
 
     }
-    | property EQ constant
+    | property TOK_EQ constant
     {
 
     }
-    | property NE constant
+    | property TOK_NE constant
     {
 
     }
-    | constant LT property
+    | constant TOK_LT property
     {
 
     }
-    | constant GT property
+    | constant TOK_GT property
     {
 
     }
-    | constant LE property
+    | constant TOK_LE property
     {
 
     }
-    | constant GE property
+    | constant TOK_GE property
     {
 
     }
-    | constant EQ property
+    | constant TOK_EQ property
     {
 
     }
-    | constant NE property
+    | constant TOK_NE property
     {
 
     }
-    | function LT constant
+    | function TOK_LT constant
     {
 
     }
-    | function GT constant
+    | function TOK_GT constant
     {
 
     }
-    | function LE constant
+    | function TOK_LE constant
     {
 
     }
-    | function GE constant
+    | function TOK_GE constant
     {
 
     }
-    | function EQ constant
+    | function TOK_EQ constant
     {
 
     }
-    | function NE constant
+    | function TOK_NE constant
     {
 
     }
-    | constant LT function
+    | constant TOK_LT function
     {
 
     }
-    | constant GT function
+    | constant TOK_GT function
     {
 
     }
-    | constant LE function
+    | constant TOK_LE function
     {
 
     }
-    | constant GE function
+    | constant TOK_GE function
     {
 
     }
-    | constant EQ function
+    | constant TOK_EQ function
     {
 
     }
-    | constant NE function
+    | constant TOK_NE function
     {
 
     }
-    | className ISA className
+    | className TOK_ISA className
     {
 
     }
@@ -332,9 +328,10 @@ constant
     {
 
     }
-    | STRING_LITERAL
+    | TOK_STRING
     {
-
+	WQL_TRACE(("YACC: TOK_STRING: %s\n", $1));
+	$$ = $1;
     }
 
 %%

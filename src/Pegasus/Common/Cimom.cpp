@@ -322,7 +322,6 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    PEGASUS_ASSERT(request != 0  && reply != 0 );
 
    AsyncOpNode *op = request->op;
-   cout << " cimom COMPLETE  " << endl;
    op->lock();
    op->_state |= state ;
    op->_flags |= flag;

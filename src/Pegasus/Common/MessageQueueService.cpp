@@ -363,17 +363,23 @@ void MessageQueueService::handle_CimServicePause(CimServicePause *req)
 {
    // set the paused bit and update
    _capabilities |= module_capabilities::stopped;
+   update_service(_capabilities, _mask);
    _make_response(req, async_results::CIM_PAUSED);
    // now tell the meta dispatcher we are stopped 
-   update_service(_capabilities, _mask);
+
+   cout << " service paused " << endl;
+   
 }
 void MessageQueueService::handle_CimServiceResume(CimServiceResume *req)
 {
    // clear the paused  bit and update
    _capabilities &= ~(module_capabilities::paused);
+   update_service(_capabilities, _mask);
    _make_response(req, async_results::OK);
    // now tell the meta dispatcher we are stopped 
-   update_service(_capabilities, _mask);
+
+
+   cout << " service resumed " << endl;
 }
       
 void MessageQueueService::handle_AsyncOperationStart(AsyncOperationStart *req)

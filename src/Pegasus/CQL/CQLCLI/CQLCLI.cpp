@@ -359,16 +359,18 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
                   String testOption)
 {
   if(testOption == String::EMPTY || testOption == "1")
-  {                                      
+  {       
+      cout << "=========Evaluate Query==============" << endl;                             
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
-      printf("\n\nEvaluating query %d :  ",i+1);
-      cout << _statements[i].toString() << endl << endl;;
+      cout << "======================================" << i << endl;
+      cout << "-----Query: " << _statements[i].toString() << endl << endl;;
 
       for(Uint32 j = 0; j < _instances.size(); j++)
       {
         try
         {
+          cout << "-----Instance: " << _instances[i].getPath().toString() << endl;
           Boolean result = _statements[i].evaluate(_instances[j]);
           cout << _statements[i].toString() << " = ";
           if(result) printf("TRUE\n\n");
@@ -646,7 +648,7 @@ int main(int argc, char ** argv)
   }
 
 	String testOption;
-   String className;
+   String className = String::EMPTY;
 	String nameSpace;
 
 	for(int i = 0; i < argc; i++){
@@ -678,7 +680,6 @@ int main(int argc, char ** argv)
 	String lang("CIM:CQL");
    String query("dummy statement");
 	CQLSelectStatement _ss(lang,query,_ctx);
-
    if (_ss.getQuery() != query || _ss.getQueryLanguage() != lang)
    {
      cout << "ERROR: unable to get query or query language from select statement" << endl;
@@ -721,6 +722,7 @@ int main(int argc, char ** argv)
 		}
       catch(Exception& e)
       {
+			cout << "here" << endl;
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
       }
       

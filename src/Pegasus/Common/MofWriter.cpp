@@ -685,7 +685,7 @@ String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
 
 String MofWriter::getQualifierScope (const CIMScope & scope)
 {
-    if (scope.equal (CIMScope (CIMScope::ANY)))
+    if (scope.equal (CIMScope::ANY))
     {
         return "any";
     }

@@ -149,7 +149,7 @@ void test02()
     //
     // Test getScope and getFlavor
     //
-    assert(cq1.getScope().equal (CIMScope (CIMScope::PROPERTY)));
+    assert(cq1.getScope().equal (CIMScope::PROPERTY));
     assert(cq1.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
 
     //

@@ -77,26 +77,12 @@ void CIMScope::addScope (const CIMScope & scope)
 
 Boolean CIMScope::hasScope (const CIMScope & scope) const
 {
-    if ((this->cimScope & scope.cimScope) == scope.cimScope)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ((this->cimScope & scope.cimScope) == scope.cimScope);
 }
 
 Boolean CIMScope::equal (const CIMScope & scope) const
 {
-    if (this->cimScope == scope.cimScope)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (this->cimScope == scope.cimScope);
 }
 
 CIMScope CIMScope::operator+ (const CIMScope & scope) const

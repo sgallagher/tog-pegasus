@@ -65,8 +65,7 @@
 #include "SecurityPropertyOwner.h"
 #include "RepositoryPropertyOwner.h"
 #include "ShutdownPropertyOwner.h"
-#include "TuningPropertyOwner.h"
-
+ 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -154,8 +153,6 @@ static struct OwnerEntry _properties[] =
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSubscriptionsForNonprivilegedUsers", (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"threads", (ConfigPropertyOwner*)ConfigManager::tuningOwner},
-    {"connections", (ConfigPropertyOwner*)ConfigManager::tuningOwner},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);

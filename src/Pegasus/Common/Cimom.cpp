@@ -232,9 +232,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 		        dispatcher->_make_response(request, async_results::CIM_PAUSED);
 		     else 
 			dispatcher->_make_response(request, async_results::CIM_STOPPED);
+		     accepted = true;
 		  }
+		  else 
+		     accepted = svce->accept_async(op);
 	       }
-	       accepted = svce->accept_async(op);
+	       else 
+		  accepted = svce->accept_async(op);
 	    }
 	    if ( accepted == false )
 	    {
@@ -487,6 +491,7 @@ void cimom::update_module(UpdateCimService *msg )
       }
       temp = _modules.next(temp);
    }
+   _modules.unlock();
 
    AsyncReply *reply = new AsyncReply(async_messages::REPLY,
 				      msg->getKey(),
@@ -556,8 +561,6 @@ void cimom::ioctl(AsyncIoctl *msg)
 	       break;
 	 } // message processing loop
 
-	 cout << "exiting meta dispatcher from within IOCTL::CLOSE " << endl;
-	 
 	 // shutdown the AsyncDQueue
 	 service->_routed_ops.shutdown_queue();
 	 // exit the thread ! 

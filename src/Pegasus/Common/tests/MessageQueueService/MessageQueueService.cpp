@@ -433,10 +433,36 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
    
    cout << "test server registered" << endl;
+   Boolean paused_client = false;
    
    while( q_server->dienow.value()  < 3  )
    {
       pegasus_yield();
+      
+      if ( msg_count.value() > 1000 && paused_client == false)
+      {
+	 paused_client = true;
+	 
+	 CimServicePause *pause_req = new CimServicePause(q_server->get_next_xid(), 
+							  0,
+							  2, 
+							  q_server->getQueueId(),
+							  true);
+	 AsyncMessage *response = q_server->SendWait(pause_req);
+	 delete response;
+	 delete pause_req;
+      
+	 pegasus_sleep(10);
+
+	 CimServiceResume *resume_req = new CimServiceResume(q_server->get_next_xid(), 
+							     0,
+							     2, 
+							     q_server->getQueueId(),
+							     true);
+	 response = q_server->SendWait(resume_req);
+	 delete response;
+	 delete resume_req;
+      }
    }
  
    cout << "deregistering server qid " << q_server->getQueueId() << endl;

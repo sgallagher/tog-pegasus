@@ -129,7 +129,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 	 
 	 service->_handle_incoming_operation(operation, myself, service);
       }
-      
    }
    
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -175,7 +174,10 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
       else if (type == async_messages::CIMSERVICE_STOP)
 	 handle_CimServiceStop(static_cast<CimServiceStop *>(req));
       else if (type == async_messages::CIMSERVICE_PAUSE)
+      {
 	 handle_CimServicePause(static_cast<CimServicePause *>(req));
+      }
+      
       else if (type == async_messages::CIMSERVICE_RESUME)
 	 handle_CimServiceResume(static_cast<CimServiceResume *>(req));
       else if ( type == async_messages::ASYNC_OP_START)
@@ -346,7 +348,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 void MessageQueueService::handle_CimServiceStart(CimServiceStart *req)
 {
    // clear the stoped bit and update
-   _capabilities &= ~(module_capabilities::stopped);
+   _capabilities &= (~(module_capabilities::stopped));
    _make_response(req, async_results::OK);
    // now tell the meta dispatcher we are stopped 
    update_service(_capabilities, _mask);
@@ -364,24 +366,18 @@ void MessageQueueService::handle_CimServiceStop(CimServiceStop *req)
 void MessageQueueService::handle_CimServicePause(CimServicePause *req)
 {
    // set the paused bit and update
-   _capabilities |= module_capabilities::stopped;
+   _capabilities |= module_capabilities::paused;
    update_service(_capabilities, _mask);
    _make_response(req, async_results::CIM_PAUSED);
    // now tell the meta dispatcher we are stopped 
-
-   cout << " service paused " << endl;
-   
 }
 void MessageQueueService::handle_CimServiceResume(CimServiceResume *req)
 {
    // clear the paused  bit and update
-   _capabilities &= ~(module_capabilities::paused);
+   _capabilities &= (~(module_capabilities::paused));
    update_service(_capabilities, _mask);
    _make_response(req, async_results::OK);
    // now tell the meta dispatcher we are stopped 
-
-
-   cout << " service resumed " << endl;
 }
       
 void MessageQueueService::handle_AsyncOperationStart(AsyncOperationStart *req)

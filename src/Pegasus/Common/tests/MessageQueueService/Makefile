@@ -4,7 +4,7 @@ include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 PROGRAM = MessageQueueService
-SOURCES = MessageQueueService.cpp
+SOURCES = MessageQueueServicet.cpp
 
 include $(ROOT)/mak/program.mak
 

@@ -30,8 +30,9 @@
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2311
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -496,27 +497,26 @@ CIMUserCommand::CIMUserCommand ()
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
-    //PEP#167 - new usage format
-    usage.append(" [ -").append(OPTION_ADD);
+    usage.append(" -").append(OPTION_ADD);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
     usage.append(" [ -").append(OPTION_PASSWORD).append(" password")
-         .append(" ]] \n");
+         .append(" ] \n");
 
-    usage.append("               [ -").append(OPTION_MODIFY);
+    usage.append("               -").append(OPTION_MODIFY);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
-    usage.append(" [ -").append(OPTION_PASSWORD).append(" old_password")
+    usage.append(" [ -").append(OPTION_PASSWORD).append(" old password")
          .append(" ]");
-    usage.append(" [ -").append(OPTION_NEW_PASSWORD).append(" new_password")
-         .append(" ]] \n");
+    usage.append(" [ -").append(OPTION_NEW_PASSWORD).append(" new password")
+         .append(" ] \n");
 
-    usage.append("               [ -").append(OPTION_REMOVE);
-    usage.append(" -").append(OPTION_USER_NAME).append(" username ] ");
+    usage.append("               -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username \n");
 
-    usage.append("[ -").append(OPTION_LIST).append(" ] ");
-    usage.append("[ -").append(OPTION_HELP).append(" ] [ --")
-         .append(LONG_HELP).append(" ] ");
+    usage.append("               -").append(OPTION_LIST).append(" \n");
+    usage.append("               -").append(OPTION_HELP).append(" \n");
+    usage.append("               --").append(LONG_HELP).append(" \n");
+    usage.append("               --").append(LONG_VERSION).append(" \n");
 
-    usage.append("[ --").append(LONG_VERSION).append(" ] \n");
 
     usage.append("Options : \n");
     usage.append("    -a         - Add a new CIM user\n");

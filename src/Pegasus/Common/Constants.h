@@ -151,6 +151,11 @@ static const CIMName PEGASUS_CLASSNAME_PROTOCOLADAPTER  =
     CIMName ("CIM_ProtocolAdapter");
 static const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER  = 
     CIMName ("CIM_NamespaceInManager");
+
+// slp Class which operates slp provider. Started by system
+
+static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE             = 
+    CIMName ("PG_WBEMSLPTEMPLATE");
 #endif
 
 //

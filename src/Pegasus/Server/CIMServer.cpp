@@ -40,7 +40,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
-#include <Pegasus/Common/HTTPDelegator.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>

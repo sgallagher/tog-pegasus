@@ -311,7 +311,7 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
       //const AtomicInt& operator=(Uint32 val);
       AtomicInt& operator=(Uint32 val);
 
-      Uint32  value(void) const;
+      Uint32 value(void);
 
       void operator++(void); // prefix
       void operator++(int); // postfix

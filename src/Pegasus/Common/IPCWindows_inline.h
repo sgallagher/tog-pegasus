@@ -159,7 +159,7 @@ inline AtomicInt& AtomicInt::operator=(Uint32 val)
    return *this;
 }
 
-inline Uint32 AtomicInt::value(void) const
+inline Uint32 AtomicInt::value(void)
 {
    return ((Uint32)_rep);
 }

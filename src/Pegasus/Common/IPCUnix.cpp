@@ -747,7 +747,7 @@ AtomicInt& AtomicInt::operator=(Uint32 i)
 AtomicInt& AtomicInt::operator=(const AtomicInt& original)
 { if (this != &original) atomic_set(&_rep,atomic_read(&original._rep));  return *this;}
 
-Uint32 AtomicInt::value(void) const {return((Uint32) atomic_read(&_rep));}
+Uint32 AtomicInt::value(void) {return((Uint32) atomic_read(&_rep));}
 void AtomicInt::operator++(void) {atomic_inc(&_rep);}
 void AtomicInt::operator--(void) {atomic_dec(&_rep);}
 void AtomicInt::operator++(int) {atomic_inc(&_rep);}
@@ -808,7 +808,7 @@ AtomicInt& AtomicInt::operator=(const AtomicInt& original)
    return *this;
 }
 
-Uint32 AtomicInt::value(void) const 
+Uint32 AtomicInt::value(void)
 {
    int i;
 

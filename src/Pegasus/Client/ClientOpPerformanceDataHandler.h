@@ -27,6 +27,7 @@
 //
 //==============================================================================
 //
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3127
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,8 +37,6 @@
 
 #include <Pegasus/Common/CIMOperationType.h> 
 #include <Pegasus/Client/Linkage.h>
-#include <Pegasus/Client/ClientPerfDataStore.h>
-#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
 

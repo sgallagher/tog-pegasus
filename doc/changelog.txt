@@ -276,6 +276,14 @@ repository implementation.
 39. (Markus Mueller - IBM) 09 Nov 2001 Added Associator calls to CIMBase
     ProviderFacade.cpp; fixed Provider unloading in CIMProviderManager.cpp
 
+40. (Rudy Schuet - Compaq) 12 Nov 2001 Common module: added the following
+    files for nsk platform support: TraceFileHandlerNsk.cpp, ThreadNsk.cpp,
+    TCPChannelNsk.cpp, SystemNsk.cpp, ServiceNsk.cpp, SelectorNsk.cpp,
+    IPCNsk.cpp, DirNsk.cpp. Most of these files (with the exception of
+    SystemNsk.cpp) contain stubs. The associated control files
+    (TraceFileHandler.cpp, Thread.cpp, etc) have been updated to include
+    nsk platform links. 
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -138,35 +138,67 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 
   CQLIdentifier firstId = _subIdentifiers[0];
   
-  if ((firstId.getName().getString() != String::EMPTY) || firstId.isWildcard()) 
+  // Process if the first identifier has some contents.
+  if ((firstId.getName().getString().size() != 0) || firstId.isWildcard()) 
   {
     Array<CQLIdentifier> fromList = inContext.getFromList();
 
     if (firstId.isWildcard())
     {
-      // Example:  SELECT * FROM F AS A 
+      // Single element chain that is wildcarded.
+      // Prepend the FROM class.
       _subIdentifiers.prepend(fromList[0]);
     }  
     else
     {
+      // Not a single element wildcard.
       if (firstId.isScoped())
       {
+        // The first identifier is a scoped property or a 
+        // scoped symbolic constant.
+        // Prepend the FROM class.
+        // Example: SELECT * FROM F WHERE someprop = X::p#'OK'
 	_subIdentifiers.prepend(fromList[0]);
       }
       else
       {
+        // The first identifier is not a scoped property or a scoped
+        // symbolic constant.
+
+        // Determine if the first identifier's name is in the FROM list.
 	String classContext = firstId.getName().getString();
 	CQLIdentifier matchedId = inContext.findClass(classContext);
-
-	if (firstId.isScoped() || (matchedId.getName().getString() == String::EMPTY))
+	if (matchedId.getName().getString().size() != 0)
 	{
 	  // Could not find the firstId in the FROM list.
-	  // Assume the firstId is a property, so prepend the FROM class.
-	  // Examples:  
-	  // SELECT p FROM F AS A  
-	  // SELECT p.p1 FROM F AS A (illegal, but caught elsewhere)  
-	  // SELECT p.* FROM F AS A 
-	  // SELECT * FROM F AS A WHERE p ISA B
+	  // Assume the firstId is a property on the FROM class,
+          // and prepend the FROM class, except in the case described below.
+          //
+          // NOTE:
+          // We need special handling for symbolic constants, because there are cases
+          // where the first id is a class that is not the FROM class.
+          // Refer to section 5.4.3 of the CQL spec.
+          //
+          // Examples:
+          // SELECT * FROM F WHERE F.someprop = ClassNotInFromList.prop#'OK'
+          // We don't want to prepend the FROM class to ClassNotInFromList 
+          // in this case.
+          //
+          // SELECT * FROM F WHERE F.someprop = embeddedObject.X::p#'OK'
+          // Even though embeddedObject may an property on F, and not
+          // a classname, we still don't need to prepend F because the
+          // scoping class X will be used to get the value of 'OK' on property
+          // p.
+          //
+          // SELECT * FROM F WHERE F.someprop = propOnClassF#'OK'
+          // We want to prepend in this case.  The identifier propOnClassF
+          // is assumed to be a property on the FROM class, not a classname
+          // itself.
+          //
+          // Note that standalone symbolic constants, like #'OK'
+          // are errors in this code.
+          // See above for details.
+          //
 	  if (_subIdentifiers.size() == 1 ||
 	      !_subIdentifiers[_subIdentifiers.size()-1].isSymbolicConstant())
 	  {
@@ -181,23 +213,11 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 	  {
 	    // It was an alias.
 	    // Replace the alias with the FROM class
-	    // Examples:  
-	    // SELECT A.p FROM F AS A 
-	    // SELECT A FROM F AS A  (illegal, but caught elsewhere) 
-	    // SELECT A.* FROM F AS A
-	    // SELECT * FROM F AS A WHERE A ISA B 
-	    // SELECT * FROM F AS A WHERE A.p ISA B
 	    _subIdentifiers[0] = matchedId;
 	  }
 	  else 
 	  {
 	    // It was not an alias. Do nothing.
-	    // Examples:
-	    // SELECT F.p FROM F AS A
-	    // SELECT F FROM F AS A (illegal, but caught elsewhere) 
-	    // SELECT F.* FROM F AS A
-	    // SELECT * FROM F AS A WHERE F ISA B
-	    // SELECT * FROM F AS A WHERE F.p ISA B
 	    ;
 	  }
 	}
@@ -205,14 +225,16 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
     }
   }
   
-  // Go through an replaces the aliases on scoping classes
+  // Go through and replace any aliases on scoping classes
   for (Uint32 i = 0; i < _subIdentifiers.size(); i++)
   {
     if (_subIdentifiers[i].isScoped())
     {
       CQLIdentifier match = inContext.findClass(_subIdentifiers[i].getScope());
-      if (match.getName().getString() != String::EMPTY)
+      if (match.getName().getString().size() != 0)
       {
+        // The scoping class was either the FROM class, or an alias of the
+        // FROM class.  Replace the scoping class with the FROM class.
 	_subIdentifiers[i].applyScope(match.getName().getString());
       }
     }

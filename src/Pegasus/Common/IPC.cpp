@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,6 +33,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Robert Kieninger, IBM (kieningr@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,11 +42,15 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "IPCWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "IPCUnix.cpp" 
+# include "IPCUnix.cpp"
 #elif defined(PEGASUS_OS_VMS)
 # include "IPCVms.cpp"
 #else
 # error "Unsupported platform"
+#endif
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include "IPCzOS.cpp"
 #endif
 
 #include "InternalException.h"
@@ -53,8 +58,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-int timeval_subtract (struct timeval *result, 
-		      struct timeval *x, 
+int timeval_subtract (struct timeval *result,
+		      struct timeval *x,
 		      struct timeval *y)
 {
    /* Perform the carry for the later subtraction by updating Y. */
@@ -68,12 +73,12 @@ int timeval_subtract (struct timeval *result,
       y->tv_usec += 1000000 * nsec;
       y->tv_sec -= nsec;
    }
-   
+
    /* Compute the time remaining to wait.
       `tv_usec' is certainly positive. */
    result->tv_sec = x->tv_sec - y->tv_sec;
    result->tv_usec = x->tv_usec - y->tv_usec;
-   
+
    /* Return 1 if result is negative. */
    return x->tv_sec < y->tv_sec;
 }
@@ -83,7 +88,7 @@ int timeval_subtract (struct timeval *result,
 //-----------------------------------------------------------------
 /// Generic Implementation of read/write semaphore class
 //-----------------------------------------------------------------
-#ifndef PEGASUS_READWRITE_NATIVE 
+#ifndef PEGASUS_READWRITE_NATIVE
 
 
 // // If i get cancelled, I MUST ensure:
@@ -95,7 +100,7 @@ void extricate_read_write(void *parm)
 {
    ReadWriteSem *rws = (ReadWriteSem *)parm;
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
-   
+
    if(rws->_rwlock._wlock.get_owner() == myself)
       rws->_rwlock._wlock.unlock();
    else
@@ -104,26 +109,26 @@ void extricate_read_write(void *parm)
    if (rws->_rwlock._internal_lock.get_owner() == myself)
       rws->_rwlock._internal_lock.unlock();
 }
- 
+
 
 ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0), _rwlock() { }
 
 ReadWriteSem::~ReadWriteSem(void)
 {
    // lock everyone out of this object
-   try 
+   try
    {
       _rwlock._internal_lock.lock(pegasus_thread_self());
    }
-   catch(Deadlock& d) 
+   catch(Deadlock& d)
    {
       d = d; // no problem - we own the lock, which is what we want
    }
-   catch(IPCException& ) 
+   catch(IPCException& )
    {
-      PEGASUS_ASSERT(0); 
+      PEGASUS_ASSERT(0);
    }
-   while(_readers.value() > 0 || _writers.value() > 0) 
+   while(_readers.value() > 0 || _writers.value() > 0)
    {
       pegasus_yield();
    }
@@ -137,14 +142,14 @@ ReadWriteSem::~ReadWriteSem(void)
 
 //-----------------------------------------------------------------
 // if milliseconds == -1, wait indefinately
-// if milliseconds == 0, fast wait 
+// if milliseconds == 0, fast wait
 //-----------------------------------------------------------------
-void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) 
+void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds)
    throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
 {
 
 //-----------------------------------------------------------------
-// Lock this object to maintain integrity while we decide 
+// Lock this object to maintain integrity while we decide
 // exactly what to do next.
 //-----------------------------------------------------------------
     //   AutoPtr<IPCException> caught;
@@ -152,15 +157,15 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
     WaitFailed caughtWaitFailed((PEGASUS_THREAD_TYPE)0);
     TimeOut caughtTimeOut((PEGASUS_THREAD_TYPE)0);
     TooManyReaders caughtTooManyReaders((PEGASUS_THREAD_TYPE)0);
-   
-   { // cleanup stack frame 
+
+   { // cleanup stack frame
       native_cleanup_push(extricate_read_write, this);
       try
       {
 	 if(milliseconds == 0)
 	    _rwlock._internal_lock.try_lock(pegasus_thread_self());
 	 else if(milliseconds == -1)
-	    _rwlock._internal_lock.lock(pegasus_thread_self()); 
+	    _rwlock._internal_lock.lock(pegasus_thread_self());
 	 else
 	    _rwlock._internal_lock.timed_lock(milliseconds, pegasus_thread_self());
       }
@@ -169,7 +174,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
          caught = e;
          goto throw_from_here;
       }
-      
+
       if(mode == PEG_SEM_WRITE)
       {
 //-----------------------------------------------------------------
@@ -192,7 +197,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    while(_readers.value() > 0 )
 	       pegasus_yield();
 	 }
-	 else // timed wait 
+	 else // timed wait
 	 {
 	    struct timeval start, now;
 	    gettimeofday(&start, NULL);
@@ -216,11 +221,11 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 //-----------------------------------------------------------------
 	 if(milliseconds == 0) // fast wait
 	 {
-	    try 
+	    try
 	    {
 	       _rwlock._wlock.try_lock(pegasus_thread_self());
 	    }
-	    catch(IPCException& e) 
+	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       caught = e;
@@ -229,11 +234,11 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	 else if(milliseconds == -1) // infinite wait
 	 {
-	    try 
+	    try
 	    {
 	       _rwlock._wlock.lock(pegasus_thread_self());
 	    }
-	    catch (const IPCException& e) 
+	    catch (const IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       caught = e;
@@ -254,10 +259,10 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    }
 	 }
 
-//-----------------------------------------------------------------      
+//-----------------------------------------------------------------
 // Write Lock Step 3: set the writer count to one, unlock the object
 //   There are no readers and we are the only writer !
-//-----------------------------------------------------------------      
+//-----------------------------------------------------------------
 	 _writers = 1;
 	 // set the owner
 	 _rwlock._owner = pegasus_thread_self();
@@ -282,14 +287,14 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 else if(milliseconds == -1) // infinite wait
 	 {
 	    while(_writers.value() >  0)
-	       pegasus_yield(); 
+	       pegasus_yield();
 	 }
 	 else // timed wait
 	 {
 	    struct timeval start, now;
 	    gettimeofday(&start, NULL);
 	    start.tv_usec += (milliseconds * 1000);
-	    
+
 	    while(_writers.value() > 0)
 	    {
 	       gettimeofday(&now, NULL);
@@ -312,13 +317,13 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 //-----------------------------------------------------------------
 	 if(milliseconds == 0) // fast wait
 	 {
-	    try 
+	    try
 	    {
-	       _rwlock._rlock.try_wait();  
+	       _rwlock._rlock.try_wait();
 	    }
-	    catch(const IPCException&) 
+	    catch(const IPCException&)
 	    {
-	       // the wait failed, there must be too many readers already. 
+	       // the wait failed, there must be too many readers already.
 	       // unlock the object
 	       caughtTooManyReaders = TooManyReaders(pegasus_thread_self());
 	       _rwlock._internal_lock.unlock();
@@ -327,9 +332,9 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	 else if(milliseconds == -1) // infinite wait
 	 {
-	    try 
+	    try
 	    {
-	       _rwlock._rlock.wait(); 
+	       _rwlock._rlock.wait();
 	    }
 	    catch(const IPCException& e)
 	    {
@@ -337,10 +342,10 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	       caught = e;
 	       goto throw_from_here;
 	    }
-	 }      
+	 }
 	 else // timed wait
 	 {
-	    try 
+	    try
 	    {
 	       _rwlock._rlock.time_wait(milliseconds);
 	    }
@@ -352,8 +357,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    }
 	 }
 
-//-----------------------------------------------------------------      
-// Read Lock Step 3: increment the number of readers, unlock the object, 
+//-----------------------------------------------------------------
+// Read Lock Step 3: increment the number of readers, unlock the object,
 // return
 //-----------------------------------------------------------------
 	 _readers++;
@@ -361,7 +366,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       }
       throw_from_here:
       native_cleanup_pop(0);
-   } // cleanup stack frame 
+   } // cleanup stack frame
 
    if (caught.get_owner() != 0)
       throw(caught);
@@ -379,21 +384,21 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 
 
 //---------------------------------------------------------------------
-void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
+void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    throw(Deadlock, Permission, WaitFailed, TooManyReaders)
 {
 
    timed_wait(mode, caller, -1);
 }
 
-void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
+void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    throw(Deadlock, Permission, WaitFailed, TooManyReaders)
 {
    timed_wait(mode, caller, 0);
 }
 
 
-void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
+void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    throw(Permission)
 {
    if(mode == PEG_SEM_WRITE && _writers.value() != 0 )
@@ -444,18 +449,18 @@ AtomicInt::~AtomicInt()
 AtomicInt::AtomicInt(const AtomicInt& original)
 {
     _rep._value = original._rep._value;
-} 
+}
 
 AtomicInt& AtomicInt::operator=(const AtomicInt& original )
 {
-    // to avoid deadlocks, always be certain to only hold one mutex at a time. 
+    // to avoid deadlocks, always be certain to only hold one mutex at a time.
     // therefore, get the original value (which will lock and unlock the original's mutex)
     // and _then_ lock this mutex. This pattern is repeated throughout the class
-  
+
     Uint32 temp = original._rep._value;
     AutoMutex autoMut(_rep._mutex);
     _rep._value = temp;
-    
+
     return *this;
 }
 
@@ -463,7 +468,7 @@ AtomicInt& AtomicInt::operator=(Uint32 val)
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value = val;
-    
+
     return *this;
 }
 
@@ -471,7 +476,7 @@ Uint32 AtomicInt::value(void) const
 {
     AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value;
-    
+
     return retval;
 }
 
@@ -479,37 +484,37 @@ void AtomicInt::operator++(void)
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value++;
-    
+
 }
 
 void AtomicInt::operator++(int)
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value++;
-    
+
 }
 
 void AtomicInt::operator--(void)
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value--;
-    
+
 }
 
 void AtomicInt::operator--(int)
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value--;
-    
+
 }
 
 Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
-    // never acquire a mutex while holding a mutex 
-    Uint32 retval = val._rep._value; 
+    // never acquire a mutex while holding a mutex
+    Uint32 retval = val._rep._value;
     AutoMutex autoMut(_rep._mutex);
     retval += _rep._value ;
-    
+
     return retval;
 }
 
@@ -517,7 +522,7 @@ Uint32 AtomicInt::operator+(Uint32 val)
 {
     AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value + val;
-    
+
     return retval;
 }
 
@@ -527,7 +532,7 @@ Uint32 AtomicInt::operator-(const AtomicInt& val)
     Uint32 retval =  val._rep._value;
     AutoMutex autoMut(_rep._mutex);
     retval += _rep._value;
-    
+
     return retval;
 }
 
@@ -535,7 +540,7 @@ Uint32 AtomicInt::operator-(Uint32 val)
 {
     AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value - val;
-    
+
     return retval;
 }
 
@@ -546,7 +551,7 @@ AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
     Uint32 temp = val._rep._value;
     AutoMutex autoMut(_rep._mutex);
     _rep._value += temp;
-    
+
     return *this;
 }
 AtomicInt& AtomicInt::operator+=(Uint32 val)
@@ -554,7 +559,7 @@ AtomicInt& AtomicInt::operator+=(Uint32 val)
     // never acquire a mutex while holding a mutex
     AutoMutex autoMut(_rep._mutex);
     _rep._value += val;
-    
+
     return *this;
 }
 
@@ -564,7 +569,7 @@ AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
     Uint32 temp = val._rep._value;
     AutoMutex autoMut(_rep._mutex);
     _rep._value -= temp;
-    
+
     return *this;
 }
 
@@ -573,7 +578,7 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
     // never acquire a mutex while holding a mutex
     AutoMutex autoMut(_rep._mutex);
     _rep._value -= val;
-    
+
     return *this;
 }
 
@@ -582,7 +587,7 @@ Boolean AtomicInt::DecAndTestIfZero()
     AutoMutex autoMut(_rep._mutex);
     _rep._value--;
     Boolean b = (_rep._value == 0);
-    
+
     return b;
 }
 
@@ -594,13 +599,13 @@ Boolean AtomicInt::DecAndTestIfZero()
 
 
 //-----------------------------------------------------------------
-// Generic implementation of conditional semaphore object 
+// Generic implementation of conditional semaphore object
 //-----------------------------------------------------------------
 #ifndef PEGASUS_CONDITIONAL_NATIVE
 
 
 // may be entered by many different threads concurrently
-// ensure that, upon exit, I OWN the mutex 
+// ensure that, upon exit, I OWN the mutex
 // and I DO NOT own the critical section
 
 void extricate_condition(void *parm)
@@ -616,10 +621,10 @@ void extricate_condition(void *parm)
 }
 
 Condition::Condition(void) : _disallow(0), _condition()
-{ 
+{
    _cond_mutex.reset(new Mutex());
    _destroy_mut = true;
-} 
+}
 
 Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
 {
@@ -633,7 +638,7 @@ Condition::~Condition(void)
    cond_waiter *lingerers;
    // don't allow any new waiters
    _disallow++;
-   
+
    {
    AutoMutex autoMut(_condition._spin);
 
@@ -642,7 +647,7 @@ Condition::~Condition(void)
       lingerers->signalled.signal();
    }
    } // mutex unlocks here
-   
+
    while( _condition._waiters.count())   {
       pegasus_yield();
    }
@@ -656,7 +661,7 @@ void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
    _cond_mutex->lock(caller);
-   
+
    try
    {
       unlocked_signal(caller);
@@ -678,10 +683,10 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
    // lock the internal list
    _condition._spin.lock(caller);
-   if (_condition._waiters.count() > 0) 
+   if (_condition._waiters.count() > 0)
    {
       cond_waiter *waiters = static_cast<cond_waiter *>(_condition._waiters.next(0));
-      while( waiters != 0) 
+      while( waiters != 0)
       {
 	 waiters->signalled.signal();
 	 waiters = static_cast<cond_waiter *>(_condition._waiters.next(waiters));
@@ -690,10 +695,10 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
    _condition._spin.unlock();
 }
 
-void Condition::lock_object(PEGASUS_THREAD_TYPE caller) 
+void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
       throw ListClosed();
    _cond_mutex->lock(caller);
 }
@@ -701,7 +706,7 @@ void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_disallow.value() > 0 ) 
+   if(_disallow.value() > 0 )
       throw ListClosed();
    _cond_mutex->try_lock(caller);
 }
@@ -709,7 +714,7 @@ void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
    throw(IPCException)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
 }
@@ -719,13 +724,13 @@ void Condition::unlock_object(void)
    _cond_mutex->unlock();
 }
 
-void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
+void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
    unlocked_timed_wait(-1, caller);
 }
 
-void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
+void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
    if(_disallow.value() > 0)
@@ -742,13 +747,13 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       // lock the internal list
       _condition._spin.lock(caller);
       _condition._waiters.insert_first(waiter);
-      // unlock the condition mutex 
+      // unlock the condition mutex
       _cond_mutex->unlock();
       _condition._spin.unlock();
       if(milliseconds == -1)
 	 waiter->signalled.wait();
       else
-	 try 
+	 try
 	 {
 	    waiter->signalled.time_wait(milliseconds);
 	 }
@@ -757,8 +762,8 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
 	    _cond_mutex->lock(caller);
 	    throw;
 	 }
-      
-      _condition._spin.lock(caller);  
+
+      _condition._spin.lock(caller);
       _condition._waiters.remove(waiter);
       _condition._spin.unlock();
       delete waiter;
@@ -773,7 +778,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
 
 #endif // PEGASUS_CONDITIONAL_NATIVE
 //-----------------------------------------------------------------
-// END of generic implementation of conditional semaphore object 
+// END of generic implementation of conditional semaphore object
 //-----------------------------------------------------------------
 
 PEGASUS_NAMESPACE_END

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,7 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
+//              Robert Kieninger, IBM (kieningr@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,9 +46,12 @@
 #include <time.h>
 //#include <sys/timex.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #define SEM_VALUE_MAX 0xffffffff
 
+#define UNLOCKED_VALUE 0
+#define LOCKED_VALUE 1
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -70,8 +74,12 @@ typedef struct {
     PEGASUS_THREAD_TYPE owner;
 } PEGASUS_MUTEX_HANDLE ;
 
+// !!!!!! needs to be changed to support spin_lock like behaviour
 typedef PEGASUS_MUTEX_HANDLE PEGASUS_CRIT_TYPE;
-
+//typedef cs_t PEGASUS_CRIT_TYPE;
+#define PEGASUS_ATOMIC_INT_NATIVE
+// define the _rep type for AtomicInt
+typedef cs_t PEGASUS_ATOMIC_TYPE;
 
 struct _pthread_cleanup_buffer {
     void (*__routine) (void *);             /* Function to call.  */
@@ -206,26 +214,26 @@ typedef pthread_key_t PEGASUS_THREAD_KEY_TYPE;
 
 inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
 {
-	// Note: a destructor is not supported 
+	// Note: a destructor is not supported
 	// (because not supported on Windows (?))
 	return pthread_key_create(key, NULL);
-} 
+}
 
 inline Uint32 pegasus_key_delete(PEGASUS_THREAD_KEY_TYPE key)
 {
 	return 0;
-} 
+}
 
 inline void * pegasus_get_thread_specific(PEGASUS_THREAD_KEY_TYPE key)
 {
 	return pthread_getspecific_d8_np(key);
-} 
+}
 
 inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
 										 void * value)
 {
 	return pthread_setspecific(key, value);
-} 
+}
 // l10n end
 
 inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
@@ -233,7 +241,6 @@ inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
    pthread_cancel(*(pthread_t *) &th);
 
 }
-
 
 PEGASUS_NAMESPACE_END
 

@@ -36,6 +36,7 @@
 # error "Unsupported platform"
 #endif
 
+#include "Exception.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -13,6 +13,7 @@ boolean Propertyboolean;
 real32 Propertyreal32;
 real64 Propertyreal64;
 datetime Propertydatetime;
+char16 Propertychar16;
 };
 
 class Acme_LogicalDisk : X

@@ -1,5 +1,4 @@
-
-class Char16
+class Char16Test
 {
     [key]
     string key;

@@ -13,27 +13,31 @@ TMPFILE = $(ROOT)/src/$(DIR)/tmp
 
 NAMESPACE = -ntest
 
+StrippedDiff:
+	$(STRIPCRS)
+	$(COMPARERESULTS)
+
 NewTests:
 	@$(RMDIRHIER) ./repository
 	@cimmofl $(NAMESPACE) -R. -I$(MOF_PATH) $(MOF_PATH)/CIM_Core25.mof
 	@$(ECHO) "cimmofl -R. ValidMof4.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof4.mof
-	@$(DIFF) ./repository/test/instances/ValidMof4.instances ValidMof4.instances.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4.instances RESULTFILE=ValidMof4.instances.master
 	@$(ECHO) "cimmofl -R. ValidMof5.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof5.mof
-	@$(DIFF) ./repository/test/instances/ValidMof5.instances ValidMof5.instances.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof5.instances RESULTFILE=ValidMof5.instances.master
 	@$(ECHO) "cimmofl -R. ValidMof6.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof6.mof
-	@$(DIFF) ./repository/test/instances/ValidMof6.instances ValidMof6.instances.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof6.instances RESULTFILE=ValidMof6.instances.master
 	@$(ECHO) "cimmofl -R. ValidMof7.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof7.mof
-	@$(DIFF) ./repository/test/classes/A.B ValidMof7.A.master
-	@$(DIFF) ./repository/test/classes/B.# ValidMof7.B.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/A.B RESULTFILE=ValidMof7.A.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/B.# RESULTFILE=ValidMof7.B.master
 	@$(ECHO) "cimmofl -R. ValidMof8.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof8.mof
-	@$(DIFF) ./repository/test/classes/ValidMof8a.# ValidMof8a.master
-	@$(DIFF) ./repository/test/classes/ValidMof8b.# ValidMof8b.master
-	@$(DIFF) ./repository/test/classes/ValidMof8c.# ValidMof8c.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/ValidMof8a.# RESULTFILE=ValidMof8a.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/ValidMof8b.# RESULTFILE=ValidMof8b.master
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/ValidMof8c.# RESULTFILE=ValidMof8c.master
 	@$(ECHO) "+++ Test Passed Successfully +++"
 
 clean:
@@ -49,10 +53,6 @@ hangdefects:
 	@cimmofl >> $(RESULTFILE) $(REDIRECTERROR)
 
 defects:
-	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R. Char16.mof" >> $(RESULTFILE)
-	@cimmofl $(NAMESPACE) -R. Char16.mof >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl -E InvalidMof1.mof - InvalidQualifier" >> $(RESULTFILE)
 	@cimmofl -E InvalidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
@@ -94,8 +94,8 @@ tests:
 	@$(MAKE) -i -s tests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test Passed +++
+	@$(MAKE) -s NewTests
 	@$(MAKE) -i -s defects
-
 
 tests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)

@@ -48,7 +48,6 @@
 #include <sys/param.h>   // MAXHOSTNAMELEN
 #include <fstream>
 
-#include <Pegasus/Common/InternalException.h>
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
 
@@ -105,7 +104,7 @@ Boolean ComputerSystem::getCreationClassName(CIMProperty& p)
 {
   // can vary, depending on class
   p = CIMProperty(PROPERTY_CREATION_CLASS_NAME,
-                  String(CLASS_EXTENDED_COMPUTER_SYSTEM));
+                  String(CLASS_CIM_COMPUTER_SYSTEM));
   return true;
 }
 

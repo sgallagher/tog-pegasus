@@ -594,7 +594,12 @@ String System::getFullyQualifiedHostName ()
 
 String System::getSystemCreationClassName ()
 {
-#ifdef PEGASUS_OS_HPUX
+    //
+    //  The value returned should match the value of the CreationClassName key
+    //  property used in the instrumentation of the CIM_ComputerSystem class
+    //  as determined by the provider for the CIM_ComputerSystem class
+    //
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
     return "CIM_ComputerSystem";
 #else
     //

@@ -156,7 +156,7 @@ void ComputerSystemProvider::enumerateInstances(
     {
       Array<CIMKeyBinding> keys;
       keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
-                                CLASS_EXTENDED_COMPUTER_SYSTEM,
+                                CLASS_CIM_COMPUTER_SYSTEM,
                                 CIMKeyBinding::STRING));
       keys.append(CIMKeyBinding(PROPERTY_NAME,
                                 _cs.getHostName(),
@@ -190,7 +190,7 @@ void ComputerSystemProvider::enumerateInstanceNames(
       Array<CIMKeyBinding> keys;
 
       keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
-                             CLASS_EXTENDED_COMPUTER_SYSTEM,
+                             CLASS_CIM_COMPUTER_SYSTEM,
                              CIMKeyBinding::STRING));
       keys.append(CIMKeyBinding(PROPERTY_NAME,
                              _cs.getHostName(),

@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,14 +27,15 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By: Sushma Fernandes, Hewlett-Packard Company,
-//                  sushma_fernandes@hp.com
+// Modified By:
+//      Sushma Fernandes, Hewlett-Packard Company, sushma_fernandes@hp.com
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file defines the configuration property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,9 +56,9 @@ PEGASUS_NAMESPACE_BEGIN
 //  ConfigPropertyOwner Class
 ///////////////////////////////////////////////////////////////////////////////
 
-/** 
-    This is an abstract class that the individual config property 
-    owners will extend and provide implementation. 
+/**
+    This is an abstract class that the individual config property
+    owners will extend and provide implementation.
 */
 class PEGASUS_CONFIG_LINKAGE ConfigPropertyOwner
 {
@@ -79,19 +80,19 @@ public:
     virtual void initialize() = 0;
 
 
-    /** 
+    /**
     Get information about the specified property.
 
     @param name           The name of the property.
     @param propertyInfo   List to store the property info.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual void getPropertyInfo(const String& name, 
+    virtual void getPropertyInfo(const String& name,
         Array<String>& propertyInfo) = 0;
         //throw (UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Get default value of the specified property.
 
     @param  name         The name of the property.
@@ -102,7 +103,7 @@ public:
         //throw (UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Get current value of the specified property.
 
     @param  name         The name of the property.
@@ -113,7 +114,7 @@ public:
         //throw (UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Get planned value of the specified property.
 
     @param  name         The name of the property.
@@ -124,14 +125,14 @@ public:
         //throw (UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Init current value of the specified property to the specified value.
     This method is expected to be called only once at the start of the
     CIMOM. The property value will be initialized irrespective of whether
     the property is dynamic or not.
 
     @param  name   The name of the property.
-    @param  value  The current value of the property. 
+    @param  value  The current value of the property.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
@@ -139,14 +140,14 @@ public:
         //throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
 
 
-    /** 
+    /**
     Init planned value of the specified property to the specified value.
     This method is expected to be called only once at the start of the
     CIMOM. The property value will be initialized irrespective of whether
     the property is dynamic or not.
 
     @param  name   The name of the property.
-    @param  value  The planned value of the property. 
+    @param  value  The planned value of the property.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
@@ -154,43 +155,43 @@ public:
         //throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
 
 
-    /** 
+    /**
     Update current value of the specified property to the specified value.
     The property value will be updated only if the property is dynamically
     updatable.
 
     @param  name   The name of the property.
-    @param  value  The current value of the property. 
+    @param  value  The current value of the property.
     @exception     NonDynamicConfigProperty  if the property is not dynamic.
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void updateCurrentValue(
-        const String& name, 
+        const String& name,
         const String& value) = 0;
         //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Update planned value of the specified property to the specified value.
 
     @param  name   The name of the property.
-    @param  value  The planned value of the property. 
+    @param  value  The planned value of the property.
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void updatePlannedValue(
-        const String& name, 
-        const String& value) = 0; 
+        const String& name,
+        const String& value) = 0;
         //throw (InvalidPropertyValue, UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Checks to see if the given value is valid or not.
 
     @param  name   The name of the property.
-    @param  value  The value of the property to be validated. 
+    @param  value  The value of the property to be validated.
     @return true if the specified value for the property is valid.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
@@ -198,7 +199,7 @@ public:
         //throw (UnrecognizedConfigProperty) = 0;
 
 
-    /** 
+    /**
     Checks to see if the specified property is dynamic or not.
 
     @param  name   The name of the property.
@@ -214,14 +215,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 //  ConfigProperty
 ///////////////////////////////////////////////////////////////////////////////
-/** 
+/**
     The ConfigProperty struct used for defining the config properties.
 
-    This structure is used by property owners that implement the 
-    ConfigPropertyOwner interface. Each config property they own will have 
-    their attributes defined in a structure of the type ConfigProperty. 
-    The structure members are initialized using the values defined in 
-    ConfigPropertyRow or by the set methods. 
+    This structure is used by property owners that implement the
+    ConfigPropertyOwner interface. Each config property they own will have
+    their attributes defined in a structure of the type ConfigProperty.
+    The structure members are initialized using the values defined in
+    ConfigPropertyRow or by the set methods.
 */
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -247,27 +248,24 @@ struct ConfigProperty
     char**     domain;            // List of valid values of a config property
     Uint32     domainSize;        // Size of the domain
     ConfigVisible    externallyVisible; // Determines whether a property wants to be
-                                  // externally visible or not. 
-                                  // If a property chooses not to be externally 
-                                  // visible, it is not listed as a configurable 
-                                  // property but is still configurable. 
+                                  // externally visible or not.
+                                  // If a property chooses not to be externally
+                                  // visible, it is not listed as a configurable
+                                  // property but is still configurable.
 };
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
-/** 
-    The ConfigPropertyRow used for uniformly defining the values of 
+/**
+    The ConfigPropertyRow used for uniformly defining the values of
     the properties.
 
-    This structure is intended to be used by property owners that implement 
-    the ConfigPropertyOwner interface. Using this structure they can define 
-    the in memory default values for each attributes of the properties 
+    This structure is intended to be used by property owners that implement
+    the ConfigPropertyOwner interface. Using this structure they can define
+    the in memory default values for each attributes of the properties
     that they own.
 */
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PEGASUS_HAVE_BOOLEAN
 struct ConfigPropertyRow
 {
     const char* propertyName;
@@ -277,22 +275,10 @@ struct ConfigPropertyRow
     Uint32      domainSize;
     ConfigVisible         externallyVisible;
 };
-#else
-struct ConfigPropertyRow
-{
-    const char* propertyName;
-    const char* defaultValue;
-    ConfigDynamic     dynamic;
-    char**      domain;
-    Uint32      domainSize;
-    ConfigVisible     externallyVisible;
-};
-#endif
-
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
-    Definition of commonly used constant string literals 
+    Definition of commonly used constant string literals
 */
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -36,7 +36,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file has implementation for the default property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,8 +52,8 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////////////////
 //  DefaultPropertyOwner
 //
-//  When a new property is added with the default owner, make sure to add 
-//  the property name and the default attributes of that property in 
+//  When a new property is added with the default owner, make sure to add
+//  the property name and the default attributes of that property in
 //  the table below.
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -91,11 +91,11 @@ void DefaultPropertyOwner::initialize()
 }
 
 
-/** 
+/**
 Get information about the specified property.
 */
 void DefaultPropertyOwner::getPropertyInfo(
-    const String& name, 
+    const String& name,
     Array<String>& propertyInfo)
 {
     propertyInfo.clear();
@@ -134,8 +134,8 @@ void DefaultPropertyOwner::getPropertyInfo(
     throw UnrecognizedConfigProperty(name);
 }
 
-/** 
-Get default value of the specified property 
+/**
+Get default value of the specified property
 */
 const String DefaultPropertyOwner::getDefaultValue(const String& name)
 {
@@ -153,8 +153,8 @@ const String DefaultPropertyOwner::getDefaultValue(const String& name)
     throw UnrecognizedConfigProperty(name);
 }
 
-/** 
-Get current value of the specified property 
+/**
+Get current value of the specified property
 */
 const String DefaultPropertyOwner::getCurrentValue(const String& name)
 {
@@ -172,8 +172,8 @@ const String DefaultPropertyOwner::getCurrentValue(const String& name)
     throw UnrecognizedConfigProperty(name);
 }
 
-/** 
-Get planned value of the specified property 
+/**
+Get planned value of the specified property
 */
 const String DefaultPropertyOwner::getPlannedValue(const String& name)
 {
@@ -191,11 +191,11 @@ const String DefaultPropertyOwner::getPlannedValue(const String& name)
     throw UnrecognizedConfigProperty(name);
 }
 
-/** 
-Init current value of the specified property to the specified value 
+/**
+Init current value of the specified property to the specified value
 */
 void DefaultPropertyOwner::initCurrentValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
@@ -214,11 +214,11 @@ void DefaultPropertyOwner::initCurrentValue(
 }
 
 
-/** 
-Init planned value of the specified property to the specified value 
+/**
+Init planned value of the specified property to the specified value
 */
 void DefaultPropertyOwner::initPlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
@@ -236,11 +236,11 @@ void DefaultPropertyOwner::initPlannedValue(
     throw UnrecognizedConfigProperty(name);
 }
 
-/** 
-Update current value of the specified property to the specified value 
+/**
+Update current value of the specified property to the specified value
 */
 void DefaultPropertyOwner::updateCurrentValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     //
@@ -248,35 +248,35 @@ void DefaultPropertyOwner::updateCurrentValue(
     //
     if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name); 
+        throw NonDynamicConfigProperty(name);
     }
 
     //
-    // Since the validations done in initCurrrentValue are sufficient and 
-    // no additional validations required for update, we shall call 
+    // Since the validations done in initCurrrentValue are sufficient and
+    // no additional validations required for update, we shall call
     // initCurrrentValue.
     //
     initCurrentValue(name, value);
 }
 
 
-/** 
-Update planned value of the specified property to the specified value 
+/**
+Update planned value of the specified property to the specified value
 */
 void DefaultPropertyOwner::updatePlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     //
-    // Since the validations done in initPlannedValue are sufficient and 
-    // no additional validations required for update, we shall call 
+    // Since the validations done in initPlannedValue are sufficient and
+    // no additional validations required for update, we shall call
     // initPlannedValue.
     //
     initPlannedValue(name, value);
 }
 
 
-/** 
+/**
 Checks to see if the given value is valid or not.
 */
 Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
@@ -285,10 +285,10 @@ Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
     // By default, no validation is done. It can optionally be added here
     // per property.
     //
-    return 1;
+    return(true);
 }
 
-/** 
+/**
 Checks to see if the specified property is dynamic or not.
 */
 Boolean DefaultPropertyOwner::isDynamic(const String& name)

@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,7 +35,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file has implementation for the log property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -128,11 +128,11 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     }
 }
 
-/** 
+/**
 Get information about the specified property.
 */
 void LogPropertyOwner::getPropertyInfo(
-    const String& name, 
+    const String& name,
     Array<String>& propertyInfo)
 {
     propertyInfo.clear();
@@ -161,7 +161,7 @@ void LogPropertyOwner::getPropertyInfo(
     }
 }
 
-/** 
+/**
 Get default value of the specified property.
 */
 const String LogPropertyOwner::getDefaultValue(const String& name)
@@ -170,7 +170,7 @@ const String LogPropertyOwner::getDefaultValue(const String& name)
     return configProperty->defaultValue;
 }
 
-/** 
+/**
 Get current value of the specified property.
 */
 const String LogPropertyOwner::getCurrentValue(const String& name)
@@ -179,7 +179,7 @@ const String LogPropertyOwner::getCurrentValue(const String& name)
     return configProperty->currentValue;
 }
 
-/** 
+/**
 Get planned value of the specified property.
 */
 const String LogPropertyOwner::getPlannedValue(const String& name)
@@ -189,11 +189,11 @@ const String LogPropertyOwner::getPlannedValue(const String& name)
 }
 
 
-/** 
+/**
 Init current value of the specified property to the specified value.
 */
 void LogPropertyOwner::initCurrentValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     if(String::equalNoCase(_logLevel->propertyName,name))
@@ -209,79 +209,76 @@ void LogPropertyOwner::initCurrentValue(
 }
 
 
-/** 
+/**
 Init planned value of the specified property to the specified value.
 */
 void LogPropertyOwner::initPlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->plannedValue = value;
 }
 
-/** 
+/**
 Update current value of the specified property to the specified value.
 */
 void LogPropertyOwner::updateCurrentValue(
-    const String& name, 
-    const String& value) 
+    const String& name,
+    const String& value)
 {
     //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name); 
+        throw NonDynamicConfigProperty(name);
     }
 
     //
-    // Since the validations done in initCurrrentValue are sufficient and 
-    // no additional validations required for update, we will call 
+    // Since the validations done in initCurrrentValue are sufficient and
+    // no additional validations required for update, we will call
     // initCurrrentValue.
     //
     initCurrentValue(name, value);
 }
 
 
-/** 
+/**
 Update planned value of the specified property to the specified value.
 */
 void LogPropertyOwner::updatePlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     //
-    // Since the validations done in initPlannedValue are sufficient and 
-    // no additional validations required for update, we will call 
+    // Since the validations done in initPlannedValue are sufficient and
+    // no additional validations required for update, we will call
     // initPlannedValue.
     //
     initPlannedValue(name, value);
 }
 
-/** 
+/**
 Checks to see if the given value is valid or not.
 */
 Boolean LogPropertyOwner::isValid(const String& name, const String& value)
 {
     if (String::equalNoCase(_logLevel->propertyName, name))
     {
-	//
-	// Check if the logLevel is valid
-	//
-	if (!Logger::isValidlogLevel(value))
-	{
-	    throw InvalidPropertyValue(name, value);
+        //
+        // Check if the logLevel is valid
+        //
+        if (!Logger::isValidlogLevel(value))
+        {
+            throw InvalidPropertyValue(name, value);
         }
-
-        return true;
     }
 
-    // ATTN: Add validation code
-    return 1;
+    return(true);
 }
 
-/** 
+/**
 Checks to see if the specified property is dynamic or not.
 */
 Boolean LogPropertyOwner::isDynamic(const String& name)

@@ -189,7 +189,7 @@ Boolean NormalizationPropertyOwner::isDynamic(const String & name)
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    return(configProperty->dynamic);
+    return(configProperty->dynamic == IS_DYNAMIC);
 }
 
 struct ConfigProperty * NormalizationPropertyOwner::_lookupConfigProperty(const String & name)

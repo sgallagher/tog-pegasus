@@ -1,7 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// The Open Group, Tivoli Systems 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -119,7 +119,7 @@ int cimserver_fork(void)
   // The QYCMCIMOM job was submitted with daemon=false.  This job can now exit.
   // This is similiar to what the unix version of this code does - the parent exits
   // after the fork( )
-  exit(0);
+  return(0);
 }
 
 

@@ -260,6 +260,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         // The server job may still be active but not responding.
         // Kill the job if it exists.
 	cimserver_kill();
+	return;
 #endif
         exit(0);
     }
@@ -312,6 +313,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 #ifdef PEGASUS_OS_OS400
         // Kill the server job.
 	cimserver_kill();
+	return;
 #endif
         exit(1);
     }
@@ -605,6 +607,9 @@ int main(int argc, char** argv)
             shutdownCIMOM(timeoutValue);
 
             cout << "CIM Server stopped." << endl;
+#ifdef PEGASUS_OS_OS400
+	    return(0);
+#endif
             exit(0);
         }
 
@@ -716,7 +721,13 @@ int main(int argc, char** argv)
     if (daemonOption)
     {
         if(-1 == cimserver_fork())
+#ifndef PEGASUS_OS_OS400
           exit(-1);
+#else
+          return(-1);
+	else
+	  return(0);
+#endif
     }
 
 #ifdef PEGASUS_OS_OS400

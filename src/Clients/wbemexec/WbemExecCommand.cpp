@@ -226,7 +226,7 @@ Channel* WbemExecCommand::_getHTTPChannel (ostream& outPrintWriter)
     connector = new TCPChannelConnector (factory, selector);
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-    if ((!_hostNameSet) && (!_portNumberSet))
+    if ((_hostNameSet) || (_portNumberSet))
     {
 #endif
     addressStr.append (_hostName);

@@ -11,7 +11,8 @@ Version 0.97.2
 5. Extend tests for Formatter, String, and other modules.
 6. Correct errors in documentation.
 7. New working papers (provider interface).
-8. Add Providerreg.exe tool
+8. Add Providerreg.exe tool.
+9. Add trace output for messages sent from the Server.
 -----------------------------------------------------------------------
 23 May 2001 Version 0.97.1 Tags as version_0_971
 

@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.2 2004/02/11 09:11:07 marek Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.3 2004/04/01 20:16:47 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -270,7 +270,7 @@ void free_url_list(struct url_entry *list)
   }
 }
 
-#if defined( _WIN32 ) || defined( BSD )  
+#if defined( _WIN32 ) || defined( BSD ) || defined( PEGASUS_OS_SOLARIS )
  int gethostbyname_r(const char *name, 
 		    struct hostent *resultbuf, 
 		    char *buf, 
@@ -1196,7 +1196,7 @@ void decode_srvrply( struct slp_client *client,
   if(reply == NULL) abort();
   reply->hdr.ver = _LSLP_GETVERSION(bptr);
   reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
   reply->type = (msg_types) reply->hdr.msgid;
 #else
   reply->type = reply->hdr.msgid;
@@ -3533,7 +3533,7 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
 	  (*buf) += 2;                                  /* advance to the spi */ 
 	  *len -= 10;
 	  if(*len >= (temp->spiLen)) {
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
 		if(NULL != (temp->spi = (int8 *) calloc(temp->spiLen + 1, sizeof(uint8)))) {
 #else
 	    if(NULL != (temp->spi = (uint8 *) calloc(temp->spiLen + 1, sizeof(uint8)))) {
@@ -3543,7 +3543,7 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
 	      (*len) -= temp->spiLen;
 	      if(*len >= (temp->len - (10 + temp->spiLen))) {
 		if (NULL != (temp->block = 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
 				 (int8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
 #else
 			     (uint8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 

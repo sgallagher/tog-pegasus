@@ -45,7 +45,7 @@ class SSLSocket;
 class CIMServer;
 class CIMxmlIndicationHandler;
 class SSLCertificateInfo;
-extern "C" int prepareForCallback(int, X509_STORE_CTX*);
+class SSLCallback;
 
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
@@ -78,7 +78,7 @@ private:
 
     friend class SSLSocket;
 
-    friend int prepareForCallback(int, X509_STORE_CTX*);
+    friend class SSLCallback;
 };
 
 
@@ -262,7 +262,7 @@ private:
     // OperationContext classes
     friend class SSLSocket;
 
-    friend int prepareForCallback(int, X509_STORE_CTX*);
+	friend class SSLCallback;
 };
 
 /** This class provides the interface that a client uses to create

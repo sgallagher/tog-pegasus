@@ -73,38 +73,45 @@ static Boolean _MakeAddress(
    int port, 
    sockaddr_in& address)
 {
-    if (!hostname)
+   if (!hostname)
       return false;
 	
    struct hostent *entry;
    if (isalpha(hostname[0]))
+   {
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+#define HOSTENT_BUFF_SIZE	8192
+      char	buf[HOSTENT_BUFF_SIZE];
+      int	h_errorp;
+      struct	hostent hp;
+
+      entry = gethostbyname_r((char *)hostname, &hp, buf,
+					HOSTENT_BUFF_SIZE, &h_errorp);
+#else
       entry = gethostbyname((char *)hostname);
+#endif
+      if(!entry)
+      {
+	return false;
+      }
+
+      memset(&address, 0, sizeof(address));
+      memcpy(&address.sin_addr, entry->h_addr, entry->h_length);
+      address.sin_family = entry->h_addrtype;
+      address.sin_port = htons(port);
+   }     
    else
    {
-      // KS 20020926 Temp change to bypass the gethostbyaddress
-      // and simply use whatever address was supplied.
-      // This needs to be verified. Drops following two
-      // lines and replace with memset through return lines.
-#ifdef PEGASUS_SNIA_INTEROP_TEST
+      unsigned long tmp_addr = inet_addr((char *)hostname);
+      if(tmp_addr == 0xFFFFFFFF)
+      {
+	  return false;
+      }
       memset(&address, 0, sizeof(address));
       address.sin_family = AF_INET;
-      address.sin_addr.s_addr = inet_addr((char *)hostname);
+      address.sin_addr.s_addr = tmp_addr;
       address.sin_port = htons(port);
-      return true;
-#else     
-      unsigned long tmp = inet_addr((char *)hostname);
-      entry = gethostbyaddr((char *)&tmp, sizeof(tmp), AF_INET);
-#endif      
-
    }
-
-   if (!entry)
-       return false;
-
-   memset(&address, 0, sizeof(address));
-   memcpy(&address.sin_addr, entry->h_addr, entry->h_length);
-   address.sin_family = entry->h_addrtype;
-   address.sin_port = htons(port);
 
    return true;
 }

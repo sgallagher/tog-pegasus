@@ -37,6 +37,10 @@ BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 REPOSITORY_ROOT = $(HOME_DIR)
 
+LEX = flex
+
+YACC = bison
+
 ifeq ($(OS_TYPE),windows)
 include $(ROOT)/mak/config-windows.mak
 else

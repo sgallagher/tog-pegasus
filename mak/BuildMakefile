@@ -92,6 +92,7 @@ poststarttests:
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 
 ###############################################################################
 

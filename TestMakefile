@@ -67,6 +67,7 @@ poststarttests:
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
 	$(MAKE) -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 
 tests: $(TESTS)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

@@ -357,8 +357,30 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		
 		status = U_ZERO_ERROR;
 		MessageFormat formatter(msg_pattern, localeID, status);
+
 		Formattable args[arg_count];
-		xferFormattables(parms, args);
+
+      if (parms.arg0._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg0, args[0]);
+      if (parms.arg1._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg1, args[1]);
+      if (parms.arg2._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg2, args[2]);
+      if (parms.arg3._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg3, args[3]);
+      if (parms.arg4._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg4, args[4]);
+      if (parms.arg5._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg5, args[5]);
+      if (parms.arg6._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg6, args[6]);
+      if (parms.arg7._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg7, args[7]);
+      if (parms.arg8._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg8, args[8]);
+      if (parms.arg9._type != Formatter::Arg::VOIDT)
+        xferFormattable(parms.arg9, args[9]);
+
 		Formattable args_obj(args,arg_count);
 		status = U_ZERO_ERROR;
 		msg_formatted = formatter.format(args_obj, msg_formatted, status);
@@ -366,27 +388,26 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		return uChar2String(const_cast<UChar *>(msg_formatted.getBuffer()), msg_formatted.length());
 	} 
 	
-	void MessageLoader::xferFormattables(MessageLoaderParms &parms, Formattable *formattables){	
-		
-		const Formatter::Arg& arg_arr[10] = {parms.arg0,parms.arg1,parms.arg2,parms.arg3,parms.arg4,parms.arg5,
-								 	  parms.arg6,parms.arg7,parms.arg8,parms.arg9};
-		//cout << "XFERFORMATTABLES" << endl;
-		for(int i = 0; i < 10; i++){  
-			//cout << "arg" << i << " = " << arg_arr[i].toString() << endl;
-			switch (arg_arr[i]._type)
+	void MessageLoader::xferFormattable(Formatter::Arg& arg, Formattable &formattable)
+   {
+			//cout << "arg" << " = " << arg.toString() << endl;
+			switch (arg._type)
     		{
-				case const Formatter::Arg&::INTEGER:   formattables[i] = (int32_t)arg_arr[i]._integer;break;
-				case const Formatter::Arg&::UINTEGER:  formattables[i] = (int32_t)arg_arr[i]._uinteger;break;
-				case const Formatter::Arg&::BOOLEAN:   formattables[i] = (int32_t)arg_arr[i]._boolean;break;
-				case const Formatter::Arg&::REAL:      formattables[i] = (float)arg_arr[i]._real;break;
-				case const Formatter::Arg&::LINTEGER:  formattables[i] = (double)arg_arr[i]._lInteger;break;
-				case const Formatter::Arg&::ULINTEGER: formattables[i] = (double)arg_arr[i]._lUInteger;break;
-				case const Formatter::Arg&::STRING:    formattables[i] = Formattable(string2UChar(arg_arr[i]._string));break;
-	    		case const Formatter::Arg&::VOIDT:     formattables[i] = "";break;
+				case Formatter::Arg::INTEGER:   formattable = (int32_t)arg._integer;break;
+				case Formatter::Arg::UINTEGER:  formattable = (int32_t)arg._uinteger;break;
+				case Formatter::Arg::BOOLEAN:   formattable = (int32_t)arg._boolean;break;
+				case Formatter::Arg::REAL:      formattable = (float)arg._real;break;
+				case Formatter::Arg::LINTEGER:  formattable = (double)arg._lInteger;break;
+				case Formatter::Arg::ULINTEGER: formattable = (double)arg._lUInteger;break;
+				case Formatter::Arg::STRING:    formattable = Formattable(string2UChar(arg._string));break;
+	    		case Formatter::Arg::VOIDT: 
+            default:  
+              formattable = "";
+              break;
 			}	
-		}
-	}
-	
+   }
+
+
 	#endif
 	
 	String MessageLoader::formatDefaultMessage(MessageLoaderParms &parms){

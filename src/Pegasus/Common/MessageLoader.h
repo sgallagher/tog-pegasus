@@ -263,7 +263,7 @@ private:
 		
 		static UChar* string2UChar(String s);
 		
-		static void xferFormattables(MessageLoaderParms &parms, Formattable *formattables);
+      static void xferFormattable(Formatter::Arg& arg, Formattable &formattable);
 	#endif
 	
 }; // end MessageLoader

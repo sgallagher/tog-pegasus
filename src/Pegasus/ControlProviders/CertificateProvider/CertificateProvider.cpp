@@ -1483,6 +1483,10 @@ void CertificateProvider::invokeMethod(
                         "The CRL for issuer $1 has been updated.", 
                         issuerName);
 
+			//reload the CRL store
+			PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "Loading CRL store after an update");
+            _sslContextMgr->reloadCRLStore();
+
             CIMValue returnValue(Boolean(true));
     
             handler.deliver(returnValue);

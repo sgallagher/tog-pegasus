@@ -1,3 +1,32 @@
+//%2004////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Dave Rosckes (rosckes@us.ibm.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #include <cstdlib>
 #include <iostream>
 
@@ -11,7 +40,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
-
 
 #define PEGASUS_ARRAY_T CQLValue
 #include <Pegasus/Common/ArrayImpl.h>
@@ -1468,9 +1496,9 @@ Boolean CQLValue::isa(const CQLValue& inVal, QueryContext& QueryCtx)
    }
    
    CIMName  className;
-   CIMClass classObj = QueryCtx.getClass(this->_theValue._IN->getClassName());
+   CIMClass classObj;
 
-   className = classObj.getSuperClassName();
+   className = this->_theValue._IN->getClassName();
 
    while(!className.isNull())
    {
@@ -1573,6 +1601,7 @@ CIMDateTime CQLValue::getDateTime()
    {
       throw(1);
    }
+   
    return *_theValue._DT;
 }
 
@@ -1629,7 +1658,7 @@ String CQLValue::toString()
       case Real_type: 
       { 
          char buffer[128];
-         sprintf(buffer, "%.16e", _theValue._R64);
+         sprintf(buffer, "%.6e", _theValue._R64);
          return String(buffer);
          break;
       }
@@ -1637,13 +1666,13 @@ String CQLValue::toString()
          return *_theValue._S;
          break;
       case CIMDateTime_type:  
-         _theValue._DT->toString();
+         return _theValue._DT->toString();
          break;
       case CIMReference_type:  
-         _theValue._OP->toString();
+         return _theValue._OP->toString();
          break;
       case CIMInstance_type:  
-         _theValue._IN->getPath().toString();
+         return _theValue._IN->getPath().toString();
          break;
       case CIMClass_type:  
          return _theValue._CL->getPath().toString();
@@ -2011,51 +2040,6 @@ void CQLValue::_setValue(CIMValue cv,Uint64 index)
       } // switch statement
    }
    _isResolved = true;
-   return;
-}
-
-void CQLValue::print()
-{
-   switch(_valueType)
-   {
-      case Sint64_type:
-         printf("%d\n",(int)_theValue._S64);
-         break;
-      case Uint64_type:
-         printf("%u\n",(unsigned int)_theValue._U64);
-         break;
-      case Real_type:
-         printf("%f\n",_theValue._R64);
-         break;
-      case String_type:
-      {
-         String a1(*_theValue._S);
-         printf("%s\n",(const char*)a1.getCString());
-      }
-         break;
-      case CIMDateTime_type:
-      {
-         cout << _theValue._DT->toString().getCString() << endl; 
-      }
-         break;
-      case CIMReference_type:
-      {
-         cout << _theValue._OP->toString().getCString() << endl;
-      }
-         break;
-      case CIMInstance_type:
-      {
-         cout << _theValue._IN->getPath().toString().getCString() << endl;
-      }
-         break;
-      case CQLIgnore_type:
-      {
-         cout << "CQLIgnore_type" << endl;
-      }
-         break;
-      default:
-         break;
-   }
    return;
 }
 

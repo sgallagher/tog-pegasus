@@ -1,18 +1,22 @@
 #include <cstdlib>
 #include <iostream>
 #include <cassert>
-                                                                                                                                       
+ 
+#include <Pegasus/Common/CIMObjectPath.h>  
+#include <Pegasus/Common/CIMDateTime.h>
+
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/CQL/CQLValue.h>  
+#include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/CQL/RepositoryQueryContext.h>
 
 
 PEGASUS_USING_PEGASUS;
-                                                                                                                                       
 PEGASUS_USING_STD;
+
+
 
 void drive_operation()
 {
@@ -158,6 +162,105 @@ void drive_operation()
    return;
 }
 
+void drive_get_misc_functions()
+{
+   try
+   {
+  
+      const char* env = getenv("PEGASUS_HOME");
+   	String repositoryDir(env);
+      repositoryDir.append("/repository");	
+	   CIMNamespaceName _ns("root/cimv2");
+	   CIMRepository *_rep = new CIMRepository(repositoryDir);
+	   RepositoryQueryContext _query(_ns, _rep);
+
+      // Get function tests
+      CQLValue a1(Uint64(123));
+      CQLValue a2(Sint64(-123));
+      CQLValue a3(Real64(25.24));
+      CQLValue a4(String("Hellow"));
+      CQLValue a5(Boolean(true));
+
+      String _date("20040811105625.000000-360");
+      CIMDateTime date(_date);
+      CQLValue a6(date);
+
+      String opStr("MyClass.z=true,y=1234,x=\"Hello World\"");
+      CIMObjectPath op(opStr);
+      CQLValue a7(op);
+
+      const CIMName _cimName(String("CIM_OperatingSystem"));
+      CIMInstance _i1(_cimName);
+      CQLValue a8(_i1);
+
+      CQLValue a9(_query.getClass(CIMName("CIM_OperatingSystem")));
+
+      assert(a1.getUint() == Uint64(123));
+      assert(a2.getSint() == Sint64(-123));
+      assert(a3.getReal() == Real64(25.24));
+      assert(a4.getString() == String("Hellow"));
+      assert(a5.getBool() == Boolean(true));
+      assert(a6.getDateTime() == CIMDateTime(_date));
+      assert(a7.getReference() == 
+            CIMObjectPath(opStr));
+      assert(a8.getInstance().identical(_i1));
+      assert(a9.getClass().identical(
+               _query.getClass(CIMName("CIM_OperatingSystem"))));
+      
+      a1.invert();   
+      a2.invert(); 
+      a3.invert(); 
+      a4.invert(); 
+      a5.invert(); 
+      a6.invert(); 
+      a7.invert(); 
+      a8.invert(); 
+      a9.invert(); 
+
+
+      assert(a1.getUint() == Uint64(123));
+      assert(a2.getSint() == Sint64(123));            // -123 before invert
+      assert(a3.getReal() == Real64(-25.24));         // 25.24 before invert
+      assert(a4.getString() == String("Hellow"));
+      assert(a5.getBool() == Boolean(false));         // true before invert
+      assert(a6.getDateTime() == CIMDateTime(_date));
+      assert(a7.getReference() == CIMObjectPath(opStr));
+      assert(a8.getInstance().identical(_i1));
+      assert(a9.getClass().identical(
+               _query.getClass(CIMName("CIM_OperatingSystem"))));
+
+      assert(a1.toString() == String("123"));
+      assert(a2.toString() == String("123"));
+      assert(a3.toString() == String("-2.524000e+01"));
+      assert(a4.toString() == String("Hellow"));
+      assert(a5.toString() == String("FALSE"));
+      assert(a6.toString() == _date);
+      assert(a7.toString() == String("MyClass.x=\"Hello World\",y=1234,z=TRUE"));
+      assert(a8.toString() == String("CIM_OperatingSystem"));
+      assert(a9.toString() == String("CIM_OperatingSystem"));
+
+
+
+
+      try
+      {
+         a1.getSint();
+         assert(0);
+      }
+      catch(...)
+      {
+         assert(1);
+      }
+   }
+   catch(Exception & e)
+   {
+      cout << e.getMessage() << endl;
+      assert(0);
+   }
+   return;
+}
+
+
 void drive_resolve_primitive()
 {
    try
@@ -266,14 +369,6 @@ void drive_resolve_primitive()
    {
       assert(1);
    }
-   
-
-   a1.print();
-   a2.print();
-   a3.print();
-   a4.print();
-   a5.print();
-   a7.print();
 
    assert(a1 == CQLValue(String("Dave Rules")));
    assert(a2 == CQLValue(Uint64(2)));
@@ -311,7 +406,7 @@ void drive_resolve_specialChars()
    
       CIMInstance _i1(_cimName);
       CIMProperty _p1(CIMName("OSType"),CIMValue(Uint16(11)));
-      CIMProperty _p2(CIMName("Status"),CIMValue(String("Degraded"));
+      CIMProperty _p2(CIMName("Status"),CIMValue(String("Degraded")));
       Array<Uint16> array16;
       array16.append(Uint16(0));
       array16.append(Uint16(1));
@@ -325,18 +420,45 @@ void drive_resolve_specialChars()
    
       CQLChainedIdentifier ci1(String("CIM_OperatingSystem.OSType#OS400"));
       CQLChainedIdentifier ci2(String("CIM_OperatingSystem.OSType#LINUX"));
+      CQLChainedIdentifier ci3(String("CIM_OperatingSystem.Status#Degraded"));
+      CQLChainedIdentifier ci4(String("CIM_OperatingSystem.Status#OK"));
+      CQLChainedIdentifier ci5(String("CIM_OperatingSystem.Status#BOGUS"));
+
+      CQLChainedIdentifier ci6(String("CIM_OperatingSystem.OperationalStatus[2]"));
+      CQLChainedIdentifier ci7(String("CIM_OperatingSystem.*"));
 
       CQLValue a1(ci1);
       CQLValue a2(ci2);
+      CQLValue a3(ci3);
+      CQLValue a4(ci4);
+      CQLValue a5(ci5);
+      CQLValue a6(ci6);
+      CQLValue a7(ci7);
 
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
+      a3.resolve(_i1, _query);
+      a4.resolve(_i1, _query);
+      a6.resolve(_i1, _query);
+      a7.resolve(_i1, _query);
 
-      a1.print();
-      a2.print();
+      try
+      {
+         a5.resolve(_i1, _query);
+         assert(0);
+      }
+      catch(...)
+      {
+         assert(1);
+      }
 
       assert(a1 == CQLValue(Uint64(11)));
       assert(a2.getValueType() == CQLIgnore_type);
+      assert(a3 == CQLValue(String("Degraded")));
+      assert(a4.getValueType() == CQLIgnore_type);
+      assert(a6 == CQLValue(Uint64(2)));
+      assert(a7 == CQLValue(_i1));
+      
    }
    catch(Exception & e)
    {
@@ -366,12 +488,101 @@ void drive_resolve_embedded()
    return;
 }
 
+void drive_like_function()
+{
+   try
+   {
+      const char* env = getenv("PEGASUS_HOME");
+   	String repositoryDir(env);
+   	repositoryDir.append("/repository");	
+   	CIMNamespaceName _ns("root/cimv2");
+   	CIMRepository *_rep = new CIMRepository(repositoryDir);
+   	RepositoryQueryContext _query(_ns, _rep);
+   
+   }
+   catch(Exception & e)
+   {
+      cout << e.getMessage() << endl;
+   }
+   return;
+}
+
+void drive_isa_function()
+{
+   try
+   {
+      const char* env = getenv("PEGASUS_HOME");
+   	String repositoryDir(env);
+   	repositoryDir.append("/repository");	
+   	CIMNamespaceName _ns("root/cimv2");
+   	CIMRepository *_rep = new CIMRepository(repositoryDir);
+   	RepositoryQueryContext _query(_ns, _rep);
+
+      String s1("CIM_ComputerSystem");
+      String s2("CIM_System");
+      String s3("CIM_OperatingSystem");
+      String s4("CIM_ManagedElement");
+
+      CIMName n1(s1);
+      CIMName n2(s2);
+      CIMName n3(s3);
+      CIMName n4(s4);
+
+      CIMInstance i1(n1);
+      CIMInstance i2(n2);
+      CIMInstance i3(n3);
+      CIMInstance i4(n4);
+
+      CQLValue vs1(s1);
+      CQLValue vs2(s2);
+      CQLValue vs3(s3);
+      CQLValue vs4(s4);
+
+      CQLValue vi1(i1);
+      CQLValue vi2(i2);
+      CQLValue vi3(i3);
+      CQLValue vi4(i4);
+
+      assert(vi1.isa(vs1,_query));
+      assert(vi1.isa(vs2,_query));
+      assert(!vi1.isa(vs3,_query));
+      assert(vi1.isa(vs4,_query));
+
+      assert(!vi2.isa(vs1,_query));
+      assert(vi2.isa(vs2,_query));
+      assert(!vi2.isa(vs3,_query));
+      assert(vi2.isa(vs4,_query));
+
+      assert(!vi3.isa(vs1,_query));
+      assert(!vi3.isa(vs2,_query));
+      assert(vi3.isa(vs3,_query));
+      assert(vi3.isa(vs4,_query));
+
+      assert(!vi4.isa(vs1,_query));
+      assert(!vi4.isa(vs2,_query));
+      assert(!vi4.isa(vs3,_query));
+      assert(vi4.isa(vs4,_query));
+      
+   
+   }
+   catch(Exception & e)
+   {
+      cout << e.getMessage() << endl;
+   }
+   return;
+}
 
 int main( int argc, char *argv[] ){
 
    //BEGIN TESTS....
 
 	drive_operation();
+   
+   drive_get_misc_functions();
+
+   drive_isa_function();
+
+   drive_like_function();
 
    drive_resolve_primitive();
 

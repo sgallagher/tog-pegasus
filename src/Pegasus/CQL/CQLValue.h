@@ -40,7 +40,6 @@
 
 #include <Pegasus/CQL/Linkage.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
     enum NumericType { Hex, Binary,  Decimal, Real};
@@ -77,13 +76,13 @@ PEGASUS_NAMESPACE_BEGIN
                 is fully qualified.
 
   */
-//##ModelId=40FBFF9502AD
+
 class PEGASUS_CQL_LINKAGE CQLValue
 {
   public:
     /**  Initializes object as a string.
        */
-    //##ModelId=40FC3EDB0278
+
     CQLValue(){}
     ~CQLValue();
     CQLValue(String inString, NumericType inValueType,
@@ -124,7 +123,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
                     and this is recursive
            - class aliasing
      */
-    //##ModelId=40FBFF9502AF
+
     void resolve(CIMInstance CI, QueryContext& inQueryCtx);
 
     /** operator == compares two CQLValue objects for equality and
@@ -144,7 +143,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         @return true if they are NOT identical in type, attribute and value,
         false otherwise.
     */
-    //##ModelId=40FBFF9502BB
+
     Boolean operator!=(const CQLValue& x);
 
     /** operator <= compares two CQLValue objects to see if x is less than or
@@ -154,7 +153,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         @return true if x is less than or equal to y,
         false otherwise.
     */
-    //##ModelId=40FBFF9502C2
+
     Boolean operator<=(const CQLValue& x);
 
     /** operator >= compares two CQLValue objects to see if x is greater than or
@@ -164,7 +163,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         @return true if x is greater than or equal to y,
         false otherwise.
     */
-    //##ModelId=40FBFF9502C5
+
     Boolean operator>=(const CQLValue& x);
 
     /** The overload operator (<) compares CQLValue obects and
@@ -175,7 +174,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
             assert (val2 < val1);
         </pre>
     */
-    //##ModelId=40FBFF9502CD
+
     Boolean operator<(const CQLValue& val1);
 
     /** The overload operator (>) compares CQLValue obects and
@@ -186,7 +185,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
             assert (val2 < val1);
         </pre>
     */
-    //##ModelId=40FBFF9502D0
+
     Boolean operator>(const CQLValue& val1);
 
     /** This overload operator (+) concatenates or adds the value of
@@ -238,34 +237,34 @@ class PEGASUS_CQL_LINKAGE CQLValue
             assert(t3 == 2);
         </pre>
     */
-    //##ModelId=40FBFF9502E9
+
     CQLValue operator/(const CQLValue& x);
 
     /** Accessor for getting the type of the CQLValue.
     
     TODO:  do we need this method?
       */
-    //##ModelId=40FC3F6F0302
+
     CQLValueType getValueType();
 
     /** Clears this object and sets its type to NULL_VALUE
       */
-    //##ModelId=40FC42EE0045
+
     void setNull();
 
     /** Returns whether the value has been resolved to a primitive.
       */
-    //##ModelId=40FD3EC101EE
+
     Boolean isResolved();
 
     /** Returns whether the CQLValue is null.
       */
-    //##ModelId=40FD421201AD
+
     Boolean isNull();
 
     /** Tests to see if this "isa" the input string.
     */
-    //##ModelId=40FD42AD0197
+
     Boolean isa(const CQLValue& inVal, QueryContext& QueryCtx);
 
     /** Tests to see if this "like" the input string.
@@ -282,8 +281,6 @@ class PEGASUS_CQL_LINKAGE CQLValue
     */
 
     Boolean like(const CQLValue& inVal);
-
-    void print();
    
    void invert();
    CQLChainedIdentifier getChainedIdentifier();
@@ -338,4 +335,4 @@ class PEGASUS_CQL_LINKAGE CQLValue
 
 PEGASUS_NAMESPACE_END
 
-#endif /* CQLVALUE_H_HEADER_INCLUDED_BF01647F */
+#endif /* CQLVALUE_H */

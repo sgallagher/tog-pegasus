@@ -29,20 +29,129 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
  
   
 #include <cstdlib>
 #include <cassert>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMMessageSerializer.h>
 #include <Pegasus/Common/CIMMessageDeserializer.h>
 
 PEGASUS_USING_PEGASUS; 
 PEGASUS_USING_STD;
 
+const CIMNamespaceName TEST_NAMESPACE = CIMNamespaceName("/test/cimv2");
+const CIMName MYCLASS = "MyClass";
+
 static char * verbose;   
  
+// 
+// createInstances
+//
+Array<CIMObject> createInstances()
+{
+    Array<CIMObject>    cimObjects;
+    String host = System::getHostName();
+
+    CIMInstance instance1(MYCLASS);
+    instance1.addProperty(CIMProperty("Name", "Carly"));
+    instance1.addProperty(CIMProperty("Identifier", "111"));
+    Array<CIMKeyBinding> keyBindings1;
+    keyBindings1.append(CIMKeyBinding(CIMName("Name"), "Carly",
+	                              CIMKeyBinding::STRING));
+    CIMObjectPath path1(host, TEST_NAMESPACE, MYCLASS, keyBindings1);
+    instance1.setPath(path1);
+    cimObjects.append(instance1);
+
+    CIMInstance instance2(MYCLASS);
+    instance2.addProperty(CIMProperty("Name", "Greg"));
+    instance2.addProperty(CIMProperty("Identifier", "222"));
+    Array<CIMKeyBinding> keyBindings2;
+    keyBindings2.append(CIMKeyBinding(CIMName("Name"), "Greg",
+	                              CIMKeyBinding::STRING));
+    CIMObjectPath path2(host, TEST_NAMESPACE, MYCLASS, keyBindings2);
+    instance2.setPath(path2);
+    cimObjects.append(instance2);
+
+    return cimObjects;
+}
+
+// 
+// verifyGetInstanceResponseMessage
+//
+void verifyGetInstanceResponseMessage(
+    CIMGetInstanceResponseMessage * inMessage,
+    CIMMessage * outMessage)
+{
+    CIMGetInstanceResponseMessage * outMessageRef =
+        dynamic_cast<CIMGetInstanceResponseMessage*>(outMessage);
+    assert(outMessageRef != 0);
+
+    assert(inMessage->getType() == outMessage->getType());
+    assert(inMessage->messageId == outMessageRef->messageId);
+    assert(inMessage->cimException.getCode() ==
+           outMessageRef->cimException.getCode());
+    assert(inMessage->cimException.getMessage() ==
+           outMessageRef->cimException.getMessage());
+    assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
+    if (!inMessage->queueIds.isEmpty())
+    {
+        assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
+    }
+    if (inMessage->cimInstance.isUninitialized())
+    {
+        assert(outMessageRef->cimInstance.isUninitialized());
+    }
+    else
+    {
+        assert(inMessage->cimInstance.identical(outMessageRef->cimInstance));
+    }
+}
+
+// 
+// verifyAssociatorsResponseMessage
+//
+void verifyAssociatorsResponseMessage(
+    CIMAssociatorsResponseMessage * inMessage,
+    CIMMessage * outMessage)
+{
+    CIMAssociatorsResponseMessage * outMessageRef =
+        dynamic_cast<CIMAssociatorsResponseMessage*>(outMessage);
+    assert(outMessageRef != 0);
+
+    assert(inMessage->getType() == outMessage->getType());
+    assert(inMessage->messageId == outMessageRef->messageId);
+    assert(inMessage->cimException.getCode() ==
+           outMessageRef->cimException.getCode());
+    assert(inMessage->cimException.getMessage() ==
+           outMessageRef->cimException.getMessage());
+    assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
+    if (!inMessage->queueIds.isEmpty())
+    {
+        assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
+    }
+
+    assert(inMessage->cimObjects.size() == outMessageRef->cimObjects.size());
+
+    for (Uint32 i = 0, n = outMessageRef->cimObjects.size(); i < n; i++)
+    {
+        if (inMessage->cimObjects[i].isUninitialized())
+        {
+            assert(outMessageRef->cimObjects[i].isUninitialized());
+        }
+        else
+        {
+            assert(inMessage->cimObjects[i].identical(outMessageRef->cimObjects[i]));
+        }
+    }
+}
+
+// 
+// serializeDeserializeMessage
+//
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 {
     Array<char> outBuffer;
@@ -65,6 +174,9 @@ CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
     return outMessage;
 }
 
+// 
+// testCIMGetInstanceRequestMessage
+//
 void testCIMGetInstanceRequestMessage()
 {
     QueueIdStack queueIds;
@@ -105,6 +217,7 @@ void testCIMGetInstanceRequestMessage()
     assert(inMessage->authType == outMessageRef->authType);
     assert(inMessage->userName == outMessageRef->userName);
     assert(inMessage->instanceName == outMessageRef->instanceName);
+    assert(inMessage->instanceName == outMessageRef->instanceName);
     assert(inMessage->localOnly == outMessageRef->localOnly);
     assert(inMessage->includeQualifiers ==
            outMessageRef->includeQualifiers);
@@ -118,9 +231,55 @@ void testCIMGetInstanceRequestMessage()
            outMessageRef->propertyList.getPropertyNameArray());
 }
 
-void testCIMGetInstanceResponseMessage()
+// 
+// testCIMGetInstanceResponseMessage
+//
+void testCIMGetInstanceResponseMessage(const CIMInstance& cimInstance)
 {
     AutoPtr<CIMGetInstanceResponseMessage> inMessage;
+    AutoPtr<CIMMessage> outMessage;
+
+    //
+    // Test instance with fully qualified object path
+    //
+    inMessage.reset(new CIMGetInstanceResponseMessage(
+        "123",                              // messageId
+        CIMException(CIM_ERR_NOT_SUPPORTED,
+            "Unsupported operation"),       // cimException
+        QueueIdStack(),                     // queueIds
+        cimInstance));                      // cimInstance
+
+    outMessage.reset(
+	serializeDeserializeMessage(inMessage.get()));
+
+    // verify result
+    verifyGetInstanceResponseMessage(inMessage.get(), outMessage.get());
+
+    //
+    // Test instance with local object path
+    //
+    CIMInstance myinst = cimInstance.clone();
+    CIMObjectPath mypath = cimInstance.getPath();
+    mypath.setHost(String::EMPTY);
+    mypath.setNameSpace(CIMNamespaceName());
+    myinst.setPath(mypath);
+
+    inMessage.reset(new CIMGetInstanceResponseMessage(
+        "123",                              // messageId
+        CIMException(CIM_ERR_NOT_SUPPORTED,
+            "Unsupported operation"),       // cimException
+        QueueIdStack(),                     // queueIds
+	myinst));                           // cimInstance
+
+    outMessage.reset(
+        serializeDeserializeMessage(inMessage.get()));
+
+    // Verify result
+    verifyGetInstanceResponseMessage(inMessage.get(), outMessage.get());
+
+    //
+    // Test uninitialized instance
+    //
     inMessage.reset(new CIMGetInstanceResponseMessage(
         "123",                              // messageId
         CIMException(CIM_ERR_NOT_SUPPORTED,
@@ -128,43 +287,165 @@ void testCIMGetInstanceResponseMessage()
         QueueIdStack(),                     // queueIds
         CIMInstance()));                    // cimInstance
 
+    outMessage.reset(
+        serializeDeserializeMessage(inMessage.get()));
+
+    // Verify result
+    verifyGetInstanceResponseMessage(inMessage.get(), outMessage.get()); 
+}
+
+// 
+// testCIMAssociatorsRequestMessage
+//
+void testCIMAssociatorsRequestMessage()
+{
+    QueueIdStack queueIds;
+    queueIds.push(10);
+    queueIds.push(5);
+
+    AutoPtr<CIMAssociatorsRequestMessage> inMessage;
+    inMessage.reset(new CIMAssociatorsRequestMessage(
+        "TestMessageID",                    // messageId
+        CIMNamespaceName("/test/cimv2"),    // nameSpace
+        CIMObjectPath("MyClass.key=1"),     // objectName
+	CIMName(),                          // assocClass
+	CIMName(),                          // resultClass
+	String(String::EMPTY),              // role
+	String(String::EMPTY),              // resultRole
+        true,                               // includeQualifiers
+        true,                               // includeClassOrigin
+        CIMPropertyList(),                  // propertyList
+        queueIds,                           // queueIds
+        String("TestAuthType"),             // authType
+        String("TestUserName")));           // userName
+
     AutoPtr<CIMMessage> outMessage(
         serializeDeserializeMessage(inMessage.get()));
 
-    CIMGetInstanceResponseMessage* outMessageRef;
+    CIMAssociatorsRequestMessage* outMessageRef;
     outMessageRef =
-        dynamic_cast<CIMGetInstanceResponseMessage*>(outMessage.get());
+        dynamic_cast<CIMAssociatorsRequestMessage*>(outMessage.get());
     assert(outMessageRef != 0);
 
     assert(inMessage->getType() == outMessage->getType());
     assert(inMessage->messageId == outMessageRef->messageId);
-    assert(inMessage->cimException.getCode() ==
-           outMessageRef->cimException.getCode());
-    assert(inMessage->cimException.getMessage() ==
-           outMessageRef->cimException.getMessage());
     assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
     if (!inMessage->queueIds.isEmpty())
     {
         assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
     }
-    if (inMessage->cimInstance.isUninitialized())
-    {
-        assert(outMessageRef->cimInstance.isUninitialized());
-    }
-    else
-    {
-        assert(inMessage->cimInstance.identical(outMessageRef->cimInstance));
-    }
+    assert(inMessage->nameSpace == outMessageRef->nameSpace);
+    assert(inMessage->className == outMessageRef->className);
+    assert(inMessage->providerType == outMessageRef->providerType);
+    assert(inMessage->authType == outMessageRef->authType);
+    assert(inMessage->userName == outMessageRef->userName);
+    assert(inMessage->objectName == outMessageRef->objectName);
+    assert(inMessage->assocClass == outMessageRef->assocClass);
+    assert(inMessage->resultClass == outMessageRef->resultClass);
+    assert(inMessage->role == outMessageRef->role);
+    assert(inMessage->resultRole == outMessageRef->resultRole);
+    assert(inMessage->includeQualifiers ==
+           outMessageRef->includeQualifiers);
+    assert(inMessage->includeClassOrigin ==
+           outMessageRef->includeClassOrigin);
+    assert((inMessage->propertyList.isNull() &&
+            outMessageRef->propertyList.isNull()) ||
+           (!inMessage->propertyList.isNull() &&
+            !outMessageRef->propertyList.isNull()));
+    assert(inMessage->propertyList.getPropertyNameArray() ==
+           outMessageRef->propertyList.getPropertyNameArray());
 }
 
+// 
+// testCIMAssociatorsResponseMessage
+//
+void testCIMAssociatorsResponseMessage(const Array<CIMObject>& cimObjects)
+{
+    AutoPtr<CIMAssociatorsResponseMessage> inMessage;
+    AutoPtr<CIMMessage> outMessage;
+
+    //
+    // Test instances with fully qualified object path
+    //
+    inMessage.reset(new CIMAssociatorsResponseMessage(
+        "124",                              // messageId
+        CIMException(CIM_ERR_NOT_SUPPORTED,
+            "Unsupported operation"),       // cimException
+        QueueIdStack(),                     // queueIds
+        cimObjects));                       // cimObject
+
+    outMessage.reset(
+	serializeDeserializeMessage(inMessage.get()));
+
+    // Verify result
+    verifyAssociatorsResponseMessage(inMessage.get(), outMessage.get());
+
+    //
+    // Test instances with local object path
+    //
+    Array <CIMObject> myObjects;
+    CIMObjectPath mypath;
+    for (Uint32 i = 0, n = cimObjects.size(); i < n; i++)
+    {
+	CIMInstance myinstance = CIMInstance(cimObjects[i].clone()); 
+        mypath = myinstance.getPath();
+        mypath.setHost(String::EMPTY);
+        mypath.setNameSpace(CIMNamespaceName());
+        myinstance.setPath(mypath);
+        myObjects.append(myinstance);
+    }
+
+    inMessage.reset(new CIMAssociatorsResponseMessage(
+        "124",                              // messageId
+        CIMException(CIM_ERR_NOT_SUPPORTED,
+            "Unsupported operation"),       // cimException
+        QueueIdStack(),                     // queueIds
+        myObjects));                        // cimObject
+
+    outMessage.reset(
+	serializeDeserializeMessage(inMessage.get()));
+
+    // Verify result
+    verifyAssociatorsResponseMessage(inMessage.get(), outMessage.get());
+
+    //
+    // Test uninitialized instances
+    //
+    myObjects.clear();
+    CIMInstance inst1 = CIMInstance();
+    CIMInstance inst2 = CIMInstance();
+    myObjects.append(inst1);
+    myObjects.append(inst2);
+
+    inMessage.reset(new CIMAssociatorsResponseMessage(
+        "124",                              // messageId
+        CIMException(CIM_ERR_NOT_SUPPORTED,
+            "Unsupported operation"),       // cimException
+        QueueIdStack(),                     // queueIds
+        myObjects));                        // cimObject
+
+    outMessage.reset(
+	serializeDeserializeMessage(inMessage.get()));
+
+    // Verify result
+    verifyAssociatorsResponseMessage(inMessage.get(), outMessage.get());
+}
+
+// 
+// main
+//
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
+    Array<CIMObject>  cimObjects = createInstances();
 
     try
     {
         testCIMGetInstanceRequestMessage();
-        testCIMGetInstanceResponseMessage();
+        testCIMGetInstanceResponseMessage(CIMInstance(cimObjects[0]));
+
+        testCIMAssociatorsRequestMessage();
+        testCIMAssociatorsResponseMessage(cimObjects);
     }
     catch (Exception& e)
     {

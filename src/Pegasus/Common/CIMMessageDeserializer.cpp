@@ -28,6 +28,7 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Jenny Yu, Hewlett-Packard company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -830,9 +831,15 @@ Boolean CIMMessageDeserializer::_deserializeCIMInstance(
     }
 
     // INSTANCE element is absent when the object is uninitialized.
-    // In this case, XmlReader::getNamedInstanceElement returns "false" and
+    // In this case, XmlReader::getInstanceElement returns "false" and
     // leaves cimInstance untouched.
-    if (!XmlReader::getNamedInstanceElement(parser, cimInstance))
+    if (XmlReader::getInstanceElement(parser, cimInstance))
+    {
+        CIMObjectPath path;
+        _deserializeCIMObjectPath(parser, path);
+        cimInstance.setPath(path);
+    }
+    else
     {
         cimInstance = CIMInstance();
     }
@@ -888,6 +895,47 @@ Boolean CIMMessageDeserializer::_deserializeCIMName(
     return true;
 }
 
+//
+// _deserializeCIMObject
+//
+Boolean CIMMessageDeserializer::_deserializeCIMObject(
+    XmlParser& parser,
+    CIMObject& object)
+{
+    XmlEntry entry;
+
+    if (!XmlReader::testStartTag(parser, entry, "PGOBJ"))
+    {
+        return false;
+    }
+
+    CIMInstance cimInstance;
+    CIMClass cimClass;
+    CIMObjectPath path;
+
+    // INSTANCE or CLASS element is absent when the object is uninitialized
+    if (XmlReader::getInstanceElement(parser, cimInstance))
+    {
+        _deserializeCIMObjectPath(parser, path);
+        cimInstance.setPath(path);
+        object = CIMObject(cimInstance);
+    }
+    else if (XmlReader::getClassElement(parser, cimClass))
+    {
+        _deserializeCIMObjectPath(parser, path);
+        cimClass.setPath(path);
+        object = CIMObject(cimClass);
+    }
+    else
+    {
+        // Uninitialized object
+        object = CIMObject();
+    }
+
+    XmlReader::expectEndTag(parser, "PGOBJ");
+
+    return true;
+}
 
 //
 //
@@ -2057,7 +2105,7 @@ CIMMessageDeserializer::_deserializeCIMExecQueryResponseMessage(
 
     // Get cimObjects array
     XmlReader::expectStartTag(parser, entry, "PGOBJARRAY");
-    while (XmlReader::getValueObjectWithPathElement(parser, genericObject))
+    while (_deserializeCIMObject(parser, genericObject))
     {
         cimObjects.append(genericObject);
     }
@@ -2086,7 +2134,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsResponseMessage(
 
     // Get cimObjects array
     XmlReader::expectStartTag(parser, entry, "PGOBJARRAY");
-    while (XmlReader::getValueObjectWithPathElement(parser, genericObject))
+    while (_deserializeCIMObject(parser, genericObject))
     {
         cimObjects.append(genericObject);
     }
@@ -2144,7 +2192,7 @@ CIMMessageDeserializer::_deserializeCIMReferencesResponseMessage(
 
     // Get cimObjects array
     XmlReader::expectStartTag(parser, entry, "PGOBJARRAY");
-    while (XmlReader::getValueObjectWithPathElement(parser, genericObject))
+    while (_deserializeCIMObject(parser, genericObject))
     {
         cimObjects.append(genericObject);
     }

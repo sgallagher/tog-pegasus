@@ -30,6 +30,7 @@
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -776,7 +777,7 @@ void CIMMessageSerializer::_serializeCIMException(
 }
 
 //
-// _serializeCIMObjectPath
+// _serializeCIMPropertyList
 //
 void CIMMessageSerializer::_serializeCIMPropertyList(
     Array<char>& out,
@@ -815,8 +816,8 @@ void CIMMessageSerializer::_serializeCIMInstance(
     XmlWriter::append(out, "<PGINST>\n");
     if (!cimInstance.isUninitialized())
     {
-        // If the CIMInstance is initialized, its Path is also initialized
-        XmlWriter::appendValueNamedInstanceElement(out, cimInstance);
+        XmlWriter::appendInstanceElement(out, cimInstance);
+        _serializeCIMObjectPath(out, cimInstance.getPath());
     }
     XmlWriter::append(out, "</PGINST>\n");
 }
@@ -844,6 +845,23 @@ void CIMMessageSerializer::_serializeCIMName(
     XmlWriter::appendValueElement(out, cimName.getString());
 }
 
+//
+// _serializeCIMObject
+//
+void CIMMessageSerializer::_serializeCIMObject(
+    Array<char>& out,
+    const CIMObject& object)
+{
+    // Use a PGOBJ element to encapsulate the CIMObject encoding
+    // to account for uninitialized objects
+    XmlWriter::append(out, "<PGOBJ>\n");
+    if (!object.isUninitialized())
+    {
+        XmlWriter::appendObjectElement(out, object);
+        _serializeCIMObjectPath(out, object.getPath());
+    }
+    XmlWriter::append(out, "</PGOBJ>\n");
+}
 
 //
 //
@@ -1405,11 +1423,11 @@ void CIMMessageSerializer::_serializeCIMExecQueryResponseMessage(
     Array<char>& out,
     CIMExecQueryResponseMessage* message)
 {
-    // Use PGINSTARRAY element to encapsulate the CIMInstance elements
+    // Use PGOBJARRAY element to encapsulate the CIMObject elements
     XmlWriter::append(out, "<PGOBJARRAY>\n");
     for (Uint32 i=0; i < message->cimObjects.size(); i++)
     {
-        XmlWriter::appendValueObjectWithPathElement(out, message->cimObjects[i]);
+        _serializeCIMObject(out, message->cimObjects[i]);
     }
     XmlWriter::append(out, "</PGOBJARRAY>\n");
 }
@@ -1421,11 +1439,11 @@ void CIMMessageSerializer::_serializeCIMAssociatorsResponseMessage(
     Array<char>& out,
     CIMAssociatorsResponseMessage* message)
 {
-    // Use PGINSTARRAY element to encapsulate the CIMInstance elements
+    // Use PGOBJARRAY element to encapsulate the CIMObject elements
     XmlWriter::append(out, "<PGOBJARRAY>\n");
     for (Uint32 i=0; i < message->cimObjects.size(); i++)
     {
-        XmlWriter::appendValueObjectWithPathElement(out, message->cimObjects[i]);
+        _serializeCIMObject(out, message->cimObjects[i]);
     }
     XmlWriter::append(out, "</PGOBJARRAY>\n");
 }
@@ -1453,11 +1471,11 @@ void CIMMessageSerializer::_serializeCIMReferencesResponseMessage(
     Array<char>& out,
     CIMReferencesResponseMessage* message)
 {
-    // Use PGINSTARRAY element to encapsulate the CIMInstance elements
+    // Use PGOBJARRAY element to encapsulate the CIMObject elements
     XmlWriter::append(out, "<PGOBJARRAY>\n");
     for (Uint32 i=0; i < message->cimObjects.size(); i++)
     {
-        XmlWriter::appendValueObjectWithPathElement(out, message->cimObjects[i]);
+        _serializeCIMObject(out, message->cimObjects[i]);
     }
     XmlWriter::append(out, "</PGOBJARRAY>\n");
 }

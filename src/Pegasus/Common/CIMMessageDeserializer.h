@@ -111,6 +111,10 @@ private:
         XmlParser& parser,
         CIMName& cimName);
 
+    static Boolean _deserializeCIMObject(
+        XmlParser& parser,
+        CIMObject& object);
+
     //
     //
     // CIM Request Messages

@@ -125,6 +125,10 @@ private:
         Array<char>& out,
         const CIMName& cimName);
 
+    static void _serializeCIMObject(
+        Array<char>& out,
+        const CIMObject& object);
+
     //
     //
     // CIM Request Messages

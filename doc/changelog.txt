@@ -185,6 +185,10 @@ TAG: Version_1_09.
 32. (Denise Eckstein - HP) 27 Apr 2002 - Fixed several defects
     in MOF compiler associated with the handling the initialization 
     of array values.
+    
+33. (KS) 30 April 2002 - Added Namespace Control Provider. Note that it is 
+    not completely tested today and only enumeratenames is guaranteed.
+    
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -96,7 +96,7 @@ private:
    CIMParameter extractParameter(const Array<Sint8>& in, Uint32 & pos);
    CIMValue extractValue(const Array<Sint8>& in, Uint32 & pos);
    CIMFlavor extractFlavor(const Array<Sint8>& in, Uint32 & pos);
-   CIMScope BinaryStreamer::extractScope(const Array<Sint8>& in, Uint32 & pos);
+   CIMScope extractScope(const Array<Sint8>& in, Uint32 & pos);
 
 };
 

@@ -127,7 +127,7 @@ public:
 
     /* Checks for correctness and sets the UTC offset of CIMDateTimeRep
     */
-    Boolean set_utcOffSet(const String uOff);
+    Boolean set_utcOffSet(const String & uOff);
 
     /*Changes the CIMDateTimeRep data member data[] .
     @param value - value to be inserted into data[]
@@ -250,7 +250,7 @@ void CIMDateTimeRep::set_year(const String & ye)
 /* set_utcOffSet checks the format of the string representing the UTC
 offset if it is correct it sets the data member CIMDateTimeRep::utcOffSet
 */
-Boolean CIMDateTimeRep::set_utcOffSet(const String uOffSet)
+Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
 {
     if (uOffSet.size() != 4) {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,

@@ -30,8 +30,8 @@
 #define Pegasus_HelloWorldProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider2/CIMInstanceProvider.h>
-#include <Pegasus/Provider2/CIMIndicationProvider.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 
@@ -62,7 +62,7 @@ public:
 		const CIMReference & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMNamedInstance> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
@@ -123,7 +123,6 @@ protected:
 
 protected:
 	CIMOMHandle         _cimom;
-	
 	Array<CIMInstance>	_instances;
 
 };

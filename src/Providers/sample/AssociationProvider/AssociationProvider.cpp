@@ -26,108 +26,72 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "EverythingProvider.h"
+#include "AssociationProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-EverythingProvider::EverythingProvider(void)
+AssociationProvider::AssociationProvider(void)
 {
 }
 
-EverythingProvider::~EverythingProvider(void)
+AssociationProvider::~AssociationProvider(void)
 {
 }
 
-void EverythingProvider::initialize(CIMOMHandle & cimom)
+void AssociationProvider::initialize(CIMOMHandle & cimom)
 {
 }
 
-void EverythingProvider::terminate(void)
+void AssociationProvider::terminate(void)
 {
 }
 
-void EverythingProvider::getInstance(
+void AssociationProvider::associators(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMReference & objectName,
+	const String & associationClass,
+	const String & resultClass,
+	const String & role,
+	const String & resultRole,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMObject> & handler)
 {
-	handler.processing();
-
-	CIMReference localReference(instanceReference);
-
-	localReference.setHost(String::EMPTY);
-	localReference.setNameSpace(String::EMPTY);
-
-	if(localReference == CIMReference("Sample_KitchenSink.Id=1"))
-	{
-		CIMInstance instance("sample_kitchensink");
-
-		instance.addProperty(CIMProperty("Id", CIMValue(1)));
-
-		handler.deliver(instance);
-	}
-
-	handler.complete();
+	throw NotSupported("AssociationProvider::associators");
 }
 
-void EverythingProvider::enumerateInstances(
+void AssociationProvider::associatorNames(
 	const OperationContext & context,
-	const CIMReference & ref,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
-{
-	handler.processing();
-
-	CIMInstance instance("sample_kitchensink");
-
-	instance.addProperty(CIMProperty("Id", CIMValue(1)));
-
-	handler.deliver(instance);
-	
-	handler.complete();
-}
-
-void EverythingProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMReference & objectName,
+	const String & associationClass,
+	const String & resultClass,
+	const String & role,
+	const String & resultRole,
 	ResponseHandler<CIMReference> & handler)
 {
-	handler.processing();
-
-	handler.deliver(CIMReference("Sample_KitchenSink.Id=1"));
-	
-	handler.complete();
+	throw NotSupported("AssociationProvider::associatorNames");
 }
 
-void EverythingProvider::modifyInstance(
+void AssociationProvider::references(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
-	const CIMInstance & instanceObject,
+	const CIMReference & objectName,
+	const String & resultClass,
+	const String & role,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<CIMObject> & handler)
 {
-	throw NotImplemented("EverythingProvider::modifyInstance");
+	throw NotSupported("AssociationProvider::references");
 }
 
-void EverythingProvider::createInstance(
+void AssociationProvider::referenceNames(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
-	const CIMInstance & instanceObject,
+	const CIMReference & objectName,
+	const String & resultClass,
+	const String & role,
 	ResponseHandler<CIMReference> & handler)
 {
-	throw NotImplemented("EverythingProvider::createInstance");
-}
-
-void EverythingProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMReference & instanceReference,
-	ResponseHandler<CIMInstance> & handler)
-{
-	throw NotImplemented("EverythingProvider::deleteInstance");
+	throw NotSupported("AssociationProvider::referenceNames");
 }
 
 PEGASUS_NAMESPACE_END

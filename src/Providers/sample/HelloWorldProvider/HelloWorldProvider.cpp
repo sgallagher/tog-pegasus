@@ -26,17 +26,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Provider2/CIMInstanceProvider.h>
-#include <Pegasus/Provider2/SimpleResponseHandler.h>
-#include <Pegasus/Provider2/OperationFlag.h>
+#include "HelloWorldProvider.h"
+
+#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
-
-#include "HelloWorldProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -180,7 +177,7 @@ void HelloWorldProvider::enumerateInstances(
 	const CIMReference & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMNamedInstance> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -206,7 +203,7 @@ void HelloWorldProvider::enumerateInstances(
 		tempRef.setHost(ref.getHost());
 		tempRef.setNameSpace(ref.getNameSpace());
 
-		handler.deliver(CIMNamedInstance(tempRef, _instances[i]));
+		handler.deliver(_instances[i]);
 	}
 
 	// complete processing the request

@@ -1,19 +1,19 @@
 ROOT = ../../../..
 include ../../libraries.mak
 
-DIR = Providers/sample/InstanceProvider
+DIR = Providers/sample/AssociationProvider
 
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SampleInstanceProvider
+LIBRARY = SampleAssociationProvider
 
 LIBRARIES = \
 	 pegcommon \
 	 pegprovider
 	
 SOURCES = \
-   InstanceProviderMain.cpp \
-   InstanceProvider.cpp
+   AssociationProviderMain.cpp \
+   AssociationProvider.cpp
 
 include $(ROOT)/mak/library.mak
 

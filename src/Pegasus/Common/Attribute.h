@@ -47,29 +47,29 @@ class PEGASUS_COMMON_LINKAGE Attribute
 {
 public:
 
-  /** Constructor for a Attribute object.
-  */
-  Attribute(const String & attrEntry = String::EMPTY);
+    /** Constructor for a Attribute object.
+    */
+    Attribute(const String& attrEntry = String::EMPTY);
 
-  /** Destructor for a Attribute object.
-  */
-  ~Attribute();
+    /** Destructor for a Attribute object.
+    */
+    ~Attribute();
 
-  const String & getTag() const;
+    const String& getTag() const;
 
-  /** Returns this attributes value.
-       @return ref to  Array <String> that contains the attribute values.
-  */
-  const Array <String> & getValues() const;
+    /** Returns this attributes value.
+        @return Array<String> that contains the attribute values.
+    */
+    const Array<String>& getValues() const;
 
-  /** Sets this attributes value.
-      @param   add "value" to end of attribute array
-  */
-  void addValue(const String & value);
+    /** Sets this attributes value.
+        @param value The value to add to the end of the attribute array.
+    */
+    void addValue(const String& value);
 
 private:
-  String _tag;
-  Array <String> _vals;
+    String _tag;
+    Array<String> _vals;
 };
 
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(

@@ -48,55 +48,62 @@ class PEGASUS_COMMON_LINKAGE CIMServerDescription
 {
 public:
 
-  /** Constructor for a CIMServerDescription object.
-  */
-  CIMServerDescription();
+    /** Constructor for a CIMServerDescription object.
+    */
+    CIMServerDescription();
 
-  /** Constructor for a CIMServerDescription object.
-      @param   url Url that identifies this connection description.
-  */
-  CIMServerDescription(const String & url);
+    /** Constructor for a CIMServerDescription object.
+        @param url Url that identifies this connection description.
+    */
+    CIMServerDescription(const String& url);
 
-  /** Destructor for a CIMServerDescription object.
-  */
-  ~CIMServerDescription();
+    /** Destructor for a CIMServerDescription object.
+    */
+    ~CIMServerDescription();
 
-  /** Returns the URL for this description.
-      @return  String that contains the Url for this connection description.
-  */
-  String getUrl();
+    /** Returns the URL for this description.
+        @return  String that contains the Url for this connection description.
+    */
+    String getUrl();
 
-  /** Returns an attribute value as a string.
-      @param   attributeName Attribute name of attribute.
-      @param   defaultValue Default attribute value to return if empty or mal-formed.
-      @return  String that contains an attribute value.
-  */
-  String getValue(const String & attributeName, const String & defaultValue) const;
+    /** Returns an attribute value as a string.
+        @param  attributeName Attribute name of attribute.
+        @param  defaultValue Default attribute value to return if empty or
+        malformed.
+        @return String that contains an attribute value.
+    */
+    String getValue(
+        const String& attributeName, 
+        const String& defaultValue) const;
 
-  /** Returns an attribute value Array
-      @param   attributeName Attribute name of attribute.
-      @param   attributeValues - <Array>String into which results are copied
-      @return  Boolean - true if attributeName was found.
-	Note, an true return and an empty Value array indicates the tag had 
-	no attribute values (ie a keyword).
-  */
-  Boolean getValues(const String & attributeName, Array <String> & attributeValues) const;
+    /** Returns an attribute value Array
+        @param  attributeName Attribute name of attribute.
+        @param  attributeValues Array<String> into which results are copied
+        @return True if attributeName was found, false otherwise.
+        Note, a true return value with an empty attributeValues array
+        indicates the tag had no attribute values (ie a keyword).
+    */
+    Boolean getValues(
+        const String& attributeName,
+        Array<String>& attributeValues) const;
 
-  /** Returns an array of attribute.
-      @return  Array that contains contains attributes for this connection description.
-  */
-  Array<Attribute> getAttributes() const;
+    /** Returns an array of attribute.
+        @return Array that contains contains attributes for this connection
+        description.
+    */
+    Array<Attribute> getAttributes() const;
 
-  /** Sets an array of attributes for this description.
-      param  Array that contains attributes for this connection description.
-  */
-  void setAttributes(const Array<Attribute> & attributes);
+    /** Sets an array of attributes for this description.
+        @param attributes Array that contains attributes for this connection
+        description.
+    */
+    void setAttributes(const Array<Attribute>& attributes);
 
 private:
-  String _serviceLocationTcp;
-  String _host;
-  Uint32 _port;
-  Array<Attribute> _attributes;
+    String _serviceLocationTcp;
+    String _host;
+    Uint32 _port;
+    Array<Attribute> _attributes;
 };
 
 #define PEGASUS_ARRAY_T CIMServerDescription

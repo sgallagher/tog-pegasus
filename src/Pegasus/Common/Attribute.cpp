@@ -39,44 +39,48 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-Attribute::Attribute(const String & attrEntry)
+Attribute::Attribute(const String& attrEntry)
 {
     _tag = attrEntry;
 }
 
 Attribute::~Attribute()
 {
-    if(_vals.size()) {
+    if (_vals.size())
+    {
         _vals.clear();	
     }
 }
 
-const Array <String> &
-Attribute::getValues() const
+const Array<String>& Attribute::getValues() const
 {
     return _vals;
 }
 
-const String &
-Attribute::getTag() const
+const String& Attribute::getTag() const
 {
     return _tag;
 }
 
-void
-Attribute::addValue(const String & value)
+void Attribute::addValue(const String& value)
 {
     _vals.append(value);
 }
 
-PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Attribute& attr)
+PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const Attribute& attr)
 {
     os << attr.getTag();
-    Array <String> vals = attr.getValues();
-    for(int i = 0; i < vals.size(); i++) {
-        if(i == 0) {
+    Array<String> vals = attr.getValues();
+    for (int i = 0; i < vals.size(); i++)
+    {
+        if(i == 0)
+        {
             os << " = ";
-        } else {
+        }
+        else
+        {
             os << " | ";
         }
         os << vals[i];

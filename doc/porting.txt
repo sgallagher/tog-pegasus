@@ -50,5 +50,3 @@ Notes for Mac OS X (10.2.X or Higher) :
    http://www.opendarwin.org/projects/dlcompat/
 
  
-	
-	

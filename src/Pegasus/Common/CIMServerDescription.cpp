@@ -41,8 +41,8 @@ CIMServerDescription::CIMServerDescription()
 {
 }
 
-CIMServerDescription::CIMServerDescription(const String & url) :
-  _serviceLocationTcp(url), _port(PEG_NOT_FOUND)
+CIMServerDescription::CIMServerDescription(const String & url)
+    : _serviceLocationTcp(url), _port(PEG_NOT_FOUND)
 {
 }
 
@@ -50,49 +50,51 @@ CIMServerDescription::~CIMServerDescription()
 {
 }
 
-String
-CIMServerDescription::getUrl()
+String CIMServerDescription::getUrl()
 {
   return _serviceLocationTcp;
 }
 
-String
-CIMServerDescription::getValue(const String & attributeName, const String & defaultValue) const
+String CIMServerDescription::getValue(
+    const String & attributeName,
+    const String & defaultValue) const
 {
-Array <String> vals;
-	if(getValues(attributeName, vals) == false || vals.size() == 0) {
-		return defaultValue;
-	} else {
-		return vals[0];
-	}
+    Array<String> vals;
+    if (getValues(attributeName, vals) == false || vals.size() == 0)
+    {
+        return defaultValue;
+    }
+    else
+    {
+        return vals[0];
+    }
 }
 
-Boolean
-CIMServerDescription::getValues(const String & attributeName, Array <String> & attributeValue) const
+Boolean CIMServerDescription::getValues(
+    const String& attributeName,
+    Array<String>& attributeValue) const
 {
-  // find the attribute entry
-  for (Uint32 idx=0; idx<_attributes.size(); idx++)
+    // find the attribute entry
+    for (Uint32 idx=0; idx<_attributes.size(); idx++)
     {
-      if (String::equalNoCase(_attributes[idx].getTag(), attributeName))
+        if (String::equalNoCase(_attributes[idx].getTag(), attributeName))
         {
-	  attributeValue = _attributes[idx].getValues();
-          return true;
+            attributeValue = _attributes[idx].getValues();
+            return true;
         }
     }
 
-  return false;
+    return false;
 }
 
-Array<Attribute>
-CIMServerDescription::getAttributes() const
+Array<Attribute> CIMServerDescription::getAttributes() const
 {
-  return _attributes;
+    return _attributes;
 }
 
-void
-CIMServerDescription::setAttributes(const Array<Attribute> & attributes)
+void CIMServerDescription::setAttributes(const Array<Attribute>& attributes)
 {
-  _attributes = attributes;
+    _attributes = attributes;
 }
 
 #define PEGASUS_ARRAY_T CIMServerDescription

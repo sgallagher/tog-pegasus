@@ -42,24 +42,35 @@ CQLSelectStatement::CQLSelectStatement()
   :SelectStatement()
 {
   _rep = new CQLSelectStatementRep();
+  
+  // Set the _rep into the base class also
+  SelectStatement::_rep = _rep;
 }
 
 CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery, QueryContext& inCtx)
   :SelectStatement()
 {
   _rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
+
+  // Set the _rep into the base class also
+  SelectStatement::_rep = _rep;
 }
 
 CQLSelectStatement::CQLSelectStatement(const CQLSelectStatement& statement)
   :SelectStatement()
 {
   _rep = new CQLSelectStatementRep(*statement._rep);
+
+  // Set the _rep into the base class also
+  SelectStatement::_rep = _rep;
 }
 
 CQLSelectStatement::~CQLSelectStatement()
 {
   if(_rep)
     delete _rep;
+
+  // Note - no need to delete the rep in the base class
 }
 
 CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
@@ -68,6 +79,9 @@ CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
   {
     if(_rep) delete _rep;	
     _rep = new CQLSelectStatementRep(*rhs._rep);
+
+    // Set the _rep into the base class also
+    SelectStatement::_rep = _rep;
   }
 
   return *this;

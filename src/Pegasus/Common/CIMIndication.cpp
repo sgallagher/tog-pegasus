@@ -30,16 +30,4 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMIndication::CIMIndication(void)
-{
-}
-
-CIMIndication::CIMIndication(const String & name) : _name(name)
-{
-}
-
-CIMIndication::~CIMIndication(void)	
-{
-}
-
 PEGASUS_NAMESPACE_END

@@ -30,22 +30,32 @@
 #define Pegasus_CIMIndication_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 // REVIEW: delete this class. CIM indications are represented using
 // CIMInstance objects.
 
-class PEGASUS_COMMON_LINKAGE CIMIndication
+// ATTN: This class is necessary to distinguish between instances and
+// indications, which are logical different things
+
+class PEGASUS_COMMON_LINKAGE CIMIndication : public CIMInstance
 {
 public:
-	CIMIndication(void);
-	CIMIndication(const String & name);
-	virtual ~CIMIndication(void);
+    CIMIndication(void) : CIMInstance()
+    {
+    }
+
+    CIMIndication(const CIMInstance & x) : CIMInstance(x)
+    {
+    }
+
+    CIMIndication(const CIMIndication & x) : CIMInstance(x)
+    {
+    }
 
 protected:
-	String _name;
 
 };
 

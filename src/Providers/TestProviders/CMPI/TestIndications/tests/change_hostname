@@ -1,0 +1,22 @@
+#!/bin/sh
+
+HOST=`hostname`
+DNSNAME=`dnsdomainname`
+
+if [ "$DNSNAME" != "" ];
+then
+   FQDN=$HOST.$DNSNAME
+else
+   FQDN=$HOST
+fi
+
+# change the hostname field in the .XML files.
+
+for a in `find ./ | grep xml`
+do
+ BACKUP_NAME=`echo $a |sed s/\.xml/\.bak/`
+ mv $a $BACKUP_NAME
+ echo "Setting $FQDN in $a file."
+ cat $BACKUP_NAME | sed s/localhost/$FQDN/g > $a
+ rm $BACKUP_NAME
+done

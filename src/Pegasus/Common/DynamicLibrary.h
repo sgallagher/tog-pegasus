@@ -62,6 +62,9 @@ public:
     #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     typedef HMODULE LIBRARY_HANDLE;
     typedef int LIBRARY_SYMBOL;
+    #elif defined(PEGASUS_OS_AIX)
+    typedef void * LIBRARY_HANDLE;
+    typedef void * LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_LINUX)
     typedef void * LIBRARY_HANDLE;
     typedef void * LIBRARY_SYMBOL;

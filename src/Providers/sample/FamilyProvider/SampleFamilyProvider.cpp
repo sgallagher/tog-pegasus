@@ -28,6 +28,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SampleFamilyProvider.h"
+#include <Pegasus/Common/System.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,9 +43,30 @@ SampleFamilyProvider::~SampleFamilyProvider(void)
 
 void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 {
-	// create default instances
+
     PEGASUS_STD(cout) << "KSTEST Initialize SampleFamilyProvider "  << PEGASUS_STD(endl);
     
+    {   /*
+        // Create the classes so we have something to build from. This should not have to 
+        // be here but we cannot get to repository yet.
+        // create default instances
+        String refClassName = "TST_PersonDynamic";
+        // Create the association class
+        CIMClass class1(CIMName ("TST_Lineage"), CIMName ("YourClass"));
+
+        CIMProperty p1(CIMName ("parent"), 0, 0, CIMName (refClassName ));
+        p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
+        CIMProperty p2(CIMName ("child"), 0, 0, CIMName (refClassName));
+        p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
+
+        _assocClass
+        .addQualifier(CIMQualifier(CIMName ("association"), true))
+        .addProperty(CIMProperty(p1))
+        .addProperty(CIMProperty(p2));
+        PEGASUS_STD(cout) << "KSTEST Initialize SampleFamilyProvider Class Created "  << PEGASUS_STD(endl);
+        */
+    }
+
     {
     	CIMInstance instance("TST_PersonDynamic");
     	CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
@@ -97,10 +120,12 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     // TST_Lineage.child=R"Person.name=\"Sofi\"",parent=R"Person.name=\"Mike\""
     
     {
+    String myParent = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
+    String myChild = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Daughter1\"";
     CIMName className = "TST_LineageDynamic";
     CIMInstance instance(className);
-    CIMObjectPath parent =  "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
-    CIMObjectPath child = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Daughter1\"";
+    CIMObjectPath parent =  myParent;
+    CIMObjectPath child = myChild;
     CIMName thisClassReference = "TST_PersonDynamic";  
     instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
     instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
@@ -126,15 +151,23 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         CIMKeyBinding aBinding ("a", "TST_PersonDynamic.Name=\"Father\"", 
         CIMKeyBinding::REFERENCE);
     */
-        
     //CIMObjectPath reference instance.buildPath( className );  
  // CIMObjectPath reference("//localhost/root/SampleProvider:TST_LineageDynamic.parent=TST_PersonDynamic.name=\"Father\",Child=TST_PersonDynamic.name=\"Daughter1\"");
-    CIMObjectPath reference =  "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
+    String referenceString = "TST_Lineage";
+    referenceString.append(".parent=\"");
+    referenceString.append(myParent);
+    referenceString.append("\"");
+    referenceString.append(",child=\"");
+    referenceString.append(myChild);
+    referenceString.append("\"");
+    PEGASUS_STD(cout) << "KSTEST ASSOC String = " << referenceString << PEGASUS_STD(endl);
+    //CIMObjectPath reference =  referenceString;
+
     
     PEGASUS_STD(cout) << "KSTEST 3 "  << PEGASUS_STD(endl);
         
     _instancesLineage.append(instance);
-    _instanceNamesLineage.append(reference);
+    //_instanceNamesLineage.append(reference);
     }
     PEGASUS_STD(cout) << "KSTEST 4 "  << PEGASUS_STD(endl);
     
@@ -210,18 +243,40 @@ void SampleFamilyProvider::enumerateInstanceNames(
 	const CIMObjectPath & classReference,
 	ObjectPathResponseHandler & handler)
 {
-	PEGASUS_STD(cout) << "KSTEST Enumerate Instances of TST_Person" << PEGASUS_STD(endl);
+	PEGASUS_STD(cout) << "KSTEST Enumerate InstanceNames of " << classReference.toString() << PEGASUS_STD(endl);
     // begin processing the request
 	handler.processing();
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		// deliver reference
-		handler.deliver(_instanceNames[i]);
-	}
+    if (classReference.getClassName().equal("TST_PersionDynamic"))
+    {
+    	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    	{
+    		// deliver reference
+    		handler.deliver(_instanceNames[i]);
+    	}
+     }
+    if (classReference.getClassName().equal("TST_LineageDynamic"))
+    {
+    	for(Uint32 i = 0, n = _instancesLineage.size(); i < n; i++)
+    	{
+    		// deliver reference
+    		handler.deliver(_instanceNamesLineage[i]);
+    	}
 
-	// complete processing the request
-	handler.complete();
+    }
+    if (classReference.getClassName().equal("TST_LabeledLineageDynamic"))
+    {
+    	for(Uint32 i = 0, n = _instancesLabeledLineage.size(); i < n; i++)
+    	{
+    		// deliver reference
+    		handler.deliver(_instanceNamesLabeledLineage[i]);
+    	}
+
+    }
+
+    // complete processing the request
+    handler.complete();
+
 }
 
 void SampleFamilyProvider::modifyInstance(
@@ -371,7 +426,46 @@ void SampleFamilyProvider::references(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
-	throw CIMNotSupportedException("SampleFamilyProvider::references");
+	PEGASUS_STD(cout) << "KSTESTreferences SampleFamilyProvider" << PEGASUS_STD(endl);
+    // begin processing the request
+    // Get the namespace and host names to create the CIMObjectPath
+    String nameSpace = "SampleProvider";
+    String host = System::getHostName();
+
+    handler.processing();
+    // Here make the decision between Lineage and LabeledLineage
+
+	// For all of the association objects.
+    for(Uint32 i = 0, n = _instanceNamesLineage.size(); i < n; i++)
+	{
+        // Filter out by resultClass and role.
+        // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
+        // It acts as a filter on the returned set of Object Names by mandating that each
+        // returned Object Name MUST identify an Instance of this Class (or one of its subclasses),
+        // or this Class (or one of its subclasses). 
+
+        // The Role input parameter, if not NULL, MUST be a valid Property name. It acts as a
+        // filter on the returned set of Object Names by mandating that each returned Object Name
+        // MUST identify an Object that refers to the target Instance via a Property whose name
+        // matches the value of this parameter. 
+        
+        // Note that here we test to determine if the returned object name equals resultClass
+        // or any of its subclasses
+        
+        CIMInstance instance = _instancesLineage[i];
+        PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
+            << " Role = " << role
+            << PEGASUS_STD(endl);
+        if (resultClass.isNull() || instance.getClassName().equal(resultClass))
+        {
+            // Incomplete.  Need to add the other filters.
+            handler.deliver(instance);
+        }
+	}
+    
+	// complete processing the request
+	handler.complete();
+
 }
 
 
@@ -386,46 +480,47 @@ void SampleFamilyProvider::referenceNames(
 	ObjectPathResponseHandler & handler)
 {
 	PEGASUS_STD(cout) << "KSTESTreferenceNames SampleFamilyProvider" << PEGASUS_STD(endl);
-    // begin processing the request
     
-    Array<String> tmpReferenceNames;
     
-	handler.processing();
-    // Determine if we are going to respond to class or instance request.
-    // If no keys, this is a classname.
-    // Shouldn't this be done by the CIMOM itself????
-    if (objectName.getKeyBindings ().size () == 0)
-    {
-        // deliver the associated
-    }
-    else
-    {
-    }
-    
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    // Get the namespace and host names to create the CIMObjectPath
+    String nameSpace = "SampleProvider";
+    String host = System::getHostName();
+
+
+	// For all of the association objects.
+    for(Uint32 i = 0, n = _instanceNamesLineage.size(); i < n; i++)
 	{
-		// deliver reference
-        // Convert Reference to Global from Local
-		handler.deliver(_instanceNames[i]);
-	}
+        // Filter out by resultClass and role.
+        // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
+        // It acts as a filter on the returned set of Object Names by mandating that each
+        // returned Object Name MUST identify an Instance of this Class (or one of its subclasses),
+        // or this Class (or one of its subclasses). 
 
-    // Append the host and namespace info to the Reference Names
-    // This should be a commmon function
-
-    for (Uint32 i = 0, n = tmpReferenceNames.size(); i < n; i++)
-    {
-        CIMObjectPath r = tmpReferenceNames[i];
-        String nameSpace = "Fred";
-        if (r.getHost().size() == 0)
-            //r.setHost(System::getHostName());
-            r.setHost("//localhost");
-
-        if (r.getNameSpace().isNull())
-            r.setNameSpace(nameSpace);
-
+        // The Role input parameter, if not NULL, MUST be a valid Property name. It acts as a
+        // filter on the returned set of Object Names by mandating that each returned Object Name
+        // MUST identify an Object that refers to the target Instance via a Property whose name
+        // matches the value of this parameter. 
         
-        handler.deliver(r);
-    }
+        // Note that here we test to determine if the returned object name equals resultClass
+        // or any of its subclasses
+        
+        CIMObjectPath r = _instanceNamesLineage[i];
+        PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
+            << " Role = " << role
+            << PEGASUS_STD(endl);
+        if (resultClass.isNull() || r.getClassName().equal(resultClass))
+        {
+            if (r.getHost().size() == 0)
+                r.setHost(host);
+    
+            if (r.getNameSpace().isNull())
+                r.setNameSpace(nameSpace);
+
+            PEGASUS_STD(cout) << "KSTEST Deliver CIMOBjectPath = " << r.toString() << PEGASUS_STD(endl);
+         handler.deliver(r);
+        }
+        
+	}
     
 	// complete processing the request
 	handler.complete();

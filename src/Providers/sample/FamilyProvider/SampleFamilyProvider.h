@@ -137,6 +137,7 @@ protected:
     
     Array<CIMObjectPath> _instanceNamesLabeledLineage;
     Array<CIMInstance> _instancesLabeledLineage;
+    CIMClass _assocClass;
 };
 
 PEGASUS_NAMESPACE_END

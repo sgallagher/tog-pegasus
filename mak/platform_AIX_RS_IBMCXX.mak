@@ -36,8 +36,6 @@ endif
 SYS_LIBS = -ldl 
 
 # SSL support
-PEGASUS_HAS_SSL = yes
-
 ifdef PEGASUS_HAS_SSL
 OPENSSL_HOME = /usr/linux
 endif

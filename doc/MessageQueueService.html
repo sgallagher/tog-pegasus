@@ -247,15 +247,15 @@ class MessageQueueClient : public MessageQueueService
 
 <pre>
 
-   Array<Uint32> services; 
+   Array&lt;Uint32&gt;; services; 
 
    while( services.size() == 0 )
    {
-      q_client->find_services(String("test server"), 0, 0, &services); 
+      q_client-&gt;find_services(String("test server"), 0, 0, &services); 
       pegasus_yield();  
    }
    
-   cout << "found server at " << services[0] << endl;
+   cout &lt;&lt; "found server at " &lt;&lt; services[0] &lt;&lt; endl;
 
 
 </pre>
@@ -525,13 +525,173 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 <pre>
       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
 
-
    }
 </pre>
 
 </ol>
 	</p>
 
+<h2>Handling CIMMessage and Other Pre-existing Message Classes</h2>
+	  <p>
+	    Existing Messages, including all of the <code>CIMMessage</code>
+	    derivitives, are not configured to be asynchronous
+	    request/reply pairs. They are designed to travel through
+	    Pegasus as events that trigger other processing events,
+	    which is the end of their lifetime. This is not an optimal
+	    use model for asynchronous operation because the
+	    originator of the event does not require nor receive any
+	    completion notification. Further, there is not a
+	    one-to-one correspondence of "event messages" to replies. 
+	  </p>
+	  
+	  <h3>AsyncLegacyOperationStart Message</h3>
+	  <p>
+	    The AsyncLegacyOperationStart message is an envelope that
+	    allows a <code>MessageQueueService</code>-based service to
+	    send, receive, and process pre-existing "legacy"
+	    messages. 
+	  </p>
+	  <p>
+	    The <code>AsyncLegacyOperationStart</code> Message allows
+	    an asynchronous service to create, package, and send a
+	    "legacy" message to another service or, indirectly,
+	    enqueue it to a non-asynchronous message queue. The code
+	    example below shows how this works:
+	  </p>
+
+<pre>
+
+   cout &lt;&lt; " sending LEGACY to test server" &lt;&lt; endl;
+   
+   Message *legacy = new Message(0x11100011, 
+				 Message::getNextKey());
+   
+   AsyncLegacyOperationStart *req = 
+      new AsyncLegacyOperationStart(q_client-&gt;get_next_xid(), 
+				    0, 
+				    services[0],
+				    legacy, 
+				    q_client-&gt;getQueueId());
+   reply = q_client-&gt;SendWait(req);
+   delete req;
+   delete reply;
+   
+</pre>
+	  <p>
+	   The code sample above shows a <code>Message</code> object
+	   being embedded inside an
+	    <code>AsyncLegacyOperationStart</code> message and sent
+	    using the <code>SendWait</code>API. 
+	  </p>
+
+	  <h3>Default Handler for Legacy Messages</h3>
+	  <p>
+	    The <code>MessageQueueService</code> class has a default
+	    handler for legacy messages that extracts the
+	    <code>Message</code> out of its asynchronous "envelope"
+	    and dispatches it using the pre-existing synchronous
+	    interface, as shown below. 
+	  </p>
+
+<pre>
+
+void MessageQueueService::handle_AsyncLegacyOperationStart(
+                                               AsyncLegacyOperationStart *req)
+{
+   // remove the legacy message from the request and enqueue it to its destination
+   Uint32 result = async_results::CIM_NAK;
+   
+   Message *legacy = req-&gt;act;
+   if ( legacy != 0 )
+   {
+      MessageQueue* queue = MessageQueue::lookup(req-&gt;legacy_destination);
+      if( queue != 0 )
+      {
+	// Enqueue the response:
+	 queue-&gt;enqueue(legacy);
+	 result = async_results::OK;
+      }
+   }
+   _make_response(req, result);
+}
+
+</pre>
+
+	  <p>
+	    The default handler shown above extracts the legacy
+	    message and attempts to <code>enqueue</code> that message
+	    syncrhonously using the pre-existing interface.
+	  </p>
+
+<h3>Example of Custom Handler for Legacy Messages</h3>
+	  <p>
+	    By implementing the virtual
+	    <code>_handle_async_request</code> method, 
+	    a service can choose to implement its own handler for
+	    Legacy messages, as the code below shows:
+	  </p>
+
+<ol>
+
+<li><b>Implement the virtual <code>_handle_async_request</code> method.</b></li>
+<pre>
+
+void MessageQueueServer::_handle_async_request(AsyncRequest *req)
+{
+   if (req->getType() == 0x04100000 )
+   {
+      req->op->processing();
+      handle_test_request(req);
+   }
+   else if ( req->getType() == async_messages::CIMSERVICE_STOP )
+   {
+      req->op->processing();
+      handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+   }
+</pre>
+<li><b>Implement a dispatcher for <code>ASYNC_LEGACY_OP_START</code></b></li>
+<pre>
+   else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+   {
+      req->op->processing();
+      handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
+   }
+   
+   else
+      Base::_handle_async_request(req);
+}
+
+</pre>
+<li><b>Implement a dispatcher for <code>ASYNC_LEGACY_OP_START</code></b></li>
+<pre>
+
+void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
+{
+
+   Message *legacy = req-&gt;act;
+   cout &lt;&lt; " ### handling legacy messages " &lt;&lt; endl;
+   
+
+      AsyncReply *resp =  
+	 new AsyncReply(async_messages::REPLY, 
+			req-&gt;getKey(), 
+			req-&gt;getRouting(), 
+			0, 
+			req-&gt;op, 
+			async_results::OK, 
+			req-&gt;resp, 
+			req-&gt;block);
+      _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+
+      if (legacy != 0 )
+	 cout &lt;&lt; " legacy msg type: " &lt;&lt; legacy-&gt;getType() &lt;&lt; endl;
+      
+}
+
+</pre>
+
+
+</ol>
 
     <hr>
 <h2>Class Definitions</h2>
@@ -1274,7 +1434,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
     <address><a href="mailto:mdday@us.ibm.com">Michael Day</a></address>
 <!-- Created: Tue Feb  5 13:21:55 EST 2002 -->
 <!-- hhmts start -->
-Last modified: Tue Feb  5 18:09:50 EST 2002
+Last modified: Thu Feb  7 11:48:22 EST 2002
 <!-- hhmts end -->
   </body>
 </html>

@@ -76,6 +76,7 @@
 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/suballoc/suballoc.h>
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
@@ -350,6 +351,7 @@ int main(int argc, char** argv)
     Boolean timeoutOption = false;
     String  timeoutStr  = String::EMPTY;
     long timeoutValue  = 0;
+
 
     //
     // Get environment variables:

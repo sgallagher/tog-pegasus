@@ -59,7 +59,7 @@
 #include <cassert>
 #include <Pegasus/Common/Queue.h>
 #include <Pegasus/Common/Stopwatch.h>
-#include <Pegasus/Common/suballoc.h>  
+#include <Pegasus/suballoc/suballoc.h>  
 PEGASUS_USING_PEGASUS; 
 PEGASUS_USING_STD;
 

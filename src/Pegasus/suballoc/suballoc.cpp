@@ -37,6 +37,8 @@ PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 {
    if(peg_suballocator::_suballoc_instance == 0)
    {
+      cout << " initializing heap" << endl;
+      
       peg_suballocator::_suballoc_instance = new((void *)malloc(sizeof(peg_suballocator))) peg_suballocator(true);
    }
    return peg_suballocator::_suballoc_instance;
@@ -99,7 +101,6 @@ void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
    if( size == 0 )
       size = 1;
    void *p;
-   
    while(1)
    {
 #if defined(PEGASUS_DEBUG_MEMORY)
@@ -110,8 +111,8 @@ void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
 				       __FILE__, __LINE__) ;
 
       
-#else
-      p = peg_suballocator::get_instance()->vs_malloc(size);
+#else 
+      p = peg_suballocator::get_instance()->vs_malloc(size); 
 #endif
       if( p )
 	 return p;

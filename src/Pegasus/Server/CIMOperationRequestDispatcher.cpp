@@ -38,7 +38,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
-
+#include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/StatisticalData.h>
@@ -48,6 +48,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
+namespace 
+{
+   static Pegasus::peg_suballocator::SUBALLOC_HANDLE *dq_handle = new peg_suballocator::SUBALLOC_HANDLE();
+}
+
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
     ProviderRegistrationManager* providerRegistrationManager)
@@ -56,8 +61,9 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       _repository(repository),
       _providerRegistrationManager(providerRegistrationManager)
 {
+
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
+		    "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
    PEG_METHOD_EXIT();
 }
 
@@ -631,7 +637,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnqueue(Message *request)");
-
+   PEGASUS_START_LEAK_CHECK();
    if(!request)
    {
       PEG_METHOD_EXIT();
@@ -760,7 +766,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    }
 
    delete request;
-   PEG_METHOD_EXIT();
+
 }
 
 // allocate a CIM Operation_async,  opnode, context, and response handler

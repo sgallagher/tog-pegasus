@@ -5,8 +5,6 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEBUG_MEMORY
 
-LIBRARIES = peg_suballoc \
-            pegcommon
 PROGRAM = DQueue
 SOURCES = DQueue.cpp
 

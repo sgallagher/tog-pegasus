@@ -91,17 +91,19 @@ StatisticalData::StatisticalData(){
 }
 
 void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t){
-   AutoMutex autoMut(_mutex);
-   switch(t){
-	  case SERVER:   	numCalls[type] += 1;
-                        cimomTime[type] += value;
-                        break;
-      case PROVIDER:    providerTime[type] += value;
-                        break;
-      case BYTES_SENT:  responseSize[type] += value;
-                        break;
-      case BYTES_READ:  requestSize[type] += value;
-                        break;
+   if(copyGSD){
+     AutoMutex autoMut(_mutex);
+     switch(t){
+	    case SERVER:      numCalls[type] += 1;
+                          cimomTime[type] += value;
+                          break;
+        case PROVIDER:    providerTime[type] += value;
+                          break;
+        case BYTES_SENT:  responseSize[type] += value;
+                          break;
+        case BYTES_READ:  requestSize[type] += value;
+                          break;
+     }
    }
 }
 

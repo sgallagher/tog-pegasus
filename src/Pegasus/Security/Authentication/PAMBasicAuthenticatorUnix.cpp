@@ -207,6 +207,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     return (authenticated);
 }
 
+#ifdef PEGASUS_OS_HPUX
 Boolean PAMBasicAuthenticator::_authenticateByPwnam(
     const char * userName, 
     const String& password) 
@@ -281,6 +282,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPwnam(
 
     return (authenticated);
 }
+#endif
 
 //
 // Create authentication response header

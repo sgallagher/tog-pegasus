@@ -44,6 +44,7 @@
     {"enableIndicationService", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
+    {"usePAMAuthentication", "true"},
 #endif
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/opt/wbem/cimserver.trc"},

@@ -22,17 +22,18 @@ Contents:
 8.  Populate the Repository
 9.  The MU Utility
 10. Notes about Building Pegasus on Linux
-11. Notes on building Pegasus with SSL
-12. Building Pegasus on Windows 2000 or Windows XP With Microsoft Visual C++
-13. Installing the Pegasus HTML Test Client
-14. Development with Pegasus and Pegasus Tools
-15. Commands
-16. Creating SSL certifications.
-17. Configuring Pegasus to use SSL
-18. Configuring Pegasus to use PAM
-19. Testing with ICU enabled
-20. Documentation
-21. Participate
+11. Notes about Building Pegasus on Mac OS X/Darwin
+12. Notes on building Pegasus with SSL
+13. Building Pegasus on Windows 2000 or Windows XP With Microsoft Visual C++
+14. Installing the Pegasus HTML Test Client
+15. Development with Pegasus and Pegasus Tools
+16. Commands
+17. Creating SSL certifications.
+18. Configuring Pegasus to use SSL
+19. Configuring Pegasus to use PAM
+20. Testing with ICU enabled
+21. Documentation
+22. Participate
 
 
 
@@ -192,7 +193,20 @@ packages and tools. Currently Pegasus has the following dependencies:
     will be required to have these tools. They are only required if changes need 
     to be made to the files for parsing and compiling.
 
-4.  DOC++ - The Pegasus documentation is taken from a combination of text files
+
+4.  DLCOMPAT - dlcompat is a dlopen(3) et.al. compatibility library for 
+    Mac OS X/Darwin.
+ 
+    NOTE: The dlcompat is not distributed with pegasus source.
+   
+    dlcomapt is available from 
+
+    http://www.opendarwin.org/projects/dlcompat/ 
+
+    Again, dlcomapt needs to be installed ONLY if you are using Mac OS X/Darwin. 	
+
+
+5.  DOC++ - The Pegasus documentation is taken from a combination of text files
     and the Pegasus header files themselves.  This documentation is formatted 
     with DOC++ and GAWK.  These tools are required if the documentation is to 
     be recreated but we expect that only the core team will be recreating 
@@ -299,7 +313,7 @@ building the repository.
 
     These include GNU Make, MU.EXE (if using Windows), Flex, and Bison (Flex 
     and Bison only required if changes will be made to the MOF compiler or WQL 
-    parser).
+    parser),dlcompat (if using Mac OS X/Darwin).
 
     Be sure these are on your path.
 
@@ -458,7 +472,13 @@ of the distribution of Pegasus.
 No problem. Just make sure you have the environment variables set.
 
 
-11. Notes about Building Pegasus with SSL
+11. Notes about Building Pegasus on Mac OS X/Darwin
+=====================================================
+
+No problem. Just make sure you have the environment variables set.
+
+
+12. Notes about Building Pegasus with SSL
 ==========================================
 
 To build with SSL you need the OpenSSL libraries and header files. Make sure 
@@ -471,7 +491,7 @@ directory and you will have Pegasus with SSL enabled. See section "Creating SSL
 certificates" for more information of how to use SSL.
 
 
-12. Building Pegasus on Windows 2000 (SP3 or later recommended) or Windows XP
+13. Building Pegasus on Windows 2000 (SP3 or later recommended) or Windows XP
     With Microsoft Visual C++
 ======================================================================
 
@@ -498,7 +518,7 @@ For Windows, try the following for an example environment:
     REM setup the path to the runtime files. 
     set path=%path%;%PEGASUS_HOME%/bin 
 
-13. Installing the Pegasus HTML Test Client:
+14. Installing the Pegasus HTML Test Client:
 =============================================
 
 This is a separate test tool that allows Pegasus requests to be initiated from
@@ -508,7 +528,7 @@ instructions for setting up this environment are maintained in a separate
 readme in the CGI directory.
 
 
-14. Development with Pegasus and Pegasus Tools:
+15. Development with Pegasus and Pegasus Tools:
 ================================================
 
 ATTN: This section needs to be completed.  It should reference the more
@@ -516,7 +536,7 @@ complete documentation
 ATTN: Write about providers?
 
 
-15. Commands:
+16. Commands:
 =============
 
 The manpages for each of the commands are in rpm/manLinux/man1.Z directory (on CVS)
@@ -532,7 +552,7 @@ bin/cimuser –l (lists the users)
 bin/tomof CIM_Config (extract CIM_Config from repository and present it in MOF type)
 
 
-16. Creating SSL certifications
+17. Creating SSL certifications
 ================================
 
 Please follow section 11, titled "Notes about Building Pegasus with SSL" 
@@ -559,7 +579,7 @@ cat $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem > $PEGASUS_HOME/server.pem
 cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem
 rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 
-17. Configuring Pegasus to use SSL
+18. Configuring Pegasus to use SSL
 ================================
 
 Please follow section 11 and 16 before reading this section.
@@ -586,7 +606,7 @@ the cleartext 5988 port. Modify your CIMserver to
 
 	enableHttpConnection=false
 
-18.PAM Authentication
+19.PAM Authentication
 ===================
 
 In order to use PAM Authentication you have to compile Pegasus
@@ -619,7 +639,7 @@ The user is authenticated using HTTP Basic method, thererfore it is
 strongly suggested you use SSL connection instead of normal HTTP connection.
 Refer to section 16 for more details on creating and using SSL keys.
 
-19. Testing with ICU enabled:
+20. Testing with ICU enabled:
 ==============================
 
 ICU (International Compoments for Unicode) refers to the set of libraries that
@@ -646,7 +666,7 @@ complete, you should stop the cimserver and then undefine PEGASUS_USE_DEFAULT_ME
 If this variable is left defined, Pegasus will not be able to load messages
 using ICU resource bundles. 
 
-20. Documentation:
+21. Documentation:
 ===================
 
 The documentation is currently in preperation. The preliminary documentation
@@ -660,7 +680,7 @@ documentation in the future and today is the source of most discussion and
 design documentation.
 
 
-21. Participate!
+22. Participate!
 =================
 
 We are looking for people who want to join the Pegasus work group and

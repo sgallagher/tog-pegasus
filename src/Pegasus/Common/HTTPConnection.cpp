@@ -393,7 +393,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			// for null termination
 			buffer.reserveCapacity(messageLength + 1);
 			messageStart = (char *) buffer.getData();
-            buffer[messageLength] = 0;
+            messageStart[messageLength] = 0;
 
 			if (isFirst == true)
 			{
@@ -462,7 +462,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						messageLength = message.size();
 						message.reserveCapacity(messageLength+1);
 						messageStart = (char *) message.getData();
-						message[messageLength] = 0;
+						messageStart[messageLength] = 0;
 					}
 					cimException = CIMException(cimException.getCode(),
 																			String(messageStart, messageLength));
@@ -478,7 +478,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					buffer.clear();
 					// null terminate
 					messageStart = (char *) _incomingBuffer.getData();
-					_incomingBuffer[messageLength] = 0;
+					messageStart[messageLength] = 0;
 					// put back in buffer, so the httpMessage parser can work below
 					_incomingBuffer.swap(buffer);
 				}
@@ -504,7 +504,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						buffer.append(messageStart, messageLength);
 						// null terminate
 						messageStart = (char *) buffer.getData();
-						buffer[messageLength] = 0;
+						messageStart[messageLength] = 0;
 					}
 					bytesRemaining = messageLength;
 				}

@@ -32,6 +32,8 @@
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         David Eger (dteger@us.ibm.com)
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//         David Dillard, VERITAS Software Corp.
+//             (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,7 +199,7 @@ private:
     @return  false = client response has been received
   
     */
-    void _handleResponse( Array<char>&          httpResponse,
+    void _handleResponse( Array<char>          httpResponse,
    		          ostream&               oStream,
 			  ostream&               eStream
                         );

@@ -36,6 +36,8 @@
 //         Amit K Arora (amita@in.ibm.com) for PEP-101
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
+//         David Dillard, VERITAS Software Corp.
+//             (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -381,7 +383,7 @@ void WbemExecCommand::_printContent(
     @return  false = client response has been received
   
  */
-void WbemExecCommand::_handleResponse( Array<char>&      responseMessage,
+void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
                                           ostream&           oStream,
                                           ostream&           eStream
                                        )

@@ -38,6 +38,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+Boolean Thread::_signals_blocked = false;
 
 // for non-native implementations
 #ifndef PEGASUS_THREAD_CLEANUP_NATIVE 
@@ -59,6 +60,7 @@ void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
   delete cu;
 }
 
+#endif
 thread_data *Thread::put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
 {
   PEGASUS_ASSERT(key != NULL);
@@ -72,9 +74,7 @@ thread_data *Thread::put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 siz
   return(tsd);
 }
 
-#endif
-
-#ifndef PEGASUS_THREAD_CLEANUP_NATIVE 
+#ifndef PEGASUS_THREAD_EXIT_NATIVE 
 void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code) 
 { 
   // execute the cleanup stack and then return 

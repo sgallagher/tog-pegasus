@@ -92,25 +92,4 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 #endif
 
 
-static sigset_t *block_signal_mask(sigset_t *sig)
-{
-    sigemptyset(sig);
-    // should not be used for main()
-    sigaddset(sig, SIGHUP);
-    sigaddset(sig, SIGINT); 
-    // maybe useless, since KILL can't be blocked according to POSIX
-    sigaddset(sig, SIGKILL);
 
-    sigaddset(sig, SIGABRT);
-    sigaddset(sig, SIGALRM);
-    sigaddset(sig, SIGPIPE);
-
-// since SIGSTOP/CONT can handle suspend()/resume() on Linux
-// block them
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-    sigaddset(sig, SIGUSR1);
-    sigaddset(sig, SIGUSR2);
-#endif
-
-    return sig;
-}

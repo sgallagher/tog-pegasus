@@ -29,6 +29,32 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+static sigset_t *block_signal_mask(sigset_t *sig)
+{
+    sigemptyset(sig);
+    // should not be used for main()
+    sigaddset(sig, SIGHUP);
+    sigaddset(sig, SIGINT); 
+    // maybe useless, since KILL can't be blocked according to POSIX
+    sigaddset(sig, SIGKILL);
+
+    sigaddset(sig, SIGABRT);
+    sigaddset(sig, SIGALRM);
+    sigaddset(sig, SIGPIPE);
+
+// since SIGSTOP/CONT can handle suspend()/resume() on Linux
+// block them
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+    sigaddset(sig, SIGUSR1);
+    sigaddset(sig, SIGUSR2);
+#endif
+    pthread_sigmask(SIG_BLOCK, sig, NULL);
+    return sig;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 SimpleThread::SimpleThread(
@@ -152,6 +178,10 @@ int sem_timedwait(sem_t *sem,
 
 #endif
 
+
+
+
+
 Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 		void *parameter, Boolean detached ) : _is_detached(detached), 
 	      _cancel_enabled(false), _cancelled(false),
@@ -160,11 +190,12 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 {
 
     pthread_attr_init(&_handle.thatt);
-    // set cancel state to enabled
-    // set cancel type to deferred 
-    // block all signals
 
-
+    if( _signals_blocked == false) 
+    {
+      sigset_t signals_to_block;
+      block_signal_mask(&signals_to_block);
+    } 
     _handle.thid = 0;
 }
 
@@ -184,7 +215,6 @@ void Thread::run()
 
 void Thread::cancel()
 {
-  
   pthread_cancel(_handle.thid);
 }
 
@@ -208,11 +238,17 @@ void Thread::sleep(Uint32 msec)
 
 void Thread::join(void) { pthread_join(_handle.thid, &_exit_code) ; }
 
+void Thread::thread_init(void)
+{
+  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+  _cancel_enabled = true;
+}
 
 // *****----- native thread exit routine -----***** //
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-#define PEGASUS_THREAD_CLEANUP_NATIVE 
+#define PEGASUS_THREAD_EXIT_NATIVE 
 inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
 #endif
 

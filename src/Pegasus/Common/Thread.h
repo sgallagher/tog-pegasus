@@ -141,11 +141,13 @@ class  PEGASUS_EXPORT thread_data
  public:
   thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
   {
+    PEGASUS_ASSERT(key != NULL);
     _key = strdup(key) ; 
   }
   
   thread_data(Sint8 *key, int size)
   {
+    PEGASUS_ASSERT(key != NULL);
     _delete_func = default_delete;
     _data = new char [size];
     _size = size;
@@ -153,6 +155,8 @@ class  PEGASUS_EXPORT thread_data
 
   thread_data(Sint8 *key, int size, void *data)
   {
+    PEGASUS_ASSERT(key != NULL);
+    PEGASUS_ASSERT(data != NULL);
     _delete_func = default_delete;
     _data = new char [size];
     memcpy(_data, data, size);
@@ -172,7 +176,7 @@ class  PEGASUS_EXPORT thread_data
       return(old_data);
     }
  private:
-  inline Boolean operator ==(void *key) ;
+  inline Boolean operator ==(void *key) { if ( ! strcmp(_key, (Sint8 *)key)) return(true); return(false);  } 
   void (*_delete_func) (void *data) ;
   thread_data();
   void *_data;
@@ -231,6 +235,7 @@ class PEGASUS_EXPORT Thread
 
   // block the calling thread until this thread terminates
   void join(void );
+  void thread_init(void);
 
   // thread routine needs to call this function when
   // it is ready to exit
@@ -307,7 +312,7 @@ class PEGASUS_EXPORT Thread
   DQueue<thread_data> _tsd;
   void *_thread_parm;
   PEGASUS_THREAD_RETURN _exit_code;
-
+  static Boolean _signals_blocked;
 } ;
 
 

@@ -24,7 +24,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
 //         (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +36,6 @@ PEGASUS_NAMESPACE_BEGIN
 // REVIEW: Using static declarations will cause multiple declarations of these
 // REVIEW: strings. Either use #define (best) or use PEGASUS_COMMON_LINKAGE and
 // REVIEW: eliminate use of statics.
-
-// REVIEW: Name of file may not be the best. Many constants in this file are
-// REVIEW: "HTTP Constants".
 
 //
 //  This include file contains constants related to the HTTP encapsulation 
@@ -205,48 +202,6 @@ static const char HEADER_SEPARATOR = ':';
  *  The character used to delimit the header prefix and extension header.
  */
 static const char HEADER_PREFIX_DELIMITER = '-';
-
-/**
- *  The character used to delimit &lt;NAMESPACE&gt; subelements in a CIM
- *  object path.
- */
-static const char NAMESPACE_SUBELEMENT_DELIMITER = '/';
-
-/**
- *  The character used to delimit the &lt;LOCALNAMESPACEPATH&gt; subelement
- *  and either the &lt;CLASSNAME&gt; or &lt;INSTANCENAME&gt; subelement in
- *  a CIM object path.
- */
-static const char LOCALNAMESPACEPATH_DELIMITER = ':';
-
-/**
- *  The character used to equate a keybinding name and value in a CIM object 
- *  path.
- */
-static const char KEYVALUE_EQUAL = '=';
-
-/**
- *  The character used to delimit a key value of type string in a CIM object 
- *  path.
- */
-static const char KEYVALUE_STRING_DELIMITER = '"';
-
-/**
- *  The character used to indicate a singleton instance in a CIM object path.
- */
-static const char SINGLETON_INSTANCE = '@';
-
-/**
- *  The character used to delimit the &lt;CLASSNAME&gt; and first
- *  &lt;KEYBINDING&gt; subelements in a CIM object path.
- */
-static const char KEYBINDING_DELIMITER = '.';
-
-/**
- *  The character used to separate &lt;KEYBINDING&gt; subelements in a CIM
- *  object path.
- */
-static const char KEYBINDING_SEPARATOR = ',';
 
 
 PEGASUS_NAMESPACE_END

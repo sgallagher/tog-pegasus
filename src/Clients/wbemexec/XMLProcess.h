@@ -22,12 +22,13 @@
 //==============================================================================
 //
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
+//             (carolann_graves@hp.com)
 //
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
+//             (sushma_fernandes@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,32 +55,6 @@ PEGASUS_NAMESPACE_BEGIN
 class XMLProcess 
 {
 public:
-
-    /**
-      
-        Constructs a String containing the representation of the CIM
-        object path corresponding to the &lt;LOCALNAMESPACE&gt; element, in
-        accordance with Specification for CIM Operations over HTTP, 
-        Version 1.0, Section 3.3.3.  This method should be called only the 
-        parser is currently at a &lt;LOCALNAMESPACE&gt; element.
-      
-        @param   parser              parser instance corresponding to the XML
-                                     request
-      
-        @return  a String containing the representation of the CIM
-                 object path corresponding to the &lt;LOCALNAMESPACE&gt; 
-                 element
-      
-        @exception  XmlValidationError  if the XML input is invalid
-        @exception  XmlSemanticError    if the XML input contains a semantic 
-                                        error
-        @exception  XmlException        if the XML input is invalid
-        @exception  Exception           internal error 
-      
-     */
-    static String getObjPath (XmlParser& parser)
-        throw (XmlValidationError, XmlSemanticError, XmlException, Exception);
-
 
     /**
       
@@ -135,22 +110,6 @@ public:
                                       Array <Sint8>& httpHeaders) 
         throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception);
-
-private:
-    /**
-      
-        Constructs a String from the input String, applying the standard 
-        escaping mechanism to escape any characters that are unsafe within 
-        an HTTP header.  Used for key values of type string in a CIM object 
-        path.
-      
-        @param   str                 input String to escape
-      
-        @return  a new String corresponding to the input string, with the
-                 escaping mechanism having been applied
-      
-     */
-    static String _escapeSpecialCharacters (const String& str);
 };
 
 PEGASUS_NAMESPACE_END

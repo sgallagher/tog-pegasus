@@ -44,39 +44,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
   
-    Constructs an Array <Sint8> containing the representation of the CIM
-    object path corresponding to the &lt;LOCALNAMESPACE&gt; element, in
-    accordance with Specification for CIM Operations over HTTP, 
-    Version 1.0, Section 3.3.3.  This method should be called only the parser
-    is currently at a &lt;LOCALNAMESPACE&gt; element.
-  
-    @param   parser              parser instance corresponding to the XML
-                                 request
-  
-    @exception  XmlValidationError  if the XML input is invalid
-    @exception  XmlSemanticError    if the XML input contains a semantic error
-  
-    @return  a String containing the representation of the CIM
-             object path corresponding to the &lt;LOCALNAMESPACE&gt; element
-  
- */
-
-String XMLProcess::getObjPath (XmlParser& parser)
-    throw (XmlValidationError, XmlSemanticError, XmlException, Exception)
-{
-    String                       namespaceName;
-
-    if (!XmlReader::getLocalNameSpacePathElement(parser, namespaceName))
-    {
-        throw XmlValidationError (parser.getLine (), 
-            MISSING_ELEMENT_LOCALNAMESPACEPATH);
-    }
-
-    return (namespaceName);
-}
-
-/**
-  
     Encapsulates the XML request in an HTTP M-POST or POST request message.
     Generates the appropriate HTTP extension headers corresponding to the
     XML request, in accordance with Specifications for CIM Operations over
@@ -132,7 +99,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     String                       protocolVersion;
     CIMName                      className;
     CIMName                      methodName;
-    String                       instanceName;
+    CIMObjectPath                objectName;
     Array<Sint8>                 encoded;
     Array <Sint8>                objPath;
     Array<CIMKeyBinding>         keyBindings;
@@ -196,7 +163,12 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     //
     if (!XmlReader::getMessageStartTag (parser, messageId, protocolVersion))
     {
-        throw XmlValidationError (parser.getLine (), MISSING_ELEMENT_MESSAGE);
+        throw XmlValidationError(parser.getLine(), "expected MESSAGE element");
+
+        // l10n TODO
+        //MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT",
+        //                           "expected MESSAGE element");
+        //throw XmlValidationError(parser.getLine(), mlParms);
     }
 
     //
@@ -208,6 +180,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     }
     else if (!XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
     {
+        // l10n TODO
         throw XmlValidationError (parser.getLine (), MISSING_ELEMENT_REQ);
     }
 
@@ -231,7 +204,19 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             //  Construct the object path from the LOCALNAMESPACEPATH 
             //  subelements (NAMESPACE elements)
             //
-            objPath << getObjPath (parser);
+            String namespaceName;
+
+            if (!XmlReader::getLocalNameSpacePathElement(parser, namespaceName))
+            {
+                throw XmlValidationError(parser.getLine(),
+                    "expected LOCALNAMESPACEPATH element");
+
+                // l10n TODO
+                //MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+                //                           "expected LOCALNAMESPACEPATH element");
+                //throw XmlValidationError(parser.getLine(),mlParms);
+            }
+            objPath << namespaceName;
         }
 
         //
@@ -249,102 +234,33 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             //
             //  LOCALCLASSPATH or LOCALINSTANCEPATH element
             //
-            if (XmlReader::testStartTag (parser, entry, 
-                XML_ELEMENT_LOCALCLASSPATH))
+            if (XmlReader::getLocalClassPathElement (parser, objectName)) 
             {
-                //
-                //  LOCALCLASSPATH element
-                //
-                //  Construct the name space portion of the object path 
-                //  from the LOCALNAMESPACEPATH subelements (NAMESPACE 
-                //  elements)
-                //
-                objPath << getObjPath (parser);
-                objPath << LOCALNAMESPACEPATH_DELIMITER;
-
-                //
-                //  CLASSNAME element
-                //
-                if (!XmlReader::getClassNameElement (parser, className))
-                {
-                    throw XmlValidationError (parser.getLine (), 
-                        MISSING_ELEMENT_CLASSNAME);
-                }
-
-                objPath << className;
+                objPath << objectName.toString();
             }
-            else if (XmlReader::testStartTag (parser, entry, 
-                XML_ELEMENT_LOCALINSTANCEPATH))
+            else if (XmlReader::getLocalInstancePathElement (parser,
+                objectName)) 
             {
-                //
-                //  LOCALINSTANCEPATH element
-                //
-                //  Construct the name space portion of the object path 
-                //  from the LOCALNAMESPACEPATH subelements (NAMESPACE 
-                //  elements)
-                //
-                objPath << getObjPath (parser);
-                objPath << LOCALNAMESPACEPATH_DELIMITER;
-
-                //
-                //  INSTANCENAME element
-                //
-                if (!XmlReader::getInstanceNameElement (parser, instanceName,
-                                                        keyBindings))
-                {
-                    throw XmlValidationError (parser.getLine (), 
-                        MISSING_ELEMENT_INSTANCENAME);
-                }
-
-                //
-                //  Append CLASSNAME portion of object path
-                //
-                objPath << instanceName;
-
-                //
-                //  Append KEYBINDING portion of object path
-                //
-                if (keyBindings.size () <= 0)
-                {
-                    objPath << SINGLETON_INSTANCE;
-                }
-                else
-                {
-                    for (i = 0; i < keyBindings.size (); i++)
-                    {
-                        if (i == 0)
-                        {
-                            objPath << KEYBINDING_DELIMITER;
-                        }
-                        else
-                        {
-                            objPath << KEYBINDING_SEPARATOR;
-                        }
-                        objPath << keyBindings [i].getName () << KEYVALUE_EQUAL;
-                        type = keyBindings [i].getType ();
-                        if (type == CIMKeyBinding::STRING)
-                        {
-                            objPath << KEYVALUE_STRING_DELIMITER;
-                        }
-                        objPath << _escapeSpecialCharacters 
-                                   (keyBindings [i].getValue ());
-                        if (type == CIMKeyBinding::STRING)
-                        {
-                            objPath << KEYVALUE_STRING_DELIMITER;
-                        }
-                    }
-                }
+                objPath << objectName.toString();
             }
             else
             {
+                // l10n TODO - Use CIMOperationRequestDecoder message when it
+                // is available (or perhaps use Common.XmlReader.
+                // EXPECTED_LOCALINSTANCEPATH_OR_LOCALCLASSPATH_ELEMENT)
                 throw XmlValidationError (parser.getLine (), 
                     MISSING_ELEMENT_LOCALPATH);
             }
         }
         else
         {
-            throw XmlValidationError (parser.getLine (), 
-                MISSING_ELEMENT_METHODCALL);
+            throw XmlValidationError(parser.getLine(),
+                "expected IMETHODCALL or METHODCALL element");
+
+            // l10n TODO
+            //MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT",
+            //                           "expected IMETHODCALL or METHODCALL element");
+            //throw XmlValidationError(parser.getLine(),mlParms);
         }
     }
 
@@ -437,51 +353,6 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     message << content;
 
     return message;
-}
-
-/**
-  
-    Constructs a String from the input String, applying the standard
-    escaping mechanism to escape any characters that are unsafe within
-    an HTTP header.  Used for key values of type string in a CIM object
-    path.
-  
-    @param   str                 input String to escape
-  
-    @return  a new String corresponding to the input string, with the
-             escaping mechanism having been applied
-  
- */
-String XMLProcess::_escapeSpecialCharacters (const String& str)
-{
-    String result;
-
-    for (Uint32 i = 0, n = str.size (); i < n; i++)
-    {
-        switch (str [i])
-        {
-            case '\n':
-                result.append("\\n");
-                break;
-
-            case '\r':
-                result.append("\\r");
-                break;
-
-            case '\t':
-                result.append("\\t");
-                break;
-
-            case '"':
-                result.append("\\\"");
-                break;
-
-            default:
-                result.append(str [i]);
-        }
-    }
-
-    return result;
 }
 
 PEGASUS_NAMESPACE_END

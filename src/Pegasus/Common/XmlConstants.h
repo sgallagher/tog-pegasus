@@ -24,7 +24,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
 //         (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,16 +44,6 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //  XML Elements
 //
-
-/**
- *  The element used to define a local namespace path.
- */
-static const char XML_ELEMENT_LOCALNAMESPACEPATH [] = "LOCALNAMESPACEPATH";
-
-/**
- *  The element used to define a namespace component of a namespace path.
- */
-static const char XML_ELEMENT_NAMESPACE [] = "NAMESPACE";
 
 /**
  *  The element used to define a multiple CIM operation request.
@@ -92,38 +82,12 @@ static const char XML_ELEMENT_LOCALINSTANCEPATH [] = "LOCALINSTANCEPATH";
 
 /**
  *
- *  Exception message string indicating missing &lt;MESSAGE&gt; element.
- *
- */
-static const char MISSING_ELEMENT_MESSAGE [] = 
-    "Failed to find <MESSAGE> element";
-
-/**
- *
  *  Exception message string indicating missing &lt;SIMPLEREQ&gt; or
  *  &lt;MULTIREQ&gt; element.
  *
  */
 static const char MISSING_ELEMENT_REQ [] = 
-    "Failed to find <SIMPLEREQ> or <MULTIREQ> element";
-
-/**
- *
- *  Exception message string indicating missing &lt;METHODCALL&gt; or
- *  &lt;IMETHODCALL&gt; element.
- *
- */
-static const char MISSING_ELEMENT_METHODCALL [] = 
-    "Failed to find <METHODCALL> or <IMETHODCALL> element";
-
-/**
- *
- *  Exception message string indicating missing &lt;LOCALNAMESPACEPATH&gt; 
- *  element.
- *
- */
-static const char MISSING_ELEMENT_LOCALNAMESPACEPATH [] = 
-    "Failed to find <LOCALNAMESPACEPATH> element";
+    "expected SIMPLEREQ or MULTIREQ element";
 
 /**
  *
@@ -132,23 +96,7 @@ static const char MISSING_ELEMENT_LOCALNAMESPACEPATH [] =
  *
  */
 static const char MISSING_ELEMENT_LOCALPATH [] = 
-    "Failed to find <LOCALCLASSPATH> or <LOCALINSTANCEPATH> element";
-
-/**
- *
- *  Exception message string indicating missing &lt;CLASSNAME&gt; element.
- *
- */
-static const char MISSING_ELEMENT_CLASSNAME [] = 
-    "Failed to find <CLASSNAME> element";
-
-/**
- *
- *  Exception message string indicating missing &lt;INSTANCENAME&gt; element.
- *
- */
-static const char MISSING_ELEMENT_INSTANCENAME [] = 
-    "Failed to find <INSTANCENAME> element";
+    "expected LOCALCLASSPATH or LOCALINSTANCEPATH element";
 
 
 PEGASUS_NAMESPACE_END

@@ -673,13 +673,13 @@ wbemexec: Invalid XML request: Validation error: on line 2: missing CIM.DTDVERSI
 Invalid XML input: missing <MESSAGE> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr02.xml
  
-wbemexec: Invalid XML request: Validation error: on line 3: Failed to find <MESSAGE> element
+wbemexec: Invalid XML request: Validation error: on line 3: expected MESSAGE element
  
  
 Invalid XML input: missing <MESSAGE> element (different element)
 wbemexec -u guest -w guest < ./cimreqerr02a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 3: Failed to find <MESSAGE> element
+wbemexec: Invalid XML request: Validation error: on line 3: expected MESSAGE element
  
  
 Invalid XML input: missing PROTOCOLVERSION attribute
@@ -691,27 +691,27 @@ wbemexec: Invalid XML request: Validation error: on line 3: Invalid or missing M
 Invalid XML input: missing <SIMPLEREQ> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr03.xml
  
-wbemexec: Invalid XML request: Validation error: on line 4: Failed to find <SIMPLEREQ> or <MULTIREQ> element
+wbemexec: Invalid XML request: Validation error: on line 4: expected SIMPLEREQ or MULTIREQ element
  
  
 Invalid XML input: missing <SIMPLEREQ> element (different element)
 wbemexec -u guest -w guest < ./cimreqerr03a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 4: Failed to find <SIMPLEREQ> or <MULTIREQ> element
+wbemexec: Invalid XML request: Validation error: on line 4: expected SIMPLEREQ or MULTIREQ element
  
  
 Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element 
     (no element)
 wbemexec -u guest -w guest < ./cimreqerr04.xml
  
-wbemexec: Invalid XML request: Validation error: on line 5: Failed to find <METHODCALL> or <IMETHODCALL> element
+wbemexec: Invalid XML request: Validation error: on line 5: expected IMETHODCALL or METHODCALL element
  
  
 Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element 
     (different element)
 wbemexec -u guest -w guest < ./cimreqerr04a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 5: Failed to find <METHODCALL> or <IMETHODCALL> element
+wbemexec: Invalid XML request: Validation error: on line 5: expected IMETHODCALL or METHODCALL element
  
  
 Invalid XML input: missing NAME attribute 
@@ -723,14 +723,14 @@ wbemexec: Invalid XML request: Validation error: on line 5: missing IMETHODCALL.
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr05.xml
  
-wbemexec: Invalid XML request: Validation error: on line 6: Failed to find <LOCALNAMESPACEPATH> element
+wbemexec: Invalid XML request: Validation error: on line 6: expected LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (different 
     element)
 wbemexec -u guest -w guest < ./cimreqerr05a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 6: Failed to find <LOCALNAMESPACEPATH> element
+wbemexec: Invalid XML request: Validation error: on line 6: expected LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <NAMESPACE> element (no element)
@@ -767,27 +767,27 @@ Invalid XML input: missing <LOCALCLASSPATH> or <LOCALINSTANCEPATH>
     element (no element)
 wbemexec ./cimreqerr07.xml
  
-wbemexec: Invalid XML request: Validation error: on line 6: Failed to find <LOCALCLASSPATH> or <LOCALINSTANCEPATH> element
+wbemexec: Invalid XML request: Validation error: on line 6: expected LOCALCLASSPATH or LOCALINSTANCEPATH element
  
  
 Invalid XML input: missing <LOCALCLASSPATH> or <LOCALINSTANCEPATH> 
     element (different element)
 wbemexec ./cimreqerr07a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 6: Failed to find <LOCALCLASSPATH> or <LOCALINSTANCEPATH> element
+wbemexec: Invalid XML request: Validation error: on line 6: expected LOCALCLASSPATH or LOCALINSTANCEPATH element
  
  
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)
 wbemexec ./cimreqerr08.xml
  
-wbemexec: Invalid XML request: Validation error: on line 7: Failed to find <LOCALNAMESPACEPATH> element
+wbemexec: Invalid XML request: Validation error: on line 7: expected LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <LOCALNAMESPACEPATH> element 
     (different element)
 wbemexec ./cimreqerr08a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 7: Failed to find <LOCALNAMESPACEPATH> element
+wbemexec: Invalid XML request: Validation error: on line 7: expected LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <NAMESPACE> element (no element)
@@ -823,13 +823,13 @@ wbemexec: Invalid XML request: Validation error: on line 11: Expected close of L
 Invalid XML input: missing <CLASSNAME> element (no element)
 wbemexec ./cimreqerr10.xml
  
-wbemexec: Invalid XML request: Validation error: on line 12: Failed to find <CLASSNAME> element
+wbemexec: Invalid XML request: Validation error: on line 12: expected CLASSNAME element
  
  
 Invalid XML input: missing <CLASSNAME> element (different element)
 wbemexec ./cimreqerr10a.xml
  
-wbemexec: Invalid XML request: Validation error: on line 12: Failed to find <CLASSNAME> element
+wbemexec: Invalid XML request: Validation error: on line 12: expected CLASSNAME element
  
  
 Invalid XML input: missing NAME attribute for CLASSNAME element

@@ -62,7 +62,7 @@ public:
     */
     double getElapsed() const;
 
-    /**	printElapsed method sends the current value of the timer and
+    /**	printElapsed method gets the current value of the timer and
     sends it to standardout as a string with the word seconds attached
     */
     void printElapsed();

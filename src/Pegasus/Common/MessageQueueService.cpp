@@ -227,6 +227,37 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
    }
 }
 
+
+Boolean MessageQueueService::_enqueueResponse(
+   Message* request, 
+   Message* response)
+{
+   if(request->_async != 0 )
+   {
+      Uint32 mask = request->_async->getMask();
+      if ( mask & message_mask::ha_async)
+      {
+	 if ( mask & message_mask::ha_request)
+	 {
+	    AsyncOpNode *op = (static_cast<AsyncRequest *>(request->_async)->op);
+	    
+	    AsyncLegacyOperationResult *async_result = 
+	       new AsyncLegacyOperationResult( 
+		  (static_cast<AsyncRequest *>(request->_async))->getKey(),
+		  (static_cast<AsyncRequest *>(request->_async))->getRouting(),
+		  op,
+		  response);
+	    _completeAsyncResponse(static_cast<AsyncRequest *>(request->_async),
+				   async_result,
+				   ASYNC_OPSTATE_COMPLETE, 
+				   0);
+	    return true;
+	 }
+      }
+   }
+   return false;
+}
+
 void MessageQueueService::_make_response(AsyncRequest *req, Uint32 code)
 {
    AsyncReply *reply = 

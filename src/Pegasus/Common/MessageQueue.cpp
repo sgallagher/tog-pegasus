@@ -166,7 +166,6 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
 
 }
 
-
 Message* MessageQueue::dequeue() throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
@@ -189,6 +188,8 @@ Message* MessageQueue::dequeue() throw(IPCException)
     _mut.unlock();
     return 0;
 }
+
+
 
 void MessageQueue::remove(Message* message) throw(IPCException)
 {

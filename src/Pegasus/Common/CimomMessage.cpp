@@ -98,7 +98,6 @@ AsyncMessage::AsyncMessage(Uint32 type,
    
 }
 
-
 AsyncRequest::AsyncRequest(Uint32 type, 
 			   Uint32 key, 
 			   Uint32 routing,
@@ -277,8 +276,7 @@ AsyncOperationStart::AsyncOperationStart(Uint32 routing,
 		  destination, response, blocking),
      act(action) 
 {  
-   if( op != 0 )
-      op->put_request(act);
+
 }
 
 
@@ -308,7 +306,7 @@ AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing,
 		  operation, destination, CIMOM_Q_ID, false),
      act(action) , legacy_destination(action_destination)
 {  
-
+   act->_async = this;
 }
 
 
@@ -321,7 +319,7 @@ AsyncLegacyOperationResult::AsyncLegacyOperationResult(Uint32 key,
 		0, CIMOM_Q_ID, false),
      res(result)
 {   
-
+   res->_async = this;
 }
       
 

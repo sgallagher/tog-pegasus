@@ -3,6 +3,6 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    TestListener
+#    TestListener
 
 include $(ROOT)/mak/recurse.mak

@@ -67,6 +67,21 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 	_dying = 1;
 }
 
+
+void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
+{
+   if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+   {
+      req->op->processing();
+      
+
+   }
+   else 
+      Base::_handle_async_request(req);
+}
+
+
+
 // ATTN
 // this needs to return an array of names if it is possible
 // to have more than one provider per class.
@@ -96,14 +111,34 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 	// save the message key because the lifetime of the message is not known.
 	Uint32 messageKey = request->getKey();
 
+
+//	<< Tue Feb 12 08:29:38 2002 mdd >> example of conversion to meta dispatcher
+// automatically initializes backpointer
+	AsyncLegacyOperationStart *async_req = new AsyncLegacyOperationStart(
+	   get_next_xid(),
+	   0, 
+	   _configurationManager.getQueueId(),
+	   request,
+	   _queueId);
+	
 	// send request
-	_configurationManager.enqueue(request);
+//	_configurationManager.enqueue(request);
+
+	AsyncReply *async_reply = SendWait(async_req);
+	
+	CIMEnumerateInstancesResponseMessage * response = 
+	   reinterpret_cast<CIMEnumerateInstancesResponseMessage *>  
+	   ((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
+	
+	delete async_req;
+	delete async_reply;
+	
 
 	// wait for response
-	CIMEnumerateInstancesResponseMessage * response =
-		(CIMEnumerateInstancesResponseMessage *)_waitForResponse(
-		CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-		messageKey);
+// 	CIMEnumerateInstancesResponseMessage * response =
+// 		(CIMEnumerateInstancesResponseMessage *)_waitForResponse(
+// 		CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+// 		messageKey);
 
 	// ATTN: temporary fix until CIMNamedInstance removed
 	Array<CIMInstance> cimInstances;
@@ -237,6 +272,7 @@ Message * CIMOperationRequestDispatcher::_waitForResponse(
 	return(message);
 }
 
+
 void CIMOperationRequestDispatcher::_enqueueResponse(
 	CIMRequestMessage* request,
 	CIMResponseMessage* response)
@@ -245,6 +281,9 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
 	response->setKey(request->getKey());
 
+	if( true == Base::_enqueueResponse(request, response))
+	   return;
+	
 	// Lookup the message queue:
 
 	MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
@@ -264,9 +303,9 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 
 	if(!request)
 		return;
-
-	switch(request->getType())
+   	switch(request->getType())
 	{
+	   
 	case CIM_GET_CLASS_REQUEST_MESSAGE:
 		handleGetClassRequest((CIMGetClassRequestMessage*)request);
 		break;

@@ -99,7 +99,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  @param message pointer to message to be enqueued.
 	  @exception throws NullPointer exception if message parameter is null.
       */
-      void enqueue(Message* message) throw(IPCException);
+      virtual void enqueue(Message* message) throw(IPCException);
 
 
       /** allows a caller to determine if this message queue is asynchronous or 
@@ -111,7 +111,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       /** Dequeues a message (removes it from the front of the queue).
 	  @return pointer to message or zero if queue is empty.
       */
-      Message* dequeue() throw(IPCException);
+      virtual Message* dequeue() throw(IPCException);
 
       /** Removes the given message from the queue.
 	  @param message to be removed.
@@ -119,35 +119,35 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  @exception throws NoSuchMessageOnQueue is message paramter is not
 	  on this queue.
       */
-      void remove(Message* message) throw(IPCException);
+      virtual void remove(Message* message) throw(IPCException);
 
       /** Find the message with the given type.
 	  @parameter type type of message to be found.
 	  @return pointer to message if found; null otherwise.
       */
-      Message* findByType(Uint32 type) throw(IPCException);
+      virtual Message* findByType(Uint32 type) throw(IPCException);
 
       /** Const version of findByType(). */
-      const Message* findByType(Uint32 type) const throw(IPCException);
+      virtual const Message* findByType(Uint32 type) const throw(IPCException);
 
       /** Find the message with the given key.
 	  @parameter key key of message to be found.
 	  @return pointer to message if found; null otherwise.
       */
-      Message* findByKey(Uint32 key) throw(IPCException);
+      virtual Message* findByKey(Uint32 key) throw(IPCException);
 
       /** Const version of findByKey(). */
-      const Message* findByKey(Uint32 key) const throw(IPCException);
+      virtual const Message* findByKey(Uint32 key) const throw(IPCException);
 
       /** Finds the messages with the given type and key.
 	  @param type type of message to be found.
 	  @param type key of message to be found.
 	  @return pointer to message if found; null otherwise.
       */
-      Message* find(Uint32 type, Uint32 key) throw(IPCException);
+      virtual Message* find(Uint32 type, Uint32 key) throw(IPCException);
 
       /** Const version of find(). */
-      const Message* find(Uint32 type, Uint32 key) const throw(IPCException);
+      virtual const Message* find(Uint32 type, Uint32 key) const throw(IPCException);
 
       /** Returns pointer to front message. */
       Message* front() { return _front; }

@@ -3,6 +3,6 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    ExportServer
+#    ExportServer
 
 include $(ROOT)/mak/recurse.mak

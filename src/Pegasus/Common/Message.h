@@ -80,6 +80,9 @@ class PEGASUS_COMMON_LINKAGE message_mask
 };
 
 class MessageQueue;
+class MessageQueueService;
+class AsyncLegacyOperationStart;
+class AsyncLegacyOperationResult;
 
 /** The Message class and derived classes are used to pass messages between 
     modules. Messages are passed between modules using the message queues
@@ -107,7 +110,8 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _routing_code(routing_code), 
 	 _mask(mask),
 	 _next(0), 
-	 _prev(0) 
+	 _prev(0),
+	 _async(0)
       { 
 
       }
@@ -165,10 +169,17 @@ class PEGASUS_COMMON_LINKAGE Message
       Uint32 _mask;
       Message* _next;
       Message* _prev;
+   protected:
+      Message *_async;
+   private:
       MessageQueue* _owner;
       static Uint32 _nextKey;
       static Mutex _mut;
       friend class MessageQueue;
+      friend class MessageQueueService;
+      friend class AsyncLegacyOperationStart;
+      friend class AsyncLegacyOperationResult;
+      
 };
 
 

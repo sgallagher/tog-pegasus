@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -118,12 +118,12 @@ ProviderIdContainer::ProviderIdContainer(
     const CIMInstance & module,
     const CIMInstance & provider,
     Boolean remoteNameSpace,
-    String remoteInfo)
+    const String & remoteInfo)
+    : _module(module),
+    _provider(provider),
+    _isRemoteNameSpace(isRemoteNameSpace),
+    _remoteInfo(remoteInfo)
 {
-    _module = module;
-    _provider = provider;
-    _remoteNameSpace=remoteNameSpace;
-    _remoteInfo=remoteInfo;
 }
 
 ProviderIdContainer::~ProviderIdContainer(void)
@@ -139,7 +139,7 @@ ProviderIdContainer & ProviderIdContainer::operator=(const ProviderIdContainer &
 
     _module = container._module;
     _provider = container._provider;
-    _remoteNameSpace = container._remoteNameSpace;
+    _isRemoteNameSpace = container._isRemoteNameSpace;
     _remoteInfo = container._remoteInfo;
 
     return(*this);
@@ -172,10 +172,10 @@ CIMInstance ProviderIdContainer::getProvider(void) const
 
 Boolean ProviderIdContainer::isRemoteNameSpace(void) const
 {
-    return(_remoteNameSpace);
+    return(_isRemoteNameSpace);
 }
 
-const String & ProviderIdContainer::getRemoteInfo(void) const
+String ProviderIdContainer::getRemoteInfo(void) const
 {
     return(_remoteInfo);
 }

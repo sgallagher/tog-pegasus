@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -77,7 +77,7 @@ public:
 
     ProviderIdContainer(const OperationContext::Container & container);
     ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
-        Boolean remoteNameSpace = false, String remoteInfo = String::EMPTY);
+        Boolean remoteNameSpace = false, const String & remoteInfo = String::EMPTY);
     virtual ~ProviderIdContainer(void);
 
     ProviderIdContainer & operator=(const ProviderIdContainer & container);
@@ -88,13 +88,13 @@ public:
 
     CIMInstance getModule(void) const;
     CIMInstance getProvider(void) const;
-    const String & getRemoteInfo(void) const;
     Boolean isRemoteNameSpace(void) const;
+    String getRemoteInfo(void) const;
 
 protected:
     CIMInstance _module;
     CIMInstance _provider;
-    Boolean _remoteNameSpace;
+    Boolean _isRemoteNameSpace;
     String _remoteInfo;
 
 };

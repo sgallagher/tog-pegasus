@@ -885,6 +885,14 @@ private:
         const Array <CIMNamedInstance> & subscriptions,
         /* const */ CIMInstance & alertInstance);
 
+    /**
+        Sends a start message to the specified provider.
+
+        @param   startProvider         the provider to be started
+     */
+    void _sendStart (
+        const ProviderClassList & startProvider);
+
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
 

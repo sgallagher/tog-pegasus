@@ -1032,6 +1032,11 @@ public:
 	const String & messageId_,
 	const String & nameSpace_,
 	const Array<String> & classNames_,
+        //
+        //  ATTN-CAKG-P2-20020408: Temporary; will be replaced with provider
+        //  and provider module instances
+        //
+        const Pair <String, String> & pair_,
 	QueueIdStack queueIds_)
     :
     CIMRequestMessage(
@@ -1039,12 +1044,14 @@ public:
         messageId_,
         queueIds_),
     nameSpace(nameSpace_),
-    classNames(classNames_)
+    classNames(classNames_),
+    pair (pair_)
     {
     }
 
     String nameSpace;
     Array<String> classNames;
+    Pair <String, String> pair;
 
 };
 

@@ -41,7 +41,7 @@
 #if defined (PEGASUS_PLATFORM_HPUX_ACC)
 #include "Process_HPUX.h"
 #elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "Process_Linux.h"
+#include "Process_Stub.h"
 #else
 #include "Process_Stub.h"
 #endif

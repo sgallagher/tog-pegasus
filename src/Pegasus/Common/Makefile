@@ -15,6 +15,7 @@ NEW_SOURCES = \
 
 SOURCES = \
     $(NEW_SOURCES) \
+    OptionManager.cpp \
     Socket.cpp \
     CIMStatusCode.cpp \
     CIMMessage.cpp \

@@ -47,6 +47,7 @@
 #include "CQLValue.h"
 #include "CQLIdentifier.h"
 #include "CQLChainedIdentifier.h"
+#include <Pegasus/CQL/Cql2Dnf.h>
 
 // ATTN: TODOs - 
 // spec compliance
@@ -1131,6 +1132,10 @@ void CQLSelectStatementRep::normalizeToDOC()
     applyContext();
 
   // ATTN - add normalize code.
+   if(_hasWhereClause){
+   	Cql2Dnf DNFer(_predicate);
+   	_predicate = DNFer.getDnfPredicate(); 
+   }
 }
 
 String CQLSelectStatementRep::toString()

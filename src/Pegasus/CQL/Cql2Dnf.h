@@ -127,10 +127,12 @@ public:
 
     Cql2Dnf(CQLSelectStatement * cqs);
 
+    Cql2Dnf(CQLPredicate& topLevel);
+
     ~Cql2Dnf();
 
     void compile (CQLSelectStatement * cqs);
-
+    void compile (CQLPredicate& topLevel);
     void print();
     CQLPredicate getDnfPredicate();
 
@@ -156,7 +158,7 @@ protected:
 	// 	[a][b][c][d][e][f]
 	//
 
-    void _strip_ops_operands(CQLSelectStatement *cqs);
+    void _strip_ops_operands(CQLPredicate& topLevel);
 
 	//
 	// _destruct(const CQLPredicate& _p

@@ -348,13 +348,24 @@ Cql2Dnf::Cql2Dnf(CQLSelectStatement * cqs)
     compile(cqs);
 }
 
+Cql2Dnf::Cql2Dnf(CQLPredicate& topLevel){
+    eval_heap.reserveCapacity(16);
+    terminal_heap.reserveCapacity(16);
+    compile(topLevel);
+}
+
 Cql2Dnf::~Cql2Dnf() {}
 
-void Cql2Dnf::compile(CQLSelectStatement * cqs)
-{
-    if (!cqs->hasWhereClause()) return;
+void Cql2Dnf::compile(CQLSelectStatement * cqs){
+	CQLPredicate topLevel = cqs->getPredicate();
+	compile(topLevel);
+}
 
-    _strip_ops_operands(cqs);
+void Cql2Dnf::compile(CQLPredicate& topLevel)
+{
+    //if (!cqs->hasWhereClause()) return;
+
+    _strip_ops_operands(topLevel);
     _buildEvalHeap();
     _pushNOTDown();
     _factoring();
@@ -815,13 +826,12 @@ void Cql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
     }
 }
 */
-void Cql2Dnf::_strip_ops_operands(CQLSelectStatement *cqs)
+void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
 {
 	//
 	// depth first search for all operations and operands
 	// extract operations and operands and store in respective arrays for later processing
 	//
-	CQLPredicate topLevel = cqs->getPredicate();
 	_destruct(topLevel);
 }
 

@@ -265,7 +265,7 @@ void SampleFamilyProvider::terminate(void)
        "SampleFamilyProvider::terminate");
     
     // TODO Mike Day mentioned additional cleanup needed
-    PEGASUS_STD(cout) << "KSTEST Terminate SampleFamilyProvider " << PEGASUS_STD(endl);
+    CDEBUG("Terminate SampleFamilyProvider ");
     PEG_METHOD_EXIT();
 }
 
@@ -383,7 +383,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::enumerateInstanceNames");
-	PEGASUS_STD(cout) << "KSTEST Enumerate InstanceNames of " << classReference.toString() << PEGASUS_STD(endl);
+	CDEBUG("Enumerate InstanceNames of " << classReference.toString());
     // begin processing the request
 	handler.processing();
 
@@ -403,7 +403,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
     catch(CIMException& e)
     {
         CDEBUG("Exception hit " << e.getMessage());
-        // ATTN: KS 20030303 - Add an exception return here.
+		throw CIMException(CIM_ERR_NOT_FOUND);
     }
 
     CDEBUG("EnumerateInstanceNames for class = " << myClass);
@@ -734,6 +734,7 @@ void SampleFamilyProvider::associatorNames(
     String host = System::getHostName();
     // ATTN: Just a hack to get objects back. Note that today it returns the
     // association class, not the corresponding 
+    CDEBUG("Result Class = " << resultClass.getString() << " Role = " << role);
     for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
 	{
         // Filter out by resultClass and role.
@@ -751,16 +752,17 @@ void SampleFamilyProvider::associatorNames(
         // or any of its subclasses
         
         CIMObjectPath r = _instanceNamesLineageDynamic[i];
-        CDEBUG("Result Class = " << resultClass.getString() << " Role = " << role);
 
         if (resultClass.isNull() || r.getClassName().equal(resultClass))
         {
+            CDEBUG("Sending AssociatorNameResponse");
             if (r.getHost().size() == 0)
                 r.setHost(host);
     
             if (r.getNameSpace().isNull())
                 r.setNameSpace(nameSpace);
         }
+        handler.deliver(r);
 	}
     
 	// complete processing the request
@@ -844,15 +846,34 @@ void SampleFamilyProvider::referenceNames(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::referenceNames");
-	CDEBUG("referenceNames Operation");
+	CDEBUG("ReferenceNames Operation");
     
     // Get the namespace and host names to create the CIMObjectPath
-    String nameSpace = "SampleProvider";
+    String nameSpace = objectName.getNameSpace();
     String host = System::getHostName();
 
+    CIMName myClass = objectName.getClassName();
+    CIMClass cimClass;
+	try
+    {
+    cimClass = _cimom.getClass(
+		OperationContext(),
+		objectName.getNameSpace(),
+		objectName.getClassName(),
+		false,
+		false,
+		false,
+		CIMPropertyList());
+    }
+    catch(CIMException& e)
+    {
+        CDEBUG("Exception hit " << e.getMessage());
+		throw CIMException(CIM_ERR_NOT_FOUND);
+    }
 
 	// For all of the association objects.
-    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
+    CDEBUG("resultClass = " << ((resultClass.isNull())? "NULL" : resultClass));
+    for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
 	{
         // Filter out by resultClass and role.
         // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
@@ -867,10 +888,10 @@ void SampleFamilyProvider::referenceNames(
         
         // Note that here we test to determine if the returned object name equals resultClass
         // or any of its subclasses
-        
         //CIMObjectPath objectPath = _instanceNamesLineageDynamic[i];
-        CIMObjectPath objectPath =  _instancesLineageDynamic[i].buildPath(_referencedClass);
-        CDEBUG("Result Class = " << resultClass.getString() << " Role = " << role);
+        // ATTN: Need to dynamically get the assocClass and also put a try block around the following
+        // code.
+        CIMObjectPath objectPath =  _instancesLineageDynamic[i].buildPath(_assocClass);
         if (resultClass.isNull() || objectPath.getClassName().equal(resultClass))
         {
             if (objectPath.getHost().size() == 0)

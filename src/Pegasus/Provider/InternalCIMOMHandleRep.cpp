@@ -30,7 +30,7 @@
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //				Seema Gupta, (gseema@in.ibm.com for PEP135)
-//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -134,23 +134,11 @@ InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 out_qid, Uint32 ret_qid)
     }
 }
 
-#ifdef PEGASUS_OS_OS400
-InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400UserStateKey)
-    : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
-      _chOS400(os400UserStateKey)
-{
-}
-
-void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* profileHandle)
-{
-    memcpy(os400PH, profileHandle, 12);
-}
-#endif
-
 // Private, unimplemented copy constructor
 InternalCIMOMHandleRep::InternalCIMOMHandleRep(
     const InternalCIMOMHandleRep& rep)
-    : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT)
+    : CIMOMHandleRep(),
+      MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT)
 {
     PEGASUS_ASSERT(0);
 }
@@ -166,6 +154,19 @@ InternalCIMOMHandleRep& InternalCIMOMHandleRep::operator=(
 InternalCIMOMHandleRep::~InternalCIMOMHandleRep()
 {
 }
+
+#ifdef PEGASUS_OS_OS400
+InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400UserStateKey)
+    : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
+      _chOS400(os400UserStateKey)
+{
+}
+
+void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* profileHandle)
+{
+    memcpy(os400PH, profileHandle, 12);
+}
+#endif
 
 #ifdef PEGASUS_OS_OS400
 InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400key)
@@ -186,7 +187,6 @@ Uint32 InternalCIMOMHandleRep::get_output_qid()
     {
         AutoMutex autoMut(_qid_mutex);
         Uint32 qid = _output_qid;
-        
         return qid;
     }
     catch (...)
@@ -201,7 +201,6 @@ void InternalCIMOMHandleRep::set_output_qid(Uint32 qid)
     {
         AutoMutex autoMut(_qid_mutex);
         _output_qid = qid;
-        
     }
     catch (...)
     {
@@ -214,7 +213,6 @@ Uint32 InternalCIMOMHandleRep::get_return_qid()
     {
         AutoMutex autoMut(_qid_mutex);
         Uint32 qid = _return_qid;
-        
         return qid;
     }
     catch (...)
@@ -229,7 +227,6 @@ void InternalCIMOMHandleRep::set_return_qid(Uint32 qid)
     {
         AutoMutex autoMut(_qid_mutex);
         _return_qid = qid;
-        
     }
     catch (...)
     {

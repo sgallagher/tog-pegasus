@@ -1386,7 +1386,7 @@ Array<String> CIMRepository::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasNames");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClassNames");
 
     Array<String> classNames;
 
@@ -1533,12 +1533,11 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     Array<String> classNames;
     try 
     {
-       _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+        _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     }
     catch( ... )
     {
-       ;
-
+        Tracer::trace(TRC_REPOSITORY, Tracer::LEVEL3, "ATTN: Unhandled exception caught");
     }
         
     classNames.prepend(className);

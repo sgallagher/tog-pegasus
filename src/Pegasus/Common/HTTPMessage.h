@@ -61,7 +61,6 @@ public:
     void parse(
 	String& startLine,
 	Array<HTTPHeader>& headers,
-	Sint8*& content,
 	Uint32& contentLength) const;
 
     void printAll(PEGASUS_STD(ostream)& os) const;

@@ -156,10 +156,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     String startLine;
     Array<HTTPHeader> headers;
-    Sint8* content;
     Uint32 contentLength;
 
-    httpMessage->parse(startLine, headers, content, contentLength);
+    httpMessage->parse(startLine, headers, contentLength);
     
     //
     // Parse the request line:

@@ -88,10 +88,9 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 {
     String startLine;
     Array<HTTPHeader> headers;
-    Sint8* content;
     Uint32 contentLength;
 
-    requestMessage->parse(startLine, headers, content, contentLength);
+    requestMessage->parse(startLine, headers, contentLength);
 
     // requestMessage->print(cout);
 

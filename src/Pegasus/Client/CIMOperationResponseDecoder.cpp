@@ -106,7 +106,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Sint8* content;
     Uint32 contentLength;
 
-    httpMessage->parse(startLine, headers, content, contentLength);
+    httpMessage->parse(startLine, headers, contentLength);
 
     if (_authenticator->checkResponseHeaderForChallenge(headers))
     {
@@ -153,6 +153,13 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
 
     httpMessage->message.append('\0');
+
+    // Calculate the beginning of the content from the message size and
+    // the content length.  Subtract 1 to take into account the null
+    // character we just added to the end of the message.
+
+    content = (Sint8*) httpMessage->message.getData() +
+	httpMessage->message.size() - contentLength - 1;
 
     //
     // If it is a method response, then dispatch it to be handled:

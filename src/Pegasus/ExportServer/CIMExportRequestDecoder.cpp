@@ -146,7 +146,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Sint8* content;
     Uint32 contentLength;
 
-    httpMessage->parse(startLine, headers, content, contentLength);
+    httpMessage->parse(startLine, headers, contentLength);
 
     // Parse the request line:
 
@@ -182,6 +182,13 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	// Zero-terminate the message:
 
 	httpMessage->message.append('\0');
+
+	// Calculate the beginning of the content from the message size and
+	// the content length.  Subtract 1 to take into account the null
+	// character we just added to the end of the message.
+
+	content = (Sint8*) httpMessage->message.getData() +
+	    httpMessage->message.size() - contentLength - 1;
 
 	// If it is a method call, then dispatch it to be handled:
 

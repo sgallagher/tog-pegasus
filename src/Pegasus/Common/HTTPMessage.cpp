@@ -95,12 +95,10 @@ HTTPMessage::HTTPMessage(
 void HTTPMessage::parse(
     String& startLine,
     Array<HTTPHeader>& headers,
-    Sint8*& content,
     Uint32& contentLength) const
 {
     startLine.clear();
     headers.clear();
-    content = "";
     contentLength = 0;
 
     char* data = (char*)message.getData();
@@ -117,7 +115,7 @@ void HTTPMessage::parse(
 	{
 	    // Establish pointer to content (account for "\n" and "\r\n").
 
-	    content = line + ((*sep == '\r') ? 2 : 1);
+	    Sint8* content = line + ((*sep == '\r') ? 2 : 1);
 
 	    // Determine length of content:
 
@@ -183,9 +181,10 @@ void HTTPMessage::printAll(ostream& os) const
 
     String startLine;
     Array<HTTPHeader> headers;
-    Sint8* content;
     Uint32 contentLength;
-    parse(startLine, headers, content, contentLength);
+    parse(startLine, headers, contentLength);
+
+    const Sint8* content = message.getData() - contentLength;
 
     // Print the first line:
 

@@ -56,11 +56,11 @@ static inline String _MakeClassFilePath(
 {
     if (superClassName.size())
     {
-	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', 
+	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.',
 	    superClassName);
     }
     else
-	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', "#");
+	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', '#');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ static Boolean _NameSpaceDirHierIsEmpty(const String& nameSpacePath)
     String instancesPath = nameSpacePath + _INSTANCES_SUFFIX;
     String qualifiersPath = nameSpacePath + _QUALIFIERS_SUFFIX;
 
-    return 
+    return
 	FileSystem::isDirectoryEmpty(classesPath) &&
 	FileSystem::isDirectoryEmpty(instancesPath) &&
 	FileSystem::isDirectoryEmpty(qualifiersPath);
@@ -275,7 +275,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 	    nameSpaceName.translate('#', '/');
 
 	    NameSpace* nameSpace = 0;
-	    
+	
 	    try
 	    {
 		nameSpace = new NameSpace(nameSpacePath, nameSpaceName);
@@ -322,7 +322,7 @@ void NameSpaceManager::createNameSpace(const String& nameSpaceName)
     // Create NameSpace object and register it:
 
     NameSpace* nameSpace = 0;
-    
+
     try
     {
 	nameSpace = new NameSpace(nameSpacePath, nameSpaceName);

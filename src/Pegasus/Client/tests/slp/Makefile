@@ -19,4 +19,3 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-install:

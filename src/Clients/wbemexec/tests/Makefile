@@ -12,8 +12,6 @@ clean:
 	@$(RM) $(RESULTFILE)
 tests:
 
-install:
-
 general:
 
 poststarttests:

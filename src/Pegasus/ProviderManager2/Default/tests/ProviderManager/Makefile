@@ -22,4 +22,3 @@ tests:
 	$(PROGRAM)
 
 poststarttests:
-install:

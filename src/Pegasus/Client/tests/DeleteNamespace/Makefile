@@ -23,4 +23,3 @@ clean:
 
 poststarttests: 
 	$(PROGRAM)
-install:

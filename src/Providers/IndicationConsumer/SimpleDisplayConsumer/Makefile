@@ -25,5 +25,3 @@ LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DINDICATION_DIR="""$(DISPLAYCONSUME
 endif
 
 include $(ROOT)/mak/dynamic-library.mak
-
-install:

@@ -84,5 +84,3 @@ unregister: removeclasses
 
 unregisterproviders:
 	cimprovider -r -m MCCATestAssocProviderModule	
-
-install:

@@ -20,7 +20,6 @@ ALLOW_EXPERIMENTAL = -aE
 SAMPLE_PROVIDER_NS = root/SampleProvider
 
 tests:
-install:
  
 repository:
 	@ echo +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into root/cimv2 namespace...

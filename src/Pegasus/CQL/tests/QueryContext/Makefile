@@ -25,5 +25,3 @@ tests:
 
 poststarttests:
 	$(PROGRAM)
-
-install:

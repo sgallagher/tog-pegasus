@@ -21,4 +21,3 @@ tests:
 	$(RM) $(TMP_DIR)/*.passwd
 
 poststarttests:
-install:

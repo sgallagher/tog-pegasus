@@ -5,4 +5,3 @@ DIRS = \
         RT_IndicationConsumer
 
 include $(PEGASUS_ROOT)/mak/recurse.mak
-install:

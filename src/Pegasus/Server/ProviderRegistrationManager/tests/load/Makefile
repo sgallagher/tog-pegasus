@@ -46,4 +46,3 @@ tests:
 poststarttests:
 
 general:
-install:

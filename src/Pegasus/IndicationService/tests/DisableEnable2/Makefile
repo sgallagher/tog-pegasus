@@ -87,5 +87,3 @@ ifndef PEGASUS_DISABLE_CQL
 	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "+++++ TestDisableEnable2 passed all tests"
 endif
-
-install:

@@ -12,4 +12,3 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)
-install:

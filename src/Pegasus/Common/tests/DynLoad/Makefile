@@ -22,4 +22,3 @@ else
 endif
 
 poststarttests:
-install:

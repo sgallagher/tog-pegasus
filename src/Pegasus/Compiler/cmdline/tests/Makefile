@@ -52,8 +52,6 @@ clean:
 	@$(RM) $(RESULTFILE)
 	@$(RMDIRHIER) $(REPOSITORYDIR)/repository
 
-install:
-
 hangdefects:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl with no arguments hangs" >> output

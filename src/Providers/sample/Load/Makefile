@@ -117,4 +117,3 @@ poststarttests:
 general:
 
 clean:
-install:

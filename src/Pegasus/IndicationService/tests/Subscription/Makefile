@@ -23,5 +23,3 @@ poststarttests:
 	@$(ECHO) "TestSubscription unregister"
 	@$(PROGRAM) unregister
 	@$(ECHO) "+++++ TestSubscription passed all tests"
-
-install:

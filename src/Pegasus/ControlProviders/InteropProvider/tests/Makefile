@@ -17,7 +17,7 @@ SOURCES = interop.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-install:
+
 ##
 ## Test is failing on windows and preventing the other test from running.
 ## see bug 2914.

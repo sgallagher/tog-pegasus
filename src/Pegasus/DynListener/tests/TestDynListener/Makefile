@@ -16,4 +16,3 @@ poststarttests:
 
 run:
 
-install:

@@ -10,8 +10,6 @@ MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 tests:
 
-install:
-
 clean:
 	@$(RM) $(RESULTFILE)
 

@@ -15,4 +15,3 @@ include $(PEGASUS_ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-install:

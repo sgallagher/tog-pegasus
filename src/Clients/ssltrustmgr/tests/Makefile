@@ -26,8 +26,6 @@ include $(ROOT)/mak/commands.mak
 
 tests:
 
-install:
-
 clean:
 	@$(RM) $(RESULTFILE)
 

@@ -70,5 +70,3 @@ endif
 	@$(ECHO) Running.
 	@$(ECHO) ++++SSLClientVerification test completed.
 endif
-	
-install:

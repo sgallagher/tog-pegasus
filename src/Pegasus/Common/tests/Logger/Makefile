@@ -16,4 +16,3 @@ tests:
 	$(RM) logs/*.log
 
 poststarttests:
-install:

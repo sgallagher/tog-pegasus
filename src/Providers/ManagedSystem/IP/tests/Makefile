@@ -122,4 +122,3 @@ strip-license:
 
 prepend-license:
 
-install:

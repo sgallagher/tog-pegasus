@@ -32,8 +32,6 @@ endif
 
 include $(ROOT)/mak/program.mak
 
-install:
-
 tests:
 
 poststarttests:

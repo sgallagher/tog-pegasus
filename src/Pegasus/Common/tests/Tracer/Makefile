@@ -20,4 +20,3 @@ tests:
 	$(RM) $(TMP_DIR)/*.trace
 
 poststarttests:
-install:

@@ -19,8 +19,6 @@ poststarttests: QueryExpression.query.res
 clean:
 	$(RM) QueryExpression.query.res
                                                                               
-install:
-
 depend:
 
 

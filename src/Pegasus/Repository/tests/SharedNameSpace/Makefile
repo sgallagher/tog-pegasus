@@ -16,4 +16,3 @@ tests:
 	$(RMDIRHIER) $(TMP_DIR)/repository
 
 poststarttests:
-install:

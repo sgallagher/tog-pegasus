@@ -27,4 +27,3 @@ tests:
 	$(RMDIRHIER) $(LOCAL_DIRS_TO_CLEAN)
 
 poststarttests:
-install:

@@ -94,5 +94,3 @@ tests_ignoreerror:
 
 poststarttests:
 
-install:
-

@@ -27,5 +27,3 @@ SOURCES = \
 	TestProviderManager.cpp
 
 include $(ROOT)/mak/dynamic-library.mak
-
-install:

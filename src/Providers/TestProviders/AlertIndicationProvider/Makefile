@@ -15,4 +15,3 @@ SOURCES = \
 	AlertIndicationProvider.cpp
 
 include $(PEGASUS_ROOT)/mak/dynamic-library.mak
-install:

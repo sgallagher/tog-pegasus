@@ -10,8 +10,6 @@ MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 tests:
 
-install:
-
 poststarttests:
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s poststarttests_ignoreerror 

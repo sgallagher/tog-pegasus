@@ -20,4 +20,3 @@ include $(ROOT)/mak/dynamic-library.mak
 tests:
 
 poststarttests:
-install:

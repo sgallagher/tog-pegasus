@@ -17,4 +17,3 @@ SOURCES = \
 include $(ROOT)/mak/dynamic-library.mak
 
 tests:
-install:

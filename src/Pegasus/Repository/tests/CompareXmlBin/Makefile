@@ -122,8 +122,6 @@ endif
 
 poststarttests:
 
-install:
-
 clean: local-clean
 
 messages:

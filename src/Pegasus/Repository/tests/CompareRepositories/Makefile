@@ -22,7 +22,3 @@ tests:
 
 poststarttests:
 
-install:
-
-
-

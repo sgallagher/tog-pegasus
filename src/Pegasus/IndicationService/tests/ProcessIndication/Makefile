@@ -117,4 +117,3 @@ poststarttests:
 	@$(ECHO) "TestProcessIndication cleanup cim:cql"
 	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "+++++ TestProcessIndication passed all tests"
-install:

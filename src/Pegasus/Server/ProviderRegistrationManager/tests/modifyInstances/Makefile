@@ -19,4 +19,3 @@ tests:
 	$(RMREPOSITORY) $(TMP_DIR)/repository
 
 poststarttests:
-install:

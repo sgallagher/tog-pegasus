@@ -114,8 +114,6 @@ repo_regular_compile:
 
 poststarttests:
 
-install:
-
 clean: local-clean
 
 messages:

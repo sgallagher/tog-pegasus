@@ -76,5 +76,3 @@ poststarttests:
 
 depend:
 
-install:
-

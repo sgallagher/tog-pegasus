@@ -52,7 +52,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     String messageID;
     String typeString;
     Uint32 type;
-    ContentLanguages contentLanguages;
+	ContentLanguages contentLanguages;
     AcceptLanguages acceptLanguages;
     OperationContext operationContext;
 
@@ -90,8 +90,9 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     XmlReader::expectEndTag(parser, "PGMESSAGE");
 
     message->messageId = messageID;
-    message->contentLanguages = contentLanguages;
-    message->acceptLanguages = acceptLanguages;
+	message->operationContext.set(ContentLanguageListContainer(contentLanguages));
+    message->operationContext.set(AcceptLanguageListContainer(acceptLanguages));
+
     message->operationContext = operationContext;
 
     return message;

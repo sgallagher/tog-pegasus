@@ -266,7 +266,8 @@ public:
 
     static const char MSG[];
 
-    InstanceAlreadyResolved() : Exception(MSG) { }
+    InstanceAlreadyResolved()
+     : Exception(MSG) { }
 };
 
 /// ATTN:
@@ -276,7 +277,8 @@ public:
 
     static const char MSG[];
 
-    InstantiatedAbstractClass() : Exception(MSG) { }
+    InstantiatedAbstractClass(const String& className)
+     : Exception(MSG + className) { }
 };
 
 /// ATTN:

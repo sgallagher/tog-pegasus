@@ -101,7 +101,7 @@ const char InstanceAlreadyResolved::MSG[] =
     "attempted to resolve a instance that is already resolved";
 
 const char InstantiatedAbstractClass::MSG[] = 
-    "attempted to instantiated an abstract class";
+    "attempted to instantiate an abstract class ";
 
 const char NoSuchProperty::MSG[] = "no such property: ";
 

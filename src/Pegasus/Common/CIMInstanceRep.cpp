@@ -82,7 +82,7 @@ void CIMInstanceRep::resolve(
     //----------------------------------------------------------------------
 
     if (cimClass.isAbstract())
-	throw InstantiatedAbstractClass();
+	throw InstantiatedAbstractClass(_reference.getClassName());
 
     //----------------------------------------------------------------------
     // Validate the qualifiers of this class:

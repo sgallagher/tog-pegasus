@@ -45,19 +45,15 @@ bool CopyFile(const string& fromFile, const string& toFile)
     return true;
 }
 
-int main(int argc, char** argv)
-{
-    if (argc != 2)
-    {
-	cerr << "Usage: " << argv[0] << " filename" << endl;
-	exit(1);
-    }
+const char* arg0 = "";
 
-    ifstream is(argv[1] PEGASUS_IOS_BINARY);
+void ProcessFile(const char* fileName)
+{
+    ifstream is(fileName PEGASUS_IOS_BINARY);
 
     if (!is)
     {
-	cerr << argv[0] << ": failed to open \"" << argv[1] << "\"" << endl;
+	cerr << arg0 << ": failed to open \"" << fileName << "\"" << endl;
 	exit(1);
     }
 
@@ -67,7 +63,7 @@ int main(int argc, char** argv)
 
     if (!os)
     {
-	cerr << argv[0] << ": failed to open \"";
+	cerr << arg0 << ": failed to open \"";
 	cerr << TEMP_FILE_NAME << "\"" << endl;
 	exit(1);
     }
@@ -83,13 +79,28 @@ int main(int argc, char** argv)
     is.close();
     os.close();
 
-    if (!CopyFile(TEMP_FILE_NAME, argv[1]))
+    if (!CopyFile(TEMP_FILE_NAME, fileName))
     {
-	cerr << argv[0] << ": failed to copy back file" << endl;
+	cerr << arg0 << ": failed to copy back file" << endl;
 	exit(1);
     }
 
     RemoveFile(TEMP_FILE_NAME);
+}
+
+int main(int argc, char** argv)
+{
+    if (argc < 2)
+    {
+	cerr << "Usage: " << argv[0] << " filenames..." << endl;
+	exit(1);
+    }
+
+    for (int i = 1; i < argc; i++)
+    {
+	cout << argv[i] << endl;
+	ProcessFile(argv[i]);
+    }
 
     return 0;
 }

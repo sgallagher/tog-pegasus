@@ -4,7 +4,7 @@
 PEGDIRLIB=$(PEGASUS_HOME)/lib
 
 # Changes shouldn't be necessary below this line
-CFLAGS=-Wall -D_COMPILE_UNIX -g -I. -I$(PEGASUS_HOME)/src
+CFLAGS=-Wall -D_COMPILE_UNIX -g -I. -I$(PEGASUS_ROOT)/src
 LDFLAGS= -shared -ldl -lpthread
 
 lib%.so: %.o

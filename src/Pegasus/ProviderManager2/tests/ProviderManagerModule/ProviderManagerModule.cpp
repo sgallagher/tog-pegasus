@@ -59,9 +59,11 @@ static const String FILE_NAME = "TestProviderManager";
 static const String FILE_NAME = "libTestProviderManager.so";
 #endif
 
+String fileName;
+
 void Test1(void)
 {
-    ProviderManagerModule module(FILE_NAME);
+    ProviderManagerModule module(fileName);
 
     module.load();
 
@@ -113,9 +115,9 @@ void Test3(void)
 
     for(Uint32 i = 0, n = 3; i < n; i++)
     {
-        cout << "creating ProviderManagerModule object for " << FILE_NAME << endl;
+        cout << "creating ProviderManagerModule object for " << fileName << endl;
 
-        ProviderManagerModule module(FILE_NAME);
+        ProviderManagerModule module(fileName);
 
         modules.append(module);
     }
@@ -146,6 +148,8 @@ int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
 
+    fileName=String(getenv("PEGASUS_HOME"))+String("/lib/")+FILE_NAME;
+    
     Test1();
     Test2();
 

@@ -146,6 +146,19 @@ slp_service_agent::slp_service_agent(const char *local_interface,
    }
 }
 
+slp_service_agent::~slp_service_agent(void)
+{
+   try
+   {
+      _de_init();
+   }
+   catch(...)
+   {
+   }
+   
+}
+
+
 void slp_service_agent::_init(void)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -155,7 +168,7 @@ void slp_service_agent::_init(void)
 #elif defined(PEGASUS_OS_OS400)
    _lib_fileName.append("slp_client");
 #else
-   _lib_fileName.append("slp_client.so");
+   _lib_fileName.append("/usr/local/lib/libslp_client.so");
 #endif
    _lib_handle = System::loadDynamicLibrary((const char *)_lib_fileName.getCString());
 
@@ -219,7 +232,7 @@ Boolean slp_service_agent::srv_register(const char* url,
    if(url == 0 || attributes == 0 || type == 0)
       return false;
 
-   sa_reg_params* rp;
+   sa_reg_params* rp = 0;
    _internal_regs.lookup(url, rp);
    if(rp )
    {
@@ -348,7 +361,5 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
    myself->exit_self((PEGASUS_THREAD_RETURN) 0) ;
    return(0);
 }
-
-
 
 PEGASUS_NAMESPACE_END

@@ -29,6 +29,7 @@ SOURCES = \
    CQLSimplePredicate.cpp \
    CQLPredicate.cpp \
    CQLTerm.cpp \
+   CQLTermRep.cpp \
    CQLFunction.cpp \
    CQLFunctionRep.cpp \
    CQLExpression.cpp \

@@ -1,5 +1,7 @@
 #include <Pegasus/CQL/CQLTerm.h>
+#include <Pegasus/CQL/CQLTermRep.h>
 #include <Pegasus/CQL/CQLFactory.h>
+#include <Pegasus/CQL/QueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T FactorOpType
@@ -11,91 +13,57 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 
+CQLTerm::CQLTerm():_rep(0){
+
+}
+
+CQLTerm::CQLTerm(const CQLTerm& inTerm){
+	_rep = inTerm._rep;
+}
 
 CQLTerm::CQLTerm(CQLFactor theFactor)
 {
-   _Factors.append(theFactor);
+	_rep = new CQLTermRep(theFactor);
+}
+
+CQLTerm::~CQLTerm(){
+        if(_rep)
+                delete _rep;
 }
 
 CQLValue CQLTerm::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
-   CQLValue returnVal = _Factors[0].resolveValue(CI,QueryCtx);
-
-   for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
-   {
-      switch(_FactorOperators[i])
-      {
-         case mult:
-            returnVal = returnVal * 
-                        _Factors[i+1].resolveValue(CI,QueryCtx);
-            break;
-         case divide:
-            returnVal = returnVal / 
-                        _Factors[i+1].resolveValue(CI,QueryCtx);
-            break;
-         case concat:
-            returnVal = returnVal + 
-                        _Factors[i+1].resolveValue(CI,QueryCtx);
-            break;
-         default:
-            throw(1);
-      }
-   }
-   return returnVal;
+	return _rep->resolveValue(CI,QueryCtx);
 }
 
-//##ModelId=40FC32BF038F
 void CQLTerm::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor)
 {
-   _FactorOperators.append(inFactorOpType);
-   _Factors.append(inFactor);
+	_rep->appendOperation(inFactorOpType,inFactor);
 }
 
 String CQLTerm::toString()
 {
-   String returnStr;
-
-   returnStr.append(_Factors[0].toString());
-
-   for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
-   {
-      returnStr.append(_FactorOperators[i] == 
-            mult ? String(" * ") : divide ? String(" / ") : String(" concat "));
-      returnStr.append(_Factors[i+1].toString());
-   }
-
-   return returnStr;
-
+   return _rep->toString();
 }
 
 Boolean CQLTerm::isSimpleValue()
 {
-   if(_Factors.size() == 1 && 
-      _Factors[0].isSimpleValue())
-   {
-      return true;
-   }
-   return false;
+   return _rep->isSimpleValue();
 }
 
 Array<CQLFactor> CQLTerm::getFactors()
 {
-   return _Factors;
+   return _rep->getFactors();
 }
 
 Array<FactorOpType> CQLTerm::getOperators()
 {
-   return _FactorOperators;
+   return _rep->getOperators();
 }
 
 void CQLTerm::applyScopes(Array<CQLScope> inScope)
 {
-   for(Uint32 i = 0; i < _Factors.size(); ++i)
-   {
-      _Factors[i].applyScopes(inScope);
-   }
+	_rep->applyScopes(inScope);
 }
-
-
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.9  2001/04/14 19:57:30  mike
+// Finalized OptionManager class.
+//
 // Revision 1.8  2001/04/14 07:52:22  mike
 // more docs
 //
@@ -67,17 +70,16 @@ struct OptionRow;
 
     <h4>Overview</h4>
 
-    A program option may be specified in one of three ways:
+    A program option may be specified in two ways:
 
     <ul>
-	<li>As an environment variable</li>
 	<li>In a configuration file</li>
 	<li>On the command line</li>
     </ul>
 
-    This class provides methods for merging options from all three of these 
-    sources into a single unified collection. The following example showss 
-    how to merge options from a command line into the option manager.
+    This class provides methods for merging options from both of these 
+    sources into a single collection. The following example shows how to 
+    merge options from a command line into the option manager.
 
     <pre>
 	int main(int argc, char** argv)
@@ -95,8 +97,8 @@ struct OptionRow;
 	}
     </pre>
 
-    Methods are also provided for merging options from files and the environment
-    (see OptionManager::mergeFile(), OptionManager::mergeEnvironment()).
+    Similarly, the OptionManager::mergeFile() method allows options to be
+    merged from a file.
 
     Before options are merged into the option manager, information on each
     option must be registered with the option manager so that the following
@@ -108,8 +110,6 @@ struct OptionRow;
 	<li>Whether the option is required</li>
 	<li>The option's type (e.g., boolean, integer or string)</li>
 	<li>The domain of the option if any (set of legal values)</li>
-	<li>The name the option as it appears as an environment variable</li>
-	<li>The name the option as it appears in a configuration file</li>
 	<li>The name the option as it appears on the command line</li>
     </ul>
 
@@ -118,34 +118,38 @@ struct OptionRow;
     <pre>
 	OptionManager om;
 
-	Option* option = new Option("port", "80", false, Option::NATURAL_NUMBER,
-	    Array<String>(), "PEGASUS_PORT", "PORT", "p");
+	Option* option = new Option("port", "80", false, 
+	    Option::NATURAL_NUMBER, Array<String>(), "p");
 
 	om.registerOption(option);
     </pre>
 
     The arguments of the Option constructor are the same (and in the same
-    order) as the list just above. Notice that option name is "port", Whereas
-    the environment variable is named "PEGASUS_PORT" and the option name
-    in the configuration file is "port" and the command line option argument
-    name is "p" (will appear as -p on the command line).
+    order) as the list just above. Notice the last argument is "p". This
+    is the name of the option argument on the command line (it would appear
+    as "-p" on the command line).
 
-    Once options have been registered, the option values may be obtained using
-    the merge methods described earlier. During merging, certain validation is
-    done using the corresponding Option instance described above.
+    Once options have been registered, the option values may be initialized 
+    using the merge methods described earlier. During merging, certain 
+    validation is done using the corresponding Option instance described above.
 
     Once options have been merged, they may obtained by calling the 
     lookupOption() method like this:
     
     <pre>
 	Option* option = om.lookupOption("port");
-
 	String port = option->getValue();
+    </pre>
+
+    Or the lookupValue() convenience function may be used to lookup values:
+
+    <pre>
+	String value;
+	om.lookupValue("port", value);
     </pre>
 
     <h4>Command Line Options</h4>
 
-    To merge option values from the command line argument, call
     mergeCommandLine() like this:
 
     <pre>
@@ -168,11 +172,6 @@ struct OptionRow;
     This searches the file for options matching registered ones. Exceptions
     are thrown for any unrecognized option names that are encountered.
 
-    <h4>Environment Variable Options</h4>
-
-    The mergeEnvironment() method merges options from the enviroment space of
-    the process.
-
     <h4>Merge Validation</h4>
 
     During merging, the option manager validates the following (using the 
@@ -180,7 +179,7 @@ struct OptionRow;
 
     <ul>
 	<li>The type of the option - whether integer, positive integer,
-	    or string.</li>
+	    or string or whatever.</li>
 	<li>The domain of the option - whether the supplied option is a legal
 	    value for that otpion</li>
 	<li>User extended validation - whether the user overriden 
@@ -240,19 +239,9 @@ public:
     */
     void mergeCommandLine(int& argc, char**& argv);
 
-    /** Merge option values from the environment. Searches the environment
-	for registered options whose names are given by the
-	Option::getEnvironmentVariableName() method. Validation is performed
-	on each option value  obtained by calling Option::isValid(). Valid
-	option values are set by calling Option::setValue().
-
-	&exception BadEnvironmentOption if validation fails.
-    */
-    void mergeEnvironment();
-
     /** Merge option values from a file. Searches file for registered options
-	whose names are given by the Option::getEnvironmentVariableName()
-	method. Validation is performed on each option value by calling
+	whose names are given by the options which have been registered.
+	Validation is performed on each option value by calling 
 	Option::isValid(). Valid option values are set by calling 
 	Option::setValue().
 
@@ -265,7 +254,7 @@ public:
     /** After merging, this method is called to check for required options
 	that were not merged (specified).
 
-	&exception UnspecifiedRequiredOption
+	&exception MissingRequiredRequiredOption
     */
     void checkRequiredOptions() const;
 
@@ -287,11 +276,6 @@ private:
 	@return 0 if no such option.
     */
     Option* _lookupOptionByCommandLineOptionName(const String& name);
-
-    /** Lookup the option by its configFileOptionName.
-	@return 0 if no such option.
-    */
-    Option* _lookupOptionByConfigFileOptionName(const String& name);
 
     Array<Option*> _options;
 };
@@ -339,12 +323,6 @@ public:
 	@param domain list of legal value for this option. If this list
 	    is empty, then no domain is enforced.
 
-	@param environmentVariableName name of the corresponding environment
-	    variable (which may be different from the option name).
-
-	@param configFileOptionName name of the corresponding variable
-	    in the config file (which may be different from the option name).
-
 	@param commandLineOptionName name of the corresponding command line
 	    option (which may be different from the option name).
     */
@@ -354,8 +332,6 @@ public:
         Boolean required,
         Type type,
         const StringArray& domain = StringArray(),
-        const String& environmentVariableName = String(),
-        const String& configFileOptionName = String(),
         const String& commandLineOptionName = String());
 
     Option(const Option& x);
@@ -398,6 +374,7 @@ public:
     void setValue(const String& value)
     {
         _value = value;
+	_resolved = true;
     }
 
     /** Accessor */
@@ -437,30 +414,6 @@ public:
     }
 
     /** Accessor */
-    const String& getEnvironmentVariableName() const
-    {
-        return _environmentVariableName;
-    }
-
-    /** Modifier */
-    void setEnvironmentVariableName(const String& environmentVariableName)
-    {
-        _environmentVariableName = environmentVariableName;
-    }
-
-    /** Accessor */
-    const String& getConfigFileOptionName() const
-    {
-        return _configFileOptionName;
-    }
-
-    /** Modifier */
-    void setConfigFileOptionName(const String& configFileOptionName)
-    {
-        _configFileOptionName = configFileOptionName;
-    }
-
-    /** Accessor */
     const String& getCommandLineOptionName() const
     {
         return _commandLineOptionName;
@@ -475,9 +428,9 @@ public:
     /** Accesor. Returns true if an option value was ever obtained for 
 	this option.
     */
-    Boolean foundValue() const 
-    { 
-	return _foundValue; 
+    Boolean isResolved() const 
+    {
+	return _resolved; 
     }
 
     /** Checks to see if the given value is valid or not. This method may be
@@ -493,10 +446,8 @@ private:
     Boolean _required;
     Type _type;
     StringArray _domain;
-    String _environmentVariableName;
-    String _configFileOptionName;
     String _commandLineOptionName;
-    Boolean _foundValue;
+    Boolean _resolved;
 };
 
 /** The OptionRow provides a declarative way of defining Option objects.
@@ -531,10 +482,11 @@ private:
 
     <pre>
 	static const char* colors[] = { "red", "green", "blue" };
+	static const Uint32 NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
 
 	static OptionRow options[] = 
 	{
-	    { "color", "red", false, Option::STRING, colors, 3 }
+	    { "color", "red", false, Option::STRING, colors, NUM_COLORS }
 	};
     </pre>
 */
@@ -546,8 +498,6 @@ struct OptionRow
     Option::Type type;
     char** domain;
     Uint32 domainSize;
-    const char* environmentVariableName;
-    const char* configFileOptionName;
     const char* commandLineOptionName;
 };
 
@@ -596,6 +546,15 @@ public:
 
     UnrecognizedConfigFileOption(const String& name)
 	: Exception("Unrecognized config file option: " + name) { }
+};
+
+/** Exception class */
+class MissingRequiredOptionValue : public Exception
+{
+public:
+
+    MissingRequiredOptionValue(const String& name)
+	: Exception("Missing required option value: " + name) { }
 };
 
 PEGASUS_NAMESPACE_END

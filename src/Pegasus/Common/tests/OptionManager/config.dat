@@ -6,12 +6,12 @@
 ##
 ################################################################################
 
-HOST = "www.opengroup.org"
+host = "www.opengroup.org"
 
-PORT = "8080"
+port = "8080"
 
-COLOR = "green"
+color = "green"
 
-TRACE = "true"
+trace = "true"
 
-#MESSAGE = "This is a \"Test\" and so is \nthis"
+# message = "This is a \"Test\" and so is \nthis"

@@ -10,10 +10,11 @@ static const Uint32 NCOLORS = sizeof(colors) / sizeof(colors[0]);
 
 static struct OptionRow options[] =
 {
-    {"host", "", true, Option::STRING, 0, 0, "", "HOST", "h"},
-    {"port", "80", false, Option::WHOLE_NUMBER, 0, 0, "", "PORT", "p"},
-    {"color", "red", false, Option::STRING, colors, NCOLORS, "", "COLOR", "c"},
-    {"trace", "false", false, Option::BOOLEAN, 0, 0, "", "TRACE", "t"},
+    {"host", "", true, Option::STRING, 0, 0, "h"},
+    {"port", "80", false, Option::WHOLE_NUMBER, 0, 0, "p"},
+    {"color", "red", false, Option::STRING, colors, NCOLORS, "c"},
+    {"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
+    {"message", "Hello World", false, Option::STRING, 0, 0, "m"},
 };
 
 static const Uint32 NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
@@ -24,11 +25,14 @@ void test01(int& argc, char** argv)
     om.registerOptions(options, NUM_OPTIONS);
 
     // cout << "=== Default options:" << endl;
-    // om.print();
+    om.print();
     om.mergeCommandLine(argc, argv);
 
     // cout << "=== Selected options:" << endl;
-    // om.print();
+    om.print();
+
+    // Check for missing required option:
+    om.checkRequiredOptions();
 }
 
 void test02()
@@ -38,6 +42,9 @@ void test02()
 
     om.mergeFile("config.dat");
     om.print();
+
+    // Check for missing required option:
+    om.checkRequiredOptions();
 }
 
 int main()
@@ -67,6 +74,7 @@ int main()
 
 	// Test 2:
 	test02();
+
     }
     catch (Exception& e)
     {

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.7  2001/04/14 19:57:30  mike
+// Finalized OptionManager class.
+//
 // Revision 1.6  2001/04/14 07:35:04  mike
 // Added config file loading to OptionManager
 //
@@ -121,20 +124,6 @@ void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
 		domain.append(options[i].domain[j]);
 	}
 
-	// Get environmentVariableName:
-
-	String environmentVariableName;
-
-	if (options[i].environmentVariableName)
-	    environmentVariableName = options[i].environmentVariableName;
-
-	// Get configFileOptionName:
-
-	String configFileOptionName;
-
-	if (options[i].configFileOptionName)
-	    configFileOptionName = options[i].configFileOptionName;
-
 	// Get commandLineOptionName:
 
 	String commandLineOptionName;
@@ -150,8 +139,6 @@ void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
 	    required,
 	    type,
 	    domain,
-	    environmentVariableName,
-	    configFileOptionName,
 	    commandLineOptionName);
 
 	registerOption(option);
@@ -215,11 +202,6 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 	else
 	    i++;
     }
-}
-
-void OptionManager::mergeEnvironment()
-{
-    // ATTN-A: Implement
 }
 
 void OptionManager::mergeFile(const String& fileName)
@@ -352,7 +334,7 @@ void OptionManager::mergeFile(const String& fileName)
 
 	// Now that we have the identifier and value, merge it:
 
-	Option* option = _lookupOptionByConfigFileOptionName(ident);
+	Option* option = (Option*)lookupOption(ident);
 
 	if (!option)
 	    throw UnrecognizedConfigFileOption(ident);
@@ -366,7 +348,13 @@ void OptionManager::mergeFile(const String& fileName)
 
 void OptionManager::checkRequiredOptions() const
 {
-    // ATTN-A: Implement
+    for (Uint32 i = 0; i < _options.getSize(); i++)
+    {
+	const Option* option = _options[i];
+
+	if (option->getRequired() && !option->isResolved())
+	    throw MissingRequiredOptionValue(option->getOptionName());
+    }
 }
 
 const Option* OptionManager::lookupOption(const String& name) const
@@ -402,17 +390,6 @@ Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
     return 0;
 }
 
-Option* OptionManager::_lookupOptionByConfigFileOptionName(const String& name)
-{
-    for (Uint32 i = 0; i < _options.getSize(); i++)
-    {
-	if (_options[i]->getConfigFileOptionName() == name)
-	    return _options[i];
-    }
-
-    return 0;
-}
-
 void OptionManager::print() const
 {
     for (Uint32 i = 0; i < _options.getSize(); i++)
@@ -436,8 +413,6 @@ Option::Option(
     Boolean required,
     Type type,
     const StringArray& domain,
-    const String& environmentVariableName,
-    const String& configFileOptionName,
     const String& commandLineOptionName)
     :
     _optionName(optionName),
@@ -446,10 +421,8 @@ Option::Option(
     _required(required),
     _type(type),
     _domain(domain),
-    _environmentVariableName(environmentVariableName),
-    _configFileOptionName(configFileOptionName),
     _commandLineOptionName(commandLineOptionName),
-    _foundValue(false)
+    _resolved(false)
 {
     if (!isValid(_value))
 	throw InvalidOptionValue(_optionName, _value);
@@ -463,8 +436,6 @@ Option::Option(const Option& x)
     _required(x._required),
     _type(x._type),
     _domain(x._domain),
-    _environmentVariableName(x._environmentVariableName),
-    _configFileOptionName(x._configFileOptionName),
     _commandLineOptionName(x._commandLineOptionName)
 {
 }
@@ -484,8 +455,6 @@ Option& Option::operator=(const Option& x)
 	_required = x._required;
 	_type = x._type;
 	_domain = x._domain;
-	_environmentVariableName = x._environmentVariableName;
-	_configFileOptionName = x._configFileOptionName;
 	_commandLineOptionName = x._commandLineOptionName;
     }
     return *this;

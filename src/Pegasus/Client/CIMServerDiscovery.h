@@ -39,9 +39,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-///////////////////////////////////////////////////////////////////////////////
+//*****************************************************************************
 // CIMServerDiscoveryRep
-///////////////////////////////////////////////////////////////////////////////
+//*****************************************************************************
+
+
 class CIMServerDiscoveryRep
 {
 public:
@@ -54,7 +56,8 @@ public:
 };
 
 /** This class provides the interface that a client uses to discover
-    CIM Servers
+    CIM Servers.
+    ATTN: Add more descriptive material here KS 2 Oct 2003
 */
 class PEGASUS_CLIENT_LINKAGE CIMServerDiscovery
 {

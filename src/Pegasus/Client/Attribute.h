@@ -37,11 +37,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** Defines a single SLP attribute that will be provided to the CIMServerDiscovery Class
+    as part of the execution of an SLP discovery.
+    ATTN: KS Add more material here.
+*/
 class PEGASUS_CLIENT_LINKAGE Attribute : public String
 {
 public:
 
   /** Constructor for a Attribute object.
+      ATTN: TBD
   */
   Attribute(const String & attrEntry = String::EMPTY, const Char16 & delimiter = '=');
 

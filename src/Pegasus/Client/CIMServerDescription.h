@@ -38,6 +38,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** Defines CIMServerDescritption objects that are returned
+    by a CIMServer as part of the SLP protocol
+    ATTN: To be expanded.
+*/
 class PEGASUS_CLIENT_LINKAGE CIMServerDescription
 {
 public:

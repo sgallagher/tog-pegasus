@@ -471,7 +471,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 	{ return ((inst)->ft->getProperty((inst),(name),(rc))); }
 #else
   #define CMGetProperty(i,n,rc)      ((i)->ft->getProperty((i),(n),(rc)))
- #endif
+#endif
 
 #ifdef CMPI_INLINE
        /** Gets a Property value defined by its index.

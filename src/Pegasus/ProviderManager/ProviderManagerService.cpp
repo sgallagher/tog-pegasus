@@ -247,7 +247,6 @@ void ProviderManagerService::_lookupProviderForAssocClass(
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Provider name not found.");
         }
-        PEGASUS_STD(cout) << "KSTEST _lookupProviderForAssocClass 2" << PEGASUS_STD(endl);
 
         pInstances[i].getProperty(pos).getValue().get(providerName);
 
@@ -275,7 +274,6 @@ void ProviderManagerService::_lookupProviderForAssocClass(
             if (String::equal(interfaceName,"C++Default") )
                 interfaceName = String::EMPTY;
         }
-        //PEGASUS_STD(cout) << "KSTEST _lookupProviderForAssocClass 3" << PEGASUS_STD(endl);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "location = " + Location + " found.");
@@ -294,8 +292,6 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         fileName.append(String("/lib") + Location + String(".so"));
         #endif
         
-        //PEGASUS_STD(cout) << "KSTEST _lookupProviderForAssocClass 4" << PEGASUS_STD(endl);
-
         providerNames.append(providerName);
         Locations.append(fileName);
         interfaceNames.append(interfaceName);

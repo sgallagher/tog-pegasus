@@ -43,6 +43,12 @@
 
 #include "LocalAuthFile.h"
 
+#ifdef PEGASUS_OS_OS400
+// srandom( ) and random( ) are srand( ) and rand( ) on OS/400
+#define srandom(x) srand(x)
+#define random() rand()
+#endif
+
 
 PEGASUS_USING_STD;
 

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Base64.h>
+#include <Pegasus/Common/Exception.h>
 #include "ClientAuthenticator.h"
 
 #include <ctype.h>

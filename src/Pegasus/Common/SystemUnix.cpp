@@ -33,6 +33,15 @@
 # include <dl.h>
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <dll.h>
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#  include <fcntl.h> 
+#  include <mih/rslvsp.h>            /* rslvsp()                       */
+#  include <mih/micommon.h>          /* _AUTH_EXECUTE                  */
+#  include <mih/miobjtyp.h>          /* WLI_SRVPGM                     */
+#  include <pointer.h>               /* _SYSPTR                        */
+#  include <qusec.h>                 /* Qus_EC_t                       */
+#  include <qleawi.h>                /* QleActBndPgm(),QleGetExp()     */
+#  include <unistd.cleinc>
 #else
 # include <dlfcn.h>
 #endif
@@ -41,7 +50,7 @@
 #include <dirent.h>
 #include <pwd.h>
 
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
 #include <crypt.h> 
 #endif
 
@@ -60,6 +69,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_HPUX)
 Boolean System::bindVerbose = false;
+#endif
+
+#if defined(PEGASUS_OS_OS400)
+char os400ExceptionID[8] = {0};
 #endif
 
 inline void sleep_wrapper(Uint32 seconds)
@@ -190,6 +203,68 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 #elif defined(PEGASUS_OS_ZOS)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dllload(fileName));
+#elif defined(PEGASUS_OS_OS400)
+    // Activate the service program.	
+
+    // Parse out the library and srvpgm names.
+    // Note: the fileName passed in must be in OS/400 form - library/srvpgm
+    if (fileName == NULL || strlen(fileName) == 0 || strlen(fileName) >= 200)
+       return 0;
+
+    char name[200];
+    strcpy(name, fileName);
+
+    char* lib = strtok(name, "/");
+    if (lib == NULL || strlen(lib) == 0)
+       return 0;
+
+    char* srvpgm = strtok(name, NULL);
+    if (srvpgm == NULL || strlen(srvpgm) == 0)
+       return 0;
+
+/* capture any type of error and if any occurs, return not found */
+#pragma exception_handler(error,0,0,_C2_MH_ESCAPE,_CTLA_HANDLE_NO_MSG)
+
+    /*----------------------------------------------------------------*/
+    /* Resolve to the service program                                 */
+    /*----------------------------------------------------------------*/
+    _OBJ_TYPE_T objectType = WLI_SRVPGM;
+    _SYSPTR sysP = rslvsp(objectType, srvpgm, lib, _AUTH_NONE);
+
+    /*----------------------------------------------------------------*/
+    /* Activate the service program                                   */
+    /*----------------------------------------------------------------*/
+    Qle_ABP_Info_t activationInfo;
+    int actInfoLen = sizeof(activationInfo);
+    int hdl;
+
+    Qus_EC_t os400ErrorCode = {0};
+    os400ErrorCode.Bytes_Provided = sizeof(Qus_EC_t);
+    os400ErrorCode.Bytes_Available = 0;
+
+    QleActBndPgm(&sysP,
+		&hdl,
+		&activationInfo,
+		&actInfoLen,
+		&os400ErrorCode);
+
+    if (os400ErrorCode.Bytes_Available)
+    {
+       // Got an error. 
+       memset(os400ExceptionID, '\0', 8);
+       strncpy(os400ExceptionID, os400ErrorCode.Exception_Id, 7);
+       Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+                  "Error activating service program. Exception Id = %s", os400ExceptionID);
+       return 0;
+    }
+   
+    PEG_METHOD_EXIT();
+    return DynamicLibraryHandle(hdl);
+
+#pragma disable_handler
+ error:
+    return(0);
+
 #else
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
@@ -219,6 +294,8 @@ String System::dynamicLoadError() {
     return String();
 #elif defined(PEGASUS_OS_ZOS)
     return String();
+#elif defined(PEGASUS_OS_OS400)
+    return String(os400ExceptionID);
 #else
     String dlerr = dlerror();
     return dlerr;
@@ -252,6 +329,44 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 #elif defined(PEGASUS_OS_ZOS)
     return DynamicSymbolHandle(dllqueryfn((dllhandle *)libraryHandle,
                                (char*)symbolName));
+
+#elif defined(PEGASUS_OS_OS400)
+   /*----------------------------------------------------------------*/
+   /* Get procedure pointer and return it to caller                  */
+   /*----------------------------------------------------------------*/
+
+    Qus_EC_t os400ErrorCode = {0};
+    os400ErrorCode.Bytes_Provided = sizeof(Qus_EC_t);
+    os400ErrorCode.Bytes_Available = 0;
+
+    int exportType;
+    void * procAddress = NULL;
+
+#pragma exception_handler(error,0,0,_C2_MH_ESCAPE,_CTLA_HANDLE_NO_MSG)
+    QleGetExp((int *)&libraryHandle,
+	     0,
+	     0,
+	     (char *)symbolName,
+	     &procAddress,
+	     &exportType,
+	     &os400ErrorCode);
+
+    if (os400ErrorCode.Bytes_Available)
+    {
+      // Got an error. 
+       memset(os400ExceptionID, '\0', 8);
+       strncpy(os400ExceptionID, os400ErrorCode.Exception_Id, 7);
+       Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+                  "Error getting export. Exception Id = %s", os400ExceptionID);
+       return 0;
+    }
+
+    return DynamicSymbolHandle(procAddress);
+
+#pragma disable_handler
+ error:
+      return 0;
+
 #else
 
     return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
@@ -320,7 +435,12 @@ Uint32 System::lookupPort(
     //
     // Get wbem-local port from /etc/services
     //
+#if !defined(PEGASUS_OS_OS400)
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
+#else
+    // Need to cast on OS/400
+    if ( (serv = getservbyname((char *)serviceName, TCP)) != NULL )
+#endif
     {
 #ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
         localPort = serv->s_port;
@@ -341,7 +461,10 @@ String System::getPassword(const char* prompt)
 
     String password;
 
+#if !defined(PEGASUS_OS_OS400)
+    // Not supported on OS/400, and we don't need it.
     password = String(getpass( prompt ));
+#endif
 
     return password;
 }
@@ -373,7 +496,12 @@ String System::getEffectiveUserName()
 
 String System::encryptPassword(const char* password, const char* salt)
 {
+#if !defined(PEGASUS_OS_OS400)
     return ( String(crypt( password,salt)) );
+#else
+    // Not supported on OS400, and we don't need it.
+    return ( String(password) );
+#endif
 }
 
 Boolean System::isSystemUser(char* userName)
@@ -450,7 +578,19 @@ Boolean System::truncateFile(
     const char* path, 
     size_t newSize)
 {
+#if !defined(PEGASUS_OS_OS400)
     return (truncate(path, newSize) == 0);
+#else
+    int fd = open(path, O_WRONLY);
+    if (fd != -1)
+    {
+       int rc = ftruncate(fd, newSize);
+       close(fd);
+       return (rc == 0);
+    }
+    
+    return false;
+#endif
 }
     
 PEGASUS_NAMESPACE_END

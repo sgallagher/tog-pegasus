@@ -33,7 +33,11 @@
 # include <windows.h>
 #else
 # include <cctype>
-# include <unistd.h>
+#ifndef PEGASUS_OS_OS400
+#   include <unistd.h>
+#else
+#   include <unistd.cleinc>
+#endif
 # include <cstdlib>
 # include <errno.h>
 # include <fcntl.h>

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Exception.h> 
 #include "CIMOperationResponseDecoder.h"
 
 PEGASUS_USING_STD;

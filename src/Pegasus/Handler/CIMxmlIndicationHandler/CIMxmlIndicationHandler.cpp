@@ -174,7 +174,7 @@ public:
             Uint32 portNumber = 0;
             Boolean useHttps = false;
             String destStr = dest;
-            String hostName;
+            String hostStr;
 
             //
             // If the URL has https (https://hostname:port/... or
@@ -229,6 +229,8 @@ public:
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
             }
 
+	    char dummy[64];
+	    dummy[0] = 0;
             colon = destStr.find (":");
 
             //
@@ -236,7 +238,7 @@ public:
             //
             if (colon != PEG_NOT_FOUND)
             {
-                hostName = destStr.subString (0, colon);
+                hostStr = destStr.subString (0, colon);
                 destStr = destStr.subString(colon + 1, PEG_NOT_FOUND);
 
                 Uint32 slash = destStr.find ("/");
@@ -251,7 +253,7 @@ public:
                     portStr = destStr.subString (0, PEG_NOT_FOUND);
                 }
 
-                sscanf (portStr.getCString (), "%u", &portNumber);  
+                sscanf (portStr.getCString (), "%u%s", &portNumber, dummy);  
             }
             //
             // There is no port number in the destination string,
@@ -262,11 +264,11 @@ public:
                 Uint32 slash = destStr.find ("/");
                 if (slash != PEG_NOT_FOUND)
                 { 
-                    hostName = destStr.subString (0, slash);
+                    hostStr = destStr.subString (0, slash);
                 }
                 else
                 {
-                    hostName = destStr.subString (0, PEG_NOT_FOUND);
+                    hostStr = destStr.subString (0, PEG_NOT_FOUND);
                 }
                 if (useHttps)
                 {
@@ -279,6 +281,22 @@ public:
                         WBEM_DEFAULT_HTTP_PORT);
                 }
             }    
+
+	    char hostName[64];
+	    char dummy2[64];
+	    dummy2[0] = 0;
+
+            sscanf (hostStr.getCString (), "%s%s", hostName, dummy2);  
+
+	    if (dummy[0] != 0 || dummy2[0] != 0)
+	    {
+                String msg = _getMalformedExceptionMsg();
+
+                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
+
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+	    }
 
             if (useHttps)
             {

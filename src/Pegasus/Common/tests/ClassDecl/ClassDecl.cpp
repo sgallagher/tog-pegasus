@@ -33,6 +33,7 @@
 //                  (carolann_graves@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +100,8 @@ void test01()
 	.addQualifier(CIMQualifier(CIMName ("q1"), Uint32(55)))
 	.addQualifier(CIMQualifier(CIMName ("q2"), String("Hello")))
 	.addProperty(CIMProperty(CIMName ("message"), String("Hello")))
-	.addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
+	.addProperty(CIMProperty(CIMName ("count"), Uint32(77), 0, CIMName(),
+            CIMName("YourClass"), true))
 	.addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
 	    .addParameter(CIMParameter(CIMName ("hostname"), CIMTYPE_STRING))
 	    .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
@@ -207,6 +209,8 @@ void test01()
     Uint32  posProperty;
     posProperty = class1.findProperty(CIMName ("count"));
     CIMConstProperty constprop = class1.getProperty(posProperty);
+    assert(constprop.getClassOrigin() == CIMName("YourClass"));
+    assert(constprop.getPropagated());
     class1.removeProperty(posProperty);
     assert(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
     assert(class1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
@@ -214,6 +218,8 @@ void test01()
     assert(class1.getPropertyCount() == 1);
     CIMProperty cp = class1.getProperty( class1.findProperty
         (CIMName ("message")));
+    assert(cp.getClassOrigin().isNull());
+    assert(!cp.getPropagated());
 
 	if(verbose)
 	{

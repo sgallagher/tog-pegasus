@@ -129,12 +129,6 @@ void CIMClassRep::addProperty(const CIMProperty& x)
         throw TypeMismatchException();
     }
 
-    // Set the class origin:
-    // ATTN: put this check in other places:
-
-    if (x.getClassOrigin().isNull())
-	CIMProperty(x).setClassOrigin(_reference.getClassName());
-
     // Add the property:
 
     _properties.append(x);
@@ -271,6 +265,10 @@ void CIMClassRep::resolve(
 			{
                             Resolver::resolveProperty (property, context, 
                                 nameSpace, false, true);
+                            if (property.getClassOrigin().isNull())
+                            {
+                                property.setClassOrigin(getClassName());
+                            }
 			}
 			else
 			{
@@ -278,6 +276,11 @@ void CIMClassRep::resolve(
 				superClass.getProperty(index);
                             Resolver::resolveProperty (property, context, 
                                 nameSpace, false, superClassProperty, true);
+                            if (property.getClassOrigin().isNull())
+                            {
+                                property.setClassOrigin(
+                                    superClassProperty.getClassOrigin());
+                            }
 			}
 		}
 	
@@ -456,8 +459,11 @@ void CIMClassRep::resolve(
 		//cout << "KSTEST Class Resolve, No Super class " << getClassName() << endl;
 
 		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
+                {
                     Resolver::resolveProperty (_properties[i], context, 
                         nameSpace, false, true);
+                    _properties[i].setClassOrigin(getClassName());
+                }
 	
 		//----------------------------------------------------------------------
 		// Resolve each method:

@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <time.h>
 #ifdef PEGASUS_INTERNALONLY
 #include <iostream>
 #endif
@@ -208,7 +209,6 @@ public:
 
 //#ifdef PEGASUS_INTERNALONLY
 private:
-
     enum { FORMAT_LENGTH = 25 };
 
     //
@@ -237,7 +237,7 @@ private:
 
        @param tm           Contains the tm structure to be updated.
     */
-    static void formatDateTime(char* dateTime, struct tm* tm);
+    static void formatDateTime(char* dateTime, tm* tm);
 //#endif
 
     /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 

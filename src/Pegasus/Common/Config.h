@@ -24,8 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/25/01
-//              added NSK platform support and PEGASUS_HAVE_NO_STD option
-//              K. Schopmeyer. Added  PEGASUS_TEST_EXCEPTION_DECLARATION Feb 27 2002
+//              K. Schopmeyer
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //
@@ -64,7 +63,7 @@
 #include <iostream>
 #include <cstdlib>
 
-// ATTN: This is a temporary hack until the correct linkages are defined
+// used for Windows only
 #ifndef PEGASUS_EXPORT
 #define PEGASUS_EXPORT /* empty */
 #endif
@@ -128,12 +127,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_HAVE_NO_BOOLEAN
-# include <Pegasus/Common/Boolean.h>
-#else
-  typedef bool Boolean;
-#endif
-
+typedef bool Boolean;  // If platform w/o bool, add flag and include Boolean.h
 typedef unsigned char Uint8;
 typedef char Sint8;
 typedef unsigned short Uint16;

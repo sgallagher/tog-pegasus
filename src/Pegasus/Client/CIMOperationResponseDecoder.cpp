@@ -649,8 +649,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
     }
     catch (Exception& x)
     {
-        // Shouldn't ever get exceptions other than XmlExceptions.
-        PEGASUS_ASSERT(0);
+        // Might get MalformedObjectNameException, InvalidNameException, etc.
 
         if (response)
         {

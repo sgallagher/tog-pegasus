@@ -387,14 +387,18 @@ void ConfigFile::replace (const String& fileName)
     const char * tmp = tempName;
     AtoE((char *)tmp);
     Sint32 ret = chmod(tmp, (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));  // set 0644 
-#else
-    Sint32 ret = chmod(_configFile.getCStringUTF8(), 
-        (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));                      // set 0644 
-#endif
     if ( ret == -1)
     {
         throw CannotOpenFile(_configFile);
     }
+#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS)
+    Sint32 ret = chmod(_configFile.getCStringUTF8(), 
+        (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));                      // set 0644 
+    if ( ret == -1)
+    {
+        throw CannotOpenFile(_configFile);
+    }
+#endif
 
     //
     // Read each line of the new file and write to the config file.

@@ -66,7 +66,7 @@
 #define YYSTACKSIZE 2000
 
 #include <cstdlib>
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(__OS400__)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(__OS400__) && !defined(PEGASUS_OS_VMS)
 #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 #include <sys/malloc.h>
 #else

@@ -497,7 +497,7 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
         if (multireq)
         {
             message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH 
-                << HTTP_CRLF;
+                << HEADER_SEPARATOR << HTTP_CRLF;
         }
         else
         {
@@ -515,7 +515,7 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
                 << HEADER_VALUE_CIMOPERATION << HTTP_CRLF;
         if (multireq)
         {
-            message << HEADER_NAME_CIMBATCH << HTTP_CRLF;
+            message << HEADER_NAME_CIMBATCH << HEADER_SEPARATOR << HTTP_CRLF;
         }
         else
         {

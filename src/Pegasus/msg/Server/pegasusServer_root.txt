@@ -62,7 +62,7 @@ root:table {
 
     	Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND:string {"CIM_ERR_METHOD_NOT_FOUND: THE SPECIFIED EXTRINSIC METHOD DOES NOT EXIST"}
 
-	Common.InternalException.NullPointer:string {"NULL POINTER"};
+	Common.InternalException.NullPointer:string {"NULL POINTER"}
 
 	Common.InternalException.UndeclaredQualifier:string { "UNDECLARED QUALIFIER:{0}"}
 

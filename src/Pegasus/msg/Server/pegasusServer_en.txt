@@ -98,7 +98,7 @@ pegasusServer_en:table {
 	//  Please use message prefix "CIMINTX_" 
         // ==========================================================
 
-	Common.InternalException.NULL_POINTER:string {"CIMINTX_NULLPOINTER: Null pointer."};
+	Common.InternalException.NULL_POINTER:string {"CIMINTX_NULLPOINTER: Null pointer."}
 
         /**
 	* @comment CIMINTX_UNDECLARED_QUALIFIER:  

@@ -22,6 +22,7 @@ SOURCES = \
     CIMIndicationConsumer.cpp \
     CIMPropertyProvider.cpp \
     CIMQueryProvider.cpp \
-    CIMAssociationProvider.cpp
+    CIMAssociationProvider.cpp \
+    CIMNullProvider.cpp
 
 include $(ROOT)/mak/library.mak

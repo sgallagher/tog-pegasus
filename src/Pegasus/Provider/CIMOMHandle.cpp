@@ -407,9 +407,7 @@ CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
 	 MessageQueue *me = MessageQueue::lookup(dp->_my_qid);
 	 if(me && target && dp->_msg)
 	 {
-	    CIMOMHandle::_cimom_handle_rep *myself = 
-	       static_cast<CIMOMHandle::_cimom_handle_rep *>(me);
-	    target->enqueue(dp->_msg);
+	   target->enqueue(dp->_msg);
 	 }
       }
       catch(...)

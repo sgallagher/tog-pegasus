@@ -25,40 +25,30 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMNullProvider_h
-#define Pegasus_CIMNullProvider_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMProvider.h>
-#include <Pegasus/Provider/Linkage.h>
+#include "CIMNullProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** CIMNullProvider is an internal class that allows the creation 
-    of an empty provider class instance. It is used primarily for 
-    error recovery. 
-*/
-
-class PEGASUS_PROVIDER_LINKAGE CIMNullProvider : virtual public CIMProvider
+CIMNullProvider::CIMNullProvider()
+  : Base()
 {
-   public:
-      typedef CIMProvider Base;
-      
-      CIMNullProvider();
+}
 
-      ~CIMNullProvider(void);
+CIMNullProvider::~CIMNullProvider(void)
+{
+}
 
-      void initialize(CIMOMHandle & cimom);
-      void terminate(void) ;
+void CIMNullProvider::initialize(CIMOMHandle & cimom)
+{
+  _cimom = cimom;
+}
+void CIMNullProvider::terminate(void) 
+{
+  delete this;
+}
       
 
-   protected:
-      CIMOMHandle _cimom;
-      
-      
-};
 
 PEGASUS_NAMESPACE_END
-
-#endif 

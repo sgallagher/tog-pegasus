@@ -82,7 +82,6 @@ static Boolean _MakeAddress(
       // and simply use whatever address was supplied.
       // This needs to be verified. Drops following two
       // lines and replace with memset through return lines.
-      //unsigned long tmp = inet_addr((char *)hostname);
 #ifdef PEGASUS_SNIA_INTEROP_TEST
       memset(&address, 0, sizeof(address));
       address.sin_family = AF_INET;
@@ -90,6 +89,7 @@ static Boolean _MakeAddress(
       address.sin_port = htons(port);
       return true;
 #else     
+      unsigned long tmp = inet_addr((char *)hostname);
       entry = gethostbyaddr((char *)&tmp, sizeof(tmp), AF_INET);
 #endif      
 

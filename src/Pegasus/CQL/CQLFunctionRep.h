@@ -112,8 +112,12 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
    CQLValue buildClassPath(const CIMObjectPath& objPath, const CIMNamespaceName& ns) const;
    CQLValue buildObjectPath(const CIMObjectPath& objPath, const CIMNamespaceName& ns) const;
 
+   // Utility methods to convert enums into strings
+   String functionTypeToString() const;
+   String parmTypeToString(const CQLValue::CQLValueType parmType) const;
+      
+   // Member data
    FunctionOpType _funcOpType;
-
    Array<CQLPredicate> _parms;
 
 };

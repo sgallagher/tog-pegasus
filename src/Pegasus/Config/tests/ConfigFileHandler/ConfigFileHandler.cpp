@@ -51,7 +51,7 @@ int main()
 	
 	_config.getAllCurrentPropertyNames(all);
 
-	for (int i = 0; i < all.size(); i++)
+	for (Uint32 i = 0; i < all.size(); i++)
 	{
             _config.getCurrentValue(all[i]); 
             _config.getPlannedValue(all[i]); 
@@ -61,7 +61,7 @@ int main()
 
 	_config.getAllPlannedProperties(all, values);
 
-	for (int i = 0; i < all.size(); i++)
+	for (Uint32 i = 0; i < all.size(); i++)
 	{
             _config.getPlannedValue(all[i]); 
 	}
@@ -71,7 +71,7 @@ int main()
 
 	_config.getAllCurrentProperties(all, values);
 
-	for (int i = 0; i < all.size(); i++)
+	for (Uint32 i = 0; i < all.size(); i++)
 	{
             _config.getCurrentValue(all[i]); 
 	}

@@ -40,7 +40,7 @@
 char * ultostr(unsigned long int ulint, int width)
 {
     char * retval = NULL;
-    asprintf(&retval,"%*d",width, ulint); // allocates buffer automatically
+    asprintf(&retval,"%*ld", width, ulint); // allocates buffer automatically
     return retval;
 }
 #endif

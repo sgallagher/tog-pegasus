@@ -51,12 +51,12 @@ public:
 
     enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    SocketMessage(Uint32 socket_, Uint32 events_) :
+    SocketMessage(Sint32 socket_, Uint32 events_) :
 	Message(SOCKET_MESSAGE), socket(socket_), events(events_)
     {
     }
 
-    Uint32 socket;
+    Sint32 socket;
     Uint32 events;
 };
 
@@ -79,7 +79,7 @@ public:
 
     <pre>
 	Monitor monitor;
-	Uint32 socket;
+	Sint32 socket;
 	Uint32 queueId;
 
 	...

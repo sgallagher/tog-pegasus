@@ -128,7 +128,8 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 {
-    Message* response;
+    Message* response = 0;
+
     //
     // Create and initialize XML parser:
     //
@@ -193,6 +194,15 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 
 	if (EqualNoCase(iMethodResponseName, "ExportIndication"))
 	    response = _decodeExportIndicationResponse(parser, messageId);
+	else
+	{
+	    // ATTN: this was being ignored; what should we do. Shouldn't
+	    // we form an error response?
+
+	    cout << "INFORM: " << __FILE__ << "(" << __LINE__ << "): ";
+	    cout << "Unexpected case" << endl;
+	    return;
+	}
 	
 	//
 	// Handle end tags:

@@ -192,10 +192,10 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(const String&
 
     String consumerName;
 
-    for (int i=0; (i < cInst.size()) && (consumerName.size() == 0); i++)
+    for (Uint32 i=0; (i < cInst.size()) && (consumerName.size() == 0); i++)
     {
-        int urlPropertyPos;
-        int consumerPropertyPos;
+        Uint32 urlPropertyPos;
+        Uint32 consumerPropertyPos;
         String consumerUrl;
 
         urlPropertyPos = cInst[i].findProperty("url");

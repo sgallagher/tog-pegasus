@@ -130,7 +130,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 {
-    Message* response;
+    Message* response = 0;
+
     //
     // Create and initialize XML parser:
     //
@@ -193,7 +194,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    else if (EqualNoCase(iMethodResponseName, "GetInstance"))
 		response = _decodeGetInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "EnumerateClassNames"))
-		response = _decodeEnumerateClassNamesResponse(parser, messageId);
+		response = _decodeEnumerateClassNamesResponse(parser,messageId);
 	    else if (EqualNoCase(iMethodResponseName, "References"))
 		response = _decodeReferencesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "ReferenceNames"))
@@ -205,7 +206,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    else if (EqualNoCase(iMethodResponseName, "CreateInstance"))
 		response = _decodeCreateInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
-		response = _decodeEnumerateInstanceNamesResponse(parser, messageId);
+		response = _decodeEnumerateInstanceNamesResponse(
+		    parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstances"))
 		response = _decodeEnumerateInstancesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "GetProperty"))
@@ -219,7 +221,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    else if (EqualNoCase(iMethodResponseName, "SetQualifier"))
 		response = _decodeSetQualifierResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "EnumerateQualifiers"))
-		response = _decodeEnumerateQualifiersResponse(parser, messageId);
+		response = _decodeEnumerateQualifiersResponse(parser,messageId);
 	    else if (EqualNoCase(iMethodResponseName, "EnumerateClasses"))
 		response = _decodeEnumerateClassesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "CreateClass"))
@@ -232,12 +234,18 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 		response = _decodeDeleteClassResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "DeleteInstance"))
 		response = _decodeDeleteInstanceResponse(parser, messageId);
-	    //else
-	    //{
-		//ATTN: This message is received due to InvokeMethod 
-		//from Serevr
-		//return;
-	    //}
+	    else
+	    {
+		// ATTN: This message is received due to InvokeMethod 
+		// from Serevr
+
+		// We better return since response is unitialized if
+		// this is reached. For now we print a message:
+
+		cout << "INFORM: " << __FILE__ << "(" << __LINE__ << "): ";
+		cout << "Unexpected case" << endl;
+		return;
+	    }
 	
 	    //
 	    // Handle end tags:
@@ -248,7 +256,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	else if (XmlReader::getMethodResponseStartTag(parser, 
 	    iMethodResponseName))
 	{
-	    response = _decodeInvokeMethodResponse(parser, messageId, iMethodResponseName);
+	    response = _decodeInvokeMethodResponse(
+		parser, messageId, iMethodResponseName);
 
 	    //
 	    // Handle end tags:

@@ -36,6 +36,11 @@ const Uint32 Command::RC_SUCCESS = 0;
 
 const Uint32 Command::RC_ERROR = 1;
 
+Command::~Command()
+{
+
+}
+
 /**
   
     Gets command usage string.  Usage string may be retrieved and displayed

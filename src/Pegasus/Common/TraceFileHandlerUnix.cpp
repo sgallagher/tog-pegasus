@@ -47,7 +47,7 @@ void TraceFileHandler::handleMessage(
     va_list argList) 
 {
     struct flock lock;
-    Uint32 retCode;
+    Sint32 retCode;
 
     lock.l_type = F_WRLCK;
     lock.l_whence = SEEK_SET;

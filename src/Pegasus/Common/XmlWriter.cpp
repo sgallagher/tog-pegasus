@@ -580,10 +580,12 @@ Array<Sint8>& XmlWriter::appendPropertyListParameter(
     Array<Sint8> tmp;
 
     tmp << "<VALUE.ARRAY>\n";
-    for (int i=0; i<propertyList.size();i++)
+
+    for (Uint32 i = 0; i < propertyList.size(); i++)
     {
         tmp << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
     }
+
     tmp << "</VALUE.ARRAY>\n";
     return formatIParamValueElement(out, "PropertyList", tmp);
 }

@@ -83,7 +83,7 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
             // ATTN: Catch TypeMismatch exception on the next line
             trapQualifier.getValue().get(enterprise);
 
-            for (int i=0; i<indicationInstance.getPropertyCount();i++)
+            for (Uint32 i=0; i<indicationInstance.getPropertyCount();i++)
             {
 	        char* property_oid = NULL;
 	        char* property_value = NULL;
@@ -91,7 +91,7 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
         
 	        prop = indicationInstance.getProperty(i);
 
-	        if (prop != NULL)
+	        if (prop)
                 {
                     String propName = prop.getName();
                     Uint32 propPos = indicationClass.findProperty(propName);

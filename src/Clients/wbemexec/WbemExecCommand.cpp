@@ -143,7 +143,7 @@ WbemExecCommand::WbemExecCommand ()
     _portNumber          = _DEFAULT_PORT;
 
     char buffer[32];
-    sprintf(buffer, "%u", (unsigned long) _DEFAULT_PORT);
+    sprintf(buffer, "%lu", (unsigned long) _DEFAULT_PORT);
     _portNumberStr       = buffer;
 
     _useHTTP11           = true;   
@@ -698,8 +698,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     } 
     else 
     {
-        if ((_portNumber < _MIN_PORTNUMBER) || 
-            (_portNumber > _MAX_PORTNUMBER))
+        if (_portNumber > _MAX_PORTNUMBER)
         {
             //
             //  Portnumber out of valid range

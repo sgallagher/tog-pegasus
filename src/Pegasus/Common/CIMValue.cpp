@@ -301,7 +301,7 @@ inline void _toMof(Array<Sint8>& out, const String& x)
     out << "\"";
     const Char16* tmp = x.getData();
     char c;
-    while (c = *tmp++)
+    while ((c = *tmp++))
     {
 	switch (c)
 	{

@@ -84,7 +84,7 @@ Tracer::Tracer()
     _traceComponentMask=new Boolean[_NUM_COMPONENTS];
 
     // Initialize ComponentMask array to false
-    for (int index=0;index < _NUM_COMPONENTS; 
+    for (Uint32 index=0;index < _NUM_COMPONENTS; 
 	_traceComponentMask[index++]=false);
 }
             
@@ -276,7 +276,7 @@ Boolean Tracer::_isTraceEnabled(const Uint32 traceComponent,
     const Uint32 traceLevel)
 {
     Tracer* instance = _getInstance();
-    if ((traceComponent < 0) || (traceComponent >= _NUM_COMPONENTS ))
+    if (traceComponent >= _NUM_COMPONENTS)
     {
 	return false;
     }
@@ -533,7 +533,7 @@ void Tracer::setTraceComponents( const String traceComponents )
     else
     {
         // initialise ComponentMask array to False
-        for (int index = 0;index < _NUM_COMPONENTS; 
+        for (Uint32 index = 0;index < _NUM_COMPONENTS; 
                  _getInstance()->_traceComponentMask[index++] = false);
     }
     return ;

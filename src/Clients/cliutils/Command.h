@@ -48,6 +48,9 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CLIUTILS_LINKAGE Command 
 {
 public:
+
+    virtual ~Command();
+
     /**
       
         Gets command usage string.  Usage string may be retrieved and displayed

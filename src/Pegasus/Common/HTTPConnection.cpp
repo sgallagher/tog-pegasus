@@ -297,7 +297,7 @@ void HTTPConnection::_handleReadEvent()
 
     if (bytesRead == 0 || 
 	_contentLength != -1 && 
-	(_incomingBuffer.size() >= _contentLength + _contentOffset))
+	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {
 	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
 	_outputMessageQueue->enqueue(message);

@@ -49,12 +49,12 @@ CIMClient::CIMClient(
     HTTPConnector* httpConnector,
     Uint32 timeOutMilliseconds)
     : 
-    _connected(false),
     _monitor(monitor), 
     _httpConnector(httpConnector),
     _timeOutMilliseconds(timeOutMilliseconds),
-    _requestEncoder(0),
-    _responseDecoder(0)
+    _connected(false),
+    _responseDecoder(0),
+    _requestEncoder(0)
 {
     
 }

@@ -69,27 +69,27 @@ static const char GETOPT_ARGUMENT_DESIGNATOR   = ':';
 /**
     This constant signifies that an operation option has not been recorded
 */
-static const int OPERATION_TYPE_UNINITIALIZED  = 0;
+static const Uint32 OPERATION_TYPE_UNINITIALIZED  = 0;
 
 /**
     This constant represents a property get operation
 */
-static const int OPERATION_TYPE_GET            = 1;
+static const Uint32 OPERATION_TYPE_GET            = 1;
 
 /**
     This constant represents a property set operation
 */
-static const int OPERATION_TYPE_SET            = 2;
+static const Uint32 OPERATION_TYPE_SET            = 2;
 
 /**
     This constant represents a property unset operation
 */
-static const int OPERATION_TYPE_UNSET          = 3;
+static const Uint32 OPERATION_TYPE_UNSET          = 3;
 
 /**
     This constant represents a property list operation
 */
-static const int OPERATION_TYPE_LIST           = 4;
+static const Uint32 OPERATION_TYPE_LIST           = 4;
 
 
 /**

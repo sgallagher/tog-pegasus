@@ -45,7 +45,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern Uint32 _socketInterfaceRefCount = 0;
+static Uint32 _socketInterfaceRefCount = 0;
 
 Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
 {

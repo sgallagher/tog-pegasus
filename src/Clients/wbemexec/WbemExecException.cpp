@@ -155,7 +155,7 @@ const char*  WbemExecException::_messageStrings [] =
   
  */
 WbemExecException::WbemExecException (Uint32 ID) : CommandException 
-    (_messageStrings [(ID > MAX_ID || ID < MIN_ID) ? DEFAULT_ID : ID])
+    (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
 }
 
@@ -170,7 +170,7 @@ WbemExecException::WbemExecException (Uint32 ID) : CommandException
  */
 WbemExecException::WbemExecException (Uint32 ID, const String& appendString) : 
     CommandException (_messageStrings 
-        [(ID > MAX_ID || ID < MIN_ID) ? DEFAULT_ID : ID])
+        [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
     _message.append (appendString);
 }

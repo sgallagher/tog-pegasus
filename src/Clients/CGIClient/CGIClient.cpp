@@ -109,7 +109,7 @@ const char* HostInfo::getAddress()
     char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
     CGIQueryString qs(queryString);
 
-    if (tmp = qs.findValue("hostaddress"))
+    if ((tmp = qs.findValue("hostaddress")))
 	return tmp; 
     else 
 	return("localhost:5988");
@@ -454,7 +454,7 @@ void mofFormat(
     Uint32 indent = 0;
     Boolean quoteState = false;
     char c;
-    while (c = *tmp++)
+    while ((c = *tmp++))
     {
 	count++;
 	switch (c)

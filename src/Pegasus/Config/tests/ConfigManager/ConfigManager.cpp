@@ -54,7 +54,7 @@ int main()
 
 	_config->getAllPropertyNames(all);
 
-	for (int i = 0; i < all.size(); i++)
+	for (Uint32 i = 0; i < all.size(); i++)
 	{
 	    Array<String> info;
             info.clear();

@@ -632,7 +632,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 
     message->instanceName.localObjectPathtoXml(params);
 
-    for (int i=0; i<message->inParameters.size();i++)
+    for (Uint32 i =0 ; i < message->inParameters.size(); i++)
     {
 	XmlWriter::appendStringParameter(
 	    params, 

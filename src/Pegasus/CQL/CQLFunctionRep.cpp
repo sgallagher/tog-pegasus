@@ -1257,7 +1257,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
     if (intVal < 0)
     {
       char negVal[100];
-      sprintf(negVal, "%Ld", intVal);
+      sprintf(negVal, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", intVal);
       MessageLoaderParms mload(String("CQL.CQLFunctionRep.NEGATIVE_INT_ERROR"),
                                String("Function parameter $0 has a value of $1.  It must be non-negative."),
                                String("1"),
@@ -1311,7 +1311,7 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
     if (intVal < 0)
     {
       char negVal[100];
-      sprintf(negVal, "%Ld", intVal);
+      sprintf(negVal, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", intVal);
       MessageLoaderParms mload(String("CQL.CQLFunctionRep.NEGATIVE_INT_ERROR"),
                                String("Function parameter $0 has a value of $1.  It must be non-negative."),
                                String("1"),

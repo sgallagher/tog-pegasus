@@ -544,7 +544,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 
    // TODO: Why is this needed? Why not just continue?
    // wait to be awakend by the thread pool destructor
-   sleep_sem->wait();
+   //sleep_sem->wait();
 
    myself->test_cancel();
 

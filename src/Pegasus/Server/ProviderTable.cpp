@@ -25,6 +25,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include "ProviderTable.h"
@@ -54,7 +55,8 @@ CIMProvider* ProviderTable::loadProvider(const String& providerId)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     ArrayDestroyer<char> libraryName = providerId.allocateCString();
 #else
-    String unixLibName = "lib";
+    String unixLibName = getenv("PEGASUS_HOME");
+    unixLibName += "/lib/lib";
     unixLibName += providerId;
     unixLibName += ".so";
     ArrayDestroyer<char> libraryName = unixLibName.allocateCString();

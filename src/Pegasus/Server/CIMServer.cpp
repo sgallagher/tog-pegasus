@@ -58,6 +58,11 @@ static const Uint32 _GET_LEN = sizeof(_GET) - 1;
 static const char _M_POST[] = "M-POST";
 static const Uint32 _M_POST_LEN = sizeof(_M_POST) - 1;
 
+// some degree of leniency toward the SNIA Browser, that contrary to
+// the norm sends out a POST instead of an M_POST
+static const char _POST[] = "POST";
+static const Uint32 _POST_LEN = sizeof(_POST) - 1;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ServerHandler
@@ -198,11 +203,12 @@ int ServerHandler::handleMessage()
 	print();
 	return handleGetRequest();
     }
-    else if (strncmp(m, _M_POST, _M_POST_LEN) == 0 && isspace(m[_M_POST_LEN]))
+    else if ((strncmp(m, _M_POST, _M_POST_LEN) == 0 && isspace(m[_M_POST_LEN]))
+         || (strncmp(m, _POST, _POST_LEN) == 0 && isspace(m[_POST_LEN])))
     {
 	const char* cimOperation = getFieldValueSubString("CIMOperation:");
 
-	if (cimOperation && strcmp(cimOperation, "MethodCall") == 0)
+	if (cimOperation && strcasecmp(cimOperation, "MethodCall") == 0)
 	{
 	    try
 	    {
@@ -398,37 +404,37 @@ cout << "CONTENT[" << (char*)getContent() << "]" << endl;
     // Dispatch the method:
     //--------------------------------------------------------------------------
 
-    if (strcmp(iMethodCallName, "GetClass") == 0)
+    if (strcasecmp(iMethodCallName, "GetClass") == 0)
 	handleGetClass(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "GetInstance") == 0)
+    else if (strcasecmp(iMethodCallName, "GetInstance") == 0)
 	handleGetInstance(parser, messageId, nameSpace);
     //STUB{
-    else if (strcmp(iMethodCallName, "EnumerateClassNames") == 0)
+    else if (strcasecmp(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
-    else if (strcmp(iMethodCallName, "CreateInstance") == 0)
+    else if (strcasecmp(iMethodCallName, "CreateInstance") == 0)
 	handleCreateInstance(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "EnumerateInstanceNames") == 0)
+    else if (strcasecmp(iMethodCallName, "EnumerateInstanceNames") == 0)
 	handleEnumerateInstanceNames(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "DeleteQualifier") == 0)
+    else if (strcasecmp(iMethodCallName, "DeleteQualifier") == 0)
 	handleDeleteQualifier(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "GetQualifier") == 0)
+    else if (strcasecmp(iMethodCallName, "GetQualifier") == 0)
 	handleGetQualifier(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "SetQualifier") == 0)
+    else if (strcasecmp(iMethodCallName, "SetQualifier") == 0)
 	handleSetQualifier(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "EnumerateQualifiers") == 0)
+    else if (strcasecmp(iMethodCallName, "EnumerateQualifiers") == 0)
 	handleEnumerateQualifiers(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "EnumerateClasses") == 0)
+    else if (strcasecmp(iMethodCallName, "EnumerateClasses") == 0)
 	handleEnumerateClasses(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "CreateClass") == 0)
+    else if (strcasecmp(iMethodCallName, "CreateClass") == 0)
 	handleCreateClass(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "ModifyClass") == 0)
+    else if (strcasecmp(iMethodCallName, "ModifyClass") == 0)
 	handleModifyClass(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "DeleteClass") == 0)
+    else if (strcasecmp(iMethodCallName, "DeleteClass") == 0)
 	handleDeleteClass(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "GetProperty") == 0)
+    else if (strcasecmp(iMethodCallName, "GetProperty") == 0)
 	handleGetProperty(parser, messageId, nameSpace);
-    else if (strcmp(iMethodCallName, "SetProperty") == 0)
+    else if (strcasecmp(iMethodCallName, "SetProperty") == 0)
 	handleSetProperty(parser, messageId, nameSpace);
 
 
@@ -493,13 +499,13 @@ void ServerHandler::handleGetClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ClassName") == 0)
+	if (strcasecmp(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcmp(name, "LocalOnly") == 0)
+	else if (strcasecmp(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (strcmp(name, "IncludeQualifiers") == 0)
+	else if (strcasecmp(name, "IncludeQualifiers") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (strcmp(name, "IncludeClassOrigin") == 0)
+	else if (strcasecmp(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -533,7 +539,7 @@ void ServerHandler::handleGetClass(
     cimClass.toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"GetClass", body);
+	"GetClass", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -563,7 +569,7 @@ void ServerHandler::handleGetInstance(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "InstanceName") == 0)
+	if (strcasecmp(name, "InstanceName") == 0)
 	{
 	    String className;
 	    Array<KeyBinding> keyBindings;
@@ -573,11 +579,11 @@ void ServerHandler::handleGetInstance(
 
 	    instanceName.set(String(), String(), className, keyBindings);
 	}
-	else if (strcmp(name, "LocalOnly") == 0)
+	else if (strcasecmp(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (strcmp(name, "IncludeQualifiers") == 0)
+	else if (strcasecmp(name, "IncludeQualifiers") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (strcmp(name, "IncludeClassOrigin") == 0)
+	else if (strcasecmp(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -611,7 +617,7 @@ std::cout << e.getMessage() << std::endl;
     cimInstance.toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"GetInstance", body);
+	"GetInstance", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -640,9 +646,9 @@ void ServerHandler::handleEnumerateClassNames(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ClassName") == 0)
+	if (strcasecmp(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcmp(name, "DeepInheritance") == 0)
+	else if (strcasecmp(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -676,7 +682,7 @@ void ServerHandler::handleEnumerateClassNames(
 	XmlWriter::appendClassNameElement(body, classNames[i]);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateClassNames", body);
+	"EnumerateClassNames", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -704,7 +710,7 @@ void ServerHandler::handleCreateInstance(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "NewInstance") == 0)
+	if (strcasecmp(name, "NewInstance") == 0)
 	    XmlReader::getInstanceElement(parser, cimInstance);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -734,7 +740,7 @@ void ServerHandler::handleCreateInstance(
     Array<Sint8> body;
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"CreateInstance", body);
+	"CreateInstance", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -761,7 +767,7 @@ void ServerHandler::handleEnumerateInstanceNames(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ClassName") == 0)
+	if (strcasecmp(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -794,7 +800,7 @@ void ServerHandler::handleEnumerateInstanceNames(
 	XmlWriter::appendInstanceNameElement(body, instanceNames[i]);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateInstanceNames", body);
+	"EnumerateInstanceNames", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -814,7 +820,7 @@ void ServerHandler::handleDeleteQualifier(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "QualifierName") == 0)
+	if (strcasecmp(name, "QualifierName") == 0)
 	    XmlReader::getClassNameElement(parser, qualifierName, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -840,7 +846,7 @@ void ServerHandler::handleDeleteQualifier(
     Array<Sint8> body;
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"DeleteQualifier", body);
+	"DeleteQualifier", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -861,7 +867,7 @@ void ServerHandler::handleGetQualifier(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "QualifierName") == 0)
+	if (strcasecmp(name, "QualifierName") == 0)
 	    XmlReader::getClassNameElement(parser, qualifierName, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -890,7 +896,7 @@ void ServerHandler::handleGetQualifier(
     qualifierDecl.toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"GetQualifier", body);
+	"GetQualifier", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -910,7 +916,7 @@ void ServerHandler::handleSetQualifier(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "QualifierDeclaration") == 0)
+	if (strcasecmp(name, "QualifierDeclaration") == 0)
 	    XmlReader::getQualifierDeclElement(parser, qualifierDecl);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -938,7 +944,7 @@ void ServerHandler::handleSetQualifier(
     Array<Sint8> body;
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"SetQualifier", body);
+	"SetQualifier", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -982,7 +988,7 @@ void ServerHandler::handleEnumerateQualifiers(
 	qualifierDecls[i].toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateQualifiers", body);
+	"EnumerateQualifiers", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -1013,15 +1019,15 @@ void ServerHandler::handleEnumerateClasses(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ClassName") == 0)
+	if (strcasecmp(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcmp(name, "DeepInheritance") == 0)
+	else if (strcasecmp(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
-	else if (strcmp(name, "LocalOnly") == 0)
+	else if (strcasecmp(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (strcmp(name, "IncludeQualifiers") == 0)
+	else if (strcasecmp(name, "IncludeQualifiers") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (strcmp(name, "IncludeClassOrigin") == 0)
+	else if (strcasecmp(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1058,7 +1064,7 @@ void ServerHandler::handleEnumerateClasses(
 	classDecls[i].toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateClasses", body);
+	"EnumerateClasses", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -1085,7 +1091,7 @@ void ServerHandler::handleCreateClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "NewClass") == 0)
+	if (strcasecmp(name, "NewClass") == 0)
 	    XmlReader::getClassElement(parser, cimClass);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1111,7 +1117,7 @@ void ServerHandler::handleCreateClass(
     Array<Sint8> body;
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"CreateClass", body);
+	"CreateClass", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -1138,7 +1144,7 @@ void ServerHandler::handleModifyClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ModifiedClass") == 0)
+	if (strcasecmp(name, "ModifiedClass") == 0)
 	    XmlReader::getClassElement(parser, cimClass);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1164,7 +1170,7 @@ void ServerHandler::handleModifyClass(
     Array<Sint8> body;
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"ModifyClass", body);
+	"ModifyClass", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -1191,7 +1197,7 @@ void ServerHandler::handleDeleteClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ClassName") == 0)
+	if (strcasecmp(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1217,7 +1223,7 @@ void ServerHandler::handleDeleteClass(
     Array<Sint8> body;
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"DeleteClass", body);
+	"DeleteClass", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -1247,7 +1253,7 @@ void ServerHandler::handleGetProperty(
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	CIMValue cimValue; 
-	if (strcmp(name, "InstanceName") == 0)
+	if (strcasecmp(name, "InstanceName") == 0)
        {
 	   String className;
 	   Array<KeyBinding> keyBindings;
@@ -1320,7 +1326,7 @@ void ServerHandler::handleGetProperty(
 
 	// body contains <value>value</value> to return
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"GetProperty", body);
+	"GetProperty", messageId, body);
     cout << "DEBUG CIMServer:IhandleGetProperty " <<
 	cimValueRtn.toString() << endl;
 
@@ -1351,9 +1357,9 @@ void ServerHandler::handleSetProperty(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcmp(name, "ClassName") == 0)
+	if (strcasecmp(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcmp(name, "DeepInheritance") == 0)
+	else if (strcasecmp(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1387,7 +1393,7 @@ void ServerHandler::handleSetProperty(
 	XmlWriter::appendClassNameElement(body, classNames[i]);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateClassNames", body);
+	"EnumerateClassNames", messageId, body);
 
     _channel->writeN(message.getData(), message.size());
 }
@@ -1451,7 +1457,7 @@ CIMServer::CIMServer(
     if (!FileSystem::isDirectory(_repositoryRootPath))
 	throw NoSuchDirectory(_repositoryRootPath);
 
-    CIMRepository* repository = new CIMRepository(rootPath + "./repository");
+    CIMRepository* repository = new CIMRepository(rootPath + "/repository");
 
     // -- Create a dispatcher object:
 

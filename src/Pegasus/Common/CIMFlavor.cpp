@@ -50,7 +50,7 @@ static const char* _toString(Boolean x)
   <pre>
   Keyword            Function				  Default
     EnableOverride  Qualifier is overridable. 		    yes
-    DisableOverride Qualifier cannot be overriden.          no
+    DisableOverride Qualifier cannot be overridden.          no
     ToSubclass      Qualifier is inherited by any subclass. yes
     Restricted      Qualifier applies only to the class	    no
                     in which it is declared
@@ -91,6 +91,7 @@ String FlavorToMof(Uint32 flavor)
 
     if (!toSubClass)
 	tmp += "Restricted, ";
+
 
     /* this is not a legal MOF flavor
     if (toInstance)

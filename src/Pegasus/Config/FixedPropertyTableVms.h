@@ -49,7 +49,7 @@
     {"enableAssociationTraversal", "false"},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif

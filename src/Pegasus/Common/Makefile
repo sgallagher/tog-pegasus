@@ -94,11 +94,8 @@ SOURCES = \
 ## Took these out again. They broke the NT build.
 ##
 
-ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SOURCES += MT_MessageQueue.cpp
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 SOURCES += Signal.cpp
-endif
 endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib

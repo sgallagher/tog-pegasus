@@ -232,8 +232,17 @@ int main( int argc, char *argv[] )
 
   //BEGIN TESTS....
 
+  try
+  {
 	drive_CIMOMHandleQueryContext();
    drive_RepositoryQueryContext();
+  }
+  catch (Exception & e)
+  {
+    cout << "Received exception: " << e.getMessage() << endl;
+    cout << argv[0] << "+++++ failed" << endl;
+    return -1;
+  }
 
 	//END TESTS....
 

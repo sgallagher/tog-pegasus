@@ -103,7 +103,7 @@ const Boolean CIMInstance::equalClassName(const String& classname) const
 
 }
 
-const CIMReference& CIMInstance::getPath() const
+const CIMObjectPath& CIMInstance::getPath() const
 {
     _checkRep();
     return _rep->getPath();
@@ -226,7 +226,7 @@ CIMInstance CIMInstance::clone() const
     return CIMInstance((CIMInstanceRep*)(_rep->clone()));
 }
 
-CIMReference CIMInstance::getInstanceName(const CIMConstClass& cimClass) const
+CIMObjectPath CIMInstance::getInstanceName(const CIMConstClass& cimClass) const
 {
     _checkRep();
     return _rep->getInstanceName(cimClass);
@@ -322,7 +322,7 @@ const Boolean CIMConstInstance::equalClassName(const String& classname) const
     return _rep->equalClassName(classname);
 }
 
-const CIMReference& CIMConstInstance::getPath() const
+const CIMObjectPath& CIMConstInstance::getPath() const
 {
     _checkRep();
     return _rep->getPath();
@@ -381,7 +381,7 @@ CIMInstance CIMConstInstance::clone() const
     return CIMInstance((CIMInstanceRep*)(_rep->clone()));
 }
 
-CIMReference CIMConstInstance::getInstanceName(const CIMConstClass& cimClass) const
+CIMObjectPath CIMConstInstance::getInstanceName(const CIMConstClass& cimClass) const
 {
     _checkRep();
     return _rep->getInstanceName(cimClass);

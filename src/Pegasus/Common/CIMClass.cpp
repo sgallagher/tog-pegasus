@@ -59,7 +59,7 @@ CIMClass::CIMClass(const CIMObject& x) throw(DynamicCastFailed)
 }
 
 CIMClass::CIMClass(
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     const String& superClassName)
 {
     _rep = new CIMClassRep(reference, superClassName);
@@ -109,7 +109,7 @@ const Boolean CIMClass::equalClassName(const String& classname) const
     return _rep->equalClassName(classname);
 }
 
-const CIMReference& CIMClass::getPath() const
+const CIMObjectPath& CIMClass::getPath() const
 {
     _checkRep();
     return _rep->getPath();
@@ -341,7 +341,7 @@ CIMConstClass::CIMConstClass(const CIMConstObject& x) throw(DynamicCastFailed)
 }
 
 CIMConstClass::CIMConstClass(
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     const String& superClassName)
 {
     _rep = new CIMClassRep(reference, superClassName);
@@ -397,7 +397,7 @@ const Boolean CIMConstClass::equalClassName(const String& classname) const
     return _rep->equalClassName(classname);
 }
 
-const CIMReference& CIMConstClass::getPath() const
+const CIMObjectPath& CIMConstClass::getPath() const
 {
     _checkRep();
     return _rep->getPath();

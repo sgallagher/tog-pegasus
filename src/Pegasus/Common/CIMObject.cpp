@@ -114,7 +114,7 @@ const Boolean CIMObject::equalClassName(const String& classname) const
     return _rep->equalClassName(classname);
 }
 
-const CIMReference& CIMObject::getPath() const
+const CIMObjectPath& CIMObject::getPath() const
 {
     _checkRep();
     return _rep->getPath();
@@ -342,7 +342,7 @@ const String& CIMConstObject::getClassName() const
     return _rep->getClassName();
 }
 
-const CIMReference& CIMConstObject::getPath() const
+const CIMObjectPath& CIMConstObject::getPath() const
 {
     _checkRep();
     return _rep->getPath();
@@ -418,7 +418,7 @@ CIMObjectWithPath::CIMObjectWithPath()
 }
 
 CIMObjectWithPath::CIMObjectWithPath(
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     const CIMObject& object)
     : _reference(reference), _object(object)
 {
@@ -444,14 +444,14 @@ CIMObjectWithPath& CIMObjectWithPath::operator=(const CIMObjectWithPath& x)
 }
 
 void CIMObjectWithPath::set(
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     const CIMObject& object)
 {
     _reference = reference;
     _object = object;
 }
 
-const CIMReference& CIMObjectWithPath::getReference() const
+const CIMObjectPath& CIMObjectWithPath::getReference() const
 {
     return _reference;
 }
@@ -461,7 +461,7 @@ const CIMObject& CIMObjectWithPath::getObject() const
     return _object;
 }
 
-CIMReference& CIMObjectWithPath::getReference()
+CIMObjectPath& CIMObjectWithPath::getReference()
 {
     return _reference;
 }

@@ -47,7 +47,7 @@ class PEGASUS_COMMON_LINKAGE CIMClassRep : public CIMObjectRep
 public:
 
     CIMClassRep(
-	const CIMReference& reference,
+	const CIMObjectPath& reference,
 	const String& superClassName);
 
     virtual ~CIMClassRep();

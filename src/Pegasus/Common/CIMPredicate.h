@@ -31,7 +31,7 @@
 
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
@@ -109,10 +109,10 @@ of the same name. If not, the evaluation is automatically false.
 Predicates and keybindings by themselves do not contain enough 
 information to resolve their properties to specific CIM instances.
 The necessary context for resolving a predicate or keybinding to 
-a specific instance is provided through a CIMReference or 
+a specific instance is provided through a CIMObjectPath or 
 PredicateReference object. Hence, Predicates are usually contained
 by a PredicateReference object. (Just as keybindings are usually 
-contained by a CIMReference object.)
+contained by a CIMObjectPath object.)
 
 */
 
@@ -232,7 +232,7 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 typedef Array<Predicate> PredicateArray;
 
 /**
-   The PredicateReference class encapsulates a CIMReference and combines it with 
+   The PredicateReference class encapsulates a CIMObjectPath and combines it with 
    a Predicate object. This allows predicate evaluations of specific CIM 
    objects. One way to think of the PredicateReference class is that it is a 
    container for CIM instances and expressions that refer to CIM instances.
@@ -255,14 +255,14 @@ typedef Array<Predicate> PredicateArray;
    temperature can be deemed too hot.
  
 */
-class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
+class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMObjectPath
 {
    public:
       
       /** ATTN;
       */
       PredicateReference();
-      PredicateReference(const CIMReference& x);
+      PredicateReference(const CIMObjectPath& x);
       PredicateReference(const PredicateReference& x);
       PredicateReference(const String& objectName);
       PredicateReference(const char *objectName);
@@ -280,7 +280,7 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       ~PredicateReference();
       
       PredicateReference& operator=(const PredicateReference& x);
-      PredicateReference& operator=(const CIMReference& x);
+      PredicateReference& operator=(const CIMObjectPath& x);
       
       /** 
 	  Clear the underlying reference object and all the predicates. 
@@ -289,7 +289,7 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       
       /** 
 	  Initialize the object using parameters. 
-	  See the documentation of the CIMReference object for the
+	  See the documentation of the CIMObjectPath object for the
 	  host, nameSpace, className, and keyBindings parameters. 
 
 	  @param predicates Array of Predicate objects
@@ -311,7 +311,7 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       */
       PredicateReference& operator=(String& objectName)
       {
-	 CIMReference::set(objectName);
+	 CIMObjectPath::set(objectName);
 	 return *this;
       }
       
@@ -321,7 +321,7 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       */
       PredicateReference& operator=(const char *objectName)
       {
-	 CIMReference::set(objectName);
+	 CIMObjectPath::set(objectName);
 	 return *this;
       }
 
@@ -421,13 +421,13 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
 	 }
       }
 
-      /** Returns true if a CIMReference and the PredicateReference both describe
+      /** Returns true if a CIMObjectPath and the PredicateReference both describe
 	  the same CIM object. 
 	  
-	  @param x is a reference to CIMReference that will be resolved to determine if it
+	  @param x is a reference to CIMObjectPath that will be resolved to determine if it
 	  describes the same object as the PredicateReference. 
       */
-      Boolean identical(const CIMReference& x) const;
+      Boolean identical(const CIMObjectPath& x) const;
 
       /** 
 	  Identity operator for PredicateReference.

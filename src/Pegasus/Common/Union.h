@@ -33,7 +33,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -59,7 +59,7 @@ union Union
     Uint16 _char16Value;
     String* _stringValue;
     CIMDateTime* _dateTimeValue;
-    CIMReference* _referenceValue;
+    CIMObjectPath* _referenceValue;
 
     ArrayRep<Boolean>* _booleanArray;
     ArrayRep<Uint8>* _uint8Array;
@@ -75,7 +75,7 @@ union Union
     ArrayRep<Char16>* _char16Array;
     ArrayRep<String>* _stringArray;
     ArrayRep<CIMDateTime>* _dateTimeArray;
-    ArrayRep<CIMReference>* _referenceArray;
+    ArrayRep<CIMObjectPath>* _referenceArray;
 
     void* _voidPtr;
 };

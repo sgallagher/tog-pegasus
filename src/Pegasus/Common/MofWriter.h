@@ -42,7 +42,7 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,7 +56,7 @@ public:
 
     static void appendValueReferenceElement(
         Array<Sint8>& out,
-        const CIMReference& reference);
+        const CIMObjectPath& reference);
 
     static void appendClassElement(
         Array<Sint8>& out,

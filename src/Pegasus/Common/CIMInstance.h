@@ -95,7 +95,7 @@ public:
     */
     const Boolean equalClassName(const String& classname) const;
 
-    const CIMReference& getPath() const;
+    const CIMObjectPath& getPath() const;
 
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
@@ -240,7 +240,7 @@ public:
 	is all lowercase; the keys-value pairs appear in sorted order by
 	key name).
     */
-    CIMReference getInstanceName(const CIMConstClass& cimClass) const;
+    CIMObjectPath getInstanceName(const CIMConstClass& cimClass) const;
 
     /**	CIMMethod
 
@@ -323,7 +323,7 @@ public:
 
     const Boolean equalClassName(const String& classname) const;
 
-    const CIMReference& getPath() const;
+    const CIMObjectPath& getPath() const;
 
     Uint32 findQualifier(const String& name) const;
 
@@ -337,7 +337,7 @@ public:
 
     Uint32 getPropertyCount() const;
 
-    CIMReference getInstanceName(const CIMConstClass& cimClass) const;
+    CIMObjectPath getInstanceName(const CIMConstClass& cimClass) const;
 
     CIMInstance clone() const;
 

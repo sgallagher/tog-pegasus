@@ -1228,7 +1228,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->messageId,
 	    CIMException(),
 	    request->queueIds.copyAndPop(),
-	    CIMReference());
+	    CIMObjectPath());
 
       STAT_COPYDISPATCHER
 
@@ -1255,7 +1255,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
-      CIMReference instanceName;
+      CIMObjectPath instanceName;
 
       STAT_PROVIDERSTART
 
@@ -1303,7 +1303,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
-            CIMReference());
+            CIMObjectPath());
 
       STAT_COPYDISPATCHER
 
@@ -1773,7 +1773,7 @@ Array<String> CIMOperationRequestDispatcher::_getSubClassNames(
     This would:
     1. determine if we got back any valid responses. If not, error return. Invalid
     is if we got only one response back and it was bad or if all of them were bad.
-    2. aggregate the CIMReferences from the individual good responses into
+    2. aggregate the CIMObjectPaths from the individual good responses into
     a combined response. Then delete the individuals and send the good one. We will
     also probably have to do a duplicate check on CIMreferences and delete duplicates but that is 
     an internal problem	for me.
@@ -1824,7 +1824,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    {
        // Return exception response if exception from getSubClasses
        cimException = exception;
-       Array<CIMReference> instanceNames;
+       Array<CIMObjectPath> instanceNames;
        CIMEnumerateInstanceNamesResponseMessage* response =
        new CIMEnumerateInstanceNamesResponseMessage(
 	     request->messageId,
@@ -1877,7 +1877,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate to Broad"),
             request->queueIds.copyAndPop(),
-            Array<CIMReference>());
+            Array<CIMObjectPath>());
 
       STAT_COPYDISPATCHER
 
@@ -1926,7 +1926,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    {
       CIMException cimException;
       STAT_PROVIDERSTART
-      Array<CIMReference> instanceNames;
+      Array<CIMObjectPath> instanceNames;
       _repository->read_lock();
       try
       {
@@ -1980,7 +1980,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
-            Array<CIMReference>());
+            Array<CIMObjectPath>());
 
       STAT_COPYDISPATCHER
 
@@ -2115,7 +2115,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
       STAT_PROVIDERSTART
 
-      Array<CIMReference> objectNames;
+      Array<CIMObjectPath> objectNames;
 
       _repository->read_lock();
 
@@ -2165,7 +2165,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
-            Array<CIMReference>());
+            Array<CIMObjectPath>());
 
       STAT_COPYDISPATCHER
 
@@ -2294,7 +2294,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
       STAT_PROVIDERSTART
 
-      Array<CIMReference> objectNames;
+      Array<CIMObjectPath> objectNames;
 
       _repository->read_lock();
 
@@ -2342,7 +2342,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
-            Array<CIMReference>());
+            Array<CIMObjectPath>());
 
       STAT_COPYDISPATCHER
 

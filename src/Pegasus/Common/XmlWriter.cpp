@@ -345,7 +345,7 @@ void XmlWriter::appendClassNameElement(
 
 void XmlWriter::appendInstanceNameElement(
     Array<Sint8>& out,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     out << "<INSTANCENAME CLASSNAME=\"" << instanceName.getClassName() << "\">\n";
 
@@ -356,7 +356,7 @@ void XmlWriter::appendInstanceNameElement(
 
         if (keyBindings[i].getType() == KeyBinding::REFERENCE)
         {
-            CIMReference ref = keyBindings[i].getValue();
+            CIMObjectPath ref = keyBindings[i].getValue();
             appendValueReferenceElement(out, ref, true);
         }
         else {
@@ -384,7 +384,7 @@ void XmlWriter::appendInstanceNameElement(
 
 void XmlWriter::appendClassPathElement(
     Array<Sint8>& out, 
-    const CIMReference& classPath)
+    const CIMObjectPath& classPath)
 {
     out << "<CLASSPATH>\n";
     appendNameSpacePathElement(out,
@@ -404,7 +404,7 @@ void XmlWriter::appendClassPathElement(
 
 void XmlWriter::appendInstancePathElement(
     Array<Sint8>& out, 
-    const CIMReference& instancePath)
+    const CIMObjectPath& instancePath)
 {
     out << "<INSTANCEPATH>\n";
     appendNameSpacePathElement(out,
@@ -424,7 +424,7 @@ void XmlWriter::appendInstancePathElement(
 
 void XmlWriter::appendLocalClassPathElement(
     Array<Sint8>& out, 
-    const CIMReference& classPath)
+    const CIMObjectPath& classPath)
 {
     out << "<LOCALCLASSPATH>\n";
     appendLocalNameSpacePathElement(out, classPath.getNameSpace());
@@ -442,7 +442,7 @@ void XmlWriter::appendLocalClassPathElement(
 
 void XmlWriter::appendLocalInstancePathElement(
     Array<Sint8>& out, 
-    const CIMReference& instancePath)
+    const CIMObjectPath& instancePath)
 {
     out << "<LOCALINSTANCEPATH>\n";
     appendLocalNameSpacePathElement(out, instancePath.getNameSpace());
@@ -461,7 +461,7 @@ void XmlWriter::appendLocalInstancePathElement(
 
 void XmlWriter::appendLocalObjectPathElement(
     Array<Sint8>& out, 
-    const CIMReference& objectPath)
+    const CIMObjectPath& objectPath)
 {
     if (objectPath.isInstanceName())
     {
@@ -549,12 +549,12 @@ inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
     out << x.getString();  //ATTN: append() method?
 }
 
-inline void _appendValue(Array<Sint8>& out, const CIMReference& x)
+inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
-void _appendValueArray(Array<Sint8>& out, const CIMReference* p, Uint32 size)
+void _appendValueArray(Array<Sint8>& out, const CIMObjectPath* p, Uint32 size)
 {
     out << "<VALUE.REFARRAY>\n";
     while (size--)
@@ -718,7 +718,7 @@ void XmlWriter::appendValueElement(
 
             case CIMType::REFERENCE:
             {
-                Array<CIMReference> a;
+                Array<CIMObjectPath> a;
                 value.get(a);
                 _appendValueArray(out, a.getData(), a.size());
                 break;
@@ -731,7 +731,7 @@ void XmlWriter::appendValueElement(
     else if (value.getType() == CIMType::REFERENCE)
     {
         // Has to be separate because it uses VALUE.REFERENCE tag
-        CIMReference v;
+        CIMObjectPath v;
         value.get(v);
         _appendValue(out, v);
     }
@@ -904,7 +904,7 @@ void XmlWriter::appendValueObjectWithPathElement(
 
 void XmlWriter::appendValueReferenceElement(
     Array<Sint8>& out,
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     Boolean putValueWrapper)
 {
     if (putValueWrapper)
@@ -950,7 +950,7 @@ void XmlWriter::appendValueReferenceElement(
 }
 
 void XmlWriter::printValueReferenceElement(
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     PEGASUS_STD(ostream)& os)
 {
     Array<Sint8> tmp;
@@ -1843,7 +1843,7 @@ void XmlWriter::appendClassNameIParameter(
 void XmlWriter::appendInstanceNameIParameter(
     Array<Sint8>& out,
     const char* name,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     _appendIParamValueElementBegin(out, name);
     appendInstanceNameElement(out, instanceName);
@@ -1853,7 +1853,7 @@ void XmlWriter::appendInstanceNameIParameter(
 void XmlWriter::appendObjectNameIParameter(
     Array<Sint8>& out,
     const char* name,
-    const CIMReference& objectName)
+    const CIMObjectPath& objectName)
 {
     if (objectName.isClassName())
     {
@@ -2016,7 +2016,7 @@ Array<Sint8> XmlWriter::formatHttpErrorRspMessage(
 Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const char* host,
     const String& nameSpace,
-    const CIMReference& path,
+    const CIMObjectPath& path,
     const char* methodName,
     const Array<CIMParamValue>& parameters,
     const String& messageId,
@@ -2024,7 +2024,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 {
     Array<Sint8> out;
     Array<Sint8> tmp;
-    CIMReference localObjectPath = path;
+    CIMObjectPath localObjectPath = path;
     localObjectPath.setNameSpace(nameSpace);
 
     _appendMessageElementBegin(out, messageId);

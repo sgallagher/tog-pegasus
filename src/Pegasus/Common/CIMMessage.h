@@ -48,6 +48,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 
@@ -201,7 +202,7 @@ class CIMGetInstanceRequestMessage : public CIMRequestMessage
       CIMGetInstanceRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& instanceName_,
+	 const CIMObjectPath& instanceName_,
 	 Boolean localOnly_,
 	 Boolean includeQualifiers_,
 	 Boolean includeClassOrigin_,
@@ -241,7 +242,7 @@ class CIMGetInstanceRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference instanceName;
+      CIMObjectPath instanceName;
       Boolean localOnly;
       Boolean includeQualifiers;
       Boolean includeClassOrigin;
@@ -337,7 +338,7 @@ class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
       CIMDeleteInstanceRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& instanceName_,
+	 const CIMObjectPath& instanceName_,
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY)
@@ -365,7 +366,7 @@ class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference instanceName;
+      CIMObjectPath instanceName;
       String authType;
       String userName;
 };
@@ -784,7 +785,7 @@ class CIMAssociatorsRequestMessage : public CIMRequestMessage
       CIMAssociatorsRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& objectName_,
+	 const CIMObjectPath& objectName_,
 	 const String& assocClass_,
 	 const String& resultClass_,
 	 const String& role_,
@@ -833,7 +834,7 @@ class CIMAssociatorsRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference objectName;
+      CIMObjectPath objectName;
       String assocClass;
       String resultClass;
       String role;
@@ -852,7 +853,7 @@ class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
       CIMAssociatorNamesRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& objectName_,
+	 const CIMObjectPath& objectName_,
 	 const String& assocClass_,
 	 const String& resultClass_,
 	 const String& role_,
@@ -891,7 +892,7 @@ class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference objectName;
+      CIMObjectPath objectName;
       String assocClass;
       String resultClass;
       String role;
@@ -907,7 +908,7 @@ class CIMReferencesRequestMessage : public CIMRequestMessage
       CIMReferencesRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& objectName_,
+	 const CIMObjectPath& objectName_,
 	 const String& resultClass_,
 	 const String& role_,
 	 Boolean includeQualifiers_,
@@ -949,7 +950,7 @@ class CIMReferencesRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference objectName;
+      CIMObjectPath objectName;
       String resultClass;
       String role;
       Boolean includeQualifiers;
@@ -966,7 +967,7 @@ class CIMReferenceNamesRequestMessage : public CIMRequestMessage
       CIMReferenceNamesRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& objectName_,
+	 const CIMObjectPath& objectName_,
 	 const String& resultClass_,
 	 const String& role_,
 	 QueueIdStack queueIds_,
@@ -999,7 +1000,7 @@ class CIMReferenceNamesRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference objectName;
+      CIMObjectPath objectName;
       String resultClass;
       String role;
       String authType;
@@ -1013,7 +1014,7 @@ class CIMGetPropertyRequestMessage : public CIMRequestMessage
       CIMGetPropertyRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& instanceName_,
+	 const CIMObjectPath& instanceName_,
 	 const String& propertyName_,
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
@@ -1044,7 +1045,7 @@ class CIMGetPropertyRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference instanceName;
+      CIMObjectPath instanceName;
       String propertyName;
       String authType;
       String userName;
@@ -1057,7 +1058,7 @@ class CIMSetPropertyRequestMessage : public CIMRequestMessage
       CIMSetPropertyRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& instanceName_,
+	 const CIMObjectPath& instanceName_,
 	 const String& propertyName_,
 	 const CIMValue& newValue_,
 	 QueueIdStack queueIds_,
@@ -1091,7 +1092,7 @@ class CIMSetPropertyRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference instanceName;
+      CIMObjectPath instanceName;
       String propertyName;
       CIMValue newValue;
       String authType;
@@ -1262,7 +1263,7 @@ class CIMInvokeMethodRequestMessage : public CIMRequestMessage
       CIMInvokeMethodRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
-	 const CIMReference& instanceName_,
+	 const CIMObjectPath& instanceName_,
 	 const String& methodName_,
 	 const Array<CIMParamValue>& inParameters_,
 	 QueueIdStack queueIds_,
@@ -1296,7 +1297,7 @@ class CIMInvokeMethodRequestMessage : public CIMRequestMessage
       }
 
       String nameSpace;
-      CIMReference instanceName;
+      CIMObjectPath instanceName;
       String methodName;
       Array<CIMParamValue> inParameters;
       String authType;
@@ -1538,7 +1539,7 @@ class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
         const String & nameSpace_,
         //
         //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-        //  Both the instance and instance name (CIMReference) are needed, so
+        //  Both the instance and instance name (CIMObjectPath) are needed, so
         //  it would be convenient to have the CIMNamedInstance
         //
         const CIMInstance & subscriptionInstance_,
@@ -1612,7 +1613,7 @@ class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
         const String & nameSpace_,
         //
         //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-        //  Both the instance and instance name (CIMReference) are needed, so
+        //  Both the instance and instance name (CIMObjectPath) are needed, so
         //  it would be convenient to have the CIMNamedInstance
         //
         const CIMInstance & subscriptionInstance_,
@@ -1686,7 +1687,7 @@ class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
         const String & nameSpace_,
         //
         //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-        //  Both the instance and instance name (CIMReference) are needed, so
+        //  Both the instance and instance name (CIMObjectPath) are needed, so
         //  it would be convenient to have the CIMNamedInstance
         //
         const CIMInstance & subscriptionInstance_,
@@ -1940,7 +1941,7 @@ class CIMCreateInstanceResponseMessage : public CIMResponseMessage
 	 const String& messageId_,
 	 const CIMException& cimException_,
 	 const QueueIdStack& queueIds_,
-	 const CIMReference& instanceName_)
+	 const CIMObjectPath& instanceName_)
 	 :
 	 CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
 			    messageId_, cimException_, queueIds_),
@@ -1957,7 +1958,7 @@ class CIMCreateInstanceResponseMessage : public CIMResponseMessage
 	 }
       }
 
-      CIMReference instanceName;	
+      CIMObjectPath instanceName;	
 };
 
 class CIMModifyClassResponseMessage : public CIMResponseMessage
@@ -2082,7 +2083,7 @@ class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
 	 const String& messageId_,
 	 const CIMException& cimException_,
 	 const QueueIdStack& queueIds_,
-	 const Array<CIMReference>& instanceNames_)
+	 const Array<CIMObjectPath>& instanceNames_)
 	 :
 	 CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
 			    messageId_, cimException_, queueIds_),
@@ -2099,7 +2100,7 @@ class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
 	 }
       }
 
-      Array<CIMReference> instanceNames;
+      Array<CIMObjectPath> instanceNames;
 };
 
 class CIMExecQueryResponseMessage : public CIMResponseMessage
@@ -2166,7 +2167,7 @@ class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
 	 const String& messageId_,
 	 const CIMException& cimException_,
 	 const QueueIdStack& queueIds_,
-	 const Array<CIMReference>& objectNames_)
+	 const Array<CIMObjectPath>& objectNames_)
 	 :
 	 CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
 			    messageId_, cimException_, queueIds_),
@@ -2183,7 +2184,7 @@ class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
 	 }
       }
 
-      Array<CIMReference> objectNames;
+      Array<CIMObjectPath> objectNames;
 };
 
 class CIMReferencesResponseMessage : public CIMResponseMessage
@@ -2222,7 +2223,7 @@ class CIMReferenceNamesResponseMessage : public CIMResponseMessage
 	 const String& messageId_,
 	 const CIMException& cimException_,
 	 const QueueIdStack& queueIds_,
-	 const Array<CIMReference>& objectNames_)
+	 const Array<CIMObjectPath>& objectNames_)
 	 :
 	 CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
 			    messageId_, cimException_, queueIds_),
@@ -2239,7 +2240,7 @@ class CIMReferenceNamesResponseMessage : public CIMResponseMessage
 	 }
       }
 
-      Array<CIMReference> objectNames;
+      Array<CIMObjectPath> objectNames;
 };
 
 class CIMGetPropertyResponseMessage : public CIMResponseMessage

@@ -242,26 +242,26 @@ Boolean  Predicate::evaluate(const KeyBinding& key)
 //-----------------------------------------------------------------
 
 PredicateReference::PredicateReference() 
-   : CIMReference(), _truth_value(false), 
+   : CIMObjectPath(), _truth_value(false), 
      _logical_op(AND), _predicates() { }
 
-PredicateReference::PredicateReference(const CIMReference& x)
-   : CIMReference(x), _truth_value(false), 
+PredicateReference::PredicateReference(const CIMObjectPath& x)
+   : CIMObjectPath(x), _truth_value(false), 
      _logical_op(AND), _predicates() { }
 
 PredicateReference::PredicateReference(const PredicateReference& x)
-   : CIMReference(x), _truth_value(x._truth_value),
+   : CIMObjectPath(x), _truth_value(x._truth_value),
      _logical_op(x._logical_op), _predicates(x._predicates)
 {
    _BubbleSort(_predicates);
 }
 
 PredicateReference::PredicateReference(const String& objectName)
-   :CIMReference(objectName), _truth_value(false), 
+   :CIMObjectPath(objectName), _truth_value(false), 
     _logical_op(AND), _predicates() { }
 
 PredicateReference::PredicateReference(const char *objectName)
-   :CIMReference(objectName), _truth_value(false), 
+   :CIMObjectPath(objectName), _truth_value(false), 
     _logical_op(AND), _predicates() { }
 
 PredicateArray PredicateReference::getPredicateArray()
@@ -277,7 +277,7 @@ PredicateReference::PredicateReference(
 	 const PredicateArray& predicates,
 	 Boolean truth ,
 	 LogicalOperator lop )
-   : CIMReference(host, nameSpace, className, keyBindings),
+   : CIMObjectPath(host, nameSpace, className, keyBindings),
     _truth_value(true), _logical_op(lop)
 {
    setPredicates(predicates);
@@ -292,7 +292,7 @@ PredicateReference& PredicateReference::operator=(const PredicateReference& x)
 {
    if(&x != this) 
    {
-      CIMReference::operator=(x);
+      CIMObjectPath::operator=(x);
       _truth_value = x._truth_value;
       _logical_op = x._logical_op;
       _predicates = x._predicates;
@@ -300,11 +300,11 @@ PredicateReference& PredicateReference::operator=(const PredicateReference& x)
    return *this;
 }
 
-PredicateReference& PredicateReference::operator=(const CIMReference& x)
+PredicateReference& PredicateReference::operator=(const CIMObjectPath& x)
 {
    if(&x != this)
    {
-      CIMReference::operator=(x);
+      CIMObjectPath::operator=(x);
       _truth_value = true;
       _logical_op = AND;
       _predicates =  PredicateArray();
@@ -314,7 +314,7 @@ PredicateReference& PredicateReference::operator=(const CIMReference& x)
 
 void PredicateReference::clear()
 {
-   CIMReference::clear();
+   CIMObjectPath::clear();
    _truth_value = true;
    _logical_op = AND;
    _predicates.clear();
@@ -329,7 +329,7 @@ void PredicateReference::set(
    Boolean truth ,
    LogicalOperator lop )
 {
-   CIMReference::set(host, nameSpace, className, keyBindings);
+   CIMObjectPath::set(host, nameSpace, className, keyBindings);
    _truth_value = truth;
    _logical_op = lop;
    setPredicates(predicates);
@@ -341,7 +341,7 @@ void PredicateReference::setPredicates(const Array<Predicate>& predicates)
    _BubbleSort(_predicates);
 }
 
-Boolean PredicateReference::identical(const CIMReference& x) const
+Boolean PredicateReference::identical(const CIMObjectPath& x) const
 {
    return
       String::equal(getHost(), x.getHost()) &&
@@ -355,7 +355,7 @@ Boolean PredicateReference::identical(const PredicateReference& x) const
    return
       _truth_value == x._truth_value &&
       _logical_op == x._logical_op &&
-      CIMReference::identical(x) &&
+      CIMObjectPath::identical(x) &&
       _predicates == x._predicates;
 }
 
@@ -363,7 +363,7 @@ Boolean PredicateReference::evaluate(void)
 {
    _truth_value = false;
    
-   const Array<KeyBinding>& keys = CIMReference::getKeyBindings();
+   const Array<KeyBinding>& keys = CIMObjectPath::getKeyBindings();
    int x = _predicates.size();
    int y = keys.size();
    int i, j;

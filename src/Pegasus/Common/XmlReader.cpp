@@ -1210,7 +1210,7 @@ Boolean XmlReader::getPropertyValue(
     }
 
     // Test for VALUE.REFERENCE element
-    CIMReference reference;
+    CIMObjectPath reference;
     if (XmlReader::getValueReferenceElement(parser, reference))
     {
         cimValue.set(reference);
@@ -2037,7 +2037,7 @@ Boolean XmlReader::getKeyBindingElement(
 
     if (!getKeyValueElement(parser, type, value))
     {
-        CIMReference reference;
+        CIMObjectPath reference;
 
         if (!getValueReferenceElement(parser, reference))
         {
@@ -2091,7 +2091,7 @@ Boolean XmlReader::getInstanceNameElement(
     String name;
     KeyBinding::Type type;
     String value;
-    CIMReference reference;
+    CIMObjectPath reference;
 
     if (getKeyValueElement(parser, type, value))
     {
@@ -2118,7 +2118,7 @@ Boolean XmlReader::getInstanceNameElement(
 
 Boolean XmlReader::getInstanceNameElement(
     XmlParser& parser,
-    CIMReference& instanceName)
+    CIMObjectPath& instanceName)
 {
     String className;
     Array<KeyBinding> keyBindings;
@@ -2140,7 +2140,7 @@ Boolean XmlReader::getInstanceNameElement(
 
 Boolean XmlReader::getInstancePathElement(
     XmlParser& parser,
-    CIMReference& reference)
+    CIMObjectPath& reference)
 {
     XmlEntry entry;
 
@@ -2181,7 +2181,7 @@ Boolean XmlReader::getInstancePathElement(
 
 Boolean XmlReader::getLocalInstancePathElement(
     XmlParser& parser,
-    CIMReference& reference)
+    CIMObjectPath& reference)
 {
     XmlEntry entry;
 
@@ -2221,7 +2221,7 @@ Boolean XmlReader::getLocalInstancePathElement(
 
 Boolean XmlReader::getClassPathElement(
     XmlParser& parser,
-    CIMReference& reference)
+    CIMObjectPath& reference)
 {
     XmlEntry entry;
 
@@ -2261,7 +2261,7 @@ Boolean XmlReader::getClassPathElement(
 
 Boolean XmlReader::getLocalClassPathElement(
     XmlParser& parser,
-    CIMReference& reference)
+    CIMObjectPath& reference)
 {
     XmlEntry entry;
 
@@ -2303,7 +2303,7 @@ Boolean XmlReader::getLocalClassPathElement(
 
 Boolean XmlReader::getValueReferenceElement(
     XmlParser& parser,
-    CIMReference& reference)
+    CIMObjectPath& reference)
 {
     XmlEntry entry;
 
@@ -2375,8 +2375,8 @@ Boolean XmlReader::getValueReferenceArrayElement(
     CIMValue& value)
 {
     XmlEntry entry;
-    Array<CIMReference> referenceArray;
-    CIMReference reference;
+    Array<CIMObjectPath> referenceArray;
+    CIMObjectPath reference;
 
     value.clear();
 
@@ -2448,7 +2448,7 @@ Boolean XmlReader::getPropertyReferenceElement(
     // Create property:
 
     CIMValue value = CIMValue(CIMType::REFERENCE, false, 0);
-//    value.set(CIMReference());
+//    value.set(CIMObjectPath());
     property = CIMProperty(
 	name, value, 0, referenceClass, classOrigin, propagated);
 
@@ -2456,7 +2456,7 @@ Boolean XmlReader::getPropertyReferenceElement(
     {
 	getQualifierElements(parser, property);
 
-	CIMReference reference;
+	CIMObjectPath reference;
 
 	if (getValueReferenceElement(parser, reference))
 	    property.setValue(reference);
@@ -2967,7 +2967,7 @@ Boolean XmlReader::getNamedInstanceElement(
     if (!testStartTag(parser, entry, "VALUE.NAMEDINSTANCE"))
 	return false;
 
-    CIMReference instanceName;
+    CIMObjectPath instanceName;
 
     // Get INSTANCENAME elements:
 
@@ -3287,7 +3287,7 @@ Boolean XmlReader::getValueObjectWithPathElement(
     if (!testStartTag(parser, entry, "VALUE.OBJECTWITHPATH"))
 	return false;
 
-    CIMReference reference;
+    CIMObjectPath reference;
     Boolean isInstance = false;
 
     if (XmlReader::getInstancePathElement(parser, reference))
@@ -3343,7 +3343,7 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
     if (!testStartTag(parser, entry, "VALUE.OBJECTWITHLOCALPATH"))
 	return false;
 
-    CIMReference reference;
+    CIMObjectPath reference;
     Boolean isInstance = false;
 
     if (XmlReader::getLocalInstancePathElement(parser, reference))
@@ -3401,9 +3401,9 @@ void XmlReader::getObjectArray(
 
     if (getValueObjectElement(parser, object))
     {
-        objectArray.append(CIMObjectWithPath(CIMReference(), object));
+        objectArray.append(CIMObjectWithPath(CIMObjectPath(), object));
         while (getValueObjectElement(parser, object))
-            objectArray.append(CIMObjectWithPath(CIMReference(), object));
+            objectArray.append(CIMObjectWithPath(CIMObjectPath(), object));
     }
     else if (getValueObjectWithPathElement(parser, objectWithPath))
     {
@@ -3427,7 +3427,7 @@ void XmlReader::getObjectArray(
 
 Boolean XmlReader::getObjectNameElement(
     XmlParser& parser, 
-    CIMReference& objectName)
+    CIMObjectPath& objectName)
 {
     String className;
 
@@ -3455,7 +3455,7 @@ Boolean XmlReader::getObjectNameElement(
 
 Boolean XmlReader::getObjectPathElement(
     XmlParser& parser, 
-    CIMReference& objectPath)
+    CIMObjectPath& objectPath)
 {
     XmlEntry entry;
 
@@ -3618,7 +3618,7 @@ Boolean XmlReader::getParamValueElement(
         // Parse VALUE.REFERENCE and VALUE.REFARRAY type
         if ( (type == CIMType::REFERENCE) || (type == CIMType::NONE) )
         {
-	    CIMReference reference;
+	    CIMObjectPath reference;
 	    if (XmlReader::getValueReferenceElement(parser, reference))
 	    {
 	        value.set(reference);
@@ -3686,7 +3686,7 @@ Boolean XmlReader::getReturnValueElement(
     // Parse VALUE.REFERENCE type
     if ( (type == CIMType::REFERENCE) || (type == CIMType::NONE) )
     {
-        CIMReference reference;
+        CIMObjectPath reference;
         if (XmlReader::getValueReferenceElement(parser, reference))
         {
             returnValue.set(reference);

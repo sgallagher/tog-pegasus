@@ -48,7 +48,7 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMParamValue.h>
@@ -107,27 +107,27 @@ public:
 
     static void appendInstanceNameElement(
 	Array<Sint8>& out,
-	const CIMReference& instanceName);
+	const CIMObjectPath& instanceName);
 
     static void appendClassPathElement(
 	Array<Sint8>& out,
-	const CIMReference& classPath);
+	const CIMObjectPath& classPath);
 
     static void appendInstancePathElement(
 	Array<Sint8>& out,
-	const CIMReference& instancePath);
+	const CIMObjectPath& instancePath);
 
     static void appendLocalClassPathElement(
 	Array<Sint8>& out,
-	const CIMReference& classPath);
+	const CIMObjectPath& classPath);
 
     static void appendLocalInstancePathElement(
 	Array<Sint8>& out,
-	const CIMReference& instancePath);
+	const CIMObjectPath& instancePath);
 
     static void appendLocalObjectPathElement(
 	Array<Sint8>& out,
-	const CIMReference& objectPath);
+	const CIMObjectPath& objectPath);
 
     static void appendValueElement(
         Array<Sint8>& out,
@@ -143,11 +143,11 @@ public:
 
     static void appendValueReferenceElement(
         Array<Sint8>& out,
-        const CIMReference& reference,
+        const CIMObjectPath& reference,
         Boolean putValueWrapper);
 
     static void printValueReferenceElement(
-        const CIMReference& reference,
+        const CIMObjectPath& reference,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
@@ -279,12 +279,12 @@ public:
     static void appendInstanceNameIParameter(
 	Array<Sint8>& out,
 	const char* name,
-	const CIMReference& instanceName);
+	const CIMObjectPath& instanceName);
 
     static void appendObjectNameIParameter(
 	Array<Sint8>& out,
 	const char* name,
-	const CIMReference& objectName);
+	const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
 	Array<Sint8>& out,
@@ -327,7 +327,7 @@ public:
     static Array<Sint8> formatSimpleMethodReqMessage(
 	const char* host,
 	const String& nameSpace,
-	const CIMReference& path,
+	const CIMObjectPath& path,
 	const char* methodName,
 	const Array<CIMParamValue>& parameters,
 	const String& messageId,

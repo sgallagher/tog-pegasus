@@ -45,7 +45,7 @@ class PEGASUS_COMMON_LINKAGE CIMInstanceRep : public CIMObjectRep
 public:
 
     CIMInstanceRep(
-	const CIMReference& reference);
+	const CIMObjectPath& reference);
 
     virtual ~CIMInstanceRep();
 
@@ -64,7 +64,7 @@ public:
 	return new CIMInstanceRep(*this);
     }
 
-    CIMReference getInstanceName(const CIMConstClass& cimClass) const;
+    CIMObjectPath getInstanceName(const CIMConstClass& cimClass) const;
 
     String toString() const;
 

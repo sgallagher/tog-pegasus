@@ -666,7 +666,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
       // Expect <METHODCALL ...>
       else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
       {
-	 CIMReference reference;
+	 CIMObjectPath reference;
 	 XmlEntry        entry;
 
          // The Specification for CIM Operations over HTTP reads:
@@ -792,7 +792,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
          }
 
-         CIMReference headerObjectReference;
+         CIMObjectPath headerObjectReference;
          try
          {
              headerObjectReference.set(cimObjectInHeader);
@@ -1390,7 +1390,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 {
    STAT_GETSTARTTIME
 
-   CIMReference instanceName;
+   CIMObjectPath instanceName;
    Boolean localOnly = true;
    Boolean includeQualifiers = false;
    Boolean includeClassOrigin = false;
@@ -1722,7 +1722,7 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
 {
    STAT_GETSTARTTIME
 
-   CIMReference instanceName;
+   CIMObjectPath instanceName;
    Boolean duplicateParameter = false;
    Boolean gotInstanceName = false;
 
@@ -1966,7 +1966,7 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 {
    STAT_GETSTARTTIME
 
-   CIMReference objectName;
+   CIMObjectPath objectName;
    String resultClass;
    String role;
    Boolean duplicateParameter = false;
@@ -2038,7 +2038,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 {
    STAT_GETSTARTTIME
 
-   CIMReference objectName;
+   CIMObjectPath objectName;
    String resultClass;
    String role;
    Boolean includeQualifiers = false;
@@ -2143,7 +2143,7 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 {
    STAT_GETSTARTTIME
 
-   CIMReference objectName;
+   CIMObjectPath objectName;
    String assocClass;
    String resultClass;
    String role;
@@ -2233,7 +2233,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 {
    STAT_GETSTARTTIME
 
-   CIMReference objectName;
+   CIMObjectPath objectName;
    String assocClass;
    String resultClass;
    String role;
@@ -2356,7 +2356,7 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
 {
    STAT_GETSTARTTIME
 
-   CIMReference instanceName;
+   CIMObjectPath instanceName;
    String propertyName;
    Boolean duplicateParameter = false;
    Boolean gotInstanceName = false;
@@ -2418,7 +2418,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
 {
    STAT_GETSTARTTIME
 
-   CIMReference instanceName;
+   CIMObjectPath instanceName;
    String propertyName;
    CIMValue propertyValue;
    Boolean duplicateParameter = false;
@@ -2549,7 +2549,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const CIMReference& reference,
+   const CIMObjectPath& reference,
    const String& cimMethodName,
    const String& authType,
    const String& userName)

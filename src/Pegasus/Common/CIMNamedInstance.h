@@ -31,14 +31,14 @@
 #define Pegasus_CIMNamedInstance_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMNamedInstanceRep;
 
-/** The CIMNamedInstance encapsulates a CIMReference and CIMInstance.
+/** The CIMNamedInstance encapsulates a CIMObjectPath and CIMInstance.
     Accessors are provided for getting the two parts. Constructors are
     provided for initializing it from a CIMNamedInstance and from the
     two individual parts.
@@ -55,12 +55,12 @@ public:
         Constructs a CIMNamedInstance object from an instance name and an
         instance.
 
-        @param instanceName The CIMReference object containing the instance
+        @param instanceName The CIMObjectPath object containing the instance
                             name.
         @param instance The CIMInstance object containing the instance.
     */
     CIMNamedInstance(
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
         const CIMInstance& instance
     );
 
@@ -89,18 +89,18 @@ public:
         Resets the value of the CIMNamedInstance object to contain the
         specified instance name and instance.
 
-        @param instanceName The CIMReference object containing the instance
+        @param instanceName The CIMObjectPath object containing the instance
                             name to set.
         @param instance The CIMInstance object containing the instance to set.
     */
-    void set(const CIMReference& instanceName, const CIMInstance& instance);
+    void set(const CIMObjectPath& instanceName, const CIMInstance& instance);
 
     /**
         Accessor for the instance name portion of the CIMNamedInstance object.
 
-        @return A CIMReference object containing the instance name.
+        @return A CIMObjectPath object containing the instance name.
     */
-    const CIMReference& getInstanceName() const;
+    const CIMObjectPath& getInstanceName() const;
 
     /**
         Accessor for the instance portion of the CIMNamedInstance object.
@@ -112,9 +112,9 @@ public:
     /**
         Accessor for the instance name portion of the CIMNamedInstance object.
 
-        @return A CIMReference object containing the instance name.
+        @return A CIMObjectPath object containing the instance name.
     */
-    CIMReference& getInstanceName();
+    CIMObjectPath& getInstanceName();
 
     /**
         Accessor for the instance portion of the CIMNamedInstance object.

@@ -92,7 +92,7 @@ inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
     out << x.getString();
 }
 
-inline void _toString(Array<Sint8>& out, const CIMReference& x)
+inline void _toString(Array<Sint8>& out, const CIMObjectPath& x)
 {
     out << x.toString();
 }
@@ -248,7 +248,7 @@ CIMValue::CIMValue(const CIMDateTime& x)
     set(x);
 }
 
-CIMValue::CIMValue(const CIMReference& x)
+CIMValue::CIMValue(const CIMObjectPath& x)
 {
     _rep = new CIMValueRep();
     set(x);
@@ -338,7 +338,7 @@ CIMValue::CIMValue(const Array<CIMDateTime>& x)
     set(x);
 }
 
-CIMValue::CIMValue(const Array<CIMReference>& x)
+CIMValue::CIMValue(const Array<CIMObjectPath>& x)
 {
     _rep = new CIMValueRep();
     set(x);
@@ -507,7 +507,7 @@ void CIMValue::assign(const CIMValue& x)
 
             case CIMType::REFERENCE:
                 _rep->_u._referenceValue =
-                    new CIMReference(*(x._rep->_u._referenceValue));
+                    new CIMObjectPath(*(x._rep->_u._referenceValue));
                 break;
             
             // Should never get here. testing complete enum
@@ -793,7 +793,7 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
                 break;
 
             case CIMType::REFERENCE:
-                set(Array<CIMReference>(arraySize));
+                set(Array<CIMObjectPath>(arraySize));
                 break;
             default:
                 throw CIMValueInvalidType();
@@ -860,7 +860,7 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
                 break;
 
             case CIMType::REFERENCE:
-                set(CIMReference());
+                set(CIMObjectPath());
                 break;
             default:
                 throw CIMValueInvalidType();
@@ -991,10 +991,10 @@ void CIMValue::set(const CIMDateTime& x)
     _rep->_isNull = false;
 }
 
-void CIMValue::set(const CIMReference& x)
+void CIMValue::set(const CIMObjectPath& x)
 {
     clear();
-    _rep->_u._referenceValue = new CIMReference(x);
+    _rep->_u._referenceValue = new CIMObjectPath(x);
     _rep->_type = CIMType::REFERENCE;
     _rep->_isNull = false;
 }
@@ -1125,7 +1125,7 @@ void CIMValue::set(const Array<CIMDateTime>& x)
     _rep->_isNull = false;
 }
 
-void CIMValue::set(const Array<CIMReference>& x)
+void CIMValue::set(const Array<CIMObjectPath>& x)
 {
     clear();
     _Inc(_rep->_u._referenceArray = x._rep);
@@ -1246,7 +1246,7 @@ void CIMValue::get(CIMDateTime& x) const
     x = *_rep->_u._dateTimeValue;
 }
 
-void CIMValue::get(CIMReference& x) const
+void CIMValue::get(CIMObjectPath& x) const
 {
     if (_rep->_type != CIMType::REFERENCE || _rep->_isArray)
         throw TypeMismatch();
@@ -1371,7 +1371,7 @@ void CIMValue::get(Array<CIMDateTime>& x) const
     x.set(_rep->_u._dateTimeArray);
 }
 
-void CIMValue::get(Array<CIMReference>& x) const
+void CIMValue::get(Array<CIMObjectPath>& x) const
 {
     if (_rep->_type != CIMType::REFERENCE || !_rep->_isArray)
         throw TypeMismatch();
@@ -1625,8 +1625,8 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
                     Array<CIMDateTime>(y._rep->_u._dateTimeArray);
 
             case CIMType::REFERENCE:
-                return Array<CIMReference>(x._rep->_u._referenceArray) ==
-                    Array<CIMReference>(y._rep->_u._referenceArray);
+                return Array<CIMObjectPath>(x._rep->_u._referenceArray) ==
+                    Array<CIMObjectPath>(y._rep->_u._referenceArray);
             default:
                 throw CIMValueInvalidType();
         }

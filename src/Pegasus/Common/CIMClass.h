@@ -75,7 +75,7 @@ public:
 
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
-	@param className CIMReference representing name of the class being created
+	@param className CIMObjectPath representing name of the class being created
 	@param superClassName String representing name of the SuperClass
 	ATTN: Define what makes up legal name.
 	@return Throws IllegalName if className argument illegal CIM identifier.
@@ -85,7 +85,7 @@ public:
 
     */
     CIMClass(
-	const CIMReference& reference,
+	const CIMObjectPath& reference,
 	const String& superClassName = String::EMPTY);
 
     /** Assignment operator.
@@ -129,7 +129,7 @@ public:
     */
     const Boolean equalClassName(const String& classname) const;
 
-    const CIMReference& getPath() const;
+    const CIMObjectPath& getPath() const;
 
     /** getSuperClassName - Gets the name of the Parent
 	@return String with parent class name.
@@ -386,7 +386,7 @@ public:
 
     // Throws IllegalName if className argument not legal CIM identifier.
     CIMConstClass(
-	const CIMReference& reference,
+	const CIMObjectPath& reference,
 	const String& superClassName = String::EMPTY);
 
     CIMConstClass& operator=(const CIMConstClass& x);
@@ -403,7 +403,7 @@ public:
 
     const Boolean equalClassName(const String& classname) const;
 
-    const CIMReference& getPath() const;
+    const CIMObjectPath& getPath() const;
 
     const String& getSuperClassName() const;
 

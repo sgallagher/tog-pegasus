@@ -41,7 +41,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMInstanceRep::CIMInstanceRep(const CIMReference& reference)
+CIMInstanceRep::CIMInstanceRep(const CIMObjectPath& reference)
     : CIMObjectRep(reference)
 {
 
@@ -241,7 +241,7 @@ void CIMInstanceRep::toMof(Array<Sint8>& out) const
     out << "\n};\n";
 
 }
-CIMReference CIMInstanceRep::getInstanceName(
+CIMObjectPath CIMInstanceRep::getInstanceName(
     const CIMConstClass& cimClass) const
 {
     //--------------------------------------------------------------------------
@@ -258,7 +258,7 @@ CIMReference CIMInstanceRep::getInstanceName(
     cimClass.getKeyNames(keyNames);
 
     if (keyNames.size() == 0)
-	return CIMReference();
+	return CIMObjectPath();
 
     //--------------------------------------------------------------------------
     // Get type and value for each key (building up key bindings):
@@ -328,13 +328,13 @@ CIMReference CIMInstanceRep::getInstanceName(
 	}
     }
 
-    return CIMReference(String(), String(), className, keyBindings);
+    return CIMObjectPath(String(), String(), className, keyBindings);
 }
 
 String CIMInstanceRep::toString() const
 {
     String objectName;
-    CIMReference object = getPath();
+    CIMObjectPath object = getPath();
 
     // Get the host:
 

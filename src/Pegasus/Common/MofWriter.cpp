@@ -45,7 +45,7 @@
 #include "CIMQualifierRep.h"
 #include "CIMQualifierDecl.h"
 #include "CIMQualifierDeclRep.h"
-#include "CIMReference.h"
+#include "CIMObjectPath.h"
 #include "CIMValue.h"
 #include "CIMFlavor.h"
 #include "CIMScope.h"
@@ -190,7 +190,7 @@ inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
     out << x.getString();  //ATTN: append() method?
 }
 
-inline void _appendValue(Array<Sint8>& out, const CIMReference& x)
+inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
@@ -355,7 +355,7 @@ void MofWriter::appendValueElement(
 
             case CIMType::REFERENCE:
             {
-                Array<CIMReference> a;
+                Array<CIMObjectPath> a;
                 value.get(a);
                 _appendValueArrayMof(out, a.getData(), a.size());
                 break;
@@ -483,7 +483,7 @@ void MofWriter::appendValueElement(
 
             case CIMType::REFERENCE:
             {
-                CIMReference v;
+                CIMObjectPath v;
                 value.get(v);
                 _appendValue(out, v);
                 break;
@@ -503,7 +503,7 @@ void MofWriter::appendValueElement(
 
 void MofWriter::appendValueReferenceElement(
     Array<Sint8>& out,
-    const CIMReference& reference)
+    const CIMObjectPath& reference)
 {
     out << "MOF not implemented:\n";
     XmlWriter::appendValueReferenceElement(out, reference, true);

@@ -63,7 +63,7 @@ PEGASUS_NAMESPACE_BEGIN
 	    char16	CIMType::CHAR16		Char16
 	    string	CIMType::STRING		String
 	    datetime	CIMType::DATETIME	CIMDateTime
-	    reference	CIMType::REFERENCE	CIMReference
+	    reference	CIMType::REFERENCE	CIMObjectPath
 
     </pre>
 */

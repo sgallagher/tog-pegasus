@@ -283,7 +283,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const CIMReference& reference,
+	 const CIMObjectPath& reference,
 	 const String& cimMethodName,
 	 const String& authType,
 	 const String& userName);

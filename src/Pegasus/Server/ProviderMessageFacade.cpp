@@ -293,7 +293,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     PEGASUS_ASSERT(request != 0);
 
     CIMException cimException;
-    Array<CIMReference> cimReferences;
+    Array<CIMObjectPath> cimReferences;
 
     try
     {
@@ -309,7 +309,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	SimpleResponseHandler<CIMReference> handler;
+	SimpleResponseHandler<CIMObjectPath> handler;
 
 	enumerateInstanceNames(
 	    context,
@@ -355,7 +355,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 
     CIMException cimException;
     CIMInstance cimInstance;
-    CIMReference instanceName;
+    CIMObjectPath instanceName;
 
     try
     {
@@ -372,7 +372,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	SimpleResponseHandler<CIMReference> handler;
+	SimpleResponseHandler<CIMObjectPath> handler;
 
 	// forward request
 	createInstance(
@@ -428,7 +428,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     PEGASUS_ASSERT(request != 0);
 
     CIMException cimException;
-    CIMReference instanceName;
+    CIMObjectPath instanceName;
 
     cout << "ProviderMessageFaced::_handleModifyInstanceRequest" << endl;
 
@@ -605,7 +605,7 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMReference> cimReferences;
+    Array<CIMObjectPath> cimReferences;
 
     CIMAssociatorNamesResponseMessage * response =
 	new CIMAssociatorNamesResponseMessage(
@@ -649,7 +649,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMReference> cimReferences;
+    Array<CIMObjectPath> cimReferences;
 
     CIMReferenceNamesResponseMessage * response =
 	new CIMReferenceNamesResponseMessage(
@@ -722,7 +722,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
     try
     {
 	// make target object path
-	CIMReference classReference(
+	CIMObjectPath classReference(
 	    System::getHostName(),
 	    request->nameSpace,
 	    request->instanceName.getClassName());

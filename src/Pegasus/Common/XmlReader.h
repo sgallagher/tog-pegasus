@@ -37,7 +37,7 @@
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -260,27 +260,27 @@ public:
 
     static Boolean getInstanceNameElement(
 	XmlParser& parser,
-	CIMReference& instanceName);
+	CIMObjectPath& instanceName);
 
     static Boolean getInstancePathElement(
 	XmlParser& parser,
-	CIMReference& reference);
+	CIMObjectPath& reference);
 
     static Boolean getLocalInstancePathElement(
 	XmlParser& parser,
-	CIMReference& reference);
+	CIMObjectPath& reference);
 
     static Boolean getClassPathElement(
 	XmlParser& parser,
-	CIMReference& reference);
+	CIMObjectPath& reference);
 
     static Boolean getLocalClassPathElement(
 	XmlParser& parser,
-	CIMReference& reference);
+	CIMObjectPath& reference);
 
     static Boolean getValueReferenceElement(
 	XmlParser& parser,
-	CIMReference& reference);
+	CIMObjectPath& reference);
 
     static Boolean getValueReferenceArrayElement(
 	XmlParser& parser, 
@@ -381,11 +381,11 @@ public:
 
     static Boolean getObjectNameElement(
 	XmlParser& parser, 
-	CIMReference& objectName);
+	CIMObjectPath& objectName);
 
     static Boolean getObjectPathElement(
 	XmlParser& parser, 
-	CIMReference& objectPath);
+	CIMObjectPath& objectPath);
 
     static Boolean getEMethodCallStartTag(
 	XmlParser& parser, 

@@ -33,7 +33,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Array.h>
@@ -113,7 +113,7 @@ public:
     CIMValue(const CIMDateTime& x);
 
     /// Constructor
-    CIMValue(const CIMReference& x);
+    CIMValue(const CIMObjectPath& x);
 
     /// Constructor
     CIMValue(const Array<Boolean>& x);
@@ -158,7 +158,7 @@ public:
     CIMValue(const Array<CIMDateTime>& x);
 
     /// Constructor
-    CIMValue(const Array<CIMReference>& x);
+    CIMValue(const Array<CIMObjectPath>& x);
 
     /// Constructor
     CIMValue(const CIMValue& x);
@@ -279,7 +279,7 @@ public:
     ///
     void set(const CIMDateTime& x);
     ///
-    void set(const CIMReference& x);
+    void set(const CIMObjectPath& x);
     ///
     void set(const Array<Boolean>& x);
     ///
@@ -309,7 +309,7 @@ public:
     ///
     void set(const Array<CIMDateTime>& x);
     ///
-    void set(const Array<CIMReference>& x);
+    void set(const Array<CIMObjectPath>& x);
 
     /** get - Gets the value of a CIMValue
         @param Variable in which we return the value:
@@ -348,7 +348,7 @@ public:
     ///
     void get(CIMDateTime& x) const;
     ///
-    void get(CIMReference& x) const;
+    void get(CIMObjectPath& x) const;
     ///
     void get(Array<Boolean>& x) const;
     ///
@@ -378,7 +378,7 @@ public:
     ///
     void get(Array<CIMDateTime>& x) const; 
     ///
-    void get(Array<CIMReference>& x) const; 
+    void get(Array<CIMObjectPath>& x) const; 
 
     /** Makes a deep copy (clone) of the given object. */
     CIMValue clone() const;

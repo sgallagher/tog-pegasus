@@ -41,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 CIMClassRep::CIMClassRep(
-    const CIMReference& reference,
+    const CIMObjectPath& reference,
     const String& superClassName)
     :
     CIMObjectRep(reference),

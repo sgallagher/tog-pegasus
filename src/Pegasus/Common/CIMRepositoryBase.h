@@ -69,7 +69,7 @@ public:
 
     virtual CIMInstance getInstance(
         const String& nameSpace,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
@@ -81,13 +81,13 @@ public:
 
     virtual void deleteInstance(
         const String& nameSpace,
-        const CIMReference& instanceName) = 0;
+        const CIMObjectPath& instanceName) = 0;
 
     virtual void createClass(
         const String& nameSpace,
         const CIMClass& newClass) = 0;
 
-    virtual CIMReference createInstance(
+    virtual CIMObjectPath createInstance(
         const String& nameSpace,
         const CIMInstance& newInstance) = 0;
 
@@ -123,7 +123,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMReference> enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
         const String& nameSpace,
         const String& className) = 0;
 
@@ -133,7 +133,7 @@ public:
 
     virtual Array<CIMObjectWithPath> associators(
         const String& nameSpace,
-        const CIMReference& objectName,
+        const CIMObjectPath& objectName,
         const String& assocClass = String::EMPTY,
         const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY,
@@ -142,9 +142,9 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMReference> associatorNames(
+    virtual Array<CIMObjectPath> associatorNames(
         const String& nameSpace,
-        const CIMReference& objectName,
+        const CIMObjectPath& objectName,
         const String& assocClass = String::EMPTY,
         const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY,
@@ -152,27 +152,27 @@ public:
 
     virtual Array<CIMObjectWithPath> references(
         const String& nameSpace,
-        const CIMReference& objectName,
+        const CIMObjectPath& objectName,
         const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMReference> referenceNames(
+    virtual Array<CIMObjectPath> referenceNames(
         const String& nameSpace,
-        const CIMReference& objectName,
+        const CIMObjectPath& objectName,
         const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY) = 0;
 
     virtual CIMValue getProperty(
         const String& nameSpace,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
         const String& propertyName) = 0;
 
     virtual void setProperty(
         const String& nameSpace,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
         const String& propertyName,
         const CIMValue& newValue = CIMValue()) = 0;
 

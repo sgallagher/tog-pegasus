@@ -33,7 +33,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMObjectRep::CIMObjectRep(const CIMReference& reference)
+CIMObjectRep::CIMObjectRep(const CIMObjectPath& reference)
     : _reference(reference), _resolved(false)
 {
 }

@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMNamedInstanceRep
 {
 public:
-    CIMReference instanceName;
+    CIMObjectPath instanceName;
     CIMInstance instance;
 };
 
@@ -54,7 +54,7 @@ CIMNamedInstance::CIMNamedInstance()
 }
 
 CIMNamedInstance::CIMNamedInstance(
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const CIMInstance& instance) 
 {
     _rep = new CIMNamedInstanceRep();
@@ -87,14 +87,14 @@ CIMNamedInstance& CIMNamedInstance::operator=(
 }
 
 void CIMNamedInstance::set(
-    const CIMReference& instanceName, 
+    const CIMObjectPath& instanceName, 
     const CIMInstance& instance)
 {
     _rep->instanceName = instanceName;
     _rep->instance = instance;
 }
 
-const CIMReference& CIMNamedInstance::getInstanceName() const
+const CIMObjectPath& CIMNamedInstance::getInstanceName() const
 {
     return _rep->instanceName;
 }
@@ -104,7 +104,7 @@ const CIMInstance& CIMNamedInstance::getInstance() const
     return _rep->instance;
 }
 
-CIMReference& CIMNamedInstance::getInstanceName()
+CIMObjectPath& CIMNamedInstance::getInstanceName()
 {
     return _rep->instanceName;
 }

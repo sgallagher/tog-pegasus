@@ -76,7 +76,7 @@ public:
 		@param arraySize (optional) - Size of array if fixed array size.
 		@param referenceClassName (optional) String parameter that defines the 
         reference class name for the property. This parameter is required if
-		the property is type CIMReference. /Ref{referenceClassName}
+		the property is type CIMObjectPath. /Ref{referenceClassName}
         @param classOrigin (optional) String parameter to define the class 
 		origin of the property /Ref{ClassOrigin} 
         @param propagated (optional) If true defines the property as 

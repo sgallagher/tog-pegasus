@@ -113,7 +113,7 @@ public:
     */
     const Boolean equalClassName(const String& classname) const;
 
-    const CIMReference& getPath() const;
+    const CIMObjectPath& getPath() const;
 
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
@@ -326,7 +326,7 @@ public:
 
     const String& getClassName() const;
 
-    const CIMReference& getPath() const;
+    const CIMObjectPath& getPath() const;
 
     Uint32 findQualifier(const String& name) const;
 
@@ -363,7 +363,7 @@ private:
 #endif
 };
 
-/** The CIMObjectWithPath encapsulates a CIMReference and CIMObject.
+/** The CIMObjectWithPath encapsulates a CIMObjectPath and CIMObject.
     Accessors are provided for getting the two parts. Constructors are
     provided for initializing it from a CIMObject.
 */
@@ -377,7 +377,7 @@ public:
 
     /** constructor
     */
-    CIMObjectWithPath(const CIMReference& reference, const CIMObject& object);
+    CIMObjectWithPath(const CIMObjectPath& reference, const CIMObject& object);
 
     /** Constructor - Constructs a CIMObjectWithPath Object from
         another CimObjectWithPath
@@ -391,11 +391,11 @@ public:
 
     /** set -
     */
-    void set(const CIMReference& reference, const CIMObject& object);
+    void set(const CIMObjectPath& reference, const CIMObject& object);
 
     /**
     */
-    const CIMReference& getReference() const;
+    const CIMObjectPath& getReference() const;
 
     /**
     */
@@ -403,7 +403,7 @@ public:
 
     /**
     */
-    CIMReference& getReference();
+    CIMObjectPath& getReference();
 
     /**
     */
@@ -411,7 +411,7 @@ public:
 
 private:
 
-    CIMReference _reference;
+    CIMObjectPath _reference;
     CIMObject _object;
 };
 

@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class is used internally as a source of CIM declarations.
     It is passed to the _resolve() method of several classes (CIMClass,
-    CIMMethod, CIMProperty, CIMReference, CIMQualifier). Methods are provided 
+    CIMMethod, CIMProperty, CIMObjectPath, CIMQualifier). Methods are provided 
     for looking up class, qualifier, and instance declarations. This is
     an abstract base class: implementations must be provided by derived 
     classes.

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////////////-*-c++-*-/////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -41,6 +41,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -125,6 +126,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _key(key),
 	 _routing_code(routing_code),
 	 _mask(mask),
+	_last_thread_id(pegasus_thread_self()),
 	 _next(0),
 	 _prev(0),
 	 _async(0),
@@ -141,9 +143,12 @@ class PEGASUS_COMMON_LINKAGE Message
 	    _key = msg._key;
 	    _routing_code = msg._routing_code;
 	    _mask = msg._mask;
+	    _last_thread_id = msg._last_thread_id;
 	    _next = _prev = _async = 0;
 	    dest = msg.dest;
             _httpMethod = msg._httpMethod;
+	    _socket = msg._socket;
+	    
 	 }
 	 return *this;
       }
@@ -258,6 +263,28 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _async = msg;
       }
 
+      // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
+      Boolean thread_changed(void)
+      {
+	 if(_last_thread_id != pegasus_thread_self())
+	 {
+	    _last_thread_id = pegasus_thread_self();
+	    return true;
+	 }
+
+	 return false;
+      }
+      
+      // << Tue Jul  1 13:41:02 2003 mdd >> pep_88 - 
+      // assist in synchronizing responses with requests
+
+      void synch_response(Message *req)
+      {
+	 _key = req->_key;
+	 _routing_code = req->_routing_code;
+	 _socket = req->_socket;
+      }
+      
 
    private:
       Uint32 _type;
@@ -272,6 +299,10 @@ class PEGASUS_COMMON_LINKAGE Message
       timeval _timeProviderEnd;
       Uint64 _totalTime;
 //
+
+      // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
+      PEGASUS_THREAD_TYPE _last_thread_id;
+      
       Message* _next;
       Message* _prev;
 
@@ -284,6 +315,10 @@ class PEGASUS_COMMON_LINKAGE Message
       MessageQueue* _owner;
       static Uint32 _nextKey;
       static Mutex _mut;
+
+
+      pegasus_socket _socket;
+
       friend class cimom;
       friend class MessageQueue;
       friend class MessageQueueService;

@@ -78,6 +78,9 @@ void Message::print(ostream& os, Boolean printHeader) const
     os << "    messageType: " << MessageTypeToString(_type) << endl;
     os << "    key: " << _key << endl;
 
+    // << Tue Jul  1 11:10:35 2003 mdd >> pep_88 
+    os << "    routing code: " << _routing_code << endl;
+
     if (printHeader)
     {
 	os << "}";

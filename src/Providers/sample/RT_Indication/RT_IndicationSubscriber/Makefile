@@ -5,7 +5,6 @@ include $(ROOT)/test/config.mak
 createSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) CreateFilter01.xml
 	@wbemexec $(WBEMEXECOPTIONS) CreateHandler01.xml
-	@wbemexec $(WBEMEXECOPTIONS) CreateFilter01.xml
 	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription01.xml
 	@wbemexec $(WBEMEXECOPTIONS) CreateFilter02.xml
 	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription02.xml

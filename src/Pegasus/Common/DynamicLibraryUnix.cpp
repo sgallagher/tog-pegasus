@@ -35,11 +35,8 @@
 #include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #include <fcntl.h>
-#include <qycmutiltyUtility.H>
 #include <unistd.cleinc>
-#include "qycmmsgclsMessage.H" // ycmMessage class
 #include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
-#include "OS400ConvertChar.h"
 #endif
 
 #include <iostream>
@@ -79,7 +76,11 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
         // increment the library handle's reference count by loading the library again
         CString cstr = library._fileName.getCString();
 
+#if !defined(PEGASUS_OS_OS400)
         _handle = ::dlopen(cstr, RTLD_NOW);
+#else
+        _handle = OS400_LoadDynamicLibrary((const char *)cstr);
+#endif
     }
 
     return(*this);
@@ -100,7 +101,7 @@ bool DynamicLibrary::load(void)
         #elif defined(PEGASUS_OS_ZOS)
         _handle = dllload(cstr);
         #elif defined(PEGASUS_OS_OS400)
-        _handle = OS400_LoadDynamicLibrary(cstr);
+        _handle = OS400_LoadDynamicLibrary((const char *)cstr);
         #endif
     }
 
@@ -120,7 +121,7 @@ bool DynamicLibrary::unload(void)
         #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
         dlclose(_handle);
         #elif defined(PEGASUS_OS_OS400)
-        OS400_UnloadDynamicLibrary((int)_handle);
+        OS400_UnloadDynamicLibrary(_handle);
         #endif
 
         _handle = 0;
@@ -152,7 +153,7 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
         #elif defined(PEGASUS_OS_ZOS)
         dllqueryfn((dllhandle *)libraryHandle, (char*)symbolName));
         #elif defined(PEGASUS_OS_OS400)
-        OS400_LoadDynamicSymbol((int)libraryHandle, symbolName));
+        func = (LIBRARY_SYMBOL)OS400_LoadDynamicSymbol(_handle, (const char *)cstr));
         #endif
     }
 

@@ -68,6 +68,9 @@ public:
     #elif defined(PEGASUS_OS_HPUX)
     typedef void * LIBRARY_HANDLE;
     typedef void * LIBRARY_SYMBOL;
+    #elif defined(PEGASUS_OS_OS400)
+    typedef int LIBRARY_HANDLE;
+    typedef void * LIBRARY_SYMBOL;
     #endif
 
 public:

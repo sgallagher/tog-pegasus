@@ -652,6 +652,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
 // END of native conditional semaphore implementation
 //-----------------------------------------------------------------
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)
@@ -723,6 +724,91 @@ int Semaphore::count()
    sem_getvalue(&_semaphore.sem,&_count);
    return _count;
 }
+#else
+//
+// implementation as used in ACE derived from Mutex + Condition Variable
+//
+Semaphore::Semaphore(Uint32 initial) 
+{
+    pthread_mutex_init (&_semaphore.mutex);
+    pthread_cond_init (&_semaphore.cond);
+    if (initial > SEM_VALUE_MAX)
+         _count = SEM_VALUE_MAX - 1;
+    else
+         _count = initial;
+    _semaphore.owner = pthread_self();
+    _semaphore.waiters = 0;
+}
+
+Semaphore::~Semaphore()
+{
+   pthread_mutex_lock(&_semaphore.mutex);
+   while( EBUSY == pthread_cond_destroy(&_semaphore.cond))
+   {
+      pthread_mutex_unlock(&_semaphore.mutex);
+      pegasus_yield();
+   }
+   pthread_mutex_unlock(&_semaphore.mutex);
+   pthread_mutex_destroy(&_semaphore.mutex);
+}
+
+// block until this semaphore is in a signalled state
+void Semaphore::wait(void) 
+{
+   // Acquire mutex to enter critical section.
+   pthread_mutex_lock (&_semaphore.mutex);
+
+   // Keep track of the number of waiters so that <sema_post> works correctly.
+   _semaphore.waiters++;
+
+   // Wait until the semaphore count is > 0, then atomically release
+   // <lock_> and wait for <count_nonzero_> to be signaled. 
+   while (count_ == 0)
+      pthread_cond_wait (&_semaphore.count,&_semaphore.mutex);
+
+   // <_semaphore.mutex> is now held.
+
+   // Decrement the waiters count.
+   _semaphore.waiters--;
+
+   // Decrement the semaphore's count.
+   _count--;
+
+   // Release mutex to leave critical section.
+   pthread_mutex_unlock (&_semaphore.mutex);
+}
+
+void Semaphore::try_wait(void) throw(WaitFailed)
+{
+// not implemented
+}
+
+void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+{
+// not implemented
+}
+
+// increment the count of the semaphore 
+void Semaphore::signal()
+{
+   pthread_mutex_lock (&_semaphore.mutex);
+
+   // Always allow one thread to continue if it is waiting.
+   if (_semaphore.waiters > 0)
+      pthread_cond_signal (&_semaphore.count);
+
+   // Increment the semaphore's count.
+   _count++;
+
+   pthread_mutex_unlock (&_semaphore.mutex);
+}
+
+// return the count of the semaphore
+int Semaphore::count() 
+{
+   return _count;
+}
+#endif
 
 
 

@@ -55,10 +55,19 @@ typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
+#ifndef PEGASUS_OS_ZOS_ZSERIES_IBM
 typedef struct {
     sem_t sem;
     pthread_t owner;
 } PEGASUS_SEM_HANDLE ;
+#else
+typedef struct {
+    UInt32 waiters;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    pthread_t owner;
+} PEGASUS_SEM_HANDLE ;
+#endif
 
 typedef struct {
     pthread_mutex_t mut;

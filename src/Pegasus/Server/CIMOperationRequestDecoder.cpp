@@ -342,7 +342,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       {
          cimMethod = XmlReader::decodeURICharacters(cimMethod);
       }
-      catch (ParseError& e)
+      catch (const ParseError&)
       {
          // The CIMMethod header value could not be decoded
          //l10n
@@ -377,7 +377,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       {
          cimObject = XmlReader::decodeURICharacters(cimObject);
       }
-      catch (ParseError& e)
+      catch (const ParseError&)
       {
          // The CIMObject header value could not be decoded
          //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
@@ -915,7 +915,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
       else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
       {
 	 CIMObjectPath reference;
-	 XmlEntry        entry;
 
          // The Specification for CIM Operations over HTTP reads:
          //     3.3.6. CIMMethod

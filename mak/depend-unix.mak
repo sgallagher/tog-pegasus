@@ -2,7 +2,7 @@ DEPEND_MAK = $(OBJ_DIR)/depend.mak
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
 depend: $(OBJ_DIR)/target $(ERROR)
-	$(CXX) -xM1 $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' | grep -v $(SOLARIS_COMPILER_PATH) > $(DEPEND_MAK)
+	$(CXX) -xM1 $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
 	
 else
 ifdef PEGASUS_HAS_MAKEDEPEND

@@ -14,7 +14,7 @@ SOURCES = \
    MethodProviderMain.cpp \
    MethodProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 install:

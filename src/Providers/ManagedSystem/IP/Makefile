@@ -27,6 +27,7 @@
 #// Modified By: David Kennedy       <dkennedy@linuxcare.com>
 #//              Christopher Neufeld <neufeld@linuxcare.com>
 #//              Lyle Wilkinson      <lyle_wilkinson@hp.com>
+#//              Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +60,7 @@ ifeq ($(OS),HPUX)
   EXTRA_LIBRARIES += -lnm
 endif
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak
 
 tests:

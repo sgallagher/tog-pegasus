@@ -24,6 +24,7 @@
 #// Author: Paulo F. Borges (pfborges@wowmail.com)
 #//
 #// Modified By: 
+#//              Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,7 @@ DYNAMIC_LIBRARIES = \
 	-lpegprovider \
 	-lNTPProviderSecurity
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak
 
 tests:

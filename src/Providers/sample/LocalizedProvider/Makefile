@@ -14,7 +14,7 @@ SOURCES = \
 	LocalizedProviderMain.cpp \
 	LocalizedProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 

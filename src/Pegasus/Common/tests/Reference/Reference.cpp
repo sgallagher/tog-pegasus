@@ -91,7 +91,7 @@ void test01()
 		if ( kbArray[i].getName() == "B" )
 		{
 		    keyValue = kbArray[i].getValue();
-		    if(keyValue != "TRUE")
+		    if(keyValue == "TRUE")
 			found = true;    
 		}
 	    }

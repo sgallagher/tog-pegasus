@@ -73,7 +73,7 @@ void cim_server_service(int argc, char **argv ) { return; }
 // notify parent process to terminate so user knows that cimserver
 // is ready to serve CIM requests. If this plateform needs to implement
 // this functionality, please see sample implementation in cimserver_unix.cpp.
-void notify_parent(void)
+void notify_parent(int id)
 {
 }
 

@@ -134,6 +134,8 @@ ArrayRep<T>* ArrayRep<T>::create(Uint32 size)
 template<class T>
 void ArrayRep<T>::inc(const ArrayRep<T>* rep)
 {
+    // REVIEW: Need locked increment here so we can shared among threads.
+
     if (rep)
 	((ArrayRep<T>*)rep)->ref++;
 }
@@ -141,6 +143,8 @@ void ArrayRep<T>::inc(const ArrayRep<T>* rep)
 template<class T>
 void ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 {
+    // REVIEW: Need locked decrement here so we can shared among threads.
+
     ArrayRep<T>* rep = (ArrayRep<T>*)rep_;
 
     if (rep && --rep->ref == 0)

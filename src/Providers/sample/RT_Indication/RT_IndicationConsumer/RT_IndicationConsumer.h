@@ -28,7 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <iostream>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -28,7 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <iostream>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 
 #include "RT_IndicationConsumer.h"
@@ -59,8 +58,6 @@ void RT_IndicationConsumer::handleIndication(
    const String& url,
    const CIMInstance& indicationInstance)
 {
-    Uint32 pos;
-    CIMProperty prop;
     String indicationID;
     String indicationTime;
     String methodName;
@@ -71,7 +68,7 @@ void RT_IndicationConsumer::handleIndication(
     try
     {
         indicationInstance.getProperty(indicationInstance.findProperty(
-                        PROPERTY_NAME_INDICATIONID)).getValue().get(indicationID);
+                     PROPERTY_NAME_INDICATIONID)).getValue().get(indicationID);
      }
      catch (...)
      {
@@ -83,7 +80,8 @@ void RT_IndicationConsumer::handleIndication(
      //
      try
      {
-        indicationTime = indicationInstance.getProperty(indicationInstance.findProperty(
+        indicationTime = indicationInstance.getProperty(
+                        indicationInstance.findProperty(
                         PROPERTY_NAME_INDICATIONTIME)).getValue().toString();
      }
      catch (...)

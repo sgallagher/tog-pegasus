@@ -4,6 +4,8 @@ DIR = Providers/sample/RT_Indication/RT_IndicationConsumer
 
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL
+
 LIBRARY = RT_IndicationConsumer
 
 LIBRARIES = \

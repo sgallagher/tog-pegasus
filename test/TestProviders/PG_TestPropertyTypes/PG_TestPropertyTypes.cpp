@@ -31,7 +31,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
 #include <Pegasus/Provider2/SimpleResponseHandler.h>
-#include <Pegasus/Provider2/CIMProviderStub.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -42,9 +41,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 static PG_TestPropertyTypes provider;
 
-extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider_PG_TestPropertyTypes()
+extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider_PG_TestPropertyTypes()
 {
-	return(new CIMProviderStub((CIMInstanceProvider *)&provider));
+	return((CIMInstanceProvider *)&provider);
 }
 
 PG_TestPropertyTypes::PG_TestPropertyTypes(void)
@@ -219,7 +218,9 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	handler.processing();
 
 	// get class definition from repository
-	CIMClass cimclass = _cimom.getClass(classReference.getNameSpace(), classReference.getClassName());
+        // ATTN: RK - Hacked to build with CIMOMHandle changes.
+        Array<String> emptyPropertyList;
+	CIMClass cimclass = _cimom.getClass(context, classReference.getNameSpace(), classReference.getClassName(), false, true, true, emptyPropertyList);
 
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)

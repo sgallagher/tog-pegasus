@@ -457,7 +457,11 @@ void ProviderRegistrationProvider::createInstance(
         instanceObject.getProperty(ifcTypeIndex).getValue().
             get(ifcTypeString);
 
-        if(ifcTypeString != "C++Default" && ifcTypeString != "CMPI" )
+        if (ifcTypeString != "C++Default"
+#ifdef ENABLE_CMPI_PROVIDER_MANAGER
+            && ifcTypeString != "CMPI"
+#endif
+	        )
 	{
 		//l10n 485
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -481,12 +485,15 @@ void ProviderRegistrationProvider::createInstance(
         String ifcVersionString;
         instanceObject.getProperty(ifcVersionIndex).getValue().
             get(ifcVersionString);
-        if ((ifcTypeString == "CMPI" &&
-             ifcVersionString != "2.0.0") ||
-            (ifcTypeString == "C++Default" &&
-             ifcVersionString != "2.1.0" &&
-             ifcVersionString != "2.2.0" &&
-	     ifcVersionString != "2.3.0"))
+        if (
+#ifdef ENABLE_CMPI_PROVIDER_MANAGER
+           (ifcTypeString == "CMPI" &&
+            ifcVersionString != "2.0.0") ||
+#endif
+           (ifcTypeString == "C++Default" &&
+            ifcVersionString != "2.1.0" &&
+            ifcVersionString != "2.2.0" &&
+            ifcVersionString != "2.3.0"))
 	{
 		//l10n 485
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,

@@ -65,7 +65,8 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-CMPILocalProviderManager providerManager;
+//CMPILocalProviderManager providerManager;
+CMPILocalProviderManager *providerManager;
 
 int _cmpi_trace=0;
 
@@ -77,6 +78,7 @@ CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
 
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
+   providerManager=new CMPILocalProviderManager();
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
@@ -88,7 +90,7 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
 
 CMPIProviderManager::~CMPIProviderManager(void)
 {
-    cout<<"--- ~CMPIProviderManager(void)"<<endl;
+   delete providerManager;
    delete _repository;
 }
 
@@ -207,7 +209,7 @@ Message * CMPIProviderManager::processMessage(Message * request) throw()
 
 void CMPIProviderManager::unload_idle_providers(void) 
 {
-     providerManager.unload_idle_providers();  
+     providerManager->unload_idle_providers();  
 }
 
 #define STRDUPA(s,o) \
@@ -303,7 +305,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         name = _resolveProviderName(name);
 
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
+        CMPIProvider::OpProviderHolder ph = providerManager->getProvider(name.getPhysicalName(),
 	                                name.getLogicalName());
 
         // convert arguments
@@ -397,7 +399,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(),
                String::EMPTY);
 
 	// convert arguments
@@ -493,7 +495,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName());
 
         // convert arguments
         OperationContext context;
@@ -570,7 +572,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(),
 	           String::EMPTY);
 
         // convert arguments
@@ -650,7 +652,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -744,7 +746,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -863,7 +865,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
        // convert arguments
         OperationContext context;
@@ -967,7 +969,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1057,7 +1059,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1159,7 +1161,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1240,7 +1242,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1380,7 +1382,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+            providerManager->getProvider(fileName, providerName, String::EMPTY);
 
         indProvRecord *prec=NULL;
 	provTab.lookup(providerName,prec);
@@ -1488,7 +1490,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+            providerManager->getProvider(fileName, providerName, String::EMPTY);
 
 
         indProvRecord *prec=NULL;
@@ -1576,7 +1578,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+            providerManager->getProvider(fileName, providerName, String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1633,7 +1635,7 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+            providerManager->getProvider(fileName, providerName, String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1903,7 +1905,7 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
     response->setHttpMethod (request->getHttpMethod ());
 
     // tell the provider manager to shutdown all the providers
-    providerManager.shutdownAllProviders();
+    providerManager->shutdownAllProviders();
 
     PEG_METHOD_EXIT();
 

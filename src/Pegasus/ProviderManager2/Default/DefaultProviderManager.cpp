@@ -80,14 +80,17 @@ static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
 // provider manager
-LocalProviderManager providerManager;
+//LocalProviderManager providerManager;
+LocalProviderManager *providerManager;
 
 DefaultProviderManager::DefaultProviderManager(void)
 {
+   providerManager=new LocalProviderManager();
 }
 
 DefaultProviderManager::~DefaultProviderManager(void)
 {
+   delete providerManager;
 }
 
 Message * DefaultProviderManager::processMessage(Message * request) throw()
@@ -267,7 +270,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -377,7 +380,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -489,7 +492,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName());
 
         // convert arguments
         OperationContext context;
@@ -596,7 +599,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -703,7 +706,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -814,7 +817,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -955,7 +958,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1064,7 +1067,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1169,7 +1172,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1279,7 +1282,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1386,7 +1389,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1497,7 +1500,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1611,7 +1614,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1739,7 +1742,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -1881,7 +1884,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -2023,7 +2026,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -2227,7 +2230,7 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         /*
         // get the provider file name and logical name
@@ -2330,7 +2333,7 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 
         // get cached or load new provider module
         OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+            providerManager->getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.: " +
@@ -2625,7 +2628,7 @@ Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * 
     response->setHttpMethod (request->getHttpMethod ());
 
     // tell the provider manager to shutdown all the providers
-    providerManager.shutdownAllProviders();
+    providerManager->shutdownAllProviders();
 
     PEG_METHOD_EXIT();
 

@@ -133,11 +133,15 @@ PEGASUS_TRACE;
 	char* end = 0;
 	long portNumber = strtol(address, &end, 10);
 	assert(end != 0 && *end == '\0');
-	server.bind(portNumber);
+	
 	server_windows->bind(portNumber);
 
 	delete [] address;
-	server_windows->runForever();
+
+	while(!server_windows->terminated())
+	{
+	    server_windows->runForever();
+	}
 PEGASUS_TRACE;
     }
     catch(Exception& e)

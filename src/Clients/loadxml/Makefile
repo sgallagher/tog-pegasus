@@ -10,6 +10,8 @@ PROGRAM = $(PROGRAM_NAME)
 
 SOURCES = $(PROGRAM_NAME).cpp
 
+LIBRARIES += pegrepository
+
 include $(ROOT)/mak/program.mak
 
 tests:

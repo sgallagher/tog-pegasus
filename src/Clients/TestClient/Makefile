@@ -15,6 +15,11 @@ include ../libraries.mak
 PROGRAM = TestClient
 SOURCES = TestClient.cpp
 
+ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+  ifneq ($(OS),HPUX)
+    LIBRARIES += slp
+  endif
+endif
 
 include $(ROOT)/mak/program.mak
 

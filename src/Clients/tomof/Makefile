@@ -12,6 +12,8 @@ PROGRAM = $(PROGRAM_NAME)
 SOURCES = $(PROGRAM_NAME).cpp \
 	  clientRepositoryInterface.cpp
 
+LIBRARIES += pegrepository
+
 include $(ROOT)/mak/program.mak
 
 tests:

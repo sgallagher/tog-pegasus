@@ -55,11 +55,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
+class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
 {
 public:
 
-    typedef MessageQueue Base;
+    typedef MessageQueueService Base;
 
     CIMOperationRequestDispatcher(
 	CIMRepository* repository, CIMServer* server);

@@ -50,7 +50,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
-   : Base("CIMOpResponseEncoder", true)
+   : Base("CIMOpResponseEncoder", MessageQueue::getNextQueueId())
 {
 
 }

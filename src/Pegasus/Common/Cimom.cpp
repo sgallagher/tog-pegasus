@@ -35,6 +35,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
+const Uint32 CIMOM_Q_ID = 1;
+
 Uint32 module_capabilities::async =   0x00000001;
 Uint32 module_capabilities::remote =  0x00000002;
 Uint32 module_capabilities::trusted = 0x00000004;
@@ -266,7 +268,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 
 cimom::cimom(void)
-   : MessageQueue("cimom", false, CIMOM_Q_ID),
+   : MessageQueue("pegasus meta dispatcher", true, CIMOM_Q_ID),
      _modules(true),
      _recycle(true),
      _routed_ops(true, 1000), 

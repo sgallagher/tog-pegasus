@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////-*-c++-*-/////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -34,7 +34,7 @@
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/ExportClient/Linkage.h>
@@ -46,10 +46,12 @@ class XmlParser;
 /** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder 
-    : public MessageQueue
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueueService
 {
-public:
+  
+ public:
+     
+  typedef MessageQueueService Base;
 
     /** Constuctor.
 	@param outputQueue queue to receive decoded HTTP messages.

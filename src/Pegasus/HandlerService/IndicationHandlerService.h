@@ -44,7 +44,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Array.h>
@@ -70,16 +69,11 @@ public:
     typedef MessageQueueService Base;
     
     IndicationHandlerService(char *name, CIMRepository* repository)
-	: Base(name, MessageQueue::getNextQueueId(), 
-	0, 
-	message_mask::type_cimom | 
-	message_mask::type_service | 
-	message_mask::ha_request | 
-	message_mask::ha_reply | 
-	message_mask::ha_async ),
+       : Base(name, MessageQueue::getNextQueueId()) ,
 	dienow(0)
     {
-	_repository = repository;
+
+       _repository = repository;
     }
 
     virtual ~IndicationHandlerService(void) 

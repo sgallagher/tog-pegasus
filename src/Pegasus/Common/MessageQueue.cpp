@@ -43,7 +43,7 @@ static Mutex q_table_mut = Mutex();
 
 Uint32 MessageQueue::getNextQueueId() throw(IPCException)
 {
-   static Uint32 _nextQueueId = 1;
+   static Uint32 _nextQueueId = 2;
 
    //
    // Lock mutex:
@@ -56,7 +56,7 @@ Uint32 MessageQueue::getNextQueueId() throw(IPCException)
    // a queue id:
 
    if (_nextQueueId == 0)
-      _nextQueueId = 1;
+      _nextQueueId = 2;
 
    Uint32 queueId = _nextQueueId++;
 
@@ -73,9 +73,7 @@ MessageQueue::MessageQueue(
     const char* name, 
     Boolean async,
     Uint32 queueId)
-    : 
-    _queueId(queueId), _count(0), _front(0), _back(0), _async(async), 
-    _workThread(MessageQueue::workThread, this, false), _workSemaphore(0)
+    : _queueId(queueId), _count(0), _front(0), _back(0), _async(async)
 {
     //
     // Copy the name:
@@ -104,9 +102,6 @@ MessageQueue::MessageQueue(
     q_table_mut.unlock();
 
     
-    if(_async == true)
-       _workThread.run();
-
    PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::MessageQueue()");
 }
 
@@ -124,69 +119,11 @@ MessageQueue::~MessageQueue()
     _queueTable.remove(_queueId);
     q_table_mut.unlock();
 	
-    if(_async == true)
-    {
-       _workThread.cancel();	// cancel thread
-       _workSemaphore.signal(); // wake thread
-       _workThread.join();      // wait for thread to complete
-    }
-
     // Free the name:
     
     delete [] _name;
 
     PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::~MessageQueue()");
-}
-
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
-{
-
-	PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::workThread()");
-
-	// get thread from argument
-	Thread * thread = (Thread *)arg;
-
-	PEGASUS_ASSERT(thread != 0);
-
-	// get message queue from thread
-	MessageQueue * queue = (MessageQueue *)thread->get_parm();
-	
-	PEGASUS_ASSERT(queue != 0);
-
-	while(true)
-	{
-	   if(thread->is_cancelled())
-	   {
-	      break;
-	   }
-	   
-	   // wait for work
-	   queue->_workSemaphore.wait();
-	   
-	   // stop the thread when the message queue has been destroyed.
-	   // ATTN: should check the thread cancel flag that is not yet exposed!
-	   if(MessageQueue::lookup(queue->_queueId) == 0)
-	   {
-             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
-                     "MessageQueue::workThread - ", 
-                     "Message queue, %i, for thread no longer exists",
-                     queue->_queueId);
-	      break;
-	   }
-	   
-	   // ensure the queue has a message before dispatching
-	   if(queue->_count != 0)
-	   {
-	      queue->handleEnqueue();
-	   }
-	}
-
-	PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::workThread()");
-
-	thread->exit_self(PEGASUS_THREAD_RETURN(0));
-	
-	return(0);
 }
 
 void MessageQueue::enqueue(Message* message) throw(IPCException)
@@ -222,16 +159,10 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
     }
     message->_owner = this;
     _count++;
-    if( _async == true )
-    {
-       _workSemaphore.signal();
-       
-    }
        
     _mut.unlock();
 
-    if(_async == false )
-       handleEnqueue();
+    handleEnqueue();
 
 }
 

@@ -42,12 +42,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestEncoder::CIMExportRequestEncoder(
     MessageQueue* outputQueue, ClientAuthenticator* authenticator)
-    :
+    : 
+   Base("CIMExportRequestEncoder", MessageQueue::getNextQueueId()),
     _outputQueue(outputQueue),
     _authenticator(authenticator)
 {
-    String tmpHostName = System::getHostName();
-    _hostName = tmpHostName.allocateCString();
+   String tmpHostName = System::getHostName();
+   _hostName = tmpHostName.allocateCString();
 }
 
 CIMExportRequestEncoder::~CIMExportRequestEncoder()

@@ -31,8 +31,9 @@
 PEGASUS_NAMESPACE_BEGIN
 
 RepositoryQueue::RepositoryQueue(void)
-	: MessageQueue("RepositoryQueue", true)
+   Base("RepositoryQueue", MessageQueue::getNextQueueId())
 {
+
 }
 
 RepositoryQueue::~RepositoryQueue(void)

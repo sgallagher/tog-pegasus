@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems
@@ -46,7 +46,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class MessageQueue;
+class MessageQueueService;
 struct HTTPConnectionRep;
 
 /** This message is sent from a connection to its owner (so that the
@@ -54,7 +54,7 @@ struct HTTPConnectionRep;
 */
 class CloseConnectionMessage : public Message
 {
-public:
+   public:
 
     CloseConnectionMessage(Sint32 socket_) 
 	: Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
@@ -64,10 +64,11 @@ public:
 
 /** This class represents an HTTP listener.
 */
-class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
+class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueueService
 {
-public:
-
+   public:
+      typedef MessageQueueService Base;
+      
     /** Constructor. */
     HTTPConnection(
 	Monitor* monitor,

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems
@@ -31,7 +31,7 @@
 #define Pegasus_HTTPListener_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 
@@ -41,7 +41,7 @@ struct HTTPListenerRep;
 
 /** This class represents an HTTP listener.
 */
-class PEGASUS_COMMON_LINKAGE HTTPListener : public MessageQueue
+class PEGASUS_COMMON_LINKAGE HTTPListener : public MessageQueueService
 {
 public:
 
@@ -49,7 +49,11 @@ public:
 	@param monitor pointer to monitor object which this class uses to
 	    solicit SocketMessages on the server port (socket).
     */
-    HTTPListener(Monitor* monitor);
+  HTTPListener(Monitor* monitor) 
+    {
+      #error "this class is not implemented"
+    }
+  
 
     /** Destructor. */
     ~HTTPListener();

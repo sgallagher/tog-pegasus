@@ -34,11 +34,15 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
+//#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle(void) : _outputQueue(0), _inputQueue(0)
+CIMOMHandle::CIMOMHandle(void) 
+   : Base("CIMOMHandle", MessageQueue::getNextQueueId()), 
+     _outputQueue(0), _inputQueue(0)
 {
+
 	_outputQueue = MessageQueue::lookup("CIMOpRequestDispatcher");
 	
 	PEGASUS_ASSERT(_outputQueue != 0);

@@ -194,6 +194,8 @@ class MessageQueueClient : public MessageQueueService
 };
 
 AtomicInt msg_count;
+AtomicInt client_count;
+
 Array<Uint32> services; 
 
  
@@ -370,7 +372,7 @@ int main(int argc, char **argv)
    
    Thread server(server_func, (void *)&msg_count, false);
    
-   cimom *Q_server = new cimom();
+//   cimom *Q_server = new cimom();
    
 
    server.run();
@@ -387,11 +389,11 @@ int main(int argc, char **argv)
    another.join();
    client.join();
    server.join();
-   cout << " delete meta dispatcher" << endl;
+   cout << "exiting main " << endl;
    
-   Q_server->_shutdown_routed_queue();
+//   Q_server->_shutdown_routed_queue();
     
-   delete Q_server;  
+//   delete Q_server;  
    
    return(0);
 }
@@ -403,15 +405,24 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    Thread *my_handle = reinterpret_cast<Thread *>(parm);
    AtomicInt & count = *(reinterpret_cast<AtomicInt *>(my_handle->get_parm()));
    
-   MessageQueueClient *q_client = new MessageQueueClient("test client");
-   q_client->register_service("test client", q_client->_client_capabilities, q_client->_client_mask);
-   cout << " client registered " << endl;
+   char name_buf[128];
+   
+   sprintf(name_buf, "test client %ld", pegasus_thread_self());
+   
+
+   MessageQueueClient *q_client = new MessageQueueClient("name_buf");
+//   q_client->register_service("test client", q_client->_client_capabilities, q_client->_client_mask);
+//   cout << " client registered " << endl;
+   
+   client_count++;
+   while( client_count.value() < 3 )
+      pegasus_yield();
    
 
    while( services.size() == 0 )
    {
       q_client->find_services(String("test server"), 0, 0, &services); 
-      my_handle->sleep(10);  
+      pegasus_yield();  
    }
    
    cout << "found server at " << services[0] << endl;
@@ -480,9 +491,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
 
    MessageQueueServer *q_server = new MessageQueueServer("test server") ;
  
-   q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
+//   q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
    
-   cout << "test server registered" << endl;
+//   cout << "test server registered" << endl;
    
    while( q_server->dienow.value()  < 3  )
    {

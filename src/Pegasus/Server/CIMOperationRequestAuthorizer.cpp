@@ -43,8 +43,9 @@ PEGASUS_USING_STD;
 CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
     MessageQueue* outputQueue)
     :
-    _outputQueue(outputQueue),
-    _serverTerminating(false)
+   Base("CIMOperationRequestAuthorizer", MessageQueue::getNextQueueId()),
+   _outputQueue(outputQueue),
+   _serverTerminating(false)
 {
     const char METHOD_NAME[] = 
         "CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer()";

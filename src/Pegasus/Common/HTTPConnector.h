@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems
@@ -31,7 +31,7 @@
 #define Pegasus_HTTPConnector_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
@@ -45,10 +45,12 @@ class HTTPConnection;
     server. For each established connection, a HTTPConnection object
     is created.
 */
-class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
+class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 {
 public:
-
+   
+  typedef MessageQueueService Base;
+  
     /** Constructor.
 	@param monitor pointer to monitor object which this class uses to
 	    solicit SocketMessages on the server port (socket).

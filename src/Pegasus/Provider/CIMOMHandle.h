@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -32,7 +32,7 @@
 #define Pegasus_CIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMObject.h>
@@ -43,10 +43,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
+class PEGASUS_PROVIDER_LINKAGE CIMOMHandle : public MessageQueueService
 {
-public:
+   public:
 	/** */
+  
+      typedef MessageQueueService Base ;
+      
 	CIMOMHandle(void);
 
 	/** */

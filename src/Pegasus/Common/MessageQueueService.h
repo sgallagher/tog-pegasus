@@ -40,6 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+extern const Uint32 CIMOM_Q_ID;
 
 class message_module;
 
@@ -49,7 +50,13 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 
       typedef MessageQueue Base;
       
-      MessageQueueService(const char *name, Uint32 queueID, Uint32 capabilities, Uint32 mask) ;
+      MessageQueueService(const char *name, Uint32 queueID, 
+			  Uint32 capabilities = 0, 
+			  Uint32 mask = message_mask::type_cimom | 
+			  message_mask::type_service | 
+			  message_mask::ha_request | 
+			  message_mask::ha_reply | 
+			  message_mask::ha_async ) ;
       
       virtual ~MessageQueueService(void);
       
@@ -66,6 +73,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void handle_AsyncOperationResult(AsyncOperationResult *rep);
       virtual void handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req);
       virtual void handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep);
+      
+      virtual Boolean isAsync(void) {  return true;  }
       
       virtual Boolean accept_async(AsyncOpNode *op);
       virtual Boolean messageOK(const Message *msg) ;
@@ -96,7 +105,10 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _make_response(AsyncRequest *req, Uint32 code);
-      cimom *_meta_dispatcher;
+      static cimom *_meta_dispatcher;
+      static AtomicInt _service_count;
+      static Mutex _meta_dispatcher_mutex;
+      
 
    private: 
       void handleEnqueue();

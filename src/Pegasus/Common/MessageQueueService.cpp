@@ -30,11 +30,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+ 
+cimom *MessageQueueService::_meta_dispatcher = 0;
+AtomicInt MessageQueueService::_service_count = 0;
+AtomicInt MessageQueueService::_xid(1);
+Mutex MessageQueueService::_meta_dispatcher_mutex  = Mutex();
+
+
 MessageQueueService::MessageQueueService(const char *name, 
 					 Uint32 queueID, 
 					 Uint32 capabilities, 
 					 Uint32 mask) 
-   : Base(name, false,  queueID),
+   : Base(name, true,  queueID),
      _capabilities(capabilities),
      _mask(mask),
      _die(0),
@@ -45,11 +52,34 @@ MessageQueueService::MessageQueueService(const char *name,
 { 
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
-   _meta_dispatcher = static_cast<cimom *>(Base::lookup(CIMOM_Q_ID));
-   if(_meta_dispatcher == 0 )
-      throw NullPointer();
-   _req_thread.run();
+
+   _meta_dispatcher_mutex.lock(pegasus_thread_self());
    
+   if( _meta_dispatcher == 0 )
+   {
+      PEGASUS_ASSERT( _service_count.value() == 0 );
+      _meta_dispatcher = new cimom();
+      if (_meta_dispatcher == NULL )
+      {
+	 _meta_dispatcher_mutex.unlock();
+	 
+	 throw NullPointer();
+      }
+      
+   }
+   _service_count++;
+
+
+
+   if( false == register_service(name, _capabilities, _mask) )
+   {
+      _meta_dispatcher_mutex.unlock();
+      throw BindFailed("MessageQueueService Base Unable to register with  Meta Dispatcher");
+   }
+   
+   _meta_dispatcher_mutex.unlock();
+
+   _req_thread.run();
 }
 
 
@@ -61,9 +91,18 @@ MessageQueueService::~MessageQueueService(void)
 
    _req_thread.join();
 
+   _meta_dispatcher_mutex.lock(pegasus_thread_self());
+   _service_count--;
+   if (_service_count.value() == 0 )
+   {
+      _meta_dispatcher->_shutdown_routed_queue();
+      delete _meta_dispatcher;
+   }
+   _meta_dispatcher_mutex.unlock();
+   
 }
 
-AtomicInt MessageQueueService::_xid(1);
+
 
 void MessageQueueService::_shutdown_incoming_queue(void)
 {
@@ -499,7 +538,8 @@ Boolean MessageQueueService::register_service(String name,
       {
 	 if(reply->getMask() & message_mask::ha_reply)
 	 {
-	    if(reply->result == async_results::OK)
+	    if(reply->result == async_results::OK || 
+	       reply->result == async_results::MODULE_ALREADY_REGISTERED )
 	       registered = true;
 	 }
       }

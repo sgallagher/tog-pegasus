@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////////-*-c++-*-/////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -31,50 +31,52 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/MessageQueueService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_REPOSITORY_LINKAGE RepositoryQueue : public MessageQueue
+class PEGASUS_REPOSITORY_LINKAGE RepositoryQueue : public MessageQueueService
 {
-public:
-	RepositoryQueue(void);
-	virtual ~RepositoryQueue(void);
+   public:
+      typedef MessageQueueService Base;
+      RepositoryQueue(void);
+      virtual ~RepositoryQueue(void);
+      
+      virtual void handleEnqueue(void);
 
-	virtual void handleEnqueue(void);
-
-protected:
-	void handleGetClassRequest(const Message * message);
-	void handleEnumerateClassesRequest(const Message * message);
-	void handleEnumerateClassNamesRequest(const Message * message);
-	void handleCreateClassRequest(const Message * message);
-	void handleModifyClassRequest(const Message * message);
-	void handleDeleteClassRequest(const Message * message);
+   protected:
+      void handleGetClassRequest(const Message * message);
+      void handleEnumerateClassesRequest(const Message * message);
+      void handleEnumerateClassNamesRequest(const Message * message);
+      void handleCreateClassRequest(const Message * message);
+      void handleModifyClassRequest(const Message * message);
+      void handleDeleteClassRequest(const Message * message);
 	
-	void handleGetInstanceRequest(const Message * message);
-	void handleEnumerateInstancesRequest(const Message * message);
-	void handleEnumerateInstanceNamesRequest(const Message * message);
-	void handleCreateInstanceRequest(const Message * message);
-	void handleModifyInstanceRequest(const Message * message);
-	void handleDeleteInstanceRequest(const Message * message);
+      void handleGetInstanceRequest(const Message * message);
+      void handleEnumerateInstancesRequest(const Message * message);
+      void handleEnumerateInstanceNamesRequest(const Message * message);
+      void handleCreateInstanceRequest(const Message * message);
+      void handleModifyInstanceRequest(const Message * message);
+      void handleDeleteInstanceRequest(const Message * message);
 	
-	void handleGetPropertyRequest(const Message * message);
-	void handleSetPropertyRequest(const Message * message);
+      void handleGetPropertyRequest(const Message * message);
+      void handleSetPropertyRequest(const Message * message);
 
-	void handleAssociatorsRequest(const Message * message);
-	void handleAssociatorNamesRequest(const Message * message);
-	void handleReferencesRequest(const Message * message);
-	void handleReferenceNamesRequest(const Message * message);
+      void handleAssociatorsRequest(const Message * message);
+      void handleAssociatorNamesRequest(const Message * message);
+      void handleReferencesRequest(const Message * message);
+      void handleReferenceNamesRequest(const Message * message);
 	
-	void handleGetQualifier(const Message * message);
-	void handleEnumerateQualifiers(const Message * message);
-	void handleSetQualifier(const Message * message);
+      void handleGetQualifier(const Message * message);
+      void handleEnumerateQualifiers(const Message * message);
+      void handleSetQualifier(const Message * message);
 
-	void handleEnumerateNameSpacesRequest(const Message * message);
-	void handleCreateNameSpaceRequest(const Message * message);
-	void handleModifyNameSpaceRequest(const Message * message);
-	void handleDeleteNameSpaceRequest(const Message * message);
+      void handleEnumerateNameSpacesRequest(const Message * message);
+      void handleCreateNameSpaceRequest(const Message * message);
+      void handleModifyNameSpaceRequest(const Message * message);
+      void handleDeleteNameSpaceRequest(const Message * message);
 
-protected:
+   protected:
 
 };
 

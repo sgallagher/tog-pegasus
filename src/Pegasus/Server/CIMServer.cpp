@@ -42,6 +42,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
@@ -67,7 +68,7 @@ CIMServer::CIMServer(
     Monitor* monitor,
     const String& rootPath,
     Boolean useSSL)
-    : _dieNow(false), _rootPath(rootPath), _useSSL(useSSL)
+   : _dieNow(false), _rootPath(rootPath), _useSSL(useSSL)
 {
     const char METHOD_NAME[] = "CIMServer::CIMServer()";
 

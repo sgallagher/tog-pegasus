@@ -48,6 +48,7 @@ CIMExportResponseDecoder::CIMExportResponseDecoder(
     MessageQueue* encoderQueue,
     ClientAuthenticator* authenticator)
     :
+   Base("CIMExportResponseDecoder", MessageQueue::getNextQueueId()),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
     _authenticator(authenticator)

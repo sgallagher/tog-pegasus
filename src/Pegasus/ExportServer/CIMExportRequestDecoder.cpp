@@ -47,11 +47,13 @@ PEGASUS_NAMESPACE_BEGIN
 CIMExportRequestDecoder::CIMExportRequestDecoder(
     MessageQueue* outputQueue,
     Uint32 returnQueueId)
-   : Base("CIMExportDecoder", true),
-    _outputQueue(outputQueue),
-    _returnQueueId(returnQueueId),
-    _serverTerminating(false)
+   :   
+   Base("CIMExportRequestDecoder", MessageQueue::getNextQueueId()),
+   _outputQueue(outputQueue),
+   _returnQueueId(returnQueueId),
+   _serverTerminating(false)
 {
+
 }
 
 CIMExportRequestDecoder::~CIMExportRequestDecoder()

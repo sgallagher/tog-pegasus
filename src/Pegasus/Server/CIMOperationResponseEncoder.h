@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -31,18 +31,18 @@
 #define Pegasus_CIMOperationResponseEncoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class encodes CIM operation requests and passes them up-stream.
 */
-class CIMOperationResponseEncoder : public MessageQueue
+class CIMOperationResponseEncoder : public MessageQueueService
 {
-public:
+   public:
   
-  typedef MessageQueue Base;
+      typedef MessageQueueService Base;
   
 
     CIMOperationResponseEncoder();

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems
@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -60,7 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 #include <cstdio>
 #include <cassert>
 #include <iostream>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnection.h>
@@ -74,14 +75,18 @@ PEGASUS_USING_STD;
 // REVIEW: What is this class used for? What feeds its queue? What queue
 // REVIEW: does it feed?
 
-class PEGASUS_COMMON_LINKAGE HTTPOptions : public MessageQueue
+class PEGASUS_COMMON_LINKAGE HTTPOptions : public MessageQueueService
 {
 public:
-
+  typedef MessageQueueService Base;
+  
     /** Constructor. There are no further 
     */
-    HTTPOptions();
-
+  HTTPOptions() 
+    {
+#error  "this class does not appear to be used" // <<< Sat Feb  9 17:33:07 2002 mdd >>>
+    }
+  
     /** Destructor. */
     ~HTTPOptions();
 

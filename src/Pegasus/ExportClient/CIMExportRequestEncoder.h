@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -34,7 +34,7 @@
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/ExportClient/Linkage.h>
@@ -45,10 +45,11 @@ PEGASUS_NAMESPACE_BEGIN
     and encodes them into HTTP messages which it places on its output queue.
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder 
-    : public MessageQueue
+    : public MessageQueueService
 {
 public:
-
+  typedef MessageQueueService Base;
+  
     /** Constuctor.
 	@param outputQueue queue to receive encoded HTTP messages.
     */

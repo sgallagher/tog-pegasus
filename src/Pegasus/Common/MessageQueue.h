@@ -105,7 +105,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       /** allows a caller to determine if this message queue is asynchronous or 
 	  not .
       */
-      Boolean isAsync(void) { return _async; }
+      virtual Boolean isAsync(void) { return _async; }
     
 
       /** Dequeues a message (removes it from the front of the queue).
@@ -214,8 +214,6 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       */
       static Uint32 getNextQueueId() throw(IPCException);
 
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
-
    protected:
       Mutex _mut;
       Uint32 _queueId;
@@ -229,8 +227,6 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       Message* _back;
       Boolean _async;
     
-      Thread _workThread;
-      Semaphore _workSemaphore;
 };
 
 inline const Message* MessageQueue::findByType(Uint32 type) const

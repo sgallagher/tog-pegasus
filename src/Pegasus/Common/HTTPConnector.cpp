@@ -137,17 +137,19 @@ struct HTTPConnectorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
-    : _monitor(monitor), _sslcontext(NULL)
+   : Base("HTTPConnector", MessageQueue::getNextQueueId()),
+   _monitor(monitor), _sslcontext(NULL)
 {
-    _rep = new HTTPConnectorRep;
-    Socket::initializeInterface();
+   _rep = new HTTPConnectorRep;
+   Socket::initializeInterface();
 }
 
 HTTPConnector::HTTPConnector(Monitor* monitor, SSLContext * sslcontext)
-    : _monitor(monitor), _sslcontext(sslcontext)
+   : Base("HTTPConnector", MessageQueue::getNextQueueId()),
+     _monitor(monitor), _sslcontext(sslcontext)
 {
-    _rep = new HTTPConnectorRep;
-    Socket::initializeInterface();
+   _rep = new HTTPConnectorRep;
+   Socket::initializeInterface();
 }
 
 HTTPConnector::~HTTPConnector()

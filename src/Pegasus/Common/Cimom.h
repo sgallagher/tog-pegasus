@@ -45,6 +45,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+extern const Uint32 CIMOM_Q_ID;
 
 class PEGASUS_COMMON_LINKAGE module_capabilities 
 {

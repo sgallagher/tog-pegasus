@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -31,47 +31,50 @@
 #define Pegasus_CIMOperationRequestAuthorizer_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
+class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueueService
 {
-public:
-    CIMOperationRequestAuthorizer(
-        MessageQueue* outputQueue);
+   public:
+  
+      typedef MessageQueueService Base;
 
-    ~CIMOperationRequestAuthorizer();
+      CIMOperationRequestAuthorizer(
+	 MessageQueue* outputQueue);
+      
+      ~CIMOperationRequestAuthorizer();
+      
+      void sendResponse(
+	 Uint32 queueId,
+	 Array<Sint8>& message);
 
-    void sendResponse(
-        Uint32 queueId,
-        Array<Sint8>& message);
+      void sendError(
+	 Uint32 queueId,
+	 const String& messageId,
+	 const String& methodName,
+	 CIMStatusCode code,
+	 const String& description);
 
-    void sendError(
-        Uint32 queueId,
-        const String& messageId,
-        const String& methodName,
-        CIMStatusCode code,
-        const String& description);
+      virtual void handleEnqueue();
 
-    virtual void handleEnqueue();
+      virtual const char* getQueueName() const;
 
-    virtual const char* getQueueName() const;
+      /** Sets the flag to indicate whether or not the CIMServer is
+	  shutting down.
+      */
+      void setServerTerminating(Boolean flag);
 
-    /** Sets the flag to indicate whether or not the CIMServer is
-        shutting down.
-    */
-    void setServerTerminating(Boolean flag);
+   private:
 
-private:
+      MessageQueue* _outputQueue;
 
-    MessageQueue* _outputQueue;
-
-    // Flag to indicate whether or not the CIMServer is shutting down.
-    Boolean _serverTerminating;
+      // Flag to indicate whether or not the CIMServer is shutting down.
+      Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

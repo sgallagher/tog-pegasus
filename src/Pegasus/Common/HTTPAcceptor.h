@@ -31,7 +31,7 @@
 #define Pegasus_HTTPAcceptor_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
@@ -42,10 +42,10 @@ struct HTTPAcceptorRep;
 
 /** Instances of this class listen on a port and accept conections.
 */
-class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
+class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueueService
 {
 public:
-  typedef MessageQueue Base;
+  typedef MessageQueueService Base;
   
     /** Constructor.
 	@param monitor pointer to monitor object which this class uses to
@@ -101,6 +101,9 @@ private:
 
     void _acceptConnection();
     void _bind();
+
+    cimom *_meta_dispatcher;
+    
 
     Monitor* _monitor;
     MessageQueue* _outputMessageQueue;

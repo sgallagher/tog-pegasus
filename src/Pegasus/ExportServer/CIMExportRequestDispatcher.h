@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////-*-c++-*-/////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -31,7 +31,7 @@
 #define Pegasus_CIMExportRequestDispatcher_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
@@ -45,11 +45,11 @@ PEGASUS_NAMESPACE_BEGIN
 /** This class dispatches CIM export requests. For now it simply
 */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
-    : public MessageQueue
+    : public MessageQueueService
 {
 public:
 
-  typedef MessageQueue Base;
+  typedef MessageQueueService Base;
 
     CIMExportRequestDispatcher();
 

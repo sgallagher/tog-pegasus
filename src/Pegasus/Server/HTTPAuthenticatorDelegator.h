@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////-*-c++-*-////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -31,7 +31,7 @@
 #define Pegasus_HTTPAuthenticatorDelegator_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -47,11 +47,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 */
 
-class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueue
+class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueService
 {
 public:
 
-  typedef MessageQueue Base;
+  typedef MessageQueueService Base;
   
 
     /** Constructor. */

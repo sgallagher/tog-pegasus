@@ -41,7 +41,7 @@ PEGASUS_USING_STD;
 
 HTTPOptions::HTTPOptions()
 {
-    
+#error  "this class does not appear to be used" // <<< Sat Feb  9 17:33:07 2002 mdd >>>
 }
 
 HTTPOptions::~HTTPOptions()

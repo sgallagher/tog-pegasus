@@ -102,16 +102,17 @@ HTTPConnection::HTTPConnection(
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue)
     : 
-    _monitor(monitor),
-    _socket(socket), 
-    _ownerMessageQueue(ownerMessageQueue),
-    _outputMessageQueue(outputMessageQueue),
-    _contentOffset(-1),
-    _contentLength(-1)
+   Base("HTTPConnection", MessageQueue::getNextQueueId()),
+   _monitor(monitor),
+   _socket(socket), 
+   _ownerMessageQueue(ownerMessageQueue),
+   _outputMessageQueue(outputMessageQueue),
+   _contentOffset(-1),
+   _contentLength(-1)
 {
-    //Socket::disableBlocking(_socket);
-    _socket->disableBlocking();
-    _authInfo = new AuthenticationInfo();
+   //Socket::disableBlocking(_socket);
+   _socket->disableBlocking();
+   _authInfo = new AuthenticationInfo();
 }
 
 HTTPConnection::~HTTPConnection()

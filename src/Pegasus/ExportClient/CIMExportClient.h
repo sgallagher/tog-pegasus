@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%/////-*-c++-*-///////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
@@ -52,9 +53,11 @@ class CIMExportRequestEncoder;
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
 {
 public:
+  typedef MessageQueueService Base;
+  
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 

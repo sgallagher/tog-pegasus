@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -33,7 +33,7 @@
 #define Pegasus_CIMExportRequestDecoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/ExportServer/Linkage.h>
@@ -45,11 +45,11 @@ class XmlParser;
 /** This class decodes CIM operation requests and passes them down-stream.
 */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder 
-    : public MessageQueue
+    : public MessageQueueService
 {
 public:
 
-  typedef MessageQueue Base;
+  typedef MessageQueueService Base;
   
     CIMExportRequestDecoder(
 	MessageQueue* outputQueue,

@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     MessageQueue* outputQueue,
     Uint32 returnQueueId)
-    :  Base("CIMOpRequestDecoder", true), _outputQueue(outputQueue),
+    :  Base("CIMOpRequestDecoder", MessageQueue::getNextQueueId()),
        _returnQueueId(returnQueueId),
        _serverTerminating(false)
 {

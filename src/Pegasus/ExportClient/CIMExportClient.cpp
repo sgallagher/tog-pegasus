@@ -50,12 +50,13 @@ CIMExportClient::CIMExportClient(
     HTTPConnector* httpConnector,
     Uint32 timeOutMilliseconds)
     : 
-    _monitor(monitor), 
-    _httpConnector(httpConnector),
-    _timeOutMilliseconds(timeOutMilliseconds),
-    _connected(false),
-    _responseDecoder(0),
-    _requestEncoder(0)
+   Base("CIMExportClient", MessageQueue::getNextQueueId()),
+   _monitor(monitor), 
+   _httpConnector(httpConnector),
+   _timeOutMilliseconds(timeOutMilliseconds),
+   _connected(false),
+   _responseDecoder(0),
+   _requestEncoder(0)
 {
     //
     // Create client authenticator

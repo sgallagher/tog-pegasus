@@ -49,16 +49,17 @@ DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 	CIMRepository* repository,
 	CIMServer* server)
-	:
-	Base("CIMOpRequestDispatcher", true),
-	_repository(repository),
-	_cimom(this, server, repository),
-	_providerManager(_cimom),
-	_configurationManager(_cimom),
-	_indicationService(_cimom)
+   :
+   Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
+   _repository(repository),
+   _cimom(this, server, repository),
+   _providerManager(_cimom),
+   _configurationManager(_cimom), 
+   _indicationService(_cimom)
 {
-	DDD(cout << _DISPATCHER << endl;)
-	_indicationService.initialize(_cimom);
+   DDD(cout << _DISPATCHER << endl;)
+      _indicationService.initialize(_cimom);
+   
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()	

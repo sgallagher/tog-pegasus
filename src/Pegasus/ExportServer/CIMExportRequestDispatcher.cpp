@@ -38,17 +38,20 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher(
-    Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
-    : Base("CIMExportDispatcher", true),
-    _dynamicReg(dynamicReg), 
-    _staticConsumers(staticConsumers), 
-    _persistence(persistence)
+   Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
+   : Base("CIMExportRequestDispatcher", MessageQueue::getNextQueueId()),
+     _dynamicReg(dynamicReg), 
+     _staticConsumers(staticConsumers), 
+     _persistence(persistence)
 {
-    _consumerTable.set(_dynamicReg, _staticConsumers, _persistence);
+   _consumerTable.set(_dynamicReg, _staticConsumers, _persistence);
 }
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher()
+   :
+   Base("CIMExportRequestDispatcher", MessageQueue::getNextQueueId())
 {
+
 }
 
 CIMExportRequestDispatcher::~CIMExportRequestDispatcher()

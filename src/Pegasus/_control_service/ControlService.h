@@ -49,30 +49,30 @@ PEGASUS_NAMESPACE_BEGIN
 // but also gives the service a handle into the ControlServiceManager. 
 // this handle provides the control service with access to important
 // communication methods with "the world"
-class PEGASUS_COMMON_LINKAGE ControlServiceFacade : public ProviderFacade
+class ControlServiceFacade : public ProviderFacade
 {
    public:
+
       typedef ProviderFacade Base;
       
       ControlServiceFacade(ControlServiceManager *service_handle, 
 			   ControlService *control);
 
       // direct call "ioctl" interface, counterpart of AsyncIoctl message
-      control_ioctl(Uint32 code, Uint32 int_param, void *ptr_param);
+      // this is a general-purpose function call mechanism
+      Uint32 control_ioctl(Uint32 code, Uint32 int_param, void *ptr_param);
       
       virtual ~ControlServiceFacade(void);
       
    private:
 
       ControlServiceFacade(void);
-      
-
 } ;
 
 
 
 // needs a reference count 
-class ControlService
+class PEGASUS_COMMON_LINKAGE ControlService
 
 
 

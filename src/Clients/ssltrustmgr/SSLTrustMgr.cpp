@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, (vijayeli@in.ibm.com) fix for #2572
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1051,10 +1052,10 @@ String SSLTrustMgr::_formatCIMDateTime(const String& cimDateTimeStr)
     @exception  Exception    if an error is encountered
                              in reading the certificate file
  */
-Array<char> SSLTrustMgr::_readCertificateContent(String &certFilePath)
+Array<char> SSLTrustMgr::_readCertificateContent(const String &certFilePath)
     throw (Exception)
 {
-    Array<char>                content;
+    Array<char> content;
 
     //
     //  Check that cert file exists

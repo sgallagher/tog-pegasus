@@ -50,6 +50,10 @@
 
 #include <signal.h>
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+extern "C" {
+#endif
+
 typedef void (* signal_handler)(int,siginfo_t *,void *);
 
 typedef struct {
@@ -57,6 +61,10 @@ typedef struct {
     signal_handler sh;
     struct sigaction oldsa;
 } register_handler;
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+}
+#endif
 
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/DQueue.h>

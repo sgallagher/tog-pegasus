@@ -66,8 +66,6 @@ else
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 endif
 
-install:
-	@ $(ECHO) Deprecated. Will use the one defined in Schema directory.
 depend:
 
 sub:

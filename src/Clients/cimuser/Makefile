@@ -24,5 +24,3 @@ tests:
 
 poststarttests: 
 
-
-install:

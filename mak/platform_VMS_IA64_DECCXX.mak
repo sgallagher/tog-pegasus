@@ -26,9 +26,6 @@ CCFLAGS = /debug/noopt/nowarn/show=include/lis=$(OBJ_VMSDIRA)]
 LFLAGS = /debug/map=$(BIN_VMSDIRA)]$(PROGRAM)
 endif
 
-INSTALL_LIBRARY = $(ECHO) Not supported.
-INSTALL_PROGRAM = $(ECHO) Not supported.
-
 SYS_LIBS =+sys$share:sys$lib_c/lib
 
 # SSL support

@@ -25,5 +25,3 @@ tests:
 
 poststarttests: 
 
-install:
-	$(INSTALL_SBIN_PROGRAM)

@@ -142,50 +142,6 @@ LEX = flex
 
 ################################################################################
 ##
-## Default installation paths
-##
-################################################################################
-
-## Default values to install files when 'make install' is invoked.
-
-ifndef PREFIX
-    PREFIX=$(HOME_DIR)/install
-endif
-
-ifndef SYSCONF_PREFIX
-    SYSCONF_PREFIX=$(PREFIX)/etc
-endif
-
-ifndef LOCAL_STATE_PREFIX
-    LOCAL_STATE_PREFIX=$(PREFIX)/var/
-endif
-
-ifndef DEST_LIB_DIR
-    DEST_LIB_DIR = $(PREFIX)/lib
-endif
-
-ifndef DEST_BIN_DIR
-    DEST_BIN_DIR = $(PREFIX)/bin
-endif
-
-ifndef DEST_SBIN_DIR
-    DEST_SBIN_DIR = $(PREFIX)/sbin
-endif
-
-ifndef DEST_ETC_DIR
-    DEST_ETC_DIR = $(SYSCONF_PREFIX)/pegasus
-endif
-
-ifndef DEST_MAN_DIR
-    DEST_MAN_DIR = $(PREFIX)/man
-endif
-
-ifndef DEST_VAR_DIR
-    DEST_VAR_DIR = $(LOCAL_STATE_PREFIX)
-endif
-
-################################################################################
-##
 ## Attempt to include a platform configuration file:
 ##
 ################################################################################
@@ -197,32 +153,6 @@ else
   $(error  PEGASUS_PLATFORM environment variable must be set to one of\
         the following:$(VALID_PLATFORMS))
 endif
-
-################################################################################
-##
-## Default installation macros
-##
-################################################################################
-
-## INSTALL_LIB creates the destination directory if missing,
-## copies the library and generates the symbolic link.
-
-ifndef INSTALL_LIBRARY
-    ## These macros are also defined in the Platform_<*>.mak files.
-    INSTALL_LIBRARY =  $(MKDIRHIER) $(DEST_LIB_DIR); $(COPY) $(FULL_LIB) $(DEST_LIB_DIR)
-endif
-
-## INSTALL_PROGRAM creates the destination directory if missing and
-## copies the file.
-ifndef INSTALL_PROGRAM
-    INSTALL_PROGRAM = $(MKDIRHIER) $(DEST_BIN_DIR); $(COPY) $(FULL_PROGRAM) $(DEST_BIN_DIR)
-endif
-## INSTALL_PROGRAM creates the destination directory if missing and
-## copies the file.
-ifndef INSTALL_SBIN_PROGRAM
-    INSTALL_SBIN_PROGRAM = $(MKDIRHIER) $(DEST_SBIN_DIR);  $(COPY) $(FULL_PROGRAM) $(DEST_SBIN_DIR)
-endif
-## The rest of the macros for DEST_MAN_DIR, DEST_VAR_DIR, etc. are not provided in this file.
 
 ################################################################################
 ##

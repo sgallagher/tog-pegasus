@@ -35,6 +35,3 @@ rebuild: clean depend all
 
 build: depend all
 	$(MAKE) -s tests
-
-install:
-	$(INSTALL_SBIN_PROGRAM)

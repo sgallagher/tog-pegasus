@@ -41,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-const String String::EMPTY;
+const String String::EMPTY = String();
 
 #if 0    // Apparently dead code
 static inline void _SkipWhitespace(const Char16*& p)

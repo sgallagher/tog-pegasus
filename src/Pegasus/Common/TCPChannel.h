@@ -22,7 +22,10 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: WindowsChannel.h,v $
+// $Log: TCPChannel.h,v $
+// Revision 1.1  2001/04/11 04:30:34  mike
+// More porting
+//
 // Revision 1.2  2001/04/08 19:20:04  mike
 // more TCP work
 //
@@ -32,8 +35,8 @@
 //
 //END_HISTORY
 
-#ifndef Pegasus_WindowsChannel_h
-#define Pegasus_WindowsChannel_h
+#ifndef Pegasus_TCPChannel_h
+#define Pegasus_TCPChannel_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Channel.h>
@@ -42,14 +45,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE WindowsChannel 
+class PEGASUS_COMMON_LINKAGE TCPChannel 
     : public Channel, public SelectorHandler
 {
 public:
 
-    WindowsChannel(Uint32 desc, ChannelHandler* handler);
+    TCPChannel(Uint32 desc, ChannelHandler* handler);
 
-    virtual ~WindowsChannel();
+    virtual ~TCPChannel();
 
     virtual Sint32 read(void* ptr, Uint32 size);
 
@@ -75,15 +78,15 @@ private:
     ChannelHandler* _handler;
 };
 
-class PEGASUS_COMMON_LINKAGE WindowsChannelConnector : public ChannelConnector
+class PEGASUS_COMMON_LINKAGE TCPChannelConnector : public ChannelConnector
 {
 public:
 
-    WindowsChannelConnector(
+    TCPChannelConnector(
 	ChannelHandlerFactory* factory,
 	Selector* selector);
 
-    virtual ~WindowsChannelConnector();
+    virtual ~TCPChannelConnector();
 
     virtual Channel* connect(const char* address);
 
@@ -94,16 +97,16 @@ private:
     Selector* _selector;
 };
 
-class PEGASUS_COMMON_LINKAGE WindowsChannelAcceptor 
+class PEGASUS_COMMON_LINKAGE TCPChannelAcceptor 
     : public ChannelAcceptor, public SelectorHandler
 {
 public:
 
-    WindowsChannelAcceptor(
+    TCPChannelAcceptor(
 	ChannelHandlerFactory* factory,
 	Selector* selector);
 
-    virtual ~WindowsChannelAcceptor();
+    virtual ~TCPChannelAcceptor();
 
     virtual Boolean bind(const char* address);
 
@@ -117,4 +120,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_WindowsChannel_h */
+#endif /* Pegasus_TCPChannel_h */

@@ -8,33 +8,17 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
-ifeq ($(OS_TYPE),windows)
-OS_SPECIFIC_SOURCES = \
-    Channel.cpp \
-    Selector.cpp \
-    WindowsChannel.cpp \
-    SystemWindows.cpp \
-    DirWindows.cpp
-endif
-
-ifeq ($(OS_TYPE),unix)
-OS_SPECIFIC_SOURCES = \
-    SystemUnix.cpp \
-    DirUnix.cpp
-endif
-
 SOURCES = \
-    $(OS_SPECIFIC_SOURCES) \
-    Logger.cpp \
-    Formatter.cpp \
-    CIMInstanceRep.cpp \
-    CIMInstance.cpp \
     Array.cpp \
     CGIQueryString.cpp \
+    Channel.cpp \
+    Char16.cpp \
     CIMClass.cpp \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
     CIMFlavor.cpp \
+    CIMInstance.cpp \
+    CIMInstanceRep.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
@@ -53,23 +37,28 @@ SOURCES = \
     CIMScope.cpp \
     CIMType.cpp \
     CIMValue.cpp \
-    Char16.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
+    Dir.cpp \
     Exception.cpp \
     FileSystem.cpp \
+    Formatter.cpp \
     Headers.cpp \
     Indentor.cpp \
+    Logger.cpp \
     Memory.cpp \
     Pair.cpp \
+    Selector.cpp \
     Sharable.cpp \
     Stack.cpp \
+    Stopwatch.cpp \
     String.cpp \
+    System.cpp \
+    TCPChannel.cpp \
+    TimeValue.cpp \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
-    XmlWriter.cpp \
-    Stopwatch.cpp \
-    TimeValue.cpp
+    XmlWriter.cpp
 
 include $(ROOT)/mak/library.mak

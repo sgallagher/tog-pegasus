@@ -22,7 +22,10 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: WindowsChannel.cpp,v $
+// $Log: TCPChannel.cpp,v $
+// Revision 1.1  2001/04/11 04:30:33  mike
+// More porting
+//
 // Revision 1.4  2001/04/08 22:06:31  mike
 // New acceptor
 //
@@ -39,7 +42,7 @@
 //END_HISTORY
 
 #include <iostream>
-#include "WindowsChannel.h"
+#include "TCPChannel.h"
 #include <winsock.h>
 
 using namespace std;
@@ -80,17 +83,17 @@ static void _WSADec()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// WindowsChannel
+// TCPChannel
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-WindowsChannel::WindowsChannel(Uint32 desc, ChannelHandler* handler) 
+TCPChannel::TCPChannel(Uint32 desc, ChannelHandler* handler) 
     : _desc(desc), _blocking(true), _handler(handler)
 {
 
 }
 
-WindowsChannel::~WindowsChannel()
+TCPChannel::~TCPChannel()
 {
     if (_desc != -1)
 	::closesocket(_desc);
@@ -99,7 +102,7 @@ WindowsChannel::~WindowsChannel()
 	delete _handler;
 }
 
-Sint32 WindowsChannel::read(void* ptr, Uint32 size)
+Sint32 TCPChannel::read(void* ptr, Uint32 size)
 {
     if (_desc == -1)
 	return -1;
@@ -107,7 +110,7 @@ Sint32 WindowsChannel::read(void* ptr, Uint32 size)
     return ::recv(_desc, (char*)ptr, size, 0);
 }
 
-Sint32 WindowsChannel::write(const void* ptr, Uint32 size)
+Sint32 TCPChannel::write(const void* ptr, Uint32 size)
 {
     if (_desc == -1)
 	return -1;
@@ -117,7 +120,7 @@ Sint32 WindowsChannel::write(const void* ptr, Uint32 size)
     return result;
 }
 
-Sint32 WindowsChannel::readN(void* ptr, Uint32 size)
+Sint32 TCPChannel::readN(void* ptr, Uint32 size)
 {
     // ATTN-A: need a timeout here!
 
@@ -156,7 +159,7 @@ Sint32 WindowsChannel::readN(void* ptr, Uint32 size)
     return m;
 }
 
-Sint32 WindowsChannel::writeN(const void* ptr, Uint32 size)
+Sint32 TCPChannel::writeN(const void* ptr, Uint32 size)
 {
     // ATTN-A: need a timeout here!
 
@@ -195,26 +198,26 @@ Sint32 WindowsChannel::writeN(const void* ptr, Uint32 size)
     return m;
 }
 
-void WindowsChannel::enableBlocking()
+void TCPChannel::enableBlocking()
 {
     unsigned long flag = 0;
     ioctlsocket(_desc, FIONBIO, &flag);
     _blocking = true;
 }
 
-void WindowsChannel::disableBlocking()
+void TCPChannel::disableBlocking()
 {
     unsigned long flag = 1;
     ioctlsocket(_desc, FIONBIO, &flag);
     _blocking = false;
 }
 
-Boolean WindowsChannel::wouldBlock() const
+Boolean TCPChannel::wouldBlock() const
 {
     return GetLastError() == WSAEWOULDBLOCK;
 }
 
-Boolean WindowsChannel::handle(Sint32 desc, Uint32 reasons)
+Boolean TCPChannel::handle(Sint32 desc, Uint32 reasons)
 {
     if (desc != _desc)
 	return false;
@@ -243,7 +246,7 @@ Boolean WindowsChannel::handle(Sint32 desc, Uint32 reasons)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// WindowsChannelConnector
+// TCPChannelConnector
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -314,7 +317,7 @@ static Boolean _ParseAddress(
     return true;
 }
 
-WindowsChannelConnector::WindowsChannelConnector(
+TCPChannelConnector::TCPChannelConnector(
     ChannelHandlerFactory* factory,
     Selector* selector)
     : ChannelConnector(factory), _selector(selector)
@@ -322,13 +325,13 @@ WindowsChannelConnector::WindowsChannelConnector(
     _WSAInc();
 }
 
-WindowsChannelConnector::~WindowsChannelConnector()
+TCPChannelConnector::~TCPChannelConnector()
 {
     _WSADec();
 }
 
 
-Channel* WindowsChannelConnector::connect(const char* addressString)
+Channel* TCPChannelConnector::connect(const char* addressString)
 {
     if (!_factory)
 	return 0;
@@ -366,7 +369,7 @@ Channel* WindowsChannelConnector::connect(const char* addressString)
     // Create the channel:
 
     ChannelHandler* handler = _factory->create();
-    WindowsChannel* channel = new WindowsChannel(desc, handler);
+    TCPChannel* channel = new TCPChannel(desc, handler);
 
     // ATTN-B: at this time, the selector does not manage the lifetime
     // of channel objects. The selector is responsible for this. When
@@ -386,18 +389,18 @@ Channel* WindowsChannelConnector::connect(const char* addressString)
     return channel;
 }
 
-void WindowsChannelConnector::disconnect(Channel* channel)
+void TCPChannelConnector::disconnect(Channel* channel)
 {
     // ATTN-A: Implement this! But how?
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// WindowsChannelAcceptor
+// TCPChannelAcceptor
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-WindowsChannelAcceptor::WindowsChannelAcceptor(
+TCPChannelAcceptor::TCPChannelAcceptor(
     ChannelHandlerFactory* factory,
     Selector* selector)
     : ChannelAcceptor(factory), _selector(selector), _desc(-1)
@@ -405,12 +408,12 @@ WindowsChannelAcceptor::WindowsChannelAcceptor(
     _WSAInc();
 }
 
-WindowsChannelAcceptor::~WindowsChannelAcceptor()
+TCPChannelAcceptor::~TCPChannelAcceptor()
 {
     _WSADec();
 }
 
-Boolean WindowsChannelAcceptor::bind(const char* addressStr)
+Boolean TCPChannelAcceptor::bind(const char* addressStr)
 {
     // Extract the port:
 
@@ -460,7 +463,7 @@ Boolean WindowsChannelAcceptor::bind(const char* addressStr)
     return true;
 }
 
-Boolean WindowsChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
+Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 {
     // If socket descriptor is invalid, bail out now!
 
@@ -487,7 +490,7 @@ Boolean WindowsChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 	return true;
 
     ChannelHandler* handler = _factory->create();
-    WindowsChannel* channel = new WindowsChannel(slaveDesc, handler);
+    TCPChannel* channel = new TCPChannel(slaveDesc, handler);
 
     // Register the channel to receive events:
 

@@ -103,7 +103,10 @@ Monitor::Monitor()
      _async(false),
      _stopConnections(0),
      _stopConnectionsSem(0),
-     _solicitSocketCount(0)
+     _solicitSocketCount(0),
+     _tickle_client_socket(0),
+     _tickle_server_socket(0),
+     _tickle_peer_socket(0)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -129,7 +132,10 @@ Monitor::Monitor(Boolean async)
      _async(async),
      _stopConnections(0),
      _stopConnectionsSem(0),
-     _solicitSocketCount(0)
+     _solicitSocketCount(0),
+     _tickle_client_socket(0),
+     _tickle_server_socket(0),
+     _tickle_peer_socket(0)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -163,6 +169,27 @@ Monitor::~Monitor()
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
 
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
+
+    try{
+        if(_tickle_peer_socket > 0)
+        {
+            Socket::close(_tickle_peer_socket);
+        }
+        if(_tickle_client_socket > 0)
+        {
+            Socket::close(_tickle_client_socket);
+        }
+        if(_tickle_server_socket > 0)
+        {
+            Socket::close(_tickle_server_socket);
+        }
+    }
+    catch(...)
+    {
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                  "Failed to close tickle sockets");
+    }
+
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
@@ -838,7 +865,7 @@ monitor_2_entry::monitor_2_entry(const monitor_2_entry& e)
 
 monitor_2_entry::~monitor_2_entry(void)
 {
-   
+
   Dec(_rep);
 }
 

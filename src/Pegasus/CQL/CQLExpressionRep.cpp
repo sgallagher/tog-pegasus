@@ -47,7 +47,9 @@ CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep& rep)
    _CQLTerms = rep._CQLTerms;
 }
 
+CQLExpressionRep::~CQLExpressionRep(){
 
+}
 CQLValue CQLExpressionRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
    CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);

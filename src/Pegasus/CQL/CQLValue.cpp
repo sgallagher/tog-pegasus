@@ -242,7 +242,7 @@ CQLValue::CQLValue(CIMInstance inInstance)
    _isResolved = true;
 }
 
-CQLValue::CQLValue(CIMClass& inClass)
+CQLValue::CQLValue(CIMClass inClass)
 {
    _theValue._CL = new CIMClass(inClass);
    _valueType = CIMClass_type;

@@ -6,6 +6,10 @@ SelectStatement::SelectStatement(String inQlang, String inQuery, QueryContext& i
 {
 }
 
+SelectStatement::~SelectStatement(){
+
+}
+
 String SelectStatement::getQueryLanguage()
 {
    return String::EMPTY;

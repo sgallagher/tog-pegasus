@@ -16,7 +16,10 @@ CQLChainedIdentifier::CQLChainedIdentifier(CQLIdentifier &id)
 CQLChainedIdentifier::CQLChainedIdentifier(const CQLChainedIdentifier& cid){
 	_rep = new CQLChainedIdentifierRep(*(cid._rep));
 }
-
+CQLChainedIdentifier::~CQLChainedIdentifier(){
+	if(_rep)
+		delete _rep;
+}
 const Array<CQLIdentifier>& CQLChainedIdentifier::getSubIdentifiers()const
 {
 	return _rep->getSubIdentifiers();

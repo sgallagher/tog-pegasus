@@ -26,45 +26,71 @@
 // Author: Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Authenticator_h
-#define Pegasus_Authenticator_h
+#include "LocalAuthFile.h"
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include "Linkage.h"
-
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    An authentication interface that the authentication handler will implement.
-*/
-
-class PEGASUS_SECURITY_LINKAGE Authenticator
+LocalAuthFile::LocalAuthFile()
 {
-public:
+    _user = userName.allocateCString();
+    _user[strlen(_user)] = 0;
 
-    /** Constructors  */
-    Authenticator() { };
+    _challenge = String::EMPTY;
+    _filePathName = String::EMPTY;
+}
 
-    /** Destructor  */
-    virtual ~Authenticator() { };
+LocalAuthFile::~LocalAuthFile() 
+{ 
 
-    /**
-    Authenticate the request
-    */
-    virtual Boolean authenticate(String authHeader, String authInfo) = 0;
+}
 
-    /**
-    Construct and return the authentication response header
-    */
-    virtual String getAuthResponseHeader(
-        String requestHeader,
-        String& challenge ) = 0;
+/**
+ * create a file and make a random token data entry to it.
+ * send the file name back to caller
+ */
+String LocalAuthFile::create()
+{
+    return (String::EMPTY);
+}
 
-};
-#endif   /* Pegasus_Authenticator_h*/
+/**
+ * deletes the file that was created
+ */ 
+Boolean LocalAuthFile::delete()
+{
+    return (true);
+}
+
+//
+// Get the string that was created as a challenge string
+//
+String LocalAuthFile::getChallengeString()
+{
+    return (_challenge);
+}
+
+/**
+ * changes the file owner to one specified
+ *
+ */ 
+Boolean LocalAuthFile::_changeFileOwner(char* fileName)
+{
+    return (true);
+}
+
+/**
+ * Generate  random token string
+ *
+ */
+String LocalAuthFile::_generateRandomTokenString()
+{
+    return (String::EMPTY);
+}
+
+PEGASUS_NAMESPACE_END

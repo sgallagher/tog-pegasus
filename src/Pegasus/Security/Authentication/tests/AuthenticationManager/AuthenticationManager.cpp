@@ -1,11 +1,7 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,372 +10,129 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies of substantial portions of this software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
+//
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
+#include <cassert>
+#include <fstream>
 #include <iostream>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/AuthenticationInfo.h>
-#include <Pegasus/Common/Base64.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Security/UserManager/UserManager.h>
+#include <cstdio>
+
+#include <unistd.h>
+#include <pwd.h>
+
 #include <Pegasus/Security/Authentication/AuthenticationManager.h>
 
-//
-// Enable debug messages
-//
-//#define DEBUG 1
-
-
-PEGASUS_USING_STD;
+#define PWENT_BUFFER_LEN  256
 
 PEGASUS_USING_PEGASUS;
 
-static Boolean verbose;
-
-String testUser = System::getEffectiveUserName();
-
-String guestUser = "guest";
-
-String guestPassword = "guest";
-
-String localHeader = "Local ";
-
-String basicHeader = "Basic ";
+PEGASUS_USING_STD;
 
 
+/**
+     Returns passwd struct for a given UID.
+        If an error occurs a NULL is returned and errno is recorded.
 
-String encodeUserPass(const String& userPass)
+        Parameters:
+            uid       - A UNIX UID
+            pwdStruct - A pwd struct.
+            buffer    - A char buffer used to store data for pwd struct.
+            buflen    - A the length of the char buffer (Recommend 1024).
+        Returns:
+            Zero if lookup succeeds or 1 on error.
+*/
+int getPwd(uid_t           uid,
+           struct passwd & pwdStruct,
+           char          * buffer,
+           size_t          buflen)
 {
-    //
-    // copy userPass string content to Uint8 array for encoding
-    //
-    Buffer userPassArray;
+    struct passwd *   pwd    = &pwdStruct;
+    struct passwd **  result = &pwd;
 
-    Uint32 userPassLength = userPass.size();
-
-    userPassArray.reserveCapacity( userPassLength );
-    userPassArray.clear();
-
-    for( Uint32 i = 0; i < userPassLength; i++ )
+    int    pwRetVal = getpwuid_r( uid, pwd, buffer, buflen, result);
+    if ( pwd == NULL )
     {
-        userPassArray.append( (Uint8)userPass[i] );
+        pwRetVal = 1;
     }
 
-    //
-    // base64 encode the user name and password
-    //
-    Buffer encodedArray;
-
-    encodedArray = Base64::encode( userPassArray );
-
-    String encodedStr =
-        String( encodedArray.getData(), encodedArray.size() );
-
-    if (verbose) cout << "userPass: " << userPass << endl;
-    if (verbose) cout << "Encoded userPass: " << encodedStr << endl;
-
-    return (encodedStr);
+    return pwRetVal;
 }
 
-//
-// Test HTTP Auth header creation
-//
-void testHttpAuthHeader()
+char* getCurrentLoginName()
 {
-    AuthenticationManager  authManager;
 
-    String respHeader = authManager.getHttpAuthResponseHeader();
-
-    if (verbose) cout << "Challenge Header = " << respHeader << endl;
-
-    PEGASUS_TEST_ASSERT(respHeader.size() != 0);
-}
-
-//
-// Test Local Auth header creation
-//
-void testLocalAuthHeader_1()
-{
-    String authHeader;
-
-    AuthenticationManager  authManager;
-
-    AuthenticationInfo* authInfo = new AuthenticationInfo(true);
-
-    // Test invalid header
-    String respHeader =
-        authManager.getPegasusAuthResponseHeader(testUser, authInfo);
-
-    if (verbose) cout << "RespHeader: " << respHeader << endl;
-
-    delete authInfo;
-
-    Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_TEST_ASSERT(startQuote == PEG_NOT_FOUND);
-}
-
-//
-// Test Local Auth header creation
-//
-void testLocalAuthHeader_2()
-{
-    String authHeader;
-
-    AuthenticationManager  authManager;
-
-    AuthenticationInfo* authInfo = new AuthenticationInfo(true);
-
-    // Test invalid header
-    authHeader.append(localHeader);
-
-    String respHeader =
-        authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
-
-    if (verbose) cout << "RespHeader: " << respHeader << endl;
-
-    delete authInfo;
-
-    Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_TEST_ASSERT(startQuote == PEG_NOT_FOUND);
-}
-
-//
-// Test Local Auth header creation
-//
-void testLocalAuthHeader_3()
-{
-    String authHeader;
-
-    AuthenticationManager  authManager;
-
-    AuthenticationInfo* authInfo = new AuthenticationInfo(true);
-
-    // Test invalid header
-    authHeader.append(localHeader);
-    authHeader.append("\"\"");
-
-    String respHeader =
-        authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
-
-    if (verbose) cout << "RespHeader: " << respHeader << endl;
-
-    delete authInfo;
-
-    Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_TEST_ASSERT(startQuote == PEG_NOT_FOUND);
-}
-
-//
-// Test local authentication
-//
-void testLocalAuthSuccess()
-{
-    String authHeader;
-
-    AuthenticationManager  authManager;
-
-    AuthenticationInfo* authInfo = new AuthenticationInfo(true);
-
-    // Test valid header
-    authHeader.append(localHeader);
-    authHeader.append("\"");
-    authHeader.append(testUser);
-    authHeader.append("\"");
-
-    String respHeader =
-        authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
-
-    if (verbose) cout << "RespHeader: " << respHeader << endl;
-
-    Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
-
-    Uint32 endQuote = respHeader.find(startQuote + 1, '"');
-    PEGASUS_TEST_ASSERT(endQuote != PEG_NOT_FOUND);
-
-    String filePath = respHeader.subString(
-        startQuote + 1, (endQuote - startQuote - 1));
-    PEGASUS_TEST_ASSERT(filePath.size() != 0);
-
-    authHeader.clear();
-    authHeader.append(localHeader);
-    authHeader.append("\"");
-    authHeader.append(testUser);
-    authHeader.append(":");
-    authHeader.append(filePath);
-    authHeader.append(":");
-    authHeader.append(authInfo->getLocalAuthSecret());
-    authHeader.append("\"");
-
-    if (verbose) cout << "Local Resp AuthHeader: " << authHeader << endl;
-
-    Boolean authenticated;
-    // test case looks for success, initialize with failure
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
-
-
-    authStatus = authManager.performPegasusAuthentication(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    char *currentUser;
+    char buffer[PWENT_BUFFER_LEN];
+    struct passwd pwd;
 
     //
-    // remove the auth file created for this user request
+    //  get the real user's UID.
     //
-    if (FileSystem::exists(filePath))
+    uid_t uid = getuid();
+
+    //
+    //  lookup that UID in the password list.
+    //
+    int pwRetVal = getPwd(uid, pwd, buffer, PWENT_BUFFER_LEN);
+    if( pwRetVal != 0 )
     {
-        FileSystem::removeFile(filePath);
-    }
-    if (verbose)
-    {
-        cout << "Local Authentication of User " + testUser + " returned with: ";
-        cout << authenticated << endl;
+       cout << "user may have been removed just after user logged in" << endl;
+       return((char *)NULL);
     }
 
-    delete authInfo;
+    // extract user name
+    currentUser = new char[strlen(pwd.pw_name)];
+    strncpy(currentUser, pwd.pw_name, strlen(pwd.pw_name));
+    currentUser[strlen(pwd.pw_name)]=0;
 
-    PEGASUS_TEST_ASSERT(authenticated);
+    return((char *)currentUser);
 }
 
 
-//
-// Test HTTP Basic with valid user name and password
-//
-void testBasicAuthSuccess()
+
+
+int main()
 {
-    String authHeader;
+    String testUser = String::EMPTY;
+    String authHeader = String::EMPTY;
 
-    AuthenticationManager  authManager;
+    testUser.assign(getCurrentLoginName());
 
-    AuthenticationInfo* authInfo = new AuthenticationInfo(true);
+    //AuthenticationManager  authManager;
 
-    String userPass = guestUser;
-    userPass.append(":");
-    userPass.append(guestPassword);
+    String challenge = String::EMPTY;
 
-    authHeader.append(basicHeader);
-    authHeader.append(encodeUserPass(userPass));
+    cout << "User Name: " << testUser << endl;
 
-    Boolean authenticated;
-    // test case looks for success, initialize with failure
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
 
-    authStatus = authManager.performHttpAuthentication(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
 
-    if (verbose)
-    {
-        cout << "Authentication of user " + guestUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    Boolean authenticated = true;
+    // authenticated = localAuthHandler.authenticate(authHeader, challenge);
 
-    delete authInfo;
+    if (authenticated)
+        cout << "authenticated" << endl;
+    else
+        cout << "Not authenticated" << endl;
 
-    //PEGASUS_TEST_ASSERT(authenticated);
-}
-
-////////////////////////////////////////////////////////////////////
-
-int main(int, char** argv)
-{
-    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose)
-        cout << argv[0] << ": started" << endl;
-
-#if defined(PEGASUS_OS_TYPE_UNIX)
-
-    try
-    {
-#ifdef DEBUG
-        Tracer::setTraceFile("/tmp/trace");
-        Tracer::setTraceComponents("all");
-        verbose = true;
-#endif
-
-        ConfigManager* configManager = ConfigManager::getInstance();
-        PEGASUS_TEST_ASSERT(0 != configManager);
-
-        const char* path = getenv("PEGASUS_HOME");
-        String pegHome = path;
-
-        if(pegHome.size())
-            ConfigManager::setPegasusHome(pegHome);
-
-        if (verbose)
-            cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
-
-        if (verbose) cout << "Doing testHttpAuthHeader()...." << endl;
-
-        // -- Create a repository:
-        const char* tmpDir = getenv ("PEGASUS_TMP");
-        String repositoryPath;
-        if (tmpDir == NULL)
-        {
-            repositoryPath = ".";
-        }
-        else
-        {
-            repositoryPath = tmpDir;
-        }
-        repositoryPath.append("/repository");
-
-        FileSystem::removeDirectoryHier(repositoryPath);
-
-        CIMRepository* repository = new CIMRepository(repositoryPath);
-
-        // -- Create a UserManager object:
-
-#ifndef PEGASUS_PAM_AUTHENTICATION
-        UserManager* userManager = UserManager::getInstance(repository);
-        PEGASUS_TEST_ASSERT(0 != userManager);
-#endif
-
-        testHttpAuthHeader();
-
-        if (verbose) cout << "Doing testLocalAuthHeader_1()...." << endl;
-        testLocalAuthHeader_1();
-
-        if (verbose) cout << "Doing testLocalAuthHeader_2()...." << endl;
-        testLocalAuthHeader_2();
-
-        if (verbose) cout << "Doing testLocalAuthHeader_3()...." << endl;
-        testLocalAuthHeader_3();
-
-        if (verbose) cout << "Doing testLocalAuthSuccess()...." << endl;
-        testLocalAuthSuccess();
-
-        if (verbose) cout << "Doing testBasicAuthSuccess()...." << endl;
-        testBasicAuthSuccess();
-
-#ifndef PEGASUS_PAM_AUTHENTICATION
-        UserManager::destroy();
-#endif
-        delete repository;
-        FileSystem::removeDirectoryHier(repositoryPath);
-    }
-    catch(Exception& e)
-    {
-        cout << argv[0] << " Exception: " << e.getMessage() << endl;
-        PEGASUS_TEST_ASSERT(0);
-    }
-
-#endif
-
-    cout << argv[0] << " +++++ passed all tests" << endl;
+    cout << endl;
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

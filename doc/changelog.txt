@@ -122,6 +122,14 @@ repository implementation.
     true value and outParameters (which are now hard coded in CIMOperationRequestDispatcher 
     to implement functionality) which are passed as response of InvokeMethod to client.
 
+25. (Nag Boranna - HP) 05 Oct 2001 - Added first level implementation of
+    authentication to the pegasus code. Created an Authentication Manager and 
+    authenticator interfaces. The file based local authentication module has
+    been modified to implement the local authenticator interface, to generate 
+    the challenge for the unauthorized requests and to verify the authentication.
+    A skeleton program has been created for the Basic Authenticator. This code is
+    in the Security/Authentication directory which is not yet linked into the build.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

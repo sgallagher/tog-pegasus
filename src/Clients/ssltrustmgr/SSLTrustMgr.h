@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, vijayeli@in.ibm.com, fix for #2572
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -154,7 +155,7 @@ private:
         @exception  Exception   if an error is encountered 
                                 in reading the certificate file
      */
-    Array<char> _readCertificateContent(String &certFilePath)
+    Array<char> _readCertificateContent(const String &certFilePath)
         throw (Exception);
 
     /**

@@ -83,7 +83,7 @@ public:
                            (ContentLanguageListContainer::NAME);
             langs = cntr.getLanguages();
         }
-        catch (Exception & e)
+        catch (const Exception &)
         {
             // The content language container must not exist.
             // Return the empty ContentLanguages.

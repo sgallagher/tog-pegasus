@@ -625,7 +625,7 @@ void ProviderManagerService::indicationCallback(
  	try
 	{
 		AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
-	}catch(Exception &e)
+	}catch(const Exception &)
 	{
 		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
 	}    

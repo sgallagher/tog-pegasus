@@ -529,7 +529,7 @@ public:
 		try
 		{
 			request->operationContext.set(ContentLanguageListContainer(contentLangs));
-		}catch(Exception &e)
+		}catch(const Exception &)
 		{
 			request->operationContext.insert(ContentLanguageListContainer(contentLangs));
 		}

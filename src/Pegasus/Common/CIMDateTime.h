@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMDateTime.h,v $
+// Revision 1.2  2001/03/23 20:19:20  mike
+// Reformatted documentation. Added a couple of ATTN's
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
@@ -44,67 +47,6 @@
 //
 //END_HISTORY
 
-/*
-CIMDateTime Header File.  This file contains the public definition of the CIM
-CIMDateTime CIMType. It defines the C++ Class CIMDateTime
-*/
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMDateTime.h
-//
-//	This CIMDateTime class represents the CIM datetime data type.
-//	Recall that a CIM datetime may contain a date or an interval.
-//
-//	A date has the following form:
-//
-//	    yyyymmddhhmmss.mmmmmmsutc
-//
-//	Where
-//
-//	    yyyy = year (0-1999)
-//	    mm = month (1-12)
-//	    dd = day (1-31)
-//	    hh = hour (0-23)
-//	    mm = minute (0-59)
-//	    ss = second (0-59)
-//	    mmmmmm = microseconds.
-//	    s = '+' or '-' to represent the UTC sign.
-//	    utc = UTC offset (same as GMT offset).
-//
-//	An interval has the following form:
-//
-//	    ddddddddhhmmss.mmmmmm:000
-//
-//	Where
-//
-//	    dddddddd = days
-//	    hh = hours
-//	    mm = minutes
-//	    ss = seconds
-//	    mmmmmm = microseconds
-//
-//	Note that intervals always end in ":000" (this is how they
-//	are distinguished from dates).
-//
-//	Intervals are really durations since they do not specify a start and
-//	end time (as one expects when speaking about an interval). It is
-//	better to think of an interval as specifying time elapsed since
-//	some event.
-//
-//	CIMDateTime objects are constructed from C character strings or from
-//	other CIMDateTime objects. These character strings must be exactly
-//	twenty-five characters and conform to one of the forms idententified
-//	above.
-//
-//	CIMDateTime objects which are not explicitly initialized will be
-//	implicitly initialized with the null time interval:
-//
-//	    00000000000000.000000:000
-//
-//	Instances can be tested for nullness with the isNull() method.
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_DateTime_h
 #define Pegasus_DateTime_h
 
@@ -113,127 +55,139 @@ CIMDateTime CIMType. It defines the C++ Class CIMDateTime
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMDateTime;
-PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMDateTime& x, const CIMDateTime& y);
 /**
-The CIMDateTime class represents the CIM datetime data type as a C++ class CIMDateTime. A CIM
-datetime may contain a date or an interval. CIMDateTime is an intrinsic CIM data type which
-represents the time as a formated fixedplength string.
-<PRE>
-A date has the following form:
+    The CIMDateTime class represents the CIM datetime data type as a C++ class 
+    CIMDateTime. A CIM datetime may contain a date or an interval. CIMDateTime 
+    is an intrinsic CIM data type which represents the time as a formated 
+    fixedplength string.
 
-    yyyymmddhhmmss.mmmmmmsutc
+    <PRE>
+    A date has the following form:
+	yyyymmddhhmmss.mmmmmmsutc
 
-Where
+    Where
 
-    yyyy = year (0-1999)
-    mm = month (1-12)
-    dd = day (1-31)
-    hh = hour (0-23)
-    mm = minute (0-59)
-    ss = second (0-59)
-    mmmmmm = microseconds.
-    s = '+' or '-' to represent the UTC sign.
-    utc = UTC offset (same as GMT offset).
+	yyyy = year (0-1999)
+	mm = month (1-12)
+	dd = day (1-31)
+	hh = hour (0-23)
+	mm = minute (0-59)
+	ss = second (0-59)
+	mmmmmm = microseconds.
+	s = '+' or '-' to represent the UTC sign.
+	utc = UTC offset (same as GMT offset).
 
-An interval has the following form:
+    An interval has the following form:
 
-    ddddddddhhmmss.mmmmmm:000
+	ddddddddhhmmss.mmmmmm:000
 
-Where
+    Where
 
-    dddddddd = days
-    hh = hours
-    mm = minutes
-    ss = seconds
-    mmmmmm = microseconds
-</PRE>
+	dddddddd = days
+	hh = hours
+	mm = minutes
+	ss = seconds
+	mmmmmm = microseconds
+    </PRE>
 
-Note that intervals always end in ":000" (this is how they
-are distinguished from dates).
+    Note that intervals always end in ":000" (this is how they
+    are distinguished from dates).
 
-Intervals are really durations since they do not specify a start and
-end time (as one expects when speaking about an interval). It is
-better to think of an interval as specifying time elapsed since
-some event.
+    Intervals are really durations since they do not specify a start and
+    end time (as one expects when speaking about an interval). It is
+    better to think of an interval as specifying time elapsed since
+    some event.
 
-CIMDateTime objects are constructed from C character strings or from
-other CIMDateTime objects. These character strings must be exactly
-twenty-five characters and conform to one of the forms idententified
-above.
+    CIMDateTime objects are constructed from C character strings or from
+    other CIMDateTime objects. These character strings must be exactly
+    twenty-five characters and conform to one of the forms idententified
+    above.
 
-CIMDateTime objects which are not explicitly initialized will be
-implicitly initialized with the null time interval:
+    CIMDateTime objects which are not explicitly initialized will be
+    implicitly initialized with the null time interval:
 
-    00000000000000.000000:000
+	00000000000000.000000:000
 
-Instances can be tested for nullness with the isNull() method.
+    Instances can be tested for nullness with the isNull() method.
 
+    ATTN: Add inequalities.
 */
 class PEGASUS_COMMON_LINKAGE CIMDateTime
 {
 public:
 
     enum { FORMAT_LENGTH = 25 };
+
     /// CIMDateTime CIMMethod
     CIMDateTime();
-    /// CIMDateTime CIMMethod creates the CIM CIMDateTime from a string constant.
+
+    /** CIMDateTime CIMMethod creates the CIM CIMDateTime from a string 
+	constant.
+    */
     CIMDateTime(const char* str);
-    /**
-    CIMDateTime CIMMethod - Creates the CIMDateTime instance from another CIMDateTime
-    instance
+
+    /** CIMDateTime CIMMethod - Creates the CIMDateTime instance from another 
+	CIMDateTime instance
     */
     CIMDateTime(const CIMDateTime& x);
+
     /** CIMDateTime method again
     */
     CIMDateTime& operator=(const CIMDateTime& x);
+
     /** CIMDateTime isNull method - Tests for an all zero date time
 	<PRE>
 	CIMDateTime dt;
 	dt.clear();
     	assert(dt.isNull());
     	</PRE>
-    @return This method returns true of the contents are
-    "00000000000000.000000:000". Else it returns false
+	@return This method returns true of the contents are
+	"00000000000000.000000:000". Else it returns false
     */
     Boolean isNull() const;
+
     /// method getString
     const char* getString() const;
 
-    /** method set - Sets the date time.
-    Creates the CIMDateTime instance from the input string constant which must be
-    in the datetime format.
-	<PRE>
-	CIMDateTime dt;
-	dt.set("19991224120000.000000+360");
-    	</PRE>
-    @return On format error, CIMDateTime set throws the exception BadDateTimeFormat
-    @exception Throws exception BadDateTimeFormat on format error.
+    /** method set - Sets the date time. Creates the CIMDateTime instance from 
+	the input string constant which must be
+	in the datetime format.
+
+	    <PRE>
+	    CIMDateTime dt;
+	    dt.set("19991224120000.000000+360");
+	    </PRE>
+
+	@return On format error, CIMDateTime set throws the exception 
+	BadDateTimeFormat
+	@exception Throws exception BadDateTimeFormat on format error.
     */
     void set(const char* str);
+
     /// CIMDateTime method clear - Clears the datetime class instance.
     void clear();
-    /// CIMDateTime CIMMethod - ATTN: Friend operator Test for CIMDateTime equality
-     PEGASUS_COMMON_LINKAGE friend Boolean operator==(
+
+    /** CIMDateTime CIMMethod - ATTN: Friend operator Test for CIMDateTime 
+	equality
+    */
+    PEGASUS_COMMON_LINKAGE friend Boolean operator==(
 	const CIMDateTime& x,
 	const CIMDateTime& y);
 
 private:
 
     Boolean _set(const char* str);
-
     char _rep[FORMAT_LENGTH + 1];
 };
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMDateTime& x, const CIMDateTime& y);
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const CIMDateTime& x, 
+    const CIMDateTime& y);
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(std::ostream& os, const CIMDateTime& x);
+PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
+    std::ostream& os, 
+    const CIMDateTime& x);
 
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_DateTime_h */
-
-
-
-
-

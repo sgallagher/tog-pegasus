@@ -1,287 +1,239 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Condition.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/IPC.h>
 #include <sys/types.h>
-#include <Pegasus/Common/PegasusAssert.h>
+#include <unistd.h>
+#include <cassert>
 #include <iostream>
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <windows.h>
-#else
-# include <unistd.h>
-#endif
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MT_MessageQueue.h>
+
+#define D(X) /* empty */
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-Boolean verbose = false;
+#define MY_CANCEL_TYPE 1000
 
-// Fibonacci test parameter definition
-class parmdef
-{
-public:
-    parmdef()
-    {
-        th = NULL;
-        cond_start = new Condition();
-        mq = NULL;
-    }
-
-    ~parmdef()
-    {
-        delete cond_start;
-    }
-
+typedef struct {
     int first;
     int second;
     int count;
-    Thread * th;
+    SimpleThread * th;
     Condition * cond_start;
-    MessageQueue * mq;
+    MT_MessageQueue * mq;
+} parmdef;
+
+void * fibonacci(void * parm);
+void * deq(void * parm);
+
+static parmdef * setparm()
+{
+    parmdef * parm = new parmdef;
+    parm->first = 0;
+    parm->second = 1;
+    parm->count = 20;
+    parm->th = NULL;
+    parm->cond_start = new Condition();
+    parm->mq = NULL;
+    return parm;
 };
-
-
-ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
+    
+int main()
 {
-    Thread* my_thread = (Thread *)parm;
-    parmdef * Parm = (parmdef *)my_thread->get_parm();
-    int first = Parm->first;
-    int second = Parm->second;
-    int count = Parm->count;
-    Condition * condstart = Parm->cond_start;
-    MessageQueue * mq = Parm->mq;
+    void * retval;
 
-    condstart->signal();
+    Uint32 rn,rn2;
 
-    int add_to_type = 0;
-    if (count < 20)
-        add_to_type = 100;
+    MT_MessageQueue * mq = new MT_MessageQueue();
 
-    for (int i=0; i < count; i++)
-    {
-        int sum = first + second;
-        first = second;
-        second = sum;
-        Message * message = new Message(i+add_to_type, 0, sum);
-        mq->enqueue(message);
-    }
-
-    if (!add_to_type)
-        Parm->th->thread_switch();
-
-    return ThreadReturnType(0);
-}
-
-ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
-{
-    Thread* my_thread = (Thread *)parm;
-
-    parmdef * Parm = (parmdef *)my_thread->get_parm();
-    MessageType type;
-
-    int first = Parm->first;
-    int second = Parm->second;
-    int count = Parm->count;
-    Condition * condstart = Parm->cond_start;
-    MessageQueue * mq = Parm->mq;
-
-    condstart->signal();
-
-    Message * message;
-    type = 0;
-
-    while (type != CLOSE_CONNECTION_MESSAGE)
-    {
-        message = mq->dequeue();
-        while (!message)
-        {
-            message = mq->dequeue();
-        }
-
-        type = message->getType();
-        delete message;
-    }
-
-    if (verbose)
-    {
-#if defined (PEGASUS_OS_VMS)
-        //
-        // Threads::self returns long-long-unsigned.
-        //
-        printf("Received Cancel Message, %llu about to end\n", Threads::self());
-#else
-        cout << "Received Cancel Message, " << Threads::self() <<
-            " about to end\n";
-#endif
-    }
-
-    return ThreadReturnType(0);
-}
-
-// Test Thread, MessageQueue, and Condition
-int test01()
-{
-    MessageQueue * mq = new MessageQueue("testQueue", true);
     parmdef * parm[4];
+
+    SimpleThread * thr[4];
 
     for (int i = 0; i < 4;i++)
     {
-        parm[i] = new parmdef();
+        parm[i] = setparm();
         parm[i]->mq = mq;
     }
-
-    parm[0]->first = 0;
-    parm[0]->second = 1;
-    parm[0]->count = 20;
 
     parm[3]->first = 4;
     parm[3]->second = 6;
     parm[3]->count = 10;
 
-    parm[0]->th = new Thread(fibonacci,parm[0],false);
-    parm[1]->th = new Thread(deq,parm[1],false);
-    parm[2]->th = new Thread(deq,parm[2],false);
-    parm[3]->th = new Thread(fibonacci,parm[3],false);
+    thr[0] = new SimpleThread(fibonacci,parm[0],false);
+    thr[1] = new SimpleThread(deq,parm[1],false);
+    thr[2] = new SimpleThread(deq,parm[2],false);
+    thr[3] = new SimpleThread(fibonacci,parm[3],false);
 
     for (int i = 0; i < 4;i++)
     {
-       parm[i]->cond_start->lock_object(Threads::self());
-       parm[i]->th->run();
+       parm[i]->th = thr[i];
+       parm[i]->cond_start->getMutex()->lock();
+       thr[i]->run();
     }
 
     // Let the thread start and wait for Start Condition to be signaled
     for (int i = 0; i < 4;i++)
     {
-        parm[i]->cond_start->unlocked_wait( Threads::self() );
-        parm[i]->cond_start->unlock_object( );
+        parm[i]->cond_start->unlocked_wait();
+        parm[i]->cond_start->getMutex()->unlock();
     }
 
     // all fired up successfully
 
-    // Finish the enqueueing tasks
-    parm[0]->th->join();
-    parm[3]->th->join();
+    for (int i=0; i < 20; i++)
+    {
+        rn = (int) (4.0*rand()/(RAND_MAX+1.0)); 
+        rn2 = (int) (2.0*rand()/(RAND_MAX+1.0)); 
 
-    // Tell one of the dequeueing tasks to finish
+        if (!rn2)
+            parm[rn]->th->suspend();
+        else 
+            parm[rn]->th->resume();
+
+        sleep(1);
+        cout << "+++++ passed test round " << i << endl; 
+    }
+
+    // Cancel the enqueueing tasks
+
+    parm[3]->th->cancel();
+    parm[0]->th->cancel();
+
+    parm[3]->th->kill(15);
+    parm[0]->th->kill(15);
+
+    // Enforce that the first dequeuing task receives the cancel message
+    parm[2]->th->suspend();
+
+    cout << "+++++ passed test round 20" << endl; 
+
+    Message * message = new Message(MY_CANCEL_TYPE,0); 
+    mq->enqueue(message);
+
+    sleep(1);
+
+    message = new Message(MY_CANCEL_TYPE,0); 
+    mq->enqueue(message);
+    
+    parm[1]->th->join(&retval);
+
+    cout << "+++++ passed test round 21" << endl; 
+
+    message = new Message(MY_CANCEL_TYPE,0); 
+    mq->enqueue(message);
+
+    //cout << "+++++ passed test round 22" << endl; 
+
+    parm[2]->th->resume();
+
+    parm[2]->th->join(&retval);
+    
+    cout << "+++++ passed all tests" << endl; 
+
+    // Make sure all threads end
+    for (int i = 0; i<4; i++) parm[i]->th->kill(9);
+
+    return 0;
+}
+
+void * fibonacci(void * parm)
+{
+    parmdef * Parm = (parmdef *) parm;
+    int first = Parm->first;
+    int second = Parm->second;
+    int count = Parm->count;
+    Condition * condstart = Parm->cond_start;
+    MT_MessageQueue * mq = Parm->mq;
+    
+    //cout << "fibonacci: " << pthread_self() << endl;
+
+    condstart->signal();
+
+    int zw = 0;
+    int add_to_type = 0;
+    if (count < 20) add_to_type = 100;
+
     Message * message;
-    message = new Message(CLOSE_CONNECTION_MESSAGE, 0);
-    mq->enqueue(message);
 
-    // Tell the other dequeueing task to finish
-    message = new Message(CLOSE_CONNECTION_MESSAGE, 0);
-    mq->enqueue(message);
-
-    // Finish the dequeueing tasks
-    parm[1]->th->join();
-    parm[2]->th->join();
-
-    // Clean up
-    for (int i = 0; i < 4; i++)
+    while (true)
     {
-        delete parm[i]->th;
-        delete parm[i];
+        for (int i=0; i < count; i++)
+        {
+            zw = first + second;
+            first = second;
+            second = zw;
+            message = new Message(i+add_to_type,zw);
+            mq->enqueue(message);
+        }
+        zw = 0;
+        first = Parm->first;
+        second = Parm->second;
+        if (!add_to_type)
+            Parm->th->thread_switch();
     }
 
-    delete mq;
-
-    return 0;
+    return NULL;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
+void * deq(void * parm)
 {
-    Thread* my_thread  = (Thread *)parm;
-    AtomicInt * atom = (AtomicInt *)my_thread->get_parm();
+    Uint32 type, key;
 
-    (*atom)++;
-    (*atom)++; (*atom)++; (*atom)++; (*atom)++;
-    (*atom)--; (*atom)--;
-    (*atom)--;
-    Boolean zero = atom->decAndTestIfZero();
-    PEGASUS_TEST_ASSERT(zero == false);
+    parmdef * Parm = (parmdef *) parm;
 
-    return ThreadReturnType(0);
-}
+    int first = Parm->first;
+    int second = Parm->second;
+    int count = Parm->count;
+    Condition * condstart = Parm->cond_start;
+    MT_MessageQueue * mq = Parm->mq;
+    
+    //cout << "deq: " << pthread_self() << endl;
 
-// Test Thread and AtomicInt
-void test02()
-{
-    const Uint32 numThreads = 64;
-    AtomicInt * atom = new AtomicInt(0);
-    Thread* threads[numThreads];
+    condstart->signal();
 
-    (*atom)++;
-    Boolean zero = atom->decAndTestIfZero();
-    PEGASUS_TEST_ASSERT(zero);
+    Message * message;
+    type = 0;
+    key = 0;
 
-    for (Uint32 i=0; i<numThreads; i++)
+    while (type != MY_CANCEL_TYPE)
     {
-        threads[i] = new Thread(atomicIncrement, atom, false);
+        message = mq->dequeue();
+        if (!message) break;
+
+        key = message->getKey();
+        type = message->getType();
+        delete message;
+        if (type == 19)
+            assert(key == 10946);
     }
-
-    for (Uint32 i=0; i<numThreads; i++)
-    {
-        threads[i]->run();
-    }
-
-    for (Uint32 i=0; i<numThreads; i++)
-    {
-        threads[i]->join();
-        delete threads[i];
-    }
-
-    PEGASUS_TEST_ASSERT(atom->get() == numThreads);
-    delete atom;
-}
-
-int main(int argc, char** argv)
-{
-    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-
-    for (Uint32 loop=0; loop<10; loop++)
-    {
-        test01();
-    }
-    if (verbose)
-        cout << "+++++ passed test 1" << endl;
-
-    for (Uint32 loop=0; loop<10; loop++)
-    {
-        test02();
-    }
-    if (verbose)
-        cout << "+++++ passed test 2" << endl;
-
-    cout << argv[0] << " +++++ passed all tests" << endl;
-
-    return 0;
+    cout << "Received Cancel Message, " << pthread_self() << " about to end\n";
+    return NULL;
 }

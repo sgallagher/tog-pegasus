@@ -33,6 +33,10 @@
 
 #include <sys/param.h>
 
+#ifdef PEGASUS_OS_AIX4
+#include <strings.h>
+#endif
+
 #define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_AIX

@@ -277,6 +277,41 @@ private:
         const String & nameSpace);
 
     /**
+        Validates the specified property and its corresponding Other___
+        property in the instance.
+        If the property does not exist, it is added with the default value.
+        If the property exists, but its value is NULL, its value is set to
+        the default value.
+        If the value of the property is Other, but the corresponding Other___
+        property either does not exist or has a value of NULL, an exception is 
+        thrown.  
+        If the value of the property is not Other, but the corresponding
+        Other___ property exists and has a non-NULL value, an exception is
+        thrown.
+        This function is called by the _canCreate function, and is used to 
+        validate the following pairs of properties in Subscription or Handler 
+        instances: Subscription State, Other Subscription State, Repeat 
+        Notification Policy, Other Repeat Notification Policy, On Fatal Error 
+        Policy, Other On Fatal Error Policy, Persistence Type, Other 
+        Persistence Type.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+        @param   otherPropertyName     name of Other___ property to be validated
+        @param   defaultValue          default value for property
+        @param   otherValue            "Other" value for property
+
+        @throw   CIM_ERR_INVALID_PARAMETER  if value of property or Other___ 
+                                            property is invalid
+     */
+    Uint16 _checkProperty (
+        CIMInstance & instance,
+        const String & propertyName,
+        const String & otherPropertyName,
+        const Uint16 defaultValue,
+        const Uint16 otherValue);
+
+    /**
         Determines if the user is authorized to modify the instance, and if the
         specified modification is supported.  Currently, the only modification 
         supported is of the Subscription State property of the Subscription 
@@ -385,6 +420,23 @@ private:
         Array <CIMNamedInstance> & formerSubscriptions);
 
     /**
+        Retrieves list of all namespaces from the repository.
+
+        @return   List of all namespace names
+     */
+    Array <String> _getNameSpaceNames (void) const;
+
+    /**
+        Retrieves list of subscriptions in the specified namespace.
+
+        @param   nameSpace             the namespace
+
+        @return   List of subscription named instances
+     */
+    Array <CIMNamedInstance> _getSubscriptions (
+        const String & nameSpaceName) const;
+
+    /**
         Determines if all of the required properties in the specified list
         are contained in the specified list of supported properties.
 
@@ -481,6 +533,18 @@ private:
     String _getIndicationClassName (
         const WQLSelectStatement & selectStatement,
         const String & nameSpaceName) const;
+
+    /**
+        Enumerates the subclass names of the specified indication class.
+
+        @param   nameSpace             the namespace
+        @param   indicationClassName   the indication class name
+
+        @return  List of indication subclass names
+     */
+    Array <String> _getIndicationSubclasses (
+        const String & nameSpace,
+        const String & indicationClassName) const;
 
     /**
         Retrieves the list of indication providers that serve the specified

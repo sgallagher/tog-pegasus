@@ -919,6 +919,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         catch (Exception e)
         {
             _repository->read_unlock ();
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
             throw e;
         }
 
@@ -1227,6 +1228,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 catch (Exception e)
                 {
                     _repository->read_unlock ();
+                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
                     throw e;
                 }
 
@@ -1897,20 +1899,7 @@ void IndicationService::_checkClasses (void)
     //
     //  Get list of namespaces in repository
     //
-    Array <String> nameSpaceNames;
-    _repository->read_lock ();
-
-    try
-    {
-        nameSpaceNames = _repository->enumerateNameSpaces ();
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
+    Array <String> nameSpaceNames = _getNameSpaceNames ();
 
     //
     //  Check for subscription classes in each namespace in the repository
@@ -2027,14 +2016,10 @@ Boolean IndicationService::_canCreate (
     CIMInstance & instance,
     const String & nameSpace)
 {
-    CIMValue subscriptionStateValue;
-    Uint16 subscriptionState;
-    CIMValue repeatPolicyValue;
-    Uint16 repeatNotificationPolicy;
-    CIMValue errorPolicyValue;
-    Uint16 onFatalErrorPolicy;
-    CIMValue persistenceValue;
-    Uint16 persistenceType;
+    SubscriptionState subscriptionState;
+    RepeatNotificationPolicy repeatNotificationPolicy;
+    OnFatalErrorPolicy onFatalErrorPolicy;
+    PersistenceType persistenceType;
     CIMValue nameSpaceValue;
     String sourceNameSpace;
 
@@ -2082,162 +2067,18 @@ Boolean IndicationService::_canCreate (
                 exceptionStr);
         }
 
-        //
-        //  Default value for Subscription State is Enabled
-        //
-        if (!instance.existsProperty (_PROPERTY_STATE))
-        {
-            instance.addProperty (CIMProperty (_PROPERTY_STATE,
-                CIMValue ((Uint16) _STATE_ENABLED)));
-        }
-        else
-        {
-            //
-            //  Get subscription state
-            //
-            subscriptionStateValue = instance.getProperty
-                (instance.findProperty (_PROPERTY_STATE)).getValue ();
-            subscriptionStateValue.get (subscriptionState);
+        subscriptionState = (SubscriptionState) _checkProperty (instance,
+            _PROPERTY_STATE, _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED,
+            (Uint16) _STATE_OTHER);
 
-            //
-            //  If Subscription State is Other, Other Subscription State
-            //  property must exist
-            //
-            if ((subscriptionState == _STATE_OTHER) &&
-                (!instance.existsProperty (_PROPERTY_OTHERSTATE)))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_OTHERSTATE);
-                exceptionStr.append (_MSG_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
+        repeatNotificationPolicy = (RepeatNotificationPolicy) _checkProperty
+            (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
+            _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY, (Uint16) _POLICY_NONE,
+            (Uint16) _POLICY_OTHER);
 
-            //
-            //  If Subscription State is not Other, 
-            //  Other Subscription State property must not exist
-            //
-            else if (instance.existsProperty (_PROPERTY_OTHERSTATE))
-            {
-                String exceptionStr = _PROPERTY_OTHERSTATE;
-                exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                exceptionStr.append (_PROPERTY_STATE);
-                exceptionStr.append (_MSG_VALUE_NOT);
-                exceptionStr.append (_STATE_OTHER);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-        }
-
-        //
-        //  Default value for Repeat Notification Policy is None
-        //
-        if (!instance.existsProperty (_PROPERTY_REPEATNOTIFICATIONPOLICY))
-        {
-            instance.addProperty (CIMProperty 
-                (_PROPERTY_REPEATNOTIFICATIONPOLICY, 
-                CIMValue ((Uint16) _POLICY_NONE)));
-        }
-
-        else
-        {
-            //
-            //  Get Repeat Notification Policy
-            //
-            repeatPolicyValue = instance.getProperty (instance.findProperty
-                (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
-            repeatPolicyValue.get (repeatNotificationPolicy);
-
-            //
-            //  If Repeat Notification Policy is Other, 
-            //  Other Repeat Notification Policy property must exist
-            //
-            if ((repeatNotificationPolicy == _POLICY_OTHER) &&
-                (!instance.existsProperty 
-                (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY)))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append 
-                    (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
-                exceptionStr.append (_MSG_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-
-            //
-            //  If Repeat Notification Policy is not Other, 
-            //  Other Repeat Notification Policy property must not exist
-            //
-            else if (instance.existsProperty 
-                (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY))
-            {
-                String exceptionStr = 
-                    _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
-                exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                exceptionStr.append (_PROPERTY_REPEATNOTIFICATIONPOLICY);
-                exceptionStr.append (_MSG_VALUE_NOT);
-                exceptionStr.append (_POLICY_OTHER);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-        }
-
-        //
-        //  Default value for On Fatal Error Policy is Ignore
-        //
-        if (!instance.existsProperty (_PROPERTY_ONFATALERRORPOLICY))
-        {
-            instance.addProperty (CIMProperty 
-                (_PROPERTY_ONFATALERRORPOLICY, 
-                CIMValue ((Uint16) _ERRORPOLICY_IGNORE)));
-        }
-        else
-        {
-            //
-            //  Get On Fatal Error Policy
-            //
-            errorPolicyValue = instance.getProperty (instance.findProperty 
-                (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
-            errorPolicyValue.get (onFatalErrorPolicy);
-
-            //
-            //  If On Fatal Error Policy is Other, Other On Fatal Error 
-            //  Policy property must exist
-            //
-            if ((onFatalErrorPolicy == _ERRORPOLICY_OTHER) &&
-                (!instance.existsProperty 
-                (_PROPERTY_OTHERONFATALERRORPOLICY)))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_OTHERONFATALERRORPOLICY);
-                exceptionStr.append (_MSG_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-
-            //
-            //  If On Fatal Error Policy is not Other, 
-            //  Other On Fatal Error Policy property must not exist
-            //
-            else if (instance.existsProperty 
-                (_PROPERTY_OTHERONFATALERRORPOLICY))
-            {
-                String exceptionStr = _PROPERTY_OTHERONFATALERRORPOLICY;
-                exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                exceptionStr.append (_PROPERTY_ONFATALERRORPOLICY);
-                exceptionStr.append (_MSG_VALUE_NOT);
-                exceptionStr.append (_ERRORPOLICY_OTHER);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-        }
-
+        onFatalErrorPolicy = (OnFatalErrorPolicy) _checkProperty (instance,
+            _PROPERTY_ONFATALERRORPOLICY, _PROPERTY_OTHERONFATALERRORPOLICY,
+            (Uint16) _ERRORPOLICY_IGNORE, (Uint16) _ERRORPOLICY_OTHER);
     } 
     else  // Filter or Handler
     {
@@ -2350,58 +2191,10 @@ Boolean IndicationService::_canCreate (
                  (instance.getClassName () == 
                   PEGASUS_CLASSNAME_INDHANDLER_SNMP))
         {
-            //
-            //  Default value for Persistence Type is Permanent
-            //
-            if (!instance.existsProperty (_PROPERTY_PERSISTENCETYPE))
-            {
-                instance.addProperty (CIMProperty 
-                    (_PROPERTY_PERSISTENCETYPE, 
-                    CIMValue ((Uint16) _PERSISTENCE_PERMANENT)));
-            }
-            else
-            {
-                //
-                //  Get Persistence Type
-                //
-                persistenceValue = instance.getProperty 
-                    (instance.findProperty 
-                    (_PROPERTY_PERSISTENCETYPE)).getValue ();
-                persistenceValue.get (persistenceType);
-
-                //
-                //  If Persistence Type is Other, Other Persistence Type
-                //  property must exist
-                //
-                if ((persistenceType == _PERSISTENCE_OTHER) &&
-                    (!instance.existsProperty 
-                    (_PROPERTY_OTHERPERSISTENCETYPE)))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_OTHERPERSISTENCETYPE);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-
-                //
-                //  If Persistence Type is not Other, 
-                //  Other Persistence Type property must not exist
-                //
-                else if (instance.existsProperty 
-                    (_PROPERTY_OTHERPERSISTENCETYPE))
-                {
-                    String exceptionStr = _PROPERTY_OTHERPERSISTENCETYPE;
-                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                    exceptionStr.append (_PROPERTY_PERSISTENCETYPE);
-                    exceptionStr.append (_MSG_VALUE_NOT);
-                    exceptionStr.append (_PERSISTENCE_OTHER);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-            }
+            persistenceType = (PersistenceType) _checkProperty
+                (instance, _PROPERTY_PERSISTENCETYPE,
+                _PROPERTY_OTHERPERSISTENCETYPE,
+                (Uint16) _PERSISTENCE_PERMANENT, (Uint16) _PERSISTENCE_OTHER);
 
             if (instance.getClassName () == PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
             {
@@ -2461,8 +2254,113 @@ Boolean IndicationService::_canCreate (
         }
     }
 
-    return true;
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return true;
+}
+
+Uint16 IndicationService::_checkProperty (
+    CIMInstance & instance,
+    const String & propertyName,
+    const String & otherPropertyName,
+    const Uint16 defaultValue,
+    const Uint16 otherValue)
+{
+    Uint16 result = defaultValue;
+
+    const char METHOD_NAME [] = "IndicationService::_checkProperty";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  If the property doesn't exist, add it with the default value
+    //
+    if (!instance.existsProperty (propertyName))
+    {
+        instance.addProperty (CIMProperty (propertyName,
+            CIMValue (defaultValue)));
+    }
+    else
+    {
+        //
+        //  Get the property
+        //
+        CIMProperty theProperty = instance.getProperty
+            (instance.findProperty (propertyName));
+        CIMValue theValue = theProperty.getValue ();
+
+        //
+        //  If the value is null, set to the default value
+        //
+        if (theValue.isNull ())
+        {
+            theProperty.setValue (CIMValue (defaultValue));
+        }
+        else
+        {
+            theValue.get (result);
+
+            //
+            //  ATTN:  Validate the value
+            //
+        }
+
+        //
+        //  If the value is Other, the Other
+        //  property must exist and value must not be NULL
+        //
+        if (result == otherValue)
+        {
+            if (!instance.existsProperty (otherPropertyName))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (otherPropertyName);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+                    exceptionStr);
+            }
+            else
+            {
+                CIMProperty otherProperty = instance.getProperty
+                    (instance.findProperty (otherPropertyName));
+                CIMValue theOtherValue = otherProperty.getValue ();
+                if (theOtherValue.isNull ())
+                {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (otherPropertyName);
+                    exceptionStr.append (_MSG_PROPERTY);
+                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+                        exceptionStr);
+                }
+            }
+        }
+
+        //
+        //  If value is not Other, Other property must not exist
+        //  or must be NULL
+        //
+        else if (instance.existsProperty (otherPropertyName))
+        {
+            CIMProperty otherProperty = instance.getProperty
+                (instance.findProperty (otherPropertyName));
+            CIMValue theOtherValue = otherProperty.getValue ();
+            if (!theOtherValue.isNull ())
+            {
+                String exceptionStr = otherPropertyName;
+                exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                exceptionStr.append (propertyName);
+                exceptionStr.append (_MSG_VALUE_NOT);
+                exceptionStr.append (CIMValue (otherValue).toString ());
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+                    exceptionStr);
+            }
+        }
+    }
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return result;
 }
 
 Boolean IndicationService::_canModify (
@@ -2572,6 +2470,7 @@ Boolean IndicationService::_canDelete (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -2612,6 +2511,7 @@ Boolean IndicationService::_canDelete (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -2651,23 +2551,9 @@ Boolean IndicationService::_canDelete (
         }
 
         //
-        //  Get all the subscriptions from the respository
+        //  Get all the subscriptions in the same namespace from the respository
         //
-        Array <CIMNamedInstance> subscriptions;
-        _repository->read_lock ();
-
-        try
-        {
-            subscriptions = _repository->enumerateInstances (nameSpace, 
-                PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-        }
-        catch (Exception e)
-        {
-            _repository->read_unlock ();
-            throw e;
-        }
-
-        _repository->read_unlock ();
+        Array <CIMNamedInstance> subscriptions = _getSubscriptions (nameSpace);
 
         CIMValue propValue;
 
@@ -2723,19 +2609,7 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
     //
     //  Get list of namespaces in repository
     //
-    _repository->read_lock ();
-
-    try
-    {
-        nameSpaceNames = _repository->enumerateNameSpaces ();
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
+    nameSpaceNames = _getNameSpaceNames ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -2746,34 +2620,8 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
         //
         //  Get existing subscriptions in current namespace
         //
-        _repository->read_lock ();
+        subscriptions = _getSubscriptions (nameSpaceNames [i]);
 
-        try
-        {
-            subscriptions = _repository->enumerateInstances 
-                (nameSpaceNames [i], PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-        }
-        catch (CIMException e)
-        {
-            _repository->read_unlock ();
-
-            //
-            //  Some namespaces may not include the subscription class
-            //  In that case, just continue with the next namespace
-            //
-            if (e.getCode () == CIM_ERR_INVALID_CLASS)
-            {
-                continue;
-            }
-            else
-            {
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw e;
-            }
-        }
-
-        _repository->read_unlock ();
-    
         //
         //  Process each subscription
         //
@@ -2834,19 +2682,7 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
     //
     //  Get list of namespaces in repository
     //
-    _repository->read_lock ();
-
-    try
-    {
-        nameSpaceNames = _repository->enumerateNameSpaces ();
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
+    nameSpaceNames = _getNameSpaceNames ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -2857,34 +2693,8 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
         //
         //  Get existing subscriptions in current namespace
         //
-        _repository->read_lock ();
+        subscriptions = _getSubscriptions (nameSpaceNames [i]);
 
-        try
-        {
-            subscriptions = _repository->enumerateInstances 
-                (nameSpaceNames [i], PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-        }
-        catch (CIMException e)
-        {
-            _repository->read_unlock ();
-
-            //
-            //  Some namespaces may not include the subscription class
-            //  In that case, just continue with the next namespace
-            //
-            if (e.getCode () == CIM_ERR_INVALID_CLASS)
-            {
-                continue;
-            }
-            else
-            {
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw e;
-            }
-        }
-
-        _repository->read_unlock ();
-    
         //
         //  Process each subscription
         //
@@ -2929,21 +2739,8 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
                 //
                 //  Get list of subclass names for indication class
                 //
-                _repository->read_lock ();
-
-                try
-                {
-                    indicationSubclasses = _repository->enumerateClassNames 
-                        (nameSpaceNames [i], indicationClassName, true);
-                }
-                catch (Exception e)
-                {
-                    _repository->read_unlock ();
-                    throw e;
-                }
-
-                _repository->read_unlock ();
-                indicationSubclasses.append (indicationClassName);
+                indicationSubclasses = _getIndicationSubclasses
+                    (nameSpaceNames [i], indicationClassName);
 
                 //
                 //  Is current subscription for the supported class and one of
@@ -3052,19 +2849,7 @@ void IndicationService::_getModifiedSubscriptions (
     //
     //  Get list of namespaces in repository
     //
-    _repository->read_lock ();
-
-    try
-    {
-        nameSpaceNames = _repository->enumerateNameSpaces ();
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
+    nameSpaceNames = _getNameSpaceNames ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -3075,34 +2860,8 @@ void IndicationService::_getModifiedSubscriptions (
         //
         //  Get existing subscriptions in current namespace
         //
-        _repository->read_lock ();
+        subscriptions = _getSubscriptions (nameSpaceNames [i]);
 
-        try
-        {
-            subscriptions = _repository->enumerateInstances 
-                (nameSpaceNames [i], PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-        }
-        catch (CIMException e)
-        {
-            _repository->read_unlock ();
-
-            //
-            //  Some namespaces may not include the subscription class
-            //  In that case, just continue with the next namespace
-            //
-            if (e.getCode () == CIM_ERR_INVALID_CLASS)
-            {
-                continue;
-            }
-            else
-            {
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw e;
-            }
-        }
-
-        _repository->read_unlock ();
-    
         //
         //  Process each subscription
         //
@@ -3148,22 +2907,8 @@ void IndicationService::_getModifiedSubscriptions (
                 //
                 //  Get list of subclass names for indication class
                 //
-                _repository->read_lock ();
-
-                try
-                {
-                    indicationSubclasses = _repository->enumerateClassNames 
-                        (nameSpaceNames [i], indicationClassName, true);
-                }
-                catch (Exception e)
-                {
-                    _repository->read_unlock ();
-                    throw e;
-                }
-            
-                _repository->read_unlock ();
-
-                indicationSubclasses.append (indicationClassName);
+                indicationSubclasses = _getIndicationSubclasses
+                    (nameSpaceNames [i], indicationClassName);
 
                 //
                 //  Is current subscription for the supported class?
@@ -3259,14 +3004,82 @@ void IndicationService::_getModifiedSubscriptions (
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
+Array <String> IndicationService::_getNameSpaceNames (void) const
+{
+    Array <String> nameSpaceNames;
+
+    const char METHOD_NAME [] = "IndicationService::__getNameSpaceNames";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    _repository->read_lock ();
+
+    try
+    {
+        nameSpaceNames = _repository->enumerateNameSpaces ();
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw e;
+    }
+
+    _repository->read_unlock ();
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return nameSpaceNames;
+}
+
+Array <CIMNamedInstance> IndicationService::_getSubscriptions (
+    const String & nameSpaceName) const
+{
+    Array <CIMNamedInstance> subscriptions;
+
+    const char METHOD_NAME [] = "IndicationService::_getSubscriptions";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Get existing subscriptions in current namespace
+    //
+    subscriptions.clear ();
+    _repository->read_lock ();
+
+    try
+    {
+        subscriptions = _repository->enumerateInstances
+            (nameSpaceName, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    }
+    catch (CIMException e)
+    {
+        //
+        //  Some namespaces may not include the subscription class
+        //  In that case, just return no subscriptions
+        //  Any other exception is an error
+        //
+        if (e.getCode () != CIM_ERR_INVALID_CLASS)
+        {
+            _repository->read_unlock ();
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw e;
+        }
+    }
+
+    _repository->read_unlock ();
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return subscriptions;
+}
+
 Boolean IndicationService::_inPropertyList (
     const CIMPropertyList & requiredProperties,
     const CIMPropertyList & supportedProperties)
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_inPropertyList";
+    const char METHOD_NAME [] = "IndicationService::_inPropertyList";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
     //
     //  If property list is null (all properties)
     //  all the required properties are supported
@@ -3365,6 +3178,7 @@ void IndicationService::_getFilterProperties (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3412,6 +3226,7 @@ void IndicationService::_getFilterProperties (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3454,6 +3269,7 @@ void IndicationService::_getFilterProperties (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3527,6 +3343,7 @@ String IndicationService::_getIndicationClassName (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3561,6 +3378,38 @@ String IndicationService::_getIndicationClassName (
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return indicationClassName;
+}
+
+Array <String> IndicationService::_getIndicationSubclasses (
+        const String & nameSpace,
+        const String & indicationClassName) const
+{
+    Array <String> indicationSubclasses;
+
+    const char METHOD_NAME [] = "IndicationService::_getIndicationSubclasses";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    _repository->read_lock ();
+
+    try
+    {
+        indicationSubclasses = _repository->enumerateClassNames
+            (nameSpace, indicationClassName, true);
+    }
+    catch (Exception e)
+    {
+        _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw e;
+    }
+
+    _repository->read_unlock ();
+
+    indicationSubclasses.append (indicationClassName);
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return indicationSubclasses;
 }
 
 Array <ProviderClassList> 
@@ -3719,6 +3568,7 @@ CIMPropertyList IndicationService::_getPropertyList
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3804,6 +3654,7 @@ CIMNamedInstance IndicationService::_getHandler (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3843,6 +3694,7 @@ Boolean IndicationService::_isTransient (
     catch (Exception e)
     {
         _repository->read_unlock ();
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         throw e;
     }
 
@@ -3885,20 +3737,7 @@ void IndicationService::_deleteReferencingSubscriptions (
     //
     //  Get existing subscriptions in the namespace
     //
-    _repository->read_lock ();
-
-    try
-    {
-        subscriptions = _repository->enumerateInstances (nameSpace,
-            PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
+    subscriptions = _getSubscriptions (nameSpace);
 
     //
     //  Check each subscription for a reference to the specified instance 
@@ -4155,23 +3994,9 @@ void IndicationService::_getEnableParams (
     //
     //  Get list of subclass names for indication class
     //
-    _repository->read_lock ();
+    indicationSubclasses = _getIndicationSubclasses (nameSpaceName,
+        indicationClassName);
 
-    try
-    {
-        indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
-            indicationClassName, true);
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
-
-    indicationSubclasses.append (indicationClassName);
-    
     //
     //  Get property list from filter query (FROM and WHERE 
     //  clauses)
@@ -4285,23 +4110,9 @@ Array <ProviderClassList> IndicationService::_getDisableParams (
     //
     //  Get list of subclass names for indication class
     //
-    _repository->read_lock ();
+    indicationSubclasses = _getIndicationSubclasses (nameSpaceName,
+        indicationClassName);
 
-    try
-    {
-        indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
-            indicationClassName, true);
-    }
-    catch (Exception e)
-    {
-        _repository->read_unlock ();
-        throw e;
-    }
-
-    _repository->read_unlock ();
-
-    indicationSubclasses.append (indicationClassName);
-    
     //
     //  Get property list from filter query (FROM and WHERE 
     //  clauses)

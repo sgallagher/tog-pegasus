@@ -84,18 +84,20 @@ public:
 // l10n
     void handleIndication(
 	const OperationContext& context,
-	CIMInstance& indicationHandlerInstance, 
+	const String nameSpace,
 	CIMInstance& indicationInstance, 
-	String nameSpace,
+	CIMInstance& indicationHandlerInstance, 
+	CIMInstance& indicationSubscriptionInstance,
 	ContentLanguages& contentLanguages);
 };
 
 // l10n - note: ignoring the indication language
 void sendmailIndicationHandler::handleIndication(
     const OperationContext& context,
-    CIMInstance& indicationHandlerInstance,
-    CIMInstance& indicationInstance,
-    String nameSpace,
+    const String nameSpace,
+    CIMInstance& indicationInstance, 
+    CIMInstance& indicationHandlerInstance, 
+    CIMInstance& indicationSubscriptionInstance,
     ContentLanguages& contentLanguages)
 {
 #ifdef PEGASUS_OS_HPUX

@@ -38,6 +38,7 @@
 //              Amit K Arora (amita@in.ibm.com) for PEP101
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Yi Zhou (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1184,10 +1185,8 @@ Boolean System::verifyFileOwnership(const char* path)
 void System::openlog(const String ident)
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    // ATTN: Hard-code the "cimserver" identifier until the infrastructure
-    // is set up to pass this as the "ident" string.
-    //::openlog(ident.getCString(), LOG_PID|LOG_CONS, LOG_DAEMON);
-    ::openlog("cimserver", LOG_PID, LOG_DAEMON);
+    char * ident_name = strdup(ident.getCString());
+    ::openlog(ident_name, LOG_PID, LOG_DAEMON);
 
 #endif
 

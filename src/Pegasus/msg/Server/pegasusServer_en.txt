@@ -3301,6 +3301,18 @@ CIM server listening on HTTPS port {0}."}
 	*/
         IndicationService.IndicationService.UNSUPPORTED_OPERATION:string {"PGS10222: The requested operation is not supported by the indication service."}
 
+        /**
+        * @note  PGS10225:
+        *    Substitution {0} is a string containing the property name
+        */
+        IndicationService.IndicationService._MSG_PROPERTY_MISSING:string {"PGS10225: The property {0} is missing."}
+
+        /**
+        * @note  PGS10226:
+        *    Substitution {0} is a string containing the property name
+        */
+        IndicationService.IndicationService._MSG_PROPERTY_VALUE_IS_NULL:string {"PGS10226: The value of property {0} is NULL."}
+
         // ==========================================================
         // Messages for IndicationHandlerService
         //  Please use message prefix "PGS10400"
@@ -3308,10 +3320,10 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS10400:
-        *    do not translate "IndicationHandler" since it is the name of a CIM class
+        *    do not translate "IndicationHandlerCIMXML" since it is the name of a CIM class
         *    do not translate "Destination" since it is the name of a CIM property
         */
-        HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION:string {"PGS10400: The IndicationHhandler does not have a Destination property."}
+        HandlerService.IndicationHandlerService.CIMXML_HANDLER_WITHOUT_DESTINATION:string {"PGS10400: The IndicationHhandlerCIMXML does not have a Destination property."}
 
         /**
         * @note  PGS10401:
@@ -3324,6 +3336,20 @@ CIM server listening on HTTPS port {0}."}
         *    do not translate "IndicationHandler" since it is the name of a CIM class
         */
         HandlerService.IndicationHandlerService.FAILED_TO_LOAD:string {"PGS10402: The IndicationHandler failed to load."}
+
+        /**
+        * @note  PGS10403:
+        *    do not translate "IndicationHandlerSNMPMapper" since it is the 
+	*    name of a CIM class
+        *    do not translate "TargetHost" since it is the name of a CIM property
+        */
+        HandlerService.IndicationHandlerService.SNMP_HANDLER_WITHOUT_TARGETHOST:string {"PGS10403: The IndicationHandlerSNMPMapper does not have a TargetHost property."}
+
+        /**
+        * @note  PGS10404:
+        *    do not translate "TargetHost" since it is the name of a CIM property
+        */
+        HandlerService.IndicationHandlerService.INVALID_TARGETHOST:string {"PGS10401: The value of the TargetHost property is not valid."}
 
 
         // ==========================================================
@@ -4888,8 +4914,6 @@ CIM server listening on HTTPS port {0}."}
         */
         CQL.CQLFactorRep.FACTOR_HAS_NO_TYPE:string {"PGS16000: The CQLFactor was constructed without a type."}
 
-
-
         // ==========================================================
         // Messages for Exception
         //  Please use message prefix "PGS16100 - PSG16199"
@@ -4962,6 +4986,67 @@ CIM server listening on HTTPS port {0}."}
         *            Substitution {0} is a message string
         */
         Common.ObjectNormalizer.MISSING_KEY:string {"PGS16111: Missing key: {0}."}
+
+        // ==========================================================
+        // Messages for IndicationFormatter
+        //  Please use message prefix "PGS16200 - PGS16299""
+        // ==========================================================
+
+        /**
+        * @note  PGS16200:
+        *    Substitution {0} is a string containing the (syntax of) property value
+        *    Substitution {1} is a string containing the property name
+        */
+        IndicationFormatter.IndicationFormatter._MSG_INVALID_SYNTAX_OF_FOR_PROPERTY:string {"PGS16200: The syntax of {0} is not valid for property {1}."}
+
+        /**
+        * @note  PGS16201:
+        *    Substitution {0} is a string containing the array index value
+        *    Substitution {1} is a string containing the property name
+        */
+        IndicationFormatter.IndicationFormatter._MSG_INDEX_IS_OUT_OF_BOUNDS:string {"PGS16201: The value of array index {0} for property {1} is out of bounds."}
+
+        /**
+        * @note  PGS16202:
+        *    Substitution {0} is a string containing the property type
+        *    Substitution {1} is a string containing the property name
+        */
+        IndicationFormatter.IndicationFormatter._MSG_INVALID_TYPE_OF_FOR_PROPERTY:string {"PGS16202: The type of {0} is not valid for property {1}."}
+
+        /**
+        * @note  PGS16203:
+        *    Substitution {0} is a string containing the property name
+        */
+        IndicationFormatter.IndicationFormatter._MSG_PROPERTY_IS_NOT_AN_ARRAY_TYPE:string {"PGS16203: The property {0} is not an array type."}
+
+        /**
+        * @note  PGS16204:
+        *    Substitution {0} is a string containing the specified property type
+        *    Substitution {1} is a string containing the property name
+        *    Substitution {2} is a string containing the property type
+        */
+        IndicationFormatter.IndicationFormatter._MSG_MISS_MATCHED_TYPE_OF_FOR_PROPERTY:string {"PGS16204: The specified property type {0} in property {1} does not match the property type {2}."}
+
+        /**
+        * @note  PGS16205:
+        *    Substitution {0} is a string containing the property name
+        *    Substitution {1} is a string containing the property name
+        */
+        IndicationFormatter.IndicationFormatter._MSG_MISS_MATCHED_PROPERTY_NAME:string {"PGS16205: The property name {0} in {1} is not included in the select clause."}
+
+        /**
+        * @note  PGS16206:
+        *    Substitution {0} is a string containing the index
+        */
+        IndicationFormatter.IndicationFormatter._MSG_INVALID_INDEX:string {"PGS16206: Invalid index string {0}."}
+
+        // ==========================================================
+        // Messages for SystemLogListenerDestination
+        //  Please use message prefix "PGS16300 - PGS16399""
+        // ==========================================================
+
+        Handler.SystemLogListenerDestination.SystemLogListenerDestination.FAILED_TO_DELIVER_INDICATION_TO_SYSTEM_LOG:string {"PGS16300:  Failed to deliver indication to system log file."}
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

@@ -93,9 +93,10 @@ public:
 // l10n
     void handleIndication(
     const OperationContext& context,
-    CIMInstance& indicationHandlerInstance, 
+    const String nameSpace,
     CIMInstance& indicationInstance, 
-    String nameSpace,
+    CIMInstance& indicationHandlerInstance, 
+    CIMInstance& indicationSubscriptionInstance,
     ContentLanguages& contentLanguages)
     {
         PEG_METHOD_ENTER (TRC_IND_HANDLER, 

@@ -1,8 +1,8 @@
 //%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
@@ -27,53 +27,61 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef PegasusHandler_Handler_h
-#define PegasusHandler_Handler_h
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/ContentLanguages.h>  
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Handler/Linkage.h>
+#include <Pegasus/IndicationService/IndicationConstants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_HANDLER_LINKAGE CIMHandler
+PEGASUS_USING_STD;
+
+class PEGASUS_HANDLER_LINKAGE SystemLogListenerDestination: public CIMHandler
 {
 public:
 
-    CIMHandler() { };
+    SystemLogListenerDestination()
+    {
+    }
 
-    virtual ~CIMHandler() { };
+    virtual ~SystemLogListenerDestination()
+    {
+    }
 
-    // Abstract method which each and every handler needs to be implemented.
-    // Indication processing will instantiate IndicationDispatcher which 
-    // will look into Handler Table to load the appropriate handler. If 
-    // handler is already loaded then IndicationDispatcher will call this
-    // method implemented in handler.
-// l10n 
-     virtual void handleIndication(
+    void initialize(CIMRepository* repository);
+
+    void terminate()
+    {
+    }
+
+    void handleIndication(
 	const OperationContext& context,
 	const String nameSpace,
-        CIMInstance& indicationInstance,
-        CIMInstance& indicationHandlerInstance,
-	CIMInstance& indicationSubscriptionInstance,
-	ContentLanguages& contentLanguages) = 0;
-    
-    // These are the method to initialize and terminate handler. Actual need and
-    // implementation way these methods are yet to be finalized.
+	CIMInstance& indication, 
+	CIMInstance& handler, 
+	CIMInstance& subscription, 
+	ContentLanguages& contentLanguages);
 
-    virtual void initialize(CIMRepository* repository) = 0;
-    virtual void terminate() = 0;
+private:
+
+    /**
+        Writes the formatted indication to a system log file.
+	If PEGASUS_USE_SYSLOGS is defined, writes to the syslog file,
+	otherwise, writes to the PegasusStandard.log file.
+	The platform maintainer can also write to a preferred system log file.
+
+        @param  identifier     the name of the program 
+        @param  severity       pegasus logger severity 
+        @param  formattedText  the formatted indication 
+    */
+
+    void _writeToSystemLog(
+	const String & identifier,
+	Uint32 severity,
+	const String & formattedText);
 };
 
 PEGASUS_NAMESPACE_END
-
-#endif /* PegasusHandler_Handler_h */

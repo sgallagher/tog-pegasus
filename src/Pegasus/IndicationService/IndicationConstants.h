@@ -30,7 +30,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By:  
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)  
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -289,18 +289,6 @@ static const CIMName _PROPERTY_OTHERPERSISTENCETYPE =
 static const CIMName _PROPERTY_OWNER = CIMName ("Owner");
 
 /**
-    The name of the Destination property for CIM XML Indication Handler 
-    subclass
- */
-static const CIMName _PROPERTY_DESTINATION = CIMName ("Destination");
-
-/**
-    The name of the TargetHost property for SNMP Mapper Indication 
-    Handler subclass
- */
-static const CIMName _PROPERTY_TARGETHOST = CIMName ("TargetHost");
-
-/**
     The name of the TargetHostFormat property for SNMP Mapper Indication 
     Handler subclass
  */
@@ -350,7 +338,6 @@ static const CIMName _PROPERTY_PERCEIVEDSEVERITY =
     The name of the Probable Cause property for Alert Indication class
  */
 static const CIMName _PROPERTY_PROBABLECAUSE = CIMName ("ProbableCause");
-
 
 //
 //  Qualifier names

@@ -45,6 +45,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/Constants.h>
 
 #include "IndicationHandlerService.h"
 
@@ -250,141 +251,168 @@ IndicationHandlerService::_handleIndication(
     if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
         className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
     {
-        pos = handler.findProperty(CIMName ("destination"));
-    }
-    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
-    {
-        pos = handler.findProperty(CIMName ("TargetHost"));
-    }
+        pos = handler.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
 
-    if (pos == PEG_NOT_FOUND)
-    {
-        // l10n
-        // cimException =
-        //   PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Handler without destination"));
-
-        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("HandlerService.IndicationHandlerService."
-                "HANDLER_WITHOUT_DESTINATION", "Handler without destination"));
-    }
-    else
-    {
-        CIMProperty prop = handler.getProperty(pos);
-        String destination = prop.getValue().toString();
-
-        //filter out http:// // ATTN: Do not enable yet.
-        // destination = _parseDestination(destination);
-
-        if (destination.size() == 0)
+        if (pos == PEG_NOT_FOUND)
         {
-            // l10n
-
-            // cimException =
-            //   PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
-
             cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms("HandlerService.IndicationHandlerService."
-                    "INVALID_DESTINATION", "invalid destination"));
+                "CIMXML_HANDLER_WITHOUT_DESTINATION", "CIMXml Handler missing Destination property"));
         }
-        else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-                  className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) &&
-//compared index 10 is not :
-                 (destination.subString(0, 10) == String("localhost/")))
+        else
         {
-            Array<Uint32> exportServer;
+            CIMProperty prop = handler.getProperty(pos);
+            String destination = prop.getValue().toString();
 
-            find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0,
+            if (destination.size() == 0)
+            {
+                cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms("HandlerService.IndicationHandlerService."
+                    "INVALID_DESTINATION", "invalid destination"));
+            }
+//compared index 10 is not :
+            else if (destination.subString(0, 10) == String("localhost/"))
+            {
+                Array<Uint32> exportServer;
+
+                    find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0,
                           &exportServer);
 
-            // Listener is build with Cimom, so send message to ExportServer
-            AutoPtr<CIMExportIndicationRequestMessage> exportmessage( new CIMExportIndicationRequestMessage(
+                // Listener is build with Cimom, so send message to ExportServer
+
+               AutoPtr<CIMExportIndicationRequestMessage> exportmessage( 
+		    new CIMExportIndicationRequestMessage(
                     XmlWriter::getNextMessageId(),
                     destination.subString(21), //taking localhost/CIMListener portion out from reg
                     indication,
                     QueueIdStack(exportServer[0], getQueueId()),
                     String::EMPTY,
                     String::EMPTY));
- 
-			exportmessage->operationContext.set(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-            AutoPtr<AsyncOpNode> op( this->get_op());
 
-            AutoPtr<AsyncLegacyOperationStart> asyncRequest( new AsyncLegacyOperationStart(
+                exportmessage->operationContext.set(
+		    request->operationContext.get(
+		    ContentLanguageListContainer::NAME)); 
+                AutoPtr<AsyncOpNode> op( this->get_op());
+
+                AutoPtr<AsyncLegacyOperationStart> asyncRequest(
+		    new AsyncLegacyOperationStart(
                     get_next_xid(),
                     op.get(),
                     exportServer[0],
                     exportmessage.get(),
                     _queueId));
-            exportmessage.release();
+                exportmessage.release();
 
-            PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4,
-               "Indication handler forwarding message to " +
-               ((MessageQueue::lookup(exportServer[0])) ?
+                PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4,
+                   "Indication handler forwarding message to " +
+                   ((MessageQueue::lookup(exportServer[0])) ?
                    String( ((MessageQueue::lookup(exportServer[0]))->
                        getQueueName()) ) :
                    String("BAD queue name")));
 
-            //SendAsync(op,
-            //      exportServer[0],
-            //      IndicationHandlerService::_handleIndicationCallBack,
-            //      this,
-            //      (void *)request->queueIds.top());
-        AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest.get()));
-        asyncRequest.release();
+                //SendAsync(op,
+                //      exportServer[0],
+                //      IndicationHandlerService::_handleIndicationCallBack,
+                //      this,
+                //      (void *)request->queueIds.top());
+                AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest.get()));
+	        asyncRequest.release();
 
-            // Return the ExportIndication results in HandleIndication response
-        AutoPtr<CIMExportIndicationResponseMessage> exportResponse(reinterpret_cast<CIMExportIndicationResponseMessage *>(
+                // Return the ExportIndication results in HandleIndication 
+		//response
+                AutoPtr<CIMExportIndicationResponseMessage> exportResponse(
+		    reinterpret_cast<CIMExportIndicationResponseMessage *>(
                     (static_cast<AsyncLegacyOperationResult *>(
-                        asyncReply.get()))->get_result()));
-            cimException = exportResponse->cimException;
+			asyncReply.get()))->get_result()));
+                cimException = exportResponse->cimException;
 
-            op->release();
-            this->return_op(op.release());
+                op->release();
+                this->return_op(op.release());
+            }
+	    else
+	    {
+                _loadHandler(request, cimException);
+	    }
+        }
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
+    {
+        pos = handler.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
+
+        if (pos == PEG_NOT_FOUND)
+        {
+            cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms("HandlerService.IndicationHandlerService."
+                "SNMP_HANDLER_WITHOUT_TARGETHOST", "Snmp Handler missing Targethost property"));
         }
         else
         {
-            // generic handler. So load it and let it to do.
-            AutoPtr<CIMHandler> handlerLib(_lookupHandlerForClass(className));
+            CIMProperty prop = handler.getProperty(pos);
+            String destination = prop.getValue().toString();
 
-            if (handlerLib.get())
+            if (destination.size() == 0)
             {
-                try
-                {
-					ContentLanguages langs = ((ContentLanguageListContainer)request->operationContext.
-												get(ContentLanguageListContainer::NAME)).getLanguages(); 
-                    handlerLib->handleIndication(
-                        request->operationContext,
-                        handler,
-                        indication,
-                        nameSpace.getString(),
-						langs);
-                 }
-                catch(CIMException& e)
-                {
-                    cimException =
-                        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
-                }
-            }
-            else
-            {
-                // l10n
-
-                // cimException =
-                // PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Failed to load Handler"));
-
                 cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                    MessageLoaderParms("HandlerService."
-                        "IndicationHandlerService.FAILED_TO_LOAD",
-                        "Failed to load Handler"));
+                MessageLoaderParms("HandlerService.IndicationHandlerService."
+                    "INVALID_TARGETHOST", "invalid targethost"));
             }
-            handlerLib.release();
+	    else
+            {
+                _loadHandler(request, cimException);
+            }
         }
     }
-	CIMHandleIndicationResponseMessage* response =
-          new CIMHandleIndicationResponseMessage(
+    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+    {
+        _loadHandler(request, cimException);
+    }
+
+    CIMHandleIndicationResponseMessage* response =
+        new CIMHandleIndicationResponseMessage(
             request->messageId,
             cimException,
             request->queueIds.copyAndPop());
+
     return response;
+}
+
+void IndicationHandlerService::_loadHandler(
+    CIMHandleIndicationRequestMessage* request,
+    CIMException & cimException)
+{
+    CIMName className = request->handlerInstance.getClassName();
+    AutoPtr<CIMHandler> handlerLib(_lookupHandlerForClass(className));
+
+    if (handlerLib.get())
+    {
+	try
+	{
+	    ContentLanguages langs = 
+                ((ContentLanguageListContainer)request->operationContext.
+                get(ContentLanguageListContainer::NAME)).getLanguages();
+
+            handlerLib->handleIndication(
+                request->operationContext,
+                request->nameSpace.getString(),
+                request->indicationInstance,
+                request->handlerInstance,
+                request->subscriptionInstance,
+                langs);
+	}
+	catch(CIMException& e)
+	{
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+	}
+    }
+    else
+    {
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("HandlerService."
+                "IndicationHandlerService.FAILED_TO_LOAD",
+                "Failed to load Handler"));
+    }
+    handlerLib.release();
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
@@ -398,6 +426,8 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        handlerId = String("CIMxmlIndicationHandler");
    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
        handlerId = String("snmpIndicationHandler");
+   else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+       handlerId = String("SystemLogListenerDestination");
    else
        return 0;
 

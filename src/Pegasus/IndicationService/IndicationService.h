@@ -1093,6 +1093,16 @@ private:
     Boolean _enableSubscriptionsForNonprivilegedUsers;
 
     /**
+	Gets the indication class specified by the subscription filter query. 
+
+	@param instance     the subscription instance
+
+	@return CIMClass object for the indication class
+    */
+    CIMClass _getIndicationClass(
+	const CIMInstance & instance);
+
+    /**
         Arrays of valid and supported property values
 
         Notes: 
@@ -1115,6 +1125,7 @@ private:
     Array <Uint16> _supportedRepeatPolicies;
     Array <Uint16> _supportedErrorPolicies;
     Array <Uint16> _supportedPersistenceTypes;
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -32,6 +32,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +84,8 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
       
       AtomicInt dienow;
 
-   protected:
+   private:
+      CIMRepository* _repository;
 
       CIMHandleIndicationResponseMessage* _handleIndication(
           CIMHandleIndicationRequestMessage* request);
@@ -94,8 +96,10 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
       String _parseDestination(String dest);
 
-   private:
-      CIMRepository* _repository;
+      void _loadHandler(
+          CIMHandleIndicationRequestMessage* request,
+          CIMException & cimException);
+
 };
 
 PEGASUS_NAMESPACE_END

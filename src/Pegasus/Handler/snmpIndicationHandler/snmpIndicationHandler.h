@@ -64,9 +64,10 @@ public:
 
     void handleIndication(
 	const OperationContext& context,
-	CIMInstance& handler, 
+	const String nameSpace,
 	CIMInstance& indication, 
-	String nameSpace,
+	CIMInstance& handler, 
+	CIMInstance& subscription,
 	ContentLanguages& contentLanguages);  // l10n
 };
 

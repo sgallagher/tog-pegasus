@@ -1155,6 +1155,7 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance& handlerInstance_,
         const CIMInstance& indicationInstance_,
+	const CIMInstance& subscriptionInstance_,
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
@@ -1163,6 +1164,7 @@ public:
         nameSpace(nameSpace_),
         handlerInstance(handlerInstance_),
         indicationInstance(indicationInstance_),
+	subscriptionInstance(subscriptionInstance_),
         authType(authType_),
         userName(userName_)
     {
@@ -1173,6 +1175,7 @@ public:
     CIMNamespaceName nameSpace;
     CIMInstance handlerInstance;
     CIMInstance indicationInstance;
+    CIMInstance subscriptionInstance;
     String authType;
     String userName;
 };

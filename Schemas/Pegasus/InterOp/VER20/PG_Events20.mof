@@ -86,3 +86,14 @@ class PG_IndicationHandlerSNMPMapper: CIM_IndicationHandler
       "sending an SNMPV3 inform.") ]
     string SNMPEngineID;
 };
+
+// ====================================================================
+// PG_ListenerDestinationSystemLog
+// ====================================================================
+   [Description (
+	"PG_ListenerDestinationSystemLog is used to support event "
+	"notification delivery to a system log file")]
+
+class PG_ListenerDestinationSystemLog: CIM_ListenerDestination
+{
+};

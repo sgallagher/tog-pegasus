@@ -714,6 +714,14 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 String::EMPTY,
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION,
+					 _wild,
+					 DynamicRoutingTable::INTERNAL,
+					 0,
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDHANDLER,
 				      _wild,
@@ -750,6 +758,17 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
 					 String::EMPTY,
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+#ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG,
+					 _wild,
+					 DynamicRoutingTable::INTERNAL,
+					 0,
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+#endif
 
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDFILTER,
 				      _wild,

@@ -36,6 +36,7 @@
 //                  (carolann_graves@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,11 +142,17 @@ void CIMInstanceRep::resolve(
             if (!(((className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDSUBSCRIPTION))) ||
                 (className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))) ||
+                (className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))) ||
 								(className.equal 
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))) ||
                 (className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_SNMP))) ||
+#ifdef  PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+                (className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))) ||
+#endif
                 (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&
                 ((property.getName ().equal 
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR))) ||

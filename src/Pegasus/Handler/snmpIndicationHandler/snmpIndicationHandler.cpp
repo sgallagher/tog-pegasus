@@ -66,8 +66,10 @@ void snmpIndicationHandler::initialize(CIMRepository* repository)
 // l10n - note: ignoring indication language
 void snmpIndicationHandler::handleIndication(
     const OperationContext& context,
+    const String nameSpace,
+    CIMInstance& indication,
     CIMInstance& handler, 
-    CIMInstance& indication, String nameSpace,
+    CIMInstance& subscription,
     ContentLanguages & contentLanguages)
 {
     Array<String> propOIDs;

@@ -144,14 +144,20 @@ static const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES =
     CIMName ("PG_ProviderCapabilities");
 static const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      = 
     CIMName ("CIM_IndicationSubscription");
+static const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION =
+    CIMName ("CIM_FormattedIndicationSubscription");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER           = 
     CIMName ("CIM_IndicationHandler");
+static const CIMName PEGASUS_CLASSNAME_LSTNRDST           =
+    CIMName ("CIM_ListenerDestination");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    = 
     CIMName ("CIM_IndicationHandlerCIMXML");
 static const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML    = 
 		CIMName ("CIM_ListenerDestinationCIMXML");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      = 
     CIMName ("PG_IndicationHandlerSNMPMapper");
+static const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG      =
+    CIMName ("PG_ListenerDestinationSystemLog");
 static const CIMName PEGASUS_CLASSNAME_INDFILTER            = 
     CIMName ("CIM_IndicationFilter");
 static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             = 
@@ -211,6 +217,34 @@ static const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT =
     CIMName ("UserContext");
 static const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER =
     CIMName ("DesignatedUserContext");
+
+/**
+    The name of the Destination property for CIM XML Indication Handler
+    subclass
+*/
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION = 
+    CIMName ("Destination");
+
+/**
+    The name of the TargetHost property for SNMP Mapper Indication
+    Handler subclass
+*/
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST = 
+    CIMName ("TargetHost");
+
+/**
+    The name of the TextFormat property for Formatted Indication
+    Subscription class
+*/
+    static const CIMName _PROPERTY_TEXTFORMAT = CIMName ("TextFormat");
+
+/**
+    The name of the TextFormatParameters property for Formatted
+    Indication Subscription class
+*/
+    static const CIMName _PROPERTY_TEXTFORMATPARAMETERS =
+        CIMName ("TextFormatParameters");
+
 
 //
 // CIM Namespace Names

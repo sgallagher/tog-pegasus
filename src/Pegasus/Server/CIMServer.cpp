@@ -791,13 +791,16 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
                         "SSL client verification is enabled but no truststore was specified.");
                 }
             }
+
+#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
             //
             // ATTN: 'required' setting must have http port enabled.
             // If only https is enabled, and a call to shutdown the
             // cimserver is given, the call will hang and a forced shutdown
             // will ensue. This is because the CIMClient::connectLocal call
-            // cannot (and should not) specify a truststore to validate the
-            // local server against.  This limitation is being investigated.
+            // cannot specify a certificate for authentication against
+            // the local server.  This limitation is being investigated.
+            // See Bugzilla 2995.
             //
             if (String::equal(verifyClient, "required"))
             {
@@ -813,7 +816,7 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
                     throw SSLException(parms);
                 }
             }
-
+#endif
             //
             // A truststore username must be specified if
             // sslClientVerificationMode is enabled and the truststore is a

@@ -43,7 +43,6 @@ const String DEFAULT_NAMESPACE = "root/cimv2";
 static const char * usage = "blah blah";
 static const char * extra = "more blah";
 
-
 //------------------------------------------------------------------------------
 //
 // _indent()

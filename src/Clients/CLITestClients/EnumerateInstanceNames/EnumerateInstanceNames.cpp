@@ -213,11 +213,10 @@ int main(int argc, char** argv)
 	      " connecting to " << location << endl;
     }
 
-
-	Array<CIMReference> instanceNames = 
-	    client.enumerateInstanceNames(nameSpace, className);
 	try
 	{
+	    Array<CIMReference> instanceNames = 
+		client.enumerateInstanceNames(nameSpace, className);
 
         //simply output the list one per line for the moment.
 	for (Uint32 i = 0; i < instanceNames.size(); i++)

@@ -205,6 +205,7 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(), params);
 
+    //_enqueueHTTPMessage(buffer);
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
 

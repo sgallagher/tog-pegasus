@@ -46,6 +46,8 @@
 //
 // Modified By: Steve Hills (steve.hills@ncr.com)
 //
+// Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -157,6 +159,10 @@ static const char OPTION_HOME        = 'D';
 
 static const char OPTION_SHUTDOWN    = 's';
 
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
+
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
@@ -231,53 +237,12 @@ void GetOptions(
 */
 void PrintHelp(const char* arg0)
 {
-    /**
-        Build the usage string for the config command.
-    */
-    /* l10n
     String usage = String (USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
     usage.append ("  options\n");
-    usage.append ("    -v              - displays CIM Server version number\n");
-    usage.append ("    -h              - prints this help message\n");
-    usage.append ("    -s              - shuts down CIM Server\n");
-#if !defined(PEGASUS_USE_RELEASE_DIRS)
-    usage.append ("    -D [home]       - sets pegasus home directory\n");
-#endif
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-    usage.append ("    -install [name] - installs pegasus as a Windows NT Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
-    usage.append ("                      default CIM Server Service Name\n");
-    usage.append ("    -remove [name]  - removes pegasus as a Windows NT Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
-    usage.append ("                      default CIM Server Service Name\n");
-    usage.append ("    -start [name]   - starts pegasus as a Windows NT Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
-    usage.append ("                      default CIM Server Service Name\n");
-    usage.append ("    -stop [name]    - stops pegasus as a Windows NT Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
-    usage.append ("                      default CIM Server Service Name\n\n");
-#endif
-    usage.append ("  configProperty=value\n");
-    usage.append ("                    - sets CIM Server configuration property\n");
-
-    cout << endl;
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-    cout << PLATFORM_PRODUCT_NAME << " " << PLATFORM_PRODUCT_VERSION << endl;
-#else
-    cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
-#endif
-    cout << endl;
-    cout << usage << endl;
-    */
-    
-    String usage = String (USAGE);
-    usage.append (COMMAND_NAME);
-    usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
-    usage.append ("  options\n");
-    usage.append ("    -v              - displays CIM Server version number\n");
-    usage.append ("    -h              - prints this help message\n");
+    usage.append ("    -v, --version   - displays CIM Server version number\n");
+    usage.append ("    -h, --help      - prints this help message\n");
     usage.append ("    -s              - shuts down CIM Server\n");
 #if !defined(PEGASUS_USE_RELEASE_DIRS)
     usage.append ("    -D [home]       - sets pegasus home directory\n");
@@ -612,9 +577,22 @@ setlocale(LC_ALL, "");
         for (int i = 1; i < argc; )
         {
             const char* arg = argv[i];
-
+            if(String::equal(arg,"--help"))
+            {
+                    PrintHelp(argv[0]);
+                    exit(0);
+            }
+            else if(String::equal(arg,"--version"))
+            {
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+                cout << PLATFORM_PRODUCT_VERSION << endl;
+#else
+                cout << PEGASUS_VERSION << endl;
+#endif
+                exit(0);
+            }
             // Check for -option
-            if (*arg == '-')
+            else if (*arg == '-')
             {
                 // Get the option
                 const char* option = arg + 1;

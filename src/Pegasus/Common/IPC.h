@@ -246,26 +246,36 @@ class PEGASUS_COMMON_LINKAGE Mutex
 
 
 //%//////////////////////////////////////////////////////////////
-//  auto mutex - use when you could lose scope due to an exception
+//  AutoMutex - use when you could lose scope due to an exception
 /////////////////////////////////////////////////////////////////
 
-class  PEGASUS_COMMON_LINKAGE auto_mutex
+class PEGASUS_COMMON_LINKAGE AutoMutex
 {
    public:
-      auto_mutex(Mutex *mut)
-	 : _mut(mut)
+      AutoMutex(Mutex & mutex)
+	 : _mutex(mutex)
       {
-         _mut->lock(pegasus_thread_self());
+         _mutex.lock(pegasus_thread_self());
       }
 
-      ~auto_mutex(void)
+      ~AutoMutex(void)
       {
-         _mut->unlock();
+         try
+         {
+            _mutex.unlock();
+         }
+         catch (...)
+         {
+             // Do not propagate exception from destructor
+         }
       }
 
    private:
-      auto_mutex(void);
-      Mutex * _mut;
+      AutoMutex(void);    // Unimplemented
+      AutoMutex(const AutoMutex& x);    // Unimplemented
+      AutoMutex& operator=(const AutoMutex& x);    // Unimplemented
+
+      Mutex & _mutex;
 };
 
 

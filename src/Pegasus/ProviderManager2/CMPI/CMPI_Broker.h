@@ -53,19 +53,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)
 #define CM_DeepInheritance(flgs) (((flgs) & CMPI_FLAG_DeepInheritance)!=0)
 
-class AutoMutex {
- private:
-  Mutex *mutx;
- public:
-  AutoMutex(Mutex *mtx) {
-     mutx=mtx;
-     mtx->lock(pegasus_thread_self());
-  }
-  ~AutoMutex() {
-     mutx->unlock();
-  }
-};
-
 CIMClass *mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop);
 
 typedef HashTable<String, CIMClass *,

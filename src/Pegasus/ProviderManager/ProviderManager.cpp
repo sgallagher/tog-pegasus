@@ -144,7 +144,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			     "Unloading Provider " + pr->_name );
 
             // lock the providerTable mutex
-            auto_mutex lock(&_providerTableMutex);
+            AutoMutex lock(_providerTableMutex);
 
 	    // unload provider
             _unloadProvider(pr);
@@ -159,7 +159,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			  "_provider_ctrl::LOOKUP_PROVIDER");
 	 
          // lock the providerTable mutex
-         auto_mutex lock(&_providerTableMutex);
+         AutoMutex lock(_providerTableMutex);
          
 	 if(true == _providers.lookup(*(parms->providerName),
                                       *(reinterpret_cast<Provider * *>(ret))))
@@ -189,7 +189,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			  "_provider_ctrl::LOOKUP_MODULE");
 
          // lock the providerTable mutex
-         auto_mutex lock(&_providerTableMutex);
+         AutoMutex lock(_providerTableMutex);
 
          // Lookup module
 	 if(false  == _modules.lookup(*(parms->fileName), 
@@ -210,7 +210,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			  "_provider_ctrl::INSERT_PROVIDER");
 
          // lock the providerTable mutex
-         auto_mutex lock(&_providerTableMutex);
+         AutoMutex lock(_providerTableMutex);
 
          // Insert provider in provider table
          if( false  == _providers.insert( 
@@ -225,7 +225,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			  "_provider_ctrl::INSERT_MODULE");
 
          // lock the providerTable mutex
-         auto_mutex lock(&_providerTableMutex);
+         AutoMutex lock(_providerTableMutex);
 
 	 if( false  == _modules.insert(
                 *(parms->fileName),
@@ -242,7 +242,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 Provider * provider;
 
          // lock the providerTable mutex
-         auto_mutex lock(&_providerTableMutex);
+         AutoMutex lock(_providerTableMutex);
 
 	 Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
              "providers in cache = %d", myself->_providers.size());
@@ -279,7 +279,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			  "_provider_ctrl::UNLOAD_IDLE_PROVIDERS");
 	 
          // lock the providerTable mutex
-         auto_mutex lock(&_providerTableMutex);
+         AutoMutex lock(_providerTableMutex);
 
 	 quantum++;
 	 ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
@@ -334,7 +334,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
                      (  now.tv_sec - timeout.tv_sec) > ((Sint32)myself->_idle_timeout))
 		  {
                      // lock the provider mutex
-                     auto_mutex pr_lock(&provider->_statusMutex);
+                     AutoMutex pr_lock(provider->_statusMutex);
 
 	             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                                      "ProviderManager::_provider_crtl -  Unload idle provider $0",
@@ -568,7 +568,7 @@ Provider* ProviderManager::_initProvider(
 
     {  
 	// lock the providerTable mutex
-        auto_mutex lock(&_providerTableMutex);
+        AutoMutex lock(_providerTableMutex);
 
         // lookup provider module
 	module = _lookupModule(moduleFileName, interfaceName);
@@ -603,7 +603,7 @@ Provider* ProviderManager::_initProvider(
     Boolean undoModuleLoad = true;
 
     {   // lock the provider mutex
-        auto_mutex pr_lock(&provider->_statusMutex);
+        AutoMutex pr_lock(provider->_statusMutex);
 
         // check provider status
         if (provider->_status == Provider::UNINITIALIZED)
@@ -632,7 +632,7 @@ Provider* ProviderManager::_initProvider(
     if (undoModuleLoad)
     {
 	// lock the providerTable mutex
-        auto_mutex lock(&_providerTableMutex);
+        AutoMutex lock(_providerTableMutex);
 
 	// unload provider module
         module->unloadModule();
@@ -666,7 +666,7 @@ void ProviderManager::_unloadProvider( Provider * provider)
                          "Terminating Provider " + provider->_name );
 
         // lock the provider mutex
-        auto_mutex pr_lock(&provider->_statusMutex);
+        AutoMutex pr_lock(provider->_statusMutex);
 
         try 
         {
@@ -718,7 +718,7 @@ Provider * ProviderManager::_lookupProvider(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_lookupProvider");
 
     // lock the providerTable mutex
-    auto_mutex lock(&_providerTableMutex);
+    AutoMutex lock(_providerTableMutex);
 
     // look up provider in cache
     Provider * pr = 0;

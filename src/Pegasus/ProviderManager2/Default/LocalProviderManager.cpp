@@ -58,7 +58,7 @@ LocalProviderManager::~LocalProviderManager(void)
 Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 {
     static Uint32 quantum;
-    auto_mutex monitor(&_mut);
+    AutoMutex monitor(_mut);
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_provider_ctrl");
 
     Sint32 ccode = 0;

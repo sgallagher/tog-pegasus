@@ -25,7 +25,6 @@ SOURCES = \
 	ProviderType.cpp \
 	\
 	SafeQueue.cpp \
-	MutexLock.cpp \
 	Lockable.cpp
 
 include $(ROOT)/mak/library.mak

@@ -54,7 +54,7 @@ ResponseHandlerRep* _newRep(
 {
     ResponseHandlerRep* newRep = new ResponseHandlerRep();
 
-    auto_mutex lock(&repTableMutex);
+    AutoMutex lock(repTableMutex);
     repTable.insert(object, newRep);
     return newRep;
 }
@@ -65,7 +65,7 @@ ResponseHandlerRep* _newRep(
 {
     ResponseHandlerRep* newRep = new ResponseHandlerRep(*rep);
 
-    auto_mutex lock(&repTableMutex);
+    AutoMutex lock(repTableMutex);
     repTable.insert(object, newRep);
     return newRep;
 }
@@ -76,7 +76,7 @@ ResponseHandlerRep* _getRep(
     ResponseHandlerRep* rep;
     Boolean found;
 
-    auto_mutex lock(&repTableMutex);
+    AutoMutex lock(repTableMutex);
     found = repTable.lookup(const_cast<ResponseHandler*>(object), rep);
     PEGASUS_ASSERT(found == true);
     return rep;
@@ -88,7 +88,7 @@ void _deleteRep(
     ResponseHandlerRep* rep;
     Boolean found;
 
-    auto_mutex lock(&repTableMutex);
+    AutoMutex lock(repTableMutex);
     found = repTable.lookup(object, rep);
     PEGASUS_ASSERT(found == true);
     delete rep;

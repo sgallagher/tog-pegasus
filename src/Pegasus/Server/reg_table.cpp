@@ -363,7 +363,7 @@ Boolean
 reg_table_rep::_insert(const reg_table_record &rec)
 {
    // ipc synchronization 
-   auto_mutex monitor(&_mutex);
+   AutoMutex monitor(_mutex);
    
    type_table *tt = 0;
    
@@ -495,7 +495,7 @@ reg_table_rep::_find(const reg_table_record &rec,
 		     Array<reg_table_record *> *arr_ptr)
 {
    // ipc synchronization 
-   auto_mutex monitor(&_mutex);
+   AutoMutex monitor(_mutex);
    type_table *tt = 0;
    Boolean try_again = true;
    
@@ -659,7 +659,7 @@ void
 reg_table_rep::_dump_table()
 {
    PEGASUS_STD(cout) <<"******** Dumping Reg Table ********"  << PEGASUS_STD(endl);
-   auto_mutex monitor(&_mutex);
+   AutoMutex monitor(_mutex);
    for(namespace_table::Iterator i = _table.start(); i; i++)
    {
       PEGASUS_STD(cout) << "Namespace: "  << i.key() << PEGASUS_STD(endl);

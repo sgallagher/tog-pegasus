@@ -60,7 +60,7 @@ Provider::~Provider(void)
 Provider::Status Provider::getStatus(void)
 {
     // lock the mutex
-    auto_mutex lock(&_statusMutex);
+    AutoMutex lock(_statusMutex);
 
     return(_status);
 }

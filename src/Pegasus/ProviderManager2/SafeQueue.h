@@ -34,8 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Queue.h>
-
-#include <Pegasus/ProviderManager2/MutexLock.h>
+#include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Server/Linkage.h>
 
@@ -78,7 +77,7 @@ SafeQueue<T>::~SafeQueue(void)
 template<class T>
 void SafeQueue<T>::enqueue(const T & O)
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     _queue.enqueue(O);
 }
@@ -86,7 +85,7 @@ void SafeQueue<T>::enqueue(const T & O)
 template<class T>
 T SafeQueue<T>::dequeue(void)
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     T O = _queue.front();
 
@@ -98,7 +97,7 @@ T SafeQueue<T>::dequeue(void)
 template<class T>
 T & SafeQueue<T>::front(void)
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     return(_queue.front());
 }
@@ -106,7 +105,7 @@ T & SafeQueue<T>::front(void)
 template<class T>
 const T & SafeQueue<T>::front(void) const
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     return(_queue.front());
 }
@@ -114,7 +113,7 @@ const T & SafeQueue<T>::front(void) const
 template<class T>
 T & SafeQueue<T>::back(void)
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     return(_queue.back());
 }
@@ -122,7 +121,7 @@ T & SafeQueue<T>::back(void)
 template<class T>
 const T & SafeQueue<T>::back(void) const
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     return(_queue.back());
 }
@@ -130,7 +129,7 @@ const T & SafeQueue<T>::back(void) const
 template<class T>
 Uint32 SafeQueue<T>::size(void) const
 {
-    MutexLock lock(_mutex);
+    AutoMutex lock(_mutex);
 
     return(_queue.size());
 }

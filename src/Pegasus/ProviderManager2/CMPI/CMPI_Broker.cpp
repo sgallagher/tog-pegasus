@@ -62,7 +62,7 @@ CIMClass* mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop) {
    String clsId=cop.getNameSpace().getString()+":"+cop.getClassName().getString();
    CIMClass *ccp;
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    if (xBroker->clsCache) {
       if (xBroker->clsCache->lookup(clsId,ccp)) return ccp;
    }
@@ -96,7 +96,7 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       CIMInstance ci=CM_CIMOM(mb)->getInstance(
                   OperationContext(*CM_Context(ctx)),
@@ -122,7 +122,7 @@ static CMPIObjectPath* mbCreateInstance(CMPIBroker *mb, CMPIContext *ctx,
                 CMPIObjectPath *cop, CMPIInstance *ci, CMPIStatus *rc) {
    DDD(cout<<"--- mbCreateInstance()"<<endl);
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       CIMObjectPath ncop=CM_CIMOM(mb)->createInstance(
                   OperationContext(*CM_Context(ctx)),
@@ -144,7 +144,7 @@ static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
    DDD(cout<<"--- mbSetInstance()"<<endl);
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       CM_CIMOM(mb)->modifyInstance(
                   OperationContext(*CM_Context(ctx)),
@@ -168,7 +168,7 @@ static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       CM_CIMOM(mb)->deleteInstance(
                   OperationContext(*CM_Context(ctx)),
@@ -187,7 +187,7 @@ static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char *query, char *lang, CMPIStatus *rc) {
    DDD(cout<<"--- mbExecQuery()"<<endl);
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       Array<CIMObject> const &en=CM_CIMOM(mb)->execQuery(
                   OperationContext(*CM_Context(ctx)),
@@ -212,7 +212,7 @@ static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       Array<CIMInstance> const &en=CM_CIMOM(mb)->enumerateInstances(
                   OperationContext(*CM_Context(ctx)),
@@ -240,7 +240,7 @@ static CMPIEnumeration* mbEnumInstanceNames(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, CMPIStatus *rc) {
    DDD(cout<<"--- mbEnumInstanceNames()"<<endl);
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
   try {
       Array<CIMObjectPath> const &en=CM_CIMOM(mb)->enumerateInstanceNames(
                   OperationContext(*CM_Context(ctx)),
@@ -267,7 +267,7 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       Array<CIMObject> const &en=CM_CIMOM(mb)->associators(
                   OperationContext(*CM_Context(ctx)),
@@ -301,7 +301,7 @@ static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       Array<CIMObjectPath> const &en=CM_CIMOM(mb)->associatorNames(
 		  OperationContext(*CM_Context(ctx)),
@@ -332,7 +332,7 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
  
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       Array<CIMObject> const &en=CM_CIMOM(mb)->references(
 		  OperationContext(*CM_Context(ctx)),
@@ -364,7 +364,7 @@ static CMPIEnumeration* mbReferenceNames(CMPIBroker *mb, CMPIContext *ctx,
                      CM_ObjectPath(cop)->getClassName(),
 		     CM_ObjectPath(cop)->getKeyBindings());
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       Array<CIMObjectPath> const &en=CM_CIMOM(mb)->referenceNames(
 		  OperationContext(*CM_Context(ctx)),
@@ -398,7 +398,7 @@ static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
    CMPIrc rc;
    CIMValue v=value2CIMValue(val,type,&rc);
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       CM_CIMOM(mb)->setProperty(
 		  OperationContext(*CM_Context(ctx)),
@@ -420,7 +420,7 @@ static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,
    DDD(cout<<"--- mbGetProperty()"<<endl);
    CMPIData data={0,0,{0}};
 
-   AutoMutex mtx(&((CMPI_Broker*)mb)->mtx);
+   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
    try {
       CIMValue v=CM_CIMOM(mb)->getProperty(
 		  OperationContext(*CM_Context(ctx)),

@@ -27,14 +27,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMQualifier.h"
+#include "CIMQualifierRep.h"
 #include "Indentor.h"
-#include "DeclContext.h"
 #include "CIMName.h"
 #include "Exception.h"
 #include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMQualifierRep

@@ -1203,9 +1203,12 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
     _appendIMethodResponseElementBegin(out, iMethodName);
-    _appendIReturnValueElementBegin(out);
-    out << body;
-    _appendIReturnValueElementEnd(out);
+    if (body.size() != 0)
+    {
+        _appendIReturnValueElementBegin(out);
+        out << body;
+        _appendIReturnValueElementEnd(out);
+    }
     _appendIMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);

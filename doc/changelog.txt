@@ -38,6 +38,13 @@ TAG: Version_1_09.
 6. (Ramnath Ravindran - Compaq) 8 Apr 2002 - Modified a libraries.mak file in the 	src/Pegasus/Security/Authentication/tests directory in order to fix the 
 	build on Tru64.
 
+7. (Roger Kumpf - HP) 8 Apr 2002 - The RETURNVALUE and IRETURNVALUE elements
+   of the XML encoding of operation responses had been treated as mandatory.
+   The client response decoder has been updated to make those elements
+   optional for operations that do not require a return value.  The server
+   response encoder has been updated not to include those elements when the
+   request does not include a return value.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

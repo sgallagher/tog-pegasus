@@ -66,14 +66,9 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 DefaultPropertyOwner::DefaultPropertyOwner()
 {
-    _configProperties = new ConfigProperty[NUM_PROPERTIES];
+    _configProperties.reset(new ConfigProperty[NUM_PROPERTIES]);
 }
 
-/** Destructor  */
-DefaultPropertyOwner::~DefaultPropertyOwner()
-{
-    delete [] _configProperties;
-}
 
 /**
 Initialize the config properties.
@@ -82,14 +77,14 @@ void DefaultPropertyOwner::initialize()
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        _configProperties[i].propertyName = properties[i].propertyName;
-        _configProperties[i].defaultValue = properties[i].defaultValue;
-        _configProperties[i].currentValue = properties[i].defaultValue;
-        _configProperties[i].plannedValue = properties[i].defaultValue;
-        _configProperties[i].dynamic = properties[i].dynamic;
-        _configProperties[i].domain = properties[i].domain;
-        _configProperties[i].domainSize = properties[i].domainSize;
-        _configProperties[i].externallyVisible = properties[i].externallyVisible;
+        (_configProperties.get())[i].propertyName = properties[i].propertyName;
+        (_configProperties.get())[i].defaultValue = properties[i].defaultValue;
+        (_configProperties.get())[i].currentValue = properties[i].defaultValue;
+        (_configProperties.get())[i].plannedValue = properties[i].defaultValue;
+        (_configProperties.get())[i].dynamic = properties[i].dynamic;
+        (_configProperties.get())[i].domain = properties[i].domain;
+        (_configProperties.get())[i].domainSize = properties[i].domainSize;
+        (_configProperties.get())[i].externallyVisible = properties[i].externallyVisible;
     }
 }
 
@@ -105,13 +100,13 @@ void DefaultPropertyOwner::getPropertyInfo(
 
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            propertyInfo.append(_configProperties[i].propertyName);
-            propertyInfo.append(_configProperties[i].defaultValue);
-            propertyInfo.append(_configProperties[i].currentValue);
-            propertyInfo.append(_configProperties[i].plannedValue);
-            if (_configProperties[i].dynamic)
+            propertyInfo.append((_configProperties.get())[i].propertyName);
+            propertyInfo.append((_configProperties.get())[i].defaultValue);
+            propertyInfo.append((_configProperties.get())[i].currentValue);
+            propertyInfo.append((_configProperties.get())[i].plannedValue);
+            if ((_configProperties.get())[i].dynamic)
             {
                 propertyInfo.append(STRING_TRUE);
             }
@@ -119,7 +114,7 @@ void DefaultPropertyOwner::getPropertyInfo(
             {
                 propertyInfo.append(STRING_FALSE);
             }
-            if (_configProperties[i].externallyVisible)
+            if ((_configProperties.get())[i].externallyVisible)
             {
                 propertyInfo.append(STRING_TRUE);
             }
@@ -144,9 +139,9 @@ const String DefaultPropertyOwner::getDefaultValue(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            return (_configProperties[i].defaultValue);
+            return ((_configProperties.get())[i].defaultValue);
         }
     }
 
@@ -163,9 +158,9 @@ const String DefaultPropertyOwner::getCurrentValue(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            return (_configProperties[i].currentValue);
+            return ((_configProperties.get())[i].currentValue);
         }
     }
 
@@ -182,9 +177,9 @@ const String DefaultPropertyOwner::getPlannedValue(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            return (_configProperties[i].plannedValue);
+            return ((_configProperties.get())[i].plannedValue);
         }
     }
 
@@ -203,9 +198,9 @@ void DefaultPropertyOwner::initCurrentValue(
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            _configProperties[i].currentValue = value;
+            (_configProperties.get())[i].currentValue = value;
             return;
         }
     }
@@ -226,9 +221,9 @@ void DefaultPropertyOwner::initPlannedValue(
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            _configProperties[i].plannedValue = value;
+            (_configProperties.get())[i].plannedValue = value;
             return;
         }
     }
@@ -298,9 +293,9 @@ Boolean DefaultPropertyOwner::isDynamic(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties[i].propertyName, name))
+        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
         {
-            return (_configProperties[i].dynamic);
+            return ((_configProperties.get())[i].dynamic);
         }
     }
 

@@ -25,7 +25,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 
 
@@ -72,10 +73,6 @@ public:
 
     /** Constructors  */
     DefaultPropertyOwner();
-
-
-    /** Destructor  */
-    ~DefaultPropertyOwner();
 
     /**
     Initialize the config properties.
@@ -216,7 +213,7 @@ private:
     /**
     The table to hold the properties owned by this class
     */
-    struct ConfigProperty* _configProperties;
+    AutoArrayPtr<struct ConfigProperty> _configProperties;
 
 };
 

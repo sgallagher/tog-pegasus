@@ -32,6 +32,7 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Amit K Arora (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,6 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/AcceptLanguages.h>  // l10n
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
 #include "CIMExportRequestEncoder.h"
@@ -65,6 +65,7 @@ CIMExportRequestEncoder::CIMExportRequestEncoder(
 CIMExportRequestEncoder::~CIMExportRequestEncoder()
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::~CIMExportRequestEncoder()");
+     _authenticator.release();
     PEG_METHOD_EXIT();
 }
 

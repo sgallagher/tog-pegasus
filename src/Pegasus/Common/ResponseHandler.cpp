@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<void*>
 {
-    static Uint32 hash(void* x) { return Uint32(x) + 13; }
+    static Uint32 hash(void* x) { return Uint32((unsigned long)x) + 13; }
 };
 
 typedef HashTable<ResponseHandler*, ResponseHandlerRep*,

@@ -31,7 +31,7 @@
 
 
 #include <cassert>
-#include <Pegasus/../slp/peg_slp_agent.h>
+#include <Pegasus/../slp/slp_agent/peg_slp_agent.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
 #include <unistd.h>

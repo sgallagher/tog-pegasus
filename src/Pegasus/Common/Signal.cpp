@@ -1,185 +1,107 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
+#include "Signal.h"
 
-#include <cstdio>
-#include <cstring>
-
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Exception.h>
+#include <cstdio>
+#include <unistd.h>
+
+void sig_act(int s_n, siginfo_t * s_info, void * sig)
+{
+    void * retval = NULL;
+
+    printf("Received a segmentation fault\n");
+    printf(" in address %p\n", s_info->si_addr);
+    printf(" pid %d\n", getpid());
+    
+    pthread_exit(retval);
+}
+
+void * segmentation_faulter(void * parm)
+{
+    int * dataspace;
+
+    printf("my pid is %d\n", getpid());
+    dataspace = (int *) sbrk(0);
+    dataspace++;
+    *dataspace = 16;
+    return NULL;
+}
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_HAS_SIGNALS
-
-SignalHandler::SignalHandler()
+SignalHandler::SignalHandler() : reg_mutex()
 {
-    for (unsigned i = 0; i <= PEGASUS_NSIG; i++)
-    {
-       register_handler &rh = reg_handler[i];
-       rh.signum = i;
-       rh.active = 0;
-       rh.sh = NULL;
-       memset(&rh.oldsa,0,sizeof(struct sigaction));
-    }
+   for(Uint32 i=0;i < 32;i++)
+   {
+       reg_handler[i].active = 0;
+       reg_handler[i].sh = NULL;
+       memset(&reg_handler[i].oldsa,0,sizeof(struct sigaction));
+   }
 }
 
 SignalHandler::~SignalHandler()
 {
-    deactivateAll();
+   deactivateAll();
 }
 
-void SignalHandler::verifySignum(unsigned signum)
+void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
 {
-    if ( signum > PEGASUS_NSIG )
+    reg_mutex.lock(pthread_self());
+    deactivate_i(signum);
+    reg_handler[signum].sh = _sighandler;
+    reg_mutex.unlock();
+}
+
+void SignalHandler::activate(Uint32 signum)
+{
+    reg_mutex.lock(pthread_self());
+    if (reg_handler[signum].active) return; // throw exception
+
+    struct sigaction * sig_acts = new struct sigaction;
+
+    sig_acts->sa_sigaction = reg_handler[signum].sh;
+    sigfillset(&(sig_acts->sa_mask));
+    sig_acts->sa_flags = SA_SIGINFO | SA_ONESHOT;
+    sig_acts->sa_restorer = NULL;
+
+    sigaction(signum, sig_acts, &reg_handler[signum].oldsa);
+
+    reg_handler[signum].active = -1;
+    reg_mutex.unlock();
+
+    delete sig_acts;
+}
+
+void SignalHandler::deactivate(Uint32 signum)
+{
+    reg_mutex.lock(pthread_self());
+    deactivate_i(signum);
+    reg_mutex.unlock();
+}
+
+void SignalHandler::deactivate_i(Uint32 signum)
+{
+    if (reg_handler[signum].active)
     {
-        throw IndexOutOfBoundsException();
-    }
-}
-
-SignalHandler::register_handler&
-SignalHandler::getHandler(unsigned signum)
-{
-    verifySignum(signum);
-    return reg_handler[signum];
-}
-
-void SignalHandler::registerHandler(unsigned signum, signal_handler sighandler)
-{
-    register_handler &rh = getHandler(signum);
-    AutoMutex autoMut(reg_mutex);
-    deactivate_i(rh);
-    rh.sh = sighandler;
-}
-
-void SignalHandler::activate(unsigned signum)
-{
-    register_handler &rh = getHandler(signum);
-    AutoMutex autoMut(reg_mutex);
-    if (rh.active)
-    {
-        return; // throw exception
-    }
-
-    struct sigaction sig_acts;
-
-    sig_acts.sa_sigaction = rh.sh;
-    sigfillset(&(sig_acts.sa_mask));
-    sig_acts.sa_flags = SA_SIGINFO;
-
-    sigaction(signum, &sig_acts, &rh.oldsa);
-
-    rh.active = -1;
-}
-
-void SignalHandler::deactivate(unsigned signum)
-{
-    register_handler &rh = getHandler(signum);
-    AutoMutex autoMut(reg_mutex);
-    deactivate_i(rh);
-}
-
-void SignalHandler::deactivate_i(register_handler &rh)
-{
-    if (rh.active)
-    {
-        rh.active = 0;
-        sigaction(rh.signum, &rh.oldsa, NULL);
+        reg_handler[signum].active = 0;
+        sigaction(signum, &reg_handler[signum].oldsa, NULL);
     }
 }
 
 void SignalHandler::deactivateAll()
 {
-    AutoMutex autoMut(reg_mutex);
-    for (unsigned i=0; i <= PEGASUS_NSIG; i++)
-    {
-        register_handler &rh = reg_handler[i];
-        if (rh.active)
-        {
-            deactivate_i(rh);
-        }
-    }
+    reg_mutex.lock(pthread_self());
+    for (Uint32 i=0; i < 32; i++)
+        if (reg_handler[i].active) deactivate_i(i);
+    reg_mutex.unlock();
 }
 
-void SignalHandler::ignore(unsigned signum)
+void SignalHandler::ignore(Uint32 signum)
 {
-    verifySignum(signum);
-
-#if !defined(PEGASUS_OS_DARWIN)
-    sigignore(signum);
-#else
-    struct sigaction sig_acts;
-
-    sig_acts.sa_handler = SIG_IGN;
-    sigfillset(&(sig_acts.sa_mask));
-    sig_acts.sa_flags = 0;
-
-    sigaction(signum, &sig_acts, NULL);
-#endif
+    ::sigignore(signum);
 }
-
-void SignalHandler::defaultAction(unsigned signum)
-{
-    verifySignum(signum);
-
-    struct sigaction sig_acts;
-
-    sig_acts.sa_handler = SIG_DFL;
-    sigfillset(&(sig_acts.sa_mask));
-    sig_acts.sa_flags = 0;
-
-    sigaction(signum, &sig_acts, NULL);
-}
-
-
-#else // PEGASUS_HAS_SIGNALS
-
-SignalHandler::SignalHandler() { }
-
-SignalHandler::~SignalHandler() { }
-
-void SignalHandler::registerHandler(unsigned signum, signal_handler _sighandler)
-{ }
-
-void SignalHandler::activate(unsigned signum) { }
-
-void SignalHandler::deactivate(unsigned signum) { }
-
-void SignalHandler::deactivateAll() { }
-
-void SignalHandler::ignore(unsigned signum) { }
-
-void SignalHandler::defaultAction(unsigned signum) { }
-
-#endif // PEGASUS_HAS_SIGNALS
 
 
 // export the global signal handling object
@@ -190,3 +112,4 @@ SignalHandler * getSigHandle() { return _globalSignalHandlerPtr; }
 
 
 PEGASUS_NAMESPACE_END
+

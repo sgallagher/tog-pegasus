@@ -60,6 +60,8 @@ repository implementation.
 
 16. (Mike Brasher) - queue-based clients now complete.
 
+17. (Jim Chou - HP) 12 Sep 2001 - Initial contribution of wbemexec test directory and make infrastructure.  This submittal also includes an initial set of test scripts.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -145,6 +145,9 @@ private:
     CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
 	XmlParser& parser, const String& messageId);
 
+    CIMExecQueryResponseMessage* _decodeExecQueryResponse(
+	XmlParser& parser, const String& messageId);
+
     CIMInvokeMethodResponseMessage* _decodeInvokeMethodResponse(
 	XmlParser& parser, const String& messageId, const String& methodName);
 

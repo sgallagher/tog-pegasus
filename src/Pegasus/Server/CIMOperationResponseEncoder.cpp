@@ -878,8 +878,8 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 
    Array<Sint8> body;
 
-   for (Uint32 i = 0; i < response->cimInstances.size(); i++)
-      response->cimInstances[i].toXml(body);
+   for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+      response->cimObjects[i].toXml(body);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "ExecQuery", response->messageId, body);

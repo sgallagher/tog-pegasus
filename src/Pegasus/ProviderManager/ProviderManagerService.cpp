@@ -958,7 +958,7 @@ void ProviderManagerService::handleExecuteQueryRequest(const Message * message) 
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMInstance> cimInstances;
+    Array<CIMObjectWithPath> cimObjects;
 
     CIMExecQueryResponseMessage * response =
 	new CIMExecQueryResponseMessage(
@@ -966,7 +966,7 @@ void ProviderManagerService::handleExecuteQueryRequest(const Message * message) 
 	CIM_ERR_FAILED,
 	"not implemented",
 	request->queueIds.copyAndPop(),
-	cimInstances);
+	cimObjects);
 
     // preserve message key
     response->setKey(request->getKey());

@@ -617,7 +617,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     return(response->instanceNames);
 }
 
-Array<CIMInstance> CIMClient::execQuery(
+Array<CIMObjectWithPath> CIMClient::execQuery(
     const String& nameSpace,
     const String& queryLanguage,
     const String& query)
@@ -645,7 +645,7 @@ Array<CIMInstance> CIMClient::execQuery(
     
     _checkError(response);
     
-    return(response->cimInstances);
+    return(response->cimObjects);
 }
 
 Array<CIMObjectWithPath> CIMClient::associators(

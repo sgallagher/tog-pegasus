@@ -1652,15 +1652,15 @@ class CIMExecQueryResponseMessage : public CIMResponseMessage
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_,
-	 const Array<CIMInstance>& cimInstances_)
+	 const Array<CIMObjectWithPath>& cimObjects_)
 	 :
 	 CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
-	 cimInstances(cimInstances_)
+	 cimObjects(cimObjects_)
       {
       }
 
-      Array<CIMInstance> cimInstances;
+      Array<CIMObjectWithPath> cimObjects;
 };
 
 class CIMAssociatorsResponseMessage : public CIMResponseMessage

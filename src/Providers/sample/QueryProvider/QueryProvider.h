@@ -47,6 +47,7 @@ public:
 	// CIMQueryProvider interface
 	virtual void executeQuery(
 		const OperationContext & context,
+		const String & nameSpace,
 		const String & queryLanguage,
 		const String & query,
 		ResponseHandler<CIMObject> & handler);

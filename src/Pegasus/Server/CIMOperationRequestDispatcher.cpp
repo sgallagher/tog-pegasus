@@ -2243,7 +2243,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
    CIMStatusCode errorCode = CIM_ERR_NOT_SUPPORTED;
    String errorDescription = PEGASUS_CIM_EXCEPTION(errorCode, "ExecQuery").getMessage();
-   Array<CIMInstance> cimInstances;
+   Array<CIMObjectWithPath> cimObjects;
 
    CIMExecQueryResponseMessage* response =
       new CIMExecQueryResponseMessage(
@@ -2251,7 +2251,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 	 errorCode,
 	 errorDescription,
 	 request->queueIds.copyAndPop(),
-	 cimInstances);
+	 cimObjects);
 
    _enqueueResponse(request, response);
 

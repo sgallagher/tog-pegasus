@@ -610,7 +610,7 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
 
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMInstance> cimInstances;
+    Array<CIMObjectWithPath> cimObjects;
 
     CIMExecQueryResponseMessage * response =
 	new CIMExecQueryResponseMessage(
@@ -618,7 +618,7 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
 	    CIM_ERR_FAILED,
 	    "not implemented",
 	    request->queueIds.copyAndPop(),
-	    cimInstances);
+	    cimObjects);
 
     // preserve message key
     response->setKey(request->getKey());

@@ -203,7 +203,7 @@ Boolean XmlReader::testStartTag(
 
 //------------------------------------------------------------------------------
 //
-// testEndTag>()
+// testEndTag()
 //
 //------------------------------------------------------------------------------
 
@@ -3256,13 +3256,51 @@ Boolean XmlReader::getErrorElement(
 
 
 //------------------------------------------------------------------------------
-// getObjectWithPath()
+// getValueObjectElement()
+//
+// <!ELEMENT VALUE.OBJECT (CLASS|INSTANCE)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getValueObjectElement(
+    XmlParser& parser, 
+    CIMObject& object)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "VALUE.OBJECT"))
+	return false;
+
+    CIMInstance cimInstance;
+    CIMClass cimClass;
+
+    if (XmlReader::getInstanceElement(parser, cimInstance))
+    {
+	object = CIMObject(cimInstance);
+    }
+    else if (!XmlReader::getClassElement(parser, cimClass))
+    {
+	object = CIMObject(cimClass);
+    }
+    else
+    {
+        throw XmlValidationError(parser.getLine(),
+            "Expected INSTANCE or CLASS element");
+    }
+
+    expectEndTag(parser, "VALUE.OBJECT");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// getValueObjectWithPathElement()
 //
 // <!ELEMENT VALUE.OBJECTWITHPATH ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
 //
 //------------------------------------------------------------------------------
 
-Boolean XmlReader::getObjectWithPath(
+Boolean XmlReader::getValueObjectWithPathElement(
     XmlParser& parser, 
     CIMObjectWithPath& objectWithPath)
 {
@@ -3278,8 +3316,8 @@ Boolean XmlReader::getObjectWithPath(
 	isInstance = true;
     else if (!XmlReader::getClassPathElement(parser, reference))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "Expected INSTANCE element");
+        throw XmlValidationError(parser.getLine(),
+            "Expected INSTANCEPATH or CLASSPATH element");
     }
 
     if (isInstance)
@@ -3289,7 +3327,7 @@ Boolean XmlReader::getObjectWithPath(
 	if (!XmlReader::getInstanceElement(parser, cimInstance))
 	{
 	    throw XmlValidationError(parser.getLine(),
-		"Expected INSTANCEPATH or CLASSPATH element");
+	        "Expected INSTANCE element");
 	}
 	objectWithPath.set(reference, CIMObject(cimInstance));
     }
@@ -3308,6 +3346,99 @@ Boolean XmlReader::getObjectWithPath(
     expectEndTag(parser, "VALUE.OBJECTWITHPATH");
 
     return true;
+}
+
+//------------------------------------------------------------------------------
+// getValueObjectWithLocalPathElement()
+//
+// <!ELEMENT VALUE.OBJECTWITHLOCALPATH
+//     ((LOCALCLASSPATH,CLASS)|(LOCALINSTANCEPATH,INSTANCE))>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getValueObjectWithLocalPathElement(
+    XmlParser& parser, 
+    CIMObjectWithPath& objectWithPath)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "VALUE.OBJECTWITHLOCALPATH"))
+	return false;
+
+    CIMReference reference;
+    Boolean isInstance = false;
+
+    if (XmlReader::getLocalInstancePathElement(parser, reference))
+	isInstance = true;
+    else if (!XmlReader::getLocalClassPathElement(parser, reference))
+    {
+        throw XmlValidationError(parser.getLine(),
+	    "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
+    }
+
+    if (isInstance)
+    {
+	CIMInstance cimInstance;
+
+	if (!XmlReader::getInstanceElement(parser, cimInstance))
+	{
+	    throw XmlValidationError(parser.getLine(),
+	        "Expected INSTANCE element");
+	}
+	objectWithPath.set(reference, CIMObject(cimInstance));
+    }
+    else
+    {
+	CIMClass cimClass;
+
+	if (!XmlReader::getClassElement(parser, cimClass))
+	{
+	    throw XmlValidationError(parser.getLine(),
+		"Expected CLASS element");
+	}
+	objectWithPath.set(reference, CIMObject(cimClass));
+    }
+
+    expectEndTag(parser, "VALUE.OBJECTWITHLOCALPATH");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// getObjectArray()
+//
+// <object>
+//     (VALUE.OBJECT|VALUE.OBJECTWITHLOCALPATH|VALUE.OBJECTWITHPATH)
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::getObjectArray(
+    XmlParser& parser, 
+    Array<CIMObjectWithPath>& objectArray)
+{
+    CIMObject object;
+    CIMObjectWithPath objectWithPath;
+
+    objectArray.clear();
+
+    if (getValueObjectElement(parser, object))
+    {
+        objectArray.append(CIMObjectWithPath(CIMReference(), object));
+        while (getValueObjectElement(parser, object))
+            objectArray.append(CIMObjectWithPath(CIMReference(), object));
+    }
+    else if (getValueObjectWithPathElement(parser, objectWithPath))
+    {
+        objectArray.append(objectWithPath);
+        while (getValueObjectWithPathElement(parser, objectWithPath))
+            objectArray.append(objectWithPath);
+    }
+    else if (getValueObjectWithLocalPathElement(parser, objectWithPath))
+    {
+        objectArray.append(objectWithPath);
+        while (getValueObjectWithLocalPathElement(parser, objectWithPath))
+            objectArray.append(objectWithPath);
+    }
 }
 
 //------------------------------------------------------------------------------

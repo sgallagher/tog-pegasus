@@ -363,9 +363,21 @@ public:
 	const char*& description,
 	Boolean required = false);
 
-    static Boolean getObjectWithPath(
+    static Boolean getValueObjectElement(
+	XmlParser& parser, 
+	CIMObject& object);
+
+    static Boolean getValueObjectWithPathElement(
 	XmlParser& parser, 
 	CIMObjectWithPath& objectWithPath);
+
+    static Boolean getValueObjectWithLocalPathElement(
+	XmlParser& parser, 
+	CIMObjectWithPath& objectWithPath);
+
+    static void getObjectArray(
+	XmlParser& parser, 
+	Array<CIMObjectWithPath>& objectArray);
 
     static Boolean getObjectNameElement(
 	XmlParser& parser, 

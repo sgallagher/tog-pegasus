@@ -418,11 +418,12 @@ void ProviderFacade::invokeMethod(
 
 void ProviderFacade::executeQuery(
     const OperationContext & context,
+    const String & nameSpace,
     const String & queryLanguage,
     const String & query,
     ResponseHandler<CIMObject> & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMiQueryProvider::*");
+    throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
 }
 
 void ProviderFacade::provideIndication(

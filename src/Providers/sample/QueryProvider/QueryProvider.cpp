@@ -48,6 +48,7 @@ void QueryProvider::terminate(void)
 
 void QueryProvider::executeQuery(
 	const OperationContext & context,
+	const String & nameSpace,
 	const String & queryLanguage,
 	const String & query,
 	ResponseHandler<CIMObject> & handler)

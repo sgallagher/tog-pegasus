@@ -336,7 +336,7 @@ public:
 	const String& className);
 
     /// ATTN: should return Array<CIMObject>
-    virtual Array<CIMInstance> execQuery(
+    virtual Array<CIMObjectWithPath> execQuery(
 	const String& nameSpace,
 	const String& queryLanguage,
 	const String& query) ;

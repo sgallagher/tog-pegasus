@@ -135,59 +135,77 @@ inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
 {
     // ATTN-B: Only UTF-8 handled for now.
 
-    switch (c)
+    if ( (c < Char16(0x20)) || (c == Char16(0x7f)) )
     {
-	case '&':
-	    out.append("&amp;", 5);
-	    break;
+        char charref[7];
+        sprintf(charref, "&#%u;", (Uint16)c);
+        out.append(charref, strlen(charref));
+    }
+    else
+    {
+        switch (c)
+        {
+            case '&':
+                out.append("&amp;", 5);
+                break;
 
-	case '<':
-	    out.append("&lt;", 4);
-	    break;
+            case '<':
+                out.append("&lt;", 4);
+                break;
 
-	case '>':
-	    out.append("&gt;", 4);
-	    break;
+            case '>':
+                out.append("&gt;", 4);
+                break;
 
-	case '"':
-	    out.append("&quot;", 6);
-	    break;
+            case '"':
+                out.append("&quot;", 6);
+                break;
 
-	case '\'':
-	    out.append("&apos;", 6);
-	    break;
+            case '\'':
+                out.append("&apos;", 6);
+                break;
 
-	default:
-	    out.append(Sint8(c));
+            default:
+                out.append(Sint8(c));
+        }
     }
 }
 
 static inline void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
-    switch (c)
+    if ( (c < Char16(0x20)) || (c == Char16(0x7f)) )
     {
-	case '&':
-	    os << "&amp;";
-	    break;
+        char charref[7];
+        sprintf(charref, "&#%u;", (Uint16)c);
+        os << charref;
+    }
+    else
+    {
+        switch (c)
+        {
+            case '&':
+                os << "&amp;";
+                break;
 
-	case '<':
-	    os << "&lt;";
-	    break;
+            case '<':
+                os << "&lt;";
+                break;
 
-	case '>':
-	    os << "&gt;";
-	    break;
+            case '>':
+                os << "&gt;";
+                break;
 
-	case '"':
-	    os << "&quot;";
-	    break;
+            case '"':
+                os << "&quot;";
+                break;
 
-	case '\'':
-	    os << "&apos;";
-	    break;
+            case '\'':
+                os << "&apos;";
+                break;
 
-	default:
-	    os << c;
+            default:
+                os << c;
+        }
     }
 }
 

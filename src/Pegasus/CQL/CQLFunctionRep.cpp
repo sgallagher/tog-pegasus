@@ -47,70 +47,67 @@ CQLFunctionRep::CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpress
 } */
 CQLFunctionRep::CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms){
     	_parms = inParms;
-	String opType(inOpType.getName().getString());
-
-	if(String::compareNoCase(opType,String("classnameexp")) == 0){
-		 _funcOpType = CLASSNAMEEXP;
+        String opType(inOpType.getName().getString());
+        
+	if(String::compareNoCase(opType,String("DATETIMETOMICROSECOND")) == 0){
+		 _funcOpType = DATETIMETOMICROSECOND;
 	}
-	else if(String::compareNoCase(opType, String("classname")) == 0){
+	else if(String::compareNoCase(opType, String("STRINGTOUINT")) == 0){
+                 _funcOpType = STRINGTOUINT;
+        }
+	else if(String::compareNoCase(opType, String("STRINGTOSINT")) == 0){
+                 _funcOpType = STRINGTOSINT;
+        }
+	else if(String::compareNoCase(opType, String("STRINGTOREAL")) == 0){
+                 _funcOpType = STRINGTOREAL;
+        }
+        else if(String::compareNoCase(opType, String("STRINGTONUMERIC")) == 0){
+                 _funcOpType = STRINGTONUMERIC;
+        }
+	else if(String::compareNoCase(opType, String("UPPERCASE")) == 0){
+                 _funcOpType = UPPERCASE;
+        }
+        else if(String::compareNoCase(opType, String("NUMERICTOSTRING")) == 0){
+                 _funcOpType = NUMERICTOSTRING;
+        }
+        else if(String::compareNoCase(opType, String("REFERENCETOSTRING")) == 0){
+                 _funcOpType = REFERENCETOSTRING;
+        }
+        else if(String::compareNoCase(opType, String("CLASSNAME")) == 0){
                  _funcOpType = CLASSNAME;
         }
-	else if(String::compareNoCase(opType, String("classpath")) == 0){
-                 _funcOpType = CLASSPATH;
-        }
-	else if(String::compareNoCase(opType, String("count")) == 0){
-                 _funcOpType = COUNT;
-        }
-        else if(String::compareNoCase(opType, String("countdistinct")) == 0){
-                 _funcOpType = COUNTDISTINCT;
-        }
-	else if(String::compareNoCase(opType, String("countdistinctexpr")) == 0){
-                 _funcOpType = COUNTDISTINCTEXPR;
-        }
-        else if(String::compareNoCase(opType, String("createarray")) == 0){
-                 _funcOpType = CREATEARRAY;
-        }
-        else if(String::compareNoCase(opType, String("datetime")) == 0){
-                 _funcOpType = DATETIME;
-        }
-        else if(String::compareNoCase(opType, String("hostname")) == 0){
-                 _funcOpType = HOSTNAME;
-        }
-	else if(String::compareNoCase(opType, String("max")) == 0){
-                 _funcOpType = MAX;
-        }
-        else if(String::compareNoCase(opType, String("mean")) == 0){
-                 _funcOpType = MEAN;
-        }
-        else if(String::compareNoCase(opType, String("median")) == 0){
-                 _funcOpType = MEDIAN;
-        }
-	else if(String::compareNoCase(opType, String("min")) == 0){
-                 _funcOpType = MIN;
-        }
-        else if(String::compareNoCase(opType, String("modelpath")) == 0){
-                 _funcOpType = MODELPATH;
-        }
-        else if(String::compareNoCase(opType, String("namespacename")) == 0){
+	else if(String::compareNoCase(opType, String("NAMESPACENAME")) == 0){
                  _funcOpType = NAMESPACENAME;
         }
-	else if(String::compareNoCase(opType, String("namespacepath")) == 0){
-                 _funcOpType = NAMESPACEPATH;
+        else if(String::compareNoCase(opType, String("NAMESPACETYPE")) == 0){
+                 _funcOpType = NAMESPACETYPE;
         }
-        else if(String::compareNoCase(opType, String("objectpath")) == 0){
+        else if(String::compareNoCase(opType, String("HOSTPORT")) == 0){
+                 _funcOpType = HOSTPORT;
+        }
+	else if(String::compareNoCase(opType, String("MODELPATH")) == 0){
+                 _funcOpType = MODELPATH;
+        }
+        else if(String::compareNoCase(opType, String("CLASSPATH")) == 0){
+                 _funcOpType = CLASSPATH;
+        }
+        else if(String::compareNoCase(opType, String("OBJECTPATH")) == 0){
                  _funcOpType = OBJECTPATH;
         }
-        else if(String::compareNoCase(opType, String("scheme")) == 0){
-                 _funcOpType = SCHEME;
+	else if(String::compareNoCase(opType, String("INSTANCETOREFERENCE")) == 0){
+                 _funcOpType = INSTANCETOREFERENCE;
         }
-	else if(String::compareNoCase(opType, String("sum")) == 0){
-                 _funcOpType = SUM;
+        else if(String::compareNoCase(opType, String("CURRENTDATETIME")) == 0){
+                 _funcOpType = CURRENTDATETIME;
         }
-        else if(String::compareNoCase(opType, String("userinfo")) == 0){
-                 _funcOpType = USERINFO;
+        else if(String::compareNoCase(opType, String("DATETIME")) == 0){
+                 _funcOpType = DATETIME;
         }
-        else if(String::compareNoCase(opType, String("uppercase")) == 0){
-                 _funcOpType = UPPERCASE;
+	else if(String::compareNoCase(opType, String("MICROSECONDTOTIMESTAMP")) == 0){
+                 _funcOpType = MICROSECONDTOTIMESTAMP;
+        }
+        else if(String::compareNoCase(opType, String("MICROSECONDTOINTERVAL")) == 0){
+                 _funcOpType = MICROSECONDTOINTERVAL;
         }
 }
 CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep* rep)
@@ -120,36 +117,56 @@ CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep* rep)
 }
 
 CQLFunctionRep::~CQLFunctionRep(){
-
 }
 
 CQLValue CQLFunctionRep::resolveValue(CIMInstance CI, QueryContext& queryCtx)
 {
    switch(_funcOpType)
    {
-      case CLASSNAMEEXP:
-      case CLASSNAME:
-      case CLASSPATH:
-      case COUNT:
-      case COUNTDISTINCT:
-      case COUNTDISTINCTEXPR:
-      case CREATEARRAY:
-      case DATETIME:
-      case HOSTNAME:
-      case MAX:
-      case MEAN:
-      case MEDIAN:
-      case MIN:
-      case MODELPATH:
-      case NAMESPACENAME:
-      case NAMESPACEPATH:
-      case OBJECTPATH:
-      case SCHEME:
-      case SUM:
-      case USERINFO:
-      case UPPERCASE:
-      default:
-         break;
+       case DATETIMETOMICROSECOND:
+           return dateTimeToMicrosecond(CI, queryCtx);
+       case STRINGTOUINT:
+           return stringToUint(CI, queryCtx);
+       case STRINGTOSINT:
+           return stringToSint(CI, queryCtx);
+       case STRINGTOREAL:
+           return stringToReal(CI, queryCtx);
+       case STRINGTONUMERIC:
+           return stringToNumeric(CI, queryCtx);
+       case UPPERCASE:
+           return upperCase(CI, queryCtx);
+       case NUMERICTOSTRING:
+           return numericToString(CI, queryCtx);
+       case REFERENCETOSTRING:
+           return referenceToString(CI, queryCtx);
+       case CLASSNAME:
+           return className(CI, queryCtx);
+       case NAMESPACENAME:
+           return nameSpaceName(CI, queryCtx);
+       case NAMESPACETYPE:
+           return nameSpaceType(CI, queryCtx);
+       case HOSTPORT:
+           return hostPort(CI, queryCtx);
+       case MODELPATH:
+           return modelPath(CI, queryCtx);
+       case CLASSPATH:
+           return classPath(CI, queryCtx);
+       case OBJECTPATH:
+           return objectPath(CI, queryCtx);
+       case INSTANCETOREFERENCE:
+           return instanceToReference(CI, queryCtx);
+       case CURRENTDATETIME:
+           return currentDateTime(CI, queryCtx);
+       case DATETIME:
+           return dateTime(CI, queryCtx);
+       case MICROSECONDTOTIMESTAMP:
+           return microsecondToTimestamp(CI, queryCtx);
+       case MICROSECONDTOINTERVAL:
+           return microsecondToInterval(CI, queryCtx);
+
+       default:
+           // TODO: throw exception
+           break;
    }
    return CQLValue(Uint64(0));
 }
@@ -165,68 +182,62 @@ String CQLFunctionRep::toString()
    //returnStr.append(String(buffer));
    switch(_funcOpType)
    {
-      case CLASSNAMEEXP:
-		returnStr.append("CLASSNAMEEXP");
+      case DATETIMETOMICROSECOND:
+		returnStr.append("DATETIMETOMICROSECOND");
 		break;
+      case STRINGTOUINT:
+		returnStr.append("STRINGTOUINT");
+                break;
+      case STRINGTOSINT:
+		returnStr.append("STRINGTOSINT");
+                break;
+      case STRINGTOREAL:
+		returnStr.append("STRINGTOREAL");
+                break;
+      case UPPERCASE:
+		returnStr.append("UPPERCASE");
+                break;
+      case NUMERICTOSTRING:
+		returnStr.append("NUMERICTOSTRING");
+                break;
+      case REFERENCETOSTRING:
+		returnStr.append("REFERENCETOSTRING");
+                break;
       case CLASSNAME:
 		returnStr.append("CLASSNAME");
-                break;
-      case CLASSPATH:
-		returnStr.append("CLASSPATH");
-                break;
-      case COUNT:
-		returnStr.append("COUNT");
-                break;
-      case COUNTDISTINCT:
-		returnStr.append("COUNTDISTINCT");
-                break;
-      case COUNTDISTINCTEXPR:
-		returnStr.append("COUNTDISTINCTEXPR");
-                break;
-      case CREATEARRAY:
-		returnStr.append("CREATEARRAY");
-                break;
-      case DATETIME:
-		returnStr.append("DATETIME");
-                break;
-      case HOSTNAME:
-		returnStr.append("HOSTNAME");
-                break;
-      case MAX:
-		returnStr.append("MAX");
-                break;
-      case MEAN:
-		returnStr.append("MEAN");
-                break;
-      case MEDIAN:
-		returnStr.append("MEDIAN");
-                break;
-      case MIN:
-		returnStr.append("MIN");
-                break;
-      case MODELPATH:
-		returnStr.append("MODELPATH");
                 break;
       case NAMESPACENAME:
 		returnStr.append("NAMESPACENAME");
                 break;
-      case NAMESPACEPATH:
-		returnStr.append("NAMESPACEPATH");
+      case NAMESPACETYPE:
+		returnStr.append("NAMESPACETYPE");
+                break;
+      case HOSTPORT:
+		returnStr.append("HOSTPORT");
+                break;
+      case MODELPATH:
+		returnStr.append("MODELPATH");
+                break;
+      case CLASSPATH:
+		returnStr.append("CLASSPATH");
                 break;
       case OBJECTPATH:
 		returnStr.append("OBJECTPATH");
                 break;
-      case SCHEME:
-		returnStr.append("SCHEME");
+      case INSTANCETOREFERENCE:
+		returnStr.append("INSTANCETOREFERENCE");
                 break;
-      case SUM:
-		returnStr.append("SUM");
+      case CURRENTDATETIME:
+		returnStr.append("CURRENTDATETIME");
                 break;
-      case USERINFO:
-		returnStr.append("USERINFO");
+      case DATETIME:
+		returnStr.append("DATETIME");
                 break;
-      case UPPERCASE:
-		returnStr.append("UPPERCASE");
+      case MICROSECONDTOTIMESTAMP:
+		returnStr.append("MICROSECONDTOTIMESTAMP");
+                break;
+      case MICROSECONDTOINTERVAL:
+		returnStr.append("MICROSECONDTOINTERVAL");
                 break;
       default:
 		break;
@@ -266,4 +277,105 @@ Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func){
 Boolean CQLFunctionRep::operator!=(const CQLFunctionRep& func){
 	return (!operator==(func));
 }
+
+CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::classPath(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::currentDateTime(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
+CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const QueryContext& queryCtx)
+{
+   return CQLValue(Uint64(0));
+}
+
 PEGASUS_NAMESPACE_END

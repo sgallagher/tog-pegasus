@@ -117,11 +117,31 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
 
    friend class CQLFactory;
 
-  private:
+ private:
+   CQLValue dateTimeToMicrosecond(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue stringToUint(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue stringToSint(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue stringToReal(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue upperCase(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue numericToString(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue referenceToString(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue className(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue nameSpaceName(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue nameSpaceType(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue hostPort(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue modelPath(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue classPath(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue objectPath(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue instanceToReference(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue currentDateTime(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue dateTime(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue microsecondToTimestamp(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue microsecondToInterval(const CIMInstance& CI, const QueryContext& queryCtx);
 
    FunctionOpType _funcOpType;
 
-    Array<CQLPredicate> _parms;
+   Array<CQLPredicate> _parms;
 
 };
 

@@ -51,27 +51,29 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep;
 
  /** The Enum is private, the definition is public.
       */
-    enum  FunctionOpType { CLASSNAMEEXP, 
-			   CLASSNAME, 
-			   CLASSPATH, 
-			   COUNT, 
-			   COUNTDISTINCT, 
-			   COUNTDISTINCTEXPR, 
-			   CREATEARRAY, 
-			   DATETIME,
-			   HOSTNAME,
-			   MAX,
-			   MEAN,
-			   MEDIAN,
-			   MIN,
-			   MODELPATH,
-			   NAMESPACENAME,
-			   NAMESPACEPATH,
-			   OBJECTPATH,
-			   SCHEME,
-			   SUM,
-			   USERINFO,
-			   UPPERCASE };
+enum  FunctionOpType
+{
+  DATETIMETOMICROSECOND,
+  STRINGTOUINT,
+  STRINGTOSINT,
+  STRINGTOREAL,
+  STRINGTONUMERIC,
+  UPPERCASE,
+  NUMERICTOSTRING,
+  REFERENCETOSTRING,
+  CLASSNAME,
+  NAMESPACENAME,
+  NAMESPACETYPE,
+  HOSTPORT,
+  MODELPATH,
+  CLASSPATH,
+  OBJECTPATH,
+  INSTANCETOREFERENCE,
+  CURRENTDATETIME,
+  DATETIME,
+  MICROSECONDTOTIMESTAMP,
+  MICROSECONDTOINTERVAL
+};
 /**
    CQLFunction objects are populated by the
    Bison code.

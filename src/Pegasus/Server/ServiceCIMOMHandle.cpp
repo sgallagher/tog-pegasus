@@ -46,6 +46,7 @@ ServiceCIMOMHandle::ServiceCIMOMHandle(
     CIMServer * server)
 :
     //CIMOMHandle(outputQueue),
+    _repository(repository),
     _server(server)
 {
 }
@@ -64,6 +65,8 @@ ServiceCIMOMHandle& ServiceCIMOMHandle::operator=(const ServiceCIMOMHandle& hand
     CIMOMHandle::operator=(handle);
 
     _server = handle._server;
+
+    _repository = handle._repository;
 
     return(*this);
 }

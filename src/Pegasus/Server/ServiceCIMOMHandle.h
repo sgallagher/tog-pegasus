@@ -56,8 +56,11 @@ public:
 	
 	CIMServer * getServer(void) { return(_server); }
 
+	CIMRepository * getRepository(void) { return(_repository); }
+
 protected:	
 	CIMServer * _server;
+	CIMRepository * _repository;
 };
 
 PEGASUS_NAMESPACE_END

@@ -1,0 +1,30 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "The Sample Pegasus Indication Provider Module that implements Sample_IndicationProviderClass";
+    Caption = "Sample Pegasus Indication Provider Module";
+    Name = "SampleIndicationProviderModule";
+    Vendor = "Pegasus";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "SampleIndicationProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleIndicationProviderModule";
+    Name = "SampleIndicationProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleIndicationProviderModule";
+    ProviderName = "SampleIndicationProvider";
+    CapabilityID = "SampleIndicationProvider";
+    ClassName = "Sample_IndicationProviderClass";
+    Namespaces[] = { "root/cimv2" };
+    ProviderType[] = { 4 };  // Inidcation
+    SupportedProperties[] = NULL;
+    SupportedMethods[] = NULL;
+};

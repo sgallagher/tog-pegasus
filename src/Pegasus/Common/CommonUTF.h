@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -55,8 +55,8 @@ static const Uint32 halfMask = 0x3FFUL;
 static const int halfShift  = 10;
 static const Uint8 firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 
-static const Uint32 offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL, 
-		     0x03C82080UL, 0xFA082080UL, 0x82082080UL };
+static const Uint32 offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL,
+             0x03C82080UL, 0xFA082080UL, 0x82082080UL };
 
 static const char trailingBytesForUTF8[256] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -73,19 +73,22 @@ static const char trailingBytesForUTF8[256] = {
 
 #define UTF8_NEXT(s, i) { \
     (i)=((i) + UTF_8_COUNT_TRAIL_BYTES((s)[(i)]) + 1); \
-} 
+}
 
 
-PEGASUS_COMMON_LINKAGE int isValid_U8(const Uint8 *src,int size);
-PEGASUS_COMMON_LINKAGE int UTF16toUTF8(const Uint16** srcHead,
-		const Uint16* srcEnd, 
-		Uint8** tgtHead,
-		Uint8* tgtEnd);
+PEGASUS_COMMON_LINKAGE Boolean isValid_U8(const Uint8 *src,int size);
 
-PEGASUS_COMMON_LINKAGE int UTF8toUTF16 (const Uint8** srcHead,
-		 const Uint8* srcEnd, 
-		 Uint16** tgtHead,
-		 Uint16* tgtEnd);
+PEGASUS_COMMON_LINKAGE int UTF16toUTF8(
+    const Uint16** srcHead,
+    const Uint16* srcEnd,
+    Uint8** tgtHead,
+    Uint8* tgtEnd);
+
+PEGASUS_COMMON_LINKAGE int UTF8toUTF16(
+    const Uint8** srcHead,
+    const Uint8* srcEnd,
+    Uint16** tgtHead,
+    Uint16* tgtEnd);
 
 PEGASUS_COMMON_LINKAGE Boolean isUTF8(const char*);
 
@@ -101,7 +104,7 @@ PEGASUS_COMMON_LINKAGE String escapeStringEncoder(const String& Str);
     @param String: The string to be decoded.
     @return String: The decoded string.
 
-    Prereq: Only the return string from the escapeStringEncoder can be used 
+    Prereq: Only the return string from the escapeStringEncoder can be used
             as input.
 */
 PEGASUS_COMMON_LINKAGE String escapeStringDecoder(const String& Str);

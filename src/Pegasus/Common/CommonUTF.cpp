@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -57,153 +57,153 @@ inline Uint8 _hexCharToNumeric(const Uint16 c)
 }
 
 // Note: Caller must ensure that "src" contains "size" bytes.
-int isValid_U8(const Uint8 *src, int size)
+Boolean isValid_U8(const Uint8 *src, int size)
 {
     Uint8 U8_char;
     const Uint8 *srcptr = src+size;
     switch (size)
     {
-	case 4:
-	    if ((U8_char = (*--srcptr)) < 0x80 || U8_char > 0xBF)
-	    {
-		return false;
-	    }
-	case 3:
-	    if ((U8_char = (*--srcptr)) < 0x80 || U8_char > 0xBF)
-	    {
-		return false;
-	    }
-	case 2:
-	    if ((U8_char = (*--srcptr)) > 0xBF)
-	    {
-		return false;
-	    }
-	    switch (*src)
-	    {
-		case 0xE0:
-		    if (U8_char < 0xA0)
-		    {
-			return false;
-		    }
-		    break;
-		case 0xF0:
-		    if (U8_char < 0x90)
-		    {
-			return false;
-		    }
-		    break;
-		case 0xF4:
-		    if (U8_char > 0x8F)
-		    {
-			return false;
-		    }
-		    break;
-		default:
-		    if (U8_char < 0x80)
-		    {
-			return false;
-		    }
-	    }
-	case 1:
-	    if (*src >= 0x80 && *src < 0xC2)
-	    {
-		return false;
-	    }
-	    if (*src > 0xF4)
-	    {
-		return false;
-	    }
-	    break;
+    case 4:
+        if ((U8_char = (*--srcptr)) < 0x80 || U8_char > 0xBF)
+        {
+        return false;
+        }
+    case 3:
+        if ((U8_char = (*--srcptr)) < 0x80 || U8_char > 0xBF)
+        {
+        return false;
+        }
+    case 2:
+        if ((U8_char = (*--srcptr)) > 0xBF)
+        {
+        return false;
+        }
+        switch (*src)
+        {
+        case 0xE0:
+            if (U8_char < 0xA0)
+            {
+            return false;
+            }
+            break;
+        case 0xF0:
+            if (U8_char < 0x90)
+            {
+            return false;
+            }
+            break;
+        case 0xF4:
+            if (U8_char > 0x8F)
+            {
+            return false;
+            }
+            break;
         default:
-	    {
-		return false;
+            if (U8_char < 0x80)
+            {
+            return false;
+            }
+        }
+    case 1:
+        if (*src >= 0x80 && *src < 0xC2)
+        {
+        return false;
+        }
+        if (*src > 0xF4)
+        {
+        return false;
+        }
+        break;
+        default:
+        {
+        return false;
             }
 
     }
     return true;
-}	
+}
 
 int UTF16toUTF8(const Uint16** srcHead,
-		const Uint16* srcEnd, 
-		Uint8** tgtHead,
-		Uint8* tgtEnd)
+        const Uint16* srcEnd,
+        Uint8** tgtHead,
+        Uint8* tgtEnd)
 {
     int returnCode = 0;
     const Uint16* src = *srcHead;
     Uint8* tgt = *tgtHead;
     while (src < srcEnd)
     {
-	Uint32 tempchar;
-	Uint16 numberOfBytes = 0;
-	const Uint16* oldsrc = src; 
-	tempchar = *src++;
-	if (tempchar >= FIRST_HIGH_SURROGATE
-	    && tempchar <= LAST_HIGH_SURROGATE)
-	{
-	    if (src < srcEnd)
-	    {
-		Uint32 tempchar2 = *src;
-		if (tempchar2 >= FIRST_LOW_SURROGATE &&
-		    tempchar2 <= LAST_LOW_SURROGATE)
-		{
-		    tempchar = ((tempchar - FIRST_HIGH_SURROGATE) << halfShift)
-		      + (tempchar2 - FIRST_LOW_SURROGATE) + halfBase;
-		    ++src;
-		} 
-	    }
-	    else
-	    { 
-		--src;
-		returnCode = -1;
-		break;
-	    }
-	}
-	if (tempchar < (Uint32)0x80)
-	{
-	    numberOfBytes = 1;
-	}
-	else if (tempchar < (Uint32)0x800)
-	{
-	    numberOfBytes = 2;
-	}
-	else if (tempchar < (Uint32)0x10000)
-	{
-	    numberOfBytes = 3;
-	}
-	else if (tempchar < (Uint32)0x200000)
-	{
-	    numberOfBytes = 4;
-	}
-	else
-	{
-	    numberOfBytes = 2;
-	    tempchar = REPLACEMENT_CHARACTER;
-	}
+    Uint32 tempchar;
+    Uint16 numberOfBytes = 0;
+    const Uint16* oldsrc = src;
+    tempchar = *src++;
+    if (tempchar >= FIRST_HIGH_SURROGATE
+        && tempchar <= LAST_HIGH_SURROGATE)
+    {
+        if (src < srcEnd)
+        {
+        Uint32 tempchar2 = *src;
+        if (tempchar2 >= FIRST_LOW_SURROGATE &&
+            tempchar2 <= LAST_LOW_SURROGATE)
+        {
+            tempchar = ((tempchar - FIRST_HIGH_SURROGATE) << halfShift)
+              + (tempchar2 - FIRST_LOW_SURROGATE) + halfBase;
+            ++src;
+        }
+        }
+        else
+        {
+        --src;
+        returnCode = -1;
+        break;
+        }
+    }
+    if (tempchar < (Uint32)0x80)
+    {
+        numberOfBytes = 1;
+    }
+    else if (tempchar < (Uint32)0x800)
+    {
+        numberOfBytes = 2;
+    }
+    else if (tempchar < (Uint32)0x10000)
+    {
+        numberOfBytes = 3;
+    }
+    else if (tempchar < (Uint32)0x200000)
+    {
+        numberOfBytes = 4;
+    }
+    else
+    {
+        numberOfBytes = 2;
+        tempchar = REPLACEMENT_CHARACTER;
+    }
 
-	tgt += numberOfBytes;
-	if (tgt > tgtEnd)
-	{
-	    src = oldsrc;
-	    tgt -= numberOfBytes;
-	    returnCode = -1;
-	    break;
-	}
+    tgt += numberOfBytes;
+    if (tgt > tgtEnd)
+    {
+        src = oldsrc;
+        tgt -= numberOfBytes;
+        returnCode = -1;
+        break;
+    }
 
-	switch (numberOfBytes)
-	{ 
-	    case 4:
-		*--tgt = (Uint8)((tempchar | 0x80) & 0xBF);
-		tempchar >>= 6;
-	    case 3:
-		*--tgt = (Uint8)((tempchar | 0x80) & 0xBF);
-		tempchar >>= 6;
-	    case 2:
-		*--tgt = (Uint8)((tempchar | 0x80) & 0xBF);
-		tempchar >>= 6;
-	    case 1:
-		*--tgt =  (Uint8)(tempchar | firstByteMark[numberOfBytes]);
-	}
-	tgt += numberOfBytes;
+    switch (numberOfBytes)
+    {
+        case 4:
+        *--tgt = (Uint8)((tempchar | 0x80) & 0xBF);
+        tempchar >>= 6;
+        case 3:
+        *--tgt = (Uint8)((tempchar | 0x80) & 0xBF);
+        tempchar >>= 6;
+        case 2:
+        *--tgt = (Uint8)((tempchar | 0x80) & 0xBF);
+        tempchar >>= 6;
+        case 1:
+        *--tgt =  (Uint8)(tempchar | firstByteMark[numberOfBytes]);
+    }
+    tgt += numberOfBytes;
     }
     *srcHead = src;
     *tgtHead = tgt;
@@ -211,72 +211,72 @@ int UTF16toUTF8(const Uint16** srcHead,
 }
 
 int UTF8toUTF16 (const Uint8** srcHead,
-		 const Uint8* srcEnd, 
-		 Uint16** tgtHead,
-		 Uint16* tgtEnd)
+         const Uint8* srcEnd,
+         Uint16** tgtHead,
+         Uint16* tgtEnd)
 {
     int returnCode = 0;
     const Uint8* src = *srcHead;
     Uint16* tgt = *tgtHead;
     while (src < srcEnd)
     {
-	Uint32 tempchar = 0;
-	Uint16 moreBytes = trailingBytesForUTF8[*src];
-	if (src + moreBytes >= srcEnd)
-	{
-	    returnCode = -1;
-	    break;
-	}
-	switch (moreBytes)
-	{
-	    case 3:
-		tempchar += *src++;
-		tempchar <<= 6;
-	    case 2:
-		tempchar += *src++;
-		tempchar <<= 6;
-	    case 1:
-		tempchar += *src++;
-		tempchar <<= 6;
-	    case 0:
-		tempchar += *src++;
-	}
-	tempchar -= offsetsFromUTF8[moreBytes];
+    Uint32 tempchar = 0;
+    Uint16 moreBytes = trailingBytesForUTF8[*src];
+    if (src + moreBytes >= srcEnd)
+    {
+        returnCode = -1;
+        break;
+    }
+    switch (moreBytes)
+    {
+        case 3:
+        tempchar += *src++;
+        tempchar <<= 6;
+        case 2:
+        tempchar += *src++;
+        tempchar <<= 6;
+        case 1:
+        tempchar += *src++;
+        tempchar <<= 6;
+        case 0:
+        tempchar += *src++;
+    }
+    tempchar -= offsetsFromUTF8[moreBytes];
 
-	if (tgt >= tgtEnd)
-	{
-	    src -= (moreBytes+1); 
-	    returnCode = -1; break;
-	}
-	if (tempchar <= MAX_BYTE)
-	{	
-	    if ((tempchar >= FIRST_HIGH_SURROGATE &&
-		 tempchar <= LAST_LOW_SURROGATE) ||
-		((tempchar & 0xFFFE) ==	0xFFFE))
-	    {
-		*tgt++ = REPLACEMENT_CHARACTER;
-	    }
-	    else
-	    {
-		*tgt++ = (Uint16)tempchar; 
-	    }
-	}
-	else if (tempchar > MAX_UTF16)
-	{
-	    *tgt++ = REPLACEMENT_CHARACTER;
-	}
-	else
-	{
-	    if (tgt + 1 >= tgtEnd)
-	    {
-		src -= (moreBytes+1);
-		returnCode = -1;
-		break;
-	    }
-	    tempchar -= halfBase;
-	    *tgt++ = (Uint16)((tempchar >> halfShift) + FIRST_HIGH_SURROGATE);
-	    *tgt++ = (Uint16)((tempchar & halfMask) + FIRST_LOW_SURROGATE);
-	}
+    if (tgt >= tgtEnd)
+    {
+        src -= (moreBytes+1);
+        returnCode = -1; break;
+    }
+    if (tempchar <= MAX_BYTE)
+    {
+        if ((tempchar >= FIRST_HIGH_SURROGATE &&
+         tempchar <= LAST_LOW_SURROGATE) ||
+        ((tempchar & 0xFFFE) == 0xFFFE))
+        {
+        *tgt++ = REPLACEMENT_CHARACTER;
+        }
+        else
+        {
+        *tgt++ = (Uint16)tempchar;
+        }
+    }
+    else if (tempchar > MAX_UTF16)
+    {
+        *tgt++ = REPLACEMENT_CHARACTER;
+    }
+    else
+    {
+        if (tgt + 1 >= tgtEnd)
+        {
+        src -= (moreBytes+1);
+        returnCode = -1;
+        break;
+        }
+        tempchar -= halfBase;
+        *tgt++ = (Uint16)((tempchar >> halfShift) + FIRST_HIGH_SURROGATE);
+        *tgt++ = (Uint16)((tempchar & halfMask) + FIRST_LOW_SURROGATE);
+    }
     }
     *srcHead = src;
     *tgtHead = tgt;
@@ -302,45 +302,45 @@ Boolean isUTF8(const char *legal)
 
 Boolean isUTF8Str(const char *legal)
 {
-	/*char tmp[] = {0xCE,0x99,0xCE,0xBF,0xCF,0x8D,0xCE,0xBD,0xCE,
+    /*char tmp[] = {0xCE,0x99,0xCE,0xBF,0xCF,0x8D,0xCE,0xBD,0xCE,
                       0xB9,0xCE,0xBA,0xCE,0xBF,0xCE,0xBD,0xCF,0x84,
                       0x00};*/
-//	char tmp_[] = "class";
-//	char * tmp = legal;
-	Uint32 count = 0;
+//  char tmp_[] = "class";
+//  char * tmp = legal;
+    Uint32 count = 0;
         Uint32 size = strlen(legal);
-//	printf("size = %d\n",size);
+//  printf("size = %d\n",size);
         while(count<size)
         {
-//		printf("count = %d\n",count);
+//      printf("count = %d\n",count);
                 if(isUTF8(&legal[count]) == true){
-                	UTF8_NEXT(legal,count);
-		}else{
-//			printf("bad string\n");
-			return false;
-		}
+                    UTF8_NEXT(legal,count);
+        }else{
+//          printf("bad string\n");
+            return false;
         }
-//	printf("good string\n");
-	return true;
+        }
+//  printf("good string\n");
+    return true;
 /*
-	printf("legal = %s\n\n", legal);
-	Uint32 count = 0;
-	Uint32 trailingBytes = 0;
+    printf("legal = %s\n\n", legal);
+    Uint32 count = 0;
+    Uint32 trailingBytes = 0;
         Uint32 size = strlen(legal);
-	printf("size of legal is %d\n",size);
+    printf("size of legal is %d\n",size);
         while(count<size-1)
         {
-		printf("count = %d\n", count);
+        printf("count = %d\n", count);
                 if(isUTF8((char*)&legal[count]) == true){
-                	UTF8_NEXT(legal,trailingBytes);
-			count += trailingBytes;
-		} else{
-			printf("CommonUTF8:: returning false; position[%d]",count);
-			 return false;	
-		}
+                    UTF8_NEXT(legal,trailingBytes);
+            count += trailingBytes;
+        } else{
+            printf("CommonUTF8:: returning false; position[%d]",count);
+             return false;
         }
-	 printf("CommonUTF8:: returning false; position[%d]",count);
-	return true;*/
+        }
+     printf("CommonUTF8:: returning false; position[%d]",count);
+    return true;*/
 }
 
 String escapeStringEncoder(const String& Str)
@@ -348,20 +348,20 @@ String escapeStringEncoder(const String& Str)
     String escapeStr;
     Uint16 escChar;
     char hexencoding[6];
-    
+
     for(Uint32 i = 0; i < Str.size(); ++i)
     {
-	escChar = Str[i];
-	if(escChar <= 0x7F)
+    escChar = Str[i];
+    if(escChar <= 0x7F)
         {
-	    escapeStr.append(escChar);
+        escapeStr.append(escChar);
         }
-	else
-	{
-	    memset(hexencoding,0x00,sizeof(hexencoding));
+    else
+    {
+        memset(hexencoding,0x00,sizeof(hexencoding));
             sprintf(hexencoding, "%%%03X%X", escChar/16, escChar%16);
             escapeStr.append(hexencoding);
-	}
+    }
     }
     return(escapeStr);
 }
@@ -370,7 +370,7 @@ String escapeStringDecoder(const String& Str)
 {
     Uint32 i;
 
-    Array<Uint16> utf16Chars; 
+    Array<Uint16> utf16Chars;
 
     for (i=0; i< Str.size(); ++i)
     {
@@ -381,14 +381,14 @@ String escapeStringDecoder(const String& Str)
             Uint8 digit3 = _hexCharToNumeric((Str[++i]));
             Uint8 digit4 = _hexCharToNumeric((Str[++i]));
 
-	    Uint16 decodedChar = (digit1<<12) + (digit2<<8) +
+        Uint16 decodedChar = (digit1<<12) + (digit2<<8) +
                                  (digit3<< 4) + (digit4);
 
-            utf16Chars.append(decodedChar);				
+            utf16Chars.append(decodedChar);
         }
         else
         {
-            utf16Chars.append((Uint16)Str[i]);	
+            utf16Chars.append((Uint16)Str[i]);
         }
     }
 

@@ -298,6 +298,7 @@ inline void _toXml(Array<Sint8>& out, const String& x)
     \x<hex> // where <hex> is one to four hex digits
     \X<hex> // where <hex> is one to four hex digits
 */
+/* ATTN:KS - We need to account for characters greater than x'7f
 inline void _toMof(Array<Sint8>& out, const String& x)
 {
     out << "\"";

@@ -51,6 +51,9 @@
 
 #include <cstddef>
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_ZOS
@@ -83,5 +86,19 @@
 #define PEGASUS_MAXHOSTNAMELEN  256
 
 #define PEGASUS_NO_PASSWORDFILE
-#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
+
+
+//#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
+
+inline int snprintf(char *sptr, size_t len, const char* form, ...)
+{
+    int returnvalue;
+    va_list arguments;
+    va_start(arguments, form);
+    returnvalue = vsprintf(sptr, form, arguments);
+    va_end(arguments);
+    return returnvalue;
+}
+
+
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

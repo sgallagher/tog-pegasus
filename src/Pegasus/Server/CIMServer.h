@@ -155,7 +155,7 @@ public:
         provider started as part of system startup.
         This MUST be replaced with something more permanent.
     */
-    void startSLPProvider(void);
+    void startSLPProvider();
 
 private:
 

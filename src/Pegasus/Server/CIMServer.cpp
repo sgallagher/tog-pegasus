@@ -374,7 +374,6 @@ CIMServer::~CIMServer()
        pegasus_acceptor::close_all_acceptors();
     }
     
-
     PEG_METHOD_EXIT();
 }
 
@@ -471,53 +470,58 @@ monitor_2* CIMServer::get_monitor2(void)
 
 void CIMServer::runForever()
 {
-  if(_type == OLD) {
-
+    if(_type == OLD) 
+    {
     // Note: Trace code in this method will be invoked frequently.
-
+    
     static int modulator = 0;
-
+    
     if(!_dieNow)
-      {
-    	if(false == _monitor->run(100))
-    	  {
-            startSLPProvider();
-    	    modulator++;
-    	    if( ! (modulator % 5000) )
-    	      {
-        		try
-        		  {
+    {
+        if(false == _monitor->run(100))
+        {
+            if (modulator++ == 0)
+            {
+#ifdef PEGASUS_ENABLE_SLP
+                startSLPProvider();
+#endif
+            }
+            //modulator++;
+            if( ! (modulator % 5000) )
+            {
+                try
+                {
                     MessageQueueService::_check_idle_flag = 1;
-        		    MessageQueueService::_polling_sem.signal();
-        		
+                    MessageQueueService::_polling_sem.signal();
+                
                     #ifdef ENABLE_PROVIDER_MANAGER2
                     _providerManager->unload_idle_providers();
                     #else
                     ProviderManagerService::getProviderManager()->unload_idle_providers();
                     #endif
         
-        		  }
-        		catch(...)
-        		  {
-        		  }
-        	  }
-    	  }
-
-    	if (handleShutdownSignal)
-    	  {
-    	    Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-    			  "CIMServer::runForever - signal received.  Shutting down.");
-    	
-    	    ShutdownService::getInstance(this)->shutdown(true, 10, false);
-    	    handleShutdownSignal = false;
-    	  }
-      }
-  }
-  else {
-    monitor2->run();
-//    MessageQueueService::force_shutdown(true);
-  }
-
+                }
+                catch(...)
+                {
+                }
+            }
+        }
+    
+        if (handleShutdownSignal)
+        {
+            Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+                  "CIMServer::runForever - signal received.  Shutting down.");
+        
+            ShutdownService::getInstance(this)->shutdown(true, 10, false);
+            handleShutdownSignal = false;
+        }
+    }
+    }
+    else 
+    {
+        monitor2->run();
+        //    MessageQueueService::force_shutdown(true);
+    }
 }
 
 void CIMServer::stopClientConnection()
@@ -690,7 +694,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void *parm);
 
 // This is a control function that starts a new thread which issues a
 // cim operation to start the slp provider.
-void CIMServer::startSLPProvider(void)
+void CIMServer::startSLPProvider()
 {
 
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");

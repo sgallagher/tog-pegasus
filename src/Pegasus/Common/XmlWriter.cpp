@@ -225,7 +225,6 @@ void XmlWriter::appendLocalNameSpacePathElement(
 
     char* tmp = nameSpace.allocateCString();
 
-    // ATTN-RK-P3-20020301: Is it necessary/helpful to break this into parts?
     for (char* p = strtok(tmp, "/"); p; p = strtok(NULL, "/"))
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
@@ -1213,7 +1212,7 @@ void XmlWriter::appendEMethodRequestHeader(
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Man: http://www.hp.com; ns=";
     out << nn <<"\r\n";
-    out << nn << "-CIMExport: MethodRequest\r\n";  // ATTN-RK-P2-20020228: Should this be "MethodCall"?
+    out << nn << "-CIMExport: MethodRequest\r\n";
     out << nn << "-CIMExportMethod: " << cimMethod << "\r\n";
     if (authenticationHeader.size())
     {

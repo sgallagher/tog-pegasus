@@ -11,7 +11,6 @@ LIBRARY = pegcommon
 SOURCES = \
     Array.cpp \
     AsyncOpNode.cpp \
-    AsyncOpNodeLocal.cpp \
     AsyncResponseHandler.cpp \
     AuthenticationInfo.cpp \
     CGIQueryString.cpp \
@@ -92,6 +91,7 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp
+#    AsyncOpNodeLocal.cpp \
 
 ##
 ## Took these out again. They broke the NT build.

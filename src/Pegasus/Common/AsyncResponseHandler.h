@@ -105,6 +105,7 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
       // to gain access to the Thread object's utility routines 
       Thread *_thread;
       Array<object_type> *_objects;
+      int _type;  // ATTN-RK: Had to add this to compile successfully
       struct timeval _key;
       void _clear(void);
       friend class AsyncOpNode;

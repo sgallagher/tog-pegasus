@@ -75,46 +75,46 @@ protected:
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(void * arg) throw();
 
-    //void handleGetClassRequest(Message * message) throw();
-    //void handleEnumerateClassesRequest(Message * message) throw();
-    //void handleEnumerateClassNamesRequest(Message * message) throw();
-    //void handleCreateClassRequest(Message * message) throw();
-    //void handleModifyClassRequest(Message * message) throw();
-    //void handleDeleteClassRequest(Message * message) throw();
+    //void handleGetClassRequest(const Message * message) throw();
+    //void handleEnumerateClassesRequest(const Message * message) throw();
+    //void handleEnumerateClassNamesRequest(const Message * message) throw();
+    //void handleCreateClassRequest(const Message * message) throw();
+    //void handleModifyClassRequest(const Message * message) throw();
+    //void handleDeleteClassRequest(const Message * message) throw();
 
-    void handleGetInstanceRequest(Message * message) throw();
-    void handleEnumerateInstancesRequest(Message * message) throw();
-    void handleEnumerateInstanceNamesRequest(Message * message) throw();
-    void handleCreateInstanceRequest(Message * message) throw();
-    void handleModifyInstanceRequest(Message * message) throw();
-    void handleDeleteInstanceRequest(Message * message) throw();
+    void handleGetInstanceRequest(const Message * message) throw();
+    void handleEnumerateInstancesRequest(const Message * message) throw();
+    void handleEnumerateInstanceNamesRequest(const Message * message) throw();
+    void handleCreateInstanceRequest(const Message * message) throw();
+    void handleModifyInstanceRequest(const Message * message) throw();
+    void handleDeleteInstanceRequest(const Message * message) throw();
 
-    void handleExecuteQueryRequest(Message * message) throw();
+    void handleExecuteQueryRequest(const Message * message) throw();
 
-    void handleAssociatorsRequest(Message * message) throw();
-    void handleAssociatorNamesRequest(Message * message) throw();
-    void handleReferencesRequest(Message * message) throw();
-    void handleReferenceNamesRequest(Message * message) throw();
+    void handleAssociatorsRequest(const Message * message) throw();
+    void handleAssociatorNamesRequest(const Message * message) throw();
+    void handleReferencesRequest(const Message * message) throw();
+    void handleReferenceNamesRequest(const Message * message) throw();
 
-    void handleGetPropertyRequest(Message * message) throw();
-    void handleSetPropertyRequest(Message * message) throw();
+    void handleGetPropertyRequest(const Message * message) throw();
+    void handleSetPropertyRequest(const Message * message) throw();
 
-    void handleInvokeMethodRequest(Message * message) throw();
+    void handleInvokeMethodRequest(const Message * message) throw();
 
-    void handleEnableIndicationRequest(Message * message) throw();
-    void handleModifyIndicationRequest(Message * message) throw();
-    void handleDisableIndicationRequest(Message * message) throw();
+    void handleEnableIndicationRequest(const Message * message) throw();
+    void handleModifyIndicationRequest(const Message * message) throw();
+    void handleDisableIndicationRequest(const Message * message) throw();
 
-    void handleCreateSubscriptionRequest(Message * message) throw();
-    void handleModifySubscriptionRequest(Message * message) throw();
-    void handleDeleteSubscriptionRequest(Message * message) throw();
+    void handleCreateSubscriptionRequest(const Message * message) throw();
+    void handleModifySubscriptionRequest(const Message * message) throw();
+    void handleDeleteSubscriptionRequest(const Message * message) throw();
 
 protected:
     ThreadPool _threadPool;
     Semaphore _threadSemaphore;
 
     SafeQueue<Message *> _incomingQueue;
-    SafeQueue<Message *> _outgoingQueue;
+    //SafeQueue<Message *> _outgoingQueue;
 
     ProviderRegistrationManager * _providerRegistrationManager;
 };

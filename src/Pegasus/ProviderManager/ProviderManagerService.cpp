@@ -111,6 +111,8 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 	"nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
 
+    // ATTN: try all provider type lookups
+
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupInstanceProvider(
 	objectPath.getNameSpace(), objectPath.getClassName(),
@@ -415,17 +417,17 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	service->handleInvokeMethodRequest(message);
 
 	break;
-    // deprecated
+    // ATTN: deprecated
     case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleEnableIndicationRequest(message);
 
 	break;
-    // deprecated
+    // ATTN: deprecated
     case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleModifyIndicationRequest(message);
 
 	break;
-    // deprecated
+    // ATTN: deprecated
     case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleDisableIndicationRequest(message);
 
@@ -450,10 +452,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     return(0);
 }
 
-void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
+void ProviderManagerService::handleGetInstanceRequest(const Message * message) throw()
 {
     const CIMGetInstanceRequestMessage * request =
-	dynamic_cast<CIMGetInstanceRequestMessage *>(message);
+	dynamic_cast<const CIMGetInstanceRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -540,13 +542,13 @@ void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) throw()
+void ProviderManagerService::handleEnumerateInstancesRequest(const Message * message) throw()
 {
     const CIMEnumerateInstancesRequestMessage * request =
-	dynamic_cast<CIMEnumerateInstancesRequestMessage *>(message);
+	dynamic_cast<const CIMEnumerateInstancesRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -630,13 +632,13 @@ void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) 
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleEnumerateInstanceNamesRequest(Message * message) throw()
+void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message * message) throw()
 {
     const CIMEnumerateInstanceNamesRequestMessage * request =
-	dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(message);
+	dynamic_cast<const CIMEnumerateInstanceNamesRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -705,13 +707,13 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(Message * messa
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleCreateInstanceRequest(Message * message) throw()
+void ProviderManagerService::handleCreateInstanceRequest(const Message * message) throw()
 {
     const CIMCreateInstanceRequestMessage * request =
-	dynamic_cast<CIMCreateInstanceRequestMessage *>(message);
+	dynamic_cast<const CIMCreateInstanceRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -791,13 +793,13 @@ void ProviderManagerService::handleCreateInstanceRequest(Message * message) thro
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleModifyInstanceRequest(Message * message) throw()
+void ProviderManagerService::handleModifyInstanceRequest(const Message * message) throw()
 {
     const CIMModifyInstanceRequestMessage * request =
-	dynamic_cast<CIMModifyInstanceRequestMessage *>(message);
+	dynamic_cast<const CIMModifyInstanceRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -875,13 +877,13 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleDeleteInstanceRequest(Message * message) throw()
+void ProviderManagerService::handleDeleteInstanceRequest(const Message * message) throw()
 {
     const CIMDeleteInstanceRequestMessage * request =
-	dynamic_cast<CIMDeleteInstanceRequestMessage *>(message);
+	dynamic_cast<const CIMDeleteInstanceRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -946,13 +948,13 @@ void ProviderManagerService::handleDeleteInstanceRequest(Message * message) thro
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleExecuteQueryRequest(Message * message) throw()
+void ProviderManagerService::handleExecuteQueryRequest(const Message * message) throw()
 {
     const CIMExecQueryRequestMessage * request =
-	dynamic_cast<CIMExecQueryRequestMessage *>(message);
+	dynamic_cast<const CIMExecQueryRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -970,13 +972,13 @@ void ProviderManagerService::handleExecuteQueryRequest(Message * message) throw(
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleAssociatorsRequest(Message * message) throw()
+void ProviderManagerService::handleAssociatorsRequest(const Message * message) throw()
 {
     const CIMAssociatorsRequestMessage * request =
-	dynamic_cast<CIMAssociatorsRequestMessage *>(message);
+	dynamic_cast<const CIMAssociatorsRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -994,13 +996,13 @@ void ProviderManagerService::handleAssociatorsRequest(Message * message) throw()
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleAssociatorNamesRequest(Message * message) throw()
+void ProviderManagerService::handleAssociatorNamesRequest(const Message * message) throw()
 {
     const CIMAssociatorNamesRequestMessage * request =
-	dynamic_cast<CIMAssociatorNamesRequestMessage *>(message);
+	dynamic_cast<const CIMAssociatorNamesRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1018,13 +1020,13 @@ void ProviderManagerService::handleAssociatorNamesRequest(Message * message) thr
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleReferencesRequest(Message * message) throw()
+void ProviderManagerService::handleReferencesRequest(const Message * message) throw()
 {
     const CIMReferencesRequestMessage * request =
-	dynamic_cast<CIMReferencesRequestMessage *>(message);
+	dynamic_cast<const CIMReferencesRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1042,13 +1044,13 @@ void ProviderManagerService::handleReferencesRequest(Message * message) throw()
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleReferenceNamesRequest(Message * message) throw()
+void ProviderManagerService::handleReferenceNamesRequest(const Message * message) throw()
 {
     const CIMReferenceNamesRequestMessage * request =
-	dynamic_cast<CIMReferenceNamesRequestMessage *>(message);
+	dynamic_cast<const CIMReferenceNamesRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1066,13 +1068,13 @@ void ProviderManagerService::handleReferenceNamesRequest(Message * message) thro
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleGetPropertyRequest(Message * message) throw()
+void ProviderManagerService::handleGetPropertyRequest(const Message * message) throw()
 {
     const CIMGetPropertyRequestMessage * request =
-	dynamic_cast<CIMGetPropertyRequestMessage *>(message);
+	dynamic_cast<const CIMGetPropertyRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1091,13 +1093,13 @@ void ProviderManagerService::handleGetPropertyRequest(Message * message) throw()
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleSetPropertyRequest(Message * message) throw()
+void ProviderManagerService::handleSetPropertyRequest(const Message * message) throw()
 {
     const CIMSetPropertyRequestMessage * request =
-	dynamic_cast<CIMSetPropertyRequestMessage *>(message);
+	dynamic_cast<const CIMSetPropertyRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1113,13 +1115,13 @@ void ProviderManagerService::handleSetPropertyRequest(Message * message) throw()
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleInvokeMethodRequest(Message * message) throw()
+void ProviderManagerService::handleInvokeMethodRequest(const Message * message) throw()
 {
     const CIMInvokeMethodRequestMessage * request =
-	dynamic_cast<CIMInvokeMethodRequestMessage *>(message);
+	dynamic_cast<const CIMInvokeMethodRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1206,13 +1208,14 @@ void ProviderManagerService::handleInvokeMethodRequest(Message * message) throw(
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleEnableIndicationRequest(Message * message) throw()
+// ATTN: deprecated
+void ProviderManagerService::handleEnableIndicationRequest(const Message * message) throw()
 {
     const CIMEnableIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<CIMEnableIndicationSubscriptionRequestMessage *>(message);
+	dynamic_cast<const CIMEnableIndicationSubscriptionRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1284,13 +1287,14 @@ void ProviderManagerService::handleEnableIndicationRequest(Message * message) th
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleModifyIndicationRequest(Message * message) throw()
+// ATTN: deprecated
+void ProviderManagerService::handleModifyIndicationRequest(const Message * message) throw()
 {
     const CIMModifyIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<CIMModifyIndicationSubscriptionRequestMessage *>(message);
+	dynamic_cast<const CIMModifyIndicationSubscriptionRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1305,13 +1309,14 @@ void ProviderManagerService::handleModifyIndicationRequest(Message * message) th
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleDisableIndicationRequest(Message * message) throw()
+// ATTN: deprecated
+void ProviderManagerService::handleDisableIndicationRequest(const Message * message) throw()
 {
     const CIMDisableIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<CIMDisableIndicationSubscriptionRequestMessage *>(message);
+	dynamic_cast<const CIMDisableIndicationSubscriptionRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1326,70 +1331,196 @@ void ProviderManagerService::handleDisableIndicationRequest(Message * message) t
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleCreateSubscriptionRequest(Message * message) throw()
+void ProviderManagerService::handleCreateSubscriptionRequest(const Message * message) throw()
 {
     const CIMCreateSubscriptionRequestMessage * request =
-	dynamic_cast<CIMCreateSubscriptionRequestMessage *>(message);
+	dynamic_cast<const CIMCreateSubscriptionRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
+    Status status;
+
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->classNames[0]);
+
+	// get the provider file name and logical name
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+
+	// get cached or load new provider module
+	Provider provider = providerManager.getProvider(pair.first, pair.second);
+
+	throw CIMException(CIM_ERR_NOT_SUPPORTED, "under construction.");
+	
+	/*
+	provider.createSubscription(
+	    OperationContext(),
+	    subscriptionName,
+	    classNames,
+	    repeatNotificationPolicy);
+	*/
+    }
+    catch(CIMException & e)
+    {
+	status = Status(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+	status = Status(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+	status = Status(CIM_ERR_FAILED, "Unknown Error");
+    }
+	
     CIMCreateSubscriptionResponseMessage * response =
 	new CIMCreateSubscriptionResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	CIMStatusCode(status.getCode()),
+	status.getMessage(),
 	request->queueIds.copyAndPop());
 
     // preserve message key
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleModifySubscriptionRequest(Message * message) throw()
+void ProviderManagerService::handleModifySubscriptionRequest(const Message * message) throw()
 {
     const CIMModifySubscriptionRequestMessage * request =
-	dynamic_cast<CIMModifySubscriptionRequestMessage *>(message);
+	dynamic_cast<const CIMModifySubscriptionRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
+    Status status;
+
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->classNames[0]);
+
+	// get the provider file name and logical name
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+
+	// get cached or load new provider module
+	Provider provider = providerManager.getProvider(pair.first, pair.second);
+	
+	throw CIMException(CIM_ERR_NOT_SUPPORTED, "under construction.");
+	
+	/*
+	provider.modifySubscription(
+	    OperationContext(),
+	    subscriptionName,
+	    classNames,
+	    repeatNotificationPolicy);
+	*/
+    }
+    catch(CIMException & e)
+    {
+	status = Status(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+	status = Status(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+	status = Status(CIM_ERR_FAILED, "Unknown Error");
+    }
+	
     CIMModifySubscriptionResponseMessage * response =
 	new CIMModifySubscriptionResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	CIMStatusCode(status.getCode()),
+	status.getMessage(),
 	request->queueIds.copyAndPop());
 
     // preserve message key
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
 
-void ProviderManagerService::handleDeleteSubscriptionRequest(Message * message) throw()
+void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * message) throw()
 {
     const CIMDeleteSubscriptionRequestMessage * request =
-	dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(message);
+	dynamic_cast<const CIMDeleteSubscriptionRequestMessage *>(message);
 
     PEGASUS_ASSERT(request != 0);
 
+    Status status;
+
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->classNames[0]);
+
+	// get the provider file name and logical name
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+
+	// get cached or load new provider module
+	Provider provider = providerManager.getProvider(pair.first, pair.second);
+
+	throw CIMException(CIM_ERR_NOT_SUPPORTED, "under construction.");
+	
+	/*
+	provider.deleteSubscription(
+	    OperationContext(),
+	    subscriptionName,
+	    classNames);
+	*/	
+    }
+    catch(CIMException & e)
+    {
+	status = Status(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+	status = Status(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+	status = Status(CIM_ERR_FAILED, "Unknown Error");
+    }
+	
     CIMDeleteSubscriptionResponseMessage * response =
 	new CIMDeleteSubscriptionResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	CIMStatusCode(status.getCode()),
+	status.getMessage(),
 	request->queueIds.copyAndPop());
 
     // preserve message key
     response->setKey(request->getKey());
 
     // call the message queue service method to see if this is an async envelope
-    _enqueueResponse((Message *)request, (Message *)response);
+    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
 }
+
+/*
+void ProviderManagerService::handleEnableIndications(const Message * message)
+{
+}
+
+void ProviderManagerService::handleDisableIndications(const Message * message)
+{
+}
+*/
 
 PEGASUS_NAMESPACE_END

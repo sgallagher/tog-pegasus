@@ -27,7 +27,7 @@
 //
 // Author: Amit K Arora, IBM (amitarora@in.ibm.com)  - PEP 193
 //
-// Modified By: 
+// Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2462
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +107,7 @@ public:
         CIMInstance buildInstance(CIMObjectPath cimRef);
 
         static const Uint16 FeatureSet[];
-        static const int NUM_QUERY_CAPABILITIES=2;
+        static const int NUM_QUERY_CAPABILITIES;
 
         static void getFeatureSet(Array<Uint16>& features)
         {
@@ -126,6 +126,7 @@ public:
 // To add more capabilities, change the below static variable
 // Also mpdify the CIM_NUM_QUERY_CAPABILITIES macro defined above.
 const Uint16 CIMQueryCapabilitiesProvider::FeatureSet[] = {2,8};
+const int CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES = 2;
 
 PEGASUS_NAMESPACE_END
 

@@ -75,9 +75,9 @@ endif
 
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -fpic -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -DPEGASUS_DEBUG
+FLAGS += -g -fpic -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -DPEGASUS_DEBUG
 else
-FLAGS = -O2 -fpic -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+FLAGS += -O2 -fpic -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif
 
 ifdef PEGASUS_NO_SLP

@@ -41,15 +41,16 @@ module or provider at a time.</blockquote>
 <h4>
 Description</h4>
 
-<blockquote>The cimprovider command provides a command line interface to 
-upgrade CIM providers. In order to use cimprovider command, the specified 
+<blockquote>The cimprovider command provides a command line interface to disable CIM 
+providers, enable CIM providers, unregister CIM providers, and list registered CIM providers.
+In order to use cimprovider command, the specified 
 provider module or provider has to be registered through pegasus provider registration mechanism.
 <p>The first form of cimprovider allows to place the specified provider module 
 in the disbaled state. When a specified provider module is in the disbaled state, any
 new requests to the providers which are contained in the specified provider module will be blocked.
 <p>The second form of cimprovider allows to place the providers which are contained in the specified provider module back 
-to the service from the disabled state. Now, the providers which are contained in the 
-specified provider module is ready to accept new requestes.
+to operational state from the disabled state. Now, the providers which are contained in the 
+specified provider module are ready to accept new requestes.
 <p>The third form of cimprovider allows to remove all the instances which have same 
 provider module name as the specified provider module or all the instances which have
 same provider module name and provider name as specified.
@@ -65,7 +66,7 @@ Options</h4>
 <blockquote><tt>-d -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Indicates that a CIM provider module is in the disable state.
 <p><tt>-e -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Indicates that a CIM provider module is in the service from the disabled state.
+Indicates that a CIM provider module is back to the operational state from the disabled state.
 <p><tt>-r -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Indicates that all the instances which contains the specified provider module are to be removed.
 <p><tt>-r -m -p</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -96,7 +97,7 @@ Examples</h4>
 
 <blockquote><tt><b>cimprovider</b> -d -m OperatingSystemProvider</tt></blockquote>
 
-<blockquote>The following command places "OperatingSystemProvider" provider module back to the service from the disabled state.</blockquote>
+<blockquote>The following command places "OperatingSystemProvider" provider module back to the operational state from the disabled state.</blockquote>
 
 <blockquote><tt><b>cimprovider</b> -e -m OperatingSystemProvider</tt></blockquote>
 

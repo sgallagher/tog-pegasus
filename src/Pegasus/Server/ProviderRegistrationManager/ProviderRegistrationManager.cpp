@@ -247,7 +247,8 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (pos == PEG_NOT_FOUND)
         {
             PEG_METHOD_EXIT();
-    	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    throw CIMException(CIM_ERR_FAILED, 
+		"Missing ProviderName which is key in PG_ProviderCapabilities class.");
         }
 
         //
@@ -262,7 +263,8 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (pos2 == PEG_NOT_FOUND)
         {
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    throw CIMException(CIM_ERR_FAILED, 
+		"Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
         }
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -353,7 +355,8 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	if (pos == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    throw CIMException(CIM_ERR_FAILED, 
+		"Missing ProviderName which is key in PG_ProviderCapabilities class.");
     	}
 
 	instances[0].getProperty(pos).getValue().get(providerName);
@@ -365,7 +368,8 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	if (pos2 == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    throw CIMException(CIM_ERR_FAILED, 
+		"Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
     	}
 
     	instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -391,7 +395,8 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	    if (pos == PEG_NOT_FOUND)
     	    {
                 PEG_METHOD_EXIT();
-	    	throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    	throw CIMException(CIM_ERR_FAILED, 
+		    "Missing ProviderName which is key in PG_ProviderCapabilities class.");
     	    }
 
 	    instances[0].getProperty(pos).getValue().get(providerName);
@@ -403,7 +408,8 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	    if (pos2 == PEG_NOT_FOUND)
     	    {
                 PEG_METHOD_EXIT();
-	    	throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    	throw CIMException(CIM_ERR_FAILED, 
+		    "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
     	    }
     	    instances[0].getProperty(pos2).getValue().get(providerModuleName);
 	}
@@ -581,7 +587,8 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     	if (pos2 == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    throw CIMException(CIM_ERR_FAILED, 
+	        "Missing ProviderName which is key in PG_ProviderCapabilities class.");
     	}
 	instances[i].getProperty(pos2).getValue().get(providerName);
 
@@ -592,7 +599,8 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     	if (pos3 == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    	    throw CIMException(CIM_ERR_FAILED, 
+	        "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
     	}
 	instances[i].getProperty(pos3).getValue().get(providerModuleName);
 
@@ -742,16 +750,12 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
     catch (CIMException & exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
 	throw (exception);
@@ -786,16 +790,12 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
     }
     catch (CIMException & exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
 	throw (exception);
@@ -834,16 +834,12 @@ Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNames(
 
     catch (CIMException & exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
 	throw (exception);
@@ -872,14 +868,10 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
     }
     catch (CIMException & exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage ();
 	throw (exception);
     }
 }
@@ -898,14 +890,10 @@ void ProviderRegistrationManager::deleteInstance(
 
     catch (CIMException & exception)
     {
-	errorCode = exception.getCode ();
- 	errorDescription = exception.getMessage ();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage ();
 	throw (exception);
     }
 
@@ -1082,16 +1070,12 @@ void ProviderRegistrationManager::modifyInstance(
     }
     catch (CIMException & exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
         throw (exception);
     }
     catch (Exception & exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
 	PEG_METHOD_EXIT();
 	_repository->read_unlock();
         throw (exception);
@@ -1536,11 +1520,13 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     {
         errorCode = exception.getCode();
         errorDescription = exception.getMessage();
+	throw CIMException(CIM_ERR_FAILED, errorDescription);
     }
     catch (Exception& exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage();
+	throw CIMException(CIM_ERR_FAILED, errorDescription);
     }
 
     _repository->read_unlock();
@@ -1974,16 +1960,12 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
     }
     catch (CIMException & exception)
     {
-	errorCode = exception.getCode ();
- 	errorDescription = exception.getMessage ();
 	_repository->write_unlock();
 	PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage ();
 	_repository->write_unlock();
 	PEG_METHOD_EXIT();
 	throw (exception);
@@ -2469,15 +2451,11 @@ void ProviderRegistrationManager::_deleteInstance(
 
     catch (CIMException & exception)
     {
-	errorCode = exception.getCode ();
- 	errorDescription = exception.getMessage ();
 	_repository->write_unlock();
 	throw (exception);
     }
     catch (Exception & exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage ();
 	_repository->write_unlock();
 	throw (exception);
     }

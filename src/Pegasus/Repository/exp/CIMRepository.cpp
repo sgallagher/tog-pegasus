@@ -766,6 +766,8 @@ CIMReference CIMRepository::createInstance(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
     }
 
+cout << "DATA FILE PATH[" << dataFilePath << "]" << endl;
+
     if (!InstanceDataFile::beginTransaction(dataFilePath))
     {
         PEG_METHOD_EXIT();

@@ -180,14 +180,21 @@ Boolean InstanceDataFile::appendInstance(
 
 Boolean InstanceDataFile::beginTransaction(const String& path)
 {
-    //
-    // Get the size of the data file:
-    //
-
     Uint32 fileSize;
 
-    if (!FileSystem::getFileSizeNoCase(path, fileSize))
-	return false;
+    //
+    // If the file does not exist, then set the file size to zero:
+    //
+
+    if (!FileSystem::existsNoCase(path))
+    {
+	fileSize = 0;
+    }
+    else
+    {
+	if (!FileSystem::getFileSizeNoCase(path, fileSize))
+	    return false;
+    }
 
     //
     // Open the rollback file:

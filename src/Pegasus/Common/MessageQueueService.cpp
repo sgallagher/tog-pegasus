@@ -40,7 +40,7 @@ Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval create_time = {0, 10};
 static struct timeval destroy_time = {5, 0};
-static struct timeval deadlock_time = {100, 0};
+static struct timeval deadlock_time = {1000, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
@@ -50,13 +50,21 @@ int MessageQueueService::kill_idle_threads(void)
 {
    static struct timeval now, last;
    gettimeofday(&now, NULL);
+   int dead_threads = 0;
    
    if( now.tv_sec - last.tv_sec > 0 )
    {
       gettimeofday(&last, NULL);
-      return _thread_pool->kill_dead_threads();
+      try 
+      {
+	 dead_threads =  _thread_pool->kill_dead_threads();
+      }
+      catch(IPCException& )
+      {
+
+      }
    }
-   return 0;
+   return dead_threads;
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
@@ -64,7 +72,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    Thread *myself = reinterpret_cast<Thread *>(parm);
    
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
-   
    while ( _stop_polling.value()  == 0 ) 
    {
       _polling_sem.wait();
@@ -75,10 +82,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 	 if(service->_incoming.count() > 0 )
 	 {
 	    _thread_pool->allocate_and_awaken(service, _req_proc);
-	    
 //	    service->_req_proc(service);
 	 }
-	 
 	 service = list->next(service);
       }
       list->unlock();
@@ -250,32 +255,30 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(v
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
-//   Thread *myself = reinterpret_cast<Thread *>(parm);
-//   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(myself->get_parm());
    MessageQueueService *service = reinterpret_cast<MessageQueueService *>(parm);
    // pull messages off the incoming queue and dispatch them. then 
    // check pending messages that are non-blocking
    AsyncOpNode *operation = 0;
    
-//    while ( service->_die.value() == 0 ) 
-//    {
+   if ( service->_die.value() == 0 ) 
+    {
 	 try 
 	 {
 	    operation = service->_incoming.remove_first();
 	 }
 	 catch(ListClosed & )
 	 {
-//	    break;
+	    operation = 0;
+	    
+	    return(0);
 	 }
 	 if( operation )
 	 {
-//	    operation->_thread_ptr = pegasus_thread_self();
 	    operation->_service_ptr = service;
 	    service->_handle_incoming_operation(operation);
 	 }
-//    }
+    }
 
-//    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
 

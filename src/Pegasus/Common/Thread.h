@@ -483,6 +483,20 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       
       static Boolean check_time(struct timeval *start, struct timeval *interval);
 
+      Boolean operator ==(const ThreadPool & p)
+      {
+	 return operator==((const void *)&p);
+      }
+
+      Boolean operator ==(const void *p)
+      {
+	 if((void *)this == p)
+	    return true;
+	 return false;
+      }
+      
+      static void kill_idle_threads(void);
+      
    private:
       ThreadPool(void);
       Sint16 _max_threads;
@@ -497,8 +511,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       DQueue<Thread> _running;
       DQueue<Thread> _dead;
       AtomicInt _dying;
-      
-
       static void _sleep_sem_del(void *p);
       
       void _check_deadlock(struct timeval *start) throw(Deadlock);
@@ -507,7 +519,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       Thread *_init_thread(void) throw(IPCException);
       void _link_pool(Thread *th) throw(IPCException);
       static PEGASUS_THREAD_RETURN  _undertaker(void *);
-      
+      static DQueue<ThreadPool> _pools;
  };
 
 

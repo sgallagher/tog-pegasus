@@ -64,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct timeval create_time = {0, 10};
 static struct timeval destroy_time = {5, 0};
-static struct timeval deadlock_time = {100, 0};
+static struct timeval deadlock_time = {1000, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -122,8 +122,10 @@ Monitor::Monitor(Boolean async)
 				     destroy_time, 
 				     deadlock_time);
     }
-    
+    else 
+       _thread_pool = 0;
 }
+
 Monitor::~Monitor()
 {
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -142,7 +144,8 @@ Monitor::~Monitor()
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
-    delete _thread_pool;
+    if(_async == false)
+       delete _thread_pool;
 }
 
 
@@ -150,13 +153,22 @@ int Monitor::kill_idle_threads()
 {
    static struct timeval now, last;
    gettimeofday(&now, NULL);
+   int dead_threads = 0;
    
    if( now.tv_sec - last.tv_sec > 0 )
    {
       gettimeofday(&last, NULL);
-      return _thread_pool->kill_dead_threads();
+      try 
+      {
+	 
+	 dead_threads =  _thread_pool->kill_dead_threads();
+      }
+      catch(IPCException& )
+      {
+      }
+      
    }
-   return 0;
+   return dead_threads;
 }
 
 
@@ -169,8 +181,6 @@ int Monitor::kill_idle_threads()
 
 Boolean Monitor::run(Uint32 milliseconds)
 {
-
-   static struct timeval now, last;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
@@ -187,7 +197,6 @@ Boolean Monitor::run(Uint32 milliseconds)
     // there were no undispatched events from last time.
 
     int count = 0;
-    pegasus_gettimeofday(&now);
 
     memcpy(&_rep->active_rd_fd_set, &_rep->rd_fd_set, sizeof(fd_set));
 //    memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
@@ -206,12 +215,6 @@ Boolean Monitor::run(Uint32 milliseconds)
        &tv);
     if(count == 0)
     {
-       if( now.tv_sec - last.tv_sec > 2)
-       {
-	  kill_idle_threads();
-	  MessageQueueService::kill_idle_threads();
-	  pegasus_gettimeofday(&last);
-       }
        return false;
     }
 #ifdef PEGASUS_OS_TYPE_WINDOWS

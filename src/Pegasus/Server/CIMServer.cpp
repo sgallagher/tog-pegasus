@@ -339,7 +339,10 @@ void CIMServer::runForever()
    if(!_dieNow)
    {
       if(false == _monitor->run(100) )
+      {
 	 pegasus_yield();
+	 ThreadPool::kill_idle_threads();
+      }
    }
    
 }

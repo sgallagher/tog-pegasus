@@ -115,6 +115,35 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 
 #endif
 
+DQueue<ThreadPool> ThreadPool::_pools(true);
+
+
+void ThreadPool::kill_idle_threads(void)
+{
+   static struct timeval now, last = {0, 0};
+   
+   pegasus_gettimeofday(&now);
+   if(now.tv_sec - last.tv_sec > 5)
+   {
+      _pools.lock();
+      ThreadPool *p = _pools.next(0);
+      while(p != 0)
+      {
+	 try 
+	 {
+	    p->kill_dead_threads();
+	 }
+	 catch(...)
+	 {
+	 }
+	 p = _pools.next(p);
+      }
+      _pools.unlock();
+      pegasus_gettimeofday(&last);
+   }
+}
+
+
 ThreadPool::ThreadPool(Sint16 initial_size,
 		       const Sint8 *key,
 		       Sint16 min,
@@ -146,6 +175,8 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    {
       _link_pool(_init_thread());
    }
+   _pools.insert_last(this);
+   
 }
 
 
@@ -153,6 +184,7 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 ThreadPool::~ThreadPool(void)
 {
 
+   _pools.remove(this);
    _dying++;
    Thread *th = 0;
    th = _pool.remove_first();
@@ -198,6 +230,7 @@ ThreadPool::~ThreadPool(void)
       delete th;
       th = _dead.remove_first();
    }
+
 }
 
 // make this static to the class
@@ -274,8 +307,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 throw NullPointer();
       }
       gettimeofday(deadlock_timer, NULL);
-      _work(parm);
-	
+      try 
+      {
+	 _work(parm);
+      }
+      catch(...)
+      {
+	 gettimeofday(deadlock_timer, NULL);
+      }
+      gettimeofday(deadlock_timer, NULL);
       if( blocking_sem != 0 )
 	 blocking_sem->signal();
       
@@ -398,6 +438,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	 }
       }
       delete dead;
+      pegasus_sleep(1);
    }
 
    DQueue<Thread> * map[2] =
@@ -410,7 +451,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
-   for( q = map[i] ; i < 2; i++, q = map[i])
+   for( q = map[i] ; i < 2; i++, q = map[i], pegasus_sleep(1))
    {
       if(q->count() > 0 )
       {
@@ -507,12 +548,14 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	       }
 	    }
 	    th = q->next(th);
+	    pegasus_sleep(1);
 	 }
 	 q->unlock();
 	 while (needed.value() > 0)
 	 {
 	    _link_pool(_init_thread());
 	    needed--;
+	    pegasus_sleep(0);
 	 }
       }
    }

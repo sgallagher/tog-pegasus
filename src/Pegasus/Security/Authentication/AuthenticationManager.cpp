@@ -131,14 +131,20 @@ Boolean AuthenticationManager::performHttpAuthentication
     //
     _parseAuthHeader(authHeader, type, userName, cookie);
 
-    //
-    // Check if the user is already authenticated
-    //
-    if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
-        String::equal(userName, authInfo->getAuthenticatedUser()))
+    if ( String::equalNoCase(type, "Basic") )
+    {
+        if (authInfo->isAuthenticated() &&
+            String::equal(userName, authInfo->getAuthenticatedUser()))
+        {
+            PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+            return true;
+        }
+    }
+    // else if  ATTN: add code for digest authentication
+    else
     {
         PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-        return true;
+        return false;
     }
 
     //
@@ -216,14 +222,28 @@ Boolean AuthenticationManager::performPegasusAuthentication
     _parseAuthHeader(authHeader, authType, userName, cookie);
 
 
-    //
-    // Check if the user is already authenticated
-    //
-    if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
-        String::equal(userName, authInfo->getAuthenticatedUser()))
+    if ( String::equalNoCase(authType, "LocalPrivileged") )
+    {
+        if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
+            String::equal(userName, authInfo->getAuthenticatedUser()))
+        {
+            PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+            return true;
+        }
+    }
+    else if ( String::equalNoCase(authType, "Local") )
+    {
+        if (authInfo->isAuthenticated() &&
+            String::equal(userName, authInfo->getAuthenticatedUser()))
+        {
+            PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+            return true;
+        }
+    }
+    else
     {
         PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-        return true;
+        return false;
     }
 
     //

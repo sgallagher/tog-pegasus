@@ -153,23 +153,22 @@ OperatingSystemProvider::enumerateInstances(
     CIMInstance instance;
 
     className = ref.getClassName();
-    if (String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS))
-    {
-         handler.processing();
-         handler.complete();
-    }
-    else if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
+    
+    // only support enumerate on our subclass, CIMOM will call us as 
+    // natural part of recursing through subtree on enumerate - if we
+    // return on enumerate of our superclass, there would be dups
+    if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
          handler.processing();
          instance = _build_instance(ref);
          handler.deliver(instance);
          handler.complete();
-     }
-     else
-     {
-         throw CIMException(CIM_ERR_NOT_SUPPORTED);
-     }
-     return;
+    }
+    else
+    {
+        throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    }
+    return;
 }
 
 void
@@ -181,14 +180,18 @@ OperatingSystemProvider::enumerateInstanceNames(
     CIMReference newref;
     String className;
 
+    // only support enumerate on our subclass, CIMOM will call us as 
+    // natural part of recursing through subtree on enumerate - if we
+    // return on enumerate of our superclass, there would be dups
     className = ref.getClassName();
-    if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
-        !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
+    if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
         throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
 
-    newref = _fill_reference(ref.getNameSpace(), STANDARDOPERATINGSYSTEMCLASS);
+    // in terms of the class we use, want to set to what was requested 
+    newref = _fill_reference(ref.getNameSpace(), className);
+// newref = _fill_reference(ref.getNameSpace(), STANDARDOPERATINGSYSTEMCLASS);
     handler.processing();
     handler.deliver(newref);
     handler.complete();
@@ -285,7 +288,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     {
         instance.addProperty(CIMProperty("InstallDate", cimDateTimeValue));
     }
-
+    
     if (os.getStatus(stringValue))
     {
         instance.addProperty(CIMProperty("Status", stringValue));
@@ -320,7 +323,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     {
         instance.addProperty(CIMProperty("CurrentTimeZone", sint16Value));
     }
-
+    
     if (os.getNumberOfLicensedUsers(uint32Value))
     {
         instance.addProperty(CIMProperty("NumberOfLicensedUsers",uint32Value));
@@ -335,7 +338,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     {
         instance.addProperty(CIMProperty("NumberOfProcesses", uint32Value));
     }
-
+ 
     if (os.getMaxNumberOfProcesses(uint32Value))
     {
         instance.addProperty(CIMProperty("MaxNumberOfProcesses", uint32Value));
@@ -380,7 +383,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     {
         instance.addProperty(CIMProperty("MaxProcessMemorySize", uint64Value));
     }
-
+    
     if (os.getDistributed(booleanValue))
     {
         instance.addProperty(CIMProperty("Distributed", booleanValue));
@@ -413,19 +416,22 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
 
     if (!os.getCSName(csName))
     {
-       csName = "Unknown";
+// ATTN-SLC-P2-19-Apr-02: workaround for Windows key BZ#42 - remove BZ#46
+       csName = "Unknown";  // remove when not needed for Windows provider
     }
 
     if (!os.getName(name))
     {
-       name = "Unknown";
+// ATTN-SLC-P2-19-Apr-02: workaround for Windows key BZ#42 - remove BZ#46
+       name = "Unknown";    // remove when not needed for Window provider
     }
 
     keys.append(KeyBinding("CSCreationClassName",
  	                   "CIM_ComputerSystem",
 			   KeyBinding::STRING));
     keys.append(KeyBinding("CSName", csName, KeyBinding::STRING));
-    keys.append(KeyBinding("CreationClassName", className, KeyBinding::STRING));
+    keys.append(KeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS, 
+        KeyBinding::STRING));
     keys.append(KeyBinding("Name", name, KeyBinding::STRING));
 
     return CIMReference(csName, nameSpace, className, keys);

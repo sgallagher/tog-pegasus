@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //       : Denise Eckstein (denise_eckstein@hp.com)
 //
+// Modified By:  Susan Campbell <scampbell@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "OperatingSystem.h"
@@ -32,6 +33,8 @@
 # include "OperatingSystem_HPUX.cpp"
 #elif defined (PEGASUS_OS_TYPE_WINDOWS)
 # include "OperatingSystem_Windows.cpp"
+#elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+# include "OperatingSystem_Linux.cpp"
 #else
 # include "OperatingSystem_Stub.cpp"
 #endif

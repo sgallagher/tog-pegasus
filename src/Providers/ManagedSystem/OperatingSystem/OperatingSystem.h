@@ -86,6 +86,7 @@ class OperatingSystem
       Uint32 Shutdown();
       
    protected:
+      Uint64 _totalVM();
 };
 
 PEGASUS_NAMESPACE_END

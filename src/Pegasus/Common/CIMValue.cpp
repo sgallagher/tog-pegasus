@@ -23,6 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -382,6 +383,7 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 template<class T>
 void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
+    //ATTNKS: Account for the Null value here
     Boolean isFirstEntry = true;
     // if there are any entries in the array output them
     if (size)
@@ -495,6 +497,8 @@ void CIMValue::assign(const CIMValue& x)
 	    case CIMType::DATETIME:
 		_Inc(_u._dateTimeArray = x._u._dateTimeArray);
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
     else
@@ -564,6 +568,8 @@ void CIMValue::assign(const CIMValue& x)
 		_u._referenceValue
 		    = new CIMReference(*(x._u._referenceValue));
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
 }
@@ -637,6 +643,8 @@ Uint32 CIMValue::getArraySize() const
 
 	case CIMType::REFERENCE:
 	    return 0;
+        default:
+            throw CIMValueInvalidType();
     }
 
     // Unreachable!
@@ -644,8 +652,15 @@ Uint32 CIMValue::getArraySize() const
     return 0;
 }
 
+//ATTN: P1  KS Problem with Compiler when I added the defaults to clear, the compiler
+// gets an exception very early.  Disabled the exceptions to keep compiler running for
+// the minute.
 void CIMValue::clear()
 {
+    // ATTN: KS P1 should we be setting NULL=true here????. Right now it only
+    // clears the value component. Note that the last thing we do is init
+    // and that does the isNull=false.
+    // 
     if (_isArray)
     {
 	switch (_type)
@@ -705,6 +720,8 @@ void CIMValue::clear()
 	    case CIMType::DATETIME:
 		_Dec(_u._dateTimeArray);
 		break;
+            //default:
+                //throw CIMValueInvalidType();
 	}
     }
     else
@@ -736,6 +753,8 @@ void CIMValue::clear()
 	    case CIMType::REFERENCE:
 		delete _u._referenceValue;
 		break;
+            //default:
+                //throw CIMValueInvalidType();
 	}
     }
 
@@ -744,6 +763,15 @@ void CIMValue::clear()
 
 void CIMValue::toXml(Array<Sint8>& out) const
 {
+    // If the CIMValue is Null, no element is returned.
+    //ATTNCH: Feb 12 added the isNull test KS
+    // Note that I ouptut absolutly nothing
+
+    if (_isNull)
+    {
+        // out << "\n";
+        return;
+    }
     if (_isArray)
     {
 	out << "<VALUE.ARRAY>\n";
@@ -812,6 +840,8 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	    case CIMType::DATETIME:
 		_toXml(out, _u._dateTimeArray->data(), _u._dateTimeArray->size);
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
 
 	out << "</VALUE.ARRAY>\n";
@@ -881,6 +911,8 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	    case CIMType::DATETIME:
 		_toXml(out, *_u._dateTimeValue);
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
 
 	out << "</VALUE>\n";
@@ -895,8 +927,12 @@ String CIMValue::toXml() const
     return String(out.getData());
 }
 
-void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
+void CIMValue::toMof(Array<Sint8>& out) const
 {
+    // if the CIMValue is Null we return nothing.
+    if (_isNull)
+        return;
+
     if (_isArray)
     {
 	switch (_type)
@@ -904,9 +940,7 @@ void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
 	    case CIMType::BOOLEAN:
 	    {
 		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
-		{
 		    _toMof(out, Boolean(_u._booleanArray->data()[i]));
-		}
 		break;
 	    }
 	    case CIMType::UINT8:
@@ -960,6 +994,8 @@ void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
 	    case CIMType::DATETIME:
 		_toMof(out, _u._dateTimeArray->data(),
 			    _u._dateTimeArray->size); break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
     else if (_type == CIMType::REFERENCE)
@@ -1025,6 +1061,8 @@ void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
 	    case CIMType::DATETIME:
 		_toMof(out, *_u._dateTimeValue);
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
 }
@@ -1038,11 +1076,13 @@ void CIMValue::print(PEGASUS_STD(ostream) &os) const
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
+
 void CIMValue::set(Boolean x)
 {
     clear();
     _u._booleanValue = (Uint8)x;
     _type = CIMType::BOOLEAN;
+    _isNull = false;
 }
 
 void CIMValue::set(Uint8 x)
@@ -1050,6 +1090,7 @@ void CIMValue::set(Uint8 x)
     clear();
     _u._uint8Value = x;
     _type = CIMType::UINT8;
+    _isNull = false;
 }
 
 void CIMValue::set(Sint8 x)
@@ -1057,6 +1098,7 @@ void CIMValue::set(Sint8 x)
     clear();
     _u._sint8Value = x;
     _type = CIMType::SINT8;
+    _isNull = false;
 }
 
 void CIMValue::set(Uint16 x)
@@ -1064,6 +1106,7 @@ void CIMValue::set(Uint16 x)
     clear();
     _u._uint16Value = x;
     _type = CIMType::UINT16;
+    _isNull = false;
 }
 
 void CIMValue::set(Sint16 x)
@@ -1071,6 +1114,7 @@ void CIMValue::set(Sint16 x)
     clear();
     _u._sint16Value = x;
     _type = CIMType::SINT16;
+    _isNull = false;
 }
 
 void CIMValue::set(Uint32 x)
@@ -1078,6 +1122,7 @@ void CIMValue::set(Uint32 x)
     clear();
     _u._uint32Value = x;
     _type = CIMType::UINT32;
+    _isNull = false;
 }
 
 void CIMValue::set(Sint32 x)
@@ -1085,6 +1130,7 @@ void CIMValue::set(Sint32 x)
     clear();
     _u._sint32Value = x;
     _type = CIMType::SINT32;
+    _isNull = false;
 }
 
 void CIMValue::set(Uint64 x)
@@ -1092,6 +1138,7 @@ void CIMValue::set(Uint64 x)
     clear();
     _u._uint64Value = x;
     _type = CIMType::UINT64;
+    _isNull = false;
 }
 
 void CIMValue::set(Sint64 x)
@@ -1099,6 +1146,7 @@ void CIMValue::set(Sint64 x)
     clear();
     _u._sint64Value = x;
     _type = CIMType::SINT64;
+    _isNull = false;
 }
 
 void CIMValue::set(Real32 x)
@@ -1106,6 +1154,7 @@ void CIMValue::set(Real32 x)
     clear();
     _u._real32Value = x;
     _type = CIMType::REAL32;
+    _isNull = false;
 }
 
 void CIMValue::set(Real64 x)
@@ -1113,6 +1162,7 @@ void CIMValue::set(Real64 x)
     clear();
     _u._real64Value = x;
     _type = CIMType::REAL64;
+    _isNull = false;
 }
 
 void CIMValue::set(const Char16& x)
@@ -1120,6 +1170,7 @@ void CIMValue::set(const Char16& x)
     clear();
     _u._char16Value = x;
     _type = CIMType::CHAR16;
+    _isNull = false;
 }
 
 void CIMValue::set(const String& x)
@@ -1127,11 +1178,13 @@ void CIMValue::set(const String& x)
     clear();
     new(_u._stringValue) String(x);
     _type = CIMType::STRING;
+    _isNull = false;
 }
 
 void CIMValue::set(const char* x)
 {
     set(String(x));
+    _isNull = false;
 }
 
 void CIMValue::set(const CIMDateTime& x)
@@ -1139,6 +1192,7 @@ void CIMValue::set(const CIMDateTime& x)
     clear();
     _u._dateTimeValue = new CIMDateTime(x);
     _type = CIMType::DATETIME;
+    _isNull = false;
 }
 
 void CIMValue::set(const CIMReference& x)
@@ -1146,6 +1200,7 @@ void CIMValue::set(const CIMReference& x)
     clear();
     _u._referenceValue = new CIMReference(x);
     _type = CIMType::REFERENCE;
+    _isNull = false;
 }
 
 void CIMValue::set(const Array<Boolean>& x)
@@ -1500,6 +1555,11 @@ void CIMValue::get(Array<String>& x) const
 
 void CIMValue::get(Array<CIMDateTime>& x) const
 {
+#ifdef CIMValueisNullexception
+    if (_isNull)
+        throw CIMValueIsNull();
+#endif
+
     if (_type != CIMType::DATETIME || !_isArray)
 	throw TypeMismatch();
 
@@ -1518,6 +1578,9 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 {
     if (!x.typeCompatible(y))
 	return false;
+
+    if (x.isNull != y.isNull)
+        return false;
 
     if (x._isArray)
     {
@@ -1578,6 +1641,8 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 	    case CIMType::DATETIME:
 		return Array<CIMDateTime>(x._u._dateTimeArray) ==
 		    Array<CIMDateTime>(y._u._dateTimeArray);
+            default:
+                throw CIMValueInvalidType();
 	}
     }
     else
@@ -1630,6 +1695,8 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 
 	    case CIMType::REFERENCE:
 		return *x._u._referenceValue == *y._u._referenceValue;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
 
@@ -1639,7 +1706,6 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 
 void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 {
-    _isNull = true;
 
     clear();
 
@@ -1702,6 +1768,8 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 	    case CIMType::DATETIME:
 		set(Array<CIMDateTime>(arraySize));
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
     else
@@ -1767,13 +1835,23 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 	    case CIMType::REFERENCE:
 		set(CIMReference());
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
+
+    // Set the Null attribute. Note that this must be after the set
+    // because the set functions sets the _isNull.
+
+    _isNull = true;
 }
 
 String CIMValue::toString() const
 {
     Array<Sint8> out;
+
+    //ATTN: Not sure what we should do with getstring for Null CIMValues
+    //Choice return empty string or exception out.
 
     if (_isArray)
     {
@@ -1842,6 +1920,8 @@ String CIMValue::toString() const
 	    case CIMType::DATETIME:
 		_toString(out, _u._dateTimeArray->data(), _u._dateTimeArray->size);
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
     else if (_type == CIMType::REFERENCE)
@@ -1907,6 +1987,8 @@ String CIMValue::toString() const
 	    case CIMType::DATETIME:
 		_toString(out, *_u._dateTimeValue);
 		break;
+            default:
+                throw CIMValueInvalidType();
 	}
     }
 

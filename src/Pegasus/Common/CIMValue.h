@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Karl schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -152,26 +152,41 @@ public:
 	assign(x); return *this; 
     }
 
-    /// CIMMethod assign
+    /** assign - The method to assign one CIMValue object to another CIMValue
+    object.
+    
+    */
     void assign(const CIMValue& x);
 
-    /// CIMMethod clear
+    /** clear - Clears the attributes and value of the CIMValue object.
+    <pre>
+    ATTNDOC:
+    </pre>
+    */
     void clear();
 
-    /** CIMMethod typeCompatible - Compares the types of two values.
-	@return true if compatible.
+    /** typeCompatible - Compares the types of two CIMvalues. This
+        compares the type field and the array indicators.
+	@return true if both are of the same type and both are either arrays
+        or not. Else returns false.
+        <pre>
+            CIMValue a(Boolean(true);
+            CIMValue b = a;
+            if b.typeCompatible(a)
+                ...
+        </pre>
     */
     Boolean typeCompatible(const CIMValue& x) const
     {
 	return _type == x._type && _isArray == x._isArray;
     }
 
-    /** CIMMethod isArray - Determines if the value is an array
+    /** isArray - Determines if the value is an array
 	@return TRUE if the value is an array
     */
     Boolean isArray() const { return _isArray; }
 
-    /** Returns whether the CIMvalue object is null. 
+    /** Returns whether the CIMvalue object is Null. 
 	Null is the specific condition where no value has
 	yet been set into the value.
 	If a CIMValue object is Null, any get on that object
@@ -180,154 +195,189 @@ public:
     */
     Boolean isNull() const { return _isNull; }
 
-    /** CIMMethod getArraySize
+    /** getArraySize = Returns the size of an Array CIMValue
 	@return The number of entries in the array
     */
     Uint32 getArraySize() const;
 
+    /** getType - Gets the CIMType attribute for the CIMValue.
+        The CIMType is defined in ATTN:
+        @return Returns the CIMType value
+    */
     CIMType getType() const 
     { 
 	return CIMType(_type); 
     }
 
-    /// method setNullvalue - ATTN:
+    /** setNullvalue - Sets the CIMType, the Array indicator and if it is
+        the arraytype, the Arraysize of a CIMValue and sets the isNull
+        Attribute.  This function is used to set up CIMValues an NULL but
+        with valid CIMType and array characteristics (ex. when update from
+        XML)
+        @param type - The CIMType for this CIMValue
+        @paramisArray - Boolean indicating whether this is an array CIMValue
+        @param arraySize (optional)  Uint32parameter indicating the array
+        size
+        @return void
+    */
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    /// method set - ATTN:
+    /** set - Sets the type, Array attribute and puts the value provided
+        into the value of the target CIMValue. This function sets the
+        CIMValue to nonNull also.
+        All of the CIMTypes defined in ATTN: and the Array types defined in
+        ATTN: may be set.
+        @param x Typed value (ex. Boolean(true).
+        @return void
+        <pre>
+            CIMValue x;
+            x.set(Uint16(9));
+        </pre>
+    */    
     void set(Boolean x);
 
-    /// CIMMethod Set
+    /// Set
     void set(Uint8 x);
-
+    ///
     void set(Sint8 x);
-
+    ///
     void set(Uint16 x);
-
+    ///
     void set(Sint16 x);
-
+    ///
     void set(Uint32 x);
-
+    ///
     void set(Sint32 x);
-
+    ///
     void set(Uint64 x);
-
+    ///
     void set(Sint64 x);
-
+    ///
     void set(Real32 x);
-
+    ///
     void set(Real64 x);
-
+    ///
     void set(const Char16& x);
-
+    ///
     void set(const String& x);
-
+    ///
     void set(const char* x);
-
+    ///
     void set(const CIMDateTime& x);
-
+    ///
     void set(const CIMReference& x);
-
+    ///
     void set(const Array<Boolean>& x);
-
+    ///
     void set(const Array<Uint8>& x);
-
+    ///
     void set(const Array<Sint8>& x);
-
+    ///
     void set(const Array<Uint16>& x);
-
+    ///
     void set(const Array<Sint16>& x);
-
+    ///
     void set(const Array<Uint32>& x);
-
+    ///
     void set(const Array<Sint32>& x);
-
+    ///
     void set(const Array<Uint64>& x);
-
+    ///
     void set(const Array<Sint64>& x);
-
+    ///
     void set(const Array<Real32>& x);
-
+    ///
     void set(const Array<Real64>& x);
-
+    ///
     void set(const Array<Char16>& x);
-
+    ///
     void set(const Array<String>& x);
-
+    ///
     void set(const Array<CIMDateTime>& x);
 
-    /// CIMMethod get - ATTN
+    /** get - Gets the value of a CIMValue
+        @param ATTNDOC:
+        @return ATTNDOC:
+    */
     void get(Boolean& x) const;
-
+    ///
     void get(Uint8& x) const;
-
+    ///
     void get(Sint8& x) const;
-
+    ///
     void get(Uint16& x) const;
-
+    ///
     void get(Sint16& x) const;
-
+    ///
     void get(Uint32& x) const;
-
+    ///
     void get(Sint32& x) const;
-
+    ///
     void get(Uint64& x) const;
-
+    ///
     void get(Sint64& x) const;
-
+    ///
     void get(Real32& x) const;
-
+    ///
     void get(Real64& x) const;
-
+    ///
     void get(Char16& x) const;
-
+    ///
     void get(String& x) const;
-
+    ///
     void get(CIMDateTime& x) const;
-
+    ///
     void get(CIMReference& x) const;
-
+    ///
     void get(Array<Boolean>& x) const;
-
+    ///
     void get(Array<Uint8>& x) const;
-
+    //////
     void get(Array<Sint8>& x) const;
-
+    ///
     void get(Array<Uint16>& x) const;
-
+    ///
     void get(Array<Sint16>& x) const;
-
+    ///
     void get(Array<Uint32>& x) const;
-
+    ///
     void get(Array<Sint32>& x) const;
-
+    ///
     void get(Array<Uint64>& x) const;
-
+    ///
     void get(Array<Sint64>& x) const;
-
+    ///
     void get(Array<Real32>& x) const;
-
+    ///
     void get(Array<Real64>& x) const;
-
+    ///
     void get(Array<Char16>& x) const;
-
+    ///
     void get(Array<String>& x) const;
-
+    ///
     void get(Array<CIMDateTime>& x) const; 
 
-    /** toXML - Converts a CIMValue object to XML.
-	@out Sint8 Array to hold the XML representation
+    /** toXML - Converts a CIMValue object to XML. The XML is appended
+        to the Array provided with the call.Returns the result as an
+        XML elemet wrapped in the <VALUE> or <ARRAYVALUE> tags. If the
+        CIMValue is Null, no element is returned.
+	@paramout Sint8 Array to hold the XML representation
 	@return Returns the XML representation of the CIMValue
 	object in the input parameter out. 
     */
     void toXml(Array<Sint8>& out) const;
 
-    /** toXML - Converts a CIMValue object to XML.
+    /** toXML - Converts a CIMValue object to XML. There is no input
+        parameter and the result is returned as a String rather
+        than appended to an 8-bit array as above.  Returns the
+        element as value wrapped in the <VALUE> or ARRAYVALUE tags. If the
+        CIMValue is Null, no element is returned.
 	@return Returns the XML representation of the CIMValue
 	object in String form.
     */
     String toXml() const;
 
-    /** CIMMethod print - Format and print the Value to std output
+    /** CIMMethod print - Format and print the Value as XML to std output
     	stream
 	@return None
 	<PRE>
@@ -345,11 +395,12 @@ public:
     */
     void toMof(Array<Sint8>& out) const;
 
-
     /** toString - Converts the CIMvalue to a string.  Should only be
             used for output purposes.  To get an actual String value, use
             get(String &).
 	@return - String output for CIMValue.
+        @exception - Throws exception CIMValueInvalidType if the CIMValue
+            has an invalid type. Normally this is a Pegasus internal error.
 	<PRE>
 	Example:
 	    String test;

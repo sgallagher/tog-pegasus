@@ -172,7 +172,7 @@ void Optarg::Value (unsigned int &i) const throw (TypeMismatchException)
     {
         Uint64 i64;
         if ( !(sscanf (s, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", &i64)) ||
-             (i64 != Uint64(Uint32(i64))) )
+             (i64 > 0xFFFFFFFF))
         {
             throw TypeMismatchException ();
         }

@@ -196,7 +196,7 @@ inline void disable_cancel(void)
 
 inline void enable_cancel(void)
 {
-   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+   pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
 }
 
 inline void pegasus_sleep(int msec)

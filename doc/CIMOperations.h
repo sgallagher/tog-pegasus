@@ -120,12 +120,9 @@ public:
 		<LI>CIM_ERR_ACCESS_DENIED
 		<LI>CIM_ERR_INVALID_NAMESPACE
 		<LI>CIM_ERR_INVALID_PARAMETER (including missing,
-		duplicate,unrecognized or otherwise
-			incorrect parameters)
+		duplicate,unrecognized or otherwise incorrect parameters)
 		<LI>CIM_ERR_NOT_FOUND (the request CIM Class does not exist in
-		the
-		specified
-			namespace)
+		the specifiednamespace)
 		<LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
 	</UL>
     */

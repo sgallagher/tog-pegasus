@@ -70,10 +70,7 @@
 #include <fstream>
 #include <cstring>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/Union.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -27,12 +27,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Base64.h"
 #include <cassert>
 #include <strstream>
 #include <string>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Base64.h>
+#include "Base64.h"
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -1,4 +1,7 @@
 
+    -   Should there be a single associations table for the entire repository
+	or should there be one per namespace as there is now?
+
     -   If it is the case that a reference may only refer to an instance,
 	then we must derive new types for representing object paths.
 
@@ -167,7 +170,7 @@
 
     -	Figure out how inheritance of keys works.
 
-    -	Investiage weak assocations.
+    -	Investigage weak associations.
 
     -	Enforce constraint qualifiers.
 
@@ -188,5 +191,4 @@
     -   Support multiple providers of the extact same class.
 	DiskController example and LanController.
 
-    -   SLP
-	    - Eliminate lib directory.
+    -   SLP - Eliminate lib directory.

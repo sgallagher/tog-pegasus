@@ -36,13 +36,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class T>
-struct _WQLHashEntry
-{
-    T value;
-    Boolean isNull;
-};
-
 class PEGASUS_WQL_LINKAGE WQLSimplePropertySource : public WQLPropertySource
 {
 public:
@@ -57,138 +50,24 @@ public:
 
     virtual Boolean getValue(
 	const String& propertyName, 
-	Sint32& value, 
-	Boolean& isNull) const
+	WQLOperand& value) const
     {
-	_WQLHashEntry<Sint32> entry;
-
-	if (_intMap.lookup(propertyName, entry))
-	{
-	    value = entry.value;
-	    isNull = entry.isNull;
-	    return true;
-	}
-
-	return false;
-    }
-
-    virtual Boolean getValue(
-	const String& propertyName, 
-	Real64& value, 
-	Boolean& isNull) const
-    {
-	_WQLHashEntry<Real64> entry;
-
-	if (_realMap.lookup(propertyName, entry))
-	{
-	    value = entry.value;
-	    isNull = entry.isNull;
-	    return true;
-	}
-
-	return false;
-    }
-
-    virtual Boolean getValue(
-	const String& propertyName, 
-	Boolean& value, 
-	Boolean& isNull) const
-    {
-	_WQLHashEntry<Boolean> entry;
-
-	if (_boolMap.lookup(propertyName, entry))
-	{
-	    value = entry.value;
-	    isNull = entry.isNull;
-	    return true;
-	}
-
-	return false;
-    }
-
-    virtual Boolean getValue(
-	const String& propertyName, 
-	String& value, 
-	Boolean& isNull) const
-    {
-	_WQLHashEntry<String> entry;
-
-	if (_strMap.lookup(propertyName, entry))
-	{
-	    value = entry.value;
-	    isNull = entry.isNull;
-	    return true;
-	}
-
-	return false;
+	return _map.lookup(propertyName, value);
     }
 
     Boolean addValue(
 	const String& propertyName, 
-	Sint32 value, 
-	Boolean isNull)
+	const WQLOperand& value)
     {
-	_WQLHashEntry<Sint32> entry;
-	entry.value = value;
-	entry.isNull = isNull;
-	return _intMap.insert(propertyName, entry);
-    }
-
-    Boolean addValue(
-	const String& propertyName, 
-	Real64 value, 
-	Boolean isNull)
-    {
-	_WQLHashEntry<Real64> entry;
-	entry.value = value;
-	entry.isNull = isNull;
-	return _realMap.insert(propertyName, entry);
-    }
-
-    Boolean addValue(
-	const String& propertyName, 
-	Boolean value, 
-	Boolean isNull)
-    {
-	_WQLHashEntry<Boolean> entry;
-	entry.value = value;
-	entry.isNull = isNull;
-	return _boolMap.insert(propertyName, entry);
-    }
-
-    Boolean addValue(
-	const String& propertyName, 
-	const String& value, 
-	Boolean isNull)
-    {
-	_WQLHashEntry<String> entry;
-	entry.value = value;
-	entry.isNull = isNull;
-	return _strMap.insert(propertyName, entry);
+	return _map.insert(propertyName, value);
     }
 
 private:
 
-    typedef HashTable< 
-	String, _WQLHashEntry<Sint32>, EqualFunc<String>, HashFunc<String> > 
-	IntMap;
-
     typedef HashTable<
-	String, _WQLHashEntry<Real64>, EqualFunc<String>, HashFunc<String> > 
-	RealMap;
+	String, WQLOperand, EqualFunc<String>, HashFunc<String> > Map;
 
-    typedef HashTable<
-	String, _WQLHashEntry<Boolean>, EqualFunc<String>, HashFunc<String> > 
-	BoolMap;
-
-    typedef HashTable<
-	String, _WQLHashEntry<String>, EqualFunc<String>, HashFunc<String> > 
-	StrMap;
-
-    IntMap _intMap;
-    RealMap _realMap;
-    BoolMap _boolMap;
-    StrMap _strMap;
+    Map _map;
 };
 
 PEGASUS_NAMESPACE_END

@@ -141,7 +141,7 @@ public:
 
     /** Evalautes the where clause using the symbol table to resolve symbols.
     */
-    Boolean evaluateWhereClause(const WQLPropertySource* symbolTable) const;
+    Boolean evaluateWhereClause(const WQLPropertySource* source) const;
 
     /** Prints out the members of this class.
     */

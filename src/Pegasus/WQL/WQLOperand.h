@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/WQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -134,6 +135,46 @@ public:
 	clear();
 	new(_propertyName) String(x);
 	_type = PROPERTY_NAME;
+    }
+
+    Sint32 valueOf(IntegerValueTag) const
+    {
+	if (_type != INTEGER_VALUE)
+	    throw TypeMismatch();
+
+	return _integerValue;
+    }
+
+    Real32 valueOf(DoubleValueTag) const
+    {
+	if (_type != DOUBLE_VALUE)
+	    throw TypeMismatch();
+
+	return _doubleValue;
+    }
+
+    Boolean valueOf(BooleanValueTag) const
+    {
+	if (_type != BOOLEAN_VALUE)
+	    throw TypeMismatch();
+
+	return _booleanValue;
+    }
+
+    const String& valueOf(StringValueTag) const
+    {
+	if (_type != STRING_VALUE)
+	    throw TypeMismatch();
+
+	return *((String*)_stringValue);
+    }
+
+    const String& valueOf(PropertyNameTag) const
+    {
+	if (_type != PROPERTY_NAME)
+	    throw TypeMismatch();
+
+	return *((String*)_propertyName);
     }
 
     String toString() const;

@@ -28,11 +28,94 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <Pegasus/Common/Stack.h>
 #include "WQLSelectStatement.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+template<class T>
+inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
+{
+    switch (op)
+    {
+	case WQL_EQ: 
+	    return x == y;
+
+	case WQL_NE: 
+	    return x != y;
+
+	case WQL_LT: 
+	    return x < y;
+	case WQL_LE: 
+	    return x <= y;
+
+	case WQL_GT: 
+	    return x > y;
+
+	case WQL_GE: 
+	    return x >= y;
+
+	default:
+	    PEGASUS_ASSERT(0);
+    }
+
+    return false;
+}
+
+static Boolean _Evaluate(
+    const WQLOperand& lhs, 
+    const WQLOperand& rhs, 
+    WQLOperation op)
+{
+    switch (lhs.getType())
+    {
+	case WQLOperand::NULL_VALUE:
+	{
+	    // ATTN: not sure what to do here:
+	    PEGASUS_ASSERT(0);
+	    break;
+	}
+
+	case WQLOperand::INTEGER_VALUE:
+	{
+	    return _Compare(
+		lhs.valueOf(WQLOperand::INTEGER_VALUE_TAG), 
+		rhs.valueOf(WQLOperand::INTEGER_VALUE_TAG), 
+		op);
+	}
+
+	case WQLOperand::DOUBLE_VALUE:
+	{
+	    return _Compare(
+		lhs.valueOf(WQLOperand::DOUBLE_VALUE_TAG), 
+		rhs.valueOf(WQLOperand::DOUBLE_VALUE_TAG), 
+		op);
+	}
+
+	case WQLOperand::BOOLEAN_VALUE:
+	{
+	    return _Compare(
+		lhs.valueOf(WQLOperand::BOOLEAN_VALUE_TAG), 
+		rhs.valueOf(WQLOperand::BOOLEAN_VALUE_TAG), 
+		op);
+	}
+
+	case WQLOperand::STRING_VALUE:
+	{
+	    return _Compare(
+		lhs.valueOf(WQLOperand::STRING_VALUE_TAG), 
+		rhs.valueOf(WQLOperand::STRING_VALUE_TAG), 
+		op);
+	}
+
+	default:
+	    PEGASUS_ASSERT(0);
+    }
+
+    return false;
+}
 
 WQLSelectStatement::WQLSelectStatement()
 {
@@ -58,9 +141,140 @@ void WQLSelectStatement::clear()
 }
 
 Boolean WQLSelectStatement::evaluateWhereClause(
-    const WQLPropertySource* symbolTable) const
+    const WQLPropertySource* source) const
 {
-    return false;
+    WQLSelectStatement* that = (WQLSelectStatement*)this;
+    Stack<Boolean> stack;
+    stack.reserve(16);
+
+    // 
+    // Counter for operands:
+    //
+
+    Uint32 j = 0;
+
+    //
+    // Process each of the operations:
+    //
+
+    for (Uint32 i = 0, n = _operations.size(); i < n; i++)
+    {
+	WQLOperation op = _operations[i];
+
+	switch (op)
+	{
+	    case WQL_OR:
+	    {
+		PEGASUS_ASSERT(stack.size() >= 2);
+
+		Boolean op1 = stack.top();
+		stack.pop();
+
+		Boolean op2 = stack.top();
+
+		stack.top() = op1 || op2;
+		break;
+	    }
+
+	    case WQL_AND:
+	    {
+		PEGASUS_ASSERT(stack.size() >= 2);
+
+		Boolean op1 = stack.top();
+		stack.pop();
+
+		Boolean op2 = stack.top();
+
+		stack.top() = op1 && op2;
+		break;
+	    }
+
+	    case WQL_NOT:
+	    {
+		PEGASUS_ASSERT(stack.size() >= 1);
+
+		Boolean op = stack.top();
+		stack.top() = !op;
+		break;
+	    }
+
+	    case WQL_EQ:
+	    case WQL_NE:
+	    case WQL_LT:
+	    case WQL_LE:
+	    case WQL_GT:
+	    case WQL_GE:
+	    {
+		PEGASUS_ASSERT(_operands.size() >= 2);
+
+		//
+		// Resolve the left-hand-side to a value (if not already
+		// a value).
+		//
+
+		WQLOperand& lhs = that->_operands[j++];
+
+		if (lhs.getType() == WQLOperand::PROPERTY_NAME)
+		{
+		    const String& propertyName = 
+			lhs.valueOf(WQLOperand::PROPERTY_NAME_TAG);
+
+		    if (!source->getValue(propertyName, lhs))
+			throw NoSuchProperty(propertyName);
+		}
+
+		//
+		// Resolve the right-hand-side to a value (if not already
+		// a value).
+		//
+
+		WQLOperand& rhs = that->_operands[j++];
+
+		if (rhs.getType() == WQLOperand::PROPERTY_NAME)
+		{
+		    const String& propertyName = 
+			rhs.valueOf(WQLOperand::PROPERTY_NAME_TAG);
+
+		    if (!source->getValue(propertyName, rhs))
+			throw NoSuchProperty(propertyName);
+		}
+
+		//
+		// Check for a type mismatch:
+		//
+
+		// PEGASUS_OUT(lhs.toString());
+		// PEGASUS_OUT(rhs.toString());
+
+		if (rhs.getType() != lhs.getType())
+		    throw TypeMismatch();
+
+		//
+		// Now that the types are known to be alike, apply the
+		// operation:
+		//
+
+		stack.push(_Evaluate(lhs, rhs, op));
+		break;
+	    }
+
+	    // 
+	    // ATTN: implement these next!
+	    //
+
+	    case WQL_IS_NULL:
+	    case WQL_IS_TRUE:
+	    case WQL_IS_FALSE:
+	    case WQL_IS_NOT_NULL:
+	    case WQL_IS_NOT_TRUE:
+	    case WQL_IS_NOT_FALSE:
+		PEGASUS_ASSERT(0);
+		break;
+	}
+    }
+
+    PEGASUS_ASSERT(stack.size() == 1);
+    return stack.top();
 }
 
 void WQLSelectStatement::print() const

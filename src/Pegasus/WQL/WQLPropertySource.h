@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/WQL/Linkage.h>
+#include <Pegasus/WQL/WQLOperand.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -40,43 +41,18 @@ PEGASUS_NAMESPACE_BEGIN
     WQLSelectStatement::evaluateWhereClause() method which calls methods of
     this class to obtain real values for property names used in the where
     clause.
-
-    The methods of this class all have the following form:
-
-    <pre>
-	virtual Boolean getValue(
-	    const String& propertyName, 
-	    T& value, 
-	    Boolean& isNull) const = 0;
-    </pre>
-
-    Where "T" is the data type. True is returned if a property with that
-    name is actually exists and the value refers to the value of that
-    property. If the property is null, the the isNull flag is passed.
 */
 class PEGASUS_WQL_LINKAGE WQLPropertySource
 {
 public:
 
-    virtual Boolean getValue(
-	const String& propertyName, 
-	Sint32& value, 
-	Boolean& isNull) const = 0;
+    // 
+    // Returns the value of the property with the given name:
+    //
 
     virtual Boolean getValue(
 	const String& propertyName, 
-	Real64& x, 
-	Boolean& isNull) const = 0;
-
-    virtual Boolean getValue(
-	const String& propertyName, 
-	Boolean& x, 
-	Boolean& isNull) const = 0;
-
-    virtual Boolean getValue(
-	const String& propertyName, 
-	String& x, 
-	Boolean& isNull) const = 0;
+	WQLOperand& value) const = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -43,9 +43,9 @@ void test01()
     //
 
     WQLSimplePropertySource source;
-    assert(source.addValue("x", Sint32(10), false));
-    assert(source.addValue("y", Sint32(20), false));
-    assert(source.addValue("z", Real32(1.5), false));
+    assert(source.addValue("x", WQLOperand(10, WQLOperand::INTEGER_VALUE_TAG)));
+    assert(source.addValue("y", WQLOperand(20, WQLOperand::INTEGER_VALUE_TAG)));
+    assert(source.addValue("z", WQLOperand(1.5, WQLOperand::DOUBLE_VALUE_TAG)));
 
     //
     // Define query:
@@ -53,8 +53,8 @@ void test01()
     
     const char TEXT[] = 
 	"SELECT x,y,z\n"
-	"FROM MyClass\n "
-	"WHERE x > 5 AND y < 20 AND z > 1.0";
+	"FROM MyClass\n"
+	"WHERE x > 5 AND y < 25 AND z > 1.2";
 
     Array<Sint8> text;
     text.append(TEXT, sizeof(TEXT));
@@ -69,6 +69,7 @@ void test01()
     try
     {
 	WQLParser::parse(text, statement);
+	statement.print();
 
 	Boolean result = statement.evaluateWhereClause(&source);
 
@@ -79,14 +80,12 @@ void test01()
 	cerr << "Exception: " << e.getMessage() << endl;
 	exit(1);
     }
-
-    statement.print();
 }
 
 int main(int argc, char** argv)
 {
-    test01();
-    exit(1);
+    // test01();
+    // exit(1);
 
     //
     // Check arguments:

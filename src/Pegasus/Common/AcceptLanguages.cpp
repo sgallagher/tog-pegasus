@@ -59,9 +59,9 @@ AcceptLanguages::AcceptLanguages(String hdr): LanguageElementContainer(){
 	PEG_METHOD_EXIT();
 }
 
-AcceptLanguages::AcceptLanguages(Array<AcceptLanguageElement> container) {
-	for(int i = 0; i < container.size(); i++)
-		this->container.append(dynamic_cast<LanguageElement &>(container[i]));
+AcceptLanguages::AcceptLanguages(Array<AcceptLanguageElement> aContainer) {
+	for(int i = 0; i < aContainer.size(); i++)
+		this->container.append(dynamic_cast<LanguageElement &>(aContainer[i]));
 }
 
 String AcceptLanguages::toString() const{

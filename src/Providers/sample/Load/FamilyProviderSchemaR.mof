@@ -27,7 +27,7 @@ instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleFamilyProviderModule";
     ProviderName = "SampleFamilyProvider";
-    CapabilityID = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProviderPersonDynamic";
     ClassName = "TST_PersonDynamic";
     Namespaces = { "root/SampleProvider" };
     ProviderType = { 2, 3 };
@@ -36,14 +36,14 @@ instance of PG_ProviderCapabilities
 };
 
 // Include the instance provider for the TST_LineageDynamic
-// Class. Note that this is instance only
+// Class. Note that this is instance Provider only.
 // Note that there a problem here in that we should only register the
 // leaf class so should probably be the Labled one.
 instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleFamilyProviderModule";
     ProviderName = "SampleFamilyProvider";
-    CapabilityID = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProviderLineageDynamic";
     ClassName = "TST_LineageDynamic";
     Namespaces = { "root/SampleProvider" };
     ProviderType = { 2 };
@@ -52,13 +52,13 @@ instance of PG_ProviderCapabilities
 };
 
 // Include the instance provider for the TST_LineageDynamic
-// Class. Note that this is instance only
+// Class. Note that this is instance Provider only
 instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleFamilyProviderModule";
     ProviderName = "SampleFamilyProvider";
-    CapabilityID = "SampleFamilyProvider";
-    ClassName = "TST_LabledLineageDynamic";
+    CapabilityID = "SampleFamilyProviderLabledLineageDyanic";
+    ClassName = "TST_LabeledLineageDynamic";
     Namespaces = { "root/SampleProvider" };
     ProviderType = { 2 };
     SupportedProperties = NULL;

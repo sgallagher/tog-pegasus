@@ -171,10 +171,11 @@ public:
         running on the local system in the default location.  The
         connection is automatically authenticated for the current
         user.
+        @param sslContext - The SSL context to use for this connection
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
-    void connectLocal();
+    void connectLocal(SSLContext* sslContext = NULL);
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are

@@ -27,6 +27,7 @@
 //         Jenny Yu (jenny_yu@hp.com)
 //         Bapu Patil ( bapu_patil@hp.com )
 //         Warren Otsuka (warren_otsuka@hp.com)
+//         Nag Boranna(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -780,8 +781,16 @@ int main(int argc, char** argv)
 #else
                         SSLContext * sslcontext = new SSLContext(certpath);
 #endif
-                        cout << "connecting to " << connectionList[i] << endl;
-		        client.connect(connectionList[i], sslcontext,userName,password);
+			if (om.isTrue("local"))
+			{
+			     cout << "Using local connection mechanism " << endl;
+     			     client.connectLocal(sslcontext);
+			}
+			else 
+			{
+                            cout << "connecting to " << connectionList[i] << endl;
+		            client.connect(connectionList[i], sslcontext, userName, password);
+                        }
 		      }
 	              else
 		      {

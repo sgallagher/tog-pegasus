@@ -156,7 +156,8 @@ void CIMClient::connect(
     _connect(address, sslContext);
 }
 
-void CIMClient::connectLocal()
+
+void CIMClient::connectLocal(SSLContext* sslContext)
 {
     //
     // If already connected, bail out!
@@ -188,7 +189,7 @@ void CIMClient::connectLocal()
     _authenticator.clearRequest(true);
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-    _connect(address, NULL);
+    _connect(address, sslContext);
 }
 
 void CIMClient::disconnect()

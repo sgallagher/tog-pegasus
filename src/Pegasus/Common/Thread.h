@@ -126,6 +126,17 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 	    delete [] _key;
       }  
 
+      /**
+       * This function is used to put data in thread space.
+       *
+       * Be aware that there is NOTHING in place to stop 
+       * other users of the thread to remove this data. 
+       * Or change the data.
+       *
+       * You, the developer has to make sure that there are 
+       * no situations in which this can arise (ie, have a 
+       * lock for the function which manipulates the TSD.
+       */
       void put_data(void (*del)(void *), size_t size, void *data ) throw(NullPointer)
       {
 	 if(_data != NULL)
@@ -140,6 +151,18 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 
       size_t get_size(void) { return _size; }
 
+      /**
+       * This function is used to retrieve data from the 
+       * TSD, the thread specific data. 
+       *
+       * Be aware that there is NOTHING in place to stop 
+       * other users of the thread to change the data you
+       * get from this function.
+       *
+       * You, the developer has to make sure that there are 
+       * no situations in which this can arise (ie, have a 
+       * lock for the function which manipulates the TSD.
+       */
       void get_data(void **data, size_t *size) 
       {  
 	 if(data == NULL || size == NULL)

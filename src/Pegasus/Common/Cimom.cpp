@@ -37,11 +37,12 @@ PEGASUS_USING_STD;
 
 const Uint32 CIMOM_Q_ID = 1;
 
-Uint32 module_capabilities::async =   0x00000001;
-Uint32 module_capabilities::remote =  0x00000002;
-Uint32 module_capabilities::trusted = 0x00000004;
-Uint32 module_capabilities::paused  = 0x00000008;
-Uint32 module_capabilities::stopped = 0x00000010;
+Uint32 module_capabilities::async =             0x00000001;
+Uint32 module_capabilities::remote =            0x00000002;
+Uint32 module_capabilities::trusted =           0x00000004;
+Uint32 module_capabilities::paused  =           0x00000008;
+Uint32 module_capabilities::stopped =           0x00000010;
+Uint32 module_capabilities::module_controller = 0x00000020;
 
 
 

@@ -55,6 +55,8 @@ class PEGASUS_COMMON_LINKAGE module_capabilities
       static Uint32 trusted;
       static Uint32 paused;
       static Uint32 stopped;
+      static Uint32 module_controller;
+      
 } ;
 
 class PEGASUS_COMMON_LINKAGE cimom;
@@ -70,7 +72,7 @@ class PEGASUS_COMMON_LINKAGE message_module
 		     Uint32 capabilities,
 		     Uint32 mask,
 		     Uint32 queue)
-      	 : _name(name), _capabilities(capabilities),
+      	 : _name(name), _modules(), _capabilities(capabilities),
 	   _mask(mask), _q_id(queue)  { }
       
       Boolean operator == (const message_module *mm) const;
@@ -91,6 +93,7 @@ class PEGASUS_COMMON_LINKAGE message_module
 
    private:
       String _name;
+      Array<String> _modules;
       Uint32 _capabilities;
       Uint32 _mask;
       struct timeval _heartbeat;

@@ -101,6 +101,11 @@ class PEGASUS_COMMON_LINKAGE async_messages
       static const Uint32 FIND_SERVICE_Q_RESULT;
       static const Uint32 ENUMERATE_SERVICE;
       static const Uint32 ENUMERATE_SERVICE_RESULT;
+
+      static const Uint32 REGISTERED_MODULE;
+      static const Uint32 DEREGISTERED_MODULE;
+      static const Uint32 FIND_MODULE_IN_SERVICE;
+      static const Uint32 FIND_MODULE_IN_SERVICE_RESPONSE;
 };
 
 
@@ -246,6 +251,71 @@ class PEGASUS_COMMON_LINKAGE UpdateCimService : public AsyncRequest
       Uint32 mask;
 };
 
+
+class PEGASUS_COMMON_LINKAGE RegisteredModule : public AsyncRequest
+{
+   public:
+      RegisteredModule(Uint32 routing, 
+		       AsyncOpNode *operation,
+		       Boolean blocking, 
+		       Uint32 service_queue,
+		       String new_module );
+
+      virtual ~RegisteredModule(void)
+      {
+
+      }
+      
+      String _module;
+};
+
+
+class PEGASUS_COMMON_LINKAGE DeRegisteredModule : public AsyncRequest
+{
+   public:
+      DeRegisteredModule(Uint32 routing, 
+		       AsyncOpNode *operation,
+		       Boolean blocking, 
+		       Uint32 service_queue,
+		       String removed_module );
+
+      virtual ~DeRegisteredModule(void)
+      {
+      }
+      
+      String _module;
+};
+
+
+class PEGASUS_COMMON_LINKAGE FindModuleInService : public AsyncRequest
+{
+   public:
+      FindModuleInService(Uint32 routing, 
+			  AsyncOpNode *operation, 
+			  Boolean blocking, 
+			  Uint32 response_queue,
+			  String module);
+      virtual ~FindModuleInService(void);
+      
+      String _module;
+      
+};
+
+class PEGASUS_COMMON_LINKAGE FindModuleInServiceResponse : public AsyncReply
+{
+   public:
+      FindModuleInServiceResponse(Uint32 routing, 
+				  Uint32 key,
+				  AsyncOpNode *operation,
+				  Uint32 result_code, 
+				  Uint32 destination, 
+				  Uint32 blocking, 
+				  Uint32 module_service_queue);
+
+      virtual ~FindModuleInServiceResponse(void);
+      
+      Uint32 _module_service_queue;
+};
 
 class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
 {

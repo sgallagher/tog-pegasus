@@ -84,6 +84,12 @@ const Uint32 async_messages::FIND_SERVICE_Q_RESULT =    0x0000000e;
 const Uint32 async_messages::ENUMERATE_SERVICE =        0x0000000f;
 const Uint32 async_messages::ENUMERATE_SERVICE_RESULT = 0x00000010;
 
+const Uint32 async_messages::REGISTERED_MODULE =        0x00000011;
+const Uint32 async_messages::DEREGISTERED_MODULE =      0x00000012;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE =   0x00000013;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE = 0x00000014;
+
+
 
 AsyncMessage::AsyncMessage(Uint32 type, 
 			   Uint32 destination,
@@ -184,6 +190,81 @@ UpdateCimService::UpdateCimService(Uint32 routing,
    
 }
 
+RegisteredModule::RegisteredModule(Uint32 routing, 
+				   AsyncOpNode *operation,
+				   Boolean blocking, 
+				   Uint32 service_queue, 
+				   String new_module)
+   : AsyncRequest( async_messages::REGISTERED_MODULE, 
+		   Message::getNextKey(),
+		   routing, 
+		   0, 
+		   operation, 
+		   CIMOM_Q_ID, 
+		   service_queue, 
+		   blocking),
+     _module(new_module)
+{
+
+}
+
+DeRegisteredModule::DeRegisteredModule(Uint32 routing, 
+				     AsyncOpNode *operation,
+				     Boolean blocking, 
+				     Uint32 service_queue, 
+				     String removed_module)
+   : AsyncRequest( async_messages::DEREGISTERED_MODULE, 
+		   Message::getNextKey(),
+		   routing, 
+		   0, 
+		   operation, 
+		   CIMOM_Q_ID, 
+		   service_queue, 
+		   blocking),
+     _module(removed_module)
+{
+
+}
+
+
+FindModuleInService::FindModuleInService(Uint32 routing, 
+					 AsyncOpNode *operation, 
+					 Boolean blocking,
+					 Uint32 response_queue,
+					 String module)
+   : AsyncRequest(async_messages::FIND_MODULE_IN_SERVICE, 
+		  Message::getNextKey(),
+		  routing, 
+		  0, 
+		  operation, 
+		  CIMOM_Q_ID,
+		  response_queue,
+		  blocking),
+     _module(module)
+{
+
+}
+
+FindModuleInServiceResponse::FindModuleInServiceResponse(Uint32 routing,
+							 Uint32 key,
+							 AsyncOpNode *operation,
+							 Uint32 result_code, 
+							 Uint32 destination, 
+							 Uint32 blocking, 
+							 Uint32 module_service_queue)
+
+   : AsyncReply(async_messages::FIND_MODULE_IN_SERVICE_RESPONSE,
+		key, 
+		routing, 
+		0, 
+		operation, 
+		result_code,
+		destination, 
+		blocking),
+     _module_service_queue(module_service_queue)
+{
+
+}
 
 AsyncIoctl::AsyncIoctl(Uint32 routing, 
 		       AsyncOpNode *operation, 

@@ -964,7 +964,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
 
    Boolean destroy_op = false;
    
-   if (request->op == false)
+   if (request->op == 0)
    {
       request->op = get_op();
       request->op->_request.insert_first(request);

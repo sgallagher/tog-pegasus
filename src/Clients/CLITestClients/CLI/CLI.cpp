@@ -319,9 +319,18 @@ int main(int argc, char** argv)
                     opts.location.size ());
                 sscanf (portStr.getCString (), "%u", &portNumber);
             }
-            client.connect(host, portNumber, opts.user, opts.password);
+
+            //check whether we should use connect() or connectLocal()
+            if (String::equal(host, "localhost") || String::equal(host, "127.0.0.1"))
+            {
+                client.connectLocal();
+
+            } else
+            {
+                client.connect(host, portNumber, opts.user, opts.password);
+            }
         }
-    }
+    }    
     catch(Exception &e)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<

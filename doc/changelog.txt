@@ -38,6 +38,9 @@ to show user friendly error/status messages.
 Enhanced the -d debug command line option to allow more flexibility in 
 generating debug output.
 
+8. Karl 17 Aug 2001) - Extended CIMMOF compiler to put pegasus comment line in
+xml when it generates xml output.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

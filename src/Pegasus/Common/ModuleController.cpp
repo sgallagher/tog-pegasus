@@ -125,7 +125,8 @@ pegasus_module::module_rep::~module_rep(void)
 Message * pegasus_module::module_rep::module_receive_message(Message *msg)
 {
    Message * ret;
-   AutoMutex autoMut(_thread_safety);
+   // ATTN: This Mutex serializes requests to this Module (Control Provider)
+   //AutoMutex autoMut(_thread_safety);
    ret = _receive_message(msg, _module_address);
    return ret;
 }
@@ -888,22 +889,30 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       // find the target module
       pegasus_module *target;
       Message *module_result = NULL;
+
       {
-	 
 	 _module_lock lock(&_modules);
 	 target = _modules.next(0);
 	 while(target != NULL)
 	 {
 	    if(target->get_name() == static_cast<AsyncModuleOperationStart *>(rq)->_target_module)
 	    {
-	       
-	       module_result = target->_receive_message(static_cast<AsyncModuleOperationStart *>(rq)->_act);
 	       break;
 	    }
 	    
 	    target = _modules.next(target);
 	 }
-	 
+      }
+
+      if (target)
+      {
+          // ATTN: This statement was taken out of the _module_lock block
+          // above because that caused all requests to control providers to
+          // be serialized.  There is now a risk that the control provider
+          // module may be deleted after the lookup and before this call.
+          // See Bugzilla 3120.
+          module_result = target->_receive_message(
+              static_cast<AsyncModuleOperationStart *>(rq)->_act);
       }
       
       if(module_result == NULL)

@@ -284,9 +284,6 @@ public:
 	STRING
     };
 
-    // Hack to fix bug in MSVC.
-    typedef Array<String> StringArray;
-
     /** Constructor.
 
 	@param optionName the name of this option.
@@ -308,7 +305,7 @@ public:
         const String& defaultValue,
         Boolean required,
         Type type,
-        const StringArray& domain = StringArray(),
+        const Array<String>& domain = EmptyStringArray(),
         const String& commandLineOptionName = String());
 
     Option(const Option& x);
@@ -381,16 +378,10 @@ public:
     }
 
     /** Accessor */
-    const StringArray& getDomain() const
-    {
-        return _domain;
-    }
+    const Array<String>& getDomain() const;
 
     /** Modifier */
-    void setDomain(const StringArray& domain)
-    {
-        _domain = domain;
-    }
+    void setDomain(const Array<String>& domain);
 
     /** Accessor */
     const String& getCommandLineOptionName() const
@@ -424,7 +415,7 @@ private:
     String _value;
     Boolean _required;
     Type _type;
-    StringArray _domain;
+    Array<String> _domain;
     String _commandLineOptionName;
     Boolean _resolved;
 };

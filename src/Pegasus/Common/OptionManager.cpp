@@ -45,8 +45,23 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Option
+//
+////////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
+
+const Array<String>& Option::getDomain() const
+{
+    return _domain;
+}
+
+void Option::setDomain(const Array<String>& domain)
+{
+    _domain = domain;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -404,7 +419,7 @@ Option::Option(
     const String& defaultValue,
     Boolean required,
     Type type,
-    const StringArray& domain,
+    const Array<String>& domain,
     const String& commandLineOptionName)
     :
     _optionName(optionName),

@@ -25,18 +25,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// FileSystem.h
-//
-//	This class provides utilities for manipulating and interrogating the
-//	file system.
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_FileSystem_h
 #define Pegasus_FileSystem_h
 
+#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
@@ -44,47 +36,178 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** The FileSystem class provides methods for manipulating the file system.
+
+    This class provides an methods for:
+    <ul>
+	<li>Manipulating directories (create, remove, change).</li>
+	<li>Checking files for ability to read and write.</li>
+	<li>Removing files.</li>
+	<li>Comparing files.</li>
+	<li>Loading files into memory.</li>
+    </ul>
+
+    The methods of this class are all static. So there is no need to 
+    instantiate this class to use it. In fact, instantiation is precluded
+    by a private default constructor.
+
+    A word about the "NoCase" extensions. Some methods of this class have
+    a "NoCase" version. For example, there is a canRead() and a canReadNoCase().
+    The "NoCase" variation ignores the case of the file while it is being
+    located. For example, suppose there is a file called "File1". Then
+    canReadNoCase("file1") finds the file called "File1" and returns true (of
+    course there is a possibility that there really is a file called "file1"
+    in the same directory in which case the behavior of this method is 
+    undefined). Notice that Windows does this anyway. These methods were 
+    developed primarily for Unix which is case sensitive with respect to file
+    names. It should be noted that the no-case methods are slower (since they
+    must stat the directory and look at the file names).
+
+    The no-case variations are used by the repository which--according to
+    CIM--must treat two classes names with different case characterisits, but 
+    othererwise similar, as identical. For example, "MyClass", "myclass", and
+    "MYCLASS" all refer to the same class. Since the default repository
+    implementation uses disk file names to represent class names (e.g., there
+    may be a file called "MyClass.#) that there must be a way of opening
+    a file without regard to its case.
+*/
 class PEGASUS_COMMON_LINKAGE FileSystem
 {
 public:
 
-    /// Return true if the file exists (and false otherwise).
+    /** Determines whether file exists.
+	@param path path of the file.
+	@return true if the file exists.
+    */
     static Boolean exists(const String& path);
 
-    /** Return true if the file exists (and false otherwise). Ignore the
-	case of the file and return the real name of the file.
+    /** Determine whether the file exists. Ignores case of the file.
+	@param path path of the file.
+	@param pathOut path of the file with actual case.
+	@return true if the file exists; false otherwise.
     */
-    static Boolean existsIgnoreCase(const String& path, String& realPath);
+    static Boolean existsNoCase(const String& path, String& pathOut);
 
-    // Returns true if the file exists and can be read:
+    /** Determine whether the file exists. Ignores the case of the file.
+	@param path path of the file.
+	@return true if the file exists; false otherwise.
+    */
+    static Boolean existsNoCase(const String& path);
 
+    /** Determines whether the file can be read.
+	@param path path of the file.
+	@return true if the file can be read.
+    */
     static Boolean canRead(const String& path);
 
-    // Returns true if the file exists and can be written:
+    /** Determines whether the file can be read. Ignores case of file.
+	@param path path of the file.
+	@return true if the file can be read.
+    */
+    static Boolean canReadNoCase(const String& path);
 
+    /** Determines whether the file can be written.
+	@param path path of the file.
+	@return true if the file can be written.
+    */
     static Boolean canWrite(const String& path);
 
-    // Returns true if the file exists and can be executed:
+    /** Determines whether the file can be written. Ignores case of file.
+	@param path path of the file.
+	@return true if the file can be written.
+    */
+    static Boolean canWriteNoCase(const String& path);
 
-    // static Boolean canExecute(const String& path);
-
-    // Returns true if file exists and is a directory:
-
-    static Boolean isDirectory(const String& path);
-
-    // Change to the given directory:
-
-    static Boolean changeDirectory(const String& path);
-
-    // Create a directory:
-
-    static Boolean makeDirectory(const String& path);
-
-    // Get the size of the file in bytes:
-
+    /** Get the size of the file in bytes.
+	@param path path of file.
+	@param size set to size of file.
+	@return true on success.
+    */
     static Boolean getFileSize(const String& path, Uint32& size);
 
-    /** Get the current working Directory. */
+    /** Get the size of the file in bytes.
+	@param path path of file.
+	@param size set to size of file.
+	@return true on success.
+    */
+    static Boolean getFileSizeNoCase(const String& path, Uint32& size);
+
+    /** Removes a file.
+	@param path of file to be removed.
+	@return true on sucess.
+    */
+    static Boolean removeFile(const String& path);
+
+    /** Removes a file. Ignores case of file.
+	@param path of file to be removed.
+	@return true on sucess.
+    */
+    static Boolean removeFileNoCase(const String& path);
+
+    /** Loads contents of the file into the array. Note that the file is
+	opened using binary mode (newline sequences are not expanded to
+	carriage-return-line-feed sequences on Windows).
+	@param array set to the contents of the file upon return.
+	@param fileName name of file to be loaded.
+	@exception CannotOpenFile 
+    */
+    static void loadFileToMemory(
+	Array<Sint8>& array,
+	const String& fileName);
+
+    /** Determines whether two files have exactly the same content.
+	@param path1 path of first file.
+	@param path2 path of second file.
+	@return true if files are identical.
+	@exception CannotOpenFile
+    */
+    static Boolean compareFiles(
+	const String& path1,
+	const String& path2);
+
+    /** Renames a file.
+	@param oldPath old name of file.
+	@param newPath new name of file.
+	@return true on success.
+    */
+    static Boolean renameFile(
+	const String& oldPath,
+	const String& newPath);
+
+    /** Opens a file and ignores the case of the file. Note that the file
+	will be opend in binary mode (no translation of carriage-return-line-
+	feed sequences on Windows).
+	@param os file stream to be opend.
+	@param path path of file to be opened.
+	@return true on success.
+    */
+    Boolean openNoCase(std::ifstream& is, const String& path);
+
+    /** Determines whether the path refers to a directory.
+	@param path path of the directory.
+	@return true if path refers to a directory.
+    */
+    static Boolean isDirectory(const String& path);
+
+    /** Changes the current directory.
+	@param path path of directory to be changed to.
+	@return true on success.
+    */
+    static Boolean changeDirectory(const String& path);
+
+    /** Creates a directory. 
+	@param path path of directory to be created.
+	@return true on success.
+    */
+    static Boolean makeDirectory(const String& path);
+
+    /** Get the path of the current working Directory. 
+	@param path set to current working directory upon return.
+	@return true on success (operation may fail if the current
+	    working directory becomes stale; this can happen on
+	    Unix if it is removed but is impossible on Windows
+	    due to reference counting).
+    */
     static Boolean getCurrentDirectory(String& path);
 
     /** Remove the given directory. The directory must be empty
@@ -95,68 +218,88 @@ public:
     */
     static Boolean removeDirectory(const String& path);
 
-    /** Remove a directory hiearchy. Removes a complete hiearchy of
-	directories and files.
-	
-	WARNING: This differs significantly from the <TT>removeDirectory</TT>
+    /** Remove a directory and all files and directories under it.
+	WARNING: This differs significantly from the <tt>removeDirectory</tt>
 	function in that it removes both directories and files and
 	removes a complete hiearchy.  Use with caution. 
-	@param path defines the high level directory to be removed
-	@return Boolean True if successful
-	@exception  - ATTN: Not sure if there is any exception
+	@param path path of directory to be removed.
+	@return true on success.
     */ 
     static Boolean removeDirectoryHier(const String& path);
 
-    /** Remove the file defined by the input parameter
-	@param path of file to remove
-	@return Boolean true if directory removed
-    */
-    static Boolean removeFile(const String& path);
-
-    /** Get the names of the files (and directories) in the given directory:
-
-	@param path - the path of the directory from which we will get filenames
-	@param paths - On return, this  Array contains the names of the files 
-	in the directory
-	ATTN: Is this local names or fully qualified names with paths.
-	@return Boolean that is today only true.
-	@exception Throws "NoSuchDirectory" if the directory defined in path does 
-	not exist.
+    /** Gets names of all entries (files and directories) of a directory.
+	Note that this function excludes the "." and ".." entries.
+	@param path path path of directory.
+	@param paths contains list of entry names upon return. Note that
+	    the entry names only are provided (no path part).
+	@return true on success.
     */
     static Boolean getDirectoryContents(
 	const String& path,
 	Array<String>& paths);
 
-    /** Load the contents of the file into the array. Throws CannotOpenFile if
-	unable to open file.
+    /** Determines whether the given directory is empty. A directory is
+	empty if it contains no files or directories.
+	@param path path of directory.
+	@return true if directory is empty.
     */
+    static Boolean isDirectoryEmpty(const String& path);
 
-    static void loadFileToMemory(
-	Array<Sint8>& array,
-	const String& fileName);
-
-    /** Compare two file for content.
-	@param filename of first file
-	@param filename of second file
-	ATTN: are filenames local or global???
-	@return Return true if the two files are identical. 
-	@exception Throws CannotOpenFile if either file cannot be opened.
+    /** Translate backward slashes to forward slashes. 
+	@param path to be translated.
     */
-    static Boolean compare(
-	const String& fileName1,
-	const String& fileName2);
-
-    /** Rename the given file to the new name. */
-    static Boolean renameFile(
-	const String& oldFileName,
-	const String& newFileName);
-
-    /** Translate backward slashes to forward slashes: */
     static void translateSlashes(String& path);
 
-    /** Returns true is the given directory is empty. */
-    static Boolean isDirectoryEmpty(const String& path);
+private:
+
+    FileSystem() { }
 };
+
+inline Boolean FileSystem::existsNoCase(const String& path)
+{
+    String dummy;
+    return existsNoCase(path, dummy);
+}
+
+inline Boolean FileSystem::canReadNoCase(const String& path)
+{
+    String realPath;
+
+    if (!existsNoCase(path, realPath))
+	return false;
+
+    return FileSystem::canRead(realPath);
+}
+
+inline Boolean FileSystem::canWriteNoCase(const String& path)
+{
+    String realPath;
+
+    if (!existsNoCase(path, realPath))
+	return false;
+
+    return FileSystem::canWrite(realPath);
+}
+
+inline Boolean FileSystem::removeFileNoCase(const String& path)
+{
+    String realPath;
+
+    if (!existsNoCase(path, realPath))
+	return false;
+
+    return FileSystem::removeFile(realPath);
+}
+
+inline Boolean FileSystem::getFileSizeNoCase(const String& path, Uint32& size)
+{
+    String realPath;
+
+    if (!existsNoCase(path, realPath))
+	return false;
+
+    return FileSystem::getFileSize(realPath, size);
+}
 
 PEGASUS_NAMESPACE_END
 

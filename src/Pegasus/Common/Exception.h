@@ -41,6 +41,7 @@
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
 /** Class Exception
 */
 class PEGASUS_COMMON_LINKAGE Exception
@@ -59,6 +60,7 @@ protected:
 
     String _message;
 };
+
 /** Class AssertionFailureException
 This is an Exception class tied to the definiton of an assert named
 PEGASUS_ASSERT.  This assertion can be included at any point in Pegasus
@@ -73,14 +75,15 @@ public:
 	size_t line,
 	const String& message);
 };
-/** define PEGASUS_ASSERT assertion statement.  This statement
-tests the condition defined by the parameters and if not True
-executes a
 
-<PRE>
-	throw AssertionFailureException
-</PRE>
-defining the file, line and condition that was tested.
+/** define PEGASUS_ASSERT assertion statement.  This statement tests the 
+    condition defined by the parameters and if not True executes a
+
+    <pre>
+    throw AssertionFailureException
+    </pre>
+
+    defining the file, line and condition that was tested.
 */
 #define PEGASUS_ASSERT(COND) \
     do \
@@ -609,6 +612,8 @@ public:
 
     CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
 };
+
+PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 
 PEGASUS_NAMESPACE_END
 

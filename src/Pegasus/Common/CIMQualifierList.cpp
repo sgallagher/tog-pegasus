@@ -34,6 +34,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CIMQualifierList::CIMQualifierList()
+{
+
+}
+
+CIMQualifierList::~CIMQualifierList()
+{
+
+}
+
 CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 {
     if (!qualifier)
@@ -45,6 +55,11 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     _qualifiers.append(qualifier);
 
     return *this;
+}
+
+CIMQualifier& CIMQualifierList::getQualifier(Uint32 pos) 
+{ 
+    return _qualifiers[pos]; 
 }
 
 Uint32 CIMQualifierList::find(const String& name) const

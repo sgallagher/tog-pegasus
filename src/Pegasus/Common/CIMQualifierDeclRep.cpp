@@ -148,4 +148,12 @@ Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 	_arraySize == x->_arraySize;
 }
 
+void CIMQualifierDeclRep::setValue(const CIMValue& value) 
+{
+    _value = value; 
+
+    if (_value.getType() == CIMType::NONE)
+	throw NullType();
+}
+
 PEGASUS_NAMESPACE_END

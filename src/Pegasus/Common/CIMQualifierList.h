@@ -41,15 +41,22 @@ class PEGASUS_COMMON_LINKAGE CIMQualifierList
 {
 public:
 
+    CIMQualifierList();
+
+    ~CIMQualifierList();
+
     CIMQualifierList& add(const CIMQualifier& qualifier);
 
-    Uint32 getCount() const { return _qualifiers.size(); }
-
-    CIMQualifier& getQualifier(Uint32 pos) { return _qualifiers[pos]; }
-
-    const CIMQualifier& getQualifier(Uint32 pos) const 
+    Uint32 getCount() const
     {
-	return _qualifiers[pos];
+	return _qualifiers.size(); 
+    }
+
+    CIMQualifier& getQualifier(Uint32 pos);
+
+    const CIMQualifier& getQualifier(Uint32 pos) const
+    {
+	return _qualifiers[pos]; 
     }
 
     Uint32 find(const String& name) const;

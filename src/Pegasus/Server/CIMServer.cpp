@@ -208,7 +208,7 @@ int ServerHandler::handleMessage()
     {
 	const char* cimOperation = getFieldValueSubString("CIMOperation:");
 
-	if (cimOperation && strcasecmp(cimOperation, "MethodCall") == 0)
+	if (cimOperation && CompareNoCase(cimOperation, "MethodCall") == 0)
 	{
 	    try
 	    {
@@ -404,37 +404,37 @@ cout << "CONTENT[" << (char*)getContent() << "]" << endl;
     // Dispatch the method:
     //--------------------------------------------------------------------------
 
-    if (strcasecmp(iMethodCallName, "GetClass") == 0)
+    if (CompareNoCase(iMethodCallName, "GetClass") == 0)
 	handleGetClass(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "GetInstance") == 0)
+    else if (CompareNoCase(iMethodCallName, "GetInstance") == 0)
 	handleGetInstance(parser, messageId, nameSpace);
     //STUB{
-    else if (strcasecmp(iMethodCallName, "EnumerateClassNames") == 0)
+    else if (CompareNoCase(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
-    else if (strcasecmp(iMethodCallName, "CreateInstance") == 0)
+    else if (CompareNoCase(iMethodCallName, "CreateInstance") == 0)
 	handleCreateInstance(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "EnumerateInstanceNames") == 0)
+    else if (CompareNoCase(iMethodCallName, "EnumerateInstanceNames") == 0)
 	handleEnumerateInstanceNames(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "DeleteQualifier") == 0)
+    else if (CompareNoCase(iMethodCallName, "DeleteQualifier") == 0)
 	handleDeleteQualifier(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "GetQualifier") == 0)
+    else if (CompareNoCase(iMethodCallName, "GetQualifier") == 0)
 	handleGetQualifier(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "SetQualifier") == 0)
+    else if (CompareNoCase(iMethodCallName, "SetQualifier") == 0)
 	handleSetQualifier(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "EnumerateQualifiers") == 0)
+    else if (CompareNoCase(iMethodCallName, "EnumerateQualifiers") == 0)
 	handleEnumerateQualifiers(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "EnumerateClasses") == 0)
+    else if (CompareNoCase(iMethodCallName, "EnumerateClasses") == 0)
 	handleEnumerateClasses(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "CreateClass") == 0)
+    else if (CompareNoCase(iMethodCallName, "CreateClass") == 0)
 	handleCreateClass(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "ModifyClass") == 0)
+    else if (CompareNoCase(iMethodCallName, "ModifyClass") == 0)
 	handleModifyClass(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "DeleteClass") == 0)
+    else if (CompareNoCase(iMethodCallName, "DeleteClass") == 0)
 	handleDeleteClass(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "GetProperty") == 0)
+    else if (CompareNoCase(iMethodCallName, "GetProperty") == 0)
 	handleGetProperty(parser, messageId, nameSpace);
-    else if (strcasecmp(iMethodCallName, "SetProperty") == 0)
+    else if (CompareNoCase(iMethodCallName, "SetProperty") == 0)
 	handleSetProperty(parser, messageId, nameSpace);
 
 
@@ -499,13 +499,13 @@ void ServerHandler::handleGetClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ClassName") == 0)
+	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcasecmp(name, "LocalOnly") == 0)
+	else if (CompareNoCase(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (strcasecmp(name, "IncludeQualifiers") == 0)
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (strcasecmp(name, "IncludeClassOrigin") == 0)
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -569,7 +569,7 @@ void ServerHandler::handleGetInstance(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "InstanceName") == 0)
+	if (CompareNoCase(name, "InstanceName") == 0)
 	{
 	    String className;
 	    Array<KeyBinding> keyBindings;
@@ -579,11 +579,11 @@ void ServerHandler::handleGetInstance(
 
 	    instanceName.set(String(), String(), className, keyBindings);
 	}
-	else if (strcasecmp(name, "LocalOnly") == 0)
+	else if (CompareNoCase(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (strcasecmp(name, "IncludeQualifiers") == 0)
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (strcasecmp(name, "IncludeClassOrigin") == 0)
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -646,9 +646,9 @@ void ServerHandler::handleEnumerateClassNames(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ClassName") == 0)
+	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcasecmp(name, "DeepInheritance") == 0)
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -710,7 +710,7 @@ void ServerHandler::handleCreateInstance(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "NewInstance") == 0)
+	if (CompareNoCase(name, "NewInstance") == 0)
 	    XmlReader::getInstanceElement(parser, cimInstance);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -767,7 +767,7 @@ void ServerHandler::handleEnumerateInstanceNames(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ClassName") == 0)
+	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -820,7 +820,7 @@ void ServerHandler::handleDeleteQualifier(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "QualifierName") == 0)
+	if (CompareNoCase(name, "QualifierName") == 0)
 	    XmlReader::getClassNameElement(parser, qualifierName, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -867,7 +867,7 @@ void ServerHandler::handleGetQualifier(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "QualifierName") == 0)
+	if (CompareNoCase(name, "QualifierName") == 0)
 	    XmlReader::getClassNameElement(parser, qualifierName, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -916,7 +916,7 @@ void ServerHandler::handleSetQualifier(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "QualifierDeclaration") == 0)
+	if (CompareNoCase(name, "QualifierDeclaration") == 0)
 	    XmlReader::getQualifierDeclElement(parser, qualifierDecl);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1019,15 +1019,15 @@ void ServerHandler::handleEnumerateClasses(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ClassName") == 0)
+	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcasecmp(name, "DeepInheritance") == 0)
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
-	else if (strcasecmp(name, "LocalOnly") == 0)
+	else if (CompareNoCase(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (strcasecmp(name, "IncludeQualifiers") == 0)
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (strcasecmp(name, "IncludeClassOrigin") == 0)
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1091,7 +1091,7 @@ void ServerHandler::handleCreateClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "NewClass") == 0)
+	if (CompareNoCase(name, "NewClass") == 0)
 	    XmlReader::getClassElement(parser, cimClass);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1144,7 +1144,7 @@ void ServerHandler::handleModifyClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ModifiedClass") == 0)
+	if (CompareNoCase(name, "ModifiedClass") == 0)
 	    XmlReader::getClassElement(parser, cimClass);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1197,7 +1197,7 @@ void ServerHandler::handleDeleteClass(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ClassName") == 0)
+	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1253,7 +1253,7 @@ void ServerHandler::handleGetProperty(
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	CIMValue cimValue; 
-	if (strcasecmp(name, "InstanceName") == 0)
+	if (CompareNoCase(name, "InstanceName") == 0)
        {
 	   String className;
 	   Array<KeyBinding> keyBindings;
@@ -1357,9 +1357,9 @@ void ServerHandler::handleSetProperty(
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (strcasecmp(name, "ClassName") == 0)
+	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
-	else if (strcasecmp(name, "DeepInheritance") == 0)
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");

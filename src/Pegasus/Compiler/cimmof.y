@@ -34,6 +34,8 @@
             f) Alias Handling
   */
 
+#define YYSTACKSIZE 2000
+
 #include <cstdlib>
 #include <malloc.h>
 #include <cstdio>

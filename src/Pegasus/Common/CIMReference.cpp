@@ -634,4 +634,9 @@ Uint32 CIMReference::makeHashCode() const
     return HashFunc<String>::hash(ref.toString());
 }
 
+KeyBindingArray CIMReference::getKeyBindingArray()
+{
+    return KeyBindingArray();
+}
+
 PEGASUS_NAMESPACE_END

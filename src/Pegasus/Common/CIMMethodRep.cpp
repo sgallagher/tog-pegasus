@@ -245,4 +245,12 @@ Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
     return true;
 }
 
+void CIMMethodRep::setType(CIMType type)
+{
+    _type = type; 
+
+    if (type == CIMType::NONE)
+	throw NullType();
+}
+
 PEGASUS_NAMESPACE_END

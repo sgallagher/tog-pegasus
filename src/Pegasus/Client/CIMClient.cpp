@@ -1537,7 +1537,7 @@ void CIMClient::modifyClass(
 
 void CIMClient::modifyInstance(
     const String& nameSpace,
-    const CIMInstance& modifiedInstance)
+    CIMInstance& modifiedInstance)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }

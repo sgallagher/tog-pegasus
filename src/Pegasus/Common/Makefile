@@ -9,11 +9,8 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
-    HashTable.cpp \
-    Service.cpp \
-    OptionManager.cpp \
-    CGIQueryString.cpp \
     Array.cpp \
+    CGIQueryString.cpp \
     Channel.cpp \
     Char16.cpp \
     CIMClass.cpp \
@@ -46,22 +43,25 @@ SOURCES = \
     Exception.cpp \
     FileSystem.cpp \
     Formatter.cpp \
+    HashTable.cpp \
     Headers.cpp \
     Indentor.cpp \
     Logger.cpp \
     Memory.cpp \
+    OptionManager.cpp \
     Pair.cpp \
+    Selector.cpp \
+    Service.cpp \
     Sharable.cpp \
     Stack.cpp \
     Stopwatch.cpp \
     String.cpp \
     System.cpp \
+    TCPChannel.cpp \
     TimeValue.cpp \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-    TCPChannel.cpp \
-    Selector.cpp \
 
 include $(ROOT)/mak/library.mak

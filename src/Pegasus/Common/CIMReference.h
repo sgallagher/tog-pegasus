@@ -368,6 +368,9 @@ public:
     /** Initializes this object from a CIM object name (char* version). */
     CIMReference(const char* objectName);
 
+    /** Workaround to MSVC++ bug. */
+	static KeyBindingArray getKeyBindingArray();
+
     /** Constructs a CIMReference from constituent elements.
 	@param host Name of host (e.g., "nemesis-8888").
 	@param nameSpace Namespace (e.g., "root/cimv20").
@@ -378,10 +381,10 @@ public:
 	const String& host,
 	const String& nameSpace,
 	const String& className,
-	const KeyBindingArray& keyBindings = KeyBindingArray());
+	const KeyBindingArray& keyBindings = getKeyBindingArray());
 
     /** Destructor */
-    virtual ~CIMReference();
+    ~CIMReference();
 
     /** Assignment operator */
     CIMReference& operator=(const CIMReference& x);
@@ -400,7 +403,7 @@ public:
 	const String& host,
 	const String& nameSpace,
 	const String& className,
-	const KeyBindingArray& keyBindings = KeyBindingArray());
+	const KeyBindingArray& keyBindings = getKeyBindingArray());
 
     /** Set the reference from an object name . */
     void set(const String& objectName);

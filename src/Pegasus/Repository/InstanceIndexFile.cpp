@@ -146,7 +146,7 @@ Boolean InstanceIndexFile::lookup(
 
     String realPath;
 
-    if (!FileSystem::existsIgnoreCase(path, realPath))
+    if (!FileSystem::existsNoCase(path, realPath))
 	return false;
 
     ArrayDestroyer<char> p(realPath.allocateCString());
@@ -273,9 +273,16 @@ Boolean InstanceIndexFile::insert(
 //------------------------------------------------------------------------------
 
 Boolean InstanceIndexFile::remove(
-    const String& path, 
+    const String& path_, 
     const CIMReference& instanceName)
 {
+    // Get real name of file:
+
+    String path;
+
+    if (!FileSystem::existsNoCase(path_, path))
+	return false;
+
     // Open output file:
 
     ArrayDestroyer<char> p(path.allocateCString(4));
@@ -349,7 +356,7 @@ Boolean InstanceIndexFile::appendInstanceNamesTo(
 
     String realPath;
 
-    if (!FileSystem::existsIgnoreCase(path, realPath))
+    if (!FileSystem::existsNoCase(path, realPath))
 	return false;
 
     ArrayDestroyer<char> p(realPath.allocateCString());

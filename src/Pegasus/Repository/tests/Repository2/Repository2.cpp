@@ -165,10 +165,18 @@ void TestCreateClass()
 	instances[1].identical(inst0) ||
 	instances[1].identical(inst1));
 
-#if 0
-    for (Uint32 i = 0; i < instances.size(); i++)
-	instances[i].print(cout);
-#endif
+    // -- Modify one of the instances:
+
+    CIMInstance modifiedInst0("MyClass");
+    modifiedInst0.addProperty(CIMProperty("key", Uint32(111)));
+    modifiedInst0.addProperty(CIMProperty("message", "Goodbye World"));
+    r.modifyInstance(NAMESPACE, modifiedInst0);
+
+    // -- Get instance back and see that it is the same as modified one:
+
+    CIMInstance tmpInstance = r.getInstance(NAMESPACE, "MyClass.key=111");
+    assert(tmpInstance.identical(modifiedInst0));
+    // tmpInstance.print();
 
     // -- Delete the instances:
 

@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**  The CIMOperations Class.
+/** The CIMOperations Class.
     This class defines the external client operations for Pegasus These
     operations are based on the WBEM operations defined in the DMTF CIM
     CIMOperations over HTTP operations Specification. They duplicate the names,
@@ -55,8 +55,6 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMOperations
 {
 public:
-
-    typedef Array<String> StringArray;
 
     virtual ~CIMOperations();
 
@@ -136,7 +134,7 @@ public:
 	    Boolean localOnly = true,
 	    Boolean includeQualifiers = true,
 	    Boolean includeClassOrigin = false,
-	    const Array<String>& propertyList = StringArray()) = 0;
+	    const Array<String>& propertyList = EmptyStringArray()) = 0;
 
     /** The <<TT>getInstance</TT> method returns a single CIM Instance from
 	the target Namespace based on the InstanceName parameter provided.
@@ -144,7 +142,6 @@ public:
 	@param nameSpace The <TT>nameSpace</TT> parameter is a string that
 	defines the target namespace. See defintion of
 	\URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
-
 
 	@param instanceName The <TT>instanceName</TT> input parameter defines
 	the name of the Instance to be retrieved.
@@ -214,7 +211,7 @@ public:
 	    Boolean localOnly = true,
 	    Boolean includeQualifiers = false,
 	    Boolean includeClassOrigin = false,
-	    const Array<String>& propertyList = StringArray()) = 0;
+	    const Array<String>& propertyList = EmptyStringArray()) = 0;
 
 
     /** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
@@ -645,9 +642,8 @@ public:
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI></UL>
     */
     virtual void modifyInstance(
-
-		const String& nameSpace,
-		const CIMInstance& modifiedInstance) = 0;
+	const String& nameSpace,
+	CIMInstance& modifiedInstance) = 0;
 
 
     /** The <TT>enumerateClasses</TT> method is used to enumerate subclasses of
@@ -869,7 +865,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-		const Array<String>& propertyList = StringArray()) = 0;
+		const Array<String>& propertyList = EmptyStringArray()) = 0;
 
     /** The <TT>enumerateInstanceNames</TT> operation enumerates the
     names (model paths) of the instances of a CIM Class in the target Namespace.
@@ -1049,7 +1045,7 @@ public:
         const String& resultRole = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = StringArray()) = 0;
+        const Array<String>& propertyList = EmptyStringArray()) = 0;
 
     /** The <TT>associatorNames</TT> operation enumerates the names of
     CIM Objects (Classes or Instances) that are associated to a particular
@@ -1123,6 +1119,9 @@ public:
 
     /** The <TT>references</TT> operation enumerates the association
     objects that refer to a particular target CIM Object (Class or Instance).
+
+    @param The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}
 
     @param nameSpace The nameSpace parameter is a string that defines the target
     namespace. See defintion of
@@ -1204,10 +1203,13 @@ public:
  	const String& role = String::EMPTY,
  	Boolean includeQualifiers = false,
  	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList= StringArray()) = 0;
+	const Array<String>& propertyList= EmptyStringArray()) = 0;
     /**
     The <TT>referenceNames</TT> operation enumerates the association
     objects that refer to a particular target CIM Object (Class or Instance).
+
+    @param The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}
 
     @param nameSpace The nameSpace parameter is a string that defines the target
     namespace. See defintion of
@@ -1250,10 +1252,10 @@ public:
      </UL>
     */
     virtual Array<CIMReference> referenceNames(
-    const String& nameSpace,
-    const CIMReference& objectName,
-    const String& resultClass = String::EMPTY,
-    const String& role = String::EMPTY) = 0;
+	const String& nameSpace,
+	const CIMReference& objectName,
+	const String& resultClass = String::EMPTY,
+	const String& role = String::EMPTY) = 0;
 
     /**
     The <TT>getProperty</TT>operation is used to retrieve a single property
@@ -1337,9 +1339,9 @@ public:
     */
     virtual void setProperty(
         const String& nameSpace,
-		const CIMReference& instanceName,
-		const String& propertyName,
-		const CIMValue& newValue = CIMValue()) = 0;
+	const CIMReference& instanceName,
+	const String& propertyName,
+	const CIMValue& newValue = CIMValue()) = 0;
 
     /** The <TT>getQualifier</TT> operation retrieves a single CIMQualifier
     declaration from the target Namespace.
@@ -1387,6 +1389,9 @@ public:
     already
     exists it is overwritten.
 
+    @param NameSpace The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}
+
     @param nameSpace The nameSpace parameter is a string that defines the target
     namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
@@ -1418,7 +1423,6 @@ public:
     </UL>
     */
     virtual void setQualifier(
-
         const String& nameSpace,
         const CIMQualifierDecl& qualifierDecl) = 0;
 
@@ -1536,7 +1540,6 @@ public:
     </UL>
 
     */
-
     virtual CIMValue invokeMethod(
 	const String& nameSpace,
 	const CIMReference& instanceName,
@@ -1547,45 +1550,4 @@ public:
 
 PEGASUS_NAMESPACE_END
 
-
 #endif /* Pegasus_Operations_h */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

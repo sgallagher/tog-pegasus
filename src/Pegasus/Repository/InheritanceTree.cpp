@@ -36,15 +36,15 @@ using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// IgnoreCaseEqualFunc
+// NoCaseEqualFunc
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct IgnoreCaseEqualFunc
+struct NoCaseEqualFunc
 {
     static Boolean equal(const String& x, const String& y)
     {
-        return String::equalIgnoreCase(x, y);
+        return String::equalNoCase(x, y);
     }
 };
 
@@ -161,7 +161,7 @@ void InheritanceTreeNode::print(std::ostream& os) const
 
 struct InheritanceTreeRep
 {
-    typedef HashTable<String, InheritanceTreeNode*, IgnoreCaseEqualFunc> Table;
+    typedef HashTable<String, InheritanceTreeNode*, NoCaseEqualFunc> Table;
     Table table;
 };
 
@@ -286,7 +286,7 @@ Boolean InheritanceTree::getSubClassNames(
 
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
-	if (String::equalIgnoreCase(className, i.key()))
+	if (String::equalNoCase(className, i.key()))
 	{
 	    i.value()->getSubClassNames(subClassNames, deepInheritance);
 	    return true;

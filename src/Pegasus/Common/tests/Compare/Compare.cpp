@@ -36,8 +36,8 @@ int main()
 {
     try
     {
-	assert(FileSystem::compare("file1.dat", "file2.dat"));
-	assert(!FileSystem::compare("file1.dat", "file3.dat"));
+	assert(FileSystem::compareFiles("file1.dat", "file2.dat"));
+	assert(!FileSystem::compareFiles("file1.dat", "file3.dat"));
     }
     catch (Exception& e)
     {

@@ -240,4 +240,9 @@ const char* CIMException::codeToString(CIMException::Code code)
     return _cimMessages[Uint32(code)];
 }
 
+void ThrowUnitializedHandle()
+{
+    throw UnitializedHandle();
+}
+
 PEGASUS_NAMESPACE_END

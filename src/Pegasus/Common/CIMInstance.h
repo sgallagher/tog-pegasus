@@ -346,7 +346,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMInstanceRep* _rep;
@@ -489,7 +489,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMInstanceRep* _rep;

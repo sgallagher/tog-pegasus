@@ -33,8 +33,6 @@ REPOSITORY_ROOT = $(HOME_DIR)/repository
 
 LEX = flex
 
-YACC = bison
-
 ################################################################################
 ##
 ## Attempt to include a platform configuration file:

@@ -776,4 +776,46 @@ Array<Sint8> XmlWriter::formatSimpleRspMessage(
                     XmlWriter::formatIReturnValueElement(body)))));
 }
 
+Array<Sint8>& operator<<(Array<Sint8>& out, const char* x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Array<Sint8>& operator<<(Array<Sint8>& out, char x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Array<Sint8>& operator<<(Array<Sint8>& out, Char16 x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Array<Sint8>& operator<<(Array<Sint8>& out, const String& x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Array<Sint8>& operator<<(Array<Sint8>& out, const Indentor& x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Array<Sint8>& operator<<(Array<Sint8>& out, const Array<Sint8>& x)
+{
+    out.appendArray(x);
+    return out;
+}
+
+Array<Sint8>& operator<<(Array<Sint8>& out, Uint32 x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
 PEGASUS_NAMESPACE_END

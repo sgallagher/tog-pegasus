@@ -48,21 +48,23 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifier;
 class CIMClassRep;
-/** Class CIMQualifier - This class defines the Pegasus implementation of the CIM 
-CIMQualifier \Ref{QUALIFIER}.
-*/ 
+
+/** Class CIMQualifier - This class defines the Pegasus implementation of the 
+    CIM CIMQualifier \Ref{QUALIFIER}.
+*/
 class PEGASUS_COMMON_LINKAGE CIMQualifier
 {
 public:
 
     /** Constructor instantiates a CIM qualifier with empty name value 
-    fields.Constructor 
-    @return instantiated empty qualifier object
-   */
+	fields.Constructor 
+	@return instantiated empty qualifier object
+    */
     CIMQualifier() : _rep(0)
     {
 
     }
+
     /** Constructor - instantiates a CIM qualifier object from another 
     qualifier object. 
     @param CIM CIMQualifier object
@@ -236,7 +238,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMQualifierRep* _rep;
@@ -374,7 +376,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMQualifierRep* _rep;

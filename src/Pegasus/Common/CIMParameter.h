@@ -198,7 +198,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMParameterRep* _rep;
@@ -347,7 +347,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMParameterRep* _rep;

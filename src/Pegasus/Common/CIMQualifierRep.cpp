@@ -132,4 +132,12 @@ Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 	_propagated == x->_propagated;
 }
 
+void CIMQualifierRep::setValue(const CIMValue& value) 
+{
+    _value = value; 
+
+    if (_value.getType() == CIMType::NONE)
+	throw NullType();
+}
+
 PEGASUS_NAMESPACE_END

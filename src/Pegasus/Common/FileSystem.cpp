@@ -73,7 +73,7 @@ Boolean FileSystem::getCurrentDirectory(String& path)
     return true;
 }
 
-Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
+Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
     realPath.clear();
     ArrayDestroyer<char> destroyer(_clonePath(path));
@@ -101,7 +101,7 @@ Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 
     for (Dir dir(dirPath); dir.more(); dir.next())
     {
-	if (CompareIgnoreCase(fileName, dir.getName()) == 0)
+	if (CompareNoCase(fileName, dir.getName()) == 0)
 	{
 	    if (strcmp(dirPath, ".") == 0)
 		realPath = dir.getName();
@@ -130,6 +130,118 @@ Boolean FileSystem::canWrite(const String& path)
     return System::canWrite(p.getPointer());
 }
 
+Boolean FileSystem::getFileSize(const String& path, Uint32& size)
+{
+    ArrayDestroyer<char> p(_clonePath(path));
+    return System::getFileSize(p.getPointer(), size);
+}
+
+Boolean FileSystem::removeFile(const String& path)
+{
+    ArrayDestroyer<char> p(_clonePath(path));
+    return System::removeFile(p.getPointer());
+}
+
+void FileSystem::loadFileToMemory(
+    Array<Sint8>& array,
+    const String& fileName)
+{
+    Uint32 fileSize;
+
+    if (!getFileSize(fileName, fileSize))
+	throw CannotOpenFile(fileName);
+
+    char* tmp = fileName.allocateCString();
+    FILE* fp = fopen(tmp, "rb");
+    delete [] tmp;
+
+    if (fp == NULL)
+	throw CannotOpenFile(fileName);
+
+    array.reserve(fileSize);
+    char buffer[4096];
+    size_t n;
+
+    while ((n = fread(buffer, 1, sizeof(buffer), fp)) > 0)
+        array.append(buffer, n);
+
+    fclose(fp);
+}
+
+Boolean FileSystem::compareFiles(
+    const String& path1,
+    const String& path2)
+{
+    Uint32 fileSize1;
+
+    if (!getFileSize(path1, fileSize1))
+	throw CannotOpenFile(path1);
+
+    Uint32 fileSize2;
+
+    if (!getFileSize(path2, fileSize2))
+	throw CannotOpenFile(path2);
+
+    if (fileSize1 != fileSize2)
+	return false;
+
+    char* tmp1 = path1.allocateCString();
+    FILE* fp1 = fopen(tmp1, "rb");
+    delete [] tmp1;
+
+    if (fp1 == NULL)
+	throw CannotOpenFile(path1);
+
+    char* tmp2 = path2.allocateCString();
+    FILE* fp2 = fopen(tmp2, "rb");
+    delete [] tmp2;
+
+    if (fp2 == NULL)
+    {
+	fclose(fp1);
+	throw CannotOpenFile(path2);
+    }
+
+    int c1;
+    int c2;
+
+    while ((c1 = fgetc(fp1)) != EOF && (c2 = fgetc(fp2)) != EOF)
+    {
+	if (c1 != c2)
+	{
+	    fclose(fp1);
+	    fclose(fp2);
+	    return false;
+	}
+    }
+
+    fclose(fp1);
+    fclose(fp2);
+    return true;
+}
+
+Boolean FileSystem::renameFile(
+    const String& oldPath,
+    const String& newPath)
+{
+    ArrayDestroyer<char> p(oldPath.allocateCString());
+    ArrayDestroyer<char> q(newPath.allocateCString());
+    return System::renameFile(p.getPointer(), q.getPointer());
+}
+
+Boolean FileSystem::openNoCase(std::ifstream& is, const String& path)
+{
+    String realPath;
+
+    if (!existsNoCase(path, realPath))
+	return false;
+
+    ArrayDestroyer<char> p(_clonePath(path));
+
+    is.open(p.getPointer() PEGASUS_IOS_BINARY);
+    return is != 0;
+}
+
 Boolean FileSystem::isDirectory(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
@@ -146,12 +258,6 @@ Boolean FileSystem::makeDirectory(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
     return System::makeDirectory(p.getPointer());
-}
-
-Boolean FileSystem::getFileSize(const String& path, Uint32& size)
-{
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::getFileSize(p.getPointer(), size);
 }
 
 Boolean FileSystem::removeDirectory(const String& path)
@@ -194,90 +300,6 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     return removeDirectory(path);	
 }
 
-Boolean FileSystem::removeFile(const String& path)
-{
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::removeFile(p.getPointer());
-}
-
-void FileSystem::loadFileToMemory(
-    Array<Sint8>& array,
-    const String& fileName)
-{
-    Uint32 fileSize;
-
-    if (!getFileSize(fileName, fileSize))
-	throw CannotOpenFile(fileName);
-
-    char* tmp = fileName.allocateCString();
-    FILE* fp = fopen(tmp, "rb");
-    delete [] tmp;
-
-    if (fp == NULL)
-	throw CannotOpenFile(fileName);
-
-    array.reserve(fileSize);
-    char buffer[4096];
-    size_t n;
-
-    while ((n = fread(buffer, 1, sizeof(buffer), fp)) > 0)
-        array.append(buffer, n);
-
-    fclose(fp);
-}
-
-Boolean FileSystem::compare(
-    const String& fileName1,
-    const String& fileName2)
-{
-    Uint32 fileSize1;
-
-    if (!getFileSize(fileName1, fileSize1))
-	throw CannotOpenFile(fileName1);
-
-    Uint32 fileSize2;
-
-    if (!getFileSize(fileName2, fileSize2))
-	throw CannotOpenFile(fileName2);
-
-    if (fileSize1 != fileSize2)
-	return false;
-
-    char* tmp1 = fileName1.allocateCString();
-    FILE* fp1 = fopen(tmp1, "rb");
-    delete [] tmp1;
-
-    if (fp1 == NULL)
-	throw CannotOpenFile(fileName1);
-
-    char* tmp2 = fileName2.allocateCString();
-    FILE* fp2 = fopen(tmp2, "rb");
-    delete [] tmp2;
-
-    if (fp2 == NULL)
-    {
-	fclose(fp1);
-	throw CannotOpenFile(fileName2);
-    }
-
-    int c1;
-    int c2;
-
-    while ((c1 = fgetc(fp1)) != EOF && (c2 = fgetc(fp2)) != EOF)
-    {
-	if (c1 != c2)
-	{
-	    fclose(fp1);
-	    fclose(fp2);
-	    return false;
-	}
-    }
-
-    fclose(fp1);
-    fclose(fp2);
-    return true;
-}
-
 //
 //  Get the file list in the directory into the
 //  array of strings provided
@@ -293,12 +315,6 @@ Boolean FileSystem::getDirectoryContents(
     const String& path,
     Array<String>& paths)
 {
-#if 0
-    // This may be just extra fluff but added anyway
-    if (!FileSystem::isDirectory(path))
-	return false;
-#endif
-    
     paths.clear();
 
     try
@@ -322,24 +338,6 @@ Boolean FileSystem::getDirectoryContents(
     }
 }
 
-Boolean FileSystem::renameFile(
-    const String& oldFileName,
-    const String& newFileName)
-{
-    ArrayDestroyer<char> p(oldFileName.allocateCString());
-    ArrayDestroyer<char> q(newFileName.allocateCString());
-    return System::renameFile(p.getPointer(), q.getPointer());
-}
-
-void FileSystem::translateSlashes(String& path)
-{
-    for (Uint32 i = 0, n = path.size(); i < n; i++)
-    {
-	if (path[i] == '\\')
-	    path[i] = '/';
-    }
-}
-
 Boolean FileSystem::isDirectoryEmpty(const String& path)
 {
     for (Dir dir(path); dir.more(); dir.next())
@@ -351,6 +349,15 @@ Boolean FileSystem::isDirectoryEmpty(const String& path)
     }
 
     return true;
+}
+
+void FileSystem::translateSlashes(String& path)
+{
+    for (Char16* p = (Char16*)path.getData(); *p; p++)
+    {
+	if (*p == '\\')
+	    *p = '/';
+    }
 }
 
 PEGASUS_NAMESPACE_END

@@ -48,7 +48,7 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
     timeval tv;
     gettimeofday(&tv, 0);
     seconds = int(tv.tv_sec);
-    milliseconds = int(tv.tv_usec);
+    milliseconds = int(tv.tv_usec) / 1000;
 }
 
 void System::sleep(Uint32 seconds)

@@ -67,13 +67,7 @@ public:
 	return _type; 
     }
 
-    void setType(CIMType type)
-    {
-	_type = type; 
-
-	if (type == CIMType::NONE)
-	    throw NullType();
-    }
+    void setType(CIMType type);
 
     const String& getClassOrigin() const
     {

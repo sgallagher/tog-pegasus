@@ -51,7 +51,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = StringArray());
+	const Array<String>& propertyList = EmptyStringArray());
 
     virtual CIMInstance getInstance(
 	const String& nameSpace,
@@ -59,7 +59,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = StringArray());
+	const Array<String>& propertyList = EmptyStringArray());
 
     virtual void deleteClass(
 	const String& nameSpace,
@@ -83,7 +83,7 @@ public:
 
     virtual void modifyInstance(
 	const String& nameSpace,
-	const CIMInstance& modifiedInstance);
+	CIMInstance& modifiedInstance);
 
     virtual Array<CIMClass> enumerateClasses(
 	const String& nameSpace,
@@ -105,7 +105,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = StringArray());
+	const Array<String>& propertyList = EmptyStringArray());
 
     virtual Array<CIMReference> enumerateInstanceNames(
 	const String& nameSpace,
@@ -124,7 +124,7 @@ public:
 	const String& resultRole = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = StringArray());
+	const Array<String>& propertyList = EmptyStringArray());
 
     virtual Array<CIMReference> associatorNames(
 	const String& nameSpace,
@@ -141,7 +141,7 @@ public:
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = StringArray());
+	const Array<String>& propertyList = EmptyStringArray());
 
     virtual Array<CIMReference> referenceNames(
 	const String& nameSpace,

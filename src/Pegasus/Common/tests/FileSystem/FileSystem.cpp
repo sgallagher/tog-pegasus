@@ -66,10 +66,10 @@ int main()
     }
 
     String realName;
-    assert(FileSystem::existsIgnoreCase("filesystem.cpp", realName));
+    assert(FileSystem::existsNoCase("filesystem.cpp", realName));
     assert(String::equal(realName, "FileSystem.cpp"));
 
-    assert(FileSystem::existsIgnoreCase(
+    assert(FileSystem::existsNoCase(
 	"../FileSystem/filesystem.cpp", realName));
     assert(String::equal(realName, "../FileSystem/FileSystem.cpp"));
 

@@ -100,7 +100,7 @@ void CIMProvider::modifyClass(
 
 void CIMProvider::modifyInstance(
     const String& nameSpace,
-    const CIMInstance& modifiedInstance) 
+    CIMInstance& modifiedInstance) 
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }

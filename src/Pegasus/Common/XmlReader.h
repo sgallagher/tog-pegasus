@@ -294,32 +294,11 @@ public:
 	XmlParser& parser, 
 	CIMInstance& cimInstance);
 
-    static void getObject(XmlParser& parser, CIMClass& x)
-    {
-	if (!getClassElement(parser, x))
-	{
-	    throw XmlValidationError(parser.getLine(),
-		"expected CLASS element");
-	}
-    }
+    static void getObject(XmlParser& parser, CIMClass& x);
 
-    static void getObject(XmlParser& parser, CIMInstance& x)
-    {
-	if (!getInstanceElement(parser, x))
-	{
-	    throw XmlValidationError(parser.getLine(),
-		"expected INSTANCE element");
-	}
-    }
+    static void getObject(XmlParser& parser, CIMInstance& x);
 
-    static void getObject(XmlParser& parser, CIMQualifierDecl& x)
-    {
-	if (!getQualifierDeclElement(parser, x))
-	{
-	    throw XmlValidationError(parser.getLine(),
-		"expected QUALIFIER.DECLARATION element");
-	}
-    }
+    static void getObject(XmlParser& parser, CIMQualifierDecl& x);
 
     static Boolean getMessageStartTag(
 	XmlParser& parser, 

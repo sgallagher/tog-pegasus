@@ -247,6 +247,19 @@ int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
     return 0;
 }
 
+int String::compareNoCase(const char* s1, const char* s2, Uint32 n)
+{
+    while (n--)
+    {
+	int r = tolower(*s1++) - tolower(*s2++);
+
+	if (r)
+	    return r;
+    }
+
+    return 0;
+}
+
 Boolean String::equal(const String& x, const String& y)
 {
     if (x.size() != y.size())
@@ -278,7 +291,7 @@ Boolean String::equal(const char* x, const String& y)
     return equal(String(x), y);
 }
 
-Boolean String::equalIgnoreCase(const String& x, const String& y)
+Boolean String::equalNoCase(const String& x, const String& y)
 {
     if (x.size() != y.size())
 	return false;
@@ -441,7 +454,7 @@ String ToLower(const String& str)
     return tmp;
 }
 
-int CompareIgnoreCase(const char* s1, const char* s2)
+int CompareNoCase(const char* s1, const char* s2)
 {
     while (*s1 && *s2)
     {
@@ -477,6 +490,39 @@ Boolean GetLine(istream& is, String& line)
     }
 
     return gotChar;
+}
+
+String::~String()
+{
+}
+
+String& String::assign(const String& x) 
+{ 
+    _rep = x._rep; 
+    return *this; 
+}
+
+String& String::append(const Char16& c)
+{
+    _rep.insert(_rep.size() - 1, c);
+    return *this;
+}
+
+void String::clear() 
+{ 
+    _rep.clear(); 
+    _rep.append('\0'); 
+}
+
+void String::reserve(Uint32 capacity) 
+{ 
+    _rep.reserve(capacity + 1); 
+}
+
+const Array<String>& EmptyStringArray()
+{
+    static Array<String> tmp;
+    return tmp;
 }
 
 PEGASUS_NAMESPACE_END

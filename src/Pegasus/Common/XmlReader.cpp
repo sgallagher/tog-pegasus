@@ -799,9 +799,9 @@ CIMValue XmlReader::stringToValue(
     {
 	case CIMType::BOOLEAN:
 	{
-	    if (strcasecmp(valueString, "TRUE") == 0)
+	    if (CompareNoCase(valueString, "TRUE") == 0)
 		return CIMValue(true);
-	    else if (strcasecmp(valueString, "FALSE") == 0)
+	    else if (CompareNoCase(valueString, "FALSE") == 0)
 		return CIMValue(false);
 	    else
 		throw XmlSemanticError(
@@ -2575,6 +2575,51 @@ Boolean XmlReader::getInstanceElement(
     expectEndTag(parser, "INSTANCE");
 
     return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getObject()
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::getObject(XmlParser& parser, CIMClass& x)
+{
+    if (!getClassElement(parser, x))
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected CLASS element");
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+// getObject()
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::getObject(XmlParser& parser, CIMInstance& x)
+{
+    if (!getInstanceElement(parser, x))
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected INSTANCE element");
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+// getObject()
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::getObject(XmlParser& parser, CIMQualifierDecl& x)
+{
+    if (!getQualifierDeclElement(parser, x))
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected QUALIFIER.DECLARATION element");
+    }
 }
 
 //------------------------------------------------------------------------------

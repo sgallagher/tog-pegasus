@@ -23,6 +23,8 @@ MKDIRHIER = mu mkdirhier
 
 COPY = mu copy
 
+MOVE = mu move
+
 CXX = cl -nologo
 
 EXE_OUT = -Fe
@@ -41,8 +43,6 @@ LIB_PREFIX =
 
 LIB_SUFFIX = .lib
 
-COPY = mu copy
-
 TOUCH = mu touch
 
 ECHO = mu echo
@@ -54,3 +54,5 @@ YACC = bison
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 SH = bash
+
+YACC = bison

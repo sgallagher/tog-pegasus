@@ -77,13 +77,7 @@ public:
 	return _value; 
     }
 
-    void setValue(const CIMValue& value) 
-    {
-	_value = value; 
-
-	if (_value.getType() == CIMType::NONE)
-	    throw NullType();
-    }
+    void setValue(const CIMValue& value);
 
     Uint32 getFlavor() const 
     {

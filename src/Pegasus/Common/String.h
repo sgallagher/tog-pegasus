@@ -75,9 +75,7 @@ public:
     String(const char* x, Uint32 n);
 
     /// String destructor. Used by the representation of the String object
-    ~String()
-    {
-    }
+    ~String();
 
     /** Assign this string with x.
 	<pre>
@@ -85,7 +83,7 @@ public:
 	    String t2 = t1;
 	</pre>
     */
-    String& operator=(const String& x) { _rep = x._rep; return *this; }
+    String& operator=(const String& x) { return assign(x); }
 
     /// Assign this string with Char16 x.
     String& operator=(const Char16* x) { assign(x); return *this; }
@@ -94,7 +92,7 @@ public:
     @param x String to assign
     @return Returns the String
     */
-    String& assign(const String& x) { _rep = x._rep; return *this; }
+    String& assign(const String& x);
 
     /// Assign this string with x.
     String& assign(const Char16* x);
@@ -114,7 +112,8 @@ public:
 	    test.clear();	// String test is now NULL (length == 0)
 	</pre>
     */
-    void clear() { _rep.clear(); _rep.append('\0'); }
+    void clear();
+
 
     /** reserve - Reserves memory for capacity characters. Notice that this does
     not
@@ -125,7 +124,7 @@ public:
 	capacity argument.
 	@param capacity defines the capacity in characters to reserve.
     */
-    void reserve(Uint32 capacity) { _rep.reserve(capacity + 1); }
+    void reserve(Uint32 capacity);
 
     /** Returns the length of the String object.
 	@return Length of the string in characters.
@@ -210,11 +209,7 @@ public:
 	    s4.append(Char16(0x0000))
 	</pre>
     */
-    String& append(const Char16& c)
-    {
-	_rep.insert(_rep.size() - 1, c);
-	return *this;
-    }
+    String& append(const Char16& c);
 
     /// Append n characters from str to this String object.
     String& append(const Char16* str, Uint32 n);
@@ -302,6 +297,7 @@ public:
     */
     Uint32 find(Char16 c) const;
 
+
     /** Find the position of the first occurence of the string object.
 	This function finds one string inside another
 	If the matching substring is not found, -1 is returned.
@@ -354,6 +350,10 @@ public:
     */
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
 
+    /** Just like one above except ignores case differences.
+    */
+    static int compareNoCase(const char* s1, const char* s2, Uint32 n);
+
     /** Compare two null-terminated strings.
     	@param s1 First null-terminated string for the comparison
 	@param s2 Second null-terminated string for the comparison
@@ -391,7 +391,7 @@ public:
     /// Return true if the two strings are equal.
     static Boolean equal(const char* x, const String& y);
 
-    static Boolean equalIgnoreCase(const String& x, const String& y);
+    static Boolean equalNoCase(const String& x, const String& y);
 
     /// Convert the plain old C-string to lower case:
     static void toLower(char* str);
@@ -502,7 +502,7 @@ PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
 
 /** Compare two strings but ignore any case differences.
 */
-PEGASUS_COMMON_LINKAGE int CompareIgnoreCase(const char* s1, const char* s2);
+PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
 /** Get the next line from the input file.
 */
@@ -641,6 +641,8 @@ inline String Cat(
 
     return tmp;
 }
+
+PEGASUS_COMMON_LINKAGE const Array<String>& EmptyStringArray();
 
 PEGASUS_NAMESPACE_END
 

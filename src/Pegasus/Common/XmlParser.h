@@ -183,14 +183,9 @@ private:
     Stack<XmlEntry> _putBackStack;
 };
 
-inline void XmlAppendCString(Array<Sint8>& out, const char* str)
-{
-    out.append(str, strlen(str));
-}
-
-PEGASUS_COMMON_LINKAGE void XmlAppendString(
+PEGASUS_COMMON_LINKAGE void XmlAppendCString(
     Array<Sint8>& out, 
-    const String& str);
+    const char* str);
 
 PEGASUS_NAMESPACE_END
 

@@ -49,6 +49,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // _LoadObject()
 //
+//	Loads objects (classes, instances, and qualifiers) from disk to
+//	memory objects.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class Object>
@@ -60,7 +63,7 @@ void _LoadObject(
 
     String realPath;
 
-    if (!FileSystem::existsIgnoreCase(path, realPath))
+    if (!FileSystem::existsNoCase(path, realPath))
 	throw CannotOpenFile(path);
 
     // Load file into memory:
@@ -77,6 +80,9 @@ void _LoadObject(
 ////////////////////////////////////////////////////////////////////////////////
 //
 // _SaveObject()
+//
+//	Saves objects (classes, instances, and qualifiers) from memory to
+//	disk files.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +108,9 @@ void _SaveObject(const String& path, Object& object)
 ////////////////////////////////////////////////////////////////////////////////
 //
 // RepositoryDeclContext
+//
+//	This context is used by the resolve() methods to lookup dependent
+//	object during resolution.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -174,6 +183,27 @@ CIMClass RepositoryDeclContext::lookupClass(
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMRepository
+//
+//     The following are not implemented:
+//
+//         CIMRepository::setProperty()
+//         CIMRepository::getProperty()
+//         CIMRepository::modifyInstance()
+//         CIMRepository::execQuery()
+//         CIMRepository::execQuery()
+//         CIMRepository::associators()
+//         CIMRepository::associatorNames()
+//         CIMRepository::referencess()
+//         CIMRepository::referencesNames()
+//         CIMRepository::invokeMethod()
+//
+//     Note that invokeMethod() will not never implemented since it is not
+//     meaningful for a repository.
+//
+//     ATTN: need to combine instances of each class into a common file to
+//     improve disk utilization (too many i-nodes in Unix).
+//
+//     ATTN: make operations on files non-case-sensitive.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -256,7 +286,7 @@ CIMInstance CIMRepository::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    // -- Get the index for this instances:
+    // -- Get the index for this instance:
 
     String className;
     Uint32 index;
@@ -284,7 +314,7 @@ void CIMRepository::deleteClass(
 
     String realPath;
 
-    if (FileSystem::existsIgnoreCase(path, realPath))
+    if (FileSystem::existsNoCase(path, realPath))
 	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_INSTANCES, className);
 
     // -- Delete the class (disallowed if there are subclasses):
@@ -311,7 +341,7 @@ void CIMRepository::deleteInstance(
     String instanceFilePath = _getInstanceFilePath(
 	nameSpace, instanceName.getClassName(), index);
 
-    if (!FileSystem::removeFile(instanceFilePath))
+    if (!FileSystem::removeFileNoCase(instanceFilePath))
     {
 	throw PEGASUS_CIM_EXCEPTION(FAILED, 
 	    "failed to remove file in CIMRepository::deleteInstance()");
@@ -325,13 +355,13 @@ void CIMRepository::deleteInstance(
 
     Uint32 size;
 
-    if (!FileSystem::getFileSize(indexFilePath, size))
+    if (!FileSystem::getFileSizeNoCase(indexFilePath, size))
     {
 	throw PEGASUS_CIM_EXCEPTION(FAILED, 
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
 
-    if (size == 0 && !FileSystem::removeFile(indexFilePath))
+    if (size == 0 && !FileSystem::removeFileNoCase(indexFilePath))
     {
 	throw PEGASUS_CIM_EXCEPTION(FAILED, 
 	    "unexpected failure in CIMRepository::deleteInstance()");
@@ -417,7 +447,7 @@ void CIMRepository::modifyClass(
 
     // -- Delete the old file containing the class:
 
-    if (!FileSystem::removeFile(classFilePath))
+    if (!FileSystem::removeFileNoCase(classFilePath))
     {
 	throw PEGASUS_CIM_EXCEPTION(FAILED, 
 	    "failed to remove file in CIMRepository::modifyClass()");
@@ -430,9 +460,43 @@ void CIMRepository::modifyClass(
 
 void CIMRepository::modifyInstance(
     const String& nameSpace,
-    const CIMInstance& modifiedInstance) 
+    CIMInstance& modifiedInstance) 
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "modifiedInstance()");
+    // Note that the keys must be the same (otherwise it would be 
+    // impossible to determine which instance was being modified).
+    // So it suffices to replaces the instance with the same instance name.
+
+    // -- Resolve the instance (looks up the class):
+
+    CIMConstClass cimClass;
+    modifiedInstance.resolve(_context, nameSpace, cimClass);
+
+    // -- Lookup index of entry from index file:
+
+    CIMReference instanceName = modifiedInstance.getInstanceName(cimClass);
+
+    String indexFilePath = _getIndexFilePath(
+	nameSpace, instanceName.getClassName());
+
+    Uint32 index;
+
+    if (!InstanceIndexFile::lookup(indexFilePath, instanceName, index))
+	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, instanceName.toString());
+
+    // -- Attempt to remove the instance file:
+
+    String instanceFilePath = _getInstanceFilePath(
+	nameSpace, instanceName.getClassName(), index);
+
+    if (!FileSystem::removeFileNoCase(instanceFilePath))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "failed to remove file in CIMRepository::deleteInstance()");
+    }
+
+    // -- Save instance to file:
+
+    _SaveObject(instanceFilePath, modifiedInstance);
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -486,7 +550,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
 
     Array<String> classNames;
     _nameSpaceManager.getSubClassNames(
-	nameSpace, className, deepInheritance, classNames);
+	nameSpace, className, true, classNames);
     classNames.prepend(className);
 
     // -- Search each qualifying instance file for the instance:
@@ -667,7 +731,7 @@ void CIMRepository::setQualifier(
 
     // -- If qualifier alread exists, throw exception:
 
-    if (FileSystem::exists(qualifierFilePath))
+    if (FileSystem::existsNoCase(qualifierFilePath))
 	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, qualifierDecl.getName());
 
     // -- Save qualifier:
@@ -686,7 +750,7 @@ void CIMRepository::deleteQualifier(
 
     // -- Delete qualifier:
 
-    if (!FileSystem::removeFile(qualifierFilePath))
+    if (!FileSystem::removeFileNoCase(qualifierFilePath))
 	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, qualifierName);
 }
 

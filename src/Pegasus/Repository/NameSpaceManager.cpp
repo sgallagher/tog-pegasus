@@ -226,9 +226,9 @@ static Boolean _NameSpaceDirHierIsEmpty(const String& nameSpacePath)
 
 	if (strcmp(name, ".") != 0 &&
 	    strcmp(name, "..") != 0 &&
-	    CompareIgnoreCase(name, _CLASSES_DIR) != 0 &&
-	    CompareIgnoreCase(name, _INSTANCES_DIR) != 0 &&
-	    CompareIgnoreCase(name, _QUALIFIERS_DIR) != 0)
+	    CompareNoCase(name, _CLASSES_DIR) != 0 &&
+	    CompareNoCase(name, _INSTANCES_DIR) != 0 &&
+	    CompareNoCase(name, _QUALIFIERS_DIR) != 0)
 	{
 	    return true;
 	}
@@ -431,7 +431,7 @@ void NameSpaceManager::deleteClass(
 
     // -- Remove the file from disk:
 
-    if (!FileSystem::removeFile(classFilePath))
+    if (!FileSystem::removeFileNoCase(classFilePath))
 	throw FailedToRemoveFile(classFilePath);
 }
 

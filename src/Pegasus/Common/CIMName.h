@@ -80,7 +80,7 @@ public:
     */
     static Boolean equal(const String& name1, const String& name2)
     {
-	return String::equalIgnoreCase(name1, name2);
+	return String::equalNoCase(name1, name2);
     }
 
 private:

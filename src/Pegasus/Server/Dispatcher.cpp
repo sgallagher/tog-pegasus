@@ -140,7 +140,7 @@ void Dispatcher::modifyClass(
 
 void Dispatcher::modifyInstance(
     const String& nameSpace,
-    const CIMInstance& modifiedInstance) 
+    CIMInstance& modifiedInstance) 
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }

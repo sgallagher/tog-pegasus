@@ -75,7 +75,7 @@ public:
        Boolean localOnly = true,
        Boolean includeQualifiers = false,
        Boolean includeClassOrigin = false,
-       const Array<String>& propertyList = StringArray())
+       const Array<String>& propertyList = EmptyStringArray())
    {
        cout << "__NamespaceProvider::getInstance() called" << endl;
 

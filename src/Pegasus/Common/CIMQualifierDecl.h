@@ -42,7 +42,6 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstQualifierDecl;
 class CIMClassRep;
 /** Class CIMQualifierDecl
-
   NOTE: Clarify difference between qualifier and qualiferdeclaration
   ATTN: Important work required here.
 */
@@ -215,7 +214,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMQualifierDeclRep* _rep;
@@ -360,7 +359,7 @@ private:
     void _checkRep() const
     {
 	if (!_rep)
-	    throw UnitializedHandle();
+	    ThrowUnitializedHandle();
     }
 
     CIMQualifierDeclRep* _rep;

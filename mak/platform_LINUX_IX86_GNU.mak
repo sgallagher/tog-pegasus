@@ -23,3 +23,9 @@ SYS_LIBS = -ldl
 CXX = g++
 
 SH = sh
+
+YACC = yacc
+
+COPY = cp
+
+MOVE = mv

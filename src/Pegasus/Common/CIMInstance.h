@@ -23,6 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// 				Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +193,7 @@ public:
 
 	ATTN: What is the effect of out of range?
     */
-    CIMProperty getProperty(Uint32 pos);
+    CIMProperty getProperty(Uint32 pos) throw(OutOfBounds);
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
@@ -206,7 +207,7 @@ public:
 
 	ATTN: What is the effect of out of range?
     */
-    CIMConstProperty getProperty(Uint32 pos) const;
+    CIMConstProperty getProperty(Uint32 pos) const throw(OutOfBounds);
 
     /** removeProperty - Removes the property represented
 	by the position input parameter from the instance.
@@ -214,7 +215,7 @@ public:
 	instance.  Normally this is obtained by getProperty();
 	@exception Throws OutofBounds if index is not a property object
     */
-    void removeProperty(Uint32 pos);
+    void removeProperty(Uint32 pos) throw(OutOfBounds);
 
     /**	getPropertyCount - Gets the numbercount of CIMProperty
 	objects defined for this CIMInstance.

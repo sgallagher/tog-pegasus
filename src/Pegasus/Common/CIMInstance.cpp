@@ -23,6 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// 				Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,19 +165,19 @@ Boolean CIMInstance::existsProperty(const String& name) const
    return _rep->existsProperty(name);
 }
 
-CIMProperty CIMInstance::getProperty(Uint32 pos)
+CIMProperty CIMInstance::getProperty(Uint32 pos) throw(OutOfBounds)
 {
     _checkRep();
     return _rep->getProperty(pos);
 }
 
-CIMConstProperty CIMInstance::getProperty(Uint32 pos) const
+CIMConstProperty CIMInstance::getProperty(Uint32 pos) const throw(OutOfBounds)
 {
     _checkRep();
     return _rep->getProperty(pos);
 }
 
-void CIMInstance::removeProperty(Uint32 pos)
+void CIMInstance::removeProperty(Uint32 pos)  throw(OutOfBounds)
 {
     _checkRep();
     _rep->removeProperty(pos);

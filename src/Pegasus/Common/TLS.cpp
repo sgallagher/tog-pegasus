@@ -33,23 +33,13 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 #include "TLS.h"
-
-#define PEGASUS_CERT "/server.pem"
-#define PEGASUS_KEY "/server.pem"
-
-
-// debug flag
-#define TLS_DEBUG(X) // X
-
-// switch on 'server needs certified client'
-//#define CLIENT_CERTIFY
 
 //
 // use the following definitions only if SSL is available
 // 
-
 #ifdef PEGASUS_HAS_SSL
 
 PEGASUS_NAMESPACE_BEGIN
@@ -65,49 +55,76 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
    _socket(socket),
    _SSLContext(sslcontext)
 {
-   //
-   // create the SSLConnection area
-   //
-   if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
-      throw( SSL_Exception("Could not get SSL Connection Area"));
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
-   //
-   // and connect the active socket with the ssl operation
-   //
-   if (!(SSL_set_fd(_SSLConnection, _socket) ))
-      throw( SSL_Exception("Could not link socket to SSL Connection"));
+    //
+    // create the SSLConnection area
+    //
+    if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
+    {
+        PEG_METHOD_EXIT();
+        throw( SSL_Exception("Could not get SSL Connection Area"));
+    }
 
-   TLS_DEBUG(cerr << "---> SSL: Created SSL socket\n";)
+    //
+    // and connect the active socket with the ssl operation
+    //
+    if (!(SSL_set_fd(_SSLConnection, _socket) ))
+    {
+        PEG_METHOD_EXIT();
+        throw( SSL_Exception("Could not link socket to SSL Connection"));
+    }
+
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
+
+    PEG_METHOD_EXIT();
 }
 
 SSLSocket::~SSLSocket()
 {
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
+
     SSL_free(_SSLConnection);
-    TLS_DEBUG(cerr << "---> SSL: Deleted SSL socket\n";)
+
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");
+
+    PEG_METHOD_EXIT();
 }
 
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
 {
-    Sint32 rc,rsn;
-    TLS_DEBUG( cerr << "---> SSL: (r) ";)
-    TLS_DEBUG( cerr << SSL_state_string_long(_SSLConnection) << endl;)
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::read()");
+    Sint32 rc;
+
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
     rc = SSL_read(_SSLConnection, (char *)ptr, size);
+
+    PEG_METHOD_EXIT();
     return rc;
 }
 
 Sint32 SSLSocket::write( const void* ptr, Uint32 size)
 {
-    Sint32 rc,rsn;
-    TLS_DEBUG( cerr << "---> SSL: (w) ";)
-    TLS_DEBUG( cerr << SSL_state_string_long(_SSLConnection) << endl;)
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::write()");
+    Sint32 rc;
+
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (w) ");
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
     rc = SSL_write(_SSLConnection, (char *)ptr, size);
+
+    PEG_METHOD_EXIT();
     return rc;
 }
 
 void SSLSocket::close()
 {
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::close()");
+
     SSL_shutdown(_SSLConnection);
     Socket::close(_socket);
+
+    PEG_METHOD_EXIT();
 }
 
 void SSLSocket::enableBlocking()
@@ -123,7 +140,7 @@ void SSLSocket::disableBlocking()
 void SSLSocket::initializeInterface()
 {
     Socket::initializeInterface();
-    TLS_DEBUG(cerr << "---> SSL: initialized SSL\n";)
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: initialized SSL");
 }
 
 void SSLSocket::uninitializeInterface()
@@ -147,51 +164,68 @@ redo_accept:
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       TLS_DEBUG(cerr << "Not accepted " << ssl_rsn << endl;)
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not accepted " + ssl_rsn );
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
-          goto redo_accept;
+       {
+           goto redo_accept;
+       }
        else
-          return -1;
+       {
+           PEG_METHOD_EXIT();
+           return -1;
+       }
     }
     else if (ssl_rc == 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       TLS_DEBUG(cerr << "Shutdown SSL_accept()\n";)
-       TLS_DEBUG(cerr << "Error Code: " << ssl_rsn << " \n";)
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Shutdown SSL_accept()");
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "Error Code: " + ssl_rsn );
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
+           "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, String(ERR_print_errors_fp(stderr)));
 
-       TLS_DEBUG(cerr << "Error string: " << ERR_error_string(ssl_rc, NULL) << " \n";)
-       TLS_DEBUG(ERR_print_errors_fp(stderr));
-
+       PEG_METHOD_EXIT();
        return -1;
     }
-    TLS_DEBUG(cerr << "Accepted\n";)
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Accepted");
 
-#ifdef CLIENT_CERTIFY
-    // get client's certificate
-    // this is usually not needed 
-    X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
-    if (client_cert != NULL)
+    //
+    // Check if the client certificate verification enabled or not
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    if (String::equalNoCase(
+        configManager->getCurrentValue("enableClientCertification"), "true"))
     {
-       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
-       {
-           TLS_DEBUG(cerr << "Client Certificate verified.\n";)
-       }
-       else
-       {
-           TLS_DEBUG(cerr << "Client Certificate not verified\n");    
+        // get client's certificate
+        // this is usually not needed 
+        X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+        if (client_cert != NULL)
+        {
+           if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+           {
+               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                   "---> SSL: Client Certificate verified.");
+           }
+           else
+           {
+               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                   "---> SSL: Client Certificate not verified");    
+               PEG_METHOD_EXIT();
+               return -1;
+           }
+
+           X509_free (client_cert);
+        }
+        else
+        {
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified");
+           PEG_METHOD_EXIT();
            return -1;
-       }
-
-       X509_free (client_cert);
+        }
     }
-    else
-    {
-       TLS_DEBUG(cerr << "Client not certified\n";)
-       return -1;
-    }
-#endif
 
     PEG_METHOD_EXIT();
     return ssl_rc;
@@ -199,6 +233,8 @@ redo_accept:
 
 Sint32 SSLSocket::connect()
 {
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::connect()");
+
     Sint32 ssl_rc,ssl_rsn;
 
     SSL_set_connect_state(_SSLConnection);
@@ -210,21 +246,27 @@ redo_connect:
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       TLS_DEBUG(cerr << "--->Not connected " << ssl_rsn << endl;)
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not connected " + ssl_rsn );
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
-          goto redo_connect;
+       {
+           goto redo_connect;
+       }
        else
-          return -1;
+       {
+           PEG_METHOD_EXIT();
+           return -1;
+       }
     }
     else if (ssl_rc == 0)
     {
-       TLS_DEBUG(cerr << "--->Shutdown SSL_connect()\n";)
-       TLS_DEBUG(ERR_print_errors_fp(stderr));
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Shutdown SSL_connect()");
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, String(ERR_print_errors_fp(stderr)));
+       PEG_METHOD_EXIT();
        return -1;
     }
-    TLS_DEBUG(cerr << "--->Connected\n";)
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
     // get server's certificate
     X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
@@ -232,11 +274,12 @@ redo_connect:
     {
        if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
        {
-           TLS_DEBUG(cerr << "Server Certificate verified.\n";)
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate verified.");
        }
        else
        {
-           TLS_DEBUG(cerr << "Server Certificate NOT verified\n");    
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate NOT verified.");    
+           PEG_METHOD_EXIT();
            return -1;
        }
 
@@ -244,10 +287,12 @@ redo_connect:
     }
     else
     {
-       TLS_DEBUG(cerr << "Server not certified\n";)
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server not certified.");
+       PEG_METHOD_EXIT();
        return -1;
     }
 
+    PEG_METHOD_EXIT();
     return ssl_rc;
 }
 
@@ -264,6 +309,7 @@ MP_Socket::MP_Socket(Uint32 socket)
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
    throw(SSL_Exception)
 {
+    PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
     {
         _isSecure = true;
@@ -274,12 +320,15 @@ MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
         _isSecure = false;
         _socket = socket;
     }
+    PEG_METHOD_EXIT();
 }
 
 MP_Socket::~MP_Socket()
 {
+    PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::~MP_Socket()");
     if (_isSecure)
         delete _sslsock;
+    PEG_METHOD_EXIT();
 }   
    
 Boolean MP_Socket::isSecure() {return _isSecure;}

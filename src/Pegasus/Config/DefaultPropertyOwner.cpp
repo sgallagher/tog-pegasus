@@ -65,6 +65,7 @@ static struct ConfigPropertyRow properties[] =
     {"enableAssociationTraversal", "true", 0, 0, 0},
     {"enableIndicationService", "true", 0, 0, 0},
     {"tempLocalAuthDir", "/tmp", 0, 0, 0},
+    {"enableClientCertification", "false", 0, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

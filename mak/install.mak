@@ -9,7 +9,7 @@
 ifdef LIBRARY
 install:
 	$(INSTALL_LIBRARY)
-	echo $(LIBRARY) $(SUFFIX)
+	$(ECHO) $(LIBRARY) $(SUFFIX)
     ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 	$(MAKE) --directory=$(DEST_LIB_DIR) -f $(PEGASUS_ROOT)/mak/install.mak install_ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
     endif

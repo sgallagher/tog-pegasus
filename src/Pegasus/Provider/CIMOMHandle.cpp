@@ -505,7 +505,7 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
    }
 
    response = _response.remove_first();
-   if(response &&  response->getRouting() != request->getRouting() || (response->getType() != response_type))
+   if(response &&  (response->getType() != response_type))
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 		       "Unexpected Message Instance");

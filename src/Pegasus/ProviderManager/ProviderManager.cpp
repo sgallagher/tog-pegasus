@@ -541,8 +541,6 @@ void ProviderManager::unload_idle_providers(void) throw()
 	 _unload_idle_flag = 0;
 	 MessageQueueService::get_thread_pool()->allocate_and_awaken(this, provider_monitor);
 	 
-// 	 Thread th(provider_monitor, this , true);
-// 	 th.run();
       }
    }
    PEG_METHOD_EXIT();
@@ -567,7 +565,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::provider_monitor(voi
    {
    }
    PEG_METHOD_EXIT();
-   exit_thread((PEGASUS_THREAD_RETURN)1);
    return 0;
 }
 

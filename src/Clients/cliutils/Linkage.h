@@ -27,24 +27,17 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Clients_cliutils_Linkage_h
-#define Pegasus_Clients_cliutils_Linkage_h
-
 #include <Pegasus/Common/Config.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#  ifdef PEGASUS_CLIUTILS_INTERNAL
-#    define PEGASUS_CLIUTILS_LINKAGE PEGASUS_EXPORT
+#ifndef PEGASUS_CLIUTILS_LINKAGE
+#  ifdef PEGASUS_OS_TYPE_WINDOWS
+#    ifdef PEGASUS_CLIUTILS_INTERNAL
+#      define PEGASUS_CLIUTILS_LINKAGE PEGASUS_EXPORT
+#    else
+#      define PEGASUS_CLIUTILS_LINKAGE PEGASUS_IMPORT
+#    endif
 #  else
-#    define PEGASUS_CLIUTILS_LINKAGE PEGASUS_IMPORT
+#    define PEGASUS_CLIUTILS_LINKAGE
+#    define PEGASUS_CLIUTILS_LINKAGE
 #  endif
-#else
-#  define PEGASUS_CLIUTILS_LINKAGE
-#  define PEGASUS_CLIUTILS_LINKAGE
 #endif
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_Clients_cliutils_Linkage_h */

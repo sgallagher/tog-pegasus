@@ -8,7 +8,7 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="PG_IndicationHandlerSNMP">
+          <INSTANCE CLASSNAME="PG_IndicationHandlerSNMPMapper">
             <PROPERTY NAME="SystemCreationClassName" TYPE="string">
               <VALUE> CIM_UnitaryComputerSystem </VALUE>
             </PROPERTY>
@@ -16,15 +16,15 @@
               <VALUE> server001.acme.com </VALUE>
             </PROPERTY>
             <PROPERTY NAME="CreationClassName" TYPE="string"> 
-              <VALUE> PG_IndicationHandlerSNMP </VALUE>
+              <VALUE> PG_IndicationHandlerSNMPMapper </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Name" TYPE="string"> 
               <VALUE> Handler03 </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Destination" TYPE="string"> 
+            <PROPERTY NAME="TrapDestination" TYPE="string"> 
               <VALUE> localhost </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="snmpType" TYPE="string"> 
+            <PROPERTY NAME="SNMPVersion" TYPE="string"> 
               <VALUE> SNMPv2 </VALUE>
             </PROPERTY>
           </INSTANCE>

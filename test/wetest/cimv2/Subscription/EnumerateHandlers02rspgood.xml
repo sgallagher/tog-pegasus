@@ -5,10 +5,10 @@
 <IMETHODRESPONSE NAME="EnumerateInstances">
 <IRETURNVALUE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMP">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMPMapper">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerSNMP
+PG_IndicationHandlerSNMPMapper
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -27,7 +27,7 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationHandlerSNMP">
+<INSTANCE CLASSNAME="PG_IndicationHandlerSNMPMapper">
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
@@ -61,37 +61,39 @@ This value MUST be set to a non NULL value when the PersistenceType is 1 (&quot;
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="string">
+<PROPERTY NAME="SNMPCommunityName" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
 <VALUE>
-PG_IndicationHandlerSNMP
+PG_IndicationHandlerSNMPMapper
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
 <VALUE>
 Handler03
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Destination" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="string">
+<PROPERTY NAME="TrapDestination" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
 <VALUE>
 localhost
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="snmpType" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="string">
+<PROPERTY NAME="SNMPVersion" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
 <VALUE>
 SNMPv2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandlerSNMP" TYPE="uint16">
+<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="uint16">
 <VALUE>
 2
 </VALUE>

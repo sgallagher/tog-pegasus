@@ -134,10 +134,10 @@ server001.acme.com
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMP">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMPMapper">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerSNMP
+PG_IndicationHandlerSNMPMapper
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">

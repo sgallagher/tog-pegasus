@@ -37,10 +37,10 @@
             </KEYBINDING>
             <KEYBINDING NAME="Handler">
               <VALUE.REFERENCE>
-                <INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMP">
+                <INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMPMapper">
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
-                    PG_IndicationHandlerSNMP
+                    PG_IndicationHandlerSNMPMapper
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">

@@ -53,17 +53,6 @@ struct ProviderClassList
     Array <String> classList;
 };
 
-struct SubscriptionRef
-{
-    CIMInstance subscription;
-    String nameSpaceName;
-};
-
-struct HandlerRef
-{
-    CIMInstance handler;
-    String nameSpaceName;
-};
 
 /**
 
@@ -211,9 +200,9 @@ private:
     /**
         Retrieves list of enabled subscription instances in all namespaces.
 
-        @return   list of SubscriptionRef structs
+        @return   list of CIMNamedInstance subscriptions
      */
-    Array <struct SubscriptionRef> _getActiveSubscriptions () const;
+    Array <CIMNamedInstance> _getActiveSubscriptions () const;
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -224,9 +213,9 @@ private:
         @param   targetClass       the target class
         @param   targetProperties  the list of target properties
 
-        @return   list of SubscriptionRef structs
+        @return   list of CIMNamedInstance subscriptions
      */
-    Array <struct SubscriptionRef> _getMatchingSubscriptions (
+    Array <CIMNamedInstance> _getMatchingSubscriptions (
         const String & targetClass,
         const CIMPropertyList & targetProperties) const;
 
@@ -254,8 +243,8 @@ private:
         const String & targetClass,
         const CIMPropertyList & newProperties,
         const CIMPropertyList & oldProperties,
-        Array <struct SubscriptionRef> & newSubscriptions,
-        Array <struct SubscriptionRef> & formerSubscriptions);
+        Array <CIMNamedInstance> & newSubscriptions,
+        Array <CIMNamedInstance> & formerSubscriptions);
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -263,9 +252,9 @@ private:
 
         @param   providerName      the provider name
 
-        @return   list of SubscriptionRef structs
+        @return   list of CIMNamedInstance subscriptions
      */
-    Array <struct SubscriptionRef> _getProviderSubscriptions (
+    Array <CIMNamedInstance> _getProviderSubscriptions (
         const CIMReference & providerReference);
 
     /**
@@ -360,15 +349,15 @@ private:
         const String & filterQuery) const;
 
     /**
-        Retrieves the HandlerRef struct representing the handler of the
+        Retrieves the Handler CIMNamedInstance representing the handler of the
         specified subscription.
 
-        @param   subscriptionRef       the subscription
+        @param   subscription          the subscription
 
-        @return  a HandlerRef struct for the subscription's handler
+        @return  a Handler CIMNamedInstance for the subscription's handler
      */
-    struct HandlerRef _getHandlerRef (
-        const struct SubscriptionRef& subscriptionRef) const;
+    CIMNamedInstance _getHandler (
+        const CIMNamedInstance & subscription) const;
 
     /**
         Determines if specified handler is Transient.
@@ -530,25 +519,25 @@ private:
         Creates an alert instance of the specified class.
 
         @param   alertClassName        the alert class name
-        @param   subscriptionRefs      subscriptions for which alert is to be
+        @param   subscriptions         subscriptions for which alert is to be
                                            created
 
         @return  the created alert instance
      */
     CIMInstance _createAlertInstance (
         const String & alertClassName,
-        const Array <struct SubscriptionRef> & subscriptionRefs);
+        const Array <CIMNamedInstance> & subscriptions);
 
     /**
         Sends specified alert to each unique handler instance for the
         specified subscriptions in the list.
 
-        @param   subscriptionRefs      subscriptions for which alert is to be
+        @param   subscriptions         subscriptions for which alert is to be
                                            sent
         @param   alertInstance         the alert to be sent
      */
     void _sendAlerts (
-        const Array <struct SubscriptionRef> & subscriptionRefs,
+        const Array <CIMNamedInstance> & subscriptions,
         /* const */ CIMInstance & alertInstance);
 
     WQLSimplePropertySource _getPropertySourceFromInstance(
@@ -828,9 +817,16 @@ private:
     static const char   _PROPERTY_OTHERPERSISTENCETYPE [];
 
     /**
-        The name of the Destination property for Indication Handler subclasses
+        The name of the Destination property for CIM XML Indication Handler 
+        subclass
      */
     static const char   _PROPERTY_DESTINATION [];
+
+    /**
+        The name of the Trap Destination property for SNMP Mapper Indication
+        Handler subclass
+     */
+    static const char   _PROPERTY_TRAPDESTINATION [];
 
     /**
         The name of the SNMP Type property for SNMP Indication Handler class

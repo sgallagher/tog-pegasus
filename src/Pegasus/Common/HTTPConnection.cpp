@@ -27,6 +27,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#define _GNU_SOURCE
+#include <signal.h>
+#endif
+
 #include <iostream>
 #include <cctype>
 #include <cassert>
@@ -136,17 +141,21 @@ void HTTPConnection::handleEnqueue()
 	    const Array<Sint8>& buffer = httpMessage->message;
 	    const Uint32 CHUNK_SIZE = 16 * 1024;
 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+            ::sigignore(SIGPIPE);
+#endif
 	    for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
 	    {
 		Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
 
-		Uint32 bytesWritten = Socket::write(
+		Sint32 bytesWritten = Socket::write(
 		    _socket, 
 		    buffer.getData() + buffer.size() - bytesRemaining, 
 		    bytesToWrite);
 
 		if (bytesWritten < 0)
 		    break;
+                    //throw ConnectionBroken();
 
 		bytesRemaining -= bytesWritten;
 	    }

@@ -147,18 +147,6 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
         (String ())
 {
 
-	//l10n
-    //_rep->message = _MESSAGE_INVALID_ARG1;
-    //_rep->message.append (invalidArgument);
-    //_rep->message.append (_MESSAGE_INVALID_ARG2);
-    //_rep->message.append (option);
-    //_rep->message.append (_MESSAGE_INVALID_ARG3);
-    MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_ARG",
-    						 "argument \"$0\" is not valid for option \"-$1\"",
-    						 invalidArgument,
-    						 String().append(option));
-    _rep->message.append(MessageLoader::getMessage(parms));
-    					
 
 	//l10n
     //_rep->message = _MESSAGE_INVALID_ARG1;

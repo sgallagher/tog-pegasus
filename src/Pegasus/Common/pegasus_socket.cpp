@@ -216,9 +216,15 @@ class bsd_socket_rep : public abstract_socket
       {
 	    _library_init(void)
 	    {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	       Socket::initializeInterface();
+#endif 
 	    }
 	    ~_library_init(void)
 	    {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	       Socket::uninitializeInterface();
+#endif 
 	    }
       };
 

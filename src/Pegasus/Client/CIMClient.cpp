@@ -143,37 +143,7 @@ void CIMClient::disconnect()
     _rep->disconnect();
 }
 
-// l10n start
-void CIMClient::setRequestAcceptLanguages(AcceptLanguages& langs)
-{
-    _rep->setRequestAcceptLanguages(langs);
-}
 
-AcceptLanguages CIMClient::getRequestAcceptLanguages() const
-{
-    return _rep->getRequestAcceptLanguages();
-}
-
-void CIMClient::setRequestContentLanguages(ContentLanguages& langs)
-{
-    _rep->setRequestContentLanguages(langs);
-}
-
-ContentLanguages CIMClient::getRequestContentLanguages() const
-{
-    return _rep->getRequestContentLanguages();
-}
-
-ContentLanguages CIMClient::getResponseContentLanguages() const
-{
-    return _rep->getResponseContentLanguages();
-}
-
-void CIMClient::setRequestDefaultLanguages()
-{
-    _rep->setRequestDefaultLanguages();
-}
-// l10n end
 
 // l10n start
 void CIMClient::setRequestAcceptLanguages(AcceptLanguages& langs)

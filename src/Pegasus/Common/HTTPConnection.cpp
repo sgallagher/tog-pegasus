@@ -38,6 +38,7 @@
 //         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
 //         Sushma Fernandes, IBM (sushma@hp.com) for Bug#2057
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -214,7 +215,7 @@ HTTPConnection::HTTPConnection(
     : 
    Base(PEGASUS_QUEUENAME_HTTPCONNECTION), 
    _monitor(monitor),
-   _socket(socket.get()), 
+   _socket(socket), 
    _ownerMessageQueue(ownerMessageQueue),
    _outputMessageQueue(outputMessageQueue),
    _contentOffset(-1),

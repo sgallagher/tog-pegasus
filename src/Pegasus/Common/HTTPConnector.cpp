@@ -34,6 +34,7 @@
 // Modified By: Dan Gorey, IBM (djgorey@us.ibm.com)
 // Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
+//              Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -368,16 +369,14 @@ HTTPConnection* HTTPConnector::connect(
    // Solicit events on this new connection's socket:
 
    if (-1 == (_entry_index = _monitor->solicitSocketMessages(
-	  mp_socket->getSocket(),
+	  connection->getSocket(),
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
 	  connection->getQueueId(), Monitor::CONNECTOR)))
    {
-      mp_socket->close();
+      (connection->getMPSocket()).close();
    }
 
    // Save the socket for cleanup later:
-
-   mp_socket.release();
 
    _rep->connections.append(connection);
 

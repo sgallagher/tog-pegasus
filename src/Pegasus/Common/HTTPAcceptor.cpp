@@ -33,6 +33,7 @@
 //         Dave Rosckes (rosckes@us.ibm.com)
 //         Denise Eckstein (denise.eckstein@hp.com)
 //         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -645,7 +646,7 @@ void HTTPAcceptor::_acceptConnection()
    int index;
    
    if (-1 ==  (index = _monitor->solicitSocketMessages(
-	  socket,
+	  connection->getSocket(),
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
 	  connection->getQueueId(), Monitor::CONNECTION)) )
    {
@@ -657,8 +658,6 @@ void HTTPAcceptor::_acceptConnection()
       Socket::close(socket);
       return;
    }
-
-   mp_socket.release();
 
    // Save the socket for cleanup later:
    connection->_entry_index = index;

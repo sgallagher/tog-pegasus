@@ -31,7 +31,7 @@
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
+//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097, #2541
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +106,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       /** Return socket this connection is using. */
       Sint32 getSocket() { return _socket->getSocket();}
+
+      MP_Socket& getMPSocket() { return *_socket;}
       
       /** Return the number of outstanding requests for all HTTPConnection 
 	  instances.

@@ -127,9 +127,9 @@ void PrintHelp(const char* arg0)
     cout << "    -v print out the program version number\n";
     cout << " 	Parameters required are\n";
     cout << "         Namespace ClassName  ProviderID\n";
-    cout << "\n providerreg root/cimv20 process MyProvider\n";
+    cout << "\n providerreg root/cimv2 process MyProvider\n";
     cout << "            registers class process to provider MyProvider \n";
-    cout << "\n providerreg -u root/cimv20 process\n";
+    cout << "\n providerreg -u root/cimv2 process\n";
     cout << "            unregisters class process\n";
     cout << "   NOTE: unregistration does not require providerID param\n";
     cout << endl;
@@ -353,7 +353,7 @@ void showProviderRegistrations (
     String providerName;
     providerName = "MyProvider";
     String nameSpace;
-    nameSpace = "root/cimv20";
+    nameSpace = "root/cimv2";
     String pegasusHome;
 
     OptionManager om;

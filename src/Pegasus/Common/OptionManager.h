@@ -197,7 +197,7 @@ typedef Option* OptionPtr;
 	line). These are Boolean parameters and there are no additional parameters 
 	after the keyword.
 	
-	<LI> (INTEGER) Numeric parameters - (ex -port 8888). These are 
+	<LI> (INTEGER) Numeric parameters - (ex -port 5988). These are 
 	parameters where a numeric variable follows the parameter defintion.
  
 	<LI>(WHOLE_NUMBER) Numeric parameters  ATTN: Finish.

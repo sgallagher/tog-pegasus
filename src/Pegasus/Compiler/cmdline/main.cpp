@@ -47,7 +47,7 @@ static mofCompilerOptions cmdline;
 
 extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
-#define NAMESPACE_ROOT "root/cimv20"
+#define NAMESPACE_ROOT "root/cimv2"
 
 int
 main(int argc, char ** argv) {

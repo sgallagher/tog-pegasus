@@ -1307,7 +1307,7 @@ void CIMClient::runForever()
 //           <IMETHODCALL NAME="GetClass">
 // 	       <LOCALNAMESPACEPATH>
 // 	         <NAMESPACE NAME="root"/>
-// 	         <NAMESPACE NAME="cimv20"/>
+// 	         <NAMESPACE NAME="cimv2"/>
 // 	       </LOCALNAMESPACEPATH>
 // 	       <IPARAMVALUE NAME="ClassName"><CLASSNAME NAME="X"/></IPARAMVALUE>
 // 	       <IPARAMVALUE NAME="LocalOnly"><VALUE>FALSE</VALUE></IPARAMVALUE>

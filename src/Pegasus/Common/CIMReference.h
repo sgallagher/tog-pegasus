@@ -397,8 +397,8 @@ public:
     static KeyBindingArray getKeyBindingArray();
 
     /** Constructs a CIMReference from constituent elements.
-	@param host Name of host (e.g., "nemesis-8888").
-	@param nameSpace Namespace (e.g., "root/cimv20").
+	@param host Name of host (e.g., "nemesis-5988").
+	@param nameSpace Namespace (e.g., "root/cimv2").
 	@param className Name of a class (e.g., "MyClass").
 	@param keyBindings An array of KeyBinding objects.
 	@return Returns the constructed CIMReference
@@ -465,7 +465,7 @@ public:
         @param host String parameter with the hostname
         <PRE>
         CIMReference r1;
-        r1.sethost("fred-8888");
+        r1.sethost("fred-5988");
         </PRE>
         Note that Pegasus does no checking on valid host names.
     */

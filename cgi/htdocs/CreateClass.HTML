@@ -12,11 +12,11 @@
     <form name="CreateClass" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateClass">
       <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="8888"> 
+      <input type="hidden" name="portnum" value="5988">
 
       <p>The <TT>CreateClass</TT> method creates a single CIM Class for the target Namespace
       where the ClassName input parameter defines the name of the class to be created.
-      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information<p><b>ClassName</b> <INPUT TYPE="text" NAME="NewClass" SIZE=30>
       Defines the name of the Class to be created. See <a href="EnumerateClassNames.html">Enumerate
@@ -30,7 +30,7 @@
       &nbsp;&nbsp;&nbsp;<b>PropertyValue3 </b> <INPUT TYPE="text" NAME="PropertyValue3" SIZE=30 >&nbsp; Integer
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset Form">
-   
+
     <p><p>
     The <TT>createClass</TT> method creates a single CIM Class in
     the target Namespace. The Class MUST NOT already exist. The NewClass input
@@ -111,7 +111,7 @@
    CreateClass.hostip.value = opener.top.hostip;
    CreateClass.portnum.value = opener.top.portnum;
    window.focus();
-   </script> 
+   </script>
 	    </body>
 </html>
 

@@ -58,7 +58,7 @@ void test01()
 
     {
 	String hostName = "atp:77";
-	String nameSpace = "root/cimv20";
+	String nameSpace = "root/cimv2";
 	String className = "tennisplayer";
 
 	CIMReference r1;

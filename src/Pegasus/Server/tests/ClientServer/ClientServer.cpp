@@ -34,7 +34,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv20";
+const String NAMESPACE = "root/cimv2";
 const char PEGASUSVERSION[]  = "0.7";
 const char PEGASUSSERVERNAME[] = "Pegasus CIM Server";
 const char LICENSE[] = "License Statement";

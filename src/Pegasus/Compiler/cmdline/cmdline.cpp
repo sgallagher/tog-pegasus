@@ -155,7 +155,7 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.reset_suppress_all_messages();
   cmdlinedata.reset_trace();
   cmdlinedata.add_include_path(".");
-  cmdlinedata.set_namespacePath(ROOTCIMV20);
+  cmdlinedata.set_namespacePath(ROOTCIMV2);
   cmdlinedata.set_erroros(PEGASUS_STD(cerr));
   cmdlinedata.set_warningos(PEGASUS_STD(cerr));
 }

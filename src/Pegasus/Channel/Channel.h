@@ -272,7 +272,7 @@ public:
 
 	ChannelConnector* connector = new TcpChannelConnector;
 
-	// Connect to a TCP server to megabucks.com on port 8888; this causes
+	// Connect to a TCP server to megabucks.com on port 5988; this causes
 	// the following actions to be taken:
 	//
 	//     1. A connection is made to the given address.
@@ -284,7 +284,7 @@ public:
 	// internal implementation is responsible for disposing of the channel
 	// object.
 
-	Channel* channel = connector->connect("megabucks.com:8888");
+	Channel* channel = connector->connect("megabucks.com:5988");
 
 	// Write something to the server. This will cause the handleInput()
 	// method to be called on the server's corresponding ChannelHandler.
@@ -364,7 +364,7 @@ private:
 	// Bind the acceptor to a given address to listen on (in this case
 	// it happens to be a TCP port:
 
-	acceptor->bind("8888");
+	acceptor->bind("5988");
     </pre>
 */
 class PEGASUS_COMM_LINKAGE ChannelAcceptor

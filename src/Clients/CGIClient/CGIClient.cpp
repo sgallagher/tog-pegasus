@@ -61,7 +61,7 @@ PEGASUS_USING_STD;
 /** Class to hold, get, put, etc. the host info.
 This info must be maintained between calls to CGI client
 so is maintained in a configuration file for the client.
-These are set initially to localhost and 8888.
+These are set initially to localhost and 5988.
 HostInfo is defined as those parameters associated with a particular
 CIMOM CIMServer and user of that server
 ATTN: Under Construction
@@ -89,7 +89,7 @@ void HostInfo::setHostName( const char* str)
 
 const char* HostInfo::getAddress()
 {
-    return("localhost:8888");
+    return("localhost:5988");
 }
 const char* HostInfo::getHostName()
 {
@@ -101,11 +101,11 @@ void HostInfo::setHostPort(const char* str)
 }
 int HostInfo::getHostPort()
 {
-   return 8888;
+   return 5988;
 }
 const char* HostInfo::getHostPortString()
 {
-   return "8888";
+   return "5988";
 }
 String PrintSuperClassName(String superClassName)
 {
@@ -1145,7 +1145,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     //try
     //{
     //    CIMClient client;
-    //    client.connect("localhost:8888");
+    //    client.connect("localhost:5988");
     //
     //    Array<String> classNames = client.enumerateInstancs(
     //        nameSpace, className);
@@ -1482,7 +1482,7 @@ static void DefineHostParameters(const CGIQueryString& qs)
 	hostInfo.setHostName(tmp);
 
     if ((tmp = qs.findValue("HostPort")))
-	hostInfo.setHostPort("8888");
+	hostInfo.setHostPort("5988");
 
     /// Respond with the new parameters
     PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");

@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     try
     {
 	CIMConstClass classDecl = repository.getClass(
-	    "root/cimv20", argv[1], true);
+	    "root/cimv2", argv[1], true);
     }
     catch (Exception& e)
     {

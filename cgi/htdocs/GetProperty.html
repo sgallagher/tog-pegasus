@@ -12,14 +12,14 @@
     <form name="GetProperty" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetProperty">
       <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="8888"> 
-      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <input type="hidden" name="portnum" value="5988">
+      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       <p>ClassName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
       <p>PropertyName <INPUT TYPE="text" NAME="PropertyName" SIZE=30>
       <p><INPUT TYPE="submit" VALUE="GetProperty">
       <p><INPUT TYPE="reset" VALUE="Reset">
     </form>
-    
+
     <hr>
     <h2>
 
@@ -47,10 +47,10 @@
 	requested CIMProperty does not)
 	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
     </UL>
-    
+
     <hr>
     <h2>Additional Description of the Operation</h2>
-    
+
     This operation is used to retrieve a single property value from a CIM
     Instance in the target Namespace.&nbsp;<p><b>&nbsp;<a name="NameSpace">NameSpace</a></b>&nbsp;
     - The NameSpace parameter is a string that defines the target
@@ -62,7 +62,7 @@
     CIMProperty whose value is to be returned.&nbsp;
     <hr>
     <h2>Pegasus API in Operations.h</h2>
-    
+
     <pre>
     virtual CIMValue getProperty(
     	const String&amp; nameSpace,

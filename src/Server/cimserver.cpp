@@ -120,7 +120,7 @@ void GetOptions(
 {
     static struct OptionRow optionsTable[] =
     {
-	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port",
+	{"port", "5988", false, Option::WHOLE_NUMBER, 0, 0, "port",
 			"specifies port number to listen on" },
 	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t", 
 			"turns on trace of Client IO to console "},

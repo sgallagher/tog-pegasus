@@ -34,14 +34,14 @@ PEGASUS_USING_STD;
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Example input:
-//     NameSpace=root%2Fcimv20&ClassName=&LocalOnly=true
+//     NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv)
 {
     char* input = 0;
-    char defaultInput[] = "NameSpace=root%2Fcimv20&ClassName=&LocalOnly=true";
+    char defaultInput[] = "NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true";
 
     if (argc != 2)
 	input = defaultInput;
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
     if (input == defaultInput)
     {
 	assert(strcmp(qs.getName(0), "NameSpace") == 0);
-	assert(strcmp(qs.getValue(0), "root/cimv20") == 0);
+	assert(strcmp(qs.getValue(0), "root/cimv2") == 0);
 	assert(strcmp(qs.getName(1), "ClassName") == 0);
 	assert(strcmp(qs.getValue(1), "") == 0);
 	assert(strcmp(qs.getName(2), "LocalOnly") == 0);

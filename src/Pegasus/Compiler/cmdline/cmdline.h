@@ -54,5 +54,5 @@ struct optspec {
 };
 
 #define PEGASUS_HOME "PEGASUS_HOME"
-#define ROOTCIMV20 "root/cimv20"
+#define ROOTCIMV2 "root/cimv2"
 #endif

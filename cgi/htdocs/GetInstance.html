@@ -13,11 +13,11 @@
     <form name="GetInstance" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetInstance">
       <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="8888"> 
+      <input type="hidden" name="portnum" value="5988">
 	  <P>The <TT>GetInstance</TT> method returns a single CIM Instance from the target
 	  Namespace based on the InstanceName parameter provided.
 
-      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information
 
@@ -140,7 +140,7 @@
    GetInstance.hostip.value = opener.top.hostip;
    GetInstance.portnum.value = opener.top.portnum;
    window.focus();
-   </script> 
+   </script>
   </body>
 </html>
 

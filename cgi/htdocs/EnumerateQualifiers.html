@@ -12,8 +12,8 @@
     <form name="EnumerateQualifiers" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateQualifiers">
       <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="8888"> 
-      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <input type="hidden" name="portnum" value="5988">
+      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">
       <p><INPUT TYPE="reset" VALUE="Reset">
     </form>
@@ -65,6 +65,6 @@ The <TT>enumerateQualifiers</TT> operation is used to enumerate
    EnumerateQualifiers.hostip.value = opener.top.hostip;
    EnumerateQualifiers.portnum.value = opener.top.portnum;
    window.focus();
-   </script> 
+   </script>
   </body>
 </html>

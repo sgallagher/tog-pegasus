@@ -12,27 +12,27 @@
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="InvokeMethod">
       <p>Show the Class Tree for a Namespace.
-      <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       <p>&nbsp;
       <p>I<INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
       <p>
     </form>
-    
+
     <hr>
     &nbsp;
     <hr>
     <h2>Return Request</h2>
 If the Cim Server is unable to perform the extrinsic method invocation, one of the following status codes MUST be returned by the CimServer, where the first applicable error in the list
-(starting with the first element of the list, and working down) is the error returned. Any additional specific interpretation of the error is given in parentheses. 
+(starting with the first element of the list, and working down) is the error returned. Any additional specific interpretation of the error is given in parentheses.
 <UL>
-     <LI>CIM_ERR_ACCESS_DENIED 
-     <LI>CIM_ERR_NOT_SUPPORTED (the CimServer does not support extrinsic method invocations) 
-     <LI>CIM_ERR_INVALID_NAMESPACE 
-     <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or otherwise incorrect parameters) 
-     <LI>CIM_ERR_NOT_FOUND (the target CIM Class or instance does not exist in the specified namespace) 
-     <LI>CIM_ERR_METHOD_NOT_FOUND 
-     <LI>CIM_ERR_METHOD_NOT_AVAILABLE (the CimServer is unable to honor the invocation request) 
+     <LI>CIM_ERR_ACCESS_DENIED
+     <LI>CIM_ERR_NOT_SUPPORTED (the CimServer does not support extrinsic method invocations)
+     <LI>CIM_ERR_INVALID_NAMESPACE
+     <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or otherwise incorrect parameters)
+     <LI>CIM_ERR_NOT_FOUND (the target CIM Class or instance does not exist in the specified namespace)
+     <LI>CIM_ERR_METHOD_NOT_FOUND
+     <LI>CIM_ERR_METHOD_NOT_AVAILABLE (the CimServer is unable to honor the invocation request)
      <LI>CIM_ERR_FAILED (some other unspecified error occurred)
 
     </UL>

@@ -41,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 //   This file provides the methods for the CIGQuery String class that
 //   parse a CGI query string of the following form:
 //
-//     NameSpace=root%2Fcimv20&ClassName=&LocalOnly=true
+//     NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true
 //
 ////////////////////////////////////////////////////////////////////////////////
 

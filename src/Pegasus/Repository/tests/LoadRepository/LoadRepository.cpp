@@ -10,7 +10,7 @@
 using namespace Pegasus;
 using namespace std;
 
-static const String CIMV20_NAMESPACE = "root/cimv20";
+static const String CIMV2_NAMESPACE = "root/cimv2";
 static const String ROOT_NAMESPACE = "root";
 
 //------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
 
     cout << "Creating " << cimClass.getClassName() << "..." << endl;
 
-    repository.createClass(CIMV20_NAMESPACE, cimClass);
+    repository.createClass(CIMV2_NAMESPACE, cimClass);
 
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
 
@@ -157,12 +157,12 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
     XmlParser parser((char*)text.getData());
 
     CIMRepository repository(repositoryRoot);
-    repository.createNameSpace(CIMV20_NAMESPACE);
+    repository.createNameSpace(CIMV2_NAMESPACE);
     repository.createNameSpace(ROOT_NAMESPACE);
 
     // Create the qualifiers:
 
-    repository.createMetaQualifiers(CIMV20_NAMESPACE);
+    repository.createMetaQualifiers(CIMV2_NAMESPACE);
     repository.createMetaQualifiers(ROOT_NAMESPACE);
 
     if (!ProcessCimElement(repository, parser))

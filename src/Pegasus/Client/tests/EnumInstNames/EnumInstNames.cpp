@@ -32,7 +32,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv20";
+const String NAMESPACE = "root/cimv2";
 
 int main(int argc, char** argv)
 {
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     {
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	client.connect("localhost:5988");
 
 	String instanceName = "Process.pid=123456";
 

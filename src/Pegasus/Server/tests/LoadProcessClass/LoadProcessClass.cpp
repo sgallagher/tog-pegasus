@@ -39,7 +39,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const char NAMESPACE[] = "root/cimv20";
+const char NAMESPACE[] = "root/cimv2";
 const char ROOTNAMESPACE[] = "root";
 
 int main(int argc, char** argv)
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 
 	// cout << "Created Process class with MyProvider Qualifier" <<endl;
 
-	// Create the __NameSpace Class in /root/CIMv20 namespace
+	// Create the __NameSpace Class in /root/CIMv2 namespace
 	//delete the class if it exists
 	try
 	{

@@ -114,7 +114,7 @@ int main()
 
 #if 0
     InheritanceTree it;
-    it.insertFromPath("e:/tog/pegasus_home/repository/root#cimv20/classes");
+    it.insertFromPath("e:/tog/pegasus_home/repository/root#cimv2/classes");
     it.check();
     it.print(cout);
 #endif

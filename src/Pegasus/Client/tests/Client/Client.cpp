@@ -32,7 +32,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv20";
+const String NAMESPACE = "root/cimv2";
 
 static void TestGetClass(CIMClient& client)
 {
@@ -202,8 +202,8 @@ int main(int argc, char** argv)
 	Selector selector;
 	CIMClient client(&selector);
 
-	client.connect("localhost:8888");
-	// client.connect("216.218.247.109:8888");
+	client.connect("localhost:5988");
+	// client.connect("216.218.247.109:5988");
 	// TestGetClass(client);
 	TestQualifierOperations(client);
 	TestClassOperations(client);

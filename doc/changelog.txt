@@ -5,6 +5,16 @@ Version 0.97.4 - In Process.
 
 1. Deamonizaiton added to CIMServer.cpp by Mike Day.  This includes code bothe
 for NT and Linux platforms.
+2. KS Changed the namespace cimv20 to cimv2 and the default port from 888 to
+5988.
+NOTE: 5988 is now the officially recognized preferred port for a CIMServer by
+the DMTF.
+3. KS Corrected some errors found in interoperability testing during the DMTF
+Fusion event.  THis included a) extended the test for end of HTTP header from
+CR/LF/CR/LF to also allow LF/LF.  Not strictly legal but widely used. b).
+Extended the HTTP message ID to allow for non-numeric message IDs.
+4.
+
 
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
@@ -90,6 +100,8 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
+
 
 
 

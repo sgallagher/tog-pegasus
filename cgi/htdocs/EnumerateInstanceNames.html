@@ -12,7 +12,7 @@
     <form name="EnumerateInstanceNames" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstanceNames">
       <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="8888"> 
+      <input type="hidden" name="portnum" value="5988">
       <p>
 
     <a name="TOP"></a>
@@ -20,7 +20,7 @@
     The <TT>enumerateInstances</TT> method enumerates instances of a CIM
     Class in the target Namespace.
       <p><b><a href="#NameSpace">NameSpace</a></b>
-        <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">&nbsp; String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
+        <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp; String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information.
       <p><b><a href="#ClassName">ClassName</a></b> <INPUT TYPE="text" NAME="ClassName" SIZE=30>&nbsp;&nbsp; Defines
       name of the Class
@@ -44,7 +44,7 @@
    EnumerateInstanceNames.hostip.value = opener.top.hostip;
    EnumerateInstanceNames.portnum.value = opener.top.portnum;
    window.focus();
-   </script> 
+   </script>
 
     <hr>
     <h2>RETURN</h2>

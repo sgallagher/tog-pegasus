@@ -26,6 +26,8 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //            : Mike Day (mdday@us.ibm.com)
 //            : Yi Zhou (yi_zhou@hp.com)
+//            : Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -167,17 +169,14 @@ public:
     void handleInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* request);
 
-    void handleCancelIndicationRequest(
-	CIMCancelIndicationRequestMessage* request);
+    void handleEnableIndicationSubscriptionRequest(
+        CIMEnableIndicationSubscriptionRequestMessage* request);
 
-    void handleCheckIndicationRequest(
-	CIMCheckIndicationRequestMessage* request);
+    void handleModifyIndicationSubscriptionRequest(
+        CIMModifyIndicationSubscriptionRequestMessage* request);
 
-    void handleProvideIndicationRequest(
-	CIMProvideIndicationRequestMessage* request);
-    
-    void handleUpdateIndicationRequest(
-	CIMUpdateIndicationRequestMessage* request);
+    void handleDisableIndicationSubscriptionRequest(
+        CIMDisableIndicationSubscriptionRequestMessage* request);
 
     ProviderManager* getProviderManager(void);
 

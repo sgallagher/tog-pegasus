@@ -33,9 +33,9 @@ DIRS = \
     Server/tests \
     ExportServer/tests \
     Client/tests \
-    Compiler/tests 
+    Compiler/tests \
+    Subscription
 
-#    Subscription \
 #    Subscription/tests \
 
 include $(ROOT)/mak/recurse.mak

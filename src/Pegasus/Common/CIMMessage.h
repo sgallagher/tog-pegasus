@@ -28,6 +28,9 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMMessage_h
@@ -764,110 +767,139 @@ public:
     Array<CIMParamValue> inParameters;
 };
 
-class CIMCancelIndicationRequestMessage : public CIMRequestMessage
+class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 {
 public:
 
-    CIMCancelIndicationRequestMessage(
-        const String& messageId_,
-	const CIMReference& instanceName_,
-	QueueIdStack queueIds_)
-	:
-	CIMRequestMessage(
-	    CIM_CANCEL_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
-	instanceName(instanceName_)
+    CIMEnableIndicationSubscriptionRequestMessage(
+        const String & messageId_,
+        const String & nameSpace_,
+        const Array<String> & classNames_,
+        const String & providerName_,
+        const Array<String> & propertyList_,
+        const Uint16 repeatNotificationPolicy_,
+        const String & otherRepeatNotificationPolicy_,
+        const CIMDateTime & repeatNotificationInterval_,
+        const CIMDateTime & repeatNotificationGap_,
+        const Uint16 repeatNotificationCount_,
+        const String & condition_,
+        const String & queryLanguage_,
+        const CIMInstance & subscription_,
+        QueueIdStack queueIds_)
+        :
+        CIMRequestMessage
+            (CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_),
+            nameSpace (nameSpace_),
+            classNames (classNames_),
+            providerName (providerName_),
+            propertyList (propertyList_),
+            repeatNotificationPolicy (repeatNotificationPolicy_),
+            otherRepeatNotificationPolicy (otherRepeatNotificationPolicy_),
+            repeatNotificationInterval (repeatNotificationInterval_),
+            repeatNotificationGap (repeatNotificationGap_),
+            repeatNotificationCount (repeatNotificationCount_),
+            condition (condition_),
+            queryLanguage (queryLanguage_),
+            subscription (subscription_)
     {
-
     }
 
-    CIMReference instanceName;
+    String nameSpace;
+    Array<String> classNames;
+    String providerName;
+    Array<String> propertyList;
+    Uint16 repeatNotificationPolicy;
+    String otherRepeatNotificationPolicy;
+    CIMDateTime repeatNotificationInterval;
+    CIMDateTime repeatNotificationGap;
+    Uint16 repeatNotificationCount;
+    String condition;
+    String queryLanguage;
+    CIMInstance subscription;
 };
 
-class CIMCheckIndicationRequestMessage : public CIMRequestMessage
+class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 {
 public:
 
-    CIMCheckIndicationRequestMessage(
-        const String& messageId_,
-	const CIMReference& instanceName_,
-	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_)
-	:
-	CIMRequestMessage(
-	    CIM_CHECK_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
-	instanceName(instanceName_),
-	propertyList(propertyList_)
+    CIMModifyIndicationSubscriptionRequestMessage(
+        const String & messageId_,
+        const String & nameSpace_,
+        const Array<String> & classNames_,
+        const String & providerName_,
+        const Array<String> & propertyList_,
+        const Uint16 repeatNotificationPolicy_,
+        const String & otherRepeatNotificationPolicy_,
+        const CIMDateTime & repeatNotificationInterval_,
+        const CIMDateTime & repeatNotificationGap_,
+        const Uint16 repeatNotificationCount_,
+        const String & condition_,
+        const String & queryLanguage_,
+        const CIMInstance & subscription_,
+        QueueIdStack queueIds_)
+        :
+        CIMRequestMessage
+            (CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_),
+            nameSpace (nameSpace_),
+            classNames (classNames_),
+            providerName (providerName_),
+            propertyList (propertyList_),
+            repeatNotificationPolicy (repeatNotificationPolicy_),
+            otherRepeatNotificationPolicy (otherRepeatNotificationPolicy_),
+            repeatNotificationInterval (repeatNotificationInterval_),
+            repeatNotificationGap (repeatNotificationGap_),
+            repeatNotificationCount (repeatNotificationCount_),
+            condition (condition_),
+            queryLanguage (queryLanguage_),
+            subscription (subscription_)
     {
-
     }
 
-    CIMReference instanceName;
-    CIMPropertyList propertyList;
+    String nameSpace;
+    Array<String> classNames;
+    String providerName;
+    Array<String> propertyList;
+    Uint16 repeatNotificationPolicy;
+    String otherRepeatNotificationPolicy;
+    CIMDateTime repeatNotificationInterval;
+    CIMDateTime repeatNotificationGap;
+    Uint16 repeatNotificationCount;
+    String condition;
+    String queryLanguage;
+    CIMInstance subscription;
 };
 
-class CIMProvideIndicationRequestMessage : public CIMRequestMessage
+class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 {
 public:
 
-    CIMProvideIndicationRequestMessage(
-        const String& messageId_,
-	const CIMReference& classRef_,
-	const CIMReference& filterRef_,
-	const CIMReference& handlerRef_,
-	const CIMDateTime & minimumInterval_,
-	const CIMDateTime & maximumInterval_,
-	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_)
-	:
-	CIMRequestMessage(
-	    CIM_PROVIDE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
-	classRef(classRef_),
-	filterRef(filterRef_),
-	handlerRef(handlerRef_),
-	minimumInterval(minimumInterval_),
-	maximumInterval(maximumInterval_),
-	propertyList(propertyList_)
+    CIMDisableIndicationSubscriptionRequestMessage(
+        const String & messageId_,
+        const String & nameSpace_,
+        const Array<String> & classNames_,
+        const String & providerName_,
+        const CIMInstance & subscription_,
+        QueueIdStack queueIds_)
+        :
+        CIMRequestMessage
+            (CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_),
+            nameSpace (nameSpace_),
+            classNames (classNames_),
+            providerName (providerName_),
+            subscription (subscription_)
     {
-
     }
 
-    CIMReference classRef;
-    CIMReference filterRef;
-    CIMReference handlerRef;
-    CIMDateTime minimumInterval;
-    CIMDateTime maximumInterval;
-    CIMPropertyList propertyList;
-};
-
-class CIMUpdateIndicationRequestMessage : public CIMRequestMessage
-{
-public:
-
-    CIMUpdateIndicationRequestMessage(
-        const String& messageId_,
-	const String& className_,
-	const CIMReference& instanceName_,
-	const CIMDateTime & minimumInterval_,
-	const CIMDateTime & maximumInterval_,
-	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_)
-	:
-	CIMRequestMessage(
-	    CIM_UPDATE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
-	className(className_),
-	instanceName(instanceName_),
-	minimumInterval(minimumInterval_),
-	maximumInterval(maximumInterval_),
-	propertyList(propertyList_)
-    {
-
-    }
-
-    String className;
-    CIMReference instanceName;
-    CIMDateTime minimumInterval;
-    CIMDateTime maximumInterval;
-    CIMPropertyList propertyList;
+    String nameSpace;
+    Array<String> classNames;
+    String providerName;
+    CIMInstance subscription;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
@@ -1341,6 +1373,56 @@ public:
     CIMValue retValue;
     Array<CIMParamValue> outParameters;
     String methodName;
+};
+
+class CIMEnableIndicationSubscriptionResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMEnableIndicationSubscriptionResponseMessage (
+        const String & messageId_,
+        CIMStatusCode errorCode_,
+        const String & errorDescription_,
+        const QueueIdStack & queueIds_)
+        :
+        CIMResponseMessage (CIM_ENABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
+            messageId_, errorCode_, errorDescription_, queueIds_)
+    {
+    }
+};
+
+class CIMModifyIndicationSubscriptionResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMModifyIndicationSubscriptionResponseMessage (
+        const String & messageId_,
+        CIMStatusCode errorCode_,
+        const String & errorDescription_,
+        const QueueIdStack & queueIds_)
+        :
+        CIMResponseMessage (CIM_MODIFY_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
+            messageId_, errorCode_, errorDescription_, queueIds_)
+    {
+    }
+};
+
+class CIMDisableIndicationSubscriptionResponseMessage :
+    public CIMResponseMessage
+{
+public:
+
+    CIMDisableIndicationSubscriptionResponseMessage (
+        const String & messageId_,
+        CIMStatusCode errorCode_,
+        const String & errorDescription_,
+        const QueueIdStack & queueIds_)
+        :
+        CIMResponseMessage
+            (CIM_DISABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
+                messageId_, errorCode_, errorDescription_, queueIds_)
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

@@ -22,7 +22,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMHandle.h>
 #include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Common/CIMIndication.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,6 +46,44 @@ public:
 	// provider operations
 	virtual void initialize(CIMOMHandle & cimom) = 0;
 	virtual void terminate(void) = 0;
+
+        void enableIndicationSubscription (
+            const OperationContext & context,
+            const String & nameSpace,
+            const Array <String> & classNames,
+            const Array <String> & propertyList,
+            const Uint16 repeatNotificationPolicy,
+            const String & condition,
+            const String & queryLanguage,
+            const CIMInstance & subscription,
+            ResponseHandler <CIMIndication> & responseHandler)
+        {
+            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        }
+
+        void modifyIndicationSubscription (
+            const OperationContext & context,
+            const String & nameSpace,
+            const Array <String> & classNames,
+            const Array <String> & propertyList,
+            const Uint16 repeatNotificationPolicy,
+            const String & condition,
+            const String & queryLanguage,
+            const CIMInstance & subscription,
+            ResponseHandler <CIMIndication> & responseHandler)
+        {
+            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        }
+
+        void disableIndicationSubscription (
+            const OperationContext & context,
+            const String & nameSpace,
+            const Array <String> & classNames,
+            const CIMInstance & subscription,
+            ResponseHandler <CIMIndication> & responseHandler)
+        {
+            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        }
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,6 +29,8 @@
 //               Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //               Mike Day (mdday@us.ibm.com) 
+//               Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -400,25 +402,20 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 		(CIMInvokeMethodRequestMessage*)request);
 	    break;
 
-	case CIM_CANCEL_INDICATION_REQUEST_MESSAGE:
-	    handleCancelIndicationRequest(
-		(CIMCancelIndicationRequestMessage*)request);
-	    break;
+        case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+            handleEnableIndicationSubscriptionRequest(
+                (CIMEnableIndicationSubscriptionRequestMessage*)request);
+            break;
 
-	case CIM_CHECK_INDICATION_REQUEST_MESSAGE:
-	    handleCheckIndicationRequest(
-		(CIMCheckIndicationRequestMessage*)request);
-	    break;
+        case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+            handleModifyIndicationSubscriptionRequest(
+                (CIMModifyIndicationSubscriptionRequestMessage*)request);
+            break;
 
-	case CIM_PROVIDE_INDICATION_REQUEST_MESSAGE:
-	    handleProvideIndicationRequest(
-		(CIMProvideIndicationRequestMessage*)request);
-	    break;
-
-	case CIM_UPDATE_INDICATION_REQUEST_MESSAGE:
-	    handleUpdateIndicationRequest(
-		(CIMUpdateIndicationRequestMessage*)request);
-	    break;
+        case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+            handleDisableIndicationSubscriptionRequest(
+                (CIMDisableIndicationSubscriptionRequestMessage*)request);
+            break;
     }
 
     delete request;
@@ -1610,33 +1607,199 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     _enqueueResponse(request, response);
 }
 
-void CIMOperationRequestDispatcher::handleCancelIndicationRequest(
-    CIMCancelIndicationRequestMessage* request)
+void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
+    CIMEnableIndicationSubscriptionRequestMessage* request)
 {
-    //ATTN: Implement loading of provider and then call cancelIndication()
-    cout << "ATTN : implement cancelIndication" << endl;
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription = String::EMPTY;
+
+    try
+    {
+        if (request->providerName.size () != 0)
+        {
+            //
+            // attempt to load provider
+            //
+            //
+            //  ATTN: Provider to be loaded is known to serve all classes
+            //  in classNames list.  The getProvider function requires a class
+            //  name.  There is no form that takes only the provider name.
+            //  Currently, the first class name in the list is passed to
+            //  getProvider.  It shouldn't matter which class name is passed in.
+            //
+            ProviderHandle * provider = _providerManager.getProvider
+                (request->providerName, request->classNames [0]);
+
+            SimpleResponseHandler <CIMIndication> responseHandler;
+
+            provider->enableIndicationSubscription (
+                //
+                //  ATTN: pass thresholding parameter values in
+                //  operation context
+                //
+                OperationContext (),
+                request->nameSpace,
+                request->classNames,
+                request->propertyList,
+                request->repeatNotificationPolicy,
+                request->condition,
+                request->queryLanguage,
+                request->subscription,
+                responseHandler);
+        }
+        else
+        {
+            errorCode = CIM_ERR_FAILED;
+            errorDescription = "Provider not available";
+        }
+    }
+    catch (CIMException& exception)
+    {
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
+    }
+    catch (Exception& exception)
+    {
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage ();
+    }
+
+    CIMEnableIndicationSubscriptionResponseMessage* response =
+        new CIMEnableIndicationSubscriptionResponseMessage (
+            request->messageId,
+            errorCode,
+            errorDescription,
+            request->queueIds.copyAndPop ());
+
+    _enqueueResponse (request, response);
 }
 
-void CIMOperationRequestDispatcher::handleCheckIndicationRequest(
-    CIMCheckIndicationRequestMessage* request)
+void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
+    CIMModifyIndicationSubscriptionRequestMessage* request)
 {
-    //ATTN: Implement loading of provider and then call checkIndication()
-    cout << "ATTN : implement checkIndication" << endl;
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription = String::EMPTY;
+
+    try
+    {
+        if (request->providerName.size () != 0)
+        {
+            //
+            // attempt to load provider
+            //
+            //
+            //  ATTN: Provider to be loaded is known to serve all classes
+            //  in classNames list.  The getProvider function requires a class
+            //  name.  There is no form that takes only the provider name.
+            //  Currently, the first class name in the list is passed to
+            //  getProvider.  It shouldn't matter which class name is passed in.
+            //
+            ProviderHandle * provider = _providerManager.getProvider
+                (request->providerName, request->classNames [0]);
+
+            SimpleResponseHandler <CIMIndication> responseHandler;
+
+            provider->modifyIndicationSubscription (
+                //
+                //  ATTN: pass thresholding parameter values in
+                //  operation context
+                //
+                OperationContext (),
+                request->nameSpace,
+                request->classNames,
+                request->propertyList,
+                request->repeatNotificationPolicy,
+                request->condition,
+                request->queryLanguage,
+                request->subscription,
+                responseHandler);
+        }
+        else
+        {
+            errorCode = CIM_ERR_FAILED;
+            errorDescription = "Provider not available";
+        }
+    }
+    catch (CIMException& exception)
+    {
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
+    }
+    catch (Exception& exception)
+    {
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage ();
+    }
+
+    CIMModifyIndicationSubscriptionResponseMessage* response =
+        new CIMModifyIndicationSubscriptionResponseMessage (
+            request->messageId,
+            errorCode,
+            errorDescription,
+            request->queueIds.copyAndPop ());
+
+    _enqueueResponse (request, response);
 }
 
-void CIMOperationRequestDispatcher::handleProvideIndicationRequest(
-    CIMProvideIndicationRequestMessage* request)
+void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
+    CIMDisableIndicationSubscriptionRequestMessage* request)
 {
-    //ATTN: Implement loading of provider and then call provideIndication()
-    cout << "ATTN : implement provideIndication" << endl;
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription = String::EMPTY;
+
+    try
+    {
+        if (request->providerName.size () != 0)
+        {
+            //
+            // attempt to load provider
+            //
+            //
+            //  ATTN: Provider to be loaded is known to serve all classes
+            //  in classNames list.  The getProvider function requires a class
+            //  name.  There is no form that takes only the provider name.
+            //  Currently, the first class name in the list is passed to
+            //  getProvider.  It shouldn't matter which class name is passed in.
+            //
+            ProviderHandle * provider = _providerManager.getProvider
+                (request->providerName, request->classNames [0]);
+
+            SimpleResponseHandler <CIMIndication> responseHandler;
+
+            provider->disableIndicationSubscription (
+                OperationContext (),
+                request->nameSpace,
+                request->classNames,
+                request->subscription,
+                responseHandler);
+        }
+        else
+        {
+            errorCode = CIM_ERR_FAILED;
+            errorDescription = "Provider not available";
+        }
+    }
+    catch (CIMException& exception)
+    {
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
+    }
+    catch (Exception& exception)
+    {
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage ();
+    }
+
+    CIMDisableIndicationSubscriptionResponseMessage* response =
+        new CIMDisableIndicationSubscriptionResponseMessage (
+            request->messageId,
+            errorCode,
+            errorDescription,
+            request->queueIds.copyAndPop ());
+
+    _enqueueResponse (request, response);
 }
 
-void CIMOperationRequestDispatcher::handleUpdateIndicationRequest(
-    CIMUpdateIndicationRequestMessage* request)
-{
-    //ATTN: Implement loading of provider and then call updateIndication()
-    cout << "ATTN : implement updateIndication" << endl;
-}
 
 // this is a static class method
 // called by a pooled thread.

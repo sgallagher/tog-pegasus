@@ -471,6 +471,13 @@ repository implementation.
     and String.cpp with PEG_min. The _min macro caused problems on the
     NSK platform because of a duplicate definition in a standard file.
   
+57. (Carol Ann Krug Graves - HP) 04 Dec 2001 - Implemented Pegasus indication
+    subscription service provider that serves as the instance provider for the 
+    CIM_IndicationSubscription, CIM_IndicationFilter and CIM_IndicationHandler 
+    classes (from CIM_Events27.mof).  The service also takes appropriate action
+    in response to startup, shutdown of the cimom, termination of a provider, 
+    or change in provider registration.  
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -87,10 +87,7 @@ void CIMOMHandle::setOS400ProfileHandle(const char * profileHandle)
 
 CIMOMHandle::CIMOMHandle(const CIMOMHandle & handle)
 {
-    if (this != &handle)
-    {
-        Inc(this->_rep = handle._rep);
-    }
+    Inc(this->_rep = handle._rep);
 }
 
 CIMOMHandle::~CIMOMHandle(void)

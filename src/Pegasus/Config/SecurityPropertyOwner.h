@@ -219,6 +219,10 @@ private:
 
     struct ConfigProperty*      _certificateFilePath;
 
+    struct ConfigProperty*      _enableHttpConnection;
+
+    struct ConfigProperty*      _enableHttpsConnection;
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -368,6 +368,14 @@ void ConfigSettingProvider::modifyInstance(
                 String("Configuration property \"") +
                     configPropertyName + "\"");
         }
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+        catch (NotSupportedPropertyValue& nspv)
+        {                                    
+            PEG_METHOD_EXIT();              
+            throw PEGASUS_CIM_EXCEPTION(   
+                CIM_ERR_NOT_SUPPORTED, nspv.getMessage());
+        }                                                
+#endif
 
         handler.complete();
         PEG_METHOD_EXIT();

@@ -190,13 +190,14 @@ public:
     @exception NonDynamicConfigProperty  if property is not dynamic.
     @exception UnrecognizedConfigProperty  if property is not defined.
     @exception InvalidPropertyValue  if property value is not valid.
+    @exception NotSupportedPropertyValue if property value is not supported.
     */
     Boolean updateCurrentValue(
         const String& name,
         const String& value,
         Boolean unset);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
-        //    UnrecognizedConfigProperty);
+        //    UnrecognizedConfigProperty, NotSupportedPropertyValue);
 
     /** 
     Update planned value of a property.
@@ -212,13 +213,14 @@ public:
     @exception NonDynamicConfigProperty  if property is not dynamic.
     @exception UnrecognizedConfigProperty  if property is not defined.
     @exception InvalidPropertyValue  if property value is not valid.
+    @exception NotSupportedPropertyValue if property value is not supported.
     */
     Boolean updatePlannedValue(
         const String& name,
         const String& value,
         Boolean unset);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
-        //    UnrecognizedConfigProperty);
+        //    UnrecognizedConfigProperty, NotSupportedPropertyValue);
 
 
     /** 

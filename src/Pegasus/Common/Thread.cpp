@@ -154,6 +154,7 @@ ThreadPool::~ThreadPool(void)
 {
    _dying++;
    Thread *th = 0;
+   th = _pool.remove_first();
    while(th != 0)
    {
       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");

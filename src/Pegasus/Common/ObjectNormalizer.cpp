@@ -469,7 +469,7 @@ static CIMInstance _resolveInstance(
     */
 
     // ATTN: this section of code replaces the section above so that only properties specified by the provider are
-    // returned. properties not in the reference instance are implicitly dropped.
+    // returned. properties in the reference instance and not in the specified instance are implicitly dropped
 
     // apply ONLY specified instance properties
     for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
@@ -481,7 +481,12 @@ static CIMInstance _resolveInstance(
 
         if(pos == PEG_NOT_FOUND)
         {
-            // throw invalid property
+            Tracer::trace(
+                TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+                "invalid property %s",
+                (const char *)cimProperty.getName().getString().getCString());
+
+            throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
         }
 
         // ATTN: convert const property to non const
@@ -495,36 +500,46 @@ static CIMInstance _resolveInstance(
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
 
-    // simple propgate the object's path
-    newInstance.setPath(cimInstance.getPath());
-
-    /*
-    // update keys
-    Array<CIMKeyBinding> keys = referenceInstance.getPath().getKeyBindings();
-
-    for(Uint32 i = 0, n = keys.size(); i < n; i++)
+    // use the object path in the instance, if it exists
+    if(cimInstance.getPath().getKeyBindings().size() != 0)
     {
-        Uint32 pos = newInstance.findProperty(keys[i].getName());
+        // udpate object path
+        CIMObjectPath path = newInstance.getPath();
 
-        if(pos == PEG_NOT_FOUND)
+        // assume the specified instance has the correct keys
+        path.setKeyBindings(cimInstance.getPath().getKeyBindings());
+
+        newInstance.setPath(path);
+    }
+    else
+    {
+        // ATTN: this is just an ATTEMPT to update the object path. depending on the request parameters,
+        // all the key properties may not be present. only present keys are updated, missing keys assume
+        // the default value for the property type (e.g., String(), Uint32(0), etc.)
+
+        // update keys
+        Array<CIMKeyBinding> keys = referenceInstance.getPath().getKeyBindings();
+
+        for(Uint32 i = 0, n = keys.size(); i < n; i++)
         {
-            // throw missing key. it must be present to create a valid object path
+            Uint32 pos = newInstance.findProperty(keys[i].getName());
+
+            if(pos != PEG_NOT_FOUND)
+            {
+                CIMValue value = newInstance.getProperty(pos).getValue();
+                // ATTN: check type
+
+                keys[i].setValue(value.toString());
+            }
         }
 
-        CIMValue value = newInstance.getProperty(pos).getValue();
+        // udpate object path
+        CIMObjectPath path = newInstance.getPath();
 
-        // ATTN: check type
+        path.setKeyBindings(keys);
 
-        keys[i].setValue(value.toString());
+        newInstance.setPath(path);
     }
-
-    // udpate object path
-    CIMObjectPath path = newInstance.getPath();
-
-    path.setKeyBindings(keys);
-
-    newInstance.setPath(path);
-    */
 
     return(newInstance);
 }
@@ -696,7 +711,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
 
         Tracer::trace(
             TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
-            "adding qualifier %s",
+            "adding reference qualifier %s",
             (const char *)referenceQualifier.getName().getString().getCString());
 
         referenceInstance.addQualifier(referenceQualifier);
@@ -707,6 +722,11 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     for(Uint32 i = 0, n = referenceClass.getPropertyCount(); i < n; i++)
     {
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
+
+        Tracer::trace(
+            TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+            "adding reference property %s",
+            (const char *)referenceProperty.getName().getString().getCString());
 
         // the propagated value only applies to class properties, not instances. set it to false.
         referenceProperty.setPropagated(false);

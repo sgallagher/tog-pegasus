@@ -271,7 +271,7 @@ cimom::cimom(void)
    : MessageQueue("pegasus meta dispatcher", true, CIMOM_Q_ID ),
      _modules(true),
      _recycle(true),
-     _routed_ops(true, 1000000), 
+     _routed_ops(true, 0), 
      _internal_ops(true),
      _routing_thread( _routing_proc, this, false),
      _die(0), _routed_queue_shutdown(0)
@@ -307,7 +307,6 @@ cimom::~cimom(void)
    
    return;
 }
-
 
 void cimom::_make_response(Message *req, Uint32 code)
 {

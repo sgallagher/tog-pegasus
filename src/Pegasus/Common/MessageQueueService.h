@@ -134,6 +134,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       AsyncDQueue<AsyncOpNode> _callback;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
+      static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
       AtomicInt _incoming_queue_shutdown;
       Thread _req_thread;
       struct timeval _default_op_timeout;

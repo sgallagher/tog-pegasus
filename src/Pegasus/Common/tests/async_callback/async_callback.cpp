@@ -159,7 +159,6 @@ void test_async_queue::async_handleEnqueue(AsyncOpNode *op,
       PEGASUS_ASSERT(cim_rq->getType() == CIM_GET_INSTANCE_REQUEST_MESSAGE);
       PEGASUS_ASSERT(cim_rp->getType() == CIM_GET_INSTANCE_RESPONSE_MESSAGE);
       test_async_queue::msg_count++;
-//      cout << "async callback: " << msg_count.value() << endl; 
       
       delete cim_rp;
       delete cim_rq;
@@ -172,11 +171,6 @@ void test_async_queue::async_handleEnqueue(AsyncOpNode *op,
 
 void test_async_queue::_handle_stop(CimServiceStop *stop)
 {
-   if (_die_now.value() > 0 )
-   {
-      Base::_handle_async_request(stop);
-      return;
-   }
    
    AsyncReply *resp =  
       new AsyncReply(async_messages::REPLY, 
@@ -206,7 +200,7 @@ int main(int argc, char **argv)
    
    client.join();
    server.join();
-   cout << "exiting main " << endl;
+   cout << "+++++ passed all tests " << endl;
    
    return(0);
 }
@@ -226,35 +220,32 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
       pegasus_yield();
    }
    
-   cout << "found server at "  << services[0] << endl;
    AtomicInt rq_count;
    
    do 
    {
-      if(rq_count.value() < 10000)
-      {
-	 Message *cim_rq = new Message(CIM_GET_INSTANCE_REQUEST_MESSAGE);
-	 
-	 AsyncOpNode *op = client->get_op();
-	 AsyncOperationStart *async_rq = new AsyncOperationStart(client->get_next_xid(),
-								 op,
-								 services[0],
-								 client->getQueueId(),
-								 false,
-								 cim_rq);
-	 client->SendAsync(op, 
-			   services[0], 
-			   test_async_queue::async_handleEnqueue,
-			   client,
-			   (void *)0);
-	 rq_count++;
-      }
+
+      Message *cim_rq = new Message(CIM_GET_INSTANCE_REQUEST_MESSAGE);
       
+      AsyncOpNode *op = client->get_op();
+      AsyncOperationStart *async_rq = new AsyncOperationStart(client->get_next_xid(),
+							      op,
+							      services[0],
+							      client->getQueueId(),
+							      false,
+							      cim_rq);
+      client->SendAsync(op, 
+			services[0], 
+			test_async_queue::async_handleEnqueue,
+			client,
+			(void *)0);
+      rq_count++;
       pegasus_yield();
       
    } while( test_async_queue::msg_count.value() < 10000 );
    
-
+   cout << "sending stop to server " << endl;
+   
    CimServiceStop *stop =   
       new CimServiceStop(client->get_next_xid(),
 			 0, 
@@ -265,6 +256,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    AsyncMessage *reply = client->SendWait( stop );
    delete stop;
    delete reply;
+   
+   // wait for the server to shut down 
+   while( services.size() > 0 )
+   {
+      client->find_services(String("server"), 0, 0, &services );
+      pegasus_yield();
+   }
+
+   cout << "shutting down client" << endl;
    
    client->deregister_service();
    client->_shutdown_incoming_queue();
@@ -285,6 +285,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    {
       pegasus_yield();
    }
+   cout << "server shutting down" << endl;
    
    server->deregister_service();
    server->_shutdown_incoming_queue();

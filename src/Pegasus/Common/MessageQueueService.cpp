@@ -47,7 +47,7 @@ MessageQueueService::MessageQueueService(const char *name,
      _mask(mask),
      _die(0),
      _pending(true), 
-     _incoming(true, 100 ),
+     _incoming(true, 1000),
      _incoming_queue_shutdown(0),
      _req_thread(_req_proc, this, false)
 { 
@@ -91,8 +91,6 @@ MessageQueueService::~MessageQueueService(void)
    if (_incoming_queue_shutdown.value() == 0 )
    {
       _shutdown_incoming_queue();
-      
- //_incoming.shutdown_queue();
        _req_thread.join();
    }
    
@@ -192,6 +190,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
+}
+
+void MessageQueueService::_sendwait_callback(AsyncOpNode *op, 
+					     MessageQueue *q, 
+					     void *parm)
+{
+   op->_client_sem.signal();
 }
 
 
@@ -678,24 +683,15 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
       destroy_op = true;
    }
    
-   request->block = true;
-   request->op->lock();
-   request->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
-   request->op->_flags &= ~ASYNC_OPFLAGS_CALLBACK; 
+   request->block = false;
+
+   SendAsync(request->op, 
+	     request->dest,
+	     _sendwait_callback,
+	     this,
+	     (void *)0);
    
-   request->op->_op_dest = MessageQueue::lookup(request->dest);
-   request->op->unlock();
-   
-   if ( request->op->_op_dest == 0 )
-      return 0;
-   
-   // now see if the meta dispatcher will take it
-   if (true == _meta_dispatcher->route_async(request->op))
-   {
-      request->op->_client_sem.wait();
-      PEGASUS_ASSERT(request->op->_state & ASYNC_OPSTATE_COMPLETE);
-   }
-   
+   request->op->_client_sem.wait();
    request->op->lock();
    AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_first());
    rpl->op = 0;

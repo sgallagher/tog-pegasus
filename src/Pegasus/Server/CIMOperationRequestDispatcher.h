@@ -189,6 +189,9 @@ protected:
 
       // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);
+   private:
+      static void _handle_enqueue_callback(AsyncOpNode *, MessageQueue *, void *);
+      
 
 };
 

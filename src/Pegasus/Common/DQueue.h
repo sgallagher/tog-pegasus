@@ -385,19 +385,29 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline void shutdown_queue(void)
       {
-	 lock(pegasus_thread_self());
-	 (*_disallow)++;
-	 _node->disallow();
-	 _node->unlocked_signal(pegasus_thread_self());
-	 _node->unlocked_signal(pegasus_thread_self());
-	 _slot->disallow();
-	 _slot->unlocked_signal(pegasus_thread_self());  
-	 _slot->unlocked_signal(pegasus_thread_self());  
-	 unlock();
+	 try 
+	 {
+	    lock(pegasus_thread_self());
+	    (*_disallow)++;
+	    _node->disallow();
+	    _node->unlocked_signal(pegasus_thread_self());
+	    _node->unlocked_signal(pegasus_thread_self());
+	    _slot->disallow();
+	    _slot->unlocked_signal(pegasus_thread_self());  
+	    _slot->unlocked_signal(pegasus_thread_self());  
+	    unlock();
+	 }
+	 catch(ListClosed & )
+	 {
+	    (*_disallow)++;
+	 }
       }
 
       inline Boolean is_full(void)
       {
+	 if( _capacity->value() == 0 )
+	    return false;
+	 
 	 if(_actual_count->value() >= _capacity->value())
 	    return true;
 	 return false;

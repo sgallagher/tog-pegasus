@@ -1403,7 +1403,7 @@ en:table {
 
           "\nMOF Compiler version {0}\n\n"
            "Usage: cimmof [ -h ] [ -E ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --xml ] [ --trace ] [ -q ] <mof_file1 mof_file2...>\n"
-           "Options :\n"  
+           "Options :\n"
            "  -h, --help   - Display this help message.\n"
            "  --version    - Display CIM Server version.\n"
            "  -E           - Syntax check only.\n"
@@ -1905,7 +1905,7 @@ en:table {
 
         Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED:string {"PGS04864: Invalid option. Use '--help' to obtain command syntax."}
 
-        Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Incorrect usage. Use '--help' to obtain command syntax."}        
+        Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Incorrect usage. Use '--help' to obtain command syntax."}
 
         // ==========================================================
         // Messages for CIMOperationResponseEncoder
@@ -2178,6 +2178,16 @@ en:table {
         *    Do not translate the word 'PG_ConsumerCapabilities' since it is a CIM class name
         */
         Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME_KEY_IN_CONSUMER_CAPABILITIES:string {"PGS06412: The key property ProviderName is missing from the PG_ConsumerCapabilities instance."}
+
+        /**
+        * @note  PGS06413:
+        */
+        Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED:string {"PGS06413: Too many objects delivered."}
+
+        /**
+        * @note  PGS06413:
+        */
+        Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED:string {"PGS06413: Too few objects delivered."}
 
         // ==========================================================
         // Messages for OptionManager
@@ -3323,7 +3333,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS10403:
-        *    do not translate "IndicationHandlerSNMPMapper" since it is the 
+        *    do not translate "IndicationHandlerSNMPMapper" since it is the
     *    name of a CIM class
         *    do not translate "TargetHost" since it is the name of a CIM property
         */
@@ -5110,20 +5120,20 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS16605:
         *    Substitution {0} is a string containing mailTo address
-        *    Substitution {1} is a string containing the error message 
+        *    Substitution {1} is a string containing the error message
         */
         Handler.EmailListenerDestination.EmailListenerDestination._MSG_WRITE_TO_THE_FILE_FAILED:string {"PGS16605: Failed to write the {0} to the file: {1}."}
 
         /**
         * @note  PGS16606:
-        *    Substitution {0} is a string containing the file name 
+        *    Substitution {0} is a string containing the file name
         *    Substitution {1} is a string containing the error message
         */
         Handler.EmailListenerDestination.EmailListenerDestination._MSG_FILE_DOES_NOT_EXIST:string {"PGS16606: File {0} does not exist: {1}."}
 
         /**
         * @note  PGS16607:
-        *    Substitution {0} is a string containing the file name 
+        *    Substitution {0} is a string containing the file name
         *    Substitution {1} is a string containing the error message
         */
         Handler.EmailListenerDestination.EmailListenerDestination._MSG_CAN_NOT_GET_FILE_STATUS:string {"PGS16607: Can not get file {0} status: {1}."}

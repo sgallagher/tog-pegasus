@@ -1026,5 +1026,5 @@ int main (int argc, char** argv)
 #endif
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }

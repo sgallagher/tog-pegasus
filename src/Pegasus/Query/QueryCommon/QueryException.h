@@ -45,13 +45,13 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryException : public Exception
 {
 	public:
 		static const char MSG[];
-                static const char KEY[];
+      static const char KEY[];
 		QueryException(const String& msg):
 			Exception(MessageLoaderParms(KEY,MSG,msg)){}
 		QueryException(const ContentLanguages& langs, const String& msg):
 			Exception(msg) { setContentLanguages(langs); }
 		QueryException(const ContentLanguages& langs, const MessageLoaderParms& parms):
-                        Exception(parms) { setContentLanguages(langs); }
+        Exception(parms) { setContentLanguages(langs); }
 		QueryException(MessageLoaderParms parms):
 			Exception(parms){}
 };
@@ -64,73 +64,106 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryLanguageInvalidException : public QueryEx
       QueryLanguageInvalidException(const String& msg):
         QueryException(MessageLoaderParms(KEY,MSG,msg)){}
 		QueryLanguageInvalidException(MessageLoaderParms parms):
-                        QueryException(parms){}
+        QueryException(parms){}
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLParseException : public QueryException
+class PEGASUS_QUERYCOMMON_LINKAGE QueryValidationException : public QueryException
+{
+	public:
+		static const char MSG[];
+      static const char KEY[];
+      QueryValidationException(const String& msg):
+        QueryException(MessageLoaderParms(KEY,MSG,msg)){}
+		QueryValidationException(MessageLoaderParms parms):
+        QueryException(parms){}
+};
+
+class PEGASUS_QUERYCOMMON_LINKAGE QueryMissingPropertyException : public QueryValidationException
+{
+	public:
+		static const char MSG[];
+      static const char KEY[];
+      QueryMissingPropertyException(const String& msg):
+        QueryValidationException(MessageLoaderParms(KEY,MSG,msg)){}
+		QueryMissingPropertyException(MessageLoaderParms parms):
+        QueryValidationException(parms){}
+};
+
+class PEGASUS_QUERYCOMMON_LINKAGE QueryParseException : public QueryException  
 {
    	public:
 		static const char MSG[];
-                static const char KEY[];
-                CQLParseException(const String& msg):
+      static const char KEY[];
+      QueryParseException(const String& msg):
 			QueryException(MessageLoaderParms(KEY,MSG,msg)){}
-		CQLParseException(MessageLoaderParms parms):
+		QueryParseException(MessageLoaderParms parms):
 			QueryException(parms){}
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLRuntimeException : public QueryException
+class PEGASUS_QUERYCOMMON_LINKAGE QueryRuntimeException : public QueryException  
 {
-	public:
+   	public:
 		static const char MSG[];
-                static const char KEY[];
-                CQLRuntimeException(const String& msg):
+      static const char KEY[];
+      QueryRuntimeException(const String& msg):
 			QueryException(MessageLoaderParms(KEY,MSG,msg)){}
-		CQLRuntimeException(MessageLoaderParms parms):
+		QueryRuntimeException(MessageLoaderParms parms):
 			QueryException(parms){}
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLValidationException : public QueryException
+class PEGASUS_QUERYCOMMON_LINKAGE QueryRuntimePropertyException : public QueryRuntimeException  
 {
-	public:
+   	public:
 		static const char MSG[];
-                static const char KEY[];
-                CQLValidationException(const String& msg):
-			QueryException(MessageLoaderParms(KEY,MSG,msg)){}
-		CQLValidationException(MessageLoaderParms parms):
-			QueryException(parms){}
+      static const char KEY[];
+      QueryRuntimePropertyException(const String& msg):
+			QueryRuntimeException(MessageLoaderParms(KEY,MSG,msg)){}
+		QueryRuntimePropertyException(MessageLoaderParms parms):
+			QueryRuntimeException(parms){}
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLSyntaxErrorException : public CQLParseException
+class PEGASUS_QUERYCOMMON_LINKAGE CQLSyntaxErrorException : public QueryParseException
 {
 	public:
 		static const char MSG[];
-                static const char KEY[];
-                CQLSyntaxErrorException(const String& msg, Uint32 token, Uint32 position, const String& rule):
-			CQLParseException(MessageLoaderParms(KEY,MSG,msg,token, position,rule)){}
+      static const char KEY[];
+      CQLSyntaxErrorException(const String& msg, Uint32 token, Uint32 position, const String& rule):
+        QueryParseException(MessageLoaderParms(KEY,MSG,msg,token, position,rule)){}
 		CQLSyntaxErrorException(MessageLoaderParms parms):
-                        CQLParseException(parms){}
+        QueryParseException(parms){}
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLIdentifierParseException : public CQLParseException
+class PEGASUS_QUERYCOMMON_LINKAGE CQLIdentifierParseException : public QueryParseException
 {
 	public:
 		static const char MSG[];
       static const char KEY[];
       CQLIdentifierParseException(const String& msg):
-		CQLParseException(MessageLoaderParms(KEY,MSG,msg)){}
+        QueryParseException(MessageLoaderParms(KEY,MSG,msg)){}
 		CQLIdentifierParseException(MessageLoaderParms parms):
-                        CQLParseException(parms){}
+        QueryParseException(parms){}
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLChainedIdParseException : public CQLParseException
+class PEGASUS_QUERYCOMMON_LINKAGE CQLChainedIdParseException : public QueryParseException
 {
 	public:
 		static const char MSG[];
 		static const char KEY[];
       CQLChainedIdParseException(const String& msg):
-      CQLParseException(MessageLoaderParms(KEY,MSG,msg)){}
+        QueryParseException(MessageLoaderParms(KEY,MSG,msg)){}
 		CQLChainedIdParseException(MessageLoaderParms parms):
-                        CQLParseException(parms){}
+        QueryParseException(parms){}
+};
+
+class PEGASUS_QUERYCOMMON_LINKAGE CQLRuntimeException : public QueryRuntimeException
+{
+	public:
+		static const char MSG[];
+      static const char KEY[];
+      CQLRuntimeException(const String& msg):
+			QueryRuntimeException(MessageLoaderParms(KEY,MSG,msg)){}
+		CQLRuntimeException(MessageLoaderParms parms):
+			QueryRuntimeException(parms){}
 };
 
 class PEGASUS_QUERYCOMMON_LINKAGE CQLNullContagionException : public CQLRuntimeException
@@ -141,7 +174,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE CQLNullContagionException : public CQLRuntimeE
       CQLNullContagionException(const String& msg):
         CQLRuntimeException(MessageLoaderParms(KEY,MSG,msg)){}
 		CQLNullContagionException(MessageLoaderParms parms):
-                        CQLRuntimeException(parms){}
+        CQLRuntimeException(parms){}
 };
 
 // Macros to convert non QueryExceptions to QueryExceptions

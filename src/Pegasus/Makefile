@@ -140,7 +140,6 @@ DIRS += \
     ExportServer/tests \
     Client/tests \
     Compiler/tests \
-    Compiler/cmdline/tests \
     Security/Authentication/tests \
     Security/UserManager/tests \
     IndicationService/tests \
@@ -150,5 +149,10 @@ DIRS += \
     msg/Server \
     msg/CLI \
     DynListener/tests
+
+ifneq ($(OS),HPUX)
+  DIRS+= \
+    Compiler/cmdline/tests
+endif
 
 include $(ROOT)/mak/recurse.mak

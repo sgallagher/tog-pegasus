@@ -31,7 +31,7 @@
 
 
 #include <cassert>
-#include <sstream>
+#include <StandardIncludes/sstream>
 #include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
@@ -61,7 +61,12 @@ int main(int argc, char** argv)
     s4.append(Char16(0xffff));
 
     {
+#ifdef HAVE_SSTREAM
 	stringstream os;
+#endif
+#ifdef HAVE_STRSTREAM
+	ostrstream os;	
+#endif	
 	os << s4;
 	os.put('\0');
 #ifndef PEGASUS_HAS_ICU
@@ -70,12 +75,23 @@ int main(int argc, char** argv)
 	CString cstr = s4.getCString();
 	const char * EXPECTED = (const char *)cstr;
 #endif
+
+#ifdef HAVE_SSTREAM
 	const char* tmp = os.str().c_str();
+#endif
+#ifdef HAVE_STRSTREAM
+	char *tmp = os.str();
+#endif
+
 	assert(strcmp(EXPECTED, tmp) == 0);
 #ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
         os.freeze(false);
 #else
+
+#ifdef HAVE_STRSTREAM
 	delete tmp;
+#endif
+
 #endif
     }
 

@@ -292,8 +292,16 @@ Boolean System::truncateFile(
 Boolean System::is_absolute_path(const char *path)
 {
   char full[_MAX_PATH];
- 
-  return (strcasecmp(_fullpath( full, path, _MAX_PATH ), path) == 0) ? true : false;
+  char path_slash[_MAX_PATH];
+  char *p;
+
+  strncpy(path_slash, path, _MAX_PATH);
+  path_slash[_MAX_PATH-1] = '\0';
+
+  for(p = path_slash; p < path_slash + strlen(path_slash); p++)
+    if (*p == '/') *p = '\\';
+  
+  return (strcasecmp(_fullpath( full, path_slash, _MAX_PATH ), path_slash) == 0) ? true : false;
 }
 
 void System::openlog(const String ident)

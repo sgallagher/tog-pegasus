@@ -52,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 static Boolean _GetLine(istream& is, Array<char>& x)
 {
     x.clear();
-    x.reserve(1024);
+    x.reserveCapacity(1024);
 
     char c;
 

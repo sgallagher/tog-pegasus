@@ -58,11 +58,11 @@ static inline String _MakeClassFilePath(
 {
     if (superClassName.size())
     {
-	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.',
-	    superClassName);
+	return nameSpacePath + _CLASSES_SUFFIX + "/" + className + "." +
+	    superClassName;
     }
     else
-	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', '#');
+	return nameSpacePath + _CLASSES_SUFFIX + "/" + className + ".#";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ static inline String _MakeQualifierFilePath(
     const String& nameSpacePath,
     const String& qualifierName)
 {
-    return Cat(nameSpacePath, _QUALIFIERS_SUFFIX, '/', qualifierName);
+    return nameSpacePath + _QUALIFIERS_SUFFIX + "/" + qualifierName;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ static inline String _MakeInstanceFileBase(
     const String& nameSpacePath,
     const String& className)
 {
-    return Cat(nameSpacePath, _INSTANCES_SUFFIX, '/', className);
+    return nameSpacePath + _INSTANCES_SUFFIX + "/" + className;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -570,7 +570,7 @@ String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
-    return Cat(nameSpace->getNameSpacePath(), _QUALIFIERS_SUFFIX);
+    return nameSpace->getNameSpacePath() + _QUALIFIERS_SUFFIX;
 }
 
 PEGASUS_NAMESPACE_END

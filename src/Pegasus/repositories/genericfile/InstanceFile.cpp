@@ -382,7 +382,7 @@ Boolean InstanceFile::_loadData(
         return false;
 
     data.clear();
-    data.reserve(size+1);
+    data.reserveCapacity(size+1);
     data.append(buffer, size);
     data.append('\0');
 
@@ -444,7 +444,7 @@ Boolean InstanceFile::_removeData(
         char* buffer = new char[sizeNeeded];
 
         data.clear();
-        data.reserve(sizeNeeded);
+        data.reserveCapacity(sizeNeeded);
 
         is.clear();                 
 

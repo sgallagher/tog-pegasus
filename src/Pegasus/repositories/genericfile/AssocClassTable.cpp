@@ -171,7 +171,7 @@ void AssocClassTable::append(
     const String& toPropertyName)
 {
     Array<String> fields;
-    fields.reserve(5);
+    fields.reserveCapacity(5);
     fields.append(assocClassName);
     fields.append(fromClassName);
     fields.append(fromPropertyName);
@@ -199,7 +199,7 @@ void AssocClassTable::append(
     // Insert the entry:
 
     Array<String> fields;
-    fields.reserve(5);
+    fields.reserveCapacity(5);
     fields.append(assocClassName);
     fields.append(fromClassName);
     fields.append(fromPropertyName);

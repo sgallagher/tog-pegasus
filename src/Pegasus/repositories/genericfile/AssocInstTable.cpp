@@ -177,7 +177,7 @@ void AssocInstTable::append(
     const String& toPropertyName)
 {
     Array<String> fields;
-    fields.reserve(8);
+    fields.reserveCapacity(8);
     fields.append(assocInstanceName);
     fields.append(assocClassName);
     fields.append(fromInstanceName);
@@ -211,7 +211,7 @@ void AssocInstTable::append(
     // Insert the entry:
 
     Array<String> fields;
-    fields.reserve(8);
+    fields.reserveCapacity(8);
     fields.append(assocInstanceName);
     fields.append(assocClassName);
     fields.append(fromInstanceName);

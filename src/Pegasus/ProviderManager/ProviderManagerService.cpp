@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Logger.h>
 
 #include <Pegasus/ProviderManager/ProviderManager.h>
-#include <Pegasus/ProviderManager/ProviderFacade.h>
+#include <Pegasus/ProviderManager/Provider.h>
 #include <Pegasus/ProviderManager/OperationResponseHandler.h>
 
 #include <Pegasus/Provider/OperationFlag.h>
@@ -49,20 +49,20 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-   Provider module status
-*/
-static const Uint16 _MODULE_OK        = 2;
+//
+// Provider module status
+//
+static const Uint16 _MODULE_OK       = 2;
+static const Uint16 _MODULE_STOPPING = 9;
+static const Uint16 _MODULE_STOPPED  = 10;
 
-static const Uint16 _MODULE_STOPPING   = 9;
+// thread pool parameters
+static struct timeval await = { 0, 40 };
+static struct timeval dwait = { 10, 0 };
+static struct timeval deadwait = { 1, 0 };
 
-static const Uint16 _MODULE_STOPPED   = 10;
-
+// provider manager
 static ProviderManager providerManager;
-
-static struct timeval await = { 0, 40};
-static struct timeval dwait = { 10, 0};
-static struct timeval deadwait = { 1, 0};
 
 ProviderManagerService::ProviderManagerService(
     ProviderRegistrationManager * providerRegistrationManager)
@@ -2192,11 +2192,12 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
 }
 
 void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, const
-Message * message) throw()
+    Message * message) throw()
 {
     CIMStopAllProvidersRequestMessage * request =
         dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
-    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+
+    AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.next(0));
 
     PEGASUS_ASSERT(request != 0 && async != 0);
 
@@ -2223,7 +2224,7 @@ Message * message) throw()
           op,
           response);
 
-    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
 }
 
 PEGASUS_NAMESPACE_END

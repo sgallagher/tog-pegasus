@@ -115,11 +115,15 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
 
-        void populateTemplateField(String& slpTemplateInstance,
-            CIMInstance& instance, 
-            const String& instanceFieldName,
-            const String& regFieldName,
-            const String& value);
+        void populateTemplateField(CIMInstance& instance, 
+            const String& attributeFieldName,
+            const String& value,
+            const String& instancePropertyName = String::EMPTY);
+
+        void SLPProvider::populateTemplateField(CIMInstance& instance, 
+            const String& attributeFieldName,
+            const Array<String>& value,
+            const String& instancePropertyName);
 
         String getRegisteredProfileList();
    private:
@@ -135,12 +139,11 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
        // Save CIMOMHandle from initialization
        CIMOMHandle _cimomHandle;
 
-       // Temporary String where we build 
-       // registration information.
-       //String _slpTemplateInstance;
-
        CIMNamespaceName _interopNamespace;
 
+       // Workspace for building the SLP Template String
+       String _currentSLPTemplateString;
+       CIMInstance _currentSLPTemplateCIMInstance;
    };
 
 PEGASUS_NAMESPACE_END

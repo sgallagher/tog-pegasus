@@ -4,8 +4,8 @@ DIR = Pegasus/ProviderManager2/Default/tests/ProviderFacade
 
 LIBRARIES = \
     pegprovider \
-    pegconfig \
     pegcommon \
+    DefaultProviderManager
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

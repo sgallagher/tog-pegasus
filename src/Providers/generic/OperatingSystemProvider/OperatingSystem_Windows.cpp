@@ -196,7 +196,7 @@ CIMDateTime OperatingSystem::GetLocalDateTime(void) const
    ss << (GetCurrentTimeZone() < 0 ? "-" : "+");
    ss << std::setw(3) << ::abs(GetCurrentTimeZone());
 
-   LocalDateTime = ss.str().c_str();
+   LocalDateTime = CIMDateTime (String (ss.str().c_str()));
 
    return(LocalDateTime);
 }

@@ -201,7 +201,7 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
    }
    ss << std::setw(3) << ::abs(currentTimeZone);
 
-   localDateTime = ss.str().c_str();
+   localDateTime = CIMDateTime (String (ss.str().c_str()));
 
    return(true);
 }

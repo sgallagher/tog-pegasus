@@ -153,7 +153,7 @@ Boolean OSTestClient::goodInstallDate(const CIMDateTime &idate,
                                       Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking InstallDate " << idate.getString() << endl;    
+      cout<<"Checking InstallDate " << idate.toString() << endl;    
    cout<<"- No check written for InstallDate " << endl;
    return true;
 }
@@ -207,7 +207,7 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
                                          Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking LastBootUpTime " << btime.getString() << endl;
+      cout<<"Checking LastBootUpTime " << btime.toString() << endl;
    cout<<"- No check written for LastBootUpTime " << endl;
    return true;
 }
@@ -216,7 +216,7 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
                                         Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking LocalDateTime " << ltime.getString() << endl;
+      cout<<"Checking LocalDateTime " << ltime.toString() << endl;
    cout<<"- No check written for LocalDateTime " << endl;
    return true;
 }

@@ -13,6 +13,10 @@ SOURCES = __NamespaceProvider.cpp
 
 LIBRARY = __NamespaceProvider
 
+ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegprovider
+endif
+
 include $(ROOT)/mak/library.mak
 
 tests:

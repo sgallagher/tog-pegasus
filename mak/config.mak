@@ -267,6 +267,15 @@ ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     DEFINES += -DPEGASUS_ENABLE_USERGROUP_AUTHORIZATION
 endif
 
+#
+# PEP 193
+# The following flag need to be set to disable
+# CQL in indication subscriptions
+#
+ifdef PEGASUS_DISABLE_CQL
+    DEFINES += -DPEGASUS_DISABLE_CQL
+endif
+
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  

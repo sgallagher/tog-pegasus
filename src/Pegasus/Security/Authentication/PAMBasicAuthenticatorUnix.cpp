@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +31,11 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Config/ConfigManager.h>
+
+#ifdef PEGASUS_OS_HPUX
+#include <pwd.h>
+#include <prot.h>
+#endif
 
 #include "PAMBasicAuthenticator.h"
 
@@ -41,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 #include <security/pam_appl.h>
 
+#define BUFFERLEN 1024
 
 /**
     Constant representing the Basic authentication challenge header.
@@ -51,11 +57,10 @@ static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
 /** Service name for pam_start */
 const char *service = "wbem";
 
-typedef struct 
+typedef struct
 {
     CString userPassword;
 } APP_DATA;
-
 
 /* constructor. */
 PAMBasicAuthenticator::PAMBasicAuthenticator() 
@@ -81,6 +86,23 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     _realm.append(":");
     _realm.append(port);
 
+#ifdef PEGASUS_OS_HPUX
+    //
+    // get the configured usePAMAuthentication flag
+    //
+
+    if (String::equal(
+        configManager->getCurrentValue("usePAMAuthentication"), "true"))
+    {
+        _usePAM = true;
+    }
+    else
+    {
+	_usePAM = false;
+    }
+#endif
+
+
     PEG_METHOD_EXIT();
 }
 
@@ -100,6 +122,32 @@ Boolean PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
+    Boolean authenticated;
+
+#ifndef PEGASUS_OS_HPUX
+    authenticated = _authenticateByPAM(userName, password);
+#else
+    if (_usePAM)
+    {
+	authenticated = _authenticateByPAM(userName, password); 
+    }
+    else
+    {
+	authenticated = _authenticateByPwnam(userName.getCString(), password);
+    }
+#endif
+
+    PEG_METHOD_EXIT();
+    return (authenticated);
+}
+
+Boolean PAMBasicAuthenticator::_authenticateByPAM(
+    const String& userName, 
+    const String& password) 
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMBasicAuthenticator::_authenticateByPAM()");
+
     Boolean authenticated = false;
     struct pam_conv pconv;
     pam_handle_t *phandle;
@@ -116,7 +164,7 @@ Boolean PAMBasicAuthenticator::authenticate(
 
 //    WARNING: Should only be uncommented for debugging in a secure environment.
 //    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-//       "PAMBasicAuthenticator::authenticate() - userName = %s; userPassword = %s",
+//       "PAMBasicAuthenticator::_authenticateByPAM() - userName = %s; userPassword = %s",
 //       (const char *)userName.getCString(), (const char *)password.getCString());
 
     //
@@ -135,7 +183,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     if ( ( pam_authenticate(phandle, 0) ) == PAM_SUCCESS ) 
     {
        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-         "PAMBasicAuthenticator::authenticate() pam_authenticate successful.");
+         "PAMBasicAuthenticator::_authenticateByPAM() pam_authenticate successful.");
         //
         //Call pam_acct_mgmt, to check if the user account is valid. This includes 
         //checking for password and account expiration, as well as verifying access 
@@ -144,7 +192,7 @@ Boolean PAMBasicAuthenticator::authenticate(
         if ( ( pam_acct_mgmt(phandle, 0) ) == PAM_SUCCESS ) 
         {
            Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "PAMBasicAuthenticator::authenticate() pam_acct_mgmt successful.");
+              "PAMBasicAuthenticator::_authenticateByPAM() pam_acct_mgmt successful.");
             authenticated = true;
         }
     }
@@ -153,6 +201,81 @@ Boolean PAMBasicAuthenticator::authenticate(
     //Call pam_end to end our PAM work
     //
     pam_end(phandle, 0);
+
+    PEG_METHOD_EXIT();
+
+    return (authenticated);
+}
+
+Boolean PAMBasicAuthenticator::_authenticateByPwnam(
+    const char * userName, 
+    const String& password) 
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMBasicAuthenticator::_authenticateByPwnam()");
+
+    Boolean authenticated = false;
+
+    String currPassword         = String::EMPTY;
+    String encryptedPassword    = String::EMPTY;
+    String saltStr              = String::EMPTY;
+
+    //
+    // check if the system has been converted to a trusted system.
+    //
+
+    if (iscomsec())
+    {
+	// system is a trusted system
+	// use interface getprpwnam to get pr_passwd structure
+
+	struct pr_passwd * pwd;
+
+	char* _userName = strcpy(new char[strlen(userName) + 1], userName);
+	
+	// getprpwnam returns a pointer to a pr_passwd structure  upon success
+	if ( (pwd = getprpwnam(_userName)) != NULL)
+	{
+           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+              "PAMBasicAuthenticator::_authenticateByPwnam() getprpwnam successful.");
+	   // get user's password from pr_passwd structure
+	    currPassword = pwd->ufld.fd_encrypt; 
+	}
+
+	delete [] _userName;
+    }
+    else
+    {
+	//
+	// system is not a trusted system
+	// use reentrant interface getpwnam_r to get password structure
+	//
+	struct passwd pwd;
+	struct passwd *result;
+	char pwdBuffer[BUFFERLEN];
+
+	// getpwnam_r returns zero upon success
+	if (getpwnam_r(userName, &pwd, pwdBuffer, BUFFERLEN, &result) == 0)
+	{
+           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+              "PAMBasicAuthenticator::_authenticateByPwnam() getpwnam_r successful.");
+	   // get user's password from password file
+	    currPassword = pwd.pw_passwd; 
+	}
+    }
+
+    //
+    // Check if the specified password mathches user's password 
+    //
+    saltStr = currPassword.subString(0,2);
+
+    encryptedPassword = System::encryptPassword(password.getCString(),
+			saltStr.getCString());
+
+    if (String::equal(currPassword, encryptedPassword))
+    {
+	authenticated = true;
+    }
 
     PEG_METHOD_EXIT();
 

@@ -30,7 +30,7 @@
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//              Warren Otsuka (warren.otsuka@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -136,6 +136,7 @@ static struct OwnerEntry _properties[] =
     {"enableAssociationTraversal", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableIndicationService", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"usePAMAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableNamespaceAuthorization", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},
@@ -173,7 +174,7 @@ struct FixedValueEntry
 
 static struct FixedValueEntry _fixedValues[] =
 {
-#include "FixedPropertyTable.h"
+    {"bogus", "MyBogusValue"} // Remove this line if others are added
 };
 
 const Uint32 NUM_FIXED_PROPERTIES = 

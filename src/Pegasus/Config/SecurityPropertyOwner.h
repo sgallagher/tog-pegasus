@@ -26,6 +26,7 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                                (sushma_fernandes@hp.com)
 //              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -205,6 +206,8 @@ private:
     The security properties owned by this class
     */
     struct ConfigProperty*      _enableAuthentication;
+
+    struct ConfigProperty*      _usePAMAuthentication;
 
     struct ConfigProperty*      _enableNamespaceAuthorization;
 

@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,6 +86,18 @@ public:
 private:
 
     String        _realm;
+
+    Boolean _authenticateByPAM(
+	const String& userName,
+	const String& password);
+
+#if defined (PEGASUS_OS_HPUX)
+    Boolean	_usePAM;
+
+    Boolean _authenticateByPwnam(
+	const char* userName,
+	const String& password);
+#endif
 };
 
 

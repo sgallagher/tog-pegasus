@@ -26,6 +26,7 @@
 // Modified By: 
 //       Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //       Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+//       Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -53,6 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"enableAuthentication", "false", 0, 0, 0},
+    {"usePAMAuthentication", "false", 0, 0, 0},
     {"enableNamespaceAuthorization", "false", 0, 0, 0},
     {"httpAuthType", "Basic", 0, 0, 0},
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
@@ -66,9 +68,10 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 SecurityPropertyOwner::SecurityPropertyOwner()
 {
-    _enableAuthentication = new ConfigProperty;
-    _enableNamespaceAuthorization = new ConfigProperty;
-    _httpAuthType = new ConfigProperty;
+    _enableAuthentication = new ConfigProperty();
+    _usePAMAuthentication = new ConfigProperty();
+    _enableNamespaceAuthorization = new ConfigProperty();
+    _httpAuthType = new ConfigProperty();
     _passwordFilePath = new ConfigProperty();
     _certificateFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
@@ -78,6 +81,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 SecurityPropertyOwner::~SecurityPropertyOwner()
 {
     delete _enableAuthentication;
+    delete _usePAMAuthentication;
     delete _enableNamespaceAuthorization;
     delete _httpAuthType;
     delete _passwordFilePath;
@@ -106,6 +110,17 @@ void SecurityPropertyOwner::initialize()
             _enableAuthentication->dynamic = properties[i].dynamic;
             _enableAuthentication->domain = properties[i].domain;
             _enableAuthentication->domainSize = properties[i].domainSize;
+        }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "usePAMAuthentication"))
+        {
+            _usePAMAuthentication->propertyName = properties[i].propertyName;
+            _usePAMAuthentication->defaultValue = properties[i].defaultValue;
+            _usePAMAuthentication->currentValue = properties[i].defaultValue;
+            _usePAMAuthentication->plannedValue = properties[i].defaultValue;
+            _usePAMAuthentication->dynamic = properties[i].dynamic;
+            _usePAMAuthentication->domain = properties[i].domain;
+            _usePAMAuthentication->domainSize = properties[i].domainSize;
         }
         else if (String::equalNoCase(
             properties[i].propertyName, "enableNamespaceAuthorization"))
@@ -191,6 +206,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     if (String::equalNoCase(_enableAuthentication->propertyName, name))
     {
         return _enableAuthentication;
+    }
+    else if (String::equalNoCase(_usePAMAuthentication->propertyName, name))
+    {
+        return _usePAMAuthentication;
     }
     else if (String::equalNoCase(_enableNamespaceAuthorization->propertyName, name))
     {
@@ -337,6 +356,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     // Validate the specified value
     //
     if (String::equalNoCase(_enableAuthentication->propertyName, name))
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_usePAMAuthentication->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

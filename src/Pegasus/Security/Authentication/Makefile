@@ -15,6 +15,10 @@ LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
+ifeq ($(OS),HPUX)
+    EXTRA_LIBRARIES += -L/usr/lib -lsec 
+endif
+
 SOURCES = \
     LocalAuthFile.cpp \
     SecureLocalAuthenticator.cpp \

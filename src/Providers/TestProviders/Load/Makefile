@@ -21,7 +21,7 @@ include $(ROOT)/mak/configschema.mak
 # are to be loaded.
 
 TESTPROVIDERNS=root/testassoc
-TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root/testassoc
+TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#/testassoc
 
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.
@@ -31,7 +31,6 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-#	@ $(ECHO) +++++ Loading SampleProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ $(ECHO) +++++ Loading AssociationTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" AssociationTestProviderSchema.mof
 	@ $(ECHO) +++++ Loading TestInstanceProvider class definitions into $(TESTPROVIDERNS) namespace ...
@@ -52,8 +51,8 @@ repositoryServer:
 	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_SCHEMA_VER)/CIM_Events$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading AssociationTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 
-	#@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
-	#@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
+#	@ $(ECHO) +++++ Registering AssociationTestProvider schema Providers  ...
+#	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" AssociationTestProviderSchemaR.mof
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
@@ -81,24 +80,27 @@ general:
 clean:
 
 clitests:
-		CLI rn TST_ClassA "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassA -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassA -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassA -rc TST_Assoc1 -rr to "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassA "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassA -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassA -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassA -rc TST_Assoc1 -rr to "-n $(TESTPROVIDERNS)"
 
-		CLI rn TST_ClassB "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassB -rc TST_Assoc5 "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassB -rc TST_Assoc5 -rr from "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassB -rc TST_Assoc5 -rr to "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassB "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassB -rc TST_Assoc5 "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassB -rc TST_Assoc5 -rr from "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassB -rc TST_Assoc5 -rr to "-n $(TESTPROVIDERNS)"
 
-		CLI rn TST_ClassC "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassC -rc TST_Assoc2 "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassC -rc TST_Assoc2 -rr from "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassC -rc TST_Assoc2 -rr to "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassC -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassC "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassC -rc TST_Assoc2 "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassC -rc TST_Assoc2 -rr from "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassC -rc TST_Assoc2 -rr to "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassC -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
 
-		CLI rn TST_ClassD "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassD -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassD -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"
-		CLI rn TST_ClassD -rc TST_Assoc1 -rr to "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassD "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassD -rc TST_Assoc1 "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassD -rc TST_Assoc1 -rr from "-n $(TESTPROVIDERNS)"
+#		CLI rn TST_ClassD -rc TST_Assoc1 -rr to "-n $(TESTPROVIDERNS)"
+
+		CLI ni -n $(TESTPROVIDERNS) TST_Instance1
+		CLI ei -n $(TESTPROVIDERNS) TST_Instance1
 install:

@@ -19,7 +19,7 @@ FORCE:
 local-clean:
 	$(RM) *.tmp
 
-tests: testdiffsort testsort1 testsort2
+tests: testdiffsort testsort1
 	@ $(ECHO) $(SORT) +++++ all test passed	
 
 ##
@@ -35,6 +35,10 @@ testsort1:
 	@ $(ECHO) $(SORT) +++++  test1 passed	
 ##
 ## test that sort order is correct by comparing to saved output file
+##
+## this test is dependent upon the sort commands default sorting algorythum
+## and therefore is platform dependent so it is not run as a standard 
+## test but is left for future development.
 ##
 testsort2:
 	@ $(SORT) file1_unsorted > file11.tmp

@@ -270,7 +270,6 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
            CIMResponseMessage* resp = request->buildResponse();
            resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                "Remote Namespace operations not supported for interface type "+interfaceType);
-           std::cout<<"--- Remote Namespace operations not supported for interface type "+interfaceType<<std::endl;
            response = resp;
 	}
         else response = pm->processMessage(request);

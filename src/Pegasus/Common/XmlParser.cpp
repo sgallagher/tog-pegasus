@@ -488,12 +488,17 @@ void XmlParser::_skipWhitespace(char*& p)
 
 Boolean XmlParser::_getElementName(char*& p)
 {
-    if (!String::isUTF8(p))
+    if (!String::isUTF8(p) ||
+        !(((*p >= 'A') && (*p <= 'Z')) ||
+          ((*p >= 'a') && (*p <= 'z')) ||
+          (*p == '_')))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
+    p++;
 
     while ((*p) &&
 	   (((*p >= 'A') && (*p <= 'Z')) ||
 	    ((*p >= 'a') && (*p <= 'z')) ||
+	    ((*p >= '0') && (*p <= '9')) ||
 	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
@@ -518,12 +523,17 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 {
     openCloseElement = false;
 
-    if (!String::isUTF8(p))
+    if (!String::isUTF8(p) ||
+        !(((*p >= 'A') && (*p <= 'Z')) ||
+          ((*p >= 'a') && (*p <= 'z')) ||
+          (*p == '_')))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
+    p++;
 
     while ((*p) &&
 	   (((*p >= 'A') && (*p <= 'Z')) ||
 	    ((*p >= 'a') && (*p <= 'z')) ||
+	    ((*p >= '0') && (*p <= '9')) ||
 	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
@@ -554,12 +564,17 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 
 void XmlParser::_getAttributeNameAndEqual(char*& p)
 {
-    if (!String::isUTF8(p))
+    if (!String::isUTF8(p) ||
+        !(((*p >= 'A') && (*p <= 'Z')) ||
+          ((*p >= 'a') && (*p <= 'z')) ||
+          (*p == '_')))
 	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
+    p++;
 
     while ((*p) &&
 	   (((*p >= 'A') && (*p <= 'Z')) ||
 	    ((*p >= 'a') && (*p <= 'z')) ||
+	    ((*p >= '0') && (*p <= '9')) ||
 	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
@@ -876,7 +891,10 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
 	return;
     }
-    else if (String::isUTF8(p))
+    else if (String::isUTF8(p) &&
+             (((*p >= 'A') && (*p <= 'Z')) ||
+              ((*p >= 'a') && (*p <= 'z')) ||
+              (*p == '_')))
     {
 	entry.type = XmlEntry::START_TAG;
 	entry.text = p;

@@ -99,7 +99,11 @@ PEGASUS_MUTEX_TYPE * Mutex::getMutex()
 
 // ReadWriteSemaphore are best implemented through Unix 98 rwlocks
 
-ReadWriteSem::ReadWriteSem(Uint32 mode = SEM_WRITE)
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+ ReadWriteSem::ReadWriteSem(Uint32 mode)
+#else
+ ReadWriteSem::ReadWriteSem(Uint32 mode = SEM_WRITE)
+#endif
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
     _rwlock.owner = pthread_self();
@@ -312,6 +316,7 @@ int Semaphore::count()
     return _count;
 }
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 ////////////////////////////////////////////////////////////////////////////
 
 cleanup_handler::cleanup_handler( void (*routine)(void *), void *arg  )
@@ -325,6 +330,7 @@ cleanup_handler::~cleanup_handler()
 }
 
 ////////////////////////////////////////////////////////////////////////////
+#endif
 
 SimpleThread::SimpleThread(
     void * (*start) (void *), void * parameter, Boolean detached) :
@@ -381,7 +387,11 @@ void SimpleThread::test_cancel()
 
 void SimpleThread::thread_switch()
 {
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    sched_yield();
+#else
     pthread_yield();
+#endif
 }
 
 //implemented later on using SIGUSR1
@@ -405,6 +415,38 @@ void SimpleThread::sleep(Uint32 msec)
     timeout.tv_nsec = (msec & 1000) * 1000;
     nanosleep(&timeout,NULL);
 }
+
+
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+
+int pthread_mutex_timedlock(
+        pthread_mutex_t *mutex,
+        const struct timespec *abstime)
+{
+        return pthread_mutex_lock (mutex);
+}
+
+int pthread_rwlock_timedrdlock(
+        pthread_rwlock_t *rwlock,
+        const struct timespec *abstime)
+{
+        return pthread_rwlock_rdlock(rwlock);
+}
+
+int pthread_rwlock_timedwrlock(
+        pthread_rwlock_t *rwlock,
+        const struct timespec *abstime)
+{
+        return pthread_rwlock_wrlock(rwlock);
+}
+
+int sem_timedwait(sem_t *sem,
+        const struct timespec *abstime)
+{
+        return sem_wait(sem);
+}
+
+#endif
 
 #if 0
 Thread::Thread(void * (*start) (void *), void * parameter, Boolean detached)

@@ -7,9 +7,31 @@
 #endif
 #define _XOPEN_SOURCE 600
 #endif
-#include <features.h>
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+# include <features.h>
+#endif
 #include <pthread.h>
 #include <semaphore.h>
+
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+# include <sched.h>
+  extern int pthread_mutex_timedlock(
+        pthread_mutex_t *mutex,
+        const struct timespec *abstime);
+
+  extern int pthread_rwlock_timedrdlock(
+        pthread_rwlock_t *rwlock,
+        const struct timespec *abstime);
+
+  extern int pthread_rwlock_timedwrlock(
+        pthread_rwlock_t *rwlock,
+        const struct timespec *abstime);
+
+  extern int sem_timedwait(
+        sem_t *sem,
+        const struct timespec *abstime);
+#endif
+
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -42,7 +64,11 @@ pthread_rwlock_t rwlock;\
 pthread_t owner;\
 }
 
-#define PEGASUS_CLEANUP_HANDLE struct _pthread_cleanup_buffer
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+# define PEGASUS_CLEANUP_HANDLE void *
+#else
+# define PEGASUS_CLEANUP_HANDLE struct _pthread_cleanup_buffer
+#endif
 
 #define PEGASUS_THREAD_RETURN void *
 #define PEGASUS_THREAD_CDECL

@@ -33,6 +33,8 @@
 # include "IPCWindows.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include "IPCUnix.h"
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+# include "IPCUnix.h"
 #else
 # error "Unsupported platform"
 #endif

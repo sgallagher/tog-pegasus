@@ -1,36 +1,45 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
-#//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
-#//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
-#//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
 include $(ROOT)/mak/config-unix.mak
-include $(ROOT)/mak/platform_HPUX_ACC.mak
 
-ARCHITECTURE = PARISC
+OS = hpux
 
-SYS_INCLUDES += -I$(ROOT)/src/stdcxx/stream
+ARCHITECTURE = parisc
 
-FLAGS += +Z +DAportable -mt -D_PSTAT64
+COMPILER = acc
+
+SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
+
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
+
+DEPEND_INCLUDES =
+
+## Flags:
+##     +Z - produces position independent code (PIC).
+##     +DAportable generates code for any HP9000 architecture
+##     -Wl, passes the following option to the linker
+##       +s causes the linked image or shared lib to be able to
+##          search for any referenced shared libs dynamically in
+##          SHLIB_PATH (LD_LIBRARY_PATH on 64-bit HP9000)
+##       +b enables dynamic search in the specified directory(ies)
+##
+
+FLAGS = +Z +DAportable -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
+ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+  FLAGS += -Wl,+b/usr/lib -Wl,+s
+endif
+ifdef PEGASUS_DEBUG
+  FLAGS += -g
+endif
+
+SYS_LIBS = -lpthread -lrt
+
+CXX = aCC
+
+SH = sh
+
+YACC = bison
+
+COPY = cp
+
+MOVE = mv
+
+LIB_SUFFIX = .sl

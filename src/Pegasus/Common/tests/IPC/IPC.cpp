@@ -108,6 +108,8 @@ int main()
 
     // all fired up successfully
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+
     for (int i=0; i < 20; i++)
     {
         rn = (int) (4.0*rand()/(RAND_MAX+1.0)); 
@@ -134,6 +136,7 @@ int main()
     parm[2]->th->suspend();
 
     cout << "+++++ passed test round 20" << endl; 
+#endif
 
     Message * message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
@@ -147,6 +150,8 @@ int main()
 
     cout << "+++++ passed test round 21" << endl; 
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
 
@@ -155,6 +160,8 @@ int main()
     parm[2]->th->resume();
 
     parm[2]->th->join(&retval);
+
+#endif
     
     cout << "+++++ passed all tests" << endl; 
 

@@ -5,7 +5,7 @@ ifeq ($(PEGASUS_OS_TYPE),VMS)
 #
 
 PROGRAM = $(addprefix lib,$(LIBRARY))
-VMSSHARE =/share/symbol_table=$(OBJ_VMSDIR)]/sysexe
+VMSSHARE =/share/symbol_table=$(OBJ_VMSDIRA)]/sysexe
 SHARE_COPY = YES
 
 include $(ROOT)/mak/program.mak

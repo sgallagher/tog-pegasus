@@ -12,7 +12,7 @@ LIBRARIES = \
     pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-EXTRA_LIBRARIES += $(SOLARIS_COMPILER_PATH)/lib/libCstd.a
+EXTRA_LIBRARIES += -lCstd
 endif
 
 SOURCES = \

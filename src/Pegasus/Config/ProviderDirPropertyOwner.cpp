@@ -43,8 +43,6 @@
 #include "ProviderDirPropertyOwner.h"
 
 
-PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,7 +87,7 @@ Boolean isProviderDirValid(const String& dirName)
       Uint32 token=0;
 
       do {
-	if (( pos = temp.find(":")) == PEG_NOT_FOUND) {
+	if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
 		pos = temp.size();
 		token = 0;
 	}

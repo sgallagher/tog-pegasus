@@ -1,0 +1,7 @@
+[abstract]
+class Sample_ProviderClass
+{
+	[key,
+	read]
+	Uint8 Identifier;
+};

@@ -1,6 +1,9 @@
 [provider("SampleMethodProvider")]
 class Sample_MethodProviderClass
 {
-	[implemented]
-	static string SayHello();
+	[key,
+	read]
+	Uint8 Identifier;
+	
+	string SayHello();
 };

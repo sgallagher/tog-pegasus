@@ -286,9 +286,9 @@ Message* CIMExportClient::_doRequest(
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
 
     //
-    //  Set HTTP method in request to M-POST
+    //  Set HTTP method in request to POST
     //
-    request->setHttpMethod (HTTP_METHOD_M_POST);
+    request->setHttpMethod (HTTP_METHOD__POST);
 
     _requestEncoder->enqueue(request);
 

@@ -42,6 +42,7 @@
     {"enableAssociationTraversal", "true", 0, 0, 0, 1},
     {"enableIndicationService", "false", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1}
+    {"enableClientCertification", "false", 0, 0, 0, 1},
+    {"enableProviderProcesses", "false", 0, 0, 0, 1}
 
 #endif /* Pegasus_DefaultPropertyTableOS400_h */

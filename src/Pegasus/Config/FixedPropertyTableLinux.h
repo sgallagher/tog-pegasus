@@ -30,7 +30,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"logLevel",            "INFORMATION"},
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
     {"home",                ""},
@@ -39,21 +38,20 @@
     {"remove",              "false"},
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
-    {"enableAssociationTraversal", "true"},
-    {"enableIndicationService", "true"},
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
+    {"usePAMAuthentication", "true"},
 #endif
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},
     {"logdir",              "/var/log/pegasus"},
     {"tempLocalAuthDir",    "/var/cache/pegasus/localauth"},
     {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
-    {"sslCertificateFilePath", "/var/cache/pegasus/server.pem"},
-    {"sslKeyFilePath",      "/var/cache/pegasus/file.pem"},
-    {"sslTrustFilePath",      "/var/cache/pegasus/client.pem"},
-    {"repositoryDir",       "/var/cache/pegasus/repository"},
+    {"sslCertificateFilePath", "/etc/pegasus/server.pem"},
+    {"sslKeyFilePath",      "/etc/pegasus/file.pem"},
+    {"sslTrustFilePath",      "/etc/pegasus/client.pem"},
+    {"repositoryDir",       "/var/lib/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

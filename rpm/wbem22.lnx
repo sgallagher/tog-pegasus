@@ -54,7 +54,7 @@
 ### END INIT INFO
 
 isUnited=`grep "UnitedLinux" /etc/issue`
-isSUSE=`grep "SuSE" /etc/issue`
+isSUSE=`grep -i "SuSE" /etc/issue`
 
 if [ "$isUnited" ] || [ "$isSUSE" ]; then
 

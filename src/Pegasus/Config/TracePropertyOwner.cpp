@@ -62,8 +62,13 @@ static struct ConfigPropertyRow properties[] =
     {"traceLevel", "1", 1, 0, 0, 0},
     {"traceComponents", "", 1, 0, 0, 0},
 #else
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"traceLevel", "1", 1, 0, 0, 0},
+    {"traceComponents", "", 1, 0, 0, 0},
+#else
     {"traceLevel", "1", 1, 0, 0, 1},
     {"traceComponents", "", 1, 0, 0, 1},
+#endif
 #endif
     {"traceFilePath", "cimserver.trc", 1, 0, 0, 1},
 };

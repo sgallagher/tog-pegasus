@@ -62,7 +62,7 @@
 Summary: WBEM Services for Linux
 Name: pegasus-wbem
 Version: 2.3
-Release: 1
+Release: 2
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -95,7 +95,7 @@ static libraries (if any).
 # Copy the necessary include files
 
 # See Bug Report 929 (http://cvs.opengroup.org/bugzilla/show_bug.cgi?id=929)
-export PEGASUS_ENABLE_SLP=1
+#export PEGASUS_ENABLE_SLP=1
 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export LISTLOC=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
@@ -115,7 +115,7 @@ ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_
 
 
 %build
-export PEGASUS_ENABLE_SLP=1
+#export PEGASUS_ENABLE_SLP=1
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
 %ifarch ia64
@@ -129,6 +129,7 @@ export PEGASUS_HAS_SSL=yes
 
 # per bug #368
 export PEGASUS_USE_RELEASE_DIRS=true
+export PEGASUS_USE_RELEASE_CONFIG_OPTIONS=true
 export SYS_INCLUDES=-I/usr/kerberos/include
 make
 
@@ -141,6 +142,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/pegasus/providers
 mkdir -p $RPM_BUILD_ROOT/usr/share/man/{man1,man1m}
 mkdir -p $RPM_BUILD_ROOT/etc/pegasus/mof
 
+install -D -d -m 1555 $RPM_BUILD_ROOT/var/pegasus/socket
 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
@@ -195,6 +197,8 @@ install -D -m 0755  $PEGASUS_HOME/lib/libpegindicationservice.so.1    $RPM_BUILD
 install -D -m 0755  $PEGASUS_HOME/lib/libpeglistener.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpeglistener.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegprm.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprm.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegprovidermanager.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprovidermanager.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libDefaultProviderManager.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libDefaultProviderManager.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libCMPIProviderManager.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libCMPIProviderManager.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegprovider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegprovider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegrepository.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegrepository.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegserver.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libpegserver.so.1
@@ -213,9 +217,9 @@ install -D -m 0755  $PEGASUS_HOME/lib/libSampleInstanceProvider.so.1    $RPM_BUI
 install -D -m 0755  $PEGASUS_HOME/lib/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libsendmailIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libsendmailIndicationHandler.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libSimpleDisplayConsumer.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libSimpleDisplayConsumer.so.1
-%ifnarch ia64
-install -D -m 0755  $PEGASUS_HOME/lib/libslp.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libslp.so.1
-%endif
+#%ifnarch ia64
+#install -D -m 0755  $PEGASUS_HOME/lib/libslp.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libslp.so.1
+#%endif
 install -D -m 0755  $PEGASUS_HOME/lib/libsnmpIndicationHandler.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libsnmpIndicationHandler.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libUserAuthProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/libUserAuthProvider.so.1
 #
@@ -364,12 +368,12 @@ install -D -m 0644  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_Process
 #
 # SSL Files
 #
-install -D -m 0644  $PEGASUS_ROOT/src/Server/ssl.cnf                   $RPM_BUILD_ROOT/var/cache/pegasus/ssl.orig
+install -D -m 0644  $PEGASUS_ROOT/src/Server/ssl.cnf                   $RPM_BUILD_ROOT/var/pegasus/ssl.orig
 
 #
 # cimserver config files
 #
-install -D -m 0644  $PEGASUS_ROOT/src/Server/cimserver_current.conf $RPM_BUILD_ROOT/etc/pegasus/cimserver_current.conf
+
 install -D -m 0644  $PEGASUS_ROOT/rpm/cimserver_planned.conf $RPM_BUILD_ROOT/etc/pegasus/cimserver_planned.conf
 
 #
@@ -407,7 +411,7 @@ export INSTALL_LOG=/var/log/pegasus/install.log
 echo `date` >$INSTALL_LOG 2>&1
 
 isUnited=`grep "UnitedLinux" /etc/issue`
-isSUSE=`grep "SuSE" /etc/issue`
+isSUSE=`grep -i "SuSE" /etc/issue`
 
 if [ "$isUnited" ] || [ "$isSUSE" ]; then
 	chkconfig --add pegasus-wbem
@@ -444,6 +448,8 @@ ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleInstanceProvider.so.1    $RPM_BUI
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleMethodProvider.so
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleMethodProvider.so.1
 
+/bin/chmod +w /var/pegasus/socket/cimxml.socket
+
 # Create symbolic links for client libs
 #
 cd /usr/lib/pegasus
@@ -453,8 +459,8 @@ do
 done
 # link directories
 
-mkdir -p /var/cache/pegasus/repository
-ln -s /var/cache/pegasus/repository  /etc/pegasus/repository
+mkdir -p /var/pegasus/repository
+ln -s /var/pegasus/repository  /etc/pegasus/repository
 #
 #  Set up the openssl certificate
 #
@@ -462,45 +468,42 @@ ln -s /var/cache/pegasus/repository  /etc/pegasus/repository
 #  Create big random ssl.rnd file, then 
 #  Generate a self signed node certificate
 #
-echo " Generating SSL certificates... "
 CN="Common Name"
 EMAIL="test@email.address"
 HOSTNAME=`uname -n`
 sed -e "s/$CN/$HOSTNAME/"  \
-    -e "s/$EMAIL/root@$HOSTNAME/" /var/cache/pegasus/ssl.orig \
-    > /var/cache/pegasus/ssl.cnf
-chmod 644 /var/cache/pegasus/ssl.cnf
-chown bin /var/cache/pegasus/ssl.cnf
-chgrp bin /var/cache/pegasus/ssl.cnf
+    -e "s/$EMAIL/root@$HOSTNAME/" /var/pegasus/ssl.orig \
+    > /var/pegasus/ssl.cnf
+chmod 644 /var/pegasus/ssl.cnf
+chown bin /var/pegasus/ssl.cnf
+chgrp bin /var/pegasus/ssl.cnf
 
-# This random-enthropy-gathering is NOT random at all. Use the default one SSL has - (/dev/random).
-# /bin/rpm -qa >/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
-# /bin/netstat -a >>/var/cache/pegasus/ssl.rnd 2>>$INSTALL_LOG
-#   -rand /var/cache/pegasus/ssl.rnd 
 openssl req -x509 -days 365 -newkey rsa:2048 \
-   -nodes -config /var/cache/pegasus/ssl.cnf   \
-   -keyout /var/cache/pegasus/key.pem -out /var/cache/pegasus/cert.pem 2>>$INSTALL_LOG
+   -nodes -config /var/pegasus/ssl.cnf   \
+   -keyout /etc/pegasus/key.pem -out /etc/pegasus/cert.pem 2>>$INSTALL_LOG
 
-cat /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem > /var/cache/pegasus/server_2048.pem
-cat /var/cache/pegasus/cert.pem > /var/cache/pegasus/client_2048.pem
-chmod 700 /var/cache/pegasus/*.pem
+cat /etc/pegasus/key.pem > /etc/pegasus/file_2048.pem
+cat /etc/pegasus/cert.pem > /etc/pegasus/server_2048.pem
+cat /etc/pegasus/cert.pem > /etc/pegasus/client_2048.pem
+chmod 700 /etc/pegasus/*.pem
 
-rm -f /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem
+rm -f /etc/pegasus/key.pem /etc/pegasus/cert.pem
 
-if [ -f /var/cache/pegasus/server.pem ] 
+if [ -f /etc/pegasus/server.pem ] 
 then
-    echo "WARNING: /var/cache/pegasus/server.pem SSL Certificate file already exists."
+    echo "WARNING: /etc/pegasus/server.pem SSL Certificate file already exists."
 else
-    cp /var/cache/pegasus/server_2048.pem /var/cache/pegasus/server.pem
-    chmod 400 /var/cache/pegasus/server.pem
+    cp /etc/pegasus/server_2048.pem /etc/pegasus/server.pem
+    cp /etc/pegasus/file_2048.pem /etc/pegasus/file.pem
+    chmod 400 /etc/pegasus/server.pem /etc/pegasus/file.pem
 fi
 
-if [ -f /var/cache/pegasus/client.pem ]
+if [ -f /etc/pegasus/client.pem ]
 then
-    echo "WARNING: /var/cache/pegasus/client.pem SSL Certificate trust store already exists."
+    echo "WARNING: /etc/pegasus/client.pem SSL Certificate trust store already exists."
 else
-    cp /var/cache/pegasus/client_2048.pem /var/cache/pegasus/client.pem
-    chmod 400 /var/cache/pegasus/client.pem
+    cp /etc/pegasus/client_2048.pem /etc/pegasus/client.pem
+    chmod 400 /etc/pegasus/client.pem
 fi
 
 if [ -d "/var/cache/pegasus/repository/root#PG_Internal" ]
@@ -510,8 +513,8 @@ then
   # /var/cache/pegasus/prev_repository.
   #
 
-  REPOSITORY_LOC="/var/cache/pegasus/repository"
-  PREV_REPOSITORY_LOC="/var/cache/pegasus/prev_repository"
+  REPOSITORY_LOC="/var/pegasus/repository"
+  PREV_REPOSITORY_LOC="/var/pegasus/prev_repository"
 
   if [[ -d $REPOSITORY_LOC ]]
   then
@@ -568,8 +571,8 @@ if [ $1 = 0 ]; then
 	grep -v "/usr/lib/pegasus" /etc/ld.so.conf > /etc/ld.so.conf.new
 	mv -f /etc/ld.so.conf.new /etc/ld.so.conf
 	/sbin/ldconfig
-	rm -f /etc/pegasus/repository
-	rm -rf /var/cache/pegasus
+	rm -rf /etc/pegasus
+	rm -rf /var/pegasus
 	export LC_ALL=C
 	for file in `find /usr/lib/pegasus`;
 	do
@@ -579,12 +582,13 @@ if [ $1 = 0 ]; then
 			rm -f $file
 		fi
 	done
-	rm /usr/lib/pegasus/ssl.rnd
+#	rm /usr/lib/pegasus/ssl.rnd
 #        rm -f /etc/pam.d/wbem
 fi
 
 %files
 %dir %attr(-,root,root) /var/cache/pegasus/localauth
+ %dir %attr(-,root,root) /var/pegasus/socket
 %dir %attr(-,root,root) /var/log/pegasus
 %dir %attr(-,root,root) /usr/lib/pegasus/providers
 %attr(-,root,root) /usr/share/man/man1/cimmof.1.gz
@@ -723,11 +727,10 @@ fi
 %attr(-,root,root) /etc/pegasus/mof/PG_NTPService20R.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_Processor20.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_Processor20R.mof
-%config %attr(-,root,root) /etc/pegasus/cimserver_current.conf
 %config %attr(-,root,root) /etc/pegasus/cimserver_planned.conf
 %config %attr(-,root,root) /etc/init.d/pegasus-wbem
 %config %attr(-,root,root) /etc/pam.d/wbem
-%attr(-,root,root) /var/cache/pegasus/ssl.orig
+%attr(-,root,root) /var/pegasus/ssl.orig
 %attr(-,root,root) /usr/bin/cimmof
 %attr(-,root,root) /usr/bin/cimmofl
 %attr(-,root,root) /usr/bin/wbemexec
@@ -769,6 +772,8 @@ fi
 %attr(-,root,root) /usr/lib/pegasus/libpeglistener.so.1
 %attr(-,root,root) /usr/lib/pegasus/libpegprm.so.1
 %attr(-,root,root) /usr/lib/pegasus/libpegprovidermanager.so.1
+%attr(-,root,root) /usr/lib/pegasus/libDefaultProviderManager.so.1
+%attr(-,root,root) /usr/lib/pegasus/libCMPIProviderManager.so.1
 %attr(-,root,root) /usr/lib/pegasus/libpegprovider.so.1
 %attr(-,root,root) /usr/lib/pegasus/libpegrepository.so.1
 %attr(-,root,root) /usr/lib/pegasus/libpegserver.so.1
@@ -787,13 +792,13 @@ fi
 %attr(-,root,root) /usr/lib/pegasus/libSampleMethodProvider.so.1
 %attr(-,root,root) /usr/lib/pegasus/libsendmailIndicationHandler.so.1
 %attr(-,root,root) /usr/lib/pegasus/libSimpleDisplayConsumer.so.1
-%ifnarch ia64
-%attr(-,root,root) /usr/lib/pegasus/libslp.so.1
-%endif
+#%ifnarch ia64
+#%attr(-,root,root) /usr/lib/pegasus/libslp.so.1
+#%endif
 %attr(-,root,root) /usr/lib/pegasus/libsnmpIndicationHandler.so.1
 %attr(-,root,root) /usr/lib/pegasus/libUserAuthProvider.so.1
 
-%files devel -f rpm_pegasus_include_files
+#%files devel -f rpm_pegasus_include_files
 
 %defattr(-,root,root,0755)
 %doc doc/*.txt doc/DOCREMARKS doc/HISTORY doc/NOTES doc/*.html doc/*.pdf

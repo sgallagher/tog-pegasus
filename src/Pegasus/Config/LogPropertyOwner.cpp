@@ -52,8 +52,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"logdir", "./logs", 1, 0, 0, 0},
+    {"logLevel", "SEVERE", 1, 0, 0, 0}
+#else
     {"logdir", "./logs", 1, 0, 0, 1},
     {"logLevel", "INFORMATION", 1, 0, 0, 1}
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

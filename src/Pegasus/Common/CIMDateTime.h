@@ -70,9 +70,9 @@ PEGASUS_NAMESPACE_BEGIN
     Where
 
 	dddddddd = days
-	hh = hours
-	mm = minutes
-	ss = seconds
+	hh = hours (0-23)
+	mm = minutes (0-59)
+	ss = seconds (0-59)
 	mmmmmm = microseconds
     </PRE>
 

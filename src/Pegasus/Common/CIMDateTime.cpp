@@ -90,8 +90,6 @@ void CIMDateTime::clear()
 
 Boolean CIMDateTime::_set(const char* str)
 {
-    // ATTN-C: should the months and days be zero based?
-
     clear();
 
     // Be sure the incoming string is the proper length:

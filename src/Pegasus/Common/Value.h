@@ -23,22 +23,25 @@
 // Author:
 //
 // $Log: Value.h,v $
-// Revision 1.1  2001/01/14 19:53:21  mike
-// Initial revision
+// Revision 1.2  2001/01/29 08:03:12  karl
+// DOC++ Documentation
+//
+// Revision 1.1.1.1  2001/01/14 19:53:21  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Value.h
-//
-//	The Value class represents a value of any of the CIM data types
-//	(see Type.h for a list of valid CIM data types). This class
-//	encapsulates a union which holds the current value. The class also
-//	has a type field indicating the type of that value.
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+
+ Value.h
+
+The Value class represents a value of any of the CIM data types
+(see Type.h for a list of valid CIM data types). This class
+encapsulates a union which holds the current value. The class also
+has a type field indicating the type of that value.
+
+*/
 
 #ifndef Pegasus_Value_h
 #define Pegasus_Value_h
@@ -55,7 +58,12 @@ PEGASUS_NAMESPACE_BEGIN
 // ATTN: more MSVC 5.0 hacks.
 class Value;
 PEGASUS_COMMON_LINKAGE Boolean operator==(const Value& x, const Value& y);
-
+/**
+The Value class represents a value of any of the CIM data types
+(see Type.h for a list of valid CIM data types). This class
+encapsulates a union which holds the current value. The class also
+has a type field indicating the type of that value.
+*/
 class PEGASUS_COMMON_LINKAGE Value
 {
 public:
@@ -148,9 +156,9 @@ public:
     { 
 	return Type(_type); 
     }
-
+	/// method setNullvalue - ATTN:
     void setNullValue(Type type, Boolean isArray, Uint32 arraySize = 0);
-
+	/// method set - ATTN:
     void set(Boolean x);
 
     void set(Uint8 x);

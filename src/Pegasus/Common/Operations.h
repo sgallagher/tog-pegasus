@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.5  2001/01/29 08:03:12  karl
+// DOC++ Documentation
+//
 // Revision 1.4  2001/01/28 10:48:22  karl
 // Doc++ Documentation
 //
@@ -59,6 +62,10 @@ External Client API.
 PEGASUS_NAMESPACE_BEGIN
 /** @name The Operations Class
     This class defines the external client operations for the MSB
+    These operations are based on the WBEM operations defined in the
+    DMTF HTTP operations Specification.
+    They duplicate the names, functions, and parameters of those
+    Operations.
 */
 
 class PEGASUS_COMMON_LINKAGE Operations

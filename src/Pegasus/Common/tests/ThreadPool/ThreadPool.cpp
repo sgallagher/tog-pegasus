@@ -108,7 +108,7 @@ int main(int argc, char **argv)
       pegasus_sleep(1);
    }
    
-   return(1);
+   return(0);
    
 }
 

@@ -816,7 +816,7 @@ void SampleFamilyProvider::referenceNames(
 	CDEBUG("ReferenceNames Operation");
     
     // Get the namespace and host names to create the CIMObjectPath
-    String nameSpace = objectName.getNameSpace();
+    String nameSpace = objectName.getNameSpace().getString();
     String host = System::getHostName();
 
     CIMName myClass = objectName.getClassName();

@@ -817,7 +817,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
                     if (value.getType() == CIMTYPE_STRING)
                     {
                         value.get(namespaceComponent);
-                        String ns = namespaceNames[range];
+                        String ns = namespaceNames[range].getString();
                         ns.append("/");
                         ns.append(namespaceComponent);
                         namespaceNames.append(ns);

@@ -52,7 +52,6 @@ class Provider;
 
 class cimom_handle_op_semaphore;
 
-
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
 
@@ -213,12 +212,6 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 const Array<CIMParamValue>& inParameters,
 	 Array<CIMParamValue>& outParameters);
 
-
-
-//   force provider manager to keep in memory
-      virtual void protect(void);
-// allow provider manager to unload when idle 
-      virtual void unprotect(void);
    private:      
       class _cimom_handle_rep;
       _cimom_handle_rep *_rep;

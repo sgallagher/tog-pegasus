@@ -40,27 +40,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// temporary to make it easier to merge code, will change 
-// prior to declaring merge complete
-
-class ObjectBusyException : Exception
-{
-   public:
-      ObjectBusyException(void) 
-	:Exception()
-      {
-      }
-      ObjectBusyException(const char *msg)
-	:Exception(msg)
-      {
-      }
-      
-      ~ObjectBusyException(void)
-      {
-      }
-};
-
-
 // The Provider class represents the logical provider extracted from a
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
@@ -86,6 +65,8 @@ public:
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
+    virtual Boolean tryTerminate(void);
+    
     virtual void terminate(void);
 
     Status getStatus(void) const;
@@ -116,6 +97,8 @@ public:
       friend class ProviderManagerService;
       CIMOMHandle *_cimom_handle;
       String _name;
+      AtomicInt _no_unload;
+      Uint32 _quantum;
 };
 
 PEGASUS_NAMESPACE_END

@@ -57,9 +57,12 @@ ProviderManager::~ProviderManager(void)
 Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 {
 
+   static Uint32 quantum;
+   
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_provider_ctrl");
    auto_mutex monitor(&_mut);
-
+   quantum++;
+   
    Sint32 ccode = 0;
    CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
       
@@ -316,13 +319,6 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	       {
 		  provider->terminate();
 	       }
-	       catch(ObjectBusyException &)
-	       {
-		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-				   "Provider Busy, cannot terminate" + 
-				   provider->getName());
-		  continue;
-	       }
 	       catch(...)
 	       {
 		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -394,6 +390,12 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 		     i = myself->_providers.start();
 		     continue;
 		  }
+		  if(provider->_quantum == quantum)
+		  {
+		     continue;
+		  }
+		  
+		  provider->_quantum = quantum;
 		  
 		  if( provider->_current_operations.value() ) 
 		  {
@@ -408,8 +410,12 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 				   provider->getName());
 		  struct timeval timeout = {0,0};
 		  provider->get_idle_timer(&timeout);
-		  if(( now.tv_sec - timeout.tv_sec) > (Sint32)myself->_idle_timeout )
+		  if(provider->unload_ok() == true && 
+		     ( now.tv_sec - timeout.tv_sec) > ((Sint32)myself->_idle_timeout))
 		  {
+		     Boolean provider_removed = false;
+		     Boolean module_removed = false;
+		     
 
 		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				      "Removing Provider " + provider->getName());
@@ -419,6 +425,8 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	       		              provider->getName());
 
 		     myself->_providers.remove(provider->_name);
+		     provider_removed = true;
+		     
 		     i = myself->_providers.start();
 
 		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -434,9 +442,11 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 					    "Removing Module " + provider->_module->_fileName);
 
 			   _modules.remove(provider->_module->_fileName);
+			   module_removed = true;
+			   
 			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 					    "Destroying Module " + provider->_module->_fileName);
-			   delete provider->_module;
+			   
 			}
 		     }
 
@@ -445,7 +455,24 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 		     try
 		     {
 			// terminate eventually tries to unload the module 
-			provider->terminate();
+			if(false == provider->tryTerminate())
+			{
+			   if(true == module_removed)
+			   {
+			      _modules.insert(provider->_module->getFileName(), provider->_module);
+			   }
+			   
+			   if(true == provider_removed)
+			   {
+			      _providers.insert(provider->_name, provider);
+			   }
+			}
+			else
+			{
+			   if(true == module_removed)
+			      delete provider->_module;
+			}
+			
 		     }
 		     catch(...)
 		     {

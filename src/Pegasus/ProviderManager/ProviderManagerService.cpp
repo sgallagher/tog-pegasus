@@ -72,7 +72,6 @@ class pm_service_op_lock
       }
       
       Provider *_provider;
-      
 };
 
 
@@ -2437,7 +2436,7 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Calling provider.enableIndications: " + 
 			provider.getName());
-       provider._cimom_handle->protect();
+       provider.protect();
        provider.enableIndications(*handler);
 
 
@@ -2520,7 +2519,7 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 			 provider.getName());
 	
         provider.disableIndications();
-	provider._cimom_handle->unprotect();
+	provider.unprotect();
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Removing and Destroying indication handler for " + 
 			 provider.getName());

@@ -84,6 +84,12 @@ void ProviderFacade::initialize(CIMOMHandle & cimom)
     _provider->initialize(cimom);
 }
 
+Boolean ProviderFacade::tryTerminate(void)
+{
+   return _provider->tryTerminate();
+}
+
+
 void ProviderFacade::terminate(void)
 {
     _provider->terminate();

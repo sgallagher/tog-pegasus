@@ -73,7 +73,7 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
       Message *_request;
       AtomicInt _op_timeout;
       AtomicInt _pending_operation;
-      AtomicInt _no_unload;
+
       struct timeval _idle_timeout;
 
    public: 
@@ -96,9 +96,6 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
       void set_return_qid(Uint32);
       Uint32 get_qid(void);
 
-      void protect(void);
-      void unprotect(void);
-      
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue(void);
 
@@ -172,8 +169,7 @@ CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(void)
      _msg_avail(0),
      _response(true,0),
      _op_timeout(0),
-     _pending_operation(0),
-     _no_unload(0)
+     _pending_operation(0)
 {
    // initialize the qids
    // output queue defaults to CIMOPRequestDispatcher
@@ -197,8 +193,7 @@ CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(Uint32 out_qid, Uint32 ret_qid
      _msg_avail(0),
      _response(true,0),
      _op_timeout(0),
-     _pending_operation(0),
-     _no_unload(0)
+     _pending_operation(0)
 {
    if(0 == q_exists(_output_qid) )
       _output_qid = _queueId;
@@ -256,7 +251,7 @@ Boolean CIMOMHandle::_cimom_handle_rep::pending_operation(void)
 
 Boolean CIMOMHandle::_cimom_handle_rep::unload_ok(void)
 {
-   if( _no_unload.value() || _pending_operation.value() )
+   if( _pending_operation.value() )
       return false;
    return true;
 }
@@ -320,16 +315,6 @@ void CIMOMHandle::_cimom_handle_rep::set_return_qid(Uint32 qid)
 Uint32 CIMOMHandle::_cimom_handle_rep::get_qid(void)
 {
    return _queueId;
-}
-
-void CIMOMHandle::_cimom_handle_rep::protect(void)
-{
-   _no_unload++;
-}
-
-void CIMOMHandle::_cimom_handle_rep::unprotect(void)
-{
-   _no_unload--;
 }
 
 void CIMOMHandle::_cimom_handle_rep::handleEnqueue(void)
@@ -1604,16 +1589,5 @@ Boolean CIMOMHandle::unload_ok(void)
 {
    return _rep->unload_ok();
 }
-
-void CIMOMHandle::protect(void)
-{
-   _rep->protect();
-}
-
-void CIMOMHandle::unprotect(void)
-{
-   _rep->unprotect();
-}
-
 
 PEGASUS_NAMESPACE_END

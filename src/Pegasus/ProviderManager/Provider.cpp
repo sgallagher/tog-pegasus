@@ -40,7 +40,8 @@ PEGASUS_NAMESPACE_BEGIN
 Provider::Provider(const String & name,
 		   ProviderModule *module, 
 		   CIMProvider *pr)
-   : Base(pr), _module(module), _cimom_handle(0), _name(name)
+   : Base(pr), _module(module), _cimom_handle(0), _name(name),
+     _no_unload(0)
 {
    _current_operations = 1;
 }
@@ -90,21 +91,58 @@ void Provider::initialize(CIMOMHandle & cimom)
     _current_operations = 0;
 }
 
-void Provider::terminate(void)
+Boolean Provider::tryTerminate(void)
 {
-
+   
    if(false == unload_ok())
    {
-      throw ObjectBusyException("Provider cannot unload");
+      return false;
+   }
+
+   _status = TERMINATING;
+   Boolean terminated = false;
+   
+   try
+   {
+      // yield before a potentially lengthy operation.
+      pegasus_yield();
+      try 
+      {
+	terminated =  ProviderFacade::tryTerminate();
+      }
+      catch(...)
+      {
+	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			  "Exception caught in ProviderFacade::tryTerminate() for " + 
+			  _name);
+	 terminated = false;
+	 
+      }
+      // yield before a potentially lengthy operation.
+      pegasus_yield();
+      if(terminated = true)
+	 _module->unloadModule();
+   }
+   catch(...)
+   {
+      _status = UNKNOWN;
+      
    }
    
-    _status = TERMINATING;
+   _status = TERMINATED;
+   return terminated;
+}
+
+
+void Provider::terminate(void)
+{
+   _status = TERMINATING;
     
     try
     {
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
-       try 
+	try 
        {
 	ProviderFacade::terminate();
        }
@@ -166,6 +204,9 @@ Boolean Provider::pending_operation(void)
 
 Boolean Provider::unload_ok(void)
 {
+   if(_no_unload.value() )
+      return false;
+   
    if(_cimom_handle)
       return _cimom_handle->unload_ok();
    return true;
@@ -174,15 +215,13 @@ Boolean Provider::unload_ok(void)
 //   force provider manager to keep in memory
 void Provider::protect(void)
 {
-   if(_cimom_handle)
-      _cimom_handle->protect();
+   _no_unload++;
 }
 
 // allow provider manager to unload when idle 
 void Provider::unprotect(void)
 {
-   if(_cimom_handle)
-      _cimom_handle->unprotect();
+   _no_unload--;
 }
 
 PEGASUS_NAMESPACE_END

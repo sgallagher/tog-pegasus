@@ -68,6 +68,8 @@ public:
 
     // CIMProvider interface
     virtual void initialize(CIMOMHandle & cimom);
+    virtual Boolean tryTerminate(void);
+    
     virtual void terminate(void);
 
     // CIMInstanceProvider interface

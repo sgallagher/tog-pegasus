@@ -48,9 +48,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
-#define LIMIT_ENUM_TO_ONE_LEVEL
-
-//#define TESTNEWDISPATCHER
+//#define LIMIT_ENUM_TO_ONE_LEVEL
 
 namespace 
 {
@@ -428,145 +426,134 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
     return providerNames;
 }
 
-void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
-							      MessageQueue *q,
-							      void *parm)
+/*  Common Dispatcher callback for response aggregation.
+*/
+void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
+    AsyncOpNode *op,
+    MessageQueue *q,
+    void *parm)
 {
-    
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardToServiceCallBack");
+        "CIMOperationRequestDispatcher::_forwardForAggregationCallback");
 
-   CIMOperationRequestDispatcher *service =
-      static_cast<CIMOperationRequestDispatcher *>(q);
+    CIMOperationRequestDispatcher *service =
+        static_cast<CIMOperationRequestDispatcher *>(q);
 
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
 
-   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+    OperationAggregate* poA = reinterpret_cast<OperationAggregate*>(parm);
+    PEGASUS_ASSERT(poA != 0);
 
-   if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
-       asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 
-       asyncReply->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
-   {
-      
-      CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-	 ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-      PEGASUS_ASSERT(response != 0);
+    // Verify that the aggregator is valid.
+    PEGASUS_ASSERT(poA->valid());
 
-      // ensure that the destination queue is in response->dest
-#ifdef PEGASUS_ARCHITECTURE_IA64
-      response->dest = (Uint64)parm;
-#else
-      response->dest = (Uint32)parm;
-#endif
+    CIMResponseMessage *response;
 
-      PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-		       "Forwarding " + String(MessageTypeToString(response->getType())) + 
-		       " via Service Callback to " + 
-		     ((MessageQueue::lookup(response->dest)) ? 
-		      String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
-		      String("BAD queue name")));
+    Uint32 msgType = asyncReply->getType();
 
-      if(parm != 0 )
-          service->SendForget(response);
-      else 
-          delete response;
-   }
-   delete asyncRequest;
-   delete asyncReply;
-   op->release();
-   service->return_op(op);
+    if (msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMResponseMessage *>
+            ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    }
+    else if (msgType == async_messages::ASYNC_MODULE_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMResponseMessage *>
+            ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
+    }
+    else
+    {
+        // Error
+    }
 
-   PEG_METHOD_EXIT();
+    PEGASUS_ASSERT(response != 0);
+    PEGASUS_ASSERT(response->messageId == poA->_messageId);
+
+    poA->appendResponse(response);
+    /*cout << "KSTEST counts " 
+          << "total issued = " << poA->totalIssued()
+          << "number responses = " <<  poA->numberResponses()
+          << " Total Operations outstanding = " << size
+          << endl;*/
+
+    delete asyncRequest;
+    delete asyncReply;
+    op->release();
+    service->return_op(op);
+
+    // If all responses received, call the postProcessor
+    if (poA->totalIssued() == poA->numberResponses())
+    {
+        service->handleOperationResponseAggregation(poA);
+    }
+
+    PEG_METHOD_EXIT();
 }
 
-/*  Common Dispatcher callback. 
-    This code not used now because there is a problem that I could not find
-   in the get response.  See the define  TESTNEWDISPATCHER to switch to the
-   calls to this common dispatcher callback.
-   ATTN: KS 20 May 2002. In testing this failed regularly and so I kept original
-   two callbacks for the moment. However, since we have found other problems with
-   the request return so that this may work now.  
+
+/*  Common Dispatcher callback.
 */
-void CIMOperationRequestDispatcher::_forwardToDispatcherCallBack(AsyncOpNode *op,
-							      MessageQueue *q,
-							      void *parm)
+void CIMOperationRequestDispatcher::_forwardRequestCallback(
+    AsyncOpNode *op,
+    MessageQueue *q,
+    void *parm)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardToDispatcherCallBack");
+        "CIMOperationRequestDispatcher::_forwardRequestCallback");
 
-   CIMOperationRequestDispatcher *service =
-      static_cast<CIMOperationRequestDispatcher *>(q);
+    CIMOperationRequestDispatcher *service =
+        static_cast<CIMOperationRequestDispatcher *>(q);
 
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
 
-   //CIMRequestMessage *request;
-   CIMResponseMessage *response;
+    CIMResponseMessage *response;
 
-   Uint32 msgType =  asyncReply->getType();
+    Uint32 msgType =  asyncReply->getType();
 
-   if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
-   {
-      // request = reinterpret_cast<CIMRequestMessage *>
-      //     ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+    if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMResponseMessage *>
+            ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    }
+    else if(msgType == async_messages::ASYNC_MODULE_OP_RESULT)
+    {
+        response = reinterpret_cast<CIMResponseMessage *>
+            ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
+    }
+    else
+    {
+        // Error
+    }
 
-       response = reinterpret_cast<CIMResponseMessage *>
-         ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-   }
-   
-   else if(msgType == async_messages::ASYNC_MODULE_OP_RESULT)
-   {
-       //request = reinterpret_cast<CIMRequestMessage *>
-	   // ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
-
-       response = reinterpret_cast<CIMResponseMessage *>
-	 ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
-   }
-   else
-   {
-       // ATTN: Need to add error here
-       cout << "KSTEST Callback 8  Msg Type Error" << endl;
-   }
-
-   PEGASUS_ASSERT(response != 0);
+    PEGASUS_ASSERT(response != 0);
       
-   if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT ||
-      msgType == async_messages::ASYNC_MODULE_OP_RESULT)
-   {
-      // ensure that the destination queue is in response->dest
+    // ensure that the destination queue is in response->dest
 #ifdef PEGASUS_ARCHITECTURE_IA64
-      response->dest = (Uint64)parm;
+    response->dest = (Uint64)parm;
 #else
-      response->dest = (Uint32)parm;
+    response->dest = (Uint32)parm;
 #endif
 
-      PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-	   "Forwarding " + String(MessageTypeToString(response->getType())) + 
-	   " via Callback to " + 
-	 ((MessageQueue::lookup(response->dest)) ? 
-	  String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
-	  String("BAD queue name")));
+    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+        "Forwarding " + String(MessageTypeToString(response->getType())) + 
+        " via Callback to " + 
+        ((MessageQueue::lookup(response->dest)) ? 
+         String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+         String("BAD queue name")));
 
-      if(parm != 0 )
-          service->SendForget(response);
-      else 
-          delete response;
-   }
-   else{
-       cout << "KSTEST Else on type.  Type error" << endl;
+    if(parm != 0 )
+        service->SendForget(response);
+    else 
+        delete response;
 
-   }
+    delete asyncRequest;
+    delete asyncReply;
+    op->release();
+    service->return_op(op);
 
-   delete asyncRequest;
-   delete asyncReply;
-   op->release();
-   service->return_op(op);
-
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 
@@ -595,79 +582,24 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     asyncRequest->dest = serviceIds[0];
     
     PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
-		     "to " + serviceName + "response should go to queue " + 
-		     ((MessageQueue::lookup(request->queueIds.top())) ? 
-		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-		      String("BAD queue name")));
+        "Forwarding " + String(MessageTypeToString(request->getType())) + 
+        " to service " + serviceName + ". Response should go to queue " + 
+        ((MessageQueue::lookup(request->queueIds.top())) ? 
+         String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+         String("BAD queue name")));
+
     SendAsync(op, 
 	      serviceIds[0],
-#ifdef TESTNEWDISPATCHER
-	      CIMOperationRequestDispatcher::_forwardToDispatcherCallBack,
-#else
-	      CIMOperationRequestDispatcher::_forwardToServiceCallBack,
-#endif
+	      CIMOperationRequestDispatcher::_forwardRequestCallback,
 	      this,
 	      (void *)request->queueIds.top());
 
-      PEG_METHOD_EXIT();
-}
-/* Return from Control Provider - Provides the return from Control providers
-    (See _forwardRequestToControlProvider) and forwards the response.
-*/
-void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
-							     MessageQueue *q,
-							     void *parm)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardToModuleCallBack");
-   
-   CIMOperationRequestDispatcher *service =
-      static_cast<CIMOperationRequestDispatcher *>(q);
-//   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-// ATTN-RK-P2-20020517: This writes to memory freed by ProviderMessageFacade
-//    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-//       ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
-
-   if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
-       asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 
-       asyncReply->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
-   {
-      CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-	 ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
-      PEGASUS_ASSERT(response != 0);
-
-#ifdef PEGASUS_ARCHITECTURE_IA64
-      response->dest = (Uint64)parm;
-#else
-      response->dest = (Uint32)parm;
-#endif
-      PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-		       "Forwarding " + String(MessageTypeToString(response->getType())) + 
-		       " via ModuleController Callback to " + 
-		       ((MessageQueue::lookup(response->dest)) ? 
-			String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
-			String("BAD queue name")));
-      
-      if(parm != 0 )
-	 service->SendForget(response);
-      else
-	 delete response;
-   }
-   
-//   delete asyncRequest;
-   delete asyncReply ;
-   op->release();
-//   service->return_op(op);
-
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 /* Send a OperationsRequest message to a Control provider - Forwards the message
    defined in request to the Control Provider defined in controlProviderName.
    This is an internal function.
-   Sets the callback to _forwardToModuleCallBack
 */
 void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
     const String& serviceName,
@@ -675,7 +607,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
     CIMRequestMessage* request,
     CIMResponseMessage*& response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToControlProvider");
 
     Array<Uint32> serviceIds;
@@ -694,27 +626,100 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 	    controlProviderName,
 	    request);
     
-    // Send to the Control provider with _forwardToModuleCallBack as return
     PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
-		     "to " + serviceName + "::" + controlProviderName + " response should go to queue " + 
-		     ((MessageQueue::lookup(request->queueIds.top())) ? 
-		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-		      String("BAD queue name")));
+        "Forwarding " + String(MessageTypeToString(request->getType())) + 
+        " to service " + serviceName +
+        ", control provider " + controlProviderName +
+        ". Response should go to queue " + 
+        ((MessageQueue::lookup(request->queueIds.top())) ? 
+         String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+         String("BAD queue name")));
+
+    // Send to the Control provider
     SendAsync(op, 
  	      serviceIds[0],
-
-#ifdef TESTNEWDISPATCHER 
- 	      CIMOperationRequestDispatcher::_forwardToDispatcherCallBack,
-#else
- 	      CIMOperationRequestDispatcher::_forwardToModuleCallBack,
-#endif
+ 	      CIMOperationRequestDispatcher::_forwardRequestCallback,
  	      this,
  	      (void *)request->queueIds.top());
 
     PEG_METHOD_EXIT();
 }
 
+
+/* This function simply decides based on the controlProviderNameField
+    whether to forward to Service or ControlProvider.
+    If controlProviderName String empty, ToService, else toControlProvider.
+    This function specifically forwards requests for response aggregation.
+*/
+void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
+    const String& serviceName,
+    const String& controlProviderName,
+    CIMRequestMessage* request,
+    OperationAggregate* poA)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
+
+    Array<Uint32> serviceIds;
+    find_services(serviceName, 0, 0, &serviceIds);
+    PEGASUS_ASSERT(serviceIds.size() != 0);
+
+    AsyncOpNode * op = this->get_op();
+
+    // If ControlProviderName empty, forward to service.
+    if (controlProviderName == String::EMPTY)
+    {
+	AsyncLegacyOperationStart * asyncRequest =
+	    new AsyncLegacyOperationStart(
+		get_next_xid(),
+		op,
+		serviceIds[0],
+		request,
+		this->getQueueId());
+
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+            "Forwarding " + String(MessageTypeToString(request->getType())) + 
+            " to service " + serviceName + ". Response should go to queue " + 
+            ((MessageQueue::lookup(request->queueIds.top())) ? 
+             String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+             String("BAD queue name")));
+
+	SendAsync(op, 
+		  serviceIds[0],
+		  CIMOperationRequestDispatcher::_forwardForAggregationCallback,
+		  this,
+		  poA);
+    }
+    else
+    {
+       AsyncModuleOperationStart * moduleControllerRequest =
+	   new AsyncModuleOperationStart(
+	       get_next_xid(),
+	       op,
+	       serviceIds[0],
+	       this->getQueueId(),
+	       true,
+	       controlProviderName,
+	       request);
+
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+            "Forwarding " + String(MessageTypeToString(request->getType())) + 
+            " to service " + serviceName +
+            ", control provider " + controlProviderName +
+            ". Response should go to queue " + 
+            ((MessageQueue::lookup(request->queueIds.top())) ? 
+             String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+             String("BAD queue name")));
+
+       SendAsync(op, 
+		 serviceIds[0],
+		 CIMOperationRequestDispatcher::_forwardForAggregationCallback,
+		 this,
+		 poA);
+    }
+
+    PEG_METHOD_EXIT();
+}
 
 /* This function simply decides based on the controlProviderNameField
     whether to forward to Service or ControlProvider.
@@ -741,10 +746,6 @@ void CIMOperationRequestDispatcher::_forwardRequest(
     // If ControlProviderName empty, forward to service.
     if (controlProviderName == String::EMPTY)
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-                         "Forwarding Delete Instance  Operation (" + className + 
-                         ") to Service " + serviceName );
-       
 	AsyncLegacyOperationStart * asyncRequest =
 	    new AsyncLegacyOperationStart(
 		get_next_xid(),
@@ -755,33 +756,22 @@ void CIMOperationRequestDispatcher::_forwardRequest(
 
 	asyncRequest->dest = serviceIds[0];
 
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			 "Forwarding " + String(MessageTypeToString(request->getType())) + 
-			 "to " + serviceName + "response should go to queue " + 
-			 ((MessageQueue::lookup(request->queueIds.top())) ? 
-			  String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-			  String("BAD queue name")));
-    #ifdef TESTNEWDISPATCHER
-	SendAsync(op, 
-		  serviceIds[0],
-		  CIMOperationRequestDispatcher::_forwardToDispatcherCallBack,
-		  this,
-		  (void *)request->queueIds.top());
-    #else
-	SendAsync(op, 
-		  serviceIds[0],
-		  CIMOperationRequestDispatcher::_forwardToServiceCallBack,
-		  this,
-		  (void *)request->queueIds.top());
-    #endif
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+            "Forwarding " + String(MessageTypeToString(request->getType())) + 
+            " on class " + className + " to service " + serviceName +
+            ". Response should go to queue " + 
+            ((MessageQueue::lookup(request->queueIds.top())) ? 
+             String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+             String("BAD queue name")));
 
+	SendAsync(op, 
+		  serviceIds[0],
+		  CIMOperationRequestDispatcher::_forwardRequestCallback,
+		  this,
+		  (void *)request->queueIds.top());
     }
     else
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-                         "Forwarding Delete Instance Operation (" + className + 
-                         ") to Module " + serviceName + "::" + controlProviderName );
-
        AsyncModuleOperationStart * moduleControllerRequest =
 	   new AsyncModuleOperationStart(
 	       get_next_xid(),
@@ -792,28 +782,21 @@ void CIMOperationRequestDispatcher::_forwardRequest(
 	       controlProviderName,
 	       request);
 
-       // Send to the Control provider with _forwardToModuleCallBack as return
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			"Forwarding " + String(MessageTypeToString(request->getType())) + 
-			"to " + serviceName + "::" + controlProviderName + " response should go to queue " + 
-			((MessageQueue::lookup(request->queueIds.top())) ? 
-			 String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-			 String("BAD queue name")));
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+            "Forwarding " + String(MessageTypeToString(request->getType())) + 
+            " on class " + className + " to service " + serviceName +
+            ", control provider " + controlProviderName +
+            ". Response should go to queue " + 
+            ((MessageQueue::lookup(request->queueIds.top())) ? 
+             String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+             String("BAD queue name")));
 
-   #ifdef TESTNEWDISPATCHER 
+       // Send to the Control provider
        SendAsync(op, 
 		 serviceIds[0],
-		 CIMOperationRequestDispatcher::_forwardToDispatcherCallBack,
+		 CIMOperationRequestDispatcher::_forwardRequestCallback,
 		 this,
 		 (void *)request->queueIds.top());
-   #else
-       SendAsync(op, 
-		 serviceIds[0],
-		 CIMOperationRequestDispatcher::_forwardToModuleCallBack,
-		 this,
-		 (void *)request->queueIds.top());
-   #endif
-
     }
 
     PEG_METHOD_EXIT();
@@ -837,30 +820,22 @@ void CIMOperationRequestDispatcher::_forwardRequest(
 
 /* aggregate the responses for enumerateinstancenames into a single response
 */
-void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse(operationAggregate* poA)
+void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse(OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse");
-    
-    CIMResponseMessage *goodResponse = poA->getResponse(0);
     CIMEnumerateInstanceNamesResponseMessage * toResponse = 
-	(CIMEnumerateInstanceNamesResponseMessage *)goodResponse;
-    
-    // for all of the responses in the aggregation except the first
-    // Note that this removes them from the end.
-    for(Uint32 i = (poA->numberResponses() - 1); i > 0; i--)
+	(CIMEnumerateInstanceNamesResponseMessage *) poA->getResponse(0);
+
+    // Work backward and delete each response off the end of the array
+    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMEnumerateInstanceNamesResponseMessage *fromResponse = 
     	    (CIMEnumerateInstanceNamesResponseMessage *)poA->getResponse(i);
-        
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-            Formatter::format(
-            "Enumerate instance names Response Merge $1 names for response $2",
-            fromResponse->instanceNames.size(), i));
-        
-        // for each instance name in each response
+    
     	for (Uint32 j = 0; j < fromResponse->instanceNames.size(); j++)
     	{
+    	    // Duplicate test goes here. 
             // If the from response already contains the name, do not put it.
             /* ATTN: KS 28 May 2002 - Temporarily disable the duplicate delete code.
             if (!Contains( toResponse->instanceNames, fromResponse->instanceNames[j]))
@@ -870,10 +845,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse(operati
             */
             toResponse->instanceNames.append(fromResponse->instanceNames[j]);
     	}
+    	poA->deleteResponse(i);
     }
-     
+
+    toResponse->dest = poA->dest;
     PEG_METHOD_EXIT();
 }
+
 /* The function aggregates individual EnumerateInstance Responses into a single response
    for return to the client. It simply aggregates the responses into the
    first response (0).  
@@ -883,28 +861,20 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponse(operati
    3. prune the properties if localOnly or deepInheritance are set.
    This function does not send any responses. 
 */
-void CIMOperationRequestDispatcher::handleEnumerateInstancesResponse(operationAggregate* poA)
+void CIMOperationRequestDispatcher::handleEnumerateInstancesResponse(OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
     
-    CIMResponseMessage *goodResponse = poA->getResponse(0);
     CIMEnumerateInstancesResponseMessage * toResponse = 
-	(CIMEnumerateInstancesResponseMessage *)goodResponse;
-        
-    // for all of the responses in the aggregation except the first
-    // Note that this removes them from the end.
-    for(Uint32 i = (poA->numberResponses() - 1); i > 0; i--)
+	(CIMEnumerateInstancesResponseMessage *) poA->getResponse(0);
+
+    // Work backward and delete each response off the end of the array
+    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMEnumerateInstancesResponseMessage *fromResponse = 
     	    (CIMEnumerateInstancesResponseMessage *)poA->getResponse(i);
-        
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-            Formatter::format(
-            "Enumerate instance Response Merge $1 instances for response $2",
-            fromResponse->cimNamedInstances.size(), i));
     
-        // for each instance name in each response
     	for (Uint32 j = 0; j < fromResponse->cimNamedInstances.size(); j++)
     	{
     	    toResponse->cimNamedInstances.append(fromResponse->cimNamedInstances[j]);
@@ -915,15 +885,14 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponse(operationAg
 }
 
 /* handleOperationResponseAggregation - handles all of the general functions of
-   aggregation processing including:
+   aggregation including:
    1. checking for good responses and eliminating any error responses
    2. issuing an error if all responses are bad.
    3. calling the proper function for merging
    4. Issuing the single merged response.
-   This function gets control once all the responses have been returned.
 */
 void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
-   operationAggregate* poA)
+   OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleOperationResponseAggregation");
@@ -931,7 +900,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    Uint32 totalResponses = poA->numberResponses();
 
    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-            Formatter::format(" Response Aggregation  type $1 responses $2",
+            Formatter::format(" Response Aggregation  type $1 responses $0",
                totalResponses,
                String(MessageTypeToString(poA->getRequestType()))));
     
@@ -941,11 +910,8 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 
    CIMResponseMessage* response = poA->getResponse(0);
 
-#ifdef PEGASUS_ARCHITECTURE_IA64
-      response->dest = (Uint64)poA->dest;
-#else
-      response->dest = (Uint32)poA->dest;
-#endif
+   response->dest = poA->dest;
+
    if(totalResponses == 1)
    {
        SendForget(poA->getResponse(0));
@@ -968,7 +934,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    }
 
    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            Formatter::format("Post Processor $1 total responses $2 errors"
+            Formatter::format("Post Processor $0 total responses $1 errors"
                               , totalResponses, errorCount));
 
    //cout << "KSTEST error count = " << errorCount 
@@ -980,15 +946,15 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 	// Here we need to send some other response error message because
 	// which one we pick is a crapshoot.  They could all be different
 	// ATTN: For the moment, simply send the first and delete all others.
-	    SendForget(poA->getResponse(0));
-	    for(Uint32 j = 1; j < totalResponses; j++)
-	    {
-            delete  poA->getResponse(j);   
-	    }
-	    delete poA;
+        SendForget(poA->getResponse(0));
+        for(Uint32 j = totalResponses - 1; j > 0; j--)
+        {
+            poA->deleteResponse(j);
+        }
+        delete poA;
 
-	    PEG_METHOD_EXIT();
-	    return;
+        PEG_METHOD_EXIT();
+        return;
    }
 
     /* We have at least one good response.  Now delete the error responses.  We will
@@ -1004,18 +970,14 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     	   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     	   {
     	       poA->deleteResponse(j);
+               j--;
            }
        }
    }
    /* Merge the responses into a single CIMEnumerateInstanceNamesResponse
    */
     //cout << "KSTEST total Responses " << totalResponses 
-    //   << " total Good Responses " << poA->numberResponses()<< endl;
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-        Formatter::format(
-        "Total Responses = $1, Total Good = $2",
-        totalResponses, poA->numberResponses()));
-    
+    //    << " total Good Responses " << poA->numberResponses()<< endl;
 
     // If more than one response, go to proper aggregation function
     if(poA->numberResponses() > 1)
@@ -1038,246 +1000,6 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     SendForget(poA->getResponse(0));
     delete poA;
  
-    PEG_METHOD_EXIT();
-}
-/* this is a duplicate of _forwardToServiceCallBack that handles the aggregation
-    operations.  Note that this should be merged with the other one.
-*/
-void CIMOperationRequestDispatcher::_forwardToServiceCallBackEnum(AsyncOpNode *op,
-							      MessageQueue *q,
-							      void *parm)
-{
-    
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardToServiceCallBackEnum");
-   CIMOperationRequestDispatcher *service =
-      static_cast<CIMOperationRequestDispatcher *>(q);
-
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-
-   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
-
-   if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
-       asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 
-       asyncReply->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
-   {
-      
-      CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-	 ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-      PEGASUS_ASSERT(response != 0);
-
-      // ATTN: KS 25 May - This is a hole since the lack of parm should probably
-      // be an major error, covered by an assertion, not just a delete.
-      if(parm != 0 )
-      {
-          _handleResponse(service, response, parm);
-      }
-      else 
-          delete response;
-   }
-   delete asyncRequest;
-   delete asyncReply;
-   op->release();
-   service->return_op(op);
-
-   PEG_METHOD_EXIT();
-}
-
-/* Return from Control Provider - Provides the return from Control providers
-    (See _forwardRequestToControlProvider) and forwards the response.
-*/
-void CIMOperationRequestDispatcher::_forwardToModuleCallBackEnum(AsyncOpNode *op,
-							     MessageQueue *q,
-							     void *parm)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardToModuleCallBackEnum");
-   
-    CIMOperationRequestDispatcher *service =
-      static_cast<CIMOperationRequestDispatcher *>(q);
-
-   //AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-
-   //CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-   //    ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
-
-   if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
-       asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 
-       asyncReply->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
-   {
-      CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-	 ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
-      PEGASUS_ASSERT(response != 0);
-
-      PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-		       "Forwarding " + String(MessageTypeToString(response->getType())) + 
-		       " via ModuleController Callback to " + 
-		       ((MessageQueue::lookup(response->dest)) ? 
-			String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
-			String("BAD queue name")));
-      
-      if(parm != 0 )
-      {
-         _handleResponse(service, response, parm);
-      }
-      else
-          delete response;
-   }
-	 
-   //delete asyncRequest;
-   delete asyncReply ;
-   op->release();
-   //service->return_op(op);
-
-   PEG_METHOD_EXIT();
-}
-/* _handleOperationResponse - Initial processing of
-    all Operation Responses. Provides routing where
-    today the routing is either directly  to send it on
-    or for certain message types, to route aggregate
-    and when all responses returne, to route to an aggregator
-*/
-void CIMOperationRequestDispatcher::_handleResponse(CIMOperationRequestDispatcher * service,
-                                                    CIMResponseMessage * response,
-                                                    void * parm)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "CIMOperationRequestDispatcher::_handleResponse");
-
-    // parm should be the appropriate aggregate.
-    // Determine if the is aggregation response based on
-    // response type
-
-    operationAggregate*poA = (operationAggregate *) parm;
-
-    // Temp test to verify that the aggregator is valid.
-    if (!poA->valid())
-    {
-        cout << "KSTEST poA error 1" << endl;;
-        assert (false);
-    }
-
-    // Increment the response counter and save the response.
-    // THis must be locked because the thread is not guaranteed.
-    // Note that the == test is simply a confirmation.
-    // If it happens, this is an internal error.
-    if (response->messageId == poA->_messageId)
-    {
-        poA->mutex.lock(pegasus_thread_self());
-        poA->appendResponse(response);
-        poA->incrementReturned();
-        poA->mutex.unlock();
-        // If all responses received, call the postProcessor
-        
-        /*cout << "KSTEST counts " 
-             << "total = " << poA->total()
-             << "returned  = " <<  poA->returned()
-             << endl;*/
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-            Formatter::format(
-            "Total Responses issued = $1, Total returned = $2",
-            poA->total(), poA->returned()));
-        
-
-        if (poA->total() == poA->returned())
-        {
-            service->handleOperationResponseAggregation(poA);
-        }
-    }
-    else
-        cout << "KSTEST ERROR, Response not valid" << endl;
-
-    PEG_METHOD_EXIT();
-}
-
-/* This function simply decides based on the controlProviderNameField
-    whether to forward to Service or ControlProvider.
-    If controlProviderName String empty, ToService, else toControlProvider
-    Convience coding to simply other functions
-*/
-void CIMOperationRequestDispatcher::_forwardRequestEnum(
-    const String& className,        // only for diagnostic
-    const String& serviceName,
-    const String& controlProviderName,
-    CIMRequestMessage* request,
-    operationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CIMOperationRequestDispatcher::_forwardRequestEnum");
-    Array<Uint32> serviceIds;
-    find_services(serviceName, 0, 0, &serviceIds);
-    PEGASUS_ASSERT(serviceIds.size() != 0);
-
-    AsyncOpNode * op = this->get_op();
-    poA->dest = (void *)request->queueIds.top();
-
-    // If ControlProviderName empty, forward to service.
-    if (controlProviderName == String::EMPTY)
-    {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-                         "Forwarding Enum Instance  Operation (" + className + 
-                         ") to Service " + serviceName );
-       
-	AsyncLegacyOperationStart * asyncRequest =
-	    new AsyncLegacyOperationStart(
-		get_next_xid(),
-		op,
-		serviceIds[0],
-		request,
-		this->getQueueId());
-
-	asyncRequest->dest = serviceIds[0];
-    
-
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			 "Forwarding " + String(MessageTypeToString(request->getType())) + 
-			 "to " + serviceName + "response should go to queue " + 
-			 ((MessageQueue::lookup(request->queueIds.top())) ? 
-			  String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-			  String("BAD queue name")));
-	SendAsync(op, 
-		  serviceIds[0],
-		  CIMOperationRequestDispatcher::_forwardToServiceCallBackEnum,
-		  this,
-          (void *) poA);
-		  //(void *)request->queueIds.top());
-
-    }
-    else
-    {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-                         "Forwarding Enumerate Instance Operation (" + className + 
-                         ") to Module " + serviceName + "::" + controlProviderName );
-
-        AsyncModuleOperationStart * moduleControllerRequest =
-	   new AsyncModuleOperationStart(
-	       get_next_xid(),
-	       op,
-	       serviceIds[0],
-	       this->getQueueId(),
-	       true,
-	       controlProviderName,
-	       request);
-
-       // Send to the Control provider with _forwardToModuleCallBack as return
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			"Forwarding " + String(MessageTypeToString(request->getType())) + 
-			"to " + serviceName + "::" + controlProviderName + " response should go to queue " + 
-			((MessageQueue::lookup(request->queueIds.top())) ? 
-			 String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-			 String("BAD queue name")));
-       SendAsync(op, 
-		 serviceIds[0],
-
-		 CIMOperationRequestDispatcher::_forwardToModuleCallBackEnum,
-		 this,
-         (void *) poA);
-
-    }
-
     PEG_METHOD_EXIT();
 }
 /*******End of the functions hacked for aggregation***************************/
@@ -1568,7 +1290,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-#endif /*NEWTEST*/
+#endif
 
    // not internal or found provider, go to default
    if (_repository->isDefaultInstanceProvider())
@@ -1583,12 +1305,12 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       try
       {
          cimInstance = _repository->getInstance(
-    	    request->nameSpace,
-    	    request->instanceName,
-    	    request->localOnly,
-    	    request->includeQualifiers,
-    	    request->includeClassOrigin,
-    	    request->propertyList.getPropertyNameArray());
+	    request->nameSpace,
+	    request->instanceName,
+	    request->localOnly,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    request->propertyList.getPropertyNameArray());
       }
       catch(CIMException& exception)
       {
@@ -1697,22 +1419,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
-   String providerName = String::EMPTY;
-// Temp to save old code until we confirm everything runs 7 May ks ATTN P0
-#define NEWTEST
-#ifdef NEWTEST
-   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
-	    controlProviderName))
-    {
-	CIMDeleteInstanceRequestMessage* requestCopy =
-	    new CIMDeleteInstanceRequestMessage(*request);
-
-	_forwardRequest(className, serviceName, controlProviderName,
-	    requestCopy);
-	PEG_METHOD_EXIT();
-	return;
-    }
-#else
 
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
@@ -1742,8 +1448,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-#endif /*NEWTEST*/
-   
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -1864,23 +1568,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
-   String providerName = String::EMPTY;
-   
-// Temp to save old code until we confirm everything runs 30 May ks ATTN P0
-#define NEWTEST
-#ifdef NEWTEST
-   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
-	    controlProviderName))
-    {
-	CIMCreateInstanceRequestMessage* requestCopy =
-	    new CIMCreateInstanceRequestMessage(*request);
-
-	_forwardRequest(className, serviceName, controlProviderName,
-	    requestCopy);
-	PEG_METHOD_EXIT();
-	return;
-    }
-#else
 
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
@@ -1909,8 +1596,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-#endif /*NEWTEST*/
-
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -2036,23 +1721,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
-   String providerName = String::EMPTY;
-   
-#define NEWTEST
-#ifdef NEWTEST
-   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
-	    controlProviderName))
-    {
-	CIMModifyInstanceRequestMessage* requestCopy =
-	    new CIMModifyInstanceRequestMessage(*request);
-
-	_forwardRequest(className, serviceName, controlProviderName,
-	    requestCopy);
-	PEG_METHOD_EXIT();
-	return;
-    }
-#else
-   
 
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
@@ -2082,8 +1750,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-#endif /*NEWTEST*/
-
    else if (_repository->isDefaultInstanceProvider())
    {
       // translate and forward request to repository
@@ -2339,24 +2005,24 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        // Lookup any instance providers and add to send list
        if(_lookupNewInstanceProvider(request->nameSpace, subClassNames[i],
            serviceName, controlProviderName))
-		{
-		   // Append the returned values to the list to send.
-		   subClassNameList.append(subClassNames[i]); 
-		   serviceNames.append(serviceName);
-		   controlProviderNames.append(controlProviderName);
-	
-		   /*cout << "KSTEST class list Output. Class = " << subClassNames[i] 
+       {
+           // Append the returned values to the list to send.
+           subClassNameList.append(subClassNames[i]); 
+           serviceNames.append(serviceName);
+           controlProviderNames.append(controlProviderName);
+
+           /*cout << "KSTEST class list Output. Class = " << subClassNames[i] 
            << " servicename = " << serviceName
            << " controlProviderName = " 
            << ((controlProviderName != String::EMPTY)  ? controlProviderName : "None") 
            << " i = " << i << endl;*/
 
            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           "Provider found for Class = " + subClassNames[i] 
-           + " servicename = " + serviceName
-           + " controlProviderName = " 
-           + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
-		}
+               "Provider found for Class = " + subClassNames[i] 
+               + " servicename = " + serviceName
+               + " controlProviderName = " 
+               + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
+       }
    }
 
    Uint32 ps = serviceNames.size();
@@ -2370,7 +2036,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        CIMEnumerateInstancesResponseMessage* response =
          new CIMEnumerateInstancesResponseMessage(
             request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate to Broad"),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too broad"),
             request->queueIds.copyAndPop(),
             Array<CIMInstance>());
 
@@ -2382,9 +2048,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    }
    // Set up an aggregate object for the information and save request in it.
    // With the original request message.
-   operationAggregate *poA= new operationAggregate((CIMRequestMessage *)request,
-                                                   request->getType(),
-                                                   request->messageId);
+   OperationAggregate *poA= new OperationAggregate(
+       new CIMEnumerateInstancesRequestMessage(*request),
+       request->getType(),
+       request->messageId);
+   poA->dest = request->queueIds.top();
 
    Boolean staticInstancesExist = false;
    // ATTN: KS 28 May 2002 P3 - This code to process property lists and
@@ -2446,22 +2114,27 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       STAT_COPYDISPATCHER_REP
 
-          // if there will be other responses, put this on the response list.
-          // else, simply issue it.
-          if (ps > 0)
-          {
-              poA->appendResponse(response);
-              staticInstancesExist = true;
-          }
-          else
-          {
-              _enqueueResponse(request, response);
-              PEG_METHOD_EXIT();
-              return;
-          }
+#if 0
+      // if there will be other responses, put this on the response list.
+      // else, simply issue it.
+      if (ps > 0)
+      {
+          poA->appendResponse(response);
+          staticInstancesExist = true;
+      }
+      else
+      {
+          delete poA;
           _enqueueResponse(request, response);
           PEG_METHOD_EXIT();
           return;
+      }
+#else
+      delete poA;
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+#endif
    }
 
    if(ps > 0)
@@ -2469,7 +2142,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        //************* Limit to one response if we have problems with more.
 #ifdef LIMIT_ENUM_TO_ONE_LEVEL
        ps = 1;
-#endif  /*LIMIT_ENUM_TO_ONE_LEVEL */
+#endif
        // Simply takes the top level request and ignores the others.
        // decomment the ps = 1 to generate only one request.
        //*******************/
@@ -2497,7 +2170,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     poA->controlProviderNames[current] : "None"),
                i, ps));
 
-           _forwardRequestEnum(poA->classes[current], poA->serviceNames[current],
+           _forwardRequestForAggregation(poA->serviceNames[current],
                 poA->controlProviderNames[current], requestCopy, poA);
        }
        PEG_METHOD_EXIT();
@@ -2521,6 +2194,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       STAT_COPYDISPATCHER
 
+      delete poA;
       _enqueueResponse(request, response);
    }
 
@@ -2572,7 +2246,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    Array<String> subClassNameList;
    Array<String> serviceNames;
    Array<String> controlProviderNames;
-   Array<String> repositoryClassList;
 
    for(Uint32 i = 0; i < subClassNames.size(); i++)
    {
@@ -2594,9 +2267,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 			   + " controlProviderName = " 
                + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
 		}
-       // Put into list to look into repository
-       else
-           repositoryClassList.append(subClassNames[i]);
    }
 
    Uint32 ps = serviceNames.size();
@@ -2610,7 +2280,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
             request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate to Broad"),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
             request->queueIds.copyAndPop(),
             Array<CIMObjectPath>());
 
@@ -2624,9 +2294,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    // Set up an aggregate object for the information and save request in it.
    // With the original request message.
 
-   operationAggregate *poA= new operationAggregate((CIMRequestMessage *)request,
-                                                   request->getType(),
-                                                   request->messageId);
+   OperationAggregate *poA= new OperationAggregate(
+       new CIMEnumerateInstanceNamesRequestMessage(*request),
+       request->getType(),
+       request->messageId);
+   poA->dest = request->queueIds.top();
 
    Boolean staticInstancesExist = false;
 
@@ -2683,11 +2355,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       }
       else
       {
+          delete poA;
           _enqueueResponse(request, response);
           PEG_METHOD_EXIT();
           return;
       }
 #else
+      delete poA;
       _enqueueResponse(request, response);
       PEG_METHOD_EXIT();
       return;
@@ -2699,7 +2373,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        //************* Limit to one response if we have problems with more.
 #ifdef LIMIT_ENUM_TO_ONE_LEVEL
        ps = 1;
-#endif /* LIMIT_ENUM_TO_ONE_LEVEL*/
+#endif
        // Simply takes the top level request and ignores the others.
        //*******************/
        poA->setTotalIssued(ps);
@@ -2729,7 +2403,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                     poA->controlProviderNames[current] : "None"),
                i, ps));
             
-    	   /*cout << "KSTEST send to provider, Class =  " << poA->classes[current]
+    	   /*cout << "KSTEST send to provider, Class =  " << classes[current]
                << " servicename = " << poA->serviceNames[current]
                << " control provider name = " 
                << ((poA->controlProviderNames[current] != String::EMPTY)  ?
@@ -2745,9 +2419,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                          != String::EMPTY)  ?
                            poA->controlProviderNames[j] : "None") 
     	            << " count " << j << endl;
-           } */
+           }*/
            
-    	  _forwardRequestEnum(poA->classes[current], poA->serviceNames[current],
+    	  _forwardRequestForAggregation(poA->serviceNames[current],
     	       poA->controlProviderNames[current], requestCopy, poA);
        }
        PEG_METHOD_EXIT();
@@ -2769,6 +2443,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       STAT_COPYDISPATCHER
 
+      delete poA;
       _enqueueResponse(request, response);
    }
 

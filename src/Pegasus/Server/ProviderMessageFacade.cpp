@@ -130,7 +130,7 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
       ;
    }
 
-    delete message;
+    //delete message;
 
     return(response);
 }

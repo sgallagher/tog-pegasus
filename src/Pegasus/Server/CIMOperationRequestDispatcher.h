@@ -60,40 +60,31 @@ PEGASUS_NAMESPACE_BEGIN
     dispatcher to aggregate request and response information and used by the
     post processor to aggregate responses together.
 */
-class  PEGASUS_SERVER_LINKAGE operationAggregate
+class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
 public:
 
-    operationAggregate(CIMRequestMessage* request,
+    OperationAggregate(CIMRequestMessage* request,
                                 Uint32 msgRequestType,
                                 String messageId)
-    : _messageId(messageId), _msgRequestType(msgRequestType), returnedCount(0), 
-      _request(request), _total(0), _magicNumber(12345)
+    : _messageId(messageId), _msgRequestType(msgRequestType),
+      _request(request), _totalIssued(0), _magicNumber(12345)
     {}
 
-    ~operationAggregate()
-    {}
-
-    /** Copy constructor */
-    operationAggregate(const operationAggregate& x){ }
-
-
-    void incrementReturned()
+    ~OperationAggregate()
     {
-	returnedCount++;
+        _magicNumber = 0;
+        delete _request;
     }
 
     void setTotalIssued(Uint32 i)
     {
-	_total = i;
-	returnedCount = 0;
+	_totalIssued = i;
     }
 
     Boolean valid() {return(_magicNumber == 12345)? true: false; }
 
-    Uint32 returned() { return returnedCount; }
-
-    Uint32 total() { return _total; }
+    Uint32 totalIssued() { return _totalIssued; }
 
     // Append a new entry to the response list
     void appendResponse(CIMResponseMessage* response)
@@ -108,24 +99,28 @@ public:
 	return _responseList[pos];
     }
 
-    void deleteResponse(const Uint32&pos) { _responseList.remove(pos);}
+    void deleteResponse(const Uint32&pos)
+    {
+        delete _responseList[pos];
+        _responseList.remove(pos);
+    }
 
     Uint32 getRequestType(){ return _msgRequestType;}
     
-    // The increment on return must be thread protected.
-    Mutex mutex;
     String _messageId;
     Uint32 _msgRequestType;
-    void * dest;
+    Uint32 dest;
     Array<String> classes;
     Array<String> serviceNames;
     Array<String> controlProviderNames;
     Array<String> propertyList;
-    Uint32 returnedCount;
 private:
+    /** Hidden (unimplemented) copy constructor */
+    OperationAggregate(const OperationAggregate& x){ }
+
     Array<CIMResponseMessage*> _responseList;
     CIMRequestMessage* _request;
-    Uint32 _total;
+    Uint32 _totalIssued;
     Uint32 _magicNumber;
 };
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
@@ -216,33 +211,20 @@ public:
       void handleInvokeMethodRequest(
     	 CIMInvokeMethodRequestMessage* request);
 
-      static void _forwardToServiceCallBack(AsyncOpNode *, 
-					    MessageQueue *,
-					    void *);
-      static void _forwardToModuleCallBack(AsyncOpNode *, 
+      static void _forwardForAggregationCallback(AsyncOpNode *, 
 					   MessageQueue *, 
 					   void *);
-      static void _forwardToDispatcherCallBack(AsyncOpNode *, 
-					   MessageQueue *, 
-					   void *);
-      
-      static void _forwardToServiceCallBackEnum(AsyncOpNode *, 
-					    MessageQueue *,
-					    void *);
-      static void _forwardToModuleCallBackEnum(AsyncOpNode *, 
+      static void _forwardRequestCallback(AsyncOpNode *, 
 					   MessageQueue *, 
 					   void *);
       
       // Response Handler functions
       void handleOperationResponseAggregation(
-			operationAggregate* poA);
+			OperationAggregate* poA);
       
-      static void _handleResponse(CIMOperationRequestDispatcher * service,
-          CIMResponseMessage * response, void * parm);
-      
-      static void handleEnumerateInstancesResponse(operationAggregate* poA);
+      static void handleEnumerateInstancesResponse(OperationAggregate* poA);
 
-      static void handleEnumerateInstanceNamesResponse(operationAggregate* poA);
+      static void handleEnumerateInstanceNamesResponse(OperationAggregate* poA);
 
 
    protected:
@@ -296,18 +278,17 @@ public:
         CIMRequestMessage* request,
         CIMResponseMessage*& response);
 
+      void _forwardRequestForAggregation(
+        const String& serviceName,
+        const String& controlProviderName,
+        CIMRequestMessage* request,
+        OperationAggregate* poA);
+
       void _forwardRequest(
         const String& className,
         const String& serviceName,
         const String& controlProviderName,
         CIMRequestMessage* request);
-
-      void _forwardRequestEnum(
-        const String& className,
-        const String& serviceName,
-        const String& controlProviderName,
-        CIMRequestMessage* request,
-        operationAggregate* poA);
 
       void _enqueueResponse(
           CIMRequestMessage* request, CIMResponseMessage* response);

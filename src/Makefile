@@ -5,7 +5,11 @@ include $(ROOT)/mak/config.mak
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 DIRS =  Pegasus Clients Providers Server
 else
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+DIRS =  Pegasus Clients Providers Server
+else
 DIRS =  Pegasus slp Clients Providers Server utils
+endif
 endif
 
 include $(ROOT)/mak/recurse.mak

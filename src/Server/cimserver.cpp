@@ -90,7 +90,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
-#ifndef PEGASUS_OS_ZOS
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
 #include <slp/slp.h>
 #endif
 
@@ -673,7 +673,7 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
-#ifndef PEGASUS_OS_ZOS
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
       	slp_client *discovery = new slp_client() ;;
         String serviceURL;
 	serviceURL.assign("service:cim.pegasus://");
@@ -710,7 +710,7 @@ int main(int argc, char** argv)
         //
 	while( !server.terminated() )
 	{
-#ifndef PEGASUS_OS_ZOS
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
 	  if(useSLP  ) 
 	  {
 	    if(  (time(NULL) - last ) > 60 ) 

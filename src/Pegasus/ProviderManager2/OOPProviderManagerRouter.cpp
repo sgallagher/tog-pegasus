@@ -777,7 +777,7 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
 void ProviderAgentContainer::unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderAgentContainer::processMessage");
+        "ProviderAgentContainer::unloadIdleProviders");
 
     AutoMutex lock(_agentMutex);
     if (_isInitialized)

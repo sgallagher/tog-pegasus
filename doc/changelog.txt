@@ -22,7 +22,10 @@ Now when you build normally, you will get the committed grammar and parser
 files instead of generating your own for a particular platform.  This should
 prevent back-level lex and yacc implementations from generating troublesome
 code.  The committed files are generated from flex 2.5.4 and bison 1,28.
-
+(grb)
+6.  Added Compiler/compilerDeclContext.{cpp,h} and makefile changes.
+This change paves the way for upcoming changes that will allow the compiler
+to work indepently of the repository. (grb)
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 

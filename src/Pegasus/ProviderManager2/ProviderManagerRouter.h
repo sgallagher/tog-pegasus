@@ -44,10 +44,27 @@ public:
     ProviderManagerRouter();
     virtual ~ProviderManagerRouter();
 
+    /**
+        Process the specified message by routing it to the appropriate
+        ProviderManager.  Note: This operation may take a long time to
+        complete and should be called on a non-critical thread.
+     */
     virtual Message* processMessage(Message* message) = 0;
 
-    // temp
-    virtual void unload_idle_providers() = 0;
+    /**
+        Indicates whether any of the active ProviderManagers managed by this
+        ProviderManagerRouter has an active (e.g., loaded/initialized)
+        provider.  If no providers are active, this ProviderManagerRouter
+        may be destructed without harm.
+     */
+    virtual Boolean hasActiveProviders() = 0;
+
+    /**
+        Unload idle providers in all active ProviderManagers.
+        Note: This operation may take a long time to complete and should
+        be called on a non-critical thread.
+     */
+    virtual void unloadIdleProviders() = 0;
 };
 
 PEGASUS_NAMESPACE_END

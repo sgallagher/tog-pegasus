@@ -54,7 +54,6 @@
 #include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 //#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
@@ -64,8 +63,6 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
-static CMPILocalProviderManager providerManager;
 
 int _cmpi_trace=0;
 
@@ -231,9 +228,14 @@ Message * CMPIProviderManager::processMessage(Message * request)
     return(response);
 }
 
-void CMPIProviderManager::unload_idle_providers(void)
+Boolean CMPIProviderManager::hasActiveProviders()
 {
-     providerManager.unload_idle_providers();
+     return providerManager.hasActiveProviders();
+}
+
+void CMPIProviderManager::unloadIdleProviders()
+{
+     providerManager.unloadIdleProviders();
 }
 
 

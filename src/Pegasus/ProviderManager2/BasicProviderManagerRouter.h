@@ -55,8 +55,8 @@ public:
 
     virtual Message* processMessage(Message* message);
 
-    // temp
-    virtual void unload_idle_providers();
+    virtual Boolean hasActiveProviders();
+    virtual void unloadIdleProviders();
 
 private:
     BasicProviderManagerRouter();    // Unimplemented

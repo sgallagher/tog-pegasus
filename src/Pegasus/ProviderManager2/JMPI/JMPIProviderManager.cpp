@@ -45,14 +45,11 @@
 
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
-#include <Pegasus/ProviderManager2/JMPI/JMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
-static JMPILocalProviderManager providerManager;
 
 int _jmpi_trace=0;
 
@@ -192,9 +189,14 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
     return(response);
 }
 
-void JMPIProviderManager::unload_idle_providers(void)
+Boolean JMPIProviderManager::hasActiveProviders()
 {
-     providerManager.unload_idle_providers();
+     return providerManager.hasActiveProviders();
+}
+
+void JMPIProviderManager::unloadIdleProviders()
+{
+     providerManager.unloadIdleProviders();
 }
 
 #define STRDUPA(s,o) \

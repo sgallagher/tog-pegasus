@@ -459,7 +459,7 @@ void CIMServer::_monitor_idle_routine(void *parm)
 #ifdef PEGASUS_USE_23PROVIDER_MANAGER
       ProviderManagerService::getProviderManager()->unload_idle_providers();
 #else
-      myself->_providerManager->unload_idle_providers();
+      myself->_providerManager->unloadIdleProviders();
 #endif
       
    }
@@ -508,7 +508,7 @@ void CIMServer::runForever()
             #ifdef PEGASUS_USE_23PROVIDER_MANAGER
             ProviderManagerService::getProviderManager()->unload_idle_providers();
 	    #else
-            _providerManager->unload_idle_providers();
+            _providerManager->unloadIdleProviders();
             #endif
 
 		  }

@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,8 @@ public:
 
     virtual Message * processMessage(Message * message) = 0;
 
-    virtual void unload_idle_providers() = 0;
+    virtual Boolean hasActiveProviders() = 0;
+    virtual void unloadIdleProviders() = 0;
     static String _resolvePhysicalName(String physicalName);
 
     /**

@@ -41,6 +41,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/ProviderManager2/JMPI/JMPILocalProviderManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -66,7 +67,8 @@ public:
 
     static String resolveFileName(String name);
 
-    virtual void unload_idle_providers(void) ;
+    virtual Boolean hasActiveProviders();
+    virtual void unloadIdleProviders();
     
    struct indProvRecord {
       indProvRecord() : enabled(false), count(1), handler(NULL) {}
@@ -89,6 +91,7 @@ public:
    static ProvRegistrar provReg;
    
 protected:
+    JMPILocalProviderManager providerManager;
     Mode mode;
 
     Message * handleUnsupportedRequest(const Message * message) throw();

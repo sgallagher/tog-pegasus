@@ -41,6 +41,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
+#include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -65,7 +66,8 @@ public:
 
     virtual Message * processMessage(Message * request);
 
-    virtual void unload_idle_providers(void) ;
+    virtual Boolean hasActiveProviders();
+    virtual void unloadIdleProviders();
 
    struct indProvRecord {
       indProvRecord() : enabled(false), count(1), handler(NULL) {}
@@ -88,6 +90,8 @@ public:
    static ProvRegistrar provReg;
 
 protected:
+    CMPILocalProviderManager providerManager;
+
     Mode mode;
 
     Message * handleUnsupportedRequest(const Message * message);

@@ -39,11 +39,8 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/HashTable.h>
 
-#include <Pegasus/Provider/CIMNullProvider.h>
-
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 //#include <Pegasus/ProviderManager2/JMPI/JMPIResolverModule.h>
-#include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
 
 #include <Pegasus/ProviderManager2/Lockable.h>
 
@@ -66,9 +63,8 @@ public:
 
     void shutdownAllProviders(void);
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
-
-    void unload_idle_providers(void);
+    Boolean hasActiveProviders();
+    void unloadIdleProviders();
 
 private:
     enum CTRL
@@ -112,7 +108,6 @@ private:
     JMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
 //    CMPIResolverModule *_loadResolver(const String & fileName);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
-    AtomicInt _unload_idle_flag;
 
     Mutex _mut;
 

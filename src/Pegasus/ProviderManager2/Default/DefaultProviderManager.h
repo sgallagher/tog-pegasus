@@ -34,6 +34,7 @@
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur (schuur@de.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +73,9 @@ public:
     virtual ~DefaultProviderManager(void);
 
     virtual Message * processMessage(Message * request);
+
+    virtual Boolean hasActiveProviders();
+    virtual void unloadIdleProviders();
 
 protected:
     Message * handleUnsupportedRequest(const Message * message);
@@ -117,11 +121,9 @@ protected:
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 
-    void unload_idle_providers();
-
 protected:
     IndicationResponseTable _responseTable;
-
+    LocalProviderManager providerManager;
 };
 
 PEGASUS_NAMESPACE_END

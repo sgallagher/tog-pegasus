@@ -42,12 +42,9 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static JMPILocalProviderManager *my_instance = 0;
-
 JMPILocalProviderManager::JMPILocalProviderManager(void)
-    : _idle_timeout(300), _unload_idle_flag(1)
+    : _idle_timeout(IDLE_LIMIT)
 {
-    my_instance = this;
 }
 
 JMPILocalProviderManager::~JMPILocalProviderManager(void)
@@ -344,51 +341,45 @@ void JMPILocalProviderManager::shutdownAllProviders(void)
 }
 
 
-// << Tue Jul 29 16:51:25 2003 mdd >> change to run every 300 seconds
-void JMPILocalProviderManager::unload_idle_providers(void)
+Boolean JMPILocalProviderManager::hasActiveProviders()
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManager::hasActiveProviders");
+
+    PEG_METHOD_EXIT();
+    return (_providers.size() > 0);
+}
+
+void JMPILocalProviderManager::unloadIdleProviders()
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManager::unloadIdleProviders");
+
     static struct timeval first = {0,0}, now, last = {0,0};
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::unload_idle_providers");
    
     if(first.tv_sec == 0)
+    {
         gettimeofday(&first, NULL);
+    }
     gettimeofday(&now, NULL);
-    if(((now.tv_sec - first.tv_sec) > 300 ) && ( (now.tv_sec - last.tv_sec) > 300))
+
+    if (((now.tv_sec - first.tv_sec) > IDLE_LIMIT) &&
+       ((now.tv_sec - last.tv_sec) > IDLE_LIMIT))
     {
         gettimeofday(&last, NULL);
-        if(_unload_idle_flag.value() == 1)
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Checking for Idle providers to unload.");
+        try
+        {
+            _provider_ctrl(UNLOAD_IDLE_PROVIDERS, this, (void *)0);
+        }
+        catch(...)
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Unload Idle Flag Set: Starting JMPIProvider Monitor Thread");
-            _unload_idle_flag = 0;
-            MessageQueueService::get_thread_pool()->allocate_and_awaken(this, provider_monitor);
-
+                "Caught unexpected exception from UNLOAD_IDLE_PROVIDERS.");
         }
     }
     PEG_METHOD_EXIT();
 }
 
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL JMPILocalProviderManager::provider_monitor(void *parm)
-{
-    Thread *th = reinterpret_cast<Thread *>(parm);
-
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::provider_monitor");
-    JMPILocalProviderManager *myself =    my_instance ;
-
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Checking for Idle providers to unload.");
-    try
-    {
-        myself->_provider_ctrl(UNLOAD_IDLE_PROVIDERS, myself, (void *)0);
-        myself->_unload_idle_flag = 1;
-    }
-    catch(...)
-    {
-    }
-    PEG_METHOD_EXIT();
-    return(0);
-}
-
 PEGASUS_NAMESPACE_END
-

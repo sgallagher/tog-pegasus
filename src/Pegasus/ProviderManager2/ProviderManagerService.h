@@ -72,7 +72,7 @@ public:
     virtual ~ProviderManagerService(void);
 
     // temp
-    void unload_idle_providers(void);
+    void unloadIdleProviders();
 
     static void indicationCallback(
         CIMProcessIndicationRequestMessage* request);
@@ -99,6 +99,9 @@ private:
 
     void handleCimRequest(AsyncOpNode *op, Message* message);
 
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+        _unloadIdleProvidersHandler(void* arg) throw();
+
     ProviderIdContainer _getProviderIdContainer(
         const CIMRequestMessage* message);
 
@@ -116,6 +119,13 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
 
     static Uint32 _indicationServiceQueueId;
+
+    /**
+        Indicates the number of threads currently attempting to unload idle
+        providers.  This value is used to prevent multiple threads from
+        unloading idle providers at the same time.
+     */
+    AtomicInt _unloadIdleProvidersBusy;
 };
 
 PEGASUS_NAMESPACE_END

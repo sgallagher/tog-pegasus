@@ -30,6 +30,7 @@
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,9 +82,10 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
-// provider manager
-static LocalProviderManager providerManager;
 
+//
+// Default Provider Manager
+//
 DefaultProviderManager::DefaultProviderManager(void)
 {
 }
@@ -2816,9 +2818,14 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
-void DefaultProviderManager::unload_idle_providers()
+Boolean DefaultProviderManager::hasActiveProviders()
 {
-    providerManager.unload_idle_providers();
+    return providerManager.hasActiveProviders();
+}
+
+void DefaultProviderManager::unloadIdleProviders()
+{
+    providerManager.unloadIdleProviders();
 }
 
 PEGASUS_NAMESPACE_END

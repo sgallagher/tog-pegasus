@@ -93,6 +93,9 @@ ProviderManagerService::ProviderManagerService(
     _repository=repository;
 
     _providerRegistrationManager = providerRegistrationManager;
+
+    _unloadIdleProvidersBusy = 0;
+
     _providerManagerRouter =
         new BasicProviderManagerRouter(indicationCallback);
 }
@@ -425,9 +428,62 @@ void ProviderManagerService::handleCimRequest(
     PEG_METHOD_EXIT();
 }
 
-void ProviderManagerService::unload_idle_providers(void)
+void ProviderManagerService::unloadIdleProviders()
 {
-    _providerManagerRouter->unload_idle_providers();
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::unloadIdleProviders");
+
+    // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
+    _unloadIdleProvidersBusy++;
+    if ((_unloadIdleProvidersBusy.value() == 1) &&
+        (_thread_pool->allocate_and_awaken(
+             (void*)this, ProviderManagerService::_unloadIdleProvidersHandler)))
+    {
+        // _unloadIdleProvidersBusy is decremented in
+        // _unloadIdleProvidersHandler
+    }
+    else
+    {
+        // If we fail to allocate a thread, don't retry now.
+        _unloadIdleProvidersBusy--;
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
+{
+    try
+    {
+        PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+            "ProviderManagerService::unloadIdleProvidersHandler");
+
+        ProviderManagerService* myself =
+            reinterpret_cast<ProviderManagerService*>(arg);
+
+        try
+        {
+            myself->_providerManagerRouter->unloadIdleProviders();
+        }
+        catch (...)
+        {
+            // Ignore errors
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Unexpected exception in _unloadIdleProvidersHandler");
+        }
+
+        myself->_unloadIdleProvidersBusy--;
+        PEG_METHOD_EXIT();
+    }
+    catch (...)
+    {
+        // Ignore errors
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unexpected exception in _unloadIdleProvidersHandler");
+    }
+
+    return(PEGASUS_THREAD_RETURN(0));
 }
 
 ProviderIdContainer ProviderManagerService::_getProviderIdContainer(

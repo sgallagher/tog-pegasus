@@ -237,6 +237,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
     {
         // Send CIMStopAllProvidersRequestMessage to all ProviderManagers
+        ReadLock tableLock(_providerManagerTableLock);
         for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
         {
             ProviderManagerContainer* pmc=_providerManagerTable[i];
@@ -350,15 +351,51 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
     return 0;
 }
 
-void BasicProviderManagerRouter::unload_idle_providers(void)
+Boolean BasicProviderManagerRouter::hasActiveProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "BasicProviderManagerRouter::unload_idle_providers");
+        "BasicProviderManagerRouter::hasActiveProviders");
 
+    ReadLock tableLock(_providerManagerTableLock);
     for(Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
     {
         ProviderManagerContainer* pmc = _providerManagerTable[i];
-        pmc->getProviderManager()->unload_idle_providers();
+        if (pmc->getProviderManager()->hasActiveProviders())
+        {
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return false;
+}
+
+void BasicProviderManagerRouter::unloadIdleProviders()
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "BasicProviderManagerRouter::unloadIdleProviders");
+
+    //
+    // Save pointers to the ProviderManagerContainers so we don't hold the
+    // _providerManagerTableLock while unloading idle providers
+    //
+    Array<ProviderManagerContainer*> pmcs;
+    {
+        ReadLock tableLock(_providerManagerTableLock);
+        for(Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+        {
+            pmcs.append(_providerManagerTable[i]);
+        }
+    }
+
+    //
+    // Unload idle providers in each of the active ProviderManagers
+    // _providerManagerTableLock while unloading idle providers
+    //
+    for (Uint32 i = 0; i < pmcs.size(); i++)
+    {
+        pmcs[i]->getProviderManager()->unloadIdleProviders();
     }
 
     PEG_METHOD_EXIT();

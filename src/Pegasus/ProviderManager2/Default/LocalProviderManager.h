@@ -29,6 +29,7 @@
 //              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Dan Gorey, IBM djgorey@us.ibm.com
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +41,6 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Provider/CIMNullProvider.h>
 
 #include <Pegasus/ProviderManager2/Lockable.h>
 #include <Pegasus/ProviderManager2/Default/Provider.h>
@@ -64,9 +64,8 @@ public:
 
     void shutdownAllProviders(void) ;
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
-
-    void unload_idle_providers(void) ;
+    Boolean hasActiveProviders();
+    void unloadIdleProviders();
 
     Sint16 disableProvider(const String & fileName, const String & providerName);
 
@@ -104,7 +103,6 @@ private:
     Uint32 _idle_timeout;
 
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
-    AtomicInt _unload_idle_flag;
 
     Provider* _initProvider(Provider * provider,
                             const String & moduleFileName,

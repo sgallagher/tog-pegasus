@@ -31,7 +31,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-#include <Pegasus/Common/Tracer.h>
 
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
 # define SEM_VALUE_MAX 0x0000ffff
@@ -571,9 +570,6 @@ Semaphore::~Semaphore()
 // block until this semaphore is in a signalled state
  void Semaphore::wait(void) 
 {
-   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-      "Semaphore::wait - Calling thread = %d, Semaphore owner = %d",
-          pegasus_thread_self(), _semaphore.owner);
    sem_wait(&_semaphore.sem);
 }
 
@@ -582,9 +578,6 @@ Semaphore::~Semaphore()
 // count is zero. 
  void Semaphore::try_wait(void) throw(WaitFailed)
 {
-   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-      "Semaphore::try_wait - Calling thread = %d, Semaphore owner = %d",
-          pegasus_thread_self(), _semaphore.owner);
    if (sem_trywait(&_semaphore.sem)) 
       throw(WaitFailed(_semaphore.owner));
 }
@@ -601,10 +594,6 @@ Semaphore::~Semaphore()
 // if wait times out without gaining the semaphore
  void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
-   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-      "Semaphore::time_wait - Calling thread = %d, Semaphore owner = %d",
-          pegasus_thread_self(), _semaphore.owner);
-
    int retcode, i = 0;
 
    struct timeval now, finish, remaining;
@@ -639,9 +628,6 @@ Semaphore::~Semaphore()
 // increment the count of the semaphore 
  void Semaphore::signal()
 {
-   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-      "Semaphore::signal - Calling thread = %d, Semaphore owner = %d",
-          pegasus_thread_self(), _semaphore.owner);
    sem_post(&_semaphore.sem);
 }
 
@@ -683,10 +669,6 @@ Semaphore::~Semaphore()
 // block until this semaphore is in a signalled state
 void Semaphore::wait(void) 
 {
-   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-      "Semaphore::wait - Calling thread = %d, Semaphore owner = %d",
-          pegasus_thread_self(), _semaphore.owner);
-
    // Acquire mutex to enter critical section.
    pthread_mutex_lock (&_semaphore.mutex);
 
@@ -723,10 +705,6 @@ void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 // increment the count of the semaphore 
 void Semaphore::signal()
 {
-   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-      "Semaphore::signal - Calling thread = %d, Semaphore owner = %d",
-          pegasus_thread_self(), _semaphore.owner);
-
    pthread_mutex_lock (&_semaphore.mutex);
 
    // Always allow one thread to continue if it is waiting.

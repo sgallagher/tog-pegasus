@@ -34,7 +34,7 @@
 #define STATISTICAL_DATA_H
 
 #include <Pegasus/Common/Config.h>
-#include <iostream>
+#include <iostream.h>
 #include <cstring>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>
@@ -64,9 +64,11 @@ request->setStartServerTime(startTime);
 
 #define STAT_SERVEREND \
 response->endServer();\
-Uint32 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
+Uint16 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
     response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE:response->getType() - 1;\
 StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::BYTES_SENT);
+
+
 
 #define STAT_SERVEREND_ERROR \
 response->endServer();
@@ -97,9 +99,12 @@ response->setEndProviderTime(request->getEndProviderTime());
  the current state of the object, not the pevious (one command ago) state */
 
 #define STAT_BYTESREAD \
-Uint32 statType = (request->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
+Uint16 statType = (request->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
     request->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: request->getType()-1;\
-StatisticalData::current()->requSize = contentLength;
+StatisticalData::current()->requSize = contentLength; \
+StatisticalData::current()->addToValue(contentLength, statType, StatisticalData::BYTES_READ);
+
+
 
 
 
@@ -126,7 +131,7 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
       enum StatRequestType{
          GET_CLASS,
          GET_INSTANCE,
-		 EXPORT_INDICATION,
+	 EXPORT_INDICATION,
          DELETE_CLASS,
          DELETE_INSTANCE,
          CREATE_CLASS,
@@ -170,10 +175,13 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
       Sint64 providerTime[NUMBER_OF_TYPES];
       Sint64 responseSize[NUMBER_OF_TYPES];
       Sint64 requestSize[NUMBER_OF_TYPES];
-	  Sint64 requSize;						//tempory storage for requestSize vlaue
+	Sint64 requSize;	//tempory storage for requestSize vlaue
+	Boolean copyGSD;
+//	Uint64 totalServTime;
       static StatisticalData* cur;
       void addToValue(Sint64 value, Uint16 type, Uint32 t);
       static String requestName[];
+     void setCopyGSD(Boolean flag);
 
    protected:
       Mutex _mutex;

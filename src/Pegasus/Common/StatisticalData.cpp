@@ -72,6 +72,9 @@ StatisticalData* StatisticalData::current(){
 
 StatisticalData::StatisticalData(){
 
+
+   copyGSD = 0;
+
    for (unsigned int i=0; i<StatisticalData::length; i++){
       numCalls[i] = 0;
       cimomTime[i] = 0;      
@@ -98,5 +101,10 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t){
    _mutex.unlock();
 }
 
+ void StatisticalData::setCopyGSD(Boolean flag)
+{
+
+	copyGSD = flag;
+}
 
 PEGASUS_NAMESPACE_END

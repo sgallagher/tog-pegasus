@@ -46,12 +46,12 @@ class PG_WBEMSLPTemplate {
    
    [Description ("Initiate the registration process based on the CIMServer "
    "characteristics.") ]
-   Uint32 register();
+   Sint32 register();
    
    [ Description ("Remove any existing SLP registrations.") ]
-   Uint32 unregister();
+   Sint32 unregister();
    
    [ Description ("Force an update to any existing registrations.") ]
-   Uint32 update();
+   Sint32 update();
    
 };

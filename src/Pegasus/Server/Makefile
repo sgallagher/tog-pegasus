@@ -6,8 +6,8 @@ include $(ROOT)/mak/config.mak
 
 # SSL support
 ifdef PEGASUS_HAS_SSL
-  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
-  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+	FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+	SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
@@ -20,34 +20,34 @@ LOCAL_DEFINES +=  -DPEGASUS_USE_23PROVIDER_MANAGER
 #LOCAL_DEFINES +=  -DENABLE_PROVIDER_MANAGER2
 endif
 
-ifndef PEGASUS_DISABLE_OBJECT_NORMALIZATION
+ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
 LOCAL_DEFINES += -DPEGASUS_ENABLE_OBJECT_NORMALIZATION
 endif
 
 LIBRARY = pegserver
 
 LIBRARIES = \
-    pegcommon \
-    pegrepository \
-    pegprovider \
+	pegcommon \
+	pegrepository \
+	pegprovider \
 	pegexportserver \
-    pegprovidermanager \
-    pegconfig \
-    peguser \
-    pegauthentication \
-    peghandlerservice \
-    pegindicationservice \
-    pegwql \
+	pegprovidermanager \
+	pegconfig \
+	peguser \
+	pegauthentication \
+	peghandlerservice \
+	pegindicationservice \
+	pegwql \
 	pegclient \
-    pegprm \
-    ConfigSettingProvider \
-    UserAuthProvider \
-    ProviderRegistrationProvider\
-    NamespaceProvider
+	pegprm \
+	ConfigSettingProvider \
+	UserAuthProvider \
+	ProviderRegistrationProvider\
+	NamespaceProvider
 
 ifdef PEGASUS_ENABLE_SLP
 LIBRARIES += \
-    InteropProvider
+	InteropProvider
 endif
 
 ifndef PEGASUS_USE_23PROVIDER_MANAGER
@@ -57,30 +57,28 @@ LIBRARIES += \
 endif
 
 ifdef PEGASUS_HAS_PERFINST
- LIBRARIES += \
-       CIMOMStatDataProvider \
-	 InteropProvider
+LIBRARIES += \
+	CIMOMStatDataProvider \
+	InteropProvider
 endif
-
-
 
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-    CIMOperationRequestDecoder.cpp \
-    CIMOperationResponseEncoder.cpp \
-    CIMOperationRequestDispatcher.cpp \
-    CIMOperationRequestAuthorizer.cpp \
-    HTTPAuthenticatorDelegator.cpp \
-    ShutdownProvider.cpp \
-    ShutdownService.cpp \
-    CIMServer.cpp \
-    CIMServerState.cpp \
-    ProviderMessageFacade.cpp \
-    BinaryMessageHandler.cpp \
-    reg_table.cpp \
-    QuerySupportRouter.cpp \
-    WQLOperationRequestDispatcher.cpp
+	CIMOperationRequestDecoder.cpp \
+	CIMOperationResponseEncoder.cpp \
+	CIMOperationRequestDispatcher.cpp \
+	CIMOperationRequestAuthorizer.cpp \
+	HTTPAuthenticatorDelegator.cpp \
+	ShutdownProvider.cpp \
+	ShutdownService.cpp \
+	CIMServer.cpp \
+	CIMServerState.cpp \
+	ProviderMessageFacade.cpp \
+	BinaryMessageHandler.cpp \
+	reg_table.cpp \
+	QuerySupportRouter.cpp \
+	WQLOperationRequestDispatcher.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

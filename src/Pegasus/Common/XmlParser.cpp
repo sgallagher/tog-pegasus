@@ -50,6 +50,11 @@
 //		&quot - full quote
 //		&apos - apostrophe
 //
+//             as well as character (numeric) references:
+
+//              &#49; - decimal reference for character '1'
+//              &#x31; - hexadecimal reference for character '1'
+//
 //	    4. Element names and attribute names take the following form:
 //
 //		[A-Za-z_][A-Za-z_0-9-.:]
@@ -72,8 +77,6 @@
 //      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is work.
 //	Handle <!DOCTYPE...> sections which are complicated (containing
 //        rules rather than references to files).
-//
-//	Handle reference of this form: "&#913;"
 //
 //	Remove newlines from string literals:
 //
@@ -125,6 +128,7 @@ struct EntityReference
     char replacement;
 };
 
+// ATTN: Add support for more entity references
 static EntityReference _references[] =
 {
     { "&amp;", 5, '&' },
@@ -581,56 +585,139 @@ void XmlParser::_substituteReferences(char* text)
     {
 	if (*p == '&')
 	{
-	    // Look for predefined entity reference:
+            // Process character or entity reference
 
-	    Boolean found = false;
+            Uint16 referenceChar = 0;
+            Uint32 referenceLength = 0;
+            XmlException::Code code = XmlException::MALFORMED_REFERENCE;
 
-	    for (Uint32 i = 0; i < _REFERENCES_SIZE; i++)
-	    {
-		Uint32 length = _references[i].length;
-		const char* match = _references[i].match;
+            if (*(p+1) == '#')
+            {
+                // Found a character (numeric) reference
+                // Determine whether it is decimal or hex
+                if (*(p+2) == 'x')
+                {
+                    // Decode a hexadecimal character reference
+                    char* q = p+3;
 
-		if (strncmp(p, _references[i].match, length) == 0)
-		{
-		    found = true;
-		    *p = _references[i].replacement;
-		    char* q = p + length;
-		    rem = rem - length + 1;
-		    memmove(p + 1, q, rem);
-		}
-	    }
+                    // At most four digits are allowed, plus trailing ';'
+                    Uint32 numDigits;
+                    for (numDigits = 0; numDigits < 5; numDigits++, q++)
+                    {
+                        if (isdigit(*q))
+                        {
+                            referenceChar = (referenceChar << 4);
+                            referenceChar += (*q - '0');
+                        }
+                        else if ((*q >= 'A') && (*q <= 'F'))
+                        {
+                            referenceChar = (referenceChar << 4);
+                            referenceChar += (*q - 'A' + 10);
+                        }
+                        else if ((*q >= 'a') && (*q <= 'f'))
+                        {
+                            referenceChar = (referenceChar << 4);
+                            referenceChar += (*q - 'a' + 10);
+                        }
+                        else if (*q == ';')
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            throw XmlException(code, _line);
+                        }
+                    }
 
-	    // If not found, then at least make sure it is well formed:
+                    // Hex number must be 1 - 4 digits
+                    if ((numDigits == 0) || (numDigits > 4))
+                    {
+                        throw XmlException(code, _line);
+                    }
 
-	    if (!found)
-	    {
-		char* start = p;
-		p++;
+                    // ATTN: Currently do not support 16-bit characters
+                    if (referenceChar > 0xff)
+                    {
+                        // ATTN: Is there a good way to say "unsupported"?
+                        throw XmlException(code, _line);
+                    }
 
-		XmlException::Code code = XmlException::MALFORMED_REFERENCE;
+                    referenceLength = numDigits + 4;
+                }
+                else
+                {
+                    // Decode a decimal character reference
+                    Uint32 newChar = 0;
+                    char* q = p+2;
 
-		if (isalpha(*p) || *p == '_')
-		{
-		    for (p++; *p && *p != ';'; p++)
-		    {
-			if (!isalnum(*p) && *p != '_')
-			    throw XmlException(code, _line);
-		    }
-		}
-		else if (*p == '#')
-		{
-		    for (p++ ; *p && *p != ';'; p++)
-		    {
-			if (!isdigit(*p))
-			    throw XmlException(code, _line);
-		    } 
-		}
+                    // At most five digits are allowed, plus trailing ';'
+                    Uint32 numDigits;
+                    for (numDigits = 0; numDigits < 6; numDigits++, q++)
+                    {
+                        if (isdigit(*q))
+                        {
+                            newChar = (newChar * 10);
+                            newChar += (*q - '0');
+                        }
+                        else if (*q == ';')
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            throw XmlException(code, _line);
+                        }
+                    }
 
-		if (*p != ';')
-		    throw XmlException(code, _line);
+                    // Decimal number must be 1 - 5 digits and fit in 16 bits
+                    if ((numDigits == 0) || (numDigits > 5) ||
+                        (newChar > 0xffff))
+                    {
+                        throw XmlException(code, _line);
+                    }
 
-		rem -= p - start;
-	    }
+                    // ATTN: Currently do not support 16-bit characters
+                    if (newChar > 0xff)
+                    {
+                        // ATTN: Is there a good way to say "unsupported"?
+                        throw XmlException(code, _line);
+                    }
+
+                    referenceChar = Uint16(newChar);
+                    referenceLength = numDigits + 3;
+                }
+            }
+            else
+            {
+                // Check for entity reference
+                // ATTN: Inefficient if many entity references are supported
+                Uint32 i;
+                for (i = 0; i < _REFERENCES_SIZE; i++)
+                {
+                    Uint32 length = _references[i].length;
+                    const char* match = _references[i].match;
+
+                    if (strncmp(p, _references[i].match, length) == 0)
+                    {
+                        referenceChar = _references[i].replacement;
+                        referenceLength = length;
+                        break;
+                    }
+                }
+
+                if (i == _REFERENCES_SIZE)
+                {
+                    // Didn't recognize the entity reference
+                    // ATTN: Is there a good way to say "unsupported"?
+                    throw XmlException(code, _line);
+                }
+            }
+
+            // Replace the reference with the correct character
+            *p = (char)referenceChar;
+            char* q = p + referenceLength;
+            rem = rem - referenceLength + 1;
+            memmove(p + 1, q, rem);
 	}
     }
 }

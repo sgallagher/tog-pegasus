@@ -93,6 +93,8 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     CIMInstance pmInstance;
     String providerName;
 
+   try
+   {
     if (_providerRegistrationManager.lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance))
     {
@@ -114,6 +116,11 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     {
    	return(String::EMPTY);
     }
+   }
+   catch (Exception& e)
+   {
+       return(String::EMPTY);
+   }
 }
 
 String CIMOperationRequestDispatcher::_lookupMethodProvider(
@@ -125,6 +132,8 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     CIMInstance pmInstance;
     String providerName;
 
+   try
+   {
     if (_providerRegistrationManager.lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))
     {
@@ -146,6 +155,11 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     {
    	return(String::EMPTY);
     }
+   }
+   catch (Exception& e)
+   {
+       return(String::EMPTY);
+   }
 }
 
 // ATTN-YZ-P1-20020305: Implement this interface 

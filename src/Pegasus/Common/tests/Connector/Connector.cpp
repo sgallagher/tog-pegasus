@@ -26,10 +26,12 @@
 
 #include <cassert>
 #include <iostream>
-#include <Pegasus/Common/WindowsChannel.h>
+#include <Pegasus/Common/TCPChannel.h>
 
 using namespace Pegasus;
 using namespace std;
+
+#define D(X) /* empty */
 
 const char LONG_MESSAGE[] = 
 "    This is line 0 of a very long message\n"
@@ -728,17 +730,17 @@ public:
 
     MyChannelHandler()
     {
-	cout << "MyChannelHandler::MyChannelHandler()" << endl;
+	D( cout << "MyChannelHandler::MyChannelHandler()" << endl; )
     }
 
     virtual ~MyChannelHandler()
     {
-	cout << "MyChannelHandler::~MyChannelHandler()" << endl;
+	D( cout << "MyChannelHandler::~MyChannelHandler()" << endl; )
     }
 
     virtual Boolean handleOpen(Channel* channel)
     {
-	cout << "MyChannelHandler::handleOpen()" << endl;
+	D( cout << "MyChannelHandler::handleOpen()" << endl; )
 
 	assert(channel->write(
 	    LONG_MESSAGE, sizeof(LONG_MESSAGE)) == sizeof(LONG_MESSAGE));
@@ -748,7 +750,7 @@ public:
 
     virtual Boolean handleInput(Channel* channel)
     {
-	cout << "MyChannelHandler::handleInput()" << endl;
+	D( cout << "MyChannelHandler::handleInput()" << endl; )
 
 	char buffer[1024];
 
@@ -757,8 +759,23 @@ public:
 	if (size <= 0)
 	    return false;
 
+	D(
+
 	for (Uint32 i = 0; i < size; i++)
 	    cout << buffer[i];
+
+	)
+
+	_received.append(buffer, size);
+
+	if (_received.getSize() == sizeof(LONG_MESSAGE))
+	{
+	    assert(memcmp(
+		_received.getData(), LONG_MESSAGE, sizeof(LONG_MESSAGE)) == 0);
+
+	    cout << "+++++ passed all tests" << endl;
+	    exit(0);
+	}
 
 	return true;
     }
@@ -773,6 +790,10 @@ public:
     {
 	cout << "MyChannelHandler::handleClose()" << endl;
     }
+
+private:
+
+    Array<char> _received;
 };
 
 int main()
@@ -780,18 +801,15 @@ int main()
     ChannelHandlerFactory* factory 
 	= new DefaultChannelHandlerFactory<MyChannelHandler>;
 
-    Selector* selector = Selector::create();
+    Selector* selector = new Selector;
 
-    WindowsChannelConnector connector(factory, selector);
+    TCPChannelConnector connector(factory, selector);
 
     Channel* channel = connector.connect("localhost:7777");
     assert(channel);
 
     for (;;)
-    {
-	cout << "Loop..." << endl;
 	selector->select(5000);
-    }
 
     return 0;
 }

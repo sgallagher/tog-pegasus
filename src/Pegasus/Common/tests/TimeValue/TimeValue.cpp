@@ -19,7 +19,7 @@ int main()
 
     assert(milliseconds >= 4500 && milliseconds <= 5500);
 
-    cout << "+++++ passesd all tests" << endl;
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

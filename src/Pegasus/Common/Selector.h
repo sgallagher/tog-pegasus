@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.h,v $
+// Revision 1.5  2001/04/11 04:53:10  mike
+// Porting
+//
 // Revision 1.4  2001/04/11 04:20:39  mike
 // new
 //
@@ -67,10 +70,6 @@ public:
 	SelectorHandler* handler);
 
     Boolean removeHandler(SelectorHandler* handler);
-
-    /** Creates a selector for this platform.
-    */
-    static Selector* create();
 
 private:
 

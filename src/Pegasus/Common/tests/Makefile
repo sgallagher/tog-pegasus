@@ -3,19 +3,15 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    TimeValue \
-    Dir \
-    StrToInstName \
-    ValidateClass \
-    XmlParser \
-    XmlDump \
-    XmlPrint \
-    Compare \
-    String \
-    FileSystem \
     Abstract \
     Array \
+    CGIQueryString \
+    ClassDecl \
+    Compare \
+    ConnectorAcceptor \
     DateTime \
+    Dir \
+    FileSystem \
     InstanceDecl \
     Method \
     Parameter \
@@ -23,10 +19,16 @@ DIRS = \
     Qualifier \
     QualifierDecl \
     QualifierList \
+    Stopwatch \
     String \
+    String \
+    StrToInstName \
+    TimeValue \
+    ValidateClass \
     Value \
-    CGIQueryString \
-    ClassDecl
+    XmlDump \
+    XmlParser \
+    XmlPrint
 
 XDIRS = \
     ValidateClass \

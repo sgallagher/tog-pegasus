@@ -26,7 +26,9 @@
 
 #include <cassert>
 #include <iostream>
-#include <Pegasus/Common/WindowsChannel.h>
+#include <Pegasus/Common/TCPChannel.h>
+
+#define D(X) /* empty */
 
 using namespace Pegasus;
 using namespace std;
@@ -37,23 +39,23 @@ public:
 
     MyChannelHandler()
     {
-	cout << "MyChannelHandler::MyChannelHandler()" << endl;
+	D( cout << "MyChannelHandler::MyChannelHandler()" << endl; )
     }
 
     virtual ~MyChannelHandler()
     {
-	cout << "MyChannelHandler::~MyChannelHandler()" << endl;
+	D( cout << "MyChannelHandler::~MyChannelHandler()" << endl; )
     }
 
     virtual Boolean handleOpen(Channel* channel)
     {
-	cout << "MyChannelHandler::handleOpen()" << endl;
+	D( cout << "MyChannelHandler::handleOpen()" << endl; )
 	return true;
     }
 
     virtual Boolean handleInput(Channel* channel)
     {
-	cout << "MyChannelHandler::handleInput()" << endl;
+	D( cout << "MyChannelHandler::handleInput()" << endl; )
 
 	char buffer[1024];
 
@@ -62,7 +64,7 @@ public:
 	if (size <= 0)
 	    return false;
 
-	cout << "size=" << size << endl;
+	D( cout << "size=" << size << endl; )
 
 	channel->write(buffer, size);
 
@@ -71,13 +73,13 @@ public:
 
     virtual Boolean handleOutput(Channel* channel)
     {
-	cout << "MyChannelHandler::handleOutput()" << endl;
+	D( cout << "MyChannelHandler::handleOutput()" << endl; )
 	return true;
     }
 
     virtual void handleClose(Channel* channel)
     {
-	cout << "MyChannelHandler::handleClose()" << endl;
+	D( cout << "MyChannelHandler::handleClose()" << endl; ) 
     }
 };
 
@@ -86,14 +88,14 @@ int main()
     ChannelHandlerFactory* factory 
 	= new DefaultChannelHandlerFactory<MyChannelHandler>;
 
-    Selector* selector = Selector::create();
+    Selector* selector = new Selector;
 
-    WindowsChannelAcceptor acceptor(factory, selector);
+    TCPChannelAcceptor acceptor(factory, selector);
     assert(acceptor.bind("7777"));
 
     while (true)
     {
-	cout << "Loop..." << endl;
+	D( cout << "Loop..." << endl; )
 	selector->select(10000);
     }
 

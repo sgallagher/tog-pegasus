@@ -187,51 +187,88 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
           {
             cout << "-----" << fromPaths[k].toString() << endl;
           }
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
 
-          CIMName className = _instances[j].getClassName();
-          CIMObjectPath classPath (String::EMPTY,
-                                   ns,
-                                   className);
+        CIMName className = _instances[j].getClassName();
+        CIMObjectPath classPath (String::EMPTY,
+                                 ns,
+                                 className);
 
+        try
+        {
           cout << "Validate Class for " << className.getString() << endl;
           _statements[i].validateClass(classPath);
           cout << "-----validate class ok" << endl;
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
 
+        CIMPropertyList propList;
+
+        try
+        {
           cout << "Property List for " << className.getString() << endl;
-          CIMPropertyList propList = _statements[i].getPropertyList(classPath);
+           propList = _statements[i].getPropertyList(classPath);
           _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
 
-          /* ATTN - uncomment when API is available
+        /* ATTN - uncomment when API is available
+        try
+        {     
           cout << "SELECT Property List for " << className.getString() << endl;
           propList.clear();
           propList = _statements[i].getSelectPropertyList(classPath);
           _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
 
+        try
+        {
           cout << "WHERE Property List for " << className.getString() << endl;
           propList.clear();
           propList = _statements[i].getWherePropertyList(classPath);
           _printPropertyList(propList);
-          */
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+        */
 
+        try
+        {
           cout << "Property List for the FROM class " << endl;
           propList.clear();
           propList = _statements[i].getPropertyList();
           _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
 
-          /* ATTN - uncomment when API is available
+        /* ATTN - uncomment when API is available
+        try
+        {
           cout << "SELECT Property List for the FROM class " << endl;
           propList.clear();
           propList = _statements[i].getSelectPropertyList();
           _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
 
+        try
+        {
           cout << "WHERE Property List for the FROM class " << endl;
           propList.clear();
           propList = _statements[i].getWherePropertyList();
           _printPropertyList(propList);
-          */
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
+        */
       }
     }                         
   }

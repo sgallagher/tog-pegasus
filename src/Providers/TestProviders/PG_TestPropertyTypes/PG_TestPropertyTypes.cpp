@@ -124,8 +124,9 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 	instance2.addProperty(CIMProperty("PropertySint32", Sint32(-3202)));
 	instance2.addProperty(CIMProperty("PropertySint64", Sint64(-6402)));
 	instance2.addProperty(CIMProperty("PropertyBoolean", Boolean(0)));
-	instance2.addProperty(CIMProperty("PropertyReal32", Real32(1.322)));
-	instance2.addProperty(CIMProperty("PropertyReal64", Real64(1.642)));
+  	instance2.addProperty(CIMProperty("PropertyReal32", Real32(2.12345670123)));
+	instance2.addProperty(CIMProperty("PropertyReal64", Real64(2.12345678906543210123)));
+
 	instance2.addProperty(CIMProperty("PropertyDatetime",
 			      CIMDateTime("20010515104354.000000:000")));
 

@@ -1,5 +1,8 @@
 /*
     $Log: cimobjects.dxx,v $
+    Revision 1.2  2001/02/05 14:14:00  karl
+    doc++ extension for respository
+
     Revision 1.1  2001/02/02 18:48:20  karl
     Doc++ expansion
 
@@ -15,30 +18,104 @@ defined in the CIM specification.  This includes:
 <LI>Properties
 <LI>Methods
 <LI>Arrays
-<LI>etc.
 </UL>
 Pegasus implements representations of these objects in C++ classes and
 provides methods for creation, manipulation, and deletion of the objects.
 
 In addition, Pegasus implements a number of the key concepts built into CIM as objects including:
-
 <UL>
 <LI> Scope
 <LI> Flavor
-<LIetc.
+<LI>Object Path
+<LI>etc.
 </UL>
+There is a class for every major CIM object as shown in the following table:
 
+<table border cellspacing=4 cellpadding=5>
+<tr>
+<th colspan=4 align=center>CIM Objects anc Concepts and their Pegasus Implementation</th>
+</tr>
 
-There is a class for every major CIM object as follows:
+<tr>
+<th>CIM Concept / Object</th>
+<th>Pegasus Class</th>
+<th>Reference
+<th>Description</th>
+</tr>
+<tr>
+    <td>CIM Classes</td>
+    <td>classDecl</td>
+    <td>\Ref{CLASSDECL}</td>
+<td>A CIM Class is a collection of instances, all of which support a common type; that is, a set of properties and methods. The common properties and methods are defined as features of the class</td>
+    
+</tr>
 
-CIM Classes - ClassDecl
-CIM Instances - InstanceDecl
-CIM Qualifiers - Qualifier
-CIM Properties - Property
-CIM Methods - Method
-CIM Scope - Scope
-CIM Flavor - Flavor
-CIM Qualifier Type - Qualifier types
-CIM Arrays Array
+<tr>
+    <td>CIM Instance</td>
+    <td>InstanceDecl</td>
+    <td></td>    <td></td>
+</tr>
+<tr>
+    <td>CIM DateTime</td>
+    <td>DateTime</td>
+    <td></td>    <td></td>
+</tr>
+
+<tr>
+    <td>CIM Qualifier Declaration</td>
+    <td>?????</td>
+    <td></td>    <td></td>
+</tr>
+    
+<tr>
+    <td>CIM Qualifier</td>
+    <td>InstanceDecl</td>
+    <td></td>    <td></td>
+</tr>
+
+<tr>
+    <td>CIM Property</td>
+    <td>Property</td>
+    <td>\Ref{PROPERTY}</td>
+    <td>A value used to characterize an instance of a class.</td>
+</tr>
+
+<tr>
+    <td>CIM Object Path</td>
+    <td>Reference</td>
+    <td></td>    <td></td>
+</tr>
+
+<tr>
+    <td>CIM Method</td>
+    <td>method</td>
+    <td></td>    <td></td>
+</tr>
+
+<tr>
+    <td>CIM Scope</td>
+    <td>scope</td>
+    <td></td>    <td></td>
+</tr>
+
+<tr>
+    <td>CIM flavor</td>
+    <td>flavor</td>
+    <td>\Ref{FLAVOR}</td>
+    <td>Part of a qualifier spcification indicating overriding and inheritance rules.</td>
+</tr>
+
+<tr>
+    <td>CIM ????</td>
+    <td>Qualifier Type</td>
+    <td></td>    <td></td>
+    </tr>
+
+<tr>
+    <td>CIM Array</td>
+    <td>Array</td>
+    <td></td>    <td></td>
+    </tr>
+</table>
 
 */

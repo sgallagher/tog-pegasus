@@ -1,5 +1,8 @@
 /*
 	$Log: definitions.dxx,v $
+	Revision 1.4  2001/02/05 14:14:00  karl
+	doc++ extension for respository
+	
 	Revision 1.3  2001/02/02 18:48:20  karl
 	Doc++ expansion
 	
@@ -12,7 +15,7 @@
 	$Author: karl $
 */
 /** @name Definition of Terms
-This section provides definitions of terms and concepts used in the specification of the Pegasus Managability Services Broker and its implementation.
+This section provides definitions of terms and concepts used in the specification of the  DMTF CIM and WBEM specifications and of the Pegasus Managability Services Broker and its implementation.
 
 <B>Namespace</B>\Label{NAMESPACE} - TBD definition of Namespace
 
@@ -32,15 +35,7 @@ This section provides definitions of terms and concepts used in the specificatio
 
 <B>Association</B> \Label{ASSOCIATION} -An association is a relationship between two classes or between instances of two classes. The properties of an association class include pointers, or references, to the two classes or instances.
 
-Class association is one of the most powerful CIM features. It provides a way to organize a
-collection of management objects into meaningful relationships. For example, a
-Solaris_ComputerSystem object might contain a Solaris_Disk, Processor A, and
-Processor B. The Solaris_ComputerSystem has an association with each of the
-objects it contains. Because this particular association is a containment association, it is
-represented by a class called CIM_contains. The CIM_contains class contains
-references to each of the objects that belong to the association. In this case,
-CIM_contains has a reference to Solaris_Disk and a reference to
-Solaris_ComputerSystem.
+Class association is one of the most powerful CIM features. It provides a way to organize a collection of management objects into meaningful relationships. For example, a CIM_ComputerSystem object might contain a CIM_Disk, Processor A, and Processor B. The CIM_ComputerSystem has an association with each of the objects it contains. Because this particular association is a containment association, it is represented by a class called CIM_contains. The CIM_contains class contains references to each of the objects that belong to the association. In this case, CIM_contains has a reference to Solaris_Disk and a reference to CIM_ComputerSystem.
 
 <B>WBEM</B> \Label{WBEM} - ATTN:
 
@@ -56,8 +51,6 @@ For more detailed information on the mapping of XML to CIM schema, see
 http://www.dmtf.org/download/spec/xmls/CIM_XML_Mapping20.htm and
 http://www.dmtf.org/download/spec/xmls/CIM_HTTP_Mapping10.htm.
 1.5 Managed Object Format
-
-<B> </B> \Label{} - ATTN:
 
 
 <B>QUALIFIERR</B> \Label{qualifier} - Qualifiers
@@ -93,7 +86,7 @@ only defined qualifiers be used, and that the list of qualifiers be extended onl
 
 <B>CIM</B> \Label{CIM} -  Common Information Model is the schema of the overall managed environment. It is divided into a Core model, Common model and extended schemas. CIM Schema The schema representing the Core and Common models. Versions of this schema will be released by the DMTF over time as the schema evolves.
 
-<B>Class</B> \Label{Class} -  A collection of instances, all of which support a common type; that is, a set of properties and methods. The common properties and methods are defined as features of the class. For example, the class called Modem represents all the modems present in a system. Common model A collection of models specific to a particular area, derived from the Core model. Included are the system model, the application model, the network model and the device model.
+<B>Class</B> \Label{CLASSDEFINITION} -  A collection of instances, all of which support a common type; that is, a set of properties and methods. The common properties and methods are defined as features of the class. For example, the class called Modem represents all the modems present in a system. Common model A collection of models specific to a particular area, derived from the Core model. Included are the system model, the application model, the network model and the device model.
 
 <B>Core model</B> \Label{Core model} -  A subset of CIM, not specific to any platform. The Core model is set of classes and associations that establish a conceptual framework for the schema of the rest of the managed environment. Systems, applications, networks and related information are modeled as extensions to the Core model.
 

@@ -150,7 +150,7 @@ void Tracer::_trace(
             // Needs to be updated if additional info is added
             //
 	    message = new char[ strlen(fileName) + 
-		_STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
+		_STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
             sprintf(
                message,
                "[%d:%u:%s:%u]: ",
@@ -318,7 +318,8 @@ void Tracer::_traceEnter(
         // Needs to be updated if additional info is added
         //
 	message = new char[ strlen(fileName) + 
-	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
+			    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
+	
         sprintf(
            message,
            "[%d:%u:%s:%u]: ",
@@ -355,7 +356,8 @@ void Tracer::_traceExit(
         // Needs to be updated if additional info is added
         //
 	message = new char[ strlen(fileName) + 
-	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
+			    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
+	
         sprintf(
            message,
            "[%d:%u:%s:%u]: ",
@@ -404,17 +406,22 @@ void Tracer::_trace(
     // Allocate messageHeader. 
     // Needs to be updated if additional info is added
     //
-    msgHeader = new char [strlen(message)
-        + strlen(TRACE_COMPONENT_LIST[traceComponent]) 
-	+ strlen(timeStamp) + _STRLEN_MAX_PID_TID];
+
+
 
     // Construct the message header
     // The message header is in the following format 
     // timestamp: <component name> [file name:line number]
     if (strcmp(message,"") != 0)
     {
+       // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used in this format string
+       msgHeader = new char [strlen(message)
+			     + strlen(TRACE_COMPONENT_LIST[traceComponent]) 
+			     + strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5];
+       
         sprintf(msgHeader,"%s: %s %s",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,message);
+	delete [] msgHeader;
     }
     else
     {
@@ -427,18 +434,21 @@ void Tracer::_trace(
         // Allocate messageHeader. 
         // Needs to be updated if additional info is added
         //
-	tmpBuffer = new char[_STRLEN_MAX_PID_TID];
+	tmpBuffer = new char[_STRLEN_MAX_PID_TID + 6];
         sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
                 Uint32(pegasus_thread_self()));
-
+	msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) + 
+			       strlen(tmpBuffer) + 1  + 5 ];
+	
         sprintf(msgHeader,"%s: %s %s ",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,tmpBuffer );
         delete []tmpBuffer;
+	delete [] msgHeader;
+	
     }
 
     // Call trace file handler to write message
     _getInstance()->_traceHandler->handleMessage(msgHeader,fmt,argList);
-    delete []msgHeader;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

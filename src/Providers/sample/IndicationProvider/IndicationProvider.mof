@@ -1,5 +1,6 @@
-[provider("HelloWorldProvider")]
-class Sample_DummyIndication : public CIM_ProcessInidcation
+#pragma locale ("en_US")
+
+class Sample_DummyIndication : public CIM_ProcessInidication
 {
 	[read]
 	string Message;
@@ -7,3 +8,45 @@ class Sample_DummyIndication : public CIM_ProcessInidcation
 	[read]
 	datetime TimeStamp;
 };
+
+// physical provider
+instance of PG_ProviderModule
+{
+    //Description = "The Sample Pegasus Instance Provider Module that implements Sample_InstanceProviderClass";
+    //Caption = "Sample Pegasus Instance Provider Module";
+    Name = "SampleIndicationProvider (MODULE)";
+    Vendor = "Pegasus";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "SampleInstanceProvider";
+};
+
+// logical provider
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleIndicationProvider (MODULE)";
+    Name = "SampleIndicationProvider (PROVIDER)";
+};
+
+// logical provider capabilities
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleIndicationProvider (MODULE)";
+    ProviderName = "SampleIndicationProvider (PROVIDER)";
+    CapabilityID = "SampleIndicationProvider";
+    ClassName = "Sample_DummyIndication";
+    Namespaces[] = { "root/cimv2" };
+    ProviderType[] = { 4 };
+    //SupportedProperties = {};
+    //SupportedMethods = {};
+};
+
+// association of module and provider
+//instance of PG_ProviderModuleElements
+//{
+//};
+
+// association of provider and capabilities
+//instance of PG_ProviderCapababilitiesElements
+//{
+//};

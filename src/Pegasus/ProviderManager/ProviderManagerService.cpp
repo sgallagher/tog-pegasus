@@ -206,9 +206,16 @@ void ProviderManagerService::handleEnqueue(Message * message)
 	message,
 	this->getQueueId());
 
-    _handle_async_request(asyncRequest);
+    //PEGASUS_ASSERT(asyncRequest != 0);
+
+    //AsynReply * asyncReplay = SendWait(asyncRequest);
+
+    //PEGASUS_ASSERT(asyncReplay != 0);
 
     //delete asyncRequest;
+    //delete asyncReply;
+
+    _handle_async_request(asyncRequest);
 }
 
 void ProviderManagerService::_handle_async_request(AsyncRequest * request)
@@ -1079,89 +1086,6 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
     _enqueueResponse(handler.getRequest(), handler.getResponse());
     PEG_METHOD_EXIT();
 }
-
-/*
-// ATTN: deprecated
-void ProviderManagerService::handleEnableIndicationRequest(const Message * message) throw()
-{
-    const CIMEnableIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<const CIMEnableIndicationSubscriptionRequestMessage *>(message);
-
-    PEGASUS_ASSERT(request != 0);
-
-    Status status;
-
-    try
-    {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
-	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(objectPath);
-
-	// get cached or load new provider module
-	Provider provider = providerManager.getProvider(pair.first, pair.second);
-
-	SimpleResponseHandler<CIMInstance> handler;
-
-	try
-	{
-	    //
-	    //  ATTN: pass thresholding parameter values in
-	    //  operation context
-	    //
-	    provider.enableIndication(
-		OperationContext(),
-		request->nameSpace,
-		request->classNames,
-		request->propertyList,
-		request->repeatNotificationPolicy,
-		request->otherRepeatNotificationPolicy,
-		request->repeatNotificationInterval,
-		request->repeatNotificationGap,
-		request->repeatNotificationCount,
-		request->condition,
-		request->queryLanguage,
-		request->subscription,
-		handler);
-	}
-	catch(...)
-	{
-	    status = Status(CIM_ERR_FAILED, "Provider not available");
-	}
-    }
-    catch(CIMException & e)
-    {
-	status = Status(e.getCode(), e.getMessage());
-    }
-    catch(Exception & e)
-    {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
-    }
-    catch(...)
-    {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
-    }
-
-    CIMEnableIndicationSubscriptionResponseMessage * response =
-	new CIMEnableIndicationSubscriptionResponseMessage(
-	request->messageId,
-	CIMStatusCode(status.getCode()),
-	status.getMessage(),
-	request->queueIds.copyAndPop());
-
-    PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    // call the message queue service method to see if this is an async envelope
-    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
-}
-*/
 
 void ProviderManagerService::handleCreateSubscriptionRequest(const Message * message) throw()
 {

@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,14 +33,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & className)
+extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & providerName)
 {
-	if(String::equalNoCase(className, "sample_helloworldindication"))
-	{
-		return(new IndicationProvider());
-	}
+    if(String::equalNoCase(providerName, "sample_helloworldindication"))
+    {
+	return(new IndicationProvider());
+    }
 
-	return(0);
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

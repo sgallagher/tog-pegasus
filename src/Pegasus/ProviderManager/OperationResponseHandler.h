@@ -366,8 +366,8 @@ public:
 	// create message
 	CIMProcessIndicationRequestMessage * request =
 	    new CIMProcessIndicationRequestMessage(
-		request->messageId,
-		request->nameSpace,
+		getRequest()->messageId,
+		static_cast<CIMEnableIndicationsRequestMessage *>(getRequest())->nameSpace,
 		cimInstance,
 		QueueIdStack(_target->getQueueId(), _source->getQueueId()));
 

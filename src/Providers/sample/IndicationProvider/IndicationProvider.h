@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,104 +32,49 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMBaseProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
-#include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class IndicationProvider :
-	public CIMIndicationProvider
+    public CIMIndicationProvider
 {
 public:
-	IndicationProvider(void) throw();
-	virtual ~IndicationProvider(void) throw();
+    IndicationProvider(void) throw();
+    virtual ~IndicationProvider(void) throw();
 
-	// CIMBaseProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMBaseProvider interface
+    virtual void initialize(CIMOMHandle & cimom);
+    virtual void terminate(void);
 
-	// CIMInstanceProvider interface
-	virtual void provideIndication(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const CIMDateTime & minimumInterval,
-		const CIMDateTime & maximumInterval,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
-	
-	virtual void updateIndication(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const CIMDateTime & minimumInterval,
-		const CIMDateTime & maximumInterval,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+    // CIMInstanceProvider interface
+    virtual void enableIndications(ResponseHandler<CIMIndication> & handler);
+    virtual void disableIndications(void);
 
-	virtual void cancelIndication(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		ResponseHandler<CIMInstance> & handler);
+    virtual void createSubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames,
+	const CIMPropertyList & propertyList,
+	const Uint16 repeatNotificationPolicy);
 
-	virtual void checkIndication(
-		const OperationContext & context,
-		const CIMReference & classReference,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+    virtual void modifySubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames,
+	const CIMPropertyList & propertyList,
+	const Uint16 repeatNotificationPolicy);
 
-        virtual void enableIndication(
-                const OperationContext & context,
-                const String & nameSpace,
-                const Array<String> & classNames,
-                const CIMPropertyList & propertyList,
-                const Uint16 repeatNotificationPolicy,
-                const String & otherRepeatNotificationPolicy,
-                const CIMDateTime & repeatNotificationInterval,
-                const CIMDateTime & repeatNotificationGap,
-                const Uint16 repeatNotificationCount,
-                const String & condition,
-                const String & queryLanguage,
-                const CIMInstance & subscription,
-                ResponseHandler<CIMInstance> & handler);
-
-        virtual void disableIndication(
-                const OperationContext & context,
-                const String & nameSpace,
-                const Array<String> & classNames,
-                const CIMInstance & subscription,
-                ResponseHandler<CIMInstance> & handler);
-
-        virtual void modifyIndication(
-                const OperationContext & context,
-                const String & nameSpace,
-                const Array<String> & classNames,
-                const CIMPropertyList & propertyList,
-                const Uint16 repeatNotificationPolicy,
-                const String & otherRepeatNotificationPolicy,
-                const CIMDateTime & repeatNotificationInterval,
-                const CIMDateTime & repeatNotificationGap,
-                const Uint16 repeatNotificationCount,
-                const String & condition,
-                const String & queryLanguage,
-                const CIMInstance & subscription,
-                ResponseHandler<CIMInstance> & handler);
+    virtual void deleteSubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames);
 
 protected:
-	class IndicationThread : public Thread
-	{
-	public:
-		IndicationThread(ResponseHandler<CIMInstance> & handler) throw();
-		virtual ~IndicationThread(void) throw();
-	
-		static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL run(void *) throw();
-	
-	private:
-		ResponseHandler<CIMInstance> * _pHandler;
-	};
+    CIMOMHandle _cimom;
 
-protected:
-	CIMOMHandle _cimom;
-	IndicationThread * pThread;
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
+

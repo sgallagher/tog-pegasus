@@ -55,6 +55,10 @@
 
 #include "IndicationService.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/String.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -678,8 +682,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         //  subscription
                         //
                         PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                            _MSG_NO_PROVIDERS);
+			
+			// l10n
+
+                        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+			//  _MSG_NO_PROVIDERS);
+
+			throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+				 MessageLoaderParms(_MSG_NO_PROVIDERS_KEY, _MSG_NO_PROVIDERS));
+
                     }
                 }
     
@@ -815,8 +826,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         request->userName, request->authType))
                     {
                         PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                            _MSG_NOT_ACCEPTED);
+
+			// l10n
+
+                        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+			// _MSG_NOT_ACCEPTED);
+
+			throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+				 MessageLoaderParms(_MSG_NOT_ACCEPTED_KEY, _MSG_NOT_ACCEPTED));
+
                     }
             
                     //
@@ -1230,9 +1248,16 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 instanceReference.setNameSpace (request->nameSpace);
                 _deleteExpiredSubscription (instanceReference);
     
-                String exceptionStr = _MSG_EXPIRED;
                 PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+
+		// l10n
+
+                // String exceptionStr = _MSG_EXPIRED;
+                // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+
+		throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+			 MessageLoaderParms(_MSG_EXPIRED_KEY, _MSG_EXPIRED));
+
             }
     
             //
@@ -1401,8 +1426,14 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         instance.setPath (instanceReference);
                         _handleError (instance);
                         PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                            _MSG_NO_PROVIDERS);
+
+			// l10n
+
+                        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+			//  _MSG_NO_PROVIDERS);
+
+			throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+				 MessageLoaderParms(_MSG_NO_PROVIDERS_KEY, _MSG_NO_PROVIDERS));
                     }
                 }
 
@@ -1485,8 +1516,15 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         request->userName, request->authType))
                     {
                         PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                            _MSG_NOT_ACCEPTED);
+
+			// l10n
+
+                        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+			// _MSG_NOT_ACCEPTED);
+
+			throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+				 MessageLoaderParms(_MSG_NOT_ACCEPTED_KEY, _MSG_NOT_ACCEPTED));
+
                     }
     
                     //
@@ -2206,8 +2244,15 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         creator))
                     {
                         PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
-                            _MSG_NOT_ACCEPTED);
+
+			// l10n
+
+                        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+			// _MSG_NOT_ACCEPTED);
+
+			throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+				 MessageLoaderParms(_MSG_NOT_ACCEPTED_KEY, _MSG_NOT_ACCEPTED));
+
                     }
         
                     //
@@ -2801,8 +2846,14 @@ Boolean IndicationService::_canCreate (
             //  A class not currently served by the Indication Service
             //
             PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                _MSG_CLASS_NOT_SERVED);
+
+	    // l10n
+
+            // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+	    // _MSG_CLASS_NOT_SERVED);
+
+	    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+		     MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, _MSG_CLASS_NOT_SERVED));
         }
     }
 
@@ -2847,12 +2898,34 @@ void IndicationService::_checkRequiredProperty (
 
     if (missingProperty)
     {
-        String exceptionStr = _MSG_MISSING_REQUIRED;
-        exceptionStr.append (propertyName.getString());
-        exceptionStr.append (message);
-        PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
-            exceptionStr);
+
+      // l10n
+
+      String exceptionStr = _MSG_MISSING_REQUIRED;
+      // exceptionStr.append (propertyName.getString());
+      exceptionStr.append ("$0");
+      exceptionStr.append (message);
+
+      String message_key;
+      if (strcmp(message.getCString(), _MSG_KEY_PROPERTY) == 0) {
+	message_key = _MSG_KEY_PROPERTY_KEY;
+      } else if (strcmp(message.getCString(), _MSG_PROPERTY) == 0) {
+	message_key = _MSG_PROPERTY_KEY;
+      } else {
+	message_key = String("");
+      }
+
+      PEG_METHOD_EXIT ();
+      
+      // l10n
+
+      // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+      //		   exceptionStr);
+
+      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+				     MessageLoaderParms(message_key, 
+				     exceptionStr, propertyName.getString()));
+
     }
     PEG_METHOD_EXIT ();
 }
@@ -2903,13 +2976,23 @@ void IndicationService::_checkPropertyWithOther (
             //
             if (!Contains (validValues, result))
             {
+	      // l10n
+
                 String exceptionStr = _MSG_INVALID_VALUE;
-                exceptionStr.append (theValue.toString ());
+                // exceptionStr.append (theValue.toString ());
+		exceptionStr.append ("$0");
                 exceptionStr.append (_MSG_FOR_PROPERTY);
-                exceptionStr.append (propertyName.getString());
+                // exceptionStr.append (propertyName.getString());
+		exceptionStr.append ("$1");
+
                 PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
-                    exceptionStr);
+
+                // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+		//    exceptionStr);
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms(_MSG_INVALID_VALUE_FOR_PROPERTY_KEY, exceptionStr,
+				       theValue.toString(), propertyName.getString()));
             }
         }
 
@@ -2921,12 +3004,25 @@ void IndicationService::_checkPropertyWithOther (
         {
             if (instance.findProperty (otherPropertyName) == PEG_NOT_FOUND)
             {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (otherPropertyName.getString());
-                exceptionStr.append (_MSG_PROPERTY);
-                PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
-                    exceptionStr);
+	      // l10n
+
+	      String exceptionStr = _MSG_MISSING_REQUIRED;
+	      // exceptionStr.append (otherPropertyName.getString());
+	      exceptionStr.append ("$0");
+	      exceptionStr.append (_MSG_PROPERTY);
+
+	      PEG_METHOD_EXIT ();
+
+	      // l10n
+                
+	      // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+	      //		   exceptionStr);
+
+	      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+					     MessageLoaderParms(_MSG_PROPERTY_KEY, 
+								exceptionStr,
+								otherPropertyName.getString()));
+
             }
             else
             {
@@ -2935,12 +3031,23 @@ void IndicationService::_checkPropertyWithOther (
                 CIMValue theOtherValue = otherProperty.getValue ();
                 if (theOtherValue.isNull ())
                 {
+		  // l10n
+
                     String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (otherPropertyName.getString());
+                    // exceptionStr.append (otherPropertyName.getString());
+		    exceptionStr.append ("$0");
                     exceptionStr.append (_MSG_PROPERTY);
+
                     PEG_METHOD_EXIT ();
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
-                        exceptionStr);
+
+		    // l10n
+                    // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+		    //  exceptionStr);
+
+		    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+					     MessageLoaderParms(_MSG_PROPERTY_KEY, 
+								exceptionStr,
+								otherPropertyName.getString()));
                 }
             }
         }
@@ -2956,14 +3063,30 @@ void IndicationService::_checkPropertyWithOther (
             CIMValue theOtherValue = otherProperty.getValue ();
             if (!theOtherValue.isNull ())
             {
-                String exceptionStr = otherPropertyName.getString();
-                exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                exceptionStr.append (propertyName.getString());
-                exceptionStr.append (_MSG_VALUE_NOT);
-                exceptionStr.append (CIMValue (otherValue).toString ());
+	      // l10n
+
+	      // String exceptionStr = otherPropertyName.getString();
+	      String exceptionStr ("$0");
+	      exceptionStr.append (_MSG_PROPERTY_PRESENT);
+	      // exceptionStr.append (propertyName.getString());
+	      exceptionStr.append ("$1");
+	      exceptionStr.append (_MSG_VALUE_NOT);
+	      // exceptionStr.append (CIMValue (otherValue).toString ());
+	      exceptionStr.append ("$2");
+	      
                 PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
-                    exceptionStr);
+
+		// l10n
+
+                // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+		//  exceptionStr);
+
+		throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+			     MessageLoaderParms(_MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY, 
+						exceptionStr,
+						otherPropertyName.getString(),
+						propertyName.getString(),
+						CIMValue (otherValue).toString ()));
             }
         }
     }
@@ -3235,9 +3358,15 @@ Boolean IndicationService::_canDelete (
             //
             if (instanceReference == ref)
             {
-                String exceptionStr = _MSG_REFERENCED;
                 PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+
+		// l10n
+
+                // String exceptionStr = _MSG_REFERENCED;
+                // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+
+		throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+			 MessageLoaderParms(_MSG_REFERENCED_KEY, _MSG_REFERENCED));
             }
         }
     }
@@ -4032,16 +4161,37 @@ CIMName IndicationService::_getIndicationClassName (
 
     if (!validClass)
     {
-        String exceptionStr = _MSG_INVALID_CLASSNAME;
-        exceptionStr.append (indicationClassName.getString());
-        exceptionStr.append (_MSG_IN_FROM);
-        exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER.getString());
+      // l10n
+
+        // String exceptionStr = _MSG_INVALID_CLASSNAME;
+      String exceptionStr = String("Invalid $0 class name ");
+        // exceptionStr.append (indicationClassName.getString());
+        exceptionStr.append ("$1");
+        // exceptionStr.append (_MSG_IN_FROM);
+        exceptionStr.append (" in $2 clause of ");
+        // exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER.getString());
+        exceptionStr.append ("$3");
         exceptionStr.append (" ");
-        exceptionStr.append (_PROPERTY_QUERY.getString());
+        // exceptionStr.append (_PROPERTY_QUERY.getString());
+        exceptionStr.append ("$4");
         exceptionStr.append (_MSG_PROPERTY);
+
         PEG_METHOD_EXIT ();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-            exceptionStr);
+
+	// l10n
+
+        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+	//  exceptionStr);
+
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER, 
+				       MessageLoaderParms (
+				          _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY,
+				          exceptionStr, 
+				          "indication",
+				          indicationClassName.getString(), 
+				          "FROM",
+				          PEGASUS_CLASSNAME_INDFILTER.getString(), 
+				          _PROPERTY_QUERY.getString()));
     }
 
     PEG_METHOD_EXIT ();
@@ -6192,33 +6342,58 @@ const char IndicationService::_ZERO_INTERVAL_STRING [] =
 //  Message substrings used in exception messages
 //
 
+// l10n
+
+// some have been commented out and put directly in the code for localization
+
+// this one is tricky because it is used in _checkRequiredProperty with the two below
 const char IndicationService::_MSG_MISSING_REQUIRED [] = "Missing required ";
 
 const char IndicationService::_MSG_KEY_PROPERTY [] = " key property";
+const char IndicationService::_MSG_KEY_PROPERTY_KEY [] = 
+   "IndicationService.IndicationService._MSG_KEY_PROPERTY";
 
 const char IndicationService::_MSG_PROPERTY [] = " property";
+const char IndicationService::_MSG_PROPERTY_KEY [] = 
+   "IndicationService.IndicationService._MSG_PROPERTY";
 
 const char IndicationService::_MSG_PROPERTY_PRESENT [] = 
     " property present, but ";
 
 const char IndicationService::_MSG_VALUE_NOT [] = " value not ";
 
+const char IndicationService::_MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY [] = 
+   "IndicationService.IndicationService._MSG_PROPERTY_PRESENT_BUT_VALUE_NOT";
+
+
 const char IndicationService::_MSG_NO_PROVIDERS [] = 
     "There are no providers capable of serving the subscription";
+const char IndicationService::_MSG_NO_PROVIDERS_KEY [] = 
+    "IndicationService.IndicationService._MSG_NO_PROVIDERS";
 
 const char IndicationService::_MSG_NOT_ACCEPTED [] = 
     "No providers accepted the subscription";
+const char IndicationService::_MSG_NOT_ACCEPTED_KEY [] = 
+    "IndicationService.IndicationService._MSG_NOT_ACCEPTED";
 
 const char IndicationService::_MSG_INVALID_CLASSNAME [] = 
     "Invalid indication class name ";
 
 const char IndicationService::_MSG_IN_FROM [] = " in FROM clause of ";
 
+const char IndicationService::_MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY [] = 
+    "IndicationService.IndicationService._MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY";
+
 const char IndicationService::_MSG_EXPIRED [] = 
     "Expired subscription may not be modified; has been deleted";
+const char IndicationService::_MSG_EXPIRED_KEY [] = 
+    "IndicationService.IndicationService._MSG_EXPIRED";
 
 const char IndicationService::_MSG_REFERENCED [] = 
     "A Filter or Handler referenced by a subscription may not be deleted";
+const char IndicationService::_MSG_REFERENCED_KEY [] = 
+    "IndicationService.IndicationService._MSG_REFERENCED";
+
 
 const char IndicationService::_MSG_INVALID_VALUE [] =
     "Invalid value ";
@@ -6226,7 +6401,12 @@ const char IndicationService::_MSG_INVALID_VALUE [] =
 const char IndicationService::_MSG_FOR_PROPERTY [] =
     " for property ";
 
+const char IndicationService::_MSG_INVALID_VALUE_FOR_PROPERTY_KEY [] =
+    "IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY";
+
 const char IndicationService::_MSG_CLASS_NOT_SERVED [] =
     "The specified class is not served by the Indication Service";
+const char IndicationService::_MSG_CLASS_NOT_SERVED_KEY [] =
+    "IndicationService.IndicationService._MSG_CLASS_NOT_SERVED";
 
 PEGASUS_NAMESPACE_END

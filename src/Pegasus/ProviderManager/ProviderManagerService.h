@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Triad.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/ProviderManager/SafeQueue.h>
 #include <Pegasus/Server/Linkage.h>
@@ -190,7 +192,7 @@ protected:
     SafeQueue<AsyncOpNode *> _incomingQueue;
     //SafeQueue<Message *> _outgoingQueue;
 
-    ProviderRegistrationManager * _providerRegistrationManager;
+    AutoPtr<ProviderRegistrationManager> _providerRegistrationManager;
     /** Table holding indication response handlers, one for each provider
 	that has indications enabled.
     */

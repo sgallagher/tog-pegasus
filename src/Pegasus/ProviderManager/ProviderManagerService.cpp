@@ -31,6 +31,7 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -620,7 +621,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
         if(legacy != 0)
         {
-            Destroyer<Message> xmessage(legacy);
+            AutoPtr<Message> xmessage(legacy);
 
 	    // Set the client's requested language into this service thread.
 	    // This will allow functions in this service to return messages

@@ -32,6 +32,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +55,7 @@
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Common/AcceptLanguages.h> //l10n
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -103,10 +105,6 @@ public:
     /** Constructs a CIM Client object with null values (default constructor).
     */
     CIMClient();
-
-    /** Destructor for a CIM Client object.
-	*/
-    ~CIMClient();
 
     /** gets the current timeout value in milliseconds for the CIMClient object.
 	*/
@@ -1859,7 +1857,7 @@ public:
 
 private:
 
-    CIMClientInterface* _rep;
+    AutoPtr<CIMClientInterface> _rep;//PEP101
 };
 
 PEGASUS_NAMESPACE_END

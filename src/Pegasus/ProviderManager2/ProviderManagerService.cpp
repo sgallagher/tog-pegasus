@@ -31,6 +31,7 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/Config/ConfigManager.h>
@@ -214,6 +215,7 @@ ProviderManagerService::ProviderManagerService(
        new ProviderManagerContainer("JMPIProviderManager", "JMPI", "JMPI"));
     #endif
     #endif
+    
     // END TEMP SECTION
 }
 
@@ -350,7 +352,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
         if(_isSupportedRequestType(legacy))
         {
-            Destroyer<Message> xmessage(legacy);
+            AutoPtr<Message> xmessage(legacy);
 
             // Set the client's requested language into this service thread.
             // This will allow functions in this service to return messages

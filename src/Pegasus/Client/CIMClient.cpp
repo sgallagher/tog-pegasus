@@ -32,6 +32,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,14 +53,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-CIMClient::CIMClient()
+CIMClient::CIMClient() :
+             _rep(new CIMClientRep())
 {
-    _rep = new CIMClientRep();
-}
-
-CIMClient::~CIMClient()
-{
-    delete _rep;
 }
 
 Uint32 CIMClient::getTimeout() const

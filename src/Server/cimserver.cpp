@@ -676,6 +676,18 @@ int main(int argc, char** argv)
         exit(1);
     }
 
+// l10n
+	// Set the home directory, msg sub-dir, into the MessageLoader.
+	// This will be the default directory where the resource bundles 
+	// are found.
+	String messagesDir = String::EMPTY;
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+	messagesDir = OS400_DEFAULT_MESSAGE_SOURCE;
+#else
+	messagesDir = ConfigManager::getHomedPath("msg");
+#endif
+	MessageLoader::setPegasusMsgHome(messagesDir);		
+
     Boolean enableHttpConnection = String::equal(
         configManager->getCurrentValue("enableHttpConnection"), "true");
     Boolean enableHttpsConnection = String::equal(

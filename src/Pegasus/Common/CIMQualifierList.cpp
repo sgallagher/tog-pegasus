@@ -32,6 +32,7 @@
 #include "CIMName.h"
 #include "Indentor.h"
 #include "XmlWriter.h"
+#include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -325,7 +326,7 @@ void CIMQualifierList::toMof(Array<Sint8>& out) const
 	// if second or greater, add comma separator
 	if (i > 0)
 	    out << ", \n";
-	_qualifiers[i].toMof(out);
+	MofWriter::appendQualifierElement(out, _qualifiers[i]);
     }
     
     // Terminating bracket

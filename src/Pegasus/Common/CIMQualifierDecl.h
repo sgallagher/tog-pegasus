@@ -156,10 +156,6 @@ public:
     Boolean isNull() const;
 #endif
     
-    /** toMof  Generates MOF output for the Qualifier Declaration object.
-    */
-    void toMof(Array<Sint8>& out) const;
-
     /** identical Compares two qualifier declarations
         @return Returns true if they are identical
     */ 
@@ -180,6 +176,7 @@ private:
     friend class CIMConstQualifierDecl;
     friend class CIMClassRep;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,6 +265,7 @@ private:
 
     friend class CIMQualifierDecl;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMQualifierDecl

@@ -43,6 +43,7 @@
 #include <cassert>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -95,7 +96,7 @@ void test01(const T& x)
 
         // Test toMof
         Array<Sint8> mofout;
-        v.toMof(mofout);
+        MofWriter::appendValueElement(mofout, v);
         mofout.append('\0');
 
         // Test toXml
@@ -139,7 +140,7 @@ void test01(const T& x)
         xmlBuffer.append('\0');
 
         Array<Sint8> mofOutput2;
-        v.toMof(mofOutput2);
+        MofWriter::appendValueElement(mofOutput2, v);
         mofOutput2.append('\0');
 #ifdef IO
 	if (verbose)
@@ -207,7 +208,7 @@ void test02(const Array<T>& x)
 
         // Test toMof
         Array<Sint8> mofOutput;
-        va.toMof(mofOutput);
+        MofWriter::appendValueElement(mofOutput, va);
         mofOutput.append('\0');
 
 
@@ -253,7 +254,7 @@ void test02(const Array<T>& x)
         xmlBuffer.append('\0');
 
         Array<Sint8> mofOutput2;
-        va.toMof(mofOutput2);
+        MofWriter::appendValueElement(mofOutput2, va);
         mofOutput2.append('\0');
 #ifdef IO
 	if (verbose)

@@ -29,10 +29,11 @@
 #include <cassert>
 #include <cstdio>
 #include "CIMPropertyRep.h"
-#include "XmlWriter.h"
 #include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"
+#include "XmlWriter.h"
+#include "MofWriter.h"
 
 PEGASUS_USING_STD;
 
@@ -279,15 +280,15 @@ void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
 	if (_value.isArray())
 	{ 
 	    // Insert any property values
-	    _value.toMof(out);
+	    MofWriter::appendValueElement(out, _value);
 	}
 	else if (_value.getType() == CIMType::REFERENCE)
 	{
-	    _value.toMof(out);
+	    MofWriter::appendValueElement(out, _value);
 	}
 	else
 	{ 
-	    _value.toMof(out);
+	    MofWriter::appendValueElement(out, _value);
 	}
     }
     // Close the property MOF

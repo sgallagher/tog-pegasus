@@ -91,8 +91,6 @@ public:
 
     void toMof(Array<Sint8>& out) const;
 
-    void printMof(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
-
     virtual CIMObjectRep* clone() const
     {
 	return new CIMClassRep(*this);

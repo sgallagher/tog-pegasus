@@ -29,6 +29,7 @@
 #include <cassert>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -68,7 +69,7 @@ void test01()
     //
     Array<Sint8> mofOut;
 	if(verbose)
-		p1.toMof(mofOut);
+		MofWriter::appendParameterElement(mofOut, p1);
 
     //
     // toXml

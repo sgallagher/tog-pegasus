@@ -163,18 +163,6 @@ Boolean CIMQualifier::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMQualifier::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
-}
-
-void CIMQualifier::printMof(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->printMof(o);
-}
-
 Boolean CIMQualifier::identical(const CIMConstQualifier& x) const
 {
     x._checkRep();

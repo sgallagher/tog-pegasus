@@ -190,18 +190,6 @@ public:
     Boolean isNull() const;
 #endif
 
-    /**	toMof- Converts the CIMQualifier object to MOF.
-	@param out The Array where the MOF output is stored.
-	Note that the result does not have a zero terminator.
-    */
-    void toMof(Array<Sint8>& out) const;
-
-    /**	printMOF - Converts the CIMQualifier object to XML and 
-        sends it the stream defined.
-	@param o Output stream for the MOF. The default is cout.
-    */
-    void printMof(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
-
     /**	identical - compares two CIMQualifier objects.
         @return - True if the objects are identical.
     */
@@ -224,6 +212,7 @@ private:
     friend class CIMConstQualifier;
     friend class CIMClassRep;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -292,6 +281,7 @@ private:
 
     friend class CIMQualifier;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 PEGASUS_MEMORY_FUNCTIONS(CIMQualifier)

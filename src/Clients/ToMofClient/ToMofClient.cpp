@@ -34,6 +34,7 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -270,7 +271,7 @@ int main(int argc, char** argv)
             CIMQualifierDecl tmp = qualifierDecls[i];
             Array<Sint8> x;
 
-            tmp.toMof(x);
+            MofWriter::appendQualifierDeclElement(x, tmp);
 
             x.append('\0');
 
@@ -299,13 +300,13 @@ int main(int argc, char** argv)
    	    cout << endl;
 
 	    Array<Sint8> x;
-	    cimClass.toMof(x);
+            MofWriter::appendClassElement(x, cimClass);
 	    x.append('\0');
 
 	    mofFormat(cout, x.getData(), 4);
 	    //os << tmp.getData() << PEGASUS_STD(endl);
 
-	    //cimClass.printMof(); 
+            //MofWriter::printClassElement(cimClass);
 	    cout << endl;
 	}
 	 catch(CIMClientException& e)
@@ -336,7 +337,7 @@ int main(int argc, char** argv)
 	    {
 		cout << endl;
 		Array<Sint8> x;
-		classArray[i].toMof(x);
+                MofWriter::appendClassElement(x, classArray[i]);
 		x.append('\0');
 
 		mofFormat(cout, x.getData(), 4);

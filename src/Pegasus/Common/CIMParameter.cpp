@@ -166,12 +166,6 @@ Boolean CIMParameter::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMParameter::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
-}
-
 Boolean CIMParameter::identical(const CIMConstParameter& x) const
 {
     x._checkRep();

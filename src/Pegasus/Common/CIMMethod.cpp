@@ -229,12 +229,6 @@ Boolean CIMMethod::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMMethod::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
-}
-
 Boolean CIMMethod::identical(const CIMConstMethod& x) const
 {
     x._checkRep();

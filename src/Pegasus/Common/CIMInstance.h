@@ -253,11 +253,6 @@ public:
     */
     Boolean identical(const CIMConstInstance& x) const;
 
-    /**	toMof - Creates an MOF transformation of the CIMInstance
-	compatible with the DMTF specification.
-    */
-    void toMof(Array<Sint8>& out) const;
-
 #ifdef PEGASUS_INTERNALONLY
     /**	isNull() - ATTN: */
     Boolean isNull() const;
@@ -289,6 +284,7 @@ private:
     friend class CIMObject;
     friend class CIMConstObject;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,6 +358,7 @@ private:
     friend class CIMObject;
     friend class CIMConstObject;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(

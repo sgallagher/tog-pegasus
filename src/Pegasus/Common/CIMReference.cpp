@@ -924,47 +924,6 @@ Boolean CIMReference::identical(const CIMReference& x) const
 	_rep->_keyBindings == x._rep->_keyBindings;
 }
 
-#ifdef PEGASUS_INTERNALONLY
-void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
-{
-    if (putValueWrapper)
-	out << "<VALUE.REFERENCE Mof>\n";
-
-    // See if it is a class or instance reference (instance references have
-    // key-bindings; class references do not).
-
-    if (_rep->_keyBindings.size())
-    {
-	if (_rep->_host.size())
-	{
-	    XmlWriter::appendInstancePathElement(out, *this);
-	}
-	else if (_rep->_nameSpace.size())
-	{
-	    XmlWriter::appendLocalInstancePathElement(out, *this);
-	}
-	else
-	    XmlWriter::appendInstanceNameElement(out, *this);
-    }
-    else
-    {
-	if (_rep->_host.size())
-	{
-	    XmlWriter::appendClassPathElement(out, *this);
-	}
-	else if (_rep->_nameSpace.size())
-	{
-	    XmlWriter::appendLocalClassPathElement(out, *this);
-	}
-	else
-	    XmlWriter::appendClassNameElement(out, _rep->_className);
-    }
-
-    if (putValueWrapper)
-	out << "</VALUE.REFERENCE Mof>\n";
-}
-#endif
-
 Uint32 CIMReference::makeHashCode() const
 {
     return HashFunc<String>::hash(toStringCanonical());

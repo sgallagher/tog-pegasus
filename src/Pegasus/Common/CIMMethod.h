@@ -215,10 +215,6 @@ public:
     Boolean isNull() const;
 #endif
 
-    /** toMof - puts MOF encoding of this object into out arguemnt. 
-    */ 
-    void toMof(Array<Sint8>& out) const;
-
     /** identical - Returns true if this method is identical to the
 	one given by the argument x.
     */
@@ -238,6 +234,7 @@ private:
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMConstMethod
@@ -300,6 +297,7 @@ private:
     friend class CIMMethod;
     friend class CIMMethodRep;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMMethod

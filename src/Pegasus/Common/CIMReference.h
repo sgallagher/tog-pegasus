@@ -527,13 +527,6 @@ public:
     */
     Boolean identical(const CIMReference& x) const;
 
-#ifdef PEGASUS_INTERNALONLY
-    /** Encodes this CIMreference object as MOF.
-	@param out argument in which to place results
-    */
-    void toMof(Array<Sint8>& out, Boolean putValueWrapper = true) const;
-#endif
-
     /** Generates hash code for the given reference. Two identical references
 	generate the same hash code (despite any subtle differences such as
 	the case of the classname and key names as well as the order of the

@@ -94,6 +94,7 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
+    MofWriter.cpp \
     peg_authorization.cpp 
 
 ##

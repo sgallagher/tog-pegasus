@@ -56,7 +56,7 @@ inline void _Dec(ArrayRep<T>* rep)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// _toString and _toMof routines:
+// _toString routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,46 +65,21 @@ inline void _toString(Array<Sint8>& out, Boolean x)
     XmlWriter::append(out, x);
 }
 
-inline void _toMof(Array<Sint8>& out, Boolean x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Uint8 x) { XmlWriter::append(out, Uint32(x)); }
-inline void _toMof(Array<Sint8>& out, Uint8 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Sint8 x) { XmlWriter::append(out, Sint32(x)); }
-inline void _toMof(Array<Sint8>& out, Sint8 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Uint16 x) { XmlWriter::append(out, Uint32(x)); }
-inline void _toMof(Array<Sint8>& out, Uint16 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Sint16 x) { XmlWriter::append(out, Sint32(x)); }
-inline void _toMof(Array<Sint8>& out, Sint16 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Uint32 x) { XmlWriter::append(out, x); }
-inline void _toMof(Array<Sint8>& out, Uint32 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Sint32 x) { XmlWriter::append(out, x); }
-inline void _toMof(Array<Sint8>& out, Sint32 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Uint64 x) { XmlWriter::append(out, x); }
-inline void _toMof(Array<Sint8>& out, Uint64 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Sint64 x) { XmlWriter::append(out, x); }
-inline void _toMof(Array<Sint8>& out, Sint64 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Real32 x) { XmlWriter::append(out, Real64(x)); }
-inline void _toMof(Array<Sint8>& out, Real32 x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, Real64 x) { XmlWriter::append(out, x); }
-inline void _toMof(Array<Sint8>& out, Real64 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Char16 x)
 {
     // ATTN: How to convert 16-bit characters to printable form?
     out.append(Sint8(x));
-}
-inline void _toMof(Array<Sint8>& out, Char16 x)
-{
-    XmlWriter::appendSpecial(out, x);
 }
 
 inline void _toString(Array<Sint8>& out, const String& x)
@@ -112,85 +87,14 @@ inline void _toString(Array<Sint8>& out, const String& x)
     out << x;
 }
 
-/** _toMof Internal function to convert the string back
-    to MOF format and output it.
-    The conversions are:
-    \b // \x0008: backspace BS
-    \t // \x0009: horizontal tab HT
-    \n // \x000A: linefeed LF
-    \f // \x000C: form feed FF
-    \r // \x000D: carriage return CR
-    \" // \x0022: double quote "
-    \’ // \x0027: single quote '
-    \\ // \x005C: backslash \
-    \x<hex> // where <hex> is one to four hex digits
-    \X<hex> // where <hex> is one to four hex digits
-*/
-/* ATTN:KS - We need to account for characters greater than x'7f
-*/
-inline void _toMof(Array<Sint8>& out, const String& x)
-{
-    out << "\"";
-    const Char16* tmp = x.getData();
-    char c;
-    while ((c = *tmp++))
-    {
-        switch (c)
-        {
-        case '\\':
-                out.append("\\\\",2);
-                break;
-
-            case '\b':
-                out.append("\\b",2);
-                break;
-
-            case '\t':
-                out.append("\\t",2);
-                break;
-
-            case '\n':
-                out.append("\\n",2);
-                break;
-
-            case '\f':
-                out.append("\\f",2);
-                break;
-
-            case '\r':
-                out.append("\\r",2);
-                break;
-
-           /* case '\'':
-                out.append("\\'", 2);
-                break;*/
-
-            case '"':
-                out.append("\\\"", 2);
-                break;
-
-            default:
-                out.append(Sint8(c));
-        }
-
-    }
-    out << "\"";
-}
-
 inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.getString();
 }
 
-inline void _toMof(Array<Sint8>& out, const CIMDateTime& x) { _toString(out, x); }
-
 inline void _toString(Array<Sint8>& out, const CIMReference& x)
 {
     out << x.toString();
-}
-inline void _toMof(Array<Sint8>& out, const CIMReference& x)
-{
-    x.toMof(out);
 }
 
 template<class T>
@@ -203,32 +107,6 @@ void _toString(Array<Sint8>& out, const T* p, Uint32 size)
     }
 }
 
-/** _toMof Array -
-    arrayInitializer  = "{" constantValue*( "," constantValue)"}"
-
-*/
-template<class T>
-void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
-{
-    Boolean isFirstEntry = true;
-    // if there are any entries in the array output them
-    if (size)
-    {
-        out << "{";
-        while (size--)
-        {
-            // Put comma on all but first entry.
-            if (!isFirstEntry)
-            {
-                out << ", ";
-            }
-            isFirstEntry = false;
-            _toMof(out, *p++);
-        }
-        out << "}";
-
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1504,171 +1382,6 @@ void CIMValue::get(Array<CIMReference>& x) const
 CIMValue CIMValue::clone() const
 {
     return CIMValue(*this);
-}
-
-void CIMValue::toMof(Array<Sint8>& out) const
-{
-    // if the CIMValue is Null we return nothing.
-    // The alternative is to return the Null indicator.
-    if (_rep->_isNull)
-    {
-        out << "null";
-        return ;
-    }
-
-
-    if (_rep->_isArray)
-    {
-        switch (_rep->_type)
-        {
-            case CIMType::BOOLEAN:
-            {
-                _toMof(out, _rep->_u._booleanArray->data(),
-                            _rep->_u._booleanArray->size);
-                break;
-            }
-            case CIMType::UINT8:
-                _toMof(out, _rep->_u._uint8Array->data(),
-                            _rep->_u._uint8Array->size);
-                break;
-
-            case CIMType::SINT8:
-                _toMof(out, _rep->_u._sint8Array->data(),
-                            _rep->_u._sint8Array->size);
-                break;
-
-            case CIMType::UINT16:
-                _toMof(out, _rep->_u._uint16Array->data(),
-                            _rep->_u._uint16Array->size);
-                break;
-
-            case CIMType::SINT16:
-                _toMof(out, _rep->_u._sint16Array->data(),
-                            _rep->_u._sint16Array->size);
-                break;
-
-            case CIMType::UINT32:
-                _toMof(out, _rep->_u._uint32Array->data(),
-                            _rep->_u._uint32Array->size);
-                break;
-
-            case CIMType::SINT32:
-                _toMof(out, _rep->_u._sint32Array->data(),
-                            _rep->_u._sint32Array->size);
-                break;
-
-            case CIMType::UINT64:
-                _toMof(out, _rep->_u._uint64Array->data(),
-                            _rep->_u._uint64Array->size);
-                break;
-
-            case CIMType::SINT64:
-                _toMof(out, _rep->_u._sint64Array->data(),
-                            _rep->_u._sint64Array->size);
-                break;
-
-            case CIMType::REAL32:
-                _toMof(out, _rep->_u._real32Array->data(),
-                            _rep->_u._real32Array->size);
-                break;
-
-            case CIMType::REAL64:
-                _toMof(out, _rep->_u._real64Array->data(),
-                            _rep->_u._real64Array->size);
-                break;
-
-            case CIMType::CHAR16:
-                _toMof(out, _rep->_u._char16Array->data(),
-                            _rep->_u._char16Array->size);
-                break;
-
-            case CIMType::STRING:
-                _toMof(out, _rep->_u._stringArray->data(),
-                            _rep->_u._stringArray->size);
-                break;
-
-            case CIMType::DATETIME:
-                _toMof(out, _rep->_u._dateTimeArray->data(),
-                            _rep->_u._dateTimeArray->size);
-                break;
-
-            case CIMType::REFERENCE:
-                _toMof(out, _rep->_u._referenceArray->data(),
-                            _rep->_u._referenceArray->size);
-                break;
-
-            default:
-                throw CIMValueInvalidType();
-        }
-    }
-    else
-    {
-        switch (_rep->_type)
-        {
-            case CIMType::BOOLEAN:
-                _toMof(out, Boolean(_rep->_u._booleanValue != 0));
-                break;
-
-            case CIMType::UINT8:
-                _toMof(out, _rep->_u._uint8Value);
-                break;
-
-            case CIMType::SINT8:
-                _toMof(out, _rep->_u._sint8Value);
-                break;
-
-            case CIMType::UINT16:
-                _toMof(out, _rep->_u._uint16Value);
-                break;
-
-            case CIMType::SINT16:
-                _toMof(out, _rep->_u._sint16Value);
-                break;
-
-            case CIMType::UINT32:
-                _toMof(out, _rep->_u._uint32Value);
-                break;
-
-            case CIMType::SINT32:
-                _toMof(out, _rep->_u._sint32Value);
-                break;
-
-            case CIMType::UINT64:
-                _toMof(out, _rep->_u._uint64Value);
-                break;
-
-            case CIMType::SINT64:
-                _toMof(out, _rep->_u._sint64Value);
-                break;
-
-            case CIMType::REAL32:
-                _toMof(out, _rep->_u._real32Value);
-                break;
-
-            case CIMType::REAL64:
-                _toMof(out, _rep->_u._real64Value);
-                break;
-
-            case CIMType::CHAR16:
-                _toMof(out, Char16(_rep->_u._char16Value));
-                break;
-
-            case CIMType::STRING:
-                _toMof(out, *_rep->_u._stringValue);
-                break;
-
-            case CIMType::DATETIME:
-                _toMof(out, *_rep->_u._dateTimeValue);
-                break;
-
-            case CIMType::REFERENCE:
-                _toMof(out, *_rep->_u._referenceValue);
-                break;
-
-            default:
-                throw CIMValueInvalidType();
-        }
-    }
 }
 
 String CIMValue::toString() const

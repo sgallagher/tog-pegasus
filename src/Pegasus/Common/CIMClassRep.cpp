@@ -34,6 +34,7 @@
 #include "CIMQualifierNames.h"
 #include "CIMScope.h"
 #include "XmlWriter.h"
+#include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -531,26 +532,18 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
 	// there is an error in getclass that does not
 	// test the localOnly flag.
 	if (!_properties[i].getPropagated())
-	    _properties[i].toMof(out);
+	    MofWriter::appendPropertyElement(out, _properties[i]);
     }
 
     // Format the Methods:  for non-propagated methods
     for (Uint32 i = 0, n = _methods.size(); i < n; i++)
     {
 	if (!_methods[i].getPropagated())
-	_methods[i].toMof(out);
+	    MofWriter::appendMethodElement(out, _methods[i]);
     }
 
     // Class closing element:
     out << "\n};\n";
-}
-
-void CIMClassRep::printMof(PEGASUS_STD(ostream) &os) const
-{
-    Array<Sint8> tmp;
-    toMof(tmp);
-    tmp.append('\0');
-    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 

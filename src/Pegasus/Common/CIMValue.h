@@ -383,13 +383,6 @@ public:
     /** Makes a deep copy (clone) of the given object. */
     CIMValue clone() const;
 
-    /** toMof - Converts a CIMValueObject to Mof.
-        @out Sint8 Array to hold the Mof representation
-        @return Returns the Mof representation of the CIMValue
-        object in the input parameter out. 
-    */
-    void toMof(Array<Sint8>& out) const;
-
     /** toString - Converts the CIMvalue to a string.  Should only be
             used for output purposes.  To get an actual String value, use
             get(String &).

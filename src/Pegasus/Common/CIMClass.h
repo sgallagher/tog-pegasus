@@ -331,12 +331,6 @@ public:
     */
     Boolean identical(const CIMConstClass& x) const;
 
-    /** toMof  - prepares a MOF representation of the CIMClass object
-    	in the provided Sint8 variable.
-	@param out Sint8 array for the XML representation
-    */
-    void toMof(Array<Sint8>& out) const;
-
 #ifdef PEGASUS_INTERNALONLY
     /** Resolve -  Resolve the class: inherit any properties and
 	qualifiers. Make sure the superClass really exists and is consistent
@@ -350,10 +344,6 @@ public:
 
     /// isNull - ATTN:
     Boolean isNull() const;
-
-    /** printMof -  Prints the toMof output to cout
-    */
-    void printMof(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 #endif
 
 private:
@@ -368,6 +358,7 @@ private:
     friend class CIMObject;
     friend class CIMConstObject;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMClass
@@ -460,6 +451,7 @@ private:
     friend class CIMObject;
     friend class CIMConstObject;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 PEGASUS_NAMESPACE_END

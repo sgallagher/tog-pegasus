@@ -33,6 +33,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -51,7 +52,7 @@ void test01(const T& x)
         XmlWriter::printValueElement(v3, cout);
 
     Array<Sint8> tmp1;
-    v3.toMof(tmp1);
+    MofWriter::appendValueElement(tmp1, v3);
 
     tmp1.append('\0');
     if (verbose)
@@ -104,7 +105,7 @@ int main(int argc, char** argv)
     {
     CIMProperty p1("message", "Hi There");
     Array<Sint8> tmp;
-    p1.toMof(tmp);
+    MofWriter::appendPropertyElement(tmp, p1);
     tmp.append('\0');
     if (verbose)
         cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
@@ -112,7 +113,7 @@ int main(int argc, char** argv)
     {
     CIMProperty p2("message","test");
     Array<Sint8> tmp;
-    p2.toMof(tmp);
+    MofWriter::appendPropertyElement(tmp, p2);
     tmp.append('\0');
     if (verbose)
         cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
@@ -134,7 +135,7 @@ int main(int argc, char** argv)
         if (verbose)
             XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
-	class1.toMof(tmp);
+	MofWriter::appendClassElement(tmp, class1);
 	tmp.append('\0');
         if (verbose)
 	    cout << "\nClass MOF = " << tmp.getData() << PEGASUS_STD(endl);
@@ -161,7 +162,7 @@ int main(int argc, char** argv)
         if (verbose)
             XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
-	class1.toMof(tmp);
+	MofWriter::appendClassElement(tmp, class1);
 	tmp.append('\0');
         if (verbose)
 	    cout << "\nClass MOF = " << tmp.getData() << PEGASUS_STD(endl);
@@ -229,11 +230,11 @@ int main(int argc, char** argv)
         if (verbose)
             XmlWriter::printClassElement(class1);
 	//Array<Sint8> tmp;
-	//class1.toMof(tmp);
+	//MofWriter::appendClassElement(tmp, class1);
 	//tmp.append('\0');
 
         if (verbose)
-	    class1.printMof();
+	    MofWriter::printClassElement(class1);
     }
 
     {
@@ -279,14 +280,14 @@ int main(int argc, char** argv)
             if (verbose)
 	        XmlWriter::printQualifierDeclElement(qual1);
 	    Array<Sint8> tmp;
-	    qual1.toMof(tmp);
+	    MofWriter::appendQualifierDeclElement(tmp, qual1);
 	    tmp.append('\0');
             if (verbose)
 	        cout << "Qualifier Test\n" << tmp.getData() << "\n\n";
             if (verbose)
 	        XmlWriter::printQualifierDeclElement(q2);
 	    Array<Sint8> tmp1;
-	    q2.toMof(tmp1);
+	    MofWriter::appendQualifierDeclElement(tmp1, q2);
 	    tmp1.append('\0');
             if (verbose)
 	        cout << "Qualifier Test\n" << tmp1.getData() << "\n\n";

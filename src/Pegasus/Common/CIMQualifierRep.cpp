@@ -32,6 +32,7 @@
 #include "CIMName.h"
 #include "Exception.h"
 #include "XmlWriter.h"
+#include "MofWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -149,7 +150,7 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const
 	   {
 		   out << " (";
 		   hasValueField = true;
-		   _value.toMof(out);
+		   MofWriter::appendValueElement(out, _value);
 		   out << ")"; 
 	   }
     }
@@ -162,14 +163,6 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const
 		out << " : ";
 		out << flavorString;
     }
-}
-
-void CIMQualifierRep::printMof(PEGASUS_STD(ostream) &os) const
-{
-    Array<Sint8> tmp;
-    toMof(tmp);
-    tmp.append('\0');
-    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 

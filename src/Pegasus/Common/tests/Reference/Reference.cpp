@@ -24,6 +24,7 @@
 #include <iostream>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -55,7 +56,7 @@ void test01()
     }
 
     Array<Sint8> mofOut;
-    r.toMof(mofOut);
+    MofWriter::appendValueReferenceElement(mofOut, r);
     r.clear();
     }
 

@@ -146,12 +146,6 @@ Boolean CIMQualifierDecl::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMQualifierDecl::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
-}
-
 Boolean CIMQualifierDecl::identical(const CIMConstQualifierDecl& x) const
 {
     x._checkRep();

@@ -33,8 +33,9 @@
 #include "DeclContext.h"
 #include "Indentor.h"
 #include "CIMName.h"
-#include "XmlWriter.h"
 #include "Constants.h"
+#include "XmlWriter.h"
+#include "MofWriter.h"
 
 PEGASUS_USING_STD;
 
@@ -233,7 +234,7 @@ void CIMInstanceRep::toMof(Array<Sint8>& out) const
 	// there is an error in getclass that does not
 	// test the localOnly flag.
 	if (!_properties[i].getPropagated())
-	    _properties[i].toMof(out);
+	    MofWriter::appendPropertyElement(out, _properties[i]);
     }
 
     // Class closing element:

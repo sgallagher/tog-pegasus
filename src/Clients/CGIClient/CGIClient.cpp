@@ -51,6 +51,7 @@ Pegasus.
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -608,12 +609,12 @@ void PrintClass(
 	cout << "<h2>Display MOF for Class " << cimClass.getClassName() << "</h2>";
 	cout << "<pre>";
 	Array<Sint8> x;
-	cimClass.toMof(x);
+	MofWriter::appendClassElement(x, cimClass);
 	x.append('\0');
 
 	mofFormat(cout, x.getData(), 4);
 
-	//cimClass.printMof();
+	//MofWriter::printClassElement(cimClass);
 	cout << "</pre>";
 
         // Now show the XML for this entity
@@ -662,7 +663,7 @@ const String& nameSpace,
     cout << "<h2>Display MOF for Instance</h2>";
     cout << "<pre>";
     Array<Sint8> x;
-    cimInstance.toMof(x);
+    MofWriter::appendInstanceElement(x, cimInstance);
     x.append('\0');
 
     mofFormat(cout, x.getData(), 4);
@@ -999,7 +1000,7 @@ void PrintGetQualifier(
     cout << "\n<h2>MOF</h2>\n";
     cout << "<pre>";
     Array<Sint8> x;
-    qualifierDecl.toMof(x);
+    MofWriter::appendQualifierDeclElement(x, qualifierDecl);
     x.append('\0');
     mofFormat(cout, x.getData(), 4);
     cout << "</pre>\n";

@@ -34,6 +34,7 @@
 #include "CIMName.h"
 #include "CIMScope.h"
 #include "XmlWriter.h"
+#include "MofWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -222,7 +223,7 @@ void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
 	if (i)
 	    out << ", ";
 
-	_parameters[i].toMof(out);
+	MofWriter::appendParameterElement(out, _parameters[i]);
     }
 
     // output the parameterlist and method terminator

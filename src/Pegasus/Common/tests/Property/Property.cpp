@@ -30,6 +30,7 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -64,8 +65,8 @@ void test01()
 
     // Test toMof
        Array<Sint8> mofOut;
-       p1.toMof(mofOut);
-       p2.toMof(mofOut);
+       MofWriter::appendPropertyElement(mofOut, p1);
+       MofWriter::appendPropertyElement(mofOut, p2);
 
     // Test toXml
        Array<Sint8> xmlOut;
@@ -163,7 +164,7 @@ void test02()
 	    XmlWriter::printPropertyElement(cp1, cout);
 
         Array<Sint8> mofOut;
-        cp1.toMof(mofOut);
+        MofWriter::appendPropertyElement(mofOut, cp1);
         Array<Sint8> xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 

@@ -255,6 +255,10 @@ TAG: Version_1_09.
     instead of the CIM* classes keeps those internal methods out of
     the published client and provider APIs.
 
+42. (Roger Kumpf - HP) 15 May 2002 - Moved CIM*::toMof() methods to
+    a new MofWriter class as MofWriter::append*Element().  Moved
+    CIM*::printMof() methods to MofWriter::print*Element().
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

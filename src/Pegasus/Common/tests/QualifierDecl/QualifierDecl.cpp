@@ -31,6 +31,7 @@
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -107,7 +108,7 @@ void test01()
     // Test toMof 
     //
     Array<Sint8> mofOut;
-    qual1.toMof(mofOut);
+    MofWriter::appendQualifierDeclElement(mofOut, qual1);
 
     CIMConstQualifierDecl cq1; 
     cq1 = qualclone;

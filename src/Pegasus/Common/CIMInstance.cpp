@@ -220,12 +220,6 @@ void CIMInstance::resolve(
     _rep->resolve(declContext, nameSpace, cimClassOut, propagateQualifiers);
 }
 
-void CIMInstance::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
-}
-
 CIMInstance CIMInstance::clone() const
 {
     return CIMInstance((CIMInstanceRep*)(_rep->clone()));

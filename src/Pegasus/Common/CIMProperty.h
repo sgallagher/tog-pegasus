@@ -277,12 +277,6 @@ public:
 
     /// ATTN: documentation
     Boolean isNull() const;
-
-    /** toMof  - Converts the object to Mof and puts the
-	resutl in the out parameter
-	@param out Parameter for Mof output
-    */
-    void toMof(Array<Sint8>& out) const;
 #endif
 
 private:
@@ -300,6 +294,7 @@ private:
     friend class CIMClassRep;
     friend class CIMInstanceRep;
     friend class XmlWriter;
+    friend class MofWriter;
 
     CIMPropertyRep* _rep;
 };
@@ -366,8 +361,6 @@ public:
 
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
-
-    void toMof(Array<Sint8>& out) const;
 #endif
 
 private:
@@ -379,6 +372,7 @@ private:
     friend class CIMProperty;
     friend class CIMPropertyRep;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMProperty

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include "clientRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;
@@ -585,7 +586,7 @@ int main(int argc, char** argv)
                     else
                     {
                         Array<Sint8> x;
-                        tmp.toMof(x);
+                        MofWriter::appendQualifierDeclElement(x, tmp);
 
                         x.append('\0');
 
@@ -637,7 +638,7 @@ int main(int argc, char** argv)
                     else
                     {
                         Array<Sint8> x;
-                        cimClass.toMof(x);
+                        MofWriter::appendClassElement(x, cimClass);
 
                         x.append('\0');
 
@@ -719,7 +720,7 @@ int main(int argc, char** argv)
                             else
                             {
                                 Array<Sint8> x;
-                                instance.toMof(x);
+                                MofWriter::appendInstanceElement(x, instance);
 
                                 x.append('\0');
 

@@ -30,6 +30,7 @@
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -133,7 +134,7 @@ int main(int argc, char** argv)
         }
         Array<Sint8> out;
         XmlWriter::appendMethodElement(out, cm1);
-        cm1.toMof(out);
+        MofWriter::appendMethodElement(out, cm1);
 
         Boolean nullMethod = cm1.isNull(); 
 	assert(!nullMethod);

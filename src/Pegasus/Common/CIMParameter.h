@@ -97,8 +97,6 @@ public:
     Boolean isNull() const;
 #endif
 
-    void toMof(Array<Sint8>& out) const;
-
     Boolean identical(const CIMConstParameter& x) const;
 
     CIMParameter clone() const;
@@ -110,8 +108,10 @@ private:
     void _checkRep() const;
 
     CIMParameterRep* _rep;
+
     friend class CIMConstParameter;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,6 +175,7 @@ private:
     CIMParameterRep* _rep;
     friend class CIMParameter;
     friend class XmlWriter;
+    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMParameter

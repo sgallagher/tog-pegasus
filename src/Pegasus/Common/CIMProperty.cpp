@@ -234,12 +234,6 @@ Boolean CIMProperty::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMProperty::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
-}
-
 Boolean CIMProperty::identical(const CIMConstProperty& x) const
 {
     x._checkRep();
@@ -393,12 +387,6 @@ Uint32 CIMConstProperty::getQualifierCount() const
 Boolean CIMConstProperty::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstProperty::toMof(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toMof(out);
 }
 
 Boolean CIMConstProperty::identical(const CIMConstProperty& x) const

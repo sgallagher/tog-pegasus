@@ -37,9 +37,9 @@ PEGASUS_USING_STD;
 pegasus_module::module_rep::module_rep(ModuleController *controller, 
 				       const String & name,
 				       void *module_address, 
-				       Message * (*receive_message)(Message *),
-				       void (*async_callback)(Uint32, Message *),
-				       void (*shutdown_notify)(Uint32 code))
+				       Message * (*receive_message)(Message *, void *),
+				       void (*async_callback)(Uint32, Message *, void *),
+				       void (*shutdown_notify)(Uint32 code, void *))
    : _thread_safety(),
      _controller(controller), 
      _name(name), 
@@ -72,7 +72,7 @@ Message * pegasus_module::module_rep::module_receive_message(Message *msg)
 {
    Message * ret;
    _thread_safety.lock(pegasus_thread_self());
-   try {  ret = _receive_message(msg); }
+   try {  ret = _receive_message(msg, _module_address); }
    catch(...) { _thread_safety.unlock(); throw; }
    _thread_safety.unlock();
    return ret;
@@ -81,7 +81,7 @@ Message * pegasus_module::module_rep::module_receive_message(Message *msg)
 void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message *msg)
 {
    _thread_safety.lock(pegasus_thread_self());
-   try  { _async_callback(msg_handle, msg); }
+   try  { _async_callback(msg_handle, msg, _module_address); }
    catch(...) { _thread_safety.unlock(); throw; }
 }
 
@@ -93,7 +93,7 @@ void pegasus_module::module_rep::_send_shutdown_notify(void)
       if( _shutting_down == 0 )
       {
 	 _shutting_down++;
-	 _shutdown_notify(_reference_count.value());
+	 _shutdown_notify(_reference_count.value(), _module_address);
 	 _async_callback = closed_async_callback;
 	 _receive_message = closed_receive_message;
       }
@@ -106,9 +106,9 @@ void pegasus_module::module_rep::_send_shutdown_notify(void)
 pegasus_module::pegasus_module(ModuleController *controller, 
 			       const String &id, 
  			       void *module_address,
-			       Message * (*receive_message)(Message *),
-			       void (*async_callback)(Uint32, Message *),
-			       void (*shutdown_notify)(Uint32 code))
+			       Message * (*receive_message)(Message *, void *),
+			       void (*async_callback)(Uint32, Message *, void *),
+			       void (*shutdown_notify)(Uint32 code, void *))
 {
    _rep = new module_rep(controller, 
 			 id, 
@@ -272,9 +272,10 @@ ModuleController::~ModuleController()
 ModuleController & ModuleController::register_module(const String & controller_name,
 						     const String & module_name, 
 						     void *module_address, 
-						     Message * (*receive_message)(Message *),
-						     void (*async_callback)(Uint32, Message *),
-						     void (*shutdown_notify)(Uint32)) 
+						     Message * (*receive_message)(Message *, void *),
+						     void (*async_callback)(Uint32, Message *, void *),
+						     void (*shutdown_notify)(Uint32, void *),
+						     pegasus_module **instance) 
    throw(AlreadyExists, IncompatibleTypes)
 {
 
@@ -296,7 +297,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
    MessageQueueService *service = static_cast<MessageQueueService *>(message_queue);
    if( (service == NULL) ||  ! ( service->get_capabilities() & module_capabilities::module_controller ))
    {
-      // ATTN-RK-P1-20020326: Missing code here?
+      throw IncompatibleTypes();
    }
 
    controller = static_cast<ModuleController *>(service);
@@ -343,6 +344,9 @@ ModuleController & ModuleController::register_module(const String & controller_n
 			       shutdown_notify);
    
    controller->_modules.insert_last(module);
+   
+   if(instance != NULL)
+      *instance = module;
    
    return *controller;
 }

@@ -52,9 +52,9 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	    module_rep(ModuleController *controller, 
 		       const String & name,
 		       void *module_address, 
-		       Message * (*receive_message)(Message *),
-		       void (*async_callback)(Uint32, Message *),
-		       void (*shutdown_notify)(Uint32 code));
+		       Message * (*receive_message)(Message *, void *),
+		       void (*async_callback)(Uint32, Message *, void *),
+		       void (*shutdown_notify)(Uint32 code, void *));
       
 	    ~module_rep(void) ;
 	    
@@ -93,23 +93,23 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	    AtomicInt _shutting_down;
 	    
 	    void *_module_address;
-	    Message * (*_receive_message)(Message *);
-	    void (*_async_callback)(Uint32, Message *);
-	    void (*_shutdown_notify)(Uint32 code);
+	    Message * (*_receive_message)(Message *, void *);
+	    void (*_async_callback)(Uint32, Message *, void *);
+	    void (*_shutdown_notify)(Uint32 code, void *);
 
-	    static Message * default_receive_message(Message *msg)
+	    static Message * default_receive_message(Message *msg, void *inst)
 	    { throw NotImplemented("Module Receive");}
 
-	    static void default_async_callback(Uint32 handle, Message *msg)
+	    static void default_async_callback(Uint32 handle, Message *msg, void *inst)
 	    { throw NotImplemented("Module Async Receive"); }
 	    
-	    static void default_shutdown_notify(Uint32 code)
+	    static void default_shutdown_notify(Uint32 code, void *inst)
 	    { return; }
 
-	    static Message * closed_receive_message(Message *msg)
+	    static Message * closed_receive_message(Message *msg, void *inst)
 	    { throw ModuleClosed();}
 
-	    static void closed_async_callback(Uint32 handle, Message *msg)
+	    static void closed_async_callback(Uint32 handle, Message *msg, void *inst)
 	    { throw ModuleClosed(); }
 
 	    friend class ModuleController;
@@ -120,9 +120,9 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       pegasus_module(ModuleController *controller, 
 		     const String &id, 
 		     void *module_address,
-		     Message * (*receive_message)(Message *),
-		     void (*async_callback)(Uint32, Message *),
-		     void (*shutdown_notify)(Uint32 code)) ;
+		     Message * (*receive_message)(Message *, void *),
+		     void (*async_callback)(Uint32, Message *, void *),
+		     void (*shutdown_notify)(Uint32 code, void *)) ;
       
       ~pegasus_module(void);
       
@@ -175,9 +175,10 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       static ModuleController & register_module(const String & controller_name,
 						const String & module_name, 
 						void *module_address, 
-						Message * (*receive_message)(Message *),
-						void (*async_callback)(Uint32, Message *),
-						void (*shutdown_notify)(Uint32)) 
+						Message * (*receive_message)(Message *, void *),
+						void (*async_callback)(Uint32, Message *, void *),
+						void (*shutdown_notify)(Uint32, void *), 
+						pegasus_module **instance = NULL) 
 	 throw(AlreadyExists, IncompatibleTypes);
 
       Boolean deregister_module(const String & module_name);

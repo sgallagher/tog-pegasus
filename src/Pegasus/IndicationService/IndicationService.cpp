@@ -635,6 +635,18 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //
                     instanceRef = instance.getPath ();
                     instanceRef.setNameSpace (request->nameSpace);
+
+                    CIMValue filterValue = instance.getProperty( 
+                        instance.findProperty( _PROPERTY_FILTER ) ).getValue();
+                    CIMValue handlerValue = instance.getProperty( 
+                        instance.findProperty( _PROPERTY_HANDLER ) ).getValue();
+
+                    Array< CIMKeyBinding > kb;
+                    kb.append( CIMKeyBinding( _PROPERTY_FILTER, filterValue ) );
+                    kb.append( CIMKeyBinding( _PROPERTY_HANDLER, handlerValue ) );
+
+                    instanceRef.setKeyBindings( kb );
+
                     instance.setPath (instanceRef);
 // l10n 
                     _sendCreateRequests (indicationProviders, 

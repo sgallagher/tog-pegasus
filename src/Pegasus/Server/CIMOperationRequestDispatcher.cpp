@@ -1778,8 +1778,11 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         }
     }
 
+
+// << Fri Sep 26 12:29:43 2003 mdd >>
     // Send the remaining response and delete the aggregator.
-    response = poA->getResponse(0);
+    response = poA->removeResponse(0);
+    
     response->dest = poA->_dest;
     // l10n
     // If all the langs didn't match, then send no language in the aggregated response.
@@ -1788,6 +1791,12 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     	response->contentLanguages.clear(); 
     }
     SendForget(response);
+
+
+
+//<< Fri Sep 26 12:19:34 2003 mdd >>
+// poA still contains pointers to the messages, does deleting cause memory corruption? 
+// 
     delete poA;
 
     PEG_METHOD_EXIT();

@@ -175,17 +175,48 @@ public:
     }
 
 
-    Uint32 numberResponses() { return _responseList.size(); }
+    Uint32 numberResponses() { 
+      //      _appendResponseMutex.lock(pegasus_thread_self());
+      Uint32 size =  _responseList.size(); 
+      //      _appendResponseMutex.unlock();
+      return size;
+      
+    }
 
     CIMResponseMessage* getResponse(const Uint32& pos)
-    {
-	return _responseList[pos];
+      {
+      CIMResponseMessage *tmp;
+      _appendResponseMutex.lock(pegasus_thread_self());
+      tmp = _responseList[pos];
+      _appendResponseMutex.unlock();
+      return tmp;
+      
     }
+
+    // << Fri Sep 26 12:28:53 2003 mdd >>
+
+    // allow dispatcher to remove the response so it doesn't become
+    // destroyed when the poA is destroyed. 
+
+    CIMResponseMessage* removeResponse(const Uint32& pos)
+      {
+	CIMResponseMessage* tmp;
+	
+	_appendResponseMutex.lock(pegasus_thread_self());
+	tmp = _responseList[pos];
+	_responseList.remove(pos);
+	_appendResponseMutex.unlock();
+	return tmp;
+	
+      }
+    
 
     void deleteResponse(const Uint32&pos)
     {
-        delete _responseList[pos];
-        _responseList.remove(pos);
+      _appendResponseMutex.lock(pegasus_thread_self());
+      delete _responseList[pos];
+      _responseList.remove(pos);
+      _appendResponseMutex.unlock();
     }
 
     Uint32 getRequestType(){ return _msgRequestType;}

@@ -19,9 +19,10 @@ include $(ROOT)/mak/common.mak
 TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
 
 ifeq ($(OS_TYPE),windows)
-OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
+CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
+OBJECTS = $(CPP_OBJECTS:.c=.obj)
 else
-OBJECTS = $(TMP_OBJECTS:.cpp=.o)
+CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
 endif
 
 ################################################################################

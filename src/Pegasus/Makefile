@@ -12,6 +12,7 @@ DIRS = \
     Client \
     ExportClient \
     Provider \
+	 Provider2 \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
     Server \

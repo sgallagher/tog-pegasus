@@ -43,6 +43,7 @@ SOURCES = \
     CIMType.cpp \
     CIMValue.cpp \
     CIMIndication.cpp \
+	 CIMOMHandle.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
     Dir.cpp \

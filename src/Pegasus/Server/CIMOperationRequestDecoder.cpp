@@ -255,69 +255,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String cimMethod;
    String cimObject;
 
-   // Validate the "Content-Type" header:
-
-   // 4.2.2. Accept-Charset
-   //  If a CIM client includes an Accept-Charset header in a request,
-   //  it MUST specify a value which allows the CIM Server or CIM Listener
-   //  to return an entity body using the character set "utf-8".
-   //  A CIM server or CIM Listener MUST accept any value for this header
-   //  which implies that "utf-8" is an acceptable character set for an
-   //  response entity.  A CIM Server or CIM Listener SHOULD return
-   //  "406 Not Acceptable" if the Accept-Charset header indicates that
-   //  this character set is not acceptable. 
-   //
-   //  If a CIM Server or CIM Listener decides to accept a request to return
-   //  an entity using a character set other than "utf-8", the nature
-   //  of the response is outside of the domain of this specification. 
-
-
-   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
-							    "Content-Type",
-							    cimContentType,
-							    true);
-
-   Uint32 validateSize= httpMessage->message.size();
-   Sint8  *validateContent = (Sint8*) httpMessage->message.getData();
-   Uint32 count;
-  if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
-  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
-	     contentTypeHeaderFound))
-   {
-   		//l10n
-       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       //"CIMContentType value syntax error.");
-       	MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
-   								 "CIMContentType value syntax error.");
-   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-   						MessageLoader::getMessage(parms));
-       PEG_METHOD_EXIT();
-       return; 
-   }
-   // Validating content falls within UTF8
-   else
-   {
-       char currentChar;
-       count = 0;
-       while(count<validateSize)
-       {
-	   if (!(String::isUTF8((char *)&validateContent[count])))
-	   {
-	   		//l10n
-	       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-			     //"Invalid UTF-8 character detected.");
-			MessageLoaderParms parms("Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER",
-   								 "Invalid UTF-8 character detected.");
-   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-   						MessageLoader::getMessage(parms));
-			
-	       PEG_METHOD_EXIT();
-	       return; 
-	   }
-	   UTF8_NEXT(validateContent,count,currentChar);
-       }
-   }
-
    // Validate the "CIMOperation" header:
 
    Boolean operationHeaderFound = HTTPMessage::lookupHeader(
@@ -494,6 +431,52 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    content = (Sint8*) httpMessage->message.getData() +
    httpMessage->message.size() - contentLength - 1;
+
+   // Validate the "Content-Type" header:
+
+   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
+							    "Content-Type",
+							    cimContentType,
+							    true);
+
+   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
+  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
+	     contentTypeHeaderFound))
+   {
+   		//l10n
+       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMContentType value syntax error.");
+       	MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
+   								 "CIMContentType value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
+       PEG_METHOD_EXIT();
+       return; 
+   }
+   // Validating content falls within UTF8
+   // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
+   else
+   {
+       char currentChar;
+       Uint32 count = 0;
+       while(count<contentLength)
+       {
+	   if (!(String::isUTF8((char *)&content[count])))
+	   {
+	   		//l10n
+	       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+			     //"Invalid UTF-8 character detected.");
+			MessageLoaderParms parms("Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER",
+   								 "Invalid UTF-8 character detected.");
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+   						MessageLoader::getMessage(parms));
+			
+	       PEG_METHOD_EXIT();
+	       return; 
+	   }
+	   UTF8_NEXT(content,count,currentChar);
+       }
+   }
 
    // If it is a method call, then dispatch it to be handled:
 

@@ -245,59 +245,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String cimProtocolVersion;
    String cimExportMethod;
 
-   // Validate the "Content-Type" header:
-
-   // 4.2.2. Accept-Charset
-   //  If a CIM client includes an Accept-Charset header in a request,
-   //  it MUST specify a value which allows the CIM Server or CIM Listener
-   //  to return an entity body using the character set "utf-8".
-   //  A CIM server or CIM Listener MUST accept any value for this header
-   //  which implies that "utf-8" is an acceptable character set for an
-   //  response entity.  A CIM Server or CIM Listener SHOULD return
-   //  "406 Not Acceptable" if the Accept-Charset header indicates that
-   //  this character set is not acceptable. 
-   //
-   //  If a CIM Server or CIM Listener decides to accept a request to return
-   //  an entity using a character set other than "utf-8", the nature
-   //  of the response is outside of the domain of this specification. 
-
-
-   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
-							      "Content-Type",
-							      cimContentType,
-							      true);
-
-   Uint32 validateSize= httpMessage->message.size();
-   Sint8  *validateContent = (Sint8 *)httpMessage->message.getData();
-   Uint32 count;
-
-   // Validating the charset is utf-8
-   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
-  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
-	     contentTypeHeaderFound))
-   {
-	sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMContentType value syntax error.");
-       return; 
-   }
-   // Validating content falls within UTF8
-   else
-   {
-       char currentChar;
-       count = 0;
-       while(count<validateSize)
-       {
-	   if (!(String::isUTF8((char *)&validateContent[count])))
-	   {
-	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Invalid UTF-8 character detected.");
-	       return; 
-	   }
-	   UTF8_NEXT(validateContent,count,currentChar);
-       }
-   }
-
-
    // Validate the "CIMExport" header:
 
    Boolean exportHeaderFound = HTTPMessage::lookupHeader(
@@ -414,6 +361,41 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    content = (Sint8*) httpMessage->message.getData() +
       httpMessage->message.size() - contentLength - 1;
+
+
+   // Validate the "Content-Type" header:
+
+   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
+							      "Content-Type",
+							      cimContentType,
+							      true);
+
+   // Validating the charset is utf-8
+   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
+  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
+	     contentTypeHeaderFound))
+   {
+	sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       "CIMContentType value syntax error.");
+       return; 
+   }
+   // Validating content falls within UTF8
+   // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
+   else
+   {
+       Uint32 count = 0;
+       char currentChar;
+       while(count<contentLength)
+       {
+	   if (!(String::isUTF8((char *)&content[count])))
+	   {
+	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+                       "Invalid UTF-8 character detected.");
+	       return; 
+	   }
+	   UTF8_NEXT(content,count,currentChar);
+       }
+   }
 
    // If it is a method call, then dispatch it to be handled:
 

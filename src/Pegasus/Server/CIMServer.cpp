@@ -497,7 +497,12 @@ void CIMServer::runForever()
       {
 	if(false == _monitor->run(100))
 	  {
-	    modulator++;
+      if (modulator++ == 0)
+      {
+        #ifdef PEGASUS_ENABLE_SLP
+                        startSLPProvider();
+        #endif
+      }
 	    if( ! (modulator % 5000) )
 	      {
 		try

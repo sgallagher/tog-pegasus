@@ -395,6 +395,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
     cout <<  classNames.size() << " Classes found " << endl;
 
     Array<CIMReference> instanceNames;
+    Uint16 numberOfNotSupportedClassesFound = 0;
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
@@ -412,10 +413,17 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 		   cout << "Class " << classNames[i] << " " 
  		        << instanceNames.size() << " Instances" << endl;
            }
-           catch(CIMClientException& e)
+           catch(CIMClientCIMException& e)
            {
-                 cerr << "CIMClientException : " << classNames[i] << endl;
-                 cerr << e.getMessage() << endl;
+                 if (e.getCode() == CIM_ERR_NOT_SUPPORTED)
+                 {
+                    numberOfNotSupportedClassesFound++;
+                 }
+                 else
+                 {
+                    cerr << "CIMClientCIMException : " << classNames[i] << endl;
+                    cerr << e.getMessage() << endl;
+                 }
            }
 	   catch(Exception& e)
 	   {
@@ -423,6 +431,11 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 	       exit(1);
 	   }
        //}
+    }
+    if (numberOfNotSupportedClassesFound > 0)
+    {
+       cout << "Number of Not Supported Classes Found = " 
+            << numberOfNotSupportedClassesFound << endl;
     }
     /*
     virtual Array<CIMReference> enumerateInstanceNames(

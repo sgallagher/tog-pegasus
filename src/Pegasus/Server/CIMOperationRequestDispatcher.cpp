@@ -1864,7 +1864,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
    // Test for "enumerate to Broad" and if so, execute exception.
    // NOTE: ps == 0 disables the test.
-   if(ps != 0  && ps < MAX_ENUMERATE_BREADTH)
+   if(ps > MAX_ENUMERATE_BREADTH)
    {
        CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(

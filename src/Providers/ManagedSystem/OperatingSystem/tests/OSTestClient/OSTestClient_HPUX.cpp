@@ -37,6 +37,7 @@
 // a validation of the CIM information vs. the current test system
 
 #include "OSTestClient.h"
+#include <sys/param.h>      // for MAXHOSTNAMELEN
 #include <sys/utsname.h>    // for uname
 #include <unistd.h>         // for gethostname
 #include <sys/socket.h>     // for gethostbyname

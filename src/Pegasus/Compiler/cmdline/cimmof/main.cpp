@@ -69,6 +69,8 @@ main(int argc, char ** argv) {
   String msg_;
   MessageLoaderParms parms;
 
+  MessageLoader::_useProcessLocale = true; //l10n set message loading to use process locale
+
 #ifdef PEGASUS_OS_OS400
 
   VFYPTRS_INCDCL;               // VFYPTRS local variables

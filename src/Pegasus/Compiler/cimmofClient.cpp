@@ -60,6 +60,7 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
   // our caller handle it.
 
   _client = new CIMClient();
+  _client->setRequestDefaultLanguages();  //l10n
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
   _client->connectLocal();

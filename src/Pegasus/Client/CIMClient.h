@@ -127,6 +127,10 @@ public:
         defined by the URL in address.
         @param address - String defining the URL of the server
         to which the client should connect
+        @param userName - String containing the name of the user
+        the client is connecting as.
+        @param password - String containing the password of the user
+        the client is connecting as.
         @return - No return defined. Failure to connect throws an exception
         @exception AlreadyConnected if connection already established
         @exception InvalidLocator
@@ -137,7 +141,10 @@ public:
             TBD
         </PRE>
     */
-    void connect(const String& address);
+    void connect(
+        const String& address,
+        const String& userName = String::EMPTY,
+        const String& password = String::EMPTY);
 
     /** connectLocal - Creates connection to the server for
         Local clients. The connectLocal differs from the connect function
@@ -153,6 +160,12 @@ public:
     void connectLocal(
         const String& portNumber = String::EMPTY,
         const String& userName = String::EMPTY);
+
+    /** disconnect - Closes the open connection with the server.
+        @return - No return defined.
+    */
+    void disconnect();
+
 
     /** The <TT>getClass</TT> method  executes a CIM operation that returns a single CIM Class from the
 	target Namespace where the ClassName input parameter defines the name of
@@ -398,6 +411,7 @@ private:
 
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
+    HTTPConnection* _httpConnection;
     Uint32 _timeOutMilliseconds;
     Boolean _connected;
     CIMOperationResponseDecoder* _responseDecoder;

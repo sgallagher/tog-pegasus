@@ -31,20 +31,58 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Base64.h>
 #include "ClientAuthenticator.h"
+
+//
+// Privileged user that is used as default user for Local Privileged 
+// authentication when the client does not specify the user name.
+//
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+#define DEFAULT_PRIVILEGED_USER     "Administrator"
+#else
+#define DEFAULT_PRIVILEGED_USER     "root"
+#endif
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+    The constant represeting the authentication challenge header.
+*/
+static const String WWW_AUTHENTICATE            = "WWW-Authenticate";
+
+/**
+    Constant representing the Basic authentication header.
+*/
+static const String BASIC_AUTH_HEADER           = "Authorization: Basic ";
+
+/**
+    Constant representing the Digest authentication header.
+*/
+static const String DIGEST_AUTH_HEADER          = "Authorization: Digest ";
+
+/**
+    Constant representing the local authentication header.
+*/
+static const String LOCAL_AUTH_HEADER           = 
+                             "PegasusAuthorization: Local";
+
+/**
+    Constant representing the local privileged authentication header.
+*/
+static const String LOCALPRIVILEGED_AUTH_HEADER = 
+                             "PegasusAuthorization: LocalPrivileged";
+
+
+
 ClientAuthenticator::ClientAuthenticator()
 {
-    //authType is Local for now
-    _authType = ClientAuthenticator::LOCAL;
-    _userName = String::EMPTY;
-    _password = String::EMPTY;
+    //should the default authType be Local?
+    //_authType = ClientAuthenticator::LOCAL;
 
-    clearRequest();
+    clearRequest(true);
 }
 
 ClientAuthenticator::~ClientAuthenticator()
@@ -52,79 +90,114 @@ ClientAuthenticator::~ClientAuthenticator()
 
 }
 
-void ClientAuthenticator::clearRequest()
+void ClientAuthenticator::clearRequest(Boolean closeConnection)
 {
     _requestMessage = 0;
     _challengeReceived = false;
-    _challengeResponse = String::EMPTY;
+ 
+    if (closeConnection)
+    {
+        _challengeResponse = String::EMPTY;
+        _userName = String::EMPTY;
+        _password = String::EMPTY;
+        _realm = String::EMPTY;
+    }
 }
 
-Boolean ClientAuthenticator::checkResponseHeaderForChallenge(Array<HTTPHeader> headers)
+Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
+    Array<HTTPHeader> headers)
 {
     //
     // Search for "WWW-Authenticate" header:
     //
-
     String authHeader;
 
     if (!HTTPMessage::lookupHeader(
-        headers, "WWW-Authenticate", authHeader, false))
+        headers, WWW_AUTHENTICATE, authHeader, false))
     {
-        //
-        // Challenge information not found in the reponse header
-        //
-
+        _challengeReceived = false;
         return false;
     }
 
     _challengeReceived = true;
 
-    String filePath   = String::EMPTY;
-
     Uint32 pos;
 
-    if ( (pos = authHeader.find("LocalPrivileged")) == PEG_NOT_FOUND )
+    //
+    // Find the authentication type in the challenge
+    //
+    if ( (pos = authHeader.find("LocalPrivileged")) != PEG_NOT_FOUND )
     {
-        if ( (pos = authHeader.find("Local")) == PEG_NOT_FOUND )
+        _authType = ClientAuthenticator::LOCALPRIVILEGED;
+
+        _challengeResponse = LOCALPRIVILEGED_AUTH_HEADER;
+        _challengeResponse.append(" \"");
+
+        if (_userName.size()) 
+        {
+             _challengeResponse.append(_userName);
+        }
+        else
         {
             //
-            //Invalid authorization header
+            // Get the current login user name
             //
-            //ATTN: throw exception
-            return false;
+            _challengeResponse.append(DEFAULT_PRIVILEGED_USER);
         }
     }
+    else if ( (pos = authHeader.find("Local")) != PEG_NOT_FOUND )
+    {
+        _authType = ClientAuthenticator::LOCAL;
 
+        _challengeResponse = LOCAL_AUTH_HEADER;
+        _challengeResponse.append(" \"");
+
+        if (_userName.size()) 
+        {
+             _challengeResponse.append(_userName);
+        }
+        else
+        {
+            //
+            // Get the current login user name
+            //
+            _challengeResponse.append(System::getCurrentLoginName());
+        }
+    }
+    else if ( (pos = authHeader.find("Basic")) != PEG_NOT_FOUND )
+    {
+        _authType = ClientAuthenticator::BASIC;
+
+        _challengeResponse = BASIC_AUTH_HEADER;
+    }
+    else if ( (pos = authHeader.find("Digest")) != PEG_NOT_FOUND )
+    {
+        _authType = ClientAuthenticator::DIGEST;
+
+        _challengeResponse = DIGEST_AUTH_HEADER;
+    }
+    else
+    {
+        throw InvalidAuthHeader();
+    }
+
+    //
+    // parse the authentication challenge header
+    //
     Uint32 startQuote = authHeader.find(pos, '"');
     if (startQuote == PEG_NOT_FOUND)
     {
-        //
-        //Invalid authorization header
-        //
-        //ATTN: throw exception
-        return false;
+        throw InvalidAuthHeader();
     }
 
     Uint32 endQuote = authHeader.find(startQuote + 1, '"');
     if (endQuote == PEG_NOT_FOUND)
     {
-        //
-        //Invalid authorization header
-        //
-        //ATTN: throw exception
-        return false;
+        throw InvalidAuthHeader();
     }
 
-    filePath = authHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
-
-    //
-    // Read the challenge file content and build the challenge response.
-    //
-    _challengeResponse.assign(filePath);
-
-    _challengeResponse.append(":");
-
-    _challengeResponse.append(_getFileContent(filePath));
+    _realm = authHeader.subString(
+        startQuote + 1, (endQuote - startQuote - 1));
 
     return true;
 }
@@ -132,21 +205,53 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(Array<HTTPHeader> h
 
 String ClientAuthenticator::buildRequestAuthHeader()
 {
-    String authHeader = String::EMPTY;
-
     switch (_authType)
     {
-        //ATTN: Implement Basic and Digest
-        //
-        //case BASIC:
-        //    authHeader = "Authorization: Basic";
-        //    if (_challengeReceived) 
-        //    {
+        case ClientAuthenticator::BASIC:
+
+            if (_challengeReceived)
+            {
+                //
+                // build the credentials string using the
+                // user name and password
+                //
+                String userPass =  _userName;
+
+                userPass.append(":");
+
+                userPass.append(_password);
+
+                //
+                // copy userPass string content to Uint8 array for encoding
+                //
+                Array <Uint8>  userPassArray;
+
+                Uint32 userPassLength = userPass.size();
+
+                userPassArray.reserve( userPassLength );
+                userPassArray.clear();
+
+                for( Uint32 i = 0; i < userPassLength; i++ )
+                {
+                    userPassArray.append( (Uint8)userPass[i] );
+                }
+
+                //
+                // base64 encode the user name and password
+                //
+                Array <Sint8>  encodedArray;
+
+                encodedArray = Base64::encode( userPassArray );
+
+                _challengeResponse.append(
+                    String( encodedArray.getData(), encodedArray.size() ) );
+            }
+            break;
+
         //    
-        //    }
-        //    break;
-        //case DIGEST:
-        //    authHeader = "Authorization: Digest";
+        //ATTN: Implement Digest Auth challenge handling code here
+        //    
+        //case ClientAuthenticator::DIGEST:
         //    if (_challengeReceived) 
         //    {
         //    
@@ -154,66 +259,54 @@ String ClientAuthenticator::buildRequestAuthHeader()
         //    break;
 
         case ClientAuthenticator::LOCALPRIVILEGED:
-            authHeader = "PegasusAuthorization: LocalPrivileged";
-
-            authHeader.append(" \"");
-            if (_userName.size()) 
-            {
-                authHeader.append(_userName);
-            }
-            else
-            {
-                //ATTN: Get this from a common place.
-                authHeader.append("root");
-            }
-
-            if (_challengeReceived) 
-            {
-                authHeader.append(":");
-                authHeader.append(_challengeResponse);
-            }
-            authHeader.append("\"");
-            break;
-
         case ClientAuthenticator::LOCAL:
-            authHeader = "PegasusAuthorization: Local";
-
-            authHeader.append(" \"");
-
-            if (_userName.size()) 
-            {
-                authHeader.append(_userName);
-            }
-            else
-            {
-                //
-                // Get the current login user name
-                //
-                authHeader.append(System::getCurrentLoginName());
-            }
 
             if (_challengeReceived) 
             {
-                authHeader.append(":");
-                authHeader.append(_challengeResponse);
+                _challengeResponse.append(":");
+
+                //
+                // Append the file path that is in the realm sent by the server
+                //
+                _challengeResponse.append(_realm);
+
+                _challengeResponse.append(":");
+
+                //
+                // Read and append the challenge file content 
+                //
+                String fileContent = String::EMPTY;
+                try
+                {
+                    fileContent = _getFileContent(_realm);
+                }
+                catch(NoSuchFile& e)
+                {
+                    //ATTN: Log error message to log file
+                }
+                _challengeResponse.append(fileContent);
             }
-            authHeader.append("\"");
+            _challengeResponse.append("\"");
+
             break;
 
         default:
+            // 
+            // Gets here only when no authType was set.
+            // 
+            _challengeResponse.clear();
             break;
     }
 
     //
     // Reset the flag
     //
-    if (_challengeReceived) 
+    if (_challengeReceived)
     {
         _challengeReceived = false;
     }
 
-    return (authHeader);
-
+    return (_challengeResponse);
 }
 
 void ClientAuthenticator::setRequestMessage(Message* message)
@@ -243,15 +336,15 @@ void ClientAuthenticator::setPassword(const String& password)
     _password = password;
 }
 
-String ClientAuthenticator::getPassword()
-{
-    return (_password);
-}
-
 void ClientAuthenticator::setAuthType(ClientAuthenticator::AuthType type)
 {
-    //ATTN: Validate the type before accepting.
-    
+    if ( (type != ClientAuthenticator::BASIC) ||
+         (type != ClientAuthenticator::DIGEST) ||
+         (type != ClientAuthenticator::LOCAL) ||
+         (type != ClientAuthenticator::LOCALPRIVILEGED) )
+    {
+        throw InvalidAuthType();
+    } 
     _authType = type;
 }
 
@@ -265,8 +358,12 @@ String ClientAuthenticator::_getFileContent(String filePath)
     String challenge = String::EMPTY;
 
     //
-    //ATTN: Check whether the file exists or not
+    // Check whether the file exists or not
     //
+    if (!FileSystem::exists(filePath))
+    {
+        throw NoSuchFile(filePath);
+    }
 
     //
     // Open the challenge file and read the challenge data

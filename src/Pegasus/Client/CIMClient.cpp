@@ -62,7 +62,8 @@ CIMClient::CIMClient(
     _timeOutMilliseconds(timeOutMilliseconds),
     _connected(false),
     _responseDecoder(0),
-    _requestEncoder(0)
+    _requestEncoder(0),
+    _httpConnection(0)
 {
     //
     // Create client authenticator
@@ -85,7 +86,10 @@ const char* CIMClient::getQueueName() const
     return "CIMClient";
 }
 
-void CIMClient::connect(const String& address)
+void CIMClient::connect(
+    const String& address,
+    const String& userName,
+    const String& password)
 {
     // If already connected, bail out!
     
@@ -99,11 +103,9 @@ void CIMClient::connect(const String& address)
     
     // Attempt to establish a connection:
     
-    HTTPConnection* httpConnection;
-    
     try
     {
-	httpConnection = _httpConnector->connect(address, _responseDecoder);
+	_httpConnection = _httpConnector->connect(address, _responseDecoder);
     }
     catch (Exception& e)
     {
@@ -114,10 +116,22 @@ void CIMClient::connect(const String& address)
     // Create request encoder:
     
     _requestEncoder = new CIMOperationRequestEncoder(
-        httpConnection, _authenticator);
+        _httpConnection, _authenticator);
 
     _responseDecoder->setEncoderQueue(_requestEncoder);
     
+    //
+    // Set authentication information
+    //
+    if (userName.size())
+    {
+        _authenticator->setUserName(userName);
+    }
+
+    if (password.size())
+    {
+        _authenticator->setPassword(password);
+    }
     _connected = true;
 }
 
@@ -146,16 +160,51 @@ void CIMClient::connectLocal(
     free(port);
 
     //
-    // Set authentication information
+    // Set authentication type
     //
-    if (userName.size())
-    {
-        _authenticator->setUserName(userName);
-    }
     _authenticator->setAuthType(ClientAuthenticator::LOCAL);
 
-    connect(address);
+    connect(address, userName);
 }
+
+void CIMClient::disconnect()
+{
+    if (_connected)
+    {
+        //
+        // destroy response decoder
+        //
+        if (_responseDecoder)
+        {
+            delete _responseDecoder;
+        }
+
+        //
+        // Attempt to close the connection
+        //
+        try
+        {
+            _httpConnector->disconnect(_httpConnection);
+        }
+        catch (Exception& e)
+        {
+            throw e;
+        }
+
+        //
+        // destroy request encoder
+        //
+        if (_requestEncoder)
+        {
+            delete _requestEncoder;
+        }
+
+        _authenticator->clearRequest(true);
+
+        _connected = false;
+    }
+}
+
 
 CIMClass CIMClient::getClass(
     const String& nameSpace,
@@ -905,7 +954,7 @@ CIMValue CIMClient::invokeMethod(
     Array<CIMParamValue>& outParameters)
 {
     String messageId = XmlWriter::getNextMessageId();
-
+    
     // ATTN-RK-P2-20020301: Does it make sense to have a nameSpace parameter
     // when the namespace should already be included in the instanceName?
     // ATTN-RK-P3-20020301: Do we need to make sure the caller didn't specify

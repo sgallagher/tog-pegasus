@@ -35,6 +35,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Client/Linkage.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -72,7 +73,7 @@ public:
     /** Clear the request buffer and other authentication informations
         from the earlier request.
     */
-    void clearRequest();
+    void clearRequest(Boolean closeConnection = false);
 
     /** Set the user name
     */
@@ -85,10 +86,6 @@ public:
     /** Set the upasswor
     */
     void setPassword(const String& password);
-
-    /** Get the password
-    */
-    String getPassword();
 
     /** Set the authentication type
     */
@@ -111,6 +108,8 @@ private:
     String   _userName;
 
     String   _password;
+
+    String   _realm;
 
     AuthType _authType;
 };

@@ -92,6 +92,9 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
       /** Destroys all the connections created by this connector. */
       void destroyConnections();
 
+      /** Close the specified connection. */
+      void disconnect(HTTPConnection* connection);
+
    private:
 
       Monitor* _monitor;

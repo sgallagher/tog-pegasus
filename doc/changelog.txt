@@ -151,6 +151,11 @@ will be deleted.
 14. (KS) 4 March 2002 - Corrections for NULL value and the XML code.
     Corrections to compiler for Null values input (parser and valuectory)
     
+15. (Nag Boranna - HP) 04 March 2002 - Modified CIMClient API to accept 
+    username and password as parameters to connect() method, added a new 
+    method diconnect() that closes the open connection with the server 
+    and added code to handle HTTP Basic authentication challenges from 
+    the server.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

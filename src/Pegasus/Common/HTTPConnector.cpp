@@ -306,4 +306,30 @@ void HTTPConnector::destroyConnections()
    _rep->connections.clear();
 }
 
+void HTTPConnector::disconnect(HTTPConnection* currentConnection)
+{
+    //
+    // find and delete the specified connection
+    //
+    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+    {
+        if (currentConnection == _rep->connections[i])
+        {
+            HTTPConnection* connection = _rep->connections[i];
+            Sint32 socket = connection->getSocket();
+
+            //
+            // Unsolicit SocketMessages:
+            //
+            _monitor->unsolicitSocketMessages(socket);
+
+            //
+            // Destroy the connection (causing it to close):
+            //
+            delete connection;
+
+            return;
+        }
+    }
+}
 PEGASUS_NAMESPACE_END

@@ -247,18 +247,17 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     //ATTN: the number of challenges get sent for a 
                     //      request on a connection can be pre-set.
 
-                    String authChallenge = String::EMPTY;
-
                     String authResp =
                         _authenticationManager->getHttpAuthResponseHeader();
 
-                    //
-                    // Set the challenge string in the Authentication Info
-                    // object that was sent with the HTTPMessage
-                    //
-                    httpMessage->authInfo->setAuthChallenge(authChallenge);
-
-                    _sendChallenge(queueId, authResp);
+                    if (!String::equal(authResp, String::EMPTY))
+                    {
+                        _sendChallenge(queueId, authResp);
+                    }
+                    else
+                    {
+                        _sendError(queueId, "Invalid Request");
+                    }
 
                     return;
                 }
@@ -308,22 +307,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         }
         else
         {
-            //String authChallenge;
-
             String authResp =
                 _authenticationManager->getHttpAuthResponseHeader();
 
-            //
-            // Set the challenge string in the Authentication Info
-            // object that was sent with the HTTPMessage
-            //
-            //ATTN: check this out later..
-            //httpMessage->authInfo->setAuthChallenge(authChallenge);
-
-            _sendChallenge(queueId, authResp);
-
+            if (!String::equal(authResp, String::EMPTY))
+            {
+                _sendChallenge(queueId, authResp);
+            }
+            else
+            {
+                _sendError(queueId, "Invalid Request");
+            }
         }
-
     }
 }
 

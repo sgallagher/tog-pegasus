@@ -225,7 +225,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       String cimObject;
 
       if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMOperation", cimOperation, true))
+	     headers, "*-CIMOperation", cimOperation, true))
       {
          // Specification for CIM Operations over HTTP says:
          //     3.3.4. CIMOperation
@@ -257,70 +257,22 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	 return;
       }
 
-      if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMMethod", cimMethod, true))
+      // Save these headers for later checking
+      if (HTTPMessage::lookupHeader(headers, "*-CIMMethod", cimMethod, true))
       {
-         // Specification for CIM Operations over HTTP says:
-         //     3.3.6. CIMMethod
-         //     This header MUST be present in any CIM Operation Request
-         //     message that contains a Simple Operation Request.  
-         //     It MUST NOT be present in any CIM Operation Response message,
-         //     nor in any CIM Operation Request message that is not a
-         //     Simple Operation Request.
-         // We will use the empty string to denote that this header was absent.
-         cimMethod = String::EMPTY;
-      }
-      else
-      {
-         // Specification for CIM Operations over HTTP says:
-         //     3.3.6. CIMMethod
-         //     If a CIM Server receives a CIM Operation Request for which
-         //     either:
-         //
-         //     - The CIMMethod header is present but has an invalid value, or;
-         //     - The CIMMethod header is not present but the Operation
-         //       Request Message is a Simple Operation Request, or; 
-         //     - The CIMMethod header is present but the Operation Request
-         //       Message is not a Simple Operation Request, or; 
-         //     - The CIMMethod header is present, the Operation Request
-         //       Message is a Simple Operation Request, but the CIMIdentifier
-         //       value (when unencoded) does not match the unique method name
-         //       within the Simple Operation Request,
-         //
-         //     then it MUST fail the request and return a status of
-         //     "400 Bad Request" (and MUST include a CIMError header in the
-         //     response with a value of header-mismatch), subject to the
-         //     considerations specified in Errors.
-
-         // I consider a blank value to be an invalid value, so I will return
-         // the 400 Bad Request error.  I do this check here, because I want
-         // to use the empty string to denote that this header was missing.
          if (cimMethod == String::EMPTY)
          {
+            // This is not a valid value, and we use EMPTY to mean "absent"
             sendBadRequestError(queueId, "header-mismatch");
             PEG_METHOD_EXIT();
 	    return;
          }
       }
-
-      if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMOperation", cimOperation, true))
+      if (HTTPMessage::lookupHeader(headers, "*-CIMObject", cimObject, true))
       {
-         // Specification for CIM Operations over HTTP says:
-         //     3.3.7. CIMObject
-         //     This header MUST be present in any CIM Operation Request
-         //     message that contains a Simple Operation Request.  
-         //     It MUST NOT be present in any CIM Operation Response message,
-         //     nor in any CIM Operation Request message that is not a
-         //     Simple Operation Request.
-         // We will use the empty string to denote that this header was absent.
-         cimOperation = String::EMPTY;
-      }
-      else
-      {
-         // Reject empty value for same reason as CIMMethod header above.
-         if (cimOperation == String::EMPTY)
+         if (cimObject == String::EMPTY)
          {
+            // This is not a valid value, and we use EMPTY to mean "absent"
             sendBadRequestError(queueId, "header-mismatch");
             PEG_METHOD_EXIT();
 	    return;
@@ -411,7 +363,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
    try
    {
-      // ATTN-RK-P3-20020304: Check for MULTIREQ and return "unsupported"
+      if (XmlReader::testStartTag(parser, entry, "MULTIREQ"))
+      {
+         // ATTN-RK-P3-20020304: Return "unsupported".
+         // Future: When MULTIREQ is supported, must ensure CIMMethod and
+         // CIMObject headers are absent.
+      }
+
       // Expect <SIMPLEREQ ...>
 
       XmlReader::expectStartTag(parser, entry, "SIMPLEREQ");
@@ -420,6 +378,45 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       if (XmlReader::getIMethodCallStartTag(parser, cimMethodName))
       {
+         // Specification for CIM Operations over HTTP says:
+         //     3.3.6. CIMMethod
+         //
+         //     This header MUST be present in any CIM Operation Request
+         //     message that contains a Simple Operation Request.  
+         //
+         //     It MUST NOT be present in any CIM Operation Response message,
+         //     nor in any CIM Operation Request message that is not a
+         //     Simple Operation Request.
+         //
+         //     The name of the CIM method within a Simple Operation Request
+         //     is defined to be the value of the NAME attribute of the
+         //     <METHODCALL> or <IMETHODCALL> element.
+         //
+         //     If a CIM Server receives a CIM Operation Request for which
+         //     either:
+         //
+         //     - The CIMMethod header is present but has an invalid value, or;
+         //     - The CIMMethod header is not present but the Operation
+         //       Request Message is a Simple Operation Request, or; 
+         //     - The CIMMethod header is present but the Operation Request
+         //       Message is not a Simple Operation Request, or; 
+         //     - The CIMMethod header is present, the Operation Request
+         //       Message is a Simple Operation Request, but the CIMIdentifier
+         //       value (when unencoded) does not match the unique method name
+         //       within the Simple Operation Request,
+         //
+         //     then it MUST fail the request and return a status of
+         //     "400 Bad Request" (and MUST include a CIMError header in the
+         //     response with a value of header-mismatch), subject to the
+         //     considerations specified in Errors.
+         if (CompareNoCase(cimMethodName, _CString(cimMethodInHeader)) != 0)
+         {
+            // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
+            sendBadRequestError(queueId, "header-mismatch");
+            PEG_METHOD_EXIT();
+            return;
+         }
+
 	 // Expect <LOCALNAMESPACEPATH ...>
 
 	 String nameSpace;
@@ -429,6 +426,46 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    throw XmlValidationError(parser.getLine(), 
 				     "expected LOCALNAMESPACEPATH element");
 	 }
+
+         // Specification for CIM Operations over HTTP says:
+         //     3.3.7. CIMObject
+         //
+         //     This header MUST be present in any CIM Operation Request
+         //     message that contains a Simple Operation Request.  
+         //
+         //     It MUST NOT be present in any CIM Operation Response message,
+         //     nor in any CIM Operation Request message that is not a
+         //     Simple Operation Request.
+         //
+         //     The header identifies the CIM object (which MUST be a Class
+         //     or Instance for an extrinsic method, or a Namespace for an
+         //     intrinsic method) on which the method is to be invoked, using
+         //     a CIM object path encoded in an HTTP-safe representation.
+         //
+         //     If a CIM Server receives a CIM Operation Request for which
+         //     either:
+         //
+         //     - The CIMObject header is present but has an invalid value, or;
+         //     - The CIMObject header is not present but the Operation
+         //       Request Message is a Simple Operation Request, or; 
+         //     - The CIMObject header is present but the Operation Request
+         //       Message is not a Simple Operation Request, or; 
+         //     - The CIMObject header is present, the Operation Request
+         //       Message is a Simple Operation Request, but the ObjectPath
+         //       value does not match (where match is defined in the section
+         //       section on Encoding CIM Object Paths) the Operation Request
+         //       Message,
+         //
+         //     then it MUST fail the request and return a status of
+         //     "400 Bad Request" (and MUST include a CIMError header in the
+         //     response with a value of header-mismatch), subject to the
+         //     considerations specified in Errors.
+         if (!String::equalNoCase(nameSpace, cimObjectInHeader))
+         {
+            sendBadRequestError(queueId, "header-mismatch");
+            PEG_METHOD_EXIT();
+            return;
+         }
 
 	 // Delegate to appropriate method to handle:
 
@@ -453,33 +490,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
             PEG_METHOD_EXIT();
 	    return;
 	 }
-
-         // Specification for CIM Operations over HTTP says:
-         //     3.3.6. CIMMethod
-         //     If a CIM Server receives a CIM Operation Request for which
-         //     either:
-         //
-         //     - The CIMMethod header is present but has an invalid value, or;
-         //     - The CIMMethod header is not present but the Operation
-         //       Request Message is a Simple Operation Request, or; 
-         //     - The CIMMethod header is present but the Operation Request
-         //       Message is not a Simple Operation Request, or; 
-         //     - The CIMMethod header is present, the Operation Request
-         //       Message is a Simple Operation Request, but the CIMIdentifier
-         //       value (when unencoded) does not match the unique method name
-         //       within the Simple Operation Request,
-         //
-         //     then it MUST fail the request and return a status of
-         //     "400 Bad Request" (and MUST include a CIMError header in the
-         //     response with a value of header-mismatch), subject to the
-         //     considerations specified in Errors.
-	 if (CompareNoCase(cimMethodName, _CString(cimMethodInHeader)) != 0)
-         {
-            // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
-            sendBadRequestError(queueId, "header-mismatch");
-            PEG_METHOD_EXIT();
-	    return;
-         }
 
 	 if (CompareNoCase(cimMethodName, "GetClass") == 0)
 	    request = decodeGetClassRequest(
@@ -576,6 +586,45 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	 CIMReference reference;
 	 XmlEntry        entry;
 
+         // Specification for CIM Operations over HTTP says:
+         //     3.3.6. CIMMethod
+         //
+         //     This header MUST be present in any CIM Operation Request
+         //     message that contains a Simple Operation Request.  
+         //
+         //     It MUST NOT be present in any CIM Operation Response message,
+         //     nor in any CIM Operation Request message that is not a
+         //     Simple Operation Request.
+         //
+         //     The name of the CIM method within a Simple Operation Request
+         //     is defined to be the value of the NAME attribute of the
+         //     <METHODCALL> or <IMETHODCALL> element.
+         //
+         //     If a CIM Server receives a CIM Operation Request for which
+         //     either:
+         //
+         //     - The CIMMethod header is present but has an invalid value, or;
+         //     - The CIMMethod header is not present but the Operation
+         //       Request Message is a Simple Operation Request, or; 
+         //     - The CIMMethod header is present but the Operation Request
+         //       Message is not a Simple Operation Request, or; 
+         //     - The CIMMethod header is present, the Operation Request
+         //       Message is a Simple Operation Request, but the CIMIdentifier
+         //       value (when unencoded) does not match the unique method name
+         //       within the Simple Operation Request,
+         //
+         //     then it MUST fail the request and return a status of
+         //     "400 Bad Request" (and MUST include a CIMError header in the
+         //     response with a value of header-mismatch), subject to the
+         //     considerations specified in Errors.
+         if (CompareNoCase(cimMethodName, _CString(cimMethodInHeader)) != 0)
+         {
+            // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
+            sendBadRequestError(queueId, "header-mismatch");
+            PEG_METHOD_EXIT();
+            return;
+         }
+
 	 //
 	 // Check for <LOCALINSTANCEPATHELEMENT ...>
 	 //
@@ -608,36 +657,60 @@ void CIMOperationRequestDecoder::handleMethodCall(
 				     MISSING_ELEMENT_LOCALPATH);
 	 }
 
+         // Specification for CIM Operations over HTTP says:
+         //     3.3.7. CIMObject
+         //
+         //     This header MUST be present in any CIM Operation Request
+         //     message that contains a Simple Operation Request.  
+         //
+         //     It MUST NOT be present in any CIM Operation Response message,
+         //     nor in any CIM Operation Request message that is not a
+         //     Simple Operation Request.
+         //
+         //     The header identifies the CIM object (which MUST be a Class
+         //     or Instance for an extrinsic method, or a Namespace for an
+         //     intrinsic method) on which the method is to be invoked, using
+         //     a CIM object path encoded in an HTTP-safe representation.
+         //
+         //     If a CIM Server receives a CIM Operation Request for which
+         //     either:
+         //
+         //     - The CIMObject header is present but has an invalid value, or;
+         //     - The CIMObject header is not present but the Operation
+         //       Request Message is a Simple Operation Request, or; 
+         //     - The CIMObject header is present but the Operation Request
+         //       Message is not a Simple Operation Request, or; 
+         //     - The CIMObject header is present, the Operation Request
+         //       Message is a Simple Operation Request, but the ObjectPath
+         //       value does not match (where match is defined in the section
+         //       section on Encoding CIM Object Paths) the Operation Request
+         //       Message,
+         //
+         //     then it MUST fail the request and return a status of
+         //     "400 Bad Request" (and MUST include a CIMError header in the
+         //     response with a value of header-mismatch), subject to the
+         //     considerations specified in Errors.
+         CIMReference headerObjectReference;
+         try
+         {
+             headerObjectReference.set(cimObjectInHeader);
+         }
+         catch (Exception e)
+         {
+            sendBadRequestError(queueId, "header-mismatch");
+            PEG_METHOD_EXIT();
+            return;
+         }
+
+         if (!reference.identical(headerObjectReference))
+         {
+            sendBadRequestError(queueId, "header-mismatch");
+            PEG_METHOD_EXIT();
+            return;
+         }
+
 	 if (cimMethodName != NULL)
 	 {
-            // Specification for CIM Operations over HTTP says:
-            //     3.3.6. CIMMethod
-            //     If a CIM Server receives a CIM Operation Request for which
-            //     either:
-            //
-            //     - The CIMMethod header is present but has an invalid value,
-            //       or;
-            //     - The CIMMethod header is not present but the Operation
-            //       Request Message is a Simple Operation Request, or; 
-            //     - The CIMMethod header is present but the Operation Request
-            //       Message is not a Simple Operation Request, or; 
-            //     - The CIMMethod header is present, the Operation Request
-            //       Message is a Simple Operation Request, but the
-            //       CIMIdentifier value (when unencoded) does not match the
-            //       unique method name within the Simple Operation Request,
-            //
-            //     then it MUST fail the request and return a status of
-            //     "400 Bad Request" (and MUST include a CIMError header in the
-            //     response with a value of header-mismatch), subject to the
-            //     considerations specified in Errors.
-            if (CompareNoCase(cimMethodName, _CString(cimMethodInHeader)) != 0)
-            {
-               // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
-               sendBadRequestError(queueId, "header-mismatch");
-               PEG_METHOD_EXIT();
-	       return;
-            }
-
 	    //
 	    // if CIMOM is shutting down, return error response
 	    //

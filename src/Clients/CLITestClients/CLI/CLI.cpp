@@ -512,7 +512,8 @@ int main(int argc, char** argv)
                     totalTime += opts.saveElapsedTime;
 #define LOCAL_MAX(a, b) ((a > b) ? a : b)
                     maxTime = LOCAL_MAX(maxTime, opts.saveElapsedTime);
-                    minTime = min(minTime, opts.saveElapsedTime);
+#define LOCAL_MIN(a, b) ((a < b) ? a : b)
+                    minTime = LOCAL_MIN(minTime, opts.saveElapsedTime);
                 }
             }
         } while (opts.repeat > 0  );

@@ -32,6 +32,7 @@
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383
+//              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2871,7 +2872,7 @@ void CIMRepository::_setQualifier(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_ALREADY_EXISTS, qualifierDecl.getName().getString());
+            CIM_ERR_NOT_SUPPORTED, qualifierDecl.getName().getString());
     }
 
     // -- Save qualifier:

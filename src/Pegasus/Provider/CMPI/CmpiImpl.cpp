@@ -1085,7 +1085,7 @@ CmpiInstance::CmpiInstance(const CMPIInstance* enc) {
 }
 
 CMPIInstance *CmpiInstance::getEnc() const {
-   return (CMPIInstance*)enc;
+   return (CMPIInstance*)this->enc;
 }
 
 CmpiInstance::CmpiInstance() {
@@ -1589,7 +1589,7 @@ CmpiArgs::CmpiArgs(CMPIArgs* enc) {
 }
 
 CmpiArgs::CmpiArgs() {
-   enc=makeArgs(CmpiProviderBase::getBroker());
+   this->enc=makeArgs(CmpiProviderBase::getBroker());
 }
 
 CMPIArgs *CmpiArgs::getEnc() const {
@@ -1664,7 +1664,7 @@ CmpiObject::CmpiObject(const void* enc) {
 }
 
 CmpiBoolean CmpiObject::isNull() const {
-   return (enc==NULL);
+   return (this->enc==NULL);
 }
 
 CmpiString CmpiObject::toString() {
@@ -1700,7 +1700,7 @@ CmpiEnumeration::CmpiEnumeration(CMPIEnumeration* enc) {
 }
 
 CMPIEnumeration *CmpiEnumeration::getEnc() const {
-   return (CMPIEnumeration*)enc;
+   return (CMPIEnumeration*)this->enc;
 }
 
 CmpiEnumeration::CmpiEnumeration() {
@@ -1770,7 +1770,7 @@ CmpiSelectExp::CmpiSelectExp(const CMPISelectExp* enc) {
 }
 
 CMPISelectExp *CmpiSelectExp::getEnc() const {
-   return (CMPISelectExp*)enc;
+   return (CMPISelectExp*)this->enc;
 }
 
 CmpiSelectExp::CmpiSelectExp() {
@@ -1791,7 +1791,7 @@ CmpiDateTime::CmpiDateTime(const CMPIDateTime* enc) {
 }
 
 CmpiDateTime::CmpiDateTime() {
-   enc=makeDateTime(CmpiProviderBase::getBroker());
+   this->enc=makeDateTime(CmpiProviderBase::getBroker());
 }
 
 CmpiDateTime::CmpiDateTime(const CmpiDateTime& original)

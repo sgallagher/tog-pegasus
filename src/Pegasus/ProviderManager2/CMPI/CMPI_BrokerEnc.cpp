@@ -80,7 +80,8 @@ static String typeToString(CIMType t) {
 	   case CIMTYPE_CHAR16:    return "char16";
 	   case CIMTYPE_STRING:    return "string";
 	   case CIMTYPE_DATETIME:  return "datetime";
-	   case CIMTYPE_REFERENCE: return "reference";
+       case CIMTYPE_REFERENCE: return "reference";
+       case CIMTYPE_OBJECT:    return "object";
       default: return "???";
    }
 }

@@ -21,31 +21,28 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExceptionRep_h
-#define Pegasus_CIMExceptionRep_h
+#ifndef Pegasus_ExceptionRep_h
+#define Pegasus_ExceptionRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMStatusCode.h>
-#include <Pegasus/Common/ExceptionRep.h>
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMExceptionRep : public ExceptionRep
+class ExceptionRep
 {
 public:
-    CIMStatusCode code;
-    const char*   file;
-    Uint32        line;
+    String message;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CIMExceptionRep_h */
+#endif /* Pegasus_ExceptionRep_h */

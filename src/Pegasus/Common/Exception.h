@@ -53,11 +53,14 @@ that are defined by the DMTF, but also various exceptions that
 may occur during the processing of functions called by clients
 and providers.</p>
 */
+class ExceptionRep;
 class PEGASUS_COMMON_LINKAGE Exception
 {
 public:
 
     Exception(const String& message);
+
+    Exception(const Exception& exception);
 
     virtual ~Exception();
 
@@ -65,7 +68,9 @@ public:
 
 protected:
 
-    String _message;
+    Exception();
+
+    ExceptionRep * _rep;
 };
 
 
@@ -185,8 +190,6 @@ public:
 };
 
 
-class CIMExceptionRep;
-
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.
 */
@@ -200,15 +203,11 @@ public:
 
     CIMException(const CIMException & cimException);
 
-    virtual ~CIMException();
-
     CIMException& operator=(const CIMException & cimException);
 
+    virtual ~CIMException();
+
     CIMStatusCode getCode() const;
-
-protected:
-
-    CIMExceptionRep * _rep;
 };
 
 

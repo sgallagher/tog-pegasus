@@ -23,7 +23,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,15 +61,11 @@ public:
         const String& cimError,
         const String& pegasusError);
     CIMClientHTTPErrorException(const CIMClientHTTPErrorException& httpError);
+    virtual ~CIMClientHTTPErrorException();
 
     Uint32 getCode() const;
     String getCIMError() const;
     String getPegasusError() const;
-
-private:
-    Uint32 _httpStatusCode;
-    String _cimError;
-    String _pegasusError;
 };
 
 /**

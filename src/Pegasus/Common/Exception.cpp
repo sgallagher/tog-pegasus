@@ -33,22 +33,36 @@
 
 #include <cstdio>
 #include "Exception.h"
+#include <Pegasus/Common/ExceptionRep.h>
 #include <Pegasus/Common/CIMExceptionRep.h>
 #include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-Exception::Exception(const String& message) : _message(message)
+Exception::Exception(const String& message)
+{
+    _rep = new ExceptionRep();
+    _rep->message = message;
+}
+
+Exception::Exception(const Exception& exception)
+{
+    _rep = new ExceptionRep();
+    _rep->message = exception._rep->message;
+}
+
+Exception::Exception()
 {
 }
 
 Exception::~Exception()
 {
+    delete _rep;
 }
 
 const String& Exception::getMessage() const
 {
-    return _message;
+    return _rep->message;
 }
 
 
@@ -153,41 +167,49 @@ SSLException::SSLException(const String& message)
 CIMException::CIMException(
     CIMStatusCode code,
     const String& message)
-    :
-    Exception(message)
 {
-    _rep = new CIMExceptionRep();
-    _rep->code = code;
-    _rep->file = "";
-    _rep->line = 0;
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    tmp->message = message;
+    tmp->code = code;
+    tmp->file = "";
+    tmp->line = 0;
+    _rep = tmp;
 }
 
 CIMException::CIMException(const CIMException & cimException)
-    : Exception(cimException.getMessage())
 {
-    _rep = new CIMExceptionRep();
-    _rep->code = cimException._rep->code;
-    _rep->file = cimException._rep->file;
-    _rep->line = cimException._rep->line;
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    CIMExceptionRep * rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
+    tmp->message = rep->message;
+    tmp->code = rep->code;
+    tmp->file = rep->file;
+    tmp->line = rep->line;
+    _rep = tmp;
 }
 
 CIMException& CIMException::operator=(const CIMException & cimException)
 {
-    _message = cimException._message;
-    _rep->code = cimException._rep->code;
-    _rep->file = cimException._rep->file;
-    _rep->line = cimException._rep->line;
+    CIMExceptionRep* left;
+    CIMExceptionRep* right;
+    left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
+    right = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
+    left->message = right->message;
+    left->code = right->code;
+    left->file = right->file;
+    left->line = right->line;
     return *this;
 }
 
 CIMException::~CIMException()
 {
-    delete _rep;
 }
 
 CIMStatusCode CIMException::getCode() const
 {
-    return _rep->code;
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    return rep->code;
 }
 
 PEGASUS_NAMESPACE_END

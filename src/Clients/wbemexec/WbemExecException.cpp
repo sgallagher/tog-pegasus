@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ExceptionRep.h>
 #include "WbemExecException.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -174,7 +175,7 @@ WbemExecException::WbemExecException (Uint32 ID, const String& appendString) :
     CommandException (_messageStrings 
         [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
-    _message.append (appendString);
+    _rep->message.append (appendString);
 }
 
 /**

@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ExceptionRep.h>
 #include "CommandException.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -86,9 +87,9 @@ const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] =
 DuplicateOptionException::DuplicateOptionException (char duplicateOption) :
     CommandFormatException (String ())
 {
-    _message = _MESSAGE_DUPLICATE_OPTION1;
-    _message.append (duplicateOption);
-    _message.append (_MESSAGE_DUPLICATE_OPTION2);
+    _rep->message = _MESSAGE_DUPLICATE_OPTION1;
+    _rep->message.append (duplicateOption);
+    _rep->message.append (_MESSAGE_DUPLICATE_OPTION2);
 
 }
 
@@ -133,11 +134,11 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
     (const String& invalidArgument, char option) : CommandFormatException
         (String ())
 {
-    _message = _MESSAGE_INVALID_ARG1;
-    _message.append (invalidArgument);
-    _message.append (_MESSAGE_INVALID_ARG2);
-    _message.append (option);
-    _message.append (_MESSAGE_INVALID_ARG3);
+    _rep->message = _MESSAGE_INVALID_ARG1;
+    _rep->message.append (invalidArgument);
+    _rep->message.append (_MESSAGE_INVALID_ARG2);
+    _rep->message.append (option);
+    _rep->message.append (_MESSAGE_INVALID_ARG3);
 
 }
 
@@ -169,9 +170,9 @@ const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] =
 InvalidOptionException::InvalidOptionException (char invalidOption) :
     CommandFormatException (String ())
 {
-    _message = _MESSAGE_INVALID_OPTION1;
-    _message.append (invalidOption);
-    _message.append (_MESSAGE_INVALID_OPTION2);
+    _rep->message = _MESSAGE_INVALID_OPTION1;
+    _rep->message.append (invalidOption);
+    _rep->message.append (_MESSAGE_INVALID_OPTION2);
 }
 
 /**
@@ -204,9 +205,9 @@ const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] =
 MissingOptionArgumentException::MissingOptionArgumentException (char option) :
     CommandFormatException (String ())
 {
-    _message = _MESSAGE_MISSING_OPTARG1;
-    _message.append (option);
-    _message.append (_MESSAGE_MISSING_OPTARG2);
+    _rep->message = _MESSAGE_MISSING_OPTARG1;
+    _rep->message.append (option);
+    _rep->message.append (_MESSAGE_MISSING_OPTARG2);
 }
 
 /**
@@ -238,9 +239,9 @@ const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] =
 MissingOptionException::MissingOptionException (char missingOption) :
     CommandFormatException (String ())
 {
-    _message = _MESSAGE_MISSING_OPTION1;
-    _message.append (missingOption);
-    _message.append (_MESSAGE_MISSING_OPTION2);
+    _rep->message = _MESSAGE_MISSING_OPTION1;
+    _rep->message.append (missingOption);
+    _rep->message.append (_MESSAGE_MISSING_OPTION2);
 }
 
 /**
@@ -272,9 +273,9 @@ const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] =
 UnexpectedArgumentException::UnexpectedArgumentException
     (const String& argumentValue) : CommandFormatException (String ())
 {
-    _message = _MESSAGE_UNEXPECTED_ARG1;
-    _message.append (argumentValue);
-    _message.append (_MESSAGE_UNEXPECTED_ARG2);
+    _rep->message = _MESSAGE_UNEXPECTED_ARG1;
+    _rep->message.append (argumentValue);
+    _rep->message.append (_MESSAGE_UNEXPECTED_ARG2);
 }
 
 /**
@@ -307,9 +308,9 @@ const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] =
 UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
     CommandFormatException (String ())
 {
-    _message = _MESSAGE_UNEXPECTED_OPT1;
-    _message.append (optionValue);
-    _message.append (_MESSAGE_UNEXPECTED_OPT2);
+    _rep->message = _MESSAGE_UNEXPECTED_OPT1;
+    _rep->message.append (optionValue);
+    _rep->message.append (_MESSAGE_UNEXPECTED_OPT2);
 }
 
 PEGASUS_NAMESPACE_END

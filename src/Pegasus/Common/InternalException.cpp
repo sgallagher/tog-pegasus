@@ -46,14 +46,14 @@ AssertionFailureException::AssertionFailureException(
     char lineStr[32];
     sprintf(lineStr, "%u", line);
 
-    _message = file;
-    _message.append("(");
-    _message.append(lineStr);
-    _message.append("): ");
-    _message.append(message);
+    _rep->message = file;
+    _rep->message.append("(");
+    _rep->message.append(lineStr);
+    _rep->message.append("): ");
+    _rep->message.append(message);
 
     // ATTN-RK-P3-20020408: Should define a "test" trace component
-    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2, _message);
+    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2, _rep->message);
 }
 
 const char NullPointer::MSG[] = "null pointer";
@@ -181,16 +181,22 @@ TraceableCIMException::TraceableCIMException(
     :
     CIMException(code, message)
 {
-    _rep->file = file;
-    _rep->line = line;
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    rep->file = file;
+    rep->line = line;
 }
 
 TraceableCIMException::TraceableCIMException(const CIMException & cimException)
     : CIMException(cimException.getCode(), cimException.getMessage())
 {
     TraceableCIMException * t = (TraceableCIMException *)&cimException;
-    _rep->file = t->_rep->file;
-    _rep->line = t->_rep->line;
+    CIMExceptionRep* left;
+    CIMExceptionRep* right;
+    left = reinterpret_cast<CIMExceptionRep*>(_rep);
+    right = reinterpret_cast<CIMExceptionRep*>(t->_rep);
+    left->file = right->file;
+    left->line = right->line;
 }
 
 //
@@ -201,7 +207,9 @@ String TraceableCIMException::getDescription() const
 #ifdef PEGASUS_DEBUG_CIMEXCEPTION
     return getTraceDescription();
 #else
-    return _makeCIMExceptionDescription(_rep->code, getMessage());
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    return _makeCIMExceptionDescription(rep->code, getMessage());
 #endif
 }
 
@@ -211,9 +219,11 @@ String TraceableCIMException::getDescription() const
 //
 String TraceableCIMException::getTraceDescription() const
 {
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
     String traceDescription =
         _makeCIMExceptionDescription(
-            _rep->code, getMessage(), _rep->file, _rep->line);
+            rep->code, getMessage(), rep->file, rep->line);
 
     return traceDescription;
 }

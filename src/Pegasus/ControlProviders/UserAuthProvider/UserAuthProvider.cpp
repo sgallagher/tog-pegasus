@@ -163,7 +163,7 @@ void UserAuthProvider::createInstance(
     //
     // check if the class name requested is PG_User
     //
-    if (String::equal(CLASS_NAME_PG_USER , instanceReference.getClassName()))
+    if (CLASS_NAME_PG_USER.equal (instanceReference.getClassName()))
     {
         try
         {
@@ -858,7 +858,7 @@ void UserAuthProvider::invokeMethod(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (
             CIM_ERR_FAILED,
-            "Unsupported method name, " + methodName );
+            "Unsupported method name, " + methodName.getString());
     }
 
     // Check if all the input parameters are passed.

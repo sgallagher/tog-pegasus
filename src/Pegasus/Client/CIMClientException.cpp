@@ -23,11 +23,15 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
 #include "CIMClientException.h"
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/ExceptionRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,6 +53,14 @@ CIMClientMalformedHTTPException::CIMClientMalformedHTTPException(
 // CIMClientHTTPErrorException
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+class CIMClientHTTPErrorExceptionRep : public ExceptionRep
+{
+public:
+    Uint32 httpStatusCode;
+    String cimError;
+    String pegasusError;
+};
 
 static String _makeHTTPErrorMessage(
     Uint32 httpStatusCode, 
@@ -85,38 +97,54 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     Uint32 httpStatusCode, 
     const String& cimError,
     const String& pegasusError)
-    : 
-    Exception(
-        _makeHTTPErrorMessage(httpStatusCode, cimError, pegasusError)),
-    _httpStatusCode(httpStatusCode),
-    _cimError(cimError),
-    _pegasusError(pegasusError)
 {
+    CIMClientHTTPErrorExceptionRep * tmp = 
+        new CIMClientHTTPErrorExceptionRep ();
+    tmp->message = _makeHTTPErrorMessage (httpStatusCode, cimError,
+        pegasusError);
+    tmp->httpStatusCode = httpStatusCode;
+    tmp->cimError = cimError;
+    tmp->pegasusError = pegasusError;
+    _rep = tmp;
 }
 
 CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     const CIMClientHTTPErrorException& httpError)
-    :
-    Exception(httpError.getMessage()),
-    _httpStatusCode(httpError._httpStatusCode),
-    _cimError(httpError._cimError),
-    _pegasusError(httpError._pegasusError)
+{
+    CIMClientHTTPErrorExceptionRep * tmp =
+        new CIMClientHTTPErrorExceptionRep ();
+    tmp->message = httpError._rep->message;
+    CIMClientHTTPErrorExceptionRep * rep;
+    rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(httpError._rep);
+    tmp->httpStatusCode = rep->httpStatusCode;
+    tmp->cimError = rep->cimError;
+    tmp->pegasusError = rep->pegasusError;
+    _rep = tmp;
+}
+
+CIMClientHTTPErrorException::~CIMClientHTTPErrorException()
 {
 }
 
 Uint32 CIMClientHTTPErrorException::getCode() const
 {
-    return _httpStatusCode;
+    CIMClientHTTPErrorExceptionRep* rep;
+    rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(_rep);
+    return rep->httpStatusCode;
 }
 
 String CIMClientHTTPErrorException::getCIMError() const
 {
-    return _cimError;
+    CIMClientHTTPErrorExceptionRep* rep;
+    rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(_rep);
+    return rep->cimError;
 }
 
 String CIMClientHTTPErrorException::getPegasusError() const
 {
-    return _pegasusError;
+    CIMClientHTTPErrorExceptionRep* rep;
+    rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(_rep);
+    return rep->pegasusError;
 }
 
 

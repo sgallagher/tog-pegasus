@@ -31,6 +31,8 @@
 #ifndef Pegasus_XmlConstants_h
 #define Pegasus_XmlConstants_h
 
+// REVIEW: Consider moving these to classes which they are associated with.
+
 PEGASUS_NAMESPACE_BEGIN
 
 //

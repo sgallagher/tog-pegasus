@@ -615,7 +615,8 @@ Z [Zz]
     return _EQ; 
 }
 
-"!=" { 
+
+"<>" { 
 
     sprintf(msg_,"LEX: %s [_NE] ", yytext);
     printf__(msg_);
@@ -623,6 +624,7 @@ Z [Zz]
     globalParserState->tokenCount++;
     return _NE; 
 }
+
 
 "<=" { 
 

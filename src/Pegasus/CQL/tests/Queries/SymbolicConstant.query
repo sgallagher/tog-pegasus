@@ -45,7 +45,7 @@ select * from CIM_ComputerSystem where CIM_ComputerSystem.EnabledState#'Enabled'
 select * from CIM_ComputerSystem where EnabledState.EnabledState#'Enabled' = 2
    
 #Query on symbolic constant in chain with more than 1 element.
-#First chain element is a class !=  FROM.  Result is TRUE
+#First chain element is a class <>  FROM.  Result is TRUE
 #Note that 'error' is lowercase to test case insensitivity.
 select * from CIM_ComputerSystem where CIM_LogicalDevice.OperationalStatus#'error' = 6
    

@@ -346,7 +346,7 @@ String CQLSimplePredicateRep::toString()const
 			s.append(" = ");
 			break;
 		case NE:
-			s.append(" != ");
+			s.append(" <> ");
 			break;
 		case IS_NULL:
 			s.append(" IS NULL ");

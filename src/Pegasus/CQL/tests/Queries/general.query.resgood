@@ -8,7 +8,7 @@ FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     1     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString != 'Bert Rules'
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString <> 'Bert Rules'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
@@ -36,14 +36,14 @@ TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 FALSE
 =========     5     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint8 != PropertyUint16
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint8 <> PropertyUint16
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     6     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint8 != PropertyUint32
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint8 <> PropertyUint32
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE

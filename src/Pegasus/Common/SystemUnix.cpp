@@ -28,6 +28,8 @@
 
 #ifdef PEGASUS_OS_HPUX
 # include <dl.h>
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include <dll.h>
 #else
 # include <dlfcn.h>
 #endif
@@ -163,6 +165,8 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
 # ifdef PEGASUS_OS_TRU64
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
+# elif defined(PEGASUS_OS_ZOS)
+    return DynamicLibraryHandle(dllload(fileName));
 # else
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
 # endif
@@ -186,6 +190,8 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 
 String System::dynamicLoadError() {
 #ifdef PEGASUS_OS_HPUX
+    return String();
+#elif defined(PEGASUS_OS_ZOS)
     return String();
 #else
     String dlerr = dlerror();
@@ -217,6 +223,9 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
     return 0;
 
+#elif defined(PEGASUS_OS_ZOS)
+    return DynamicSymbolHandle(dllqueryfn((dllhandle *)libraryHandle,
+                               (char*)symbolName));
 #else
 
     return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));

@@ -1,40 +1,74 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
-#//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
-#//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
-#//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
 
-ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-  ifeq ($(STATIC),1)
-    BUILD_STATIC=1
+ifeq ($(COMPILER),xlc)
+  LINK_COMMAND = makeC++SharedLib
+  LINK_ARGUMENTS = -p 0
+  LINK_OUT = -o
+endif
+
+ifeq ($(COMPILER),acc)
+  LINK_COMMAND = aCC -b
+  ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+    LINK_COMMAND += -Wl,+b/usr/lib -Wl,+s
   endif
+  ifdef PEGASUS_DEBUG
+    LINK_COMMAND += -g
+  endif
+  LINK_ARGUMENTS =
+  LINK_OUT = -o
 endif
 
-ifdef BUILD_STATIC
-  include $(PEGASUS_ROOT)/mak/static-library-unix.mak
-else
-  include $(PEGASUS_ROOT)/mak/shared-library-unix.mak
+ifeq ($(COMPILER),gnu)
+  LINK_COMMAND = g++ -shared
+  LINK_ARGUMENTS =
+  LINK_OUT = -o
 endif
+
+ifeq ($(COMPILER),deccxx)
+  LINK_COMMAND = cxx -shared
+  LINK_ARGUMENTS =
+  LINK_OUT = -o
+endif
+
+ifeq ($(COMPILER),ibm)
+  LINK_COMMAND = c++ -W l,dll -W c,dll,expo
+  LINK_ARGUMENTS =
+  LINK_OUT = -o
+endif
+
+FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)
+
+## Rule for all UNIX library builds
+$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) \
+    $(ERROR)
+ifneq ($(COMPILER),xlc)
+  ## Actions for all UNIX compilers except xlc
+  ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
+    ## To generate shared libraries which will cause dynamic
+    ## search of other shared libraries which they reference,
+    ## must specify the referenced shared libraries as "-l<name>"
+    ## DYNAMIC_LIBRARIES must be defined appropriately in the
+    ## libraries.mak file that includes this file
+    ##
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT)$(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES)
+
+    ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+      ## z/OS needs side definition files to link executables to
+      ## dynamic libraries, so we have to copy them into the lib_dir
+	$(COPY) $(ROOT)/src/$(DIR)/*.x $(LIB_DIR)
+    endif
+
+  else
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(LIBRARIES)
+  endif
+else
+	ar crv $(PEGASUS_PLATFORM).lib $(OBJECTS) $(LIBRARIES)
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT)$(FULL_LIB) $(PEGASUS_PLATFORM).lib
+	rm -f $(PEGASUS_PLATFORM).lib
+endif
+	$(TOUCH) $(FULL_LIB)
+	@ $(ECHO)
+
+clean-lib: $(ERROR)
+	rm -f $(FULL_LIB)
+
+FILES_TO_CLEAN = $(OBJECTS) $(FULL_LIB)

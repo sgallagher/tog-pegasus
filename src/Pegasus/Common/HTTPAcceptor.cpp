@@ -253,7 +253,13 @@ void HTTPAcceptor::_acceptConnection()
     // Accept the connection (populate the address):
 
     sockaddr_in address;
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    size_t n = sizeof(address);
+#else
     int n = sizeof(address);
+#endif
+
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)    
     Sint32 socket = accept(
 	_rep->socket, (struct sockaddr*)&address, (socklen_t *)&n);

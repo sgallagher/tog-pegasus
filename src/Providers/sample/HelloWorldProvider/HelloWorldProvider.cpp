@@ -30,7 +30,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
 #include <Pegasus/Provider2/SimpleResponseHandler.h>
-#include <Pegasus/Provider2/CIMProviderStub.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>

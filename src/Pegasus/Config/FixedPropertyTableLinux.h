@@ -54,7 +54,7 @@
     {"repositoryDir",       "/var/lib/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
 #endif
-#if defined(PEGASUS_OS_LSB)
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},
     {"logdir",              "/var/opt/lsb-pegasus/log"},
     {"tempLocalAuthDir",    "/var/opt/lsb-pegasus/cache/localauth"},

@@ -125,7 +125,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Parse an input file
   int parse();
   // Log a parser error
-  void log_parse_error(char *token, char *errmsg) const;
+  void log_parse_error(char *token, const char *errmsg) const;
 
   //------------------------------------------------------------------
   // Do various representation transformations.
@@ -181,7 +181,8 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Called when a method parameter production is complete
   int applyParameter(CIMMethod &method, CIMParameter &parm);
   // Called when a qualifier value production is complete
-  CIMValue *QualifierValue(const String &qualifierName, const String &valstr);
+  CIMValue *QualifierValue(const String &qualifierName, 
+                           Boolean isNull, const String &valstr);
   // Called to retrieve the value object for an existing parameter
   CIMProperty *PropertyFromInstance(CIMInstance &instance,
 				    const String &propertyName) const;

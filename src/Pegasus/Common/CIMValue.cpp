@@ -1702,21 +1702,26 @@ void CIMValue::get(Array<CIMReference>& x) const
     x.set(_rep->_u._referenceArray);
 }
 
-void CIMValue::toXml(Array<Sint8>& out, Boolean forceTag) const
+void CIMValue::toXml(Array<Sint8>& out) const
 {
     /* If the CIMValue is Null, no element is returned.
      Note that it output absolutely nothing. This works for
      everything except qualifiers where the value tag is required in
      any case per the XML specification
+
+     The DMTF has approved a change to the XML Specification
+     that extends the XML Definition to allow the
+     specification of NULL qualifier values. (CR812)
+
+     The definition of the ELEMENT QUALIFIER is now
+     defined as ...
+
+     <!ELEMENT QUALIFIER ((VALUE|VALUE.ARRAY)?)>
+
     */
 
     if (_rep->_isNull)
     {
-        if (forceTag)
-            if (_rep->_isArray)
-                out << "<VALUE.ARRAY></VALUE.ARRAY>\n";
-            else
-                out << "<VALUE></VALUE>\n";
         return;
     }
     if (_rep->_isArray)
@@ -1887,18 +1892,18 @@ void CIMValue::toXml(Array<Sint8>& out, Boolean forceTag) const
     }
 }
 
-String CIMValue::toXml(Boolean forceTag) const
+String CIMValue::toXml() const
 {
     Array<Sint8> out;
-    toXml(out, forceTag);
+    toXml(out);
     out.append('\0');
     return String(out.getData());
 }
 
-void CIMValue::print( Boolean forceTag, PEGASUS_STD(ostream) &os) const
+void CIMValue::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
-    toXml(tmp, forceTag);
+    toXml(tmp);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }

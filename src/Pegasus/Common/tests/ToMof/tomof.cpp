@@ -47,7 +47,7 @@ void test01(const T& x)
     CIMValue v3;
     v3 = v2;
     if (verbose)
-        v3.print(true, cout);
+        v3.print(cout);
 
     Array<Sint8> tmp1;
     v3.toMof(tmp1);

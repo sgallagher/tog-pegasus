@@ -108,12 +108,7 @@ void CIMQualifierRep::toXml(Array<Sint8>& out) const
 
     out << ">\n";
     
-    /* While property Null XML is to be printed without the value tag
-       the specification requires that Qualifer NULL values include the
-       value tag
-       KSTESTNULL
-    */
-    _value.toXml(out, true);
+    _value.toXml(out);
 
     out << "</QUALIFIER>\n";
 }

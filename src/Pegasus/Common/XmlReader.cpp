@@ -929,32 +929,6 @@ CIMValue XmlReader::stringToValue(
 {
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
 
-// The Specification for the Representation of CIM in XML does not indicate
-// that a default value should be used when a VALUE element is empty.
-//#if 0  ATTN-RK-P3-20020321: Take this code out when null qualifiers are fixed
-    // If strlen == 0, set to default value for type
-
-    if (strlen(valueString)==0) 
-    {
-        switch (type) 
-	{
-	    case CIMType::BOOLEAN: return CIMValue(false);
-	    case CIMType::STRING: return CIMValue(valueString);
-	    case CIMType::CHAR16: return CIMValue(Char16('\0'));
-	    case CIMType::UINT8: return CIMValue(Uint8(0));
-	    case CIMType::UINT16: return CIMValue(Uint16(0));
-	    case CIMType::UINT32: return CIMValue(Uint32(0));
-	    case CIMType::UINT64: return CIMValue(Uint64(0));
-	    case CIMType::SINT8: return CIMValue(Sint8(0));
-	    case CIMType::SINT16: return CIMValue(Sint16(0));
-	    case CIMType::SINT32: return CIMValue(Sint32(0));
-	    case CIMType::SINT64: return CIMValue(Sint64(0));
-	    case CIMType::REAL32: return CIMValue(Real32(0));
-	    case CIMType::REAL64: return CIMValue(Real64(0));
-        }
-    }
-//#endif
-
     // Create value per type
     switch (type)
     {
@@ -1525,7 +1499,7 @@ Uint32 XmlReader::getOptionalScope(XmlParser& parser)
 //
 // getQualifierElement()
 //
-//     <!ELEMENT QUALIFIER (VALUE|VALUE.ARRAY)>
+//     <!ELEMENT QUALIFIER (VALUE|VALUE.ARRAY)?>
 //     <!ATTLIST QUALIFIER
 //         %CIMName;
 //         %CIMType; #REQUIRED
@@ -1563,17 +1537,12 @@ Boolean XmlReader::getQualifierElement(
 
     // Get VALUE or VALUE.ARRAY element:
 
-    // ATTN: KS P1 4 March 2002 - Requires either value or array element or
-    // generates exception.  Correct for spec but means no NULL values on qualifier
-    // values. Alternative is to set NULL value and continue
-
     CIMValue value;
 
     if (!getValueElement(parser, type, value) &&
 	!getValueArrayElement(parser, type, value))
     {
-	throw XmlSemanticError(parser.getLine(),
-	    "Expected VALUE or VALUE.ARRAY element");
+        value.setNullValue(type, false);
     }
 
     // Expect </QUALIFIER>:

@@ -299,7 +299,7 @@ void XmlWriter::appendInstanceNameElement(
         if (keyBindings[i].getType() == KeyBinding::REFERENCE)
         {
             CIMReference ref = keyBindings[i].getValue();
-            ref.toXml(out, true);
+            ref.toXml(out);
         }
         else {
             out << "<KEYVALUE VALUETYPE=\"";
@@ -783,7 +783,7 @@ void XmlWriter::appendReturnValueElement(
     out << ">\n";
 
     // Add value. If value is Null, then this method shouldn't have been called
-    value.toXml(out, true);
+    value.toXml(out);
     out << "</RETURNVALUE>\n";
 }
 
@@ -996,7 +996,7 @@ void XmlWriter::appendPropertyValueIParameter(
     const CIMValue& value)
 {
     _appendIParamValueElementBegin(out, name);
-    value.toXml(out, false);
+    value.toXml(out);
     _appendIParamValueElementEnd(out);
 }
 

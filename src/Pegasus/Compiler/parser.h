@@ -113,6 +113,6 @@ class PEGASUS_COMPILER_LINKAGE  parser {
   unsigned int get_lineno() const { return _lineno; }
 
   // This is the main entry point for parser error logging
-  virtual void log_parse_error(char *token, char *errmsg) const;
+  virtual void log_parse_error(char *token, const char *errmsg) const;
 };
 #endif

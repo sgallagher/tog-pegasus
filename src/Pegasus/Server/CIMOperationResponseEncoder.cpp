@@ -679,10 +679,7 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    }
 
    Array<Sint8> body;
-   // Put the value in body. Note, if Null but out the value tags
-   // ATTN: P1 KS NULL testing.  Not sure if this is correct. Should
-   // we be putting the value tags out or not for null?
-   response->value.toXml(body, true);
+   response->value.toXml(body);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetProperty", response->messageId, body);

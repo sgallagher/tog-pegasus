@@ -1,0 +1,14 @@
+class ValidMof8a {
+    [key] uint32 id;
+    [MinValue (0), MaxValue (1)] uint32  A1L;
+};
+
+class ValidMof8b {
+    [key] uint32 id;
+    [MinValue (0)] uint32  A1L;
+};
+
+class ValidMof8c {
+    [key] uint32 id;
+    [MinValue (0), MaxValue (NULL)] uint32  A1L;
+};

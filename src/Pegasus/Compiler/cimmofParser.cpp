@@ -343,7 +343,7 @@ cimmofParser::parse()
 // Override the default parser error routine to enable I18n
 //----------------------------------------------------------------------
 void
-cimmofParser::log_parse_error(char *token, char *errmsg) const {
+cimmofParser::log_parse_error(char *token, const char *errmsg) const {
   String message;
   char buf[40];  // itoa can't overflow
   sprintf(buf, "%d", get_lineno());
@@ -1018,7 +1018,9 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
 
 
 CIMValue *
-cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
+cimmofParser::QualifierValue(const String &qualifierName, 
+                             Boolean isNull,
+                             const String &valstr)
 {
   CIMQualifierDecl q;
   try {
@@ -1035,24 +1037,20 @@ cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
     elog(message);
     maybeThrowParseError(message);
   } 
-  CIMValue v = q.getValue();
 
+  CIMValue v = q.getValue();
   Uint32 asize = v.getArraySize();
-  if (String::equal(valstr, String::EMPTY)) {
-    if (v.getType() == CIMType::BOOLEAN) {
+
+  if (isNull & v.getType() == CIMType::BOOLEAN)
+  {
       Boolean b;
       v.get(b);
-      v.set(Boolean(!b));
-    }
-    CIMValue* tmpValue = new CIMValue(v);
-
-    return tmpValue;
-  } else {
-    return valueFactory::createValue(v.getType(),
-				     v.isArray() ? (int)asize : -1, 
-                                     false,
-				     &valstr);
+      return new CIMValue((Boolean) !b);
   }
+  return valueFactory::createValue(v.getType(),
+				     v.isArray() ? (int)asize : -1, 
+                                     isNull,
+				     &valstr);
 }
 
 CIMProperty *

@@ -19,20 +19,22 @@ NewTests:
 	@$(ECHO) "cimmofl -R. ValidMof4.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof4.mof
 	@$(DIFF) ./repository/test/instances/ValidMof4.instances ValidMof4.instances.master
-	@$(ECHO) "*** Test Passed Successfully ***"
 	@$(ECHO) "cimmofl -R. ValidMof5.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof5.mof
 	@$(DIFF) ./repository/test/instances/ValidMof5.instances ValidMof5.instances.master
-	@$(ECHO) "*** Test Passed Successfully ***"
 	@$(ECHO) "cimmofl -R. ValidMof6.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof6.mof
 	@$(DIFF) ./repository/test/instances/ValidMof6.instances ValidMof6.instances.master
-	@$(ECHO) "*** Test Passed Successfully ***"
 	@$(ECHO) "cimmofl -R. ValidMof7.mof"
 	@cimmofl $(NAMESPACE) -R. ValidMof7.mof
 	@$(DIFF) ./repository/test/classes/A.B ValidMof7.A.master
 	@$(DIFF) ./repository/test/classes/B.# ValidMof7.B.master
-	@$(ECHO) "*** Test Passed Successfully ***"
+	@$(ECHO) "cimmofl -R. ValidMof8.mof"
+	@cimmofl $(NAMESPACE) -R. ValidMof8.mof
+	@$(DIFF) ./repository/test/classes/ValidMof8a.# ValidMof8a.master
+	@$(DIFF) ./repository/test/classes/ValidMof8b.# ValidMof8b.master
+	@$(DIFF) ./repository/test/classes/ValidMof8c.# ValidMof8c.master
+	@$(ECHO) "+++ Test Passed Successfully +++"
 
 clean:
 	@$(RM) $(TMPFILE)

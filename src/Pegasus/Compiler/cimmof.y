@@ -99,7 +99,7 @@ cimmof_wrap() {
 /* Pass errors to our general log manager.                          */
 /* ---------------------------------------------------------------- */
 void
-cimmof_error(char *msg) {
+cimmof_error(const char *msg) {
   cimmofParser::Instance()->log_parse_error(cimmof_text, msg);
   // printf("Error: %s\n", msg);
 }
@@ -201,13 +201,14 @@ cimmof_error(char *msg) {
 %type <strval> stringValue stringValues initializer constantValue
 %type <strval> nonNullConstantValue
 %type <strval> arrayInitializer constantValues 
-%type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE qualifierParameter
+%type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE 
 %type <strval> superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
 %type <strval> namespaceHandle namespaceHandleRef
 %type <strval> referenceInitializer aliasInitializer objectHandle
 %type <strval> TOK_UNEXPECTED_CHAR
 
-%type <typedinitializer> typedInitializer typedDefaultValue
+%type <typedinitializer> typedInitializer typedDefaultValue 
+%type <typedinitializer> typedQualifierParameter
 
 %type <modelpath> modelPath 
 %type <keybinding> keyValuePair
@@ -744,17 +745,17 @@ qualifierListBegin: TOK_LEFTSQUAREBRACKET { g_qualifierList.init(); } ;
 qualifiers: qualifier { }
           | qualifiers TOK_COMMA qualifier { } ;
 
-qualifier: qualifierName qualifierParameter flavor
+qualifier: qualifierName typedQualifierParameter flavor
 {
   cimmofParser *p = cimmofParser::Instance();
   // The qualifier value can't be set until we know the contents of the
   // QualifierDeclaration.  That's what QualifierValue() does.
-  CIMValue *v = p->QualifierValue(*$1, *$2); 
-
+  CIMValue *v = p->QualifierValue(*$1, 
+                  ($2->type == CIMMOF_NULL_VALUE), *$2->value); 
   $$ = p->newQualifier(*$1, *v, g_flavor);
   g_qualifierList.add($$);
   delete $1;
-  delete $2;
+  delete $2->value;
   delete v;
  } ;
 
@@ -764,11 +765,30 @@ qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = 0; }
                         $$ = new String(ScopeToString($1));
                         g_flavor = 0; } ;
 
-qualifierParameter: TOK_LEFTPAREN constantValue TOK_RIGHTPAREN { $$ = $2; }
-                  | arrayInitializer { $$ = $1; }
-		  | /* empty */ { $$ = new String(String::EMPTY); } ;
+typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN 
+                    {
+                    g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
+                    g_typedInitializerValue.value =  $2;
+                    $$ = &g_typedInitializerValue;
+                    }
+                  | TOK_LEFTPAREN TOK_NULL_VALUE TOK_RIGHTPAREN
+                    {
+                    g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+                    g_typedInitializerValue.value = new String(String::EMPTY);
+                    $$ = &g_typedInitializerValue;
+                    }
+                  | arrayInitializer
+                    {
+                    g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
+                    g_typedInitializerValue.value =  $1;
+                    $$ = &g_typedInitializerValue;
+                    }
+                  | {   /* empty */
+                    g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+                    g_typedInitializerValue.value = new String(String::EMPTY);
+                    $$ = &g_typedInitializerValue;
+                    };
 
- 
 pragmaName: TOK_SIMPLE_IDENTIFIER { $$ = $1; } ;
 
 pragmaVal:  TOK_STRING_VALUE { $$ = $1; } ;

@@ -386,12 +386,10 @@ public:
         or <VALUE.REFARRAY> tags. If the CIMValue is Null, no element is
         returned.
         @param out Sint8 Array to hold the XML representation
-        @param forceTag Boolean parameter that if set forces the XML tags to
-        be output even if the CIMValue is NULL.
         @return Returns the XML representation of the CIMValue
         object in the input parameter out.
     */
-    void toXml(Array<Sint8>& out, Boolean forceTag) const;
+    void toXml(Array<Sint8>& out) const;
 
     /** toXML - Converts a CIMValue object to XML. There is no input
         parameter and the result is returned as a String rather
@@ -399,26 +397,22 @@ public:
         element as value wrapped in the <VALUE>, <VALUE.ARRAY>,
         <VALUE.REFERENCE>, or <VALUE.REFARRAY> tags. If the
         CIMValue is Null, no element is returned.
-        @param forceTag Boolean parameter that if set forces the XML tags to
-        be output even if the CIMValue is NULL.
         @return Returns the XML representation of the CIMValue
         object in String form.
     */
-    String toXml(Boolean forceTag) const;
+    String toXml() const;
 
     /** CIMMethod print - Format and print the Value as XML to std output
         stream
-        @param forceTag Boolean parameter that if set forces the XML tags to
-        be output even if the CIMValue is NULL.
         @param o Stream to output to. Defaults to cout.
         @return None
         <PRE>
         Example:
             CIMValue value(Boolean(true));
-            value.print(true);  // Prints "true"
+            value.print();  // Prints "true"
         </PRE>
     */
-    void print(Boolean forceTag, PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     /** toMof - Converts a CIMValueObject to Mof.
         @out Sint8 Array to hold the Mof representation

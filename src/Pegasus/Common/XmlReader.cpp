@@ -1338,10 +1338,6 @@ Boolean XmlReader::getValueArrayElement(
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
 	return false;
 
-    //ATTN: P1 KS KSTESTNULL - Need to relook at this one.
-    if (entry.type == XmlEntry::EMPTY_TAG)
-        return true;
-
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
         // For each VALUE element:

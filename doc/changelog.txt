@@ -41,6 +41,10 @@ generating debug output.
 8. Karl 17 Aug 2001) - Extended CIMMOF compiler to put pegasus comment line in
 xml when it generates xml output.
 
+9. (Roger Kumpf - HP) 20 Aug 2001 - Combine instances of each class into
+a common file to reduce the number of files required by the default
+repository implementation.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -71,7 +71,7 @@ enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE,
     Example:  a IS NULL
     </PRE>
 */
-class CQLSimplePredicate
+class PEGASUS_CQL_LINKAGE CQLSimplePredicate
 {
   public:
     /**

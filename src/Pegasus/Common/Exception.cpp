@@ -185,7 +185,7 @@ const char NotConnected::MSG[] = "not connected";
 
 const char TimedOut::MSG[] = "timed out";
 
-const char ParseError::MSG[] = "parse error: ";
+//const char ParseError::MSG[] = "parse error: ";
 
 const char MissingNullTerminator::MSG[] = "missing null terminator: ";
 

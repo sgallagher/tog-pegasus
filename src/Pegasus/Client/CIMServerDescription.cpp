@@ -53,7 +53,7 @@ CIMServerDescription::getUrl()
 }
 
 String
-CIMServerDescription::getValue(const String & attributeName, const String & defaultValue)
+CIMServerDescription::getValue(const String & attributeName, const String & defaultValue) const
 {
 Array <String> vals;
 	if(getValues(attributeName, vals) == false || vals.size() == 0) {
@@ -64,7 +64,7 @@ Array <String> vals;
 }
 
 Boolean
-CIMServerDescription::getValues(const String & attributeName, Array <String> & attributeValue)
+CIMServerDescription::getValues(const String & attributeName, Array <String> & attributeValue) const
 {
   // find the attribute entry
   for (Uint32 idx=0; idx<_attributes.size(); idx++)
@@ -80,7 +80,7 @@ CIMServerDescription::getValues(const String & attributeName, Array <String> & a
 }
 
 Array<Attribute>
-CIMServerDescription::getAttributes()
+CIMServerDescription::getAttributes() const
 {
   return _attributes;
 }

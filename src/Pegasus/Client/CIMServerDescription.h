@@ -67,7 +67,7 @@ public:
       @param   defaultValue Default attribute value to return if empty or mal-formed.
       @return  String that contains an attribute value.
   */
-  String getValue(const String & attributeName, const String & defaultValue);
+  String getValue(const String & attributeName, const String & defaultValue) const;
 
   /** Returns an attribute value Array
       @param   attributeName Attribute name of attribute.
@@ -76,12 +76,12 @@ public:
 	Note, an true return and an empty Value array indicates the tag had 
 	no attribute values (ie a keyword).
   */
-  Boolean getValues(const String & attributeName, Array <String> & attributeValues);
+  Boolean getValues(const String & attributeName, Array <String> & attributeValues) const;
 
   /** Returns an array of attribute.
       @return  Array that contains contains attributes for this connection description.
   */
-  Array<Attribute> getAttributes();
+  Array<Attribute> getAttributes() const;
 
   /** Sets an array of attributes for this description.
       param  Array that contains attributes for this connection description.

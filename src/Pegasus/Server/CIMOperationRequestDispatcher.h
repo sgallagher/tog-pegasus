@@ -67,9 +67,8 @@ public:
     operationAggregate(CIMRequestMessage* request,
                                 Uint32 msgRequestType,
                                 String messageId)
-    : _request(request), _total(0), returnedCount(0), 
-    _msgRequestType(msgRequestType), _messageId(messageId),
-    _magicNumber(12345)
+    : _messageId(messageId), _msgRequestType(msgRequestType), returnedCount(0), 
+      _request(request), _total(0), _magicNumber(12345)
     {}
 
     ~operationAggregate()

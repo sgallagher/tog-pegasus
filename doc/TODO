@@ -2,19 +2,53 @@
 				TO-DO List
 				==========
 
-    - 	Propagate error messages back in CIM/HTTP requests (right now the
-	static error messages are propagated; it would be nice to have
-	the original error string to give more information).
+-   Instances:
 
-    -	Be sure that namespaces are limited to be CIM names (as given in
-	Names.h).
+    -   Implement CIMRepository::getProperty()
 
-    -	Remove jdaux.exe from CVS repository.
+    -   Implement CIMRepository::setProperty()
 
-    - 	Finalize the headers (put authors in all the modules).
+    -   Implement CIMRepository::deleteInstance()
 
-    -   Fix the trace function so that it prints out the messages going
-	both ways.
+    -   Implement CIMRepository::modifyInstance()
+
+    -   Implement CIMRepository::enumerateInstances()
+
+    -   Implement CIMRepository::enumerateInstanceNames()
+
+    -   Handle inheritance in all instance operations.
+
+    -	Double check that all these operations work across protocol.
+
+    -   Check that they have keys during validation.
+
+-   Associations:
+
+    -   Implement CIMRepository::referencesOf()
+
+    -   Implement CIMRepository::associatorsOf()
+
+    -	Implement protocol stubs for these operations.
+
+-   Exceptions:
+
+    -	Clean up and consolidate exception classes.
+
+    - 	Propagate underlying error messages across the CIM protocol.
+
+-   References:
+
+    -	Validate arguments to CIMReference compound constructor and modifiers.
+	(namespaces, hosts, classnames, and keybindings)
+
+    -   Be sure that escape sequences are handled inside of object names. For
+	example:
+
+	    X.key1="Hello \"You\""
+
+-   Protocol:
+
+    -   Improve protocol tracing to show messages in both directions.
 
     - 	The TCPChannel::writeN() method blocks when the client and server
 	are in the same process. That is because the client cannot read
@@ -22,146 +56,137 @@
 
     - 	Figure out how to handle getProperty() return type.
 
-    - 	Having problems with reference on Repository::createInstance() and
-      	Repository::getInstance(). References not always in standard form.
-      	Also, resolve() fails when instance has properties of difference
-      	case.
+    -   Provide ACE Channel implementation (for porting purposes)?
 
-    - 	Super class name does not seem to be set in enumerateClasses 
-	operation.
+    -   Handle PARAMETER.REFARRAY in Procotol?
 
-    ------------------------------------------------------------------------
+    -   Ignore extraneous XML elements (loosely valid).
 
-    -	Remove "std::" qualifiers and use a macro and use #define for
-	PEGASUS_NAMESPACE_STD.
+-   Porting:
 
-    -  	Change getLength() to length() or size()?
+    -	Replace "std::something" with "STD(something)"
 
-    -  	Change find<Object> to find<Object>ByIndex().
+    -   Replace "using namespace std" with "USING_NAMESPACE_PEGASUS"
 
-    -	Need get by name.
+-   Aesthetics/Consistency/Usability:
 
-    Now:
+    -  	Change getLength() and getSize() to just size(): "Brevity is the soul
+	of genius and of Lingerie". 
 
-    -	Add convenience functions: addProperty().
-    -	Change CimException to CIMException
-    -   Get ACE working on Tandem (or remove ACE from Pegasus).
-    -   Port Pegasus to Tandem (look for Tandem machine at BMC).
-    -   Instance repository.
-    -	Delete namespace.
-    -   Finalize provider interface.
-    -   Associations (basic).
-    -   Provider registration (by the standard).
-    -   MOF compiler (finalize).
-    -   Write short paper on Pegasus data objects.
-    -   Integrate DOC++ with make system.
-    -   Compaq requested SQL level-1 description.
-    -   Get rid of ACE (required if no ACE on Tandem).
-    -   Need query capability for Compaq.
-    -   Threading (and process forking).
-    -   Implement protocol module (the default uses ACE).
+    -  	Add methods to get objects by their names, in addition to index. For
+	example:
+
+	    CIMProperty CIMClass::getProperty(const String& name);
+
+    -   Perform walkthrough to expose consistency problems.
+
+    -   Distinguish between private and public classes (otherwise, users may
+	come to depend on classes with unstable interfaces).
+
+-   Documentation:
+
+    -   Suggest newlines after methods.
+
+    -   Suggest use of "/** ... */" instead of "///"
+
+    -	Refine header file documentation.
+
+    -	Write Pegasus Architecture Paper.
+
+    -   Integrate DOC++ with make system (put all docs in doc tree):
+
+-   Namespaces:
+
+    -   Implement create and destroy namespace (according to the standard).
+
+-   Providers
+
+    -   Add CIM-Server handles to provider interface.
+
+    -   Implement MOF provider registration scheme (according to the standard).
+
+-   WBEM Query Language
+
+    -	Find someone to work on standard.
+
+    -   Implement leve-1 parser.
+
+-   MOF compiler:
+
+    -   Work with Bob to identify work items.
+
+-   Threading
+
+    -   Write thread queuing document (input and output thread queue per
+	provider).
+
+    -   Implement queuing.
+
+    -   Make reference counted objects thread safe (Mutexing and atomic
+	increments).
+
+-   Connectors
+
+    -   Work out basic concepts (write paper).
+
     -	Package up pegasus in Install Shield application.
 
 
-    ------------------------------------------------------------------------
+-   Install
 
-    (A) Install shield install of Pegasus.
+    -   Need install mechanism for Unix and Windows.
 
-    (A)	Handle escaping of strings inside object names. Example:
+-   Interoperability
 
-    		X.key1="Hello \"You\""
+    -   Fix reported bugs.
 
-    (A) Notice that there is a bug where you select Scope::REFERENCE and
-	and the validation routines still say the scope is wrong for
-	qualifiers applied actual references (they are checking for
-	property instead).
+-   Internationalization
 
-    (A) There is an odering problem when applying the qualifiers with
-    	association scope to classes. If the association qualifier does not
-	come first, then application of prior qualifiers fail.
-	Checking this should be moved to class resolution.
+    - Handle UCS2 characters in XML (parsing and writing).
 
-    ------------------------------------------------------------------------
+-   Repository:
 
-    (B) Hide setPropagated() and setClassOrigin() methods (only the resolve
-        method should touch these).
+    - Export to MOF.
 
-    (B) Change make system to rename dll's before link so that they
-	can be used by the server.
+-   Miscellaneous
 
-    (B) Finish other CIM/HTTP protocol operations.
+    - Figure out how to handle CIM null values.
 
-    (B) Use the description that comes back with an error code in the XML
-    	protocol. Perhaps it should become an extra message field of
-	XmlException.
+    - Generalize iteration.
 
-    (B) Source documentation.
+    - Figure out how inheritance of keys works.
 
-    (B) Put README in each directory.
+    - Investiage weak assocations.
 
-    (B) Handle UCS2 characters in XML (parsing and writing).
+    - Provide conversions between DateTime and time_t.
 
-    (B) Check for overflow on the number of attributes in XML.
+-   Constraint hanlding
 
-    (B) Handle PARAMETER.REFARRAY in XML.
+    - Enforce constraint qualifiers.
 
-    (B) Add validNamespace() method and use it.
+    - Disallow resetting size of fixed length arrays.
 
-    ------------------------------------------------------------------------
+-   Optimization/Tuning
 
-    (C) Suppress error message printed by ACE caused by constructing an 
-        address from a non existent host.
+    -   Shrink object sizes.
 
-    (C) Ignore extraneous XML elements (loosely valid).
+    -   Use lighter I/O system (than C++ streams).
 
-    (C) Get rid of fullyQualified flag.
+    -   Run Purify on all sources (port to Sun first).
 
-    (C) Handling of hexadecimal integer values.
+    -   Optimize clear method on arrays (to not release memory).
 
-    (C) VALUE.REFERENCE within INSTANCENAME and KEYBINDING.
+-   Porting
 
-    (C) Resolve whether MOF is a requirement.
+    -   Port to Solaris
 
-    (C) Handle case sensitivity of CIM identifiers.
+    -   Port to HPUX
 
-    (C) Figure out how to handle CIM null values.
+    -   Port to AIX
 
-    (C) Make iteration scheme more general.
+-   Testing
 
-    (C) Develop XML repository importation mechanism.
+    -   Run Purify on all sources (port to Sun first).
 
-    (C) Move internal headers to ./internal directory
-
-    (C) Split up XxxRep objects from Xxx objects.
-
-    (C) Handle case insentive requirement on repository file names.
-
-    (C) Devise a way to detect whether a class has instances.
-
-    (C) Cleanup of execeptions.
-
-    (C) Verify that fixed length arrays are properly handled.
-
-    (C) Check for null string pointers in String class.
-
-    (C) Verify that instances are property keyed (during validation).
-
-    (C) Thread safety.
-
-    (C) Use UTF8 for strings.
-
-    (C) Shrink object sizes.
-
-    (C) Use lighter I/O system (get rid of C++ streams).
-
-    (C) Provide conversion between DateTime and time_t.
-
-    (C) Purify source.
-
-    (C) Improve the representation of fixed arrays (is that pesky fixed-array
-      	flag really necessary?)
-
-    (C)	Modify clear() methods on Array and String so that they don't
-	release the old resource (more efficient for GetLine()). Add
-	a resize() method.
+    -   Run CIM/XML test suite.
 

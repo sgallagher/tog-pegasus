@@ -38,7 +38,6 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Config/ConfigManager.h>
 
 #include "SSLContext.h"
 #include "SSLContextRep.h"
@@ -47,6 +46,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// switch on if 'server needs certified client'
+//#define CLIENT_CERTIFY
 
 //
 // use the following definitions only if SSL is available
@@ -272,25 +273,16 @@ SSLContextRep::SSLContextRep(const String& certPath,
     SSL_CTX_set_mode(_SSLContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_options(_SSLContext,SSL_OP_ALL);
 
-    //
-    // Check if the client certificate verification is required
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    if (String::equalNoCase(
-        configManager->getCurrentValue("enableClientCertification"), "true"))
+#ifdef CLIENT_CERTIFY
+    SSL_CTX_set_verify(_SSLContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
+        prepareForCallback);
+#else
+    if (verifyCert != NULL)
     {
-        SSL_CTX_set_verify(_SSLContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
-            prepareForCallback);
+        SSL_CTX_set_verify(_SSLContext, 
+            SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
     }
-    else
-    {
-        if (verifyCert != NULL)
-        {
-            SSL_CTX_set_verify(_SSLContext, 
-                SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
-        }
-    }
+#endif
 
     //
     // check certificate given to me

@@ -1,4 +1,4 @@
-ROOT = $(PEGASUS_HOME)/..
+ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 

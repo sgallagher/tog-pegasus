@@ -83,7 +83,14 @@ void _generateIndication (
     if (_enabled)
     {
         cout << "_generateIndication RT_IndicationProvider" << endl;
-        CIMInstance indicationInstance ("root/SampleProvider:RT_TestIndication");
+
+	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
+
+        CIMObjectPath path ;
+        path.setNameSpace("root/SampleProvider");
+        path.setClassName("RT_TestIndication");
+
+        indicationInstance.setPath(path);
 
         indicationInstance.addProperty
             (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
@@ -110,7 +117,13 @@ void _generateIndication (
     {
         cout << "_generateIndication RT_IndicationProvider" << endl;
 
-        CIMInstance indicationInstance ("root/SampleProvider:RT_TestIndication");
+	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
+
+        CIMObjectPath path ;
+        path.setNameSpace("root/SampleProvider");
+        path.setClassName("RT_TestIndication");
+
+        indicationInstance.setPath(path);
 
         indicationInstance.addProperty
             (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));

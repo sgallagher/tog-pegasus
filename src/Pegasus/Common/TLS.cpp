@@ -33,9 +33,11 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
-#include <Pegasus/Config/ConfigManager.h>
 
 #include "TLS.h"
+
+// switch on if 'server needs certified client'
+//#define CLIENT_CERTIFY
 
 //
 // use the following definitions only if SSL is available
@@ -184,48 +186,40 @@ redo_accept:
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "Error Code: " + ssl_rsn );
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, String(ERR_print_errors_fp(stderr)));
 
        PEG_METHOD_EXIT();
        return -1;
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Accepted");
 
-    //
-    // Check if the client certificate verification enabled or not
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    if (String::equalNoCase(
-        configManager->getCurrentValue("enableClientCertification"), "true"))
+#ifdef CLIENT_CERTIFY
+    // get client's certificate
+    // this is usually not needed 
+    X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+    if (client_cert != NULL)
     {
-        // get client's certificate
-        // this is usually not needed 
-        X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
-        if (client_cert != NULL)
-        {
-           if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
-           {
-               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-                   "---> SSL: Client Certificate verified.");
-           }
-           else
-           {
-               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-                   "---> SSL: Client Certificate not verified");    
-               PEG_METHOD_EXIT();
-               return -1;
-           }
-
-           X509_free (client_cert);
-        }
-        else
-        {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified");
+       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+       {
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+               "---> SSL: Client Certificate verified.");
+       }
+       else
+       {
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+               "---> SSL: Client Certificate not verified");    
            PEG_METHOD_EXIT();
            return -1;
-        }
+       }
+
+       X509_free (client_cert);
     }
+    else
+    {
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified");
+       PEG_METHOD_EXIT();
+       return -1;
+    }
+#endif
 
     PEG_METHOD_EXIT();
     return ssl_rc;
@@ -262,7 +256,8 @@ redo_connect:
     else if (ssl_rc == 0)
     {
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Shutdown SSL_connect()");
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, String(ERR_print_errors_fp(stderr)));
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+           "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
        PEG_METHOD_EXIT();
        return -1;
     }

@@ -60,6 +60,11 @@ public:
     */
     CIMConfigCommand ();
 
+    /**    
+        Destructs a CIMConfigCommand.
+    */
+    ~CIMConfigCommand ();
+
     /**
     Parses the command line, validates the options, and sets instance 
     variables based on the option arguments.

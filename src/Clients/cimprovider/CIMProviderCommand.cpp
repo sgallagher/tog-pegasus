@@ -375,6 +375,11 @@ public:
     */
     CIMProviderCommand ();
 
+    /**    
+        Destructs a CIMProviderCommand.
+    */
+    ~CIMProviderCommand ();
+
     //
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function. 
@@ -562,6 +567,7 @@ CIMProviderCommand::CIMProviderCommand ()
     _moduleSet 		= false;
     _providerSet	= false;
     _statusSet		= false;
+    _client             = NULL;
 #ifdef PEGASUS_OS_OS400
      _defaultQuietSet    = false;
 #endif
@@ -629,6 +635,15 @@ CIMProviderCommand::CIMProviderCommand ()
     setUsage (usage);
 }
 
+
+/**
+    Destructs a CIMProviderCommand
+*/
+CIMProviderCommand::~CIMProviderCommand ()
+{
+    if (_client != NULL)
+        delete _client;
+}
 
 /**
     Parses the command line, validates the options, and sets instance 
@@ -1018,11 +1033,22 @@ Uint32 CIMProviderCommand::execute (
 
     try
     {
+        // Construct the CIMClient and set to request server messages
+        // in the default language of this client process.
+        _client = new CIMClient;
+        _client->setRequestDefaultLanguages(); //l10n
+    }
+    catch (Exception & e)
+    {
+        errPrintWriter << e.getMessage() << endl;
+        return ( RC_ERROR );        
+    }
+
+    try
+    {
         //
         // Open connection with CIMSever
         //
-        _client = new CIMClient;
-		_client->setRequestDefaultLanguages();
         _client->connectLocal();
 
     }
@@ -1949,6 +1975,8 @@ int main (int argc, char* argv [])
     }
 
     retCode = command->execute (cout, cerr);
+
+    delete command;   // Needed to destruct the CIMClient used by the command
 
     exit(retCode);
     return (0);

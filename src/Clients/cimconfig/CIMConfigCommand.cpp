@@ -448,6 +448,7 @@ CIMConfigCommand::CIMConfigCommand ()
      _defaultQuietSet     = false;
 #endif
     _hostName            = String::EMPTY;
+    _client              = NULL;
 
     /**
         Build the usage string for the config command.  
@@ -517,6 +518,14 @@ CIMConfigCommand::CIMConfigCommand ()
     setUsage (usage);
 }
 
+/**
+    Destructs a CIMConfigCommand
+*/
+CIMConfigCommand::~CIMConfigCommand ()
+{
+    if (_client != NULL)
+        delete _client;
+}
 
 /**
     Parses the command line, validates the options, and sets instance 
@@ -966,11 +975,22 @@ Uint32 CIMConfigCommand::execute (
 
     try
     {
+        // Construct the CIMClient and set to request server messages
+        // in the default language of this client process.
+        _client = new CIMClient;
+        _client->setRequestDefaultLanguages(); //l10n
+    }
+    catch (Exception & e)
+    {
+        errPrintWriter << e.getMessage() << endl;
+        return ( RC_ERROR );        
+    }
+
+    try
+    {
         //
         // Open connection with CIMSever
         //
-        _client = new CIMClient;
-		_client->setRequestDefaultLanguages(); //l10n
         _client->connectLocal();
 
         connected = true;
@@ -1891,6 +1911,8 @@ int main (int argc, char* argv [])
     }
 
     returnCode = command->execute (cout, cerr);
+
+    delete command;   // Needed to destruct the CIMClient used by the command
 
     exit (returnCode);
     return 0;

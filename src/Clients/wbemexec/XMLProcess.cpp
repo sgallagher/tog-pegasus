@@ -25,6 +25,7 @@
 //         (carolann_graves@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -168,8 +169,6 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
                                        String hostName,
                                        Boolean useMPost,
                                        Boolean useHTTP11,
-                                       String userName,
-                                       String password,
                                        ClientAuthenticator* clientAuthenticator,
                                        Boolean useAuthentication,
                                        Array <Sint8> content,
@@ -186,7 +185,6 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
     String                       className;
     String                       methodName;
     String                       authString;
-    String                       base64String;
     Array<Sint8>                 encoded;
     Array <Sint8>                objPath;
     Array <KeyBinding>           keyBindings;
@@ -196,26 +194,6 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
     static Uint32                BUFFERSIZE            = 1024;
     Array <Uint8>                authArray;
     Uint32                       authLen               = 0;
-
-    if( ( userName.size() > 0 ) &&
-        ( password.size() > 0 ) )
-      {
-        /*
-          Construct basic authentication header.
-        */
-        authString.append( userName );
-        authString.append( ":" );
-        authString.append( password );
-        authLen = authString.size();
-        authArray.reserve( authLen );
-        authArray.clear();
-        for( i = 0; i < authLen; i++ )
-          {
-            authArray.append( (Uint8)authString[i] );
-          }
-        encoded = Base64::encode( authArray );
-        base64String = String( encoded.getData(), encoded.size() );
-      }
 
     //
     //  xml declaration
@@ -454,11 +432,6 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
             << HTTP_CRLF;
     message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR << HTTP_SP 
             << content.size () << HTTP_CRLF;
-    if( base64String.size() > 0 )
-      {
-        message << HEADER_NAME_AUTHORIZATION << HEADER_SEPARATOR << HTTP_SP <<
-          HTTP_AUTH_BASIC << HTTP_SP << base64String << HTTP_CRLF;
-      }
 
     if (useMPost)
     {
@@ -506,16 +479,20 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
     // Save the HTTP headers in case of authentication
     //
     httpHeaders << message;
+
     //
     // Set the authentication header if authentication required
     //
     if( useAuthentication )
+    {
+      String authHeader = clientAuthenticator->buildRequestAuthHeader();
+      if (authHeader.size())
       {
-        message << clientAuthenticator->buildRequestAuthHeader() << HTTP_CRLF;
+          message << authHeader << HTTP_CRLF;
       }
+    }
     message << HTTP_CRLF;
     message << content;
-
 
     return message;
 }

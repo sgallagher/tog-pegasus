@@ -36,6 +36,20 @@
 #include <stdio.h>
 #endif
 
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+# include <winsock.h>
+#else
+# include <cctype>
+# include <unistd.h>
+# include <cstdlib>
+# include <errno.h>
+# include <fcntl.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <sys/socket.h>
+#endif
+
 #include <iostream>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Config.h>
@@ -115,11 +129,6 @@ const Uint32 WbemExecCommand::_MIN_PORTNUMBER      = 0;
 const Uint32 WbemExecCommand::_MAX_PORTNUMBER      = 65535;
 
 /**
-    The integer representing the default port number.
- */
-const Uint32 WbemExecCommand::_DEFAULT_PORT        = 5988;
-
-/**
     The debug option argument value used to specify that the HTTP
     encapsulation of the original XML request be included in the output.
 */
@@ -141,10 +150,11 @@ WbemExecCommand::WbemExecCommand ()
 
     _hostName            = String ();
     _hostNameSet         = false;
-    _portNumber          = _DEFAULT_PORT;
+    _portNumber          = WBEM_DEFAULT_PORT;
+    _portNumberSet       = false;
 
     char buffer[32];
-    sprintf(buffer, "%lu", (unsigned long) _DEFAULT_PORT);
+    sprintf(buffer, "%lu", (unsigned long) _portNumber);
     _portNumberStr       = buffer;
 
     _useHTTP11           = true;   
@@ -300,7 +310,8 @@ Boolean WbemExecCommand::_isHTTPOk( String startLine )
 
     @param   ostream             the ostream to which output should be written
 
-    @return  true = wait for data from challenge response
+    @return  true  = wait for data from challenge response
+    @return  false = client response has been received
   
  */
 Boolean WbemExecCommand::_handleResponse( Channel*               channel,
@@ -317,65 +328,67 @@ Boolean WbemExecCommand::_handleResponse( Channel*               channel,
     Array<HTTPHeader>            headers;
     Uint32                       contentLength;
     HTTPMessage*                 httpMessage;
-    Array <Sint8>                challengeResponse;
-    String                       authHeader;
     Boolean                      needsAuthentication = false;
 
     responseMessage = handler->getMessage();
     httpMessage = new HTTPMessage( responseMessage, 0 );
     httpMessage->parse( startLine, headers, contentLength );
-    if (HTTPMessage::lookupHeader(
-        headers, "WWW-Authenticate", authHeader, false))
-    {
-      needsAuthentication = true;
-    }
-    if( clientAuthenticator->checkResponseHeaderForChallenge( headers ) )
+    if( useAuthentication )
       {
-        //
-        // An authentication header was found.
-        // Get the original request, send with authentication challenge
-        // response. 
-        //
-        challengeResponse << httpHeaders;
-        challengeResponse << clientAuthenticator->buildRequestAuthHeader();
-        challengeResponse << HTTP_CRLF << HTTP_CRLF;
-        challengeResponse << content;
-        channel->writeN( challengeResponse.getData(), challengeResponse.size() );
-        return true;
+	try
+	  {
+	    needsAuthentication = 
+	      clientAuthenticator->checkResponseHeaderForChallenge( headers );
+	  }
+	catch(InvalidAuthHeader& e)
+	  {
+	    // This is an invalid authentication challenge
+	    
+	    oStream << startLine << endl;
+	    oStream.flush();
+	    exit( 1 );
+	  }
+
+	if( needsAuthentication )
+	  {
+	    //
+	    // An authentication header was found.
+	    // Get the original request, send with authentication challenge
+	    // response. 
+	    //
+	    Array <Sint8>                challengeResponse;
+	    
+	    challengeResponse << httpHeaders;
+	    
+	    String authHeader = clientAuthenticator->buildRequestAuthHeader();
+	    if (authHeader.size())
+	      {
+		challengeResponse <<  authHeader << HTTP_CRLF;
+	      }
+	    challengeResponse << HTTP_CRLF;
+	    challengeResponse << content;
+	    channel->writeN( challengeResponse.getData(), challengeResponse.size() );
+	    return true;
+	  }
       }
-    else
-      {
-
-        // No authentication header was found
-
-        if( needsAuthentication )
-          {
-            
-            // This is an invalid authentication challenge
-
-            oStream << startLine << endl;
-            oStream.flush();
-            exit( 1 );
-          }
-        else
-          {
-            if( !_isHTTPOk( startLine ) )
-              {
-
-                // Received an HTTP error response
-                // Output the HTTP error message and exit
-
-                oStream << startLine << endl;
-                oStream.flush();
-                exit( 1 );
-              }
-          }
-
+        if( !_isHTTPOk( startLine ) )
+	  {
+            // Received an HTTP error response
+            // Output the HTTP error message and exit
+	    
+	    oStream << startLine << endl;
+	    for (Uint32 i = 0, n = headers.size(); i < n; i++)
+	      {
+		oStream << headers[i].first << ": " << headers[i].second << endl;
+	      }
+	    oStream.flush();
+	    exit( 1 );
+	  }
+	
         //
         // Received a valid response or an error response from the server.
         //
         return false;
-      }
 }
 
 /**
@@ -408,6 +421,8 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     Array <Sint8>                httpHeaders;
     ClientAuthenticator*         clientAuthenticator            = NULL;
     Boolean                      useAuthentication              = false;
+    struct sockaddr_in           saddress;
+
 
     //
     //  Check for invalid combination of options
@@ -426,7 +441,18 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     //
     if (!_hostNameSet)
     {
-        _hostName = System::getHostName ();
+        memset( &saddress, 0, sizeof(saddress) );
+
+        saddress.sin_addr.s_addr = INADDR_LOOPBACK;
+        _hostName = inet_ntoa( saddress.sin_addr );
+	if( !_portNumberSet )
+	  {
+	    _portNumber = System::lookupPort( WBEM_SERVICE_NAME,
+					      WBEM_DEFAULT_PORT );
+	    char buffer[32];
+	    sprintf( buffer, "%lu", (unsigned long) _portNumber );
+	    _portNumberStr       = buffer;
+	  }
     }
 
     //
@@ -518,18 +544,29 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     //
     clientAuthenticator = new ClientAuthenticator();
     clientAuthenticator->clearRequest();
-    if( !_hostNameSet )
+    useAuthentication = true;
+    
+    if( _userName.size() )
       {
-        useAuthentication = true;
-
-        // No hostname specified; use local authentication
-
-        if( _userName.size() )
-          {
-            clientAuthenticator->setUserName( _userName );
-          }
-        clientAuthenticator->setAuthType( ClientAuthenticator::LOCAL );
+	clientAuthenticator->setUserName( _userName );
       }
+    if( _hostNameSet )
+      {
+	
+        if( _password.size() )
+	  {
+            clientAuthenticator->setPassword( _password );
+	  }
+      }
+    else 
+    {
+      // No hostname specified; use local authentication
+      // We don't set password because cimserver will do a
+      // local authentication challenge sequence.
+
+        clientAuthenticator->setAuthType( ClientAuthenticator::LOCAL );
+    }
+
     //
     //  Encapsulate XML request in an HTTP request
     //
@@ -537,7 +574,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     {
         message = XMLProcess::encapsulate( parser, _hostName, 
                                            _useMPost, _useHTTP11,
-                                           _userName, _password,
                                            clientAuthenticator,
                                            useAuthentication,
                                            content, httpHeaders );
@@ -582,15 +618,19 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     if( _handleResponse( channel, handler, content, httpHeaders,
                          clientAuthenticator, useAuthentication,
                          outPrintWriter ) == true )
-      {
-        // Wait for final response
-
-        if (!handler->waitForResponse (_timeout))
-          {
-            WbemExecException e (WbemExecException::TIMED_OUT);
-            throw e;
-          }
-      }
+    {
+      // Wait for final response
+      
+      handler->clear();
+      if (!handler->waitForResponse (_timeout))
+        {
+	  WbemExecException e (WbemExecException::TIMED_OUT);
+	  throw e;
+        }
+      _handleResponse( channel, handler, content, httpHeaders,
+		       clientAuthenticator, false,
+		       outPrintWriter );
+    }
     handler->printContent();
 }
 
@@ -722,6 +762,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                             _OPTION_PORTNUMBER);
                         throw e;
                     }
+		    _portNumberSet = true;
                     break;
                 }
     
@@ -874,7 +915,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     {
         //
         //  No portNumber specified
-        //  Default to DEFAULT_PORT
+        //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
     } 

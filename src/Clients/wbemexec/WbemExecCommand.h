@@ -25,6 +25,7 @@
 //         (carolann_graves@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -194,11 +195,13 @@ private:
     @param   clientAuthenticator Authenticator object used to generate
                                  authentication headers
 
-    @param   useAuthentication   Boolean indicating use of client authenticaion
+    @param   useAuthentication   Boolean indicating use of client
+                                 authentication
 
     @param   ostream             the ostream to which output should be written
 
     @return  true = wait for data from challenge response
+    @return  false = client response has been received
   
     */
     Boolean _handleResponse( Channel*               channel,
@@ -254,9 +257,17 @@ private:
     /**
         The port to be used when the command is executed.  The port number must
         be the port number on which the CIM Server is running on the specified
-        host.  The default port number is 5988.
+        host.  The default port is the wbem local port number specified in
+	/etc/services. If the wbem local port number is not defined in
+	/etc/services, use the default port number 5988.
      */
     Uint32 _portNumber;
+
+    /**
+        A Boolean indicating whether a port number was specified on the
+	command line.
+     */
+    Boolean _portNumberSet;
 
     /**
         Indicates that an HTTP/1.1 version request should be generated.  If 
@@ -368,11 +379,6 @@ private:
         The maximum valid portnumber.
      */
     static const Uint32 _MAX_PORTNUMBER;
-
-    /**
-        The integer representing the default port number.
-     */
-    static const Uint32 _DEFAULT_PORT;
 
     /**
         The debug option argument value used to specify that the HTTP 

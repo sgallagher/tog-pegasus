@@ -25,6 +25,7 @@
 //         (carolann_graves@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -124,8 +125,6 @@ public:
                                       String hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
-                                      String password,
-                                      String userName,
                                       ClientAuthenticator* clientAuthenticator,
                                       Boolean useAuthentication,
                                       Array <Sint8> content,

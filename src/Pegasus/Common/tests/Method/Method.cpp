@@ -22,12 +22,13 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/Common/DeclContext.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -52,6 +53,9 @@ int main()
 	assert(m1.existsQualifier("stuff"));
 	assert(m1.existsQualifier("stuff2"));
 
+	assert(m1.findQualifier("stuff") != PEG_NOT_FOUND);
+	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
+
 	assert(!m1.existsQualifier("stuff21"));
 	assert(!m1.existsQualifier("stuf"));
 
@@ -65,7 +69,120 @@ int main()
 	assert(!m1.existsQualifier("stuff"));
 	assert(m1.existsQualifier("stuff2"));
 
+        // Tests for Parameters
+        assert(m1.findParameter("ipaddress") != PEG_NOT_FOUND);
+        assert(m1.findParameter("noparam")  == PEG_NOT_FOUND);
+        assert(m1.getParameterCount()  == 1);
+        CIMParameter cp = m1.getParameter(m1.findParameter("ipaddress"));
+        assert(cp.getName() == "ipaddress");
+ 
+        CIMMethod m2("test", CIMType::STRING);
+        m2.setName("getVersion");
+        assert(m2.getName() == "getVersion");
 
+        m2.setType(CIMType::STRING);
+        assert(m2.getType() == CIMType::STRING);
+
+        m2.setClassOrigin("test");
+        assert(m2.getClassOrigin() == "test");
+
+        m2.setPropagated(true);
+        assert(m2.getPropagated() == true);
+
+        const CIMMethod cm1(m1);
+	assert(!cm1.existsQualifier("stuff21"));
+	assert(!cm1.existsQualifier("stuf"));
+        assert((cm1.getParameterCount() != 3));
+        assert(cm1.findParameter("ipaddress") != PEG_NOT_FOUND);
+        assert(cm1.findQualifier("stuff") == PEG_NOT_FOUND);
+        
+        CIMQualifier q = m1.getQualifier(posQualifier);
+        CIMConstParameter ccp = cm1.getParameter(cm1.findParameter("ipaddress"));
+        assert(cm1.getName() == "getHostName");
+        assert(cm1.getType() == CIMType::STRING);
+        assert(!(cm1.getClassOrigin() == "test"));
+        assert(!cm1.getPropagated() == true);
+        assert(!m1.identical(m2));
+
+        // throws OutOfBounds
+        try
+        {
+            CIMConstParameter p = cm1.getParameter(cm1.findParameter("ipaddress"));
+        }
+        catch(OutOfBounds& e)
+        {
+        }
+        // throws OutOfBounds
+        try
+        {
+            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier("abstract"));
+        }
+        catch(OutOfBounds& e)
+        {
+        }
+
+        m1.print();
+        cm1.print();
+        Array<Sint8> out;
+        cm1.toXml(out);
+        cm1.toMof(out);
+
+        Uint32 i = cm1; 
+	assert(i != 0);
+
+        CIMMethod m3 = m2.clone();
+        m3 = cm1.clone();
+        
+        CIMMethod m4;
+        CIMMethod m5(m4);
+
+        CIMConstMethod ccm1("getHostName",CIMType::STRING);
+        assert(!(ccm1.getParameterCount() == 3));
+
+        assert(ccm1.getName() == "getHostName");
+        assert(ccm1.getType() == CIMType::STRING);
+        assert(!(ccm1.getClassOrigin() == "test"));
+        assert(!ccm1.getPropagated() == true);
+        assert(!(ccm1.getParameterCount() == 3));
+        assert(ccm1.getQualifierCount() == 0);
+        assert(ccm1.findQualifier("Stuff") == PEG_NOT_FOUND);
+        assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
+
+        m1.print();
+        ccm1.print();
+
+        ccm1.toXml(out);
+      
+        CIMConstMethod ccm2(ccm1);
+        CIMConstMethod ccm3;
+
+        ccm3 = ccm1.clone();
+        ccm1 = ccm3;
+        assert(ccm1.identical(ccm3));
+        assert(ccm1.findQualifier("stuff") == PEG_NOT_FOUND);
+        assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
+        
+        i = ccm1;
+        assert( i != 0 );
+
+        // throws OutOfBounds
+        try
+        {
+            //CIMParameter p = m1.getParameter(m1.findParameter("ipaddress"));
+            CIMConstParameter p = ccm1.getParameter(0);
+        }
+        catch(OutOfBounds& e)
+        {
+        }
+        // throws OutOfBounds
+        try
+        {
+            Uint32 q = ccm1.getQualifier(0);
+        }
+        catch(OutOfBounds& e)
+        {
+        }
+        cout << "ALL CLEAR" << endl;
     }
     catch(Exception& e)
     {

@@ -22,17 +22,18 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+void test01()
 {
     CIMProperty pnull;
 
@@ -45,11 +46,48 @@ int main()
     p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
     CIMConstProperty p2 = p1;
 
+    // Test clone
+       CIMProperty p1clone = p1.clone();
+       CIMProperty p2clone = p2.clone();
+   
+    // Test print
+       p1.print(cout);
+       p2.print(cout);
+       p1clone.print(cout);
+       p2clone.print(cout);
+
+    // Test toMof
+       Array<Sint8> mofOut;
+       p1.toMof(mofOut);
+       p2.toMof(mofOut);
+
+    // Test toXml
+       Array<Sint8> xmlOut;
+       p1.toXml(xmlOut);
+       p2.toXml(xmlOut);
 
     // Test name
         String name;
         name = p1.getName();
         assert(name == "message");
+        name = p2.getName();
+        assert(name == "message");
+
+    // Test type
+        assert(p1.getType() == CIMType::STRING);
+        assert(p2.getType() == CIMType::STRING);
+
+    // Test isKey
+        assert(p1.isKey() == true);
+        assert(p2.isKey() == true);
+
+    // Test getArraySize
+        assert(p1.getArraySize() == 0);
+        assert(p2.getArraySize() == 0);
+
+    // Test getPropagated
+        assert(p1.getPropagated() == false);
+        assert(p2.getPropagated() == false);
 
     // Tests for Qualifiers
 	assert(p1.findQualifier("stuff") != PEG_NOT_FOUND);
@@ -57,6 +95,12 @@ int main()
 	assert(p1.findQualifier("stuff21") == PEG_NOT_FOUND);
 	assert(p1.findQualifier("stuf") == PEG_NOT_FOUND);
 	assert(p1.getQualifierCount() == 4);
+
+	assert(p2.findQualifier("stuff") != PEG_NOT_FOUND);
+	assert(p2.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(p2.findQualifier("stuff21") == PEG_NOT_FOUND);
+	assert(p2.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(p2.getQualifierCount() == 4);
 
 	assert(p1.existsQualifier("stuff"));
 	assert(p1.existsQualifier("stuff2"));
@@ -74,8 +118,8 @@ int main()
 	assert(!p1.existsQualifier("stuff"));
 	assert(p1.existsQualifier("stuff2"));
 
-   // Tests for value insertion.
-   {
+    // Tests for value insertion.
+    {
            CIMProperty p1("p1", "Hi There");
            // test for CIMValue and type
            CIMProperty p2("p2", Uint32(999));
@@ -86,10 +130,83 @@ int main()
 	   p1.setName("px");
 	   assert(p1.getName() == "px");
 
+	   assert(p2.getName() == "p2");
+	   p2.setName("py");
+	   assert(p2.getName() == "py");
+
 	   // Test setValue and getValue
+    }
+}
 
+void test02()
+{
+    // Tests for CIMConstProperty methods
+        CIMProperty p1("message", "Hi There");
+        p1.addQualifier(CIMQualifier("Key", true));
+        p1.addQualifier(CIMQualifier("stuff", true));
+        p1.addQualifier(CIMQualifier("stuff2", true));
+        p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
+        CIMConstProperty p2 = p1;
 
-   }
+        CIMConstProperty cp1 = p1;
+        CIMConstProperty cp2 = p2;
+        CIMConstProperty cp3("message3", "hello");
+        CIMConstProperty cp1clone = cp1.clone();
+        cp1.print(cout);
+
+        Array<Sint8> mofOut;
+        cp1.toMof(mofOut);
+        Array<Sint8> xmlOut;
+        cp1.toXml(xmlOut);
+
+        assert(cp1.getName() == "message");
+        assert(cp1.getType() == CIMType::STRING);
+        assert(cp1.isKey() == true);
+        assert(cp1.getArraySize() == 0);
+        assert(cp1.getPropagated() == false);
+
+	assert(cp1.findQualifier("stuff") != PEG_NOT_FOUND);
+	assert(cp1.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(cp1.findQualifier("stuff21") == PEG_NOT_FOUND);
+	assert(cp1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(cp1.getQualifierCount() == 4);
+ 
+        try 
+        {
+            p1.getQualifier(0);
+        }
+        catch(OutOfBounds& e)
+        {
+        }
+}
+
+void test03()
+{
+    CIMPropertyList list1;
+    CIMPropertyList list2;
+
+    Array<String> names;
+    names.append("property1");
+    names.append("property2");
+    names.append("property3");
+    list1.set(names);
+    list2 = list1;
+
+    list1.clear();
+}
+
+int main()
+{
+    try
+    {
+        test01();
+        test02();
+        test03();
+    }
+    catch (Exception& e)
+    {
+        cout << "Exception: " << e.getMessage() << endl;
+    }
 
     cout << "+++++ passed all tests" << endl;
 

@@ -10,5 +10,6 @@ SOURCES = XmlPrint.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(PROGRAM) x.xml
 
 poststarttests:

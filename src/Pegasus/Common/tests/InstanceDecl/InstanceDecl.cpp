@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,10 +82,11 @@ void test01()
 
     CIMInstance instance0("//localhost/root/cimv2:MyClass.Foo=1");
 
-	assert(instance0.getPath() == CIMReference("//localhost/root/cimv2:MyClass.Foo=1"));
-	
-	CIMInstance instance1("MyClass");
+    assert(instance0.getPath() == CIMReference("//localhost/root/cimv2:MyClass.Foo=1"));
+
+    CIMInstance instance1("MyClass");
     instance1.addProperty(CIMProperty("message", "Goodbye"));
+    instance1.addQualifier(CIMQualifier("counter", true));
 
     assert(instance1.findProperty("message") != PEG_NOT_FOUND);
     assert(instance1.existsProperty("message"));
@@ -119,7 +120,51 @@ void test01()
     assert(!instance1.existsProperty("nuts"));
 
     assert(instance1.getPropertyCount() == 2);
+ 
+    // SF-HP
 
+    CIMQualifier cq=instance1.getQualifier(instance1.findQualifier("counter"));
+
+    const CIMInstance instance2 = instance1.clone();
+    assert(instance2.identical(instance1));
+    assert(!instance1.existsQualifier("nuts"));
+    assert(!instance2.existsQualifier("nuts"));
+    assert(instance1.findQualifier("nuts") == PEG_NOT_FOUND);
+    assert(instance2.findQualifier("nuts") == PEG_NOT_FOUND);
+    assert(instance1.getQualifierCount() != 4);
+
+    CIMConstQualifier ccq=
+          instance2.getQualifier(instance2.findQualifier("counter"));
+
+    instance2.print();
+ 
+    // Tests for CIMConstInstance 
+    CIMConstInstance cinstance1("MyClass"), cinstance3;
+    CIMConstInstance ccopy(cinstance1);
+
+    cinstance1 = instance1;
+    assert(cinstance1.identical(instance1));
+
+    ccq = cinstance1.getQualifier(cinstance1.findQualifier("counter"));
+    assert(cinstance1.findProperty("message") != PEG_NOT_FOUND);
+    CIMConstProperty ccp = 
+           cinstance1.getProperty(cinstance1.findProperty("message"));
+
+    cinstance3 = cinstance1;
+    assert(cinstance3.identical(cinstance1));
+
+    assert(cinstance1.getClassName() == "MyClass");
+    assert(cinstance1.getQualifierCount() != 4);
+    assert(cinstance1.getPropertyCount() == 2);
+   
+    CIMConstInstance cinstance2 = cinstance1.clone();
+    assert(cinstance2.identical(cinstance1));
+    cinstance1.print();
+  
+    cinstance1.getInstanceName(class1);
+ 
+    Uint32 i = cinstance1;
+    assert( cinstance1 != 0 );
 }
 
 void test02()

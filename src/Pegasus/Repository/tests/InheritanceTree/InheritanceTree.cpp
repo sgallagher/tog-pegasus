@@ -1,10 +1,8 @@
-#include <Pegasus/Common/Config.h>
-#include <iostream>
 #include <cassert>
 #include <Pegasus/Repository/InheritanceTree.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 void TestGetSubClassNames(
     const InheritanceTree& it,
@@ -51,7 +49,7 @@ int main()
 	it.insert("A", "");
 	it.check();
 
-	// it.print(cout);
+	it.print(cout);
 
 	{
 	    Array<String> expected;
@@ -105,7 +103,7 @@ int main()
 	InheritanceTree it;
 	it.insertFromPath("./classes");
 	it.check();
-	// it.print(cout);
+	it.print(cout);
     }
     catch (Exception& e)
     {

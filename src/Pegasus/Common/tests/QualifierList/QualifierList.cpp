@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,6 +80,8 @@ int main()
 
 	qualifiers2.resolve(
 	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1);
+
+        qualifiers2.print();
     }
     catch (Exception& e)
     {

@@ -21,32 +21,56 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Repository/AssocTable.h>
+#include <Pegasus/Repository/AssocClassTable.h>
+#include <Pegasus/Repository/AssocInstTable.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    // A.left = x.key="one"
-    // A.right = y.key="two"
+    //
+    // create class association
+    //
+    AssocClassTable::append(
+        "./associations.tbl",
+	"Lineage",
+	"Person",
+	"parent",
+	"Person",
+	"child");
 
-    AssocTable table;
-    table.insert(
-	"./associations.tbl",
-	"A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"",
-	"A",
-	"X.key=\"one\"",
-	"X",
-	"left",
-	"Y",
-	"right",
-	"Y.key=\"two\"");
+    //
+    // delete class association 
+    //
+    AssocClassTable::deleteAssociation(
+        "./associations.tbl",
+        "Lineage");
+
+    //
+    // create instance association 
+    //
+    AssocInstTable::append(
+        "./associations.tbl",
+        "A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"",
+        "A",
+        "X.key=\"one\"",
+        "X",
+        "left",
+        "Y",
+        "right",
+        "Y.key=\"two\"");
+
+    //
+    // delete instance association 
+    //
+    AssocInstTable::deleteAssociation(
+        "./associations.tbl",
+        "A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"");
 
     cout << "+++++ passed all tests" << endl;
 

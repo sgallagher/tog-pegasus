@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +72,11 @@ int main()
 	assert(bad);
     }
 
+    cout << dt << endl;
+
+    CIMDateTime dt1;
+    dt1 = dt;
+ 
     cout << "+++++ passed all tests" << endl;
 
     return 0;

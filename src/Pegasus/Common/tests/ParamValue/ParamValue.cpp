@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,33 +33,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// #define IO
-
-template<class T>
-void test01(const T& x)
+void test01()
 {
-    CIMValue v(x);
-    CIMValue v2(v);
-    CIMValue v3;
-    v3 = v2;
-#ifdef IO
-    v3.print();
-#endif
-    try
-    {
-	T t;
-	v3.get(t);
-	assert(t == x);
-    }
-    catch(Exception& e)
-    {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
-    }
-}
+    CIMParamValue pv;
+    assert(!pv);
 
-int main()
-{
     CIMParameter p1("message", CIMType::STRING);
     p1.addQualifier(CIMQualifier("in", true));
     CIMValue v1("argument_Test");
@@ -79,18 +57,16 @@ int main()
     p4.addQualifier(CIMQualifier("in", true));
     CIMValue v4("argument_Test4");
     CIMParamValue a4(p4, v4);
+    CIMParamValue a5 = a4;
+
+    CIMParameter p6("message6", CIMType::STRING);
+    p6.addQualifier(CIMQualifier("in", true));
+    CIMValue v6("argument_Test6");
+    CIMParamValue a6(p6, v6, false, 0, "myClass");
 
     Array<CIMParamValue> aa;
-    //aa.append(a1);
-    //aa.append(a2);
-    //aa.append(a3);
-    //aa.append(a4);
-
-    aa.append(CIMParamValue(CIMParameter("message1", CIMType::STRING), 
-		CIMValue("test1")));
-
-    aa.append(CIMParamValue(CIMParameter("message2", CIMType::UINT8 ), 
-		CIMValue(2)));
+    aa.append(a1);
+    aa.append(a2);
 
     aa.append(CIMParamValue(CIMParameter("message3", CIMType::UINT16), 
 		CIMValue(200000)));
@@ -98,10 +74,118 @@ int main()
     aa.append(CIMParamValue(CIMParameter("message4", CIMType::STRING), 
 		CIMValue("test4")));
     
-    //for (int i=0; i< aa.size(); i++)
-    //{
-    //	aa[i].print(cout);
-    //}
+    //
+    // clone
+    //
+    CIMParamValue a4clone = a4.clone();
+    aa.append(a4clone);
+
+    for (int i=0; i< aa.size(); i++)
+    {
+        aa[i].print(cout);
+    }
+
+    //
+    // toMof
+    //
+    Array<Sint8> mofOut;
+    a4clone.toMof(mofOut);
+
+    //
+    // toXml
+    //
+    Array<Sint8> xmlOut;
+    a4clone.toXml(xmlOut);
+
+    //
+    // identical
+    //
+    Boolean same;
+    same  = a4clone.identical(a4);
+    assert(same);
+ 
+    //
+    // not identical
+    //
+    same = a4clone.identical(a3);
+    assert(!same);
+ 
+    //
+    // add qualifiers
+    //
+    a1.addQualifier(CIMQualifier("q1", true));
+    a1.addQualifier(CIMQualifier("q2", true));
+
+    //
+    // get qualifier count
+    //
+    assert(a1.getQualifierCount() == 2);
+
+    //
+    // get qualifiers
+    //
+    CIMQualifier q1 = a1.getQualifier(0);
+    CIMQualifier q2 = a1.getQualifier(1);
+    assert(q1);
+    assert(q2);
+
+    CIMConstQualifier q1const = a1.getQualifier(0);
+    CIMConstQualifier q2const = a1.getQualifier(1);
+    assert(q1const);
+    assert(q2const);
+
+    //
+    // isArray
+    //
+    assert(a1.isArray() == false);
+
+    //
+    // getAraySize
+    //
+    assert(a1.getAraySize() == 0);
+
+    //
+    // test CIMConstParamValue methods
+    //
+    CIMConstParamValue ca1 = a1;
+    CIMConstParamValue ca2 = a2;
+    CIMConstParamValue ca3 = a3;
+    CIMConstParamValue ca4(p4, v4);
+    CIMConstParamValue ca5 = ca4;
+    CIMConstParamValue ca6 = a4;
+
+    CIMConstParamValue ca3clone = ca3.clone();
+
+    ca1.print(cout);
+
+    ca1.toXml(xmlOut);
+
+    assert(ca3clone.identical(ca3) == true);
+ 
+    assert(ca1.getQualifierCount() == 2);
+
+    const CIMConstQualifier cq1 = ca1.getQualifier(0);
+    assert(cq1);
+    CIMConstQualifier cq2 = ca1.getQualifier(0);
+    assert(cq2);
+
+    assert(ca1.isArray() == false);
+
+    assert(ca1.getAraySize() == 0);
+
+}
+
+
+int main()
+{
+    try
+    {
+        test01();
+    }
+    catch (Exception& e)
+    {
+        cout << "Exception: " << e.getMessage() << endl;
+    }
 
     cout << "+++++ passed all tests" << endl;
 

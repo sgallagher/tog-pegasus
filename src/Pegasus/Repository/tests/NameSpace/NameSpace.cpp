@@ -22,11 +22,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 
@@ -73,6 +72,9 @@ void test()
 	assert(arr1.size() == 3);
 	assert(arr2.size() == 3);
 	assert(arr1 == arr2);
+
+        NameSpaceManager nsm("./repository");
+        nsm.print(cout);
 
 	// Delete the namespaces test. Put in when delete installed
 	//for (Uint32 i = 0; i < arr1.size(); i++)

@@ -79,6 +79,32 @@ int main()
 		sw.getElapsed() << " Seconds" << endl;
 #endif
 
+	// SF-HP
+	Stack<Uint32> s3;
+        s3 = s1;
+
+	const Stack<Uint32> s4;
+
+        // throws Stack underflow
+        try
+        {
+            s4.top();
+        }
+        catch(StackUnderflow& e)
+        {
+        }
+
+        // throws OutOfBounds
+        try
+        {
+            Uint32 tmp = s4[0];
+        }
+        catch(OutOfBounds& e)
+        {
+        }
+
+	s1.push(2);
+        Uint32 tmp = s1[0];
 
     }
     catch (Exception& e)

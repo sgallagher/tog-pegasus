@@ -41,18 +41,16 @@ void test01()
     CIMReference r = on1;
     assert(r.toString() != on1);
     assert(r.toString() == on2);
-    }
 
-    {
-    String on1;
-    on1 = "//atp/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
+    CIMReference r2 = r;
+    CIMReference r3 = "//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"";
 
-    String on2;
-    on2="//atp:5988/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
+    r.print();
+    cout << r.toStringCanonical() << endl;
 
-    CIMReference r = on1;
-    assert(r.toString() != on1);
-    assert(r.toString() == on2);
+    Array<Sint8> mofOut;
+    r.toMof(mofOut);
+    r.clear();
     }
 
     {

@@ -9,4 +9,5 @@ SOURCES = AssocTable.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(RM) ./associations.tbl
 	AssocTable

@@ -54,6 +54,7 @@ void test01(STR*)
     assert(arr[0] == STR("Hello"));
     assert(arr[1] == STR("Hello"));
     assert(arr[2] == STR("Hello"));
+    Print(arr);
 }
 
 template<class STR>

@@ -71,11 +71,12 @@ void CQLPredicateRep::applyScopes(Array<CQLScope> & inScopes){
 
 
 Boolean CQLPredicateRep::isSimple(){
-	return (_predicates.size() == 1);
+	//if(_predicates.size() == 0)
+	//	return _predicates[0].isSimple();
+	return false;
 }
 Boolean CQLPredicateRep::isSimpleValue(){
-	return true;
-        //return (_simplePredicate.isSimpleValue());
+	return (_simplePredicate.isSimpleValue());
 }
 String CQLPredicateRep::toString(){
 	if(_terminal)

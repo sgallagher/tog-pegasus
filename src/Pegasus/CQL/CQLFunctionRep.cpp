@@ -1,16 +1,34 @@
 #include <Pegasus/CQL/CQLFunction.h>
 #include <Pegasus/CQL/CQLFunctionRep.h>
 //#include <Pegasus/CQL/CQLFunction.h>
-#include <Pegasus/CQL/CQLExpression.h>
+//#include <Pegasus/CQL/CQLExpression.h>
+//#include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
-
+/*
 CQLFunctionRep::CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms)
 {
    _funcOpType = inFunctionOpType;
-   _parms = inParms;
-} 
-
+//   _parms = inParms;
+} */
+CQLFunctionRep::CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms){
+    	_parms = inParms;
+	String opType(inOpType.getName().getString());
+/*
+	if(opType.compareNoCase("classname") == 0)
+	else if(opType.compareNoCase("classname") == 0)
+	else if(opType.compareNoCase("") == 0)
+	else if(opType.compareNoCase("classname") == 0)
+        else if(opType.compareNoCase("classname") == 0)
+	else if(opType.compareNoCase("classname") == 0)
+        else if(opType.compareNoCase("classname") == 0)
+        else if(opType.compareNoCase("classname") == 0)
+        else if(opType.compareNoCase("classname") == 0)
+	else if(opType.compareNoCase("classname") == 0)
+        else if(opType.compareNoCase("classname") == 0)
+        else if(opType.compareNoCase("classname") == 0)
+*/
+}
 CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep& inFunc)
 {
    _funcOpType = inFunc._funcOpType;
@@ -68,7 +86,7 @@ String CQLFunctionRep::toString()
 }
 
 
-Array<CQLExpression> CQLFunctionRep::getParms()
+Array<CQLPredicate> CQLFunctionRep::getParms()
 {
    return _parms;
 }

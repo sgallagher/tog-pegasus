@@ -5,13 +5,15 @@
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/CQL/CQLScope.h>
-#include <Pegasus/CQL/CQLExpression.h>
+//#include <Pegasus/CQL/CQLExpression.h>
+#include <Pegasus/CQL/CQLPredicate.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLFunctionRep;
+//class PEGASUS_CQL_LINKAGE CQLPredicate;
 
  /** The Enum is private, the definition is public.
       */
@@ -54,8 +56,10 @@ class PEGASUS_CQL_LINKAGE CQLFunction
    
 
     CQLFunction() {};
-   CQLFunction(const CQLFunction& inFunc);
-    CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+    CQLFunction(const CQLFunction& inFunc);
+//    CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+    CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
+
     ~CQLFunction();
     /** 
        The getValue method validates the parms versus FunctionOpType.
@@ -65,7 +69,7 @@ class PEGASUS_CQL_LINKAGE CQLFunction
         Returns a CQLValue object that has already been resolved.
       */
     CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
-   Array<CQLExpression> getParms();
+   Array<CQLPredicate> getParms();
    FunctionOpType getFunctionType();
    String toString();
    void applyScopes(Array<CQLScope> inScopes);

@@ -1,13 +1,19 @@
 #include <Pegasus/CQL/CQLFunction.h>
 #include <Pegasus/CQL/CQLFunctionRep.h>
-#include <Pegasus/CQL/CQLExpression.h>
+//#include <Pegasus/CQL/CQLExpression.h>
+#include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
-
+/*
 CQLFunction::CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms)
 {
 	_rep = new CQLFunctionRep(inFunctionOpType,inParms);
-} 
+} */
+
+CQLFunction::CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms)
+{
+        _rep = new CQLFunctionRep(inOpType,inParms);
+}
 
 CQLFunction::CQLFunction(const CQLFunction& inFunc)
 {
@@ -30,7 +36,7 @@ String CQLFunction::toString()
 }
 
 
-Array<CQLExpression> CQLFunction::getParms()
+Array<CQLPredicate> CQLFunction::getParms()
 {
    return _rep->getParms();
 }

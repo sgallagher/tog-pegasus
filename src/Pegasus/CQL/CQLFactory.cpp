@@ -3,92 +3,118 @@
 PEGASUS_NAMESPACE_BEGIN
 
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
+	CQLChainedIdentifier _cid(*obj);
 	switch(target){
 	  case ChainedIdentifier:
-		return new CQLChainedIdentifier(*obj);
+		_chainedIdentifier = _cid;
+		return &_chainedIdentifier;
 		break;
 	  case Identifier:
 		return NULL;
 		break;
           default:
-		return makeObject(new CQLChainedIdentifier(*obj), target);
+		return makeObject(&_chainedIdentifier, target);
 		break;
         }
 }
 void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
+	CQLValue _val(*obj);
 	switch(target){
           case Value:
-                return new CQLValue(*obj);
+		_value = _val;
+                return &_value;
                 break;
           case ChainedIdentifier:
                 return NULL;
                 break;
           default:
-                return makeObject(new CQLValue(*obj), target);
+                return makeObject(&_value, target);
                 break;
         }
 
 }
 void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
+	CQLFactor _fctr(*obj);
 	switch(target){
           case Factor:
-                return new CQLFactor(*obj);
+		_factor = _fctr;
+                return &_factor;
                 break;
           case Value:
                 return NULL;
                 break;
           default:
-                return makeObject(new CQLFactor(*obj), target);
+                return makeObject(&_factor, target);
                 break;
         }
 
 }
+void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
+	CQLFactor _fctr(*obj);
+        switch(target){
+          case Factor:
+		_factor = _fctr;
+                return &_factor;
+                break;
+          default:
+                return makeObject(&_factor, target);
+                break;
+        }
+}
 void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
+	CQLTerm _trm(*obj);
 	switch(target){
           case Term:
-                return new CQLTerm(*obj);
+		_term = _trm;
+                return &_term;
                 break;
           case Factor:
                 return NULL;
                 break;
           default:
-                return makeObject(new CQLTerm(*obj), target);
+                return makeObject(&_term, target);
                 break;
         }
 
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
+	CQLExpression _expr(*obj);
 	switch(target){
           case Expression:
-                return new CQLExpression(*obj);
+		_expression = _expr;
+                return &_expression;
                 break;
           case Term:
                 return NULL;
                 break;
           default:
-                return makeObject(new CQLExpression(*obj), target);
+                return makeObject(&_expression, target);
                 break;
         }
 
 }
 void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
+	CQLSimplePredicate _sp(*obj);
 	switch(target){
           case SimplePredicate:
-                return new CQLSimplePredicate(*obj);
+		_simplePredicate = _sp;
+                return &_simplePredicate;
                 break;
           case Expression:
                 return NULL;
                 break;
           default:
-                return makeObject(new CQLSimplePredicate(*obj), target);
+                return makeObject(&_simplePredicate, target);
                 break;
         }
 
 }
 void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
+	CQLPredicate _pred(*obj);
 	switch(target){
           case Predicate:
-                return new CQLPredicate(*obj);
+		_predicate = _pred;
+                return &_predicate;
                 break;
           default:
                 return NULL;

@@ -5,12 +5,14 @@
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/CQL/CQLScope.h>
-#include <Pegasus/CQL/CQLExpression.h>
+//#include <Pegasus/CQL/CQLExpression.h>
+#include <Pegasus/CQL/CQLPredicate.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLFactory;
+//class PEGASUS_CQL_LINKAGE CQLPredicate;
 /*
    CQLFunction objects are populated by the
    Bison code.
@@ -50,8 +52,9 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
 
     CQLFunctionRep() {};
    CQLFunctionRep(const CQLFunctionRep& inFunc);
-    CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
-    ~CQLFunctionRep();
+    //CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+    CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
+  ~CQLFunctionRep();
     /** 
        The getValue method validates the parms versus FunctionOpType.
                (A) resolves prarameter  types
@@ -60,7 +63,7 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
         Returns a CQLValue object that has already been resolved.
       */
     CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
-   Array<CQLExpression> getParms();
+   Array<CQLPredicate> getParms();
    FunctionOpType getFunctionType();
    String toString();
    void applyScopes(Array<CQLScope> inScopes);
@@ -72,7 +75,7 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
 
    FunctionOpType _funcOpType;
 
-    Array<CQLExpression> _parms;
+    Array<CQLPredicate> _parms;
 
 };
 

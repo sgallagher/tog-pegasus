@@ -33,6 +33,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #include <windows.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <time.h>
 #include <sys/timeb.h>
@@ -247,6 +248,22 @@ String System::getPrivilegedUserName()
 Uint32 System::getPID()
 {
     return _getpid();
+}
+
+Boolean System::truncateFile(
+    const char* path, 
+    size_t newSize)
+{
+    int fd = open(path, O_RDWR);
+
+    if (fd == -1)
+        return false;
+
+    if (chsize(fd, newSize) != 0)
+	return false;
+
+    close(fd);
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

@@ -45,7 +45,7 @@
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
-#include "InstanceFile.h"
+#include "InstanceDataFile.h"
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
 
@@ -54,6 +54,8 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+static const Uint32 _MAX_FREE_COUNT = 16;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -210,7 +212,7 @@ CIMClass CIMRepository::getClass(
     {
         _LoadObject(classFilePath, cimClass);
     }
-    catch (Exception & e)
+    catch (Exception&)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className);
     }
@@ -218,26 +220,18 @@ CIMClass CIMRepository::getClass(
     return cimClass;
 }
 
-//----------------------------------------------------------------------
-//
-// _getInstanceIndex()
-//
-//      Returns the index (or byte location) and size of the instance 
-//      record in the instance file for a given instance.  Returns false
-//      if the instance cannot be found.
-//
-//----------------------------------------------------------------------
-
+/*ZZZ*/
 Boolean CIMRepository::_getInstanceIndex(
     const String& nameSpace,
     const CIMReference& instanceName,
     String& className,
-    Uint32& size,
     Uint32& index,
+    Uint32& size,
     Boolean searchSuperClasses) const
 {
-    // -- Get all descendent classes of this class:
-
+    //
+    // Get all descendent classes of this class:
+    //
 
     className = instanceName.getClassName();
 
@@ -245,23 +239,29 @@ Boolean CIMRepository::_getInstanceIndex(
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
 
-    // -- Get all superclasses of this one:
+    //
+    // Get all superclasses of this one:
+    //
 
     if (searchSuperClasses)
         _nameSpaceManager.getSuperClassNames(nameSpace, className, classNames);
 
-    // -- Get instance names from each qualifying instance file for the class
+    //
+    // Get instance names from each qualifying instance file for the class:
+    //
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         CIMReference tmpInstanceName = instanceName;
         tmpInstanceName.setClassName(classNames[i]);
 
-        // -- Lookup index of instance:
+	//
+        // Lookup index of instance:
+	//
 
-        String path = _getIndexFilePath(nameSpace, classNames[i]);
+        String path = _getInstanceIndexFilePath(nameSpace, classNames[i]);
 
-        if (InstanceIndexFile::lookup(path, tmpInstanceName, size, index))
+        if (InstanceIndexFile::lookupEntry(path, tmpInstanceName, index, size))
         {
             className = classNames[i];
             return true;
@@ -271,6 +271,7 @@ Boolean CIMRepository::_getInstanceIndex(
     return false;
 }
 
+/*ZZZ*/
 CIMInstance CIMRepository::getInstance(
     const String& nameSpace,
     const CIMReference& instanceName,
@@ -279,7 +280,9 @@ CIMInstance CIMRepository::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    // -- Get the index for this instance:
+    //
+    // Get the index for this instance:
+    //
 
     String className;
     Uint32 index;
@@ -287,16 +290,19 @@ CIMInstance CIMRepository::getInstance(
 
     PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::getInstance");
 
-    if (!_getInstanceIndex(nameSpace, instanceName, className, size, index))
+    if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
     {
 	PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-    // -- Load the instance from file:
+    //
+    // Load the instance from file:
+    //
 
-    String path = _getInstanceFilePath(nameSpace, className);
+    String path = _getInstanceDataFilePath(nameSpace, className);
     CIMInstance cimInstance;
+
     if (!_loadInstance(path, cimInstance, index, size))
     {
 	PEG_METHOD_EXIT();
@@ -311,25 +317,41 @@ void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    // -- Get the class and check to see if it is an association class:
-
+    //
+    // Get the class and check to see if it is an association class:
+    //
 
     CIMClass cimClass = getClass(nameSpace, className, false);
     Boolean isAssociation = cimClass.isAssociation();
 
-    // -- Disallow deletion if class has instances:
+    //
+    // Disallow deletion if class has instances:
+    //
 
-    String path = _getIndexFilePath(nameSpace, className);
-    String realPath;
+    String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
 
-    if (FileSystem::existsNoCase(path, realPath))
+    String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
+
+    if (InstanceIndexFile::hasNonFreeEntries(indexFilePath))
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_INSTANCES, className);
 
-    // -- Delete the class (disallowed if there are subclasses):
+    //
+    // Delete the class. The NameSpaceManager::deleteClass() method throws
+    // and exception if the class has sublclasses.
+    //
 
     _nameSpaceManager.deleteClass(nameSpace, className);
 
-    // -- Remove association:
+    FileSystem::removeFileNoCase(indexFilePath);
+    FileSystem::removeFileNoCase(dataFilePath);
+
+    //
+    // Kill off empty instance files:
+    //
+
+    //
+    // Remove association:
+    //
 
     if (isAssociation)
     {
@@ -340,64 +362,146 @@ void CIMRepository::deleteClass(
     }
 }
 
+/*ZZZ*/
+void _CompactInstanceRepository(
+    const String& indexFilePath, 
+    const String& dataFilePath)
+{
+    //
+    // Compact the data file first:
+    //
+
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+    Array<CIMReference> instanceNames;
+
+    if (!InstanceIndexFile::enumerateEntries(
+	indexFilePath, freeFlags, indices, sizes, instanceNames, true))
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
+    }
+
+    if (!InstanceDataFile::compact(dataFilePath, freeFlags, indices, sizes))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
+
+    //
+    // Now compact the index file:
+    //
+
+    if (!InstanceIndexFile::compact(indexFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
+}
+
+/*ZZZ*/
 void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
-   PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteInstance");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteInstance");
 
     String errMessage;
 
-    // -- Lookup instance from the index file:
+    //
+    // Get paths of index and data files:
+    //
 
-    String indexFilePath = _getIndexFilePath(
+    String indexFilePath = _getInstanceIndexFilePath(
         nameSpace, instanceName.getClassName());
+
+    String dataFilePath = _getInstanceDataFilePath(
+        nameSpace, instanceName.getClassName());
+
+    //
+    // Attempt rollback (if there are no rollback files, this will have no 
+    // effect). This code is here to rollback uncommitted changes left over 
+    // from last time an instance-oriented function was called.
+    //
+
+    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+    }
+
+    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+    }
+
+    //
+    // Lookup instance from the index file (raise error if not found).
+    //
 
     Uint32 index;
     Uint32 size;
 
-    if (!InstanceIndexFile::lookup(indexFilePath, instanceName, size, index))
+    if (!InstanceIndexFile::lookupEntry(
+	indexFilePath, instanceName, index, size))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-    // -- Remove entry from index file:
+    //
+    // Begin the transaction (any return prior to commit will cause
+    // a rollback next time an instance-oriented routine is invoked).
+    //
 
-    if (!InstanceIndexFile::remove(indexFilePath, instanceName))
+    if (!InstanceIndexFile::beginTransaction(indexFilePath))
     {
-        errMessage.append("Failed to delete instance ");
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+    }
+
+    if (!InstanceDataFile::beginTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+    }
+
+    //
+    // Remove entry from index file.
+    //
+
+    Uint32 freeCount;
+
+    if (!InstanceIndexFile::deleteEntry(indexFilePath, instanceName, freeCount))
+    {
+        errMessage.append("Failed to delete instance: ");
         errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
-    // -- Remove the instance from the instance file:
+    //
+    // Commit the transaction:
+    //
 
-    String instanceFilePath = _getInstanceFilePath(
-        nameSpace, instanceName.getClassName());
-
-    if (!InstanceFile::removeInstance(instanceFilePath, size, index))
+    if (!InstanceIndexFile::commitTransaction(indexFilePath))
     {
-        errMessage.append("Failed to delete instance ");
-        errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
     }
 
-    // -- Rename the temporary index and instance files back to the original:
-
-    if (!_renameTempInstanceAndIndexFiles(indexFilePath, instanceFilePath))
+    if (!InstanceDataFile::commitTransaction(dataFilePath))
     {
-        errMessage.append("Unexpected error occurred while deleting instance ");
-        errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
     }
 
-    // -- Remove it from the association table (if it is really association).
-    // -- We ignore the return value intentionally. If it is an association,
-    // -- true is returned. Otherwise, true is returned.
+    //
+    // Compact the index and data files if the free count max was
+    // reached.
+    //
+
+    if (freeCount == _MAX_FREE_COUNT)
+	_CompactInstanceRepository(indexFilePath, dataFilePath);
+
+    //
+    // Delete from assocation table (if an assocation).
+    //
 
     String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
 
@@ -463,8 +567,6 @@ void CIMRepository::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
-
-
     // -- Resolve the class:
         CIMClass cimClass(newClass);
         
@@ -526,7 +628,6 @@ void CIMRepository::_createAssocInstEntries(
 {
     // Open input file:
 
-   
     String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     ofstream os;
 
@@ -588,23 +689,57 @@ void CIMRepository::_createAssocInstEntries(
     }
 }
 
+/*ZZZ*/
 CIMReference CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
-   PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::createInstance");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::createInstance");
 
     String errMessage;
 
-    // -- Resolve the instance (looks up class):
-    CIMInstance cimInstance(newInstance);
+    //
+    // Get paths to data and index files:
+    //
 
+    String dataFilePath = _getInstanceDataFilePath(
+	nameSpace, newInstance.getClassName());
+
+    String indexFilePath = _getInstanceIndexFilePath(
+        nameSpace, newInstance.getClassName());
+
+    //
+    // Attempt rollback (if there are no rollback files, this will have no 
+    // effect). This code is here to rollback uncommitted changes left over 
+    // from last time an instance-oriented function was called.
+    //
+
+    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+    }
+
+    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+    }
+
+    //
+    // Resolve the instance (looks up class and fills out properties and
+    // qualifiers):
+    //
+
+    CIMInstance cimInstance(newInstance);
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass);
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
-    // -- Make sure the class has keys (otherwise it will be impossible to
-    // -- create the instance.
+    //
+    // Make sure the class has keys (otherwise it will be impossible to
+    // create the instance).
+    //
 
     if (!cimClass.hasKeys())
     {
@@ -614,90 +749,131 @@ CIMReference CIMRepository::createInstance(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
-    // -- Be sure instance does not already exist:
+    //
+    // Be sure instance does not already exist:
+    //
 
     String className;
     Uint32 dummyIndex;
     Uint32 dummySize;
 
-    if (_getInstanceIndex(nameSpace, instanceName, className, dummySize, 
-        dummyIndex, true))
+    if (_getInstanceIndex(nameSpace, instanceName, className, dummyIndex, 
+        dummySize, true))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, 
             instanceName.toString());
     }
 
-    // -- Handle if association:
+    //
+    // Create association entries if an association instance.
+    //
 
     if (cimClass.isAssociation())
+        _createAssocInstEntries(nameSpace, cimClass, cimInstance, instanceName);
+
+    //
+    // Begin the transaction (any return prior to commit will cause
+    // a rollback next time an instance-oriented routine is invoked).
+    //
+
+    if (!InstanceIndexFile::beginTransaction(indexFilePath))
     {
-        _createAssocInstEntries(nameSpace,
-            cimClass, cimInstance, instanceName);
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
     }
 
-    // -- Get instance file path:
+    if (!InstanceDataFile::beginTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+    }
 
-    String instanceFilePath = _getInstanceFilePath(nameSpace,
-        cimInstance.getClassName());
-
-    // -- Save instance to file:
+    //
+    // Save instance to file:
+    //
 
     Uint32 index;
     Uint32 size;
-    if (!_saveInstance(instanceFilePath, cimInstance, index, size))
+
     {
-        errMessage.append("Failed to create instance ");
+	Array<Sint8> data;
+	cimInstance.toXml(data);
+	size = data.size();
+
+	if (!InstanceDataFile::appendInstance(dataFilePath, data, index))
+	{
+	    errMessage.append("Failed to create instance: ");
+	    errMessage.append(instanceName.toString());
+	    PEG_METHOD_EXIT();
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+	}
+    }
+
+    //
+    // Create entry in index file:
+    //
+
+    if (!InstanceIndexFile::createEntry(
+	indexFilePath, instanceName, index, size))
+    {
+        errMessage.append("Failed to create instance: ");
         errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
-    // -- Make index file entry:
+    //
+    // Commit the changes:
+    //
 
-    String indexFilePath = _getIndexFilePath(
-        nameSpace, cimInstance.getClassName());
-
-    if (!InstanceIndexFile::insert(indexFilePath, instanceName, size, index))
+    if (!InstanceIndexFile::commitTransaction(indexFilePath))
     {
-        errMessage.append("Failed to create instance ");
-        errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
     }
 
-    // -- Rename the temporary index and instance files back to the original
-
-    if (!_renameTempInstanceAndIndexFiles(indexFilePath, instanceFilePath))
+    if (!InstanceDataFile::commitTransaction(dataFilePath))
     {
-        errMessage.append("Unexpected error occurred while creating instance ");
-        errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
     }
+
     PEG_METHOD_EXIT();
-    return (instanceName);
+    return instanceName;
 }
 
 void CIMRepository::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
+    //
+    // Resolve the class:
+    //
 
-
-    // -- Resolve the class:
-        CIMClass cimClass(modifiedClass);
-
+    CIMClass cimClass(modifiedClass);
     cimClass.resolve(_context, nameSpace);
 
-    // -- Check to see if it is okay to modify this class:
+    //
+    // Check to see if it is okay to modify this class:
+    //
 
     String classFilePath;
 
     _nameSpaceManager.checkModify(nameSpace, cimClass.getClassName(),
         cimClass.getSuperClassName(), classFilePath);
 
-    // -- Delete the old file containing the class:
+    //
+    // ATTN: KS
+    // Disallow modification of classes which have instances (that are
+    // in the repository). And we have no idea whether the class has
+    // instances in other repositories or in providers. We should do
+    // an enumerate instance names at a higher level (above the repository).
+    //
+
+    //
+    // Delete the old file containing the class:
+    //
 
     if (!FileSystem::removeFileNoCase(classFilePath))
     {
@@ -705,21 +881,58 @@ void CIMRepository::modifyClass(
             "failed to remove file in CIMRepository::modifyClass()");
     }
 
-    // -- Create new class file:
+    //
+    // Create new class file:
+    //
 
     _SaveObject(classFilePath, cimClass);
 }
 
+/*ZZZ*/
 void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
+    //
+    // Get paths of index and data files:
+    //
 
+    const CIMInstance& instance = modifiedInstance.getInstance();
+
+    String indexFilePath = _getInstanceIndexFilePath(
+        nameSpace, instance.getClassName());
+
+    String dataFilePath = _getInstanceDataFilePath(
+        nameSpace, instance.getClassName());
+
+    //
+    // First attempt rollback:
+    //
+
+    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+
+    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
+
+    //
+    // Begin the transaction:
+    //
+
+    if (!InstanceIndexFile::beginTransaction(indexFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+
+    if (!InstanceDataFile::beginTransaction(dataFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
+
+    //
+    // Do this:
+    //
 
     String errMessage;
-    CIMInstance cimInstance;    // The instance that replaces the original
+    CIMInstance cimInstance;   // The instance that replaces the original
 
     if (propertyList.isNull())
     {
@@ -808,6 +1021,7 @@ void CIMRepository::modifyInstance(
         //
         // Loop through the propertyList replacing each property in the original
         //
+
         for (Uint32 i=0; i<propertyList.getNumProperties(); i++)
         {
             Uint32 origPropPos =
@@ -901,15 +1115,18 @@ void CIMRepository::modifyInstance(
         }
     }
 
-    // -- Resolve the instance (looks up the class):
+    //
+    // Resolve the instance:
+    //
 
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass);
 
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
-    // -- Disallow if instance name is changed by this operation (attempt
-    // -- to modify a key property.
+    //
+    // Disallow operation if the instance name was changed:
+    //
 
     if (instanceName != modifiedInstance.getInstanceName())
     {
@@ -917,53 +1134,66 @@ void CIMRepository::modifyInstance(
             "Attempted to modify a key property");
     }
 
-    // -- Lookup index of entry from index file:
-
-    String indexFilePath = _getIndexFilePath(
-        nameSpace, instanceName.getClassName());
-
     Uint32 oldSize;
     Uint32 oldIndex;
     Uint32 newSize;
     Uint32 newIndex;
 
-    if (!InstanceIndexFile::lookup(indexFilePath, instanceName, oldSize, 
-        oldIndex))
+    if (!InstanceIndexFile::lookupEntry(
+	indexFilePath, instanceName, oldIndex, oldSize))
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-    // -- modify the instance file
+    //
+    // Modify the data file:
+    //
 
-    String instanceFilePath = _getInstanceFilePath(
-        nameSpace, instanceName.getClassName());
+    {
+	Array<Sint8> out;
+	cimInstance.toXml(out);
 
-    if (!_modifyInstance(instanceFilePath, cimInstance, oldIndex,  oldSize,
-        newIndex, newSize))
+	newSize = out.size();
+
+	if (!InstanceDataFile::appendInstance(dataFilePath, out, newIndex))
+	{
+	    errMessage.append("Failed to modify instance ");
+	    errMessage.append(instanceName.toString());
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+	}
+    }
+
+    //
+    // Modify the index file:
+    //
+
+    Uint32 freeCount;
+
+    if (!InstanceIndexFile::modifyEntry(indexFilePath, instanceName, newIndex,
+        newSize, freeCount))
     {
         errMessage.append("Failed to modify instance ");
         errMessage.append(instanceName.toString());
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
 
-    // -- modify the instance index file
+    //
+    // Commit the transaction:
+    //
 
-    if (!InstanceIndexFile::modify(indexFilePath, instanceName,  newSize,
-        newIndex))
-    {
-        errMessage.append("Failed to modify instance ");
-        errMessage.append(instanceName.toString());
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-    }
+    if (!InstanceIndexFile::commitTransaction(indexFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
 
-    // -- Rename the temporary index and instance files back to the original
+    if (!InstanceDataFile::commitTransaction(dataFilePath))
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
 
-    if (!_renameTempInstanceAndIndexFiles(indexFilePath, instanceFilePath))
-    {
-        errMessage.append("Unexpected error occurred while modifying instance ");
-        errMessage.append(instanceName.toString());
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-    }
+    //
+    // Compact the index and data files if the free count max was
+    // reached.
+    //
+
+    if (freeCount == _MAX_FREE_COUNT)
+	_CompactInstanceRepository(indexFilePath, dataFilePath);
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -997,9 +1227,6 @@ Array<String> CIMRepository::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
-
-
-
     Array<String> classNames;
 
     _nameSpaceManager.getSubClassNames(
@@ -1008,6 +1235,82 @@ Array<String> CIMRepository::enumerateClassNames(
     return classNames;
 }
 
+/*ZZZ*/
+Boolean CIMRepository::_loadAllInstances(
+    const String& nameSpace,
+    const String& className,
+    Array<CIMNamedInstance>& namedInstances)
+{
+    Array<CIMReference> instanceNames;
+    Array<Sint8> data;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+
+    //
+    // Form the name of the instance index file
+    //
+
+    String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
+
+    //
+    // Form the name of the instance file
+    //
+
+    String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
+
+    //
+    // Enumerate the index file:
+    //
+
+    Array<Uint32> freeFlags;
+
+    if (!InstanceIndexFile::enumerateEntries(
+        indexFilePath, freeFlags, indices, sizes, instanceNames, true))
+    {
+        return false;
+    }
+
+    //
+    // Form the array of instances result:
+    //
+
+    if (instanceNames.size() > 0)
+    {
+	//
+	// Load all instances from the data file:
+	//
+
+        if (!InstanceDataFile::loadAllInstances(dataFilePath, data))
+            return false;
+ 
+        //
+        // for each instance loaded, call XML parser to parse the XML
+        // data and create a CIMInstance object.
+        //
+
+        CIMInstance tmpInstance;
+
+        Uint32 bufferSize = data.size();
+        char* buffer = (char*)data.getData();
+
+        for (Uint32 i = 0; i < instanceNames.size(); i++)
+        {
+	    if (!freeFlags[i])
+	    {
+		XmlParser parser(&(buffer[indices[i]]));
+
+		XmlReader::getObject(parser, tmpInstance);
+
+		namedInstances.append(
+		    CIMNamedInstance(instanceNames[i], tmpInstance));
+	    }
+        }
+    }
+
+    return true;
+}
+
+/*ZZZ*/
 Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     const String& nameSpace,
     const String& className,
@@ -1017,16 +1320,17 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-
-
-
-    // -- Get all descendent classes of this class:
+    //
+    // Get all descendent classes of this class:
+    //
 
     Array<String> classNames;
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
 
-    // -- Get all instances for this class and all its descendent classes
+    //
+    // Get all instances for this class and all its descendent classes
+    //
 
     Array<CIMNamedInstance> namedInstances;
 
@@ -1043,19 +1347,24 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     return namedInstances;
 }
 
+/*ZZZ*/
 Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-   PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::enumerateInstanceNames");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::enumerateInstanceNames");
 
-    // -- Get all descendent classes of this class:
+    //
+    // Get names of descendent classes:
+    //
 
     Array<String> classNames;
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
 
-    // -- Get instance names from each qualifying instance file for the class:
+    //
+    // Get instance names from each qualifying instance file for the class:
+    //
 
     Array<CIMReference> instanceNames;
     Array<Uint32> indices;
@@ -1063,23 +1372,29 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        // -- Form the name of the class index file:
+	//
+        // Form the name of the class index file:
+	//
 
-        String path = _getIndexFilePath(nameSpace, classNames[i]);
+        String indexFilePath = _getInstanceIndexFilePath(
+	    nameSpace, classNames[i]);
 
+	//
         // Get all instances for that class:
+	//
 
-        if (!InstanceIndexFile::appendInstanceNamesTo(path, instanceNames, 
-            indices, sizes))
+	Array<Uint32> freeFlags;
+
+	if (!InstanceIndexFile::enumerateEntries(
+	    indexFilePath, freeFlags, indices, sizes, instanceNames, false))
         {
             String errMessage = "Failed to load instance names in class ";
-            errMessage.append(classNames[i]);
+	    errMessage.append(classNames[i]);
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         }
-        PEGASUS_ASSERT(instanceNames.size() == indices.size());
-        PEGASUS_ASSERT(instanceNames.size() == sizes.size());
     }
+
     PEG_METHOD_EXIT();
     return instanceNames;
 }
@@ -1105,9 +1420,6 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-
-
-
     Array<CIMReference> names = associatorNames(
         nameSpace,
         objectName,
@@ -1231,9 +1543,6 @@ Array<CIMObjectWithPath> CIMRepository::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-
-
-
     Array<CIMReference> names = referenceNames(
         nameSpace,
         objectName,
@@ -1291,9 +1600,6 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
-
-
-
     Array<String> tmpReferenceNames;
 
     if (objectName.isClassName())
@@ -1343,34 +1649,38 @@ Array<CIMReference> CIMRepository::referenceNames(
     return result;
 }
 
+/*ZZZ*/
 CIMValue CIMRepository::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName)
 {
-
-
-
-
-    // -- Get the index for this instance:
+    //
+    // Get the index for this instance:
+    //
 
     String className;
     Uint32 index;
     Uint32 size;
 
-    if (!_getInstanceIndex(nameSpace, instanceName, className, size, index))
+    if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
 
-    // -- Load the instance into memory:
+    //
+    // Load the instance into memory:
+    //
 
-    String path = _getInstanceFilePath(nameSpace, className);
+    String path = _getInstanceDataFilePath(nameSpace, className);
     CIMInstance cimInstance;
+
     if (!_loadInstance(path, cimInstance, index, size))
     {
         throw CannotOpenFile(path);
     }
 
-    // -- Grab the property from the instance:
+    //
+    // Grab the property from the instance:
+    //
 
     Uint32 pos = cimInstance.findProperty(propertyName);
 
@@ -1380,31 +1690,32 @@ CIMValue CIMRepository::getProperty(
 
     CIMProperty prop = cimInstance.getProperty(pos);
 
-    // -- Return the value:
+    //
+    // Return the value:
+    //
 
     return prop.getValue();
 }
 
+/*ZZZ*/
 void CIMRepository::setProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName,
     const CIMValue& newValue)
 {
-
-
-
     //
     // Create the instance to pass to modifyInstance()
     //
+
     CIMInstance instance(instanceName.getClassName());
-    // ATTN: Is this the correct construction for this property?
     instance.addProperty(CIMProperty(propertyName, newValue));
     CIMNamedInstance namedInstance(instanceName, instance);
 
     //
     // Create the propertyList to pass to modifyInstance()
     //
+
     Array<String> propertyListArray;
     propertyListArray.append(propertyName);
     CIMPropertyList propertyList(propertyListArray);
@@ -1419,15 +1730,16 @@ CIMQualifierDecl CIMRepository::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-
-
-
-    // -- Get path of qualifier file:
+    //
+    // Get path of qualifier file:
+    //
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
         nameSpace, qualifierName);
 
-    // -- Load qualifier:
+    //
+    // Load qualifier:
+    //
 
     CIMQualifierDecl qualifierDecl;
 
@@ -1447,9 +1759,6 @@ void CIMRepository::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDecl)
 {
-
-
-
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1458,7 +1767,10 @@ void CIMRepository::setQualifier(
     // -- If qualifier alread exists, throw exception:
 
     if (FileSystem::existsNoCase(qualifierFilePath))
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, qualifierDecl.getName());
+    {
+        throw PEGASUS_CIM_EXCEPTION(
+	    CIM_ERR_ALREADY_EXISTS, qualifierDecl.getName());
+    }
 
     // -- Save qualifier:
 
@@ -1469,9 +1781,6 @@ void CIMRepository::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-
-
-
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1486,9 +1795,6 @@ void CIMRepository::deleteQualifier(
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const String& nameSpace)
 {
-
-
-
     String qualifiersRoot = _nameSpaceManager.getQualifiersRoot(nameSpace);
 
     Array<String> qualifierNames;
@@ -1526,15 +1832,11 @@ CIMValue CIMRepository::invokeMethod(
 
 void CIMRepository::createNameSpace(const String& nameSpace)
 {
-
-
     _nameSpaceManager.createNameSpace(nameSpace);
 }
 
 Array<String> CIMRepository::enumerateNameSpaces() const
 {
-
-
     Array<String> nameSpaceNames;
     _nameSpaceManager.getNameSpaceNames(nameSpaceNames);
     return nameSpaceNames;
@@ -1542,289 +1844,68 @@ Array<String> CIMRepository::enumerateNameSpaces() const
 
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
-
-
-
     _nameSpaceManager.deleteNameSpace(nameSpace);
 }
 
 //----------------------------------------------------------------------
 //
-// _getIndexFilePath()
+// _getInstanceIndexFilePath()
 //
 //      returns the file path of the instance index file. 
 //
 //----------------------------------------------------------------------
 
-String CIMRepository::_getIndexFilePath(
+String CIMRepository::_getInstanceIndexFilePath(
     const String& nameSpace,
     const String& className) const
 {
-    String tmp = _nameSpaceManager.getInstanceFileBase(nameSpace, className);
+    String tmp = _nameSpaceManager.getInstanceDataFileBase(
+	nameSpace, className);
+
     tmp.append(".idx");
     return tmp;
 }
 
 //----------------------------------------------------------------------
 //
-// _getInstanceFilePath()
+// _getInstanceDataFilePath()
 //
 //      returns the file path of the instance file. 
 //
 //----------------------------------------------------------------------
 
-String CIMRepository::_getInstanceFilePath(
+String CIMRepository::_getInstanceDataFilePath(
     const String& nameSpace,
     const String& className) const
 {
-    String tmp = _nameSpaceManager.getInstanceFileBase(nameSpace, className);
+    String tmp = _nameSpaceManager.getInstanceDataFileBase(
+	nameSpace, className);
     tmp.append(".instances");
     return tmp;
 }
 
-//----------------------------------------------------------------------
-//
-// _loadInstance()
-//
-//      Loads an instance object from disk to memory.  Returns true on 
-//      success.
-//
-//----------------------------------------------------------------------
-
+/*ZZZ*/
 Boolean CIMRepository::_loadInstance(
     const String& path,
     CIMInstance& object,
     Uint32 index,
     Uint32 size)
 {
-    // Load instance from instance file into memory:
-
+    //
+    // Load instance (in XML) from instance file into memory:
+    //
 
     Array<Sint8> data;
-    if (!InstanceFile::loadInstance(path, index, size, data))
-    {
+
+    if (!InstanceDataFile::loadInstance(path, index, size, data))
         return false;
-    }
+
+    //
+    // Convert XML into an actual object:
+    //
 
     XmlParser parser((char*)data.getData());
-
     XmlReader::getObject(parser, object);
-
-    return true;
-}
-
-//----------------------------------------------------------------------
-//
-// _loadAllInstances()
-//
-//      Loads all the instance objects for a given class from disk to memory. 
-//      Returns true on success.
-//
-//----------------------------------------------------------------------
-
-Boolean CIMRepository::_loadAllInstances(
-    const String& nameSpace,
-    const String& className,
-    Array<CIMNamedInstance>& namedInstances)
-{
-    Array<CIMReference> instanceNames;
-    Array<Sint8> data;
-    Array<Uint32> indices;
-    Array<Uint32> sizes;
-
-    //
-    // Form the name of the instance index file
-    //
-    String indexFilePath = _getIndexFilePath(nameSpace, className);
-
-    //
-    // Form the name of the instance file
-    //
-    String instanceFilePath = _getInstanceFilePath(nameSpace, className);
-
-    //
-    // Get all instance names and record information from the index file
-    //
-    if (!InstanceIndexFile::appendInstanceNamesTo(
-        indexFilePath, instanceNames, indices, sizes))
-    {
-        return false;
-    }
-    PEGASUS_ASSERT(instanceNames.size() == indices.size());
-    PEGASUS_ASSERT(instanceNames.size() == sizes.size());
-   
-    //
-    // Load all instance data from the instance file
-    //
-    if (instanceNames.size() > 0)
-    {
-        if (!InstanceFile::loadAllInstances(instanceFilePath, data))
-        {
-            return false;
-        }
- 
-        //
-        // for each instance loaded, call XML parser to parse the XML
-        // data and create a CIMInstance object.
-        //
-        CIMInstance tmpInstance;
-
-        Uint32 bufferSize = data.size();
-        char* buffer = (char*)data.getData();
-
-        for (Uint32 i = 0; i < instanceNames.size(); i++)
-        {
-            XmlParser parser(&(buffer[indices[i]]));
-
-            XmlReader::getObject(parser, tmpInstance);
-
-            namedInstances.append(CIMNamedInstance(instanceNames[i], tmpInstance));
-        }
-    }
-
-    return true;
-}
-
-//----------------------------------------------------------------------
-//
-// _saveInstance()
-//
-//      Saves an instance object from memory to disk file.  Returns true
-//      on success.
-//
-//----------------------------------------------------------------------
-
-Boolean CIMRepository::_saveInstance(
-    const String& path,
-    const CIMInstance& object,
-    Uint32& index,
-    Uint32& size)
-{
-    Array<Sint8> out;
-    object.toXml(out);
-
-    if (!InstanceFile::insertInstance(out, path, index, size))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-//----------------------------------------------------------------------
-//
-// _modifyInstance()
-//
-//      Modifies an instance object saved in the disk file.  Returns true
-//      on success.
-//
-//----------------------------------------------------------------------
-
-Boolean CIMRepository::_modifyInstance(
-    const String& path,
-    const CIMInstance& object,
-    Uint32 oldIndex,
-    Uint32 oldSize,
-    Uint32& newIndex,
-    Uint32& newSize)
-{
-    Array<Sint8> out;
-    object.toXml(out);
-
-    if (!InstanceFile::modifyInstance(out, path, oldIndex, oldSize, newIndex, 
-                                      newSize))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-//
-// _renameTempInstanceAndIndexFiles()
-//
-//      Renames the temporary instance and instance index files back to the
-//      original files.  The temporary files were created for an insert,
-//      remove, or modify operation (to avoid data inconsistency between
-//      the two files in case of unexpected system termination or failure).  
-//      This method is called after a successful insert, remove, or modify
-//      operation on BOTH the index file and the instance file.  Returns
-//      true on success.
-//
-//------------------------------------------------------------------------------
-
-Boolean CIMRepository::_renameTempInstanceAndIndexFiles(
-    const String& indexFilePath, 
-    const String& instanceFilePath) 
-{
-    //
-    // Rename the original files to backup files
-    // 
-    // This is done so that we would not lose the original files if an error
-    // occurs in renaming the temporary files back after the original files
-    // have been removed.
-    //
-    String realIndexFilePath;
-    if (FileSystem::existsNoCase(indexFilePath, realIndexFilePath))
-    {
-        if (!FileSystem::renameFile(realIndexFilePath, 
-                                    realIndexFilePath + ".orig"))
-            return false;
-    }
-    else
-    {
-        realIndexFilePath = indexFilePath;
-    }
-
-    String realInstanceFilePath;
-    if (FileSystem::existsNoCase(instanceFilePath, realInstanceFilePath))
-    {
-        if (!FileSystem::renameFile(realInstanceFilePath, 
-                                    realInstanceFilePath + ".orig"))
-            return false;
-    }
-    else
-    {
-        realInstanceFilePath = instanceFilePath;
-    }
-
-    //
-    // Rename the temporary instance and index files back to be the original
-    // files.
-    //
-    // If the index file is now empty (zero size), delete the temporary 
-    // files instead.
-    //
-    Uint32 fileSize;
-    String tmpIndexFilePath = realIndexFilePath + ".tmp";
-    String tmpInstanceFilePath = realInstanceFilePath + ".tmp";
-
-    if (!FileSystem::getFileSizeNoCase(tmpIndexFilePath, fileSize))
-        return false;
-
-    if (fileSize == 0)
-    {
-        if (!FileSystem::removeFileNoCase(tmpIndexFilePath))
-            return false;
-
-        if (!FileSystem::removeFileNoCase(tmpInstanceFilePath))
-            return false;
-    }
-    else
-    {
-        if (!FileSystem::renameFile(tmpIndexFilePath, realIndexFilePath))
-            return false;
-
-        if (!FileSystem::renameFile(tmpInstanceFilePath, realInstanceFilePath))
-            return false;
-    }
-
-    //
-    // Now remove the backup files 
-    //
-    FileSystem::removeFile(realIndexFilePath + ".orig");
-    FileSystem::removeFile(realInstanceFilePath + ".orig");
 
     return true;
 }

@@ -175,6 +175,22 @@ public:
 	const String& oldPath,
 	const String& newPath);
 
+    /** Same as rename file except that the case of the file referred to
+	by oldPath is ignored.
+    */
+    static Boolean renameFileNoCase(
+	const String& oldPath,
+	const String& newPath);
+
+    /** Copy a file.
+	@param fromPath name of existing file.
+	@param toPath name of new file.
+	@return true on success.
+    */
+    static Boolean copyFile(
+	const String& fromPath,
+	const String& toPath);
+
     /** Opens a file and ignores the case of the file. Note that the file
 	will be opend in binary mode (no translation of carriage-return-line-
 	feed sequences on Windows).
@@ -182,7 +198,19 @@ public:
 	@param path path of file to be opened.
 	@return true on success.
     */
-    Boolean openNoCase(PEGASUS_STD(ifstream)& is, const String& path);
+    static Boolean openNoCase(PEGASUS_STD(ifstream)& is, const String& path);
+
+    /** Opens a file and ignores the case of the file. Note that the file
+	open mode of the file must be passed in.
+	@param os file stream to be opend.
+	@param path path of file to be opened.
+	@param mode mode to open the file in.
+	@return true on success.
+    */
+    static Boolean openNoCase(
+	PEGASUS_STD(fstream)& fs, 
+	const String& path, 
+	int mode);
 
     /** Determines whether the path refers to a directory.
 	@param path path of the directory.
@@ -290,6 +318,18 @@ inline Boolean FileSystem::removeFileNoCase(const String& path)
 	return false;
 
     return FileSystem::removeFile(realPath);
+}
+
+inline Boolean FileSystem::renameFileNoCase(
+    const String& oldPath,
+    const String& newPath)
+{
+    String realPath;
+
+    if (!existsNoCase(oldPath, realPath))
+	return false;
+
+    return FileSystem::renameFile(realPath, newPath);
 }
 
 inline Boolean FileSystem::getFileSizeNoCase(const String& path, Uint32& size)

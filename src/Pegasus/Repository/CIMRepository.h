@@ -350,7 +350,7 @@ private:
 
         @return  a string containing the index file path
      */
-    String _getIndexFilePath(
+    String _getInstanceIndexFilePath(
         const String& nameSpace,
         const String& className) const;
 
@@ -361,7 +361,7 @@ private:
 
         @return  a string containing the instance file path
      */
-    String _getInstanceFilePath(
+    String _getInstanceDataFilePath(
         const String& nameSpace,
         const String& className) const;
 
@@ -471,9 +471,6 @@ protected:
     ReadWriteSem _lock;
     RepositoryDeclContext* _context;
 };
-
-
-
 
 PEGASUS_NAMESPACE_END
 

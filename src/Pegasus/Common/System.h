@@ -105,6 +105,8 @@ public:
 
     static Boolean renameFile(const char* oldPath, const char* newPath);
 
+    static Boolean copyFile(const char* fromPath, const char* toPath);
+
     static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
 
     static void unloadDynamicLibrary(DynamicLibraryHandle libraryHandle);
@@ -181,6 +183,7 @@ public:
     */
     static Uint32 getPID();
 
+    static Boolean truncateFile(const char* path, size_t newSize);
 };
 
 PEGASUS_NAMESPACE_END

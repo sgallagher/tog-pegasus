@@ -229,6 +229,15 @@ Boolean FileSystem::renameFile(
     return System::renameFile(p.getPointer(), q.getPointer());
 }
 
+Boolean FileSystem::copyFile(
+    const String& fromPath,
+    const String& toPath)
+{
+    ArrayDestroyer<char> p(fromPath.allocateCString());
+    ArrayDestroyer<char> q(toPath.allocateCString());
+    return System::copyFile(p.getPointer(), q.getPointer());
+}
+
 Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
 {
     String realPath;
@@ -239,18 +248,23 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
     ArrayDestroyer<char> p(_clonePath(path));
 
     is.open(p.getPointer() PEGASUS_IOS_BINARY);
-	
-#ifdef PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX
-	if (is.good() != 0)
-		return true;
-	else
-		return false;
-#else
+    return !!is;
+}
 
-	//not supported on Tru64
-	return is != 0;
+Boolean FileSystem::openNoCase(
+    PEGASUS_STD(fstream)& fs, 
+    const String& path,
+    int mode)
+{
+    String realPath;
 
-#endif
+    if (!existsNoCase(path, realPath))
+	return false;
+
+    ArrayDestroyer<char> p(_clonePath(path));
+
+    fs.open(p.getPointer(), mode);
+    return !!fs;
 }
 
 Boolean FileSystem::isDirectory(const String& path)

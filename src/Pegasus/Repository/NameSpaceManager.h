@@ -100,7 +100,7 @@ public:
 	const String& nameSpaceName,
 	const String& qualifierName) const;
 
-    String getInstanceFileBase(
+    String getInstanceDataFileBase(
 	const String& nameSpaceName,
 	const String& className) const;
 

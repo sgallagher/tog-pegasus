@@ -419,5 +419,12 @@ Uint32 System::getPID()
 
     return pid;
 }
+
+Boolean System::truncateFile(
+    const char* path, 
+    size_t newSize)
+{
+    return truncate(path, newSize) == 0);
+}
     
 PEGASUS_NAMESPACE_END

@@ -27,6 +27,8 @@
 //              added nsk platform support
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+#include <fstream>
 #include "System.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -38,3 +40,25 @@
 #else
 # error "Unsupported platform"
 #endif
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
+Boolean System::copyFile(const char* fromPath, const char* toPath)
+{
+    ifstream is(fromPath, ios::binary);
+    ofstream os(toPath, ios::binary);
+
+    char c;
+
+    while (is.get(c))
+    {
+	if (!os.put(c))
+	    return false;
+    }
+
+    return true;
+}
+
+PEGASUS_NAMESPACE_END

@@ -24,7 +24,6 @@
 //
 // Modified By:
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +31,7 @@
 #include <fstream>
 #include <cctype>
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -41,553 +41,717 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//------------------------------------------------------------------------------
-//
-// _GetLine()
-//
-//      Gets the next line of the file:
-//
-//------------------------------------------------------------------------------
+static const Uint32 _MAX_FREE_COUNT = 16;
 
-static Boolean _GetLine(istream& is, Array<char>& x)
+////////////////////////////////////////////////////////////////////////////////
+//
+// Local routines:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+//
+// Gets one line from the given file.
+//
+
+static Boolean _GetLine(fstream& fs, Array<char>& x)
 {
     x.clear();
     x.reserve(1024);
 
     char c;
 
-    while (is.get(c) && c != '\n') 
+    while (fs.get(c) && c != '\n') 
         x.append(c);
 
     x.append('\0');
 
-    return is ? true : false;
+    return !!fs;
 }
 
-//------------------------------------------------------------------------------
+inline void _SkipWhitespace(char*& p)
+{
+    while (*p && isspace(*p))
+        p++;
+}
+
 //
-// _GetNextRecord()
+// Get an integer field from the character pointer and advance the
+// pointer past the field.
 //
-//      Gets the next record in the index file.
+
+Boolean _GetIntField(
+    char*& ptr,
+    Boolean& error,
+    Uint32& value,
+    int base)
+{
+    char* end = 0;
+    value = strtoul(ptr, &end, base);
+
+    error = false;
+
+    if (!end)
+    {
+        error = true;
+        return false;
+    }
+
+    _SkipWhitespace(end);
+
+    if (*end == '\0')
+    {
+        error = true;
+        return false;
+    }
+
+    ptr = end;
+    return true;
+}
+
 //
-//------------------------------------------------------------------------------
+// Gets the next record in the index file.
+//
 
 static Boolean _GetNextRecord(
-    istream& is, 
+    fstream& fs, 
     Array<char>& line,
+    Uint32& freeFlag,
     Uint32& hashCode,
-    const char*& objectName,
     Uint32& index,
     Uint32& size,
+    const char*& instanceName,
     Boolean& error)
 {
     error = false;
 
-    // -- Get the next line:
+    //
+    // Get next line:
+    //
 
-    if (!_GetLine(is, line))
+    if (!_GetLine(fs, line))
         return false;
 
-    // -- Get the hash-code:
+    //
+    // Get the free flag field:
+    //
+
+    char* end = (char*)line.getData();
+
+    if (!_GetIntField(end, error, freeFlag, 10))
+	return false;
+
+    if (freeFlag != 0 && freeFlag != 1)
+    {
+	error = true;
+	return false;
+    }
+
+    //
+    // Get the hash-code field:
+    //
+
+    if (!_GetIntField(end, error, hashCode, 16))
+	return false;
+
+    //
+    // Get index field:
+    //
+
+    if (!_GetIntField(end, error, index, 10))
+	return false;
+
+    //
+    // Get size field:
+    //
+
+    if (!_GetIntField(end, error, size, 10))
+	return false;
+
+    //
+    // Get instance name:
+    //
+
+    instanceName = end;
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// InstanceIndexFile:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Boolean InstanceIndexFile::lookupEntry(
+    const String& path, 
+    const CIMReference& instanceName,
+    Uint32& indexOut,
+    Uint32& sizeOut)
+{
+    fstream fs;
+
+    if (!_openFile(path, fs))
+	return false;
+
+    Uint32 entryOffset = 0;
+
+    Boolean result = _lookupEntry(
+	fs, instanceName, indexOut, sizeOut, entryOffset);
+
+    fs.close();
+    return result;
+}
+
+Boolean InstanceIndexFile::createEntry(
+    const String& path, 
+    const CIMReference& instanceName,
+    Uint32 indexIn,
+    Uint32 sizeIn)
+{
+    //
+    // Open the file:
+    //
+
+    fstream fs;
+
+    if (!_openFile(path, fs))
+	return false;
+
+    //
+    // Return false if entry already exists:
+    //
+
+    Uint32 tmpIndex;
+    Uint32 tmpSize;
+    Uint32 tmpEntryOffset;
+
+    if (InstanceIndexFile::_lookupEntry(
+	fs, instanceName, tmpIndex, tmpSize, tmpEntryOffset))
+	return false;
+
+    //
+    // Append the new entry to the end of the file:
+    //
+
+    if (!_appendEntry(fs, instanceName, indexIn, sizeIn))
+	return false;
+
+    //
+    // Close the file:
+    //
+
+    fs.close();
+    return true;
+}
+
+Boolean InstanceIndexFile::deleteEntry(
+    const String& path, 
+    const CIMReference& instanceName,
+    Uint32& freeCount)
+{
+    freeCount = 0;
+
+    //
+    // Open the file:
+    //
+
+    fstream fs;
+
+    if (!_openFile(path, fs))
+    {
+	return false;
+    }
+
+    //
+    // Mark the entry as free:
+    //
+
+    if (!_markEntryFree(fs, instanceName))
+    {
+	return false;
+    }
+
+    //
+    // Increment the free count:
+    //
+
+    freeCount = 0;
+
+    if (!_incrementFreeCount(fs, freeCount))
+	return false;
+
+    //
+    // Close the file:
+    //
+
+    fs.close();
+
+    return true;
+}
+
+Boolean InstanceIndexFile::modifyEntry(
+    const String& path, 
+    const CIMReference& instanceName,
+    Uint32 indexIn,
+    Uint32 sizeIn,
+    Uint32& freeCount)
+{
+    //
+    // Open the file:
+    //
+
+    fstream fs;
+
+    if (!_openFile(path, fs))
+	return false;
+
+    //
+    // Mark the entry as free:
+    //
+
+    if (!_markEntryFree(fs, instanceName))
+	return false;
+
+    //
+    // Append new entry:
+    //
+
+    if (!_appendEntry(fs, instanceName, indexIn, sizeIn))
+	return false;
+
+    //
+    // Increment the free count:
+    //
+
+    freeCount = 0;
+
+    if (!_incrementFreeCount(fs, freeCount))
+	return false;
+
+    //
+    // Close the file:
+    //
+
+    fs.close();
+
+    return true;
+}
+
+Boolean InstanceIndexFile::enumerateEntries(
+    const String& path,
+    Array<Uint32>& freeFlags,
+    Array<Uint32>& indices,
+    Array<Uint32>& sizes,
+    Array<CIMReference>& instanceNames,
+    Boolean includeFreeEntries)
+{
+    //
+    // Reserve space for at least COUNT entries:
+    //
+
+    const Uint32 COUNT = 1024;
+
+    freeFlags.reserve(COUNT);
+    indices.reserve(COUNT);
+    sizes.reserve(COUNT);
+    instanceNames.reserve(COUNT);
+
+    //
+    // Open input file:
+    //
+
+    fstream fs;
+
+    if (!_openFile(path, fs))
+	return false;
+
+    //
+    // Iterate over all instances to build output arrays:
+    //
+
+    Array<char> line;
+    Uint32 freeFlag;
+    Uint32 hashCode;
+    const char* instanceName;
+    Uint32 index;
+    Uint32 size;
+    Boolean error;
+
+    while (_GetNextRecord(
+	fs, line, freeFlag, hashCode, index, size, instanceName, error))
+    {
+	if (!freeFlag || includeFreeEntries)
+	{
+	    freeFlags.append(freeFlag); 
+	    indices.append(index); 
+	    sizes.append(size);
+	    instanceNames.append(instanceName);
+	}
+    }
+
+    if (error)
+	return false;
+
+    return true;
+}
+
+Boolean InstanceIndexFile::_incrementFreeCount(
+    PEGASUS_STD(fstream)& fs,
+    Uint32& freeCount)
+{
+    //
+    // Position file pointer to beginning of file (where free count is
+    // located) and read the current free count.
+    //
+
+    fs.seekg(0);
+    char hexString[9];
+    fs.read(hexString, 8);
+
+    if (!fs)
+	return false;
+
+    hexString[8] = '\0';
+
+    //
+    // Convert hex string to integer:
+    //
 
     char* end = 0;
-    hashCode = strtoul(line.getData(), &end, 16);
+    long tmp = strtol(hexString, &end, 16);
 
-    if (!end)
-    {
-        error = true;
-        return false;
-    }
+    if (!end || *end != '\0' || tmp < 0)
+	return false;
 
-    // -- Skip whitespace:
+    freeCount = Uint32(tmp);
 
-    while (*end && isspace(*end))
-        end++;
+    //
+    // Increment and rewrite the free count:
+    //
 
-    if (!*end)
-    {
-        error = true;
-        return false;
-    }
+    sprintf(hexString, "%08X", ++freeCount);
+    fs.seekg(0);
+    fs.write(hexString, 8);
 
-    // -- Get index:
-
-    const char* indexString = end;
-
-    end = 0;
-    index = strtoul(indexString, &end, 10);
-
-    if (!end)
-    {
-        error = true;
-        return false;
-    }
-
-    // -- Skip whitespace:
-
-    while (*end && isspace(*end))
-        end++;
-
-    if (!*end)
-    {
-        error = true;
-        return false;
-    }
-
-    // -- Get size:
-    
-    const char* sizeString = end;
-
-    end = 0;
-    size = strtoul(sizeString, &end, 10);
-
-    if (!end)
-    {
-        error = true;
-        return false;
-    }
-
-    // -- Skip whitespace:
-
-    while (*end && isspace(*end))
-        end++;
-
-    if (!*end)
-    {
-        error = true;
-        return false;
-    }
-
-    // -- Get instance name:
-
-    objectName = end;
-
-    return true;
+    return !!fs;
 }
 
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::lookup()
-//
-//------------------------------------------------------------------------------
-
-Boolean InstanceIndexFile::lookup(
+Boolean InstanceIndexFile::_openFile(
     const String& path, 
-    const CIMReference& instanceName,
-    Uint32& sizeOut,
-    Uint32& indexOut)
+    PEGASUS_STD(fstream)& fs)
 {
-    indexOut = Uint32(-1);
+    const char ZERO_FREE_COUNT[] = "00000000\n";
 
-    String realPath;
+    //
+    // Open the file:
+    //
 
-    if (!FileSystem::existsNoCase(path, realPath))
-        return false;
-
-    ArrayDestroyer<char> p(realPath.allocateCString());
-    ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
-
-    if (is)
+    if (!FileSystem::openNoCase(fs, path, ios::binary | ios::in | ios::out))
     {
-        Uint32 targetHashCode = instanceName.makeHashCode();
+	//
+	// File does not exist so create it:
+	//
 
-        Array<char> line;
-        Uint32 hashCode;
-        const char* objectName;
-        Uint32 size;
-        Uint32 index;
-        Boolean error;
+	ArrayDestroyer<char> p(path.allocateCString());
+	fs.open(p.getPointer(), ios::binary | ios::out);
 
-        while (_GetNextRecord(is, line, hashCode, objectName, index, size,
-                              error))
-        {
-            if (hashCode == targetHashCode &&
-                CIMReference(objectName) == instanceName)
-            {
-                indexOut = index;
-                sizeOut = size;
-                return true;
-            }
-        }
+	if (!fs)
+	    return false;
 
-        if (error)
-        {
-            // ATTN:  This should only happen if the index file is corrupted,
-            //        may want to log an error in the log file.
-        }
-    }
+	fs.write(ZERO_FREE_COUNT, sizeof(ZERO_FREE_COUNT) - 1);
+	fs.close();
 
-    return false;
-}
+	//
+	// Reopen the file:
+	//
 
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::insert()
-//
-// This method creates a temporary file, copies the contents of the original
-// instance index file to the temporary file, and appends the new entry to
-// the temporary file.  The caller must rename the temporary file back to 
-// the original file after the insert operation is successful on BOTH the
-// the instance index file and the instance file.
-//
-//------------------------------------------------------------------------------
-
-Boolean InstanceIndexFile::insert(
-    const String& path, 
-    const CIMReference& instanceName,
-    Uint32 sizeIn,
-    Uint32 indexIn)
-{
-    //
-    // Create a temporary instance index file
-    //
-    // First make sure that there is not already a temporary file exists.
-    // If a temporary file already exists, remove it first.
-    //
-    String tempFilePath;
-    if (FileSystem::existsNoCase((path + ".tmp"), tempFilePath))
-    {
-        if (!FileSystem::removeFileNoCase(tempFilePath))
-            return false;
-    }
-
-    ArrayDestroyer<char> p(path.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app PEGASUS_OR_IOS_BINARY);
-
-    if (!os)
-        return false;
-
-    //
-    // Check for the existence of the original instance index file.  If 
-    // file exists, copy the contents of the file to the temporary file.
-    //
-    String realPath;
-    if (FileSystem::existsNoCase(path, realPath))
-    {
-        ArrayDestroyer<char> p(realPath.allocateCString());
-        ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
-
-        if (!is)
-            return false;
-
-        //
-        // get the size of the instance file
-        //
-        Uint32 fileSize;
-        if (!FileSystem::getFileSizeNoCase(realPath, fileSize))
-            return false;
-
-        char* data = new char[fileSize];
-        is.clear();
-        is.seekg(0);
-        is.read(data, fileSize);
-
-        if (is.fail())
-            return false;
-
-        os.write(data, fileSize);
-
-        delete [] data;
-
-        is.close();
+	if (!FileSystem::openNoCase(fs, path, ios::binary | ios::in | ios::out))
+	    return false;
     }
 
     //
-    // Append the new instance to the temporary instance index file:
+    // Position the file pointer beyond the free count:
     //
-    _appendEntry(os, instanceName, sizeIn, indexIn);
 
-    os.flush();
-    os.close();
+    fs.seekg(sizeof(ZERO_FREE_COUNT) - 1);
 
     return true;
 }
 
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::remove()
-//
-// This method creates a temporary file, copies the contents of the original
-// instance index file to the temporary file, and removes the entry from the
-// the temporary file.  The caller must rename the temporary file back to the
-// original file after the remove operation is successful on BOTH the 
-// instance index file and the instance file.
-//
-//------------------------------------------------------------------------------
-
-Boolean InstanceIndexFile::remove(
-    const String& path_, 
-    const CIMReference& instanceName)
-{
-    //
-    // Check for the existence of the instance index file and get the
-    // real name of the file. 
-    //
-    String path;
-
-    if (!FileSystem::existsNoCase(path_, path))
-        return false;
-
-    //
-    // Create a temporary instance index file
-    //
-    // First make sure that there is not already a temporary file exists.
-    // If a temporary file already exists, remove it first.
-    //
-    String tempFilePath;
-    if (FileSystem::existsNoCase((path + ".tmp"), tempFilePath))
-    {
-        if (!FileSystem::removeFileNoCase(tempFilePath))
-            return false;
-    }
-
-    ArrayDestroyer<char> p(path.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer() PEGASUS_IOS_BINARY);
-
-    if (!os)
-    {
-        return false;
-    }
-
-    //
-    // remove the entry from file
-    //
-    if (!_removeEntry(os, path, instanceName))
-    {
-        return false;
-    }
-
-    os.flush();
-    os.close();
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::modify()
-//
-// This method creates a temporary file and copies the contents of the
-// original instance index file to the temporary file.  Modifications 
-// are done only to the temporary file.  The caller must rename the
-// temporary file back to the original file after the modify operation 
-// is successful on BOTH the instance index file and the instance file.
-//
-//------------------------------------------------------------------------------
-
-Boolean InstanceIndexFile::modify(
-    const String& path, 
+Boolean InstanceIndexFile::_appendEntry(
+    PEGASUS_STD(fstream)& fs,
     const CIMReference& instanceName,
-    Uint32 sizeIn,
-    Uint32 indexIn)
+    Uint32 indexIn,
+    Uint32 sizeIn)
 {
     //
-    // Check for the existence of the instance index file and get the
-    // real name of the file. 
+    // Position the file at the end:
     //
-    String realPath;
 
-    if (!FileSystem::existsNoCase(path, realPath))
-        return false;
+    fs.seekg(0, ios::end);
 
-    //
-    // Create a temporary instance index file
-    //
-    // First make sure that there is not already a temporary file exists.
-    // If a temporary file already exists, remove it first.
-    //
-    String tempFilePath;
-    if (FileSystem::existsNoCase((path + ".tmp"), tempFilePath))
-    {
-        if (!FileSystem::removeFileNoCase(tempFilePath))
-        {
-            return false;
-        }
-    }
-
-    ArrayDestroyer<char> p(realPath.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer() PEGASUS_IOS_BINARY);
-
-    if (!os)
-    {
-        return false;
-    }
+    if (!fs)
+	return false;
 
     //
-    // remove the entry from file
+    // Write the entry:
     //
-    if (!_removeEntry(os, realPath, instanceName))
-    {
-        return false;
-    }
 
-    //
-    // Append the new instance to the temporary instance index file:
-    //
-    _appendEntry(os, instanceName, sizeIn, indexIn);
-
-    os.flush();
-    os.close();
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::appendInstanceNamesTo()
-//
-// This method returns a list of all the instance names, as well as a list
-// of the indices (or byte locations) of the instance records, and a list
-// of the sizes of the instance records.
-//
-//------------------------------------------------------------------------------
-
-Boolean InstanceIndexFile::appendInstanceNamesTo(
-    const String& path,
-    Array<CIMReference>& instanceNames,
-    Array<Uint32>& indices,
-    Array<Uint32>& sizes)
-{
-    // -- Open index file and load the instance names
-
-    String realPath;
-
-    if (FileSystem::existsNoCase(path, realPath))
-    {
-        ArrayDestroyer<char> p(realPath.allocateCString());
-
-        ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
-
-        if (!is)
-            return false;
-
-        // -- Build instance-names array:
-
-        Array<char> line;
-        Uint32 hashCode;
-        const char* objectName;
-        Uint32 index;
-        Uint32 size;
-        Boolean error;
-
-        while (_GetNextRecord(is, line, hashCode, objectName, index, size, 
-            error))
-        {
-            instanceNames.append(objectName);
-            indices.append(index);
-            sizes.append(size);
-        }
-
-        if (error)
-            return false;
-    }
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::_appendEntry()
-//
-// Appends a new entry to the temporary instance index file. 
-//
-//------------------------------------------------------------------------------
-
-void InstanceIndexFile::_appendEntry(
-    ofstream& os,
-    const CIMReference& instanceName,
-    Uint32 sizeIn,
-    Uint32 indexIn)
-{
-    //
-    // Append the new instance to the temporary instance index file:
-    //
     Uint32 targetHashCode = instanceName.makeHashCode();
 
     char buffer[32];
     sprintf(buffer, "%08X", targetHashCode);
-    os << buffer << ' ' << indexIn << ' ' << sizeIn << ' ';
-    os << instanceName << endl;
+
+    fs << "0 " << buffer << ' ' << indexIn << ' ' << sizeIn << ' ';
+    fs << instanceName << endl;
+
+    return !!fs;
 }
 
-//------------------------------------------------------------------------------
-//
-// InstanceIndexFile::_removeEntry()
-//
-// Removes an entry from the temporary instance index file. 
-//
-//------------------------------------------------------------------------------
-
-Boolean InstanceIndexFile::_removeEntry(
-    ofstream& os,
-    const String& path, 
+Boolean InstanceIndexFile::_markEntryFree(
+    PEGASUS_STD(fstream)& fs,
     const CIMReference& instanceName)
 {
     //
-    // Open the index file
+    // First look up the entry:
     //
-    ArrayDestroyer<char> q(path.allocateCString());
-    ifstream is(q.getPointer() PEGASUS_IOS_BINARY);
 
-    if (!is)
+    Uint32 index = 0;
+    Uint32 size = 0;
+    Uint32 entryOffset = 0;
+
+    if (!InstanceIndexFile::_lookupEntry(
+	fs, instanceName, index, size, entryOffset))
     {
-        return false;
+	return false;
     }
 
     //
-    // Copy all entries except the one specified:
+    // Now mark the entry as free (change the first character of the entry
+    // from a '0' to a '1').
     //
+
+    fs.seekg(entryOffset);
+
+    if (!fs)
+    {
+	return false;
+    }
+
+    fs.write("1", 1);
+
+    return !!fs;
+}
+
+Boolean InstanceIndexFile::_lookupEntry(
+    PEGASUS_STD(fstream)& fs,
+    const CIMReference& instanceName,
+    Uint32& indexOut,
+    Uint32& sizeOut,
+    Uint32& entryOffset)
+{
+    indexOut = 0;
+    sizeOut = 0;
+    entryOffset = 0;
+
     Uint32 targetHashCode = instanceName.makeHashCode();
-
-    Boolean found = false;
     Array<char> line;
+    Uint32 freeFlag;
     Uint32 hashCode;
-    const char* objectName;
-    Uint32 size;
+    const char* instanceNameTmp;
     Uint32 index;
+    Uint32 size;
     Boolean error;
-    Uint32 deletedSize = 0;
 
-    while (_GetNextRecord(is, line, hashCode, objectName, index, size, error))
+    entryOffset = fs.tellp();
+
+    while (_GetNextRecord(
+	fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
     {
-        if (targetHashCode == hashCode &&
-            CIMReference(objectName) == instanceName)
-        {
-            //
-            // found the entry of the instance to be deleted, keep track 
-            // of the size of the deleted record
-            //
-            found = true;
-            deletedSize = size;
-        }
-        else
-        {
-            if (found)
-            {
-                //
-                // Adjust the index of the subsequent records by subtracting
-                // the size of the deleted record from the index.  This 
-                // requires that the index file entries are in the same order 
-                // as the instance records in the instance file.
-                //
-                index = index - deletedSize;
-            }
+	if (freeFlag == 0 &&
+	    hashCode == targetHashCode &&
+	    CIMReference(instanceNameTmp) == instanceName)
+	{
+	    indexOut = index;
+	    sizeOut = size;
+	    return true;
+	}
 
-            _appendEntry(os, objectName, size, index);
-        }
+	entryOffset = fs.tellp();
     }
 
-    is.close();
+    fs.clear();
+
+    return false;
+}
+
+Boolean InstanceIndexFile::compact(
+    const String& path)
+{
+    //
+    // Open input file:
+    //
+
+    fstream fs;
+
+    if (!_openFile(path, fs))
+	return false;
+
+    //
+    // Open temporary file (delete it first):
+    //
+
+    fstream tmpFs;
+    String tmpPath = path;
+    tmpPath += ".tmp";
+
+    FileSystem::removeFile(tmpPath);
+
+    if (!_openFile(tmpPath, tmpFs))
+	return false;
+
+    //
+    // Iterate over all instances to build output arrays:
+    //
+
+    Array<char> line;
+    Uint32 freeFlag;
+    Uint32 hashCode;
+    const char* instanceName;
+    Uint32 index;
+    Uint32 size;
+    Boolean error;
+    Uint32 adjust = 0;
+
+    while (_GetNextRecord(
+	fs, line, freeFlag, hashCode, index, size, instanceName, error))
+    {
+	//
+	// Copy the entry over to the temporary file if it is not free.
+	// Otherwise, discard the entry and update subsequent indices to
+	// compensate for removal of this block.
+	//
+
+	if (freeFlag)
+	{
+	    adjust += size;
+	}
+	else
+	{
+	    if (!_appendEntry(tmpFs, instanceName, index - adjust, size))
+	    {
+		error = true;
+		break;
+	    }
+	}
+    }
+
+    //
+    // Close both files:
+
+    fs.close();
+    tmpFs.close();
+
+    //
+    // If an error occurred, remove the temporary file and
+    // return false.
+    //
 
     if (error)
     {
-        return false;
+	FileSystem::removeFile(tmpPath);
+	return false;
     }
 
-    return found;
+    //
+    // Replace index file with temporary file:
+    //
+
+    if (!FileSystem::removeFile(path))
+	return false;
+
+    if (!FileSystem::renameFile(tmpPath, path))
+	return false;
+
+    return true;
+}
+
+Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
+{
+    //
+    // If file does not exist, there are no instances:
+    //
+
+    if (!FileSystem::existsNoCase(path))
+	return false;
+
+    //
+    // We must iterate all the entries looking for a non-free one:
+    //
+
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+    Array<CIMReference> instanceNames;
+
+    if (!InstanceIndexFile::enumerateEntries(
+	path, freeFlags, indices, sizes, instanceNames, false))
+    {
+	// This won't happen!
+	return false;
+    }
+
+    return freeFlags.size() != 0;
+}
+
+Boolean InstanceIndexFile::beginTransaction(const String& path)
+{
+    //
+    // Create a rollback file which is a copy of the index file. The
+    // new filename is formed by appending ".rollback" to the name of
+    // the index file.
+    //
+
+    String rollbackPath = path;
+    rollbackPath += ".rollback";
+
+    if (!FileSystem::copyFile(path, rollbackPath))
+	return false;
+
+    return true;
+}
+
+Boolean InstanceIndexFile::rollbackTransaction(const String& path)
+{
+    //
+    // If the rollback file does not exist, then everything is fine (nothing
+    // to roll back).
+    //
+
+    if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+	return true;
+
+    //
+    // To roll back, simply delete the index file and rename
+    // the rollback file over it.
+    //
+
+    if (!FileSystem::removeFileNoCase(path))
+	return false;
+
+    return FileSystem::renameFileNoCase(Cat(path, ".rollback"), path);
+}
+
+Boolean InstanceIndexFile::commitTransaction(const String& path)
+{
+    //
+    // To commit, simply remove the rollback file:
+    //
+
+    String rollbackPath = path;
+    rollbackPath += ".rollback";
+
+    return FileSystem::removeFileNoCase(rollbackPath);
 }
 
 PEGASUS_NAMESPACE_END

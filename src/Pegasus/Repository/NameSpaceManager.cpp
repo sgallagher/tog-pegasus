@@ -79,11 +79,11 @@ static inline String _MakeQualifierFilePath(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// _MakeInstanceFileBase()
+// _MakeInstanceDataFileBase()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline String _MakeInstanceFileBase(
+static inline String _MakeInstanceDataFileBase(
     const String& nameSpacePath,
     const String& className)
 {
@@ -112,7 +112,7 @@ public:
 
     const String getQualifierFilePath(const String& qualifierName) const;
 
-    const String getInstanceFileBase(const String& className) const;
+    const String getInstanceDataFileBase(const String& className) const;
 
     InheritanceTree& getInheritanceTree() { return _inheritanceTree; }
 
@@ -152,9 +152,9 @@ const String NameSpace::getQualifierFilePath(const String& qualifierName) const
     return _MakeQualifierFilePath(_nameSpacePath, qualifierName);
 }
 
-const String NameSpace::getInstanceFileBase(const String& className) const
+const String NameSpace::getInstanceDataFileBase(const String& className) const
 {
-    return _MakeInstanceFileBase(_nameSpacePath, className);
+    return _MakeInstanceDataFileBase(_nameSpacePath, className);
 }
 
 void NameSpace::print(PEGASUS_STD(ostream)& os) const
@@ -387,7 +387,7 @@ String NameSpaceManager::getClassFilePath(
     return nameSpace->getClassFilePath(className);
 }
 
-String NameSpaceManager::getInstanceFileBase(
+String NameSpaceManager::getInstanceDataFileBase(
     const String& nameSpaceName,
     const String& className) const
 {
@@ -396,7 +396,7 @@ String NameSpaceManager::getInstanceFileBase(
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, nameSpaceName);
 
-    return nameSpace->getInstanceFileBase(className);
+    return nameSpace->getInstanceDataFileBase(className);
 }
 
 String NameSpaceManager::getQualifierFilePath(
@@ -505,7 +505,10 @@ void NameSpaceManager::checkModify(
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
 
     if (superClassName != oldSuperClassName)
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "attempt to change superclass");
+    {
+	throw PEGASUS_CIM_EXCEPTION(
+	    CIM_ERR_FAILED, "attempt to change superclass");
+    }
 
     // -- Disallow modification of class with subclasses:
 

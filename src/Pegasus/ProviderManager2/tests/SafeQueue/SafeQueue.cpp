@@ -43,11 +43,14 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
+
 int main(int argc, char** argv)
 {
-    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
 
-    cout << "+++++passed all tests" << endl;
+    cout << argv[0] << " +++++passed all tests" << endl;
 
     return(0);
 }

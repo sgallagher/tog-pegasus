@@ -1,4 +1,4 @@
-#%2003////////////////////////////////////////////////////////////////////////
+#%2005////////////////////////////////////////////////////////////////////////
 #
 # Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 # Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -36,7 +36,7 @@
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
 Version: 2.4.1.Beta
-Release: 1
+Release: 2
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -62,6 +62,15 @@ Requires: tog-pegasus >= 2.4
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenPegasus WBEM
 Services for Linux release. It provides Linux C++ developers with the WBEM files required to
 build WBEM Clients and Providers. It also supports C provider developers via the CMPI interface.
+
+%package test
+Summary:      The OpenPegasus Tests
+Group:        Systems Management/Base
+Autoreq: 0
+Requires: tog-pegasus >= 2.4
+
+%description test
+The OpenPegasus WBEM tests for the OpenPegasus 2.4 Linux rpm.
 
 %prep
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
@@ -131,11 +140,15 @@ make repository
 %define PEGASUS_SAMPLES_DIR  /opt/tog-pegasus/samples 
 %define PEGASUS_INCLUDE_DIR  /opt/tog-pegasus/include
 %define PEGASUS_HTML_DIR     /opt/tog-pegasus/html
+
 make --directory=mak -f SDKMakefile stageSDK \
           PEGASUS_STAGING_DIR=%PEGASUS_STAGING_DIR \
           PEGASUS_SAMPLES_DIR=%PEGASUS_SAMPLES_DIR \
           PEGASUS_INCLUDE_DIR=%PEGASUS_INCLUDE_DIR \
           PEGASUS_HTML_DIR=%PEGASUS_HTML_DIR
+
+make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
+	PEGASUS_ENVVAR_FILE=$PEGASUS_ROOT/env_var_Linux.status
 
 %install
 %define PEGASUS_PROD_DIR       /opt/tog-pegasus
@@ -165,6 +178,12 @@ make --directory=mak -f SDKMakefile stageSDK \
 %define PEGASUS_SSL_CERT_FILE      server.pem
 %define PEGASUS_SSL_TRUSTSTORE     client.pem
 %define PEGASUS_INSTALL_SCRIPT_DIR $PEGASUS_ROOT/installs/scripts
+%define PEGASUS_TEST_DIR  /opt/tog-pegasus/test
+%define PEGASUS_TEST_STAGING_DIR  $PEGASUS_HOME/stagingDir
+%define PEGASUS_TEST_BIN_DIR  %PEGASUS_TEST_DIR/bin
+%define PEGASUS_TEST_LIB_DIR  %PEGASUS_TEST_DIR/lib
+%define PEGASUS_TEST_MAK_DIR  %PEGASUS_TEST_DIR/mak
+
 #
 # Make directories
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_VARDATA_DIR/{log,cache,repository}
@@ -539,6 +558,62 @@ install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/Insta
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/MethodProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof %SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof %SAMPLES_DEST_PATH/Providers/Load/SimpleDisplayConsumerR.mof
+#
+# Tests
+#
+%define TEST_DEST_PATH     $RPM_BUILD_ROOT%PEGASUS_TEST_DIR
+mkdir -p %TEST_DEST_PATH/{bin,lib,mak}
+#
+# Test Repository
+#
+%define PEGASUS_TEST_REPOSITORY_DIR %PEGASUS_VARDATA_DIR/testrepository
+mkdir -p  $RPM_BUILD_ROOT%PEGASUS_TEST_REPOSITORY_DIR
+cp -rf %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_REPOSITORY_DIR/*  $RPM_BUILD_ROOT%PEGASUS_TEST_REPOSITORY_DIR
+
+install -D -m 0444 %PEGASUS_TEST_STAGING_DIR/%PEGASUS_TEST_DIR/Makefile %TEST_DEST_PATH/Makefile
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/CompAssoc $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/CompAssoc
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/InvokeMethod2 $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/InvokeMethod2
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/IPC $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/IPC
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/OSTestClient $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/OSTestClient
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestAbstract $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestAbstract
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestArray $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestArray
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestBase64 $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestBase64
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestClassDecl $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestClassDecl
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestClient $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestClient
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestDateTime $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestDateTime
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestFlavor $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestFlavor
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestFormatter $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestFormatter
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestHashTable $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestHashTable
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestInstanceDecl $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestInstanceDecl
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestLogger $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestLogger
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestMethod $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestMethod
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestObject $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestObject
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestOperationContext $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestOperationContext
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestParameter $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestParameter
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestParamValue $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestParamValue
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestProperty $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestProperty
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestQualifier $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestQualifier
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestQualifierDecl $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestQualifierDecl
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestQualifierList $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestQualifierList
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestQueue $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestQueue
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestReference $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestReference
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestResolve $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestResolve
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestResponseHandler $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestResponseHandler
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestScope $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestScope
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestStack $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestStack
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestStopwatch $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestStopwatch
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestString $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestString
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestStrToInstName $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestStrToInstName
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestTimeValue $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestTimeValue
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestToMof $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestToMof
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestValidateClass $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestValidateClass
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestValue $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestValue
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TracerTest $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TracerTest
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/UserManagerTest $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/UserManagerTest
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleFamilyProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleFamilyProvider.so.1
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1 $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1
+install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_MAK_DIR/commands.mak $RPM_BUILD_ROOT%PEGASUS_TEST_MAK_DIR/commands.mak
 cd $RPM_BUILD_ROOT
 rm -Rf $PEGASUS_HOME
 
@@ -650,6 +725,16 @@ echo " /etc/init.d/tog-pegasus stop"
 echo " To set up PATH and MANPATH in /etc/profile"
 echo " run /opt/tog-pegasus/sbin/settogpath.";
 fi
+
+%post test
+/etc/init.d/tog-pegasus stop
+cd %PEGASUS_VARDATA_DIR
+mv repository repository.bak
+mv testrepository repository
+
+cd %PEGASUS_TEST_DIR
+make create_providerlinks
+make tests
 
 %preun
 if [ $1 -eq 0 ]; then
@@ -965,3 +1050,51 @@ fi
 %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/MethodProviderR.mof
 %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof
 %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof
+
+%files test
+%attr(-,root,root) %PEGASUS_TEST_DIR/Makefile
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/CompAssoc
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/InvokeMethod2
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/IPC
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/OSTestClient
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestAbstract
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestArray
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestBase64
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestClassDecl
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestClient
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestDateTime
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestFlavor
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestFormatter
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestHashTable
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestInstanceDecl
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestLogger
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestMethod
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestObject
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestOperationContext
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestParameter
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestParamValue
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestProperty
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestQualifier
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestQualifierDecl
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestQualifierList
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestQueue
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestReference
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestResolve
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestResponseHandler
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestScope
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestStack
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestStopwatch
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestString
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestStrToInstName
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestTimeValue
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestToMof
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestValidateClass
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestValue
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TracerTest
+%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/UserManagerTest
+%attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleFamilyProvider.so.1
+%attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1
+%attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1
+%attr(-,root,root) %PEGASUS_TEST_MAK_DIR/commands.mak
+%PEGASUS_TEST_REPOSITORY_DIR
+

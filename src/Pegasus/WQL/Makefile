@@ -7,8 +7,10 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_WQL_INTERNAL -DPEGASUS_INTERNALONLY
 
 ifneq ($(OS), HPUX)
-  ifndef PEGASUS_LSB
+  ifneq ($(OS), zos)
+    ifndef PEGASUS_LSB
 	EXTRA_INCLUDES = -Int_includes
+    endif
   endif
 endif
 

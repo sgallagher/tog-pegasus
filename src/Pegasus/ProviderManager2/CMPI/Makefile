@@ -22,6 +22,7 @@ LIBRARIES = \
     pegquerycommon \
     pegconfig \
     pegwql \
+    pegcql \
     pegcommon
 
 SOURCES = \

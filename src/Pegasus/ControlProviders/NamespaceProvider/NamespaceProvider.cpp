@@ -107,13 +107,17 @@ void NamespaceProvider::createInstance(
        Array<KeyBinding> kbArray = instanceReference.getKeyBindings();
        if ( (kbArray.size() != 1) ||
 	    (!String::equalNoCase(kbArray[0].getName(), NAMESPACE_NAME)) )
-       instanceReference.print(cout);
+       //instanceReference.print(cout);
+       //myInstance.print(cout);
        {
 	   instanceReference.print(cout);
 	   PEG_METHOD_EXIT();
 	   throw PEGASUS_CIM_EXCEPTION(
 	       CIM_ERR_INVALID_PARAMETER,
-	       "Invalid instance name");
+	       "Invalid instance name "	+
+	       ((kbArray.size() != 1) ?
+		String("Incorrect number of keys") :
+	         String(kbArray[0].getName())));
        }
 
        // Get the name property from the object

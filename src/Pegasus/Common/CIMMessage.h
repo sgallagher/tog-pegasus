@@ -630,6 +630,7 @@ public:
         authType(x.authType),
         userName(x.userName)
     {
+		operationContext = x.operationContext;
     }
 
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const

@@ -195,7 +195,18 @@ ObjectNormalizer::ObjectNormalizer(
 
             if((pos != PEG_NOT_FOUND) && (referenceProperty.getQualifier(pos).getValue().equal(CIMValue(true))))
             {
-                keys.append(CIMKeyBinding(referenceProperty.getName(), referenceProperty.getValue()));
+                if(referenceProperty.getType() == CIMTYPE_REFERENCE)
+                {
+                    // ATTN: a fake reference is inserted in the key so that the _BubbleSort() method
+                    // in CIMObjectPath does not throw and exception. It implicitly validates keys of
+                    // type REFERENCE so just place a dummy value for now. The value will be replaced
+                    // by the normalized object later.
+                    keys.append(CIMKeyBinding(referenceProperty.getName(), "class.key=\"value\"", CIMKeyBinding::REFERENCE));
+                }
+                else
+                {
+                    keys.append(CIMKeyBinding(referenceProperty.getName(), referenceProperty.getValue()));
+                }
             }
         }
 

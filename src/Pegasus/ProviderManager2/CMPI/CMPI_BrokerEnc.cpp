@@ -31,7 +31,7 @@
 
 #include "CMPI_Version.h"
 
-#include "CMPI_Object.h"
+#include "CMPI_Object.h" 
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
@@ -42,7 +42,6 @@
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>
 #endif
-#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
 

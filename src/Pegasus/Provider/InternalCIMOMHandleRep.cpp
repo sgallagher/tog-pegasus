@@ -407,8 +407,13 @@ Message* InternalCIMOMHandleRep::do_request(
         }
         catch (Exception e)
         {
+			// for OS400 don't proceed if there is an exception, otherwise create an empty identity container.
+			#ifdef PEGASUS_OS_OS400
+				throw e
+			#else
 			cimmsg->operationContext.insert(IdentityContainer(String::EMPTY));
-        }
+			#endif
+	    }
 		// chuck 2.4
         // If the caller specified an Accept-Language or Content-Language
         // in the OperationContext, then use those on the request msg.

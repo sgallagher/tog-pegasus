@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.c,v 1.3 2003/05/21 19:05:50 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.c,v 1.4 2003/11/17 21:37:27 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -484,7 +484,7 @@ int slp_get_local_interfaces(uint32 **list)
       uint32 *intp;
       struct sockaddr_in *sin;
 		  addr_list = (socket_addr_list *)output_buf;
-      *list = (uint32 *) malloc(sizeof(sockad_addr) * addr_list->count + 1) ;
+      *list = (uint32 *) malloc(sizeof(socket_addr) * addr_list->count + 1) ;
       addr = addr_list->list;
       
       for( interfaces = 0, intp = *list, sin = (struct sockaddr_in *)addr ; 
@@ -714,7 +714,7 @@ BOOL prepare_query( struct slp_client *client,
     if(service_type == NULL)
       len = DA_SRVTYPELEN;
     else
-      len = strlen(service_type) ;
+      len = (int16)strlen(service_type) ;
     if(total_len + 2 + len < LSLP_MTU) {
       /* set the service type string length */
       _LSLP_SETSHORT(bptr, len, 0);
@@ -730,7 +730,7 @@ BOOL prepare_query( struct slp_client *client,
       if(scopes == NULL)
 	len = DA_SCOPELEN;
       else
-	len = strlen(scopes);
+	len = (int16)strlen(scopes);
       if( total_len + 2 + len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, len, 0);
 	if(scopes != NULL) 
@@ -744,7 +744,7 @@ BOOL prepare_query( struct slp_client *client,
 	if(predicate == NULL)
 	  len = 0;
 	else
-	  len = strlen(predicate) ;
+	  len = (int16)strlen(predicate) ;
 	if( total_len + 2 + len < LSLP_MTU) {
 	  _LSLP_SETSHORT(bptr, len, 0);
 	  if(predicate != NULL)
@@ -1073,7 +1073,7 @@ void decode_srvreg(struct slp_client *client,
     /* decode the url entry */
     if(NULL != (decoded_url = lslpUnstuffURL(&bptr, &diff, &err))) {
       url_string = decoded_url->url;
-      lifetime = decoded_url->lifetime;
+      lifetime = (uint16)decoded_url->lifetime;
       
       /* adjust pointers and size variables */
       /* bptr already adjusted by call to lslpUnstuffURL */
@@ -1470,7 +1470,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
       }
       extptr = client->_scratch;
       next_extptr = client->_msg_buf + LSLP_NEXT_EX;
-      ext_offset = bptr - client->_msg_buf;
+      ext_offset = (int32)(bptr - client->_msg_buf);
       
       if ( 0x0002 == (_LSLP_GETSHORT(extptr, 0))) {
 	/* set the next extension field in the header */
@@ -1601,7 +1601,7 @@ BOOL  srv_reg(struct slp_client *client,
   if(url_entry == NULL)
     return FALSE;
   url_entry->lifetime = lifetime + time(NULL);
-  url_entry->len = strlen(url);
+  url_entry->len = (uint16)strlen(url);
   url_entry->url = strdup(url);
   url_entry->auths = 0;
   buf_len = LSLP_MTU - len;
@@ -1611,7 +1611,7 @@ BOOL  srv_reg(struct slp_client *client,
     /* stuff the service type string */
 
     /* stuff the service type  */
-    str_len = strlen(service_type) ;
+    str_len = (int16)strlen(service_type) ;
     if(len + 2 + str_len < LSLP_MTU) {
       int retries;
       _LSLP_SETSHORT(bptr, str_len, 0);
@@ -1622,7 +1622,7 @@ BOOL  srv_reg(struct slp_client *client,
       if(scopes == NULL)
 	str_len = 0;
       else 
-	str_len = strlen(scopes);	  
+	str_len = (int16)strlen(scopes);	  
       if(len + 2 + str_len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, str_len, 0);
 	if(str_len) 
@@ -1633,7 +1633,7 @@ BOOL  srv_reg(struct slp_client *client,
 	if(attributes == NULL)
 	  str_len = 0;
 	else
-	  str_len = strlen(attributes);
+	  str_len = (int16)strlen(attributes);
 	if(len + 2 + str_len < LSLP_MTU) {
 	  _LSLP_SETSHORT(bptr, str_len, 0);
 	  if(str_len)
@@ -2044,11 +2044,11 @@ void __srv_reg_local ( struct slp_client *client,
     reg->url->url = url_copy;
     reg->url->lifetime = lifetime + time(NULL);
     reg->url->auths = 0;
-    reg->url->len = strlen(url_copy);
+    reg->url->len = (uint16)strlen(url_copy);
     reg->srvType = strdup(service_type);
-    len = strlen(scopes) + 1;
+    len = (int16)strlen(scopes) + 1;
     reg->scopeList  = lslpScopeStringToList(scope_copy, len);
-    len = strlen(attributes);
+    len = (int16)strlen(attributes);
     reg->attrList  = _lslpDecodeAttrString((int8 *)attributes);
     _LSLP_INSERT(reg, (lslpSrvRegList *)&(client->regs));
   }
@@ -2124,7 +2124,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
     return NULL;
   }
   
-  len = strlen(scope_copy) + 1;
+  len = (int16)strlen(scope_copy) + 1;
   client->_spi = lslpScopeStringToList(scope_copy, len);
   free(scope_copy);
   scope_copy = strdup(scopes);
@@ -2132,7 +2132,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
     free(client);
     return NULL;
   }
-  len = strlen(scope_copy) + 1;
+  len = (int16)strlen(scope_copy) + 1;
   client->_scopes = lslpScopeStringToList(scope_copy, len);
   free(scope_copy);
 #ifdef NUCLEUS     //jeb
@@ -2575,8 +2575,8 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
 	  }
 	strcpy(*buf, attrs->name);
 	(*buf) += strlen(attrs->name); 
-	attrLen += strlen(attrs->name);
-	(*len) -= strlen(attrs->name);
+	attrLen += (int16)strlen(attrs->name);
+	(*len) -= (int16)strlen(attrs->name);
 	if (attrs->type != tag)
 	  {
 	    **buf = '='; 
@@ -2593,8 +2593,8 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
 	      {
 		strcpy(*buf, (attrs->val.stringVal));
 		(*buf) += strlen(attrs->val.stringVal); 
-		attrLen +=  strlen(attrs->val.stringVal);
-		(*len) -= strlen(attrs->val.stringVal);
+		attrLen +=  (int16)strlen(attrs->val.stringVal);
+		(*len) -= (int16)strlen(attrs->val.stringVal);
 		ccode = TRUE;
 	      }
 	    else
@@ -2604,9 +2604,9 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
 	    if (attrLen + 33 + 2 < *len)
 	      {
 		_itoa( attrs->val.intVal, *buf, 10 );
-		attrLen += strlen(*buf);
+		attrLen += (int16)strlen(*buf);
 		(*buf) += strlen(*buf);
-		(*len) -= strlen(*buf);
+		(*len) -= (int16)strlen(*buf);
 		ccode = TRUE;
 	      }
 	    else
@@ -2619,9 +2619,9 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
 		  strcpy(*buf, "TRUE");
 		else
 		  strcpy(*buf, "FALSE");
-		attrLen += strlen(*buf);
+		attrLen += (int16)strlen(*buf);
 		(*buf) += strlen(*buf);
-		(*len) -= strlen(*buf);
+		(*len) -= (int16)strlen(*buf);
 		ccode = TRUE;
 	      }
 	    else
@@ -2777,7 +2777,7 @@ BOOL  lslpStuffURL(int8 **buf, int16 *len, lslpURL *url)
   (*buf) += sizeof(int8);
   _LSLP_SETSHORT(*buf, url->lifetime - time(NULL), 0);
   (*buf) += sizeof(int16);
-  url->len = strlen(url->url);
+  url->len = (uint16)strlen(url->url);
   /* url->url is a null terminated string, but we only stuff the non-null bytes */
   _LSLP_SETSHORT(*buf, url->len, 0);
 
@@ -2901,7 +2901,7 @@ BOOL lslpEvaluateAttributes(const lslpAttrList *filter, const lslpAttrList *regi
       return(lslpEvaluateOperation(memcmp(registered->val.stringVal, 
 					  filter->val.stringVal, 
 					  _LSLP_MIN(registered->attr_len, 
-						    strlen(filter->val.stringVal))), op));
+						    (int32)strlen(filter->val.stringVal))), op));
     } else {
       if( TRUE == lslp_pattern_match(registered->val.stringVal, 
 				     filter->val.stringVal, 
@@ -3058,7 +3058,7 @@ BOOL lslpStuffScopeList(int8 **buf, int16 *len, lslpScopeList *list)
 	  ccode = TRUE;
 	  strcpy(*buf, scopes->scope);
 	  (*buf) += strlen(scopes->scope); 
-	  scopeLen += strlen(scopes->scope) ;
+	  scopeLen += (int16)strlen(scopes->scope) ;
 	  if (! _LSLP_IS_HEAD(scopes->next) )
 	    {
 	      **buf = ','; 
@@ -3881,7 +3881,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	_LSLP_SETSHORT(temp_rply->urlList, temp_rply->errCode, 0);
 	_LSLP_SETSHORT(temp_rply->urlList, temp_rply->urlCount, 2);
 	/* resize to the actual size needed */
-	temp_rply->urlLen = (buf - temp_rply->urlList) ;
+	temp_rply->urlLen = (uint16)(buf - temp_rply->urlList) ;
       } /* if we alloced our buffer */
     } /* if we need to look for matches */
     else {

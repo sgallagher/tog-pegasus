@@ -50,16 +50,28 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
+#ifdef _WIN32
+#define HAVE_UNISTD_H 0
+#else
 #define HAVE_UNISTD_H 1
+#endif
 
 /* OK to #include /linux/if.h */
 #define HAVE_IF_H 1
 
 /* Target Operation System */
+#ifdef _WIN32
+#define HOST_OS "Windows"
+#else
 #define HOST_OS "Linux"
+#endif
 
 /* Portability Header */
+#ifdef _WIN32
+#define OS_PORT_INCLUDE "lslp-windows.h"
+#else
 #define OS_PORT_INCLUDE "lslp-linux.h"
+#endif
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "lslp-bugs@lists.sourceforge.net"

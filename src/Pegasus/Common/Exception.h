@@ -94,6 +94,26 @@ public:
 	    throw AssertionFailureException(__FILE__, __LINE__, #COND); \
 	} \
     } while (0)
+    
+/* Macro to Create the equivalent of an assert but without the
+   termination.  This can be used as a temporary marker for asserts
+   that are not working.  Prints out the error but continues.
+   NOTE: This is useful in test programs to keep us aware that we
+   have problems without halting the test sequence.
+   This was created primarily to put temporary asserts into tests that
+   are not yet working correctly but will not stop the test sequence.
+*/
+#define ASSERTTEMP(COND) \
+    do \
+    { \
+	if (!(COND)) \
+	{ \
+	    cerr << "TEMP Assert Error TEMP **********"	\
+		<<__FILE__ << " " << __LINE__ \
+		<< " " << #COND << endl; \
+	} \
+    } while (0)
+
 
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE BadReference : public Exception

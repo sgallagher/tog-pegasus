@@ -80,6 +80,7 @@ SOURCES = \
     Sharable.cpp \
     Socket.cpp \
     Stack.cpp \
+    StatisticalData.cpp \
     Stopwatch.cpp \
     String.cpp \
     System.cpp \

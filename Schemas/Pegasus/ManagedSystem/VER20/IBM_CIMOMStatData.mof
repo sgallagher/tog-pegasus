@@ -1,0 +1,112 @@
+// ==================================================================
+//    StatisticalData
+// ==================================================================
+    [Abstract, Description (
+     "CIM_StatisticalData is a root class for any arbitrary "
+     "collection of statistical data and/or metrics applicable to "
+     "one or more ManagedElements.  These statistics MUST "
+     "represent the most recent observations and MUST NOT be "
+     "provided if irrelevant or stale.") ]
+class IBM_StatisticalData : CIM_ManagedElement {
+
+    [Key, Description(
+        "InstanceID opaquely identifies a unique instance of "
+        "StatisticalData.  The InstanceID must be unique within a namespace. "
+        "In order to ensure uniqueness, the value of InstanceID "
+        "SHOULD be constructed in the following manner:  \n"
+        "<Vendor ID><ID> \n"
+        "   <Vendor ID> MUST include a copyrighted, trademarked "
+        "or otherwise unique name that is owned by the business entity or a "
+        "registered ID that is assigned to the business entity that is defining "
+        "the InstanceID. (This is similar to the <Schema Name>_<Class Name> "
+        "structure of Schema class names.) The purpose of <Vendor ID> "
+        "is to ensure that <ID> is truly unique across multiple "
+        "vendor implementations.   If such a name is not "
+        "used, the defining entity MUST assure that the <ID> "
+        "portion of the Instance ID is unique when compared with "
+        "other instance providers. For DMTF defined instances, the "
+        "<Vendor ID> is 'CIM'. \n"
+        "   <ID> MUST include a vendor specified unique "
+        "identifier.") ]
+    string InstanceID;
+
+    [Required, Description (
+        "The user friendly name for this instance of StatisticalData. "
+        "In addition, the user friendly name can be used as a "
+        "index property for a search of query.  (Note:  Name "
+        "does not have to be unique within a namespace.)") ]
+    string Name;
+
+    [Description (
+       "Method to reset one or more of the instance's statistics. "
+       "The method takes one parameter as input an array of "
+       "strings indicating which statistics to reset. If all the "
+       "statistics in the instance should be reset, the first "
+       "element of the array MUST be set to \"All\" or \"ALL\".  "
+       "If one or more individual statistics should be reset, the "
+       "corresponding property names are entered into the "
+       "elements of the array. \n"
+       "The method returns 0 if successful, 1 if not supported, and "
+       "any other value if an error occurred. A method is specified "
+       "so that the StatisticalInformation's provider/instrumentation, "
+       "which calculates the statistics, can reset its internal "
+       "processing, counters, etc. \n"
+       "In a subclass, the set of possible return codes could be "
+       "specified, using a ValueMap qualifier on the method. The "
+       "strings to which the ValueMap contents are 'translated' "
+       "may also be specified in the subclass as a Values "
+       "array qualifier.") ]
+   uint32 ResetSelectedStats ([IN] string SelectedStatistics[]);
+};
+
+
+
+
+[Description (
+    "Performance statistics for the CIMOM itself. Each object "
+    "provides basic performance statistics for a particular "
+    "CIM client request type. The statistics data reflects the most "
+    "current operations done by all clients of this CIMOM. "
+    "There is no reset operation supported "
+    "for the statistics, so the counters wrap around and a client "
+    "needs to calculate the differences of two snapshots of the statistics "
+    "for the time interval of interest."),
+    Provider("IBM_CIMOMStatDataProvider") ]
+class IBM_CIMOMStatData : IBM_StatisticalData
+{
+    [Description ("A string identifying the type of CIM client request this "
+     "object represents.")]
+    uint16 requestType;
+
+    [Description ("The number of CIM client requests of this request type. "
+     "This value can be used to calculate average values from "
+     "the total values in this object."),
+     Counter ]
+    uint64 NumberOfRequests;
+
+    [Description ("The accumulated (total) elapsed times spent in the CIMOM "
+     "for all the requests described by this object."),
+     Counter, Units("MicroSeconds") ]
+    uint64 TotalCimomTime;
+
+    [Description ("The accumulated (total) elapsed times spent in the providers "
+     "and the instrumentation behind the providers "
+     "for all the requests described by this object."),
+     Counter, Units("MicroSeconds") ]
+    uint64 TotalProviderTime;
+
+    [Description ("The accumulated (total) size of the requests described by "
+     "this object. Any transport protocol overhead is included, "
+     "i.e. for the CIM operations over HTTP protocol, the size used "
+     "is the HTTP payload plus the HTTP protocol."),
+     Counter, Units("Bytes") ]
+    uint64 TotalRequestSize;
+
+    [Description ("The accumulated (total) size of the responses belonging to "
+     "the requests described by "
+     "this object. Any transport protocol overhead is included, "
+     "i.e. for the CIM operations over HTTP protocol, the size used "
+     "is the HTTP payload plus the HTTP protocol."),
+     Counter, Units("Bytes") ]
+    uint64 TotalResponseSize;
+};

@@ -1,0 +1,32 @@
+#pragma locale ("en_US")
+
+// physical provider
+instance of PG_ProviderModule
+{
+   Name = "IBM_CIMOMStatDataProviderModule";
+   Location = "IBM_CIMOMStatDataProvider";
+   Vendor = "IBM";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
+};
+
+// logical provider
+instance of PG_Provider
+{
+    ProviderModuleName = "IBM_CIMOMStatDataProviderModule";
+    Name = "IBM_CIMOMStatDataProvider";
+};
+
+// logical provider capabilities
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "IBM_CIMOMStatDataProviderModule";
+    ProviderName = "IBM_CIMOMStatDataProvider";
+    CapabilityID = "1";
+    ClassName = "IBM_CIMOMStatData";
+    Namespaces[] = { "root/cimv2" };
+    ProviderType[] = { 2 };
+    SupportedProperties[] = NULL; // All properties
+    SupportedMethods[] = NULL; // All methods
+};

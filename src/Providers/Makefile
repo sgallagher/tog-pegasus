@@ -9,6 +9,7 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     generic \
     ManagedSystem \
+    statistic \
 	sample
 
 # ATTN: Comment this out: it was breaking the build:

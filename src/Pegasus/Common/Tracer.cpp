@@ -113,9 +113,7 @@ void Tracer::_trace(
 {
     if ( traceLevel == LEVEL1 )
     {
-	// ATTN: Setting the Log file type to DEBUG_LOG
-	// May need to change to an appropriate log file type
-	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {
@@ -141,7 +139,7 @@ void Tracer::_trace(
 
     if ( traceLevel == LEVEL1 )
     {
-	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {
@@ -178,7 +176,7 @@ void Tracer::_traceBuffer(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {
@@ -207,7 +205,7 @@ void Tracer::_traceBuffer(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {
@@ -234,7 +232,7 @@ void Tracer::_traceString(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {
@@ -259,7 +257,7 @@ void Tracer::_traceString(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {
@@ -281,7 +279,7 @@ void Tracer::_traceCIMException(
 {
     if ( traceLevel == LEVEL1 )
     {
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0", _LOG_MSG);
+        trace( traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG );
     }
     else
     {

@@ -142,7 +142,7 @@ CIMClass CIMOMHandle::getClass(
        
     }
        cb_data->client_sem.wait();
-       AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->reply) ;
+       AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
        CIMGetClassResponseMessage * response =
 	  reinterpret_cast<CIMGetClassResponseMessage *>(
 	     (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
@@ -386,7 +386,7 @@ CIMInstance CIMOMHandle::getInstance(
     }
     
     cb_data->client_sem.wait();
-    AsyncReply *asyncReply = static_cast<AsyncReply *>(cb_data->reply);
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(cb_data->get_reply());
     
     // send request and wait for response 
     // <<< Wed Apr 10 20:24:22 2002 mdd >>>
@@ -483,7 +483,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     }
     
     cb_data->client_sem.wait();
-    AsyncReply *asyncReply = static_cast<AsyncReply *>(cb_data->reply);
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(cb_data->get_reply());
     
     // decode response
     CIMEnumerateInstancesResponseMessage * response =
@@ -573,7 +573,7 @@ Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
     // <<< Wed Apr 10 20:30:31 2002 mdd >>>
     // AsyncReply * asyncReply = _service->SendWait(asyncRequest);
     
-    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->reply);
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply());
     // decode response
     CIMEnumerateInstanceNamesResponseMessage * response =
        reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(

@@ -67,6 +67,14 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	    {
 	       delete reply;
 	    }
+	    
+	    Message *get_reply(void) 
+	    {
+	       Message *ret = reply;
+	       reply = NULL;
+	       return ret;
+	    }
+	    
 	 private:
 	    callback_data(void);
       };

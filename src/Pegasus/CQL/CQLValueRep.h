@@ -83,7 +83,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
     /**  Initializes object as a string.
        */
 
-    CQLValueRep(){}
+    CQLValueRep();
     ~CQLValueRep();
     CQLValueRep(const CQLValueRep* val);
     CQLValueRep(String inString, NumericType inValueType,

@@ -48,15 +48,20 @@ PEGASUS_USING_STD;
 
 
 #define CIMTYPE_EMBEDDED 15  //temporary
+
+CQLValueRep::CQLValueRep()
+{
+	_theValue._S = NULL;
+}
 CQLValueRep::~CQLValueRep()
 {
-   
    switch(_valueType)
    {
       case String_type: 
       { 
-         if(_theValue._S != NULL)
+         if(_theValue._S != NULL){
             delete _theValue._S;
+	}
          _theValue._S = NULL;  
          break;
       }

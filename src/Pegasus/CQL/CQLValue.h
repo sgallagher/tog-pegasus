@@ -79,7 +79,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
     /**  Initializes object as a string.
        */
 
-    CQLValue(){}
+    CQLValue();
     ~CQLValue();
     CQLValue(const CQLValue& val);
     CQLValue(String inString, NumericType inValueType,

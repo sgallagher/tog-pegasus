@@ -48,6 +48,11 @@ PEGASUS_USING_STD;
 
 
 #define CIMTYPE_EMBEDDED 15  //temporary
+CQLValue::CQLValue()
+{
+	_rep = new CQLValueRep();
+}
+
 CQLValue::~CQLValue()
 {
    if(_rep)
@@ -131,6 +136,7 @@ CQLValue& CQLValue::operator=(const CQLValue& rhs)
 	if(&rhs != this)
    {
 		if(_rep) delete _rep;
+		_rep = NULL;
 		_rep = new CQLValueRep(rhs._rep);
 	}
 	return *this;

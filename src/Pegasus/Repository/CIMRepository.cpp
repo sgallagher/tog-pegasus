@@ -52,6 +52,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/CommonUTF.h>
 
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
@@ -2938,9 +2939,15 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     for (Uint32 i = 0; i < qualifierNames.size(); i++)
     {
-        CIMQualifierDecl qualifier =
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+      CIMQualifierDecl qualifier =
+            _getQualifier(nameSpace, escapeStringDecoder(qualifierNames[i]));
+#else     
+      CIMQualifierDecl qualifier =
             _getQualifier(nameSpace, qualifierNames[i]);
-        qualifiers.append(qualifier);
+#endif
+      qualifiers.append(qualifier);
     }
 
     PEG_METHOD_EXIT();

@@ -34,6 +34,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include "InheritanceTree.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -268,7 +269,12 @@ void InheritanceTree::insertFromPath(const String& path)
 	if (superClassName == "#")
 	    superClassName.clear();
 
-	insert(className, superClassName);
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+	insert(escapeStringDecoder(className),
+	       escapeStringDecoder(superClassName));
+#else
+	insert(className,superClassName);
+#endif
     }
 }
 

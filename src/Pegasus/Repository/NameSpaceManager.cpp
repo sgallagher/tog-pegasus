@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include "NameSpaceManager.h"
 
 PEGASUS_USING_STD;
@@ -70,8 +71,12 @@ static String _namespaceNameToDirName(const CIMNamespaceName& namespaceName)
             dirName[i] = '#';
         }
     }
-
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(dirName);
+#else
     return dirName;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,8 +96,12 @@ static String _dirNameToNamespaceName(const String& dirName)
             namespaceName[i] = '/';
         }
     }
-
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringDecoder(namespaceName);
+#else
     return namespaceName;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,25 +115,30 @@ static inline String _MakeClassFilePath(
     const CIMName& className,
     const CIMName& superClassName)
 {
+    String returnString;
     if (!superClassName.isNull())
     {
-        String returnString(nameSpacePath);
+        returnString.assign(nameSpacePath);
         returnString.append(_CLASSES_SUFFIX);
         returnString.append('/');
         returnString.append(className.getString());
         returnString.append('.');
         returnString.append(superClassName.getString());
-        return returnString;
     }
     else
     {
-        String returnString(nameSpacePath);
+        returnString.assign(nameSpacePath);
         returnString.append(_CLASSES_SUFFIX);
         returnString.append('/');
         returnString.append(className.getString());
         returnString.append(".#");
-        return returnString;
     }
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(returnString);
+#else
+    return returnString;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +155,13 @@ static inline String _MakeQualifierFilePath(
     returnString.append(_QUALIFIERS_SUFFIX);
     returnString.append('/');
     returnString.append(qualifierName.getString());
+
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(returnString);
+#else
     return returnString;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +178,13 @@ static inline String _MakeInstanceDataFileBase(
     returnString.append(_INSTANCES_SUFFIX);
     returnString.append('/');
     returnString.append(className.getString());
+
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(returnString);
+#else
     return returnString;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +228,7 @@ NameSpace::NameSpace(const String& nameSpacePath,
                      const CIMNamespaceName& nameSpaceName)
     : _nameSpacePath(nameSpacePath), _nameSpaceName(nameSpaceName)
 {
-    _inheritanceTree.insertFromPath(nameSpacePath + "/classes");
+    _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
 }
 
 NameSpace::~NameSpace()
@@ -408,6 +434,17 @@ void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName)
             (CIM_ERR_ALREADY_EXISTS, nameSpaceName.getString());
     }
 
+#ifndef PEGASUS_SUPPORT_UTF8_FILENAME
+    // Do not allow file names to contain characters outsie of 7-bit ascii.
+    String tmp = nameSpaceName.getString();
+    Uint32 len = tmp.size();
+    for(Uint32 i = 0; i < len; ++i)
+	if((Uint16)tmp[i] > 0x007F)
+	    throw PEGASUS_CIM_EXCEPTION
+		(CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+#endif
+
+
     // Attempt to create all the namespace diretories:
 
     String nameSpaceDirName = _namespaceNameToDirName(nameSpaceName);
@@ -540,6 +577,16 @@ String NameSpaceManager::getQualifierFilePath(
             (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
 
+#ifndef PEGASUS_SUPPORT_UTF8_FILENAME
+    // Do not allow file names to contain characters outsie of 7-bit ascii.
+    String tmp = qualifierName.getString();
+    Uint32 len = tmp.size();
+    for(Uint32 i = 0; i < len; ++i)
+	if((Uint16)tmp[i] > 0x007F)
+	    throw PEGASUS_CIM_EXCEPTION
+		(CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+#endif
+
     PEG_METHOD_EXIT();
     return nameSpace->getQualifierFilePath(qualifierName);
 }
@@ -633,6 +680,17 @@ void NameSpaceManager::createClass(
 	throw PEGASUS_CIM_EXCEPTION
             (CIM_ERR_INVALID_SUPERCLASS, superClassName.getString());
     }
+
+#ifndef PEGASUS_SUPPORT_UTF8_FILENAME
+    // Do not allow file names to contain characters outsie of 7-bit ascii.
+    String tmp = className.getString();
+    Uint32 len = tmp.size();
+    for(Uint32 i = 0; i < len; ++i)
+	if((Uint16)tmp[i] > 0x007F)
+	    throw PEGASUS_CIM_EXCEPTION
+		(CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+#endif
+
 
     // -- Insert the entry:
 

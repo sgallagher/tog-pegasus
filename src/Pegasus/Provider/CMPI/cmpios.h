@@ -48,7 +48,7 @@ struct timespec {
 
 #elif defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
    #define CMPI_THREAD_CDECL    __cdecl
-   #define CMPI_THREAD_KEY_TYPE unsigned long long
+   #define CMPI_THREAD_KEY_TYPE  pthread_key_t
 
 #else
    #define CMPI_THREAD_CDECL

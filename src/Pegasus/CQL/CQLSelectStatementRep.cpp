@@ -35,12 +35,15 @@
 #include "CQLSelectStatement.h"
 #include "CQLSelectStatementRep.h"
 
+#include <iostream>
+
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "CQLValue.h"
 #include "CQLIdentifier.h"
 #include "CQLChainedIdentifier.h"
@@ -59,9 +62,11 @@ struct PropertyNode
 {
   CIMName name;
   Boolean wildcard;
-  PropertyNode * parent;
-  PropertyNode * sibling;
-  PropertyNode * firstChild;
+  AutoPtr<PropertyNode> sibling;
+  AutoPtr<PropertyNode> firstChild;
+
+  PropertyNode() {/*PEGASUS_STD(cout) << "new " << this << PEGASUS_STD(endl);*/}
+  ~PropertyNode() {/*PEGASUS_STD(cout) << "delete " << this << PEGASUS_STD(endl);*/}
 };
 
 
@@ -127,10 +132,10 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 {
   // assumes that applyContext had been called.
 
-  PropertyNode* rootNode = new PropertyNode;
+  AutoPtr<PropertyNode> rootNode(new PropertyNode);
   Array<CQLIdentifier> fromList = _ctx->getFromList();
   rootNode->name = fromList[0].getName();  // not doing joins
-  
+
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
     CQLValue val(_selectIdentifiers[i]);
@@ -152,10 +157,11 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
 // ATTN: UNCOMMENT when API is available
     CQLChainedIdentifier normalizedId; // = val.getNormalizedIdentifier(inCI, *_ctx);
+
     Array<CQLIdentifier> ids = normalizedId.getSubIdentifiers();
 
-    PropertyNode * curNode = rootNode;
-    PropertyNode * curChild = curNode->firstChild;
+    PropertyNode * curNode = rootNode.get();
+    PropertyNode * curChild = curNode->firstChild.get();
 
     for (Uint32 j = 1; j < ids.size(); j++)
     {
@@ -174,32 +180,51 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 	}
 	else
         {
-	  curChild = curChild->sibling;
+	  curChild = curChild->sibling.get();
 	}
       }
 
       if (!found)
       {
+	/*
+	PEGASUS_STD(cout) << "adding-" << ids[j].getName().getString() 
+			  << PEGASUS_STD(endl);
+	PEGASUS_STD(cout) << "parent is -" << curNode->name.getString() << PEGASUS_STD(endl);
+	if (curNode->firstChild.get() != NULL)
+	  PEGASUS_STD(cout) << "sibling is -" << curNode->firstChild->name.getString()
+			    << PEGASUS_STD(endl);
+	*/
 	curChild = new PropertyNode;
-	curChild->parent = curNode;
 	curChild->sibling = curNode->firstChild;
 	curChild->name = ids[j].getName();
-	curNode->firstChild = curChild;
-	curNode->wildcard = false;
+	curChild->wildcard = false;
+	curNode->firstChild.reset(curChild);  // safer than using the = operator
       }
 
       curNode = curChild;
-      curChild = curNode->firstChild;
+      curChild = curNode->firstChild.get();
     }
   }
 
   Array<CIMName> requiredProps;
 
-  PropertyNode* projNode = rootNode->firstChild;
+  PropertyNode* projNode = rootNode->firstChild.get();
   while (projNode != NULL)
   {
-    if (!projNode->wildcard && !(projNode->firstChild == NULL))
+    /*
+    PEGASUS_STD(cout) << "applying to  " << projNode->name.getString() 
+		      << PEGASUS_STD(endl);
+    if (projNode->wildcard)     
+      PEGASUS_STD(cout) << "is wildcard "  << PEGASUS_STD(endl);
+    */
+
+    if (!projNode->wildcard && !(projNode->firstChild.get() == NULL))
     {
+      /*
+      PEGASUS_STD(cout) << "has first child  " << projNode->firstChild->name.getString()
+			<< PEGASUS_STD(endl);
+      */
+
       Uint32 index = inCI.findProperty(projNode->name);
       CIMProperty projProp = inCI.getProperty(index);
       inCI.removeProperty(index);
@@ -216,23 +241,19 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
     if (!projNode->wildcard)
       requiredProps.append(projNode->name);   
  
-    projNode = projNode->sibling;
+    projNode = projNode->sibling.get();
   }
 
   if (!projNode->wildcard)
     removeUnneededProperties(inCI, requiredProps);
-
-  // ATTN delete the tree  
-
 }
 
 void CQLSelectStatementRep::applyProjection(PropertyNode* node,
 					    CIMProperty& nodeProp)
 {
-  if (node->wildcard)
-    return;
+PEGASUS_STD(cout) << "applying to " << node->name.getString() << PEGASUS_STD(endl);
 
-  PEGASUS_ASSERT(node->firstChild != NULL);
+  PEGASUS_ASSERT(node->firstChild.get() != NULL);
 
   CIMInstance nodeInst;
   CIMValue nodeVal = nodeProp.getValue();
@@ -242,11 +263,18 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
 
   Array<CIMName> requiredProps;
 
-  PropertyNode * curChild = node->firstChild;
+  PropertyNode * curChild = node->firstChild.get();
   while (curChild != NULL)
   {
-    if (curChild->firstChild != NULL)
+    // PEGASUS_STD(cout) << "has child  " << curChild->name.getString() << PEGASUS_STD(endl);
+
+    if (curChild->firstChild.get() != NULL)
     {
+      /*
+      PEGASUS_STD(cout) << "child has first child  " << 
+	curChild->firstChild->name.getString() << PEGASUS_STD(endl);
+      */
+
       Uint32 index = nodeInst.findProperty(curChild->name);
       CIMProperty childProp = nodeInst.getProperty(index); 
       nodeInst.removeProperty(index);
@@ -258,11 +286,15 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
     // in basic, and if so, then it would cause a property type change.  
     // Line 461.  May need to call CQLValue to figure this out.
 
-    requiredProps.append(curChild->name);
+    if (!node->wildcard)
+    {
+      requiredProps.append(curChild->name);
+    }
 
-    curChild = curChild->sibling;
+    curChild = curChild->sibling.get();
   }
 
+if (!node->wildcard)
   removeUnneededProperties(nodeInst, requiredProps);
 
 // ATTN - UNCOMMENT when emb objs are supported

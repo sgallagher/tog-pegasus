@@ -55,7 +55,7 @@ void IndicationProvider::enableIndications(ResponseHandler<CIMIndication> & hand
 {
     handler.processing();
 
-    CIMIndication cimIndication("root/SampleProvider:Sample_IndicationProviderClass");
+    CIMIndication cimIndication(CIMInstance("root/SampleProvider:Sample_IndicationProviderClass"));
 
     handler.deliver(cimIndication);
 }

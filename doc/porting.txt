@@ -33,20 +33,3 @@ Notes on IBM compiler on z/OS:
 
     CAVEAT: Since dynamic_cast isn't supported, Provider2 cannot be compiled at
             the moment !
-
-Notes for Mac OS X (10.2.X or Higher) :
-
-   gcc version 3.3.
-
-   use gnutar for extracting pegasus source on Mac OS X.
-
-   Used dynamic libraries for g++.
-
-   Add -dynamiclib -fPIC to compiler line.
-
-   to be able to build Pegasus, dlcompat needed to be installed on Mac OS X.
-   dlcomapt is available  from :
-
-   http://www.opendarwin.org/projects/dlcompat/
-
-

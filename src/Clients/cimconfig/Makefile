@@ -11,11 +11,20 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegcliutils$(LIB_SUFFIX)
 
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+DYNAMIC_LIBRARIES = \
+    $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x \
+    $(LIB_DIR)/$(LIB_PREFIX)pegconfig.x \
+    $(LIB_DIR)/$(LIB_PREFIX)peggetoopt.x \
+    $(LIB_DIR)/$(LIB_PREFIX)pegclient.x \
+    $(LIB_DIR)/$(LIB_PREFIX)pegcliutils.x
+else
 DYNAMIC_LIBRARIES += -lpegcommon \
 -lpegconfig \
 -lpeggetoopt \
 -lpegclient \
 -lpegcliutils
+endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

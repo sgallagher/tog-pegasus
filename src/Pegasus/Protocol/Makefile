@@ -1,12 +1,12 @@
-ROOT = ../../..
+ROOT=../../..
 
-DIR = Pegasus/Provider
+DIR = Pegasus/Protocol
 
 include $(ROOT)/mak/config.mak
 
-INCLUDES = -I..
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL 
+LOCAL_DEFINES = -DPEGASUS_PROTOCOL_INTERNAL 
 
 LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
@@ -16,8 +16,12 @@ else
  DYNAMIC_LIBRARIES = -lpegcommon
 endif
 
-LIBRARY = pegprovider
+LIBRARY = pegprotocol
 
-SOURCES = CIMProvider.cpp 
+PRE_DEPEND_INCLUDES = -I./depends
+
+SOURCES = Handler.cpp 
+
+OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak

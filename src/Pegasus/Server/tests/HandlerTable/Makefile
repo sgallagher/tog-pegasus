@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Handler/tests/HandlerTable
+DIR = Pegasus/Server/tests/HandlerTable
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

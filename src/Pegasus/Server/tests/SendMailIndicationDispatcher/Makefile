@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Handler/tests/SendMailIndicationDispatcher
+DIR = Pegasus/Server/tests/SendMailIndicationDispatcher
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

@@ -33,71 +33,77 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CGIUtils_h
-#define Pegasus_CGIUtils_h
+#include <cassert>
+#include "CGIQueryString.h"
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Linkage.h>
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
+////////////////////////////////////////////////////////////////////////////////
+//
+// Example input:
+//     NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true
+//
+////////////////////////////////////////////////////////////////////////////////
 
-struct CGIQueryStringEntry
+int main(int argc, char** argv)
 {
-    char *name;
-    char *value;
+    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
-    ~CGIQueryStringEntry() { }
-};
+	char* input = 0;
+    char defaultInput[] = "NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true";
 
-/** The CGIQueryString class is used to parse and extract the fields from
-    the CGI QUERY_STRING environment variable which is set by the Web Server
-    and passed to the CGI program. The value of that environment variable
-    may be passed to the constructor. Methods are provided for getting the
-    names and values of each field.
+    if (argc != 2)
+	input = defaultInput;
+    else
+	input = argv[1];
 
-    For the format of a query string, see a book on CGI.
-*/
-class PEGASUS_COMMON_LINKAGE CGIQueryString
-{
-public:
+    CGIQueryString qs(input);
 
-    /// Constructs from the value of the QUERY_STRING environment variable.
-    CGIQueryString(char* queryString);
+	if(verbose) {
+		for (Uint32 i = 0; i < qs.getCount(); i++)
+		{
+		cout << "name: " << qs.getName(i) << endl;
+		cout << "value: " << qs.getValue(i) << endl;
+		}
+	}
 
-    /// Returns the number of fields.
-    Uint32 getCount() const { return _entries.size(); }
-
-    /// Returns the name of the ith field.
-    const char* getName(Uint32 i) const { return _entries[i].name; }
-
-    /// Returns the value of the ith field.
-    const char* getValue(Uint32 i) const { return _entries[i].value; }
-
-    /// Returns the value of the field with the given name.
-    const char* findValue(const char* name) const;
-
-private:
-
-    Array<CGIQueryStringEntry> _entries;
-
-    static void _ParseCGIQueryString(
-	char* queryString, 
-	Array<CGIQueryStringEntry>& entries);
-
-public:
+    if (input == defaultInput)
+    {
+	assert(strcmp(qs.getName(0), "NameSpace") == 0);
+	assert(strcmp(qs.getValue(0), "root/cimv2") == 0);
+	assert(strcmp(qs.getName(1), "ClassName") == 0);
+	assert(strcmp(qs.getValue(1), "") == 0);
+	assert(strcmp(qs.getName(2), "LocalOnly") == 0);
+	assert(strcmp(qs.getValue(2), "true") == 0);
+    }
 
 
-};
+    // added instance name test ks July 2001
+    // added when correcting error in quoted fields.
+    {
+	char* input = 0;
+	char defaultInput[] =
+"InstanceName=person.name%3D%22mike%22&LocalOnly=true&PropertyList=NULL";
+	input = defaultInput;
 
-inline int operator==(
-    const CGIQueryStringEntry& x, 
-    const CGIQueryStringEntry& y)
-{
+	CGIQueryString qs(input);
+	if(verbose) {
+		for (Uint32 i = 0; i < qs.getCount(); i++)
+		{
+			cout << "name: " << qs.getName(i) << endl;
+			cout << "value: " << qs.getValue(i) << endl;
+		}
+
+	}
+
+    assert(strcmp(qs.getName(0), "InstanceName") == 0);
+    //KS Forgot how to excape the quote character
+    //assert(strcmp(qs.getValue(0), "person.name.""mike""") == 0);
+
+    }
+
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 }
 
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_CGIUtils_h */

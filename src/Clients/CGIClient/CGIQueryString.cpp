@@ -89,7 +89,7 @@ static void _ExpandCGIQueryValue(char* value)
     }
 }
 
-void CGIQueryString::_ParseCGIQueryString(
+void CGIQueryString::_parseCGIQueryString(
     char* queryString, 
     Array<CGIQueryStringEntry>& entries)
 {
@@ -129,7 +129,7 @@ void CGIQueryString::_ParseCGIQueryString(
 
 CGIQueryString::CGIQueryString(char* queryString)
 {
-    _ParseCGIQueryString(queryString, _entries);
+    _parseCGIQueryString(queryString, _entries);
 }
 
 const char* CGIQueryString::findValue(const char* name) const

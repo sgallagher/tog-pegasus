@@ -6,7 +6,6 @@ DIRS = \
     Array \
     AutoPtr \
     Base64 \
-    CGIQueryString \
     ClassDecl \
     Compare \
     Config \

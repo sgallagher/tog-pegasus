@@ -9,7 +9,10 @@ include ../libraries.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = CGIClient
-SOURCES = CGIClient.cpp
+
+SOURCES = \
+    CGIQueryString.cpp \
+    CGIClient.cpp
 
 include $(ROOT)/mak/program.mak
 

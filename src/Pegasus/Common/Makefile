@@ -32,7 +32,6 @@ SOURCES = \
     AcceptLanguages.cpp \
     ContentLanguages.cpp \
     MessageLoader.cpp \
-    CGIQueryString.cpp \
     Char16.cpp \
     CIMClass.cpp \
     CIMClassRep.cpp \

@@ -54,18 +54,19 @@ This Program was intended to be a test and demonstration tool for
 Pegasus.
 */
 
-#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <cctype>
 #include <cstdlib>
 #include <cstdio>
-#include <Pegasus/Common/CGIQueryString.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMMethod.h>
+
+#include "CGIQueryString.h"
 
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)

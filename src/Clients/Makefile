@@ -4,7 +4,8 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     CLITestClients \
-        CGIClient \
+    CGIClient \
+    CGIClient/tests \
     TestClient \
     cliutils \
     cimconfig \

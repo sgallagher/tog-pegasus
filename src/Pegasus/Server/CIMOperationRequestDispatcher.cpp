@@ -1923,19 +1923,30 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
     // normalize responses
     for(Uint32 i = 0, n = toResponse->cimNamedInstances.size(); i < n; i++)
     {
+        CIMInstance cimInstance = toResponse->cimNamedInstances[i];
+
+        // update the namespace and class name elements in the object's embedded object path as
+        // as the normalizer expects.
+        CIMObjectPath objectPath = cimInstance.getPath();
+
+        objectPath.setNameSpace(request->nameSpace);           // get from request
+        objectPath.setClassName(cimInstance.getClassName());// get from object
+
+        cimInstance.setPath(objectPath);
+
         try
         {
             // normalize instance
-            CIMInstance cimInstance =
+            CIMInstance normalizedInstance =
                 _normalizer.normalizeInstance(
-                    toResponse->cimNamedInstances[i],
+                    cimInstance,
                     request->localOnly,
                     request->includeQualifiers,
                     request->includeClassOrigin,
                     request->propertyList);
 
             // replace existing instance
-            toResponse->cimNamedInstances[i] = cimInstance;
+            toResponse->cimNamedInstances[i] = normalizedInstance;
         }
         catch(...)
         {
@@ -1946,7 +1957,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
                 "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0",
                 toResponse->cimNamedInstances[i].getPath().toString());
 
-            toResponse->cimNamedInstances.remove(i);        }
+            toResponse->cimNamedInstances.remove(i);
+        }
     }
 
     PEG_METHOD_EXIT();

@@ -136,7 +136,13 @@ void SetEnvironmentVariables(
     const char* arg0)
 {
     cout << "PEGASUS_HOME is now " << arg0 << endl;
-    setenv("PEGASUS_HOME",arg0,0);
+
+    String str = "PEGASUS_HOME=";
+    str += arg0;
+    char* tmp = str.allocateCString();
+    putenv(tmp);
+
+    // Note: don't delete tmp! putenv ()uses it.
 }
 
 /** GetOptions function - This function defines the Options Table

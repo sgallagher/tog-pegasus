@@ -1135,8 +1135,9 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%llu",
-			propertyValueUint64[i]);
+		    sprintf(propertyValueBuffer, 
+			    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+			    propertyValueUint64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
 		    if ( i < arraySize-1)
@@ -1149,8 +1150,9 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%llu",
-		    propertyValueUint64[arrayIndex]);
+	        sprintf(propertyValueBuffer, 
+			"%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+		        propertyValueUint64[arrayIndex]);
 	        arrayValues = propertyValueBuffer;
 	    }
 
@@ -1267,8 +1269,9 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%lli",
-			propertyValueSint64[i]);
+		    sprintf(propertyValueBuffer, 
+                            "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                            propertyValueSint64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
 		    if ( i < arraySize-1)
@@ -1281,8 +1284,9 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%lli",
-		    propertyValueSint64[arrayIndex]);
+	        sprintf(propertyValueBuffer, 
+			"%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                        propertyValueSint64[arrayIndex]);
 	        arrayValues = propertyValueBuffer;
 	    }
 

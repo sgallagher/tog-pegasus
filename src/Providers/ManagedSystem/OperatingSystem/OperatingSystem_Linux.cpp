@@ -141,7 +141,7 @@ Boolean OperatingSystem::getDescription(String& description)
 {
 
    description.assign("This instance reflects the Operating System"
-        " on which the CIMOM is executing (as differentiated from instances"
+        " on which the CIMOM is executing (as distinguished from instances"
         " of other installed operating systems that could be run).");
 
    return true;
@@ -752,6 +752,12 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
 
    Invokes as via system system call, so have full checking of user's
    authorization (already authenticated by CIMOM)
+
+   Don't we want to do some additional cleanup before actually 
+   invoking the reboot command?  For example, we know the CIMOM is up
+   and running.  Perhaps set the OS state to 'Stopping' and do a 
+   graceful shutdown of the CIMOM (at least)?
+
    */
 Uint32 OperatingSystem::Reboot()
 {
@@ -792,6 +798,12 @@ Uint32 OperatingSystem::Reboot()
 
    Invokes as via system system call, so have full checking of user's
    authorization (already authenticated by CIMOM)
+
+
+   Don't we want to add some more cleanup - especially since we know
+   the CIMOM is running - this could cause things to be set into a
+   'Stopping' state while the OS cleans up before actually invoking
+   the poweroff command.
    */
 Uint32 OperatingSystem::Shutdown()
 {

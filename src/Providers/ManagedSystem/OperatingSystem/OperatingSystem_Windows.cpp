@@ -74,7 +74,7 @@ Boolean OperatingSystem::getDescription(String& description)
 {
 
     description.assign("This instance reflects the Operating System"
-        " on which the CIMOM is executing (as differentiated from instances"
+        " on which the CIMOM is executing (as distinguished from instances"
         " of other installed operating systems that could be run).");
 
    return true;

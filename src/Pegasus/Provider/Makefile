@@ -23,11 +23,7 @@ SOURCES = \
     CIMPropertyProvider.cpp \
     CIMQueryProvider.cpp \
     CIMAssociationProvider.cpp \
-    CIMNullProvider.cpp
-
-ifdef ENABLE_PROVIDER_MANAGER2
-SOURCES += \
+    CIMNullProvider.cpp \
     CIMInstanceQueryProvider.cpp
-endif
 
 include $(ROOT)/mak/library.mak

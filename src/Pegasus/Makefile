@@ -39,7 +39,6 @@ DIRS += \
 	ProviderManager/tests
 else
 DIRS += \
-        Provider/CMPI \
         ProviderManager2 \
 	ProviderManager2/Default \
 	ProviderManager2/ProviderAgent \
@@ -49,6 +48,7 @@ endif
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \
+        Provider/CMPI \
 	ProviderManager2/CMPI
 endif
 

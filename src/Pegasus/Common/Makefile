@@ -92,10 +92,6 @@ SOURCES += MT_MessageQueue.cpp
 endif
 endif
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-SOURCES += Signal.cpp CIMPredicate.cpp
-endif
-
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak

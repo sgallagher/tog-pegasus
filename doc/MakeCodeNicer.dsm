@@ -1,0 +1,894 @@
+Option Explicit
+
+'------------------------------------------------------------------------------
+'FILE DESCRIPTION: Routines to reformat C/C++ code.
+'------------------------------------------------------------------------------
+
+Sub MakeCodeNicer()
+'DESCRIPTION: Reformats the source code to look nicer, the way I like it.
+' Written by Alvaro Mendez on 06/10/1999
+' Taken from http://www.codeguru.com/devstudio_macros/MakeCodeNicer.shtml
+
+	' Check that the current document can be changed
+	if ActiveDocument.ReadOnly then
+
+		' If we're connected to SourceSafe, let it prompt for check out
+		ActiveDocument.Selection = "a"
+		ActiveDocument.Undo
+
+		if ActiveDocument.ReadOnly then		' check again
+			MsgBox "This macro cannot be executed on a read-only file.", _
+					vbExclamation
+			exit sub
+		end if
+	end if
+
+	' Save current line so we can return to it at the end
+	dim nLine
+	nLine = ActiveDocument.Selection.CurrentLine
+
+	' Add spaces in a few places and get rid of it in others
+	Replace "\:b+;", ";"
+	Replace "\:b+::\:b+", "::"
+	Replace "\:b+(", "("
+	Replace "if(", "if ("
+	Replace "for(", "for ("
+	Replace "while(", "while ("
+	Replace "switch(", "switch ("
+	Replace "catch(", "catch ("
+	Replace "return(", "return ("
+	Replace "(\:b+", "("
+	Replace "\:b+)", ")"
+	Replace ";)", "; )"
+	Replace ";;\:b+)", ";;)"
+	Replace "\[\:b+", "["
+	Replace "\:b+\]", "]"
+	Replace "\:b+\[", "["
+
+	' Make sure these statements don't end on the same line they started.
+	BreakSingleLiners "if ("
+	BreakSingleLiners "for ("
+	BreakSingleLiners "switch ("
+
+	' Break up any lines containing multiple statements
+	BreakLinesWithMultipleStatements
+
+	' Make sure braces are on lines by themselves (unless followed by comments)
+	IsolateOnLeft "{"
+	IsolateOnRight "{"
+	IsolateOnRight "}"
+	IsolateOnLeft "}"
+
+	' Break up case statements appearing on single lines
+	IsolateOnRight "case .+: "
+	IsolateOnLeft "break;"
+
+	' Add a space between these operators
+	FixOperator "=", 1
+	FixOperator "==", 2
+	FixOperator "!=", 2
+	FixOperator "\+=", 2
+	FixOperator "-=", 2
+	FixOperator "\*=", 2
+	FixOperator "/=", 2
+	FixOperator "\+", 1
+	FixOperator "-", 1
+	FixOperator "<=", 2
+	FixOperator ">=", 2
+	FixOperator "<<", 2
+	FixOperator ">>", 2
+	FixOperator "&&", 2
+	FixOperator "||", 2
+	FixOperator "|", 1
+	FixLessThanOperator
+	FixExponents
+
+	' Append a space after these
+	AppendSpace ","
+	AppendSpace ";"
+
+	' Make sure C++ comments (followed by words) have a space after them
+	while ActiveDocument.Selection.FindText("//[A-Z,a-z,0-9]", dsMatchRegExp)
+		ActiveDocument.Selection.CharRight
+		ActiveDocument.Selection.CharLeft
+		ActiveDocument.Selection = " "
+	wend
+
+	' Replace all the trailing whitespace  (thanks to Paul Bludov)
+	ActiveDocument.Selection.ReplaceText "\:b+\($\)", "\1", dsMatchRegExp
+
+	' Fix tabs within code surrounded by braces
+	TabifyMatchingBraces
+
+	' Remove any lines that are considered extraneous (ie. extra blank lines)
+	RemoveExtraneousLines
+
+	' Indent every "case" inside switch statements (thanks to Jim Cooper)
+	IndentSwitchBody
+
+	' Go back to where we were at the beginning
+	ActiveDocument.Selection.GoToLine nLine
+
+End Sub
+
+' Is the cursor currently within a quoted string (or character)
+function IsWithinQuotes
+	dim nCurrentLine, nCurrentColumn, iPos, strBuffer, nCount
+
+    nCurrentLine = ActiveDocument.Selection.CurrentLine
+    nCurrentColumn = ActiveDocument.Selection.CurrentColumn
+
+	ActiveDocument.Selection.Cancel
+	ActiveDocument.Selection.StartOfLine dsFirstText, dsExtend
+
+	nCount = 0
+	iPos = 0
+	strBuffer = ActiveDocument.Selection
+
+	' Count all occurrences of a double quote which apply to quoted strings
+	do while true
+		iPos = InStr(iPos + 1, strBuffer, """", vbTextCompare)
+		if not (iPos > 0) then
+			exit do
+		end if
+
+		if iPos = 1 then ' if it's the first character, then it's valid
+			nCount = nCount + 1
+		else
+			' Make sure it's not preceded by a \ or a \\
+			if Mid(strBuffer, iPos - 1, 1) <> "\" then
+				nCount = nCount + 1
+			elseif (iPos > 2) and (Mid(strBuffer, iPos - 2, 1) = "\") then
+				nCount = nCount + 1
+			end if
+		end if
+	loop
+
+	' If number of quotes is odd, we must be inside a quoted string!
+	IsWithinQuotes = ((nCount > 0) and ((nCount Mod 2) <> 0))
+
+	ActiveDocument.Selection.MoveTo nCurrentLine, nCurrentColumn
+
+	' If we're not inside a quoted string, check for a quoted character
+	if not IsWithinQuotes then
+		ActiveDocument.Selection.CharLeft dsExtend
+
+		' If we find a quoted character left of us, check for one on the right
+		if ActiveDocument.Selection = "'" then
+			ActiveDocument.Selection.CharRight
+			ActiveDocument.Selection.CharRight dsExtend
+			if ActiveDocument.Selection = "\" then
+				ActiveDocument.Selection.CharRight
+				ActiveDocument.Selection.CharRight dsExtend
+			end if
+			ActiveDocument.Selection.CharRight
+			ActiveDocument.Selection.CharRight dsExtend
+
+			if ActiveDocument.Selection = "'" then
+				IsWithinQuotes = true
+			end if
+		end if
+		ActiveDocument.Selection.MoveTo nCurrentLine, nCurrentColumn
+	end if
+
+	' If we're inside quotes, proceed from the next character
+	if IsWithinQuotes then
+		ActiveDocument.Selection.CharRight
+	end if
+
+end function
+
+' Is current selection preceded by a C++ comment? ("//")
+function IsWithinComment
+	dim nCurrentLine, nCurrentColumn
+
+    nCurrentLine = ActiveDocument.Selection.CurrentLine
+    nCurrentColumn = ActiveDocument.Selection.CurrentColumn
+
+	ActiveDocument.Selection.Cancel
+	ActiveDocument.Selection.StartOfLine dsFirstText, dsExtend
+
+	IsWithinComment = false
+	if (InStr(1, ActiveDocument.Selection, "//", vbTextCompare) > 0) then
+		IsWithinComment = true           ' since it's commented out
+		nCurrentLine = nCurrentLine + 1  ' we proceed from the next line
+	end if
+
+	ActiveDocument.Selection.MoveTo nCurrentLine, 1
+
+end function
+
+' Should the current selection be ignored?
+' (ie., is it within a comment or between quotes?)
+function ShouldIgnore
+
+	ShouldIgnore = false
+
+	if IsWithinQuotes then
+		ShouldIgnore = true
+		exit function
+	end if
+
+	if IsWithinComment then
+		ShouldIgnore = true
+	end if
+
+end function
+
+' Put the cursor at the top of the document and return "" to be passed
+' initially to GetCurrenPosition
+function InitializePosition
+	ActiveDocument.Selection.StartOfDocument
+	InitializePosition = ""
+end function
+
+' Retrieve the current position and return true if it's greater than the
+' last one. This is used to ensure that the file is only searched once
+' (provided the search is started from the top)
+function GetCurrentPosition(strPos)
+	dim nLastLine, nLastColumn, nCurrentLine, nCurrentColumn, iPos, ch
+
+	nLastLine = -1
+	nLastColumn = -1
+
+	nCurrentLine = ActiveDocument.Selection.CurrentLine
+	nCurrentColumn = ActiveDocument.Selection.CurrentColumn
+
+	' Parse the last position and extract the line and column
+	for iPos = 1 to Len(strPos)
+		ch = Mid(strPos, iPos, 1)
+		if ch = "," then
+			nLastLine = Int(Mid(strPos, 1, iPos))
+			nLastColumn = Int(Mid(strPos, iPos + 1))
+			exit for
+		end if
+	next
+
+	' Return true if we're currently past the last position
+	strPos = nCurrentLine & "," & nCurrentColumn
+	GetCurrentPosition = (nCurrentLine > nLastLine) or _
+		((nLastLine = nCurrentLine) and (nCurrentColumn > nLastColumn))
+
+end function
+
+' Move by a certain number of columns
+sub MoveByColumns(nBy)
+	ActiveDocument.Selection.MoveTo ActiveDocument.Selection.CurrentLine, _
+							ActiveDocument.Selection.CurrentColumn + nBy
+end sub
+
+' Replace the given strFrom with strTo case sensitively
+sub Replace(strFrom, strTo)
+	dim strLastPos, bContinue
+
+	strLastPos = InitializePosition
+	do while ActiveDocument.Selection.FindText(strFrom, _
+		dsMatchCase + dsMatchRegExp)
+
+		bContinue = GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at
+			' the beginning of the line
+			ActiveDocument.Selection.FindText strFrom, _
+				dsMatchCase + dsMatchRegExp
+			ActiveDocument.Selection = strTo
+
+		elseif not bContinue then
+			exit do
+		end if
+	loop
+
+end sub
+
+' Break the given str ending in (, so that instead of this:
+'   if (a) return b;
+' it looks like this:
+'   if (a)
+'       return b;
+sub BreakSingleLiners(str)
+	dim strLastPos, strFound, nCol, bBreak, strAfterFound
+
+	' Verify str ends in (, the beginning parenthesis
+	if Right(str, 1) <> "(" then
+		exit sub
+	end if
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText(str, dsMatchCase) and _
+			GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText str, dsMatchCase
+
+			' Find the matching brace and go to the end of the line
+			ActiveDocument.Selection.CharRight
+			ActiveDocument.Selection.CharLeft
+			ExecuteCommand "GoToMatchBrace"
+			ActiveDocument.Selection.CharRight
+			nCol = ActiveDocument.Selection.CurrentColumn
+			ActiveDocument.Selection.EndOfLine dsExtend
+			strFound = LTrimTabs(ActiveDocument.Selection)
+
+			' If there's anything after the brace that isn't a comment, move
+			' it to the next line
+			if (Len(strFound) > 0) and (Left(strFound, 1) <> "/") then
+				bBreak = false
+
+				' Check if there's a "{" after the statement which should
+				' also be broken into multiple lines
+				if (Mid(strFound, 1, 1) = "{") and (Len(strFound) > 1) then
+					strAfterFound = LTrimTabs(Mid(strFound, 2))
+					if strAfterFound <> "" then
+						ActiveDocument.Selection = "{" + strAfterFound
+						ActiveDocument.Selection.MoveTo _
+							ActiveDocument.Selection.CurrentLine, nCol
+						ActiveDocument.Selection.NewLine
+						ActiveDocument.Selection.CharRight
+						ActiveDocument.Selection.NewLine
+
+						bBreak = true	' primitive but it works
+					end if
+				end if
+
+				if not bBreak then
+					ActiveDocument.Selection = strFound
+					ActiveDocument.Selection.MoveTo _
+						ActiveDocument.Selection.CurrentLine, nCol
+					ActiveDocument.Selection.NewLine
+				end if
+			end if
+		end if
+	wend
+
+end sub
+
+' Trim blanks AND tabs from the left side
+function LTrimTabs(str)
+	dim iPos, ch
+
+	for iPos = 1 to Len(str)
+		ch = Mid(str, iPos, 1)
+		if ch <> " " and ch <> vbTab then
+			exit for
+		end if
+	next
+
+	LTrimTabs = Mid(str, iPos)
+
+end function
+
+' Isolate the given str on a new line with nothing left of it
+sub IsolateOnLeft(str)
+	dim strLastPos, nLen, bContinue, nCurrentLine, nCurrentColumn
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText("^.*" & str, dsMatchRegExp) and _
+			GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "^.*" & str, dsMatchRegExp
+
+			' Get the length of the found string
+			' (which may have been a regular expression)
+			ActiveDocument.Selection.CharRight
+			ActiveDocument.Selection.FindText str, _
+										dsMatchBackward + dsMatchRegExp
+			nLen = Len(ActiveDocument.Selection)
+
+			ActiveDocument.Selection.CharLeft
+			if not ShouldIgnore then
+
+				' Now that we have the length, we need to redo
+				' the search and go on
+				ActiveDocument.Selection.StartOfLine
+				ActiveDocument.Selection.FindText "^.*" & str, dsMatchRegExp
+
+				bContinue = false
+
+				' If we're isolating a brace, make sure its matching brace
+				' isn't on the same line
+				if (str = "{") or (str = "}") then
+					ActiveDocument.Selection.CharRight
+					nCurrentLine = ActiveDocument.Selection.CurrentLine
+					nCurrentColumn = ActiveDocument.Selection.CurrentColumn
+					ActiveDocument.Selection.CharLeft
+
+					ExecuteCommand "GoToMatchBrace"
+					if ActiveDocument.Selection.CurrentLine = nCurrentLine then
+						ActiveDocument.Selection.MoveTo _
+							nCurrentLine, nCurrentColumn
+						bContinue = true ' we found it so move to the next match
+					else
+						ActiveDocument.Selection.MoveTo nCurrentLine, 1
+						ActiveDocument.Selection.FindText "^.*" & str, _
+									dsMatchRegExp
+					end if
+				end if
+
+
+				if LTrimTabs(ActiveDocument.Selection) <> str and _
+					not bContinue then
+					ActiveDocument.Selection.CharRight
+					MoveByColumns -nLen
+					ActiveDocument.Selection.NewLine
+					MoveByColumns nLen
+				end if
+
+				GetCurrentPosition strLastPos
+			end if
+		end if
+
+	wend
+
+end sub
+
+' Isolate the given str so that everything after it is placed on the next line
+sub IsolateOnRight(str)
+	dim strLastPos, strRight, nCurrentLine, nCurrentColumn, nLen
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText(str & ".+$", dsMatchRegExp) and _
+		GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		ActiveDocument.Selection.CharLeft
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText str & ".+$", dsMatchRegExp
+
+			' Get the length of the found string
+			' (which may have been a regular expression)
+			ActiveDocument.Selection.CharLeft
+			ActiveDocument.Selection.FindText str, dsMatchRegExp
+			nLen = Len(ActiveDocument.Selection)
+
+			' Now that we have the length, we need to redo the search and go on
+			ActiveDocument.Selection.CharLeft
+			ActiveDocument.Selection.FindText str & ".+$", dsMatchRegExp
+
+			strRight = LTrimTabs(Mid(ActiveDocument.Selection, nLen + 1))
+
+			' Handle braces a bit differently
+			if (str = "{") or (str = "}") then
+
+				' If it's a closing brace, and the code after it contains
+				' a semicolon, leave it alone (ie. variable definition).
+				if (str = "}") then
+					ActiveDocument.Selection.EndOfLine dsExtend
+					if (InStr(1, ActiveDocument.Selection, ";", vbTextCompare) _
+						> 0) then
+						strRight = "" ' we found it so move on to the next match
+					end if
+					ActiveDocument.Selection.CharLeft
+				end if
+
+				' If we're isolating a brace make sure the matching brace
+				' isn't on the same line
+				if (strRight <> "") then
+					ActiveDocument.Selection.CharLeft
+					nCurrentLine = ActiveDocument.Selection.CurrentLine
+					nCurrentColumn = ActiveDocument.Selection.CurrentColumn
+
+					ExecuteCommand "GoToMatchBrace"
+					if ActiveDocument.Selection.CurrentLine = nCurrentLine then
+						ActiveDocument.Selection.MoveTo _
+										nCurrentLine, nCurrentColumn + 1
+						strRight = "" ' we found it so move on to the next match
+					else
+						ActiveDocument.Selection.MoveTo _
+							nCurrentLine, nCurrentColumn
+						ActiveDocument.Selection.FindText _
+							str & ".+$", dsMatchRegExp
+					end if
+				end if
+			end if
+
+			if (strRight <> "") and _
+				(Left(strRight, 1) <> "/") and _
+				(strRight <> ",") and _
+				(strRight <> ";") and _
+				(strRight <> "\") then
+				ActiveDocument.Selection.CharLeft
+				MoveByColumns nLen
+				ActiveDocument.Selection.NewLine
+			end if
+
+		end if
+	wend
+
+end sub
+
+' Place the given strOperator (of nLen REAL characters)
+' between spaces (if needed)
+sub FixOperator(strOperator, nLen)
+	dim strLastPos, strFind
+
+	strLastPos = InitializePosition
+
+	' Add one space between the operator
+	while ActiveDocument.Selection.FindText("[A-Z,a-z,0-9,\),_,\]]" & _
+			strOperator & "[A-Z,a-z,0-9,\(,_,\*,"",',&]", dsMatchRegExp) and _
+			GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		ActiveDocument.Selection.CharLeft
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "[A-Z,a-z,0-9,\),_,\]]" & _
+					strOperator & "[A-Z,a-z,0-9,\(,_,\*,"",',&]", dsMatchRegExp
+
+			ActiveDocument.Selection.CharLeft
+			ActiveDocument.Selection.CharRight
+			ActiveDocument.Selection = " "
+			MoveByColumns nLen
+			ActiveDocument.Selection = " "
+
+		end if
+	wend
+
+	strLastPos = InitializePosition
+
+	' Fix any C++ "operator" member functions which were broken above
+	while ActiveDocument.Selection.FindText("operator " & strOperator & " ", _
+		dsMatchRegExp) and GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "operator " & strOperator & " ", _
+												dsMatchRegExp
+			ActiveDocument.Selection.CharRight
+			ActiveDocument.Selection.Backspace
+			MoveByColumns -nLen
+			ActiveDocument.Selection.Backspace
+
+		end if
+	wend
+
+end sub
+
+' Fix < operator without altering template<T> code and operator <<
+function FixLessThanOperator()
+	dim strLastPos, strFound, strTemplate
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText("^.*[^ <]<.", dsMatchRegExp) and _
+		GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			' Repeat the search since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "^.*[^ <]<.", dsMatchRegExp
+
+			strFound = ActiveDocument.Selection
+
+			' Fix the left side
+			strFound = Left(strFound, Len(strFound) - 2) & " " & _
+						Right(strFound, 2)
+			ActiveDocument.Selection = strFound
+
+			' Fix the right side
+			strTemplate = Right(strFound, 11)
+			if  (Left(strTemplate, 8) <> "template") and _
+				(Right(strFound, 1) <> " ") and _
+				(Right(strFound, 1) <> "=") and _
+				(Right(strFound, 1) <> "<") and _
+				(Right(strFound, 1) <> ">")then
+				ActiveDocument.Selection.CharLeft
+				ActiveDocument.Selection = " "
+			end if
+
+		end if
+	wend
+
+end function
+
+' Append a space after the given strOperator (if it needs it)
+sub AppendSpace(strOperator)
+	dim strLastPos
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText(strOperator & _
+		"[A-Z,a-z,0-9,\(,\-,_,\*,"",',&]", dsMatchRegExp) and _
+		GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		ActiveDocument.Selection.CharLeft
+		if not ShouldIgnore then
+
+			ActiveDocument.Selection.FindText strOperator & _
+					"[A-Z,a-z,0-9,\(,\-,_,\*,"",',&]", dsMatchRegExp
+
+			ActiveDocument.Selection.CharLeft
+			MoveByColumns Len(strOperator)
+			ActiveDocument.Selection = " "
+
+		end if
+	wend
+
+end sub
+
+' Fix tabbing within function blocks (surrounded by braces)
+function TabifyMatchingBraces()
+	dim strLastPos, cBeforeBrace
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText("{") and _
+			GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			' Repeat the action since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "{"
+
+			' Go to matching brace and reformat tabs
+			ExecuteCommand "GoToMatchBraceExtend"
+			ActiveDocument.Selection.SmartFormat
+
+			cBeforeBrace = Mid(ActiveDocument.Selection, _
+				Len(ActiveDocument.Selection) - 1, 1)
+
+			' If SmartFormat indents the block (by mistake), unindent it
+			if (cBeforeBrace = vbTab or cBeforeBrace = " ") then
+				ActiveDocument.Selection.Unindent
+			end if
+		end if
+	wend
+
+end function
+
+' Since Microsoft's "SmartFormat" is not smart enough to indent case
+' statements inside the switch body, we'll do it here.
+' (Thanks to Jim Cooper)
+function IndentSwitchBody()
+	dim nSwitchLine, nFirstLine, nLastLine, strLastPos, iLine
+
+	strLastPos = InitializePosition
+
+	while ActiveDocument.Selection.FindText("switch", _
+		dsMatchWord + dsMatchCase) and GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+
+			nSwitchLine = ActiveDocument.Selection.CurrentLine
+
+			' Now find the opening brace and make sure it's on the next line
+			if ActiveDocument.Selection.FindText("{") and _
+				not ShouldIgnore and _
+				(ActiveDocument.Selection.CurrentLine = nSwitchLine + 1) then
+
+				' Repeat the action since ShouldIgnore puts the cursor at the
+				' beginning of the line
+				ActiveDocument.Selection.FindText "{"
+
+				' Find next line in file, since earlier code put '{' on
+				' a line by itself
+				nFirstLine = ActiveDocument.Selection.CurrentLine + 1
+
+				' Go to matching brace and reformat tabs
+				ExecuteCommand "GoToMatchBrace"
+
+				' Find previous line in file, since earlier code put '}' on
+				' line by itself
+				nLastLine = ActiveDocument.Selection.CurrentLine
+
+				' Move to the line after the opening brace
+				ActiveDocument.Selection.GoToLine nFirstLine, 1
+
+				' Select everything between the braces and indent it
+				for iLine = nFirstLine to nLastLine - 1
+					ActiveDocument.Selection.LineDown dsExtend
+				next
+				ActiveDocument.Selection.Indent
+			end if
+		end if
+	wend
+end function
+
+' Remove any lines that are considered extraneous (usually blank ones).
+function RemoveExtraneousLines()
+	dim strLastPos, nCurrentLine, nCurrentColumn
+
+	strLastPos = InitializePosition
+
+	' Remove any blank lines that fall below any open braces ("{")
+	while ActiveDocument.Selection.FindText("{") and _
+			GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+			' Repeat the action since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "{"
+
+		    nCurrentLine = ActiveDocument.Selection.CurrentLine
+			nCurrentColumn = ActiveDocument.Selection.CurrentColumn
+
+			ActiveDocument.Selection.LineDown
+
+			' Cut any blank lines below the {
+			do while true
+				ActiveDocument.Selection.StartOfLine
+				ActiveDocument.Selection.EndOfLine dsExtend
+
+				if LTrimTabs(ActiveDocument.Selection) <> "" then
+					exit do
+				end if
+				ExecuteCommand "LineCut"
+
+				' Make sure we haven't hit the bottom of the file
+				ActiveDocument.Selection.EndOfDocument
+				if ActiveDocument.Selection.CurrentLine = nCurrentLine + 1 then
+				    exit do
+				end if
+				ActiveDocument.Selection.MoveTo nCurrentLine + 1, 1
+			loop
+
+			ActiveDocument.Selection.MoveTo nCurrentLine, nCurrentColumn
+		end if
+	wend
+
+	strLastPos = InitializePosition
+
+	' Remove any blank lines right above any closing braces ("}")
+	while ActiveDocument.Selection.FindText("}") and _
+			GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+			' Repeat the action since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText "}"
+			ActiveDocument.Selection.CharLeft
+
+			' Cut blank lines above the }
+			do while true
+				ActiveDocument.Selection.LineUp
+				ActiveDocument.Selection.StartOfLine
+				ActiveDocument.Selection.EndOfLine dsExtend
+
+				if LTrimTabs(ActiveDocument.Selection) <> "" then
+
+					if ActiveDocument.Selection.CurrentLine > 1 then
+						ActiveDocument.Selection.LineDown
+					end if
+
+					ActiveDocument.Selection.StartOfLine
+					ActiveDocument.Selection.FindText "}"
+					strLastPos = ActiveDocument.Selection.CurrentLine & "," & _
+								 ActiveDocument.Selection.CurrentColumn
+
+					ActiveDocument.Selection.LineDown
+					ActiveDocument.Selection.StartOfLine
+					exit do
+				end if
+				ExecuteCommand "LineCut"
+			loop
+		end if
+	wend
+
+end function
+
+' Remove all spaces and tabs found in the current selection
+function RemoveSpacesInSelection
+	dim iPos, ch, strNoSpaces
+
+	for iPos = 1 to Len(ActiveDocument.Selection)
+		ch = Mid(ActiveDocument.Selection, iPos, 1)
+		if ch <> " " and ch <> vbTab then
+			strNoSpaces = strNoSpaces + ch
+		end if
+	next
+
+	ActiveDocument.Selection = strNoSpaces
+end function
+
+' Fix any code with exponential notation (ie. 3.4e-2) which was
+' broken when the + and - operators were fixed above (by FixOperator).
+function FixExponents
+
+	while ActiveDocument.Selection.FindText("[0-9,\.]e [\+\!\-] [0-9]", _
+			dsMatchRegExp)
+		RemoveSpacesInSelection
+	wend
+
+end function
+
+' Break any lines containing multiple statements (separated by semicolons)
+function BreakLinesWithMultipleStatements()
+	dim strLastPos, nCurrentLine
+
+	strLastPos = InitializePosition
+
+	' Search for multiple semicolons on the same line
+	while ActiveDocument.Selection.FindText(";.+;", dsMatchRegExp) and _
+		GetCurrentPosition(strLastPos)
+
+		' Check if we're inside a comment or between quotes
+		if not ShouldIgnore then
+			' Repeat the action since ShouldIgnore puts the cursor at the
+			' beginning of the line
+			ActiveDocument.Selection.FindText ";.+;", dsMatchRegExp
+
+			nCurrentLine = ActiveDocument.Selection.CurrentLine
+			ActiveDocument.Selection.CharLeft
+			ActiveDocument.Selection.StartOfLine dsFirstText, dsExtend
+
+			' If found, check that the semicolons don't belong to a for loop
+			if (InStr(1, ActiveDocument.Selection, "for (", _
+				vbTextCompare) > 0) then
+				ActiveDocument.Selection.MoveTo nCurrentLine + 1, 1
+			else
+				ActiveDocument.Selection.CharRight
+				ActiveDocument.Selection.CharRight
+				ActiveDocument.Selection.NewLine
+			end if
+		end if
+	wend
+
+end function
+
+
+
+Sub MakeSelectedCodeNicer()
+'DESCRIPTION: Reformats the currently selected source code to look nicer.
+' Written by Alvaro Mendez on 07/15/1999
+
+	' Check if there's a valid selection
+	if ActiveDocument.Selection = "" then
+		exit sub
+	end if
+
+	' Copy the selection to the clipboard
+	ActiveDocument.Selection.Copy
+
+	' Open a new document and changed its language to C/C++
+	' This is required for SmartIndent to work.
+	Documents.Add "Text"
+	ExecuteCommand "Properties"
+	ActiveDocument.Language = "C/C++"
+
+	' Paste the selection into the document and run the macro
+	ActiveDocument.Selection.Paste
+	ExecuteCommand "MakeCodeNicer"
+
+	' Select the resulting code and copy it to the clipboard
+	ActiveDocument.Selection.SelectAll
+	ActiveDocument.Selection.Copy
+
+	' Close the new document (without saving it)
+	ActiveWindow.Close dsSaveChangesNo
+
+	' Paste the reformatted code back over the original selection
+	ActiveDocument.Selection.Paste
+
+End Sub
+

@@ -34,7 +34,6 @@
 #include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include "CLIClientLib.h"
-#include <iomanip>
 #include <Pegasus/Common/Stopwatch.h>
 
 PEGASUS_USING_STD;
@@ -66,13 +65,14 @@ CLI enumerateclasses CIM_Computersystem -o xml\n    -- Enumerate classes in MOF 
 CIM_Computersystem\n \
 CLI getclass CIM_door -a -u guest =p guest\n    -- Get class with authentication set and \
 user = guest, password = guest.\n \
+CLI rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage. \n \
 CLI ec -o XML -- enumerate classes and output XML rather than MOF. \n \
 CLI getqualifiers -- Get the qualifiers in mof output format\n";
 
 void _displaySummary(Uint32 count, String& description, String item, Options& opts)
 {
-        cout << count << description 
-            << item << " returned. ";
+        cout << count << " " << description 
+            << " " << item << " returned. ";
         if (opts.repeat > 0)
             cout << opts.repeat;
         if(opts.time && opts.repeat)
@@ -294,20 +294,8 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
         client.enumerateInstanceNames(opts.nameSpace, classNames[iClass]);
         if (opts.summary)
         {
-	  String s = " instance names of class ";   
+	  String s = "instance names of class";   
 	  _displaySummary(instanceNames.size(), s, opts.className.getString(),opts);    
-        /*
-        if (instanceNames.size() != 0)
-            {
-                cout << instanceNames.size() << " instance names of class " 
-                    << opts.className << " returned. ";
-                if (opts.repeat > 0)
-                    cout << opts.repeat;
-                if(opts.time && opts.repeat)
-                    cout << " " << opts.saveElapsedTime;
-                cout << endl;
-            
-            }*/
         }
         else
         {
@@ -338,7 +326,7 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-      String s = " instances names of class ";  
+      String s = "instances names of class";  
       _displaySummary(instanceNames.size(), s, opts.className.getString(),opts);    
     }
     else
@@ -377,7 +365,7 @@ int enumerateInstances(CIMClient& client, Options& opts)
     
     if (opts.summary)
     {
-      String s = " instances of class ";
+      String s = "instances of class";
         _displaySummary(instances.size(), s, opts.className.getString(),opts);    
         /*
         cout << instances.size() << " instances of class " << opts.className << " returned. ";
@@ -457,7 +445,7 @@ int enumerateClassNames(CIMClient& client, Options& opts)
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     if (opts.summary)
     {
-      String s = "class names ";
+      String s = "class names";
         _displaySummary(classNames.size(), s,
              opts.className.getString(),opts);    
     }
@@ -504,7 +492,7 @@ int enumerateClasses(CIMClient& client, Options& opts)
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     if (opts.summary)
     {
-      String s = " classes ";
+      String s = "classes";
         _displaySummary(classes.size(), s, opts.className.getString(),opts);    
     }
     else
@@ -736,7 +724,7 @@ int referenceNames(CIMClient& client, Options& opts)
     
     if (opts.summary)
     {
-      String s = " referenceNames ";
+      String s = "referenceNames";
         _displaySummary(referenceNames.size(),s,
              opts.objectName,opts);    
     }
@@ -790,7 +778,7 @@ int references(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-      String s = " references ";
+      String s = "references";
         _displaySummary(objects.size(), s,
              opts.objectName,opts);    
     }
@@ -849,7 +837,7 @@ int associatorNames(CIMClient& client, Options& opts)
     
     if (opts.summary)
     {
-      String s = " associator names ";
+      String s = "associator names";
         _displaySummary(associatorNames.size(), s,
              opts.objectName,opts);    
     }
@@ -909,7 +897,7 @@ int associators(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-      String s = " associators ";
+      String s = "associators";
         _displaySummary(objects.size(), s, opts.objectName,opts);    
     }
     else
@@ -1207,19 +1195,9 @@ void GetOptions(
 */
 void showCommands()
 {
-#define LOCAL_MAX(a, b) ((a > b) ? a : b)    
-    cout << "\nPossible CIMOperations are\nshort cut     name       Usage: \n";
-    Uint32 width = 0;
-    for( Uint32 i = 0; i < NUM_COMMANDS; i++ )
-        width = LOCAL_MAX(strlen(CommandTable[i].CommandName), width);
-    
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ ) 
     {
-        // ATTN: left not compile linus cout << setw(6) << left << CommandTable[i].ShortCut;
-        // ATTN: left not compile linux cout << setw(width) << left << CommandTable[i].CommandName;
-        cout << setw(6)  << CommandTable[i].ShortCut;
-        cout << setw(width) << CommandTable[i].CommandName; 
-        cout << " " << CommandTable[i].UsageText << endl;
+        printf("%-5s %-21s%s\n",CommandTable[i].ShortCut, CommandTable[i].CommandName, CommandTable[i].UsageText);
     }
 }
 /* PrintHelpMsg - This is temporary until we expand the options manager to allow
@@ -1255,7 +1233,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     if (verboseTest)
         opts.verboseTest = verboseTest;
 
-    {
+    // Base code for parameter substition.  Dispabled until complete
+    /*{
         String target;
         if (om.lookupValue("substitution", target))
         {
@@ -1272,148 +1251,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                 temp.append(fileName);
                 fileList.append(temp);
             }
-            /*
-
-            // get filename
-            FILE* fp;
-            for (Uint32 i = 0; i < fileList.size(); i++)
-            {
-                fp = fopen(fileList[i].getCString(), "rb");
-                if (fp != NULL)
-                {
-                }
-            }
-            {
-            } while (fp != NULL && )
-            FILE* fp = fopen(traceFile.getCString(), "rb");
-
-            if (fp == NULL)
-            {
-                FILE* fp = fopen(traceFile.getCString(), "rb");
-    
-                if (fp == NULL)
-                {
-                    string message = "failed to open file: \"" + fileName + "\"";
-                    ErrorExit(message);
-                }
-            }
-
-            int argc = args.size();
-            char** argv = new char*[args.size()];
-
-            for (int i = 0; i < argc; i++)
-            argv[i] = (char*)args[i].c_str();
-
-            int result = DependCmdMain(argc, argv);
-
-            delete [] argv;
-            
-            //////////////////////////
-            
-            reak a configuration line up into tokens.  Returns tokenized string
-00184 // if the line is a valid one, i.e. the 2nd word is '=' and there is at 
-00185 // least one more word after the equal.
-00186 char *command_tokenize(char *newcmd, int *argc, char *argv[]) {
-00187   char *cmd, *eqloc;
-00188 
-00189   // make a new string with a ' = ' instead of '='
-00190   if(!(eqloc = strchr(newcmd,'=')))
-00191     return NULL;
-00192     
-00193   cmd = new char[strlen(newcmd) + 3];
-00194   strncpy(cmd,newcmd,(eqloc - newcmd));
-00195   strcpy(cmd + (eqloc - newcmd)," = ");
-00196   strcat(cmd,eqloc + 1);
-00197 
-00198   *argc = 0;
-00199 
-00200   argv[*argc] = strtok(cmd," ,;\t\n");
-00201   if (argv[*argc] == NULL) {
-00202     delete [] cmd;
-00203     return NULL;
-00204   }
-00205 
-00206   // see if the first token starts with '#'
-00207   if(!strncmp(argv[0],"#",1)) {
-00208     delete [] cmd;
-00209     return NULL;
-00210   }
-00211 
-00212   (*argc)++;
-00213 
-00214   // break up the rest of the string
-00215   while ((argv[*argc] = strtok(NULL," ,;\t\n")) != NULL)
-00216     (*argc)++;
-00217 
-00218   // make sure the 2nd word is "=", and there are 3 words or more
-00219   if(*argc < 3 || strcmp(argv[1],"=")) {
-00220     delete [] cmd;
-00221     return NULL;
-00222   }
-00223 
-00224   return cmd;
-00225 }
-00226 
-00227 
-00228 // break a configuration line up into tokens.
-00229 char *str_tokenize(char *newcmd, int *argc, char *argv[]) {
-00230   char *cmd;
-00231 
-00232   cmd = stringdup(newcmd);
-00233   *argc = 0;
-00234 
-00235   // initialize tokenizing calls
-00236   argv[*argc] = strtok(cmd," ,;\t\n");
-00237 
-00238   // loop through words until end-of-string, or comment character, found
-00239   while(argv[*argc] != NULL) {
-00240     // see if the token starts with '#'
-00241     if(argv[*argc][0] == '#') {
-00242       delete [] cmd;
-00243       return argv[0];
-00244     } else {
-00245       (*argc)++;                // another token in list
-00246     }
-00247     
-00248     // scan for next token
-00249     argv[*argc] = strtok(NULL," ,;\t\n");
-00250   }
-00251 
-00252   return (*argc > 0 ? argv[0] : (char *) NULL);
-
-            */
-        }
-    } 
-
-
-    if (om.isTrue("help"))
-    {
-                printHelpMsg(argv[0], usage, usageDetails, om);
-                exit(0);
-    }
-
-    // Establish the namespace from the input parameters
-    //String nameSpace;
-    if(om.lookupValue("namespace", opts.nameSpace))
-    {
-        if (verboseTest)
-            cout << "Namespace = " << opts.nameSpace << endl;
-    }
-
-    /*if(om.lookupValue("className", opts.classNameString))
-    {
-        if (opts.classNameString != "")
-        {
-            opts.className = opts.classNameString;
-        }
-        if (verboseTest)
-           cout << "Class Name = " << opts.className << endl;
-    }*/
-
-    /*if(om.lookupValue("cimObjectPath", opts.cimObjectPath))
-    {
-       if (verboseTest)
-           cout << "CIM ObjectPath = " << opts.cimObjectPath << endl;
     }*/
     String temprole;
     if(om.lookupValue("role", temprole))

@@ -198,7 +198,7 @@ int main(int argc, char** argv)
     opts.methodName = CIMName("unknown");
     opts.delay = 0;
     opts.trace = 0;
-    opts.count= -1;
+    opts.count= 97832;
     opts.repeat = 0;
     opts.time = false;
 

@@ -486,7 +486,8 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
   //  properties on a subclass of fromclass)
 
   // If all properties are required (ie. wildcarded), then rebuild the 
-  // required property list from all the properties on the FROM class 
+  // required property list from all the properties on the classname passed in  
+  // This is either the FROM class or the class of an embedded instance.
   if (allPropsRequired)
   {
     requiredProps.clear();

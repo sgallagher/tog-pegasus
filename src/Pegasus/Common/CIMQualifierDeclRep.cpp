@@ -1,43 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
 #include "CIMQualifierDecl.h"
-#include "CIMQualifierDeclRep.h"
+#include "Indentor.h"
+#include "DeclContext.h"
 #include "CIMName.h"
-#include "InternalException.h"
-#include "StrLit.h"
+#include "Exception.h"
+#include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
-PEGASUS_USING_STD;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMQualifierDeclRep
@@ -45,78 +43,178 @@ PEGASUS_USING_STD;
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMQualifierDeclRep::CIMQualifierDeclRep(
-    const CIMName& name,
-    const CIMValue& value,
-    const CIMScope & scope,
-    const CIMFlavor & flavor,
+    const String& name, 
+    const CIMValue& value, 
+    Uint32 scope,
+    Uint32 flavor,
     Uint32 arraySize)
-    :
-    _name(name),
-    _value(value),
+    : 
+    _name(name), 
+    _value(value), 
     _scope(scope),
     _flavor(flavor),
-    _arraySize(arraySize),
-    _refCounter(1)
+    _arraySize(arraySize)
 {
-    // ensure name is not null
-    if (name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
+    if (!CIMName::legal(name))
+	throw IllegalName();
 
-    // Set the flavor defaults. Must actively set them in case input flavor
-    // sets some but not all the defaults.  Also Make sure no conflicts.  This
-    // covers the fact that we have separate flags for on and off for the
-    // toelement and override functions.  Something must be set on creation
-    // and the default in the .h file only covers the case where there is no
-    // input.  This also assures that there are no conflicts.  Note that it
-    // favors restricted and disable override
-    //ATTN: This should become an exception in case conflicting entities are
-    // set.
-    if (!(_flavor.hasFlavor (CIMFlavor::RESTRICTED)))
-        _flavor.addFlavor (CIMFlavor::TOSUBCLASS);
-    else
-        _flavor.removeFlavor (CIMFlavor::TOSUBCLASS);
+    if (_value.getType() == CIMType::NONE)
+	throw NullType();
+}
 
-    if (!(_flavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)))
-        _flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE);
-    else
-        _flavor.removeFlavor (CIMFlavor::ENABLEOVERRIDE);
+CIMQualifierDeclRep::~CIMQualifierDeclRep()
+{
 
 }
 
-void CIMQualifierDeclRep::setName(const CIMName& name)
+void CIMQualifierDeclRep::setName(const String& name) 
 {
-    // ensure name is not null
-    if (name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
+    if (!CIMName::legal(name))
+	throw IllegalName();
 
-    _name = name;
+    _name = name; 
 }
 
-CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
+static const char* _toString(Boolean x)
+{
+    return x ? "true" : "false";
+}
+
+void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
+{
+    out << "<QUALIFIER.DECLARATION";
+    out << " NAME=\"" << _name << "\"";
+    out << " TYPE=\"" << TypeToString(_value.getType()) << "\"";
+
+    if (_value.isArray())
+    {
+	out << " ISARRAY=\"true\"";
+
+	if (_arraySize)
+	{
+	    char buffer[64];
+	    sprintf(buffer, " ARRAYSIZE=\"%d\"", _arraySize);
+	    out << buffer;
+	}
+    }
+
+    FlavorToXml(out, _flavor);
+
+    out << ">\n";
+
+    ScopeToXml(out, _scope);
+
+    _value.toXml(out);
+
+    out << "</QUALIFIER.DECLARATION>\n";
+}
+
+/** toMof - Generate the MOF output for the Qualifier Declaration object.
+    The BNF for this output is:
+    qualifierDeclaration   = 	QUALIFIER qualifierName qualifierType scope
+				[ defaultFlavor ] ";"
+
+    qualifierName 	   = 	IDENTIFIER
+
+    qualifierType 	   = 	":" dataType [ array ] [ defaultValue ]
+
+    scope 		   = 	"," SCOPE "(" metaElement *( "," metaElement ) ")"
+*/
+void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
+{
+    out << "\n";
+
+    // output the "Qualifier" keyword and name
+    out << "Qualfier " << _name;
+
+    // output the qualifiertype
+    out << " : " << TypeToString(_value.getType());
+
+    // If array put the Array indicator "[]" and possible size after name.
+    if (_value.isArray())
+    {
+	if (_arraySize)
+	{
+	    char buffer[32];
+	    sprintf(buffer, "[%d]", _arraySize);
+	    out << buffer;
+	}
+	else
+	    out << "[]";
+    }
+
+    Boolean hasValueField = false;
+    if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
+    {
+	out << " (";
+	hasValueField = true;
+	_value.toMof(out);
+    }
+
+    String scopeString;
+    scopeString = ScopeToString(_flavor);
+    if (scopeString.size())
+    {
+	out << " Scope( " << scopeString << ")";
+    }
+    //FlavorToXml(out, _flavor);
+    String flavorString;
+    flavorString = FlavorToString(_flavor);
+    if (flavorString.size())
+    {
+    out << " Flavor( " << flavorString << ")";
+    }
+
+    out << ";\n";
+}
+
+
+void CIMQualifierDeclRep::print(PEGASUS_STD(ostream) &os) const
+{
+    Array<Sint8> tmp;
+    toXml(tmp);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+CIMQualifierDeclRep::CIMQualifierDeclRep()
+{
+
+}
+
+CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) : 
+    Sharable(),
     _name(x._name),
     _value(x._value),
     _scope(x._scope),
     _flavor(x._flavor),
-    _arraySize(x._arraySize),
-    _refCounter(1)
+    _arraySize(x._arraySize)
 {
 
+}
+
+CIMQualifierDeclRep& CIMQualifierDeclRep::operator=(const CIMQualifierDeclRep& x) 
+{ 
+    return *this; 
 }
 
 Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 {
     return
-        this == x ||
-        (_name.equal(x->_name) &&
-         _value == x->_value &&
-         (_scope.equal(x->_scope)) &&
-         (_flavor.equal(x->_flavor)) &&
-         _arraySize == x->_arraySize);
+	this == x ||
+	CIMName::equal(_name, x->_name) && 
+	_value == x->_value && 
+	_scope == x->_scope &&
+	_flavor == x->_flavor &&
+	_arraySize == x->_arraySize;
+}
+
+void CIMQualifierDeclRep::setValue(const CIMValue& value) 
+{
+    _value = value; 
+
+    if (_value.getType() == CIMType::NONE)
+	throw NullType();
 }
 
 PEGASUS_NAMESPACE_END
-

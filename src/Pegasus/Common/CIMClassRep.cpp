@@ -453,6 +453,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
 void CIMClassRep::toMof(Array<Sint8>& out) const
 {
     // Get and format the class qualifiers
+    out << "\n//    Class " << _className;
     if (_qualifiers.getCount())
 	out << "\n";
     _qualifiers.toMof(out);
@@ -461,8 +462,7 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     out << "\n";
 
     // output class statement
-    out << "class ";
-    out << _className;
+    out << "class " << _className;
 
     if (_superClassName.size())
 	out << " : " << _superClassName;
@@ -471,11 +471,21 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
 
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	_properties[i].toMof(out);
+    {
+	// Generate MOF if this property not propogated
+	// Note that the test is required only because
+	// there is an error in getclass that does not
+	// test the localOnly flag.
+	if (!_properties[i].getPropagated())
+	    _properties[i].toMof(out);
+    }
 
-    // Format the Methods:
+    // Format the Methods:  for non-propagated methods
     for (Uint32 i = 0, n = _methods.size(); i < n; i++)
+    {
+	if (!_methods[i].getPropagated())
 	_methods[i].toMof(out);
+    }
 
     // Class closing element:
     out << "\n};\n";

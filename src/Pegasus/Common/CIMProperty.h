@@ -191,7 +191,9 @@ public:
 	_rep->setClassOrigin(classOrigin);
     }
 
-    /// getPropagated - ATTN
+    /** getPropagated - Tests if this property is propogated.
+	@return - Returns true if the class is propogated.
+    */
     Boolean getPropagated() const
     {
 	_checkRep();

@@ -329,6 +329,10 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 	out << "</VALUE>\n";
     }
 }
+/** _toMof Array - 
+    arrayInitializer  = "{" constantValue*( "," constantValue)"}"
+
+*/
 template<class T>
 void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
 {

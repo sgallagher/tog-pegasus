@@ -1,31 +1,28 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,14 +30,7 @@
 #define Pegasus_QualifierDecl_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/CIMFlavor.h>
-#include <Pegasus/Common/CIMScope.h>
-#include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMQualifierDeclRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,187 +42,194 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifierDecl;
 class CIMClassRep;
-class CIMQualifierDeclRep;
-
-/**
-    A CIMQualifierDecl represents a DMTF standard CIM qualifier declaration.
-    A CIMQualifierDecl differs from a CIMQualifier in that it has a scope
-    attribute.  A CIMQualifierDecl defines a qualifier, whereas a CIMQualifier
-    applies the qualifier.
-
-    <p>The CIMQualifierDecl class uses a shared representation model, such
-    that multiple CIMQualifierDecl objects may refer to the same data copy.
-    Assignment and copy operators create new references to the same data, not
-    distinct copies.  An update to a CIMQualifierDecl object affects all the
-    CIMQualifierDecl objects that refer to the same data copy.  The data
-    remains valid until all the CIMQualifierDecl objects that refer to it are
-    destructed.  A separate copy of the data may be created using the clone
-    method.
+/** Class CIMQualifierDecl
+  NOTE: Clarify difference between qualifier and qualiferdeclaration
+  ATTN: Important work required here.
 */
 class PEGASUS_COMMON_LINKAGE CIMQualifierDecl
 {
 public:
+    /// Constructor - ATTN:
+    CIMQualifierDecl() : _rep(0)
+    {
 
-    /**
-        Constructs an uninitialized CIMQualifierDecl object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
-    */
-    CIMQualifierDecl();
+    }
+    /// Constructor - ATTN:
 
-    /**
-        Constructs a CIMQualifierDecl object from the value of a specified
-        CIMQualifierDecl object, so that both objects refer to the same data
-        copy.
-        @param x The CIMQualifierDecl object from which to construct a new
-            CIMQualifierDecl object.
+    CIMQualifierDecl(const CIMQualifierDecl& x) 
+    {
+	Inc(_rep = x._rep); 
+    }
+    /** Constructor
+    Throws IllegalName if name argument not legal CIM identifier.
+    ATTN:
     */
-    CIMQualifierDecl(const CIMQualifierDecl& x);
-
-    /**
-        Constructs a CIMQualifierDecl object with the specified attributes.
-        @param name A CIMName specifying the name of the qualifier.
-        @param value A CIMValue specifying the default qualifier value, and
-            implicitly defining the qualifier type and whether the qualifier
-            is an Array qualifier.
-        @param scope A CIMScope indicating the qualifier scope.
-        @param flavor A CIMFlavor indicating the qualifier flavors.
-        @param arraySize A Uint32 indicating the size of the Array, if the
-            qualifier is an Array qualifier.  The default value of zero
-            indicates a variable size array.
-        @exception UninitializedObjectException If the qualifier name is null.
-    */
+    
     CIMQualifierDecl(
-        const CIMName& name,
-        const CIMValue& value,
-        const CIMScope & scope,
-        const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
-        Uint32 arraySize = 0);
+	const String& name, 
+	const CIMValue& value, 
+	Uint32 scope,
+	Uint32 flavor = CIMFlavor::DEFAULTS,
+	Uint32 arraySize = 0)
+    {
+	_rep = new CIMQualifierDeclRep(name, value, scope, flavor, arraySize);
+    }
+    /// Destructor
+    ~CIMQualifierDecl()
+    {
+	Dec(_rep);
+    }
+    /// Operator
+    CIMQualifierDecl& operator=(const CIMQualifierDecl& x)
+    {
+	if (x._rep != _rep)
+	{
+	    Dec(_rep);
+	    Inc(_rep = x._rep);
+	}
 
-    /**
-        Destructs the CIMQualifierDecl object.
-    */
-    ~CIMQualifierDecl();
+	return *this;
+    }
+    /** CIMMethod ATTN:
 
-    /**
-        Assigns the value of the specified CIMQualifierDecl object to this
-        object, so that both objects refer to the same data copy.
-        @param x The CIMQualifierDecl object from which to assign this
-            CIMQualifierDecl object.
-        @return A reference to this CIMQualifierDecl object.
+    
     */
-    CIMQualifierDecl& operator=(const CIMQualifierDecl& x);
+    const String& getName() const 
+    { 
+	_checkRep();
+	return _rep->getName(); 
+    }
 
-    /**
-        Gets the name of the qualifier.
-        @return A CIMName containing the name of the qualifier.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    // Throws IllegalName if name argument not legal CIM identifier.
+    /** CIMMethod	ATTN:
+    
     */
-    const CIMName& getName() const;
+    void setName(const String& name) 
+    { 
+	_checkRep();
+	_rep->setName(name); 
+    }
+    /** CIMMethod ATTN:
 
-    /**
-        Sets the qualifier name.
-        @param name A CIMName containing the new name of the qualifier.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    
     */
-    void setName(const CIMName& name);
+    CIMType getType() const 
+    { 
+	_checkRep();
+	return _rep->getType(); 
+    }
+    /** CIMMethod  ATTN:
 
-    /**
-        Gets the qualifier type.
-        @return A CIMType containing the qualifier type.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    
     */
-    CIMType getType() const;
+    Boolean isArray() const 
+    {
+	_checkRep();
+	return _rep->isArray();
+    }
+    /** CIMMethod
+    
+    */
+    const CIMValue& getValue() const 
+    { 
+	_checkRep();
+	return _rep->getValue(); 
+    }
+    /** CIMMethod
+    
+    */
+    void setValue(const CIMValue& value) 
+    { 
+	_checkRep();
+	_rep->setValue(value); 
+    }
+    /** CIMMethod
+    
+    */
+    Uint32 getScope() const 
+    {
+	_checkRep();
+	return _rep->getScope();
+    }
+    /** CIMMethod
 
-    /**
-        Checks whether the qualifier is an Array qualifier.
-        @return True if the qualifier is an Array qualifier, false otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
     */
-    Boolean isArray() const;
 
-    /**
-        Gets the qualifier default value.
-        @return A CIMValue containing the qualifier default value.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMValue& getValue() const;
+    Uint32 getFlavor() const 
+    {
+	_checkRep();
+	return _rep->getFlavor();
+    }
+    /** CIMMethod
 
-    /**
-        Sets the qualifier default value.
-        @param value A CIMValue containing the new default value of the
-            qualifier.
-        @exception UninitializedObjectException If the object is not
-            initialized.
     */
-    void setValue(const CIMValue& value);
 
-    /**
-        Gets the qualifier scope.
-        @return A CIMScope containing the qualifier scope.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    Uint32 getArraySize() const 
+    {
+	_checkRep();
+	return _rep->getArraySize();
+    }
+    /** CIMMethod
+    
     */
-    const CIMScope & getScope() const;
 
-    /**
-        Gets the qualifier flavors.
-        @return A CIMFlavor containing the qualifier flavor settings.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    operator int() const { return _rep != 0; }
+    
+    /** toXml  Generates XML output for the Qualifier Declaration object.
+    
     */
-    const CIMFlavor & getFlavor() const;
+    void toXml(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toXml(out);
+    }
 
-    /**
-        Gets the array size for the qualifier.
-        @return Uint32 array size.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** toMof  Generates MOF output for the Qualifier Declaration object.
+    
     */
-    Uint32 getArraySize() const;
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
 
-    /**
-        Determines whether the object has been initialized.
-        @return True if the object has not been initialized, false otherwise.
+    /** print Output the XML for the Qualifier Declaration object to stdout.
+    
     */
-    Boolean isUninitialized() const;
-
-    /**
-        Compares the qualifier declaration with another qualifier declaration.
-        @param x The CIMConstQualifierDecl to be compared.
-        @return True if this qualifier declaration is identical to the one
-            specified, false otherwise.
-        @exception UninitializedObjectException If either of the objects
-            is not initialized.
-    */
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
+    {
+	_checkRep();
+	_rep->print(o);
+    }
+    /** identical Compares two qualifier declarations
+    @return Returns true if they are identical
+    
+    */ 
     Boolean identical(const CIMConstQualifierDecl& x) const;
-
-    /**
-        Makes a deep copy of the qualifier declaration.  This creates a new
-        copy of all the qualifier declaration attributes.
-        @return A new copy of the CIMQualifierDecl object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** CIMMethod
+    
     */
-    CIMQualifierDecl clone() const;
+
+    CIMQualifierDecl clone() const
+    {
+	return CIMQualifierDecl(_rep->clone());
+    }
 
 private:
 
-    CIMQualifierDecl(CIMQualifierDeclRep* rep);
+    CIMQualifierDecl(CIMQualifierDeclRep* rep) : _rep(rep)
+    {
+    }
+
+    void _checkRep() const
+    {
+	if (!_rep)
+	    ThrowUnitializedHandle();
+    }
 
     CIMQualifierDeclRep* _rep;
-
     friend class CIMConstQualifierDecl;
     friend class CIMClassRep;
-    friend class XmlWriter;
-    friend class MofWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,182 +238,146 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
-    The CIMConstQualifierDecl class provides a const interface to a
-    CIMQualifierDecl object.  This class is needed because the shared
-    representation model used by CIMQualifierDecl does not prevent
-    modification to a const CIMQualifierDecl object.  Note that the value
-    of a CIMConstQualifierDecl object could still be modified by a
-    CIMQualifierDecl object that refers to the same data copy.
-*/
 class PEGASUS_COMMON_LINKAGE CIMConstQualifierDecl
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMConstQualifierDecl object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
-    */
-    CIMConstQualifierDecl();
+    CIMConstQualifierDecl() : _rep(0)
+    {
 
-    /**
-        Constructs a CIMConstQualifierDecl object from the value of a
-        specified CIMConstQualifierDecl object, so that both objects refer
-        to the same data copy.
-        @param x The CIMConstQualifierDecl object from which to construct a
-            new CIMConstQualifierDecl object.
-    */
-    CIMConstQualifierDecl(const CIMConstQualifierDecl& x);
+    }
 
-    /**
-        Constructs a CIMConstQualifierDecl object from the value of a
-        specified CIMQualifierDecl object, so that both objects refer
-        to the same data copy.
-        @param x The CIMQualifierDecl object from which to construct a
-            new CIMConstQualifierDecl object.
-    */
-    CIMConstQualifierDecl(const CIMQualifierDecl& x);
+    CIMConstQualifierDecl(const CIMConstQualifierDecl& x) 
+    {
+	Inc(_rep = x._rep); 
+    }
 
-    /**
-        Constructs a CIMConstQualifierDecl object with the specified
-        attributes.
-        @param name A CIMName specifying the name of the qualifier.
-        @param value A CIMValue specifying the default qualifier value, and
-            implicitly defining the qualifier type and whether the qualifier
-            is an Array qualifier.
-        @param scope A CIMScope indicating the qualifier scope.
-        @param flavor A CIMFlavor indicating the qualifier flavors.
-        @param arraySize A Uint32 indicating the size of the Array, if the
-            qualifier is an Array qualifier.  The default value of zero
-            indicates a variable size array.
-        @exception UninitializedObjectException If the qualifier name is null.
-    */
+    CIMConstQualifierDecl(const CIMQualifierDecl& x) 
+    {
+	Inc(_rep = x._rep); 
+    }
+
+    // Throws IllegalName if name argument not legal CIM identifier.
+
     CIMConstQualifierDecl(
-        const CIMName& name,
-        const CIMValue& value,
-        const CIMScope & scope,
-        const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
-        Uint32 arraySize = 0);
+	const String& name, 
+	const CIMValue& value, 
+	Uint32 scope,
+	Uint32 flavor = CIMFlavor::DEFAULTS,
+	Uint32 arraySize = 0)
+    {
+	_rep = new CIMQualifierDeclRep(name, value, scope, flavor, arraySize);
+    }
 
-    /**
-        Destructs the CIMConstQualifierDecl object.
-    */
-    ~CIMConstQualifierDecl();
+    ~CIMConstQualifierDecl()
+    {
+	Dec(_rep);
+    }
 
-    /**
-        Assigns the value of the specified CIMConstQualifierDecl object to
-        this object, so that both objects refer to the same data copy.
-        @param x The CIMConstQualifierDecl object from which to assign this
-            CIMConstQualifierDecl object.
-        @return A reference to this CIMConstQualifierDecl object.
-    */
-    CIMConstQualifierDecl& operator=(const CIMConstQualifierDecl& x);
+    CIMConstQualifierDecl& operator=(const CIMConstQualifierDecl& x)
+    {
+	if (x._rep != _rep)
+	{
+	    Dec(_rep);
+	    Inc(_rep = x._rep);
+	}
 
-    /**
-        Assigns the value of the specified CIMQualifierDecl object to
-        this object, so that both objects refer to the same data copy.
-        @param x The CIMQualifierDecl object from which to assign this
-            CIMConstQualifierDecl object.
-        @return A reference to this CIMConstQualifierDecl object.
-    */
-    CIMConstQualifierDecl& operator=(const CIMQualifierDecl& x);
+	return *this;
+    }
 
-    /**
-        Gets the name of the qualifier.
-        @return A CIMName containing the name of the qualifier.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMName& getName() const;
+    CIMConstQualifierDecl& operator=(const CIMQualifierDecl& x)
+    {
+	if (x._rep != _rep)
+	{
+	    Dec(_rep);
+	    Inc(_rep = x._rep);
+	}
 
-    /**
-        Gets the qualifier type.
-        @return A CIMType containing the qualifier type.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMType getType() const;
+	return *this;
+    }
 
-    /**
-        Checks whether the qualifier is an Array qualifier.
-        @return True if the qualifier is an Array qualifier, false otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Boolean isArray() const;
+    const String& getName() const 
+    { 
+	_checkRep();
+	return _rep->getName(); 
+    }
 
-    /**
-        Gets the qualifier default value.
-        @return A CIMValue containing the qualifier default value.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMValue& getValue() const;
+    CIMType getType() const 
+    { 
+	_checkRep();
+	return _rep->getType(); 
+    }
 
-    /**
-        Gets the qualifier scope.
-        @return A CIMScope containing the qualifier scope.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMScope & getScope() const;
+    Boolean isArray() const 
+    {
+	_checkRep();
+	return _rep->isArray();
+    }
 
-    /**
-        Gets the qualifier flavors.
-        @return A CIMFlavor containing the qualifier flavor settings.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMFlavor & getFlavor() const;
+    const CIMValue& getValue() const 
+    { 
+	_checkRep();
+	return _rep->getValue(); 
+    }
 
-    /**
-        Gets the array size for the qualifier.
-        @return Uint32 array size.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 getArraySize() const;
+    Uint32 getScope() const 
+    {
+	_checkRep();
+	return _rep->getScope();
+    }
 
-    /**
-        Determines whether the object has been initialized.
-        @return True if the object has not been initialized, false otherwise.
-    */
-    Boolean isUninitialized() const;
+    const Uint32 getFlavor() const 
+    {
+	_checkRep();
+	return _rep->getFlavor();
+    }
 
-    /**
-        Compares the qualifier declaration with another qualifier declaration.
-        @param x The CIMConstQualifierDecl to be compared.
-        @return True if this qualifier declaration is identical to the one
-            specified, false otherwise.
-        @exception UninitializedObjectException If either of the objects
-            is not initialized.
-    */
-    Boolean identical(const CIMConstQualifierDecl& x) const;
+    Uint32 getArraySize() const 
+    {
+	_checkRep();
+	return _rep->getArraySize();
+    }
 
-    /**
-        Makes a deep copy of the qualifier declaration.  This creates a new
-        copy of all the qualifier declaration attributes.
-        @return A CIMQualifierDecl object with a separate copy of the
-            CIMConstQualifierDecl object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMQualifierDecl clone() const;
+    operator int() const { return _rep != 0; }
+
+    void toXml(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toXml(out);
+    }
+
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
+    {
+	_checkRep();
+	_rep->print(o);
+    }
+
+    Boolean identical(const CIMConstQualifierDecl& x) const
+    {
+	x._checkRep();
+	_checkRep();
+	return _rep->identical(x._rep);
+    }
+
+    CIMQualifierDecl clone() const
+    {
+	return CIMQualifierDecl(_rep->clone());
+    }
 
 private:
 
-    CIMQualifierDeclRep* _rep;
+    void _checkRep() const
+    {
+	if (!_rep)
+	    ThrowUnitializedHandle();
+    }
 
+    CIMQualifierDeclRep* _rep;
     friend class CIMQualifierDecl;
-    friend class XmlWriter;
-    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMQualifierDecl
-# include <Pegasus/Common/ArrayInter.h>
+# include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

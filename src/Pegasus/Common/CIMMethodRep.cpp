@@ -212,6 +212,7 @@ void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
     // Output the qualifier list starting on new line
     if (_qualifiers.getCount())
 	out << "\n";
+
     _qualifiers.toMof(out);
 
     // output the type,	MethodName and ParmeterList left enclosure

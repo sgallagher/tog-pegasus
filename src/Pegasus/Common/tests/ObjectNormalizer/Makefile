@@ -5,11 +5,11 @@ DIR = Pegasus/Common/tests/ObjectNormalizer
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-#LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
-
 PROGRAM = TestObjectNormalizer
 
-SOURCES = TestObjectNormalizer.cpp
+SOURCES = \
+	TestObjectNormalizer.cpp\
+	LocalRepository.cpp
 
 include $(ROOT)/mak/program.mak
 

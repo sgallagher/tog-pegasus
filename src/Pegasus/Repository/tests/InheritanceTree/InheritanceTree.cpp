@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Pegasus/Repository/InheritanceTree.h>
 
 using namespace std;
@@ -21,7 +22,7 @@ int main()
     it.insert("C", "A");
     it.insert("F", "C");
 
-    it.print();
+    it.print(cout);
 
     return 0;
 }

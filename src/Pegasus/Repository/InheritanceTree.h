@@ -30,11 +30,11 @@
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/HashTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+struct InheritanceTreeRep;
 
 /** The InheritanceTree class tracks inheritance relationships of CIM classes.
 
@@ -47,95 +47,17 @@ class PEGASUS_REPOSITORY_LINKAGE InheritanceTree
 {
 public:
 
-    InheritanceTree()
-    {
+    InheritanceTree();
 
-    }
+    ~InheritanceTree();
 
-    Boolean insert(const String& className, const String& superClassName)
-    {
-	// ATTN: need found flag!
+    Boolean insert(const String& className, const String& superClassName);
 
-	// -- Insert superclass:
-
-	Node* superClassNode = 0;
-
-	if (superClassName.getLength() &&
-	    !_table.lookup(superClassName, superClassNode))
-	{
-	    superClassNode = new Node(superClassName);
-	    _table.insert(superClassName, superClassNode);
-	}
-
-	// -- Insert class:
-	
-	Node* classNode = 0;
-
-	if (!_table.lookup(className, classNode))
-	{
-	    classNode = new Node(className);
-	    _table.insert(className, classNode);
-	}
-
-	// -- Link the class and superclass nodes:
-
-	if (superClassNode)
-	    superClassNode->addSubClass(classNode);
-
-	return true;
-    }
-
-    void print() const
-    {
-	for (Table::Iterator i = _table.start(); i; i++)
-	    i.value()->print();
-    }
+    void print(std::ostream& os) const;
 
 private:
 
-    struct Node
-    {
-	Node(const String& className) : _className(className), _superClass(0), 
-	    _sibling(0), _subClasses(0)
-	{
-
-	}
-
-	void addSubClass(Node* child)
-	{
-	    child->_superClass = this;
-	    child->_sibling = _subClasses;
-	    _subClasses = child;
-	}
-
-	String _className;
-	Node* _superClass;
-	Node* _sibling;
-	Node* _subClasses;
-
-	void print() const
-	{
-	    std::cout << "*** ClassName: " << _className << std::endl;
-
-	    std::cout << "Subclasses: ";
-
-	    for (Node* p = _subClasses; p; p = p->_sibling)
-		std::cout << p->_className << ' ';
-	    std::cout << std::endl;
-
-	    std::cout << "Superclass: ";
-
-	    if (_superClass)
-		std::cout << _superClass->_className;
-	    else
-		std::cout << "#";
-
-	    std::cout << std::endl;
-	}
-    };
-
-    typedef HashTable<String, Node*> Table;
-    Table _table;
+    InheritanceTreeRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

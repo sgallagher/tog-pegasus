@@ -113,7 +113,8 @@ public:
 private:
 
 #ifdef PEGASUS_HAS_SIGNALS
-    static const unsigned PEGASUS_NSIG = 32;
+    static const Uint32 PEGASUS_NSIG = 32;
+    static void verifySignum(Uint32 signum);
 
     typedef struct {
         int signum;
@@ -125,9 +126,9 @@ private:
     register_handler reg_handler[PEGASUS_NSIG + 1];
     Mutex reg_mutex;
 
-    void deactivate_i(register_handle &rh);
+    void deactivate_i(register_handler &rh);
 
-    register_handler &getHandler(Uint32 sigum) const;
+    register_handler &getHandler(Uint32 sigum);
 #endif
 
 };

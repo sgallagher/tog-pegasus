@@ -350,6 +350,11 @@ public:
     {
         OperationContext context;
 
+        Array<CIMObjectPath> subscriptionInstanceNames;
+
+        context.insert(SubscriptionInstanceNamesContainer
+            (subscriptionInstanceNames));
+
         deliver(context, cimIndication);
     }
 
@@ -358,12 +363,22 @@ public:
         // ATTN: temporarily convert indication to instance
         CIMInstance cimInstance(cimIndication);
 
+        //
+        //  Get list of subscription instance names from context
+        //
+        SubscriptionInstanceNamesContainer container = context.get
+            (SubscriptionInstanceNamesContainer::NAME);
+
+        Array<CIMObjectPath> subscriptionInstanceNames =
+            container.getInstanceNames();
+
         // create message
         CIMProcessIndicationRequestMessage * request =
             new CIMProcessIndicationRequestMessage(
 	     _request_copy.messageId,
             cimInstance.getPath().getNameSpace(),
             cimInstance,
+            subscriptionInstanceNames,
             QueueIdStack(_target->getQueueId(), _source->getQueueId()));
 
         // send message

@@ -1478,8 +1478,21 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         Array <CIMNamespaceName> nameSpaces;
         nameSpaces.append (request->nameSpace);
 
-        matchedSubscriptions = _getMatchingSubscriptions(
-            indication.getClassName (), nameSpaces, propertyList);
+        if (request->subscriptionInstanceNames.size() > 0)
+        {
+            for (Uint8 i = 0; i < request->subscriptionInstanceNames.size(); 
+                 i++)
+            {
+                CIMInstance instance = _repository->getInstance 
+                    (request->nameSpace, request->subscriptionInstanceNames[i]);
+                matchedSubscriptions.append (instance);
+            }
+        }
+        else
+        {
+            matchedSubscriptions = _getMatchingSubscriptions(
+                indication.getClassName (), nameSpaces, propertyList);
+        }
 
         for (Uint8 i = 0; i < matchedSubscriptions.size(); i++)
         {

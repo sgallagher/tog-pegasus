@@ -927,16 +927,19 @@ public:
         const String & messageId_,
         const CIMNamespaceName & nameSpace_,
         const CIMInstance& indicationInstance_,
+        const Array<CIMObjectPath> & subscriptionInstanceNames_,
         QueueIdStack queueIds_)
     : CIMRequestMessage(
         CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
         nameSpace (nameSpace_),
-        indicationInstance(indicationInstance_)
+        indicationInstance(indicationInstance_),
+        subscriptionInstanceNames(subscriptionInstanceNames_)
     {
     }
 
     CIMNamespaceName nameSpace;
     CIMInstance indicationInstance;
+    Array<CIMObjectPath> subscriptionInstanceNames;
 };
 
 class CIMEnableIndicationsRequestMessage : public CIMRequestMessage

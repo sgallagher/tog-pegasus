@@ -24,6 +24,8 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -267,6 +269,265 @@ void IdentityContainer::destroy(void)
 String IdentityContainer::getUserName(void) const
 {
     return(_rep->userName);
+}
+
+//
+// SubscriptionInstanceContainer
+//
+
+class SubscriptionInstanceContainerRep
+{
+public:
+    CIMInstance subscriptionInstance;
+};
+
+const String SubscriptionInstanceContainer::NAME =
+    "SubscriptionInstanceContainer";
+
+SubscriptionInstanceContainer::SubscriptionInstanceContainer
+    (const OperationContext::Container & container)
+{
+    const SubscriptionInstanceContainer * p =
+        dynamic_cast<const SubscriptionInstanceContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new SubscriptionInstanceContainerRep();
+    _rep->subscriptionInstance = p->_rep->subscriptionInstance;
+}
+
+SubscriptionInstanceContainer::SubscriptionInstanceContainer
+    (const SubscriptionInstanceContainer & container)
+{
+    _rep = new SubscriptionInstanceContainerRep();
+    _rep->subscriptionInstance = container._rep->subscriptionInstance;
+}
+
+SubscriptionInstanceContainer::SubscriptionInstanceContainer
+    (const CIMInstance & subscriptionInstance)
+{
+    _rep = new SubscriptionInstanceContainerRep();
+    _rep->subscriptionInstance = subscriptionInstance;
+}
+
+SubscriptionInstanceContainer::~SubscriptionInstanceContainer(void)
+{
+    delete _rep;
+}
+
+SubscriptionInstanceContainer & SubscriptionInstanceContainer::operator=(
+    const SubscriptionInstanceContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->subscriptionInstance = container._rep->subscriptionInstance;
+
+    return (*this);
+}
+
+String SubscriptionInstanceContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * SubscriptionInstanceContainer::clone(void) const
+{
+    return(new SubscriptionInstanceContainer(_rep->subscriptionInstance));
+}
+
+void SubscriptionInstanceContainer::destroy(void)
+{
+    delete this;
+}
+
+CIMInstance SubscriptionInstanceContainer::getInstance(void) const
+{
+    return(_rep->subscriptionInstance);
+}
+
+
+//
+// SubscriptionInstanceNamesContainer
+//
+
+class SubscriptionInstanceNamesContainerRep
+{
+public:
+    Array<CIMObjectPath> subscriptionInstanceNames;
+};
+
+const String SubscriptionInstanceNamesContainer::NAME = 
+    "SubscriptionInstanceNamesContainer";
+
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
+    (const OperationContext::Container & container)
+{
+    const SubscriptionInstanceNamesContainer * p = 
+        dynamic_cast<const SubscriptionInstanceNamesContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new SubscriptionInstanceNamesContainerRep();
+    _rep->subscriptionInstanceNames = p->_rep->subscriptionInstanceNames;
+}
+
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
+    (const SubscriptionInstanceNamesContainer & container)
+{
+    _rep = new SubscriptionInstanceNamesContainerRep();
+    _rep->subscriptionInstanceNames = container._rep->subscriptionInstanceNames;
+}
+
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
+    (const Array<CIMObjectPath> & subscriptionInstanceNames)
+{
+    _rep = new SubscriptionInstanceNamesContainerRep();
+    _rep->subscriptionInstanceNames = subscriptionInstanceNames;
+}
+
+SubscriptionInstanceNamesContainer::~SubscriptionInstanceNamesContainer(void)
+{
+    delete _rep;
+}
+
+SubscriptionInstanceNamesContainer & 
+    SubscriptionInstanceNamesContainer::operator=(
+    const SubscriptionInstanceNamesContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->subscriptionInstanceNames = container._rep->subscriptionInstanceNames;
+
+    return (*this);
+}
+
+String SubscriptionInstanceNamesContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * 
+    SubscriptionInstanceNamesContainer::clone(void) const
+{
+    return(new SubscriptionInstanceNamesContainer
+        (_rep->subscriptionInstanceNames));
+}
+
+void SubscriptionInstanceNamesContainer::destroy(void)
+{
+    delete this;
+}
+
+Array<CIMObjectPath> 
+    SubscriptionInstanceNamesContainer::getInstanceNames(void) const
+{
+    return(_rep->subscriptionInstanceNames);
+}
+
+//
+// SubscriptionFilterConditionContainer
+//
+
+class SubscriptionFilterConditionContainerRep
+{
+public:
+    String filterCondition;
+    String queryLanguage;
+};
+
+const String SubscriptionFilterConditionContainer::NAME = 
+    "SubscriptionFilterConditionContainer";
+
+SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
+    (const OperationContext::Container & container)
+{
+    const SubscriptionFilterConditionContainer * p = 
+        dynamic_cast<const SubscriptionFilterConditionContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new SubscriptionFilterConditionContainerRep();
+    _rep->filterCondition = p->_rep->filterCondition;
+    _rep->queryLanguage = p->_rep->queryLanguage;
+}
+
+SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
+    (const SubscriptionFilterConditionContainer & container)
+{
+    _rep = new SubscriptionFilterConditionContainerRep();
+    _rep->filterCondition = container._rep->filterCondition;
+    _rep->queryLanguage = container._rep->queryLanguage;
+}
+
+SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
+    const String & filterCondition,
+    const String & queryLanguage)
+{
+    _rep = new SubscriptionFilterConditionContainerRep();
+    _rep->filterCondition = filterCondition;
+    _rep->queryLanguage = queryLanguage;
+}
+
+SubscriptionFilterConditionContainer::~SubscriptionFilterConditionContainer
+    (void)
+{
+    delete _rep;
+}
+
+SubscriptionFilterConditionContainer & 
+    SubscriptionFilterConditionContainer::operator=(
+    const SubscriptionFilterConditionContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->filterCondition = container._rep->filterCondition;
+    _rep->queryLanguage = container._rep->queryLanguage;
+
+    return (*this);
+}
+
+String SubscriptionFilterConditionContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * SubscriptionFilterConditionContainer::clone(void) const
+{
+    return(new SubscriptionFilterConditionContainer(_rep->filterCondition, 
+        _rep->queryLanguage));
+}
+
+void SubscriptionFilterConditionContainer::destroy(void)
+{
+    delete this;
+}
+
+String SubscriptionFilterConditionContainer::getFilterCondition(void) const
+{
+    return(_rep->filterCondition);
+}
+
+String SubscriptionFilterConditionContainer::getQueryLanguage(void) const
+{
+    return(_rep->queryLanguage);
 }
 
 PEGASUS_NAMESPACE_END

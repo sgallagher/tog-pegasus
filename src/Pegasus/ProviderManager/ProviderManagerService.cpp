@@ -1764,6 +1764,10 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	OperationContext context;
 
 	context.insert(IdentityContainer(request->userName));
+        context.insert(SubscriptionInstanceContainer
+            (request->subscriptionInstance));
+        context.insert(SubscriptionFilterConditionContainer
+            (request->condition, request->queryLanguage));
 	
 	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -1849,6 +1853,10 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
+        context.insert(SubscriptionInstanceContainer
+            (request->subscriptionInstance));
+        context.insert(SubscriptionFilterConditionContainer
+            (request->condition, request->queryLanguage));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1934,6 +1942,8 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
+        context.insert(SubscriptionInstanceContainer
+            (request->subscriptionInstance));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 

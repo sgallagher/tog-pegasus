@@ -25,6 +25,8 @@
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +35,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -187,6 +190,97 @@ public:
 
 protected:
     IdentityContainerRep* _rep;
+
+};
+
+class SubscriptionInstanceContainerRep;
+
+class PEGASUS_COMMON_LINKAGE SubscriptionInstanceContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    SubscriptionInstanceContainer
+        (const OperationContext::Container & container);
+    SubscriptionInstanceContainer
+        (const SubscriptionInstanceContainer & container);
+    SubscriptionInstanceContainer(const CIMInstance & subscriptionInstance);
+    virtual ~SubscriptionInstanceContainer(void);
+
+    SubscriptionInstanceContainer & operator=
+        (const SubscriptionInstanceContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    CIMInstance getInstance(void) const;
+
+protected:
+    SubscriptionInstanceContainerRep* _rep;
+
+};
+
+class SubscriptionFilterConditionContainerRep;
+
+class PEGASUS_COMMON_LINKAGE SubscriptionFilterConditionContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    SubscriptionFilterConditionContainer
+        (const OperationContext::Container & container);
+    SubscriptionFilterConditionContainer
+        (const SubscriptionFilterConditionContainer & container);
+    SubscriptionFilterConditionContainer
+        (const String & filterCondition, 
+        const String & queryLanguage);
+    virtual ~SubscriptionFilterConditionContainer(void);
+
+    SubscriptionFilterConditionContainer & operator=
+        (const SubscriptionFilterConditionContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    String getFilterCondition(void) const;
+    String getQueryLanguage(void) const;
+
+protected:
+    SubscriptionFilterConditionContainerRep* _rep;
+
+};
+
+class SubscriptionInstanceNamesContainerRep;
+
+class PEGASUS_COMMON_LINKAGE SubscriptionInstanceNamesContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    SubscriptionInstanceNamesContainer
+        (const OperationContext::Container & container);
+    SubscriptionInstanceNamesContainer
+        (const SubscriptionInstanceNamesContainer & container);
+    SubscriptionInstanceNamesContainer
+        (const Array<CIMObjectPath> & subscriptionInstanceNames);
+    virtual ~SubscriptionInstanceNamesContainer(void);
+
+    SubscriptionInstanceNamesContainer & operator=
+        (const SubscriptionInstanceNamesContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    Array<CIMObjectPath> getInstanceNames(void) const;
+
+protected:
+    SubscriptionInstanceNamesContainerRep* _rep;
 
 };
 

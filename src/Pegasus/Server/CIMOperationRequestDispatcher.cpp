@@ -163,12 +163,16 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 	{
 		_repository->read_unlock();
 
+		/*
 		if(e.getCode() == CIM_ERR_NOT_FOUND)
 		{
 			throw CIMException(CIM_ERR_INVALID_CLASS);
 		}
 
 		throw e;
+		*/
+
+		return(String::EMPTY);
 	}
 
 	DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)

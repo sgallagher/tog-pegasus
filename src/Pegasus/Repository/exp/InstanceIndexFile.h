@@ -22,8 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+// Modified By: Michael Brasher (mbrasher@bmc.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -227,7 +227,6 @@ private:
     */
     static Boolean _compact(
         const String& path);
-
 };
 
 PEGASUS_NAMESPACE_END

@@ -23,203 +23,115 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By:
+// Modified By: Michael E. Brasher (mbrasher@bmc.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_InstanceDataFile_h
 #define Pegasus_InstanceDataFile_h
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMReference.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class manages access to an 'instance file' which stores all the
-    instances of a CIM class.
-  
-    For each instance, The CIM/XML representation is stored in the file.
-    The byte location and size of a particular instance record in the file
-    is stored in the 'instance index file'.  The name of an instance file
-    has the following form:
-  
+/** This class manages access to an instance data file which contains all
+    instances of a particular class.
+
+    The instances are stored in ASCII XML format one after another. A separate
+    instance index file is maintained (see InstanceIndexFile) which contains
+    an index entry for each instance in the data file. This index ties the key
+    of the instance to an offset and size within the instance file.
+
+    The index file and data file are named according to the class whose
+    instances they contain information about. The index file and data file for
+    a class named "Zebra" would be:
+
     <pre>
-        className.instances
+        Zebra (index file).
+        Zebra.instances (instance-file).
     </pre>
   
-    Here's an example:
-  
-    <pre>
-        Employee.instances
-    </pre>
+    When an instance is created, it is appended to the end of the instance 
+    file. When one is deleted, it is marked as free in the index file. When
+    an instance is modified, the old one is marked as deleted and the new
+    modified instance is appended to the end of the data file. Note that 
+    deletion and modification may leave unused gaps in the data file. These
+    gaps are reclaimed during compaction (performed when the data file has
+    N gaps where N is some arbitrarily chosen number for now). Performing
+    compaction during each modify and delete would be extremely inefficient.
+    By postponing it until N such operations have been performed, we 
+    improve performance considerably.
 
-    When an instance is added, it is appended to the end of the 
-    instance file.  After an instance is deleted, the instance file is
-    reorganized to reuse the disk space.  When an instance is modified, 
-    the old instance is deleted, and the modified instance is
-    appended to the end of the file.  
-  
-    It is very important to keep both the instance and index file in
-    a consistent state.  In order to minimize the window in which the
-    instance and index file can be left in an inconsistent state (after
-    an unexpected system termination or failure), all updates to the 
-    instance and index files are done first to temporary files.  After
-    an update operation is successful on BOTH the instance and index files,
-    the temporary files are renamed back to the original files.
+    Note the three operations which may be performed on an instance and there
+    associated effect on the data file.
 
+    <ul>
+    <li>Create - appends an instance to the end of the file.</li>
+    <li>Modify - appends an instance to the end of the file.</li>
+    <li>Delete - has no effect on the data file</li>
+    </ul>
+
+    To avoid corruption of the data file we provide a rollback scheme. A
+    rollback file is created (the name is formed by appending ".rollback" to
+    the name of the data file) which contains the original size of the data
+    file. After the modification of the data file is complete, the rollback
+    file is removed. If we discover a rollback file when we start an operation,
+    this means that the last operation did not succeed. We then rollback the
+    operation by truncating the file to its old size.
 */
 class PEGASUS_REPOSITORY_LINKAGE InstanceDataFile
 {
 public:
     
-    /** loads an instance record in the instance file to memory.  The caller 
-        passes the byte position and the size of the instance record to be 
-        read.  Returns true on success.
+    /** loads an instance from the data file into memory.
 
-        @param   path      the file path of the instance file
-        @param   index     the byte positon of the instance record
-        @param   size      the size of the instance record 
-        @param   data      the buffer to hold the instance data 
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-     */
+        @param path the file path of the instance file
+        @param index the byte positon of the instance record
+        @param size the size of the instance record 
+        @param data the buffer to hold the instance data 
+        @return true on success.
+    */
     static Boolean loadInstance(
 	const String& path, 
 	Uint32 index,
 	Uint32 size,  
         Array<Sint8>& data);
     
-    /** loads all the instance records in the instance file to memory. 
-        Returns true on success.
+    /** loads all the instances from the data file into memory. 
 
-        @param   path      the file path of the instance file
-        @param   data      the buffer to hold the data 
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-     */
+        @param path the file path of the instance file
+        @param data the buffer to hold the data 
+        @return true on success.
+    */
     static Boolean loadAllInstances(
 	const String& path, 
         Array<Sint8>& data);
     
-    /** Inserts a new instance record into the instance file.  The byte 
-        position and the size of the newly inserted instance record are 
-        returned.  Returns true on success.
+    /** Appends a new instance to the end of the file.
      
-        @param   out       the buffer containing the CIM/XML encoding of the 
-                           instance
-        @param   path      the file path of the instance file
-        @param   index     the byte positon of the instance record
-        @param   size      the size of the instance record 
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-                           or adding a new record to the instance file
-     */
-    static Boolean insertInstance(
-        Array<Sint8> out,
+        @param out the buffer containing the CIM/XML encoding of the 
+        @param path the file path of the instance file
+        @param index the byte positon of the instance record
+        @param size the size of the instance record 
+        @return true on success
+    */
+    static Boolean appendInstance(
 	const String& path, 
-	Uint32& index,
-	Uint32& size); 
+        const Array<Sint8>& data);
 
-    /** Removes an instance record in the instance file at the given byte 
-        position for the given size.  Returns true on success.
-
-        @param   path      the file path of the instance file
-        @param   size      the size of the instance record 
-        @param   index     the byte positon of the instance record
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-                           or removing a record from the instance file
-     */
-    static Boolean removeInstance(
-	const String& path, 
-	Uint32 size,
-	Uint32 index);
-    
-    /** Modifies an instance record in the instance file by first removing
-        the old instance record in the instance file at the given byte
-        position, then inserts a new instance record into the instance file.
-        The byte position and the size of the newly added instance record
-        are returned.  Returns true on success.
-     
-        @param   out       the buffer containing the CIM/XML encoding of the 
-                           modified instance
-        @param   path      the file path of the instance file
-        @param   oldIndex  the byte positon of the old instance record
-        @param   oldSize   the size of the old instance record 
-        @param   newIndex  the byte positon of the new instance record
-        @param   newSize   the size of the new instance record 
-
-        @return  true      if successful
-                 false     if an error occurs in accessing or modifying the 
-                           instance file
-     */
-    static Boolean modifyInstance(
-        Array<Sint8> out,
-	const String& path, 
-	Uint32 oldIndex,
-	Uint32 oldSize, 
-	Uint32& newIndex,
-	Uint32& newSize); 
-
-private:
-    
-    /** Loads data from the instance file.
-
-        This method is called to load data from the instance file.  It loads
-        the given number of bytes starting at the given byte position of the
-        file.  Returns true on success.          
-
-        @param   path      the file path of the instance file
-        @param   index     the starting byte positon 
-        @param   size      the number of bytes to load
-        @param   data      the buffer to hold the data 
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-     */
-    static Boolean _loadData(
-	const String& path, 
-	Uint32 index,
-	Uint32 size,  
-        Array<Sint8>& data);
-    
-    /** Removes data in the temporary instance file at the given byte position
-        for the given size.  Returns true on success.
-
-        @param   path      the file path of the instance file
-        @parm    os        the ofstream of the temporary instance file
-        @param   size      the size of the instance record 
-        @param   index     the byte positon of the instance record
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-                           or removing a record from the instance file
-     */
-    static Boolean _removeData(
-	const String& path, 
-	PEGASUS_STD(ofstream)& os, 
-	Uint32 size,
-	Uint32 index);
-
-    /** Appends data to the end of the temporary instance file.  Returns true
-        on success.
-
-        @param   out       the buffer containing the CIM/XML encoding of the 
-                           instance
-        @parm    os        the ofstream of the temporary instance file
-        @param   index     the byte positon of the instance record
-        @param   size      the size of the instance record 
-
-        @return  true      if successful
-                 false     if an error occurs in accessing the instance file
-                           or removing a record from the instance file
-     */
-    static Boolean _insertData(
-        Array<Sint8> out,
-	PEGASUS_STD(ofstream)& os, 
-	Uint32& index,
-	Uint32& size);
+    /** Reorganizes the data file to reclaim free space. This is done by
+	copying over all non-free instances to a temporary file and then
+	deleting the original file and renaming the temporary file to the
+	same name as the original.
+    */
+    static Boolean compact(
+	const String& path,
+        const Array<Uint32>& freeFlags,
+        const Array<Uint32>& indices,
+        const Array<Uint32>& sizes);
 };
 
 PEGASUS_NAMESPACE_END

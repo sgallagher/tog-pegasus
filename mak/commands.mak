@@ -149,6 +149,8 @@ ifeq ($(OS),linux)
     CHGRPDIRHIER = chgrp -R
 
     SYMBOLIC_LINK_CMD = ln -f -s
+
+    CURRENT_USER=`whoami`
 endif
 
 ifeq ($(OS),zos)

@@ -86,8 +86,8 @@ ifeq ($(OS),solaris)
   SLEEP = sleep
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  MKDIRHIER = $(MUEXE) mkdirhier
-  RMDIRHIER = $(MUEXE) rmdirhier
+  MKDIRHIER = mkdir -p
+  RMDIRHIER = rm -rf
   ECHO = echo
   COPY = cp
   CHMOD =

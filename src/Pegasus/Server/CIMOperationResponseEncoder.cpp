@@ -95,7 +95,6 @@ void CIMOperationResponseEncoder::sendResponse
 			{
 				String msg = XmlWriter::encodeURICharacters
 					(TraceableCIMException(*cimException).getDescription());
-				cerr << msg.getCString();
 				cimExceptionDescription = CIMException(cimException->getCode(), msg);
 			}
       AutoPtr<HTTPMessage> httpMessage(new HTTPMessage

@@ -326,13 +326,13 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-       if (classNames[i] == "PG_ShutdownService")
-       {
-           // Skip the PG_ObjectManager class.  It currently has no 
-           // instance provider and no instances.  
-       }
-       else
-       {
+       //if (classNames[i] == "PG_ShutdownService")
+       //{
+       //    // Skip the PG_ObjectManager class.  It currently has no 
+       //    // instance provider and no instances.  
+       //}
+       //else
+       //{
            try
            {
                instanceNames = client.enumerateInstanceNames(globalNamespace,classNames[i]);
@@ -342,10 +342,15 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
            }
            catch(CIMClientException& e)
            {
-                 cout << "CIMClientException : " << classNames[i] << endl;
-                 cout << e.getMessage() << endl;
+                 cerr << "CIMClientException : " << classNames[i] << endl;
+                 cerr << e.getMessage() << endl;
            }
-       }
+	   catch(Exception& e)
+	   {
+	       PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	       exit(1);
+	   }
+       //}
     }
     /*
     virtual Array<CIMReference> enumerateInstanceNames(
@@ -980,7 +985,7 @@ int main(int argc, char** argv)
 		           testStart("Test NameSpace Operations");
 	
 			   TestNameSpaceOperations(client, activeTest, verboseTest);
-				   testEnd(elapsedTime.getElapsed());
+			           testEnd(elapsedTime.getElapsed());
 				   
 			   testStart("Test Qualifier Operations");
 			   elapsedTime.reset();

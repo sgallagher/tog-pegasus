@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -39,7 +39,7 @@
 typedef struct os400_pnstruct
 {
   Qlg_Path_Name_T qlg_struct;
-  char * pn; 
+  char * pn;
 } OS400_PNSTRUCT;
 #endif
 
@@ -84,7 +84,7 @@ struct DirRep
 Dir::Dir(const String& path)
     : _path(path), _rep(new DirRep)
 {
- 
+
 #ifdef PEGASUS_OS_OS400
     CString tmpPathclone = _clonePath(_path);
     const char* tmpPath = tmpPathclone;
@@ -157,7 +157,10 @@ void Dir::next()
 #ifdef PEGASUS_OS_OS400
 	if (QlgReaddir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
 #else
-	if (readdir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
+#ifdef PEGASUS_OS_ZOS
+    errno=0;
+#endif
+    if (readdir_r(_rep->dir, &_rep->buffer, &_rep->entry) != 0)
 #endif
         {
 	    _more = false;

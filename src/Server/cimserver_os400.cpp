@@ -50,6 +50,9 @@
 #include <qwtchgjb.cleinc>
 #include "qushdler.H"
 
+//Needed for SQL APIs
+#include "sqlcli.h"
+
 // Structure need for the CHGJOB(QWTCHGJB) API
 typedef struct jobChangeInfo
 {
@@ -149,7 +152,8 @@ void CancelHandler (_CNL_Hndlr_Parms_T *cancelParms)
 ////////////////////////////////////////////////////
 int cimserver_initialize(void)
 {
-
+    SQLHENV    henv; // SQL environment variable
+    long       attr; // SQL attribute to be set
 
    // setup cancel handler to make sure job log gets saved if we exit abnormally
    // TODO:  this is currently commented out because it causes build errors -
@@ -185,6 +189,13 @@ int cimserver_initialize(void)
    // Change authority to the qypsjobd job description
    //////////////////////////////////////////////////// 
    system("QSYS/GRTOBJAUT OBJ(QSYS/QYCMJOBD) OBJTYPE(*JOBD) USER(*PUBLIC) AUT(*EXCLUDE)");
+
+   SQLAllocEnv(&henv);  // Allocating SQL environment variable
+   attr = SQL_TRUE;     // Set SQL attribute to true
+   
+   // Set the SQL server mode to true.
+   // This will allow multiple connections to the same data source.
+   SQLSetEnvAttr(henv,SQL_ATTR_SERVER_MODE, &attr,0);
  }
   catch (...)
   {

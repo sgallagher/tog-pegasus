@@ -143,22 +143,22 @@ Uint32 CIMClass::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMQualifier CIMClass::getQualifier(Uint32 pos)
+CIMQualifier CIMClass::getQualifier(Uint32 index)
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-CIMConstQualifier CIMClass::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMClass::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-void CIMClass::removeQualifier(Uint32 pos)
+void CIMClass::removeQualifier(Uint32 index)
 {
     _checkRep();
-    _rep->removeQualifier(pos);
+    _rep->removeQualifier(index);
 }
 
 Uint32 CIMClass::getQualifierCount() const
@@ -180,22 +180,22 @@ Uint32 CIMClass::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMProperty CIMClass::getProperty(Uint32 pos)
+CIMProperty CIMClass::getProperty(Uint32 index)
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
-CIMConstProperty CIMClass::getProperty(Uint32 pos) const
+CIMConstProperty CIMClass::getProperty(Uint32 index) const
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
-void CIMClass::removeProperty(Uint32 pos)
+void CIMClass::removeProperty(Uint32 index)
 {
     _checkRep();
-    _rep->removeProperty(pos);
+    _rep->removeProperty(index);
 }
 
 Uint32 CIMClass::getPropertyCount() const
@@ -217,22 +217,22 @@ Uint32 CIMClass::findMethod(const CIMName& name) const
     return _rep->findMethod(name);
 }
 
-CIMMethod CIMClass::getMethod(Uint32 pos)
+CIMMethod CIMClass::getMethod(Uint32 index)
 {
     _checkRep();
-    return _rep->getMethod(pos);
+    return _rep->getMethod(index);
 }
 
-CIMConstMethod CIMClass::getMethod(Uint32 pos) const
+CIMConstMethod CIMClass::getMethod(Uint32 index) const
 {
     _checkRep();
-    return _rep->getMethod(pos);
+    return _rep->getMethod(index);
 }
 
-void CIMClass::removeMethod(Uint32 pos)
+void CIMClass::removeMethod(Uint32 index)
 {
     _checkRep();
-    _rep->removeMethod(pos);
+    _rep->removeMethod(index);
 }
 
 Uint32 CIMClass::getMethodCount() const
@@ -379,10 +379,10 @@ Uint32 CIMConstClass::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMConstQualifier CIMConstClass::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMConstClass::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstClass::getQualifierCount() const
@@ -397,10 +397,10 @@ Uint32 CIMConstClass::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMConstProperty CIMConstClass::getProperty(Uint32 pos) const
+CIMConstProperty CIMConstClass::getProperty(Uint32 index) const
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
 Uint32 CIMConstClass::getPropertyCount() const
@@ -415,10 +415,10 @@ Uint32 CIMConstClass::findMethod(const CIMName& name) const
     return _rep->findMethod(name);
 }
 
-CIMConstMethod CIMConstClass::getMethod(Uint32 pos) const
+CIMConstMethod CIMConstClass::getMethod(Uint32 index) const
 {
     _checkRep();
-    return _rep->getMethod(pos);
+    return _rep->getMethod(index);
 }
 
 Uint32 CIMConstClass::getMethodCount() const

@@ -87,20 +87,20 @@ Uint32 CIMMethodRep::findParameter(const CIMName& name) const
     return PEG_NOT_FOUND;
 }
 
-CIMParameter CIMMethodRep::getParameter(Uint32 pos)
+CIMParameter CIMMethodRep::getParameter(Uint32 index)
 {
-    if (pos >= _parameters.size())
+    if (index >= _parameters.size())
 	throw IndexOutOfBoundsException();
 
-    return _parameters[pos];
+    return _parameters[index];
 }
 
-void CIMMethodRep::removeParameter(Uint32 pos)
+void CIMMethodRep::removeParameter(Uint32 index)
 {
-    if (pos >= _parameters.size())
+    if (index >= _parameters.size())
 	throw IndexOutOfBoundsException();
 
-    _parameters.remove (pos);
+    _parameters.remove (index);
 }
 
 Uint32 CIMMethodRep::getParameterCount() const

@@ -71,20 +71,20 @@ Uint32 CIMObjectRep::findProperty(const CIMName& name) const
     return PEG_NOT_FOUND;
 }
 
-CIMProperty CIMObjectRep::getProperty(Uint32 pos)
+CIMProperty CIMObjectRep::getProperty(Uint32 index)
 {
-    if (pos >= _properties.size())
+    if (index >= _properties.size())
 	throw IndexOutOfBoundsException();
 
-    return _properties[pos];
+    return _properties[index];
 }
 
-void CIMObjectRep::removeProperty(Uint32 pos)
+void CIMObjectRep::removeProperty(Uint32 index)
     {
-	if (pos >= _properties.size())
+	if (index >= _properties.size())
 	    throw IndexOutOfBoundsException();
 
-	_properties.remove(pos);
+	_properties.remove(index);
     }
 
 

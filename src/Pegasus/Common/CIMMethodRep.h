@@ -100,20 +100,20 @@ public:
 	return _qualifiers.find(name);
     }
 
-    CIMQualifier getQualifier(Uint32 pos)
+    CIMQualifier getQualifier(Uint32 index)
     {
-	return _qualifiers.getQualifier(pos);
+	return _qualifiers.getQualifier(index);
     }
 
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
+    CIMConstQualifier getQualifier(Uint32 index) const
     {
-	return _qualifiers.getQualifier(pos);
+	return _qualifiers.getQualifier(index);
     }
 
-    void removeQualifier(Uint32 pos)
+    void removeQualifier(Uint32 index)
     {
-	_qualifiers.removeQualifier(pos);
+	_qualifiers.removeQualifier(index);
     }
 
 
@@ -126,14 +126,14 @@ public:
 
     Uint32 findParameter(const CIMName& name) const;
 
-    CIMParameter getParameter(Uint32 pos);
+    CIMParameter getParameter(Uint32 index);
 
-    CIMConstParameter getParameter(Uint32 pos) const
+    CIMConstParameter getParameter(Uint32 index) const
     {
-	return ((CIMMethodRep*)this)->getParameter(pos);
+	return ((CIMMethodRep*)this)->getParameter(index);
     }
 
-    void removeParameter (Uint32 pos);
+    void removeParameter (Uint32 index);
 
     Uint32 getParameterCount() const;
 

@@ -84,14 +84,14 @@ public:
 	return _qualifiers.find(name);
     }
 
-    CIMQualifier getQualifier(Uint32 pos)
+    CIMQualifier getQualifier(Uint32 index)
     {
-	return _qualifiers.getQualifier(pos);
+	return _qualifiers.getQualifier(index);
     }
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
+    CIMConstQualifier getQualifier(Uint32 index) const
     {
-	return _qualifiers.getQualifier(pos);
+	return _qualifiers.getQualifier(index);
     }
 
     Boolean isTrueQualifer(CIMName& name) const
@@ -104,23 +104,23 @@ public:
 	return _qualifiers.getCount();
     }
 
-    void removeQualifier(Uint32 pos)
+    void removeQualifier(Uint32 index)
     {
-	_qualifiers.removeQualifier(pos);
+	_qualifiers.removeQualifier(index);
     }
 
     virtual void addProperty(const CIMProperty& x);
 
     Uint32 findProperty(const CIMName& name) const;
 
-    CIMProperty getProperty(Uint32 pos);
+    CIMProperty getProperty(Uint32 index);
 
-    CIMConstProperty getProperty(Uint32 pos) const
+    CIMConstProperty getProperty(Uint32 index) const
     {
-	return ((CIMObjectRep*)this)->getProperty(pos);
+	return ((CIMObjectRep*)this)->getProperty(index);
     }
 
-    void removeProperty(Uint32 pos);
+    void removeProperty(Uint32 index);
 
     Uint32 getPropertyCount() const;
 

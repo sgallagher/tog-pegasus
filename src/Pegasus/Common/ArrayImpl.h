@@ -190,23 +190,23 @@ const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::getData() const
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
+PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 index)
 {
-    if (pos >= size())
+    if (index >= size())
         throw IndexOutOfBoundsException();
 
-    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[index];
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos) const
+const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 index) const
 {
-    if (pos >= size())
+    if (index >= size())
         throw IndexOutOfBoundsException();
 
-    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[index];
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -259,54 +259,56 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T& x)
+void Array<PEGASUS_ARRAY_T>::insert(Uint32 index, const PEGASUS_ARRAY_T& x)
 {
-    insert(pos, &x, 1);
+    insert(index, &x, 1);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
+void Array<PEGASUS_ARRAY_T>::insert(Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    if (pos > this->size())
+    if (index > this->size())
         throw IndexOutOfBoundsException();
 
     reserveCapacity(this->size() + size);
 
-    Uint32 n = this->size() - pos;
+    Uint32 n = this->size() - index;
 
     if (n)
-        memmove(
-            _data() + pos + size, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
+        memmove(_data() + index + size,
+                _data() + index,
+                sizeof(PEGASUS_ARRAY_T) * n);
 
-    CopyToRaw(_data() + pos, x, size);
+    CopyToRaw(_data() + index, x, size);
     static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos)
+void Array<PEGASUS_ARRAY_T>::remove(Uint32 index)
 {
-    remove(pos, 1);
+    remove(index, 1);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
+void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
 {
-    if (pos + size - 1 > this->size())
+    if (index + size - 1 > this->size())
         throw IndexOutOfBoundsException();
 
-    Destroy(_data() + pos, size);
+    Destroy(_data() + index, size);
 
-    Uint32 rem = this->size() - (pos + size);
+    Uint32 rem = this->size() - (index + size);
 
     if (rem)
-        memmove(
-            _data() + pos, _data() + pos + size, sizeof(PEGASUS_ARRAY_T) * rem);
+        memmove(_data() + index,
+                _data() + index + size,
+                sizeof(PEGASUS_ARRAY_T) * rem);
 
     static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size -= size;
 }

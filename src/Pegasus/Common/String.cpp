@@ -261,20 +261,20 @@ char* String::allocateCString(Uint32 extraBytes) const
     return allocateCString(extraBytes, truncatedCharacters);
 }
 
-Char16& String::operator[](Uint32 i)
+Char16& String::operator[](Uint32 index)
 {
-    if (i > size())
+    if (index > size())
 	throw IndexOutOfBoundsException();
 
-    return _rep->c16a[i];
+    return _rep->c16a[index];
 }
 
-const Char16 String::operator[](Uint32 i) const
+const Char16 String::operator[](Uint32 index) const
 {
-    if (i > size())
+    if (index > size())
 	throw IndexOutOfBoundsException();
 
-    return _rep->c16a[i];
+    return _rep->c16a[index];
 }
 
 String& String::append(const Char16& c)
@@ -298,26 +298,26 @@ String& String::append(const String& str)
     return append(str.getData(), str.size());
 }
 
-void String::remove(Uint32 pos, Uint32 size)
+void String::remove(Uint32 index, Uint32 size)
 {
     if (size == PEG_NOT_FOUND)
-	size = this->size() - pos;
+	size = this->size() - index;
 
-    if (pos + size > this->size())
+    if (index + size > this->size())
 	throw IndexOutOfBoundsException();
 
     if (size)
-	_rep->c16a.remove(pos, size);
+	_rep->c16a.remove(index, size);
 }
 
-String String::subString(Uint32 pos, Uint32 length) const
+String String::subString(Uint32 index, Uint32 length) const
 {
-    if (pos < size())
+    if (index < size())
     {
 	if (length == PEG_NOT_FOUND)
-	    length = size() - pos;
+	    length = size() - index;
 
-	return String(getData() + pos, length);
+	return String(getData() + index, length);
     }
     else
 	return String();
@@ -336,11 +336,11 @@ Uint32 String::find(Char16 c) const
     return PEG_NOT_FOUND;
 }
 
-Uint32 String::find(Uint32 pos, Char16 c) const
+Uint32 String::find(Uint32 index, Char16 c) const
 {
     const Char16* data = getData();
 
-    for (Uint32 i = pos, n = size(); i < n; i++)
+    for (Uint32 i = index, n = size(); i < n; i++)
     {
 	if (data[i] == c)
 	    return i;

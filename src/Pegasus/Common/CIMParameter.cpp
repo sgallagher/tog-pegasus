@@ -140,22 +140,22 @@ Uint32 CIMParameter::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMQualifier CIMParameter::getQualifier(Uint32 pos)
+CIMQualifier CIMParameter::getQualifier(Uint32 index)
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-CIMConstQualifier CIMParameter::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMParameter::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-void CIMParameter::removeQualifier (Uint32 pos)
+void CIMParameter::removeQualifier (Uint32 index)
 {
     _checkRep ();
-    _rep->removeQualifier (pos);
+    _rep->removeQualifier (index);
 }
 
 Uint32 CIMParameter::getQualifierCount() const
@@ -281,10 +281,10 @@ Uint32 CIMConstParameter::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMConstQualifier CIMConstParameter::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMConstParameter::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstParameter::getQualifierCount() const

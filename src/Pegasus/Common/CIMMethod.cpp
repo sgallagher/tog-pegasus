@@ -149,22 +149,22 @@ Uint32 CIMMethod::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMQualifier CIMMethod::getQualifier(Uint32 pos)
+CIMQualifier CIMMethod::getQualifier(Uint32 index)
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-CIMConstQualifier CIMMethod::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMMethod::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-void CIMMethod::removeQualifier(Uint32 pos)
+void CIMMethod::removeQualifier(Uint32 index)
 {
     _checkRep();
-    _rep->removeQualifier(pos);
+    _rep->removeQualifier(index);
 }
 
 Uint32 CIMMethod::getQualifierCount() const
@@ -186,22 +186,22 @@ Uint32 CIMMethod::findParameter(const CIMName& name) const
     return _rep->findParameter(name);
 }
 
-CIMParameter CIMMethod::getParameter(Uint32 pos)
+CIMParameter CIMMethod::getParameter(Uint32 index)
 {
     _checkRep();
-    return _rep->getParameter(pos);
+    return _rep->getParameter(index);
 }
 
-CIMConstParameter CIMMethod::getParameter(Uint32 pos) const
+CIMConstParameter CIMMethod::getParameter(Uint32 index) const
 {
     _checkRep();
-    return _rep->getParameter(pos);
+    return _rep->getParameter(index);
 }
 
-void CIMMethod::removeParameter (Uint32 pos)
+void CIMMethod::removeParameter (Uint32 index)
 {
     _checkRep ();
-    _rep->removeParameter (pos);
+    _rep->removeParameter (index);
 }
 
 Uint32 CIMMethod::getParameterCount() const
@@ -319,10 +319,10 @@ Uint32 CIMConstMethod::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMConstQualifier CIMConstMethod::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMConstMethod::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstMethod::getQualifierCount() const
@@ -337,10 +337,10 @@ Uint32 CIMConstMethod::findParameter(const CIMName& name) const
     return _rep->findParameter(name);
 }
 
-CIMConstParameter CIMConstMethod::getParameter(Uint32 pos) const
+CIMConstParameter CIMConstMethod::getParameter(Uint32 index) const
 {
     _checkRep();
-    return _rep->getParameter(pos);
+    return _rep->getParameter(index);
 }
 
 Uint32 CIMConstMethod::getParameterCount() const

@@ -114,17 +114,17 @@ public:
     /// Returns a pointer to the first element of the array.
     const PEGASUS_ARRAY_T* getData() const;
 
-    /** Returns the element at the index given by the pos argument.
-        @return A reference to the elementdefined by index so that it may be
+    /** Returns the element indicated by the index argument.
+        @return A reference to the element defined by index so that it may be
         modified.
     */
-    PEGASUS_ARRAY_T& operator[](Uint32 pos);
+    PEGASUS_ARRAY_T& operator[](Uint32 index);
 
     /** Same as the above method except that this is the version called
         on const arrays. The return value cannot be modified since it
         is constant.
     */
-    const PEGASUS_ARRAY_T& operator[](Uint32 pos) const;
+    const PEGASUS_ARRAY_T& operator[](Uint32 index) const;
 
     /** Appends an element to the end of the array. This increases the size
         of the array by one.
@@ -155,23 +155,23 @@ public:
     /** Inserts the element at the given index in the array. Subsequent
         elements are moved down. The size of the array grows by one.
     */
-    void insert(Uint32 pos, const PEGASUS_ARRAY_T& x);
+    void insert(Uint32 index, const PEGASUS_ARRAY_T& x);
 
-    /** Inserts size elements at x into the array at the given position.
+    /** Inserts size elements at x into the array at the given index.
         Subsequent elements are moved down. The size of the array grows
         by size elements.
     */
-    void insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size);
+    void insert(Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size);
 
-    /** Removes the element at the given position from the array. The
+    /** Removes the element at the given index from the array. The
         size of the array shrinks by one.
     */
-    void remove(Uint32 pos);
+    void remove(Uint32 index);
 
-    /** Removes size elements starting at the given position. The size of
+    /** Removes size elements starting at the given index. The size of
         the array shrinks by size elements.
     */
-    void remove(Uint32 pos, Uint32 size);
+    void remove(Uint32 index, Uint32 size);
 
 private:
 

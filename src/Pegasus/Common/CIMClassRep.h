@@ -71,14 +71,14 @@ public:
 
     Uint32 findMethod(const CIMName& name) const;
 
-    CIMMethod getMethod(Uint32 pos);
+    CIMMethod getMethod(Uint32 index);
 
-    CIMConstMethod getMethod(Uint32 pos) const
+    CIMConstMethod getMethod(Uint32 index) const
     {
-	return ((CIMClassRep*)this)->getMethod(pos);
+	return ((CIMClassRep*)this)->getMethod(index);
     }
 
-    void removeMethod(Uint32 pos);
+    void removeMethod(Uint32 index);
 
     Uint32 getMethodCount() const;
 

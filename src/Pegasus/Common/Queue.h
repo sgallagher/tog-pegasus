@@ -102,11 +102,11 @@ public:
     /* remove - Removes an entry from the queue.  Normally the role of
        queues is to pass information from the back to the front but
        this function allows removeing any single item from the queue
-       @param pos - Position in the array containing the item to be removed
-       @exception - Throws the "outOfBounds" exception of pos is outside the queue
+       @param index - Position in the array containing the item to be removed
+       @exception - Throws the "outOfBounds" exception of index is outside the queue
        This works because the queue implementation is an array.
     */
-    void remove(Uint32 pos) { _rep.remove(pos); }
+    void remove(Uint32 index) { _rep.remove(index); }
 
     //void operator
 

@@ -124,16 +124,16 @@ Uint32 CIMInstance::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMQualifier CIMInstance::getQualifier(Uint32 pos)
+CIMQualifier CIMInstance::getQualifier(Uint32 index)
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-CIMConstQualifier CIMInstance::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMInstance::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
 Uint32 CIMInstance::getQualifierCount() const
@@ -155,22 +155,22 @@ Uint32 CIMInstance::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMProperty CIMInstance::getProperty(Uint32 pos) throw(IndexOutOfBoundsException)
+CIMProperty CIMInstance::getProperty(Uint32 index) throw(IndexOutOfBoundsException)
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
-CIMConstProperty CIMInstance::getProperty(Uint32 pos) const throw(IndexOutOfBoundsException)
+CIMConstProperty CIMInstance::getProperty(Uint32 index) const throw(IndexOutOfBoundsException)
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
-void CIMInstance::removeProperty(Uint32 pos)  throw(IndexOutOfBoundsException)
+void CIMInstance::removeProperty(Uint32 index)  throw(IndexOutOfBoundsException)
 {
     _checkRep();
-    _rep->removeProperty(pos);
+    _rep->removeProperty(index);
 }
 
 Uint32 CIMInstance::getPropertyCount() const
@@ -298,10 +298,10 @@ Uint32 CIMConstInstance::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMConstQualifier CIMConstInstance::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMConstInstance::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstInstance::getQualifierCount() const
@@ -316,10 +316,10 @@ Uint32 CIMConstInstance::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMConstProperty CIMConstInstance::getProperty(Uint32 pos) const
+CIMConstProperty CIMConstInstance::getProperty(Uint32 index) const
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
 Uint32 CIMConstInstance::getPropertyCount() const

@@ -83,28 +83,28 @@ public:
 	return _qualifiers.size(); 
     }
 
-    /** getQualifer - Gets the qaulifier defined at the position provided
+    /** getQualifer - Gets the qaulifier defined at the index provided
 	in the Qualifier list.
-	@param pos - The position in the qualifierlist containing the
+	@param index - The position in the qualifierlist containing the
 	qualifier.
 	@return CIMQualifier object.
 	@exception - Throws OutofBounds exception of pso not within the
 	qualifier list.
 	ATTN: P0 KS Mar 2002 Add the outofbounds exception.
     */
-    CIMQualifier& getQualifier(Uint32 pos);
+    CIMQualifier& getQualifier(Uint32 index);
 
-    const CIMQualifier& getQualifier(Uint32 pos) const
+    const CIMQualifier& getQualifier(Uint32 index) const
     {
-	return _qualifiers[pos]; 
+	return _qualifiers[index]; 
     }
 
     /** removeQualifier - Removes the Qualifier defined by
-	the pos parameter
-	@exception IndexOutOfBoundsException if pos not within
+	the index parameter
+	@exception IndexOutOfBoundsException if index not within
 	range of current qualifiers.
     */
-    void removeQualifier(Uint32 pos);
+    void removeQualifier(Uint32 index);
     
     /**	find - Searches for a qualifier with the specified `
         input name if it exists in the class

@@ -65,15 +65,15 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     return *this;
 }
 //ATTN: Why do we not do the outofbounds check here. KS 18 May 2k
-CIMQualifier& CIMQualifierList::getQualifier(Uint32 pos)
+CIMQualifier& CIMQualifierList::getQualifier(Uint32 index)
 {
-    return _qualifiers[pos];
+    return _qualifiers[index];
 }
 
 //ATTN: added ks 18 may 2001. Should we have outofbounds?
-void CIMQualifierList::removeQualifier(Uint32 pos)
+void CIMQualifierList::removeQualifier(Uint32 index)
 {
-    _qualifiers.remove(pos);
+    _qualifiers.remove(index);
 }
 
 Uint32 CIMQualifierList::find(const CIMName& name) const
@@ -88,13 +88,13 @@ Uint32 CIMQualifierList::find(const CIMName& name) const
 }
 Boolean CIMQualifierList::isTrue(const CIMName& name) const
 {
-    Uint32 pos = find(name);
+    Uint32 index = find(name);
 
-    if (pos == PEG_NOT_FOUND)
+    if (index == PEG_NOT_FOUND)
 	return false;
 
     Boolean flag;
-    const CIMValue& value = getQualifier(pos).getValue();
+    const CIMValue& value = getQualifier(index).getValue();
 
     if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
@@ -199,14 +199,14 @@ void CIMQualifierList::resolve(
 		// of NULL or no values.  The implication is that we must move the value
 		// from the superclass or declaration.
 
-		Uint32 pos = inheritedQualifiers.find(q.getName());
+		Uint32 index = inheritedQualifiers.find(q.getName());
 
 		//cout << "KSTEST Qualifier resolve inherit test " << q.getName() 
-		//<< " Inherited From " << ((pos == PEG_NOT_FOUND) ? "Declaration" : "superclass")
+		//<< " Inherited From " << ((index == PEG_NOT_FOUND) ? "Declaration" : "superclass")
 		//<< " Flavor " << q.getFlavor() 
 		//<< " inherited Flavor ";
 
-		if (pos == PEG_NOT_FOUND)
+		if (index == PEG_NOT_FOUND)
 		{   // Qualifier does not exist in superclass
 			/* If from declaration, we can override the default value.
 			   However, we need some way to get the value if we have a Null.
@@ -252,7 +252,7 @@ void CIMQualifierList::resolve(
 		}
 		else   			// qualifier exists in superclass 
 		{	////// Make Const again
-			CIMQualifier iq = inheritedQualifiers.getQualifier(pos);
+			CIMQualifier iq = inheritedQualifiers.getQualifier(index);
 			// don't allow change override to notoverride.
 			if (!(iq.getFlavor ().hasFlavor
                                (CIMFlavor::OVERRIDABLE)) 

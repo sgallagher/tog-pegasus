@@ -120,22 +120,22 @@ Uint32 CIMObject::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMQualifier CIMObject::getQualifier(Uint32 pos)
+CIMQualifier CIMObject::getQualifier(Uint32 index)
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-CIMConstQualifier CIMObject::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMObject::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
-void CIMObject::removeQualifier(Uint32 pos)
+void CIMObject::removeQualifier(Uint32 index)
 {
     _checkRep();
-    _rep->removeQualifier(pos);
+    _rep->removeQualifier(index);
 }
 
 Uint32 CIMObject::getQualifierCount() const
@@ -157,22 +157,22 @@ Uint32 CIMObject::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMProperty CIMObject::getProperty(Uint32 pos)
+CIMProperty CIMObject::getProperty(Uint32 index)
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
-CIMConstProperty CIMObject::getProperty(Uint32 pos) const
+CIMConstProperty CIMObject::getProperty(Uint32 index) const
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
-void CIMObject::removeProperty(Uint32 pos)
+void CIMObject::removeProperty(Uint32 index)
 {
     _checkRep();
-    _rep->removeProperty(pos);
+    _rep->removeProperty(index);
 }
 
 Uint32 CIMObject::getPropertyCount() const
@@ -305,10 +305,10 @@ Uint32 CIMConstObject::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-CIMConstQualifier CIMConstObject::getQualifier(Uint32 pos) const
+CIMConstQualifier CIMConstObject::getQualifier(Uint32 index) const
 {
     _checkRep();
-    return _rep->getQualifier(pos);
+    return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstObject::getQualifierCount() const
@@ -323,10 +323,10 @@ Uint32 CIMConstObject::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMConstProperty CIMConstObject::getProperty(Uint32 pos) const
+CIMConstProperty CIMConstObject::getProperty(Uint32 index) const
 {
     _checkRep();
-    return _rep->getProperty(pos);
+    return _rep->getProperty(index);
 }
 
 Uint32 CIMConstObject::getPropertyCount() const

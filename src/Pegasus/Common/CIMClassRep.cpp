@@ -59,14 +59,14 @@ CIMClassRep::~CIMClassRep()
 
 Boolean CIMClassRep::isAssociation() const
 {
-    Uint32 pos = findQualifier(CIMQualifierNames::ASSOCIATION);
+    Uint32 index = findQualifier(CIMQualifierNames::ASSOCIATION);
 
-    if (pos == PEG_NOT_FOUND)
+    if (index == PEG_NOT_FOUND)
 	return false;
 
     Boolean flag;
 
-    const CIMValue& value = getQualifier(pos).getValue();
+    const CIMValue& value = getQualifier(index).getValue();
 
     if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
@@ -77,13 +77,13 @@ Boolean CIMClassRep::isAssociation() const
 
 Boolean CIMClassRep::isAbstract() const
 {
-    Uint32 pos = findQualifier(CIMQualifierNames::ABSTRACT);
+    Uint32 index = findQualifier(CIMQualifierNames::ABSTRACT);
 
-    if (pos == PEG_NOT_FOUND)
+    if (index == PEG_NOT_FOUND)
 	return false;
 
     Boolean flag;
-    const CIMValue& value = getQualifier(pos).getValue();
+    const CIMValue& value = getQualifier(index).getValue();
 
     if (value.getType() != CIMTYPE_BOOLEAN)
 	return false;
@@ -144,12 +144,12 @@ Uint32 CIMClassRep::findMethod(const CIMName& name) const
     return PEG_NOT_FOUND;
 }
 
-CIMMethod CIMClassRep::getMethod(Uint32 pos)
+CIMMethod CIMClassRep::getMethod(Uint32 index)
 {
-    if (pos >= _methods.size())
+    if (index >= _methods.size())
 	throw IndexOutOfBoundsException();
 
-    return _methods[pos];
+    return _methods[index];
 }
 
 Uint32 CIMClassRep::getMethodCount() const
@@ -157,12 +157,12 @@ Uint32 CIMClassRep::getMethodCount() const
     return _methods.size();
 }
 
-void CIMClassRep::removeMethod(Uint32 pos)
+void CIMClassRep::removeMethod(Uint32 index)
 {
-    if (pos >= _methods.size())
+    if (index >= _methods.size())
 	throw IndexOutOfBoundsException();
 
-    _methods.remove(pos);
+    _methods.remove(index);
 }
 
 void CIMClassRep::resolve(
@@ -226,9 +226,9 @@ void CIMClassRep::resolve(
                                 "Non-assocation class contains reference property");
                         }
 
-			Uint32 pos = superClass.findProperty(property.getName());
+			Uint32 index = superClass.findProperty(property.getName());
 	
-			if (pos == PEG_NOT_FOUND)
+			if (index == PEG_NOT_FOUND)
 			{
                             Resolver::resolveProperty (property, context, 
                                 nameSpace, false, true);
@@ -236,7 +236,7 @@ void CIMClassRep::resolve(
 			else
 			{
 				CIMConstProperty superClassProperty =
-				superClass.getProperty(pos);
+				superClass.getProperty(index);
                             Resolver::resolveProperty (property, context, 
                                 nameSpace, false, superClassProperty, true);
 			}
@@ -257,19 +257,19 @@ void CIMClassRep::resolve(
 			// insert it (setting the propagated flag). Otherwise, change
 			// the class-origin and propagated flag accordingly.
 	
-			Uint32 pos = PEG_NOT_FOUND;
+			Uint32 index = PEG_NOT_FOUND;
 			/*	 ATTN: KS move to simpler version of the find
 			for (Uint32 j = m, n = _properties.size(); j < n; j++)
 			{
 				if (CIMName::equal(_properties[j].getName(),
 								   superClassProperty.getName()))
 				{
-					pos = j;
+					index = j;
 					break;
 				}
 			}
 			*/
-			pos = findProperty(superClassProperty.getName());
+			index = findProperty(superClassProperty.getName());
 	
 			// If property exists in super class but not in this one, then
 			// clone and insert it. Otherwise, the properties class
@@ -277,7 +277,7 @@ void CIMClassRep::resolve(
 	
 			CIMProperty superproperty = superClassProperty.clone();
 	
-			if (pos == PEG_NOT_FOUND)
+			if (index == PEG_NOT_FOUND)
 			{
 				superproperty.setPropagated(true);
 				_properties.insert(m++, superproperty);
@@ -290,11 +290,11 @@ void CIMClassRep::resolve(
 				// If a qualifier is defined on the superclass's property
 				// but not on the subclass's, then add it to the subclass's
 				// property's qualifier list.
-				CIMProperty subproperty = _properties[pos];
+				CIMProperty subproperty = _properties[index];
 				for (Uint32 i = 0, n = superproperty.getQualifierCount();
 					i < n; i++) 
 				{
-					Uint32 pos = PEG_NOT_FOUND;
+					Uint32 index = PEG_NOT_FOUND;
 					CIMQualifier superClassQualifier = 
 											superproperty.getQualifier(i);
 					const CIMName name = superClassQualifier.getName();
@@ -312,16 +312,16 @@ void CIMClassRep::resolve(
 						CIMConstQualifier q = subproperty.getQualifier(j);
 						if (name.equal(q.getName())) 
 						{
-							pos = j;
+							index = j;
 							break;
 						}
 					}  // end comparison of subclass property's qualifiers
-					if (pos == PEG_NOT_FOUND)
+					if (index == PEG_NOT_FOUND)
 					{
 						subproperty.addQualifier(superClassQualifier);
 					}
 					/*
-					if ((pos = subproperty.findQualifier(name)) == PEG_NOT_FOUND)
+					if ((index = subproperty.findQualifier(name)) == PEG_NOT_FOUND)
 					{
 						subproperty.addQualifier(superClassQualifier);
 					}
@@ -338,16 +338,16 @@ void CIMClassRep::resolve(
 		for (Uint32 i = 0, n = _methods.size(); i < n; i++)
 		{
 			CIMMethod& method = _methods[i];
-			Uint32 pos = superClass.findMethod(method.getName());
+			Uint32 index = superClass.findMethod(method.getName());
 	
-			if (pos == PEG_NOT_FOUND)
+			if (index == PEG_NOT_FOUND)
 			{
                             Resolver::resolveMethod (method, context, 
                                 nameSpace);
 			}
 			else
 			{
-				CIMConstMethod superClassMethod = superClass.getMethod(pos);
+				CIMConstMethod superClassMethod = superClass.getMethod(index);
                             Resolver::resolveMethod (method, context, 
                                 nameSpace, superClassMethod);
 			}
@@ -366,14 +366,14 @@ void CIMClassRep::resolve(
 			// insert it (setting the propagated flag). Otherwise, change
 			// the class-origin and propagated flag accordingly.
 	
-			Uint32 pos = PEG_NOT_FOUND;
+			Uint32 index = PEG_NOT_FOUND;
 			/**********************	 KS move to simpler version
 			for (Uint32 j = m, n = _methods.size(); j < n; j++)
 			{
 				if (CIMName::equal(_methods[j].getName(),
 									superClassMethod.getName()))
 				{
-					pos = j;
+					index = j;
 					break;
 				}
 			}
@@ -382,14 +382,14 @@ void CIMClassRep::resolve(
 			// clone and insert it. Otherwise, the method's class origin
 			// has already been set above.
 	
-			if (pos == PEG_NOT_FOUND)
+			if (index == PEG_NOT_FOUND)
 			{
 				CIMMethod method = superClassMethod.clone();
 				method.setPropagated(true);
 				_methods.insert(m++, method);
 			}
 			*/
-			if((pos = findMethod(superClassMethod.getName())) == PEG_NOT_FOUND)
+			if((index = findMethod(superClassMethod.getName())) == PEG_NOT_FOUND)
 			{
 				CIMMethod method = superClassMethod.clone();
 				method.setPropagated(true);
@@ -595,11 +595,11 @@ void CIMClassRep::getKeyNames(Array<CIMName>& keyNames) const
     {
 	CIMConstProperty property = getProperty(i);
 
-        Uint32 pos;
-        if ((pos = property.findQualifier ("key")) != PEG_NOT_FOUND)
+        Uint32 index;
+        if ((index = property.findQualifier ("key")) != PEG_NOT_FOUND)
         {
             CIMValue value;
-            value = property.getQualifier (pos).getValue ();
+            value = property.getQualifier (index).getValue ();
             if (!value.isNull ())
             {
                 Boolean isKey;
@@ -617,11 +617,11 @@ Boolean CIMClassRep::hasKeys() const
     {
 	CIMConstProperty property = getProperty(i);
 
-        Uint32 pos;
-        if ((pos = property.findQualifier ("key")) != PEG_NOT_FOUND)
+        Uint32 index;
+        if ((index = property.findQualifier ("key")) != PEG_NOT_FOUND)
         {
             CIMValue value;
-            value = property.getQualifier (pos).getValue ();
+            value = property.getQualifier (index).getValue ();
             if (!value.isNull ())
             {
                 Boolean isKey;

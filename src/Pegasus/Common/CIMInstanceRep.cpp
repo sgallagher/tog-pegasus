@@ -120,9 +120,9 @@ void CIMInstanceRep::resolve(
     {
 	CIMProperty& property = _properties[i];
 
-	Uint32 pos = cimClass.findProperty(property.getName());
+	Uint32 index = cimClass.findProperty(property.getName());
 
-	if (pos == PEG_NOT_FOUND)
+	if (index == PEG_NOT_FOUND)
         {
             //
             //  Allow addition of Creator property to Indication Subscription,
@@ -141,7 +141,7 @@ void CIMInstanceRep::resolve(
         {
 	    // resolve the property
 	    Resolver::resolveProperty (property, context, nameSpace, true, 
-                cimClass.getProperty (pos), propagateQualifiers);
+                cimClass.getProperty (index), propagateQualifiers);
         }
     }
 
@@ -274,10 +274,10 @@ CIMObjectPath CIMInstanceRep::buildPath(
     {
 	const CIMName& keyName = keyNames[i];
 
-	Uint32 pos = findProperty(keyName);
-	PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+	Uint32 index = findProperty(keyName);
+	PEGASUS_ASSERT(index != PEG_NOT_FOUND);
 
-	CIMConstProperty tmp = getProperty(pos);
+	CIMConstProperty tmp = getProperty(index);
 
 	if (keyName.equal(tmp.getName()))
 	{

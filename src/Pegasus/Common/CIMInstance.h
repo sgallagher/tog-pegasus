@@ -121,7 +121,7 @@ public:
 	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
-    CIMQualifier getQualifier(Uint32 pos);
+    CIMQualifier getQualifier(Uint32 index);
 
     /** getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
@@ -132,7 +132,7 @@ public:
 	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     /**	getQualifierCount - Gets the numbercount of CIMQualifierobjects
 	defined for this CIMInstance.
@@ -172,7 +172,7 @@ public:
 	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
-    CIMProperty getProperty(Uint32 pos) throw(IndexOutOfBoundsException);
+    CIMProperty getProperty(Uint32 index) throw(IndexOutOfBoundsException);
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
@@ -184,15 +184,16 @@ public:
 	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
-    CIMConstProperty getProperty(Uint32 pos) const throw(IndexOutOfBoundsException);
+    CIMConstProperty getProperty(Uint32 index) const throw(IndexOutOfBoundsException);
 
     /** removeProperty - Removes the property represented
-	by the position input parameter from the instance.
-	@param pos Index to the property to be removed from the
+	by the index input parameter from the instance.
+	@param index Index to the property to be removed from the
 	instance.  Normally this is obtained by getProperty();
-	@exception Throws OutofBounds if index is not a property object
+	@exception IndexOutOfBoundsException if index is outside the range of
+        properties in this instance
     */
-    void removeProperty(Uint32 pos) throw(IndexOutOfBoundsException);
+    void removeProperty(Uint32 index) throw(IndexOutOfBoundsException);
 
     /**	getPropertyCount - Gets the numbercount of CIMProperty
 	objects defined for this CIMInstance.
@@ -298,13 +299,13 @@ public:
 
     Uint32 findQualifier(const CIMName& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     Uint32 getQualifierCount() const;
 
     Uint32 findProperty(const CIMName& name) const;
 
-    CIMConstProperty getProperty(Uint32 pos) const;
+    CIMConstProperty getProperty(Uint32 index) const;
 
     Uint32 getPropertyCount() const;
 

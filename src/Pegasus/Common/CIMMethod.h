@@ -130,7 +130,7 @@ public:
     */
     CIMMethod& addQualifier(const CIMQualifier& x);
 
-    /** findQualifier - returns the position of the qualifier with
+    /** findQualifier - returns the index of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
@@ -139,23 +139,22 @@ public:
 
     /** getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.
-	@param Index of the qualifier requested.
+	@param index Index of the qualifier requested.
 	@return CIMQualifier object or exception
 	@exception IndexOutOfBoundsException exception if the index is
         outside the range of parameters available from the CIMMethod.
     */
-    CIMQualifier getQualifier(Uint32 pos);
+    CIMQualifier getQualifier(Uint32 index);
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /** removeQualifier - Removes the CIMQualifier defined by the
-	position input as a parameter.
-	@param Position of the qualifier requested.
+    /** removeQualifier - Remove the specified CIMQualifier from this method
+	@param index Index of the qualifier to remove
 	@return CIMQualifier object or exception
 	@exception IndexOutOfBoundsException exception if the index is
         outside the range of parameters available from the CIMMethod.
     */
-    void removeQualifier(Uint32 pos);
+    void removeQualifier(Uint32 index);
 
     /** getQualifierCount - Returns the number of Qualifiers attached
 	to this CIMMethod object.
@@ -182,20 +181,20 @@ public:
 	@exception IndexOutOfBoundsException exception is thrown if the
         index is outside the range of available parameters
     */
-    CIMParameter getParameter(Uint32 pos);
+    CIMParameter getParameter(Uint32 index);
 
     /** getParameter - const form */
-    CIMConstParameter getParameter(Uint32 pos) const;
+    CIMConstParameter getParameter(Uint32 index) const;
 
     /** removeParameter - Removes the CIMParameter defined by the
 	specified index
 
-	@param pos index of the parameter to be removed
+	@param index index of the parameter to be removed
 
 	@exception IndexOutOfBoundsException if the index is outside the
         range of parameters available from the CIMMethod
     */
-    void removeParameter (Uint32 pos);
+    void removeParameter (Uint32 index);
 
     /** getParameterCount - Gets the count of the numbeer of
 	Parameters attached to the CIMMethod.
@@ -266,13 +265,13 @@ public:
 
     Uint32 findQualifier(const CIMName& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     Uint32 getQualifierCount() const;
 
     Uint32 findParameter(const CIMName& name) const;
 
-    CIMConstParameter getParameter(Uint32 pos) const;
+    CIMConstParameter getParameter(Uint32 index) const;
 
     Uint32 getParameterCount() const;
 

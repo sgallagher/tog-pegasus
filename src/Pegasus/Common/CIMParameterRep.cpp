@@ -79,12 +79,12 @@ void CIMParameterRep::setName(const CIMName& name)
     _name = name; 
 }
 
-void CIMParameterRep::removeQualifier(Uint32 pos)
+void CIMParameterRep::removeQualifier(Uint32 index)
 {
-    if (pos >= _qualifiers.getCount())
+    if (index >= _qualifiers.getCount())
         throw IndexOutOfBoundsException();
 
-    _qualifiers.removeQualifier (pos);
+    _qualifiers.removeQualifier (index);
 }
 
 void CIMParameterRep::resolve(

@@ -160,26 +160,26 @@ public:
 
     /**	getQualifier - Gets the CIMQualifier object defined
 	by the input parameter
-	@param pos defines the position of the qualifier in the class from the
+	@param index defines the index of the qualifier in the class from the
 	findQualifier method
 	@return CIMQualifier object representing the qualifier found. On error,
 	    CIMQualifier handle will be null.
     */
-    CIMQualifier getQualifier(Uint32 pos);
+    CIMQualifier getQualifier(Uint32 index);
 
     /** getQualifier - Gets the qualifier defined by the input parameter
 	from the qualifier list for this CIMClass.
     */
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     /** removeQualifier - Removes the qualifier defined by the
     index parameter.
     @param Defines the index of the qualifier to be removed.
     @return There is no return.
-    @exception Throw OutOfBound exception if the index is outside
+    @exception IndexOutOfBoundsException if the index is outside
     the range of existing qualifier objects for this class
     */
-    void removeQualifier(Uint32 pos);
+    void removeQualifier(Uint32 index);
 
     /** getQualifierCount - Returns the number of qualifiers
 	in the class.
@@ -196,39 +196,38 @@ public:
     /** findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
 	@param CIMName parameter with the property name.
-	@return position representing the property object found or
+	@return index representing the property object found or
 	PEG_NOT_FOUND if the property is not found.
     */
     Uint32 findProperty(const CIMName& name) const;
 
-    // ATTN: Should we not use something like handle for position???
-    // ATTN: what is error return?
     /** getProperty - Returns a property representing the property
 	defined by the input parameter
-	@param position for this property
+	@param index Index for this property
 	@return CIMProperty object
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of properties in this class
     */
-    CIMProperty getProperty(Uint32 pos);
+    CIMProperty getProperty(Uint32 index);
 
     /**getProperty Gets a property object from the CIMClass
-    	@param pos The index of the property object to get.
+    	@param index The index of the property object to get.
     	@return Returns handle of the property object requested
-    	@exception Throws OutofBounds if the size field is greather than the
-    	bunber of properties in the class.
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of properties in this class
     */
-    CIMConstProperty getProperty(Uint32 pos) const;
+    CIMConstProperty getProperty(Uint32 index) const;
 
-    /** removeProperty - Removes the property represented
-	by the position input parameter from the class
-	@param pos Index to the property to be removed from the
-	findPropety method
-	@exception Throws OutofBounds if index is not a property object
+    /** removeProperty - Remove the specified property from the class
+	@param index Index of the property to be removed
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of properties in this class
     */
-    void removeProperty(Uint32 pos);
+    void removeProperty(Uint32 index);
 
     /** getPropertyCount -   Gets the count of the number of properties
 	defined in the class.
-	@return count of number of proerties in the class
+	@return count of number of properties in the class
     */
     Uint32 getPropertyCount() const;
 
@@ -252,18 +251,18 @@ public:
 
     /** getMethod - Gets the method object defined by the
 	input parameter.
-	@param pos Index to the method object to get
+	@param index Index to the method object to get
 	@return Returns handle of the method requested
-	@exception Throws OutofBounds if the index represented by pos is greater
-	than the number of methods defined in the class object
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of methods in this class
     */
-    CIMMethod getMethod(Uint32 pos);
+    CIMMethod getMethod(Uint32 index);
 
     /** getMethod Gets the method object defined by the input
     parameter. This is the const version.
     */
 
-    CIMConstMethod getMethod(Uint32 pos) const;
+    CIMConstMethod getMethod(Uint32 index) const;
 
     /** removeMethod - Removes the method defined by the
     index parameter.
@@ -272,7 +271,7 @@ public:
     @exception Throw OutOfBound exception if the index is outside
     the range of existing method objects for this class
     */
-    void removeMethod(Uint32 pos);
+    void removeMethod(Uint32 index);
 
     /** getMethodCount - Count of the number of methods in the class
 	@return integer representing the number of methods in the class object.
@@ -363,19 +362,19 @@ public:
 
     Uint32 findQualifier(const CIMName& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     Uint32 getQualifierCount() const;
 
     Uint32 findProperty(const CIMName& name) const;
 
-    CIMConstProperty getProperty(Uint32 pos) const;
+    CIMConstProperty getProperty(Uint32 index) const;
 
     Uint32 getPropertyCount() const;
 
     Uint32 findMethod(const CIMName& name) const;
 
-    CIMConstMethod getMethod(Uint32 pos) const;
+    CIMConstMethod getMethod(Uint32 index) const;
 
     Uint32 getMethodCount() const;
 

@@ -88,19 +88,19 @@ public:
 
     Uint32 findQualifier(const CIMName& name) const;
 
-    CIMQualifier getQualifier(Uint32 pos);
+    CIMQualifier getQualifier(Uint32 index);
 
     /** removeQualifier - Removes the CIMQualifier defined by the
         specified index
 
-        @param pos index of the qualifier to be removed
+        @param index index of the qualifier to be removed
 
         @exception IndexOutOfBoundsException if the index is outside
         the range of qualifiers available for the CIMParameter
     */
-    void removeQualifier (Uint32 pos);
+    void removeQualifier (Uint32 index);
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     Uint32 getQualifierCount() const;
 
@@ -171,7 +171,7 @@ public:
 
     Uint32 findQualifier(const CIMName& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     Uint32 getQualifierCount() const;
 

@@ -42,7 +42,7 @@ class CIMPropertyListRep;
 /** This class is for representing property lists in the CIM interface.
 
     This class comprises an array of propertyNames and a flag indicating whether
-    the list is null. There are three possibilties which must be represented;
+    the list is null. There are three possibilities which must be represented;
     the property list is:
 
     <ul>
@@ -99,9 +99,9 @@ public:
     */
     Uint32 size() const;
 
-    /** Get the property at the given position.
+    /** Get the property at the given index.
     */
-    const CIMName& operator[](Uint32 pos) const;
+    const CIMName& operator[](Uint32 index) const;
 
     /** Get an array of the property names
     */

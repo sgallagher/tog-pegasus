@@ -182,22 +182,23 @@ public:
     /** allocateCString companion that does not require an output parameter */
     char* allocateCString(Uint32 extraBytes = 0) const;
 
-    /** Returns the Ith character of the String object.
+    /** Returns the specified character of the String object.
+	@param index Index of the character to access
 	@exception IndexOutOfBoundsException if the index
-	is outside the bounds of the string.
+	is outside the bounds of the String.
 	<pre>
 	    String t1 = "abc;
 	    Char16 c = t1[1];	// character b
 	</pre>
     */
-    Char16& operator[](Uint32 i);
+    Char16& operator[](Uint32 index);
 
-    /** Returns the Ith character of the String (const version).
-	@exception - Throws exception "OutofBounds" if the index
-	is outside the length of the string.
-
+    /** Returns the specified character of the String object (const version).
+	@param index Index of the character to access
+	@exception IndexOutOfBoundsException if the index
+	is outside the bounds of the String.
     */
-    const Char16 operator[](Uint32 i) const;
+    const Char16 operator[](Uint32 index) const;
 
     /** Append the given character to this String.
 	@param c Character to append.
@@ -225,11 +226,11 @@ public:
     String& append(const String& str);
 
     /** Remove size characters from the string starting at the given
-	position. If size is PEG_NOT_FOUND, then all characters after pos are
+	index. If size is PEG_NOT_FOUND, then all characters after index are
 	removed.
-	@param pos Position in string to start remove
+	@param index Position in string to start remove
 	@param size Number of characters to remove. Default is PEG_NOT_FOUND
-	(Uint32(-1) which causes all characters after pos to be removed
+	which causes all characters after index to be removed
 	<pre>
 	    String s;
 	    s = "abc";
@@ -241,16 +242,16 @@ public:
 	    assert(s.size() == 0);
 	</pre>
 	@exception IndexOutOfBoundsException if size is greater than
-	length of String plus starting position for remove.
+	length of String plus starting index for remove.
     */
-    void remove(Uint32 pos, Uint32 size = PEG_NOT_FOUND);
+    void remove(Uint32 index, Uint32 size = PEG_NOT_FOUND);
 
     /** Return a new String which is initialzed with <TT>length</TT>
-	characters from this string starting at <TT>pos</TT>.
-	@param <TT>pos</TT> is the positon in string to start getting the
+	characters from this string starting at <TT>index</TT>.
+	@param <TT>index</TT> is the index in string to start getting the
 	substring.
 	@param <TT>length</TT> is the number of characters to get. If length
-	is PEG_NOT_FOUND, then all characters after pos are added to the new
+	is PEG_NOT_FOUND, then all characters after index are added to the new
 	string.
 	@return String with the defined substring.
 	<pre>
@@ -259,9 +260,9 @@ public:
 	    assert(String::equal(s, "abc"));
 	</pre>
     */
-    String subString(Uint32 pos, Uint32 length = PEG_NOT_FOUND) const;
+    String subString(Uint32 index, Uint32 length = PEG_NOT_FOUND) const;
 
-    /** Find the position of the first occurence of the character c.
+    /** Find the index of the first occurence of the character c.
 	If the character is not found, PEG_NOT_FOUND is returned.
 	@param c Char to be found in the String
 	@return Position of the character in the string or PEG_NOT_FOUND if not
@@ -269,10 +270,10 @@ public:
     */
     Uint32 find(Char16 c) const;
 
-    /** Same as above but starts searching from the given position. */
-    Uint32 find(Uint32 pos, Char16 c) const;
+    /** Same as above but starts searching from the given index. */
+    Uint32 find(Uint32 index, Char16 c) const;
 
-    /** Find the position of the first occurence of the string object.
+    /** Find the index of the first occurence of the string object.
 	This function finds one string inside another
 	If the matching substring is not found, PEG_NOT_FOUND is returned.
 	@param s String object to be found in the String

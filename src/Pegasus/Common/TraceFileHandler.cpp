@@ -140,11 +140,11 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
     else
     {
         // Check if directory is writable
-        Uint32 pos = fileName.reverseFind('/');
+        Uint32 index = fileName.reverseFind('/');
 
-        if (pos != PEG_NOT_FOUND)
+        if (index != PEG_NOT_FOUND)
 	{
-            String dirName = fileName.subString(0,pos);
+            String dirName = fileName.subString(0,index);
             if (!FileSystem::isDirectory(dirName))
             {
 	        return 0;

@@ -97,9 +97,9 @@ Uint32 CIMPropertyList::size() const
     return _rep->propertyNames.size();
 }
 
-const CIMName& CIMPropertyList::operator[](Uint32 pos) const
+const CIMName& CIMPropertyList::operator[](Uint32 index) const
 {
-    return _rep->propertyNames[pos];
+    return _rep->propertyNames[index];
 }
 
 Array<CIMName> CIMPropertyList::getPropertyNameArray() const

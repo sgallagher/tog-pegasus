@@ -113,19 +113,19 @@ public:
 	return _qualifiers.find(name);
     }
 
-    CIMQualifier getQualifier(Uint32 pos)
+    CIMQualifier getQualifier(Uint32 index)
     {
-	return _qualifiers.getQualifier(pos);
+	return _qualifiers.getQualifier(index);
     }
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
+    CIMConstQualifier getQualifier(Uint32 index) const
     {
-	return _qualifiers.getQualifier(pos);
+	return _qualifiers.getQualifier(index);
     }
 
-    void removeQualifier(Uint32 pos)
+    void removeQualifier(Uint32 index)
     {
-	_qualifiers.removeQualifier(pos);
+	_qualifiers.removeQualifier(index);
     }
 
     Uint32 getQualifierCount() const

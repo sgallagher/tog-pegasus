@@ -183,33 +183,32 @@ public:
     Uint32 findQualifier(const CIMName& name) const;
 
     /** getQualifier - gets the Qualifier object specified by the
-	pos parameter.
-	@param pos Position parameter for the Qualifier object to be
+	index parameter.
+	@param index Index parameter for the Qualifier object to be
 	retrieved
 	@return returns a CIMQualifier object.
-	@exception Throws IndexOutOfBoundsException if pos is outside range
+	@exception IndexOutOfBoundsException if index is outside range
 	of Qualifiers in this property object.
     */
-    CIMQualifier getQualifier(Uint32 pos);
+    CIMQualifier getQualifier(Uint32 index);
 
-    /** getQualifier returns the qualifier defined at the position
-        input.
-        @param pos Uint32 position for the qualifier. Can be obtained
-        from functions such as findQualifier.
+    /** getQualifier Returns the qualifier at the specified index
+        @param index Index of the qualifier. Can be obtained from the
+        findQualifier method.
         @return Returns the qualifier object.
-        @exception throws IndexOutOfBoundsException if pos is outside the range
+        @exception IndexOutOfBoundsException if index is outside the range
         of qualifiers that exist for the property.
     */
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     /** removeQualifier - Removes the CIMQualifier defined by the 
-	position input as a parameter.
+	index input as a parameter.
 	@param Position of the qualifier requested.
 	@return CIMQualifier object or exception
 	@exception IndexOutOfBoundsException if the index is outside the
         range of parameters available from the CIMMethod.
     */
-    void removeQualifier(Uint32 pos);
+    void removeQualifier(Uint32 index);
     
     /** getQualifierCount - Returns count of the number
     	of qualifiers attached to the CIMProperty object.
@@ -305,7 +304,7 @@ public:
 
     Uint32 findQualifier(const CIMName& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const;
+    CIMConstQualifier getQualifier(Uint32 index) const;
 
     Uint32 getQualifierCount() const;
 

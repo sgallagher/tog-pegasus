@@ -67,6 +67,10 @@ PEGASUS_NAMESPACE_BEGIN
 #include <sys/time.h>
 #include <unistd.h>
 
+#if defined(PEGASUS_OS_HPUX)
+Boolean System::bindVerbose = false;
+#endif
+
 inline void sleep_wrapper(Uint32 seconds)
 {
     sleep(seconds);
@@ -175,8 +179,16 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
                   "Attempting to load library %s", fileName);
 
 #if defined(PEGASUS_OS_HPUX)
-    void* handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
-
+    void* handle;
+    if (bindVerbose)
+    {
+        handle = shl_load(fileName, 
+                     BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
+    }
+    else 
+    {
+        handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+    }
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
                   "After loading lib %s, error code is %d", fileName, 
                   (handle == (void *)0)?errno:0);

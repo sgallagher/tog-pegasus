@@ -40,6 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 /** This is an opaque type which is used to represent dynamic library
     handles returned by the System::loadDynamicLibrary() method and
     accepted by the System::loadDynamicProcedure() method.
@@ -186,6 +187,10 @@ public:
     static Uint32 getPID();
 
     static Boolean truncateFile(const char* path, size_t newSize);
+
+#if defined(PEGASUS_OS_HPUX)
+    static Boolean bindVerbose;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

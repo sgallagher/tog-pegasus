@@ -133,6 +133,10 @@ static const char OPTION_FORCE       = 'f';
 
 static const char OPTION_TIMEOUT     = 'T';
 
+#if defined(PEGASUS_OS_HPUX)
+static const char OPTION_BINDVERBOSE = 'X';
+#endif
+
 static const String NAMESPACE = "root/PG_Internal";
 static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
 static const String PROPERTY_TIMEOUT = "operationTimeout";
@@ -416,6 +420,20 @@ int main(int argc, char** argv)
                     memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
                     argc -= 2;
                 }
+#if defined(PEGASUS_OS_HPUX)
+                //
+                // Check to see if user asked for the version (-v option):
+                //
+                if (*option == OPTION_BINDVERBOSE)
+                {
+		    System::bindVerbose = true;
+                    cout << "Unsupported debug option, BIND_VERBOSE, enabled." 
+                         << endl;
+                    // remove the option from the command line
+                    memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+                    argc--;   
+                }
+#endif
                 //
                 // Check to see if user asked for shutdown (-s option):
                 //

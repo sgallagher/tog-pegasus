@@ -35,11 +35,13 @@ endif
 	@ echo +++++ Loading PG_InterOpSchema$(PG_SCHEMA_VER).mof into $(INTEROPNS) namespace...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
 # Bug 1222
-# The following code is temporary.  Eventually this class should be incorporated into PG_InteropSchema
+# The following code is temporary.  These classes should be incorporated into PG_InteropSchema
 # however, this cannot be done now because we cannot conditionally compile MOF.	
 ifeq ($(PEGASUS_ENABLE_SLP),true) 
 	@ echo +++++ Loading PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER).mof
+	@ echo +++++ Loading PG_Namespace$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_Namespace$(PG_SCHEMA_VER).mof
 endif
 
 	
@@ -65,6 +67,8 @@ endif
 ifeq ($(PEGASUS_ENABLE_SLP),true) 
 	@ echo +++++ Loading Loading PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/Loading PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER).mof
+	@ echo +++++ Loading Loading PG_Namespace$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
+	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/Loading PG_Namespace$(PG_SCHEMA_VER).mof
 endif
 
 clean:

@@ -23,8 +23,8 @@
 // Author: Michael E. Brasher
 //
 // $Log: SystemUnix.cpp,v $
-// Revision 1.3  2001/04/11 19:53:22  mike
-// More porting
+// Revision 1.4  2001/04/12 07:53:08  mike
+// new
 //
 // Revision 1.2  2001/04/11 07:03:02  mike
 // Port to Unix
@@ -129,6 +129,18 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 	return false;
 
     return unlink(oldPath) == 0;
+}
+
+DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
+{
+    return DynamicLibraryHandle(dlopen(fileName, 0));
+}
+
+DynamicSymbolHandle System::loadDynamicSymbol(
+    DynamicLibraryHandle libraryHandle,
+    const char* symbolName)
+{
+    return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
 }
 
 PEGASUS_NAMESPACE_END

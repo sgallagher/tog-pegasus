@@ -387,7 +387,7 @@ void IndicationService::_initialize (void)
     CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
 
-    for (Uint8 i = 0; i < activeSubscriptions.size (); i++)
+    for (Uint32 i = 0; i < activeSubscriptions.size (); i++)
     {
         //
         //  Check for expired subscription
@@ -489,10 +489,10 @@ void IndicationService::_initialize (void)
         //
         //  Merge provider list into list of unique providers to enable
         //
-        for (Uint8 j = 0; j < indicationProviders.size (); j++)
+        for (Uint32 j = 0; j < indicationProviders.size (); j++)
         {
             duplicate = false;
-            for (Uint8 k = 0; k < enableProviders.size () && !duplicate; k++)
+            for (Uint32 k = 0; k < enableProviders.size () && !duplicate; k++)
             {
                 if ((indicationProviders [j].provider.identical 
                     (enableProviders [k].provider)))
@@ -538,7 +538,7 @@ void IndicationService::_initialize (void)
     //
     //  Send Enable message to each provider
     //
-    for (Uint8 m = 0; m < enableProviders.size (); m++)
+    for (Uint32 m = 0; m < enableProviders.size (); m++)
     {
         //
         //  Send Enable message 
@@ -866,7 +866,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //
                     //  Send Enable message to each provider
                     //
-                    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+                    for (Uint32 i = 0; i < indicationProviders.size (); i++)
                     {
                         //
                         //  Send Enable message 
@@ -1078,7 +1078,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         //
         //  Remove Creator and language properties from instances before returning
         //
-        for (Uint8 i = 0; i < enumInstances.size (); i++)
+        for (Uint32 i = 0; i < enumInstances.size (); i++)
         {
             String creator;
             if (!_getCreator (enumInstances [i], creator))
@@ -1590,7 +1590,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //
                     //  Send Enable message to each provider
                     //
-                    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+                    for (Uint32 i = 0; i < indicationProviders.size (); i++)
                     {
                         //
                         //  Send Enable message 
@@ -1903,7 +1903,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         //
         Array <CIMName> propertyNames;
         CIMPropertyList propertyList;
-        for (Uint8 i = 0; i < indication.getPropertyCount(); i++)
+        for (Uint32 i = 0; i < indication.getPropertyCount(); i++)
             propertyNames.append(indication.getProperty(i).getName());
         propertyList = _checkPropertyList (propertyNames, 
             request->nameSpace, indication.getClassName ());
@@ -1917,7 +1917,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             stopWatch.reset ();
 #endif
 
-            for (Uint8 i = 0; i < request->subscriptionInstanceNames.size(); 
+            for (Uint32 i = 0; i < request->subscriptionInstanceNames.size(); 
                  i++)
             {
                 //
@@ -1959,7 +1959,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 #endif
         }
 
-        for (Uint8 i = 0; i < matchedSubscriptions.size(); i++)
+        for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
         {
             match = true;
 
@@ -2208,7 +2208,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //  Send Create or Modify request for each subscription that can newly 
         //  be supported
         //
-        for (Uint8 i = 0; i < newSubscriptions.size (); i++)
+        for (Uint32 i = 0; i < newSubscriptions.size (); i++)
         {
             CIMNamespaceName sourceNameSpace;
             Array <CIMName> indicationSubclasses;
@@ -2324,7 +2324,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
                     //  Send Enable message to each provider
                     //
-                    for (Uint8 j = 0; j < indicationProviders.size (); j++)
+                    for (Uint32 j = 0; j < indicationProviders.size (); j++)
                     {
                         //
                         //  Send Enable message
@@ -2374,7 +2374,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //  Send Delete or Modify request for each subscription that can no 
         //  longer be supported
         //
-        for (Uint8 i = 0; i < formerSubscriptions.size (); i++)
+        for (Uint32 i = 0; i < formerSubscriptions.size (); i++)
         {
             //
             //  NOTE: These Delete or Modify requests are not associated with a
@@ -2539,7 +2539,7 @@ Uint32 IndicationService::_providerInList
     //
     //  Look for the provider in the list
     //
-    for (Uint8 i = 0; i < tableValue.providers.size (); i++)
+    for (Uint32 i = 0; i < tableValue.providers.size (); i++)
     {
         if (tableValue.providers [i].provider.identical (provider))
         {
@@ -2562,7 +2562,7 @@ Uint32 IndicationService::_classInList
     //
     //  Look for the class in the list
     //
-    for (Uint8 i = 0; i < providerClasses.classList.size (); i++)
+    for (Uint32 i = 0; i < providerClasses.classList.size (); i++)
     {
         if (providerClasses.classList [i].equal (className))
         {
@@ -2589,7 +2589,7 @@ void IndicationService::_handleNotifyProviderTerminationRequest
 
     Array <CIMInstance> providers = request->providers;
 
-    for (Uint8 i = 0; i < providers.size (); i++)
+    for (Uint32 i = 0; i < providers.size (); i++)
     {
         //
         //  Get list of affected subscriptions
@@ -3471,7 +3471,7 @@ Boolean IndicationService::_canDelete (
         //  Check each subscription for a reference to the instance to be 
         //  deleted
         //
-        for (Uint8 i = 0; i < subscriptions.size(); i++)
+        for (Uint32 i = 0; i < subscriptions.size(); i++)
         {
             //
             //  Get the subscription Filter or Handler property value
@@ -3531,7 +3531,7 @@ Boolean IndicationService::_getActiveSubscriptionsFromRepository (
     //
     //  Get existing subscriptions from each namespace in the repository
     //
-    for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
+    for (Uint32 i = 0; i < nameSpaceNames.size (); i++)
     {
 
         //
@@ -3542,7 +3542,7 @@ Boolean IndicationService::_getActiveSubscriptionsFromRepository (
         //
         //  Process each subscription
         //
-        for (Uint8 j = 0; j < subscriptions.size (); j++)
+        for (Uint32 j = 0; j < subscriptions.size (); j++)
         {
             //
             //  Get subscription state
@@ -3626,7 +3626,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getMatchingSubscriptions");
 
-    for (Uint8 i = 0; i < nameSpaces.size (); i++)
+    for (Uint32 i = 0; i < nameSpaces.size (); i++)
     {
         //
         //  Look up the indicationClass-sourceNamespace pair in the 
@@ -3639,7 +3639,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             tableValue))
         {
             subscriptions = tableValue.subscriptions;
-            for (Uint8 j = 0; j < subscriptions.size (); j++)
+            for (Uint32 j = 0; j < subscriptions.size (); j++)
             {
                 Boolean match = true;
 
@@ -3690,7 +3690,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                         //  Compare subscription property list
                         //  with supported property list
                         //
-                        for (Uint8 k = 0; 
+                        for (Uint32 k = 0; 
                              k < propertyList.size () && match; 
                              k++)
                         {
@@ -3742,7 +3742,7 @@ void IndicationService::_getModifiedSubscriptions (
     //  For each newly supported namespace, lookup to retrieve list of 
     //  subscriptions for the indication class-source namespace pair
     //
-    for (Uint8 i = 0; i < newNameSpaces.size (); i++)
+    for (Uint32 i = 0; i < newNameSpaces.size (); i++)
     {
         //
         //  Look up the indicationClass-sourceNamespace pair in the
@@ -3754,7 +3754,7 @@ void IndicationService::_getModifiedSubscriptions (
         if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
             tableValue))
         {
-            for (Uint8 j = 0; j < tableValue.subscriptions.size (); j++)
+            for (Uint32 j = 0; j < tableValue.subscriptions.size (); j++)
                 newList.append (tableValue.subscriptions [j]);
         }
     }
@@ -3763,7 +3763,7 @@ void IndicationService::_getModifiedSubscriptions (
     //  For each formerly supported namespace, lookup to retrieve list of 
     //  subscriptions for the indication class-source namespace pair
     //
-    for (Uint8 k = 0; k < oldNameSpaces.size (); k++)
+    for (Uint32 k = 0; k < oldNameSpaces.size (); k++)
     {
         //
         //  Look up the indicationClass-sourceNamespace pair in the
@@ -3775,7 +3775,7 @@ void IndicationService::_getModifiedSubscriptions (
         if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
             tableValue))
         {
-            for (Uint8 m = 0; m < tableValue.subscriptions.size (); m++)
+            for (Uint32 m = 0; m < tableValue.subscriptions.size (); m++)
                 formerList.append (tableValue.subscriptions [m]);
         }
     }
@@ -3785,10 +3785,10 @@ void IndicationService::_getModifiedSubscriptions (
     //  list
     //
     Sint8 found;
-    for (Uint8 p = 0; p < newList.size (); p++)
+    for (Uint32 p = 0; p < newList.size (); p++)
     {
         found = -1;
-        for (Uint8 q = 0; q < formerList.size (); q++)
+        for (Uint32 q = 0; q < formerList.size (); q++)
         {
             if (newList [p].identical (formerList [q]))
             {
@@ -3810,7 +3810,7 @@ void IndicationService::_getModifiedSubscriptions (
     //  previously was not, add to list of newly supported subscriptions if 
     //  required properties are now supported
     //
-    for (Uint8 n = 0; n < newList.size (); n++)
+    for (Uint32 n = 0; n < newList.size (); n++)
     {
         String filterQuery;
         WQLSelectStatement selectStatement;
@@ -3853,7 +3853,7 @@ void IndicationService::_getModifiedSubscriptions (
     //  supported, but now is not, add to list of formerly supported 
     //  subscriptions
     //
-    for (Uint8 f = 0; f < formerList.size (); f++)
+    for (Uint32 f = 0; f < formerList.size (); f++)
     {
         formerSubscriptions.append (formerList [f]);
     }
@@ -3863,7 +3863,7 @@ void IndicationService::_getModifiedSubscriptions (
     //  and was also previously supported, add to appropriate list, based on
     //  required properties 
     //
-    for (Uint8 b = 0; b < bothList.size (); b++)
+    for (Uint32 b = 0; b < bothList.size (); b++)
     {
         String filterQuery;
         WQLSelectStatement selectStatement;
@@ -4015,7 +4015,7 @@ Boolean IndicationService::_inPropertyList (
             //  Compare required property list
             //  with property list
             //
-            for (Uint8 i = 0; i < requiredProperties.size (); i++)
+            for (Uint32 i = 0; i < requiredProperties.size (); i++)
             {
                 if (!ContainsCIMName (supportedProperties.getPropertyNameArray (), 
                     requiredProperties[i]))
@@ -4047,7 +4047,7 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
         //
         //  If provider matches, append subscription to the list
         //
-        for (Uint8 j = 0; j < i.value ().providers.size (); j++)
+        for (Uint32 j = 0; j < i.value ().providers.size (); j++)
         {
             ActiveSubscriptionsTableEntry tableValue = i.value ();
             if (tableValue.providers [j].provider.identical (provider))
@@ -4398,7 +4398,7 @@ Array <ProviderClassList>
     //
     //  For each indication subclass, get providers
     //
-    for (Uint8 i = 0; i < indicationSubclasses.size (); i++)
+    for (Uint32 i = 0; i < indicationSubclasses.size (); i++)
     {
         //
         //  Get providers that can serve the subscription
@@ -4418,7 +4418,7 @@ Array <ProviderClassList>
             //
             //  Merge into list of ProviderClassList structs 
             //
-            for (Uint8 j = 0; j < providerInstances.size () && !duplicate; j++)
+            for (Uint32 j = 0; j < providerInstances.size () && !duplicate; j++)
             {
                 provider.classList.clear ();
                 duplicate = false;
@@ -4426,7 +4426,7 @@ Array <ProviderClassList>
                 //
                 //  See if indication provider is already in list
                 //
-                for (Uint8 k = 0; 
+                for (Uint32 k = 0; 
                      k < indicationProviders.size () && !duplicate; k++)
                 {
                     if ((providerInstances [j].identical 
@@ -4716,7 +4716,7 @@ void IndicationService::_deleteReferencingSubscriptions (
     //
     //  Check each subscription for a reference to the specified instance 
     //
-    for (Uint8 i = 0; i < subscriptions.size (); i++)
+    for (Uint32 i = 0; i < subscriptions.size (); i++)
     {
         //
         //  Get the reference property value from the subscription instance
@@ -5241,7 +5241,7 @@ Boolean IndicationService::_sendCreateRequests
     //  Send Create request to each provider
     //
 
-    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+    for (Uint32 i = 0; i < indicationProviders.size (); i++)
     {
        
        struct enableProviderList *epl = 
@@ -5379,7 +5379,7 @@ void IndicationService::_sendModifyRequests
     //
     //  Send Modify request to each provider
     //
-    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+    for (Uint32 i = 0; i < indicationProviders.size (); i++)
     {
 
        struct enableProviderList *epl = 
@@ -5494,7 +5494,7 @@ void IndicationService::_sendDeleteRequests
     //
     //  Send Delete request to each provider
     //
-    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+    for (Uint32 i = 0; i < indicationProviders.size (); i++)
     {
 
        struct enableProviderList *epl = 
@@ -5559,7 +5559,7 @@ String IndicationService::_generateActiveSubscriptionsKey (
     Array<CIMKeyBinding> subscriptionKB = subscriptionRef.getKeyBindings ();
     Array<CIMKeyBinding> filterKB;
     Array<CIMKeyBinding> handlerKB;
-    for (Uint8 i = 0; i < subscriptionKB.size (); i++)
+    for (Uint32 i = 0; i < subscriptionKB.size (); i++)
     {
         if ((subscriptionKB [i].getName () == _PROPERTY_FILTER) &&
             (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
@@ -5578,7 +5578,7 @@ String IndicationService::_generateActiveSubscriptionsKey (
     //
     //  Append subscription filter key values to key
     //
-    for (Uint8 j = 0; j < filterKB.size (); j++)
+    for (Uint32 j = 0; j < filterKB.size (); j++)
     {
         activeSubscriptionsKey.append (filterKB [j].getValue ());
     }
@@ -5586,7 +5586,7 @@ String IndicationService::_generateActiveSubscriptionsKey (
     //
     //  Append subscription handler key values to key
     //
-    for (Uint8 k = 0; k < handlerKB.size (); k++)
+    for (Uint32 k = 0; k < handlerKB.size (); k++)
     {
         activeSubscriptionsKey.append (handlerKB [k].getValue ());
     }
@@ -5613,14 +5613,14 @@ void IndicationService::_insertActiveSubscriptionsEntry (
     String traceString;
     traceString.append (activeSubscriptionsKey);
     traceString.append (" Providers: ");
-    for (Uint8 i = 0; i < providers.size (); i++)
+    for (Uint32 i = 0; i < providers.size (); i++)
     {
         String providerName = providers [i].provider.getProperty 
             (providers [i].provider.findProperty 
             (_PROPERTY_NAME)).getValue ().toString ();
         traceString.append (providerName);
         traceString.append ("  Classes: ");
-        for (Uint8 j = 0; j < providers[i].classList.size (); j++)
+        for (Uint32 j = 0; j < providers[i].classList.size (); j++)
         {
              traceString.append (providers[i].classList[j].getString());   
              traceString.append ("  ");
@@ -5677,7 +5677,7 @@ void IndicationService::_insertSubscriptionClassesEntry (
     String traceString;
     traceString.append (subscriptionClassesKey);
     traceString.append (" Subscriptions: ");
-    for (Uint8 i = 0; i < subscriptions.size (); i++)
+    for (Uint32 i = 0; i < subscriptions.size (); i++)
     {
         traceString.append (subscriptions [i].getPath ().toString());   
         traceString.append ("  ");
@@ -5707,7 +5707,7 @@ void IndicationService::_insertToHashTables (
     //
     //  Insert or update entries in subscription classes table 
     //
-    for (Uint8 i = 0; i < indicationSubclassNames.size (); i++)
+    for (Uint32 i = 0; i < indicationSubclassNames.size (); i++)
     {
         String subscriptionClassesKey = _generateSubscriptionClassesKey
             (indicationSubclassNames [i], sourceNamespaceName);
@@ -5770,7 +5770,7 @@ void IndicationService::_removeFromHashTables (
     //
     //  Remove or update entries in subscription classes table 
     //
-    for (Uint8 i = 0; i < indicationSubclassNames.size (); i++)
+    for (Uint32 i = 0; i < indicationSubclassNames.size (); i++)
     {
         String subscriptionClassesKey = _generateSubscriptionClassesKey
             (indicationSubclassNames [i], sourceNamespaceName);
@@ -5783,7 +5783,7 @@ void IndicationService::_removeFromHashTables (
             //  pair, remove subscription from the list
             //
             Array <CIMInstance> subscriptions = tableValue.subscriptions;
-            for (Uint8 j = 0; j < subscriptions.size (); j++)
+            for (Uint32 j = 0; j < subscriptions.size (); j++)
             {
                 if (subscriptions [j].getPath().identical 
                    (subscription.getPath()))
@@ -5949,7 +5949,7 @@ void IndicationService::_sendAlerts (
     //
     //  Get list of unique handler instances for all subscriptions in list
     //
-    for (Uint8 i = 0; i < subscriptions.size (); i++)
+    for (Uint32 i = 0; i < subscriptions.size (); i++)
     {
         PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
             "Alert subscription: " + subscriptions [i].getPath().toString());
@@ -5963,7 +5963,7 @@ void IndicationService::_sendAlerts (
         //  Merge into list of unique handler instances
         //
         duplicate = false;
-        for (Uint8 j = 0; j < handlers.size () && !duplicate; j++)
+        for (Uint32 j = 0; j < handlers.size () && !duplicate; j++)
         {
             if ((current.identical (handlers [j])) &&
                 (current.getPath () == handlers [j].getPath ()))
@@ -5981,7 +5981,7 @@ void IndicationService::_sendAlerts (
     //
     //  Send handle indication request to each handler
     //
-    for (Uint8 k = 0; k < handlers.size (); k++)
+    for (Uint32 k = 0; k < handlers.size (); k++)
     {
         CIMHandleIndicationRequestMessage * handler_request =
             new CIMHandleIndicationRequestMessage (
@@ -6105,7 +6105,7 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getPropertySourceFromInstance");
 
-    for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
+    for (Uint32 i=0; i < indicationInstance.getPropertyCount(); i++)
     {
         CIMProperty property = indicationInstance.getProperty(i);
         CIMValue propertyValue = property.getValue();

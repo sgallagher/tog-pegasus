@@ -524,7 +524,8 @@ Boolean _parseHostElement(
         throw MalformedObjectNameException(objectName);
     }
 
-    p = ++q;
+    // Do not step past the '/'; it will be consumed by the namespace parser
+    p = q;
 
     return true;
 }

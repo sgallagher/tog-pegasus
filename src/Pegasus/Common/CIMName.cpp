@@ -57,7 +57,6 @@ CIMName::CIMName(const String& name)
 {
     if (!legal(name))
     {
-        // ATTN: Does this clean up String memory properly?
         throw InvalidNameException(name);
     }
 }
@@ -67,7 +66,6 @@ CIMName::CIMName(const char* name)
 {
     if (!legal(name))
     {
-        // ATTN: Does this clean up String memory properly?
         throw InvalidNameException(name);
     }
 }
@@ -183,23 +181,13 @@ CIMNamespaceName::CIMNamespaceName()
 }
 
 CIMNamespaceName::CIMNamespaceName(const String& name)
-    : cimNamespaceName(name)
 {
-    if (!legal(name))
-    {
-        // ATTN: Does this clean up String memory properly?
-        throw InvalidNamespaceNameException(name);
-    }
+    *this = name;
 }
 
 CIMNamespaceName::CIMNamespaceName(const char* name)
-    : cimNamespaceName(name)
 {
-    if (!legal(name))
-    {
-        // ATTN: Does this clean up String memory properly?
-        throw InvalidNamespaceNameException(name);
-    }
+    *this = String(name);
 }
 
 CIMNamespaceName& CIMNamespaceName::operator=(const CIMNamespaceName& name)
@@ -214,7 +202,17 @@ CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
     {
         throw InvalidNamespaceNameException(name);
     }
-    cimNamespaceName=name;
+
+    if (name[0] == '/')
+    {
+        // Strip off the meaningless leading '/'
+        cimNamespaceName=name.subString(1);
+    }
+    else
+    {
+        cimNamespaceName=name;
+    }
+
     return *this;
 }
 

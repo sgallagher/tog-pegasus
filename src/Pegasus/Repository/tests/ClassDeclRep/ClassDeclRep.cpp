@@ -59,7 +59,7 @@ void Test01()
 
     // Create a namespace:
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("zzz");
     r.createNameSpace(NAMESPACE);
 
     // Create a qualifier (and read it back):
@@ -122,7 +122,7 @@ void Test01()
 
     Array<String> tmp;
     String classesDir (repositoryRoot);
-    classesDir.append("/#zzz/classes");
+    classesDir.append("/zzz/classes");
     assert(FileSystem::getDirectoryContents (classesDir, tmp));
     assert(tmp.size() == 0);
 }

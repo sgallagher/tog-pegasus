@@ -74,211 +74,218 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
    Sint32 ccode = 0;
    CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
    _monitor.lock(pegasus_thread_self());
-   switch(code)
+   try 
    {
-
-      case GET_PROVIDER:
+      switch(code)
       {
-	 Provider *pr;
-	 
-	 if(true == _providers.lookup(*(parms->providerName), *(reinterpret_cast<Provider * *>(ret))))
+
+	 case GET_PROVIDER:
 	 {
-	    gettimeofday(&(*(reinterpret_cast<Provider * *>(ret)))->_timeout, NULL);
+	    Provider *pr;
+	 
+	    if(true == _providers.lookup(*(parms->providerName), *(reinterpret_cast<Provider * *>(ret))))
+	    {
+	       gettimeofday(&(*(reinterpret_cast<Provider * *>(ret)))->_timeout, NULL);
+	       break;
+	    }
+	 
+	    ProviderModule *module;
+	    if( false  == _modules.lookup(*(parms->fileName), module) )
+	    {
+	       module = new ProviderModule(*(parms->fileName));
+	       _modules.insert((*parms->fileName), module);
+	    }
+	 
+	    CIMBaseProvider *base = module->load(*(parms->providerName));
+   
+	    // create provider module
+   
+	    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+	    PEGASUS_ASSERT(queue != 0);
+	    MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
+	    PEGASUS_ASSERT(service != 0);
+	    pr = new Provider(*(parms->providerName), module, base);
+	    if(0 == (pr->_cimom_handle =  new CIMOMHandle(service)))
+	    {
+	       ccode = -1;
+	       break;
+	    }
+
+	    PEGASUS_STD(cout) << "Loading Provider " << pr->_name << PEGASUS_STD(endl);
+	 
+	    pr->initialize(*(pr->_cimom_handle));
+	    gettimeofday(&(pr->_timeout), NULL);
+	    _providers.insert(*(parms->providerName), pr);
+	    *(reinterpret_cast<Provider * *>(ret)) = pr;
 	    break;
 	 }
-	 
-	 ProviderModule *module;
-	 if( false  == _modules.lookup(*(parms->fileName), module) )
-	 {
-	    module = new ProviderModule(*(parms->fileName));
-	    _modules.insert((*parms->fileName), module);
-	 }
-	 
-	 CIMBaseProvider *base = module->load(*(parms->providerName));
-   
-	 // create provider module
-   
-	 MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-	 PEGASUS_ASSERT(queue != 0);
-	 MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
-	 PEGASUS_ASSERT(service != 0);
-	 pr = new Provider(*(parms->providerName), module, base);
-	 if(0 == (pr->_cimom_handle =  new CIMOMHandle(service)))
-	    throw NullPointer();
-
-	 PEGASUS_STD(cout) << "Loading Provider " << pr->_name << PEGASUS_STD(endl);
-	 
-	 pr->initialize(*(pr->_cimom_handle));
-	 gettimeofday(&(pr->_timeout), NULL);
-	 _providers.insert(*(parms->providerName), pr);
-	 *(reinterpret_cast<Provider * *>(ret)) = pr;
-	 break;
-      }
       
-      case UNLOAD_PROVIDER:
-      {
-	 CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
-	 Provider *pr;
-	 if(true == _providers.lookup(*(parms->providerName), pr ))
+	 case UNLOAD_PROVIDER:
 	 {
-	    PEGASUS_STD(cout) << "Unloading Provider " << pr->_name << PEGASUS_STD(endl);
-	    _providers.remove(pr->_name);
-	    pr->terminate();
-	    if((pr->_module != 0 ) && pr->_module->_ref_count.value() == 0)
-	      {
-		pr->_module->unloadModule();
-		_modules.remove(pr->_module->_fileName);
-		delete pr->_module;
-	      }
-	    delete pr->_cimom_handle;
-	    delete pr;
+	    CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
+	    Provider *pr;
+	    if(true == _providers.lookup(*(parms->providerName), pr ))
+	    {
+	       PEGASUS_STD(cout) << "Unloading Provider " << pr->_name << PEGASUS_STD(endl);
+	       _providers.remove(pr->_name);
+	       pr->terminate();
+	       if((pr->_module != 0 ) && pr->_module->_ref_count.value() == 0)
+	       {
+		  pr->_module->unloadModule();
+		  _modules.remove(pr->_module->_fileName);
+		  delete pr->_module;
+	       }
+	       delete pr->_cimom_handle;
+	       delete pr;
+	    }
 	 }
-      }
 
-      case LOOKUP_PROVIDER:
-      {
-	 if(true == _providers.lookup(*(parms->providerName), 
-				      *(reinterpret_cast<Provider * *>(ret))))
+	 case LOOKUP_PROVIDER:
 	 {
-	    gettimeofday(&((*(reinterpret_cast<Provider * *>(ret)))->_timeout), NULL);
+	    if(true == _providers.lookup(*(parms->providerName), 
+					 *(reinterpret_cast<Provider * *>(ret))))
+	    {
+	       gettimeofday(&((*(reinterpret_cast<Provider * *>(ret)))->_timeout), NULL);
+	    }
+	    else
+	       ccode = -1;
+	    break;
 	 }
-	 else
-	    ccode = -1;
-	 break;
-      }
       
-      case LOOKUP_MODULE:
-      {
-	 if(false  == _modules.lookup(*(parms->fileName), 
-				      *(reinterpret_cast<ProviderModule * *>(ret))))
-	   ccode = -1;
-	 break;
-      }
-
-      case INSERT_PROVIDER: 
-      {
-	 if( false  == _providers.insert(
-		*(parms->providerName), 
-		*reinterpret_cast<Provider * *>(parm)) )
-	    ccode = -1;
-	 break;
-      }
-      case INSERT_MODULE: 
-      {
-	 if( false  == _modules.insert(
-		*(parms->fileName), 
-		*reinterpret_cast<ProviderModule * *>(parm)) )
-	    ccode = -1;
-	 break;
-      }
-      case REMOVE_PROVIDER:
-      {
-
-	 if(false == _providers.remove(*(parms->providerName)))
-	    ccode = -1;
-	 break;
-      }
-      case REMOVE_MODULE:
-      {
-	 if(false == _modules.remove(*(parms->fileName)))
-	    ccode = -1;
-	 break;
-      }
-
-      case UNLOAD_ALL_PROVIDERS:
-      {
-	 ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
-	 Provider * provider;
-	 ProviderTable::Iterator i = myself->_providers.start();
-	 for(; i ; i++)
+	 case LOOKUP_MODULE:
 	 {
-	    provider = i.value();
-	    PEGASUS_STD(cout) << "Removing Provider " << provider->getName() << PEGASUS_STD(endl);
-	    provider->terminate();
-	    if((provider->_module != 0 ) && 
-	       provider->_module->_ref_count.value() == 0)
-	      {
-		if(true == _modules.lookup(provider->_module->_fileName, provider->_module))
-		  {
-		    PEGASUS_STD(cout) << "Removing Module " << provider->_module->_fileName << PEGASUS_STD(endl);
-		    _modules.remove(provider->_module->_fileName);
-		    delete provider->_module;
-		  }
-	      }
-	    delete provider->_cimom_handle;
-	    delete provider;
+	    if(false  == _modules.lookup(*(parms->fileName), 
+					 *(reinterpret_cast<ProviderModule * *>(ret))))
+	       ccode = -1;
+	    break;
 	 }
-	 myself->_providers.clear();
-	 myself->_modules.clear();
-	 break;
-	 
-      }
 
-      case UNLOAD_IDLE_PROVIDERS:
-      {
-	 ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
-	 Provider * provider;
-	 if(myself->_providers.size())
+	 case INSERT_PROVIDER: 
 	 {
-	    struct timeval now;
-	    gettimeofday(&now, NULL);
+	    if( false  == _providers.insert(
+		   *(parms->providerName), 
+		   *reinterpret_cast<Provider * *>(parm)) )
+	       ccode = -1;
+	    break;
+	 }
+	 case INSERT_MODULE: 
+	 {
+	    if( false  == _modules.insert(
+		   *(parms->fileName), 
+		   *reinterpret_cast<ProviderModule * *>(parm)) )
+	       ccode = -1;
+	    break;
+	 }
+	 case REMOVE_PROVIDER:
+	 {
+
+	    if(false == _providers.remove(*(parms->providerName)))
+	       ccode = -1;
+	    break;
+	 }
+	 case REMOVE_MODULE:
+	 {
+	    if(false == _modules.remove(*(parms->fileName)))
+	       ccode = -1;
+	    break;
+	 }
+
+	 case UNLOAD_ALL_PROVIDERS:
+	 {
+	    ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
+	    Provider * provider;
 	    ProviderTable::Iterator i = myself->_providers.start();
 	    for(; i ; i++)
 	    {
 	       provider = i.value();
-	       if(( now.tv_sec - provider->_timeout.tv_sec) > (Sint32)myself->_idle_timeout )
+	       PEGASUS_STD(cout) << "Removing Provider " << provider->getName() << PEGASUS_STD(endl);
+	       provider->terminate();
+	       if((provider->_module != 0 ) && 
+		  provider->_module->_ref_count.value() == 0)
 	       {
-		  PEGASUS_STD(cout) << "Removing Provider " << provider->getName() << PEGASUS_STD(endl);
-		  provider->terminate();
-		  myself->_providers.remove(provider->_name);
-		  PEGASUS_STD(cout) << "Removed, looking at Module." << PEGASUS_STD(endl);
-		  if(provider->_module != 0 )
-		    PEGASUS_STD(cout) << "Module ref: " << provider->_module->_ref_count.value() << PEGASUS_STD(endl);
-		  if((provider->_module != 0 ) && 
-		     provider->_module->_ref_count.value() == 0)
-		    {
-		      PEGASUS_STD(cout) << "Removing Module " << provider->_module->_fileName << PEGASUS_STD(endl);
-		      _modules.remove(provider->_module->_fileName);
-		      delete provider->_module;
-		    }
-		  delete provider;
-		  delete provider->_cimom_handle;
-		  i = myself->_providers.start();
+		  if(true == _modules.lookup(provider->_module->_fileName, provider->_module))
+		  {
+		     PEGASUS_STD(cout) << "Removing Module " << provider->_module->_fileName << PEGASUS_STD(endl);
+		     _modules.remove(provider->_module->_fileName);
+		     delete provider->_module;
+		  }
+	       }
+	       delete provider->_cimom_handle;
+	       delete provider;
+	    }
+	    myself->_providers.clear();
+	    myself->_modules.clear();
+	    break;
+	 
+	 }
+
+	 case UNLOAD_IDLE_PROVIDERS:
+	 {
+	    ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
+	    Provider * provider;
+	    if(myself->_providers.size())
+	    {
+	       struct timeval now;
+	       gettimeofday(&now, NULL);
+	       ProviderTable::Iterator i = myself->_providers.start();
+	       for(; i ; i++)
+	       {
+		  provider = i.value();
+		  if(( now.tv_sec - provider->_timeout.tv_sec) > (Sint32)myself->_idle_timeout )
+		  {
+		     PEGASUS_STD(cout) << "Removing Provider " << provider->getName() << PEGASUS_STD(endl);
+		     provider->terminate();
+		     myself->_providers.remove(provider->_name);
+		     PEGASUS_STD(cout) << "Removed, looking at Module." << PEGASUS_STD(endl);
+		     if(provider->_module != 0 )
+			PEGASUS_STD(cout) << "Module ref: " << provider->_module->_ref_count.value() << PEGASUS_STD(endl);
+		     if((provider->_module != 0 ) && 
+			provider->_module->_ref_count.value() == 0)
+		     {
+			PEGASUS_STD(cout) << "Removing Module " << provider->_module->_fileName << PEGASUS_STD(endl);
+			_modules.remove(provider->_module->_fileName);
+			delete provider->_module;
+		     }
+		     delete provider;
+		     delete provider->_cimom_handle;
+		     i = myself->_providers.start();
+		  }
 	       }
 	    }
+	    break;
 	 }
-	 break;
-      }
 
-      case UNLOAD_IDLE_MODULES:
-      {
-	 ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
-	 ProviderModule *module;
-	 ModuleTable::Iterator i = myself->_modules.start();
-	 for( ; i ; i++)
+	 case UNLOAD_IDLE_MODULES:
 	 {
-	    module = i.value();
-	    if( module->_ref_count.value() == 0)
+	    ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
+	    ProviderModule *module;
+	    ModuleTable::Iterator i = myself->_modules.start();
+	    for( ; i ; i++)
 	    {
-	       myself->_modules.remove(module->_fileName);
-	       module->unloadModule();
-	       delete module;
-	       i = myself->_modules.start();
+	       module = i.value();
+	       if( module->_ref_count.value() == 0)
+	       {
+		  myself->_modules.remove(module->_fileName);
+		  module->unloadModule();
+		  delete module;
+		  i = myself->_modules.start();
+	       }
 	    }
+	    break;
 	 }
-	 break;
-      }
       
-      default:
-	 ccode = -1;
-	 break;
+	 default:
+	    ccode = -1;
+	    break;
+      }
    }
-
+   catch(...)
+   {
+      
+   }
    _monitor.unlock();
    return ccode;
 }
-
-
 
 
 Provider ProviderManager::getProvider(

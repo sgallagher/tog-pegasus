@@ -71,7 +71,8 @@ endif
 
 ifdef PEGASUS_HAS_PERFINST
 DIRS += \
-	ControlProviders/Statistic
+	ControlProviders/Statistic \
+	ControlProviders/Statistic/test
 endif
 	
 DIRS += \

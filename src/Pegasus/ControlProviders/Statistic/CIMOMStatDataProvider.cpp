@@ -38,6 +38,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMOMStatDataProvider::CIMOMStatDataProvider()
 {
+   for (Uint32 i=0; i<StatisticalData::length; i++){
+      char buffer[32];
+      sprintf(buffer, "%d", i);
+      _references[i] = CIMObjectPath(
+        "CIM_CIMOMStatisticalData.InstanceID=\"CIM_CIMOMStatisticalData"+String(buffer)+"\"");
+   }
+
 }
 
 CIMOMStatDataProvider::~CIMOMStatDataProvider()
@@ -79,7 +86,7 @@ void CIMOMStatDataProvider::getInstance(
 
 	// instance index corresponds to reference index
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
-	{ // cout << "loop" << endl;
+	{  //cout << "this is what we are looking at " << _references[i].toString() <<endl <<endl;
 		if(localReference == _references[i])
 		{
 			// deliver requested instance
@@ -164,14 +171,15 @@ throw CIMNotSupportedException("StatisticalData::deleteInstance");
 
 CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
 {
+//cout << "we are in getinstance of CIMOMStatData" << endl;
 
    StatisticalData* sd = StatisticalData::current();
    char buffer[32];
    sprintf(buffer, "%u", type);
 
    checkObjectManager();
-//cout << "this is cimtime for "<< type <<" - "<<sd->cimomTime[type] <<endl;
-//cout << "this is providertime for " << sd->providerTime[type] << endl;
+//cerr << "this is cimtime for "<< type <<" - "<<sd->cimomTime[type] <<endl;
+//cerr << "this is providertime for " << sd->providerTime[type] << endl;
 
    CIMDateTime cimom_time = toDateTime(sd->cimomTime[type]);
    CIMDateTime provider_time = toDateTime(sd->providerTime[type]);
@@ -202,6 +210,7 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
       CIMValue(String("CIMOM performance statistics for CIM request"))));
    
 
+//cout << "at the end of getinstance of CIMOMStat" << endl;
    return requestedInstance;
 }
 

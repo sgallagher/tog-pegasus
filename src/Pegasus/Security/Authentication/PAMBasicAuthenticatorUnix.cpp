@@ -24,6 +24,8 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//            : Sushma Fernandes, Hewlett-Packard Company 
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -129,7 +131,57 @@ Boolean PAMBasicAuthenticator::authenticate(
 #else
     if (_usePAM)
     {
-	authenticated = _authenticateByPAM(userName, password); 
+        //
+        // Check if the system has been converted to a trusted system.
+        // ATTN-SF-P3-20030211 - This code to use getpwpwnam on a trusted sytem has
+        // been added as there is a known problem with trusted mode with PAM based
+        // Authentication. 
+        //
+
+        if (iscomsec())
+        {
+            authenticated            = false;
+            String currPassword      = String::EMPTY;
+            String encryptedPassword = String::EMPTY;
+            String saltStr           = String::EMPTY;
+            char*  userNamecstr      = strcpy(
+                                   new char[strlen(userName.getCString()) + 1],
+                                   userName.getCString());
+
+            // system is a trusted system
+            // use interface getprpwnam to get pr_passwd structure
+
+            struct pr_passwd * pwd;
+
+            // getprpwnam returns a pointer to a pr_passwd structure upon success
+            if ( (pwd = getprpwnam(userNamecstr)) != NULL)
+            {
+               Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+                  "getprpwnam call successful.");
+               // get user's password from pr_passwd structure
+                currPassword = pwd->ufld.fd_encrypt;
+            }
+            delete [] userNamecstr;
+
+            //
+            // Check if the specified password mathches user's password
+            //
+            saltStr = currPassword.subString(0,2);
+
+            encryptedPassword = System::encryptPassword(password.getCString(),
+                                saltStr.getCString());
+
+            if (String::equal(currPassword, encryptedPassword))
+            {
+                authenticated = true;
+                Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+                  "Password match successful.");
+            }
+        }
+        else
+        {
+	    authenticated = _authenticateByPAM(userName, password); 
+        }
     }
     else
     {
@@ -183,7 +235,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     if ( ( pam_authenticate(phandle, 0) ) == PAM_SUCCESS ) 
     {
        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-         "PAMBasicAuthenticator::_authenticateByPAM() pam_authenticate successful.");
+         "pam_authenticate successful.");
         //
         //Call pam_acct_mgmt, to check if the user account is valid. This includes 
         //checking for password and account expiration, as well as verifying access 
@@ -192,7 +244,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
         if ( ( pam_acct_mgmt(phandle, 0) ) == PAM_SUCCESS ) 
         {
            Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "PAMBasicAuthenticator::_authenticateByPAM() pam_acct_mgmt successful.");
+              "pam_acct_mgmt successful.");
             authenticated = true;
         }
     }
@@ -238,7 +290,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPwnam(
 	if ( (pwd = getprpwnam(_userName)) != NULL)
 	{
            Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "PAMBasicAuthenticator::_authenticateByPwnam() getprpwnam successful.");
+              "getprpwnam successful.");
 	   // get user's password from pr_passwd structure
 	    currPassword = pwd->ufld.fd_encrypt; 
 	}
@@ -259,7 +311,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPwnam(
 	if (getpwnam_r(userName, &pwd, pwdBuffer, BUFFERLEN, &result) == 0)
 	{
            Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "PAMBasicAuthenticator::_authenticateByPwnam() getpwnam_r successful.");
+              "getpwnam_r successful.");
 	   // get user's password from password file
 	    currPassword = pwd.pw_passwd; 
 	}
@@ -276,6 +328,8 @@ Boolean PAMBasicAuthenticator::_authenticateByPwnam(
     if (String::equal(currPassword, encryptedPassword))
     {
 	authenticated = true;
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+                  "Password match successful.");
     }
 
     PEG_METHOD_EXIT();

@@ -41,6 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <winsock.h>
+#include <process.h>
 
 #define ACCESS_EXISTS 0
 #define ACCESS_WRITE 2
@@ -237,9 +238,7 @@ Boolean System::isPrivilegedUser(const String userName)
     
 Uint32 System::getPID()
 {
-    // ATTN: Implement this to get the process ID of the current process
-    //       This is used by the Tracer
-    return 0;
+    return _getpid();
 }
 
 PEGASUS_NAMESPACE_END

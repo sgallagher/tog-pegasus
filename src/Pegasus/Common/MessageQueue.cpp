@@ -166,7 +166,7 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
 
     _count++;
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-     "MessageQueue::enqueue _count = %d", _count);
+       "MessageQueue::enqueue _queueId = %d, _count = %d", _queueId, _count);
 
     _mut.unlock();
 
@@ -191,7 +191,8 @@ Message* MessageQueue::dequeue() throw(IPCException)
 
 	_count--;
         Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-            "MessageQueue::dequeue _count = %d", _count);
+            "MessageQueue::dequeue _queueId = %d, _count = %d", 
+            _queueId, _count);
 
 	_mut.unlock();
 	message->_next = 0;

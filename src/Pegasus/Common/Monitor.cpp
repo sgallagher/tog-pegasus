@@ -31,6 +31,7 @@
 #include "Monitor.h"
 #include "MessageQueue.h"
 #include "Socket.h"
+#include <Pegasus/Common/Tracer.h>
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
@@ -161,6 +162,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 	if (events)
 	{
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+               "Monitor::run - Socket Event Detected events = %d", events);
+
 	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
 
 	    if (!queue)
@@ -173,16 +177,22 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    if (events & SocketMessage::WRITE)
 	    {
 		FD_CLR(socket, &_rep->active_wr_fd_set);
+                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                   "Monitor::run FD_CLR WRITE");
 	    }
 
 	    if (events & SocketMessage::EXCEPTION)
 	    {
 		FD_CLR(socket, &_rep->active_ex_fd_set);
+                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                   "Monitor::run FD_CLR EXECEPTION");
 	    }
 
 	    if (events & SocketMessage::READ)
 	    {
 		FD_CLR(socket, &_rep->active_rd_fd_set);
+                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                   "Monitor::run FD_CLR READ");
 	    }
 
 	    count--;
@@ -198,12 +208,17 @@ Boolean Monitor::solicitSocketMessages(
     Uint32 events,
     Uint32 queueId)
 {
+    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solictSocketMessage");
+
     // See whether a handler is already registered for this one:
 
     Uint32 pos = _findEntry(socket);
 
     if (pos != PEGASUS_NOT_FOUND)
+    {
+        PEG_METHOD_EXIT();
 	return false;
+    }
 
     // Set the events:
 
@@ -223,11 +238,14 @@ Boolean Monitor::solicitSocketMessages(
 
     // Success!
 
+    PEG_METHOD_EXIT();
     return true;
 }
 
 Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 {
+    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessage");
+
     // Look for the given entry and remove it:
 
     for (Uint32 i = 0, n = _entries.size(); i < n; i++)
@@ -239,10 +257,12 @@ Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 	    FD_CLR(socket, &_rep->wr_fd_set);
 	    FD_CLR(socket, &_rep->ex_fd_set);
 	    _entries.remove(i);
+            PEG_METHOD_EXIT();
 	    return true;
 	}
     }
 
+    PEG_METHOD_EXIT();
     return false;
 }
 

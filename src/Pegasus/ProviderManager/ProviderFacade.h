@@ -29,6 +29,7 @@
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Amit K Arora, (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +38,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMClassProvider.h>
@@ -261,7 +263,7 @@ public:
         const CIMInstance& indicationInstance);
     
 protected:
-    CIMProvider * _provider;
+    AutoPtr<CIMProvider> _provider; //PEP101
     AtomicInt _current_operations;
     Boolean _indications_enabled;
 };

@@ -39,7 +39,6 @@
 
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
@@ -87,6 +86,7 @@ ProviderFacade::ProviderFacade(CIMProvider * provider) : _provider(provider)
 
 ProviderFacade::~ProviderFacade(void)
 {
+    _provider.release();
 }
 
 void ProviderFacade::initialize(CIMOMHandle & cimom)
@@ -116,7 +116,7 @@ void ProviderFacade::getInstance(
 {
    op_counter ops(&_current_operations);
    
-   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider.get());
    
    // forward request
    provider->getInstance(
@@ -138,7 +138,7 @@ void ProviderFacade::enumerateInstances(
     InstanceResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider.get());
 
     // forward request
     provider->enumerateInstances(
@@ -158,7 +158,7 @@ void ProviderFacade::enumerateInstanceNames(
     ObjectPathResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider.get());
    
    // forward request
    provider->enumerateInstanceNames(
@@ -178,7 +178,7 @@ void ProviderFacade::modifyInstance(
     ResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider.get());
 
     // forward request
     provider->modifyInstance(
@@ -197,7 +197,7 @@ void ProviderFacade::createInstance(
     ObjectPathResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider.get());
 
     // forward request
     provider->createInstance(
@@ -213,7 +213,7 @@ void ProviderFacade::deleteInstance(
     ResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider.get());
 
     // forward request
     provider->deleteInstance(
@@ -301,7 +301,7 @@ void ProviderFacade::associators(
     ObjectResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider.get());
 
     // forward request
     provider->associators(
@@ -327,7 +327,7 @@ void ProviderFacade::associatorNames(
     ObjectPathResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider.get());
 
     // forward request
     provider->associatorNames(
@@ -351,7 +351,7 @@ void ProviderFacade::references(
     ObjectResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-   CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
+   CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider.get());
 
     // forward request
     provider->references(
@@ -373,7 +373,7 @@ void ProviderFacade::referenceNames(
     ObjectPathResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider.get());
 
     // forward request
     provider->referenceNames(
@@ -393,7 +393,7 @@ void ProviderFacade::getProperty(
    op_counter ops(&_current_operations);
     // NOTE: CIMPropertyProvider interface not supported yet
     /*
-    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
+    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider.get());
 
     // forward request
     provider->getProperty(
@@ -453,7 +453,7 @@ void ProviderFacade::setProperty(
    op_counter ops(&_current_operations);
     // NOTE: CIMPropertyProvider interface not supported yet
     /*
-    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
+    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider.get());
 
     // forward request
     provider->setProperty(
@@ -496,7 +496,7 @@ void ProviderFacade::invokeMethod(
     MethodResultResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-   CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider);
+   CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider.get());
    
    // forward request
    provider->invokeMethod(
@@ -523,7 +523,7 @@ void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
    _indications_enabled = true;
    op_counter ops(&_current_operations);
    
-    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider.get());
 
     // forward request
     provider->enableIndications(handler);
@@ -532,7 +532,7 @@ void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 void ProviderFacade::disableIndications(void)
 {
     op_counter ops(&_current_operations);
-    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider.get());
 
     // forward request
     provider->disableIndications();
@@ -547,7 +547,7 @@ void ProviderFacade::createSubscription(
     const Uint16 repeatNotificationPolicy)
 {
     op_counter ops(&_current_operations);
-    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider.get());
 
     // forward request
     provider->createSubscription(
@@ -566,7 +566,7 @@ void ProviderFacade::modifySubscription(
     const Uint16 repeatNotificationPolicy)
 {
     op_counter ops(&_current_operations);
-    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider.get());
 
     // forward request
     provider->modifySubscription(
@@ -583,7 +583,7 @@ void ProviderFacade::deleteSubscription(
     const Array<CIMObjectPath> & classNames)
 {
     op_counter ops(&_current_operations);
-    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider.get());
 
     // forward request
     provider->deleteSubscription(
@@ -600,7 +600,7 @@ void ProviderFacade::consumeIndication(
 {
    
    op_counter ops(&_current_operations);
-   CIMIndicationConsumerProvider * provider = getInterface<CIMIndicationConsumerProvider>(_provider);
+   CIMIndicationConsumerProvider * provider = getInterface<CIMIndicationConsumerProvider>(_provider.get());
    provider->consumeIndication(
       context, 
       destinationPath,

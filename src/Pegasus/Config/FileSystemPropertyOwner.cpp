@@ -38,7 +38,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include "FileSystemPropertyOwner.h"
 

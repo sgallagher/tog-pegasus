@@ -26,6 +26,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 // Modified By:
+//         Amit K Arora (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,7 @@
 #define Pegasus_ShutdownPropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,9 +60,6 @@ public:
 
     /** Constructors  */
     ShutdownPropertyOwner();
-
-    /** Destructor  */
-    ~ShutdownPropertyOwner();
 
     /**
     Initialize the config properties.
@@ -193,7 +192,7 @@ private:
     /**
     The timeout property owned by this class
     */
-    struct ConfigProperty*      _shutdownTimeout;
+    AutoPtr<struct ConfigProperty>      _shutdownTimeout; //PEP101
 };
 
 PEGASUS_NAMESPACE_END

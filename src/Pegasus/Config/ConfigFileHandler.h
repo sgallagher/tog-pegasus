@@ -28,6 +28,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Warren Otsuka (warren.otsuka@hp.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/ConfigFile.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -220,9 +222,9 @@ private:
     /**
     File handlers for the current and planned config files.
     */
-    ConfigFile*  _currentConfFile;
-
-    ConfigFile*  _plannedConfFile;
+    AutoPtr<ConfigFile>  _currentConfFile; //PEP101
+ 
+    AutoPtr<ConfigFile>  _plannedConfFile; //PEP101
 
     /**
     Flag indicating whether the current config files exists or not.

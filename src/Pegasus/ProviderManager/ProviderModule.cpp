@@ -68,6 +68,9 @@ ProviderModule::ProviderModule(const ProviderModule & pm)
 
 ProviderModule::~ProviderModule(void)
 { 
+    _provider.release();
+    _adapter.release();
+
 
 }
 
@@ -108,9 +111,9 @@ CIMProvider *ProviderModule::load(const String & providerName)
     CIMProvider *provider = 0;
 
     if (_interfaceFileName.size()>0) {
-      _adapter=ProviderAdapterManager::get_pamgr()->addAdapter(
-	      _interfaceName,_interfaceFileName,_fileName,providerName);
-      provider=dynamic_cast<CIMProvider*>(_adapter);
+      _adapter.reset(ProviderAdapterManager::get_pamgr()->addAdapter(
+	      _interfaceName,_interfaceFileName,_fileName,providerName));
+      provider=dynamic_cast<CIMProvider*>(_adapter.get());
       if (provider==NULL) {
       	//l10n
 	//throw Exception("ProviderLoadFailure ("+providerName+

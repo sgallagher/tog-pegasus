@@ -39,7 +39,6 @@
 
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include "ConfigManager.h"
 #include "TracePropertyOwner.h"

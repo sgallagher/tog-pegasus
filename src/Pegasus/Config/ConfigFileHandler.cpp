@@ -37,7 +37,6 @@
 #include <errno.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include "ConfigFileHandler.h"
 #include "ConfigManager.h"
@@ -91,15 +90,13 @@ ConfigFileHandler::ConfigFileHandler (
     //
     // Initialize instance variables.
     //
-    _currentConfFile = 0;
-    _plannedConfFile = 0;
-
+    
     _currentFileExist = true;
     _plannedFileExist = true;
 
 
-    _currentConfFile = new ConfigFile(cFile);
-    _plannedConfFile = new ConfigFile(pFile);
+    _currentConfFile.reset(new ConfigFile(cFile));
+    _plannedConfFile.reset(new ConfigFile(pFile));
 
     _currentConfig = new ConfigTable;
     _plannedConfig = new ConfigTable;
@@ -162,12 +159,7 @@ ConfigFileHandler::ConfigFileHandler (
 */
 ConfigFileHandler::~ConfigFileHandler ()
 {
-    //
-    // delete file handlers
-    //
-    delete _currentConfFile;
-    delete _plannedConfFile;
-
+    
     //
     // delete tables
     //

@@ -32,7 +32,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/IPC.h>
 
@@ -69,11 +68,12 @@ ProviderAdapter::~ProviderAdapter()
 {
 PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapter::~ProviderAdapter\n"; )
     ProviderAdapterManager::get_pamgr()->deleteAdapter(_adapterName);
+_adapter.release();
 }
 
 const String & ProviderAdapter::getAdapterName() const {return _adapterName;}
 const String & ProviderAdapter::getProviderName() const {return _providerLocation;}
-CIMProvider * ProviderAdapter::getProvider(void) const {return _adapter;}
+CIMProvider * ProviderAdapter::getProvider(void) const {return _adapter.get();}
 
 //
 //

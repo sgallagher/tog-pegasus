@@ -38,7 +38,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include "ShutdownPropertyOwner.h"
 
 
@@ -70,14 +69,9 @@ static long MIN_SHUTDOWN_TIMEOUT = 2;
 /** Constructor  */
 ShutdownPropertyOwner::ShutdownPropertyOwner()
 {
-    _shutdownTimeout = new ConfigProperty;
+    _shutdownTimeout.reset(new ConfigProperty);
 }
 
-/** Destructor  */
-ShutdownPropertyOwner::~ShutdownPropertyOwner()
-{
-    delete _shutdownTimeout;
-}
 
 /**
 Initialize the config properties.
@@ -108,7 +102,7 @@ struct ConfigProperty* ShutdownPropertyOwner::_lookupConfigProperty(
 {
     if (String::equalNoCase(_shutdownTimeout->propertyName, name))
     {
-        return _shutdownTimeout;
+        return _shutdownTimeout.get();
     }
     else
     {

@@ -26,6 +26,7 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Adrian Schuur - schuur@de.ibm.com
+//              Amit K Arora, (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +38,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Server/Linkage.h>
@@ -63,7 +65,7 @@ protected:
 	String _providerLocation;
 	String _providerName;
 	String _className;
-	CIMProvider * _adapter;
+	AutoPtr<CIMProvider> _adapter; //PEP101
 };
 
 //

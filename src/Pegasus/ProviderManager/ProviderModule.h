@@ -28,6 +28,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <Pegasus/Common/System.h>
 
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/ProviderManager/ProviderAdapter.h>
@@ -90,9 +92,9 @@ class PEGASUS_SERVER_LINKAGE ProviderModule
 
       String _interfaceName;
       String _interfaceFileName; // for later use with interface registration
-      ProviderAdapter * _adapter;
+      AutoPtr<ProviderAdapter> _adapter;
 
-      CIMProvider * _provider;
+      AutoPtr<CIMProvider> _provider;
 
       Uint32 _refCount;
 
@@ -110,12 +112,12 @@ inline const String & ProviderModule::getInterfaceName(void) const
 
 inline ProviderAdapter * ProviderModule::getAdapter(void) const
 {
-   return _adapter;
+   return _adapter.get();
 }
 
 inline CIMProvider * ProviderModule::getProvider(void) const
 {
-   return(_provider);
+   return(_provider.get());
 }
 
 inline const Uint32 & ProviderModule::getRefCount(void) const

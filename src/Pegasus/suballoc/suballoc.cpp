@@ -27,56 +27,114 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-namespace 
-{
-   const int GUARD_SIZE = 0x10;
-   const int MAX_PATH_LEN = 0xff;
-   const int MAX_LINE_LEN = 0x14;
-   const int PRE_ALLOCATE = 0x00;
-   const int STEP_ALLOCATE = 0x01;
-   const int AVAILABLE = 0x00;
-   const int NORMAL = 0x01;
-   const int ARRAY = 0x02;
-}
 
 #include <Pegasus/suballoc/suballoc.h>
 #include <new.h>
 PEGASUS_NAMESPACE_BEGIN
 peg_suballocator internal_allocator;
-PEGASUS_NAMESPACE_END
 
-PEGASUS_USING_PEGASUS;
+void * pegasus_alloc(size_t size)
+{
+   return internal_allocator.vs_malloc(size, 
+ 				       &(internal_allocator.get_handle())) ;
+}
+
+void pegasus_free(void * dead) 
+{
+   return internal_allocator.vs_free(dead); 
+}
 
 void * operator new(size_t size)
 {
+   return internal_allocator.vs_malloc(size, 
+ 				       &(internal_allocator.get_handle())) ;
+}
 
-   if( internal_allocator.get_mode() == false)
-      return(::operator new(size));
-   
-   if( size == 0 )
-      size = 1;
-   void *p;
-   
-   while(1)
-   {
-      p = internal_allocator.vs_malloc(size, 
-				       &(internal_allocator.get_handle())) ;
-      if( p )
-	 return p;
-      new_handler global = set_new_handler(0);
-      set_new_handler(global);
-      if( global) 
-	 (*global)();
-      else
-	 throw std::bad_alloc();
-   }
+void operator delete(void *dead)
+{
+   return internal_allocator.vs_free(dead); 
 }
 
 
+// void * operator new(size_t size)
+// {
+//    cout << "operator new " << endl;
+   
+// //    if( internal_allocator.get_mode() == false)
+// //    {
+// //       cout << " recursing on operator new " << endl;
+      
+// //       return(::operator new(size));
+// //    }
+   
+   
+//    if( size == 0 )
+//       size = 1;
+//    void *p;
+   
+//    while(1)
+//    {
+//       p = internal_allocator.vs_malloc(size, 
+// 				       &(internal_allocator.get_handle())) ;
+//       if( p )
+// 	 return p;
+//       new_handler global = set_new_handler(0);
+//       set_new_handler(global);
+//       if( global) 
+// 	 (*global)();
+//       else
+// 	 throw std::bad_alloc();
+//    }
+// }
 
-PEGASUS_NAMESPACE_BEGIN
+// void operator delete(void *dead)
+// {
+//    if( dead == 0 )
+//       return;
+//    if( internal_allocator.get_mode() == false)
+//       return(::operator delete (dead));
+//    internal_allocator.vs_free(dead);
+//    return;
+// }
 
-// <<< Sun May  5 22:25:14 2002 mdd >>>
+// void * operator new [] (size_t size)
+// {
+
+//    if( internal_allocator.get_mode() == false)
+//       return(::operator new(size));
+   
+//    if( size == 0 )
+//       size = 1;
+//    void *p;
+   
+//    while(1)
+//    {
+//       p = internal_allocator.vs_malloc(size, 
+// 				       &(internal_allocator.get_handle()), 
+// 				       ARRAY) ;
+//       if( p )
+// 	 return p;
+//       new_handler global = set_new_handler(0);
+//       set_new_handler(global);
+//       if( global) 
+// 	 (*global)();
+//       else
+// 	 throw std::bad_alloc();
+//    }
+// }
+
+// void operator delete [] (void *dead)
+// {
+//    if( dead == 0 )
+//       return;
+//    if( internal_allocator.get_mode() == false)
+//       return(::operator delete (dead));
+//    internal_allocator.vs_free(dead, ARRAY);
+//    return;
+// }
+
+
+// <<< Sun May  5 22:25:14 2002 mdd >>> 
 // to do: 
 // flag to note array new and array delete versus normal new and delete
 // pattern for deleted objects to cause segfault when dereferencing freed memory
@@ -132,8 +190,8 @@ const Uint32 peg_suballocator::step[3][16] =
    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
-peg_suballocator::peg_suballocator(Boolean mode)
-   : debug_mode(mode), internal_handle("internal_suballoc_log")
+peg_suballocator::peg_suballocator(void)
+   : debug_mode(true), internal_handle("internal_suballoc_log")
 { 
    sprintf(global_log_filename, "%s", dumpFileName);
    InitializeSubAllocator(global_log_filename);
@@ -335,8 +393,13 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
       temp2->avail = AVAILABLE;
       memcpy(temp2->guardPre, guard, GUARD_SIZE);
       memcpy(temp2->guardPost, guard, GUARD_SIZE);
-      temp2->allocPtr = calloc(sizeof(SUBALLOC_NODE **) + nodeSizes[vector][index] +
-			       (2 * GUARD_SIZE),  sizeof(Sint8));
+//      temp2->allocPtr = malloc( sizeof(void *) + nodeSizes[vector][index] +
+//			       (2 * GUARD_SIZE) );
+      size_t chunk_size = sizeof(SUBALLOC_NODE **) + ( 2 * GUARD_SIZE ) + nodeSizes[vector][index];
+      
+      void * ptr = malloc( chunk_size );
+      temp2->allocPtr = ptr;
+      
       if (temp2->allocPtr == NULL)
       {
 	 free(temp2);
@@ -347,15 +410,6 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
       g += sizeof(SUBALLOC_NODE **);
       g = (Sint8 *)memcpy(g, guard, GUARD_SIZE);
       memcpy(g + nodeSizes[vector][index] + GUARD_SIZE, guard, GUARD_SIZE); 
-      temp2->allocPtr = calloc(nodeSizes[vector][index] + sizeof(SUBALLOC_NODE **), 
-			       sizeof(Sint8));
-      g = (Sint8 *)temp2->allocPtr;
-      *(SUBALLOC_NODE **)g = temp2;
-      if (temp2->allocPtr == NULL)
-      {
-	 free(temp2);
-	 return(false);
-      }
       // insert new node at the beginning of the list
       INSERT(temp2, temp);
    }
@@ -380,7 +434,8 @@ void peg_suballocator::DeInitSubAllocator(void *handle)
    Sint32 i, o, waitCode;
    assert(handle != 0);
    _UnfreedNodes(handle); 
-   free((void *)handle);
+   if( handle != (void *) &internal_handle)
+      free((void *)handle);
 
    WAIT_MUTEX(&init_mutex);
    init_count--;
@@ -686,9 +741,11 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, Sint8 *f,
    assert(*(SUBALLOC_NODE **)g == temp);
    g += sizeof(SUBALLOC_NODE **);
    memset(temp->file, 0x00, MAX_PATH_LEN + 1);
-   strncpy(temp->file, f, MAX_PATH_LEN);
+   if( f ) 
+      strncpy(temp->file, f, MAX_PATH_LEN);
    memset(temp->line, 0x00, MAX_LINE_LEN + 1);
-   sprintf(temp->line, "%d", l);
+   if( l ) 
+      sprintf(temp->line, "%d", l);
    memcpy(g, guard, GUARD_SIZE);
    g += GUARD_SIZE;
    memcpy(g + size, guard, GUARD_SIZE);
@@ -752,9 +809,7 @@ void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, 
    strncpy(temp->file, f, MAX_PATH_LEN);
    memset(temp->line, 0x00, MAX_LINE_LEN + 1);
    sprintf(temp->line, "%d", l);
-   memcpy(g, guard, GUARD_SIZE);
    g += GUARD_SIZE;
-   memcpy(g + size, guard, GUARD_SIZE);
    memset(g, 0x00, size);
    return((void *)g);
 }

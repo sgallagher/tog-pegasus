@@ -91,6 +91,19 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+void * pegasus_alloc(size_t );
+void pegasus_free(void *);
+
+
+#define GUARD_SIZE 0x10
+#define MAX_PATH_LEN 0xff
+#define MAX_LINE_LEN 0x14
+#define PRE_ALLOCATE 0x00
+#define STEP_ALLOCATE 0x01
+#define AVAILABLE 0x00
+#define NORMAL 0x01
+#define ARRAY 0x02
+
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
 #define ENOTSOCK WSAENOTSOCK
@@ -238,7 +251,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 
    public:
 
-      peg_suballocator(Boolean mode = true);
+      peg_suballocator(void);
       peg_suballocator(Sint8 *log_filename, Boolean mode = true);
       virtual ~peg_suballocator(void);
 

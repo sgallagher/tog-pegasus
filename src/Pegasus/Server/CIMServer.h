@@ -65,7 +65,8 @@ public:
     */
     CIMServer(
 	Monitor* monitor,
-	const String& rootPath);
+	const String& rootPath,
+        Boolean useSSL);
 
     ~CIMServer();
 
@@ -109,6 +110,8 @@ private:
 
     String _rootPath;
     String _repositoryRootPath;
+
+    Boolean _useSSL;
 
     Monitor* _monitor;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;

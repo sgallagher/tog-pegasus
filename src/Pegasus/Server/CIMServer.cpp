@@ -62,10 +62,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMServer::CIMServer(
     Monitor* monitor,
-    const String& rootPath)
-    : _dieNow(false), _rootPath(rootPath)
+    const String& rootPath,
+    Boolean useSSL)
+    : _dieNow(false), _rootPath(rootPath), _useSSL(useSSL)
 {
     static const char REPOSITORY[] = "/repository";
+
+    static const char CERTIFICATE[] = "/server.pem";
 
     // -- Save the monitor or create a new one:
 
@@ -118,7 +121,19 @@ CIMServer::CIMServer(
 
     UserManager* userManager = UserManager::getInstance(repository);
 
-    _acceptor = new HTTPAcceptor(_monitor, serverQueue);
+    // Create SSL context
+    SSLContext * sslcontext;
+    if (_useSSL)
+    {
+        String certPath = rootPath;
+        certPath.append(CERTIFICATE);
+
+        sslcontext = new SSLContext(certPath);
+    }
+    else 
+        sslcontext = NULL;
+
+    _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
 
     /** load registered providers from repository, and creates
         provider block table

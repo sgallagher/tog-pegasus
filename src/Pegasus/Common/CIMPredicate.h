@@ -42,52 +42,73 @@
 
 PEGASUS_NAMESPACE_BEGIN
    
-/** The Predicate class adds a logical expression, truth value, 
-    and one or more operators to the KeyBinding class. Using the 
-    Predicate class, it is possible to construct evaluate a compiled
-    expression using actual cim data values.
-*/
 
 extern void PEGASUS_EXPORT _BubbleSort(Array<KeyBinding>& x);
 enum LogicalOperator { AND, NOT, OR };
 enum ExpressionOperator { EQUAL, NE, GT, GTE, LT, LTE, PRESENT };
 
+/** The Predicate class adds a logical expression, truth value, 
+    and one or more operators to the KeyBinding class. Using the 
+    Predicate class, it is possible to construct evaluate a compiled
+    expression using actual cim data values.
+*/
 class  PEGASUS_COMMON_LINKAGE Predicate: public Pegasus::KeyBinding
 {
    public:
-
-
+   
+      /** ATTN:
+      */
       Predicate( ) ;
+      
+      /** ATTN:
+      */
       Predicate(const Predicate& x) ;
+      
+      /** ATTN:
+      */
       Predicate(const KeyBinding& x, 
 		ExpressionOperator op, 
 		Boolean truth );
 
+      /** ATTN:
+      */
       Predicate(const String& name, 
 		const String& value, 
 		Type type, 
 		ExpressionOperator op = EQUAL, 
 		Boolean truth_value = true );
 
+      /** ATTN:
+      */
       ~Predicate();
 
+      /** ATTN:
+      */
       Predicate& operator=(const Predicate& x);
   
+      /** ATTN:
+      */
       ExpressionOperator getOperator(void) const
       {  
 	 return _op;
       }
-
+	
+      /** ATTN:
+      */
       void setOperator(ExpressionOperator op)
       {
 	 _op = op;
       }
       
+      /** AN|TTN:
+      */
       Boolean getTruth(void) const
       {
 	 return _truth_value;
       }
-
+      
+      /** ATTN:
+      */
       Boolean evaluate(const KeyBinding& key);
 
    private:
@@ -126,21 +147,14 @@ inline Boolean operator==(const Predicate& p, const KeyBinding& k)
 
 typedef Array<Predicate> PredicateArray;
 
-// PredicateTree represents a compiled wql expression or LDAP filter
-// it contains nested predicates that correspond to CIMReferences.
-// e.g.,    AND
-//           |
-//        foo == 1, fee != 2, OR
-//                             |
-//                 namespace "nothing" PRESENT, namespace "another" PRESENT
-
-// which would be TRUE when:
-// foo == 1 AND fee != 2 AND ((nothing is present) OR (another is present))
-
-
+/** PredicateReference - ATTN:
+*/
 class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
 {
    public:
+      
+      /** ATTN;
+      */
       PredicateReference();
       PredicateReference(const CIMReference& x);
       PredicateReference(const PredicateReference& x);
@@ -277,28 +291,68 @@ class PEGASUS_COMMON_LINKAGE CIMQuery
       virtual PredicateTree *parse(void) = 0;
 };
 
+
+/** Class PredicateTree represents a compiled wql expression or LDAP filter
+    it contains nested predicates that correspond to CIMReferences.
+    <pre>
+    e.g.,    AND
+           |
+        foo == 1, fee != 2, OR
+                             |
+                 namespace "nothing" PRESENT, namespace "another" PRESENT
+
+   which would be TRUE when:
+   foo == 1 AND fee != 2 AND ((nothing is present) OR (another is present))
+   </pre>
+*/
 class PEGASUS_COMMON_LINKAGE PredicateTree
 {
    public:
 
+      /** ATTN:
+      */
       PredicateTree();
-      ~PredicateTree(); 
+      ~PredicateTree();
+      
+      /** ATTN:
+      */      
       PredicateTree(const PredicateReference &pred);
+      
+      /** ATTN:
+      */      
       PredicateTree(PredicateReference *pred);
+      
+      /** ATTN:
+      */      
       Boolean evaluate(void) throw(IPCException);
+      
+      /** ATTN:
+      */      
       void lock(void) throw(IPCException) { _mut.lock(pegasus_thread_self()); }
+      
+      /** ATTN:
+      */
       void unlock(void) throw(IPCException) { _mut.unlock(); }
+      
+      /** ATTN:
+      */
       void _addChild(PredicateTree *cd) throw(IPCException)
       {
 	 _children.insert_last(cd);
       }
-      // identity operators are for DQueue operations 
+      // identity operators are for DQueue operations
+      
+      /** ATTN:
+      */
       Boolean operator==(const void *key) const
       { 
 	 if(key == (void *)this) 
 	    return true; 
 	 return false; 
       }
+      
+      /** ATTN:
+      */
       Boolean operator ==(const PredicateTree & b) const 
       {
 	 return(operator==((const void *)&b));

@@ -1,0 +1,2297 @@
+// ===================================================================
+// Title:       Network MOF Specification 2.6 for IPsec Policy
+// Filename:    CIM_Network26_Add.mof   
+// Version:     2.6
+// Release:     0
+// Date:        05/22/2001
+// ===================================================================
+// Copyright "2001" Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release cited should always be noted.
+// Authors:     DMTF Network Working Group
+// Editors:     Victor Lortz, Lee Rafalow, John Strassner
+// Last update: Lee Rafalow, 05/22/2001
+//
+// Description: These object classes define the IPsec policy model
+//              for CIM and includes classes needed to represent
+//              IKE negotiations and the resulting security 
+//		    associations.
+//
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined 
+//		    by other working groups, are omitted.
+//
+// Changes to initial V2.5 "Preliminary Standard" Release for V2.6:
+//	CIMCR599 - Updates to IPsec Model to match IETF IPSP Model
+//		-Update IKERule & IPsecRule descriptions for static
+//		 actions
+//		-Update IPsecPolicyForSystem to correct the System 
+//		 cardinality and descriptions
+//		-Change SAProposal and SATransform to be weak to 
+//		 System instead of weak to PolicyRepository by changing 
+//		 SAProposalInPolicyRepository to SAProposalInSystem and 
+//		 SATRansformInPolicyRepository to SATRansformInSystem 
+//		-Add DFHandling to PreconfiguredTunnelAction and
+//		 IPsecSecurityAssociation
+//		-Add UseReplayPrevention & ReplayPreventionWindowSize
+//		 to AHTransform & ESPTransform
+//		-Clarify SecurityAssociation description
+//		-Clarify SACondition description to include evaluation 
+//		 semantics
+//		-Clarify IPsecPolicyGroup description to include decision 
+//		 strategy semantics & use of PolicySetComponent instead of
+//		 IPsecPolicyGroupInPolicyGroup
+//		-Clarify SAActionInRule to include action sequencing 
+//		 semantics
+//		-Clarify IKERejectAction description
+//		-Clarify PeerIdentityEntry.PeerIdentity description
+//		-Fixed PeerIdentityEntry.PeerAddress description
+//		-Fixed AutostartIKESetting description
+//		-Clarified IKEIdentity description
+//		-Clarified AutostartIKESettingContext description
+//		-Clarified IKEAutostartConfiguration.Active description
+//		-Changed CIM_IPsecContainedTransform to 
+//		 CIM_ContainedTransform
+//		-Fixed PeerGatewayForTunnel.SequenceNumber description
+//		-Added TransformOfPreconfiguredAction.SPI 
+//    	-Added SAActionInRule.FallbackOrder and change semantic 
+//		 of ActionOrder
+//		-Added PeerGatewayForPreconfiguredTunnel &
+//		 deleted PreconfiguredTunnelAction PeerGateway properties
+//		-Remove IPsecPolicyGroupInPolicyGroup in favor of 
+//		 PolicySetComponent
+//		-SaRule description changed to reflect use of 
+//		 PolicySetComponent.Priority instead of PolicyRule.Priority
+//		-Add override description for SARule.ExecutionStrategy
+//	CIMCR593 - Correct Typos in Propagated Keys in IPsec model  
+//		-Correct PeerIdentityEntry propagated keys
+//		-Correct IPsecProtectionSuite propagated keys
+//
+// ===================================================================
+// Generic Pragmas
+// ===================================================================
+
+#pragma Locale ("en_US")
+
+// ==================================================================
+//     SACondition
+// ==================================================================
+	[Description (
+      "SACondition defines the conditions of rules for IKE or "
+	"IPsec negotiations. Conditions are associated with policy "
+      "rules via the SAConditionInRule aggregation. It is used as "
+      "an anchor point to associate various types of filters with "
+      "policy rules via the FilterOfSACondition association. It "
+      "also defines whether Credentials can be accepted for a "
+      "particular policy rule via the AcceptCredentialsFrom "
+      "association. \n"
+	"\n"
+	"Associated objects represent components of the condition "
+	"that may or may not apply at a given rule evaluation.  For "
+	"example, an AcceptCredentialsFrom evaluation is only "
+	"performed when a credential is available to be evaluated "
+	"against the list of trusted credential management services.  "
+	"Similarly, a PeerIDPayloadFilterEntry may only be evaluated "
+	"when an IDPayload value is available to compared with the "
+	"filter.  Condition components that do not have corresponding "
+	"values with which to evaluate are evaluated as TRUE unless "
+	"the protocol has completed without providing the required "
+	"information.") ]
+
+class CIM_SACondition : CIM_PolicyCondition
+{
+};
+
+// ==================================================================
+//     CredentialFilterEntry
+// ==================================================================
+	[Description (
+       "A CredentialFilterEntry is used to define an equivalence "
+	 "class that match credentials of IKE peers. Each "
+       "CredentialFilterEntry includes a MatchFieldName that is "
+       "interpreted according to the CredentialManagementService(s) "
+       "associated with the SACondition (AcceptCredentialsFrom). "
+       "These credentials can be X.509 certificates, Kerberos "
+	 "tickets, or other types of credentials obtained during the "
+	 "Phase 1 exchange. " ) ]
+
+class CIM_CredentialFilterEntry : CIM_FilterEntryBase
+{
+	[Description (
+       "MatchFieldName specifies the sub-part of the credential to "
+	 "match against MatchFieldValue."),
+       ModelCorrespondence { 
+           "CIM_CredentialFilterEntry.MatchFieldValue" } ]
+    string MatchFieldName;
+
+	[Description (
+      "MatchFieldValue specifies the value to compare with the "
+	"MatchFieldName in a credential to determine if the "
+	"credential matches this filter entry."),
+       ModelCorrespondence { 
+		"CIM_CredentialFilterEntry.MatchFieldName" } ]
+    string MatchFieldValue;
+
+      [Description (
+	"CredentialType is an enumerated 16-bit unsigned integer that "
+      "is used to specify the particular type of credential that is "
+      "being matched. " ),
+      ValueMap { "1", "2" },
+      Values { "X.509 Certificate", "Kerberos Ticket" } ]
+    uint16 CredentialType;
+};
+
+// ==================================================================
+//     IPSOFilterEntry
+// ==================================================================
+	[Description (
+       "An IPSOFilterEntry is used to match traffic based on the "
+	 "IP Security Options header values (ClassificationLevel "
+	 "and ProtectionAuthority) as defined in RFC1108. This type "
+	 "of FilterEntry is used to adjust the IPsec encryption level "
+	 "according to the IPSO classification of the traffic (e.g., "
+	 "secret, confidential, restricted, etc." ) ]
+
+class CIM_IPSOFilterEntry : CIM_FilterEntryBase
+{
+	[Description (
+	 "MatchConditionType specifies whether to match based on "
+	 "traffic classification level or protection authority."),
+       ValueMap { "1", "2"},
+       Values {"ClassificationLevel", "ProtectionAuthority" },
+       ModelCorrespondence { 
+		"CIM_IPSOFilterEntry.MatchConditionValue" } ]
+    uint16 MatchConditionType;
+
+       [Description (
+        "This is the value of the IPSO field type.  For "
+	  "ClassificationLevel, the values are:\n"
+        "61=TopSecret, 90=Secret, 150=Confidential, "
+	  "171=Unclassified.\n"
+	  "\n"
+        "For ProtectionAuthority, the values are:\n"
+        "0=GENSER, 1=SIOP-ESI, 2=SCI, 3=NSA, 4=DOE."),
+       ModelCorrespondence { 
+		"CIM_IPSOFilterEntry.MatchConditionType" } ]
+    uint16 MatchConditionValue;
+};
+
+// ==================================================================
+//     PeerIDPayloadFilterEntry
+// ==================================================================
+	[Description (
+       "PeerIDPayloadFilterEntry defines filters used to match ID "
+       "payload values from the IKE protocol exchange." ) ]
+
+class CIM_PeerIDPayloadFilterEntry : CIM_FilterEntryBase
+{
+	[Description (
+	 "MatchIdentityType specifies the type of indentity provided "
+	 "by the peer in the ID payload." ),
+	 ValueMap 
+	  {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
+       Values {"IPV4_ADDR", "FQDN", "USER_FQDN", "IPV4_ADDR_SUBNET", 
+       "IPV6_ADDR", "IPV6_ADDR_SUBNET", "IPV4_ADDR_RANGE", 
+	 "IPV6_ADDR_RANGE", "DER_ASN1_DN", "DER_ASN1_GN", "KEY_ID"},
+       ModelCorrespondence { 
+		"CIM_PeerIDPayloadFilterEntry.MatchIdentityValue" } ]
+    uint16 MatchIdentityType;
+
+       [Description (
+       "MatchIdentityValue is the filter value for comparison with "
+       "the ID payload, e,g, \"*@company.com\". The syntax may need "
+       "to be converted for comparison.  For example, if the type "
+       "of identity is a distinguished name, \"DER_ASN1_DN,\" the "
+       "MatchIdentityValue is represented by a DN string value "
+       "and this value must be converted into a DER-encoded string "
+       "before it can be matched against the values extracted from "
+       "IKE ID payloads at runtime (or vice-versa). " ),
+       ModelCorrespondence { 
+		"CIM_PeerIDPayloadFilterEntry.MatchIdentityType" } ]
+    string MatchIdentityValue;
+};
+
+
+// ==================================================================
+//     IPsecPolicyGroup
+// ==================================================================
+	[Description (
+      "IPsecPolicyGroup aggregates the set of rules of an IPsec "
+	"policy. These groups are weak to a System via the "
+	"PolicyGroupInSystem association. \n\n"
+	"The IPsecPolicyForSystem and IPsecPolicyForEndpoint "
+	"associations are used to specify the System and/or "
+	"IPProtocolEndpoints to which an IPsecPolicyGroup applies.  "
+	"(Examples of a System and an IPProtocolEndpoint are a router "
+	"and a router interface, respectively.)\n\n"
+      "The RuleForIKENegotiation aggregates the phase 1 IKE "
+	"negotiation rules that are part of the group; the "
+	"RuleForIPsecNegotiation aggregates the phase 2 IKE "
+	"negotiation rules. \n\n"
+      "The PolicySetComponent aggregation is used to define a "
+	"nested group of IPsec policy groups, with each policy group "
+	"containing one or more rules.\n\n"
+	"Any nested groups of rules are prioritized with respect to "
+	"one another and the aggregated rules are evaluated using a "
+	"'first match' decision strategy, i.e., when evaluating the "
+	"list of IKE rules, they are evaluated in priority order "
+	"until a match is found and when evaluating the list of "
+	"IPsec rules, they are evaluated in priority order until a "
+	"match is found." ) ]
+
+class CIM_IPsecPolicyGroup: CIM_PolicyGroup
+{
+};
+
+// ==================================================================
+//     SARule
+// ==================================================================
+	[Description (
+       "SARule is a base class for defining IKE and IPsec Rules. "
+	 "Although concrete, it is not intended to be instantiated. "
+       "It defines a common anchor point for defining associations "
+       "and aggregations to conditions, actions, and security "
+       "associations (SAs) for both types of rules.  Each valid "
+	 "IPsecPolicyGroup must contain SARules that each have a "
+       "unique associated priority number in "
+	 "PolicySetComponent.Priority. " ) ]
+
+class CIM_SARule: CIM_PolicyRule
+{
+	[Description (
+       "LimitNegotiation is used as part of processing either an "
+       "IKE or an IPsec rule. Before proceeding with either a "
+       "phase 1 or a phase 2 negotiation, this property "
+       "is checked to determine if the negotiation role of the rule "
+       "matches that defined for the negotiation being undertaken "
+       "(e.g., Initiator, Responder, or Both). If this check fails, "
+       "then the IKE negotiation is stopped. Note that this only "
+       "applies to new IKE negotiations and has no effect on either "
+       "renegotiation or refresh operations with peers for which "
+       "an established SA already exists. " ),
+       ValueMap { "1", "2", "3" },
+       Values { "Initiator-only", "Responder-Only", "Either"} ]
+    uint16 LimitNegotiation;
+       [Override("ExecutionStrategy"), Description (
+       "ExecutionStrategy defines the strategy to be used in "
+       "executing the sequenced actions aggregated by this "
+       "PolicyRule.\n"
+	 "\n"
+	 "In SARule, ExecutionStrategy MUST be set to 'Do All'. "
+	 "SAActionInRule.FallbackAction is used to control the "
+	 "fallback behavior."),
+       Values {"2"}, ValueMap {"Do All"}]
+    uint16 ExecutionStrategy;
+};
+
+// ==================================================================
+//     IKERule
+// ==================================================================
+	[Description (
+       "IKERule contains the Conditions and Actions for IKE phase 1 "
+	 "negotiations or to specify static actions such as Discard. "
+	 "The conditions and actions are contained in one or more "
+	 "IPsecPolicyGroup classes. ") ]
+
+class CIM_IKERule : CIM_SARule
+{
+      [Description (
+       "IdentityContexts is a string array that corresponds to an "
+       "ANDed list of values. If multiple strings exist, then they "
+       "are to be logically ORed with each other. This property is "
+       "used to establish a phase 1 IKE SA by using this property "
+       "in conjunction with the UseIKEIdentityType property in the "
+       "corresponding IKEAction. These two properties are then "
+       "used to find an appropriate IKEIdentity object for use on "
+       "the protected IPProtocolEndpoint." ),
+       ModelCorrespondence { "CIM_IKEIdentity.IdentityContexts" } ]
+    string IdentityContexts [];
+};
+
+// ==================================================================
+//     IPsecRule
+// ==================================================================
+	[Description (
+       "IPsecRule contains the Conditions and Actions for phase 2 "
+	 "negotiations or to specify static actions such as Discard. "
+	 "The conditions and actions are contained in one or more "
+	 "IPsecPolicyGroup classes. " ) ]
+
+class CIM_IPsecRule : CIM_SARule
+{
+};
+
+// ==================================================================
+//     SAAction
+// ==================================================================
+	[Description (
+       "SAAction is the base class for the various types of IKE or "
+	 "IPsec actions and, although concrete, it is not intended to "
+	 "be instantiated.  It is used for aggregating different "
+       "types of actions to IKE and IPsec rules. " ) ]
+
+class CIM_SAAction : CIM_PolicyAction
+{
+      [Description (
+       "DoActionLogging causes a log message to be generated when "
+	 "the action is performed. " ) ]
+    boolean DoActionLogging;
+
+      [Description (
+       "DoPacketLogging causes a log message to be generated when "
+	 "the action is applied to a packet. " ) ]
+    boolean DoPacketLogging;
+};
+
+
+// ==================================================================
+//     SAStaticAction
+// ==================================================================
+	[Description (
+       "SAStaticAction is the base class for both IKE as well as "
+	 "IPsec actions that require no negotiation. Although this "
+	 "class is concrete, it is not intended to be instantiated. " ) ]
+
+class CIM_SAStaticAction : CIM_SAAction
+{
+      [Description (
+	 "LifetimeSeconds specifies how long the SA derived from this "
+	 "action should be used.  A value of 0 means infinite "
+	 "lifetime. A non-zero value is typically used when the "
+	 "negotiation fails. " ),
+	 Units ("Seconds") ]
+    uint32 LifetimeSeconds;
+};
+
+// ==================================================================
+//     PreconfiguredSAAction
+// ==================================================================
+	[Description (
+       "Subclasses of PreconfiguredSAAction is used to create SAs "
+	 "using preconfigured, hard-wired algorithms and keys. No "
+	 "negotiation is necessary. Note that the SPI for a "
+	 "preconfigured SA action is contained in the association, "
+	 "TransformOfPreconfiguredAction. " ) ]
+
+class CIM_PreconfiguredSAAction : CIM_SAStaticAction
+{
+	[Description (
+       "ProtocolType defines the type of protocol being used by "
+       "this static action. " ) ]
+    string ProtocolType;
+
+	[Description (
+       "LifetimeKilobytes defines a traffic limit in kilobytes "
+       "that can be consumed before the SA is deleted. " ) ]
+    uint32 LifetimeKilobytes;
+};
+
+// ==================================================================
+//     PreconfiguredTransportAction
+// ==================================================================
+	[Description (
+       "PreconfiguredTransportAction is used to create Transport "
+	 "SAs using preconfigured, hard-wired algorithms and keys. No "
+       "negotiation is necessary. Note that the SPI for a "
+       "preconfigured SA action is contained in the association, "
+       "TransformOfPreconfiguredAction. " ) ]
+
+class CIM_PreconfiguredTransportAction : CIM_PreconfiguredSAAction 
+{
+};
+
+// ==================================================================
+//     PreconfiguredTunnelAction
+// ==================================================================
+	[Description (
+       "PreconfiguredTunnelAction is used to create Tunnel SAs "
+	 "using preconfigured, hard-wired algorithms and keys. No "
+       "negotiation is necessary. Note that the SPI for a "
+       "preconfigured SA action is contained in the association, "
+       "TransformOfPreconfiguredAction. The PeerGateway address "
+	 "information is provided when the tunnel peer is a security "
+	 "gateway." ) ]
+
+class CIM_PreconfiguredTunnelAction : CIM_PreconfiguredSAAction 
+{
+	[Description (
+       "DFHandling controls how the Don't Fragment bit "
+       "is managed by the tunnel. " ),
+	 ValueMap {"1", "2", "3"},
+	 Values {"Copy", "Set", "Clear"}]
+    uint16 DFHandling;
+};
+
+// ==================================================================
+//     IPsecBypassAction
+// ==================================================================
+	[Description (
+       "IPsecBypassAction is used to cause access to be permitted "
+       "without invoking the use of IPsec.  Packets are forwarded "
+       "in the clear. " ) ]
+
+class CIM_IPsecBypassAction : CIM_SAStaticAction
+{
+};
+
+// ==================================================================
+//     IPsecDiscardAction
+// ==================================================================
+	[Description (
+      "IPsecDiscardAction is used to cause access to be denied. "
+      "That is, packets are simply discarded. " ) ]
+
+class CIM_IPsecDiscardAction : CIM_SAStaticAction
+{
+};
+
+// ==================================================================
+//     IKERejectAction
+// ==================================================================
+	[Description ("IKERejectAction is used to cause an IKE "
+	"negotiation to be terminated.   For example, it can be used "
+	"in conjunction with an address filter on UDP port 500 to "
+	"reduce DoS vulnerability or it can be used on a low priority "
+	"rule to explicitly define the default action for IKE "
+	"negotiations.")]
+
+class CIM_IKERejectAction : CIM_SAStaticAction
+{
+};
+
+// ==================================================================
+//     SANegotiationAction
+// ==================================================================
+	[Description (
+       "SANegotiationAction is the base class for negotiated SAs "
+       "and, although concrete, is not intended to be instantiated. "
+       "It specifies the common parameters that control the IKE "
+       "phase 1 and phase 2 key exchange negotiations. " ) ]
+
+class CIM_SANegotiationAction : CIM_SAAction
+{
+	[Description (
+      "MinLifetimeSeconds prevents certain denial of service "
+      "attacks based on very short SA lifetimes. "), 
+	 Units("Seconds")]
+    uint32 MinLifetimeSeconds;
+
+	[Description (
+       "RefreshThresholdSeconds is the lifetime percentage at which "
+       "IKE should automatically attempt to acquire a new SA before "
+       "an existing SA expires.  A random period may be added to a "
+       "calculated threshold to reduce network thrashing. " ) ]
+    uint8 RefreshThresholdSeconds;
+
+	[Description (
+       "IdleDurationSeconds is the time an SA can remain idle "
+       "before it is automatically deleted.  The default (zero) "
+       "value indicates that there is no idle duration timer "
+	 "and that the SA is deleted based upon the SA lifetime."),	
+	 Units("Seconds") ]
+    uint32 IdleDurationSeconds;
+
+	[Description (
+      "MinLifetimeKilobytes prevents certain denial of service "
+      "attacks based on very short SA lifetimes.")] 
+    uint32 MinLifetimeKilobytes;
+
+	[Description (
+       "RefreshThresholdKilobytes is the percentage of the SA"
+	 "kilobyte limit remaining before the SA is refreshed. "
+	 "A random value may be added to a calculated threshold "
+       "to reduce network thrashing. " ) ]
+    uint8 RefreshThresholdKilobytes;	
+};
+
+// ==================================================================
+//     IKEAction
+// ==================================================================
+	[Description (
+       "IKEAction specifies the parameters to use for an IKE "
+	 "phase 1 negotiation. " ) ]
+
+class CIM_IKEAction : CIM_SANegotiationAction
+{
+	[Description (
+       "RefreshThresholdDerivedKeys is the percentage of the "
+       "derived key limit remaining before the IKE phase 1 "
+	 "SA is renegotiated.  The default value (zero) means there "
+	 "is no limit. " ) ]
+    uint8 RefreshThresholdDerivedKeys;
+
+	[Description (
+       "The ExchangeMode designates the mode IKE should use for "
+       "its key negotiations. " ),
+	 ValueMap {"1", "2", "4"},
+	 Values {"Base", "Main", "Aggressive" } ]
+    uint16 ExchangeMode;
+
+	[Description (
+      "UseIkeIdentityType is used in conjunction with the available "
+	"IKEIdentity instances for the IPProtocolEndpoint. "
+	"UseIKEIdentityType designates the type of IKE Identity to "
+	"use in sending an IKE message."),
+	ValueMap
+	  {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
+	Values {"IPV4_ADDR", "FQDN", "USER_FQDN", "IPV4_ADDR_SUBNET", 
+        "IPV6_ADDR", "IPV6_ADDR_SUBNET", "IPV4_ADDR_RANGE", 
+	  "IPV6_ADDR_RANGE", "DER_ASN1_DN", "DER_ASN1_GN", "KEY_ID"},
+      ModelCorrespondence { 
+		"CIM_IKEIdentity.IdentityType" } ]
+    uint16 UseIKEIdentityType;
+
+	[Description ("The VendorID property is used to identify "
+	 "vendor-defined key exchange GroupIDs."),
+	ModelCorrespondence {"CIM_IKEAction.AggressiveModeGroupID"}] 
+    string VendorID;
+
+	[Description (
+	 "When IKEAction.ExchangeMode is set to \"Aggressive\", "
+       "this property specifies the key exchange groupID to use "
+	 "in a proposal. If the GroupID number is from the vendor-"
+	 "specific range (32768-65535), the VendorID qualifies the "
+	 "group number.  Well-known group identifiers from RFC2412 "
+	 "are:  0='Not Applicable', 1='DH768', 2='DH1024', "
+	 "3='ECC2N155', 4='ECC2N185', and 5='DH1536'"),
+	ModelCorrespondence {"CIM_IKEAction.VendorID"}] 
+    uint16 AggressiveModeGroupID;
+};
+
+// ==================================================================
+//     IPsecAction
+// ==================================================================
+	[Description (
+       "IPsecAction specifies the parameters to use for an IKE "
+       "phase 2 negotiation. " ) ]
+
+class CIM_IPsecAction : CIM_SANegotiationAction
+{
+	[Description (
+       "UsePFS indicates whether perfect forward secrecy "
+	 "is required when refreshing keys.")]
+    boolean UsePFS;	
+
+	[Description ("The VendorID property is used to identify "
+	 "vendor-defined key exchange GroupIDs."),
+	ModelCorrespondence {"CIM_IPsecAction.GroupId"}] 
+    string VendorID;
+
+	[Description (
+       "GroupId specifies the PFS group ID to use. This value is "
+       "only used if PFS is True and UseIKEGroup is False. " 
+	 "If the GroupID number is from the vendor-specific range "
+	 "(32768-65535), the VendorID qualifies the group number.  "
+	 "Well-known group identifiers from RFC2412 are:\n"
+	 " 0='Not Applicable', 1='DH768', 2='DH1024', "
+	 "3='ECC2N155', 4='ECC2N185', and 5='DH1536'"),
+	ModelCorrespondence {"CIM_IPsecAction.VendorID"}] 
+    uint16 GroupId;
+
+	[Description (
+       "UseIKEGroup indicates that the phase 2 GroupId should be "
+       "the same as that used in the phase 1 protecting this phase "
+	 "2 exchange.  IF PFS is False, UseIKEGroup is ignored. " ) ]
+    boolean UseIKEGroup;
+
+	[Description (
+       "Granularity controls whether proposed selectors for an "
+       "SA should be:\n"
+       "- the subnet mask (Subnet)\n"
+       "- the IP address (Address)\n"
+       "- the IP address & the IP protocol (Protocol)\n"
+       "- the IP address, the IP protocol & the layer 4 port (Port) "
+	 "\n"
+       "as derived from the traffic that triggered the FilterList "
+       "of the Condition(s) that matched the rule."),
+       ValueMap {"1", "2", "3", "4"},
+       Values {"Subnet", "Address", "Protocol", "Port"}]
+    uint16 Granularity;
+};
+
+
+// ==================================================================
+//     IPsecTransportAction
+// ==================================================================
+	[Description (
+       "IPsecTransportAction is used to specify transport "
+       "encapsulation mode. " ) ]
+
+class CIM_IPsecTransportAction : CIM_IPsecAction
+{
+};
+
+
+// ==================================================================
+//     IPsecTunnelAction
+// ==================================================================
+	[Description (
+       "IPsecTunnelAction is used to specify tunnel "
+       "encapsulation mode. " ) ]
+
+class CIM_IPsecTunnelAction : CIM_IPsecAction
+{
+	[Description (
+       "DFHandling controls how the Don't Fragment bit "
+       "is managed by the tunnel. " ),
+	 ValueMap {"1", "2", "3"},
+	 Values {"Copy", "Set", "Clear"}]
+    uint16 DFHandling;
+};
+
+// ==================================================================
+//     SATransform
+// ==================================================================
+	[Abstract, Description (
+       "SATransform is the base class for the various types of "
+       "transforms aggregated into phase 2 proposals. Note that "
+       "it is weak to its containing System." ) ]
+
+class CIM_SATransform : CIM_Policy
+{
+        [Propagated ("CIM_System.CreationClassName"), Key, 
+	   MaxLen (256), Description (
+         "The scoping System's CreationClassName.") ] 
+    string SystemCreationClassName;
+
+        [Propagated ("CIM_System.Name"), Key, MaxLen (256),
+	   Description (
+         "The scoping System's Name.") ] 
+    string SystemName;
+
+	[Key, MaxLen (256), Description (
+       "CreationClassName indicates the name of the class or "
+       "the subclass used in the creation of an instance. When "
+       "used with the other key properties of this class, this "
+       "property allows all instances of this class and its "
+       "subclasses to be uniquely identified. " ) ]
+    string CreationClassName;
+
+	[Override ("CommonName"), Key, MaxLen (256), Description (
+       "The Name property provides a user-friendly unique "
+       "name for this SATransform. " ) ] 
+    string CommonName;
+
+	[Description (
+       "MaxLifetimeSeconds specifies the maximum time the "
+	 "IKE message sender proposes for an SA to be considered "
+	 "valid after it has been created."),
+      Units ("Seconds") ]
+    uint32 MaxLifetimeSeconds;
+
+	[Description (
+       "MaxLifetimeKilobytes specifies the maximum kilobyte "
+       "lifetime the IKE message sender proposes for an SA to "
+	 "be considered valid after it has been created.  Each "
+	 "proposal may use a different lifetime based upon the "
+	 "strength of the encryption algorithm. " ) ]
+    uint32 MaxLifetimeKilobytes;
+
+	[Description (
+       "The VendorID property is used to identify "
+	 "vendor-defined transforms.") ] 
+    string VendorID;
+};
+
+// ==================================================================
+//     AHTransform 
+// ==================================================================
+	[Description (
+       "AHTransform defines the parameters used for phase 2 "
+       "negotiation of an AH SA. " ) ]
+
+class CIM_AHTransform  : CIM_SATransform
+{
+	[Description (
+       "AHTransformId is an enumeration that specifies the "
+	 "hash algorithm to be used. " ),
+	 ValueMap {"2", "3", "4"},
+	 Values {"MD5", "SHA-1", "DES"} ]
+    uint16 AHTransformId;
+
+     [Description (
+	"UseReplayPrevention causes the local peer to compute the "
+	"next sequence number when sending a packet or to check the "
+	"sequence number when receiving a packet. " ) ]
+    boolean UseReplayPrevention;
+
+     [Description (
+	"ReplayPreventionWindowsSizw specifies, in bits, the length "
+	"of the sliding window used by the replay prevention "
+	"mechanism. The value of this property is meaningless if "
+	"UseReplayPrevention is false. It is assumed that the window "
+	"size will be power of 2.")]
+    uint32 ReplayPreventionWindowSize;
+};
+
+// ==================================================================
+//     ESPTransform 
+// ==================================================================
+	[Description (
+       "ESPTransform defines the parameters used for phase 2 "
+       "negotiation of an ESP SA. " ) ]
+
+class CIM_ESPTransform  : CIM_SATransform
+{
+	[Description (
+       "IntegrityTransformId is an enumeration that specifies "
+       "the ESP integrity algorithm for the proposal. " ),
+	 ValueMap {"0", "1", "2", "3", "4"},
+       Values {"None", "MD5", "SHA-1", "DES", "KPDK"} ]
+    uint16 IntegrityTransformId;
+
+	[Description (
+       "CipherTransformId is an enumeration that specifies the "
+       "ESP encryption algorithm for the proposal. " ),
+	 ValueMap 
+	  {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
+       Values {"DES_IV64", "DES", "3DES", "RC5", "IDEA", "CAST", 
+	  "Blowfish", "3-IDEA", "DES_IV32", "RC4", "NULL" }]
+    uint16 CipherTransformId;
+
+	[Description (
+       "CipherKeyLength specifies, in bits, the key length for "
+       "the encryption algorithm.  For algorithms with fixed "
+       "key lengths, this value is ignored.")]
+    uint16 CipherKeyLength;
+
+	[Description (
+       "CipherKeyRounds specifies the key rounds for the "
+       "encryption algorithm.  Currently, key rounds are not "
+	 "defined for any IPsec encryption algorithms. " ) ]
+    uint16 CipherKeyRounds;
+
+     [Description (
+	"UseReplayPrevention causes the local peer to compute the "
+	"next sequence number when sending a packet or to check the "
+	"sequence number when receiving a packet. " ) ]
+    boolean UseReplayPrevention;
+
+     [Description (
+	"ReplayPreventionWindowsSizw specifies, in bits, the length "
+	"of the sliding window used by the replay prevention "
+	"mechanism. The value of this property is meaningless if "
+	"UseReplayPrevention is false. It is assumed that the window "
+	"size will be power of 2.")]
+    uint32 ReplayPreventionWindowSize;
+};
+
+
+// ==================================================================
+//     IPCOMPTransform 
+// ==================================================================
+	[Description (
+       "IPCOMPTransform specifies the compression algorithm "
+       "to use. " ) ]
+
+class CIM_IPCOMPTransform : CIM_SATransform
+{
+	[Description (
+       "The Algorithm is an enumeration that designates the "
+	 "IPCOMP compression algorithm to use.  OUI designates a "
+	 "vendor-specific algorithm."),
+	 ValueMap {"1", "2", "3", "4"},
+	 Values {"OUI", "DEFLATE", "LZS", "V42BIS"}]
+    uint16 Algorithm;
+
+	[Description (
+       "DictionarySize is an optional field that specifies the "
+       "log2 maximum size of the dictionary. " ) ]
+    uint16 DictionarySize;
+
+	[Description (
+       "Private compression algorithm, used when TransformId "
+       "is OUI. " ) ]
+    uint32 PrivateAlgorithm;
+};
+
+// ==================================================================
+//     SAProposal
+// ==================================================================
+	[Abstract, Description (
+       "SAProposal is a base class defining the common "
+       "properties of and anchoring common associations "
+       "for IKE phase 1 and phase 2 (IPsec) proposals.") ]
+
+class CIM_SAProposal : CIM_Policy
+{
+      [Propagated ("CIM_System.CreationClassName"), Key, 
+       MaxLen (256), Description (
+       "The scoping System's CreationClassName.") ]
+    string SystemCreationClassName;
+
+      [Propagated ("CIM_System.Name"), Key, 
+       MaxLen (256), Description (
+       "The scoping System's Name.") ]
+    string SystemName;
+
+	[Key, MaxLen (256), Description (
+       "CreationClassName indicates the name of the class "
+       "or the subclass used in the creation of an "
+       "instance. When used with the other key properties of "
+	 "this class, this property allows all instances of this "
+	 "class and its subclasses to be uniquely identified.") ]
+    string CreationClassName;
+
+	[Key, MaxLen (256), Description (
+       "The Name property uniquely identifies the "
+       "CIM_SAProposal.") ] 
+    string Name;
+};
+
+// ==================================================================
+//     IKEProposal
+// ==================================================================
+	[Description ("IKEProposal contains the parameters necessary "
+	 "to drive the phase 1 IKE negotiation.") ]
+
+class CIM_IKEProposal : CIM_SAProposal
+{
+	[Description ("LifetimeDerivedKeys specifies the number of "
+	 "times a phase 1 key will be used to derive a phase 2 "
+	 "(IPsec) key.  A value of 0 indicates that there is no limit "
+	 "to the number of phase 2 keys that can be derived from the "
+	 "phase 1 key.") ]
+    uint32 LifetimeDerivedKeys ;
+
+	[Description ("CipherAlgorithm is an enumeration that "
+	 "specifies the proposed encryption algorithm."),
+	 ValueMap { "1", "2", "3", "4", "5", "6" },
+       Values { "DES", "IDEA", "Blowfish", "RC5", "3DES", 
+	 "CAST"}]
+    uint16 CipherAlgorithm;
+
+	[Description ("HashAlgorithm is an enumeration that specifies "
+	 "the proposed hash function."),
+	 ValueMap {"1", "2", "3"},
+	 Values {"MD5", "SHA-1", "Tiger"}]
+    uint16 HashAlgorithm;
+
+	[Description ("PRFAlgorithm specifies the pseudo-random "
+	 "function IKE should use.  Currently, no such functions are "
+	 "defined.")]
+    uint16 PRFAlgorithm;
+
+	[Description ("The VendorID property is used to identify "
+	 "vendor-defined key exchange GroupIDs."),
+	ModelCorrespondence {"CIM_IKEProposal.GroupId"}] 
+    string VendorID;
+
+	[Description ("When IKEAction.ExchangeMode is set to "
+       "\"Base\" or to \"Main,\" the GroupId specifies the key "
+       "exchange group ID to use in a proposal, otherwise, "
+       "GroupId is set to 0, \"Not Applicable,\" and ignored. "
+	 "If the GroupID number is from the vendor-specific range "
+	 "(32768-65535), the VendorID qualifies the group number.  "
+	 "Well-known group identifiers from RFC2412 are:\n"
+	 " 0='Not Applicable', 1='DH768', 2='DH1024', "
+	 "3='ECC2N155', 4='ECC2N185', and 5='DH1536'"),
+	ModelCorrespondence {"CIM_IKEProposal.VendorID"}] 
+    uint16 GroupId;
+
+      [Description ("AuthenticationMethod is an enumeration that "
+	 "specifies the authentication method to use for the "
+	 "proposal. If the value 0 (Any) is used, then the proposal "
+	 "should be multiplied in the IKE proposal list by as many "
+	 "authentication methods as correspond to credentials on the "
+	 "system (e.g., if the system has a preshared key and a "
+	 "certificate, then the proposal will be repeated twice -- "
+	 "once for each method)."),
+	 ValueMap { "0", "1", "2", "3", "4", "5", "6" },
+ 	 Values {"Any", "Preshared", "DSS_Signatures", 
+       "RSA_Signatures", "RSA_Encryption", "Revised_RSA_Encryption",
+       "Kerberos" } ]
+    uint16 AuthenticationMethod;
+
+	[Description ("MaxLifetimeSeconds specifies the maximum time "
+	 "the IKE message sender proposes for an SA to be considered "
+	 "valid after it has been created."), Units("Seconds") ]
+    uint32 MaxLifetimeSeconds;
+
+	[Description ("MaxLifetimeKilobytes specifies the maximum "
+	 "kilobyte lifetime the IKE message sender proposes for an SA "
+	 "to be considered valid after it has been created.  Each "
+	 "proposal may use a different lifetime based upon the "
+	 "strength of the encryption algorithm.") ]
+    uint32 MaxLifetimeKilobytes;
+};
+
+// ==================================================================
+//     IPsecProposal
+// ==================================================================
+	[Description ("IPsecProposal aggregates the transform list "
+	 "that specify the phase 2 negotiation proposals for "
+	 "transform parameters.") ]
+
+class CIM_IPsecProposal : CIM_SAProposal
+{
+};
+
+// ==================================================================
+//     IKEService
+// ==================================================================
+        [Description (
+         "Derived from NetworkService, IKEService represents the "
+         "functions performed during IKE phase 1 and phase 2 "
+         "negotiations.  An IKEService instance provides services "
+         "for IPProtocolEndpoints on a System.") ]
+
+class CIM_IKEService: CIM_NetworkService 
+{
+};
+
+// ==================================================================
+//     PeerGateway
+// ==================================================================
+	[Description ("PeerGateway identifies a security gateway with "
+       "which an IKE Service negotiates.") ]
+
+class CIM_PeerGateway: CIM_LogicalElement
+{
+      [Propagated ("CIM_System.CreationClassName"), Key, 
+	 MaxLen (256), Description (
+       "The scoping System's CreationClassName. ") ] 
+    string SystemCreationClassName;
+
+      [Propagated ("CIM_System.Name"), Key, MaxLen (256),
+       Description ("The scoping System's Name.") ] 
+    string SystemName;
+
+      [Key, MaxLen (256), Description (
+       "CreationClassName indicates the name of the class or the "
+	 "subclass used in the creation of an instance. When used "
+	 "with the other key properties of this class, this property "
+	 "allows all instances of this class and its subclasses to "
+	 "be uniquely identified." ) ]
+    string CreationClassName;
+
+      [Override ("Name"), Key, MaxLen (256),
+       Description (
+       "The Name property uniquely identifies the PeerGateway "
+       "instance.") ] 
+    string Name;
+
+	[Description ("The PeerIdentityType specifies the type of the "
+       "Peer's IKE Identity."), 
+	 ValueMap 
+	  {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
+       Values {"IPV4_ADDR", "FQDN", "USER_FQDN", "IPV4_ADDR_SUBNET", 
+       "IPV6_ADDR", "IPV6_ADDR_SUBNET", "IPV4_ADDR_RANGE", 
+	 "IPV6_ADDR_RANGE", "DER_ASN1_DN", "DER_ASN1_GN", "KEY_ID"},
+	 ModelCorrespondence {"CIM_PeerGateway.PeerIdentity"}]
+    uint16 PeerIdentityType;
+
+	[Description ("PeerIdentity contains a string encoding of the "
+	 "Identity payload for the security gateway."), 
+	 ModelCorrespondence {"CIM_PeerGateway.PeerIdentityType"}]
+    string PeerIdentity;
+};
+
+// ==================================================================
+//     PeerIdentityTable
+// ==================================================================
+	[Description ("PeerIdentityTable aggregates table entries "
+       "that provide mappings between identities and their "
+       "addresses.") ]
+
+class CIM_PeerIdentityTable: CIM_Collection
+{
+      [Propagated ("CIM_System.CreationClassName"), Key, 
+	 MaxLen (256), Description (
+       "The scoping System's CreationClassName. ") ] 
+    string SystemCreationClassName;
+
+      [Propagated ("CIM_System.Name"), Key, MaxLen (256),
+       Description ("The scoping System's Name.") ] 
+    string SystemName;
+
+      [Key, MaxLen (256), Description (
+       "CreationClassName indicates the name of the class or the "
+	 "subclass used in the creation of an instance. When used "
+	 "with the other key properties of this class, this property "
+	 "allows all instances of this class and its subclasses to "
+	 "be uniquely identified." ) ]
+    string CreationClassName;
+
+      [Key, MaxLen (256), Description ("The Name property uniquely "
+       "identifies the PeerIdentityTable." ) ] 
+    string Name;
+};
+
+// ==================================================================
+//     PeerIdentityEntry
+// ==================================================================
+	[Description ("A PeerIdentityEntry in a PeerIdentityTable "
+       "provides the mappings between peer's addresses and "
+       "identities." ) ]
+
+class CIM_PeerIdentityEntry: CIM_LogicalElement
+{
+      [Propagated ("CIM_PeerIdentityTable.SystemCreationClassName" ), 
+	 Key, MaxLen (256), Description (
+       "The scoping System's CreationClassName. " ) ] 
+    string SystemCreationClassName;
+
+      [Propagated ("CIM_PeerIdentityTable.SystemName"), Key, 
+	 MaxLen (256), Description ("The scoping System's Name." ) ] 
+    string SystemName;
+
+      [Propagated ("CIM_PeerIdentityTable.CreationClassName"), Key,
+       MaxLen (256), Description (
+       "The scoping PeerIdentityTable CreationClassName.") ]
+    string TableCreationClassName;
+
+      [Propagated ("CIM_PeerIdentityTable.Name"), Key, 
+       MaxLen (256), Description (
+       "The scoping PeerIdentityTable Name." ) ] 
+    string TableName;
+
+      [Key, MaxLen (256), Description (
+       "CreationClassName indicates the name of the class or the "
+	 "subclass used in the creation of an instance. When used "
+	 "with the other key properties of this class, this property "
+	 "allows all instances of this class and its subclasses to "
+	 "be uniquely identified.") ]
+    string CreationClassName;
+
+	[Key, Description ("The PeerIdentityType specifies the type "
+       "of the Peer's IKE Identity."), 
+	 ValueMap 
+	  {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
+       Values {"IPV4_ADDR", "FQDN", "USER_FQDN", "IPV4_ADDR_SUBNET", 
+       "IPV6_ADDR", "IPV6_ADDR_SUBNET", "IPV4_ADDR_RANGE", 
+	 "IPV6_ADDR_RANGE", "DER_ASN1_DN", "DER_ASN1_GN", "KEY_ID"},
+	 ModelCorrespondence {"CIM_PeerIdentityEntry.PeerIdentity"}]
+    uint16 PeerIdentityType;
+
+	[Key, Description ("PeerIdentity contains a string encoding "
+       "of the Identity payload for the peer."),
+	 ModelCorrespondence {"CIM_PeerIdentityEntry.PeerIdentityType"}]
+    string PeerIdentity;
+
+      [Key, Description (
+       "An enumeration that describes the format of the PeerAddress "
+       "property. Addresses that can be formatted in IPv4 format, "
+       "must be formatted that way to ensure mixed IPv4/IPv6 "
+       "support."),
+       ValueMap { "0", "1", "2" },
+       Values { "Unknown", "IPv4", "IPv6" },
+	 ModelCorrespondence {"CIM_PeerIdentityEntry.PeerAddress"}]
+    uint16 PeerAddressType;
+
+      [Key, Description (
+       "The string representation of the IP address of the peer "
+	 "formatted according to the appropriate convention as "
+	 "defined in the PeerAddressType property of this class " 
+       "(e.g., 171.79.6.40)."),
+	 ModelCorrespondence {"CIM_PeerIdentityEntry.PeerAddressType"}]
+    string PeerAddress;
+};
+
+// ==================================================================
+//     IPsecProtectionSuite
+// ==================================================================
+	[Description ("IPsecProtectionSuite represents the collection "
+	 "of SAs negotiated as a set by IKE.  A protection suite may "
+	 "consist of up to 6 individual SAs (incoming and outgoing "
+	 "SAs for AH, ESP, and IPCOMP)") ]
+
+class CIM_IPsecProtectionSuite : CIM_Collection
+{
+	[Key, MaxLen (256), Description (
+	 "CreationClassName indicates the name of the class or the "
+       "subclass used in the creation of an instance. When used "
+       "with the other key properties of this class, this property "
+       "allows all instances of this class and its subclasses to "
+       "be uniquely identified.") ]
+
+    string CreationClassName;
+       [Key, MaxLen (256), Description (
+        "The Name property uniquely identifies the Service and "
+        "provides an indication of the functionality that is "
+        "managed. This functionality is described in more detail in "
+        "the object's Description property. ") ] 
+    string Name;
+
+       [Propagated ("CIM_IPProtocolEndpoint.SystemCreationClassName"), 
+	  Key, MaxLen (256), Description (
+        "The scoping System's CreationClassName. ") ] 
+    string SystemCreationClassName;
+
+       [Propagated ("CIM_IPProtocolEndpoint.SystemName"), Key, 
+	  MaxLen (256), Description ("The scoping System's Name.") ] 
+    string SystemName;
+
+       [Propagated ("CIM_IPProtocolEndpoint.CreationClassName"), Key, 
+	  MaxLen (256), Description (
+        "The scoping IPProtocolEndpoint's CreationClassName. ") ] 
+    string SAPCreationClassName;
+
+       [Propagated ("CIM_IPProtocolEndpoint.Name"), Key, 
+        MaxLen (256), Description (
+        "The scoping IPProtocolEndpoint's Name.") ] 
+    string SAPName;
+};
+
+// ==================================================================
+//     IKEIdentity
+// ==================================================================
+	[Description ("IKEIdentity is used to represent the "
+	 "identities that may be used for an IPProtocolEndpoint (or "
+	 "collection of IPProtocolEndpoints) to identify the "
+	 "IKEService in IKE phase 1 negotiations.  The policy "
+	 "IKEAction.UseIKEIdentityType specifies which type of the "
+	 "available identities to use in a negotiation exchange and "
+       "the IKERule.IdentityContexts specifies the match values to "
+       "be used, along with the local address, in selecting the "
+	 "appropriate identity for a negotiation. The ElementID "
+	 "property value should be that of either the "
+	 "IPProtocolEndpoint or Collection of endpoints as "
+	 "appropriate.") ]
+
+class CIM_IKEIdentity : CIM_UsersAccess
+{
+	[Description ("The IdentityType specifies the type of IKE "
+	 "Identity."), 
+	 ValueMap 
+	  {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
+       Values {"IPV4_ADDR", "FQDN", "USER_FQDN", "IPV4_ADDR_SUBNET", 
+       "IPV6_ADDR", "IPV6_ADDR_SUBNET", "IPV4_ADDR_RANGE", 
+	 "IPV6_ADDR_RANGE", "DER_ASN1_DN", "DER_ASN1_GN", "KEY_ID"},
+	 ModelCorrespondence {"CIM_IKEAction.UseIKEIdentity",
+		"CIM_IKEIdentity.IdentityValue"}]
+    uint16 IdentityType;
+
+	[Description ("IdentityValue contains a string encoding of "
+	 "the Identity payload.  For IKEIdentity instances that are "
+	 "address types, the IdentityValue string value may be "
+	 "omitted and the associated IPProtocolEndpoint or "
+	 "appropriate member of the Collection of endpoints is used."),
+	 ModelCorrespondence {"CIM_IKEIdentity.IdentityType"}]
+    string IdentityValue;
+
+      [Description (
+       "The IdentityContexts property is used to constrain the use "
+       "of IKEIdentity instances to match that specified in the "
+       "IKERule.IdentityContexts.  The IdentityContexts are "
+       "formatted as policy roles and role combinations.  Each "
+       "value represents one context or context combination.  Since "
+       "this is a multi-valued property, more than one context or "
+       "combination of contexts can be associated with a single "
+       "IKEIdentity.  Each value is a string of the form:\n"
+       "  <ContextName>[&&<ContextName>]*\n"
+       "where the individual context names appear in alphabetical "
+       "order (according to the collating sequence for UCS-2). "
+       "If one or more values in the IKERule.IdentityContexts array "
+       "match one or more IKEIdentity.IdentityContexts then the "
+       "identity's context matches.  (That is, each value of the "
+       "IdentityContext array is an ORed condition.)  In "
+       "combination with the address of the IPProtocolEndpoint and "
+       "IKEAction.UseIKEIdentityType, there should be 1 and only 1 "
+       "IKEIdentity." ),
+       ModelCorrespondence {"CIM_IKERule.IdentityContexts" } ]
+    string IdentityContexts [];
+};
+
+// ==================================================================
+//     SecurityAssociation
+// ==================================================================
+	[Description ("SecurityAssociation (SA) subclasses are used "
+	"to represent the protocol endpoint of the secure connection "
+	"established with the IKE/ISAKMP protocol.  An SA is used for "
+	"each direction of flow.") ]
+
+class CIM_SecurityAssociation : CIM_ProtocolEndpoint
+{    
+	[Description (
+       "TimeOfCreation records when the SA was created")]
+    datetime TimeOfCreation;
+
+	[Description ("LifetimeSeconds specifies the maximum time SA "
+	 "will be considered valid after it has been created."), 
+	 Units("Seconds") ]
+    uint32 LifetimeSeconds;
+
+	[Description ("RefreshThresholdSeconds is the lifetime "
+	 "percentage at which IKE should automatically attempt to "
+	 "acquire a new SA before the existing SA expires.  A random "
+	 "period may be added to a calculated threshold to reduce "
+	 "network thrashing.")]
+    uint8 RefreshThresholdSeconds;
+
+	[Description ("LastAccessed enables deletion if SA is idle "
+       "too long.")]
+    datetime LastAccessed;
+
+	[Description ("IdleDurationSeconds specifies how long the SA "
+	 "can be idle before it is deleted.  The default value, 0, "
+	 "indicates that there is no idle time out period."), 
+	 Units("Seconds")]
+    uint32 IdleDurationSeconds;
+
+	[Description ("How many bytes have been protected by this SA")]
+    uint32 ByteCount;	
+	[Description ("LifetimeKilobytes specifies the maximum number "
+	 "of kilobytes of data traffic to be protected by the SA.  It "
+	 "is deleted SA if LifetimeKilobyte value is exceeded.")]
+    uint32 LifetimeKilobytes;	
+
+	[Description ("RefreshThresholdKilobytes is the ByteCount "
+       "value, expressed as a percentage of the LifetimeKilobytes, "
+       "at which IKE should begin to renegotiate a new SA.  A "
+       "random value may be added to the calculated threshold to "
+       "reduce network thrashing.")]
+    uint8 RefreshThresholdKilobytes;
+
+	[Description (
+       "DoPacketLogging causes a log to be kept of traffic "
+       "processed by the SA." )]
+    boolean DoPacketLogging;
+};
+
+// ==================================================================
+//     IKESecurityAssociation
+// ==================================================================
+	[Description ("IKESecurityAssociation is the SA used by IKE "
+	 "to protect key negotiation traffic.") ]
+
+class CIM_IKESecurityAssociation : CIM_SecurityAssociation
+{
+	[Description ("Identifier of the IKE phase 1 negotiation "
+	 "initiator.  Combined with the ResponderCookie, this value,"
+	 "in string form, may be used to construct the value of the "
+	 "key field 'Name'." ) ]
+    uint64 InitiatorCookie;
+
+	[Description ("Identifier of the IKE phase 1 negotiation "
+	 "responder.  Combined with the InitiatorCookie, this value,"
+	 "in string form, may be used to construct the value of the "
+	 "key field 'Name'." ) ]
+    uint64 ResponderCookie;
+
+	[Description ("How many phase 2 derived keys have been "
+	 "negotiated with this SA." ) ]
+    uint32 DerivedKeyCount;
+
+	[Description ("Delete SA if more than LiftetimeDerivedKeys "
+	 "phase 2 keys derived.  A zero value indicates that there is"
+	 "no limit to the number of phase 2 derived keys." ) ]
+    uint32 LifetimeDerivedKeys;
+
+	[Description ("Percentage of LifetimeDerivedKeys at which "
+	 "SA should be refreshed." ) ]
+    uint8 RefreshThresholdDerivedKeys;
+
+	[Description ("CipherAlgorithm is an enumeration that "
+	 "specifies the proposed encryption algorithm."),
+	 ValueMap { "1", "2", "3", "4", "5", "6" },
+	 Values 
+	  {"DES", "IDEA", "Blowfish", "RC5", "3DES", "CAST"}]
+    uint16 CipherAlgorithm;
+
+	[Description ("HashAlgorithm is an enumeration that specifies "
+	 "the proposed hash function."),
+	 ValueMap {"1", "2", "3"},
+	 Values {"MD5", "SHA-1", "Tiger" } ]
+    uint16 HashAlgorithm;
+
+	[Description ("GroupId specifies the key exchange group ID. "
+	 "If the GroupID number is from the vendor-specific range "
+	 "(32768-65535), the VendorID qualifies the group number.  "
+	 "Well-known group identifiers from RFC2412 are:\n"
+	 "1='DH768', 2='DH1024', 3='ECC2N155', 4='ECC2N185', and "
+	 "5='DH1536'"),
+	ModelCorrespondence {"CIM_IKESecurityAssociation.VendorID"}] 
+    uint16 GroupId;
+
+	[Description ("VendorID identifies the vendor ID for "
+	 "vendor-defined algorithms."),
+	ModelCorrespondence {"CIM_IKESecurityAssociation.GroupId"}] 
+    string VendorID;
+};
+
+
+// ==================================================================
+//     IPsecSecurityAssociation
+// ==================================================================
+	[Description ("IPsecSecurityAssociation is used to represent "
+	 "both negotiated and static SAs that correspond to AH, ESP, "
+	 "or IPCOMP.") ]
+
+class CIM_IPsecSecurityAssociation : CIM_SecurityAssociation
+{
+	[Description ("SPI contains the Security Parameter Index of "
+	 "the SA. This value in string form may also be used in "
+	 "the key field 'Name' inherited from ServiceAccessPoint. ")]
+    uint32 SPI;
+
+	[Description ("EncapsulationMode indicates whether the "
+	 "security association is for a transport or tunnel "
+       "encapsulation mode."),
+	 ValueMap {"1", "2"},
+       Values {"Tunnel", "Transport"}]
+    uint16 EncapsulationMode;
+
+	[Description (
+       "DFHandling controls how the Don't Fragment bit "
+       "is managed by the tunnel. " ),
+	 ValueMap {"1", "2", "3"},
+	 Values {"Copy", "Set", "Clear"}]
+    uint16 DFHandling;
+};
+
+// ==================================================================
+//     DiscardSecurityAssociation
+// ==================================================================
+	[Description ("DiscardSecurityAssociation is the SA type that "
+	 "causes packets to be dropped.") ]
+
+class CIM_DiscardSecurityAssociation: CIM_SecurityAssociation
+{
+};
+// ==================================================================
+//     BypassSecurityAssociation
+// ==================================================================
+	[Description ("BypassSecurityAssociation is the SA type that "
+	 "causes packets to be sent in the clear.") ]
+
+class CIM_BypassSecurityAssociation: CIM_SecurityAssociation
+{
+};
+
+// ==================================================================
+//     AutostartIKEConfiguration
+// ==================================================================
+	[Description ("AutostartIKEConfiguration object allows the "
+       "grouping of sets of AutostartIKESetting instances.") ]
+class CIM_AutostartIKEConfiguration : CIM_SystemConfiguration
+{
+};
+
+// ==================================================================
+//     AutostartIKESetting
+// ==================================================================
+	[Description ("AutostartIKESetting instances are used to "
+	"automatically initiate IKE negotiations with peers (or "
+	"statically create an SA) as specified in the "
+	"AutostartIKESetting properties.  Appropriate actions are "
+	"initiated according to the policy that matches the setting "
+	"parameters.") ]
+class CIM_AutostartIKESetting : CIM_SystemSetting
+{
+      [Description (
+       "Phase1Only is used to limit the IKE negotiation to just "
+       "setting up a phase 1 security association.  When set to "
+       "False, both phase 1 and 2 negotiations are initiated.") ]
+    boolean Phase1Only;
+      [Description (
+       "An enumeration that describes the format of the source and "
+       "destination address properties."),
+       ValueMap { "0", "1", "2" },
+       Values { "Unknown", "IPv4", "IPv6" },
+	ModelCorrespondence {"CIM_AutostartIKESetting.SourceAddress",
+		"CIM_AutostartIKESetting.DestinationAddress"}] 
+    uint16 AddressType;
+      [Description (
+       "The dotted-decimal or colon-decimal formatted IP address "
+       "used as the source address in comparing with policy "
+       "filter entries and used in any phase 2 negotiations."),
+	ModelCorrespondence {"CIM_AutostartIKESetting.AddressType"}] 
+    string SourceAddress;
+      [Description (
+       "The port number used as the source port in comparing "
+       "with policy filter entries and used in any phase "
+       "2 negotiations.")]
+    uint16 SourcePort;
+      [Description (
+       "The dotted-decimal or colon-decimal formatted IP address "
+       "used as the destination address in comparing with policy "
+       "filter entries and used in any phase 2 negotiations."),
+	ModelCorrespondence {"CIM_AutostartIKESetting.AddressType"}] 
+    string DestinationAddress;
+      [Description (
+       "The port number used as the destination port in comparing "
+       "with policy filter entries and used in any phase 2 "
+       "negotiations.")]
+    uint16 DestinationPort;
+      [Description (
+       "The protocol number used in comparing with policy filter "
+       "entries and used in any phase 2 negotiations.")]
+    uint8 Protocol;
+};
+
+
+/////////////////////////////////////////////////////////////////////
+//*******************************************************************
+//  Associations
+//*******************************************************************
+/////////////////////////////////////////////////////////////////////
+
+// ==================================================================
+//     SAConditionInRule
+// ==================================================================
+    [ Association, Aggregation, Description (
+	"SAConditionInRule aggregates an SARule with the set of "
+	"SACondition instances that trigger it.") ]
+
+class CIM_SAConditionInRule : CIM_PolicyConditionInPolicyRule
+{
+	[Aggregate, Override ("GroupComponent"), Description (
+      "An SARule subclass of PolicyRule." ) ]
+    CIM_SARule REF GroupComponent;
+
+	[Override ("PartComponent"), Min(1), Description (
+      "An SACondition subclass of PolicyCondition. " ) ]
+    CIM_SACondition REF PartComponent;
+};
+
+// ==================================================================
+//     FilterOfSACondition
+// ==================================================================
+    [ Association, Description (
+	"FilterOfSACondition associates a network traffic "
+	"specification (FilterList) with a SARule's SACondition." ) ]
+
+class CIM_FilterOfSACondition : CIM_Dependency
+{
+    	[Override ("Antecedent"), Min(1), Max(1), Description (
+	"A FilterList describes the traffic that will specify the "
+      "traffic to be filtered that is part of the SACondition of "
+      "a policy rule. " ) ]
+    CIM_FilterList REF Antecedent;
+
+	[Override ("Dependent"), Description (
+	"This is the SACondition that uses this FilterList to form "
+      "a policy rule. " ) ]
+    CIM_SACondition REF Dependent;
+};
+
+// ==================================================================
+//     AcceptCredentialsFrom
+// ==================================================================
+    	[Association, Description (
+	"This is used to specify which credential management service "
+	"(e.g., a CertificateAuthority or a Kerberos service) is to "
+      "be trusted to certify peer credentials. This is used to "
+      "validate that the credential being matched in the "
+      "CredentialFilterEntry is a valid credential that has been "
+      "supplied by an approved CredentialManagementService. " ) ]
+
+class CIM_AcceptCredentialsFrom : CIM_Dependency
+{
+    	[Override ("Antecedent"),
+      Description ("The CredentialManagementService that is issuing "
+      "the credential to be used in the SACondition. " ) ]
+    CIM_CredentialManagementService REF Antecedent;
+	
+    	[Override ("Dependent"), 
+      Description ("SACondition that contains the credential. " ) ]
+    CIM_SACondition REF Dependent;
+};
+
+// ==================================================================
+//     SAActionInRule
+// ==================================================================
+   [Association, Aggregation, Description (
+   "SAActionInRule aggregates SAActions into SARules  In "
+   "SAActionInRule, the combination of the ActionOrder value and "
+   "the FallbackOrder value MUST be unique so as to specify a "
+   "deterministic execution strategy.  An ActionOrder value "
+   "specifies a set of actions to be attempted and the order in "
+   "which to attempt the set with respect to other ActionOrder "
+   "sets.  The FallbackOrder specifies the order in which to "
+   "attempt the actions within the set.\n"
+   "\n"
+   "For example, {ActionOrder=1,FallbackOrder=1} is the backup "
+   "action for {ActionOrder=1,FallbackOrder=0} and {ActionOrder=2,"
+   "FallbackOrder=1} is the backup action for {ActionOrder=2,"
+   "FallbackOrder=0}.  In this example, {1,0} will be attempted "
+   "and, if it fails or is otherwise inappropriate, {1,1} is then "
+   "attempted.  Regardless of which of these, if any, succeeds, "
+   "{2,0} is then attempted, and so on.\n" 
+   "\n"
+   "In an initiator role, if there is more than one action in the "
+   "rule, the ActionOrder identified sets are executed as described "
+   "above using the FallbackOrder to determin ethe order in which "
+   "to attempt actions within a set, i.e., the additional actions "
+   "with the same ActionOrder value are 'backup' actions in the "
+   "event that the first action is not able to be completed "
+   "successfully.  Within each ActionOrder identified set. they are "
+   "tried in the FallbackOrder until the list is exhausted or one "
+   "completes successfully.\n"
+   "\n"
+   "In a responder role, it is an error to have more than one "
+   "ActionOrder set in the rule however, there may be more than one "
+   "action each identified by a unique FallbackOrder value. The "
+   "additional actions provide alternative actions depending on the "
+   "received proposals.  For example, the same rule may be used to "
+   "handle aggressive mode and main mode message flows with "
+   "different actions.  The first appropriate action in the list of "
+   "actions is used by the responder.")]
+class CIM_SAActionInRule : CIM_PolicyActionInPolicyRule
+{
+	[Aggregate, Override ("GroupComponent"), Description (
+      "An SARule that contains one or more SAActions. " ) ]
+    CIM_SARule REF GroupComponent;
+
+      [Override ("PartComponent"), Min(1), Description (
+      "An SAAction subclass of PolicyAction which is aggregated "
+	"into this SARule. " ) ]
+    CIM_SAAction REF PartComponent;
+      [Override ("ActionOrder"), Description (
+      "ActionOrder is an unsigned integer that indicates the "
+	"relative position of this SAAction in the sequence of "
+	"actions associated with a PolicyRule.\n"
+	"\n"
+      "In SAActionInRule, the ActionOrder is used in conjunction "
+	"with the FallbackOrder to determine the order in which "
+	"actions are attempted.  The ActionOrder value identifies a "
+	"set of actions. The combination of the ActionOrder and the "
+	"FallbackOrder MUST be unique so as to specify a "
+	"deterministic execution strategy.")]
+    uint16 ActionOrder;
+      [Description (
+      "FallbackOrder is an unsigned integer that indicates the "
+	"order in which actions in the same ActionOrder-identified "
+	"set are attempted.  The lowest-numbered FallbackOrder within "
+	"a set is the first attempted, others are used, in order as "
+	"backups.  The combination of the ActionOrder and the "
+	"FallbackOrder MUST be unique so as to specify a "
+	"deterministic execution strategy.")]
+    uint16 FallbackOrder;
+};
+
+
+// ==================================================================
+//     IPsecPolicyForSystem
+// ==================================================================
+    	[Association, Description (
+	"IPsecPolicyForSystem associates an IPsec policy with a "
+      "specific system (e.g., a host or a network device. If an "
+	"IPProtocolEndpoint of a system does not have an "
+	"IPsecPolicyForEndpoint-associated IPsecPolicyGroup, then the "
+	"IPsecPolicyForSystem-associated IPsecPolicyGroup is used for "
+	"that endpoint. " ) ]
+
+class CIM_IPsecPolicyForSystem : CIM_Dependency
+{
+    	[Override ("Antecedent"), Description ("A System to which the "
+	"IPsecPolicyGroup applies. " ) ]
+    CIM_System REF Antecedent;
+	
+    	[Override ("Dependent"), Min(0), Max(1),
+      Description ("The IPsecPolicyGroup that is to be used for "
+	"endpoints that do not have an associated IPsecPolicyGroup.") ]
+    CIM_IPsecPolicyGroup REF Dependent;
+};
+
+// ==================================================================
+//     IPsecPolicyForEndpoint
+// ==================================================================
+    	[Association, Description (
+	"IPsecPolicyForEndpoint associates an IPsecPolicyGroup "
+	"with a specific network interface.  If an IPProtocolEndpoint "
+	"of a system does not have an "
+	"IPsecPolicyForEndpoint-associated IPsecPolicyGroup, then the "
+	"IPsecPolicyForSystem associated IPsecPolicyGroup is used for "
+	"that endpoint. " ) ]
+
+class CIM_IPsecPolicyForEndpoint : CIM_Dependency
+{
+    	[Override ("Antecedent"), Description (
+      "The IPProtocolEndpoint that identifies an interface "
+      "to which the IPsecPolicyGroup applies.") ]
+    CIM_IPProtocolEndpoint REF Antecedent;	
+
+    	[Override ("Dependent"), Min (0), Max (1), Description (
+      "IPsecPolicyGroup used for the interface.") ]
+    CIM_IPsecPolicyGroup REF Dependent;
+};
+
+// ==================================================================
+//     RuleForIPsecNegotiation
+// ==================================================================
+     [Association, Aggregation, Description (
+	"RuleForIPsecNegotiation associates an IPsecRule with the "
+	"IPsecPolicyGroup that contains it. This is used to contain "
+      "the phase 2 rules to control IKE negotiation. \n\n"
+      "ContainingGroup is restricted to a cardinality of 1. This "
+      "means that the IPsecRule instances are not sharable across "
+      "multiple policy groups. " ) ]
+
+class CIM_RuleForIPsecNegotiation : CIM_PolicyRuleInPolicyGroup
+{
+      [Aggregate, Override ("GroupComponent"), Min(1), Max(1), 
+	Description ("An IPsecPolicyGroup that aggregates a set of "
+	"policy rules. " ) ]
+    CIM_IPsecPolicyGroup REF GroupComponent;
+
+      [Override ("PartComponent"), Description (
+      "A policy rule aggregated into a set of policy rules, "
+      "forming an atomic policy group. " ) ]
+    CIM_IPsecRule REF PartComponent;
+};
+
+
+// ==================================================================
+//     RuleForIKENegotiation
+// ==================================================================
+    [ Association, Aggregation, Description (
+	"RuleForIKENegotiation associates an IKERule with the "
+	"IPsecPolicyGroup that contains it. This is used to control "
+      "phase 1 IKE negotiation. \n\n"
+      "ContainingGroup is restricted to a cardinality of 1. This "
+      "means that the IKERule instances are not sharable across "
+      "multiple policy groups. " ) ]
+
+class CIM_RuleForIKENegotiation : CIM_PolicyRuleInPolicyGroup
+{
+      [Aggregate, Override ("GroupComponent"), Min(1), Max(1), 
+	Description ("An IPsecPolicyGroup that aggregates a set of "
+	"policy rules. " ) ]
+    CIM_IPsecPolicyGroup REF GroupComponent;
+
+      [Override ("PartComponent"), Description (
+      "A policy rule aggregated into a set of policy rules, "
+      "forming an atomic policy group. " ) ]
+    CIM_IKERule REF PartComponent;
+};
+
+// ==================================================================
+//     ContainedProposal
+// ==================================================================
+    	[Association, Aggregation, Description (
+      "ContainedProposal holds the ordered list of SA proposals "
+      "for a SANegotiationAction. " ) ]
+
+class CIM_ContainedProposal: CIM_PolicyComponent
+{
+    	[Aggregate, Override ("GroupComponent"), Description (
+	"SANegotiationAction for this list of proposals. " ) ]
+    CIM_SANegotiationAction REF GroupComponent;
+
+    	[Override ("PartComponent"), Description (
+      "SAProposal in this action. " ) ]
+    CIM_SAProposal REF PartComponent;
+
+    	[Description (
+      "SequenceNumber indicates the ordering to be used when "
+      "chosing from among the proposals; lower values are "
+	"preferred by the sender. " ) ]
+    uint16 SequenceNumber;
+};
+
+// ==================================================================
+//     FilterOfSecurityAssociation
+// ==================================================================
+	[Association, Description (
+	"FilterOfSecurityAssociation associates a network traffic "
+      "specification (i.e., a FilterList) with a set of "
+	"SecurityAssociations to which the filter list applies. " ) ]
+
+class CIM_FilterOfSecurityAssociation : CIM_Dependency
+{
+    	[Override ("Antecedent"), Min(1), Max(1), Description (
+      "FilterList describing the traffic to be matched against. " ) ]
+    CIM_FilterList REF Antecedent;
+
+	[Override ("Dependent"), Description ("SecurityAssociation "
+	"using the FilterList for its selector. " ) ]
+    CIM_SecurityAssociation REF Dependent;
+};
+
+// ==================================================================
+//     IKEUsesCredentialManagementService
+// ==================================================================
+	[Association, Description (
+	"IKEUsesCredentialManagementService defines the set of "
+	"CredentialManagementService(s) that are trusted sources "
+	"of credentials for IKE phase 1 negotiations. " ) ]
+
+class CIM_IKEUsesCredentialManagementService : CIM_Dependency
+{
+    	[Override ("Antecedent"), Description (
+      "CredentialManagementService trusted for the IKE "
+      "negotiation.") ]
+    CIM_CredentialManagementService REF Antecedent;
+	
+    	[Override ("Dependent"),
+ 	Description (
+      "IKEService that is using the credentials issued by the "
+	"trusted CredentialManagementService. " ) ]
+    CIM_IKEService REF Dependent;
+};
+
+// ==================================================================
+//     TransformOfPreconfiguredAction
+// ==================================================================
+	[ Association, Description (
+	"TransformOfPreconfiguredAction defines the transforms used "
+	"by a preconfigured IPsec action.") ]
+
+class CIM_TransformOfPreconfiguredAction : CIM_Dependency
+{
+    	[Override ("Antecedent"), Min(1), Max(3),
+      Description (
+      "This defines the type of transform that the Preconfigured "
+      "SA Action will be applied to. The cardinality enables an "
+      "action to be applied to an AH, an ESP, or an IPCOMP "
+      "transform. " ) ]
+    CIM_SATransform REF Antecedent;
+	
+    	[Override ("Dependent"),
+      Description (
+      "This defines the Preconfigured IPsec action to be applied "
+      "to the AH, ESP, or IPCOMP transform. " ) ]
+    CIM_PreconfiguredSAAction REF Dependent;
+
+      [Description (
+      "The SPI property specifies the security parameter index to "
+	"be used by the pre-configured action for the associated "
+	"transform." ) ]
+    uint32 SPI;
+};
+
+// ==================================================================
+//    SAProposalInSystem
+// ==================================================================
+   [Association, Description (
+    "SAProposalInSystem provides the scoping relationship for "
+    "SAProposals in a System. The SAProposal is weak to the "
+    "System." ) ]
+
+class CIM_SAProposalInSystem : CIM_PolicyInSystem
+{
+        [Override ("Antecedent"), Min (1), Max (1), Description (
+         "This property identifies a System scoping one or more "
+	   "proposals.") ]
+    CIM_System REF Antecedent;
+
+        [Override ("Dependent"), Weak, Description (
+         "An SAProposal that is in the System.")]
+    CIM_SAProposal REF Dependent;
+};
+
+// ==================================================================
+//    SATransformInSystem
+// ==================================================================
+   [Association, Description (
+    "SATransformInSystem provides the scoping relationship for "
+    "SATRansforms in a System. The SATransform is weak to the "
+    "System." ) ]
+
+class CIM_SATransformInSystem : CIM_PolicyInSystem
+{
+        [Override ("Antecedent"), Min (1), Max (1), Description (
+         "This property identifies a System scoping one or more "
+	   "transforms.") ]
+    CIM_System REF Antecedent;
+
+        [Override ("Dependent"), Weak, Description (
+         "An SATransform that is in the System.")]
+    CIM_SATransform REF Dependent;
+};
+
+// ==================================================================
+//    HostedPeerIdentityTable
+// ==================================================================
+   [Association, Description ("HostedPeerIdentityTable provides the "
+    "scoping relationship for PeerIdentityTable entries in a "
+    "System.  The PeerIdentityTable is weak to the System." ) ]
+
+class CIM_HostedPeerIdentityTable: CIM_Dependency
+{
+        [Override ("Antecedent"), Min (1), Max (1), Description (
+         "This property identifies a System scoping one or more "
+         "PeerIdentityTable instances.") ]
+    CIM_System REF Antecedent;
+
+        [Override ("Dependent"), Weak, Description (
+         "A PeerIdentityTable that is in the System.")]
+    CIM_PeerIdentityTable REF Dependent;
+};
+
+// ==================================================================
+//     RuleThatGeneratedSA
+// ==================================================================
+    	[Association, Description (
+	"RuleThatGeneratedSA associates a SecurityAssociation with "
+	"the rule used to generate (or negotiate) it.") ]
+
+class CIM_RuleThatGeneratedSA : CIM_Dependency
+{
+    	[Override ("Antecedent"), Min (0), Max (1), 
+      Description ("SARule that led to the SecurityAssociation.") ]
+    CIM_SARule REF Antecedent;
+
+	[Override ("Dependent"), 
+	Description ("SecurityAssociation created using the rule.") ]
+    CIM_SecurityAssociation REF Dependent;
+};
+
+// ==================================================================
+//     TransformOfSecurityAssociation
+// ==================================================================
+	[Association, Description (
+	"TransformOfSecurityAssociation maps an SA with the transform "
+      "it uses.  For security reasons, no keying material of the SA "
+      "is exposed." ) ]
+
+class CIM_TransformOfSecurityAssociation : CIM_Dependency
+{
+    	[Override ("Antecedent"), Min (1), Max (1), 
+	Description ("Transform of this SA.") ]
+    CIM_SATransform REF Antecedent;
+
+    	[Override ("Dependent"), 
+	Description ("Security association.") ]
+    CIM_IPsecSecurityAssociation REF Dependent;	
+};
+
+// ==================================================================
+//     PeerGatewayOfSecurityAssociation
+// ==================================================================
+	[Association, Description (
+	"PeerGatewayOfSecurityAssociation identifies the PeerGateway "
+      "of an SA that has a security gateway as the peer.") ]
+
+class CIM_PeerGatewayOfSecurityAssociation : CIM_Dependency
+{
+    	[Override ("Antecedent"), Max (1), 
+	Description ("PeerGateway for the SA.") ]
+    CIM_PeerGateway REF Antecedent;
+
+    	[Override ("Dependent"), 
+	Description ("Security association with the PeerGateway.") ]
+    CIM_IPsecSecurityAssociation REF Dependent;	
+};
+
+// ==================================================================
+//     IKEServicePeerGateway
+// ==================================================================
+	[Association, Description (
+	"IKEServicePeerGateway provides the relationship between an "
+      "IKEService and the list of PeerGateway instances that it "
+      "uses in negotiating with security gateways.") ]
+
+class CIM_IKEServicePeerGateway : CIM_Dependency
+{
+    	[Override ("Antecedent"), 
+	Description ("The PeerGateway") ]
+    CIM_PeerGateway REF Antecedent;
+
+    	[Override ("Dependent"), Description (
+      "The IKEService that uses information about the "
+      "peer gateway.") ]
+    CIM_IKEService REF Dependent;	
+};
+
+// ==================================================================
+//     IKEServiceForEndpoint
+// ==================================================================
+	[Association, Description (
+       "IKEServiceForEndpoint provides the relationship "
+       "showing which IKE service, if any, provides IKE "
+       "negotiation services for which network interfaces.") ]
+
+class CIM_IKEServiceForEndpoint : CIM_Dependency
+{
+    	[Override ("Antecedent"), Max (1), 
+	 Description ("The IKEService that performs IKE negotiation "
+       "for the IPProtocolEndpoint.") ]
+    CIM_IKEService REF Antecedent;
+
+    	[Override ("Dependent"), 
+	 Description ("IPProtocolEndpoint for which services are "
+       "provided.") ]
+    CIM_IPProtocolEndpoint REF Dependent;	
+};
+
+// ==================================================================
+//     IKEServicePeerIdentityTable
+// ==================================================================
+	[Association, Description (
+      "IKEServicePeerIdentityTable provides the relationship "
+      "between an IKEService and a PeerIdentityTable that it "
+      "uses to map between addresses and identities where "
+      "required.") ]
+
+class CIM_IKEServicePeerIdentityTable: CIM_Dependency
+{
+    	[Override ("Antecedent"), 
+	 Description ("The PeerIdentityTable.") ]
+    CIM_PeerIdentityTable REF Antecedent;
+
+    	[Override ("Dependent"), 
+	Description ("The IKEService that uses the table.") ]
+    CIM_IKEService REF Dependent;	
+};
+
+// ==================================================================
+//     IKESAUsedForPhase2
+// ==================================================================
+    	[Association, Description (
+      "IKESAUsedForPhase2 associates a phase 1 "
+      "IKESecurityAssociation with an "
+      "IPsecSecurityAssociation that was negotiated using "
+      "that Phase 1 SA.") ]
+
+class CIM_IKESAUsedForPhase2 : CIM_Dependency
+{
+    	[Override ("Antecedent"), Max (1), Description (
+       "Phase 1 SA that protected the negotiation of "
+       "the Phase 2 SA.") ]
+    CIM_IKESecurityAssociation REF Antecedent;
+
+     	[Override ("Dependent"), Description (
+      "Phase 2 SA.") ]
+    CIM_IPsecSecurityAssociation REF Dependent;	
+};
+
+// ==================================================================
+//     PeerCredential
+// ==================================================================
+    	[Association, Description (
+	"PeerCredential is an association that identifies the "
+	"credential of the peer corresponding to an IKE SA.") ]
+
+class CIM_PeerCredential : CIM_Dependency
+{
+    	[Override ("Antecedent"), Max (1), 
+      Description ("Credential of the peer.") ]
+    CIM_Credential REF Antecedent;
+
+	[Override ("Dependent"), 
+	Description ("Phase 1 SA for this peer.") ]
+    CIM_IKESecurityAssociation REF Dependent;
+};
+
+// ==================================================================
+//     IPProtocolEndpointsProtectionSuite
+// ==================================================================
+    	[Association, Description (
+      "IPProtocolEndpointsProtectionSuite provides the "
+      "relationship between an IPsecProtectionSuite and the scoping "
+      "IPProtocolEndpoint for which the set of related SAs provide "
+      "traffic protection.  The IPsecProtectionSuite is weak to its "
+      "IPProtocolEndpoint.") ]
+
+class CIM_IPProtocolEndpointsProtectionSuite: CIM_Dependency
+{
+    	[Override ("Antecedent"), Min (1), Max (1), 
+	 Description (
+       "An IPProtocolEndpoint for which protection is provided.") ]
+    CIM_IPProtocolEndpoint REF Antecedent;
+
+    	[Override ("Dependent"), Weak, Description (
+      "A protection suite.") ]
+    CIM_IPsecProtectionSuite REF Dependent;	
+};
+
+// ==================================================================
+//     SecurityAssociationBindsTo
+// ==================================================================
+	[Association, Description (
+	"SecurityAssociationBindsTo associates an IPProtocolEndpoint "
+      "with an active SecurityAssociation on that endpoint.") ]
+
+class CIM_SecurityAssociationBindsTo : CIM_BindsTo
+{
+      [Override ("Antecedent"), Min (1), Max (1), 
+      Description (
+      "IPProtocolEndpoint representing the network "
+      "interface on which an SA is active." ) ]
+    CIM_IPProtocolEndpoint REF Antecedent;
+
+      [Override ("Dependent"), Description (
+      "Security association on the endpoint." ) ]
+    CIM_SecurityAssociation REF Dependent;
+};
+
+// ==================================================================
+//     ProvidesSA
+// ==================================================================
+	[Association, Description (
+      "ProvidesSA represents the relationship between an "
+      "IKEService that provides the negotiation functions "
+      "and manages the associated security association." ) ]
+
+class CIM_ProvidesSA: CIM_ProvidesEndpoint
+{
+     [Override ("Antecedent"), Max (1), Description (
+     "The IKEService that provides the SA.")]
+   CIM_IKEService REF Antecedent;
+
+     [Override ("Dependent"), Description (
+     "Security association provided by the service.") ]
+   CIM_SecurityAssociation REF Dependent;
+};
+
+// ==================================================================
+//     IKEIdentitysCredential
+// ==================================================================
+    	[Association, Description (
+      "IKEIdentitysCredential is an association that "
+      "relates a set of credentials to their "
+      "corresponding local IKE Identities." ) ]
+
+class CIM_IKEIdentitysCredential : CIM_UsersCredential
+{
+    	[Override ("Antecedent"), Description (
+      "Credential of the Identity.") ]
+    CIM_Credential REF Antecedent;
+
+    	[Override ("Dependent"), Description (
+      "Identity associated with the credential.") ]
+    CIM_IKEIdentity REF Dependent;
+};
+
+// ==================================================================
+//     EndpointHasLocalIKEIdentity
+// ==================================================================
+    	[Association, Description (
+      "EndpointHasLocalIKEIdentity associates an "
+      "IPProtocolEndpoint with a set of IKE "
+      "Identities for that may be used in negotiating "
+      "SAs on the endpoint. " ) ]
+
+class CIM_EndpointHasLocalIKEIdentity : CIM_ElementAsUser
+{
+      [Override ("Antecedent"), Max (1), Description (
+      "IPProtocolEndpoint that has an IKE identity.") ]
+    CIM_IPProtocolEndpoint REF Antecedent;
+
+      [Override ("Dependent"), Description (
+      "An IKE Identity for the endpoint.") ]
+    CIM_IKEIdentity REF Dependent;
+};
+
+// ==================================================================
+//     CollectionHasLocalIKEIdentity
+// ==================================================================
+    	[Association, Description (
+      "CollectionHasLocalIKEIdentity associates a Collection "
+      "of IPProtocolEndpoints with a set of IKE Identities "
+      "that may be used in negotiating SAs for "
+      "these endpoints.") ]
+
+class CIM_CollectionHasLocalIKEIdentity : CIM_ElementAsUser
+{
+    	[Override ("Antecedent"), Max (1), Description (
+      "Collection that has an Identity.") ]
+    CIM_Collection REF Antecedent;
+	
+    	[Override ("Dependent"), Description (
+      "IKE Identity used for the Collection.") ]
+    CIM_IKEIdentity REF Dependent;
+};
+
+// ==================================================================
+//     ContainedTransform 
+// ==================================================================
+    	[Association, Aggregation, Description (
+	"ContainedTransform associates a proposal with its set "
+	"of transforms.  If multiple transforms of a given type are "
+	"in a given proposal, these transforms are interpreted as "
+	"alternatives -- logically ORed with each other.  Sets of "
+	"transforms of different types are logically ANDed.  For "
+	"example, a proposal aggregating two AH transforms and three "
+	"ESP transforms means one of the AH transforms must be chosen "
+	"AND one of the ESP transforms must be chosen.") ]
+
+class CIM_ContainedTransform : CIM_PolicyComponent
+{
+    	[Aggregate, Override ("GroupComponent"), Description (
+      "Proposal containing transforms.") ]
+    CIM_IPsecProposal REF GroupComponent;
+
+    	[Override ("PartComponent"), Min (1), Description (
+      "Transforms in the proposal.") ]
+    CIM_SATransform REF PartComponent;
+
+    	[Description (
+      "SequenceNumber indicates the ordering to be used when "
+      "choosing from among the transforms; lower values are "
+      "preferred by the sender.")]
+    uint16 SequenceNumber;
+};
+
+// ==================================================================
+//     ContainedSA 
+// ==================================================================
+    	[Association, Aggregation, Description (
+	"ContainedSA associates a protection suite with its member "
+      "IPsec security associations.  Security associations are "
+      "contained in sending/receiving pairs and there may be any or "
+      "all of an AH pair, ESP pair or an IPCOMP pair of SAs.") ]
+
+class CIM_ContainedSA : CIM_MemberOfCollection
+{
+    	[Aggregate, Override ("Collection"), Min (1), Max (1),
+	Description (
+      "Protection suite.") ]
+    CIM_IPsecProtectionSuite REF Collection;
+
+    	[Override ("Member"), Min (2), Max (6), Description (
+      "Contained SAs.") ]
+    CIM_IPsecSecurityAssociation REF Member;
+};
+
+// ==================================================================
+//     PeerIdentityMember 
+// ==================================================================
+    	[Association, Aggregation, Description (
+	"PeerIdentityMember aggregates PeerIdentityEntry "
+      "instances into a PeerIdentityTable.  This is a "
+      "weak aggregation.") ]
+
+class CIM_PeerIdentityMember : CIM_MemberOfCollection
+{
+    	[Aggregate, Override ("Collection"), Min (1), Max (1),
+	Description (
+      "Aggregating PeerIdentityTable.") ]
+    CIM_PeerIdentityTable REF Collection;
+
+    	[Override ("Member"), Weak, Description (
+      "Table entry") ]
+    CIM_PeerIdentityEntry REF Member;
+};
+
+// ==================================================================
+// PeerGatewayForTunnel
+// ==================================================================
+      [Association, Description (
+      "PeerGatewayForTunnel identifies the PeerGateway to be used "
+      "in constructing a tunnel. " ) ]
+
+class CIM_PeerGatewayForTunnel : CIM_Dependency
+{
+      [Override ("Antecedent"), Description (
+      "PeerGateway for the SA. " ) ]
+    CIM_PeerGateway REF Antecedent;
+
+      [Override ("Dependent"), Description (
+      "IPsecTunnelAction that requires a PeerGateway. " ) ]
+    CIM_IPsecTunnelAction REF Dependent; 
+
+    	[Description ("SequenceNumber indicates the ordering to be "
+	"used when selecting a PeerGateway instance for an "
+	"IPsecTunnelAction.  Lower values are "
+      "evaluated first. " ) ]
+    uint16 SequenceNumber;
+};
+
+// ==================================================================
+// PeerGatewayForPreconfiguredTunnel
+// ==================================================================
+      [Association, Description (
+      "PeerGatewayForPreconfiguredTunnel identifies the PeerGateway "
+	"to be used in constructing a preconfigured tunnel. " ) ]
+
+class CIM_PeerGatewayForPreconfiguredTunnel : CIM_Dependency
+{
+      [Override ("Antecedent"), Max (1), Description (
+      "PeerGateway for the preconfigured SA. " ) ]
+    CIM_PeerGateway REF Antecedent;
+
+      [Override ("Dependent"), Description (
+      "PreconfiguredTunnelAction that requires a PeerGateway. " ) ]
+    CIM_PreconfiguredTunnelAction REF Dependent; 
+};
+
+// ==================================================================
+// HostedPeerGatewayInformation
+// ==================================================================
+      [Association, Description (
+      "HostedPeerGatewayInformation provides the scoping "
+      "association for PeerGateway information used by IKE "
+      "services to identify PeerGateways used in a policy." ) ]
+
+class CIM_HostedPeerGatewayInformation : CIM_Dependency
+{
+      [Override ("Antecedent"), Min (1), Max (1), 
+      Description (
+      "Scoping System.") ]
+    CIM_System REF Antecedent;
+
+      [Override ("Dependent"), Weak, Description (
+      "PeerGateway.") ]
+    CIM_PeerGateway REF Dependent; 
+};
+//
+
+// ==================================================================
+//     IKEAutostartConfiguration
+// ==================================================================
+    	[Association, Description ("IKEAutostartConfiguration "
+      "provides the relationship between an IKEService and a "
+      "configuration set that it uses to automatically start a set "
+      "of SAs.")]
+class CIM_IKEAutostartConfiguration: CIM_Dependency
+{
+	[Override ("Antecedent"), 
+      Description ("The configuration used.") ]
+    CIM_AutostartIKEConfiguration REF Antecedent;
+    	[Override ("Dependent"), 
+      Description ("The IKEService that uses the configuration.") ]
+    CIM_IKEService REF Dependent;
+      [Description ("Active indicates whether the configuration set "
+      "is currently active for the associated IKEService.  That is, "
+	"at boot time, the active configuration is used to autostart "
+	"IKE negotitations and create static SAs as appropriate.")]
+    boolean Active;
+};
+
+// ==================================================================
+//     IKEAutostartSetting
+// ==================================================================
+    	[Association, Description ("IKEAutostartSetting associates an "
+      "IKEService and an AutostartIKESetting that it uses to "
+      "automatically start negotiating one or more SAs.") ]
+class CIM_IKEAutostartSetting : CIM_ElementSetting
+{
+    	[Override ("Element"), 
+      Description ("IKEService that uses the setting.") ]
+    CIM_IKEService REF Element;
+	
+    	[Override ("Setting"), Description ("Setting that tells the "
+      "IKEService what to negotiate.") ]
+    CIM_AutostartIKESetting REF Setting;
+};
+
+// ==================================================================
+//     AutostartIKESettingContext 
+// ==================================================================
+    	[Association, Aggregation, Description (
+	"AutostartIKESettingContext aggregates the settings used to "
+      "autostart SA negotiations into a configuration set.") ]
+class CIM_AutostartIKESettingContext : CIM_SystemSettingContext
+{
+    	[Aggregate, Override ("Context"),
+	Description ("A configuration set.") ]
+    CIM_AutostartIKEConfiguration REF Context;
+
+    	[Override ("Setting"), Description ("A setting that is part "
+      "of the configuration set.") ]
+    CIM_AutostartIKESetting REF Setting;
+    	[Description ("SequenceNumber indicates the ordering to be "
+      "used when starting negotiations or creating a static SA.  "
+	"A zero value indicates that order is not significant and "
+	"settings may be applied in parallel with other settings.  "
+	"All other settings in the configuration are executed in "
+	"sequence from lower values to high.  Sequence numbers need "
+	"not be unique in an AutostartIKEConfiguration and order is "
+	"not significant for settings with the same sequence number.")]
+    uint16 SequenceNumber;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

@@ -1,0 +1,108 @@
+// ==================================================================
+// Title:       Device MOF Specification Additions 2.6
+// Filename:    CIM_Device26_add.MOF
+// Version:     2.6
+// Date:        06/12/2001
+// Release:     Preliminary
+// Description: The object classes below are new to the version stated 
+//              above and are being evaluated in premliminary release 
+//              status.
+// ===================================================================
+// Copyright "2001" Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.  
+// DMTF is a not-for-profit association of industry members dedicated 
+// to promoting enterprise and systems management and interoperability. 
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members, 
+// provided that correct attribution is given. 
+// As DMTF specifications may be revised from time to time, 
+// the particular version and release cited should always be noted.
+// ===================================================================
+// Author:      DMTF System and Devices Working Group
+// ==================================================================
+//  Date 05/25/2001 - Version 2.6
+//    CR602      - Add IBAdapterPort 
+// ================================================================== 
+
+
+// ===================================================================
+//
+//  Controllers, Adapters, and Ports
+//
+// ===================================================================
+
+// ==================================================================
+// IBAdapterPort 
+// ==================================================================
+   [Description (
+     "Management information and capabilities of a InfiniBand Port "
+     "and Channel Adapter. Each IBA Port independently provides the "
+     "physical, link and network protocol layers of its container IBA "
+     "Device.  Multiple ports of a container IBA Device share the "
+     "transport layer functionality among the ports.  An IBA Port "
+     "represents attributes of \"link port\" and/or \"end port\".") ]
+class CIM_IBAdapterPort  : CIM_NetworkAdapter {    
+      [Description (
+        "The Adapter Status " ),
+       ValueMap {"1", "2", "3", "4", "5", "6", "7"},
+       Values {"Other", "Unknown", "Port Ready", "Performing Self Test", 
+               "Initializing", "Soft Error", "Hard Error"} ]
+   uint32 AdapterStatus;
+      [Description (
+        "The AdapterDiagnosticCode provides both generic and vendor-"
+        "specific diagnostic functionality.  For all ports, all bits "
+        "set to zero means the port status is good.  Any non-zero "
+        "value means there are possible error conditions."),
+       Mappingstrings {"MAD.IBTA | PortInfo | DiagCode"} ]
+   uint32 AdapterDiagnosticCode;
+      [Write, MinValue(1), MaxValue(128), Description (
+        "The LID Mask Control value provides a way to have multiple "
+        "addresses for a single path.  The number of LIDs assigned "
+        "to a port range from 1 to 128 unicast LIDs.") ]
+   uint8 LIDMask;  
+      [Description (
+        "The type of port; e.g. switch, router, channel adapter." ),
+       ValueMap { "1", "2", "3", "4", "5" }, 
+       Values {"Other", "Unknown", "Switch", "Router", 
+               "Channel Adapter"} ]
+   uint8 PortType;
+      [Description (
+        "The port number within the container Device ") ] 
+   uint8 PortNumber;  
+      [Description (
+        "Currently active link width.  Only one width should be "
+        "selected.  Therefore, the only valid values are 1 (1x), "
+        "2 (4x), and 8 (12x)."),
+       BitMap {"0","1", "3"},
+       BitValues {"1x", "4x", "12x"},
+       Mappingstrings {"MAD.IBTA | PortInfo | LinkWidthActive"} ]
+   uint8 LinkWidthActive;
+      [Description (
+        "Currently active link speed. It is a component of actual speed"
+        "Actual speed is the linlspeedactive times the linkwidthactive"),
+       BitMap {"0"},
+       BitValues {"2.5 Gbps"},
+       Mappingstrings {"MAD.IBTA | PortInfo | LinkSpeedActive"} ]
+   uint8 LinkSpeedActive;
+      [Override ("Speed"), Description (
+        "The Speed property is derived from the product of LinkSpeed"
+        "Active and LinkSpeedActive. This is the actual speed of "
+        "the connection") ]
+   uint64 Speed;
+      [Override ("MaxSpeed"), Description (
+        "The Max speed of the connection is derived from the product of"
+        "LinkSpeedEnabled and LinkWidthAvailable.") ]
+   uint64 MaxSpeed;
+      [Override ("PermanentAddress"), Description (
+        "This property can be used to set the Port GUID") ]
+   string PermanentAddress[];
+      [Override ("NetworkAddresses"), Description (
+        "LIDs assigned to this element can be set in the "
+        "NetworkAddresses property") ]
+   string NetworkAddresses;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

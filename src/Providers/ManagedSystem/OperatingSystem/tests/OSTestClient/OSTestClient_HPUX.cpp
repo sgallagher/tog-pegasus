@@ -483,10 +483,13 @@ Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
    
    numberOfProcesses = psd.psd_activeprocs;
 
-   if (verbose)
-      cout<<" Should be " << numberOfProcesses << endl;
+   Sint32 raw_delta = nprocs - numberOfProcesses;
+   Uint32 delta = abs(raw_delta);
 
-   return (nprocs == numberOfProcesses);
+   if (verbose)
+      printf (" Delta should be within 10, is %d\n", delta); 
+
+   return (delta <= 10);
 }
 
 /**

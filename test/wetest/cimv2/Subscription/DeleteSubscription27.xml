@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="030026" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="150027" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="CreateInstance">
+      <IMETHODCALL NAME="DeleteInstance">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
-        <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="PG_IndicationSubscription">
-            <PROPERTY.REFERENCE NAME="Filter" 
-                                REFERENCECLASS="PG_IndicationFilter"> 
-              <VALUE.REFERENCE> 
+        <IPARAMVALUE NAME="InstanceName">
+          <INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+            <KEYBINDING NAME="Filter">
+              <VALUE.REFERENCE>
                 <INSTANCENAME CLASSNAME="PG_IndicationFilter">
-                  <KEYBINDING NAME="SystemCreationClassName">
-                    <KEYVALUE VALUETYPE="string">
-                    CIM_UnitaryComputerSystem
-                    </KEYVALUE>
-                  </KEYBINDING>
-                  <KEYBINDING NAME="SystemName">
-                    <KEYVALUE VALUETYPE="string">
-                    server001.acme.com
-                    </KEYVALUE>
-                  </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     PG_IndicationFilter
@@ -30,16 +19,9 @@
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">
                     <KEYVALUE VALUETYPE="string">
-                    Filter02
+                    Filter13
                     </KEYVALUE>
                   </KEYBINDING>
-                </INSTANCENAME>
-              </VALUE.REFERENCE>
-            </PROPERTY.REFERENCE>
-            <PROPERTY.REFERENCE NAME="Handler" 
-                                REFERENCECLASS="PG_IndicationHandler"> 
-              <VALUE.REFERENCE> 
-                <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     CIM_UnitaryComputerSystem
@@ -50,6 +32,12 @@
                     server001.acme.com
                     </KEYVALUE>
                   </KEYBINDING>
+                </INSTANCENAME>
+              </VALUE.REFERENCE>
+            </KEYBINDING>
+            <KEYBINDING NAME="Handler">
+              <VALUE.REFERENCE>
+                <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     PG_IndicationHandlerCIMXML
@@ -57,19 +45,23 @@
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">
                     <KEYVALUE VALUETYPE="string">
-                    Handler02
+                    Handler01
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="SystemCreationClassName">
+                    <KEYVALUE VALUETYPE="string">
+                    CIM_UnitaryComputerSystem
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="SystemName">
+                    <KEYVALUE VALUETYPE="string">
+                    server001.acme.com
                     </KEYVALUE>
                   </KEYBINDING>
                 </INSTANCENAME>
               </VALUE.REFERENCE>
-            </PROPERTY.REFERENCE>
-            <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
-              <VALUE> 2 </VALUE>
-            </PROPERTY>
-            <PROPERTY NAME="SubscriptionDuration" TYPE="uint64"> 
-              <VALUE> 1 </VALUE>
-            </PROPERTY>
-          </INSTANCE>
+            </KEYBINDING>
+          </INSTANCENAME>
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>

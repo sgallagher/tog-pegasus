@@ -11,12 +11,9 @@ XMLSCRIPTS = \
     CreateSubscription01 CreateSubscription02 CreateSubscription03 \
     CreateSubscription04 CreateSubscription05 CreateSubscription06 \
     CreateSubscription07 CreateSubscription08 CreateSubscription09 \
-    EnumerateFilters01 EnumerateFilters02 \
+    EnumerateFilters01 \
     EnumerateHandlers01 EnumerateHandlers02 \
-    EnumerateHandlers03 EnumerateHandlers04 \
     EnumerateSubscriptions01 \
-    GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
-    GetHandler01 GetHandler02 GetHandler03 \
     ModifyFilter01 \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \
@@ -25,6 +22,9 @@ XMLSCRIPTS = \
     CreateProvider03 CreateCapability03 \
     ModifyCapability01 ModifyCapability02 \
     DeleteCapability03 DeleteProvider03 \
+    CreateSubscription26 ModifySubscription06 \
+    CreateFilter13 CreateSubscription27 \
+    DeleteSubscription27 DeleteFilter13 \
     DeleteFilter07 DeleteHandler04 \
     DeleteSubscription01 DeleteSubscription03 \
     DeleteSubscription04 DeleteSubscription05 DeleteSubscription06 \
@@ -49,13 +49,24 @@ XMLSCRIPTS = \
     CreateSubscription24 CreateSubscription25 \
     DeleteCapability02 DeleteProvider02 DeleteModule02 \
     DeleteCapability01 DeleteProvider01 DeleteModule01
+#
+# Enumerate and Get requests are currently not run -- currently the request 
+# parameters are ignored and extra properties, etc. are returned in the 
+# instances
+# (See bugzilla #56)
+#
+#   EnumerateFilters01 EnumerateFilters02 \
+#   EnumerateHandlers03 EnumerateHandlers04 \
 #   EnumerateSubscriptions01 EnumerateSubscriptions02 \
+#   GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
+#   GetHandler01 GetHandler02 GetHandler03 \
 #   GetSubscription01 GetSubscription02 GetSubscription03 \
 #   GetSubscription04 GetSubscription05 GetSubscription06 \
 #   GetSubscription07 GetSubscription08 GetSubscription09 \
-#   CreateSubscription26 ModifySubscription06 \
-#   CreateFilter13 CreateSubscription15 \
-#   DeleteSubscription15 DeleteFilter13 \
+#
+# Create filter instance with invalid query (parse error) is not currently run 
+# -- causes subsequent requests to time out (See bugzilla #18)
+#
 #   CreateFilter11 CreateFilter12 \
 
 testcleanup:

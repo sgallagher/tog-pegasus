@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <iostream>
 #include <Pegasus/Common/CIMOMHandle.h>
 #include <Pegasus/Provider2/CIMIndicationConsumer.h>
 

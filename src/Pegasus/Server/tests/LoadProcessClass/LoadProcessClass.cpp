@@ -33,6 +33,7 @@
     This code is temporary, even as a test and will be removed in the future
 */
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 

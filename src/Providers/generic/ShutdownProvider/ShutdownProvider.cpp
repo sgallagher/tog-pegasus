@@ -32,6 +32,7 @@
 //  Shutdown Provider
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider2/CIMMethodProvider.h>
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ShutdownService.h>

@@ -40,8 +40,8 @@
     removed.
 */
 
-#include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <iostream>
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Repository/CIMRepository.h>
 

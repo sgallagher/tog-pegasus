@@ -173,6 +173,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     // Process M-POST and POST messages:
     //
+
     if (methodName == "M-POST" || methodName == "POST")
     {
 	httpMessage->message.append('\0');

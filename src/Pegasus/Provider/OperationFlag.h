@@ -45,8 +45,15 @@ public:
 	static const Uint32 INCLUDE_CLASS_ORIGIN;
 	static const Uint32 DEEP_INHERITANCE;
 	static const Uint32 PARTIAL_INSTANCE;
-        static const Uint32 REMOTE_ONLY; 
-      
+	static const Uint32 REMOTE_ONLY;
+
+	static Uint32 convert(
+		const Boolean localOnly,
+		const Boolean includeQualifiers,
+		const Boolean includeClassOrigin,
+		const Boolean deepInheritance,
+		const Boolean partialInstance,
+		const Boolean remoteOnly);
 
 };
 

@@ -38,5 +38,24 @@ const Uint32 OperationFlag::DEEP_INHERITANCE = 0x00000008;
 const Uint32 OperationFlag::PARTIAL_INSTANCE = 0x00000010;
 const Uint32 OperationFlag::REMOTE_ONLY = 0x00000020;
 
+Uint32 OperationFlag::convert(
+	const Boolean localOnly,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const Boolean deepInheritance,
+	const Boolean partialInstance,
+	const Boolean remoteOnly)
+{
+	Uint32 flags = NONE;
+
+	flags |= localOnly ? LOCAL_ONLY : 0;
+	flags |= includeQualifiers ? INCLUDE_QUALIFIERS : 0;
+	flags |= includeClassOrigin ? INCLUDE_CLASS_ORIGIN : 0;
+	flags |= deepInheritance ? DEEP_INHERITANCE : 0;
+	flags |= partialInstance ? PARTIAL_INSTANCE : 0;
+	flags |= remoteOnly ? REMOTE_ONLY : 0;
+
+	return(flags);
+}
 
 PEGASUS_NAMESPACE_END

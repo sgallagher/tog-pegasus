@@ -71,6 +71,8 @@ poststarttests: $(XMLRESPONSES) $(XMLCOVRESPONSES)
 
 depend:
 
+messages:
+
 general:
 
 strip-license:

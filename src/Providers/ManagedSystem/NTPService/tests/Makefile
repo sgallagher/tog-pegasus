@@ -73,6 +73,8 @@ depend:
 
 general:
 
+messages:
+
 strip-license:
 
 prepend-license:

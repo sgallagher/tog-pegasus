@@ -129,14 +129,22 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 
 	out << "</PARAMETER.ARRAY>\n";
     }
+    else if (_type == CIMType::REFERENCE)
+    {
+	out << "<PARAMETER.REFERENCE";
+	out << " NAME=\"" << _name << "\" ";
+	out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+	out << ">\n";
+
+	_qualifiers.toXml(out);
+
+	out << "</PARAMETER.REFERENCE>\n";
+    }
     else
     {
 	out << "<PARAMETER";
-
 	out << " NAME=\"" << _name << "\" ";
-
 	out << " TYPE=\"" << TypeToString(_type) << "\"";
-
 	out << ">\n";
 
 	_qualifiers.toXml(out);

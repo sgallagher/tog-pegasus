@@ -34,6 +34,7 @@
             f) Alias Handling
   */
 
+
 #define YYSTACKSIZE 2000
 
 #include <cstdlib>
@@ -54,6 +55,8 @@
 #include "qualifierList.h"
 #include "objname.h"
 
+//include any useful debugging stuff here
+
 /* Debugging the parser.  Debugging is provided through
    1. debug functions in Bison that are controlled by a compile time
       flag (YYDEBUG) and a runtime flag (yydebug) which is redefined
@@ -67,15 +70,17 @@
 // Enable this define to compie Bison/Yacc tracing
 // ATTN: p3 03092003 ks Enabling this flag currently causes a compile error
 
-//#define YYDEBUG
-static int cimmof_debug;
+#define YYDEBUG 1
+//static int cimmof_debug;
 
 //extern cimmofParser g_cimmofParser;
 
-extern int cimmof_lex(void);
-extern int cimmof_error(...);
+extern int   cimmof_lex(void);
+extern int   cimmof_error(...);
 extern char *cimmof_text;
-extern void cimmof_yy_less(int n);
+extern void  cimmof_yy_less(int n);
+extern int   cimmof_leng;
+
 
 /* ------------------------------------------------------------------- */
 /* These globals provide continuity between various pieces of a        */
@@ -125,147 +130,142 @@ cimmof_error(const char *msg) {
   // printf("Error: %s\n", msg);
 }
 
-  %}
+%}
 
 %union {
-  struct pragma *pragma;
-  int              ival;
-  //  char             *strval;
-  String *         strval;
-  CIMName *         cimnameval;
-  CIMType        datatype;
-  CIMValue *          value;
-  String *         strptr;
-  CIMQualifier *      qualifier;
-  CIMScope *          scope;
-  CIMFlavor *         flavor;
-  CIMProperty *       property;
-  CIMMethod *         method;
-  CIMClass *      mofclass;
-  CIMQualifierDecl *   mofqualifier;
-  CIMInstance *   instance;
-  CIMObjectPath *  reference;
-  modelPath *     modelpath;
-  CIMKeyBinding *    keybinding;
-  TYPED_INITIALIZER_VALUE * typedinitializer;
+  //char                     *strval;
+  CIMClass                 *mofclass;
+  CIMFlavor                *flavor;
+  CIMInstance              *instance;
+  CIMKeyBinding            *keybinding;
+  CIMMethod                *method;
+  CIMName                  *cimnameval;
+  CIMObjectPath            *reference;
+  CIMProperty              *property;
+  CIMQualifier             *qualifier;
+  CIMQualifierDecl         *mofqualifier;
+  CIMScope                 *scope;
+  CIMType                   datatype;
+  CIMValue                 *value;
+  int                       ival;
+  modelPath                *modelpath;
+  String                   *strptr;
+  String                   *strval;
+  struct pragma            *pragma;
+  TYPED_INITIALIZER_VALUE  *typedinitializer;
 }
 
-%token TOK_LEFTCURLYBRACE
-%token TOK_RIGHTCURLYBRACE
-%token TOK_RIGHTSQUAREBRACKET
-%token TOK_LEFTSQUAREBRACKET
-%token TOK_LEFTPAREN
-%token TOK_RIGHTPAREN
-%token TOK_COLON
-%token TOK_SEMICOLON
-%token TOK_POSITIVE_DECIMAL_VALUE
-%token TOK_SIGNED_DECIMAL_VALUE
-%token TOK_EQUAL
-%token TOK_COMMA
-%token TOK_CLASS
-%token TOK_REAL_VALUE
-%token TOK_CHAR_VALUE
-%token TOK_STRING_VALUE
-%token TOK_NULL_VALUE
-%token TOK_OCTAL_VALUE
-%token TOK_HEX_VALUE
-%token TOK_BINARY_VALUE
-%token TOK_TRUE
-%token TOK_FALSE
-%token TOK_DQUOTE
-%token TOK_PERIOD
-%token TOK_SIMPLE_IDENTIFIER
+
+
 %token TOK_ALIAS_IDENTIFIER
-%token TOK_PRAGMA
-%token TOK_INCLUDE
-%token TOK_AS
-%token TOK_INSTANCE
-%token TOK_OF
-%token TOK_QUALIFIER
-%token TOK_SCOPE
-%token TOK_SCHEMA
-%token TOK_ASSOCIATION
-%token TOK_INDICATION
-%token TOK_PROPERTY
-%token TOK_REFERENCE
-%token TOK_METHOD
-%token TOK_PARAMETER
 %token TOK_ANY
-%token TOK_REF
-%token TOK_FLAVOR
-%token TOK_ENABLEOVERRIDE
+%token TOK_AS
+%token TOK_ASSOCIATION
+%token TOK_BINARY_VALUE
+%token TOK_CHAR_VALUE
+%token TOK_CLASS
+%token TOK_COLON
+%token TOK_COMMA
 %token TOK_DISABLEOVERRIDE
-%token TOK_RESTRICTED
-%token TOK_TOSUBCLASS
-%token TOK_TRANSLATABLE
-%token TOK_DT_STR
+%token TOK_DQUOTE
 %token TOK_DT_BOOL
-%token TOK_DT_DATETIME
-%token TOK_DT_UINT8
-%token TOK_DT_SINT8
-%token TOK_DT_UINT16
-%token TOK_DT_SINT16
-%token TOK_DT_UINT32
-%token TOK_DT_SINT32
-%token TOK_DT_UINT64
-%token TOK_DT_SINT64
-%token TOK_DT_CHAR8
 %token TOK_DT_CHAR16
+%token TOK_DT_CHAR8
+%token TOK_DT_DATETIME
 %token TOK_DT_REAL32
 %token TOK_DT_REAL64
-%token TOK_UNEXPECTED_CHAR
+%token TOK_DT_SINT16
+%token TOK_DT_SINT32
+%token TOK_DT_SINT64
+%token TOK_DT_SINT8
+%token TOK_DT_STR
+%token TOK_DT_UINT16
+%token TOK_DT_UINT32
+%token TOK_DT_UINT64
+%token TOK_DT_UINT8
+%token TOK_ENABLEOVERRIDE
 %token TOK_END_OF_FILE
+%token TOK_EQUAL
+%token TOK_FALSE
+%token TOK_FLAVOR
+%token TOK_HEX_VALUE
+%token TOK_INCLUDE
+%token TOK_INDICATION
+%token TOK_INSTANCE
+%token TOK_LEFTCURLYBRACE
+%token TOK_LEFTPAREN
+%token TOK_LEFTSQUAREBRACKET
+%token TOK_METHOD
+%token TOK_NULL_VALUE
+%token TOK_OCTAL_VALUE
+%token TOK_OF
+%token TOK_PARAMETER
+%token TOK_PERIOD
+%token TOK_POSITIVE_DECIMAL_VALUE
+%token TOK_PRAGMA
+%token TOK_PROPERTY
+%token TOK_QUALIFIER
+%token TOK_REAL_VALUE
+%token TOK_REF
+%token TOK_REFERENCE
+%token TOK_RESTRICTED
+%token TOK_RIGHTCURLYBRACE
+%token TOK_RIGHTPAREN
+%token TOK_RIGHTSQUAREBRACKET
+%token TOK_SCHEMA
+%token TOK_SCOPE
+%token TOK_SEMICOLON
+%token TOK_SIGNED_DECIMAL_VALUE
+%token TOK_SIMPLE_IDENTIFIER
+%token TOK_STRING_VALUE
+%token TOK_TOSUBCLASS
+%token TOK_TRANSLATABLE
+%token TOK_TRUE
+%token TOK_UNEXPECTED_CHAR
 
-%type <strval> pragmaName pragmaVal keyValuePairName qualifierName
-%type <strval> fileName referencedObject referenceName referencePath 
-%type <strval> TOK_POSITIVE_DECIMAL_VALUE TOK_OCTAL_VALUE TOK_HEX_VALUE 
-%type <strval> TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
-%type <strval> TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
-%type <strval> stringValue stringValues initializer constantValue
-%type <strval> nonNullConstantValue
-%type <strval> arrayInitializer constantValues 
-%type <strval> TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
-%type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE 
-%type <strval> namespaceHandle namespaceHandleRef
-%type <strval> referenceInitializer aliasInitializer objectHandle
-%type <strval> TOK_UNEXPECTED_CHAR
 
-%type <cimnameval> propertyName parameterName methodName className
-%type <cimnameval> superClass
-
+%type <cimnameval>       propertyName parameterName methodName className
+%type <cimnameval>       superClass
+%type <datatype>         dataType intDataType realDataType parameterType objectRef
+%type <flavor>           flavor defaultFlavor 
+%type <instance>         instanceHead instanceDeclaration 
+%type <ival>             array
+%type <ival>             booleanValue keyValuePairList
+%type <keybinding>       keyValuePair
+%type <method>           methodHead methodDeclaration
+%type <modelpath>        modelPath
+%type <mofclass>         classHead classDeclaration
+%type <mofqualifier>     qualifierDeclaration
+%type <pragma>           compilerDirectivePragma
+%type <property>         propertyBody propertyDeclaration referenceDeclaration
+%type <qualifier>        qualifier
+%type <scope>            scope metaElements metaElement
+%type <strval>           arrayInitializer constantValues 
+%type <strval>           fileName referencedObject referenceName referencePath 
+%type <strval>           integerValue TOK_REAL_VALUE TOK_CHAR_VALUE 
+%type <strval>           namespaceHandle namespaceHandleRef
+%type <strval>           nonNullConstantValue
+%type <strval>           pragmaName pragmaVal keyValuePairName qualifierName
+%type <strval>           referenceInitializer aliasInitializer objectHandle
+%type <strval>           stringValue stringValues initializer constantValue
+%type <strval>           TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
+%type <strval>           TOK_POSITIVE_DECIMAL_VALUE TOK_OCTAL_VALUE TOK_HEX_VALUE 
+%type <strval>           TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
+%type <strval>           TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
+%type <strval>           TOK_UNEXPECTED_CHAR
 %type <typedinitializer> typedInitializer typedDefaultValue 
 %type <typedinitializer> typedQualifierParameter
+%type <value>            qualifierValue
 
-%type <modelpath> modelPath
 
-%type <keybinding> keyValuePair
 
-%type <scope> scope metaElements metaElement
 
-%type <flavor> flavor defaultFlavor 
-
-%type <ival> array
-%type <ival> booleanValue keyValuePairList
-
-%type <pragma> compilerDirectivePragma
-
-%type <datatype> dataType intDataType realDataType parameterType objectRef
-
-%type <value> qualifierValue
-
-%type <qualifier> qualifier
-
-%type <property> propertyBody propertyDeclaration referenceDeclaration
-
-%type <method> methodHead methodDeclaration
-
-%type <mofclass> classHead classDeclaration
-
-%type <mofqualifier> qualifierDeclaration
-
-%type <instance> instanceHead instanceDeclaration 
 
 %%
+
+
+
+
 /*
 **------------------------------------------------------------------------------
 **
@@ -275,8 +275,11 @@ cimmof_error(const char *msg) {
 */
 mofSpec: mofProductions ;
 
+
 mofProductions: mofProduction mofProductions
               | /* empty */ ;
+
+
 // ATTN: P1 KS Apr 2002 Limit in (none) Directive handling. See FIXME below.
 mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
              | qualifierDeclaration 
@@ -285,6 +288,9 @@ mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
 	         { cimmofParser::Instance()->addClass($1); }
              | instanceDeclaration 
                  { cimmofParser::Instance()->addInstance($1); } ;
+
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -299,6 +305,7 @@ classDeclaration: classHead  classBody
     if (g_currentAlias != String::EMPTY)
     cimmofParser::Instance()->addClassAlias(g_currentAlias, $$, false);
 } ;
+
 
 classHead: qualifierList TOK_CLASS className alias superClass
 {
@@ -319,16 +326,21 @@ classHead: qualifierList TOK_CLASS className alias superClass
     delete $5;
 } ;
 
-className: TOK_SIMPLE_IDENTIFIER {  } ;
+
+className: TOK_SIMPLE_IDENTIFIER {} ;
+
 
 superClass: TOK_COLON className { $$ = new CIMName(*$2); }
           | /* empty */ { $$ = new CIMName(); } ;
 
+
 classBody: TOK_LEFTCURLYBRACE classFeatures TOK_RIGHTCURLYBRACE TOK_SEMICOLON
          | TOK_LEFTCURLYBRACE TOK_RIGHTCURLYBRACE TOK_SEMICOLON ;
 
+
 classFeatures: classFeature
              | classFeatures classFeature ;
+
 
 classFeature: propertyDeclaration  {
   YACCTRACE("classFeature:applyProperty");
@@ -339,6 +351,11 @@ classFeature: propertyDeclaration  {
             | referenceDeclaration {
   YACCTRACE("classFeature:applyProperty");
   cimmofParser::Instance()->applyProperty(*g_currentClass, *$1); delete $1; }; 
+
+
+
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -353,6 +370,8 @@ methodDeclaration: qualifierList methodHead methodBody methodEnd
   YACCTRACE("methodDeclaration");
   $$ = $2;
 } ;
+
+
 
 // methodHead processes the datatype and methodName and puts qualifierList.
 // BUG 366. qualifier list was originally placed on in methoddeclaration
@@ -375,11 +394,15 @@ methodHead: dataType methodName
   delete $2;
 } ;
 
+
 methodBody: TOK_LEFTPAREN parameters TOK_RIGHTPAREN ;
+
 
 methodEnd: TOK_SEMICOLON ;
 
+
 methodName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
+
 
 //
 //  Productions for method parameters
@@ -387,6 +410,7 @@ methodName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 parameters : parameter
            | parameters TOK_COMMA parameter
            | /* empty */ ;
+
 
 parameter: qualifierList parameterType parameterName array 
 { 
@@ -413,8 +437,14 @@ parameter: qualifierList parameterType parameterName array
   delete $3;
 } ;
 
+
 parameterType: dataType { $$ = $1; }
              | objectRef { $$ = CIMTYPE_REFERENCE; } ;
+
+
+
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -423,6 +453,7 @@ parameterType: dataType { $$ = $1; }
 **
 **------------------------------------------------------------------------------
 */
+
 propertyDeclaration: qualifierList propertyBody propertyEnd 
 {
     // set body to stack and apply qualifier list
@@ -435,6 +466,7 @@ propertyDeclaration: qualifierList propertyBody propertyEnd
     $$ = $2;
     applyQualifierList(&g_qualifierList, $$);
 } ;
+
 
 propertyBody: dataType propertyName array typedDefaultValue
 {
@@ -451,7 +483,14 @@ propertyBody: dataType propertyName array typedDefaultValue
   delete v;
 } ;
 
+
 propertyEnd: TOK_SEMICOLON ;
+
+
+
+
+
+
 /*
 **------------------------------------------------------------------------------
 **
@@ -476,19 +515,26 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
   delete v;
 } ;
 
+
 referencedObject: TOK_SIMPLE_IDENTIFIER { $$ = $1; } ;
 
+
 referenceName: TOK_SIMPLE_IDENTIFIER { $$ = $1; };
+
 
 referencePath: TOK_EQUAL stringValue { $$ = $2; }
                | /* empty */ { $$ = new String(String::EMPTY); } ;
 
+
 objectRef: className TOK_REF {  
                           g_referenceClassName = *$1; } ;
 
+
 parameterName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 
+
 propertyName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
+
 
 array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE  
          TOK_RIGHTSQUAREBRACKET
@@ -498,6 +544,7 @@ array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
      | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET { $$ = 0; } 
      | /* empty */ { $$ = -1; } ;
 
+
 typedDefaultValue: TOK_EQUAL typedInitializer { $$ = $2; }  
             | {   /* empty */
                   g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
@@ -505,9 +552,11 @@ typedDefaultValue: TOK_EQUAL typedInitializer { $$ = $2; }
                   $$ = &g_typedInitializerValue;
               };
 
+
 initializer: constantValue { $$ = $1; }
            | arrayInitializer { $$ = $1; }
            | referenceInitializer { $$ = $1; } ;
+
 
 // The typedInitializer element is syntactially identical to 
 // the initializer element. However, the typedInitializer element 
@@ -537,6 +586,7 @@ typedInitializer: nonNullConstantValue
            $$ = &g_typedInitializerValue;
            };
 
+
 // BUG 497 - Commmas embedded in strings in arrays change the
 // strings.  Aded function stringWComma to escape commas.
 constantValues: constantValue { 
@@ -550,17 +600,20 @@ constantValues: constantValue {
                 delete $3;
               } ;
 
+
 // The nonNullConstantValue has been added to allow NULL 
 // to be distinguished from the EMPTY STRING.
 
 constantValue: nonNullConstantValue {$$ = $1;}
              | TOK_NULL_VALUE { $$ = new String(String::EMPTY); } ;
 
+
 nonNullConstantValue: integerValue { $$ = $1; }
              | TOK_REAL_VALUE { $$ = $1; }
              | TOK_CHAR_VALUE { $$ =  $1; }
              | stringValues { }
              | booleanValue { $$ = new String($1 ? "T" : "F"); };
+
 
 integerValue: TOK_POSITIVE_DECIMAL_VALUE
             | TOK_SIGNED_DECIMAL_VALUE
@@ -574,8 +627,10 @@ integerValue: TOK_POSITIVE_DECIMAL_VALUE
                  $$ = new String(cimmofParser::Instance()->binary_to_dec(*$1));
 	           delete $1; };
 
+
 booleanValue: TOK_FALSE { $$ = 0; }
             | TOK_TRUE  { $$ = 1; } ;
+
 
 stringValues: stringValue { $$ = $1; }
             | stringValues stringValue 
@@ -583,33 +638,37 @@ stringValues: stringValue { $$ = $1; }
                 (*$$).append(*$2);  delete $2;
               } ;
 
+
 stringValue: TOK_STRING_VALUE 
 { 
-   String oldrep = *$1;
-   String s(oldrep), s1(String::EMPTY);
+   //String oldrep = *$1;
+   //String s(oldrep), s1(String::EMPTY);
    // Handle quoted quote
-   int len = s.size();
-   if (s[len] == '\n') {
-     // error: new line inside a string constant unless it is quoted
-     if (s[len - 2] == '\\') {
-       if (len > 3)
-	 s1 = s.subString(1, len-3);
-     } else {
-       cimmof_error("New line in string constant");
-     }
-     cimmofParser::Instance()->increment_lineno();
-   } else { // Can only be a quotation mark
-     if (s[len - 2] == '\\') {  // if it is quoted
-       if (len > 3)
-	 s1 = s.subString(1, len-3);
-       s1.append('\"');
-       cimmof_yy_less(len-1);
-     } else { // This is the normal case:  real quotes on both end
-       s1 = s.subString(1, len - 2) ;
-     }
-   }
-   delete $1; $$ = new String(s1);
+   //int len = s.size();
+   //if (s[len] == '\n') {
+       //error: new line inside a string constant unless it is quoted
+       //if (s[len - 2] == '\\') {
+           //if (len > 3)
+	        //s1 = s.subString(1, len-3);
+       //} else {
+           //cimmof_error("New line in string constant");
+           //}
+       //cimmofParser::Instance()->increment_lineno();
+   //} else { // Can only be a quotation mark
+       //if (s[len - 2] == '\\') {  // if it is quoted
+           //if (len > 3) s1 = s.subString(1, len-3);
+           //s1.append('\"');
+           //cimmof_yy_less(len-1);
+       //} else { // This is the normal case:  real quotes on both end
+           //s1 = s.subString(1, len - 2) ;
+           //}
+       //}
+   //delete $1;
+   $$ = //new String(s1);
+        new String(*$1);
+   delete $1;
 } ;
+
 
 arrayInitializer: 
        TOK_LEFTCURLYBRACE constantValues TOK_RIGHTCURLYBRACE 
@@ -617,8 +676,10 @@ arrayInitializer:
      | TOK_LEFTCURLYBRACE  TOK_RIGHTCURLYBRACE 
            { $$ = new String(String::EMPTY); };
 
+
 referenceInitializer: objectHandle {}
                   | aliasInitializer {  } ;
+
 
 objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
 { 
@@ -635,24 +696,30 @@ objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
   delete $3;
 } ;
 
+
 aliasInitializer : aliasIdentifier {
   // convert somehow from alias to a CIM object name
   delete $1;
 } ;
 
+
 namespaceHandleRef: namespaceHandle TOK_COLON
                     { }
                   | /* empty */ { $$ = new String(String::EMPTY); };
 
+
 namespaceHandle: stringValue {};
+
 
 modelPath: className TOK_PERIOD keyValuePairList {
              modelPath *m = new modelPath((*$1).getString(), g_KeyBindingArray);
              g_KeyBindingArray.clear(); 
              delete $1;} ;
 
+
 keyValuePairList: keyValuePair { $$ = 0; }
                 | keyValuePairList TOK_COMMA keyValuePair { $$ = 0; } ;
+
 
 keyValuePair: keyValuePairName TOK_EQUAL initializer 
               {
@@ -663,12 +730,19 @@ keyValuePair: keyValuePairName TOK_EQUAL initializer
 		delete $1;
 	        delete $3; } ;
 
+
 keyValuePairName: TOK_SIMPLE_IDENTIFIER ;
 
+
 alias: TOK_AS aliasIdentifier { $$ = $2; } 
-     | /* empty */ { $$ = new String(String::EMPTY); } ;
+| /* empty */ { $$ = new String(String::EMPTY); } ;
+
 
 aliasIdentifier: TOK_ALIAS_IDENTIFIER ;
+
+
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -685,6 +759,8 @@ instanceDeclaration: instanceHead instanceBody
     cimmofParser::Instance()->addInstanceAlias(g_currentAlias, $1, true);
 };
 
+
+
 instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias 
 {
   if (g_currentInstance)
@@ -698,11 +774,17 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
   delete $5;
 } ;
 
+
+
 instanceBody: TOK_LEFTCURLYBRACE valueInitializers TOK_RIGHTCURLYBRACE
               TOK_SEMICOLON ;
 
+
+
 valueInitializers: valueInitializer
                  | valueInitializers valueInitializer ;
+
+
 
 // ATTN-DE-P1-20020427: Processing NULL Initializer values is incomplete.
 // Currently only the arrayInitializer element has been modified to 
@@ -735,6 +817,7 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
                  ($4->type == CIMMOF_NULL_VALUE),
                  $4->value);
 
+
   //   4. create a clone property with the new value
   CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
 
@@ -749,7 +832,11 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
   delete oldv;
   delete v;
   delete newprop;
-} ;
+};
+
+
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -768,21 +855,26 @@ compilerDirective: compilerDirectiveInclude
     //printf("compilerDirectivePragma ");
 } ;
 
+
 compilerDirectiveInclude: TOK_PRAGMA TOK_INCLUDE TOK_LEFTPAREN fileName
                           TOK_RIGHTPAREN 
 {
   cimmofParser::Instance()->enterInlineInclude(*$4); delete $4;
-}               
-;
+};
+
 
 fileName: stringValue { $$ = $1; } ;
- 
+
+
 compilerDirectivePragma: TOK_PRAGMA pragmaName
                    TOK_LEFTPAREN pragmaVal TOK_RIGHTPAREN 
                    { cimmofParser::Instance()->processPragma(*$2, *$4); 
 		   delete $2;
 		   delete $4;
 		   };
+
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -809,15 +901,19 @@ qualifierValue: TOK_COLON dataType array typedDefaultValue
     delete $4->value;
 } ;
 
+
 scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = $2; } ;
+
 
 scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN { 
     g_scope = CIMScope (CIMScope::NONE); } ;
+
 
 metaElements: metaElement { $$ = $1; }
             | metaElements TOK_COMMA metaElement
 	                  { $$->addScope(*$3); } ;
 // ATTN:  2001 P3 defer There is not CIMScope::SCHEMA. Spec Limit KS
+
 
 metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
 //           | TOK_SCHEMA      { $$ = new CIMScope(CIMScope::SCHEMA);       }
@@ -831,18 +927,20 @@ metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
            | TOK_PARAMETER   { $$ = new CIMScope(CIMScope::PARAMETER);    }
            | TOK_ANY         { $$ = new CIMScope(CIMScope::ANY);          } ;
 
+
 // Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
   { $$ = &g_flavor; }
 	   | /* empty */ { $$ = new CIMFlavor (CIMFlavor::NONE); } ;
+
 
 // Correction KS 4 March 2002 - set the defaults (was zero)
 // Set the flavors for the defaults required: via DEFAULTS
 
 flavorHead: TOK_FLAVOR TOK_LEFTPAREN {g_flavor = CIMFlavor (CIMFlavor::NONE);};
 
-explicitFlavors: explicitFlavor
 
+explicitFlavors: explicitFlavor
                | explicitFlavors TOK_COMMA explicitFlavor ;
 
 
@@ -854,6 +952,7 @@ explicitFlavors: explicitFlavor
 
 // The compiler simply provides the flavors defined in the MOF and does not make any
 // assumptions about defaults, etc.  That is a problem for resolution of the flavors.
+
 explicitFlavor: TOK_ENABLEOVERRIDE  
                     { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); }
   | TOK_DISABLEOVERRIDE { g_flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE); }
@@ -861,18 +960,22 @@ explicitFlavor: TOK_ENABLEOVERRIDE
   | TOK_TOSUBCLASS      { g_flavor.addFlavor (CIMFlavor::TOSUBELEMENTS); }
   | TOK_TRANSLATABLE    { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); };
 
+
 flavor: overrideFlavors { $$ = &g_flavor; }
       | /* empty */ { $$ = new CIMFlavor (CIMFlavor::NONE); };
+
 
 overrideFlavors: explicitFlavor
                | overrideFlavors explicitFlavor ;
 
- 
+
+
 dataType: intDataType     { $$ = $1; }
         | realDataType    { $$ = $1; }
         | TOK_DT_STR      { $$ = CIMTYPE_STRING;   }
         | TOK_DT_BOOL     { $$ = CIMTYPE_BOOLEAN;  }
         | TOK_DT_DATETIME { $$ = CIMTYPE_DATETIME; } ;
+
 
 intDataType: TOK_DT_UINT8  { $$ = CIMTYPE_UINT8;  }
            | TOK_DT_SINT8  { $$ = CIMTYPE_SINT8;  }
@@ -884,8 +987,11 @@ intDataType: TOK_DT_UINT8  { $$ = CIMTYPE_UINT8;  }
            | TOK_DT_SINT64 { $$ = CIMTYPE_SINT64; }
            | TOK_DT_CHAR16 { $$ = CIMTYPE_CHAR16; } ;
 
+
 realDataType: TOK_DT_REAL32 { $$ =CIMTYPE_REAL32; }
             | TOK_DT_REAL64 { $$ =CIMTYPE_REAL64; };
+
+
 
 
 /*
@@ -896,14 +1002,24 @@ realDataType: TOK_DT_REAL32 { $$ =CIMTYPE_REAL32; }
 **------------------------------------------------------------------------------
 */
 qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET 
-             | /* empty */ { };
+             | /* empty */ { 
+                 //yydebug = 1; stderr = stdout;
+                 };
+
+
 
 qualifierListBegin: TOK_LEFTSQUAREBRACKET { 
+
+    //yydebug = 1; stderr = stdout;
     YACCTRACE("qualifierListbegin");
     g_qualifierList.init(); } ;
 
+
+
 qualifiers: qualifier { }
           | qualifiers TOK_COMMA qualifier { } ;
+
+
 
 qualifier: qualifierName typedQualifierParameter flavor
 {
@@ -919,11 +1035,15 @@ qualifier: qualifierName typedQualifierParameter flavor
   delete v;
  } ;
 
+
+
 qualifierName: TOK_SIMPLE_IDENTIFIER { 
     g_flavor = CIMFlavor (CIMFlavor::NONE); }
              | metaElement { 
                         $$ = new String((*$1).toString ());
                         g_flavor = CIMFlavor (CIMFlavor::NONE); } ;
+
+
 
 typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN 
                     {
@@ -949,7 +1069,9 @@ typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN
                     $$ = &g_typedInitializerValue;
                     };
 
+
 pragmaName: TOK_SIMPLE_IDENTIFIER { $$ = $1; } ;
+
 
 pragmaVal:  TOK_STRING_VALUE { $$ = $1; } ;
 

@@ -31,6 +31,7 @@ repository:
 install:
 	$(MKDIRHIER) $(LOCAL_STATE_PREFIX)
 	$(MAKE) REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
+	$(MAKE) --directory=Pegasus REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
 
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 

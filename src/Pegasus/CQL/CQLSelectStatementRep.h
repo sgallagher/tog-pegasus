@@ -281,7 +281,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
                          PropertyNode* node);
 
     void removeUnneededProperties(CIMInstance& inst, 
-                                  Boolean & allPropsRequired,
+                                  Boolean& allPropsRequired,
+                                  const CIMName& allPropsClass,
 				  Array<CIMName>& requiredProps);
 
     Boolean containsProperty(const CIMName& name,

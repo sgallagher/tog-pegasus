@@ -307,7 +307,10 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
 
   // Remove the properties that are not in the projection.
   // This also checks for missing required properties.
-  removeUnneededProperties(inCI, allPropsRequired, requiredProps);
+  removeUnneededProperties(inCI,
+                           allPropsRequired,
+                           fromList[0].getName(),
+                           requiredProps);
 }
 
 void CQLSelectStatementRep::applyProjection(PropertyNode* node,
@@ -393,7 +396,10 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
 
   // Remove the properties that are not in the projection.
   // This also checks for missing required properties.
-  removeUnneededProperties(nodeInst, allPropsRequired, requiredProps);
+  removeUnneededProperties(nodeInst, 
+                           allPropsRequired,
+                           nodeInst.getClassName(),
+                           requiredProps);
 
   // Put the projected instance back into the property.
 // ATTN - UNCOMMENT when emb objs are supported
@@ -452,30 +458,31 @@ Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
 } 
 
 void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst, 
-                                                     Boolean & allPropsRequired,
+                                                     Boolean& allPropsRequired,
+                                                     const CIMName& allPropsClass,
                                                      Array<CIMName>& requiredProps)
 {
   // Implementation note:
   // Scoping operator before a wildcard is not allowed:
   // Example:
   // SELECT fromclass.embobj1.scope1::* FROM fromclass
-  // (if allowed it would have said "require all props on the class of embobj1
-  //  only when its class is scope1 or a subclass of scope1")
   //
-  // However, the following is allowed:
-  // SELECT fromclass.embobj1.*
-  // (this means that all the properties on the class of the embobj1 instance
-  // are required)
+  // However, the following are allowed:
+  // SELECT fromclass.embobj1.* FROM fromclass
+  // (this means that all the properties on the class of instance embobj1
+  //  are required)
+  //
+  // SELECT fromclass.* FROM fromclass
+  // (this that all the properties on class fromclass are required
+  //  to be on the instance being projected, not including any
+  //  properties on a subclass of fromclass)
 
   // If all properties are required (ie. wildcarded), then rebuild the 
   // required property list from all the properties on the FROM class 
   if (allPropsRequired)
   {
     requiredProps.clear();
-    Array<CQLIdentifier> fromList = _ctx->getFromList();
-    PEGASUS_ASSERT(fromList.size() == 1);
-    PEGASUS_ASSERT(fromList[0].getName().getString().size() != 0);
-    CIMClass cls = _ctx->getClass(fromList[0].getName());
+    CIMClass cls = _ctx->getClass(allPropsClass);
     Array<CIMName> clsProps;
     for (Uint32 i = 0; i < cls.getPropertyCount(); i++)
     {

@@ -30,6 +30,7 @@
 // Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -410,8 +411,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
     						 "Command line errors:\n");
     String msg = MessageLoader::getMessage(parms);						 
-    //PEP167 change
-    //cmdline.printErrors(msg);
+    cmdline.printErrors(msg);
+
     throw ArgumentErrorsException(msg);
   }
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {

@@ -29,7 +29,7 @@
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//				
+//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -135,13 +135,17 @@ main(int argc, char ** argv) {
   try {
     ret = processCmdLine(argc, argv, cmdline, cerr);
   } catch (ArgumentErrorsException &e) {
-    
-    cerr << argv[0] << 
-             ": Invalid option. Use '--help' to obtain command syntax" << endl;
-    
-    //PEP167 - comment display of help message
-    //cerr << e.getMessage() << endl;
-    //help(cerr, argv[0]);
+   String msg(e.getMessage());
+
+   cerr << argv[0] << ": " << msg ;
+
+   if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+     cerr << argv[0] <<
+        ": Invalid option. Use '--help' to obtain command syntax" << endl;
+    else
+      cerr << argv[0] <<
+        ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+
     ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
   } catch (CmdlineNoRepository &e) {
     cerr << e.getMessage() << endl;

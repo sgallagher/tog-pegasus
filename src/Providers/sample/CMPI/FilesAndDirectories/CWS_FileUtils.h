@@ -33,7 +33,7 @@
 #define CWS_FILEUTILS_H
 
 #include "cwsutil.h"
-#include <Pegasus/ProviderManager2/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 
 #if defined SIMULATED
  #define CWS_FILEROOT  "/Simulated/CMPI/tests/"

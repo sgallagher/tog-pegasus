@@ -31,9 +31,9 @@
 
 #include "CWS_FileUtils.h"
 #include "cwsutil.h"
-#include <Pegasus/ProviderManager2/CMPI/cmpidt.h>
-#include <Pegasus/ProviderManager2/CMPI/cmpift.h>
-#include <Pegasus/ProviderManager2/CMPI/cmpimacs.h>
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <string.h>
 
 #define LOCALCLASSNAME "CWS_Directory"

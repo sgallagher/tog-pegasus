@@ -1025,7 +1025,7 @@ Boolean XmlReader::getPropertyValue(
     XmlParser& parser, 
     CIMValue& cimValue)
 {
-    //Test for Element value type
+    //ATTN: Test for Element value type
     CIMType type = CIMType::STRING;
 
     if (XmlReader::getValueElement(parser, type, cimValue))

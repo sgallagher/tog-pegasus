@@ -465,12 +465,11 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     const String& messageId,
     const String& nameSpace)
 {
-    // ATTN: handle property lists!
-
     String className;
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
+    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -482,6 +481,12 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	else if (CompareNoCase(name, "PropertyList") == 0)
+	{
+	    CIMValue pl;
+	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
+	    pl.get(propertyList);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -493,7 +498,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 	localOnly,
 	includeQualifiers,
 	includeClassOrigin,
-	Array<String>(),
+	propertyList,
 	QueueIdStack(queueId, _returnQueueId));
 
     return(request);
@@ -654,12 +659,11 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
     const String& messageId,
     const String& nameSpace)
 {
-    // ATTN: handle property lists!
-
     CIMReference instanceName;
     Boolean localOnly = true;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
+    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -671,6 +675,12 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	else if (CompareNoCase(name, "PropertyList") == 0)
+	{
+	    CIMValue pl;
+	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
+	    pl.get(propertyList);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -682,7 +692,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 	localOnly,
 	includeQualifiers,
 	includeClassOrigin,
-	Array<String>(),
+	propertyList,
 	QueueIdStack(queueId, _returnQueueId));
 
     return(request);
@@ -725,7 +735,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList = EmptyStringArray();
+    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -739,7 +749,13 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-	//ATTN: Property List
+	else if (CompareNoCase(name, "PropertyList") == 0)
+	{
+	    CIMValue pl;
+	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
+	    pl.get(propertyList);
+	}
+
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
@@ -752,7 +768,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	    localOnly,
 	    includeQualifiers,
 	    includeClassOrigin,
-	    Array<String>(),
+	    propertyList,
 	    QueueIdStack(queueId, _returnQueueId));
 
     return(request);
@@ -951,14 +967,12 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
     const String& messageId,
     const String& nameSpace)
 {
-    // ATTN: handle the property list!
-
     CIMReference objectName;
     String resultClass;
     String role;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;
+    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -981,6 +995,12 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	{
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	}
+	else if (CompareNoCase(name, "PropertyList") == 0)
+	{
+	    CIMValue pl;
+	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
+	    pl.get(propertyList);
 	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1049,8 +1069,6 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
     const String& messageId,
     const String& nameSpace)
 {
-    // ATTN: handle the property list!
-
     CIMReference objectName;
     String assocClass;
     String resultClass;
@@ -1058,7 +1076,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
     String resultRole;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
-    Array<String> propertyList;
+    Array<String> propertyList;  // ATTN: Initialize to null (not empty)
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -1089,6 +1107,12 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	{
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	}
+	else if (CompareNoCase(name, "PropertyList") == 0)
+	{
+	    CIMValue pl;
+	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
+	    pl.get(propertyList);
 	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");

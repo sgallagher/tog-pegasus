@@ -112,7 +112,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 	   continue;
 	   
 		// wait for work
-//		queue->_workSemaphore.wait();
+		queue->_workSemaphore.wait();
 
 		// stop the thread when the message queue has been destroyed.
 		// ATTN: should check the thread cancel flag that is not yet exposed!
@@ -125,10 +125,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 		if(queue->_count != 0)
 		{
 			queue->handleEnqueue();
-		}
-		else 
-		{
-		   thread->sleep(0);
 		}
 		
 	}

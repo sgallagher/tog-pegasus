@@ -31,7 +31,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
-
+#include <Pegasus/Common/Tracer.h>
 
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -78,6 +78,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 int main(int argc, char **argv) 
 { 
    
+#if defined(PEGASUS_DEBUG)
+   Tracer::setTraceComponents("All");
+   Tracer::setTraceLevel(Tracer::LEVEL4);
+   Tracer::setTraceFile("thread_pool_trace.txt");
+#endif
    struct timeval await = { 0, 40000 };
    struct timeval dwait = { 1, 0 };
    struct timeval deadwait = { 0, 80000 }; 
@@ -101,7 +106,7 @@ int main(int argc, char **argv)
 	 tp.allocate_and_awaken((void *)7, work_func );
 	 tp.allocate_and_awaken((void *)8, work_func );
 	 tp.allocate_and_awaken((void *)9, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)1, work_func ); 
 	 tp.allocate_and_awaken((void *)2, work_func );	 
 	 tp.allocate_and_awaken((void *)3, work_func );
 	 tp.allocate_and_awaken((void *)4 , work_func );	 

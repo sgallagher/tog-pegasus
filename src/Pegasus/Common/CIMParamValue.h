@@ -74,7 +74,7 @@ public:
 
     void setValue(CIMValue& value);
 
-    void setIsTyped(Boolean isTyped=true);
+    void setIsTyped(Boolean isTyped);
 
     CIMParamValue clone() const;
 
@@ -85,10 +85,6 @@ public:
                  False otherwise
      */
     Boolean isUninitialized() const;
-
-#ifdef PEGASUS_INTERNALONLY
-    Boolean identical(const CIMParamValue& x) const;
-#endif
 
 private:
 

@@ -46,7 +46,6 @@ CIMParamValueRep::CIMParamValueRep(
 
 CIMParamValueRep::~CIMParamValueRep()
 {
-
 }
 
 //------------------------------------------------------------------------------
@@ -74,23 +73,8 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
     out << "</PARAMVALUE>\n";
 }
 
-Boolean CIMParamValueRep::identical(const CIMParamValueRep* x) const
-{
-    if (_parameterName != x->_parameterName)
-	return false;
-
-    if (_value != x->_value)
-	return false;
-
-    if (_isTyped != x->_isTyped)
-	return false;
-
-    return true;
-}
-
 CIMParamValueRep::CIMParamValueRep()
 {
-
 }
 
 CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :

@@ -73,8 +73,6 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
-    Boolean identical(const CIMParamValueRep* x) const;
-
     CIMParamValueRep* clone() const
     {
 	return new CIMParamValueRep(*this);

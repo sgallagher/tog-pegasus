@@ -118,13 +118,6 @@ Boolean CIMParamValue::isUninitialized() const
     return (_rep == 0)? true : false;
 }
 
-Boolean CIMParamValue::identical(const CIMParamValue& x) const
-{
-    x._checkRep();
-    _checkRep();
-    return _rep->identical(x._rep);
-}
-
 CIMParamValue CIMParamValue::clone() const
 {
     return CIMParamValue(_rep->clone());

@@ -95,10 +95,11 @@ typedef LONG  PEGASUS_ATOMIC_TYPE ;
 
 #endif // platform read/write type
 
-struct timeval 
-{
-      long int tv_sec;      long int tv_usec;
-};
+
+//struct timeval 
+//{
+//      long int tv_sec;      long int tv_usec;
+//};
 
 struct timezone
 {

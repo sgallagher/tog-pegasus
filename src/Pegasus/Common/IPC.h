@@ -63,6 +63,8 @@ void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit);
 PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void);
 void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc);
 void PEGASUS_EXPORT sleep(int ms);
+int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz);
+
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
 

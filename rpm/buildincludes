@@ -6,7 +6,8 @@
 #BROOT=/home/markus/src/tmp
 PROOT=$1
 BROOT=$2
-LISTLOC=$3
+#LISTLOC=$3
+LISTLOC=/usr/src/packages/BUILD/pegasus-1.0
 
 echo "Copy include files from "$PROOT" into "$BROOT" - list in "$LISTLOC
 

@@ -39,11 +39,13 @@ This package contains the Pegasus source tree, header files and
 static libraries (if any).
 
 %prep
+#clean up
 rm -rf $RPM_BUILD_ROOT
+
+%setup
 # Copy the necessary include files
 $PEGASUS_ROOT/rpm/buildincludes $PEGASUS_ROOT $RPM_BUILD_ROOT /usr/src/packages/BUILD/pegasus-1.0
 
-%setup
 %build
 export PEGASUS_ROOT=/usr/src/packages/BUILD/pegasus-1.0
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus-1.0

@@ -190,7 +190,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 // Send response message to the client (use synchronous I/O for now:
 
 #ifdef LOCK_CONNECTION_ENABLED
-         lock_connection();
+//          lock_connection();
 #endif
 	 _socket->enableBlocking();
 
@@ -230,7 +230,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 _socket->disableBlocking();
 
 #ifdef LOCK_CONNECTION_ENABLED
-         unlock_connection();
+//          unlock_connection();
 #endif
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "Total bytes written = %d; Buffer Size = %d; _requestCount = %d",
@@ -364,7 +364,6 @@ void HTTPConnection::_closeConnection()
    // let the monitor dispatch function do the cleanup. 
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
    _dying = 1;
-   _monitor->_entries[_monitor->_findEntry(getSocket())].dying = 1;
    PEG_METHOD_EXIT();
 
 //     Message* message= new CloseConnectionMessage(_socket->getSocket());
@@ -477,11 +476,8 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    do 
    {
       struct timeval tv = { 0, 1 };
-      
       FD_ZERO(&fdread);
-//      FD_ZERO(&fdwrite);
       FD_SET(getSocket(), &fdread);
-//      FD_SET(getSocket(), &fdwrite);
       events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
       if(events && events != SOCKET_ERROR && _dying.value() == 0 )
@@ -499,12 +495,6 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	 }
 	 else 
 	    break;
-	 
-// 	 if (FD_ISSET(getSocket(), &fdwrite))
-// 	 {
-// 	    events |= SocketMessage::WRITE;
-// 	 }
-
       }
       else
 	 break;

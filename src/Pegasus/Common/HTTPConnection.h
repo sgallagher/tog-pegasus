@@ -46,6 +46,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class HTTPConnector;
+
 class MessageQueueService;
 struct HTTPConnectionRep;
 
@@ -90,7 +92,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       /** Return socket this connection is using. */
       Sint32 getSocket() { return _socket->getSocket();}
-
+      
       /** Return the number of outstanding requests for all HTTPConnection 
 	  instances.
       */
@@ -163,6 +165,11 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       static AtomicInt _requestCount;
       Mutex _connection_mut;
       AtomicInt _dying;
+      int _entry_index;
+      
+      friend class Monitor;
+      friend class HTTPAcceptor;
+      friend class HTTPConnector;
 };
 
 PEGASUS_NAMESPACE_END

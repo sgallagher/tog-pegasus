@@ -334,13 +334,16 @@ void CIMServer::bind(Uint32 port)
 
 void CIMServer::runForever()
 {
+   static int modulator = 0;
+   
     //ATTN: Do not add Trace code in this method.
    if(!_dieNow)
    {
-      if(false == _monitor->run(100) )
+      if(false == _monitor->run(100))
       {
-	 pegasus_yield();
-	 ThreadPool::kill_idle_threads();
+	 modulator++;
+	 if( ! (modulator % 1000) )
+	    ThreadPool::kill_idle_threads();
       }
    }
    

@@ -38,7 +38,7 @@ AtomicInt MessageQueueService::_service_count = 0;
 AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
-static struct timeval create_time = {0, 10};
+static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {5, 0};
 static struct timeval deadlock_time = {1000, 0};
 
@@ -133,7 +133,7 @@ MessageQueueService::MessageQueueService(const char *name,
 	 _meta_dispatcher_mutex.unlock();
 	 throw NullPointer();
       }
-      _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 20,
+      _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
 				    create_time, destroy_time, deadlock_time);  
       _polling_thread.run();
    }

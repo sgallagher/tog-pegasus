@@ -142,7 +142,7 @@ struct HTTPConnectorRep
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
    : Base(PEGASUS_QUEUENAME_HTTPCONNECTOR),
-     _monitor(monitor)
+     _monitor(monitor), _entry_index(-1)
 {
    _rep = new HTTPConnectorRep;
    Socket::initializeInterface();
@@ -180,10 +180,8 @@ void HTTPConnector::handleEnqueue(Message *message)
 
 	    if (socket == closeConnectionMessage->socket)
 	    {
-	       //printf("closing socket\n");
 	       _monitor->unsolicitSocketMessages(socket);
 	       _rep->connections.remove(i);
-	       
 	       delete connection;
 	       break;
 	    }
@@ -297,10 +295,10 @@ HTTPConnection* HTTPConnector::connect(
 
    // Solicit events on this new connection's socket:
 
-   if (!_monitor->solicitSocketMessages(
+   if (-1 == (_entry_index = _monitor->solicitSocketMessages(
 	  socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  connection->getQueueId(), Monitor::CONNECTOR))
+	  connection->getQueueId(), Monitor::CONNECTOR)))
    {
       delete connection;
       Socket::close(socket);

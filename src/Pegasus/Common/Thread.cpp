@@ -165,7 +165,7 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    memset(_key, 0x00, 17);
    if(key != 0)
       strncpy(_key, key, 16);
-   if(_max_threads < initial_size)
+   if(_max_threads > 0 && _max_threads < initial_size)
       _max_threads = initial_size;
    if(_min_threads > initial_size)
       _min_threads = initial_size;
@@ -359,7 +359,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
    {
       _check_deadlock(&start) ;
       
-      if(_current_threads < _max_threads)
+      if(_max_threads == 0 || _current_threads < _max_threads)
       {
 	 th = _init_thread();
 	 continue;
@@ -451,8 +451,9 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
-   for( q = map[i] ; i < 2; i++, q = map[i], pegasus_sleep(1))
-   {
+   for( ; i < 1; i++)
+   { 
+      q = map[i];
       if(q->count() > 0 )
       {
 	 try

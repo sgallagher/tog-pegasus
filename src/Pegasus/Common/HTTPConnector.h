@@ -123,6 +123,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
       HTTPConnectorRep* _rep;
     
       SSLContext * _sslcontext;
+      int _entry_index;
+      
 };
 
 PEGASUS_NAMESPACE_END

@@ -525,7 +525,7 @@ template<class L> Boolean DQueue<L>::exists(const L *key) throw(IPCException)
    Boolean ret = false;
    if(_actual_count->value() > 0)
    {
-      _mutex->Lock(pegasus_thread_self());
+      _mutex->lock(pegasus_thread_self());
       ret = DQueue<L>::reference(key);
       _mutex->unlock();
    }

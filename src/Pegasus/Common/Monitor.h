@@ -43,14 +43,50 @@ class  _MonitorEntry
    public:
       Sint32 socket;
       Uint32 queueId;
-      AtomicInt dying;
+      int _status;
       int _type;
       
       _MonitorEntry(Sint32 sock, Uint32 q, int Type)
-	 : socket(sock), queueId(q), dying(0), _type(Type)
+	 : socket(sock), queueId(q), _status(EMPTY), _type(Type)
 	   
       {
       }
+      
+      Boolean operator ==(const void *key) const 
+      {
+	 if(key != 0 && 
+	    (socket == (reinterpret_cast<_MonitorEntry *>(const_cast<void *>(key)))->socket))
+	    return true;
+	 return false;
+      }
+      
+      Boolean operator ==(const _MonitorEntry & key) const
+      {
+	 if(key.socket == socket)
+	    return true;
+	 return false;
+      }
+
+      _MonitorEntry & operator =(const _MonitorEntry & entry)
+      {
+	 if( this != &entry )
+	 {
+	    this->socket = entry.socket;
+	    this->queueId = entry.queueId;
+	    this->_status = entry._status;
+	    this->_type = entry._type;
+	 }
+	 
+	 return *this;
+      }
+      
+      enum entry_status 
+      {
+	 IDLE,
+	 BUSY,
+	 DYING,
+	 EMPTY
+      };
 };
 
 struct MonitorRep;
@@ -158,7 +194,7 @@ enum Type
 	@param queueId of queue on which to post socket messages.
 	@return false if messages have already been solicited on this socket.
     */
-    Boolean solicitSocketMessages(
+    int solicitSocketMessages(
 	Sint32 socket, 
 	Uint32 events,
 	Uint32 queueId,
@@ -169,7 +205,7 @@ enum Type
 	@param socket on which to unsolicit messages.
 	@return false if no such solicitation has been made on the given socket.
     */
-      Boolean unsolicitSocketMessages(Sint32 socket);
+      void unsolicitSocketMessages(Sint32);
 
       /** dispatch a message to the cimom on an independent thread 
        */
@@ -178,15 +214,14 @@ enum Type
       
 private:
       
-      Uint32  _findEntry(Sint32 socket) ;
-
       Array<_MonitorEntry> _entries;
       MonitorRep* _rep;
       pegasus_module * _module_handle;
       ModuleController * _controller;
       Boolean _async;
-      Mutex _connection_mutex;
       ThreadPool *_thread_pool;
+      
+      Mutex _entries_mut;
       
       friend class HTTPConnection;
       

@@ -39,7 +39,7 @@
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
 #  error "FD_SETSIZE was not set to 1024 prior to the last inclusion \
 of <winsock.h>. It may have been indirectly included (e.g., by including \
-<windows.h>). Find the inclusion of that header which is visible to this \
+<windows.h>). Finthe inclusion of that header which is visible to this \
 compilation unit and #define FD_SETZIE to 1024 prior to that inclusion; \
 otherwise, less than 64 clients (the default) will be able to connect to the \
 CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
@@ -62,7 +62,10 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-static struct timeval create_time = {0, 10};
+static AtomicInt _connections = 0;
+
+
+static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {5, 0};
 static struct timeval deadlock_time = {1000, 0};
 
@@ -92,32 +95,23 @@ Monitor::Monitor()
    : _module_handle(0), _controller(0), _async(false)
 {
     Socket::initializeInterface();
-    _rep = new MonitorRep;
-    FD_ZERO(&_rep->rd_fd_set);
-    FD_ZERO(&_rep->wr_fd_set);
-    FD_ZERO(&_rep->ex_fd_set);
-    FD_ZERO(&_rep->active_rd_fd_set);
-    FD_ZERO(&_rep->active_wr_fd_set);
-    FD_ZERO(&_rep->active_ex_fd_set);
+    _rep = 0;
+    _entries.reserve(128);
+    
 }
 
 Monitor::Monitor(Boolean async)
    : _module_handle(0), _controller(0), _async(async)
 {
     Socket::initializeInterface();
-    _rep = new MonitorRep;
-    FD_ZERO(&_rep->rd_fd_set);
-    FD_ZERO(&_rep->wr_fd_set);
-    FD_ZERO(&_rep->ex_fd_set);
-    FD_ZERO(&_rep->active_rd_fd_set);
-    FD_ZERO(&_rep->active_wr_fd_set);
-    FD_ZERO(&_rep->active_ex_fd_set);
+    _rep = 0;
+    _entries.reserve(128);
     if( _async == true )
     {
        _thread_pool = new ThreadPool(0, 
 				     "Monitor", 
 				     0, 
-				     20,
+				     0,
 				     create_time, 
 				     destroy_time, 
 				     deadlock_time);
@@ -139,7 +133,6 @@ Monitor::~Monitor()
     }
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
    
-    delete _rep;
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -172,266 +165,145 @@ int Monitor::kill_idle_threads()
 }
 
 
-//<<< Tue May 14 20:38:26 2002 mdd >>>
-//  register with module controller
-//  when it is time to enqueue the message, 
-// use an async_thread_exec call to 
-// isolate the entire if(events) { enqueue -> fd_clear } block
-//  let the thread pool grow and shrink according to load. 
-
 Boolean Monitor::run(Uint32 milliseconds)
 {
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-
-    // Windows select() has a strange little bug. It returns immediately if
-    // there are no descriptors in the set even if the timeout is non-zero.
-    // To work around this, we call Sleep() for now:
-
-    if (_entries.size() == 0)
-	Sleep(milliseconds);
-    
-#endif
-    
-    // Check for events on the selected file descriptors. Only do this if
-    // there were no undispatched events from last time.
-
-    int count = 0;
-
-    memcpy(&_rep->active_rd_fd_set, &_rep->rd_fd_set, sizeof(fd_set));
-//    memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
-    memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
-    
-    const Uint32 SECONDS = milliseconds / 1000;
-    const Uint32 MICROSECONDS = (milliseconds % 1000) * 1000;
-    struct timeval tv = { SECONDS, MICROSECONDS };
-    
-    count = select(
-       FD_SETSIZE,
-       &_rep->active_rd_fd_set,
-//       &_rep->active_wr_fd_set,
-       NULL,
-       &_rep->active_ex_fd_set,
-       &tv);
-    if(count == 0)
-    {
-       return false;
-    }
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    else if (count == SOCKET_ERROR)
-#else
-    else if (count == -1)
-#endif
-    {
-       return false;
-    }
-    
-    
     Boolean handled_events = false;
-    try { _connection_mutex.try_lock(pegasus_thread_self()); }
-    catch(AlreadyLocked){
-      pegasus_sleep(1);
-      return false;
-    }
+    int i = 0;
     
-    for (Uint32 i = 0, n = _entries.size(); i < _entries.size(); i++)
+    struct timeval tv = {0,1};
+    fd_set fdread;
+    FD_ZERO(&fdread);
+
+    _entries_mut.lock(pegasus_thread_self());
+    
+    for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
-	Sint32 socket = _entries[i].socket;
-	Uint32 events = 0;
-
-	if(_entries[i].dying.value() > 0 )
-	{
-	   if(_entries[i]._type == Monitor::CONNECTION)
-	   {
-	      
-	      MessageQueue *q = MessageQueue::lookup(_entries[i].queueId);
-	      if(q && static_cast<HTTPConnection *>(q)->is_dying() && 
-		 (0 == static_cast<HTTPConnection *>(q)->refcount.value()))
-	      {
-		 static_cast<HTTPConnection *>(q)->lock_connection();
-		 static_cast<HTTPConnection *>(q)->unlock_connection();
-		 
-		 MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
-		 Message* message= new CloseConnectionMessage(static_cast<HTTPConnection *>(q)->getSocket());
-		 message->dest = o.getQueueId();
- 		 _connection_mutex.unlock();
-		 
-		 o.enqueue(message);
-		 return true;
-		 i--;
-		 n = _entries.size();
-	      }
-	   }
-	}
-
-	if (FD_ISSET(socket, &_rep->active_rd_fd_set))
-	    events |= SocketMessage::READ;
-
-	if (FD_ISSET(socket, &_rep->active_ex_fd_set))
-	    events |= SocketMessage::EXCEPTION;
- 
-	if (events)
-	{
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			  "Monitor::run - Socket Event Detected events = %d", events);
-	    if (events & SocketMessage::READ)
-	    {
-	       FD_CLR(socket, &_rep->active_rd_fd_set);
-	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			     "Monitor::run FD_CLR READ");
-	    }
-	    else if (events & SocketMessage::EXCEPTION)
-	    {
-  	       FD_CLR(socket, &_rep->active_ex_fd_set);
-	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			     "Monitor::run FD_CLR EXECEPTION");
-	    }
-	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
-	    if( ! queue )
-	    {
-	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			     "Monitor::run lookup for connection entry failed, unsoliciting");
- 	       _connection_mutex.unlock();
-	       unsolicitSocketMessages(socket);
-	       return true;
-	    }
-	    
-	    if(_async == true && _entries[i]._type == Monitor::CONNECTION)
-	    {
-
-	       if( static_cast<HTTPConnection *>(queue)->refcount.value() == 0 )
-	       {
-		  Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-				"Monitor::run dispatching thread to idle connection");
-		  static_cast<HTTPConnection *>(queue)->refcount++;
-		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
-		     _thread_pool->allocate_and_awaken((void *)queue, _dispatch);
-		  else
-		     static_cast<HTTPConnection *>(queue)->refcount--;
-	       }
-	       else
-		  pegasus_sleep(1);
-	    }
-	    else 
-	    {
- 	      _connection_mutex.unlock();
-	      
-	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			     "Monitor::run enqueueing to non-connection HTTP class");
-	       Message* message = new SocketMessage(socket, events);
-	       queue->enqueue(message);
-	       return true;
-	       
-	    }
-	    count--;
-	    pegasus_yield();
-	}
-	handled_events = true;
+       if(_entries[indx]._status == _MonitorEntry::IDLE)
+       {
+	  FD_SET(_entries[indx].socket, &fdread);
+       }
     }
-    _connection_mutex.unlock();
+    _entries_mut.unlock();
+    
+    int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    if(events && events != SOCKET_ERROR )
+#else
+    if(events && events != -1 )
+#endif
+    {
+       for( int indx = 0; indx < (int)_entries.size(); indx++)
+       {
+	  if(FD_ISSET(_entries[indx].socket, &fdread))
+	  {
+	     MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
+	     if(q == 0)
+	     {
+		unsolicitSocketMessages(indx);
+		return true;
+	     }
+	     
+	     if(_entries[indx]._type == Monitor::CONNECTION)
+	     {
+		static_cast<HTTPConnection *>(q)->_entry_index = indx;
+		if(static_cast<HTTPConnection *>(q)->_dying.value() > 0 )
+		{
+		   _entries[indx]._status = _MonitorEntry::DYING;
+		   MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
+		   Message* message= new CloseConnectionMessage(_entries[indx].socket);
+		   message->dest = o.getQueueId();
+		   o.enqueue(message);
+		   return true;
+		}
+		
+		_entries[indx]._status = _MonitorEntry::BUSY;
+		_thread_pool->allocate_and_awaken((void *)q, _dispatch);
+	     }
+	     else
+	     {
+		int events = 0;
+		
+		events |= SocketMessage::READ;
+		Message *msg = new SocketMessage(_entries[indx].socket, events);
+		_entries[indx]._status = _MonitorEntry::BUSY;
+		q->enqueue(msg);
+		_entries[indx]._status = _MonitorEntry::IDLE;
+		return true;
+	     }
+	     handled_events = true;
+	  }
+       }
+    }
     return(handled_events);
 }
 
-Boolean Monitor::solicitSocketMessages(
+
+int  Monitor::solicitSocketMessages(
     Sint32 socket, 
     Uint32 events,
     Uint32 queueId, 
     int type)
 {
-    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solictSocketMessage");
 
-    // See whether a handler is already registered for this one:
-    Uint32 pos = _findEntry(socket);
+   PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solictSocketMessage");
 
-    if (pos != PEGASUS_NOT_FOUND)
-    {
-        PEG_METHOD_EXIT();
-	return false;
-    }
-
-    // Set the events:
-
-    if (events & SocketMessage::READ)
-	FD_SET(socket, &_rep->rd_fd_set);
-
-    if (events & SocketMessage::WRITE)
-	FD_SET(socket, &_rep->wr_fd_set);
-
-    if (events & SocketMessage::EXCEPTION)
-	FD_SET(socket, &_rep->ex_fd_set);
-
-    // Add the entry to the list:
-    _MonitorEntry entry(socket, queueId, type);
-    _entries.append(entry);
-    
-    // Success!
-
-    PEG_METHOD_EXIT();
-    return true;
+   _MonitorEntry entry(socket, queueId, type);
+   entry._status = _MonitorEntry::IDLE;
+   _entries_mut.lock(pegasus_thread_self());
+   
+   Boolean found = false;
+   
+   int index ;
+   for(index = 0; index < (int)_entries.size(); index++)
+   {
+      if(_entries[index]._status == _MonitorEntry::EMPTY)
+      {
+	 _entries[index] = entry;
+	 found = true;
+	 break;
+      }
+   }
+   if(found == false)
+   {
+      _entries.append(entry);
+      index = _entries.size() - 1;
+   }
+   _entries_mut.unlock();
+   _connections++;
+   PEG_METHOD_EXIT();
+   return index;
 }
 
-Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
+void Monitor::unsolicitSocketMessages(Sint32 socket)
 {
-    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessage");
+    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
 
-    // Look for the given entry and remove it:
-
-    _connection_mutex.lock(pegasus_thread_self());
+    _entries_mut.lock(pegasus_thread_self());
     
-    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
+    for(int index = 0; index < (int)_entries.size(); index++)
     {
-	if (_entries[i].socket == socket)
-	{
-	    Sint32 socket = _entries[i].socket;
-	    FD_CLR(socket, &_rep->rd_fd_set);
-	    FD_CLR(socket, &_rep->wr_fd_set);
-	    FD_CLR(socket, &_rep->ex_fd_set);
-	    _entries.remove(i);
-            // ATTN-RK-P3-20020521: Need "Socket::close(socket);" here?
-	    Socket::close(socket);
-            PEG_METHOD_EXIT();
-	    _connection_mutex.unlock();
-	    return true;
-	}
+       if(_entries[index].socket == socket)
+       {
+	  _entries[index]._status = _MonitorEntry::EMPTY;
+       }
     }
+    _entries_mut.unlock();
+    
     PEG_METHOD_EXIT();
-    _connection_mutex.unlock();
-    
-    return false;
 }
 
-Uint32 Monitor::_findEntry(Sint32 socket) 
-{
-  _connection_mutex.lock(pegasus_thread_self());
-  
-   for (Uint32 i = 0, n = _entries.size(); i < n; i++)
-    {
-	if (_entries[i].socket == socket)
-	  {
-	    _connection_mutex.unlock();
-	    return i;
-	  }
-    }
-   _connection_mutex.unlock();
-    return PEG_NOT_FOUND;
-}
 
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
-   if( true == dst->is_dying())
-   {
-      dst->refcount--;
-      return 0;
-   }
-   if( false == dst->is_dying())
-   {
-      if(false == dst->run(1))
-	 pegasus_sleep(1);
-      
-   }
-   dst->refcount--;
+   
+   dst->run(1);
+   if( dst->_monitor->_entries.size() > dst->_entry_index )
+      dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+   
    return 0;
 }
 

@@ -114,6 +114,8 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 
       SSLContext * _sslcontext;
       Uint32  _portNumber;
+      int _entry_index;
+      
 };
 
 PEGASUS_NAMESPACE_END

@@ -87,7 +87,7 @@ struct HTTPAcceptorRep
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
      _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
-     _rep(0), _sslcontext(NULL)
+     _rep(0), _sslcontext(NULL), _entry_index(-1)
 {
 
    Socket::initializeInterface();
@@ -98,7 +98,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
    :       Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
 	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
 	   _rep(0),
-	   _sslcontext(sslcontext)
+	   _sslcontext(sslcontext),
+	   _entry_index(-1)
 {
    Socket::initializeInterface();
 }
@@ -149,7 +150,6 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	    {
 	       _monitor->unsolicitSocketMessages(socket);
 	       _rep->connections.remove(i);
-               while (connection->refcount.value()) { }
                delete connection;
 	       break;
 	    }
@@ -269,11 +269,11 @@ void HTTPAcceptor::_bind()
 
    // Register to receive SocketMessages on this socket:
 
-   if (!_monitor->solicitSocketMessages(
+   if ( -1 == ( _entry_index = _monitor->solicitSocketMessages(
 	  _rep->socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
 	  getQueueId(), 
-	  Monitor::ACCEPTOR))
+	  Monitor::ACCEPTOR)))
    {
       Socket::close(_rep->socket);
       delete _rep;
@@ -404,18 +404,20 @@ void HTTPAcceptor::_acceptConnection()
       _monitor, mp_socket, this, static_cast<MessageQueue *>(_outputMessageQueue));
 
    // Solicit events on this new connection's socket:
-
-   if (!_monitor->solicitSocketMessages(
+   int index;
+   
+   if (! (index = _monitor->solicitSocketMessages(
 	  socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  connection->getQueueId(), Monitor::CONNECTION))
+	  connection->getQueueId(), Monitor::CONNECTION)) )
    {
       delete connection;
       Socket::close(socket);
    }
 
    // Save the socket for cleanup later:
-
+   connection->_entry_index = index;
+   
    _rep->connections.append(connection);
 }
 

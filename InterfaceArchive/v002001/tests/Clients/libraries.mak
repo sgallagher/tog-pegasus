@@ -1,0 +1,4 @@
+LIBRARIES = \
+    pegcommon \
+    pegclient
+

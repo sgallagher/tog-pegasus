@@ -1,53 +1,23 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_CQLIdentifierRep_h
 #define Pegasus_CQLIdentifierRep_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Query/QueryCommon/QueryIdentifierRep.h>
+#include <Pegasus/CQL/SubRange.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-/**
+/** 
   The CQLIdentifier class encapsulates
   the different formats of the CQL property portion
-  of a CQLChainedIdentifier.
+  of a CQLChainedIdentifier. 
 
   For example, a CQLChainedIdentifier can have these parts:
-
+ 
     Class.EmbeddedObject.Property
     Class.Property
 
@@ -60,44 +30,110 @@ in any of these 3 formats:
    (d)  *   (wildcard)
 
 In the future, there may be support added for a set of indices (ranges).
-*/
-class CQLIdentifierRep: public QueryIdentifierRep
+  */
+class PEGASUS_CQL_LINKAGE CQLIdentifierRep
 {
-public:
+
+/*
+Exceptions:
+        CQLIdentifierException - for example: "missing matching brackets"
+				       - general case if logic falls through all previous cases
+                                                                                                                           
+*/
+
+
+  public:
     CQLIdentifierRep();
     /**  The constructor for a CQLIdentifier object
-          takes a const string reference as input.
-          The string should contain the property portion of a
-          CQLChainedIdentifier.
-
-         The constructor parses the input string into the components of
-         the property identifier.
-
+          takes a string as input.  The string should contain the
+          property portion of a CQLChainedIdentifier.
+    
+         The constructor parses the input string into the components of 
+         the property identifier. 
+    
          Throws parsing errors.
       */
-    CQLIdentifierRep(const String& identifier);
+    CQLIdentifierRep(String identifier);
 
-    CQLIdentifierRep(const CQLIdentifierRep* rep);
+    CQLIdentifierRep(const CQLIdentifierRep& rep);
 
     ~CQLIdentifierRep();
 
-    CQLIdentifierRep& operator=(const CQLIdentifierRep& rhs);
+    /**
+      The getPropertyName method returns the property name portion of 
+      a property.   For example, of the property string contained myProperty#'OK',
+      the property name is the "myProperty" portion.  In that case, "myProperty"
+    would
+      be returned in the CIMName reference.
+      */
+    const CIMName& getName()const;
 
-private:
+    /**
+      The getSymbolicConstantName method returns the symbolic name portion of 
+      a property.   For example, of the property string contained property#'OK',
+      the symbolic constant is the "OK" portion.  In that case, "OK" would
+      be returned in the String reference.
+      */
+    const String& getSymbolicConstantName()const;
 
-    /**   This method needs to continue to take a String object, not a
-        reference nor a const reference.  The reason being it changes
-        the value of the parameter and that changed value should not
-        be returned to the caller.
-    */
+    /**  The getSubRanges method returns an array of SubRanges 
+           which contain all the array index ranges from the property
+           portion of a CQLChainedIdentifier.
+           If the property is not an array (e.g. the property is just
+           a property name or a symbolic constant), an empty 
+           array is returned.
+      */
+    const  Array<SubRange>& getSubRanges()const;
 
+    /** The isArray method returns TRUE if the 
+         CQL property identifier is an array (e.g. the
+         property is of the format "property[index]).
+         Otherwise FALSE is returned.
+      */
+    Boolean isArray()const;
+
+    /** The isSymbolicConstant method returns TRUE if the 
+         CQL property identifier is a symbolic constant (e.g. the
+         property is of the format property#'CONSTANT'.
+         Otherwise FALSE is returned.
+      */
+    Boolean isSymbolicConstant()const;
+
+    /** The isWildcard method returns TRUE if the 
+         CQL property identifier is a wildcard (e.g. the
+         property is of the format "*").
+         Otherwise FALSE is returned.
+      */
+    Boolean isWildcard()const;
+
+    const String& getScope()const;
+
+    Boolean isScoped()const;
+
+    void applyScope(String scope);
+
+    Boolean operator==(const CIMName &rhs)const;
+                                                                                                                                       
+    Boolean operator!=(const CIMName &rhs)const;
+
+    Boolean operator==(const CQLIdentifierRep &rhs)const;
+
+    Boolean operator!=(const CQLIdentifierRep &rhs)const;
+
+    String toString()const;
+
+  private:
     void parse(String indentifier);
 
-    static Char16 STAR;
-    static Char16 HASH;
-    static Char16 RBRKT;
-    static Char16 LBRKT;
-    static const char SCOPE[];
+    String _symbolicConstant;
+    String _scope;
+
+    Array<SubRange> _indices;
+
+    CIMName _name;
+
+    Boolean _isWildcard;
+    Boolean _isSymbolicConstant;
 };
 
 PEGASUS_NAMESPACE_END

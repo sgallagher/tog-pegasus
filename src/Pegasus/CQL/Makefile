@@ -20,6 +20,7 @@ SOURCES = \
    CQLLEX.cpp \
    CQLChainedIdentifier.cpp \
    CQLIdentifier.cpp \
+   CQLIdentifierRep.cpp \
    SubRange.cpp \
    QueryContext.cpp \
    CIMOMHandleQueryContext.cpp \

@@ -10,6 +10,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class PEGASUS_CQL_LINKAGE CQLIdentifierRep;
 
 /** 
   The CQLIdentifier class encapsulates
@@ -56,6 +57,8 @@ Exceptions:
     CQLIdentifier(String identifier);
 
     CQLIdentifier(const CQLIdentifier& id);
+
+    ~CQLIdentifier();
 
     /**
       The getPropertyName method returns the property name portion of 
@@ -121,17 +124,8 @@ Exceptions:
     String toString()const;
 
   private:
-    void parse(String indentifier);
+	CQLIdentifierRep* _rep;
 
-    String _symbolicConstant;
-    String _scope;
-
-    Array<SubRange> _indices;
-
-    CIMName _name;
-
-    Boolean _isWildcard;
-    Boolean _isSymbolicConstant;
 };
 
 

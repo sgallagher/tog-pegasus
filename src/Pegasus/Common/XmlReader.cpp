@@ -1234,7 +1234,11 @@ Uint32 XmlReader::getFlavor(
 	lineNumber, entry, tagName, "TRANSLATABLE", false, false);
 
     // ATTN: KS P1 5 Mar 2002 Should this not be CIMFlavor::DEFAULTS??
-    Uint32 flavor = CIMFlavor::DEFAULTS;
+    //Uint32 flavor = CIMFlavor::DEFAULTS;
+    // ATTN-RK-P1-20020307: No, Karl.  If you initialize to the defaults,
+    // you have to unset the default flavors that don't apply.  The code
+    // below only adds qualifiers.
+    Uint32 flavor = CIMFlavor::NONE;
 
     if (overridable)
 	flavor |= CIMFlavor::OVERRIDABLE;

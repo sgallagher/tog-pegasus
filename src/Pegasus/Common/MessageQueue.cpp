@@ -53,13 +53,19 @@ Uint32 MessageQueue::getNextQueueId() throw(IPCException)
    static Mutex _id_mut ;
    _id_mut.lock(pegasus_thread_self());
 
-   // Assign next queue id. Handle wrap around and never assign zero as
-   // a queue id:
+   Uint32 queueId;
 
-   if (_nextQueueId == 0)
-      _nextQueueId = 2;
+   // Assign the next queue ID that is not already in use
+   do
+   {
+      // Handle wrap around and never assign zero or one as a queue id:
+      if (_nextQueueId == 0)
+      {
+         _nextQueueId = 2;
+      }
 
-   Uint32 queueId = _nextQueueId++;
+      queueId = _nextQueueId++;
+   } while (lookup(queueId) != 0);
 
    //
    // Unlock mutex:

@@ -155,55 +155,71 @@ int main(int argc, char** argv)
     }
 
     OptionManager om;
+	Options opts;
 
     try
     {
         String testHome = ".";
         GetOptions(om, argc, argv, testHome);
         //om.print();
+
+
+		opts.location =   "localhost:5988";
+		opts.nameSpace = "root/cimv2";
+		opts.cimCmd = "unknown";
+		opts.className = CIMName();
+		opts.objectName = "unknown";
+
+		opts.isXmlOutput = false;
+		opts.outputFormatType = OUTPUT_MOF;
+		opts.user = String::EMPTY;
+		opts.password = String::EMPTY;
+		opts.verboseTest = false;
+
+		opts.localOnly = true;
+		opts.deepInheritance = false;
+		opts.includeQualifiers = true;
+		opts.includeClassOrigin = false;
+		opts.assocClassName = String::EMPTY;
+		opts.assocClass = CIMName();
+		opts.resultClassName = String::EMPTY;
+		opts.resultClass = CIMName();
+		opts.role = String::EMPTY;
+		opts.resultRole = String::EMPTY;
+		opts.propertyListText = String::EMPTY;
+		opts.propertyList.clear(); 
+		opts.propertyName = String::EMPTY;
+		opts.methodName = CIMName("unknown");
+		opts.delay = 0;
+		opts.trace = 0;
+		opts.count= 97832;
+		opts.repeat = 0;
+		opts.time = false;
+		opts.termCondition = 0;
+		opts.debug = false;
+
+		CheckCommonOptionValues(om, argv, opts);
+
     }
+	catch(CIMException& e)
+	{
+		cerr << argv[0] << " Caught CIMException during init: "
+			 << "\n" << e.getMessage()
+			 << endl;
+		exit(1);
+	}
     catch (Exception& e)
     {
         cerr << argv[0] << ": " << e.getMessage() << endl;
         exit(1);
     }
-    
-    Options opts;
-    
-    opts.location =   "localhost:5988";
-    opts.nameSpace = "root/cimv2";
-    opts.cimCmd = "unknown";
-    opts.className = CIMName();
-    opts.objectName = "unknown";
-    
-    opts.isXmlOutput = false;
-    opts.outputFormatType = OUTPUT_MOF;
-    opts.user = String::EMPTY;
-    opts.password = String::EMPTY;
-    opts.verboseTest = false;
-    
-    opts.localOnly = false;
-    opts.deepInheritance = false;
-    opts.includeQualifiers = false;
-    opts.includeClassOrigin = false;
-    opts.assocClassName = String::EMPTY;
-    opts.assocClass = CIMName();
-    opts.resultClassName = String::EMPTY;
-    opts.resultClass = CIMName();
-    opts.role = String::EMPTY;
-    opts.resultRole = String::EMPTY;
-    opts.propertyListText = String::EMPTY;
-    opts.propertyList.clear(); 
-    opts.propertyName = String::EMPTY;
-    opts.methodName = CIMName("unknown");
-    opts.delay = 0;
-    opts.trace = 0;
-    opts.count= 97832;
-    opts.repeat = 0;
-    opts.time = false;
-    opts.termCondition = 0;
+	catch(...)
+	{
+		cerr << argv[0] << " Caught General Exception During Init:" << endl;
+		exit(1);
+	}
 
-    CheckCommonOptionValues(om, argv, opts);
+    
     
     // if there is still an arg1, assume it is the command name.
     if (argc > 1)
@@ -236,7 +252,7 @@ int main(int argc, char** argv)
     // Find the command and save index in cmdIndex
     Uint32 cmdIndex = 0;
     opts.cimCmd.toLower();
-    if (opts.verboseTest)
+    if (opts.verboseTest && opts.debug)
         cout << "TEST Command = " << opts.cimCmd << endl;
 
     // Find the command or the short cut name
@@ -476,12 +492,12 @@ int main(int argc, char** argv)
                     opts.methodName = CIMName(argv[3]);
                     if (argc >= 4)
                     {
-                        for (Sint32 i = 4 ; i < argc; i++)
+                        // get input params from command line
+						for (Sint32 i = 4 ; i < argc; i++)
                         {
                             CIMParamValue pv;
                             String s = argv[i];
-                            cout << "Method Pram " << argv[i] << " i " << " argc " << argc << endl;
-                            pv = _createMethodParamValue(s);
+                            pv = _createMethodParamValue(s, opts);
                             opts.inParams.append(pv);
                         }
                     }

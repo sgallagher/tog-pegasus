@@ -198,6 +198,7 @@ struct  OPTION_STRUCT
     Boolean summary;
     Uint32 delay;
     Uint32 trace;
+	Boolean debug;
 
     Uint32 count;
     Uint32 repeat;
@@ -212,7 +213,7 @@ typedef struct OPTION_STRUCT Options;
 
 Array<String> PEGASUS_CLI_LINKAGE _tokenize(String& input, Char16 separator);
 
-CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(String& input);
+CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(String& input, Options& opts);
 
 void PEGASUS_CLI_LINKAGE showCommands();
 

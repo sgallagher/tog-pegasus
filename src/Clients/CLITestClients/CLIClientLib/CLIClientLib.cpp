@@ -41,15 +41,38 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
+String _toString(Boolean x)
+{
+	return(x ? "true" : "false");
+}
 // Character sequences used in help/usage output.
 
-
-String printPropertyList (CIMPropertyList)
+String buildPropertyListString(CIMPropertyList& pl)
 {
-    return "TBD add code here to print property list";
+	String rtn;	
+	Array<CIMName> pls = pl.getPropertyNameArray();
+	if (pl.isNull())
+	{
+		return("List_NULL");	
+	}
+	if (!pl.isNull() && pl.size() == 0)
+	{
+		return("List_EMPTY");
+	}
+	for (Uint32 i = 0 ; i < pls.size() ; i++)
+	{
+		if (i != 0)
+			rtn.append(", ");
+		rtn.append(pls[i].getString());
+	}
+	return(rtn);
 }
 
-static const char * version = "2.0";
+void printPropertyList(CIMPropertyList& pl)
+{
+	cout << buildPropertyListString(pl);
+}
+static const char * version = "2.01";
 static const char * usage = "This command executes single WBEM Operations.";
 
 
@@ -64,7 +87,7 @@ CLI ec -o xml   -- Enumerate classes with XML output starting at root\n \
 CLI enumerateclasses CIM_Computersystem -o xml\n    -- Enumerate classes in MOF starting with \
 CIM_Computersystem\n \
 CLI getclass CIM_door -a -u guest =p guest\n    -- Get class with authentication set and \
-user = guest, password = guest.\n \
+    user = guest, password = guest.\n \
 CLI rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage. \n \
 CLI ec -o XML -- enumerate classes and output XML rather than MOF. \n \
 CLI getqualifiers -- Get the qualifiers in mof output format\n";
@@ -134,25 +157,50 @@ Array<String> _tokenize(String& input, Char16 separator)
     return tokens;
 }
 
-CIMParamValue _createMethodParamValue(String& input)
+Uint32 validType(String& typeString)
+{
+	static const char* _typeStrings[] =
+	{
+		"boolean", "uint8", "sint8", "uint16", "sint16", "uint32", "sint32",
+		"uint64", "sint64", "real32", "real64", "char16", "string", "datetime",
+		"reference"
+	};
+	static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);
+
+
+	for (Uint32 i = 0 ; i < _NUM_TYPES ; i++ )
+	{
+		if (typeString == _typeStrings[i])
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+CIMParamValue _createMethodParamValue(String& input, Options& opts)
 {
     Array<String> pair = _tokenize(input, '=');
-    CIMParamValue pv;
     if (pair.size() != 2)
     {
-        cout << "Input Parameter error " << input;
+        cout << "Input Parameter error. Expected name=value. Received  " << input << input;
         exit(1);
     }
-    else
-    {
-        // We need to type the inputs somehow.
-        cout << "Name = " << pair[0] << "Value= " << pair[1] << endl;
-        pv.setParameterName(pair[0]);
-        // ATTN: KS 20030423 P2This is incomplete since it only allows us to do string input.
-        // ATTN: KS 20030424 P2. We don't have any documentation on the isTyped function.
-        CIMValue v(pair[1]);
-        pv.setValue(v);
-    }
+	if (opts.verboseTest)
+	{
+		cout << "Name = " << pair[0] << ", Value= " << pair[1] << endl;
+	}
+	// ATTN: KS 20030423 P2This is incomplete since it only allows us to do string input.
+	// ATTN: KS 20030424 P2. We don't have any documentation on the isTyped function.
+	//Array<String> valuePair = _tokenize(pair[1], ':');
+	//if (validType(valuePair[0] >= 0)
+	//{
+	//	
+	//}
+	CIMValue v(pair[1]);
+	
+	CIMParamValue pv(pair[0], v, false);
+
     return pv;
 }
 
@@ -172,6 +220,33 @@ int OutputFormatInstance(OutputType format, CIMInstance& instance)
     }   
     return 0;
 }
+int OutputFormatParamValue(OutputType format, CIMParamValue& pv)
+{
+    if (format == OUTPUT_XML)
+		XmlWriter::printParamValueElement(pv, cout);
+
+    else if (format == OUTPUT_MOF)
+    {
+        if (!pv.isUninitialized())
+		{
+		   CIMValue v =  pv.getValue();
+		   CIMType type = v.getType();
+		   if (pv.isTyped())
+			   cout << cimTypeToString (type) << " ";  
+		   else
+			   cout << "UnTyped ";
+
+		   cout << pv.getParameterName() << "="
+		        << v.toString() << endl; 
+		}
+		else
+			cout << "ParamValue not initialized" << endl;
+    }   
+    else
+        cout << "Error, Format Definition Error" << endl;
+    return 0;
+}
+
 
 int OutputFormatClass(OutputType format, CIMClass& myClass)
 {
@@ -179,7 +254,19 @@ int OutputFormatClass(OutputType format, CIMClass& myClass)
         XmlWriter::printClassElement(myClass, cout);
     else if (format == OUTPUT_MOF)
     {
-        Array<Sint8> x;
+        // Reset the propagated flag to assure that these entities
+		// are all shown in the MOF output.
+		for (Uint32 i = 0 ; i < myClass.getPropertyCount() ; i++)
+		{
+			CIMProperty p = myClass.getProperty(i);
+			p.setPropagated(false);
+		}
+        for (Uint32 i = 0 ; i < myClass.getMethodCount() ; i++)
+		{
+			CIMMethod m = myClass.getMethod(i);
+			m.setPropagated(false);
+		}
+		Array<Sint8> x;
         MofWriter::appendClassElement(x, myClass);
 
         x.append('\0');
@@ -265,7 +352,7 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
         cout << "EnumerateClasseNames "
             << "Namespace = " << opts.nameSpace
             << ", Class = " << opts.className
-            << ", deepInheritance = " << (opts.deepInheritance? "true" : "false")
+            << ", deepInheritance = " << _toString(opts.deepInheritance)
             << endl;
     }
     // Added to allow "" string input to represent NULL CIMName.
@@ -314,14 +401,15 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "EnumerateInstanceNames "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
+            << "Namespace= " << opts.nameSpace
+            << ", Class= " << opts.className
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
     
     Array<CIMObjectPath> instanceNames = 
-        client.enumerateInstanceNames(opts.nameSpace, opts.className);
+        client.enumerateInstanceNames(opts.nameSpace, 
+			                          opts.className);
 
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
 
@@ -339,28 +427,30 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
     return 0;
 }        
 
-
-
 int enumerateInstances(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "EnumerateInstances "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
-            << ", deepInheritance = " << (opts.deepInheritance? "true" : "false")
-            << ", localOnly = " << (opts.localOnly? "true" : "false")
+			<< "Namespace = " << opts.nameSpace
+			<< ", Class = " << opts.className
+			<< ", deepInheritance = " << _toString(opts.deepInheritance)
+			<< ", localOnly = " << _toString(opts.localOnly)
+			<< ", includeQualifiers = " << _toString(opts.includeQualifiers)
+			<< ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
+			<< ", PropertyList = " << buildPropertyListString(opts.propertyList)
             << endl;
     }
     
     Array<CIMInstance> instances; 
     if (opts.time) opts.elapsedTime.reset();
-    instances = client.enumerateInstances(opts.nameSpace,
-                                                   opts.className,
-                                                   opts.deepInheritance,
-                                                   opts.localOnly,
-                                                   opts.includeQualifiers,
-                                                   opts.includeClassOrigin);
+    instances = client.enumerateInstances( opts.nameSpace,
+										   opts.className,
+										   opts.deepInheritance,
+										   opts.localOnly,
+										   opts.includeQualifiers,
+										   opts.includeClassOrigin,
+										   opts.propertyList );
     
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     
@@ -399,11 +489,32 @@ int deleteInstance(CIMClient& client, Options& opts)
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
-    client.deleteInstance(opts.nameSpace, opts.objectName);
+    client.deleteInstance(opts.nameSpace, 
+						  opts.objectName);
     
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     return 0;  
 }
+/*
+NAMESPACE = 1
+Class = 2
+OBJECT = Object*2
+OBJECTNAME = OBJECT*2
+INSTANCENAME = OBJECTNAME * 2
+METHODNAME = INSTANCENAME * 2
+PROPERTYNAME = 2
+PROPERTYVALUE=2
+INPARAMS = 2
+DEEPINHERITANCE = 2
+LOCALONLY = 2
+ASSOCCLASS = 4
+RESULTCLASS = 8
+ROLE = 16
+RESULTROLE = 32
+InCLUDEQUALIFIERS = 64
+INCLUDECLASSORIGIN = 128
+PROPDERTYLIST = 256
+*/
 
 int getInstance(CIMClient& client, Options& opts)
 {
@@ -412,12 +523,20 @@ int getInstance(CIMClient& client, Options& opts)
         cout << "getInstance "
             << "Namespace = " << opts.nameSpace
             << ", Instance = " << opts.objectName
+            << ", localOnly = " << _toString(opts.localOnly)
+            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
+            << ", PropertyList = " << buildPropertyListString(opts.propertyList)
             << endl;
     }
     
     if (opts.time) opts.elapsedTime.reset();
     CIMInstance cimInstance = client.getInstance(opts.nameSpace,
-                                                 opts.objectName);
+                                                 opts.objectName,
+											     opts.localOnly,
+		                                         opts.includeQualifiers,
+											     opts.includeClassOrigin,
+										         opts.propertyList);
 
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     // Check Output Format to print results
@@ -431,9 +550,9 @@ int enumerateClassNames(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "EnumerateClasseNames "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
-            << ", deepInheritance = " << (opts.deepInheritance? "true" : "false")
+            << "Namespace= " << opts.nameSpace
+            << ", Class= " << opts.className
+            << ", deepInheritance= " << (opts.deepInheritance? "true" : "false")
             << endl;
     }
     Array<CIMName> classNames; 
@@ -464,12 +583,12 @@ int enumerateClasses(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "EnumerateClasses "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
-            << ", deepInheritance = " << (opts.deepInheritance? "true" : "false")
-            << ", localOnly = " << (opts.localOnly? "true" : "false")
-            << ", includeQualifiers = " << (opts.includeQualifiers? "true" : "false")
-            << ", includeClassOrigin = " << (opts.includeClassOrigin? "true" : "false")
+            << "Namespace= " << opts.nameSpace
+            << ", Class= " << opts.className
+            << ", deepInheritance= " << _toString(opts.deepInheritance)
+            << ", localOnly= " << _toString(opts.localOnly)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << endl;
     }
     // Added to allow "" string input to represent NULL CIMName.
@@ -530,13 +649,13 @@ int getClass(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "getClass "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
-            << ", deepInheritance = " << (opts.deepInheritance? "true" : "false")
-            << ", localOnly = " << (opts.localOnly? "true" : "false")
-            << ", includeQualifiers = " << (opts.includeQualifiers? "true" : "false")
-            << ", includeClassOrigin = " << (opts.includeClassOrigin? "true" : "false")
-            << " PropertyList = " << " ADD property list print HERE KSTEST"
+            << "Namespace= " << opts.nameSpace
+            << ", Class= " << opts.className
+            << ", deepInheritance= " << _toString(opts.deepInheritance)
+            << ", localOnly= " << _toString(opts.localOnly)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", PropertyList= " << buildPropertyListString(opts.propertyList)
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -549,7 +668,6 @@ int getClass(CIMClient& client, Options& opts)
                                         opts.propertyList);
     
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-
     OutputFormatClass(opts.outputType, cimClass);
     return 0;
 }
@@ -559,9 +677,9 @@ int getProperty(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "getProperty "
-            << "Namespace = " << opts.nameSpace
-            << ", Instance = " << opts.instanceName.toString()
-            << ", propertyName = " << opts.propertyName
+            << "Namespace= " << opts.nameSpace
+            << ", Instance= " << opts.instanceName.toString()
+            << ", propertyName= " << opts.propertyName
             << endl;
     }
     
@@ -584,10 +702,10 @@ int setProperty(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "setProperty "
-            << "Namespace = " << opts.nameSpace
-            << ", Instance = " << opts.instanceName.toString()
-            << ", propertyName = " << opts.propertyName
-            // KS The new value goes here
+            << "Namespace= " << opts.nameSpace
+            << ", Instance= " << opts.instanceName.toString()
+            << ", propertyName= " << opts.propertyName
+            << ", newValue= " << opts.newValue.toString()
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -609,8 +727,8 @@ int getQualifier(CIMClient& client, Options& opts)
     //if (opts.verboseTest)
     {
         cout << "getQualifier "
-            << "Namespace = " << opts.nameSpace
-            << ", Qualifier = " << opts.qualifierName
+            << "Namespace= " << opts.nameSpace
+            << ", Qualifier= " << opts.qualifierName
             << endl;
     }
     
@@ -628,12 +746,13 @@ int getQualifier(CIMClient& client, Options& opts)
     
     return 0;
 }
+
 int setQualifier(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "setQualifiers "
-            << "Namespace = " << opts.nameSpace
+            << "Namespace= " << opts.nameSpace
             // KS add the qualifier decl here.
             << endl;
     }
@@ -648,8 +767,8 @@ int deleteQualifier(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "deleteQualifiers "
-            << "Namespace = " << opts.nameSpace
-            << " Qualifier " << opts.qualifierName
+            << "Namespace= " << opts.nameSpace
+            << " Qualifier= " << opts.qualifierName
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -664,7 +783,7 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "enumerateQualifiers "
-            << "Namespace = " << opts.nameSpace
+            << "Namespace= " << opts.nameSpace
             << endl;
     }
   
@@ -693,10 +812,10 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
 
 /*
     Array<CIMObjectPath> referenceNames(
-	const CIMNamespaceName& nameSpace,
-	const CIMObjectPath& objectName,
-	const CIMName& resultClass = CIMName(),
-	const String& role = String::EMPTY
+		const CIMNamespaceName& nameSpace,
+		const CIMObjectPath& objectName,
+		const CIMName& resultClass = CIMName(),
+		const String& role = String::EMPTY
 
 */
 int referenceNames(CIMClient& client, Options& opts)
@@ -704,16 +823,19 @@ int referenceNames(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "ReferenceNames "
-            << "Namespace = " << opts.nameSpace
-            << ", ObjectPath = " << opts.objectName
-            << ", resultClass = " << opts.resultClass
-            << ", role = " << opts.role
+            << "Namespace= " << opts.nameSpace
+            << ", ObjectPath= " << opts.objectName
+            << ", resultClass= " << opts.resultClass
+            << ", role= " << opts.role
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
 
     Array<CIMObjectPath> referenceNames = 
-    client.referenceNames( opts.nameSpace, opts.objectName, opts.resultClass, opts.role);
+		client.referenceNames( opts.nameSpace, 
+							   opts.objectName, 
+							   opts.resultClass,
+							   opts.role);
     
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     
@@ -741,13 +863,13 @@ int referenceNames(CIMClient& client, Options& opts)
 
 /****
      Array<CIMObject> references(
-	const CIMNamespaceName& nameSpace,
-	const CIMObjectPath& objectName,
-	const CIMName& resultClass = CIMName(),
-	const String& role = String::EMPTY,
-	Boolean includeQualifiers = false,
-	Boolean includeClassOrigin = false,
-	const CIMPropertyList& propertyList = CIMPropertyList()
+		const CIMNamespaceName& nameSpace,
+		const CIMObjectPath& objectName,
+		const CIMName& resultClass = CIMName(),
+		const String& role = String::EMPTY,
+		Boolean includeQualifiers = false,
+		Boolean includeClassOrigin = false,
+		const CIMPropertyList& propertyList = CIMPropertyList()
     );
     */
 int references(CIMClient& client, Options& opts)
@@ -755,25 +877,25 @@ int references(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "References "
-            << "Namespace = " << opts.nameSpace
-            << ", Object = " << opts.objectName
-            << ", resultClass = " << opts.resultClass
-            << ", role = " << opts.role
-            << ", includeQualifiers = " << opts.includeQualifiers
-            << ", includeClassOrigin = " << opts.includeClassOrigin
-            << ", CIMPropertyList = "  << printPropertyList(opts.propertyList)
+            << "Namespace= " << opts.nameSpace
+            << ", Object= " << opts.objectName
+            << ", resultClass= " << opts.resultClass
+            << ", role= " << opts.role
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", CIMPropertyList= "  << buildPropertyListString(opts.propertyList)
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
     
     Array<CIMObject> objects =  
-    client.references(  opts.nameSpace, 
-                        opts.objectName,
-                        opts.resultClass,
-                        opts.role,
-                        opts.includeQualifiers,
-                        opts.includeClassOrigin,
-                        opts.propertyList);
+		client.references(  opts.nameSpace, 
+							opts.objectName,
+							opts.resultClass,
+							opts.role,
+							opts.includeQualifiers,
+							opts.includeClassOrigin,
+							opts.propertyList);
     
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
 
@@ -811,12 +933,12 @@ int associatorNames(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "associatorNames "
-            << "Namespace = " << opts.nameSpace
-            << ", Object = " << opts.objectName
-            << ", assocClass = " << opts.assocClass
-            << ", resultClass = " << opts.resultClass
-            << ", role = " << opts.role
-            << ", resultRole = " << opts.resultRole
+            << "Namespace= " << opts.nameSpace
+            << ", Object= " << opts.objectName
+            << ", assocClass= " << opts.assocClass
+            << ", resultClass= " << opts.resultClass
+            << ", role= " << opts.role
+            << ", resultRole= " << opts.resultRole
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -854,31 +976,31 @@ int associatorNames(CIMClient& client, Options& opts)
 
 /****
     Array<CIMObject> associators(
-	const CIMNamespaceName& nameSpace,
-	const CIMObjectPath& objectName,
-	const CIMName& assocClass = CIMName(),
-	const CIMName& resultClass = CIMName(),
-	const String& role = String::EMPTY,
-	const String& resultRole = String::EMPTY,
-	Boolean includeQualifiers = false,
-	Boolean includeClassOrigin = false,
-	const CIMPropertyList& propertyList = CIMPropertyList()
+		const CIMNamespaceName& nameSpace,
+		const CIMObjectPath& objectName,
+		const CIMName& assocClass = CIMName(),
+		const CIMName& resultClass = CIMName(),
+		const String& role = String::EMPTY,
+		const String& resultRole = String::EMPTY,
+		Boolean includeQualifiers = false,
+		Boolean includeClassOrigin = false,
+		const CIMPropertyList& propertyList = CIMPropertyList()
     );
-    */
+ */
 int associators(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "Associators "
-            << "Namespace = " << opts.nameSpace
-            << ", Object = " << opts.objectName
-            << ", assocClass = " << opts.assocClass
-            << ", resultClass = " << opts.resultClass
-            << ", role = " << opts.role
-            << ", resultRole = " << opts.resultRole
-            << ", includeQualifiers = " << ((opts.includeQualifiers)? "true" : "false")
-            << ", includeClassOrigin = " << ((opts.includeClassOrigin)? "true" : "false")
-            << ", propertyList = " << printPropertyList(opts.propertyList)
+            << "Namespace= " << opts.nameSpace
+            << ", Object= " << opts.objectName
+            << ", assocClass= " << opts.assocClass
+            << ", resultClass= " << opts.resultClass
+            << ", role= " << opts.role
+            << ", resultRole= " << opts.resultRole
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", propertyList= " << buildPropertyListString(opts.propertyList)
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -912,24 +1034,32 @@ int associators(CIMClient& client, Options& opts)
     return 0;
 } 
 
-                /*
-                    CIMValue invokeMethod(
-                    	const CIMNamespaceName& nameSpace,
-                    	const CIMObjectPath& instanceName,
-                    	const CIMName& methodName,
-                    	const Array<CIMParamValue>& inParameters,
-	                    Array<CIMParamValue>& outParameters
-                 */
+/*
+	CIMValue invokeMethod(
+		const CIMNamespaceName& nameSpace,
+		const CIMObjectPath& instanceName,
+		const CIMName& methodName,
+		const Array<CIMParamValue>& inParameters,
+		Array<CIMParamValue>& outParameters
+*/
 
  int invokeMethod(CIMClient& client, Options& opts)
  {
-     if (opts.verboseTest)
      {
-         cout << "Associators"
-             << " Namespace = " << opts.nameSpace
-             << ", Object = " << opts.objectName
-             << ", methodName = " << opts.methodName
-             << endl;
+		 if (opts.verboseTest)
+		 {
+			 cout << "invokeMethod"
+				 << " Namespace= " << opts.nameSpace
+				 << ", ObjectName= " << opts.objectName
+				 << ", methodName= " << opts.methodName
+				 << ", inParams Count= " << opts.inParams.size()
+				 << endl;
+			 for (Uint32 i=0; i< opts.inParams.size(); i++)
+			 {
+				 OutputFormatParamValue(opts.outputType, opts.inParams[i]);
+			 }
+		}
+
          CIMValue retValue;
          Array<CIMParamValue> outParams;
 
@@ -939,24 +1069,18 @@ int associators(CIMClient& client, Options& opts)
              opts.methodName, opts.inParams, outParams);
 
          if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-         // Now display the CIMValue
-
+         
+		 // Display the return value CIMValue
          cout << "Return Value= ";
-         XmlWriter::printValueElement(retValue, cout);
+		 if (opts.outputType == OUTPUT_XML)
+			 XmlWriter::printValueElement(retValue, cout);
+		 else
+			 cout << retValue.toString() << endl;
+
+		 // Display any outparms
          for (Uint32 i = 0; i < outParams.size() ; i++)
         {
-             XmlWriter::printParamValueElement(outParams[i], cout);
-             /*if (opts.outputType == OUTPUT_XML)
-                 XmlWriter::printParamValueElement(instance, cout);
-             else (format == OUTPUT_MOF)
-             {
-                 Array<Sint8> x;
-                 MofWriter::appendParamValueElement(x, instance);
-
-                 x.append('\0');
-
-                 mofFormat(cout, x.getData(), 4);
-             }*/   
+			 OutputFormatParamValue(opts.outputType, outParams[i]);
         }
 
      }
@@ -974,8 +1098,8 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
     if (opts.verboseTest)
     {
         cout << "EnumerateNamespaces "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
+            << "Namespace= " << opts.nameSpace
+            << ", Class= " << opts.className
             << endl;
     }
     Array<CIMNamespaceName> namespaceNames;
@@ -1080,8 +1204,6 @@ void GetOptions(
     static OptionRow optionsTable[] =
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
-        /*{"authenticate", "false" , false, Option::BOOLEAN, 0, 0, "a",
-                                        "Defines whether user authentication is used" },*/
         {"User", "", false, Option::STRING, 0, 0, "u",
                                         "Defines User Name for authentication" },
         
@@ -1097,17 +1219,24 @@ void GetOptions(
         {"deepInheritance", "false", false, Option::BOOLEAN, 0, 0, "di",
                             "If set deepInheritance parameter set true "},
         
-        {"localOnly", "false", false, Option::BOOLEAN, 0, 0, "lo",
-                            "If set localonly parameter set true "},
+        {"localOnly", "true", false, Option::BOOLEAN, 0, 0, "lo",
+                            "DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. See !lo "},
+
+        {"!localOnly", "false", false, Option::BOOLEAN, 0, 0, "!lo",
+                            "When set, sets LocalOnly = false on operations "},
         
-        {"includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "iq",
-                            "If set sets includeQualifiers option true "},
+        {"includeQualifiers", "true", false, Option::BOOLEAN, 0, 0, "iq",
+                            "Deprecated. Sets includeQualifiers = True. However, default = true "},
+        
+        {"!includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "!iq",
+                            "Sets includeQualifiers = false on operations"},
         
         {"includeClassOrigin", "false", false, Option::BOOLEAN, 0, 0, "ic",
                             "If set includeClassOriginOption set toTrue"},
 
-        {"propertyList", "", false, Option::STRING, 0, 0, "pl",
-                            "Defines a propertyNameList. Format is p1,p2,p3 (without spaces) "},
+		// Uses a magic string as shown below to indicate never used.
+        {"propertyList", "###!###", false, Option::STRING, 0, 0, "pl",
+                            "Defines a propertyNameList. Format is p1,p2,p3 (without spaces). "},
         
         {"assocClass", "", false, Option::STRING, 0, 0, "ac",
                             "Defines a assocClass string for Associator calls"},
@@ -1127,9 +1256,6 @@ void GetOptions(
 
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
                             "Defines an invokeMethod input parameter list. Format is p1=v1,p2=v2,..,pn=vn (without spaces) "},
-        
-        {"outputParameters", "", false, Option::STRING, 0, 0, "op",
-                            "Defines an invokeMethod output parameter list. Format is p1=v1,p2=v2,..,pn=vn (without spaces) "},
         
         {"filter", "", false, Option::STRING, 0, 0, "f",
                             "defines a filter to use for query. One String input "},
@@ -1160,7 +1286,7 @@ void GetOptions(
 
 
         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
-                            "Not Implemented "},
+                            "More detailed debug messages "},
         
         {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace", 
                             "Set Pegasus Common Components Trace. Sets the Trace level. 0 is off"},
@@ -1268,9 +1394,16 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 {
     // Check to see if user asked for help (-h otpion):
     Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
+    Boolean debug = (om.valueEquals("debug", "true")) ? true :false;
+
 
     if (verboseTest)
         opts.verboseTest = verboseTest;
+
+	if (debug)
+	{
+	    opts.debug= debug;	
+	}
 
     // Base code for parameter substition.  Dispabled until complete
     /*{
@@ -1303,7 +1436,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     //String nameSpace;
     if(om.lookupValue("namespace", opts.nameSpace))
     {
-        if (verboseTest)
+        if (verboseTest && debug)
             cout << "Namespace = " << opts.nameSpace << endl;
     }
 
@@ -1313,7 +1446,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         // we need to deliver String::EMPTY when no param.
         if (temprole != "")
             opts.role = temprole;
-        if (verboseTest)
+        if (verboseTest && debug && temprole != "")
            cout << "role = " << opts.role << endl;
     }
 
@@ -1323,12 +1456,14 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         // we need to deliver String::EMPTY when no param.
         if (tempResultRole != "")
             opts.resultRole = tempResultRole;
-        if (verboseTest)
-           cout << "resultRole = " << opts.resultRole << endl;
+        if (verboseTest && debug && tempResultRole != "")
+           cout << "resultRole= " << opts.resultRole << endl;
     }
 
+	// Get value for location, i.e. host, etc.
     om.lookupValue("location", opts.location);
 
+	// Assign the result class
     if(om.lookupValue("resultClass", opts.resultClassName))
     {
        
@@ -1345,24 +1480,13 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                exit(1);
            }
        }
-       if (verboseTest)
+       if (verboseTest && debug && opts.resultClassName != "")
            cout << "resultClassName = " << opts.resultClassName << endl;
     }
 
-
-    if(!om.lookupIntegerValue("delay", opts.delay))
-    {
-            opts.delay = 0;
-    }
-    if (verboseTest && opts.delay != 0)
-    {
-        cout << "delay set to " << opts.delay << " Seconds" << endl;
-    }
-
-
     if(om.lookupValue("assocClass", opts.assocClassName))
     {
-       if (verboseTest)
+       if (verboseTest && debug && opts.assocClassName != "")
            cout << "assocClassName = " << opts.assocClassName << endl;
        if (opts.assocClassName != "")
        {
@@ -1378,24 +1502,49 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
        }
     }
 
+    if(!om.lookupIntegerValue("delay", opts.delay))
+    {
+            opts.delay = 0;
+    }
+    if (verboseTest && debug && opts.delay != 0)
+    {
+        cout << "delay= " << opts.delay << " Seconds" << endl;
+    }
+
     opts.deepInheritance = om.isTrue("deepInheritance");
-    if (om.isTrue("deepInheritance")  & verboseTest)
+    if (om.isTrue("deepInheritance")  && verboseTest && debug)
         cout << "deepInteritance set" << endl;
     
+	// process localOnly and !localOnly parameters
     opts.localOnly = om.isTrue("localOnly");
-    if (om.isTrue("localOnly")  & verboseTest)
-        cout << "localOnly set" << endl;
+	if (om.isTrue("!localOnly"))
+	{
+		opts.localOnly = false;
+	}
+	if (verboseTest && debug && om.isTrue("!localOnly"))
+	{					
+		cout << "localOnly= " << _toString(opts.localOnly) << endl;;
+	}
     
+	// Process includeQualifiers and !includeQualifiers
     opts.includeQualifiers = om.isTrue("includeQualifiers");
-    if (om.isTrue("includeQualifiers")  & verboseTest)
-        cout << "includeQualifiers set" << endl;
+	
+	if (om.isTrue("!includeQualifiers"))
+	{
+		opts.includeQualifiers = false;
+	}
+
+	if (verboseTest && debug && om.isTrue("!includeQualifiers"))
+	{
+		cout << "includeQualifiers = " << _toString(opts.includeQualifiers) << endl;
+	}
     
     opts.includeClassOrigin = om.isTrue("includeClassOrigin");
-    if (om.isTrue("includeClassOrigin")  & verboseTest)
+    if (om.isTrue("includeClassOrigin")  && verboseTest && debug)
         cout << "includeClassOrigin set" << endl;
 
     opts.time = om.isTrue("time");
-    if (om.isTrue("time")  & verboseTest)
+    if (om.isTrue("time")  && verboseTest && debug)
         cout << "time set" << endl;
 
     if(!om.lookupIntegerValue("trace", opts.trace))
@@ -1426,7 +1575,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         }
         opts.trace = traceLevel;
     }
-    if (verboseTest && opts.trace != 0)
+    if (verboseTest && debug && opts.trace != 0)
     {
         cout << "Pegasus Trace set to  Level  " << opts.trace << endl;
     }
@@ -1439,16 +1588,16 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
      {
          if (opts.user.size() == 0)
              opts.user = String::EMPTY;
-         if (verboseTest)
-             cout << "User = " << opts.user << endl;
+         if (debug && verboseTest)
+             cout << "User= " << opts.user << endl;
      }
      
      if(om.lookupValue("Password", opts.password))
      {
          if (opts.password.size() == 0)
              opts.password = String::EMPTY;
-         if (verboseTest)
-             cout << "Password = " << opts.password << endl;
+         if (debug && verboseTest)
+             cout << "Password= " << opts.password << endl;
      }
     
     // Create a variable with the format output and a correponding type.
@@ -1457,12 +1606,12 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // or in our case -mof -xml, etc.
     
      opts.isXmlOutput = om.isTrue("xmlOutput");
-     if (opts.isXmlOutput  & verboseTest)
+     if (opts.isXmlOutput  && debug && verboseTest)
          cout << "xmlOutput set" << endl;
 
     if(om.lookupValue("outputformats", opts.outputFormat))
      {
-        if (verboseTest)
+        if (debug && verboseTest)
             cout << "Output Format = " << opts.outputFormat << endl;
      }
 
@@ -1487,46 +1636,55 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             opts.repeat = 0;
             
     }
-    if (opts.verboseTest)
+    if (debug && verboseTest)
     {
-        cout << "Repeat Count " << opts.repeat << endl;
+        cout << "Repeat Count= " << opts.repeat << endl;
     }
 
     if(!om.lookupIntegerValue("count", opts.count))
     {
-            opts.count = 97832;
+            opts.count = 29346;
     }
-    if (opts.verboseTest)
+    if (debug && verboseTest)
     {
-        if (opts.count != 97832)
+        if (opts.count != 29346)
         {
-        cout << "Comparison Count " << opts.repeat << endl;
+        cout << "Comparison Count= " << opts.count << endl;
         }
     }
 
     /*  Property List parameter.
         Separate an input stream into an array of Strings
+		Two special situations, empty list and NULL list
     */
     {
         String properties;
-        Array<CIMName> paramList;
         if(om.lookupValue("propertyList", properties))
         {
-            
-            Array<String> pList =  _tokenize(properties, ',');
-
-            if (verboseTest)
-            {
-                cout << "Property List =";
-                for (Uint32 i = 0 ; i < pList.size() ; i++)
-                    cout << " " << pList[i] << endl;
-            }
-            for (Uint32 i = 0 ; pList.size(); i++)
-                paramList.append(CIMName(pList[i]));
-
-            opts.propertyList.set(paramList);
+			if (properties == "###!###")
+			{
+				opts.propertyList.clear();
+			}
+			else
+			{
+				Array<CIMName> pList;
+				Array<String> pListString =  _tokenize(properties, ',');
+				
+				for (Uint32 i = 0 ; i < pListString.size(); i++)
+				{
+					pList.append(CIMName(pListString[i]));
+				}
+				opts.propertyList.set(pList);
+			}
+			if (debug && verboseTest && properties != "###!###")
+			{
+				cout << "PropertyList= ";
+				printPropertyList(opts.propertyList);
+				cout << endl;
+			}
         }
     }
+
 
     /* Method input parameters processing.  Process as one
        string containing multiple parameters in the form
@@ -1537,14 +1695,14 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     String inputParameters;
     if(om.lookupValue("inputParameters", inputParameters))
     {
-
         Array<String> pList =  _tokenize(inputParameters, ',');
         for (Uint32 i = 0 ; i< pList.size() ; i++)
         {
-            _createMethodParamValue(pList[i]);
+            CIMParamValue pv;
+			pv = _createMethodParamValue(pList[i], opts);
+			opts.inParams.append(pv);
         }
     }
-
     return 0;
 }
 

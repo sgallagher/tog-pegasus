@@ -141,18 +141,22 @@ int main()
 //    parm[3]->th->cancel();
 //    parm[0]->th->cancel();
 
-    // Enforce that the first dequeuing task receives the cancel message
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-    parm[2]->th->suspend();
-#endif
-
     cout << "+++++ passed test round 20" << endl; 
 #endif
 
     Message * message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
 
-    sleep(1);
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+
+    // Enforce that the first dequeuing task receives the cancel message
+    // What happens if this thread holds a message queue lock ???
+    parm[2]->th->suspend();
+
+#endif
+
+
+    //sleep(1); 
 
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);

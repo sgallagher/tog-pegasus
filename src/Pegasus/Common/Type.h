@@ -23,39 +23,19 @@
 // Author:
 //
 // $Log: Type.h,v $
-// Revision 1.1  2001/01/14 19:53:15  mike
-// Initial revision
+// Revision 1.2  2001/01/24 16:16:38  karl
+// Incorporate Doc++ Comments as documentation into .h files
+//
+// Revision 1.1.1.1  2001/01/14 19:53:15  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Type.h
-//
-//	This file defines the Type enumeration which introduces 
-//	symbolic constants for the CIM data types. The table below shows 
-//	each CIM type, its symbolic constant, and its representation type.
-//
-//	    CIM Type	Constant	C++ Type
-//	    -------------------------------------------------------
-//	    boolean	Type::BOOLEAN		Boolean
-//	    uint8	Type::UINT8		Uint8
-//	    sint8	Type::SINT8		Sint8
-//	    uint16	Type::UINT16		Uint16
-//	    sint16	Type::SINT16		Sint16
-//	    uint32	Type::UINT32		Uint32
-//	    sint32	Type::SINT32		Sint32
-//	    uint64	Type::UINT64		Sint64
-//	    sint64	Type::SINT64		Sint64
-//	    real32	Type::REAL32		Real32
-//	    real64	Type::REAL64		Real64
-//	    char16	Type::CHAR16		Char16
-//	    string	Type::STRING		String
-//	    datetime	Type::DATETIME		DateTime
-//	    reference	Type::REFERENCE		Reference
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+ Type.h - This file defines the Type enumeration which introduces
+symbolic constants for the CIM data types.
+*/
 
 #ifndef Pegasus_Type_h
 #define Pegasus_Type_h
@@ -64,6 +44,35 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+The Type Class defines the Type enumeration which introduces
+symbolic constants for the CIM data types.
+
+The table below shows each CIM type, its symbolic constant, and its
+representation type.
+<PRE>
+
+
+	    CIM Type	Constant	C++ Type
+	    -------------------------------------------------------
+	    boolean	Type::BOOLEAN		Boolean
+	    uint8	Type::UINT8		Uint8
+	    sint8	Type::SINT8		Sint8
+	    uint16	Type::UINT16		Uint16
+	    sint16	Type::SINT16		Sint16
+	    uint32	Type::UINT32		Uint32
+	    sint32	Type::SINT32		Sint32
+	    uint64	Type::UINT64		Sint64
+	    sint64	Type::SINT64		Sint64
+	    real32	Type::REAL32		Real32
+	    real64	Type::REAL64		Real64
+	    char16	Type::CHAR16		Char16
+	    string	Type::STRING		String
+	    datetime	Type::DATETIME		DateTime
+	    reference	Type::REFERENCE		Reference
+
+</PRE>
+*/
 class PEGASUS_COMMON_LINKAGE Type
 {
 public:
@@ -147,3 +156,4 @@ PEGASUS_COMMON_LINKAGE const char* TypeToString(Type type);
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Type_h */
+

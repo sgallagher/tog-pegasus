@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.2  2001/01/24 16:16:38  karl
+	Incorporate Doc++ Comments as documentation into .h files
+	
 	Revision 1.1  2001/01/24 14:18:48  karl
 	import Dev Doc Files
 	
@@ -36,7 +39,10 @@ This version of the Pegasus User Manual was created at \today
 
 */
 /* Change list to mvoe this into repository
-    Datetime - Done
+    Datetime - Done Comments need more work
+    String - Moved but comments need work
+    Name
+    Type
 */
 //@{
     //@Include: overview.dxx

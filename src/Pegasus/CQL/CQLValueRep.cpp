@@ -49,13 +49,14 @@ PEGASUS_USING_STD;
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-
+#define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
+#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 #define CIMTYPE_EMBEDDED 15  //temporary
 
 CQLValueRep::CQLValueRep()
+  :_valueType(CQLValue::Null_type)
 {
-   _valueType = CQLValue::Null_type;
-	_theValue._S = NULL;
+  _theValue._S = NULL;
 }
 CQLValueRep::~CQLValueRep()
 {
@@ -100,6 +101,67 @@ CQLValueRep::~CQLValueRep()
       default:
          break;
    }
+}
+
+
+CQLValueRep::CQLValueRep(const CQLValueRep& val)
+{
+   switch(val._valueType)
+   {
+      case CQLValue::Boolean_type:
+      {
+         _theValue._B = val._theValue._B;
+         break;
+      }
+      case CQLValue::Sint64_type: 
+      {
+         _theValue._S64 = val._theValue._S64;
+         break;
+      }
+      case CQLValue::Uint64_type: 
+      {
+         _theValue._U64 = val._theValue._U64;
+         break;
+      }
+      case CQLValue::Real_type: 
+      {
+         _theValue._R64 = val._theValue._R64;
+         break;
+      }
+      case CQLValue::String_type:  
+      {
+         _theValue._S = new String(*val._theValue._S);
+         break;
+      }
+      case CQLValue::CIMDateTime_type:  
+      {
+         _theValue._DT = new CIMDateTime(*val._theValue._DT);
+         break;
+      }
+      case CQLValue::CIMReference_type:  
+      {
+         _theValue._OP = new CIMObjectPath(*val._theValue._OP);
+         break;
+      }
+      case CQLValue::CIMInstance_type:  
+      {
+         _theValue._IN = new CIMInstance(val._theValue._IN->clone());
+         break;
+      }
+      case CQLValue::CIMClass_type:  
+      {
+         _theValue._CL = new CIMClass(val._theValue._CL->clone());
+         break;
+      }
+      default:
+         break;
+   }
+
+   _CQLChainId = val._CQLChainId;
+
+   _isResolved = val._isResolved;
+
+   _valueType = val._valueType;
 }
 
 CQLValueRep::CQLValueRep(const CQLValueRep* val)
@@ -155,11 +217,9 @@ CQLValueRep::CQLValueRep(const CQLValueRep* val)
          break;
    }
 
-      _CQLChainId = val->_CQLChainId;
+   _CQLChainId = val->_CQLChainId;
 
-    _isResolved = val->_isResolved;
-
-    Num_Type = val->Num_Type;
+   _isResolved = val->_isResolved;
 
    _valueType = val->_valueType;
 }
@@ -229,255 +289,200 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
 
 
 CQLValueRep::CQLValueRep(const CQLChainedIdentifier& inCQLIdent)
+  : _CQLChainId(inCQLIdent), 
+    _isResolved(false),
+    _valueType(CQLValue::CQLIdentifier_type)
 {
-   _CQLChainId = inCQLIdent; 
-   _valueType = CQLValue::CQLIdentifier_type;
-   _isResolved = false;
+   
 }
 
 
 CQLValueRep::CQLValueRep(const String& inString)
+  : _isResolved(true), 
+    _valueType(CQLValue::String_type)
 {
    _theValue._S = new String(inString);
-   _valueType = CQLValue::String_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(const CIMInstance& inInstance)
+  : _isResolved(true),
+    _valueType(CQLValue::CIMInstance_type)
 {
    _theValue._IN = new CIMInstance(inInstance.clone());
-   _valueType = CQLValue::CIMInstance_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(const CIMClass& inClass)
+  : _isResolved(true),
+    _valueType(CQLValue::CIMClass_type)
 {
    _theValue._CL = new CIMClass(inClass.clone());
-   _valueType = CQLValue::CIMClass_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(const CIMObjectPath& inObjPath)
+  : _isResolved(true),
+    _valueType(CQLValue::CIMReference_type)
 {
    _theValue._OP = new CIMObjectPath(inObjPath);
-   _valueType = CQLValue::CIMReference_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(const CIMDateTime& inDateTime)
+  : _isResolved(true),
+    _valueType(CQLValue::CIMDateTime_type)
 {
    _theValue._DT = new CIMDateTime(inDateTime);
-   _valueType = CQLValue::CIMDateTime_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(Uint64 inUint)
+  : _isResolved(true),
+    _valueType(CQLValue::Uint64_type)
 {
    _theValue._U64 = inUint;
-   _valueType = CQLValue::Uint64_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(Boolean inBool)
+  : _isResolved(true),
+    _valueType(CQLValue::Boolean_type)
 {
    _theValue._B = inBool;
-   _valueType = CQLValue::Boolean_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(Sint64 inSint)
+  : _isResolved(true),
+    _valueType(CQLValue::Sint64_type)
 {
    _theValue._S64 = inSint;
-   _valueType = CQLValue::Sint64_type;
-   _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(Real64 inReal)
+  : _isResolved(true),
+    _valueType(CQLValue::Real_type)
 {
    _theValue._R64 = inReal;
-   _valueType = CQLValue::Real_type;
-   _isResolved = true;
 }
 
 void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx)
 {   
-   if(_CQLChainId.size() == 0)
-   {
+  if(_CQLChainId.size() == 0)
+    {
       return;
-   }
+    }
+  
 
-   CQLIdentifier classNameID;       // Determine if we have Alias/Class/Property 
-   String className;                // Alias/Class Name
-   Array<CQLIdentifier> Idstrings = 
-      _CQLChainId.getSubIdentifiers(); // Array of Identifiers to process
-
-   Uint32 index = 0;                // Counter for looping through Identifiers
-   
-   CIMClass ScopeClass;             // CIMClass for the scope of Identifier
-   CIMClass QueryClass;             // CIMClass for the current query
-
-   CIMProperty queryPropObj;        // Property object used for verification
-
-   Uint32 qualIndex;                // Counter for looping through qualifiers
-   CIMValue valueMap;               // CIMValue for Value Map Qualifiers
-   CIMValue values;                 // CIMValue for Values Qualifiers
-   Boolean matchFound = false;      // Indicator for match Qualifier
-   Uint32 matchIndex;               // Placeholder for matched Qualifier
-   Array<String> valueMapArray;     // Value Map Qualifier for property
-   Array<String> valuesArray;       // Values Qualifier for property
-
-   Boolean isEmbedded = false;      // Embedded indicator
-
-   // We need to determine if the first Identifier is an Alias, Class, or Property.
-   // If it is a Alias or a Class the CQLIdentifier return will be the
-   // Class name. If the first Identifier is a property, the return CQLIdentifier
-   // will be empty.
-
-   classNameID = inQueryCtx.findClass(Idstrings[index].getName().getString());
-
-   className = classNameID.getName().getString();
-
-   if(className.size() == 0)
-   { 
-      // classname is an empty string, the first Identifier must be a property.  
-      // A class is needed to proceed. We will get a class from the FromList.
-      // NOTE: for basic CQL support only one class will be in the FromList.
-      
-      Array<CQLIdentifier> classList;
-
-      classList = inQueryCtx.getFromList();
-
-      if(classList.size() != 1)
-      {
-         throw(Exception(String("CQLValueRep::resolve")));
-      }
-
-      className = classList[0].getName().getString();   
-   
-   }
-   else if(Idstrings.size() == 1)
-   {
+  Array<CQLIdentifier> Idstrings = 
+    _CQLChainId.getSubIdentifiers(); // Array of Identifiers to process
+  
+  Uint32 index = 0;                // Counter for looping through Identifiers
+  CIMProperty propObj;  
+  
+  if(Idstrings.size() == 1)
+    {
       // A class was passed in with no property indicated.
       // Set the instance passed in, as a primitive.
       _theValue._IN = (CIMInstance *) new CIMInstance(CI.clone());
       _valueType = CQLValue::CIMInstance_type;
       _isResolved = true;
       return; // Done.
-   }
-   else
-   {
+    }
+  else
+    {
+      // Symbolic Constant processing
+      if(_CQLChainId.getLastIdentifier().isSymbolicConstant() &&
+	 Idstrings.size() == 2)
+	{
+	  _resolveSymbolicConstant(inQueryCtx);
+	  return;
+	}
+      
       // Need to increment index since the first Identifier is a class,
       // and additional identifiers need processing.
       ++index;
-   }
-
-   // Symbolic Constant processing
-   if(_CQLChainId.getLastIdentifier().isSymbolicConstant())
-     {
-      _resolveSymbolicConstant(inQueryCtx);
-     return;
-   }
-   
-   // Now we will loop through the remaining CQLIdentifiers, 
-   // and process each one.
-   for(;index < Idstrings.size(); ++index)
-   {
-      // We will get the current class from the repository.
-      // We must do this for each loop since the class being 
-      // processed may change with each iteration.
-      QueryClass = inQueryCtx.getClass(className);
-
-      // We need to do special processing on property if the 
-      // property is scoped. 
-// TODO: We should be able to delete this code.
-/*
-      if(Idstrings[index].isScoped())
-      {
-         // This property is scoped. 
-         // We need to get the scoped class from the repository; to verify
-         // that the property is in the scope and the scope and QueryClass
-         // have a parent child relationship.
-         ScopeClass = inQueryCtx.getClass(Idstrings[index].getScope());
-
-         // Verifing property is in Scope.
-         if(ScopeClass.findProperty(Idstrings[index].getName()) == 
-            PEG_NOT_FOUND)
-         {
-            // Set the Ignore_type
-            _valueType = CQLIgnore_type;
-            _isResolved = true;
-            return;
-         }
-         // Verifying the QueryClass and the ScopeClass have a
-         // parent child relationship
-         else if(!_areClassesInline(ScopeClass,QueryClass,inQueryCtx))
-         {
-            throw(1);
-         }
-
-      }
-      // Verifing that embedded properties are scoped.
-      else if(isEmbedded)
-      {  // all embedded properties must be scoped.
-
-         throw(1);
-      }
-*/
-      // This is a short cut for wildcard special charactor.
-      // Since no further processing is necessary for this case.
-      if(Idstrings[index].isWildcard())
-      {  
-         _theValue._IN = new CIMInstance(CI.clone());
-         _valueType = CQLValue::CIMInstance_type;
-         _isResolved = true;
-         return;
-      }
-
+     }
+  
+  CIMName classContext = Idstrings[0].getName();
+  CIMObject objectContext = CI;
+  
+  for(;index < Idstrings.size(); ++index)
+    {
       // Now we need to verify that the property is in the class.
-      Uint32 propertyIndex = QueryClass.findProperty(Idstrings[index].getName());
-
+      Uint32 propertyIndex = objectContext.findProperty(Idstrings[index].getName());
+      
       if(propertyIndex == PEG_NOT_FOUND)
-      {
-         throw(Exception(String("CQLValueRep::resolve -- Property not Found")));
-      }
-
+	{
+	  _valueType = CQLValue::Null_type;
+	  return;
+	}
+      
       // We will check the property type to determine what processing 
       // needs to be done.
-      queryPropObj = QueryClass.getProperty(propertyIndex);
-
-      if(queryPropObj.getType() == CIMTYPE_EMBEDDED)
-      {
-         // Do embedded code here.
-         
-         isEmbedded = true;
-         continue;
-      }
-      else // Primitive
-      {
-         // We will retrieve the property from the instance,
-         // that will be used to set the primitive later in processing.
-         propertyIndex = CI.findProperty(Idstrings[index].getName());
-        CIMConstProperty propObj = CI.getProperty(propertyIndex);
-
-         if(Idstrings[index].isArray())
-         {
-            // We have an array property.  All we need to do
-            // Is get the index defined by CQLIdentifier.
-            // NOTE: Basic CQL support only allows one index.
-            _setValue(propObj.getValue(),
-                     Idstrings[index].getSubRanges()[0].start);
-            return;
-         }
-         else
-         {
-            // The property has no special charactors.
-            CIMValue cimVal = propObj.getValue();
-            _setValue(cimVal);
-            return;
-         }
-      } // else body
-   } // loop
+      propObj = objectContext.getProperty(propertyIndex);
+      
+      if(inQueryCtx.getClassRelation(Idstrings[index].getScope(),classContext)
+	 == QueryContext::NOTRELATED)
+	{
+	  // The chain is not inline with scope.
+	  _valueType = CQLValue::Null_type;
+	  return;
+	}
+      
+      if(index == Idstrings.size()-1)
+	{
+	  _process_value(propObj,Idstrings[index],inQueryCtx);
+	}
+      else if(propObj.getType() != CIMTYPE_EMBEDDED)
+	{
+	  // Object is not embedded.
+	  _valueType = CQLValue::Null_type;
+	  return;
+	}
+      //objectContext = propObj.getObject()
+      classContext = objectContext.getClassName();
+    }  
 } // end of function
+
+void CQLValueRep::_process_value(CIMProperty& propObj,
+				 CQLIdentifier& _id,
+				 const QueryContext& inQueryCtx)
+{
+  if(propObj.getType() == CIMTYPE_EMBEDDED)
+    {
+      CIMObject cimObj;
+      //propObj.getValue(cimObj);
+
+      if(cimObj.isInstance())
+	{
+	  _theValue._IN = new CIMInstance(cimObj.clone());
+	}
+      else if(cimObj.isClass())
+	{
+	  _theValue._CL = new CIMClass(cimObj.clone());
+	}
+ 
+    }
+  else // Primitive
+    {
+      if(_id.isArray())
+	{
+	  // We have an array property.  All we need to do
+	  // Is get the index defined by CQLIdentifier.
+	  // NOTE: Basic CQL support only allows one index.
+	  _setValue(propObj.getValue(),
+		    _id.getSubRanges()[0].start);
+	  return;
+	}
+      else if(_id.isSymbolicConstant())
+	{
+	  // Symbolic Constant processing
+	  _resolveSymbolicConstant(inQueryCtx);
+	  return;
+	}
+      else
+	{
+	  // The property has no special charactors.
+	  _setValue(propObj.getValue());
+	  return;
+	}
+    }
+}
 
 CQLValueRep& CQLValueRep::operator=(const CQLValueRep& rhs){
 
@@ -512,142 +517,151 @@ CQLValueRep& CQLValueRep::operator=(const CQLValueRep& rhs){
 		}
 		_CQLChainId = rhs._CQLChainId;
 		_isResolved = rhs._isResolved;
-		Num_Type = rhs.Num_Type;
 	}
 	return *this;
 }
 Boolean CQLValueRep::operator==(const CQLValueRep& x)
 {
-   if(!_validate(x))
-   {
-      throw(Exception(String("CQLValueRep::operator==")));
-   } 
+  _validate(x);
 
-   if(x._valueType == CQLValue::Null_type ||
-      _valueType == CQLValue::Null_type)
-   {
-      throw(Exception(String("CQLValueRep::operator==")));
-   }
- 
    switch(_valueType)
    {
-      case CQLValue::Boolean_type:
-      {
-         if(x._valueType == CQLValue::Boolean_type)
+   case CQLValue::Null_type:
+     {
+       if(x._valueType == CQLValue::Null_type)
          {
-            if(_theValue._B == x._theValue._B)
-            {
                return true;
-            }
          }
-         break; 
-      }     
-      case CQLValue::Sint64_type:
-      {
-         if(x._valueType == CQLValue::Sint64_type)
+     }
+     break;
+   case CQLValue::Boolean_type:
+     {
+       if(x._valueType == CQLValue::Boolean_type)
          {
-            if(_theValue._S64 == x._theValue._S64)
-            {
+	   if(_theValue._B == x._theValue._B)
+	     {
                return true;
-            }
+	     }
          }
-         else if(x._valueType == CQLValue::Uint64_type)
+       break; 
+     }     
+   case CQLValue::Sint64_type:
+     {
+       if(x._valueType == CQLValue::Sint64_type)
          {
-            if(_theValue._S64 == (Sint64)x._theValue._U64)
-            {
+	   if(_theValue._S64 == x._theValue._S64)
+	     {
                return true;
-            }
+	     }
          }
-         else if(x._valueType == CQLValue::Real_type)
+       else if(x._valueType == CQLValue::Uint64_type)
          {
-            if(_theValue._S64 == x._theValue._R64)
-            {
+	   if(x._theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
+	     {
+	       return false;
+	     }
+	   if(_theValue._S64 == (Sint64)x._theValue._U64)
+	     {
                return true;
-            }
+	     }
          }
-         break;
-      }
-      case CQLValue::Uint64_type:
-         if(x._valueType == CQLValue::Sint64_type)
+       else if(x._valueType == CQLValue::Real_type)
          {
-            if((Sint64)_theValue._U64 == x._theValue._S64)
-            {
+	   if(_theValue._S64 == x._theValue._R64)
+	     {
                return true;
-            }
+	     }
          }
-         else if(x._valueType == CQLValue::Uint64_type)
-         {
-            if(_theValue._U64 == x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Real_type)
-         {
-         	Real64 temp;
-         	memcpy(&temp, &_theValue._U64, sizeof(temp));
-            if(temp == x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case CQLValue::Real_type:
-         if(x._valueType == CQLValue::Sint64_type)
-         {
-            if(_theValue._R64 == x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Uint64_type)
-         {
-          	Real64 temp;
-         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+       break;
+     }
+   case CQLValue::Uint64_type:
+     if(x._valueType == CQLValue::Sint64_type)
+       {
+	 if(_theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
+	   {
+	     return false;
+	   }
+	 if((Sint64)_theValue._U64 == x._theValue._S64)
+	   {
+	     return true;
+	   }
+       }
+     else if(x._valueType == CQLValue::Uint64_type)
+       {
+	 if(_theValue._U64 == x._theValue._U64)
+	   {
+	     return true;
+	   }
+       }
+     else if(x._valueType == CQLValue::Real_type)
+       {
+	 Real64 temp;
+	 memcpy(&temp, &_theValue._U64, sizeof(temp));
+	 if(temp == x._theValue._R64)
+	   {
+	     return true;
+	   }
+       }
+     break;
+   case CQLValue::Real_type:
+     if(x._valueType == CQLValue::Sint64_type)
+       {
+	 if(_theValue._R64 == x._theValue._S64)
+	   {
+	     return true;
+	   }
+       }
+     else if(x._valueType == CQLValue::Uint64_type)
+       {
+	 Real64 temp;
+	 memcpy(&temp, &x._theValue._U64, sizeof(temp));
             if(_theValue._R64 == temp)
+	      {
+		return true;
+	      }
+       }
+     else if(x._valueType == CQLValue::Real_type)
+       {
+	 if(_theValue._R64 == x._theValue._R64)
             {
-               return true;
+	      return true;
             }
-         }
-         else if(x._valueType == CQLValue::Real_type)
-         {
-            if(_theValue._R64 == x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case CQLValue::String_type:
-         if(*_theValue._S == *x._theValue._S)
-         {
+       }
+     break;
+   case CQLValue::String_type:
+     if(*_theValue._S == *x._theValue._S)
+       {
             return true;
-         }
-         break;
-      case CQLValue::CIMDateTime_type:
-         if(*_theValue._DT == *x._theValue._DT)
+       }
+     break;
+   case CQLValue::CIMDateTime_type:
+     if(*_theValue._DT == *x._theValue._DT)
+       {
+	 return true;
+        }
+     break;
+   case CQLValue::CIMReference_type:
+     if(_theValue._OP->identical(*x._theValue._OP))
+       {
+	 return true;
+       }
+     break;
+   case CQLValue::CIMInstance_type:  // TODO: need to define Instance comparison
+     return true; // _compareInstance(*_theValue._IN, *x._theValue._IN)
+     break;
+   case CQLValue::CIMClass_type: 
+     if(_theValue._CL->identical(*x._theValue._CL))
          {
-            return true;
-         }
-         break;
-         case CQLValue::CIMReference_type:
-         if(*_theValue._OP == *x._theValue._OP)
-         {
-            return true;
-         }
-         break;
-         case CQLValue::CIMInstance_type:
-         if((*_theValue._IN).getPath() == (*x._theValue._IN).getPath())
-         {
-            return true;
+	   return true;
          }   
-         break;
-         case CQLValue::CQLIdentifier_type:
-            throw(Exception(String("")));
-         break;
-
+     break;
+   case CQLValue::CQLIdentifier_type:
+     throw Exception(String("CQLValueRep::operator=="));
+     break;
+     
       default:
-         throw(Exception(String("CQLValueRep::operator==")));
-         break;
+	throw Exception(String("CQLValueRep::operator=="));
+	break;
    }
    return false;
 }
@@ -655,262 +669,263 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
 //##ModelId=40FBFF9502BB
 Boolean CQLValueRep::operator!=(const CQLValueRep& x)
 {
-   if(!_validate(x))
-   {
-      throw(Exception(String("CQLValueRep::operator!=")));
-   }  
+  _validate(x);
  
-   return !(this->operator==(x));
+  return !(this->operator==(x));
 }
 
 
 Boolean CQLValueRep::operator<=(const CQLValueRep& x)
 {
-   if(!_validate(x))
-   {
-      throw(Exception(String("CQLValueRep::operator<=")));
-   }
+  _validate(x);  
    
-   if (this->operator<(x) || this->operator==(x))
-   		return true;  
-   return false;
+  if (this->operator<(x) || this->operator==(x))
+    {
+      return true;
+    }
+  
+  return false;
 }
 
 
 Boolean CQLValueRep::operator>=(const CQLValueRep& x)
 {
-   if(!_validate(x))
-   {
-      throw(Exception(String("CQLValueRep::operator>=")));
-   }
+  _validate(x);
+   
    return !(this->operator<(x));  
 }
 
 
 Boolean CQLValueRep::operator<(const CQLValueRep& x)
 {
-if(!_validate(x))
-   {
-      throw(Exception(String("CQLValueRep::operator<")));
-   }  
- 
-   if(x._valueType == CQLValue::Null_type ||
-      _valueType == CQLValue::Null_type)
-   {
-      throw(Exception(String("CQLValueRep::operator<")));
-   }
+  _validate(x);
 
-   switch(_valueType)
-   {
-      case CQLValue::Boolean_type:
+  switch(_valueType)
+    {
+    case CQLValue::Null_type:
       {
-         if(x._valueType == CQLValue::Boolean_type)
-         {
-            if(_theValue._B < x._theValue._B)
-            {
-               return true;
-            }
-         }
-         break; 
+	if(x._valueType == CQLValue::Null_type)
+	  {
+	    return true;
+	  }
       }
-      case CQLValue::Sint64_type:
-         if(x._valueType == CQLValue::Sint64_type)
-         {
-            if(_theValue._S64 < x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Uint64_type)
-         {
-            if(_theValue._S64 < (Sint64)x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Real_type)
-         {
-            if(_theValue._S64 < x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case CQLValue::Uint64_type:
-         if(x._valueType == CQLValue::Sint64_type)
-         {
-            if((Sint64)_theValue._U64 < x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Uint64_type)
-         {
-            if(_theValue._U64 < x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Real_type)
-         {
-         	Real64 temp;
-         	memcpy(&temp, &_theValue._U64, sizeof(temp));
-            if(temp < x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case CQLValue::Real_type:
-         if(x._valueType == CQLValue::Sint64_type)
-         {
-            if(_theValue._R64 < x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Uint64_type)
-         {
-         	Real64 temp;
-         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
-            if(_theValue._R64 < temp)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == CQLValue::Real_type)
-         {
-            if(_theValue._R64 < x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case CQLValue::String_type:
-         if(*_theValue._S < *x._theValue._S)
-         {
-            return true;
-         }
-         break;
-      case CQLValue::CIMDateTime_type:
-         throw(Exception(String("CQLValueRep::operator<")));
-         break;
-      case CQLValue::CIMReference_type:
-         throw(Exception(String("CQLValueRep::operator<")));
-         break;
-      case CQLValue::CIMInstance_type:
-            throw(Exception(String("CQLValueRep::operator<")));
-         break;
-      case CQLValue::CQLIdentifier_type:
-            throw(Exception(String("CQLValueRep::operator<")));
-         break;
-
-      default:
-         throw(Exception(String("CQLValueRep::operator<")));
-         break;
-   }
-   return false;
+      break;
+    case CQLValue::Boolean_type:
+      {
+	if(x._valueType == CQLValue::Boolean_type)
+	  {
+	    if(_theValue._B < x._theValue._B)
+	      {
+		return true;
+	      }
+	  }
+	break; 
+      }
+    case CQLValue::Sint64_type:
+      if(x._valueType == CQLValue::Sint64_type)
+	{
+	  if(_theValue._S64 < x._theValue._S64)
+	    {
+	      return true;
+	    }
+	}
+      else if(x._valueType == CQLValue::Uint64_type)
+	{
+	  if(x._theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
+	     {
+	       return true;
+	     }
+	  if(_theValue._S64 < (Sint64)x._theValue._U64)
+	    {
+	      return true;
+	    }
+	}
+      else if(x._valueType == CQLValue::Real_type)
+	{
+	  if(_theValue._S64 < x._theValue._R64)
+	    {
+	      return true;
+	    }
+	}
+      break;
+    case CQLValue::Uint64_type:
+      if(x._valueType == CQLValue::Sint64_type)
+	{
+	  if(_theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
+	    {
+	      return false;
+	    }
+	  if((Sint64)_theValue._U64 < x._theValue._S64)
+	    {
+	      return true;
+	    }
+	}
+      else if(x._valueType == CQLValue::Uint64_type)
+	{
+	  if(_theValue._U64 < x._theValue._U64)
+	    {
+	      return true;
+	    }
+	}
+      else if(x._valueType == CQLValue::Real_type)
+	{
+	  Real64 temp;
+	  memcpy(&temp, &_theValue._U64, sizeof(temp));
+	  if(temp < x._theValue._R64)
+	    {
+	      return true;
+	    }
+	}
+      break;
+    case CQLValue::Real_type:
+      if(x._valueType == CQLValue::Sint64_type)
+	{
+	  if(_theValue._R64 < x._theValue._S64)
+	    {
+	      return true;
+	    }
+	}
+      else if(x._valueType == CQLValue::Uint64_type)
+	{
+	  Real64 temp;
+	  memcpy(&temp, &x._theValue._U64, sizeof(temp));
+	  if(_theValue._R64 < temp)
+	    {
+	      return true;
+	    }
+	}
+      else if(x._valueType == CQLValue::Real_type)
+	{
+	  if(_theValue._R64 < x._theValue._R64)
+	    {
+	      return true;
+	    }
+	}
+      break;
+    case CQLValue::String_type:
+      if(*_theValue._S < *x._theValue._S)
+	{
+	  return true;
+	}
+      break;
+    case CQLValue::CIMDateTime_type:
+      throw(Exception(String("CQLValueRep::operator<")));
+      break;
+    case CQLValue::CIMReference_type:
+      throw(Exception(String("CQLValueRep::operator<")));
+      break;
+    case CQLValue::CIMInstance_type:
+      throw(Exception(String("CQLValueRep::operator<")));
+      break;
+    case CQLValue::CIMClass_type:
+      throw(Exception(String("CQLValueRep::operator<")));
+      break;
+    case CQLValue::CQLIdentifier_type:
+      throw(Exception(String("CQLValueRep::operator<")));
+      break;
+      
+    default:
+      throw(Exception(String("CQLValueRep::operator<")));
+      break;
+    }
+  return false;
 }
 
 
 Boolean CQLValueRep::operator>(const CQLValueRep& x)
 {
-   if(!_validate(x))
-   {
-      throw(Exception(String("CQLValueRep::operator>")));
-   }  
+   _validate(x);
+  
    if (this->operator<(x) || this->operator==(x))
-   		return false;  
+     {
+       return false;
+     }  
    return true;
 }
 
 
 CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
 {
-   
-   if(!_validate(x))  
-   {
-      throw(Exception(String("CQLValueRep::operator+")));
-   } 
-
-   if(x._valueType == CQLValue::Null_type ||
-      _valueType == CQLValue::Null_type)
-   {
-      return CQLValueRep();
-   }
+   _validate(x); 
 
    switch(_valueType)
-   {
-      case CQLValue::Boolean_type:
-         throw(Exception(String("CQLValueRep::operator+")));
-         break;
-      case CQLValue::Sint64_type:
-         if(x._valueType == CQLValue::Sint64_type)
+     {
+     case CQLValue::Null_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     case CQLValue::Boolean_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     case CQLValue::Sint64_type:
+       if(x._valueType == CQLValue::Sint64_type)
          {
-            return CQLValueRep(_theValue._S64 + x._theValue._S64);        
+	   return CQLValueRep(_theValue._S64 + x._theValue._S64);        
          }
-         else if(x._valueType == CQLValue::Uint64_type)
+       else if(x._valueType == CQLValue::Uint64_type)
          {
-            return CQLValueRep(_theValue._S64 + x._theValue._U64);
+	   return CQLValueRep(_theValue._S64 + x._theValue._U64);
          }
-         else if(x._valueType == CQLValue::Real_type)
+       else if(x._valueType == CQLValue::Real_type)
          {
-            return CQLValueRep(_theValue._S64 + x._theValue._R64);
+	   return CQLValueRep(_theValue._S64 + x._theValue._R64);
          }
-         break;
-      case CQLValue::Uint64_type:
-         if(x._valueType == CQLValue::Sint64_type)
+       break;
+     case CQLValue::Uint64_type:
+       if(x._valueType == CQLValue::Sint64_type)
          {
-            return CQLValueRep(_theValue._U64 + x._theValue._S64);
+	   return CQLValueRep(_theValue._U64 + x._theValue._S64);
          }
-         else if(x._valueType == CQLValue::Uint64_type)
+       else if(x._valueType == CQLValue::Uint64_type)
          {
-            return CQLValueRep(_theValue._U64 + x._theValue._U64);
+	   return CQLValueRep(_theValue._U64 + x._theValue._U64);
          }
-         else if(x._valueType == CQLValue::Real_type)
+       else if(x._valueType == CQLValue::Real_type)
          {
-         	Real64 temp;
-         	memcpy(&temp, &_theValue._U64, sizeof(temp));
-            return CQLValueRep(temp + x._theValue._R64);
+	   Real64 temp;
+	   memcpy(&temp, &_theValue._U64, sizeof(temp));
+	   return CQLValueRep(temp + x._theValue._R64);
          }
-         break;
-      case CQLValue::Real_type:
-         if(x._valueType == CQLValue::Sint64_type)
+       break;
+     case CQLValue::Real_type:
+       if(x._valueType == CQLValue::Sint64_type)
          {
-            return CQLValueRep(_theValue._R64 + x._theValue._S64);
+	   return CQLValueRep(_theValue._R64 + x._theValue._S64);
          }
-         else if(x._valueType == CQLValue::Uint64_type)
+       else if(x._valueType == CQLValue::Uint64_type)
          {
-         	Real64 temp;
-         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
-            return CQLValueRep(_theValue._R64 + temp);
+	   Real64 temp;
+	   memcpy(&temp, &x._theValue._U64, sizeof(temp));
+	   return CQLValueRep(_theValue._R64 + temp);
          }
-         else if(x._valueType == CQLValue::Real_type)
+       else if(x._valueType == CQLValue::Real_type)
          {
-            return CQLValueRep(_theValue._R64 + x._theValue._R64);
+	   return CQLValueRep(_theValue._R64 + x._theValue._R64);
          }
-         break;
-      case CQLValue::String_type:
-         return CQLValueRep(*_theValue._S + *x._theValue._S);
-         break;
-      case CQLValue::CIMDateTime_type:
-         throw(Exception(String("CQLValueRep::operator+")));
-         break;
-      case CQLValue::CIMReference_type:
-         throw(Exception(String("CQLValueRep::operator+")));
-         break;
-      case CQLValue::CIMInstance_type:
-            throw(Exception(String("CQLValueRep::operator+")));
-         break;
-      case CQLValue::CQLIdentifier_type:
-            throw(Exception(String("CQLValueRep::operator+")));
-         break;
-
-      default:
-         throw(Exception(String("CQLValueRep::operator+")));
-         break;
-   }
-
+       break;
+     case CQLValue::String_type:
+       return CQLValueRep(*_theValue._S + *x._theValue._S);
+       break;
+     case CQLValue::CIMDateTime_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     case CQLValue::CIMReference_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     case CQLValue::CIMInstance_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     case CQLValue::CIMClass_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     case CQLValue::CQLIdentifier_type:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+       
+     default:
+       throw(Exception(String("CQLValueRep::operator+")));
+       break;
+     }
+   
    return x;
 }
 
@@ -1182,7 +1197,8 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
    return x;
 }
 */
-//##ModelId=40FC3F6F0302
+
+
 CQLValue::CQLValueType CQLValueRep::getValueType()
 {
    return _valueType;
@@ -1212,31 +1228,35 @@ Boolean CQLValueRep::isNull()
 }
 
 
-Boolean CQLValueRep::isa(const CQLValueRep& inVal, QueryContext& QueryCtx)
+Boolean CQLValueRep::isa(const CQLChainedIdentifier& inID,QueryContext& QueryCtx)
 {
    if(!_isResolved || 
-      !inVal._isResolved ||
-      _valueType != CQLValue::CIMInstance_type ||
-      inVal._valueType != CQLValue::String_type)
-   {
-      throw(Exception(String("CQLValueRep::isa")));
-   }
+      (_valueType != CQLValue::CIMClass_type &&
+       _valueType != CQLValue::CIMInstance_type))
+     {
+       throw(Exception(String("CQLValueRep::isa")));
+     }
    
-   CIMName  className;
-   CIMClass classObj;
+   CIMName className;
 
-   className = this->_theValue._IN->getClassName();
+   if(_valueType == CQLValue::CIMInstance_type)
+     {
+       className = _theValue._IN->getClassName();
+     }
+   if(_valueType == CQLValue::CIMClass_type)
+     {
+       className = _theValue._CL->getClassName();
+     }
 
-   while(!className.isNull())
-   {
-      if(className == CIMName(*inVal._theValue._S))
-      {
-         return true;
-      }
+   Array<CIMName> cimNames = QueryCtx.enumerateClassNames(inID[0].getName());
 
-      classObj = QueryCtx.getClass(className);
-      className = classObj.getSuperClassName();
-   }
+   for(Uint32 i = 0; i < cimNames.size() ; ++i)
+     {
+       if(cimNames[i] == className)
+	 {
+	   return true;
+	 }
+     }
 
    return false;
 }
@@ -1253,7 +1273,7 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    // Poughkepsie is doing this, Dan Gorey.
    return false;
 }
-
+/*
 void CQLValueRep::invert()
 {
    switch(_valueType)
@@ -1271,7 +1291,7 @@ void CQLValueRep::invert()
          break;
    }
 }
-
+*/
 CQLChainedIdentifier CQLValueRep::getChainedIdentifier()const
 {
    return _CQLChainId;
@@ -1347,7 +1367,7 @@ CIMInstance CQLValueRep::getInstance()const
    {
       throw(Exception(String("CQLValueRep::getInstance")));
    }
-   return *_theValue._IN;
+   return _theValue._IN->clone();
 }
 
 CIMClass CQLValueRep::getClass()const
@@ -1357,7 +1377,7 @@ CIMClass CQLValueRep::getClass()const
       throw(Exception(String("CQLValueRep::getClass")));
    }
 
-   return *_theValue._CL;
+   return _theValue._CL->clone();
 }
 
 String CQLValueRep::toString()const
@@ -1416,14 +1436,14 @@ String CQLValueRep::toString()const
 
 
 
-Boolean CQLValueRep::_validate(const CQLValueRep& x)
+void CQLValueRep::_validate(const CQLValueRep& x)
 {
    switch(_valueType)
    {
       case CQLValue::Boolean_type:
          if(x._valueType != CQLValue::Boolean_type)
          {
-            return false;
+             throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
       case CQLValue::Sint64_type:
@@ -1433,75 +1453,45 @@ Boolean CQLValueRep::_validate(const CQLValueRep& x)
             x._valueType != CQLValue::Uint64_type &&
             x._valueType != CQLValue::Real_type)
          {
-            return false;
+            throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
       case CQLValue::String_type:
          if(x._valueType != CQLValue::String_type)
          {
-            return false;
+            throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
       case CQLValue::CIMDateTime_type:
          if(x._valueType != CQLValue::CIMDateTime_type)
          {
-            return false;
+            throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
       case CQLValue::CIMReference_type:
          if(x._valueType != CQLValue::CIMReference_type)
          {
-            return false;
+            throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
       case CQLValue::CIMInstance_type:
          if(x._valueType != CQLValue::CIMInstance_type)
          {
-            return false;
+            throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
       case CQLValue::CQLIdentifier_type:
          if(x._valueType != CQLValue::CQLIdentifier_type)
          {
-            return false;
+            throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
 
       default:
-         throw(Exception(String("CQLValueRep::_validate")));
+         throw TypeMismatchException(String("CQLValueRep::_validate"));
          break;
    }
-   return true;
-}
-
-Boolean CQLValueRep::_areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& QC)
-{
-   CIMName superClass;
-   CIMName prevClass;
-
-   superClass = c1.getClassName();
-   while(!(superClass == prevClass))
-   { 
-      prevClass = superClass;
-      if(superClass == c2.getClassName())
-      {
-         return true;
-      }
-      superClass = c1.getSuperClassName();
-   }
-   prevClass = CIMName();
-   superClass = c2.getClassName();
-   while(!(superClass == prevClass))
-   {
-      prevClass = superClass;
-      if(superClass == c1.getClassName())
-      {
-         return true;
-      }
-      superClass = c2.getSuperClassName();
-   }
-
-   return false;
+   return;
 }
 
 void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
@@ -1774,23 +1764,26 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
                               CQLChainedIdentifier& inCid)
 {
    if(inCid.size() != 0 && _CQLChainId.size() == 1)
-   {
-   
-      _CQLChainId[0].setName(inCid[inCid.size()-1].getName());
-      _CQLChainId[0].applyScope(inCid[inCid.size()-1].getScope());
+     {  
+       // If we get here we have a stand alone Symbolic constant.
+       // We need to take the chain and create a complete context
+       // for the symbolic constant.  We will use the context from
+       // inCid to populate the context for chain.
+        _CQLChainId[0].setName(inCid[inCid.size()-1].getName());
+        _CQLChainId[0].applyScope(inCid[inCid.size()-1].getScope());
       
-      for(Sint32 i = inCid.size()-2; i >= 0; --i)
-      {
-         _CQLChainId.prepend(inCid[i]); 
-      }
-
-      CIMInstance temp;
-      resolve(temp,_ctx);
-   }
+	for(Sint32 i = inCid.size()-2; i >= 0; --i)
+	  {
+	    _CQLChainId.prepend(inCid[i]); 
+	  }
+	
+	CIMInstance temp;
+	resolve(temp,_ctx);
+     }
    else
-   {
-      _CQLChainId.applyContext(_ctx); 
-   }
+     {
+       _CQLChainId.applyContext(_ctx); 
+     }
 }
 
 void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
@@ -1841,74 +1834,78 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
    qualIndex = queryPropObj.findQualifier(CIMName("Values"));
 
    if(qualIndex == PEG_NOT_FOUND)
-   {
-      // This property does not have a Values Qualifier,
-      // therefore the valueMap must be the list of symbolic constants.
-               
-      valueMap.get(valueMapArray);
-
-      // We will loop through the list of Symbolic constants to 
-      // determine if we have a match with the Symbolic constant
-      // defined in the CQLIdentifier.
-      for(Uint32 i = 0; i < valueMapArray.size(); ++i)
-      {
-         if(valueMapArray[i] == 
-              lid.getSymbolicConstantName())
-         {
-            matchFound = true;
-            matchIndex = i;
-            break;
-         }
-      }
-      if(matchFound == false)
-      {
-         // The symbolic constant provided is not valid
-         // for this property.
-         throw(Exception(String("CQLValueRep::_resolveSymbolicConstant")));
-      }
-
-      // The symbolic constant defined in the CQLIdentifier is 
-      // valid for this property. Now we need to set the value.
-      // Set primitive
-      _setValue(CIMValue(lid.getSymbolicConstantName()));
-      return;
-   }
-   else
-   {
-      // The qualifier Values is defined for the property.
-      // valueMap must be a list of #'s.
-               
-      values = queryPropObj.getQualifier(qualIndex).getValue();
-   
-      valueMap.get(valueMapArray);
-      values.get(valuesArray);
-
-      // We will loop through the list of Symbolic constants to 
-      // determine if we have a match with the Symbolic constant
-      // defined in the CQLIdentifier.
-      for(Uint32 i = 0; i < valuesArray.size(); ++i)
-      {
-         if(valuesArray[i] == lid.getSymbolicConstantName())
+     {
+       // This property does not have a Values Qualifier,
+       // therefore the valueMap must be the list of symbolic constants.
+       
+       valueMap.get(valueMapArray);
+       
+       // We will loop through the list of Symbolic constants to 
+       // determine if we have a match with the Symbolic constant
+       // defined in the CQLIdentifier.
+       for(Uint32 i = 0; i < valueMapArray.size(); ++i)
 	 {
-            matchFound = true;
-            matchIndex = i;
-            break;
-         }
-      }
-      if(matchFound == false)
-      {
-         // The symbolic constant provided is not valid
-         // for this property.
-         throw(Exception(String("CQLValueRep::_resolveSymbolicConstant"))); 
-      }
+	   if(String::equalNoCase(valueMapArray[i],lid.getSymbolicConstantName()))
+	     {
+	       matchFound = true;
+	       matchIndex = i;
+	       break;
+	     }
+	 }
+       if(matchFound == false)
+	 {
+	   // The symbolic constant provided is not valid
+	   // for this property.
+	   throw(Exception(String("CQLValueRep::_resolveSymbolicConstant")));
+	 }
+       
+       // The symbolic constant defined in the CQLIdentifier is 
+       // valid for this property. Now we need to set the value.
+       // Set primitive
+       _setValue(CIMValue(lid.getSymbolicConstantName()));
+       return;
+     }
+   else
+     {
+       // The qualifier Values is defined for the property.
+       // valueMap must be a list of #'s.
+       
+       values = queryPropObj.getQualifier(qualIndex).getValue();
+       
+       valueMap.get(valueMapArray);
+       values.get(valuesArray);
+       
+       // We will loop through the list of Symbolic constants to 
+       // determine if we have a match with the Symbolic constant
+       // defined in the CQLIdentifier.
+       for(Uint32 i = 0; i < valuesArray.size(); ++i)
+	 {
+	   if(String::equalNoCase(valuesArray[i],lid.getSymbolicConstantName()))
+	     {
+	       matchFound = true;
+	       matchIndex = i;
+	       break;
+	     }
+	 }
+       if(matchFound == false)
+	 {
+	   // The symbolic constant provided is not valid
+	   // for this property.
+	   throw(Exception(String("CQLValueRep::_resolveSymbolicConstant"))); 
+	 }
+       
+       CString cStr = valueMapArray[matchIndex].getCString();
+       char *endP;
+       
+       // Set Primitive
+       _setValue(CIMValue(Uint64(strtoul((const char*)cStr,&endP,10))));
+       return;
+     }
+}
 
-      CString cStr = valueMapArray[matchIndex].getCString();
-      char *endP;
-
-      // Set Primitive
-      _setValue(CIMValue(Uint64(strtoul((const char*)cStr,&endP,10))));
-      return;
-   }
+Boolean CQLValueRep::_compareInstance(CIMInstance& _in1, CIMInstance& _in2)
+{
+  return true;
 }
 
 PEGASUS_NAMESPACE_END

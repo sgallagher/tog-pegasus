@@ -46,42 +46,13 @@
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
 
-    
-/** The CQLValueRep class encapulates a value
-     that is a CQL value.  The possible CQLValue
-     types are the following:
-
-         Sint64
-         Uint64
-         String
-         CIMDateTime
-         CIMReference
-         CQLIdentifier
-
-
-     This class can resolve an identifier to a primitive 
-     value such as Sint64, Uint64 or String, CIMDateTime,
-     and CIMReference.  
-
-    This class overloads and performs type checking
-     on the following operators:
-         <, >, =, >=. <=. <>
-
-    This class overloads, performs type checking and
-     uint64 handling on the following operators:
-           +. -. *, /
-
-    NOTE:  the CQLValue class assumes a symbolic constant
-                is fully qualified.
-
-  */
-
 class PEGASUS_CQL_LINKAGE CQLValueRep
 {
   public:
 
     CQLValueRep();
     ~CQLValueRep();
+    CQLValueRep(const CQLValueRep& val);
     CQLValueRep(const CQLValueRep* val);
     CQLValueRep(const String & inString, CQLValue::NumericType inValueType,
         Boolean inSign = true);
@@ -265,7 +236,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
     /** Tests to see if this "isa" the input string.
     */
 
-    Boolean isa(const CQLValueRep& inVal, QueryContext& QueryCtx);
+    Boolean isa(const CQLChainedIdentifier& inID, QueryContext& QueryCtx);
 
     /** Tests to see if this "like" the input string.
           Both sides of the LIKE comparison must have a String type:
@@ -281,8 +252,9 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
     */
 
     Boolean like(const CQLValueRep& inVal);
-   
+    /*
    void invert();
+    */
    CQLChainedIdentifier getChainedIdentifier()const;
    Uint64 getUint()const;
    Sint64 getSint()const;
@@ -300,9 +272,11 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    friend class CQLValue;
   private:
    Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& in);
-   Boolean _validate(const CQLValueRep& x);
-   void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx);
+   void _validate(const CQLValueRep& x);
+   void _resolveSymbolicConstant(const QueryContext& inQueryCtx);
    void _setValue(CIMValue cv, Uint64 Index = 0);
+   void _process_value(CIMProperty& propObj,CQLIdentifier& _id,const QueryContext& inQueryContext);
+   Boolean _compareInstance(CIMInstance& _in1, CIMInstance& _in2);
 
    union TheValue
     {
@@ -321,8 +295,6 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
     CQLChainedIdentifier _CQLChainId;
 
     Boolean _isResolved;
-
-    CQLValue::NumericType Num_Type;
 
     CQLValue::CQLValueType _valueType;
 

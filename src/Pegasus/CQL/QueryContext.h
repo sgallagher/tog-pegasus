@@ -79,20 +79,20 @@ class PEGASUS_CQL_LINKAGE QueryContext
 	
 	String getFromString() const;
 
-        virtual CIMClass getClass(const CIMName& inClassName) = 0;
+        virtual CIMClass getClass(const CIMName& inClassName)const = 0;
 
-	virtual Array<CIMName> enumerateClassNames(const CIMName& inClassName) = 0;
+	virtual Array<CIMName> enumerateClassNames(const CIMName& inClassName)const = 0;
 
         // Returns true if the derived class is a subclass of the base class.
         // Note: this will return false if the classes are the same.
         // Note: the default namespace of the query is used.
         virtual Boolean isSubClass(const CIMName& baseClass,
-                                   const CIMName& derivedClass) = 0;
+                                   const CIMName& derivedClass)const = 0;
 
         // Returns the relationship between the anchor class and the related
         // class in the class schema of the query's default name space.
         virtual ClassRelation getClassRelation(const CIMName& anchorClass,
-                                               const CIMName& relatedClass) = 0;
+                                               const CIMName& relatedClass)const = 0;
 
         void clear();
 

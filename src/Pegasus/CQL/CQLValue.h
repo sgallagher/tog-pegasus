@@ -273,7 +273,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
     /** Tests to see if this "isa" the input string.
     */
 
-    Boolean isa(const CQLValue& inVal, QueryContext& QueryCtx);
+    Boolean isa(const CQLChainedIdentifier& cid, QueryContext& QueryCtx);
 
     /** Tests to see if this "like" the input string.
           Both sides of the LIKE comparison must have a String type:
@@ -289,8 +289,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
     */
 
     Boolean like(const CQLValue& inVal);
-   
+    /*
    void invert();
+    */
    CQLChainedIdentifier getChainedIdentifier()const;
    Uint64 getUint()const;
    Sint64 getSint()const;

@@ -226,9 +226,9 @@ Boolean CQLValue::isNull()
 }
 
 
-Boolean CQLValue::isa(const CQLValue& inVal, QueryContext& QueryCtx)
+Boolean CQLValue::isa(const CQLChainedIdentifier& cid, QueryContext& QueryCtx)
 {
-   return _rep->isa(inVal._rep, QueryCtx);
+   return _rep->isa(cid, QueryCtx);
 }
 
 
@@ -237,10 +237,12 @@ Boolean CQLValue::like(const CQLValue& inVal)
    return _rep->like(inVal._rep);   
 }
 
+/*
 void CQLValue::invert()
 {
    _rep->invert();
 }
+*/
 
 CQLChainedIdentifier CQLValue::getChainedIdentifier()const
 {

@@ -64,7 +64,7 @@ CIMOMHandleQueryContext& CIMOMHandleQueryContext::operator=(const CIMOMHandleQue
   return *this;
 }
 
-CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)
+CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)const
 {
   /* Hardcoded defaults */
   Boolean localOnly = false;
@@ -84,18 +84,19 @@ CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)
   return _class;
 }
 
-Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(const CIMName& inClassName)
+Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(const CIMName& inClassName)const
 {
+  CIMOMHandle tmp = _CH;
   // ATTN - constructing OperationContext from scratch may be a problem
   // once security is added to that object
-  return _CH.enumerateClassNames(OperationContext(),
+  return tmp.enumerateClassNames(OperationContext(),
 				  getNamespace(),
 				  inClassName,
 				  true);          // deepInheritance
 }
 
 Boolean CIMOMHandleQueryContext::isSubClass(const CIMName& baseClass,
-                                            const CIMName& derivedClass)
+                                            const CIMName& derivedClass)const
 {
   if (baseClass == derivedClass)
   {
@@ -115,7 +116,7 @@ Boolean CIMOMHandleQueryContext::isSubClass(const CIMName& baseClass,
 }
 
 QueryContext::ClassRelation CIMOMHandleQueryContext::getClassRelation(const CIMName& anchorClass,
-                                                                      const CIMName& relatedClass)
+                                                                      const CIMName& relatedClass)const
 {
   if (anchorClass == relatedClass)
   {

@@ -58,20 +58,20 @@ class PEGASUS_CQL_LINKAGE RepositoryQueryContext: public QueryContext
 
 	QueryContext* clone();
 
-        CIMClass getClass (const CIMName& inClassName);
+        CIMClass getClass (const CIMName& inClassName)const;
 
-	Array<CIMName> enumerateClassNames(const CIMName& inClassName);
+	Array<CIMName> enumerateClassNames(const CIMName& inClassName)const;
 
         // Returns true if the derived class is a subclass of the base class.
         // Note: this will return false if the classes are the same.
         // Note: the default namespace of the query is used.
         Boolean isSubClass(const CIMName& baseClass,
-                           const CIMName& derivedClass);
+                           const CIMName& derivedClass)const;
 
         // Returns the relationship between the anchor class and the related
         // class in the class schema of the query's default name space.
         ClassRelation getClassRelation(const CIMName& anchorClass,
-                                       const CIMName& relatedClass);
+                                       const CIMName& relatedClass)const;
         
    private: 
 	RepositoryQueryContext();

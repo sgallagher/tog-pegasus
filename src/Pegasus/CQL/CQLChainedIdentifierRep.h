@@ -101,7 +101,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep
 
     Boolean prepend(const CQLIdentifier & id);
 
-    CQLIdentifier& operator[](Uint32 index);
+    CQLIdentifier operator[](Uint32 index)const;
 
     CQLChainedIdentifierRep& operator=(const CQLChainedIdentifierRep& rhs);
 

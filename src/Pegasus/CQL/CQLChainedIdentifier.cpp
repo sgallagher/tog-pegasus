@@ -83,7 +83,8 @@ Boolean CQLChainedIdentifier::isSubChain(const CQLChainedIdentifier & chain)cons
 	return _rep->isSubChain(chain);
 }
 
-CQLIdentifier& CQLChainedIdentifier::operator[](Uint32 index){
+CQLIdentifier CQLChainedIdentifier::operator[](Uint32 index)const
+{
 	return _rep->operator[](index);
 }
 

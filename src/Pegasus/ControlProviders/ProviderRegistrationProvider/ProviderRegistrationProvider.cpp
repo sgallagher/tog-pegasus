@@ -43,107 +43,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-   The name of the operational status property
-*/
-static const CIMName _PROPERTY_OPERATIONALSTATUS  = 
-    CIMName ("OperationalStatus");
-
-/**
-   The name of the name property for PG_Provider class
-*/
-static const CIMName _PROPERTY_PROVIDER_NAME  = CIMName ("Name");
-
-/**
-   The name of the Name property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_PROVIDERMODULE_NAME  = CIMName ("Name");
-
-/**
-   The name of the Vendor property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_VENDOR  = CIMName ("Vendor");
-
-/**
-   The name of the Version property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_VERSION  = CIMName ("Version");
-
-/**
-   The name of the interface type property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_INTERFACETYPE  = CIMName ("InterfaceType");
-
-/**
-   The name of the interface version property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_INTERFACEVERSION  = CIMName ("InterfaceVersion");
-
-/**
-   The name of the location property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_LOCATION  = CIMName ("Location");
-
-/**
    The name of the CapabilityID property for provider capabilities class
 */
 static const CIMName _PROPERTY_CAPABILITYID  = CIMName ("CapabilityID");
 
 /**
-   The name of the provider module name  property for provider capabilities class
+   Module status
 */
-static const CIMName _PROPERTY_PROVIDERMODULENAME  = 
-    CIMName ("ProviderModuleName");
-
-/**
-   The name of the provider name  property for provider capabilities class
-*/
-static const CIMName _PROPERTY_PROVIDERNAME  = CIMName ("ProviderName");
-
-/**
-   The name of the classname property for provider capabilities class
-*/
-static const CIMName _PROPERTY_CLASSNAME  = CIMName ("ClassName");
-
-/**
-   The name of the Namespace property for provider capabilities class
-*/
-static const CIMName _PROPERTY_NAMESPACES  = CIMName ("Namespaces");
-
-/**
-   The name of the provider type  property for provider capabilities class
-*/
-static const CIMName _PROPERTY_PROVIDERTYPE  = CIMName ("ProviderType");
-
-/**
-   The name of the supported properties property for provider capabilities class
-*/
-static const CIMName _PROPERTY_SUPPORTEDPROPERTIES  = 
-    CIMName ("SupportedProperties");
-
-/**
-   The name of the supported methods property for provider capabilities class
-*/
-static const CIMName _PROPERTY_SUPPORTEDMETHODS  = CIMName ("SupportedMethods");
-
-/**
-   Registered instance provider type
-*/
-static const Uint16 _INSTANCE_PROVIDER    = 2;
-
-/**
-   Registered association provider type
-*/
-static const Uint16 _ASSOCIATION_PROVIDER    = 3;
-
-/**
-   Registered indication provider type
-*/
-static const Uint16 _INDICATION_PROVIDER    = 4;
-
-/**
-   Registered method provider type
-*/
-static const Uint16 _METHOD_PROVIDER    = 5;
+static const Uint16 _MODULE_OK        = 2;
 
 /**
    stopping provider method
@@ -158,8 +65,6 @@ static const CIMName _START_PROVIDER   = CIMName ("Start");
 /**
    Provider status
 */
-static const Uint16 _MODULE_OK        = 2;
-
 static const Uint16 _MODULE_STOPPING   = 9;
 
 static const Uint16 _MODULE_STOPPED   = 10;

@@ -21,26 +21,6 @@ pam-devel >= 0.75
 openssl >= 0.9.7d
 nALFS >= v020310
 
-
-Jun 30 2004 NEWS:
------
-
- Due to a CVS problem, there is a directory in the source
- that must be deleted manually:
-
-  src/Pegasus/Config/install
-
- Use the rm command to delete, as so:
-
-  $rm -Rf src/Pegasus/Config/install
-
- If you don't delete this directory, the RPM you build will
- not install:
-
- error: Failed dependencies:
-        libpegconfig.so.1 is needed by lsb-pegasus-2.4-1
-
-
 Build
 -----------
 
@@ -52,7 +32,7 @@ Build
 
  1). Without environment variables
   
-     First time run the ./Configure script to set the proper
+     First time run the ./Configure to set the proper
   paths and platform information. In most cases the script
   will automatically determine the correct paths and configuration.
 

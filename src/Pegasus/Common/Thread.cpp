@@ -33,6 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Thread.h"
+#include <exception>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
 
@@ -640,6 +641,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
             PEG_METHOD_EXIT();
             return((PEGASUS_THREAD_RETURN)0);
          }
+#if !defined(PEGASUS_OS_LSB)
+         catch (exception& e)
+         {
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+               String("Exception from _work in ThreadPool::_loop: ") +
+                  e.what());
+            PEG_METHOD_EXIT();
+            return((PEGASUS_THREAD_RETURN)0);
+         }
+#endif
          catch(...)
          {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,

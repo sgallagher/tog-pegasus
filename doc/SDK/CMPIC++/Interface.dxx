@@ -1,0 +1,25 @@
+  //@{
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiArgs.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiArray.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiAssociationMI.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiBaseMI.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiBooleanData.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiBroker.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiCharData.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiContext.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiData.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiDateTime.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiEnumeration.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiIndicationMI.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiInstance.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiInstanceMI.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiMethodMI.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiObject.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiObjectPath.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiPropertyMI.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiProviderBase.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiResult.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiSelectExp.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiStatus.h
+    //@Include: ../../../src/Pegasus/Provider/CMPI/CmpiString.h
+  //@}

@@ -148,9 +148,9 @@ void test01()
 
 	class2
         .addQualifier(CIMQualifier("Abstract", Boolean(true)))
-		.addQualifier(CIMQualifier("q1", "Hello"))
-		.addQualifier(CIMQualifier("q4", "Goodby"))
-		.addQualifier(CIMQualifier("q5", "Hello"))
+		.addQualifier(CIMQualifier("q1", String("Hello")))
+		.addQualifier(CIMQualifier("q4", String("Goodbye")))
+		.addQualifier(CIMQualifier("q5", String("Hello")))
 		.addProperty(CIMProperty(keyProperty))
 	;
     
@@ -163,9 +163,9 @@ void test01()
 
     class1
         .addQualifier(CIMQualifier("Abstract", Boolean(true)))
-        .addQualifier(CIMQualifier("q1", "Hello"))
+        .addQualifier(CIMQualifier("q1", String("Hello")))
 		.addQualifier(CIMQualifier("q3", Uint32(55)))
-		.addQualifier(CIMQualifier("q5", "Goodby"))
+		.addQualifier(CIMQualifier("q5", String("Goodbye")))
 
 	// .addProperty(CIMProperty(keyProperty))
 	.addProperty(CIMProperty("count", Uint32(77)))
@@ -345,10 +345,10 @@ void test02()
 	superClass
 		// This qualifier should not propagate.
 		.addQualifier(CIMQualifier("Abstract", Boolean(true)))
-		.addQualifier(CIMQualifier("q1", "BonJour"))
+		.addQualifier(CIMQualifier("q1", String("BonJour")))
 		.addQualifier(CIMQualifier("notToSubclass", true))
-		.addQualifier(CIMQualifier("toSubclass", "default"))
-		.addQualifier(CIMQualifier("toSubclassOverriddable", "superClass"))
+		.addQualifier(CIMQualifier("toSubclass", String("default")))
+		.addQualifier(CIMQualifier("toSubclassOverriddable", String("superClass")))
 		.addQualifier(CIMQualifier("associat", Boolean(true)))
 
 		.addProperty(CIMProperty(keyProperty))
@@ -378,9 +378,9 @@ void test02()
 		.addQualifier(CIMQualifier("toSubclass", String("default")));
 
     subClass
-		.addQualifier(CIMQualifier("q1", "Hello"))
+		.addQualifier(CIMQualifier("q1", String("Hello")))
 		.addQualifier(CIMQualifier("q3", Uint32(99)))
-		.addQualifier(CIMQualifier("toSubclassOverriddable", "subClass"))
+		.addQualifier(CIMQualifier("toSubclassOverriddable", String("subClass")))
 
 		// the key property should be propogated so do not put in subclass.
 		.addProperty(CIMProperty("message", String("Goodbye")))
@@ -683,7 +683,7 @@ void test04()
 
     class1
         .addQualifier(CIMQualifier("Abstract", Boolean(true)))
-        .addQualifier(CIMQualifier("q1", "Hello"))
+        .addQualifier(CIMQualifier("q1", String("Hello")))
 		.addQualifier(CIMQualifier("q3", Uint32(55)))
 
 	.addProperty(CIMProperty("message", String("Hello")))
@@ -930,7 +930,7 @@ void test07()
 {
 	if (verbose ) cout << "ATTN In process" << endl;
 	if(verbose)
-		cout << "Test07- Cannot put non0verridable qualifiers in subclass" 
+		cout << "Test07- Cannot put nonoverridable qualifiers in subclass" 
 		<< endl;	
 
 }

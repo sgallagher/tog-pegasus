@@ -44,18 +44,18 @@ int main(int argc, char** argv)
       //Indication
       CIMClass cimClass = client.getClass(NAMESPACE, "TestSoftwarePkg", false);
       CIMInstance cimInstance("TestSoftwarePkg");
-      cimInstance.addProperty(CIMProperty("PkgName", "WBEM"));
+      cimInstance.addProperty(CIMProperty("PkgName", String("WBEM")));
       cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
-      cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
-      cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
+      cimInstance.addProperty(CIMProperty("trapOid", String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
+      cimInstance.addProperty(CIMProperty("computerName", String("NU744781")));
       CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
       instanceName.setNameSpace(NAMESPACE);
       client.createInstance(NAMESPACE, cimInstance);
       
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
-	inParams.append(CIMParamValue("param1", CIMValue("Hewlett-Packard")));
-	inParams.append(CIMParamValue("param2", CIMValue("California")));
+	inParams.append(CIMParamValue("param1", CIMValue(String("Hewlett-Packard"))));
+	inParams.append(CIMParamValue("param2", CIMValue(String("California"))));
 	
 	CIMValue retValue = client.invokeMethod(
 	    NAMESPACE, 

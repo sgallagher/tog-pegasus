@@ -74,10 +74,10 @@ void test01()
     class1
 	.addProperty(CIMProperty("count", Uint32(55))
 	    .addQualifier(CIMQualifier("counter", true))
-	    .addQualifier(CIMQualifier("min", "0"))
-	    .addQualifier(CIMQualifier("max", "1")))
-	.addProperty(CIMProperty("message", "Hello")
-	    .addQualifier(CIMQualifier("description", "My Message")))
+	    .addQualifier(CIMQualifier("min", String("0")))
+	    .addQualifier(CIMQualifier("max", String("1"))))
+	.addProperty(CIMProperty("message", String("Hello"))
+	    .addQualifier(CIMQualifier("description", String("My Message"))))
 	.addProperty(CIMProperty("ratio", Real32(1.5)));
 
 
@@ -104,7 +104,7 @@ void test01()
     CIMInstance instance1("MyClass");
     instance1.addQualifier(CIMQualifier("classcounter", true));
 
-    instance1.addProperty(CIMProperty("message", "Goodbye"));
+    instance1.addProperty(CIMProperty("message", String("Goodbye")));
 
     assert(instance1.findProperty("message") != PEG_NOT_FOUND);
     assert(instance1.existsProperty("message"));
@@ -220,8 +220,8 @@ void test02()
 	    .addQualifier(CIMQualifier("key", true)));
 
     CIMInstance cimInstance("MyClass");
-    cimInstance.addProperty(CIMProperty("first", "John"));
-    cimInstance.addProperty(CIMProperty("last", "Smith"));
+    cimInstance.addProperty(CIMProperty("first", String("John")));
+    cimInstance.addProperty(CIMProperty("last", String("Smith")));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
 
 

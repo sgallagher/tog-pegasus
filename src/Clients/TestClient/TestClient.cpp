@@ -423,7 +423,7 @@ static void TestQualifierOperations(CIMClient& client, Boolean activeTest,
 		 CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
 		 client.setQualifier(globalNamespace, qd1);
 
-		 CIMQualifierDecl qd2("qd2", "Hello", CIMScope::PROPERTY | CIMScope::CLASS,
+		 CIMQualifierDecl qd2("qd2", String("Hello"), CIMScope::PROPERTY | CIMScope::CLASS,
 		     CIMFlavor::OVERRIDABLE);
 		 client.setQualifier(globalNamespace, qd2);
 
@@ -571,10 +571,10 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     cout << "Create one Instance of class " << className << endl;
 
     CIMInstance cimInstance(className);
-    cimInstance.addProperty(CIMProperty("last", "Smith"));
-    cimInstance.addProperty(CIMProperty("first", "John"));
+    cimInstance.addProperty(CIMProperty("last", String("Smith")));
+    cimInstance.addProperty(CIMProperty("first", String("John")));
     cimInstance.addProperty(CIMProperty("age", Uint32(1010)));
-    cimInstance.addProperty(CIMProperty("nick", "Duke"));
+    cimInstance.addProperty(CIMProperty("nick", String("Duke")));
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
     client.createInstance(globalNamespace, cimInstance);
 
@@ -618,7 +618,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
       client.getInstance(globalNamespace, instanceName);
     Uint32 propertyPos = testInstance.findProperty( TESTPROPVALNAME );
     testInstance.removeProperty( propertyPos );
-    CIMProperty nickProperty = CIMProperty( TESTPROPVALNAME, "Duke" );
+    CIMProperty nickProperty = CIMProperty( TESTPROPVALNAME, String("Duke") );
     nickProperty.setClassOrigin( className );
     testInstance.addProperty( nickProperty );
     testInstance.setPath (instanceName);
@@ -639,8 +639,8 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     for (Uint32 i = 0; i < repeatCount; i++)
     {
         CIMInstance cimInstance(className);
-        cimInstance.addProperty(CIMProperty("last", "Smith"));
-        cimInstance.addProperty(CIMProperty("first", "John"));
+        cimInstance.addProperty(CIMProperty("last", String("Smith")));
+        cimInstance.addProperty(CIMProperty("first", String("John")));
         cimInstance.addProperty(CIMProperty("age", Uint32(i)));
         instanceNames.append( cimInstance.getInstanceName(cimClass) );
         client.createInstance(globalNamespace, cimInstance);
@@ -679,10 +679,10 @@ static void TestMethodOperations( CIMClient& client, Boolean
     //Indication to be created
     CIMClass cimClass = client.getClass(globalNamespace, "TestSoftwarePkg", false);
     CIMInstance cimInstance("TestSoftwarePkg");
-    cimInstance.addProperty(CIMProperty("PkgName", "WBEM"));
+    cimInstance.addProperty(CIMProperty("PkgName", String("WBEM")));
     cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
-    cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
-    cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
+    cimInstance.addProperty(CIMProperty("trapOid", String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
+    cimInstance.addProperty(CIMProperty("computerName", String("NU744781")));
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
     instanceName.setNameSpace(globalNamespace);
     client.createInstance(globalNamespace, cimInstance);
@@ -691,8 +691,8 @@ static void TestMethodOperations( CIMClient& client, Boolean
     {
     	Array<CIMParamValue> inParams;
     	Array<CIMParamValue> outParams;
-    	inParams.append(CIMParamValue("param1", CIMValue("Hewlett-Packard")));
-    	inParams.append(CIMParamValue("param2", CIMValue("California")));
+    	inParams.append(CIMParamValue("param1", CIMValue(String("Hewlett-Packard"))));
+    	inParams.append(CIMParamValue("param2", CIMValue(String("California"))));
             Uint32 testRepeat = 100;
             
     	for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time

@@ -75,7 +75,7 @@ void test01()
 
     // Test qualifiers
     oinstance1.addQualifier(CIMQualifier("Key", true));
-    oinstance1.addQualifier(CIMQualifier("Description", "Just a Test"));
+    oinstance1.addQualifier(CIMQualifier("Description", String("Just a Test")));
     oinstance1.addQualifier(CIMQualifier("q1", true));
     oinstance1.addQualifier(CIMQualifier("q2", true));
 
@@ -116,7 +116,7 @@ void test01()
     assert(oinstance1.existsQualifier("q2"));
 
     // Test properties
-    oinstance1.addProperty(CIMProperty("message", "Hello There"));
+    oinstance1.addProperty(CIMProperty("message", String("Hello There")));
     oinstance1.addProperty(CIMProperty("count", Uint32(77)));
 
     assert(oinstance1.findProperty("count") != PEG_NOT_FOUND);
@@ -177,8 +177,8 @@ void test02()
     CIMObject obj2 = instance;
 
     obj2.addQualifier(CIMQualifier("Key", true));
-    obj2.addQualifier(CIMQualifier("Description", "Just a Test"));
-    obj2.addProperty(CIMProperty("message", "Hello There"));
+    obj2.addQualifier(CIMQualifier("Description", String("Just a Test")));
+    obj2.addProperty(CIMProperty("message", String("Hello There")));
     obj2.addProperty(CIMProperty("count", Uint32(77)));
 
     CIMConstInstance cinstance("MyClass");
@@ -339,7 +339,7 @@ void test04()
     //  Test CIMInstance
     //
     CIMInstance instance1 ("MyClass");
-    instance1.addProperty (CIMProperty ("message", "Hello There"));
+    instance1.addProperty (CIMProperty ("message", String("Hello There")));
     instance1.addProperty (CIMProperty ("count", Uint32 (77)));
     CIMObjectPath path = instance1.getInstanceName (class1);
     CIMObjectPath path2 = instance1.getPath ();
@@ -360,7 +360,7 @@ void test04()
     //  Test instance CIMObject
     //
     CIMInstance instance2 ("MyClass");
-    instance2.addProperty (CIMProperty ("message", "Good-bye..."));
+    instance2.addProperty (CIMProperty ("message", String("Good-bye...")));
     instance2.addProperty (CIMProperty ("count", Uint32 (88)));
     CIMObject oinstance1 = instance2;
     CIMObjectPath opath = instance2.getInstanceName (class1);

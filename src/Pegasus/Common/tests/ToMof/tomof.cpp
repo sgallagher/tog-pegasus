@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 
     // Test Properties
     {
-    CIMProperty p1("message", "Hi There");
+    CIMProperty p1("message", String("Hi There"));
     Array<Sint8> tmp;
     MofWriter::appendPropertyElement(tmp, p1);
     tmp.append('\0');
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
         cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
     }
     {
-    CIMProperty p2("message","test");
+    CIMProperty p2("message", String("test"));
     Array<Sint8> tmp;
     MofWriter::appendPropertyElement(tmp, p2);
     tmp.append('\0');
@@ -127,8 +127,8 @@ int main(int argc, char** argv)
 
 	class1
 	    .addQualifier(CIMQualifier("q1", Uint32(55)))
-	    .addQualifier(CIMQualifier("q2", "Hello"))
-	    .addProperty(CIMProperty("message", "Hello"))
+	    .addQualifier(CIMQualifier("q2", String("Hello")))
+	    .addProperty(CIMProperty("message", String("Hello")))
 	    .addProperty(CIMProperty("count", Uint32(77)))
 	    .addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
 		.addParameter(CIMParameter("hostname", CIMType::STRING))
@@ -154,8 +154,8 @@ int main(int argc, char** argv)
 	class1
 	    .addQualifier(CIMQualifier("association", true))
 	    .addQualifier(CIMQualifier("q1", Uint32(55)))
-	    .addQualifier(CIMQualifier("q2", "Hello"))
-	    .addProperty(CIMProperty("message", "Hello"))
+	    .addQualifier(CIMQualifier("q2", String("Hello")))
+	    .addProperty(CIMProperty("message", String("Hello")))
 	    .addProperty(CIMProperty("count", Uint32(77)))
 	    .addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
 		.addParameter(CIMParameter("hostname", CIMType::STRING))
@@ -199,14 +199,14 @@ int main(int argc, char** argv)
 				       
 				       ))
 
-	    .addProperty(CIMProperty("DriveLetter","")
+	    .addProperty(CIMProperty("DriveLetter", String(""))
 		.addQualifier(CIMQualifier("read", true)))
 
 	    .addProperty(CIMProperty("RawCapacity",Sint32(99))
 		.addQualifier(CIMQualifier("read", true))
-		.addQualifier(CIMQualifier("Units", "KiloBytes")))
+		.addQualifier(CIMQualifier("Units", String("KiloBytes"))))
 
-	    .addProperty(CIMProperty("VolumeLabel", " "))
+	    .addProperty(CIMProperty("VolumeLabel", String(" ")))
 	
     	    .addMethod(CIMMethod("NoParmsMethod", CIMType::BOOLEAN))
 	    

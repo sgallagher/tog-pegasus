@@ -43,11 +43,11 @@ void test01()
 
     assert(pnull.isNull());
 
-    CIMProperty p1("message", "Hi There");
+    CIMProperty p1("message", String("Hi There"));
     p1.addQualifier(CIMQualifier("Key", true));
     p1.addQualifier(CIMQualifier("stuff", true));
     p1.addQualifier(CIMQualifier("stuff2", true));
-    p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
+    p1.addQualifier(CIMQualifier("Description", String("Blah Blah")));
     CIMConstProperty p2 = p1;
 
     // Test clone
@@ -128,7 +128,7 @@ void test01()
 
     // Tests for value insertion.
     {
-           CIMProperty p1("p1", "Hi There");
+           CIMProperty p1("p1", String("Hi There"));
            // test for CIMValue and type
            CIMProperty p2("p2", Uint32(999));
            // test for CIMValue and type
@@ -149,11 +149,11 @@ void test01()
 void test02()
 {
     // Tests for CIMConstProperty methods
-        CIMProperty p1("message", "Hi There");
+        CIMProperty p1("message", String("Hi There"));
         p1.addQualifier(CIMQualifier("Key", true));
         p1.addQualifier(CIMQualifier("stuff", true));
         p1.addQualifier(CIMQualifier("stuff2", true));
-        p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
+        p1.addQualifier(CIMQualifier("Description", String("Blah Blah")));
         CIMConstProperty p2 = p1;
 
         CIMConstProperty cp1 = p1;

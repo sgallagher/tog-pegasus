@@ -54,12 +54,12 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty("Name", "providersModule1"));
-    cimInstance.addProperty(CIMProperty("Vendor", "HP"));
-    cimInstance.addProperty(CIMProperty("Version", "2.0"));
-    cimInstance.addProperty(CIMProperty("InterfaceType", "PG_DefaultC++"));
-    cimInstance.addProperty(CIMProperty("InterfaceVersion", "2.0"));
-    cimInstance.addProperty(CIMProperty("Location", "/tmp/module1"));
+    cimInstance.addProperty(CIMProperty("Name", String("providersModule1")));
+    cimInstance.addProperty(CIMProperty("Vendor", String("HP")));
+    cimInstance.addProperty(CIMProperty("Version", String("2.0")));
+    cimInstance.addProperty(CIMProperty("InterfaceType", String("PG_DefaultC++")));
+    cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
+    cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
@@ -83,8 +83,8 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance2.addProperty(CIMProperty("Name", "PG_ProviderInstance1"));
+    cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
+    cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
 
@@ -106,8 +106,8 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance4(CLASSNAME2);
 
-    cimInstance4.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance4.addProperty(CIMProperty("Name", "PG_ProviderInstance2"));
+    cimInstance4.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
+    cimInstance4.addProperty(CIMProperty("Name", String("PG_ProviderInstance2")));
 
     CIMObjectPath instanceName4 = cimInstance4.getInstanceName(cimClass4);
 
@@ -152,10 +152,10 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance3.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance1"));
-    cimInstance3.addProperty(CIMProperty("CapabilityID", "capability1"));
-    cimInstance3.addProperty(CIMProperty("ClassName", "test_class1"));
+    cimInstance3.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty("CapabilityID", String("capability1")));
+    cimInstance3.addProperty(CIMProperty("ClassName", String("test_class1")));
     cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
@@ -189,10 +189,10 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance5(CLASSNAME3);
 
-    cimInstance5.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance5.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance2"));
-    cimInstance5.addProperty(CIMProperty("CapabilityID", "capability2"));
-    cimInstance5.addProperty(CIMProperty("ClassName", "test_class1"));
+    cimInstance5.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
+    cimInstance5.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance2")));
+    cimInstance5.addProperty(CIMProperty("CapabilityID", String("capability2")));
+    cimInstance5.addProperty(CIMProperty("ClassName", String("test_class1")));
     cimInstance5.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance5.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance5.addProperty(CIMProperty("SupportedProperties", supportedProperties2));

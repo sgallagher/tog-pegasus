@@ -82,7 +82,7 @@ void MethodProvider::invokeMethod(
 			  outString +=  ", " + replyName + "!";
 			}
 		      outParameters.append( CIMParamValue( "Place", CIMValue( 
-						     "From Neverland" ) ) );
+					     String("From Neverland") ) ) );
 		      handler.deliver( CIMValue( outString ) );
 		     
 		    }

@@ -62,7 +62,7 @@ void test01()
 	CIMProperty("key", Uint32(0))
 	    .addQualifier(CIMQualifier("key", true)))
 	.addProperty(CIMProperty("ratio", Real32(1.5)))
-	.addProperty(CIMProperty("message", "Hello World"));
+	.addProperty(CIMProperty("message", String("Hello World")));
 
     r.createClass(NAMESPACE, c);
 
@@ -126,10 +126,10 @@ void test02()
     //--------------------------------------------------------------------------
 
     CIMInstance subClassInstance(SUBCLASS);
-    subClassInstance.addProperty(CIMProperty("Last", "Smith"));
-    subClassInstance.addProperty(CIMProperty("First", "John"));
+    subClassInstance.addProperty(CIMProperty("Last", String("Smith")));
+    subClassInstance.addProperty(CIMProperty("First", String("John")));
     subClassInstance.addProperty(CIMProperty("Age", Uint8(101)));
-    subClassInstance.addProperty(CIMProperty("Role", "Taylor"));
+    subClassInstance.addProperty(CIMProperty("Role", String("Taylor")));
     r.createInstance(NAMESPACE, subClassInstance);
 
     //--------------------------------------------------------------------------

@@ -943,7 +943,7 @@ CIMValue XmlReader::stringToValue(
 
 	case CIMType::STRING:
 	{
-	    return CIMValue(valueString);
+	    return CIMValue(String(valueString));
 	}
 
 	case CIMType::CHAR16:

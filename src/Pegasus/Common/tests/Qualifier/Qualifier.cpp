@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 
     try
     {
-	CIMQualifier q1("Description", "Hello", CIMFlavor::TOINSTANCE);
+	CIMQualifier q1("Description", String("Hello"), CIMFlavor::TOINSTANCE);
 	// This one sets the defaults overridable and tosubclass
 	CIMQualifier q2("Abstract", true);
 	CIMConstQualifier q3 = q1;
@@ -129,9 +129,9 @@ int main(int argc, char** argv)
 	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
 	assert(!q2.isFlavor(CIMFlavor::TOINSTANCE));
 
-	CIMQualifier qual1("qual1", "This is a test");
+	CIMQualifier qual1("qual1", String("This is a test"));
 
-	CIMQualifier qual3("qual3", "This is a test");
+	CIMQualifier qual3("qual3", String("This is a test"));
 	assert(!qual1.identical(qual3));
 
 	if (verbose)

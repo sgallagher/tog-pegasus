@@ -108,9 +108,6 @@ public:
     CIMValue(const String& x);
 
     /// Constructor
-    CIMValue(const char* x);
-
-    /// Constructor
     CIMValue(const CIMDateTime& x);
 
     /// Constructor
@@ -179,7 +176,7 @@ public:
     */
     void clear();
 
-    /** typeCompatible - Compares the types of two CIMvalues. This
+    /** typeCompatible - Compares the types of two CIMValues. This
         compares the type field and the array indicators.
         @return true if both are of the same type and both are either arrays
         or not. Else returns false.
@@ -271,8 +268,6 @@ public:
     void set(const Char16& x);
     ///
     void set(const String& x);
-    ///
-    void set(const char* x);
     ///
     void set(const CIMDateTime& x);
     ///
@@ -377,8 +372,11 @@ public:
     ///
     void get(Array<CIMObjectPath>& x) const; 
 
-    /** Makes a deep copy (clone) of the given object. */
-    CIMValue clone() const;
+    /** Compare with another CIMValue object for equality.
+        @param x - CIMValue to compare with
+        @return True if they are identical in type, attribute and value.
+    */
+    Boolean equal(const CIMValue& x) const;
 
     /** toString - Converts the CIMvalue to a string.  Should only be
             used for output purposes.  To get an actual String value, use
@@ -404,19 +402,16 @@ private:
     friend class CIMPropertyRep;
     friend class CIMQualifierRep;
     friend class CIMQualifierDeclRep;
-    PEGASUS_COMMON_LINKAGE friend Boolean operator==(
-        const CIMValue& x, 
-        const CIMValue& y);
 };
 
 /** operator == compares two CIMValue objects for equality.
-        @param x - First CIMvalue to compare
-        @parm y - Second CIMValue to compare
+        @param x - First CIMValue to compare
+        @param y - Second CIMValue to compare
         @return True if they are identical in type, attribute and value.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMValue& x, const CIMValue& y);
 
-/** operator != compares two CIMValue objects for nonequality
+/** operator != compares two CIMValue objects for inequality
 */
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const CIMValue& x, const CIMValue& y);
 

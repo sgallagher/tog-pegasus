@@ -124,7 +124,7 @@ static void TestQualifierOperations(CIMClient& client)
     CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
     client.setQualifier(NAMESPACE, qd1);
 
-    CIMQualifierDecl qd2("qd2", "Hello", CIMScope::PROPERTY | CIMScope::CLASS, 
+    CIMQualifierDecl qd2("qd2", String("Hello"), CIMScope::PROPERTY | CIMScope::CLASS, 
 	CIMFlavor::OVERRIDABLE);
     client.setQualifier(NAMESPACE, qd2);
 
@@ -201,8 +201,8 @@ static void TestInstanceOperations(CIMClient& client)
     // Create an instance of that class:
 
     CIMInstance cimInstance("MyClass");
-    cimInstance.addProperty(CIMProperty("last", "Smith"));
-    cimInstance.addProperty(CIMProperty("first", "John"));
+    cimInstance.addProperty(CIMProperty("last", String("Smith")));
+    cimInstance.addProperty(CIMProperty("first", String("John")));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
     CIMObjectPath createdinstanceName = client.createInstance(NAMESPACE, cimInstance);

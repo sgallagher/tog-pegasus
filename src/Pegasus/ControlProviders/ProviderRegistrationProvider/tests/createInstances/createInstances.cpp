@@ -51,12 +51,12 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty("Name", "providersModule1"));
-    cimInstance.addProperty(CIMProperty("Vendor", "HP"));
-    cimInstance.addProperty(CIMProperty("Version", "2.0"));
-    cimInstance.addProperty(CIMProperty("InterfaceType", "PG_DefaultC++"));
-    cimInstance.addProperty(CIMProperty("InterfaceVersion", "2.0"));
-    cimInstance.addProperty(CIMProperty("Location", "/tmp/module1"));
+    cimInstance.addProperty(CIMProperty("Name", String("providersModule1")));
+    cimInstance.addProperty(CIMProperty("Vendor", String("HP")));
+    cimInstance.addProperty(CIMProperty("Version", String("2.0")));
+    cimInstance.addProperty(CIMProperty("InterfaceType", String("PG_DefaultC++")));
+    cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
+    cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
@@ -80,8 +80,8 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance2.addProperty(CIMProperty("Name", "PG_ProviderInstance1"));
+    cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
+    cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
 
@@ -124,10 +124,10 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance3.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance1"));
-    cimInstance3.addProperty(CIMProperty("CapabilityID", "capability1"));
-    cimInstance3.addProperty(CIMProperty("ClassName", "TestSoftwarePkg"));
+    cimInstance3.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty("CapabilityID", String("capability1")));
+    cimInstance3.addProperty(CIMProperty("ClassName", String("TestSoftwarePkg")));
     cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));

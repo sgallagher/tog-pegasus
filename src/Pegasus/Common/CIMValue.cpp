@@ -224,12 +224,6 @@ CIMValue::CIMValue(const String& x)
     set(x);
 }
 
-CIMValue::CIMValue(const char* x)
-{
-    _rep = new CIMValueRep();
-    set(x);
-}
-
 CIMValue::CIMValue(const CIMDateTime& x)
 {
     _rep = new CIMValueRep();
@@ -632,7 +626,9 @@ void CIMValue::clear()
 
 Boolean CIMValue::typeCompatible(const CIMValue& x) const
 {
-    return _rep->_type == x._rep->_type && _rep->_isArray == x._rep->_isArray;
+    return (_rep->_type == x._rep->_type &&
+            _rep->_isArray == x._rep->_isArray);
+//            getArraySize() == x.getArraySize());
 }
 
 Boolean CIMValue::isArray() const
@@ -977,12 +973,6 @@ void CIMValue::set(const String& x)
     clear();
     _rep->_u._stringValue = new String(x);
     _rep->_type = CIMType::STRING;
-    _rep->_isNull = false;
-}
-
-void CIMValue::set(const char* x)
-{
-    set(String(x));
     _rep->_isNull = false;
 }
 
@@ -1382,9 +1372,139 @@ void CIMValue::get(Array<CIMObjectPath>& x) const
     x = *_rep->_u._referenceArray;
 }
 
-CIMValue CIMValue::clone() const
+Boolean CIMValue::equal(const CIMValue& x) const
 {
-    return CIMValue(*this);
+    if (!typeCompatible(x))
+        return false;
+
+    if (_rep->_isNull != x._rep->_isNull)
+        return false;
+
+    if (_rep->_isArray)
+    {
+        switch (_rep->_type)
+        {
+            case CIMType::BOOLEAN:
+                return (*_rep->_u._booleanArray) ==
+                    (*x._rep->_u._booleanArray);
+
+            case CIMType::UINT8:
+                return (*_rep->_u._uint8Array) ==
+                    (*x._rep->_u._uint8Array);
+
+            case CIMType::SINT8:
+                return (*_rep->_u._sint8Array) ==
+                    (*x._rep->_u._sint8Array);
+
+            case CIMType::UINT16:
+                return (*_rep->_u._uint16Array) ==
+                    (*x._rep->_u._uint16Array);
+
+            case CIMType::SINT16:
+                return (*_rep->_u._sint16Array) ==
+                    (*x._rep->_u._sint16Array);
+
+            case CIMType::UINT32:
+                return (*_rep->_u._uint32Array) ==
+                    (*x._rep->_u._uint32Array);
+
+            case CIMType::SINT32:
+                return (*_rep->_u._sint32Array) ==
+                    (*x._rep->_u._sint32Array);
+
+            case CIMType::UINT64:
+                return (*_rep->_u._uint64Array) ==
+                    (*x._rep->_u._uint64Array);
+
+            case CIMType::SINT64:
+                return (*_rep->_u._sint64Array) ==
+                    (*x._rep->_u._sint64Array);
+
+            case CIMType::REAL32:
+                return (*_rep->_u._real32Array) ==
+                    (*x._rep->_u._real32Array);
+
+            case CIMType::REAL64:
+                return (*_rep->_u._real64Array) ==
+                    (*x._rep->_u._real64Array);
+
+            case CIMType::CHAR16:
+                return (*_rep->_u._char16Array) ==
+                    (*x._rep->_u._char16Array);
+
+            case CIMType::STRING:
+                return (*_rep->_u._stringArray) ==
+                    (*x._rep->_u._stringArray);
+
+            case CIMType::DATETIME:
+                return (*_rep->_u._dateTimeArray) ==
+                    (*x._rep->_u._dateTimeArray);
+
+            case CIMType::REFERENCE:
+                return (*_rep->_u._referenceArray) ==
+                    (*x._rep->_u._referenceArray);
+            default:
+                throw CIMValueInvalidType();
+        }
+    }
+    else
+    {
+        switch (_rep->_type)
+        {
+            case CIMType::BOOLEAN:
+                return _rep->_u._booleanValue == x._rep->_u._booleanValue;
+
+            case CIMType::UINT8:
+                return _rep->_u._uint8Value == x._rep->_u._uint8Value;
+
+            case CIMType::SINT8:
+                return _rep->_u._sint8Value == x._rep->_u._sint8Value;
+
+            case CIMType::UINT16:
+                return _rep->_u._uint16Value == x._rep->_u._uint16Value;
+
+            case CIMType::SINT16:
+                return _rep->_u._sint16Value == x._rep->_u._sint16Value;
+
+            case CIMType::UINT32:
+                return _rep->_u._uint32Value == x._rep->_u._uint32Value;
+
+            case CIMType::SINT32:
+                return _rep->_u._sint32Value == x._rep->_u._sint32Value;
+
+            case CIMType::UINT64:
+                return _rep->_u._uint64Value == x._rep->_u._uint64Value;
+
+            case CIMType::SINT64:
+                return _rep->_u._sint64Value == x._rep->_u._sint64Value;
+
+            case CIMType::REAL32:
+                return _rep->_u._real32Value == x._rep->_u._real32Value;
+
+            case CIMType::REAL64:
+                return _rep->_u._real64Value == x._rep->_u._real64Value;
+
+            case CIMType::CHAR16:
+                return _rep->_u._char16Value == x._rep->_u._char16Value;
+
+            case CIMType::STRING:
+                return String::equal(*_rep->_u._stringValue,
+                                     *x._rep->_u._stringValue);
+
+            case CIMType::DATETIME:
+                return *_rep->_u._dateTimeValue == *x._rep->_u._dateTimeValue;
+
+            case CIMType::REFERENCE:
+                return *_rep->_u._referenceValue ==
+                    *x._rep->_u._referenceValue;
+
+            default:
+                throw CIMValueInvalidType();
+        }
+    }
+
+    // Unreachable!
+    return false;
 }
 
 String CIMValue::toString() const
@@ -1561,142 +1681,12 @@ String CIMValue::toString() const
 
 Boolean operator==(const CIMValue& x, const CIMValue& y)
 {
-    if (!x.typeCompatible(y))
-        return false;
-
-    if (x._rep->_isNull != y._rep->_isNull)
-        return false;
-
-    if (x._rep->_isArray)
-    {
-        switch (x._rep->_type)
-        {
-            case CIMType::BOOLEAN:
-                return (*x._rep->_u._booleanArray) ==
-                    (*y._rep->_u._booleanArray);
-
-            case CIMType::UINT8:
-                return (*x._rep->_u._uint8Array) ==
-                    (*y._rep->_u._uint8Array);
-
-            case CIMType::SINT8:
-                return (*x._rep->_u._sint8Array) ==
-                    (*y._rep->_u._sint8Array);
-
-            case CIMType::UINT16:
-                return (*x._rep->_u._uint16Array) ==
-                    (*y._rep->_u._uint16Array);
-
-            case CIMType::SINT16:
-                return (*x._rep->_u._sint16Array) ==
-                    (*y._rep->_u._sint16Array);
-
-            case CIMType::UINT32:
-                return (*x._rep->_u._uint32Array) ==
-                    (*y._rep->_u._uint32Array);
-
-            case CIMType::SINT32:
-                return (*x._rep->_u._sint32Array) ==
-                    (*y._rep->_u._sint32Array);
-
-            case CIMType::UINT64:
-                return (*x._rep->_u._uint64Array) ==
-                    (*y._rep->_u._uint64Array);
-
-            case CIMType::SINT64:
-                return (*x._rep->_u._sint64Array) ==
-                    (*y._rep->_u._sint64Array);
-
-            case CIMType::REAL32:
-                return (*x._rep->_u._real32Array) ==
-                    (*y._rep->_u._real32Array);
-
-            case CIMType::REAL64:
-                return (*x._rep->_u._real64Array) ==
-                    (*y._rep->_u._real64Array);
-
-            case CIMType::CHAR16:
-                return (*x._rep->_u._char16Array) ==
-                    (*y._rep->_u._char16Array);
-
-            case CIMType::STRING:
-                return (*x._rep->_u._stringArray) ==
-                    (*y._rep->_u._stringArray);
-
-            case CIMType::DATETIME:
-                return (*x._rep->_u._dateTimeArray) ==
-                    (*y._rep->_u._dateTimeArray);
-
-            case CIMType::REFERENCE:
-                return (*x._rep->_u._referenceArray) ==
-                    (*y._rep->_u._referenceArray);
-            default:
-                throw CIMValueInvalidType();
-        }
-    }
-    else
-    {
-        switch (x._rep->_type)
-        {
-            case CIMType::BOOLEAN:
-                return x._rep->_u._booleanValue == y._rep->_u._booleanValue;
-
-            case CIMType::UINT8:
-                return x._rep->_u._uint8Value == y._rep->_u._uint8Value;
-
-            case CIMType::SINT8:
-                return x._rep->_u._sint8Value == y._rep->_u._sint8Value;
-
-            case CIMType::UINT16:
-                return x._rep->_u._uint16Value == y._rep->_u._uint16Value;
-
-            case CIMType::SINT16:
-                return x._rep->_u._sint16Value == y._rep->_u._sint16Value;
-
-            case CIMType::UINT32:
-                return x._rep->_u._uint32Value == y._rep->_u._uint32Value;
-
-            case CIMType::SINT32:
-                return x._rep->_u._sint32Value == y._rep->_u._sint32Value;
-
-            case CIMType::UINT64:
-                return x._rep->_u._uint64Value == y._rep->_u._uint64Value;
-
-            case CIMType::SINT64:
-                return x._rep->_u._sint64Value == y._rep->_u._sint64Value;
-
-            case CIMType::REAL32:
-                return x._rep->_u._real32Value == y._rep->_u._real32Value;
-
-            case CIMType::REAL64:
-                return x._rep->_u._real64Value == y._rep->_u._real64Value;
-
-            case CIMType::CHAR16:
-                return x._rep->_u._char16Value == y._rep->_u._char16Value;
-
-            case CIMType::STRING:
-                return String::equal(*x._rep->_u._stringValue,
-                                     *y._rep->_u._stringValue);
-
-            case CIMType::DATETIME:
-                return *x._rep->_u._dateTimeValue == *y._rep->_u._dateTimeValue;
-
-            case CIMType::REFERENCE:
-                return *x._rep->_u._referenceValue ==
-                    *y._rep->_u._referenceValue;
-
-            default:
-                throw CIMValueInvalidType();
-        }
-    }
-
-    // Unreachable!
-    return false;
+    return x.equal(y);
 }
 
 Boolean operator!=(const CIMValue& x, const CIMValue& y)
 {
-    return !operator==(x, y);
+    return !x.equal(y);
 }
 
 PEGASUS_NAMESPACE_END

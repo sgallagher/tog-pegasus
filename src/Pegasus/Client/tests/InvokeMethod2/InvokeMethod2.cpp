@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
 	CIMClient client;
 	client.connectLocal();
-	inParams.append( CIMParamValue(  "Name", CIMValue( OUTSTRING ) ) );
+	inParams.append( CIMParamValue(  "Name", CIMValue( String(OUTSTRING) ) ) );
 	CIMValue retValue = client.invokeMethod(
 	    NAMESPACE, 
 	    instanceName, 

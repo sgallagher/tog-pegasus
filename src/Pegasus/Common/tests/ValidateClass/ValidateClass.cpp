@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 	CIMClass x("X");
 	x.addProperty(CIMProperty("one", Uint32(111)));
 	x.addProperty(CIMProperty("two", Real32(222.222)));
-	x.addProperty(CIMProperty("three", "Three"));
+	x.addProperty(CIMProperty("three", String("Three")));
 	context.addClass(NAMESPACE, x);
 	x.resolve(&context, NAMESPACE);
 

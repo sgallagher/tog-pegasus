@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
 	qualifiers1
 	    .add(CIMQualifier("Abstract", true))
-	    .add(CIMQualifier("Description", "CIMQualifier List 1"))
+	    .add(CIMQualifier("Description", String("CIMQualifier List 1")))
 	    .add(CIMQualifier("q1", false))
 	    .add(CIMQualifier("q2", false));
 	
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
 	CIMQualifierList qualifiers2;
 
 	qualifiers2
-	    .add(CIMQualifier("Description", "CIMQualifier List 1"))
+	    .add(CIMQualifier("Description", String("CIMQualifier List 1")))
 	    .add(CIMQualifier("q1", Boolean(true), CIMFlavor::OVERRIDABLE));
 
 	if(verbose)

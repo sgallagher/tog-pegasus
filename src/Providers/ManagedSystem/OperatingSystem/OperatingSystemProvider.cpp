@@ -297,7 +297,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
 
     //-- fill in all the blanks
     instance.addProperty(CIMProperty("CSCreationClassName",
- 	                 CSCREATIONCLASSNAME));
+ 	                 String(CSCREATIONCLASSNAME)));
 
     if (os.getCSName(stringValue))
     {
@@ -305,7 +305,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
     }
 
     instance.addProperty(CIMProperty("CreationClassName",
- 	                 STANDARDOPERATINGSYSTEMCLASS));
+ 	                 String(STANDARDOPERATINGSYSTEMCLASS)));
 
     if (os.getName(stringValue))
     {

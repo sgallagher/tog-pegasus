@@ -99,7 +99,7 @@ void TestCreateClass()
 	    .addQualifier(CIMQualifier("key", true)));
 
     c1.addProperty(CIMProperty("ratio", Real32(1.5)));
-    c1.addProperty(CIMProperty("message", "Hello World"));
+    c1.addProperty(CIMProperty("message", String("Hello World")));
 
     // -- Create the class (get it back and compare):
 
@@ -183,7 +183,7 @@ void TestCreateClass()
 
     CIMInstance modifiedInst0("MyClass");
     modifiedInst0.addProperty(CIMProperty("key", Uint32(111)));
-    modifiedInst0.addProperty(CIMProperty("message", "Goodbye World"));
+    modifiedInst0.addProperty(CIMProperty("message", String("Goodbye World")));
     modifiedInst0.setPath (instanceNames[0]);
     r.modifyInstance(NS, modifiedInst0);
     // modifiedInst0.print();
@@ -202,7 +202,7 @@ void TestCreateClass()
     messageValue.get(message);
     assert(message == "Goodbye World");
 
-    r.setProperty(NS, "MyClass.key=111", "message", CIMValue("Hello World"));
+    r.setProperty(NS, "MyClass.key=111", "message", CIMValue(String("Hello World")));
 
     messageValue = r.getProperty( NS, "MyClass.key=111", "message");
     messageValue.get(message);

@@ -13,10 +13,9 @@ Group: Systems Management/Base
 Copyright: MIT Public Licence
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Packager: Markus Mueller <markus_mueller@de.ibm.com>
-Provides: cimserver
+Provides: cimserver pegasus-1.0
 URL:    http://www.opengroup.org/pegasus
 Source: ftp://www.opengroup.org/pegasus/pegasus-%{version}.tar.gz
-#Source1: ftp://www.opengroup.org/pegasus/aic.tar.gz
 
 #Patch0: cimom-peg1.patch.gz
 #Patch1: cimom-peg2.patch.gz
@@ -32,6 +31,8 @@ linuxthreads or GNU pth and openssl.
 %package devel
 Summary:      The Pegasus source tree
 Group:        Systems Management/Base
+Autoreq: 0
+Requires: pegasus-1.0
 
 %description devel
 This package contains the Pegasus source tree, header files and
@@ -40,7 +41,7 @@ static libraries (if any).
 %prep
 rm -rf $RPM_BUILD_ROOT
 # Copy the necessary include files
-/var/tmp/buildincludes $PEGASUS_ROOT $RPM_BUILD_ROOT
+$PEGASUS_ROOT/rpm/buildincludes $PEGASUS_ROOT $RPM_BUILD_ROOT /usr/src/packages/BUILD/pegasus-1.0
 
 %setup
 %build
@@ -50,10 +51,17 @@ export PEGASUS_PLATFORM=LINUX_IX86_GNU
 export PEGASUS_HAS_SSL=yes
 make depend
 make
+
 #%ifarch ppc s390 s390x sparc sparc64
 #%endif
 
 %install
+
+# Copy the necessary include files
+#$PEGASUS_ROOT/rpm/buildincludes $PEGASUS_ROOT $RPM_BUILD_ROOT /usr/src/packages/BUILD/pegasus-1.0
+#testtest
+mkdir -p $RPM_BUILD_ROOT/usr/pegasus-1.0/bin
+touch $RPM_BUILD_ROOT/usr/pegasus-1.0/bin/blah
 
 # Copy binaries and libraries
 mkdir -p $RPM_BUILD_ROOT/usr/bin
@@ -98,16 +106,16 @@ sbin/insserv etc/init.d
 
 %defattr(-,root,root,0755)
 %doc doc/*.txt doc/DOCREMARKS doc/HISTORY doc/NOTES
-%doc doc/WorkPapers/WritingProviders.txt
 
 %files
 
-%dir %attr(-,root,root) /usr/bin
-%dir %attr(-,root,root) /usr/lib
+#%dir %attr(-,root,root) /usr/bin
+#%dir %attr(-,root,root) /usr/lib
+#%dir %attr(-,root,root) /var/lib/pegasus/mof
+
 %dir %attr(-,root,root) /usr/include
 %dir %attr(-,root,root) /var/pegasus/log
 %dir %attr(-,root,root) /var/lib/pegasus
-%dir %attr(-,root,root) /var/lib/pegasus/mof
 %dir %attr(-,root,root) /var/lib/pegasus/repository
 
 %config %attr(-,root,root) /etc/pegasus/pegasus.conf

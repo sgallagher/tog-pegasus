@@ -6,14 +6,17 @@
 #BROOT=/home/markus/src/tmp
 PROOT=$1
 BROOT=$2
+LISTLOC=$3
 
-rm -f $PROOT/rpm_pegasus_include_files
+echo "Copy include files from "$PROOT" into "$BROOT" - list in "$LISTLOC
+
+rm -f $LISTLOC/rpm_pegasus_include_files
 pushd  $PROOT/src
 list=`find Pegasus -iname '*.h'`
 popd
 for i in $list;do
     j=`dirname $i`;
-    echo "/usr/include/"$i >> $PROOT/rpm_pegasus_include_files
+    echo "/usr/include/"$i >> $LISTLOC/rpm_pegasus_include_files
     mkdir -p $BROOT/usr/include/$j
     cp $PROOT/src/$i $BROOT/usr/include/$i
 done;

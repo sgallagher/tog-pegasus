@@ -468,12 +468,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     PEGASUS_ASSERT(response != 0);
     PEGASUS_ASSERT(response->messageId == poA->_messageId);
 
-    poA->appendResponse(response);
-    /*cout << "KSTEST counts " 
-          << "total issued = " << poA->totalIssued()
-          << "number responses = " <<  poA->numberResponses()
-          << " Total Operations outstanding = " << size
-          << endl;*/
+    Boolean done = poA->appendResponse(response);
 
     delete asyncRequest;
     delete asyncReply;
@@ -481,7 +476,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     service->return_op(op);
 
     // If all responses received, call the postProcessor
-    if (poA->totalIssued() == poA->numberResponses())
+    if (done)
     {
         service->handleOperationResponseAggregation(poA);
     }

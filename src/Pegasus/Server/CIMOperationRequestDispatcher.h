@@ -87,12 +87,15 @@ public:
 
     Uint32 totalIssued() { return _totalIssued; }
 
-    // Append a new entry to the response list
-    void appendResponse(CIMResponseMessage* response)
+    // Append a new entry to the response list.  Return value indicates
+    // whether this response is the last one expected
+    Boolean appendResponse(CIMResponseMessage* response)
     {
         _appendResponseMutex.lock(pegasus_thread_self());
 	_responseList.append(response);
+        Boolean returnValue = (totalIssued() == numberResponses());
         _appendResponseMutex.unlock();
+        return returnValue;
     }
 
     Uint32 numberResponses() { return _responseList.size(); }

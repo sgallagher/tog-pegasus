@@ -1300,10 +1300,10 @@ MessageLoader::_useProcessLocale = false;
       _cimServer->runForever();
 
     }
-    MessageQueueService::force_shutdown(true);
+
         //
         // normal termination
-    //
+        //
 
         // Put server shutdown message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,

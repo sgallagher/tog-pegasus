@@ -944,9 +944,6 @@ MessageLoader::_useProcessLocale = false;
 
     PEGASUS_STD(cout) << "Stopped\n";
 
-    //ATTN: Do we need this?
-    //MessageQueueService::force_shutdown(true);
-
         //
         // normal termination
         //

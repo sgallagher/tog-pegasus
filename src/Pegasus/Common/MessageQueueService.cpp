@@ -89,63 +89,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 #endif
 }
 
-
-void MessageQueueService::force_shutdown(Boolean destroy_flag)
-{
-   return;
-   
-#if !defined(PEGASUS_OS_VMS) // Bugzilla 3090
-
-#ifdef MESSAGEQUEUESERVICE_DEBUG
-	//l10n
-   MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
-			    "Forcing shutdown of CIMOM Message Router");
-   PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
-#endif
-
-
-   MessageQueueService *svc;
-   int counter = 0;   
-   _polling_list.lock();
-   svc = _polling_list.next(0);
-   
-   while(svc != 0)
-   {
-#ifdef MESSAGEQUEUESERVICE_DEBUG
-   		//l10n - reuse same MessageLoaderParms to avoid multiple creates
-      	parms.msg_id = "Common.MessageQueueService.STOPPING_SERVICE";
-   	  	parms.default_msg = "Stopping $0"; 
-   	  	parms.arg0 = svc->getQueueName();
-   	  	PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
-#endif
-      							
-      _polling_sem.signal();
-      svc->_shutdown_incoming_queue();
-      counter++;
-      _polling_sem.signal();
-      svc = _polling_list.next(svc);
-   }
-   _polling_list.unlock();
-
-   _polling_sem.signal();
-
-   MessageQueueService::_stop_polling = 1;
-   
-   if(destroy_flag == true) 
-   {
-
-      svc = _polling_list.remove_last();
-      while(svc)
-      {
-	 delete svc;
-	 svc = _polling_list.remove_last();
-      }
-      
-   }
-#endif // PEGASUS_OS_VMS
-}
-
-
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);

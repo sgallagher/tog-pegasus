@@ -249,8 +249,6 @@ void ShutdownService::_shutdownCIMServer()
     //
     _cimserver->shutdown();
     
-//    MessageQueueService::force_shutdown();
-
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		"ShutdownService::_shutdownCIMServer - CIM Server shutdown complete");
 

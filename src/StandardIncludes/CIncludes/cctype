@@ -1,0 +1,6 @@
+#ifndef _Pegasus_cctype
+#define _Pegasus_cctype
+
+#include <ctype.h>
+
+#endif /* _Pegasus_cctype */

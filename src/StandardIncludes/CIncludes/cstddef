@@ -1,0 +1,6 @@
+#ifndef _Pegasus_cstddef
+#define _Pegasus_cstddef
+
+#include <stddef.h>
+
+#endif /* _Pegasus_cstddef */

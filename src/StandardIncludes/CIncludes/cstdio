@@ -1,0 +1,6 @@
+#ifndef _Pegasus_cstdio
+#define _Pegasus_cstdio
+
+#include <stdio.h>
+
+#endif /* _Pegasus_cstdio */

@@ -1,0 +1,6 @@
+#ifndef _Pegasus_cassert
+#define _Pegasus_cassert
+
+#include <assert.h>
+
+#endif /* _Pegasus_cassert */

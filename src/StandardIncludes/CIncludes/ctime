@@ -1,0 +1,6 @@
+#ifndef _Pegasus_ctime
+#define _Pegasus_ctime
+
+#include <time.h>
+
+#endif /* _Pegasus_ctime */

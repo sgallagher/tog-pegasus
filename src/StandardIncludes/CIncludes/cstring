@@ -1,0 +1,6 @@
+#ifndef _Pegasus_cstring
+#define _Pegasus_cstring
+
+#include <string.h>
+
+#endif /* _Pegasus_cstring */

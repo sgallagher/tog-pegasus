@@ -59,7 +59,7 @@ static char* _allocLogFileName(
     const String& homeDirectory,
     Logger::LogFileType logFileType)
 {
-    static char* fileNames[] = 
+    static const char* fileNames[] = 
     {
 	"PegasusTrace.log",
 	"PegasusStandard.log",
@@ -163,18 +163,18 @@ void Logger::put(
 	// This converts bitmap to string based on highest order
 	// bit set
 	// ATTN: KS Fix this more efficiently.
-	static char* svNames[] = 
-	    {
+	static const char* svNames[] = 
+	{
 	    "TRACE   ",
 	    "INFO    ",
 	    "WARNING ",
 	    "SEVERE  ",
 	    "FATAL   "
-	    };
+	};
 	// NUM_LEVELS = 5
 	int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
 
-	char* tmp = "";
+	const char* tmp = "";
 	if (severity & Logger::TRACE) tmp =       "TRACE   ";
 	if (severity & Logger::INFORMATION) tmp = "INFO    ";
 	if (severity & Logger::WARNING) tmp =     "WARNING ";

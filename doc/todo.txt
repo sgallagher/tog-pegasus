@@ -1,4 +1,7 @@
 
+    -   Document that lex and yacc are no longer a requirement to build
+	Pegasus.
+
     -	Figure out how to handle very large CIM respones and possibly
 	requests too.
 

@@ -564,7 +564,7 @@ int main(int argc, char** argv)
 		 {
 		   Stopwatch elapsedTime;
 		   Selector selector;
-		   CIMClient client(&selector);
+		   CIMClient client(&selector, 60 * 1000);
 
 		   char * connection = connectionList[i].allocateCString();
 		   cout << "connecting to " << connection << endl;

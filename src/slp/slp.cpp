@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
 #include "slp.h"
 
 #ifdef PEGASUS_OS_TRU64
@@ -34,10 +35,18 @@
 extern "C" void usleep(unsigned int);
 #endif
 
+#if defined(PEGASUS_OS_HPUX)
+# include <netdb.h>
+#endif
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+// This is necessary to avoid the "reinterpret cast" warning generated
+// by the HP C++ compiler.
+#define SOCKADDR_IN_CAST (struct sockaddr_in*)(void*)
+#define SOCKADDR_CAST (struct sockaddr*)(void*)
 
 PEGASUS_EXPORT String slp_get_host_name(void)
 {
@@ -269,11 +278,11 @@ static int slp_get_local_interfaces(Uint32 **list)
 
       struct ifreq *r = conf.ifc_req;
       struct sockaddr_in *addr ;
-      addr = (struct sockaddr_in *)&r->ifr_addr;
+      addr = SOCKADDR_IN_CAST&r->ifr_addr;
       while(  addr->sin_addr.s_addr != 0 ) {
 	interfaces++;
 	r++;
-	addr = (struct sockaddr_in *)&r->ifr_addr;
+	addr = SOCKADDR_IN_CAST&r->ifr_addr;
       }
 
       // now store the addresses
@@ -281,12 +290,12 @@ static int slp_get_local_interfaces(Uint32 **list)
       *list  = new Uint32 [interfaces + 1 ];
       Uint32 *this_addr = *list;
       r = conf.ifc_req;
-      addr = (struct sockaddr_in *)&r->ifr_addr;
+      addr = SOCKADDR_IN_CAST&r->ifr_addr;
       while(  addr->sin_addr.s_addr != 0 ) {
 	*this_addr = addr->sin_addr.s_addr;
 	r++;
 	this_addr++;
-	addr = (struct sockaddr_in *)&r->ifr_addr;
+	addr = SOCKADDR_IN_CAST&r->ifr_addr;
       }
       *this_addr = INADDR_ANY;
     } // did the ioctl 
@@ -348,7 +357,7 @@ static SOCKET slp_open_listen_sock( void )
   local.sin_family = AF_INET;
   local.sin_port = htons(427);
   local.sin_addr.s_addr  = INADDR_ANY;
-  if( 0 == bind(sock, (struct sockaddr *)&local, sizeof(local)) )
+  if( 0 == bind(sock, SOCKADDR_CAST&local, sizeof(local)) )
     slp_join_multicast_all(sock);
   return(sock);
 }
@@ -1350,9 +1359,9 @@ void slp_client::decode_srvreq(struct sockaddr_in *remote )
 	      local.sin_family = AF_INET;
 	      local.sin_port = _target_port ; 
 	      local.sin_addr.s_addr = _local_addr;
-	      if(SOCKET_ERROR != bind(sock, (struct sockaddr *)&local, sizeof(local))) {
+	      if(SOCKET_ERROR != bind(sock, SOCKADDR_CAST&local, sizeof(local))) {
 		sendto(sock, _msg_buf, msg_len , 0, 
-		      (struct sockaddr *)remote, sizeof(struct sockaddr_in )) ;
+		      SOCKADDR_CAST(remote), sizeof(struct sockaddr_in )) ;
 	      } // successfully bound this socket 
 	      _LSLP_CLOSESOCKET(sock);
 	    } // successfully opened this socket
@@ -1480,7 +1489,7 @@ Boolean slp_client::send_rcv_udp( void )
     local.sin_family = AF_INET;
     local.sin_port = 0;
     local.sin_addr.s_addr = _local_addr;
-    if(SOCKET_ERROR != bind(sock, (struct sockaddr *)&local, sizeof(local))) {
+    if(SOCKET_ERROR != bind(sock, SOCKADDR_CAST&local, sizeof(local))) {
       int bcast = ( (_LSLP_GETFLAGS(_msg_buf)) & LSLP_FLAGS_MCAST) ? 1 : 0 ;
       if(bcast) {
 	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, _ttl) )  ||  
@@ -1505,7 +1514,7 @@ Boolean slp_client::send_rcv_udp( void )
 				       _msg_buf, 
 				       _LSLP_GETLENGTH(_msg_buf), 
 				       0, 
-				       (struct sockaddr *)&target, sizeof(target) ))) {
+				       SOCKADDR_CAST&target, sizeof(target) ))) {
 	_LSLP_CLOSESOCKET(sock);
 	return(false);
       } /* oops - error sending data */
@@ -1576,10 +1585,10 @@ Sint32 slp_client::service_listener(SOCKET extra_sock )
 #endif
 
     if(extra_sock && FD_ISSET(extra_sock, &fds) )
-      err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
+      err = recvfrom(extra_sock, _rcv_buf, LSLP_MTU, 0, SOCKADDR_CAST&remote, &size);
     if(_rcv_sock != INVALID_SOCKET) {
       if(FD_ISSET(_rcv_sock, &fds)) 
-	err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, (struct sockaddr *)&remote, &size);
+	err = recvfrom(_rcv_sock, _rcv_buf, LSLP_MTU, 0, SOCKADDR_CAST&remote, &size);
     }
 
     if(err && err != SOCKET_ERROR)

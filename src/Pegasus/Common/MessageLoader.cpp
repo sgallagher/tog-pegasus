@@ -417,7 +417,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				case Formatter::Arg::BOOLEAN:   formattable = (int32_t)arg._boolean;break;
 				case Formatter::Arg::REAL:      formattable = (float)arg._real;break;
 				case Formatter::Arg::LINTEGER:  formattable = (Sint32)arg._lInteger;break;
-				case Formatter::Arg::ULINTEGER: formattable = (Sint32)arg._lUInteger;break;
+				case Formatter::Arg::ULINTEGER: formattable = (Sint64)arg._lUInteger;break;
 				case Formatter::Arg::STRING:    formattable = Formattable(string2UChar(arg._string));break;
 	    		case Formatter::Arg::VOIDT:
             default:

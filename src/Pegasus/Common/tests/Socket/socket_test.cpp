@@ -100,7 +100,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
    int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
    
    struct sockaddr peer;
-   size_t peer_size = sizeof(peer);
+   PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
    
    pegasus_socket connected = listener.accept(&peer, &peer_size);
    
@@ -128,7 +128,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
 }
 
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-
+// << Thu Aug 14 15:01:10 2003 mdd >> domain sockets work 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
 {
    Thread * my_handle = reinterpret_cast<Thread *>(parm);
@@ -162,7 +162,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
    int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
    
    struct sockaddr peer;
-   size_t peer_size = sizeof(peer);
+   PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
    
    pegasus_socket connected = listener.accept(&peer, &peer_size);
    
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
    connector.bind((struct sockaddr *)&addr, sizeof(addr));
 
    struct sockaddr_in peer;
-   size_t peer_size = sizeof(peer);
+   PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
    memset(&peer, 0, peer_size);
 
    peer.sin_addr.s_addr = inet_addr("127.0.0.1");

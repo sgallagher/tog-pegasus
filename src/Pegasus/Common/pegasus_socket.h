@@ -62,6 +62,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+typedef size_t PEGASUS_SOCKLEN_SIZE;
+
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && !defined(SUNOS_5_6))
+typedef socklen_t PEGASUS_SOCKLEN_SIZE;
+#else
+   typedef int PEGASUS_SOCKLEN_SIZE
+#endif
+
+
+
+
 //  <<< Thu Jul  3 13:50:29 2003 mdd >>> pep_88
 /*****************************************************************
  *
@@ -105,21 +117,21 @@ class PEGASUS_COMMON_LINKAGE pegasus_socket
       int enableBlocking(void);
       int disableBlocking(void);
 
-      int getsockname (struct sockaddr *addr, size_t *length_ptr);
-      int bind (struct sockaddr *addr, size_t length);
+      int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
      
       // change size_t to size_t for ZOS and windows
-      pegasus_socket accept(struct sockaddr *addr, size_t *length_ptr);
-      int connect (struct sockaddr *addr, size_t length);
+      pegasus_socket accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
       int shutdown(int how);
       int listen(int q);
-      int getpeername (struct sockaddr *addr, size_t *length_ptr);
-      int send (void *buffer, size_t size, int flags);
-      int recv (void *buffer, size_t size, int flags);
-      int sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length);
-      int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr);
-      int setsockopt (int level, int optname, void *optval, size_t optlen);
-      int getsockopt (int level, int optname, void *optval, size_t *optlen_ptr);
+      int getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      int send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
+      int recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
+      int sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
+      int recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      int setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen);
+      int getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr);
 
 
       Boolean incompleteReadOccurred(Sint32 retCode);
@@ -188,7 +200,7 @@ class PEGASUS_COMMON_LINKAGE ssl_socket_factory : public socket_factory
 
 
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-
+// << Thu Aug 14 15:01:30 2003 mdd >> domain sockets work 
 class PEGASUS_COMMON_LINKAGE unix_socket_factory : public socket_factory
 {
    public:

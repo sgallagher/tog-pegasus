@@ -83,21 +83,20 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
       virtual int enableBlocking(void) = 0;
       virtual int disableBlocking(void) = 0;
 
-      virtual int getsockname (struct sockaddr *addr, size_t *length_ptr) = 0;
-      virtual int bind (struct sockaddr *addr, size_t length) = 0;
+      virtual int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) = 0;
+      virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) = 0;
      
-      // change size_t to size_t for ZOS and windows
-      virtual abstract_socket* accept(struct sockaddr *addr, size_t *length_ptr) = 0;
-      virtual int connect (struct sockaddr *addr, size_t length) = 0;
+      virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) = 0;
+      virtual int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) = 0;
       virtual int shutdown(int how) = 0;
       virtual int listen(int q) = 0;
-      virtual int getpeername (struct sockaddr *addr, size_t *length_ptr) = 0;
-      virtual int send (void *buffer, size_t size, int flags) = 0;
-      virtual int recv (void *buffer, size_t size, int flags) = 0;
-      virtual int sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length) = 0;
-      virtual int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr) = 0;
-      virtual int setsockopt (int level, int optname, void *optval, size_t optlen) = 0;
-      virtual int getsockopt (int level, int optname, void *optval, size_t *optlen_ptr) = 0;
+      virtual int getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) = 0;
+      virtual int send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags) = 0;
+      virtual int recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags) = 0;
+      virtual int sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) = 0;
+      virtual int recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) = 0;
+      virtual int setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen) = 0;
+      virtual int getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr) = 0;
 
       virtual Boolean incompleteReadOccurred(Sint32 retCode) = 0;
       virtual Boolean is_secure(void) = 0;
@@ -133,21 +132,20 @@ class empty_socket_rep : public abstract_socket
       int enableBlocking(void){ return -1 ;}
       int disableBlocking(void){ return -1 ;}
  
-       int getsockname (struct sockaddr *addr, size_t *length_ptr){ return -1 ;}
-       int bind (struct sockaddr *addr, size_t length) { return -1;}
+       int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr){ return -1 ;}
+       int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) { return -1;}
      
-      // change size_t to size_t for ZOS and windows
-       abstract_socket* accept(struct sockaddr *addr, size_t *length_ptr) { return 0;}
-       int connect (struct sockaddr *addr, size_t length) { return -1;}
+       abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) { return 0;}
+       int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) { return -1;}
        int shutdown(int how) { return -1;}
        int listen(int queue_len ) { return -1;}
-      int getpeername (struct sockaddr *addr, size_t *length_ptr) { return -1;}
-       int send (void *buffer, size_t size, int flags) { return -1;}
-       int recv (void *buffer, size_t size, int flags) { return -1;}
-       int sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length) { return -1;}
-       int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr) { return -1;}
-      int setsockopt (int level, int optname, void *optval, size_t optlen) { return -1;}
-      int getsockopt (int level, int optname, void *optval, size_t *optlen_ptr) { return -1;}
+      int getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) { return -1;}
+       int send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags) { return -1;}
+       int recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags) { return -1;}
+       int sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) { return -1;}
+       int recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) { return -1;}
+      int setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen) { return -1;}
+      int getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr) { return -1;}
 
        Boolean incompleteReadOccurred(Sint32 retCode) { return false;}
        Boolean is_secure(void) { return false;}
@@ -189,21 +187,20 @@ class bsd_socket_rep : public abstract_socket
       int enableBlocking(void);
       int disableBlocking(void);
 
-      virtual int getsockname (struct sockaddr *addr, size_t *length_ptr);
-      virtual int bind (struct sockaddr *addr, size_t length);
+      virtual int getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
      
-      // change size_t to size_t for ZOS and windows
-      virtual abstract_socket* accept(struct sockaddr *addr, size_t *length_ptr);
-      virtual int connect (struct sockaddr *addr, size_t length);
+      virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      virtual int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
       virtual int shutdown(int how);
       virtual int listen(int queue_len );
-      int getpeername (struct sockaddr *addr, size_t *length_ptr);
-      virtual int send (void *buffer, size_t size, int flags);
-      virtual int recv (void *buffer, size_t size, int flags);
-      virtual int sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length);
-      virtual int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr);
-      int setsockopt (int level, int optname, void *optval, size_t optlen);
-      int getsockopt (int level, int optname, void *optval, size_t *optlen_ptr);
+      int getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      virtual int send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
+      virtual int recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags);
+      virtual int sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
+      virtual int recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      int setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen);
+      int getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr);
 
       virtual Boolean incompleteReadOccurred(Sint32 retCode);
       virtual Boolean is_secure(void);
@@ -331,7 +328,7 @@ int bsd_socket_rep::disableBlocking(void)
    return Socket::disableBlocking2(_socket);
 }
 
-int bsd_socket_rep::getsockname (struct sockaddr *addr, size_t *length_ptr)
+int bsd_socket_rep::getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    int ccode = ::getsockname(_socket, addr, length_ptr);
    if(ccode == -1)
@@ -343,7 +340,7 @@ int bsd_socket_rep::getsockname (struct sockaddr *addr, size_t *length_ptr)
  * default implementation allows reuseof address
  * sockaddr structure needs to be fully initialized or call will fail
  */
-int bsd_socket_rep::bind (struct sockaddr *addr, size_t length)
+int bsd_socket_rep::bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    int opt = 1;
    int ccode = setsockopt(SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
@@ -355,7 +352,7 @@ int bsd_socket_rep::bind (struct sockaddr *addr, size_t length)
    return ::bind(_socket, addr, length);
 }
 
-abstract_socket* bsd_socket_rep::accept(struct sockaddr *addr, size_t *length_ptr)
+abstract_socket* bsd_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    int new_sock = ::accept(_socket, addr, length_ptr);
    if(new_sock == -1)
@@ -370,7 +367,7 @@ abstract_socket* bsd_socket_rep::accept(struct sockaddr *addr, size_t *length_pt
    return rep;
 }
 
-int bsd_socket_rep::connect (struct sockaddr *addr, size_t length)
+int bsd_socket_rep::connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    int ccode = ::connect(_socket, addr, length);
    if(ccode == -1)
@@ -388,7 +385,7 @@ int bsd_socket_rep::listen(int queue_len)
 }
 
 
-int bsd_socket_rep::getpeername (struct sockaddr *addr, size_t *length_ptr)
+int bsd_socket_rep::getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    int ccode = ::getpeername(_socket, addr, length_ptr);
    if(ccode == -1 )
@@ -396,7 +393,7 @@ int bsd_socket_rep::getpeername (struct sockaddr *addr, size_t *length_ptr)
    return ccode;
 }
 
-int bsd_socket_rep::send (void *buffer, size_t size, int flags)
+int bsd_socket_rep::send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
    int ccode = ::send(_socket, buffer, size, flags);
    if(ccode == -1)
@@ -405,7 +402,7 @@ int bsd_socket_rep::send (void *buffer, size_t size, int flags)
 }
 
 
-int bsd_socket_rep::recv (void *buffer, size_t size, int flags)
+int bsd_socket_rep::recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
    int ccode = ::recv(_socket, buffer, size, flags);
    if(ccode == -1)
@@ -413,7 +410,7 @@ int bsd_socket_rep::recv (void *buffer, size_t size, int flags)
    return ccode;
 }
 
-int bsd_socket_rep::sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length)
+int bsd_socket_rep::sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    int ccode = ::sendto(_socket, buffer, size, flags, addr, length);
       if(ccode == -1)
@@ -423,10 +420,10 @@ int bsd_socket_rep::sendto(void *buffer, size_t size, int flags, struct sockaddr
 
 
 int bsd_socket_rep::recvfrom(void *buffer, 
-			     size_t size, 
+			     PEGASUS_SOCKLEN_SIZE size, 
 			     int flags, 
 			     struct sockaddr *addr, 
-			     size_t *length_ptr)
+			     PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    int ccode = ::recvfrom(_socket, buffer, size, flags, addr, length_ptr);
    if(ccode == -1)
@@ -434,7 +431,7 @@ int bsd_socket_rep::recvfrom(void *buffer,
    return ccode;
 }
 
-int bsd_socket_rep::setsockopt (int level, int optname, void *optval, size_t optlen)
+int bsd_socket_rep::setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen)
 {
    int ccode = ::setsockopt(_socket, level, optname, optval, optlen);
    if(ccode == -1)
@@ -443,7 +440,7 @@ int bsd_socket_rep::setsockopt (int level, int optname, void *optval, size_t opt
 }
 
 
-int bsd_socket_rep::getsockopt (int level, int optname, void *optval, size_t *optlen_ptr)
+int bsd_socket_rep::getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr)
 {
    int ccode = ::getsockopt(_socket, level, optname, optval, optlen_ptr);
    if(ccode == -1)
@@ -748,23 +745,23 @@ int pegasus_socket::disableBlocking(void)
    return _rep->disableBlocking();
 }
 
-int pegasus_socket::getsockname (struct sockaddr *addr, size_t *length_ptr)
+int pegasus_socket::getsockname (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    return _rep->getsockname(addr, length_ptr);
 }
 
-int pegasus_socket::bind (struct sockaddr *addr, size_t length)
+int pegasus_socket::bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    return _rep->bind(addr, length);
 }
 
-// change socklen_t to size_t for ZOS and windows
-pegasus_socket pegasus_socket::accept(struct sockaddr *addr, size_t *length_ptr)
+
+pegasus_socket pegasus_socket::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    return pegasus_socket(_rep->accept(addr, length_ptr));
 }
 
-int pegasus_socket::connect (struct sockaddr *addr, size_t length)
+int pegasus_socket::connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    return _rep->connect(addr, length);
 }
@@ -779,37 +776,37 @@ int pegasus_socket::listen(int q)
    return _rep->listen(q);
 }
 
-int pegasus_socket::getpeername (struct sockaddr *addr, size_t *length_ptr)
+int pegasus_socket::getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    return _rep->getpeername(addr, length_ptr);
 }
 
-int pegasus_socket::send(void *buffer, size_t size, int flags)
+int pegasus_socket::send(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
    return _rep->send(buffer, size, flags);
 }
 
-int pegasus_socket::recv(void *buffer, size_t size, int flags)
+int pegasus_socket::recv(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
    return _rep->recv(buffer, size, flags);
 }
 
-int pegasus_socket::sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length)
+int pegasus_socket::sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    return _rep->sendto(buffer, size, flags, addr, length);
 }
 
-int pegasus_socket::recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr)
+int pegasus_socket::recvfrom(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    return _rep->recvfrom(buffer, size, flags, addr, length_ptr);
 }
 
-int pegasus_socket::setsockopt (int level, int optname, void *optval, size_t optlen)
+int pegasus_socket::setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen)
 {
    return _rep->setsockopt(level, optname, optval, optlen);
 }
 
-int pegasus_socket::getsockopt (int level, int optname, void *optval, size_t *optlen_ptr)
+int pegasus_socket::getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr)
 {
    return _rep->getsockopt(level, optname, optval, optlen_ptr);
 }
@@ -861,10 +858,9 @@ class unix_socket_rep : public bsd_socket_rep
       int enableBlocking(void);
       int disableBlocking(void);
 
-      virtual int bind (struct sockaddr *addr, size_t length);
+      virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
      
-      // change size_t to size_t for ZOS and windows
-      virtual abstract_socket* accept(struct sockaddr *addr, size_t *length_ptr);
+      virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
 
 
    private:
@@ -929,7 +925,7 @@ int unix_socket_rep::disableBlocking(void)
  * default implementation allows reuseof address
  * sockaddr structure needs to be fully initialized or call will fail
  */
-int unix_socket_rep::bind (struct sockaddr *addr, size_t length)
+int unix_socket_rep::bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
 
    // first unlink the local domain file if it exists
@@ -937,7 +933,7 @@ int unix_socket_rep::bind (struct sockaddr *addr, size_t length)
    return Base::bind(addr, length);
 }
 
-abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, size_t *length_ptr)
+abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
    int new_sock = ::accept(_socket, addr, length_ptr);
    if(new_sock == -1)

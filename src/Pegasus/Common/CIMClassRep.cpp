@@ -253,11 +253,39 @@ void CIMClassRep::resolve(
 	    // clone and insert it. Otherwise, the properties class
 	    // origin was set above.
 
+	    CIMProperty superproperty = superClassProperty.clone();
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		CIMProperty property = superClassProperty.clone();
-		property.setPropagated(true);
-		_properties.insert(m++, property);
+		superproperty.setPropagated(true);
+		_properties.insert(m++, superproperty);
+	    } else {
+	        // If property exists in the superclass and in the subclass,
+	        // then, enumerate the qualifiers of the superclass's property.
+	        // If a qualifier is defined on the superclass's property
+	        // but not on the subclass's, then add it to the subclass's
+	        // property's qualifier list.
+	        CIMProperty subproperty = _properties[pos];
+	        for (Uint32 i = 0, n = superproperty.getQualifierCount();
+		     i < n;
+		     i++) {
+		    Uint32 pos = PEG_NOT_FOUND;
+		    CIMQualifier superClassQualifier = 
+		                            superproperty.getQualifier(i);
+		    const String name = superClassQualifier.getName();
+		    for (Uint32 j = 0, m = subproperty.getQualifierCount();
+		         j < m;
+		         j++) {
+		        CIMConstQualifier q = subproperty.getQualifier(j);
+		        if (CIMName::equal(name,
+					   q.getName())) {
+		            pos = j;
+		            break;
+		        }
+		    }  // end comparison of subclass property's qualifiers
+		    if (pos == PEG_NOT_FOUND) {
+		        subproperty.addQualifier(superClassQualifier);
+		    }
+		} // end iteration over superclass property's qualifiers
 	    }
 	}
 

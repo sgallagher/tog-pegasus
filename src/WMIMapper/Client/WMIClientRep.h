@@ -79,6 +79,9 @@ public:
 
     virtual void handleEnqueue();
 
+	void registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler) {};
+    void deregisterClientOpPerformanceDataHandler(){};
+
 	Uint32 getTimeout() const 
 	{
 		return _timeoutMilliseconds;

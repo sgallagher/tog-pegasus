@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -81,7 +81,7 @@ int main(void)
         //
         //  This test exercises the IdentityContainer copy constructor
         //
-        IdentityContainer container = 
+        IdentityContainer container =
             (IdentityContainer)context.get(IdentityContainer::NAME);
 
         if(userName != container.getUserName())
@@ -146,15 +146,15 @@ int main(void)
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
         String("root/PG_InterOp")));
     Array<CIMKeyBinding> filterKeyBindings;
-    filterKeyBindings.append (CIMKeyBinding ("SystemCreationClassName", 
+    filterKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
         "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("SystemName", 
+    filterKeyBindings.append (CIMKeyBinding ("SystemName",
         "server001.acme.com", CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("CreationClassName", 
+    filterKeyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("Name", 
+    filterKeyBindings.append (CIMKeyBinding ("Name",
         "Filter1", CIMKeyBinding::STRING));
-    CIMObjectPath filterRef ("", CIMNamespaceName (), 
+    CIMObjectPath filterRef ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, filterKeyBindings);
     filterInstance.setPath (filterRef);
 
@@ -170,16 +170,16 @@ int main(void)
     handlerInstance.addProperty(CIMProperty(CIMName ("Destination"),
         String("localhost:5988/test1")));
     Array<CIMKeyBinding> handlerKeyBindings;
-    handlerKeyBindings.append (CIMKeyBinding ("SystemCreationClassName", 
+    handlerKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
         "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("SystemName", 
+    handlerKeyBindings.append (CIMKeyBinding ("SystemName",
         "server001.acme.com", CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("CreationClassName", 
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(), 
+    handlerKeyBindings.append (CIMKeyBinding ("CreationClassName",
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
         CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("Name", 
+    handlerKeyBindings.append (CIMKeyBinding ("Name",
         "Handler1", CIMKeyBinding::STRING));
-    CIMObjectPath handlerRef ("", CIMNamespaceName (), 
+    CIMObjectPath handlerRef ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handlerKeyBindings);
     handlerInstance.setPath (handlerRef);
 
@@ -195,19 +195,19 @@ int main(void)
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
     subscriptionInstance.addProperty (CIMProperty
-        (CIMName ("TimeOfLastStateChange"), CIMValue 
+        (CIMName ("TimeOfLastStateChange"), CIMValue
             (CIMDateTime::getCurrentDateTime())));
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionDuration"), CIMValue ((Uint64) 86400)));
     subscriptionInstance.addProperty (CIMProperty
-        (CIMName ("SubscriptionStartTime"), CIMValue 
+        (CIMName ("SubscriptionStartTime"), CIMValue
             (CIMDateTime::getCurrentDateTime())));
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionTimeRemaining"), CIMValue ((Uint64) 86400)));
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("RepeatNotificationPolicy"), CIMValue ((Uint16) 1)));
     subscriptionInstance.addProperty (CIMProperty
-        (CIMName ("OtherRepeatNotificationPolicy"), CIMValue("AnotherPolicy")));
+        (CIMName ("OtherRepeatNotificationPolicy"), CIMValue(String("AnotherPolicy"))));
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("RepeatNotificationInterval"), CIMValue ((Uint64) 60)));
     subscriptionInstance.addProperty (CIMProperty
@@ -241,10 +241,10 @@ int main(void)
         context.insert(SubscriptionInstanceContainer(subscriptionInstance));
 
         //
-        //  This test exercises the SubscriptionInstanceContainer copy 
+        //  This test exercises the SubscriptionInstanceContainer copy
         //  constructor
         //
-        SubscriptionInstanceContainer container = 
+        SubscriptionInstanceContainer container =
             (SubscriptionInstanceContainer)context.get
             (SubscriptionInstanceContainer::NAME);
 
@@ -268,7 +268,7 @@ int main(void)
         context.insert(SubscriptionInstanceContainer(subscriptionInstance));
 
         //
-        //  This test exercises the SubscriptionInstanceContainer assignment 
+        //  This test exercises the SubscriptionInstanceContainer assignment
         //  operator
         //
         SubscriptionInstanceContainer container = SubscriptionInstanceContainer
@@ -283,8 +283,8 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
-            "----- Subscription Instance Container assignment operator failed" 
+        cout <<
+            "----- Subscription Instance Container assignment operator failed"
              << endl;
 
         exit(1);
@@ -327,10 +327,10 @@ int main(void)
             queryLanguage));
 
         //
-        //  This test exercises the SubscriptionFilterConditionContainer copy 
+        //  This test exercises the SubscriptionFilterConditionContainer copy
         //  constructor
         //
-        SubscriptionFilterConditionContainer container = 
+        SubscriptionFilterConditionContainer container =
             (SubscriptionFilterConditionContainer)context.get
             (SubscriptionFilterConditionContainer::NAME);
 
@@ -342,8 +342,8 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
-          "----- SubscriptionFilterCondition Container copy constructor failed" 
+        cout <<
+          "----- SubscriptionFilterCondition Container copy constructor failed"
              << endl;
 
         exit(1);
@@ -359,10 +359,10 @@ int main(void)
             queryLanguage));
 
         //
-        //  This test exercises the SubscriptionFilterConditionContainer 
+        //  This test exercises the SubscriptionFilterConditionContainer
         //  assignment operator
         //
-        SubscriptionFilterConditionContainer container = 
+        SubscriptionFilterConditionContainer container =
             SubscriptionFilterConditionContainer(" ", " ");
         container =
             (SubscriptionFilterConditionContainer)context.get
@@ -376,7 +376,7 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
+        cout <<
         "----- SubscriptionFilterCondition Container assignment operator failed"
              << endl;
 
@@ -423,10 +423,10 @@ int main(void)
             queryLanguage, sourceNamespace));
 
         //
-        //  This test exercises the SubscriptionFilterQueryContainer copy 
+        //  This test exercises the SubscriptionFilterQueryContainer copy
         //  constructor
         //
-        SubscriptionFilterQueryContainer container = 
+        SubscriptionFilterQueryContainer container =
             (SubscriptionFilterQueryContainer)context.get
             (SubscriptionFilterQueryContainer::NAME);
 
@@ -439,8 +439,8 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
-          "----- SubscriptionFilterQuery Container copy constructor failed" 
+        cout <<
+          "----- SubscriptionFilterQuery Container copy constructor failed"
              << endl;
 
         exit(1);
@@ -458,10 +458,10 @@ int main(void)
             queryLanguage, sourceNamespace));
 
         //
-        //  This test exercises the SubscriptionFilterQueryContainer 
+        //  This test exercises the SubscriptionFilterQueryContainer
         //  assignment operator
         //
-        SubscriptionFilterQueryContainer container = 
+        SubscriptionFilterQueryContainer container =
             SubscriptionFilterQueryContainer(" ", " ", junkNamespace);
         container =
             (SubscriptionFilterQueryContainer)context.get
@@ -476,7 +476,7 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
+        cout <<
         "----- SubscriptionFilterQuery Container assignment operator failed"
              << endl;
 
@@ -491,7 +491,7 @@ int main(void)
     //  Create a second Subscription instance for testing
     //
     CIMInstance filterInstance2(PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance2.addProperty(CIMProperty (CIMName 
+    filterInstance2.addProperty(CIMProperty (CIMName
         ("SystemCreationClassName"), String("CIM_UnitaryComputerSystem")));
     filterInstance2.addProperty(CIMProperty(CIMName ("SystemName"),
         String("server001.acme.com")));
@@ -506,15 +506,15 @@ int main(void)
     filterInstance2.addProperty (CIMProperty(CIMName ("SourceNamespace"),
         String("root/PG_InterOp")));
     Array<CIMKeyBinding> filterKeyBindings2;
-    filterKeyBindings2.append (CIMKeyBinding ("SystemCreationClassName", 
+    filterKeyBindings2.append (CIMKeyBinding ("SystemCreationClassName",
         "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
-    filterKeyBindings2.append (CIMKeyBinding ("SystemName", 
+    filterKeyBindings2.append (CIMKeyBinding ("SystemName",
         "server001.acme.com", CIMKeyBinding::STRING));
-    filterKeyBindings2.append (CIMKeyBinding ("CreationClassName", 
+    filterKeyBindings2.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    filterKeyBindings2.append (CIMKeyBinding ("Name", 
+    filterKeyBindings2.append (CIMKeyBinding ("Name",
         "Filter2", CIMKeyBinding::STRING));
-    CIMObjectPath filterRef2 ("", CIMNamespaceName (), 
+    CIMObjectPath filterRef2 ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, filterKeyBindings2);
     filterInstance2.setPath (filterRef2);
 
@@ -530,16 +530,16 @@ int main(void)
     handlerInstance2.addProperty(CIMProperty(CIMName ("Destination"),
         String("localhost:5988/test2")));
     Array<CIMKeyBinding> handlerKeyBindings2;
-    handlerKeyBindings2.append (CIMKeyBinding ("SystemCreationClassName", 
+    handlerKeyBindings2.append (CIMKeyBinding ("SystemCreationClassName",
         "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
-    handlerKeyBindings2.append (CIMKeyBinding ("SystemName", 
+    handlerKeyBindings2.append (CIMKeyBinding ("SystemName",
         "server001.acme.com", CIMKeyBinding::STRING));
-    handlerKeyBindings2.append (CIMKeyBinding ("CreationClassName", 
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(), 
+    handlerKeyBindings2.append (CIMKeyBinding ("CreationClassName",
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
         CIMKeyBinding::STRING));
-    handlerKeyBindings2.append (CIMKeyBinding ("Name", 
+    handlerKeyBindings2.append (CIMKeyBinding ("Name",
         "Handler2", CIMKeyBinding::STRING));
-    CIMObjectPath handlerRef2 ("", CIMNamespaceName (), 
+    CIMObjectPath handlerRef2 ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handlerKeyBindings2);
     handlerInstance2.setPath (handlerRef2);
 
@@ -555,20 +555,20 @@ int main(void)
     subscriptionInstance2.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
     subscriptionInstance2.addProperty (CIMProperty
-        (CIMName ("TimeOfLastStateChange"), CIMValue 
+        (CIMName ("TimeOfLastStateChange"), CIMValue
             (CIMDateTime::getCurrentDateTime())));
     subscriptionInstance2.addProperty (CIMProperty
         (CIMName ("SubscriptionDuration"), CIMValue ((Uint64) 172800)));
     subscriptionInstance2.addProperty (CIMProperty
-        (CIMName ("SubscriptionStartTime"), CIMValue 
+        (CIMName ("SubscriptionStartTime"), CIMValue
             (CIMDateTime::getCurrentDateTime())));
     subscriptionInstance2.addProperty (CIMProperty
         (CIMName ("SubscriptionTimeRemaining"), CIMValue ((Uint64) 172800)));
     subscriptionInstance2.addProperty (CIMProperty
         (CIMName ("RepeatNotificationPolicy"), CIMValue ((Uint16) 1)));
     subscriptionInstance2.addProperty (CIMProperty
-        (CIMName ("OtherRepeatNotificationPolicy"), 
-            CIMValue("AnotherPolicy2")));
+        (CIMName ("OtherRepeatNotificationPolicy"),
+            CIMValue(String("AnotherPolicy2"))));
     subscriptionInstance2.addProperty (CIMProperty
         (CIMName ("RepeatNotificationInterval"), CIMValue ((Uint64) 120)));
     subscriptionInstance2.addProperty (CIMProperty
@@ -581,19 +581,19 @@ int main(void)
     //
     Array<CIMObjectPath> subscriptionInstanceNames;
     Array<CIMKeyBinding> subscriptionKeyBindings;
-    subscriptionKeyBindings.append (CIMKeyBinding ("Filter", 
+    subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
         filterRef.toString(), CIMKeyBinding::REFERENCE));
-    subscriptionKeyBindings.append (CIMKeyBinding ("Handler", 
+    subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
         handlerRef.toString(), CIMKeyBinding::REFERENCE));
-    CIMObjectPath subscriptionRef ("", CIMNamespaceName (), 
+    CIMObjectPath subscriptionRef ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
     subscriptionInstance.setPath (subscriptionRef);
     Array<CIMKeyBinding> subscriptionKeyBindings2;
-    subscriptionKeyBindings2.append (CIMKeyBinding ("Filter", 
+    subscriptionKeyBindings2.append (CIMKeyBinding ("Filter",
         filterRef2.toString(), CIMKeyBinding::REFERENCE));
-    subscriptionKeyBindings2.append (CIMKeyBinding ("Handler", 
+    subscriptionKeyBindings2.append (CIMKeyBinding ("Handler",
         handlerRef2.toString(), CIMKeyBinding::REFERENCE));
-    CIMObjectPath subscriptionRef2 ("", CIMNamespaceName (), 
+    CIMObjectPath subscriptionRef2 ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings2);
     subscriptionInstance2.setPath (subscriptionRef2);
     subscriptionInstanceNames.append (subscriptionRef);
@@ -607,7 +607,7 @@ int main(void)
         SubscriptionInstanceNamesContainer container = context.get
             (SubscriptionInstanceNamesContainer::NAME);
 
-        Array<CIMObjectPath> returnedInstanceNames = 
+        Array<CIMObjectPath> returnedInstanceNames =
             container.getInstanceNames();
         for (Uint8 i = 0; i < subscriptionInstanceNames.size(); i++)
         {
@@ -633,14 +633,14 @@ int main(void)
             (subscriptionInstanceNames));
 
         //
-        //  This test exercises the SubscriptionInstanceNamesContainer copy 
+        //  This test exercises the SubscriptionInstanceNamesContainer copy
         //  constructor
         //
-        SubscriptionInstanceNamesContainer container = 
+        SubscriptionInstanceNamesContainer container =
             (SubscriptionInstanceNamesContainer)context.get
             (SubscriptionInstanceNamesContainer::NAME);
 
-        Array<CIMObjectPath> returnedInstanceNames = 
+        Array<CIMObjectPath> returnedInstanceNames =
             container.getInstanceNames();
         for (Uint8 i = 0; i < subscriptionInstanceNames.size(); i++)
         {
@@ -653,7 +653,7 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
+        cout <<
           "----- Subscription Instance Names Container copy constructor failed"
              << endl;
 
@@ -668,11 +668,11 @@ int main(void)
             (subscriptionInstanceNames));
 
         //
-        //  This test exercises the SubscriptionInstanceNamesContainer 
+        //  This test exercises the SubscriptionInstanceNamesContainer
         //  assignment operator
         //
         Array<CIMObjectPath> returnedInstanceNames;
-        SubscriptionInstanceNamesContainer container = 
+        SubscriptionInstanceNamesContainer container =
             SubscriptionInstanceNamesContainer (returnedInstanceNames);
         container = (SubscriptionInstanceNamesContainer)context.get
             (SubscriptionInstanceNamesContainer::NAME);
@@ -689,7 +689,7 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
+        cout <<
         "----- Subscription Instance Names Container assignment operator failed"
              << endl;
 
@@ -790,10 +790,10 @@ int main(void)
         context.insert(SnmpTrapOidContainer(snmpTrapOid));
 
         //
-        //  This test exercises the SnmpTrapOidContainer copy 
+        //  This test exercises the SnmpTrapOidContainer copy
         //  constructor
         //
-        SnmpTrapOidContainer container = 
+        SnmpTrapOidContainer container =
             (SnmpTrapOidContainer)context.get
             (SnmpTrapOidContainer::NAME);
 
@@ -804,8 +804,8 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
-          "----- SnmpTrapOid Container copy constructor failed" 
+        cout <<
+          "----- SnmpTrapOid Container copy constructor failed"
              << endl;
 
         exit(1);
@@ -819,10 +819,10 @@ int main(void)
         context.insert(SnmpTrapOidContainer(snmpTrapOid));
 
         //
-        //  This test exercises the SnmpTrapOidContainer 
+        //  This test exercises the SnmpTrapOidContainer
         //  assignment operator
         //
-        SnmpTrapOidContainer container = 
+        SnmpTrapOidContainer container =
             SnmpTrapOidContainer(" ");
         container =
             (SnmpTrapOidContainer)context.get
@@ -835,8 +835,29 @@ int main(void)
     }
     catch(...)
     {
-        cout << 
+        cout <<
         "----- SnmpTrapOid Container assignment operator failed" << endl;
+
+        exit(1);
+    }
+
+    try
+    {
+        context.clear();
+
+        CIMClass cimClass("CachedClass");
+
+        context.insert(CachedClassDefinitionContainer(cimClass));
+
+        if(cimClass.getClassName().getString() !=
+           CachedClassDefinitionContainer(context.get(CachedClassDefinitionContainer::NAME)).getClass().getClassName().getString())
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << "----- CachedClassDefinitionContainer failed" << endl;
 
         exit(1);
     }

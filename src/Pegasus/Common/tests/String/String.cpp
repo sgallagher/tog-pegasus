@@ -79,12 +79,8 @@ int main(int argc, char** argv)
 #endif
 
 #ifdef HAVE_SSTREAM
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     string os_str = os.str();
     const char* tmp = os_str.c_str();
-#else
-    const char* tmp = os.str().c_str();
-#endif
 #endif
 #ifdef HAVE_STRSTREAM
 	char *tmp = os.str();

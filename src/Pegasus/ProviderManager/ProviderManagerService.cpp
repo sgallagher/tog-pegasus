@@ -82,7 +82,7 @@ static struct timeval deadwait = { 1, 0};
 
 ProviderManagerService::ProviderManagerService(void)
     : MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId()),
-    _threadPool(10, "ProviderManagerService", 1, 5, await, dwait, deadwait),
+    _threadPool(10, "ProviderManagerService", 2, 7, await, dwait, deadwait),
     _threadSemaphore(0)
 {
 }
@@ -377,14 +377,13 @@ void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
     PEGASUS_ASSERT(request != 0);
 
     Status status;
-
     CIMInstance cimInstance;
 
     try
     {
 	// make class reference
 	CIMReference classReference(
-	    request->instanceName.getHost(),
+	    System::getHostName(),
 	    request->nameSpace,
 	    request->instanceName.getClassName());
 
@@ -397,6 +396,7 @@ void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
 	// convert arguments
 	OperationContext context;
 
+	// add the user name to the context
 	context.add_context(sizeof(String *),
 	    const_cast<String *>(&(request->userName)),
 	    0,
@@ -474,14 +474,13 @@ void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) 
     PEGASUS_ASSERT(request != 0);
 
     Status status;
-
     Array<CIMNamedInstance> cimInstances;
 
     try
     {
 	// make class reference
 	CIMReference classReference(
-	    "",
+	    System::getHostName(),
 	    request->nameSpace,
 	    request->className);
 
@@ -493,6 +492,15 @@ void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) 
 
 	// convert arguments
 	OperationContext context;
+
+	// add the user name to the context
+	context.add_context(sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
 
 	// ATTN: propagate namespace
 	classReference.setNameSpace(request->nameSpace);
@@ -559,14 +567,13 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(Message * messa
     PEGASUS_ASSERT(request != 0);
 
     Status status;
-
     Array<CIMReference> cimReferences;
 
     try
     {
 	// make class reference
 	CIMReference classReference(
-	    "",
+	    System::getHostName(),
 	    request->nameSpace,
 	    request->className);
 
@@ -578,6 +585,15 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(Message * messa
 
 	// convert arguments
 	OperationContext context;
+
+	// add the user name to the context
+	context.add_context(sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
 
 	// ATTN: propagate namespace
 	classReference.setNameSpace(request->nameSpace);
@@ -628,9 +644,9 @@ void ProviderManagerService::handleCreateInstanceRequest(Message * message) thro
 
     PEGASUS_ASSERT(request != 0);
 
+    Status status;
     CIMInstance cimInstance;
     CIMReference instanceName;
-    Status status;
 
     try
     {
@@ -638,7 +654,7 @@ void ProviderManagerService::handleCreateInstanceRequest(Message * message) thro
 
 	// make class reference
 	CIMReference classReference(
-	    "",
+	    System::getHostName(),
 	    request->nameSpace,
 	    className);
 
@@ -650,6 +666,15 @@ void ProviderManagerService::handleCreateInstanceRequest(Message * message) thro
 
 	// convert arguments
 	OperationContext context;
+
+	// add the user name to the context
+	context.add_context(sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
 
 	CIMReference instanceReference;
 
@@ -714,8 +739,8 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMReference instanceName;
     Status status;
+    CIMReference instanceName;
 
     try
     {
@@ -724,7 +749,7 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
 
 	// make class reference
 	CIMReference classReference(
-	    instanceName.getHost(),
+	    System::getHostName(),
 	    request->nameSpace,
 	    className);
 
@@ -736,6 +761,15 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
 
 	// convert arguments
 	OperationContext context;
+
+	// add the user name to the context
+	context.add_context(sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
@@ -799,7 +833,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(Message * message) thro
 
 	// make class reference
 	CIMReference classReference(
-	    request->instanceName.getHost(),
+	    System::getHostName(),
 	    request->nameSpace,
 	    className);
 
@@ -1030,17 +1064,16 @@ void ProviderManagerService::handleInvokeMethodRequest(Message * message) throw(
 
     PEGASUS_ASSERT(request != 0);
 
-    // process request
+    Status status;
     CIMValue returnValue;
     Array<CIMParamValue> outParameters;
-    Status status;
     CIMInstance cimInstance;
 
     try
     {
 	// make class reference
 	CIMReference classReference(
-	    request->instanceName.getHost(),
+	    System::getHostName(),
 	    request->nameSpace,
 	    request->instanceName.getClassName());
 
@@ -1052,6 +1085,15 @@ void ProviderManagerService::handleInvokeMethodRequest(Message * message) throw(
 
 	// convert arguments
 	OperationContext context;
+
+	// add the user name to the context
+	context.add_context(sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
 
 	CIMReference instanceReference(request->instanceName);
 
@@ -1121,7 +1163,7 @@ void ProviderManagerService::handleEnableIndicationRequest(Message * message) th
     {
 	// make class reference
 	CIMReference classReference(
-	    "",
+	    System::getHostName(),
 	    request->nameSpace,
 	    request->classNames[0]);
 

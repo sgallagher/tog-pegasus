@@ -72,7 +72,7 @@ class CIMRepository_Mode {
     UNUSED2 = 16,
     UNUSED3 = 32,
     UNUSED4 = 64,
-    ANY = 0xFF,
+    ANY = 0xFF
   };
 };
 

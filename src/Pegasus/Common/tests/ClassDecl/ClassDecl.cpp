@@ -32,8 +32,10 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
 
+// ATTN-P3-KS - 20 March 2002 - Extend exception tests.
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 void test01()
 {
@@ -229,8 +231,9 @@ void test01()
     catch(OutOfBounds& e)
     {
     }
-
-    c5.print();
+	if(verbose) {
+		c5.print();
+	}
 
     // Test the findMethod and isMethod functions
     assert(c4.findMethod("DoesNotExist") == PEG_NOT_FOUND);
@@ -275,9 +278,11 @@ void test01()
     cout << "All tests" << endl;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    try
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    
+	try
     {
 	test01();
     }
@@ -286,7 +291,7 @@ int main()
 	cout << "Exception: " << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

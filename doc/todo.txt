@@ -4,6 +4,8 @@ Urgent
     -	Fix case sensitivity problems in repository (just add an _Open method
 	that ignores the case of the file).
 
+    -	Change INVALID_CLASS exceptions to NOT_FOUND (they're wrong in Rep).
+
 Topical To-Do List
 ==================
 

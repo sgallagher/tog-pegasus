@@ -73,7 +73,6 @@ void test01()
     assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
 
     String classFilePath = nsm.getClassFilePath("aa/bb", "MyClass");
-    PEGASUS_OUT(classFilePath);
 }
 
 int main()

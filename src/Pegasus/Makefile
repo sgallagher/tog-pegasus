@@ -52,7 +52,6 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
         ProviderManager2/CMPI
 endif
 
-
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
   ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
         $(error: Error: Remote CMPI is not currently supported on Windows.)

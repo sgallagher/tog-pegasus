@@ -30,7 +30,32 @@
 #include <vector>
 #include <string>
 
+////////////////////////////////////////////////////////////////////////////////
+//
 // Usage: strip start-pattern end-pattern filenames...
+//
+// Strip removes all line between a starting and ending pattern.
+// Consider this file for example called myfile.txt
+// 
+//     This is line one
+//     This is line two
+//     Start blah blah blah
+//     This is line three
+//     End blah blah blah
+//     This is line four
+// 
+// The following removes all lines between the line which begins
+// with "Start" and ends with "End":
+// 
+//     mu strip Start End myfile.txt
+// 
+// The resulting file looks like this:
+// 
+//     This is line one
+//     This is line two
+//     This is line four
+//
+////////////////////////////////////////////////////////////////////////////////
 
 int StripCmd(const vector<string>& args);
 

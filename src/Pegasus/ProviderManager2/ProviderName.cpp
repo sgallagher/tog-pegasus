@@ -157,6 +157,16 @@ void ProviderName::setObjectName(const String & logicalName)
     _logicalName = logicalName;
 }
 
+String ProviderName::getInterfaceName(void) const
+{
+    return(_interfaceName);
+}
+
+void ProviderName::setInterfaceName(const String & interfaceName)
+{
+    _interfaceName = interfaceName;
+}
+
 Uint32 ProviderName::getCapabilitiesMask(void) const
 {
     return(_capabilities);

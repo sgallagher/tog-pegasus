@@ -154,7 +154,6 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
     //_providerManager.append(ProviderManagerContainer("InternalProviderManager", "DEFAULT", "INTERNAL"));
     //#endif
 
-    /*
     #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
     #if defined(PEGASUS_OS_OS400)
     _providerManagers.append(ProviderManagerContainer("QSYS/QYCMDFTPVM", "DEFAULT", "C++Default"));
@@ -170,7 +169,6 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
     _providerManagers.append(ProviderManagerContainer("CMPIProviderManager", "CMPI", "CMPI"));
     #endif
     #endif
-    */
     // END TEMP SECTION
 }
 
@@ -657,19 +655,25 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     name = ProviderRegistrar().findProvider(name);
 
     // find provider manager for provider interface
-
-
-    try
+    for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::handleCimRequest() passing control to provider manager.");
+        if(String::equalNoCase(name.getInterfaceName(), _providerManagers[i].getInterfaceName()))
+        {
+            try
+            {
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "ProviderManagerService::handleCimRequest() passing control to provider manager.");
 
-        // forward request
-        response = _providerManagers[0].getProviderManager().processMessage(request);
-    }
-    catch(...)
-    {
-        // ATTN: create response with error message
+                // forward request
+                response = _providerManagers[0].getProviderManager().processMessage(request);
+            }
+            catch(...)
+            {
+                // ATTN: create response with error message
+            }
+
+            break;
+        }
     }
 
     // preserve message key

@@ -48,143 +48,137 @@ class CIMValueRep;
 
 /**
     The CIMValue class represents a value of any of the CIM data types
-    (see CIMType.h for a list of valid CIM data types). This class
+    (see \Ref{CIMType} for a list of valid CIM data types). This class
     encapsulates a union which holds the current value. The class also
     has a type field indicating the type of that value.
 */
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
 public:
-    /** Constructor with no value. This constructor creates an NULL CIMValue
-        object set to null and with type CIMType:none and !arraytype.
+    /** Constructor - Creates an NULL CIMValue object set to null and 
+        with type CIMType:none and !arraytype.
     */
     CIMValue();
 
-    /** Constructor that creates a NULL CIMValue object with the type and
+    /** Constructor - Creates a NULL CIMValue object with the type and
         array indicator set as specified.
         @exception TypeMismatchException If the given type is not valid for a
         CIMValue object.
     */
     CIMValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    // ATTN This needs an example
-    /** Constructor with the Value constructor and a value.
-        This constructs a
-        CIMValue object with the type defined by the value constructor
-        and the value
-        installed
-    */
+    /// Constructor.
     CIMValue(Boolean x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Uint8 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Sint8 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Uint16 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Sint16 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Uint32 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Sint32 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Uint64 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Sint64 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Real32 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(Real64 x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Char16& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const String& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const CIMDateTime& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const CIMObjectPath& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Boolean>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Uint8>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Sint8>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Uint16>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Sint16>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Uint32>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Sint32>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Uint64>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Sint64>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Real32>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Real64>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<Char16>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<String>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<CIMDateTime>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const Array<CIMObjectPath>& x);
 
-    /// Constructor
+    /// Constructor.
     CIMValue(const CIMValue& x);
 
-    /// Destructor
+    /// Destructor.
     ~CIMValue();
 
     /// Operator =
     CIMValue& operator=(const CIMValue& x);
 
-    /** assign - The method to assign one CIMValue object to another CIMValue
-    object.
+    /** Assigns one CIMValue object to another CIMValue object.
+        @param x - CIMValue object to be used for assignment.
     */
     void assign(const CIMValue& x);
 
-    /** clear - Clears the attributes and value of the CIMValue object.
+    /** Clears the attributes and value of the CIMValue object.
     */
     void clear();
 
-    /** typeCompatible - Compares the types of two CIMValues. This
+    /** Compares the types of two CIMValues. This
         compares the type field and the array indicators.
         @return true if both are of the same type and both are either arrays
-        or not. Else returns false.
+        or not, false otherwise.
         <pre>
             CIMValue a(Boolean(true);
             CIMValue b = a;
@@ -194,54 +188,43 @@ public:
     */
     Boolean typeCompatible(const CIMValue& x) const;
 
-    /** isArray - Determines if the value is an array
-        @return TRUE if the value is an array
+    /** Determines if the value is an array.
+        @return true if the value is an array, false otherwise.
     */
     Boolean isArray() const;
 
-    /** Returns whether the CIMvalue object is Null. 
+    /** Determines whether the CIMvalue object is Null. 
         Null is the specific condition where no value has
-        yet been set into the value.
-        If a CIMValue object is Null, any get on that object
-        will create an exception.
-        @return Returns True if the CIMValue object is Null
+        yet been set. If a CIMValue object is Null, any get on that 
+        object will create an exception.
+        @return true if the CIMValue object is Null, false otherwise.
     */
     Boolean isNull() const;
 
-    /** getArraySize = Returns the size of an Array CIMValue
-        @return The number of entries in the array
+    /** Gets the size of an Array CIMValue.
+        @return The number of entries in the array.
     */
     Uint32 getArraySize() const;
 
-    /** getType - Gets the CIMType attribute for the CIMValue.
-        @return the CIMType value
+    /** Gets the CIMType attribute for the CIMValue.
+        @return the CIMType value.
     */
     CIMType getType() const;
 
-    /** setNullValue - Sets the CIMType, the Array indicator and if it is
-        the arraytype, the Arraysize of a CIMValue and sets the isNull
-        Attribute.  This function is used to set up CIMValues an NULL but
-        with valid CIMType and array characteristics (ex. when update from
-        XML)
-        @param type - The CIMType for this CIMValue
-        @param isArray - Boolean indicating whether this is an array CIMValue
-        @param arraySize (optional) Uint32 parameter indicating the array
-        size
-        @return void
+    /** Sets the CIMValue a NULL, but with valid CIMType and array 
+        characteristics.
+        @param type - CIMType for this CIMValue.
+        @param isArray - Boolean indicating whether this is an array CIMValue.
+        @param arraySize - Optional parameter indicating the array size.
         <pre>
-            CIMValue value;                   // Create a CIMValue object
-            value.setNullValue(CIMType::BOOLEAN, false);  // Set it       
+            CIMValue value;             
+            value.setNullValue(CIMType::BOOLEAN, false); 
         </pre>
     */
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    //  All of the CIMTypes defined in ATTN: and the Array types defined in
-    //  ATTN: may be set.
-    /** set - Sets the type, Array attribute and puts the value provided
-        into the value of the target CIMValue. This function sets the
-        CIMValue to nonNull also. The result is a complete CIMValue object
-        @param x Typed value (ex. Boolean(true).
-        @return void
+    /** Sets the type, Array attribute and puts the value provided
+        into the value of the target CIMValue. 
         <pre>
             CIMValue x;
             x.set(Uint16(9));
@@ -249,7 +232,7 @@ public:
     */    
     void set(Boolean x);
 
-    /// Set
+    /// 
     void set(Uint8 x);
     ///
     void set(Sint8 x);
@@ -308,27 +291,24 @@ public:
     ///
     void set(const Array<CIMObjectPath>& x);
 
-    /** get - Gets the value of a CIMValue
-
+    /** Gets the value of a CIMValue.
         Note: Before using get, the caller should use getType () and isNull ()
         to ensure that the value is not null, and is of the correct type.
-        If the CIMValue is null, the output parameter is not updated.
 
-        @param Variable in which we return the value
-
+        @param Variable in which to return the value.
         @exception TypeMismatchException If the CIMValue type is not compatible
-                   with the type of the output parameter
-                <pre>
-                Uint32 v;
-                CIMValue value(CIMValue::UINT32, UINT32(99));
-                value.get(v);
-                </pre>
+                   with the type of the output parameter.
+        <pre>
+            Uint32 v;
+            CIMValue value(CIMValue::UINT32, UINT32(99));
+            value.get(v);
+        </pre>
 
         <pre>
-        Uint32 v;
-        CIMValue value = property.getValue ();
-        if ((value.getType () == CIMTYPE_UINT32) && (!value.isNull ()))
-            value.get (v);
+            Uint32 v;
+            CIMValue value = property.getValue ();
+            if ((value.getType () == CIMTYPE_UINT32) && (!value.isNull ()))
+                value.get (v);
         </pre>
     */
     void get(Boolean& x) const;
@@ -391,18 +371,18 @@ public:
     ///
     void get(Array<CIMObjectPath>& x) const; 
 
-    /** Compare with another CIMValue object for equality.
-        @param x - CIMValue to compare with
-        @return True if they are identical in type, attribute and value.
+    /** Compares with another CIMValue object for equality.
+        @param x - CIMValue to compare with.
+        @return true if they are identical in type, attribute and value,
+        false otherwise.
     */
     Boolean equal(const CIMValue& x) const;
 
-    /** toString - Converts the CIMvalue to a string.  Should only be
-            used for output purposes.  To get an actual String value, use
-            get(String &).
-        @return - String output for CIMValue.
+    /** Converts the CIMvalue to a string.  Should only be
+        used for output purposes.  To get an actual String value, use
+        get(String &).
+        @return  String output for CIMValue.
         <PRE>
-        Example:
             String test;
             CIMValue value(Boolean(true));
             test = value.toString();  // puts "TRUE" into test
@@ -422,13 +402,18 @@ private:
 };
 
 /** operator == compares two CIMValue objects for equality.
-        @param x - First CIMValue to compare
-        @param y - Second CIMValue to compare
-        @return True if they are identical in type, attribute and value.
+    @param x - First CIMValue to compare
+    @param y - Second CIMValue to compare
+    @return true if they are identical in type, attribute and value,
+    false otherwise.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMValue& x, const CIMValue& y);
 
-/** operator != compares two CIMValue objects for inequality
+/** operator != compares two CIMValue objects for inequality.
+    @param x - First CIMValue to compare
+    @param y - Second CIMValue to compare
+    @return true if they are NOT identical in type, attribute or value,
+    false otherwise.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const CIMValue& x, const CIMValue& y);
 

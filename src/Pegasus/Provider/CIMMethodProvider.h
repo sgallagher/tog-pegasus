@@ -62,23 +62,25 @@ parameters.</p>
 
 <p>Providers that derive from this class <i>must</i> implement
 all of these functions. A minimal implementation of <tt>invokeMethod</tt>
-may throw a {@link NotSupported NotSupported} exception.</p>
+may throw a {@link CIMNotSupportedException CIMNotSupportedException} exception.</p>
 
 <p>A method provider is not required to implement all of the
 CIM methods defined for a class; there can be more than one
 method provider for a class. Each provider
 may implement a subset of the defined methods, leaving other
 methods to be implemented by other method providers. No method
-may can implemented by more than one provider. The
+can be implemented by more than one provider. The
 methods that are implemented by a provider must be specified to
-the CIMOM through provider registration in the
+the CIM Server through provider registration in the
 <tt>SupportedMethods</tt> property of an instance of the
 <tt>PG_ProviderCapabilities</tt> class.</p>
 */
 class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMProvider
 {
 public:
+    ///
     CIMMethodProvider(void);
+    ///
     virtual ~CIMMethodProvider(void);
 
     /**
@@ -98,16 +100,14 @@ public:
 
     @param inParameters specifies the input parameters of the method.
 
-    @param outParameters specifies the output parameter of the method.
-
     @param handler a {@link ResponseHandler ResponseHandler} object used
-    to deliver results to the CIMOM.
+    to deliver results to the CIM Server.
 
-    @exception NotSupported
-    @exception InvalidParameter
-    @exception ObjectNotFound
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
+    @exception CIMObjectNotFoundException
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
     */
     virtual void invokeMethod(
 	const OperationContext & context,

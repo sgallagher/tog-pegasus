@@ -50,14 +50,18 @@ class Resolver;
 class CIMConstParameter;
 class CIMParameterRep;
 
+///
 class PEGASUS_COMMON_LINKAGE CIMParameter
 {
 public:
 
+    ///
     CIMParameter();
 
+    ///
     CIMParameter(const CIMParameter& x);
 
+    ///
     CIMParameter(
 	const CIMName& name, 
 	CIMType type,
@@ -65,53 +69,63 @@ public:
 	Uint32 arraySize = 0,
 	const CIMName& referenceClassName = CIMName());
 
+    ///
     ~CIMParameter();
 
+    ///
     CIMParameter& operator=(const CIMParameter& x);
 
+    ///
     const CIMName& getName() const ;
 
+    ///
     void setName(const CIMName& name);
 
+    ///
     Boolean isArray() const;
 
+    ///
     Uint32 getArraySize() const;
 
+    ///
     const CIMName& getReferenceClassName() const ;
 
+    ///
     CIMType getType() const ;
 
     // Throws AlreadyExistsException.
+    ///
     CIMParameter& addQualifier(const CIMQualifier& x);
 
+    ///
     Uint32 findQualifier(const CIMName& name) const;
 
+    ///
     CIMQualifier getQualifier(Uint32 index);
 
-    /** removeQualifier - Removes the CIMQualifier defined by the
-        specified index
-
-        @param index index of the qualifier to be removed
-
+    /** Removes the CIMQualifier defined by the input parameter.
+        @param index - Index of the qualifier to be removed.
         @exception IndexOutOfBoundsException if the index is outside
-        the range of qualifiers available for the CIMParameter
+        the range of qualifiers available for the CIMParameter.
     */
     void removeQualifier (Uint32 index);
 
+    ///
     CIMConstQualifier getQualifier(Uint32 index) const;
 
+    ///
     Uint32 getQualifierCount() const;
 
-    /**
-        Determines if the object has not been initialized.
-
-        @return  True if the object has not been initialized,
-                 False otherwise
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise.
      */
     Boolean isUninitialized() const;
 
+    ///
     Boolean identical(const CIMConstParameter& x) const;
 
+    ///
     CIMParameter clone() const;
 
 private:
@@ -134,16 +148,21 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+///
 class PEGASUS_COMMON_LINKAGE CIMConstParameter
 {
 public:
 
+    ///
     CIMConstParameter();
 
+    ///
     CIMConstParameter(const CIMConstParameter& x);
 
+    ///
     CIMConstParameter(const CIMParameter& x);
 
+    ///
     CIMConstParameter(
 	const CIMName& name, 
 	CIMType type,
@@ -151,32 +170,46 @@ public:
 	Uint32 arraySize = 0,
 	const CIMName& referenceClassName = CIMName());
 
+    ///
     ~CIMConstParameter();
 
+    ///
     CIMConstParameter& operator=(const CIMConstParameter& x);
 
+    ///
     CIMConstParameter& operator=(const CIMParameter& x);
 
+    ///
     const CIMName& getName() const;
 
+    ///
     Boolean isArray() const;
 
+    ///
     Uint32 getArraySize() const;
 
+    ///
     const CIMName& getReferenceClassName() const;
 
+    ///
     CIMType getType() const;
 
+    ///
     Uint32 findQualifier(const CIMName& name) const;
 
+    ///
     CIMConstQualifier getQualifier(Uint32 index) const;
 
+    ///
     Uint32 getQualifierCount() const;
 
+    ///
     Boolean isUninitialized() const;
 
+    ///
     Boolean identical(const CIMConstParameter& x) const;
 
+    ///
     CIMParameter clone() const;
 
 private:

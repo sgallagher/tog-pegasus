@@ -54,30 +54,29 @@ class CIMConstQualifierDecl;
 class CIMClassRep;
 class CIMQualifierDeclRep;
 
-/** Class CIMQualifierDecl
-  This class defines the CIM Qualifier Declarations. Note that the Declarations
-  are not the same as CIM Qualiifers as seen on Classes, properties, etc.
-  These are the original declarations of qualifiers (i.e. input from the compiler
-  qualifierDeclarations.
+/** The CIMQualifierDecl class is used to represent CIM qualifier
+    declarations in Pegasus.
+    Note that the Declarations
+    are not the same as CIM Qualiifers as seen on Classes, properties, etc.
+    These are the original declarations of qualifiers (i.e. input from the compiler
+    qualifier Declarations).
 */
 class PEGASUS_COMMON_LINKAGE CIMQualifierDecl
 {
 public:
-    /// Constructor - 
+    /// Constructor.
     CIMQualifierDecl();
 
-    /// Constructor - Creates a CIMQualifierDecl from another CIMQualifierDecl
+    /// Constructor - Creates a CIMQualifierDecl from another CIMQualifierDecl.
     CIMQualifierDecl(const CIMQualifierDecl& x);
 
-    /** Constructor for CIMQualifierDecl. Constructs a single CIMQualifierDecl
-        object.
-        @param name Name of the Qualifier being declared
-        @param value CIMValue for the qualifier
-        @param scope scope of the qualifier
-        @param flavor Optional definition of the flavor for the qualifier.  
-        CIMFlavor::DEFAULTS is used if no value supplied.  This is how we
-        install the flavor defaults defined in the CIM specificaiton
-        @param arraySize Optional integer defining the arraysize if the
+    /** Constructor - Constructs a single CIMQualifierDecl object.
+        @param name - CIMName containing the name of the Qualifier being created.
+        @param value - CIMValue for the qualifier.
+        @param scope - CIMScope containing the scope of the qualifier.
+        @param flavor - Optional definition of the flavor for the qualifier.  
+        CIMFlavor::DEFAULTS is used if no value supplied.  
+        @param arraySize - Optional integer defining the arraysize if the
         qualifier is an array type with fixed value array. The default is
         zero indicating that the qualifier declaration is not a fixed size
         array.
@@ -89,75 +88,65 @@ public:
         const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
 
-    /// Destructor
+    /// Destructor.
     ~CIMQualifierDecl();
 
-    /// Operator
+    /// Operator.
     CIMQualifierDecl& operator=(const CIMQualifierDecl& x);
 
-    /**
-    Get the name of a CIMQualifierDecl object.
+    /** Get the name of the CIMQualifierDecl object.
+        @return CIMName containing the name of the CIMQualifierDecl object.
     */
     const CIMName& getName() const;
 
-    /** setName - Puts the name into a CIMQualifierdecl
-        @param Name CIMName containing name to be put on this qualifier.
+    /** Sets the name in the CIMQualifierDecl object.
+        @param name CIMName containing name to be set on this qualifier.
     */
     void setName(const CIMName& name);
 
-    //  ATTN: P3 Documentation clean up
-    /** getType - gets the Qualifier Declaration type which is the
-        value type (boolean, etc. for this qualifier.
-        @return Returns the type as CIMType
+    /** Gets the Qualifier Declaration type which is the
+        value type (boolean, etc. for this qualifier).
+        @return the type as CIMType.
     */
     CIMType getType() const;
 
-    //  ATTN: P1 KS 04/17/02 Confirm this correspond to array type or fixed array?
-    /** isArray - test if this qualifier declaration is an array type.
-        @return Boolean true if this is array type.
+    /** Determines if this qualifier declaration is an array type.
+        @return true if this is an array type, false otherwise.
     */
     Boolean isArray() const;
 
-    /** CIMMethod
-    */
+    ///
     const CIMValue& getValue() const;
 
-    /** CIMMethod
-    */
+    ///
     void setValue(const CIMValue& value);
 
-    /** CIMMethod
-    */
+    ///
     const CIMScope & getScope() const;
 
-    /** getFlavor - Gets the Flavor definition from the qualifier declaration
-        constant
-        @return - a CIMFlavor object containing the flavor flags.  The 
+    /** Gets the Flavor definition from the qualifier declaration.
+        @return CIMFlavor object containing the flavor flags.  The 
         CIMFlavor hasFlavor method can be used to test against the flavor 
         constants defined in CIMFlavor.
-        @SeeAlso 
+        @See CIMFlavor
     */
     const CIMFlavor & getFlavor() const;
 
-    /** CIMMethod
-    */
+    ///
     Uint32 getArraySize() const;
 
-    /**
-        Determines if the object has not been initialized.
-
-        @return  True if the object has not been initialized,
-                 False otherwise
-     */
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise.
+    */
     Boolean isUninitialized() const;
     
-    /** identical Compares two qualifier declarations
-        @return Returns true if they are identical
+    /** Compares two qualifier declarations.
+        @return true if they are identical, false otherwise.
     */ 
     Boolean identical(const CIMConstQualifierDecl& x) const;
 
-    /** CIMMethod
-    */
+    ///
     CIMQualifierDecl clone() const;
 
 private:
@@ -180,6 +169,7 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+///
 class PEGASUS_COMMON_LINKAGE CIMConstQualifierDecl
 {
 public:
@@ -192,14 +182,16 @@ public:
     ///
     CIMConstQualifierDecl(const CIMQualifierDecl& x);
 
-    /** Constructor creates a CIMConstQualiferDecl.
-        @param name Name of the qualifier declaration object
-        @param value CIMValue to put into the declaration
-        @param scope
-        @param flavor Optional flavor to define for the declaration. Default
-        if not specified is CIMFlavor::DEFAULTS
-        @arraysize Optional integer with array size for fixed size arrays.  If
-        not supplied, assumes 0.
+    /** Constructor - Creates a CIMConstQualiferDecl.
+        @param name - CIMName containing the name of the Qualifier declaration.
+        @param value - CIMValue for the qualifier.
+        @param scope - CIMScope containing the scope of the qualifier.
+        @param flavor - Optional definition of the flavor for the qualifier.  
+        CIMFlavor::DEFAULTS is used if no value supplied.  
+        @param arraySize - Optional integer defining the arraysize if the
+        qualifier is an array type with fixed value array. The default is
+        zero indicating that the qualifier declaration is not a fixed size
+        array.
     */
     CIMConstQualifierDecl(
         const CIMName& name, 
@@ -208,6 +200,7 @@ public:
         const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
 
+    ///
     ~CIMConstQualifierDecl();
 
     ///
@@ -237,6 +230,7 @@ public:
     ///
     Uint32 getArraySize() const;
 
+    ///
     Boolean isUninitialized() const;
 
     ///

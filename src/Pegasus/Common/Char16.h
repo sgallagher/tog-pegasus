@@ -46,22 +46,22 @@ class PEGASUS_COMMON_LINKAGE Char16
 {
 public:
 
-    /// Constructor Char16
+    /// Constructor.
     Char16();
 
-    /// Constructor Char16
+    /// Constructor.
     Char16(Uint16 x);
 
-    /// Constructor Char16
+    /// Constructor.
     Char16(const Char16& x);
 
-    /** Destructor. */
+    /// Destructor.
     ~Char16();
 
-    /// Constructor Char16
+    /// Assignment operator.
     Char16& operator=(Uint16 x);
 
-    /// Constructor Char16
+    /// Assignment operator.
     Char16& operator=(const Char16& x);
 
     /// Implicit converter from Char16 to Uint16

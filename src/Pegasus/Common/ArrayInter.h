@@ -35,13 +35,9 @@
 
 #include <Pegasus/Common/Linkage.h>
 
-/** Array Class.
-    This class is used to represent arrays of intrinsic data types in CIM. And
-    it is also used by the implementation to represent arrays of other kinds of
-    objects (e.g., it is used to implement the String class). However, the user
-    will only use it directly to manipulate arrays of CIM data types.
-*/
 #ifndef PEGASUS_ARRAY_T
+/** This class is used to represent arrays of intrinsic data types in CIM. 
+*/
 template<class PEGASUS_ARRAY_T> class Array
 #else
 PEGASUS_TEMPLATE_SPECIALIZATION class PEGASUS_COMMON_LINKAGE Array<PEGASUS_ARRAY_T>
@@ -92,7 +88,7 @@ public:
     */
     void reserveCapacity(Uint32 capacity);
 
-    /** Make the size of the array grow by size elements. Thenew size will 
+    /** Make the size of the array grow by size elements. The new size will 
         be size() + size. The new elements (there are size of them) are
         initialized with x.
         @param size defines the number of elements by which the array is to

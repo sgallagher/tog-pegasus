@@ -30,11 +30,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*
- CIMQualifier.h - Defines the CIM qualifiers class.
-
-*/
-
 #ifndef Pegasus_Qualifier_h
 #define Pegasus_Qualifier_h
 
@@ -58,41 +53,38 @@ class CIMClassRep;
 class Resolver;
 class CIMQualifierRep;
 
-/** Class CIMQualifier - This class defines the Pegasus implementation of the 
-    CIM Qualifier \Ref{QUALIFIER}.  It is almost identical to
-    CIMQualifierDecl except that it has no scope member. \Ref{CIMQualifierDecl}
+/** The CIMQualifier class is used to represent CIM qualifiers in Pegasus.
+    It is almost identical to \Ref{CIMQualifierDecl} except that it has no 
+    scope member.
     This includes functions to create qualifiers and manipulate/test
     the individual components of the CIMQualifier.
-    CIMQualifiers are accumulated into lists for use in CIMClasses and CIM
-    Properties using the CIMQualifierList Class and its
-    functions. \Ref{CIMQualifierList}
+    CIMQualifiers are accumulated into lists for use in CIMClasses and 
+    CIMProperties using the \Ref{CIMQualifierList} Class and its
+    functions.
 */
 class PEGASUS_COMMON_LINKAGE CIMQualifier
 {
 public:
 
-    /** Constructor instantiates a CIM qualifier with empty name value 
-	fields.Constructor 
-	@return instantiated empty qualifier object
+    /** Constructor - Creates a CIM qualifier object with empty name 
+        value fields.
     */
     CIMQualifier();
 
-    /** Constructor - instantiates a CIM qualifier object from another 
-        qualifier object. 
-        @param CIM CIMQualifier object
-        @return - Instantiated qualifier object
+    /** Constructor - Creates a CIM qualifier object from another 
+        CIM qualifier object. 
+        @param x - CIMQualifier object.
     */
     CIMQualifier(const CIMQualifier& x);
 
-    /** Constructor - Instantiates a CIM qualifier object with the parameters 
+    /** Constructor - Creates a CIM qualifier object with the parameters 
         defined on input.
-        @param CIMName representing CIMName for the new qualifier
-        @param value
+        @param name - CIMName representing name for the new qualifier.
+        @param value - CIMValue from which to extract the value for the keys.
         @param flavor - Flavor defined for this qualifier definition. Default
         for this parameter is CIMFlavor::NONE.
         @param propagated - Boolean defining whether this is a propagated
         qualifier.  This is an optional parameter with default = false
-        @return -Returns the instantiated qualifier object
     */
     CIMQualifier(
 	const CIMName& name, 
@@ -100,84 +92,83 @@ public:
 	const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
 	Boolean propagated = false);
 
-    /// destructor
+    /// Destructor
     ~CIMQualifier();
 
-    /// operator
+    /// 
     CIMQualifier& operator=(const CIMQualifier& x);
 
-    /**	getName - Returns the name field from the qualifier
+    /**	Returns the name field from the qualifier.
         @return CIMName containing the qualifier name.
     */
     const CIMName& getName() const;
 
-    /**	setName - Sets the qualifier name field in the qualifier object.
-	@param name - CIMName containing the name for the qualifier
+    /**	Sets the qualifier name field in the qualifier object.
+	@param name - CIMName containing the name for the qualifier.
     */
     void setName(const CIMName& name);
 
-    /** getType - Gets the type field from the qualifier object.
-        @return CIMType containing the type for this qualifier /Ref{CIMType}.
+    /** Gets the type field from the qualifier object.
+        @return CIMType containing the type for this qualifier.
     */
     CIMType getType() const;
 
-    /**	isArray - Returns true if the qualifier is an array
-	@return Boolean true if array qualifier.
+    /**	Return true if the qualifier is an array.
+	@return true if the qualifier is an array, false otherwise.
     */
     Boolean isArray() const;
 
-    /**	getValue - Gets the value component of the qualifier object
-	@return CIMValue containing the value component
+    /**	Gets the value component of the qualifier object.
+	@return CIMValue containing the value component.
     */
     const CIMValue& getValue() const;
 
-    /**	setValue - Puts a CIMValue object into a CIMQualifier object
-	@param value - The CIMValue object to install
+    /**	Puts a CIMValue object into a CIMQualifier object.
+	@param value - The CIMValue object to install.
     */
     void setValue(const CIMValue& value);
 
-    /** setFlavor - Sets the bits defined on input into the Flavor variable
+    /** Sets the bits defined on input into the Flavor variable
         for the Qualifier Object.
         @param flavor - CIMFlavor object defines the flavor bits to be set.
     */
     void setFlavor(const CIMFlavor & flavor);
 
-    /** unsetFlavor - Resets the bits defined for the flavor 
+    /** Resets the bits defined for the flavor 
         for the Qualifier Object with the input.
-        @param flavor - Uint32 defines the flavor bits to be unset.
+        @param flavor - CIMFlavor object defines the flavor bits to be unset.
     */
     void unsetFlavor(const CIMFlavor & flavor);
 
-    /**	getFlavor - Gets the Flavor field from a Qualifier
-	@return - CIMFlavor object 
+    /**	Gets the Flavor field from the Qualifier.
+	@return CIMFlavor object from this qualifier.
     */
     const CIMFlavor & getFlavor() const;
 
-    /**	getPropagated returns the propagated indicator
-	@return Uint32 - TBD
+    /** Gets the propagated qualifier.
+        @return true if qualifier is propagated, false otherwise.
     */
     const Uint32 getPropagated() const;
 
-    /**	setPropagated - Sets the Propagated flag for the object.
+    /**	Sets the Propagated flag for the object.
+        @param propagated - Flag indicating propagation.
     */
     void setPropagated(Boolean propagated);
 
-    /**
-        Determines if the object has not been initialized.
-
-        @return  True if the object has not been initialized,
-                 False otherwise
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise.
      */
     Boolean isUninitialized() const;
 
-    /**	identical - compares two CIMQualifier objects.
-        @return - True if the objects are identical.
+    /**	Compares two CIMQualifier objects.
+        @return  true if the objects are identical, false otherwise.
     */
     Boolean identical(const CIMConstQualifier& x) const;
 
-    /**	clone Creates an exact copy of the qualifier and returns the
+    /**	Creates an exact copy of the qualifier and returns the
 	new object.
-	@return CIMQualifier New Qualifier object.
+	@return copy of CIMQualifier object.
     */
     CIMQualifier clone() const;
 
@@ -202,44 +193,61 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+///
 class PEGASUS_COMMON_LINKAGE CIMConstQualifier
 {
 public:
 
+    ///
     CIMConstQualifier();
 
+    ///
     CIMConstQualifier(const CIMConstQualifier& x);
 
+    ///
     CIMConstQualifier(const CIMQualifier& x);
 
+    ///
     CIMConstQualifier(
 	const CIMName& name, 
 	const CIMValue& value, 
 	const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
 	Boolean propagated = false);
 
+    ///
     ~CIMConstQualifier();
 
+    ///
     CIMConstQualifier& operator=(const CIMConstQualifier& x);
 
+    ///
     CIMConstQualifier& operator=(const CIMQualifier& x);
 
+    ///
     const CIMName& getName() const;
 
+    ///
     CIMType getType() const;
 
+    ///
     Boolean isArray() const;
 
+    ///
     const CIMValue& getValue() const;
 
+    ///
     const CIMFlavor & getFlavor() const;
 
+    ///
     const Uint32 getPropagated() const;
 
+    ///
     Boolean isUninitialized() const;
 
+    ///
     Boolean identical(const CIMConstQualifier& x) const;
 
+    ///
     CIMQualifier clone() const;
 
 private:

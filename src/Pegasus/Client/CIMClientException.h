@@ -46,6 +46,7 @@ class PEGASUS_CLIENT_LINKAGE CIMClientMalformedHTTPException
     : public Exception
 {
 public:
+    ///
     CIMClientMalformedHTTPException(const String& message);
 };
 
@@ -56,15 +57,21 @@ public:
 class PEGASUS_CLIENT_LINKAGE CIMClientHTTPErrorException : public Exception
 {
 public:
+    ///
     CIMClientHTTPErrorException(
         Uint32 httpStatusCode,
         const String& cimError,
         const String& cimErrorDetail);
+    ///
     CIMClientHTTPErrorException(const CIMClientHTTPErrorException& httpError);
+    ///
     virtual ~CIMClientHTTPErrorException();
 
+    ///
     Uint32 getCode() const;
+    ///
     String getCIMError() const;
+    ///
     String getCIMErrorDetail() const;
 };
 
@@ -75,6 +82,7 @@ public:
 class PEGASUS_CLIENT_LINKAGE CIMClientXmlException : public Exception
 {
 public:
+    ///
     CIMClientXmlException(const String& message);
 };
 
@@ -86,6 +94,7 @@ class PEGASUS_CLIENT_LINKAGE CIMClientResponseException
     : public Exception
 {
 public:
+    ///
     CIMClientResponseException(const String& message);
 };
 

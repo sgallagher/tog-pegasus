@@ -46,29 +46,28 @@ class Resolver;
 class CIMConstMethod;
 class CIMMethodRep;
 
-    // ATTN: remove the classOrigin and propagated parameters.
-/** Class CIMMethod - This class defines the operations associated with
-    manipulation of the Pegasus implementation of the CIM CIMMethod. Within
-    this class, methods are provides for creation, deletion, and manipulation
-    of method declarations.
+/** The CIMMethod class is used to represent CIM methods in Pegasus.
 */
 class PEGASUS_COMMON_LINKAGE CIMMethod
 {
 public:
 
-    /** Creates and instantiates a CIM method. */
+    /** Creates a new CIMMethod object. */
     CIMMethod();
 
-    /** Creates and instantiates a CIM method from another method instance
-	@return pointer to the new method instance
+    /** Creates a new CIMMethod object from another method instance.
+	@param x - CIMMethod instance from which to create CIMMethod object.
     */
     CIMMethod(const CIMMethod& x);
 
-    /**	Creates a CIM method with the specified name, type, and classOrigin
-	@param name for the method
-	@param type CIM data type of method to create
-	@param classOrigin
-	@param propagated
+    /**	Creates a CIMMethod with the specified name, type, and classOrigin.
+	@param name - CIMName representing the name for the method.
+	@param type - CIMType representing data type of method to create.
+	@param classOrigin - CIMName representing the class origin.
+	@param propagated - Flag indicating whether the definition of the 
+        CIM Method is local to the CIM Class (respectively, Instance) in which 
+        it appears, or was propagated without modification from the underlying 
+        Subclass (respectively, Class).
     */
     CIMMethod(
 	const CIMName& name,
@@ -82,140 +81,148 @@ public:
     /** Assignment operator */
     CIMMethod& operator=(const CIMMethod& x);
 
-    /** getName - Gets the name of the method
-	@return CIMName with the name of the method
+    /** Gets the name of the method.
+	@return CIMName with the name of the method.
     */
     const CIMName& getName() const;
 
-    /** setName - Set the method name
-	@param name
+    /** Sets the method name.
+	@param name - CIMName with method name.
     */
     void setName(const CIMName& name);
 
-    /** getType - gets the method type
-	@return The CIM method type for this method.
+    /** Gets the method type.
+	@return The CIMType containing the method type for this method.
     */
     CIMType getType() const;
 
-    /** setType - Sets the method type to the specified CIM method
-	type as defined in CIMType /Ref{TYPE}
+    /** Sets the method type to the specified CIM method type 
+        as defined in CIMType.
     */
     void setType(CIMType type);
 
-    /** getClassOrigin - Returns the class in which this method
-	was defined.
+    /** Gets the class in which this method was defined.
 	@return CIMName containing the classOrigin field. 
     */
     const CIMName& getClassOrigin() const;
 
-    /** setClassOrigin - Set the ClassOrigin attribute with
-	the classname defined on input
+    /** Sets the ClassOrigin attribute with the classname defined on 
+        the input parameter.
 	@param classOrigin - CIMName parameter defining the name
-	of the class origin
+	of the class origin.
     */
     void setClassOrigin(const CIMName& classOrigin);
 
-    /** getPropagated - Tests the propagated qualifier
-        @return - returns True if method is propagated
+    /** Tests the propagated qualifier.
+        @return true if method is propagated, false otherwise.
     */
     Boolean getPropagated() const;
 
-    /** setPropagated - Sets the Propagaged Qualifier */
+    /** Sets the Propagaged Qualifier 
+        @param propagated - Flag indicating propagation.
+    */
     void setPropagated(Boolean propagated);
 
-    /** addQualifier - Adds a Qualifier to the method object.
-	@param CIMQualifier to be added
-	@return This CIMMethod object
-	@exception AlreadyExistsException
+    /** Adds the specified qualifier to the method and increments the
+        qualifier count. 
+        @param x - CIMQualifier object representing the qualifier
+        to be added.
+        @return the CIMMethod object after adding the specified qualifier.
+        @exception AlreadyExistsException if the qualifier already exists.
     */
     CIMMethod& addQualifier(const CIMQualifier& x);
 
-    /** findQualifier - returns the index of the qualifier with
-	the given name.
-	@param name Name of qualifier to be found.
-	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
+    /** Searches for a qualifier with the specified input name.
+        @param name - CIMName of the qualifier to be found.
+        @return Index of the qualifier found or PEG_NOT_FOUND
+        if not found.
     */
     Uint32 findQualifier(const CIMName& name) const;
 
-    /** getQualifier - Gets the CIMQualifier defined by the index
-	input as a parameter.
-	@param index Index of the qualifier requested.
-	@return CIMQualifier object or exception
+    /** Gets the CIMQualifier defined by the input parameter.
+	@param index - Index of the qualifier requested.
+	@return CIMQualifier object representing the qualifier found.
 	@exception IndexOutOfBoundsException exception if the index is
         outside the range of parameters available from the CIMMethod.
     */
     CIMQualifier getQualifier(Uint32 index);
 
+    /** Gets the CIMQualifier defined by the input parameter.
+	@param index - Index of the qualifier requested.
+	@return CIMConstQualifier object representing the qualifier found.
+	@exception IndexOutOfBoundsException exception if the index is
+        outside the range of parameters available from the CIMMethod.
+    */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /** removeQualifier - Remove the specified CIMQualifier from this method
-	@param index Index of the qualifier to remove
-	@return CIMQualifier object or exception
+    /** Removes the specified CIMQualifier from this method.
+	@param index - Index of the qualifier to remove.
 	@exception IndexOutOfBoundsException exception if the index is
         outside the range of parameters available from the CIMMethod.
     */
     void removeQualifier(Uint32 index);
 
-    /** getQualifierCount - Returns the number of Qualifiers attached
-	to this CIMMethod object.
-	@return integer representing number of Qualifiers.
+    /** Returns the number of Qualifiers attached to this CIMMethod object.
+        @return the number of qualifiers in the CIM Method.
     */
     Uint32 getQualifierCount() const;
 
-    /** addParameter - Adds the parameter defined by the input
-	to the CIMMethod
+    /** Adds the parameter defined by the input to the CIMMethod.
+        @param x - CIMParameter to be added to the CIM Method.
+        @return CIMMethod object after the specified parameter is added.
     */
     CIMMethod& addParameter(const CIMParameter& x);
 
-    /** findParameter - Finds the parameter whose name is given
-	by the name parameter.
-	@param name Name of parameter to be found.
-	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
+    /** Finds the parameter with the specified name.
+	@param name - Name of parameter to be found.
+        @return Index of the parameter object found or PEG_NOT_FOUND 
+        if the property is not found.
     */
     Uint32 findParameter(const CIMName& name) const;
 
-    /** getParameter - Gets the parameter defined by the index
-	input as a parameter.
-	@param index for the parameter to be returned.
-	@return CIMParameter requested.
-	@exception IndexOutOfBoundsException exception is thrown if the
-        index is outside the range of available parameters
+    /** Gets the parameter defined by the specified index.
+	@param index - Index for the parameter to be returned.
+	@return CIMParameter object requested.
+	@exception IndexOutOfBoundsException if the index is outside 
+        the range of available parameters
     */
     CIMParameter getParameter(Uint32 index);
 
-    /** getParameter - const form */
+    /** Gets the parameter defined for the specified index.
+	@param index - Index for the parameter to be returned.
+	@return CIMConstParameter object requested.
+	@exception IndexOutOfBoundsException if the index is outside 
+        the range of available parameters
+    */
     CIMConstParameter getParameter(Uint32 index) const;
 
-    /** removeParameter - Removes the CIMParameter defined by the
-	specified index
-
-	@param index index of the parameter to be removed
-
+    /** Removes the CIMParameter defined by the specified index.
+	@param index - Index of the parameter to be removed.
 	@exception IndexOutOfBoundsException if the index is outside the
-        range of parameters available from the CIMMethod
+        range of parameters available from the CIMMethod.
     */
     void removeParameter (Uint32 index);
 
-    /** getParameterCount - Gets the count of the numbeer of
-	Parameters attached to the CIMMethod.
-	@retrun - count of the number of parameters attached to the CIMMethod.
+    /** Gets the count of Parameters defined in the CIMMethod.
+	@return - count of the number of parameters attached to the CIMMethod.
     */
     Uint32 getParameterCount() const;
 
-    /**
-        Determines if the object has not been initialized.
-
-        @return  True if the object has not been initialized,
-                 False otherwise
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise
      */
     Boolean isUninitialized() const;
 
-    /** identical - Returns true if this method is identical to the
-	one given by the argument x.
+    /** Compares with another CIMConstMethod.
+        @param x - CIMConstMethod object for the method to be compared.
+        @return true if this method is identical to the one specified.
     */
     Boolean identical(const CIMConstMethod& x) const;
 
-    /** CIMMethod clone - makes a distinct replica of this method */
+    /** Makes a deep copy (clone) of this method.
+        @return copy of the CIMMethod object.
+    */
     CIMMethod clone() const;
 
 private:
@@ -233,52 +240,73 @@ private:
     friend class MofWriter;
 };
 
+///
 class PEGASUS_COMMON_LINKAGE CIMConstMethod
 {
 public:
 
+    ///
     CIMConstMethod();
 
+    ///
     CIMConstMethod(const CIMConstMethod& x);
 
+    ///
     CIMConstMethod(const CIMMethod& x);
 
+    ///
     CIMConstMethod(
 	const CIMName& name,
 	CIMType type,
 	const CIMName& classOrigin = CIMName(),
 	Boolean propagated = false);
 
+    ///
     ~CIMConstMethod();
 
+    ///
     CIMConstMethod& operator=(const CIMConstMethod& x);
 
+    ///
     CIMConstMethod& operator=(const CIMMethod& x);
 
+    ///
     const CIMName& getName() const;
 
+    ///
     CIMType getType() const;
 
+    ///
     const CIMName& getClassOrigin() const;
 
+    ///
     Boolean getPropagated() const;
 
+    ///
     Uint32 findQualifier(const CIMName& name) const;
 
+    ///
     CIMConstQualifier getQualifier(Uint32 index) const;
 
+    ///
     Uint32 getQualifierCount() const;
 
+    ///
     Uint32 findParameter(const CIMName& name) const;
 
+    ///
     CIMConstParameter getParameter(Uint32 index) const;
 
+    ///
     Uint32 getParameterCount() const;
 
+    ///
     Boolean isUninitialized() const;
 
+    ///
     Boolean identical(const CIMConstMethod& x) const;
 
+    ///
     CIMMethod clone() const;
 
 private:

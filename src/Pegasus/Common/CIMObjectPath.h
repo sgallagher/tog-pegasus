@@ -47,7 +47,7 @@ class CIMObjectPathRep;
 class CIMValue;
 
 /** The CIMKeyBinding class associates a key name, value, and type.
-    It is used by the reference class to represent key bindings.
+    It is used by the CIMObjectPath class to represent key bindings.
     See the CIMObjectPath class to see how they are used.
 */
 class PEGASUS_COMMON_LINKAGE CIMKeyBinding
@@ -56,20 +56,20 @@ public:
 
     enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
 
-    /** Default constructor */
+    /** Default constructor. */
     CIMKeyBinding();
 
-    /** Copy constructor */
+    /** Copy constructor. */
     CIMKeyBinding(const CIMKeyBinding& x);
 
-    /** Construct a CIMKeyBinding with a name, value, and type
+    /** Constructs a CIMKeyBinding with a name, value, and type.
         @param name CIMName for the key for this binding object.
         @param value String value for this key.
         @param type CIMKeyBinding::Type representing the type of this key.
     */
     CIMKeyBinding(const CIMName& name, const String& value, Type type);
 
-    /** Construct a CIMKeyBinding with a name and CIMValue, mapping from
+    /** Constructs a CIMKeyBinding with a name and CIMValue, mapping from
         CIMValue types to CIMKeyBinding types.
         @param name CIMName for the key for this binding object.
         @param value CIMValue from which to extract the value for this key.
@@ -81,28 +81,28 @@ public:
     /** Destructor */
     ~CIMKeyBinding();
 
-    /** Assignment operator */
+    /** Assignment operator. */
     CIMKeyBinding& operator=(const CIMKeyBinding& x);
 
-    /** Accessor
-    */
+    ///
     const CIMName& getName() const;
 
-    /** Modifier */
+    ///
     void setName(const CIMName& name);
 
-    /** Accessor */
+    ///
     const String& getValue() const;
 
-    /** Modifier */
+    ///
     void setValue(const String& value);
 
-    /** Accessor */
+    ///
     Type getType() const;
 
-    /** Modifier */
+    /// 
     void setType(Type type);
 
+    ///
     Boolean equal(CIMValue value);
 
 private:
@@ -128,7 +128,7 @@ typedef Array<CIMKeyBinding> KeyBindingArray;
 class XmlWriter;
 
 /** The CIMObjectPath class represents the value of a reference. A reference
-    is one of property types which an association may contain. Consider the
+    is one of the property types that an association may contain. Consider the
     following MOF for example:
 
     <pre>
@@ -143,11 +143,11 @@ class XmlWriter;
     The value of the from and to properties are internally represented using
     the CIMObjectPath class.
 
-    CIM references are used to uniquely identify a CIM class or CIM instance
-    objects. CIMObjectPath objects contain the following parts:
+    A CIM reference is used to uniquely identify a CIM class or CIM instance
+    object. CIMObjectPath objects contain the following parts:
 
     <ul>
-    <li>Host - name of host whose repository contains the object</li>
+    <li>Host - name of host that contains the object</li>
     <li>NameSpace - the namespace which contains the object</li>
     <li>ClassName - name of objects class</li>
     <li>KeyBindings key/value pairs which uniquely identify an instance</li>
@@ -159,21 +159,6 @@ class XmlWriter;
 
     <pre>
     &lt;namespace-path&gt;:&lt;model-path&gt;
-    </pre>
-
-    The namespace-path is implementation dependent and has the following form
-    in Pegasus:
-
-    <pre>
-    //&lt;hostname&gt;>/&ltnamespace&gt;>
-    </pre>
-
-    For example, suppose there is a host named "atp" with a CIM Server
-    listening on port 9999 which has a CIM repository with a namespace
-    called "root/cimv25". Then the namespace-path is given as:
-
-    <pre>
-    //atp:9999/root/cimv25
     </pre>
 
     As for the model-path mentioned above, its form is defined by the CIM
@@ -259,17 +244,17 @@ class XmlWriter;
     keyBindings.append(CIMKeyBinding("last", "Rafter", CIMKeyBinding::STRING));
     </pre>
 
-    The only key values that are supported are:
+    The key binding types that are supported are:
 
     <ul>
     <li>CIMKeyBinding::BOOLEAN</li>
     <li>CIMKeyBinding::STRING</li>
     <li>CIMKeyBinding::NUMERIC</li>
+    <li>CIMKeyBinding::REFERENCE</li>
     </ul>
 
-    This limitation is imposed by the "XML Mapping Specification v2.0.0"
-    specification. The CIM types are encoded as one of these three in the
-    following way:
+    The CIM types are encoded as one of the key binding types in the
+    following way
 
     <pre>
     boolean - BOOLEAN (the value must be "true" or "false")
@@ -388,14 +373,14 @@ public:
         //
         const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
-    /** Destructor */
+    /** Destructor. */
     ~CIMObjectPath();
 
-    /** Assignment operator */
+    /** Assignment operator. */
     CIMObjectPath& operator=(const CIMObjectPath& x);
 
     /** Clears out the internal fields of this object making it an empty
-        (or unitialized reference). The effect is the same as if the object
+        (or uninitialized) reference. The effect is the same as if the object
         was initialized with the default constructor.
     */
     void clear();
@@ -415,22 +400,18 @@ public:
         const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
     /** Set the reference from an object name . */
-      void set(const String& objectName);
+    void set(const String& objectName);
 
-    /** Same as set() above except that it is an assignment operator */
+    /** Same as set() above except that it is an assignment operator. */
     CIMObjectPath& operator=(const String& objectName);
 
-    /** getHost - returns the hostname component of the
-        CIMObjectPath
+    /** Gets the hostname component of the CIMObjectPath.
         @return String containing hostname.
-        <pre>
-
-        </pre>
     */
     const String& getHost() const;
 
-    /** setHost Sets the hostname component of the CIMObjectPath
-        object to the input parameter
+    /** Sets the hostname component of the CIMObjectPath
+        object to the input parameter.
         @param host String parameter with the hostname
         <PRE>
         CIMObjectPath r1;
@@ -440,52 +421,51 @@ public:
     */
     void setHost(const String& host);
 
-    /** getNameSpace - returns the namespace component of the
+    /** Gets the namespace component of the
         CIMObjectPath as a CIMNamespaceName.
     */
     const CIMNamespaceName& getNameSpace() const;
 
     /** Sets the namespace component.
-        @param CIMNamespaceName representing the namespace.
+        @param nameSpace CIMNamespaceName representing the namespace.
     */
     void setNameSpace(const CIMNamespaceName& nameSpace);
 
-    /** Accessor for className attribute.
+    /** Gets the className component of the CIMObjectPath.
         @return CIMName containing the classname.
      */
     const CIMName& getClassName() const;
 
-    /** Sets the classname component of the CIMObjectPath object to the input
-        parameter.
+    /** Sets the classname component of the CIMObjectPath object to 
+        the input parameter.
         @param className CIMName containing the className.
     */
     void setClassName(const CIMName& className);
 
-    /** getKeyBindings - Returns an Array of keybindings from the
-        CIMObjectPath representing all of the key/value pairs defined in the
-        ObjectPath.
+    /** Returns an Array of keybindings from the
+        CIMObjectPath representing all of the key/value pairs defined 
+        in the ObjectPath.
         @return Array of CIMKeyBinding objects from the CIMObjectPath.
     */
     const Array<CIMKeyBinding>& getKeyBindings() const;
 
-    /** setKeyBindings - Sets the key/value pairs in the CIMObjectPath
-        from an array of keybindings defined by the input parameter
+    /** Sets the key/value pairs in the CIMObjectPath
+        from an array of keybindings defined by the input parameter.
         @param keyBindings Array of keybindings to set into the CIMObjectPath
         object.
     */
     void setKeyBindings(const Array<CIMKeyBinding>& keyBindings);
 
-    //  ATTN: The form of the below string definition needs cleaning.
 
     /** Returns the object name represented by this reference. The returned
         string is formed from the hostname, namespace, classname
         and keybindings defined for this CIMObjectPath object.
-        the form of the name is:
+        The form of the name is:
 
-            <pre>
-                "//" + hostname + "/" + namespace + ":" + classname +"." +
-                        (keyname) + "=" (keyvalue) +"," ...
-            </pre>
+        <PRE>
+            "//" + hostname + "/" + namespace + ":" + classname +"." +
+            (keyname) + "=" (keyvalue) +"," ...
+        </PRE>
 
         The building includes the escaping of special characters.
     */
@@ -495,11 +475,9 @@ public:
         by the x argument. Since CIMObjectPaths are normalized when they
         are created, any differences in the ordering of keybindings is accounted
         for as are the case insensitivity characteristics defined by
-        the specification
-        @param CIMObjectPath for comparison
-        @return True if the objects have identical components
-        <PRE>
-        </PRE>
+        the specification.
+        @param x CIMObjectPath for comparison.
+        @return true if the objects have identical components, false otherwise.
     */
     Boolean identical(const CIMObjectPath& x) const;
 

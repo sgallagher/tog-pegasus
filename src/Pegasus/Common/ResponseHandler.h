@@ -43,31 +43,30 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/OperationContext.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-Callback to deliver results to the CIMOM.
-
 <p>The <tt>ResponseHandler</tt> class allows a provider
-to report operation progress and results to the CIMOM.
+to report operation progress and results to the CIM Server.
 Subclasses are defined for each of the types of object
-that a provider can deliver to the CIMOM.
+that a provider can deliver to the CIM Server.
 A <tt>ResponseHandler</tt> object of the appropriate type
 is passed to provider
 functions that are invoked to process client requests (it
 is not passed to the <tt>{@link initialize initialize}</tt>
 or <tt>{@link terminate terminate}</tt> functions). It
 contains the following public member functions that
-may be used to deliver results to the CIMOM:</p>
+may be used to deliver results to the CIM Server:</p>
 <ul>
-<li><tt>{@link processing processing}</tt> - inform the CIMOM
-that delivery of results is beginning</li>
+<li><tt>{@link processing processing}</tt> - inform the CIM Server
+that delivery of results is beginning.</li>
 <li><tt>{@link deliver deliver}</tt> - deliver an incremental
-result to the CIMOM; the CIMOM accumulates results as
-they are received from the provider</li>
-<li><tt>{@link complete complete}</tt> - inform the CIMOM that
+result to the CIM Server; the CIM Server accumulates results as
+they are received from the provider.</li>
+<li><tt>{@link complete complete}</tt> - inform the CIM Server that
 process of the request is complete and that no further
-results will be delivered</li>
+results will be delivered.</li>
 </ul>
 */
 
@@ -80,40 +79,23 @@ public:
     */
     virtual ~ResponseHandler(void);
 
-    /**
-    Deliver a possibly partial result to CIMOM.
-    <p>The <tt>deliver</tt> function is used by providers to
-    deliver results to the CIMOM. For operations that require a
-    single element result (<tt>getInstance</tt>, for example),
-    <tt>deliver</tt> should be called only once to deliver the
-    entire result. For operations that involve
-    enumeration, the single-element form shown here may be
-    used, each iteration delivering an incremental element
-    of the total result. The Array form below may be used
-    to deliver a larger set of result elements.</p>
-    */
+    // This method is defined in subclasses, specialized for 
+    // the appropriate data type.
     //virtual void deliver(const T & object);
 
-    /**
-    Deliver a set of results to CIMOM.
-    <p>This form of the <tt>deliver</tt> function may be used
-    to return a set of elements to the CIMOM. The set is not
-    required to be complete, and the provider may invoke this
-    function multiple times, if necessary. This form should only
-    be used when the operation requires a result consisting
-    of more than one element, such as an enumeration.</p>
-    */
+    // This method is defined in subclasses, specialized for 
+    // the appropriate data type.
     //virtual void deliver(const Array<T> & objects);
 
     /**
-    Inform the CIMOM that delivery of results will begin.
+    Inform the CIM Server that delivery of results will begin.
     <p>The provider must call <tt>processing</tt> before
     attempting to call <tt>deliver</tt>.
     */
     virtual void processing(void) = 0;
 
     /**
-    Inform the CIMOM that delivery of results is complete.
+    Inform the CIM Server that delivery of results is complete.
     <p>The provider must call <tt>complete</tt> when all
     results have been delivered. It must not call <tt>deliver</tt>
     after calling <tt>complete</tt>.</p>
@@ -124,38 +106,75 @@ public:
 
 //
 // InstanceResponseHandler
-//
+///
 class PEGASUS_COMMON_LINKAGE InstanceResponseHandler : virtual public ResponseHandler
 {
 public:
+    /** <p>The <tt>deliver</tt> function is used by providers to
+        deliver results to the CIM Server. For operations that require a
+        single element result (<tt>getInstance</tt>, for example),
+        <tt>deliver</tt> should be called only once to deliver the
+        entire result. For operations that involve
+        enumeration, the single-element form shown here may be
+        used, each iteration delivering an incremental element
+        of the total result. The Array form below may be used
+        to deliver a larger set of result elements.</p>
+    */
     virtual void deliver(const CIMInstance & instance) = 0;
 
+    /** <p>This form of the <tt>deliver</tt> function may be used
+        to return a set of elements to the CIM Server. The set is not
+        required to be complete, and the provider may invoke this
+        function multiple times, if necessary. This form should only
+        be used when the operation requires a result consisting
+        of more than one element, such as an enumeration.</p>
+    */
     virtual void deliver(const Array<CIMInstance> & instances) = 0;
 };
 
 
 //
 // ObjectPathResponseHandler
-//
+///
 class PEGASUS_COMMON_LINKAGE ObjectPathResponseHandler : virtual public ResponseHandler
 {
 public:
+    /** <p>The <tt>deliver</tt> function is used by providers to
+        deliver results to the CIM Server. For operations that require a
+        single element result (<tt>getInstance</tt>, for example),
+        <tt>deliver</tt> should be called only once to deliver the
+        entire result. For operations that involve
+        enumeration, the single-element form shown here may be
+        used, each iteration delivering an incremental element
+        of the total result. The Array form below may be used
+        to deliver a larger set of result elements.</p>
+    */
     virtual void deliver(const CIMObjectPath & objectPath) = 0;
 
+    /** <p>This form of the <tt>deliver</tt> function may be used
+        to return a set of elements to the CIM Server. The set is not
+        required to be complete, and the provider may invoke this
+        function multiple times, if necessary. This form should only
+        be used when the operation requires a result consisting
+        of more than one element, such as an enumeration.</p>
+    */
     virtual void deliver(const Array<CIMObjectPath> & objectPaths) = 0;
 };
 
 
 //
 // MethodResultResponseHandler
-//
+///
 class PEGASUS_COMMON_LINKAGE MethodResultResponseHandler : virtual public ResponseHandler
 {
 public:
+    ///
     virtual void deliverParamValue(const CIMParamValue & outParamValue) = 0;
 
+    ///
     virtual void deliverParamValue(const Array<CIMParamValue> & outParamValues) = 0;
 
+    ///
     virtual void deliver(const CIMValue & returnValue) = 0;
 };
 
@@ -191,11 +210,29 @@ public:
 // in Pegasus, as those are the only APIs that use this response handler
 // type.  Implementation of support for those provider types may reveal
 // a need for API changes in this class.
+///
 class PEGASUS_COMMON_LINKAGE ObjectResponseHandler : virtual public ResponseHandler
 {
 public:
+    /** <p>The <tt>deliver</tt> function is used by providers to
+        deliver results to the CIM Server. For operations that require a
+        single element result (<tt>getInstance</tt>, for example),
+        <tt>deliver</tt> should be called only once to deliver the
+        entire result. For operations that involve
+        enumeration, the single-element form shown here may be
+        used, each iteration delivering an incremental element
+        of the total result. The Array form below may be used
+        to deliver a larger set of result elements.</p>
+    */
     virtual void deliver(const CIMObject & object) = 0;
 
+    /** <p>This form of the <tt>deliver</tt> function may be used
+        to return a set of elements to the CIM Server. The set is not
+        required to be complete, and the provider may invoke this
+        function multiple times, if necessary. This form should only
+        be used when the operation requires a result consisting
+        of more than one element, such as an enumeration.</p>
+    */
     virtual void deliver(const Array<CIMObject> & objects) = 0;
 };
 

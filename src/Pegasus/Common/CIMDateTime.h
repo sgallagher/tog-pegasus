@@ -41,12 +41,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/* ATTN: P3. KS Several functions should be added to this class for datetime manipulation
-   including get and set each subcomponent (year, month, etc), test for equality,
-   create intervals from absolutes, possibly gett current time, Note that
-   the Java rep is probably tostring, not get string, 
-*/
-
 class CIMDateTimeRep;
 
 /**
@@ -87,11 +81,6 @@ class CIMDateTimeRep;
     Note that intervals always end in ":000" (this is how they
     are distinguished from dates).
 
-    Intervals are really durations since they do not specify a start and
-    end time (as one expects when speaking about an interval). It is
-    better to think of an interval as specifying time elapsed since
-    some event.
-
     CIMDateTime objects are constructed from String objects or from
     other CIMDateTime objects.  These character strings must be exactly
     twenty-five characters and conform to one of the forms identified
@@ -107,44 +96,45 @@ class PEGASUS_COMMON_LINKAGE CIMDateTime
 {
 public:
 
-    /** Creates a new CIMDateTime object with a zero interval value
+    /** Creates a new CIMDateTime object with a zero interval value.
     */
     CIMDateTime();
 
-    /** CIMDateTime - Creates a CIM CIMDateTime instance from a string 
-	constant representing the CIM DateTime-formatted datetime
+    /** Creates a new CIMDateTime object from a string constant representing 
+        the CIM DateTime-formatted datetime.
         See the class documentation for CIMDateTime for the definition of the
         input string for absolute and interval datetime.
-	@param str String object containing the CIM DateTime-formatted string
+	@param str  String object containing the CIM DateTime-formatted string.
     */
     CIMDateTime(const String & str);
 
-    /** CIMDateTime Create a CIMDateTime instance from another 
-	CIMDateTime object
-	@param x CIMDateTime object to be copied.
+    /** Creates a CIMDateTime object from another CIMDateTime object.
+	@param x  CIMDateTime object to be copied.
     */
     CIMDateTime(const CIMDateTime& x);
 
-    /** DateTime Destructor. */
+    /** CIMDateTime Destructor. */
     ~CIMDateTime();
 
-    /**  Assign one DateTime object to another
-    @param - The DateTime Object to assign
-    <pre>
-    CIMDateTime d1;
-    CIMDateTime d2 = "00000000000000.000000:000";
-    d1 = d1;
-    </pre>
+    /** Assign one CIMDateTime object to another.
+        @param x  The CIMDateTime Object to assign.
+        <PRE>
+            CIMDateTime d1;
+            CIMDateTime d2 = "00000000000000.000000:000";
+            d1 = d1;
+        </PRE>
     */
     CIMDateTime& operator=(const CIMDateTime& x);
 
-    /** toString - Returns the string representing the DateTime value of the
+    /** Returns a string representing the DateTime value of the
         CIMDateTime Object.
+        @return String representing the DateTime value.
     */
     String toString () const;
 
-    /** method set - Sets the date time. Creates the CIMDateTime instance from 
-	the input string constant which must be
+    /** Sets the date time in the CIMDateTime object from 
+	the input parameter.
+        @param str  String constant containing the datetime
 	in the datetime format.
 
 	    <PRE>
@@ -156,63 +146,53 @@ public:
     */
     void set(const String & str);
 
-    /**  clear - Clears the datetime class instance.  The date time is set to 
-         a zero interval value.
+    /** Clears the datetime class object.  The date time is set to 
+        a zero interval value.
     */
     void clear();
 
-    /**
-    Get current time as CIMDateTime. The time returned is the local time.
-
-    @return CIMDateTime   Contains the current datetime as a CIMDateTime object.
+    /** Get current time as CIMDateTime. The time returned is the local time.
+        @return CIMDateTime object containing the current datetime.
     */
     static CIMDateTime getCurrentDateTime();
 
-    /**
-    Computes the difference in microseconds between two CIMDateTime dates or 
-    two CIMDateTime intervals 
+    /** Computes the difference in microseconds between two CIMDateTime dates or 
+        two CIMDateTime intervals. 
+        @param startTime  Contains the start datetime.
+        @param finishTime  Contains the finish datetime.
+        @return Interger containing the difference between the two datetimes 
+        in microseconds.
+        @exception InvalidDateTimeFormatException If one argument is a datetime
+        and one is an interval.
+        @exception DateTimeOutOfRangeException If datetime is outside the allowed
+        range.
 
-    @param startTime     Contains the start datetime
-
-    @param finishTime    Contains the finish datetime
-
-    @return difference   Difference between the two datetimes in microseconds
+        NOTE: The behavior on HP-UX and Windows platform is to throw an exception
+        when the dates are out of range. Red Hat Linux platform normalizes the
+        dates when they are outside their legal interval and will not throw an
+        exception.
     
-    @exception InvalidDateTimeFormatException If one argument is a datetime
-    and one is an interval
-
-    @exception DateTimeOutOfRangeException If datetime is outside the allowed
-    range
-
-    NOTE: The behavior on HP-UX and Windows platform is to throw an exception
-    when the dates are out of range. Red Hat Linux platform normalizes the
-    dates when they are outside their legal interval and will not throw an
-    exception.
-    
-    Allowed Date Range:
-    The mktime (3C) man page on HP-UX does not document the allowed range. 
-    The approximate range of dates allowed on HP-UX is between 
-    1901 and 2038.
+        Allowed Date Range:
+        The mktime (3C) man page on HP-UX does not document the allowed range. 
+        The approximate range of dates allowed on HP-UX is between 
+        1901 and 2038.
  
-    On Windows platform, the approximate range is between 1970 to 2038. 
+        On Windows platform, the approximate range is between 1970 to 2038. 
 
-    On Red Hat Linux the approximate range of dates allowed are within the
-    range of 1901 and 2038.
+        On Red Hat Linux the approximate range of dates allowed are within the
+        range of 1901 and 2038.
     */
     static Sint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  
-    /**
-    Checks whether the datetime is an interval.
-
-    @return isInterval  True if the datetime is an interval, else false
+    /** Checks whether the datetime is an interval.
+        @return true if the datetime is an interval, false otherwise.
     */
     Boolean isInterval();
 
-    /**
-    Compares the CIMDateTime object to another CIMDateTime object for equality
-
-    @return True if the two CIMDateTime objects are equal,
-            False otherwise
+    /** Compares the CIMDateTime object to another CIMDateTime object for 
+        equality.
+        @param x  CIMDateTime object to be compared.
+        @return true if the two CIMDateTime objects are equal, false otherwise.
     */
     Boolean equal (const CIMDateTime & x) const;
 

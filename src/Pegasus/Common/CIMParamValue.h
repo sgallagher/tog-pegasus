@@ -47,42 +47,53 @@ class CIMParamValueRep;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+///
 class PEGASUS_COMMON_LINKAGE CIMParamValue
 {
 public:
 
+    ///
     CIMParamValue();
 
+    ///
     CIMParamValue(const CIMParamValue& x);
 
+    ///
     CIMParamValue& operator=(const CIMParamValue& x);
 
+    ///
     CIMParamValue(
 	String parameterName,
 	CIMValue value,
 	Boolean isTyped=true);
 
+    ///
     ~CIMParamValue();
 
+    ///
     String getParameterName() const;
 
+    ///
     CIMValue getValue() const;
 
+    ///
     Boolean isTyped() const;
 
+    ///
     void setParameterName(String& parameterName);
 
+    ///
     void setValue(CIMValue& value);
 
+    ///
     void setIsTyped(Boolean isTyped);
 
+    ///
     CIMParamValue clone() const;
 
-    /**
-        Determines if the object has not been initialized.
-
-        @return  True if the object has not been initialized,
-                 False otherwise
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise.
      */
     Boolean isUninitialized() const;
 

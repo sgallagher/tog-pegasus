@@ -56,46 +56,50 @@ PEGASUS_NAMESPACE_BEGIN
 
 	[A-Z-a-z_][A-Za-z_0-9]*
     </PRE>
-
-    Notice that the definition of a name is the same as C, C++,
-    and Java.
 */
 class PEGASUS_COMMON_LINKAGE CIMName
 {
 public:
 
+    ///
     CIMName();
+    ///
     CIMName(const String& name);
+    ///
     CIMName(const char* name);
 
+    ///
     CIMName& operator=(const CIMName& name);
+    ///
     CIMName& operator=(const String& name);
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
     CIMName& operator=(const char* name);
 #endif
 
+    ///
     const String& getString() const;
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
     operator String() const;
 #endif
 
+    ///
     Boolean isNull() const;
 
+    ///
     void clear();
 
-    /** equal - Compares two names.
-	@return Return true if the two names are equal. CIM names are
-	case insensitive and so is this method.
+    /** Compares two names.
+	@return true if the name passed is equal to the name in this
+        class. CIM names are case insensitive and so is this method.
     */
     Boolean equal(const CIMName& name) const;
 
-    //  ATTN: Define what is legal
-    /** legal - Determine if the name string input is legal as
-	defnined in the CIMName class definition
-	@param - String to test
-	@return Returns true if the given name is legal.
+    /** Determines if the name string input is legal as
+	defnined in the CIMName class definition.
+	@param name String to test for legality.
+	@return true if the given name is legal, false otherwise.
     */
     static Boolean legal(const String& name);
 
@@ -123,45 +127,53 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     <p>
     A CIM namespace name must match the following expression:
     <PRE>
-        <CIMName>[/<CIMName>]...
+        &ltCIMName&gt[/&ltCIMName&gt]...
     </PRE>
+    </p>
 */
 class PEGASUS_COMMON_LINKAGE CIMNamespaceName
 {
 public:
 
+    ///
     CIMNamespaceName();
+    ///
     CIMNamespaceName(const String& name);
+    ///
     CIMNamespaceName(const char* name);
 
+    ///
     CIMNamespaceName& operator=(const CIMNamespaceName& name);
+    ///
     CIMNamespaceName& operator=(const String& name);
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
     CIMNamespaceName& operator=(const char* name);
 #endif
 
+    ///
     const String& getString() const;
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
     operator String() const;
 #endif
 
+    ///
     Boolean isNull() const;
 
+    ///
     void clear();
 
-    /** equal - Compares two names.
-	@return Return true if the two names are equal. CIM names are
-	case insensitive and so is this method.
+    /** Compares two names.
+	@return true if the name passed is equal to the name in this
+        class. CIM names are case insensitive and so is this method.
     */
     Boolean equal(const CIMNamespaceName& name) const;
 
-    //  ATTN: Define what is legal
-    /** legal - Determine if the name string input is legal as
-	defnined in the CIMNamespaceName class definition
-	@param - String to test
-	@return Returns true if the given name is legal.
+    /** Determines if the name string input is legal as
+	defnined in the CIMNamespaceName class definition.
+	@param name String to test for legality.
+	@return true if the given name is legal, false otherwise.
     */
     static Boolean legal(const String& name);
 

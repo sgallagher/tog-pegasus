@@ -109,7 +109,7 @@ The exact use of this parameter depends on the specific
 operation, and is described in the respective section.</li>
 
 <li><b>{@link ResponseHandler ResponseHandler}</b> - a
-<i>callback</i> handle used to return results to the CIMOM
+<i>callback</i> handle used to return results to the CIM Server
 for subsequent return to the client.</li>
 </ul></p>
 
@@ -167,7 +167,10 @@ implementation may simply return to the caller.</p>
 class PEGASUS_PROVIDER_LINKAGE CIMProvider
 {
 public:
+    ///
     CIMProvider(void);
+
+    ///
     virtual ~CIMProvider(void);
 
     /**
@@ -175,7 +178,7 @@ public:
     <p>The <TT>initialize</TT> function allows the provider to conduct the
     necessary preparations to handle requests.
     It is called only once during the lifetime of the provider. This
-    function must complete before the CIMOM invokes any other function of
+    function must complete before the CIM Server invokes any other function of
     the provider, other than terminate.</p>
 
     @param cimom Reserved for future use.
@@ -187,14 +190,14 @@ public:
     /**
     Perform any cleanup required before termination.
     <p>The <TT>terminate</TT> function allows the provider to conduct the
-    necessary preparations to prepare for termination. This function
-    may be called by the CIMOM
+    necessary preparations for termination. This function
+    may be called by the CIM Server
     at any time, including initialization. Once invoked, no other provider
     functions are invoked until after an eventual call to <tt>initialize</tt>.</p>
     <p>The provider may, for example, do the following in the
     <tt>terminate</tt> function:</p>
     <ul>
-    <li>close close files or I/O streams</li>
+    <li>close files or I/O streams</li>
     <li>release resources such as shared memory</li>
     <li>inform concurrently executing
     requests to complete immediately (this may be done by

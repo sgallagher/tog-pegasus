@@ -52,12 +52,7 @@ class CIMClassRep;
 class CIMInstanceRep;
 class Resolver;
 
-// ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
-// ATTN: Define the property concept in more detail and ref property.
-
-/** CIMProperty Class - This C++ class implements a CIM Property 
-object. It defines a single CIM Property and allows the manipulation of that 
-property.
+/** The CIMProperty class is used to represent CIM properties in Pegasus.
 */
 class PEGASUS_COMMON_LINKAGE CIMProperty
 {
@@ -67,49 +62,47 @@ public:
     CIMProperty();
 
     /** CIMProperty constructor. Constructs this property form another 
-		CIMProperty object
-	*/
+        CIMProperty object
+    */
     CIMProperty(const CIMProperty& x);
 
-    /** CIMProperty Constructor for CIMProperty that adds a number of 
-        parameters to the constructed CIMProperty object.
-        @param name CIMName Name for the property 
-		@param value CIMValue defines the value for the property
-		@param arraySize (optional) - Size of array if fixed array size.
-		@param referenceClassName (optional) CIMName parameter that defines the 
+    /** Constructs a CIMProperty with the specified attributes.
+        @param value - CIMValue defines the value for the property.
+        @param arraySize (optional) - Size of array if fixed array size.
+        @param referenceClassName (optional) - CIMName parameter that defines the 
         reference class name for the property. This parameter is required if
-		the property is type CIMObjectPath.
-        @param classOrigin (optional) CIMName parameter to define the class 
-		origin of the property /Ref{ClassOrigin} 
-        @param propagated (optional) If true defines the property as 
-        propagated  /Ref{propagated properties}
-        @return	The constructed property object
+        the property is type CIMObjectPath.
+        @param classOrigin (optional) - CIMName parameter to define the class 
+        origin of the property. 
+        @param propagated (optional) - If true defines the property as 
+        propagated.
+        @return    The constructed CIM property object.
     */
     CIMProperty(
-	const CIMName& name,
-	const CIMValue& value,
-	Uint32 arraySize = 0,
-	const CIMName& referenceClassName = CIMName(),
-	const CIMName& classOrigin = CIMName(),
-	Boolean propagated = false);
+        const CIMName& name,
+        const CIMValue& value,
+        Uint32 arraySize = 0,
+        const CIMName& referenceClassName = CIMName(),
+        const CIMName& classOrigin = CIMName(),
+        Boolean propagated = false);
 
     /** ~CIMProperty(). */
     ~CIMProperty();
 
-    /// Operator =
+    /// 
     CIMProperty& operator=(const CIMProperty& x);
 
-    /** getName - Gets the name of the property.
+    /** Gets the name of the property.
         @return CIMName containing the property name.
         <pre>
         CIMProperty p1("count", Uint32(231));
-    	assert(p1.getName() == Uint32(231));
-		</pre>
+        assert(p1.getName() == "count");
+        </pre>
     */
     const CIMName& getName() const;
 
-    /** setName - Set the property name.
-		@param name Name to set as parameter name
+    /** Set the property name.
+        @param name  CIMName containing the name for the parameter name.
     */
     void setName(const CIMName& name);
 
@@ -122,115 +115,113 @@ public:
     /** Check if the property is an array type. */
     Boolean isArray() const;
 
-    /** setValue Sets the Value in the Property object from the input 
+    /** Sets the Value in the Property object from the input 
         parameter.
-		@param value CIMValue containing the value to be put into the 
-        property. /Ref{CIMValue}
+        @param value - CIMValue containing the value to be put into the 
+        property.
     */
     void setValue(const CIMValue& value);
 
-    /** getArraySize gets the arraysize parameter from the property
-	@return Uint32 with the arraysize.
-	*/
+    /** Gets the arraysize parameter from the property.
+        @return Uint32 with the arraysize.
+    */
     Uint32 getArraySize() const;
 
-    /** getReferenceClassName - gets the referenceClassName.
-	@return CIMName contianing the referenceClassName if this is a
-	reference property or empty if another CIMType.
+    /** Gets the referenceClassName.
+        @return CIMName containing the referenceClassName if this 
+        is a reference property or empty if another CIMType.
     */
     const CIMName& getReferenceClassName() const;
 
-    /** getClassOrigin - Gets the classOrigin field from the property
-		object. This will be a string with the name of the originating
-		class for the property or empty if this is the originating class
-		@return CIMName with classOrigin name.
-	*/
+    /** Gets the classOrigin field from the property
+        object. 
+        @return CIMName with classOrigin name. This will be a string 
+        with the name of the originating class for the property or 
+        empty if this is the originating class.
+    */
     const CIMName& getClassOrigin() const;
 
-    /**setClassOrigin - Sets the Class Origin attribute
-	@param classOrigin CIMName containing the classOrigin
+    /** Sets the Class Origin attribute.
+        @param classOrigin - CIMName containing the classOrigin.
     */
     void setClassOrigin(const CIMName& classOrigin);
 
-    /** getPropagated - Tests if this property is propagated.
-	@return - Returns true if the class is propagated.
+    /** Tests if this property is propagated.
+        @return true if the class is propagated, false otherwise.
     */
     Boolean getPropagated() const;
 
-    /** setProgagated - Sets the propagated attribute true or fals.
-		@param Boolean true or false representing propagated state to be set.
-	*/
+    /** Sets the propagated attribute true or false.
+        @param x - true or false representing propagated state to be set.
+    */
     void setPropagated(Boolean propagated);
 
-    /** addQualifier adds a qualifier object to the property and
-		increases the qualifier count
-		@param x CIMQualifier object to be added
-		@return Returns this properpty as a convience in adding multiple entities
-		@exception AlreadyExistsException.
+    /** Adds a qualifier object to the property and
+        increases the qualifier count.
+        @param x - CIMQualifier object to be added.
+        @return the resulting CIMProperpty.
+        @exception AlreadyExistsException if the qualifier already exists.
     */
     CIMProperty& addQualifier(const CIMQualifier& x);
 
-    /**findQualifier - Finds the qualifier object defined
-	by the name parameter if it is attached to this 
-	CIMProperty
-	@param name CIMName parameter defining name of Qualifier
-	object.
-	@return Position of the qualifier object or -1 if not 
-	found
+    /** Finds the qualifier object defined by the name parameter 
+        if it is attached to this CIMProperty.
+        @param name  - CIMName parameter defining name of Qualifier
+        object.
+        @return Position of the qualifier object or PEG_NOT_FOUND (-1) 
+        if not found.
     */
     Uint32 findQualifier(const CIMName& name) const;
 
-    /** getQualifier - gets the Qualifier object specified by the
-	index parameter.
-	@param index Index parameter for the Qualifier object to be
-	retrieved
-	@return returns a CIMQualifier object.
-	@exception IndexOutOfBoundsException if index is outside range
-	of Qualifiers in this property object.
+    /** Gets the Qualifier object specified by the input parameter.
+        @param index - Index parameter for the Qualifier object to be
+        retrieved.
+        @return CIMQualifier object at specified index.
+        @exception IndexOutOfBoundsException if index is outside range
+        of Qualifiers in this property object.
     */
     CIMQualifier getQualifier(Uint32 index);
 
-    /** getQualifier Returns the qualifier at the specified index
-        @param index Index of the qualifier. Can be obtained from the
+    /** Returns the qualifier at the specified index.
+        @param index - Index of the qualifier. Can be obtained from the
         findQualifier method.
-        @return Returns the qualifier object.
+        @return The qualifier object.
         @exception IndexOutOfBoundsException if index is outside the range
         of qualifiers that exist for the property.
     */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /** removeQualifier - Removes the CIMQualifier defined by the 
-	index input as a parameter.
-	@param Position of the qualifier requested.
-	@return CIMQualifier object or exception
-	@exception IndexOutOfBoundsException if the index is outside the
-        range of parameters available from the CIMMethod.
+    /** Removes the CIMQualifier defined by the 
+        index input as a parameter.
+        @param index - Index of the qualifier requested.
+        @exception IndexOutOfBoundsException if the index is outside the
+        range of qualifiers in this property object.
     */
     void removeQualifier(Uint32 index);
     
-    /** getQualifierCount - Returns count of the number
-    	of qualifiers attached to the CIMProperty object.
-	@return Count of the number of CIMQualifier objects attached
-	to the CIMProperty object.
+    /** Returns count of the number of qualifiers attached to 
+        the CIMProperty object.
+        @return Count of the number of CIMQualifier objects attached
+        to the CIMProperty object.
     */
     Uint32 getQualifierCount() const;
 
-    /**identical - compares the CIMProperty object with
-       another CIMProperty object defined by the input parameter.
-       @param x CIMPropery object for comparison
-       @return Returns true if the objects are identical
+    /** Compares the CIMProperty object with
+        another CIMProperty object defined by the input parameter.
+        @param x - CIMPropery object for comparison.
+        @return true if the objects are identical, false otherwise.
     */
     Boolean identical(const CIMConstProperty& x) const;
 
-    // clone - ATTN: P3 Documentation
+    /** Makes a deep copy (clone) of the given object.
+        @return copy of the CIMProperty object.
+    */
     CIMProperty clone() const;
 
-    /**
-        Determines if the object has not been initialized.
-
-        @return  True if the object has not been initialized,
-                 False otherwise
-     */
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise.
+    */
     Boolean isUninitialized() const;
 
 private:
@@ -260,56 +251,78 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+///
 class PEGASUS_COMMON_LINKAGE CIMConstProperty
 {
 public:
 
+    ///
     CIMConstProperty();
 
+    ///
     CIMConstProperty(const CIMConstProperty& x);
 
+    ///
     CIMConstProperty(const CIMProperty& x);
 
+    ///
     CIMConstProperty(
-	const CIMName& name,
-	const CIMValue& value,
-	Uint32 arraySize = 0,
-	const CIMName& referenceClassName = CIMName(),
-	const CIMName& classOrigin = CIMName(),
-	Boolean propagated = false);
+        const CIMName& name,
+        const CIMValue& value,
+        Uint32 arraySize = 0,
+        const CIMName& referenceClassName = CIMName(),
+        const CIMName& classOrigin = CIMName(),
+        Boolean propagated = false);
 
+    ///
     ~CIMConstProperty();
 
+    ///
     CIMConstProperty& operator=(const CIMConstProperty& x);
 
+    ///
     CIMConstProperty& operator=(const CIMProperty& x);
 
+    ///
     const CIMName& getName() const;
 
+    ///
     const CIMValue& getValue() const;
 
+    ///
     CIMType getType() const;
 
+    ///
     Boolean isArray() const;
 
+    ///
     Uint32 getArraySize() const;
 
+    ///
     const CIMName& getReferenceClassName() const;
 
+    ///
     const CIMName& getClassOrigin() const;
 
+    ///
     Boolean getPropagated() const;
 
+    ///
     Uint32 findQualifier(const CIMName& name) const;
 
+    ///
     CIMConstQualifier getQualifier(Uint32 index) const;
 
+    ///
     Uint32 getQualifierCount() const;
 
+    ///
     Boolean identical(const CIMConstProperty& x) const;
 
+    ///
     CIMProperty clone() const;
 
+    ///
     Boolean isUninitialized() const;
 
 private:

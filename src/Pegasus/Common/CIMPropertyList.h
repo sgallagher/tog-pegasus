@@ -39,7 +39,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMPropertyListRep;
 
-/** This class is for representing property lists in the CIM interface.
+/** The CIMPropertyList class is used to represent a list of CIM
+    properties in Pegasus.
 
     This class comprises an array of propertyNames and a flag indicating whether
     the list is null. There are three possibilities which must be represented;
@@ -55,7 +56,7 @@ class CIMPropertyListRep;
     use the constructor which takes a property array (pass an empty property
     array to get an empty property list object).
 
-    Members are provided for accessing elements of the the internal property
+    Methods are provided for accessing elements of the the internal property
     list. There are none for modifying elements (the entire array must be
     formed and passed to the constructor or replaced by calling set()).
 */

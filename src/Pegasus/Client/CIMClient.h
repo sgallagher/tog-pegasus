@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMClientRep;
 
 /** This class provides the interface that a client uses to communicate
-    with a CIMOM.
+    with a CIM Server.
 */
 class PEGASUS_CLIENT_LINKAGE CIMClient
 {
@@ -70,8 +70,7 @@ public:
     ///
     ~CIMClient();
 
-    /** TBD
-    */
+    ///
     Uint32 getTimeout() const;
 
     /** Sets the timeout in milliseconds for the CIMClient.
@@ -82,15 +81,15 @@ public:
     */
     void setTimeout(Uint32 timeoutMilliseconds);
 
-    /** connect - Creates an HTTP connection with the server
-        defined by the URL in address.
-        @param host - String defining the server to which the client should 
-        connect
-        @param portNumber - Uint32 defining the port number for the server
-        to which the client should connect
-        @param userName - String containing the name of the user
+    /** Creates an HTTP connection with the server
+        defined by the host and portNumber.
+        @param host String defining the server to which the client should 
+        connect.
+        @param portNumber Uint32 defining the port number for the server
+        to which the client should connect.
+        @param userName String containing the name of the user
         the client is connecting as.
-        @param password - String containing the password of the user
+        @param password String containing the password of the user
         the client is connecting as.
         @exception AlreadyConnectedException
             If a connection has already been established.
@@ -114,16 +113,16 @@ public:
         const String& password
     );
 
-    /** connect - Creates an HTTP connection with the server
+    /** Creates an HTTP connection with the server
         defined by the URL in address.
-        @param host - String defining the server to which the client should 
+        @param host String defining the server to which the client should 
         connect
-        @param portNumber - Uint32 defining the port number for the server
+        @param portNumber Uint32 defining the port number for the server
         to which the client should connect
-        @param sslContext - The SSL context to use for this connection
-        @param userName - String containing the name of the user
+        @param sslContext The SSL context to use for this connection
+        @param userName String containing the name of the user
         the client is connecting as.
-        @param password - String containing the password of the user
+        @param password String containing the password of the user
         the client is connecting as.
         @exception AlreadyConnectedException
             If a connection has already been established.
@@ -135,9 +134,6 @@ public:
             If the socket connection fails.
         @exception CIMClientConnectionException
             If any other failure occurs.
-        <PRE>
-            TBD
-        </PRE>
     */
     void connect(
         const String& host,
@@ -208,20 +204,19 @@ public:
     );
 #endif
 
-    /** connectLocal - Creates connection to the server for
+    /** Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
         running on the local system in the default location.  The
         connection is automatically authenticated for the current
         user.
-        @SeeAlso connect - The exceptions are defined in connect.
+        @See connect - The exceptions are defined in connect.
     */
     void connectLocal();
 
-    /** disconnect - Closes the connection with the server if the connection
+    /** Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
         expected to use this method to close the open connection before
         opening a new connection.
-        @return - No return defined.
     */
     void disconnect();
 
@@ -233,14 +228,14 @@ public:
 
 	@param nameSpace The <TT>nameSpace</TT> parameter is a string that
 	defines the target Namespace.
-	See defintion of \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
+	See definition of \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
 
 	@param className The <TT>className</TT> input parameter defines the name
 	of the Class to be retrieved.
 
 	@param localOnly If the <TT>localOnly</TT> input parameter is true, this
 	specifies that only CIM Elements (properties, methods and qualifiers)
-	overriden within the definition of the Class are returned.  If false,
+	overridden within the definition of the Class are returned.  If false,
 	all elements are returned.  This parameter therefore effects a CIM
 	Server-side mechanism to filter certain elements of the returned object
 	based on whether or not they have been propagated from the parent Class
@@ -282,7 +277,7 @@ public:
 	If unsuccessful, one of the following status codes MUST be returned by
 	this method, where the first applicable error in the list (starting with
 	the first element of the list, and working down) is the error returned.
-	Any additional method-specific interpretation of the error in is given
+	Any additional method-specific interpretation of the error is given
 	in parentheses.
 	<UL>
 		<LI>CIM_ERR_ACCESS_DENIED
@@ -303,8 +298,7 @@ public:
 	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    /** ATTN TBD
-    */
+    ///
     CIMInstance getInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
@@ -314,27 +308,25 @@ public:
 	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    /** ATTN TBD
-    */
+    ///
     void deleteClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className
     );
 
-    /** ATTN TBD
-    */ 
+    ///
     void deleteInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName
     );
 
-    /** ATTN TBD
-    */
+    ///
     void createClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMClass& newClass
     );
 
+    ///
     CIMObjectPath createInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMInstance& newInstance

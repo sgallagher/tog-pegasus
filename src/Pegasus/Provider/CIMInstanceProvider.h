@@ -40,13 +40,12 @@
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-/**
-Functions that support the
+/** This class defines a set of functions that support the
 manipulation of instances of a CIM object class and their
 properties.
 
 <p>The Instance Provider is the most common provider, and
-is the provider interface used by the CIMOM to perform instance
+is the provider interface used by the CIM Server to perform instance
 and property
 manipulation requests from CIM clients. Instance providers
 may be implemented for any CIM class, including <i>Association</i>
@@ -60,14 +59,14 @@ the functions in the Instance Provider interface are:</p>
 <p><ul>
 <li>{@link getInstance getInstance}</li>
 <li>{@link enumerateInstances enumerateInstances}</li>
-<li>{@link enumerateInstanceNames enumerateInstancenames}</li>
+<li>{@link enumerateInstanceNames enumerateInstanceNames}</li>
 <li>{@link modifyInstance modifyInstance}</li>
 <li>{@link createInstance createInstance}</li>
 <li>{@link deleteInstance deleteInstance}</li>
 </ul></p>
 
 <p>The Instance Provider receives operation requests from
-clients through calls to these functions by the CIMOM. Its
+clients through calls to these functions by the CIM Server. Its
 purpose is to convert these to calls to system services,
 operations on system resources, or whatever platform-specific
 behavior is required to perform the operation modeled by
@@ -98,11 +97,11 @@ public:
     instance to be returned. The provider should determine whether
     the specification corresponds to a valid instance. If so, it will
     construct a <tt>{@link CIMInstance CIMInstance}</tt>
-    and deliver this to the CIMOM via the
-    <tt>{@link ResponseHandler handler}</tt>
+    and deliver this to the CIM Server via the
+    <tt>{@link ResponseHandler ResponseHandler}</tt>
     callback. If the specified instance does not exist, this
-    function should throw an {@link ObjectNotFound ObjectNotFound}
-    exception.</p>
+    function should throw an <tt>{@link CIMObjectNotFoundException CIMObjectNotFoundException}.</tt>
+    </p>
 
     <p>A provider can be implemented and registered to perform
     operations for
@@ -132,13 +131,13 @@ public:
     additional properties not specified in the list.
 
     @param handler a {@link ResponseHandler ResponseHandler} object used
-    to deliver results to the CIMOM.
+    to deliver results to the CIM Server.
 
-    @exception NotSupported
-    @exception InvalidParameter
-    @exception ObjectNotFound
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
+    @exception CIMObjectNotFoundException
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
     */
     virtual void getInstance(
         const OperationContext & context,
@@ -160,14 +159,14 @@ public:
     each iteration. It must call <tt>deliver</tt> with an
     argument of type <tt>{@link CIMInstance CIMInstance}</tt>.
     Finally, it will call <tt>{@link complete complete}</tt> to
-    inform the CIMOM that it has delivered all known instances.</p>
+    inform the CIM Server that it has delivered all known instances.</p>
 
     <p>A provider can be implemented and registered to perform
     operations for several levels of the same line of descent (e.g.,
     CIM_ComputerSystem and CIM_UnitaryComputerSystem). When this
     is done, the provider must return instances <i>only</i>
     for the deepest class for which it is registered, since
-    the CIMOM will invoke <tt>enumerateInstances</tt> for all
+    the CIM Server will invoke <tt>enumerateInstances</tt> for all
     classes at and beneath that specified in the
     {@link CIMObjectPath classReference}.</p>
 
@@ -192,9 +191,9 @@ public:
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
 
-    @exception NotSupported
-    @exception InvalidParameter
-    @exception ObjectNotFound
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
+    @exception CIMObjectNotFoundException
     <br>should never be thrown by this function; if
     there are no instances to return, this function should deliver an empty
     set of instances by calling the
@@ -202,8 +201,9 @@ public:
     <tt>{@link complete complete}</tt> functions without calling
     <tt>{@link deliver deliver}</tt>.
 
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
+
     */
     virtual void enumerateInstances(
         const OperationContext & context,
@@ -228,14 +228,14 @@ public:
     containing the information that uniquely identifies each
     instance.
     Finally, it will call <tt>{@link complete complete}</tt> to
-    inform the CIMOM that it has delivered all known instances.</p>
+    inform the CIM Server that it has delivered all known instances.</p>
 
     <p>A provider can be implemented and registered to perform
     operations for several levels of the same line of descent (e.g.,
     CIM_ComputerSystem and CIM_UnitaryComputerSystem). When this
     is done, the provider must return instance names <i>only</i>
     for the deepest class for which it is registered, since
-    the CIMOM will invoke <tt>enumerateInstanceNames</tt> for all
+    the CIM Server will invoke <tt>enumerateInstanceNames</tt> for all
     classes at and beneath that specified in the
     {@link CIMObjectPath classReference}.</p>
 
@@ -248,11 +248,11 @@ public:
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
 
-    @exception NotSupported
-    @exception InvalidParameter
-    @exception ObjectNotFound
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
+    @exception CIMObjectNotFoundException
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
     */
     virtual void enumerateInstanceNames(
         const OperationContext & context,
@@ -285,7 +285,7 @@ public:
     possibly inconsistent, results.</p>
 
     <p>If the specified instance does not exist, the provider
-    should throw an {@link ObjectNotFound ObjectNotFound}
+    should throw an {@link CIMObjectNotFoundException ObjectNotFound}
     exception.
 
     @param context specifies the client user's context for this operation,
@@ -303,16 +303,16 @@ public:
     @param propertyList If not null, this parameter
     specifies the set of properties required to be updated in the instance. Support
     for this parameter is NOT optional.  Providers that do not support this
-    feature must throw a {@link NotSupported NotSupported} exception.
+    feature must throw a {@link CIMNotSupportedException CIMNotSupportedException} exception.
 
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
 
-    @exception NotSupported
-    @exception InvalidParameter
-    @exception ObjectNotFound
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
+    @exception CIMObjectNotFoundException
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
     */
     virtual void modifyInstance(
         const OperationContext & context,
@@ -344,7 +344,7 @@ public:
     for the property. If a key property value is null, and the set
     of keys does not uniquely define an instance name, or any
     other parameter is invalid, then the
-    provider should throw an {@link InvalidParameter InvalidParameter}
+    provider should throw an {@link CIMInvalidParameterException CIMInvalidParameterException}
     exception.
 
     @param instanceObject contains the partial or complete instance to create.
@@ -352,11 +352,11 @@ public:
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
 
-    @exception NotSupported
-    @exception InvalidParameter
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
     @exception ObjectAlreadyExists
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
     */
     virtual void createInstance(
         const OperationContext & context,
@@ -374,16 +374,16 @@ public:
     @param instanceReference specifies the fully qualified object
     path of the instance to delete. If the specified object does
     not exist, the provider should throw an
-    {@link ObjectNotFound ObjectNotFound} exception.
+    {@link CIMObjectNotFoundException ObjectNotFound} exception.
 
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
 
-    @exception NotSupported
-    @exception InvalidParameter
-    @exception ObjectNotFound
-    @exception AccessDenied
-    @exception OperationFailure
+    @exception CIMNotSupportedException
+    @exception CIMInvalidParameterException
+    @exception CIMObjectNotFoundException
+    @exception CIMAccessDeniedException
+    @exception CIMOperationFailedException
     */
     virtual void deleteInstance(
         const OperationContext & context,

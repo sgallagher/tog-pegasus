@@ -51,9 +51,9 @@ class PEGASUS_COMMON_LINKAGE SSLCertificateInfo
 {
 public:
     /** Constructor for a SSLCertificateInfo object.
-    @param subjectName subject name of the certificate
-    @param issuerName  issuer name of the certificate
-    @param errorDepth  depth of the certificate chain
+    @param subjectName subject name of the certificate.
+    @param issuerName  issuer name of the certificate.
+    @param errorDepth  depth of the certificate chain.
     @param errorCode   error code from the default verification of the
     certificates by the Open SSL library.
     */
@@ -64,33 +64,34 @@ public:
         const int errorCode);
 
     /** Copy constructor for a SSLCertificateInfo object.
-    @param certificateInfo SSLCertificateInfo object to copy
+    @param certificateInfo SSLCertificateInfo object to copy.
     */
     SSLCertificateInfo(const SSLCertificateInfo& certificateInfo);
 
+    /// Destructor.
     ~SSLCertificateInfo();
 
-    /** Gets the subject name of the certificate
+    /** Gets the subject name of the certificate.
     @return a string containing the subject name.
     */
     String getSubjectName() const;
 
-    /** Gets the issuer name of the certificate
+    /** Gets the issuer name of the certificate.
     @return a string containing the issuer name.
     */
     String getIssuerName() const;
 
-    /** Gets the depth of the certificate chain
-    @return an int containing the depth of the certificate chain
+    /** Gets the depth of the certificate chain.
+    @return an int containing the depth of the certificate chain.
     */
     int getErrorDepth() const;
 
-    /** Gets the preverify error code
-    @return an int containing the preverification error code 
+    /** Gets the preverify error code.
+    @return an int containing the preverification error code. 
     */
     int getErrorCode() const;
 
-    /** Sets the response code
+    /** Sets the response code.
     @param respCode response code to be set.
     */
     void setResponseCode(const int respCode);
@@ -105,7 +106,7 @@ private:
 
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
-/** This class provides the interface that a client uses to create
+/** This class provides the interface that a client can use to create
     SSL context.
 
     For the OSs that don't have /dev/random device file,
@@ -117,7 +118,7 @@ class PEGASUS_COMMON_LINKAGE SSLContext
 public:
 
     /** Constructor for a SSLContext object.
-    @param certPath  certificate file path
+    @param certPath  certificate file path.
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -139,8 +140,10 @@ public:
         Boolean isCIMClient);
 #endif
 
+    ///
     SSLContext(const SSLContext& sslContext);
 
+    /// Destructor.
     ~SSLContext();
 
 private:

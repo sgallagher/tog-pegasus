@@ -56,131 +56,97 @@ class PEGASUS_COMMON_LINKAGE CIMScope
 {
 public:
 
-    /**
-        Constructs a CIMScope object with no value set (default constructor).
-     */
+    /** Constructs a CIMScope object with no value set (default constructor).
+    */
     CIMScope ();
 
-    /**
-        Constructs a CIMScope object from an existing CIMScope object (copy 
+    /** Constructs a CIMScope object from an existing CIMScope object (copy 
         constructor).
-
         @param   scope                 another CIMScope object
-     */
+    */
     CIMScope (const CIMScope & scope);
 
-    /**
-        Assigns the value of one CIMScope object to another (assignment 
+    /** Assigns the value of one CIMScope object to another (assignment 
         operator).
-
-        @param   scope                 a CIMScope object
-
-        @return  the CIMScope object
-     */
+        @param   scope - a CIMScope object.
+        @return  the CIMScope object.
+    */
     CIMScope & operator= (const CIMScope & scope);
 
-    /**
-        Determines if every value in the specified CIMScope object is included 
+    /** Determines if every value in the specified CIMScope object is included 
         in this CIMScope object.
-
-        @param   scope                 a CIMScope object
-
-        @return  True if every value in the specified CIMScope object is 
-                   included in the CIMScope object,
-                 False otherwise
-     */
+        @param   scope - a CIMScope object.
+        @return  true if every value in the specified CIMScope object is 
+                 included in the CIMScope object, false otherwise.
+    */
     Boolean hasScope (const CIMScope & scope) const;
 
-    /**
-        Adds the specified scope value to the CIMScope object.
-
-        @param   scope                 a scope value
-
-        @exception InvalidScope  if the scope value is invalid
-     */
+    /** Adds the specified scope value to the CIMScope object.
+        @param   scope - a scope value.
+    */
     void addScope (const CIMScope & scope);
 
-    /** 
-        Compares two CIMScope objects.
-
-        @param   scope                 a CIMScope object
-
-        @return True if the two CIMScope objects are equal, 
-                False otherwise
-     */
+    /** Compares two CIMScope objects.
+        @param  scope - a CIMScope object.
+        @return true if the two CIMScope objects are equal, 
+                false otherwise.
+    */
     Boolean equal (const CIMScope & scope) const;
 
-    /**
-        Combines two CIMScope objects.
-
-        @param   scope                 a CIMScope object to add
-
+    /** Combines two CIMScope objects.
+        @param  scope - a CIMScope object to add.
         @return A new CIMScope object that represents the combination of this
-                scope with the specified scope.
-     */
+                scope object with the specified scope object.
+    */
     CIMScope operator+ (const CIMScope & scope) const;
 
-    /** 
-        Returns a String representation of the CIMScope object.
-        This method is for diagnostic purposes.  The format of the output
+    /** Returns a String representation of the CIMScope object.
+        This method is for diagnostic purposes. The format of the output
         is subject to change.
-     */
+    */
     String toString () const;
 
-    /** 
-        Indicates that the CIMScope object has no value (is uninitialized)
-     */
+    /** Indicates that the CIMScope object has no value (is uninitialized).
+    */
     static const CIMScope NONE;
 
-    /** 
-        Indicates that the qualifier may be used with classes
-     */
+    /** Indicates that the qualifier may be used with classes.
+    */
     static const CIMScope CLASS;
 
-    /** 
-        Indicates that the qualifier may be used with associations
-     */
+    /** Indicates that the qualifier may be used with associations.
+    */
     static const CIMScope ASSOCIATION;
 
-    /** 
-        Indicates that the qualifier may be used with indications
-     */
+    /** Indicates that the qualifier may be used with indications.
+    */
     static const CIMScope INDICATION;
 
-    /** 
-        Indicates that the qualifier may be used with properties
-     */
+    /** Indicates that the qualifier may be used with properties.
+    */
     static const CIMScope PROPERTY;
 
-    /** 
-        Indicates that the qualifier may be used with references
-     */
+    /** Indicates that the qualifier may be used with references.
+    */
     static const CIMScope REFERENCE;
 
-    /** 
-        Indicates that the qualifier may be used with methods
-     */
+    /** Indicates that the qualifier may be used with methods.
+    */
     static const CIMScope METHOD;
 
-    /** 
-        Indicates that the qualifier may be used with parameters
-     */
+    /** Indicates that the qualifier may be used with parameters.
+    */
     static const CIMScope PARAMETER;
 
-    /** 
-        Indicates that the qualifier may be used with any of the types
+    /** Indicates that the qualifier may be used with any of the types
         of objects (classes, associations, indications, properties, references,
-        methods, parameters)
-     */
+        methods, parameters).
+    */
     static const CIMScope ANY;
 
 private:
 
-    /**
-        Constructs a CIMScope object with the specified value.
-
-        @param   scope                 a Uint32 scope value to initialize with
-     */
+    ///
     CIMScope (const Uint32 scope);
 
     Uint32 cimScope;

@@ -45,7 +45,7 @@ by providers are derived. It may also be thrown directly by
 providers to signal a generic operation failure.</p>
 
 <p>Providers do not throw every possible exception that clients
-may received from the CIMOM. The exceptions which may be thrown
+may receive from the CIM Server. The exceptions which may be thrown
 by providers are a subset of the possible exceptions, and are
 described in their respective sections.</p>
 
@@ -80,6 +80,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMAccessDeniedException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMAccessDeniedException(const String & message);
 };
 
@@ -91,6 +92,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidParameterException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMInvalidParameterException(const String & message);
 };
 
@@ -115,6 +117,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMObjectNotFoundException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMObjectNotFoundException(const String & message);
 };
 
@@ -126,6 +129,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMNotSupportedException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMNotSupportedException(const String & message);
 };
 
@@ -137,6 +141,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMObjectAlreadyExistsException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMObjectAlreadyExistsException(const String & message);
 };
 
@@ -148,6 +153,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMPropertyNotFoundException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMPropertyNotFoundException(const String & message);
 };
 
@@ -173,6 +179,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMMethodNotFoundException
     : public CIMOperationFailedException
 {
 public:
+    ///
     CIMMethodNotFoundException(const String & message);
 };
 

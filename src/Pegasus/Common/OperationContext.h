@@ -80,7 +80,16 @@ the context in which the client program issued the request.
 Currently, the identity of the user is the only supported
 information. Providers must use this to determine whether
 the requested operation should be permitted on behalf of
-the issuing user.</p>
+the issuing user.
+
+For example, providers can get the user name information from the
+IdentityContext in an OperationContext as shown below:
+
+    <PRE>
+    IdentityContainer container(context.get(IdentityContainer::NAME));
+    String userName = container.getUserName();
+    </PRE>
+</p>
 */
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
@@ -110,11 +119,16 @@ public:
         const Uint32 & getKey(void) const;
 #endif
 
-        // Caller is responsible for deleting dynamically allocated memory
-        // by calling destroy() method.
+        /** Makes a copy of the Container object. Caller is responsible 
+            for deleting dynamically allocated memory by calling 
+            destroy() method.
+        */
         virtual Container * clone(void) const = 0;
 
-        // Cleans up the object, including dynamically allocated memory.
+        /** Cleans up the object, including dynamically allocated memory.
+            This should only be used to clean up memory allocated using 
+            the clone() method.
+        */
         virtual void destroy(void) = 0;
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -133,11 +147,10 @@ public:
     ///
     virtual ~OperationContext(void);
 
+    ///
     OperationContext & operator=(const OperationContext & context);
 
-    /**
-        clear - Removes all containers in the current object.
-    */
+    /// Removes all containers in the current object.
     void clear(void);
 
     ///
@@ -168,6 +181,7 @@ protected:
 
 class IdentityContainerRep;
 
+///
 class PEGASUS_COMMON_LINKAGE IdentityContainer
     :
 #ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
@@ -178,23 +192,30 @@ class PEGASUS_COMMON_LINKAGE IdentityContainer
 public:
     static const String NAME;
 
+    ///
     IdentityContainer(const OperationContext::Container & container);
+    ///
     IdentityContainer(const IdentityContainer & container);
+    ///
     IdentityContainer(const String & userName);
+    ///
     virtual ~IdentityContainer(void);
-
+    ///
     IdentityContainer & operator=(const IdentityContainer & container);
-
+    ///
     virtual String getName(void) const;
+    ///
     virtual OperationContext::Container * clone(void) const;
+    ///
     virtual void destroy(void);
-
+    ///
     String getUserName(void) const;
 
 protected:
     IdentityContainerRep* _rep;
 
 };
+
 
 class SubscriptionInstanceContainerRep;
 

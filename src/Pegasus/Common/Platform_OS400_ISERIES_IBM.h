@@ -94,8 +94,6 @@
 
 #define PEGASUS_LOCAL_DOMAIN_SOCKET
 
-#define PEGASUS_DISABLE_PERFINST  comment out until this works
-
 #define PEGASUS_USE_SYSLOGS
 
 #define PEGASUS_KERBEROS_AUTHENTICATION

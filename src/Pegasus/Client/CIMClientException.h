@@ -59,13 +59,13 @@ public:
     CIMClientHTTPErrorException(
         Uint32 httpStatusCode,
         const String& cimError,
-        const String& pegasusError);
+        const String& cimErrorDetail);
     CIMClientHTTPErrorException(const CIMClientHTTPErrorException& httpError);
     virtual ~CIMClientHTTPErrorException();
 
     Uint32 getCode() const;
     String getCIMError() const;
-    String getPegasusError() const;
+    String getCIMErrorDetail() const;
 };
 
 /**

@@ -59,13 +59,13 @@ class CIMClientHTTPErrorExceptionRep : public ExceptionRep
 public:
     Uint32 httpStatusCode;
     String cimError;
-    String pegasusError;
+    String cimErrorDetail;
 };
 
 static String _makeHTTPErrorMessage(
     Uint32 httpStatusCode, 
     const String& cimError,
-    const String& pegasusError)
+    const String& cimErrorDetail)
 {
     String tmp = "HTTP Error (status code ";
     char buffer[32];
@@ -73,7 +73,7 @@ static String _makeHTTPErrorMessage(
     tmp.append(buffer);
     tmp.append(")");
 
-    if ((cimError != String::EMPTY) || (pegasusError != String::EMPTY))
+    if ((cimError != String::EMPTY) || (cimErrorDetail != String::EMPTY))
     {
         tmp.append(":");
         if (cimError != String::EMPTY)
@@ -82,10 +82,10 @@ static String _makeHTTPErrorMessage(
             tmp.append(cimError);
             tmp.append("\"");
         }
-        if (pegasusError != String::EMPTY)
+        if (cimErrorDetail != String::EMPTY)
         {
             tmp.append(" Detail = \"");
-            tmp.append(pegasusError);
+            tmp.append(cimErrorDetail);
             tmp.append("\"");
         }
     }
@@ -96,15 +96,15 @@ static String _makeHTTPErrorMessage(
 CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     Uint32 httpStatusCode, 
     const String& cimError,
-    const String& pegasusError)
+    const String& cimErrorDetail)
 {
     CIMClientHTTPErrorExceptionRep * tmp = 
         new CIMClientHTTPErrorExceptionRep ();
     tmp->message = _makeHTTPErrorMessage (httpStatusCode, cimError,
-        pegasusError);
+        cimErrorDetail);
     tmp->httpStatusCode = httpStatusCode;
     tmp->cimError = cimError;
-    tmp->pegasusError = pegasusError;
+    tmp->cimErrorDetail = cimErrorDetail;
     _rep = tmp;
 }
 
@@ -118,7 +118,7 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(httpError._rep);
     tmp->httpStatusCode = rep->httpStatusCode;
     tmp->cimError = rep->cimError;
-    tmp->pegasusError = rep->pegasusError;
+    tmp->cimErrorDetail = rep->cimErrorDetail;
     _rep = tmp;
 }
 
@@ -140,11 +140,11 @@ String CIMClientHTTPErrorException::getCIMError() const
     return rep->cimError;
 }
 
-String CIMClientHTTPErrorException::getPegasusError() const
+String CIMClientHTTPErrorException::getCIMErrorDetail() const
 {
     CIMClientHTTPErrorExceptionRep* rep;
     rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(_rep);
-    return rep->pegasusError;
+    return rep->cimErrorDetail;
 }
 
 

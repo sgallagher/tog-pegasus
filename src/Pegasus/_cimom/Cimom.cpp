@@ -41,8 +41,6 @@ cimom::~cimom(void)
 {
    _die++;
    
-   _new_ops.empty_list();
-   _new_ops.shutdown_queue();
    _pending_ops.empty_list();
    _pending_ops.shutdown_queue();
    _completed_ops.empty_list();

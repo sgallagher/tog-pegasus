@@ -88,9 +88,8 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
   
    public : cimom(void)
       : MessageQueue("cimom"), _modules(true), 
-	_internal_ops(true ), _new_ops(true, 20), 
-	_pending_ops(true, 100), _completed_ops(true, 100),
-	_new_thread( _new_proc, this, false), 
+	_internal_ops(true ), 	_pending_ops(true, 100), 
+	_completed_ops(true, 100),
 	_pending_thread( _pending_proc, this, false),
 	_completed_thread( _completed_proc, this, false),
 	_die(0)  
@@ -124,10 +123,8 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       AsyncDQueue<AsyncOpNode> _pending_ops;
       AsyncDQueue<AsyncOpNode> _completed_ops;
       
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _new_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _pending_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
-      Thread _new_thread;
       Thread _pending_thread;
       Thread _completed_thread;
       AtomicInt _die;
@@ -135,7 +132,7 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       CIMOperationResponseEncoder *_cim_encoder;
       CIMOperationRequestDecoder *_cim_decoder;
       CIMRepository *_repository;
-                  
+      
 };
 
 

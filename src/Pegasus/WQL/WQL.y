@@ -141,7 +141,7 @@ selectStatement
 selectList
     : '*'
     {
-	globalParserState->statement->appendPropertyName("*");
+	globalParserState->statement->appendSelectPropertyName("*");
     }
     | propertyList
     {
@@ -151,11 +151,11 @@ selectList
 propertyList 
     : propertyName
     {
-	globalParserState->statement->appendPropertyName($1);
+	globalParserState->statement->appendSelectPropertyName($1);
     }
     | propertyList ',' propertyName
     {
-	globalParserState->statement->appendPropertyName($3);
+	globalParserState->statement->appendSelectPropertyName($3);
     }
 
 selectExpression
@@ -301,6 +301,7 @@ comparisonTerm
     {
 	globalParserState->statement->appendOperand(
 	    WQLOperand($1, WQL_PROPERTY_NAME_TAG));
+	globalParserState->statement->appendWherePropertyName($1);
     }
     | TOK_INTEGER
     {

@@ -140,9 +140,29 @@ WQLSelectStatement::~WQLSelectStatement()
 void WQLSelectStatement::clear()
 {
     _className.clear();
-    _propertyNames.clear();
+    _selectPropertyNames.clear();
     _operations.clear();
     _operands.clear();
+}
+
+Boolean WQLSelectStatement::appendWherePropertyName(const String& x)
+{
+    //
+    // Reject duplicate property names by returning false.
+    //
+
+    for (Uint32 i = 0, n = _wherePropertyNames.size(); i < n; i++)
+    {
+	if (_wherePropertyNames[i] == x)
+	    return false;
+    }
+
+    //
+    // Append the new property.
+    //
+
+    _wherePropertyNames.append(x);
+    return true;
 }
 
 static inline void _ResolveProperty(
@@ -325,13 +345,13 @@ void WQLSelectStatement::print() const
     // Print the property:
     //
 
-    for (Uint32 i = 0; i < _propertyNames.size(); i++)
+    for (Uint32 i = 0; i < _selectPropertyNames.size(); i++)
     {
 	if (i == 0)
 	    cout << endl;
 
-	cout << "    _propertyNames[" << i << "]: ";
-	cout << '"' << _propertyNames[i] << '"' << endl;
+	cout << "    _selectPropertyNames[" << i << "]: ";
+	cout << '"' << _selectPropertyNames[i] << '"' << endl;
     }
 
     //

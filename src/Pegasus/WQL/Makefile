@@ -14,12 +14,12 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
 SOURCES = \
+    WQLSelectStatement.cpp \
     WQLYACC.cpp \
     WQLLEX.cpp \
     WQLSimplePropertySource.cpp \
     WQLPropertySource.cpp \
     WQLParserState.cpp \
-    WQLSelectStatement.cpp \
     WQLOperation.cpp \
     WQLOperand.cpp \
     WQLParser.cpp

@@ -51,11 +51,9 @@ PEGASUS_NAMESPACE_BEGIN
 	WHERE &lt;where clause&gt;
     </pre>
 
-    The properties are obtained with the getProperties() method. The class 
-    name is obtained with getClassName(). The where clause is evaluated by 
-    calling evaluateWhereClause() with the appropriate arguments. If 
-    hasWhereClause() returns false, then there is no where clause.
-
+    There are methods for obtaining the various elements of the select
+    statement.
+    
     The components of the where clause are stored in two arrays: one for
     operands and one for operators (these are placed in proper order by the
     YACC parser). Evaluation is performed using a Boolean stack. See the
@@ -95,25 +93,47 @@ public:
     /** Returns the number of property names which were indicated in the
 	selection list.
     */
-    Uint32 getPropertyNameCount() const
+    Uint32 getSelectPropertyNameCount() const
     {
-	return _propertyNames.size();
+	return _selectPropertyNames.size();
     }
 
-    /** Gets the i-th property name in the list.
+    /** Gets the i-th selected property name in the list.
     */
-    const String& getPropertyName(Uint32 i)
+    const String& getSelectPropertyName(Uint32 i)
     {
-	return _propertyNames[i];
+	return _selectPropertyNames[i];
     }
 
     /** Appends a property name to the property name list. This user should
 	not call this method; it should only be called by the parser.
     */
-    void appendPropertyName(const String& x)
+    void appendSelectPropertyName(const String& x)
     {
-	_propertyNames.append(x);
+	_selectPropertyNames.append(x);
     }
+
+    /** Returns the number of unique property names from the where clause.
+    */
+    Uint32 getWherePropertyNameCount() const
+    {
+	return _wherePropertyNames.size();
+    }
+
+    /** Gets the i-th unique property appearing in the where clause.
+    */
+    const String& getWherePropertyName(Uint32 i)
+    {
+	return _wherePropertyNames[i];
+    }
+
+    /** Appends a property name to the where property name list. This user 
+	should not call this method; it should only be called by the parser.
+
+	@param x name of the property.
+	@return false if a property with that name already exists.
+    */
+    Boolean appendWherePropertyName(const String& x);
 
     /** Appends an operation to the operation array. This method should only
 	be called by the parser itself.
@@ -167,7 +187,15 @@ private:
     //     WHERE ...
     //
 
-    Array<String> _propertyNames;
+    Array<String> _selectPropertyNames;
+
+    //
+    // The unique list of property names appearing in the WHERE clause.
+    // Although a property may occur many times in the WHERE clause, it will
+    // only appear once in this list.
+    //
+
+    Array<String> _wherePropertyNames;
 
     //
     // The list of operations encountered while parsing the WHERE clause.
@@ -196,6 +224,8 @@ private:
     //
 
     Array<WQLOperand> _operands;
+
+    void f() const { }
 };
 
 PEGASUS_NAMESPACE_END

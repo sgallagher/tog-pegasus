@@ -70,7 +70,7 @@ results will be delivered</li>
 </ul>
 */
 
-class PEGASUS_PROVIDER_LINKAGE ResponseHandler
+class PEGASUS_COMMON_LINKAGE ResponseHandler
 {
 public:
 
@@ -124,7 +124,7 @@ public:
 //
 // InstanceResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE InstanceResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE InstanceResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMInstance & instance) = 0;
@@ -136,7 +136,7 @@ public:
 //
 // ObjectPathResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE ObjectPathResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE ObjectPathResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMObjectPath & objectPath) = 0;
@@ -148,7 +148,7 @@ public:
 //
 // MethodResultResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE MethodResultResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE MethodResultResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliverParamValue(const CIMParamValue & outParamValue) = 0;
@@ -162,7 +162,7 @@ public:
 //
 // IndicationResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE IndicationResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE IndicationResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMIndication & indication) = 0;
@@ -174,7 +174,7 @@ public:
 //
 // ObjectResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE ObjectResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE ObjectResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMObject & object) = 0;
@@ -186,7 +186,7 @@ public:
 //
 // ValueResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE ValueResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE ValueResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMValue & value) = 0;
@@ -198,7 +198,7 @@ public:
 //
 // ClassResponseHandler
 //
-class PEGASUS_PROVIDER_LINKAGE ClassResponseHandler : virtual public ResponseHandler
+class PEGASUS_COMMON_LINKAGE ClassResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMClass & classObj) = 0;

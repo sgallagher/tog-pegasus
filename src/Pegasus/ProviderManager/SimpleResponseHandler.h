@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
 {
 public:
     SimpleResponseHandler(void)
@@ -58,7 +58,7 @@ public:
     }
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
     SimpleInstanceResponseHandler(void)
@@ -92,7 +92,7 @@ private:
 
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleObjectPathResponseHandler : public SimpleResponseHandler, public ObjectPathResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleObjectPathResponseHandler : public SimpleResponseHandler, public ObjectPathResponseHandler
 {
 public:
     SimpleObjectPathResponseHandler(void)
@@ -126,7 +126,7 @@ private:
 
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleMethodResultResponseHandler : public SimpleResponseHandler, public MethodResultResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleMethodResultResponseHandler : public SimpleResponseHandler, public MethodResultResponseHandler
 {
 public:
     SimpleMethodResultResponseHandler(void)
@@ -172,7 +172,7 @@ private:
 
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleIndicationResponseHandler : public SimpleResponseHandler, public IndicationResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleIndicationResponseHandler : public SimpleResponseHandler, public IndicationResponseHandler
 {
 public:
     SimpleIndicationResponseHandler(void)
@@ -206,7 +206,7 @@ private:
 
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleObjectResponseHandler : public SimpleResponseHandler, public ObjectResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleObjectResponseHandler : public SimpleResponseHandler, public ObjectResponseHandler
 {
 public:
     SimpleObjectResponseHandler(void)
@@ -240,7 +240,7 @@ private:
 
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
 {
 public:
     SimpleValueResponseHandler(void)
@@ -274,7 +274,7 @@ private:
 
 };
 
-class PEGASUS_PROVIDER_LINKAGE SimpleClassResponseHandler : public SimpleResponseHandler, public ClassResponseHandler
+class PEGASUS_SERVER_LINKAGE SimpleClassResponseHandler : public SimpleResponseHandler, public ClassResponseHandler
 {
 public:
     SimpleClassResponseHandler(void)

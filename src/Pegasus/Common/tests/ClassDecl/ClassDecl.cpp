@@ -61,6 +61,9 @@ void test01()
 	    .addParameter(CIMParameter("port", CIMType::UINT32)));
 
     // Test the method count function
+    assert(class1.isClassName("myclass"));
+    assert(class1.getSuperClassName() == "YourClass");
+
     assert(class1.getMethodCount() ==1);
 
 
@@ -196,8 +199,12 @@ void test01()
 
     CIMClass c2("MyClass");
 
+    assert(c2.isClassName("myclass"));
+
+
     // Error uninitialized handle
     c2.setSuperClassName("CIM_Element");
+    assert(c2.getSuperClassName() == "CIM_Element");
 
     CIMClass c3 = c2.clone();
     c3 = c2;
@@ -289,10 +296,23 @@ void test01()
 
     assert(!c4.existsProperty("count"));
 
-    assert(c4.getClassName() == "MyClass"); 
-    assert(c4.getSuperClassName() == "YourClass"); 
+    assert(c4.getClassName() == "MyClass");
+    assert(c4.isClassName("MyClass"));
+    assert(c4.isClassName("MYCLASS"));
+    assert(c4.isClassName("myclass"));
+    assert(!c4.isClassName("blob"));
 
-    assert(c5.getSuperClassName() == "YourClass"); 
+
+    assert(c4.getSuperClassName() == "YourClass");
+
+    // test the setSuperClassName function
+    /* ATTN KS 29 April.  This test has problems.  Relook later. Think test, not code.
+    c4.setSuperClassName("JunkClass"); 
+    assert(c4.getSuperClassName() == "JunkClass"); 
+    c4.setSuperClassName("YourClass");
+    */
+    assert(c5.getSuperClassName() == "YourClass");
+
     assert(c5.getQualifierCount() == 0);
     posQualifier = c5.findQualifier("q2");
 

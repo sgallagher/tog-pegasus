@@ -31,6 +31,7 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -172,7 +173,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    {
 	if (req->thread_changed())
         {
-	   AutoPtr<AcceptLanguages> langs(new AcceptLanguages(req->acceptLanguages));	
+	   AutoPtr<AcceptLanguages> langs(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
+		   (AcceptLanguageListContainer:: NAME)).getLanguages()));	
 	   Thread::setLanguages(langs.release());   		
         }
    }
@@ -205,7 +207,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    switch (request->getType())
    {
       case CIM_GET_CLASS_REQUEST_MESSAGE:
-	 userName = ((CIMGetClassRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMGetClassRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMGetClassRequestMessage*)request)->authType;
 	 nameSpace = ((CIMGetClassRequestMessage*)request)->nameSpace;
@@ -213,7 +216,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((CIMGetInstanceRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMGetInstanceRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMGetInstanceRequestMessage*)request)->authType;
 	 nameSpace = ((CIMGetInstanceRequestMessage*)request)->nameSpace;
@@ -221,7 +225,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	 userName = ((CIMDeleteClassRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMDeleteClassRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMDeleteClassRequestMessage*)request)->authType;
 	 nameSpace = ((CIMDeleteClassRequestMessage*)request)->nameSpace;
@@ -229,7 +234,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((CIMDeleteInstanceRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMDeleteInstanceRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMDeleteInstanceRequestMessage*)request)->authType;
 	 nameSpace = ((CIMDeleteInstanceRequestMessage*)request)->nameSpace;
@@ -237,7 +243,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-	 userName = ((CIMCreateClassRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMCreateClassRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMCreateClassRequestMessage*)request)->authType;
 	 nameSpace = ((CIMCreateClassRequestMessage*)request)->nameSpace;
@@ -245,7 +252,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((CIMCreateInstanceRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMCreateInstanceRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMCreateInstanceRequestMessage*)request)->authType;
 	 nameSpace = ((CIMCreateInstanceRequestMessage*)request)->nameSpace;
@@ -253,7 +261,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-	 userName = ((CIMModifyClassRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMModifyClassRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMModifyClassRequestMessage*)request)->authType;
 	 nameSpace = ((CIMModifyClassRequestMessage*)request)->nameSpace;
@@ -261,7 +270,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	 userName = ((CIMModifyInstanceRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMModifyInstanceRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMModifyInstanceRequestMessage*)request)->authType;
 	 nameSpace = ((CIMModifyInstanceRequestMessage*)request)->nameSpace;
@@ -269,14 +279,16 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-	 userName = ((CIMEnumerateClassesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMEnumerateClassesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMEnumerateClassesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMEnumerateClassesRequestMessage*)request)->nameSpace;
 	 cimMethodName = "EnumerateClasses";
 	 break;
 
       case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-	 userName = ((CIMEnumerateClassNamesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMEnumerateClassNamesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = 
 	    ((CIMEnumerateClassNamesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMEnumerateClassNamesRequestMessage*)request)->nameSpace;
@@ -284,98 +296,112 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 break;
 
       case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	 userName = ((CIMEnumerateInstancesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMEnumerateInstancesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMEnumerateInstancesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMEnumerateInstancesRequestMessage*)request)->nameSpace;
 	 cimMethodName = "EnumerateInstances";
 	 break;
 
       case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	 userName = ((CIMEnumerateInstanceNamesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMEnumerateInstanceNamesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMEnumerateInstanceNamesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMEnumerateInstanceNamesRequestMessage*)request)->nameSpace;
 	 cimMethodName = "EnumerateInstanceNames";
 	 break;
 
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	 userName = ((CIMExecQueryRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMExecQueryRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMExecQueryRequestMessage*)request)->authType;
 	 nameSpace = ((CIMExecQueryRequestMessage*)request)->nameSpace;
 	 cimMethodName = "ExecQuery";
 	 break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	 userName = ((CIMAssociatorsRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMAssociatorsRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMAssociatorsRequestMessage*)request)->authType;
 	 nameSpace = ((CIMAssociatorsRequestMessage*)request)->nameSpace;
 	 cimMethodName = "Associators";
 	 break;
 
       case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	 userName = ((CIMAssociatorNamesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMAssociatorNamesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMAssociatorNamesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMAssociatorNamesRequestMessage*)request)->nameSpace;
 	 cimMethodName = "AssociatorNames";
 	 break;
 
       case CIM_REFERENCES_REQUEST_MESSAGE:
-	 userName = ((CIMReferencesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMReferencesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMReferencesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMReferencesRequestMessage*)request)->nameSpace;
 	 cimMethodName = "References";
 	 break;
 
       case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	 userName = ((CIMReferenceNamesRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMReferenceNamesRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMReferenceNamesRequestMessage*)request)->authType;
 	 nameSpace = ((CIMReferenceNamesRequestMessage*)request)->nameSpace;
 	 cimMethodName = "ReferenceNames";
 	 break;
 
       case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	 userName = ((CIMGetPropertyRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMGetPropertyRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMGetPropertyRequestMessage*)request)->authType;
 	 nameSpace = ((CIMGetPropertyRequestMessage*)request)->nameSpace;
 	 cimMethodName = "GetProperty";
 	 break;
 
       case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	 userName = ((CIMSetPropertyRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMSetPropertyRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMSetPropertyRequestMessage*)request)->authType;
 	 nameSpace = ((CIMSetPropertyRequestMessage*)request)->nameSpace;
 	 cimMethodName = "SetProperty";
 	 break;
 
       case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-	 userName = ((CIMGetQualifierRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMGetQualifierRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMGetQualifierRequestMessage*)request)->authType;
 	 nameSpace = ((CIMGetQualifierRequestMessage*)request)->nameSpace;
 	 cimMethodName = "GetQualifier";
 	 break;
 
       case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-	 userName = ((CIMSetQualifierRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMSetQualifierRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMSetQualifierRequestMessage*)request)->authType;
 	 nameSpace = ((CIMSetQualifierRequestMessage*)request)->nameSpace;
 	 cimMethodName = "SetQualifier";
 	 break;
 
       case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-	 userName = ((CIMDeleteQualifierRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMDeleteQualifierRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMDeleteQualifierRequestMessage*)request)->authType;
 	 nameSpace = ((CIMDeleteQualifierRequestMessage*)request)->nameSpace;
 	 cimMethodName = "DeleteQualifier";
 	 break;
 
       case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-	 userName = ((CIMEnumerateQualifiersRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMEnumerateQualifiersRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMEnumerateQualifiersRequestMessage*)request)->authType;
 	 nameSpace = ((CIMEnumerateQualifiersRequestMessage*)request)->nameSpace;
 	 cimMethodName = "EnumerateQualifiers";
 	 break;
 
       case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	 userName = ((CIMInvokeMethodRequestMessage*)request)->userName;
+	 userName = ((IdentityContainer)(((CIMInvokeMethodRequestMessage*)request)->operationContext.get
+																	(IdentityContainer:: NAME))).getUserName();
 	 authType = ((CIMInvokeMethodRequestMessage*)request)->authType;
 	 nameSpace = ((CIMInvokeMethodRequestMessage*)request)->nameSpace;
 	 cimMethodName = "InvokeMethod";

@@ -931,16 +931,9 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     {
         //
         //  No httpMethod specified
-        //  Default is to use M-POST
-        //  unless HTTP/1.0 was specified
+        //  Default is to use POST
         //
-        if (_useHTTP11)
-        {
-            _useMPost = true;
-        } else 
-        {
-            _useMPost = false;
-        }
+        _useMPost = false;
     } 
     else 
     {

@@ -1,11 +1,9 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -298,6 +296,48 @@ Boolean isUTF8(const char *legal)
     return (isValid_U8((const Uint8 *)legal, numBytes));
 }
 
+Boolean isUTF8Str(const char *legal)
+{
+	/*char tmp[] = {0xCE,0x99,0xCE,0xBF,0xCF,0x8D,0xCE,0xBD,0xCE,
+                      0xB9,0xCE,0xBA,0xCE,0xBF,0xCE,0xBD,0xCF,0x84,
+                      0x00};*/
+//	char tmp_[] = "class";
+//	char * tmp = legal;
+	Uint32 count = 0;
+        Uint32 size = strlen(legal);
+//	printf("size = %d\n",size);
+        while(count<size)
+        {
+//		printf("count = %d\n",count);
+                if(isUTF8(&legal[count]) == true){
+                	UTF8_NEXT(legal,count);
+		}else{
+//			printf("bad string\n");
+			return false;
+		}
+        }
+//	printf("good string\n");
+	return true;
+/*
+	printf("legal = %s\n\n", legal);
+	Uint32 count = 0;
+	Uint32 trailingBytes = 0;
+        Uint32 size = strlen(legal);
+	printf("size of legal is %d\n",size);
+        while(count<size-1)
+        {
+		printf("count = %d\n", count);
+                if(isUTF8((char*)&legal[count]) == true){
+                	UTF8_NEXT(legal,trailingBytes);
+			count += trailingBytes;
+		} else{
+			printf("CommonUTF8:: returning false; position[%d]",count);
+			 return false;	
+		}
+        }
+	 printf("CommonUTF8:: returning false; position[%d]",count);
+	return true;*/
+}
 
 String escapeStringEncoder(const String& Str)
 {

@@ -1,11 +1,9 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -86,6 +84,8 @@ PEGASUS_COMMON_LINKAGE int UTF8toUTF16 (const Uint8** srcHead,
 		 Uint16* tgtEnd);
 
 PEGASUS_COMMON_LINKAGE Boolean isUTF8(const char*);
+
+PEGASUS_COMMON_LINKAGE Boolean isUTF8Str(const char*);
 
 /** Escape all characters above 7-bit ASCII.
     @param String: The string to be escaped Insert text here.

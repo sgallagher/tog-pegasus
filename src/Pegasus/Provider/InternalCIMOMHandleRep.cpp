@@ -146,26 +146,6 @@ void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* profileHandle)
 }
 #endif
 
-// Private, unimplemented copy constructor
-InternalCIMOMHandleRep::InternalCIMOMHandleRep(
-    const InternalCIMOMHandleRep& rep)
-    : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT)
-{
-    PEGASUS_ASSERT(0);
-}
-
-// Private, unimplemented assignment operator
-InternalCIMOMHandleRep& InternalCIMOMHandleRep::operator=(
-    const InternalCIMOMHandleRep& rep)
-{
-    PEGASUS_ASSERT(0);
-    return *this;
-}
-
-InternalCIMOMHandleRep::~InternalCIMOMHandleRep()
-{
-}
-
 #ifdef PEGASUS_OS_OS400
 InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400key)
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),

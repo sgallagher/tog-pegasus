@@ -9,13 +9,13 @@ FULL_PDB = $(BIN_DIR)/$(LIBRARY)$(PDB)
 ##
 
 $(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
-        link -nologo -dll $(LINK_FLAGS) -out:$(FULL_DLL) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
-        mu copy $(BIN_DIR)/$(LIBRARY).lib $(FULL_LIB)
-        mu rm $(BIN_DIR)/$(LIBRARY).lib
-        @ $(ECHO)
+	link -nologo -dll $(LINK_FLAGS) -out:$(FULL_DLL) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
+	mu copy $(BIN_DIR)/$(LIBRARY).lib $(FULL_LIB)
+	mu rm $(BIN_DIR)/$(LIBRARY).lib
+	@ $(ECHO)
 
 FILES_TO_CLEAN = \
-    $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)/vc60$(PDB) $(OBJ_DIR)/vc70$(PDB) depend.mak depend.mak.bak
+	$(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)/vc60$(PDB) $(OBJ_DIR)/vc70$(PDB) depend.mak depend.mak.bak
 
 clean-lib: $(ERROR)
-        mu rm $(FULL_LIB) $(FULL_DLL) $(FULL_EXP)
+	mu rm $(FULL_LIB) $(FULL_DLL) $(FULL_EXP)

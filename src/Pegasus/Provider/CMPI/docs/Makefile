@@ -4,8 +4,6 @@ DIR = Pegasus/Provider/CMPI/docs
 
 include $(ROOT)/mak/config.mak
 
-CPP = cpp
-
 all:
 
 doc: ../cmpimacs.h

@@ -175,13 +175,18 @@ int main(int argc, char **argv)
    blocking->wait();
    cout << " joined " << endl;
    tp.kill_dead_threads( ) ;
+
+   cout << "Killed Dead Threads " << endl;
+
    while(tp.running_count() )
    {  
       pegasus_sleep(1);
    }
    
    cout << "thread routine executed " << function_count.value() << " times" << endl;
-   
+
+   cout << argv[0] << " +++++ passed all tests" << endl;
+  
    return(0);
    
 }

@@ -561,6 +561,16 @@ public:
     StackUnderflow() : Exception(MSG) { }
 };
 
+class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    QueueUnderflow() : Exception(MSG) { }
+};
+
+
 class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
 {
 public:

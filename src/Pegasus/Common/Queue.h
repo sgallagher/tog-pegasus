@@ -26,8 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Stack_h
-#define Pegasus_Stack_h
+#ifndef Pegasus_Queue_h
+#define Pegasus_Queue_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
@@ -36,59 +36,64 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** The Stack class provides a simple stack implementation.
-    This class provides a stack implementation which is based on the Array<>
-    template class.
+/** The Queue class provides a simple FIFO Queue implementation.
+    This class provides a Queue implementation which is based on the Array<>
+    template class. It allows enqueing, dequeing and size determination.
 */
 template<class T>
-class Stack
+class Queue
 {
 public:
 
     /** */
-    Stack() { }
+    Queue() { }
 
     /** */
-    Stack(const Stack<T>& x) : _rep(x._rep) { }
+    Queue(const Queue<T>& x) : _rep(x._rep) { }
 
     /** */
-    ~Stack() { }
+    ~Queue() { }
 
     /** */
-    Stack<T>& operator=(const Stack<T>& x) { _rep = x._rep; return *this; }
+    Queue<T>& operator=(const Queue<T>& x) { _rep = x._rep; return *this; }
 
-    /** isEmpty Tests to determine that the stack is empty
-    */
+    /** */
     Boolean isEmpty() const { return _rep.size() == 0; }
 
-    /**push adds one new entry to the stack
-    */
-    void push(const T& x) { _rep.append(x); }
+    /** Enqueue - Adds a new item to the end of the queue*/
+    void enqueue(const T& x) { _rep.append(x); }
 
-    /** Top - Return the top entry on the stack. However, the entry is not
-        removed from the stack.	 This is a peek at the top entry.
+    /** dequeue - Removes the first entry from the queue. Note that this does 
+	not return the dequeued item to the user.
+	The normal approach to use this is to first look at the first item
+	with the front method and then dequeue with the dequeue
     */
-    T& top();
+    void dequeue();
+    
+    /** */
+    T& front();
 
-    /** Top - Return the top entry on the stack. However, the entry is not
-        removed from the stack
-    */
-    const T& top() const { return ((Stack<T>*)this)->top(); }
+    /** */
+    const T& front() const { return ((Queue<T>*)this)->front(); }
 
-    /** Remove the top entry from the stack.
-    */
-    void pop();
+    /** */
+    T& back();;
 
-    /** size returns the number of entries in the stack
-     */
+    /** */
+    const T& back() const { return ((Queue<T>*)this)->back(); }
+
+
+    /** */
     Uint32 size() const { return _rep.size(); }
 
-    /** The [] operator provides a way to treat the stack as an
-        array so that entries within the stack can be manipulated.
+    /** The [] operator allows you to treat the queue as an indexed array
+        and look at individual items on the queue.
     */
     T& operator[](Uint32 i) { return _rep[i]; }
 
-    /** */
+    /** The [] operator allows you to treat the queue as an indexed array
+        and look at individual items on the queue.
+    */
     const T& operator[](Uint32 i) const { return _rep[i]; }
 
 private:
@@ -97,7 +102,18 @@ private:
 };
 
 template<class T>
-T& Stack<T>::top()
+T& Queue<T>::front()
+{
+    if (!isEmpty())
+	return _rep[0];
+    else
+    {
+	static T dummy = T();
+	return dummy;
+    }
+}
+template<class T>
+T& Queue<T>::back()
 {
     if (!isEmpty())
 	return _rep[_rep.size() - 1];
@@ -109,14 +125,14 @@ T& Stack<T>::top()
 }
 
 template<class T>
-void Stack<T>::pop()
+void Queue<T>::dequeue()
 {
     if (_rep.size() == 0)
-	throw StackUnderflow();
+	throw QueueUnderflow();
 
-    _rep.remove(_rep.size() - 1);
+    _rep.remove(0);
 }
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Stack_h */
+#endif /* Pegasus_Queue_h */

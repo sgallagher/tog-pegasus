@@ -50,6 +50,7 @@ SOURCES = \
     Memory.cpp \
     OptionManager.cpp \
     Pair.cpp \
+    Queue.cpp \
     Selector.cpp \
     Service.cpp \
     Sharable.cpp \

@@ -138,7 +138,9 @@ const char CannotRemoveFile::MSG[] = "cannot remove file: ";
 
 const char CannotRenameFile::MSG[] = "cannot rename file: ";
 
-const char StackUnderflow::MSG[] = "stack overflow";
+const char StackUnderflow::MSG[] = "stack Underflow";
+
+const char QueueUnderflow::MSG[] = "queue Underflow";
 
 const char BadFormat::MSG[] = "bad format passed to Formatter::format()";
 

@@ -164,26 +164,46 @@ class PEGASUS_COMMON_LINKAGE CIMObjectWithPath
 {
 public:
 
+    /**	Constructor
+    */
     CIMObjectWithPath();
 
+    /** constructor
+    */
     CIMObjectWithPath(const CIMReference& reference, const CIMObject& object);
 
+    /** Constructor - Constructs a CIMObjectWithPath Object from
+        another CimObjectWithPath
+        @param - ATTN
+    */
     CIMObjectWithPath(const CIMObjectWithPath& x);
 
     ~CIMObjectWithPath();
 
     CIMObjectWithPath& operator=(const CIMObjectWithPath& x);
 
+    /** set - 
+    */
     void set(const CIMReference& reference, const CIMObject& object);
 
+    /**
+    */
     const CIMReference& getReference() const { return _reference; }
 
+    /**
+    */
     const CIMObject& getObject() const { return _object; }
 
+    /**
+    */
     CIMReference& getReference() { return _reference; }
 
+    /**
+    */
     CIMObject& getObject() { return _object; }
 
+    /**
+    */
     void toXml(Array<Sint8>& out) const;
 
 private:

@@ -244,7 +244,17 @@ class  PEGASUS_COMMON_LINKAGE auto_mutex
       auto_mutex(Mutex *mut)
 	 : _mut(mut)
       {
-	 _mut->lock(pegasus_thread_self());
+	 try 
+	 {
+	    _mut->lock(pegasus_thread_self());
+	 }
+	 catch(Deadlock & )
+	 {
+	 }
+	 catch(AlreadyLocked & )
+	 {
+	 }
+	 
       }
 
       ~auto_mutex(void)

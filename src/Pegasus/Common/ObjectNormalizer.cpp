@@ -96,11 +96,9 @@ static CIMProperty _resolveProperty(
 
     // TODO: check override (especially for references)?
 
-    // update value
-    if(!cimProperty.getValue().isNull())
-    {
-        newProperty.setValue(cimProperty.getValue());
-    }
+    newProperty.setValue(cimProperty.getValue());
+
+    DEBUG_PRINT(newProperty.getName().getString() << " value = " << newProperty.getValue().toString());
 
     // set class origin
     if(includeClassOrigin)
@@ -114,6 +112,8 @@ static CIMProperty _resolveProperty(
         // repository does not seem to honor this flag.
         newProperty.setClassOrigin(CIMName());
     }
+
+    DEBUG_PRINT(newProperty.getName().getString() << " class origin = " << newProperty.getClassOrigin().getString());
 
     // add qualifiers
     if(includeQualifiers)
@@ -132,29 +132,20 @@ static CIMProperty _resolveProperty(
         // apply specified property qualifiers
         for(Uint32 i = 0, n = cimProperty.getQualifierCount(); i < n; i++)
         {
-            Uint32 pos = newProperty.findQualifier(cimProperty.getQualifier(i).getName());
+            CIMQualifier cimQualifier = cimProperty.getQualifier(i).clone();
+
+            Uint32 pos = newProperty.findQualifier(cimQualifier.getName());
 
             if(pos == PEG_NOT_FOUND)
             {
                 // ATTN: is it legal to specify qualifiers not in the property definition?
             }
 
-            // get the recentyl add qualifier from the property
-            CIMQualifier referenceQualifier = newProperty.getQualifier(pos);
-
-            // ATTN: temporarily remove qualifier until a better way to update is implemented.
-            newProperty.removeQualifier(pos);
-
-            // ATTN: convert const qualifier to non const
-            CIMQualifier cimQualifier = cimProperty.getQualifier(i).clone();
-
             DEBUG_PRINT("updating qualifier - " << cimQualifier.getName().getString());
 
-            newProperty.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
+            newProperty.getQualifier(pos).setValue(cimQualifier.getValue());
         }
     }
-
-    DEBUG_PRINT(newProperty.getName().getString() << " class origin = " << newProperty.getClassOrigin().getString());
 
     return(newProperty);
 }
@@ -234,25 +225,18 @@ static CIMClass _resolveClass(
         // apply specified class qualifiers
         for(Uint32 i = 0, n = cimClass.getQualifierCount(); i < n; i++)
         {
-            Uint32 pos = newClass.findQualifier(cimClass.getQualifier(i).getName());
+            CIMQualifier cimQualifier = cimClass.getQualifier(i).clone();
+
+            Uint32 pos = newClass.findQualifier(cimQualifier.getName());
 
             if(pos == PEG_NOT_FOUND)
             {
-                // ATTN: is it legal to specify qualifiers not in the class definition?
+                // ATTN: is it legal to specify qualifiers not in the property definition?
             }
-
-            // get the recently added qualifier from the class
-            CIMQualifier referenceQualifier = newClass.getQualifier(pos);
-
-            // ATTN: temporarily remove qualifier until a better way to update is implemented.
-            newClass.removeQualifier(pos);
-
-            // ATTN: convert const qualifier to non const
-            CIMQualifier cimQualifier = cimClass.getQualifier(i).clone();
 
             DEBUG_PRINT("updating qualifier - " << cimQualifier.getName().getString());
 
-            newClass.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
+            newClass.getQualifier(pos).setValue(cimQualifier.getValue());
         }
     }
 
@@ -371,28 +355,21 @@ static CIMInstance _resolveInstance(
             newInstance.addQualifier(referenceQualifier);
         }
 
-        // apply specified class qualifiers
+        // apply specified instance qualifiers
         for(Uint32 i = 0, n = cimInstance.getQualifierCount(); i < n; i++)
         {
-            Uint32 pos = newInstance.findQualifier(cimInstance.getQualifier(i).getName());
+            CIMQualifier cimQualifier = cimInstance.getQualifier(i).clone();
+
+            Uint32 pos = newInstance.findQualifier(cimQualifier.getName());
 
             if(pos == PEG_NOT_FOUND)
             {
-                // ATTN: is it legal to specify qualifiers not in the class definition?
+                // ATTN: is it legal to specify qualifiers not in the property definition?
             }
-
-            // get the recently added qualifier from the class
-            CIMQualifier referenceQualifier = newInstance.getQualifier(pos);
-
-            // ATTN: temporarily remove qualifier until a better way to update is implemented.
-            newInstance.removeProperty(pos);
-
-            // ATTN: convert const qualifier to non const
-            CIMQualifier cimQualifier = cimInstance.getQualifier(i).clone();
 
             DEBUG_PRINT("updating qualifier - " << cimQualifier.getName().getString());
 
-            newInstance.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
+            newInstance.getQualifier(pos).setValue(cimQualifier.getValue());
         }
     }
 
@@ -410,24 +387,18 @@ static CIMInstance _resolveInstance(
     // apply specified instance properties
     for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
-        Uint32 pos = newInstance.findProperty(cimInstance.getProperty(i).getName());
+        CIMProperty cimProperty = cimInstance.getProperty(i).clone();
+
+        Uint32 pos = newInstance.findProperty(cimProperty.getName());
 
         if(pos == PEG_NOT_FOUND)
         {
             // throw invalid property
         }
 
-        CIMProperty referenceProperty = newInstance.getProperty(pos).clone();
-
-        // ATTN: temporarily remove property until a better way to update is implemented.
-        newInstance.removeProperty(pos);
-
-        // ATTN: convert const property to non const
-        CIMProperty cimProperty = cimInstance.getProperty(i).clone();
-
         DEBUG_PRINT("updating property - " << cimProperty.getName().getString());
 
-        newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
+        newInstance.getProperty(pos).setValue(cimProperty.getValue());
     }
 
     // update keys
@@ -578,6 +549,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     // TODO: ensure objects in the array are initialized
     // TODO: ensure all class names are the same
 
+    String hostName = cimInstances[0].getPath().getHost();
     CIMNamespaceName nameSpace = cimInstances[0].getPath().getNameSpace();
     CIMName className = cimInstances[0].getPath().getClassName();
 
@@ -608,17 +580,18 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
         keyBindings.append(CIMKeyBinding(referenceProperty.getName(), referenceProperty.getValue()));
     }
 
-    referenceInstance.setPath(CIMObjectPath("", nameSpace, className, keyBindings));
+    // propagate host and namespace in object
+    referenceInstance.setPath(CIMObjectPath(hostName, nameSpace, className, keyBindings));
 
     // copy qualifiers (if includeQualfiers == false, the class should have none
     // the following code will do nothing)
     for(Uint32 i = 0, n = referenceClass.getQualifierCount(); i < n; i++)
     {
-        CIMQualifier cimQualifier = referenceClass.getQualifier(i).clone();
+        CIMQualifier referenceQualifier = referenceClass.getQualifier(i).clone();
 
-        if(cimQualifier.getFlavor().hasFlavor(CIMFlavor::TOINSTANCE))
+        if(referenceQualifier.getFlavor().hasFlavor(CIMFlavor::TOINSTANCE))
         {
-            referenceInstance.addQualifier(cimQualifier);
+            referenceInstance.addQualifier(referenceQualifier);
         }
     }
 
@@ -626,9 +599,9 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     // local properties and the following code will operate correctly)
     for(Uint32 i = 0, n = referenceClass.getPropertyCount(); i < n; i++)
     {
-        CIMProperty cimProperty = referenceClass.getProperty(i).clone();
+        CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
 
-        referenceInstance.addProperty(cimProperty);
+        referenceInstance.addProperty(referenceProperty);
     }
 
     // TODO: copy methods ???
@@ -661,6 +634,7 @@ CIMIndication ObjectNormalizer::normalizeIndication(
 {
     DEBUG_PRINT("ObjectNormalizer::normalizeIndication()");
 
+    String hostName = cimIndication.getPath().getHost();
     CIMNamespaceName nameSpace = cimIndication.getPath().getNameSpace();
     CIMName className = cimIndication.getPath().getClassName();
 
@@ -676,8 +650,8 @@ CIMIndication ObjectNormalizer::normalizeIndication(
 
     CIMIndication referenceIndication(className);
 
-    // propagate namespace in object
-    referenceIndication.setPath(CIMObjectPath("", nameSpace, className));
+    // propagate host and namespace in object
+    referenceIndication.setPath(CIMObjectPath(hostName, nameSpace, className));
 
     return(_resolveIndication(referenceIndication, cimIndication, localOnly, includeQualifiers, includeClassOrigin, propertyList));
 }

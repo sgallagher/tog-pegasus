@@ -117,10 +117,10 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifier::parse");
 			((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))	
 		{
 			//error
-			throw CQLIdentifierParseException(
-                MessageLoaderParms(String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
-                String("The identifier contains a mismatched symbolic constant symbol and an array symbol: $0"),
-                identifier));
+			MessageLoaderParms parms(String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
+                			         String("The identifier contains a mismatched symbolic constant symbol and an array symbol: $0"),
+                                	         identifier);
+			throw CQLIdentifierParseException(parms);
 		}
 	}
 
@@ -147,10 +147,10 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifier::parse");
 		  identifier = identifier.subString(0,identifier.find(LBRKT));
 		}else{
 		  // error
-			throw CQLIdentifierParseException(
-               MessageLoaderParms(String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
-               String("The identifier contains a mismatched array symbol: $0"),
-							   identifier));
+			MessageLoaderParms parms(String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
+				                 String("The identifier contains a mismatched array symbol: $0"),
+                                                 identifier);
+			throw CQLIdentifierParseException(parms);
 		}
 	}else if((index = identifier.find(STAR)) != PEG_NOT_FOUND){
 		// wildcard
@@ -172,12 +172,10 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifier::parse");
 			if(hasCIMName)
 				_name = CIMName(identifier);
 		}catch(Exception e){
-			// throw invalid name exception ?
-			throw CQLIdentifierParseException(
-              MessageLoaderParms(String("CQL.CQLIdentifier.INVALID_CIMNAME"),
-              String("The identifier contains an invalid CIMName: $0."),
-							   identifier));
-			return;
+			MessageLoaderParms parms(String("CQL.CQLIdentifier.INVALID_CIMNAME"),
+				                 String("The identifier contains an invalid CIMName: $0."),
+                                                 identifier);
+			throw CQLIdentifierParseException(parms);
 		}
 	}
 	

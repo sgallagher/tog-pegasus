@@ -42,7 +42,7 @@ ifeq ($(COMPILER),gnu)
   ifneq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
    ifdef PEGASUS_USE_RELEASE_DIRS
       LINK_COMMAND = g++ -shared
-      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
    else
       LINK_COMMAND = g++ -shared
       LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
@@ -73,6 +73,10 @@ ifeq ($(COMPILER),CC)
   LINK_COMMAND = CC
   LINK_ARGUMENTS = -G -KPIC -mt -h lib$(LIBRARY).so
   LINK_OUT = -o
+endif
+
+ifdef EXTRA_LINK_FLAGS
+  LINK_COMMAND += $(EXTRA_LINK_FLAGS)
 endif
 
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)

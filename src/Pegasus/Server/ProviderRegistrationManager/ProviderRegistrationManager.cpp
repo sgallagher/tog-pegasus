@@ -906,8 +906,13 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
     try 
     {
-	instance = _repository->getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, localReference);
+        instance = _repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            localReference,
+            false,
+            false,
+            false,
+            CIMPropertyList());
     }
 
     catch (CIMException & exception)
@@ -946,9 +951,14 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
 
     try
     {
-	enumInstances = _repository->enumerateInstances(
-	    PEGASUS_NAMESPACENAME_INTEROP,
-	    ref.getClassName());
+        enumInstances = _repository->enumerateInstances(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            ref.getClassName(),
+            true,
+            false,
+            false,
+            false,
+            CIMPropertyList());
     }
     catch (CIMException & exception)
     {
@@ -1096,8 +1106,13 @@ void ProviderRegistrationManager::modifyInstance(
 	//
 	// get the original instance 
 	//
-	CIMInstance origInstance = _repository->getInstance(
-	    PEGASUS_NAMESPACENAME_INTEROP, newInstanceRef);
+        CIMInstance origInstance = _repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            newInstanceRef,
+            false,
+            false,
+            false,
+            CIMPropertyList());
 
         _repository->read_unlock();
 
@@ -1329,7 +1344,12 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
         //  get instance from the repository
         //
         CIMInstance _instance = _repository->getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, reference);
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference,
+            false,
+            false,
+            false,
+            CIMPropertyList());
 
         //
         // remove old entry from table
@@ -1402,7 +1422,12 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 PEGASUS_CLASSNAME_PROVIDERMODULE.getString().getCString());
         cimNamedInstances = _repository->enumerateInstances(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PROVIDERMODULE);
+                PEGASUS_CLASSNAME_PROVIDERMODULE,
+                true,
+                false,
+                false,
+                false,
+                CIMPropertyList());
 
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 		        "PG_ProviderModule class has = %d instances",
@@ -1526,7 +1551,12 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         cimNamedInstances = _repository->enumerateInstances(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PROVIDER);
+                PEGASUS_CLASSNAME_PROVIDER,
+                true,
+                false,
+                false,
+                false,
+                CIMPropertyList());
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 		        "PG_Provider class has = %d instances",
 		     	cimNamedInstances.size());	
@@ -1562,7 +1592,12 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         cimNamedInstances = _repository->enumerateInstances(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_CONSUMERCAPABILITIES);
+                PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
+                true,
+                false,
+                false,
+                false,
+                CIMPropertyList());
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 		        "PG_ConsumerCapabilities class has = %d instances",
 		     	cimNamedInstances.size());	
@@ -1598,7 +1633,12 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         cimNamedInstances = _repository->enumerateInstances(
                 PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
+                PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
+                true,
+                false,
+                false,
+                false,
+                CIMPropertyList());
 
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
@@ -2379,8 +2419,12 @@ void ProviderRegistrationManager::_deleteInstance(
     try
     {
         CIMInstance instance = _repository->getInstance(
-	    PEGASUS_NAMESPACENAME_INTEROP, 
-            newInstancereference);
+            PEGASUS_NAMESPACENAME_INTEROP, 
+            newInstancereference,
+            false,
+            false,
+            false,
+            CIMPropertyList());
 	    
 	//
 	// unregister PG_ProviderCapability class or 
@@ -2576,8 +2620,13 @@ void ProviderRegistrationManager::_deleteInstance(
                     // if the provider is indication provider, send notification
                     // to subscription service
                     //
-		    capInstance =  _repository->getInstance(
-			PEGASUS_NAMESPACENAME_INTEROP, enumCapInstanceNames[i]);
+                    capInstance =  _repository->getInstance(
+                        PEGASUS_NAMESPACENAME_INTEROP,
+                        enumCapInstanceNames[i],
+                        false,
+                        false,
+                        false,
+                        CIMPropertyList());
 
 		    capInstance.getProperty(capInstance.findProperty(
 			_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
@@ -2773,8 +2822,13 @@ void ProviderRegistrationManager::_deleteInstance(
                     // if the provider is indication provider, send notification
                     // to subscription service
                     //
-		    capInstance =  _repository->getInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP, enumCapInstanceNames[i]);
+                    capInstance =  _repository->getInstance(
+                        PEGASUS_NAMESPACENAME_INTEROP,
+                        enumCapInstanceNames[i],
+                        false,
+                        false,
+                        false,
+                        CIMPropertyList());
 		    capInstance.getProperty(capInstance.findProperty(
                         _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
 
@@ -3352,7 +3406,11 @@ void ProviderRegistrationManager::_setStatus(
     { 
         instance.getProperty(pos).setValue(CIMValue(status));  
 
-    	_repository->modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instance);
+        _repository->modifyInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            instance,
+            true,
+            CIMPropertyList());
     }
 }
 

@@ -66,23 +66,18 @@ static void __cdecl cimserver_windows_thread(void *parm)
     // removes corresponding options and their arguments fromt he command
     // line.
 
-PEGASUS_TRACE;
     ConfigManager* configManager = ConfigManager::getInstance();
     int dummy = 0;
     String pegasusHome;
 
-PEGASUS_TRACE;
     try
     {
-PEGASUS_TRACE;
 	GetOptions(configManager, dummy, NULL, pegasusHome);
-PEGASUS_TRACE;
     }
     catch (Exception&)
     {
       exit(1);
     }
-PEGASUS_TRACE;
 
     //
     // Check the trace options and set global variable
@@ -118,8 +113,6 @@ PEGASUS_TRACE;
     }    
     ConfigManager::setPegasusHome(pegasusHome);
 
-PEGASUS_TRACE;
-    
     // Grab the port otpion:
 
     String portOption;
@@ -134,7 +127,6 @@ PEGASUS_TRACE;
     }
     char* address = portOption.allocateCString();
 
-PEGASUS_TRACE;
     // Set up the Logger
     Logger::setHomeDirectory("./logs");
 
@@ -145,7 +137,6 @@ PEGASUS_TRACE;
      // try loop to bind the address, and run the server
     try
     {
-PEGASUS_TRACE;
 	Monitor monitor;
         
        	CIMServer server(&monitor, useSSL);
@@ -163,14 +154,12 @@ PEGASUS_TRACE;
 	{
 	    server_windows->runForever();
 	}
-PEGASUS_TRACE;
     }
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 
-PEGASUS_TRACE;
     _endthreadex(NULL);
 }
 
@@ -184,7 +173,6 @@ PEGASUS_TRACE;
 
 VOID WINAPI  cimserver_windows_main(int argc, char **argv) 
 {
-PEGASUS_TRACE;
   int ccode;
   SERVICE_TABLE_ENTRY dispatch_table[] = 
   {

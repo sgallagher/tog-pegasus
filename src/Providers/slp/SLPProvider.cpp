@@ -87,8 +87,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 
-//#define CDEBUG(X)
-#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -107,6 +107,9 @@ const char * CIMObjectManagerCommMechName = "CIM_ObjectManagerCommunicationMecha
 const char * CIMNamespaceClassName = "CIM_Namespace";
 
 const char *serviceName = "service:wbem";
+
+const char *elementNamePropertyName = "ElementName";
+const char *descriptionPropertyName = "Description";
 
 // Template attribute name constants
 
@@ -159,6 +162,10 @@ String registeredProfilesSupportedAttribute = "RegisteredProfilesSupported";
 String registeredProfilesList = 
 "SNIA:Array:Cluster:Access Points:Disk Drive:Location:LUN Mapping \
 and Masking:Pool Manipulation Capabilities and Settings:Extent Mapping:LUN Creation:Software";
+
+CIMNamespaceName _interopNamespace = PEGASUS_NAMESPACENAME_INTEROP;
+
+CIMName namePropertyName = "name";
 
 // This is the dynamic entry point into this dynamic module. The name of
 // this provider is "SampleFamilyProvider" which is appened to
@@ -232,12 +239,11 @@ String SLPProvider::getHostAddress(String hostName)
 {
   PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::getHostAddress()");
+  // set default address
   String ipAddress("127.0.0.1");
   
   if (hostName == String::EMPTY)
-    {
-    	hostName = getHostName();
-  	}
+    	hostName = System::getHostName();
 
   struct hostent * phostent;
   struct in_addr   inaddr;
@@ -250,26 +256,6 @@ String SLPProvider::getHostAddress(String hostName)
   PEG_METHOD_EXIT();
   return ipAddress;
 } 
-
-/** gets the host name. Note that we really do not need this
-    since it is already a system function in Pegasus.
-    ATTN: Drop this function
-*/
-
-String SLPProvider::getHostName()
-{
-  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-      "SLPProvider::getHostName()");
-  static char hostname[64];
-
-  if (!*hostname)
-    {
-      ::gethostname(hostname, sizeof(hostname));
-		}
-
-  PEG_METHOD_EXIT();
-  return hostname;
-}
 
 /** gets the list of registered profiles for the SLP template.
     Until we start using CIM 28, there are no template classes
@@ -317,7 +303,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     // ATTN: KS In the future get only the fields we want based on property list.
         CIMNamespaceInstances = _ch.enumerateInstances(
                                          OperationContext(),
-                                         _interopNamespace,
+                                         PEGASUS_NAMESPACENAME_INTEROP,
                                          CIMName(CIMNamespaceClassName),
                                          true, true, true, true,
                                          CIMPropertyList());
@@ -331,7 +317,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
     {
         Uint32 pos;
-        if ((pos = CIMNamespaceInstances[i].findProperty(CIMName("Name"))) != PEG_NOT_FOUND) 
+        if ((pos = CIMNamespaceInstances[i].findProperty(namePropertyName)) != PEG_NOT_FOUND) 
         {
             CIMProperty p1= CIMNamespaceInstances[i].getProperty(pos);
             CIMValue v1=p1.getValue();
@@ -345,7 +331,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
             }
             else
             {
-                appendCSV(classInfo, v1.toString());
+                appendCSV(classInfo, " ");
             }
         }
         else
@@ -407,23 +393,20 @@ void SLPProvider::populateTemplateField(CIMInstance& instance,
     ATTN: In the future, we should populate these separately
 */
 void SLPProvider::populateRegistrationData(const String &protocol,
+                        const String& IPAddress,
                         const CIMInstance& instance_ObjMgr,
                         const CIMInstance& instance_ObjMgrComm)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::populateRegistrationData()");
 
-   String mynamespace = "root/cimv2";
-   _interopNamespace = mynamespace;
+   // Clear the template instance
    slpTemplateInstance = "";
    Uint32 index=10;
-   CDEBUG("populateData from namespace= " << _interopNamespace.getString() );
    CIMInstance instance1(SlpTemplateClassName);
 
     // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
-    String IPAddress = getHostAddress(getHostName());
-      // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
-     // Need to tie these two together.
+    // Need to tie these two together.
     Uint32 portNumber;
     if (protocol.find("https") != PEG_NOT_FOUND)
     {
@@ -435,12 +418,10 @@ void SLPProvider::populateRegistrationData(const String &protocol,
         portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
             WBEM_DEFAULT_HTTP_PORT);
     }
-    IPAddress.append(":");
     
+    // convert portNumber to ascii
     char buffer[32];
     sprintf(buffer, "%u", portNumber);
-    IPAddress.append(buffer);
-    CDEBUG("portNumber" << buffer);
 
     // template-url-syntax=string
     // #The template-url-syntax MUST be the WBEM URI Mapping of
@@ -450,85 +431,64 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     // #the URL.  The WBEM URI Mapping is defined in the WBEM URI Mapping 
     // #Specification 1.0.0 (DSP0207).
     // # Example: (template-url-syntax=https://localhost:5989)
-    populateTemplateField(instance1, serviceUrlSyntaxProperty, serviceUrlSyntax, protocol + "://" + IPAddress);
 
+    String serviceUrlSyntaxValue = protocol + "://" + IPAddress + ":" + buffer;
+    populateTemplateField(instance1, serviceUrlSyntaxProperty, serviceUrlSyntax, serviceUrlSyntaxValue);
 
     populateTemplateField(instance1, serviceLocationTCPProperty, serviceLocationTCP,IPAddress);
 
+    // now fillout the serviceIDAttribute from the object manager instance name property.
+    // This is a key field so must have a value.
 
-    // now fillout the serviceIDAttribute.  Is this correct??????
-    // get the name property from the object manager instance.
     String strUUID;
-
+    Uint32 pos;
+    if ((pos = instance_ObjMgr.findProperty(namePropertyName)) != PEG_NOT_FOUND)
     {
-        Uint32 pos;
-        CIMInstance instanceObjMgr = instance_ObjMgr;
-        if ((pos = instanceObjMgr.findProperty("Name")) != PEG_NOT_FOUND)
-        {
-            CIMConstProperty p1 = instanceObjMgr.getProperty(pos);
-            //XmlWriter::printPropertyElement(p1, PEGASUS_STD(cout));
-            CIMValue v1  = p1.getValue();
+        CIMConstProperty p1 = instance_ObjMgr.getProperty(pos);
+        CIMValue v1  = p1.getValue();
 
-            XmlWriter::printValueElement(v1, PEGASUS_STD(cout));
-            if (!v1.isNull())
-            {
-                v1.get(strUUID);
-            }
-            else
-                strUUID = "CIMOMNameNULL VALUE";
-        }
+        if (!v1.isNull())
+            v1.get(strUUID);
+
         else
-        {
-            strUUID = "NoNameInObjectManagerInstance";
-        }
-
+            strUUID = "CIMOMNameNULL VALUE";
     }
+    else
+        strUUID = "NoNameInObjectManagerInstance";
+
     // Fill out the CIMObjectpath for the slp instance.
-    // ATTN: We have problem here now because using the serviceID as key and this
-    // means non-unique key.
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append(CIMKeyBinding(serviceIDProperty, strUUID, CIMKeyBinding::STRING));
-    CIMObjectPath reference1  = CIMObjectPath("localhost",mynamespace,
+    keyBindings.append(CIMKeyBinding(serviceUrlSyntaxProperty, serviceUrlSyntaxValue, CIMKeyBinding::STRING));
+    CIMObjectPath reference1  = CIMObjectPath("localhost",PEGASUS_NAMESPACENAME_INTEROP,
                                               CIMName(SlpTemplateClassName),
                                               keyBindings);
+    
     //service-id=string L
     //# The ID of this WBEM Server. The value MUST be the 
     //# CIM_ObjectManager.Name property value.
     populateTemplateField(instance1, serviceIDProperty, serviceIDAttribute, strUUID);
 
-    // Enumerating Instances for the CIM_ObjectManager class .......
-    // Note that the CIM_OBjectManager is a singleton class.  It is an error if there is
-    // more than one instance of this class.
+    // get the properties from the cimobject class.
     for(Uint32 j=0; j < instance_ObjMgr.getPropertyCount(); j++)
     {
         CIMConstProperty p1=instance_ObjMgr.getProperty(j);
         CIMValue v1=p1.getValue();
         CIMName n1=p1.getName();
-        /*
-        if (n1.equal("Name"))
-        {
-            populateTemplateField(instance1, serviceUrlSyntax, protocol + "://" + IPAddress);
 
-            //  populateTemplateField(instance1, serviceUrlSyntax,v1.toString());
-        }
-        */
         // service-hi-name=string O
         // # This string is used as a name of the CIM service for human
         // # interfaces. This attribute MUST be the
         // # CIM_ObjectManager.ElementName property value.
-        if (n1.equal("ElementName"))
-        {
+        if (n1.equal(elementNamePropertyName))
             populateTemplateField(instance1, serviceHiName, serviceHiNameAttribute, v1.toString());
-        }
 
         // service-hi-description=string O
         // # This string is used as a description of the CIM service for
         // # human interfaces.This attribute MUST be the 
         // # CIM_ObjectManager.Description property value.
-        else if (n1.equal("Description"))
-        {
+        else if (n1.equal(descriptionPropertyName))
           populateTemplateField(instance1, serviceHiDescription, serviceHiDescriptionAttribute, v1.toString());
-        }
     }
 
     // Default properties for PG_SLPWBEMClass
@@ -540,11 +500,6 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     
     // InterOp Schema
     populateTemplateField(instance1, InteropSchemaNamespaceAttribute, InteropSchemaNamespaceAttribute, InteropSchemaNamespace);
-
-    //Getting values from CIM_ObjectManagerCommunicationMechanism Class .......
-    //// for (Uint32 i = 0; i < instances_ObjMgrComm.size(); i++)
-    // ATTN: Delete this{
-    // ATTN: Delete thisCIMInstance i1 = instance_ObjMgrComm;
 
     // ATTN: KS Loop through all properties Note: This does not make it easy to
     // distinguish requied vs. optional
@@ -567,9 +522,8 @@ void SLPProvider::populateRegistrationData(const String &protocol,
             }
         }
         else if (n1.equal("Version"))
-        {  
           populateTemplateField(instance1, protocolVersionAttribute,  protocolVersionAttribute,v1.toString());
-        }
+
         else if (n1.equal("FunctionalProfileDescriptions"))
         {  
             Array<String> descriptions;
@@ -586,9 +540,7 @@ void SLPProvider::populateRegistrationData(const String &protocol,
         }
 
         else if (n1.equal(multipleOperationsSupportedAttribute))
-        {  
             populateTemplateField(instance1, multipleOperationsSupportedAttribute, multipleOperationsSupportedAttribute,v1.toString());
-        }
         
         else if (n1.equal(authenticationMechanismDescriptionsAttribute))
         {
@@ -604,11 +556,9 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     String classInfoList;
     String nameSpaceList;
 
-    nameSpaceList =  getNameSpaceInfo( CIMNamespaceName(mynamespace), classInfoList);
-    CDEBUG("Return from getNameSpaceInfo");
+    nameSpaceList =  getNameSpaceInfo( PEGASUS_NAMESPACENAME_INTEROP, classInfoList);
     populateTemplateField(instance1, namespaceAttribute, namespaceAttribute, nameSpaceList);
     populateTemplateField(instance1, classinfoAttribute, classinfoAttribute, classInfoList);
-    
 
     // populate the RegisteredProfiles Supported attribute.
 
@@ -627,7 +577,6 @@ void SLPProvider::populateRegistrationData(const String &protocol,
    instance1.addProperty(CIMProperty(CIMName("RegisteredTemplate"), slpTemplateInstance));
 
    // Create the service ID from the serviceName and UUID for this system
-   
    // ATTN: All of this will be moved to issueSLPRegistrations()
    String ServiceID = serviceName;
    ServiceID = ServiceID + strUUID;
@@ -660,24 +609,23 @@ void SLPProvider::issueSLPRegistrations()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::issueSLPREgistrations()");
-
-    // ATTN: Get the correct namespace. Right now we do this from root/CIMV2
+    CDEBUG("issueSLPReg");
     // This should be the interop namespace.
-    String mynamespace = "root/cimv2";
-    _interopNamespace = mynamespace;
+    // ATTN: Drop this String mynamespace = "root/cimv2";
+    // ATTN: Drop this_interopNamespace = mynamespace;
     // ATTN: Protect against exceptions here.
     // Get the CIM_ObjectManager instance
+    CDEBUG("issueSLPRegistrations. Get object manager from namespace= " << PEGASUS_NAMESPACENAME_INTEROP.getString());
     Array<CIMInstance> instances_ObjMgr = _ch.enumerateInstances(
                                              OperationContext(),
-                                             _interopNamespace,
+                                             PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerClassName),
                                              false, false, false,false, CIMPropertyList());
     
-    //XmlWriter::printInstanceElement(instances_ObjMgr[0], PEGASUS_STD(cout));
     // get instances of CIM_ObjectManagerCommMechanism and subclasses
     Array<CIMInstance> instances_ObjMgrComm = _ch.enumerateInstances(
                                              OperationContext(),
-                                             _interopNamespace,
+                                             PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerCommMechName),
                                              false, false, false,false, CIMPropertyList());
     
@@ -686,10 +634,29 @@ void SLPProvider::issueSLPRegistrations()
     //Loop to create an SLP registration for each communication mechanism
     for (Uint32 i = 0; i < instances_ObjMgrComm.size(); i++)
     {
-        populateRegistrationData("http", instances_ObjMgr[0], instances_ObjMgrComm[i]);
-        // TTN: Hack for the moment until we expand the obejct itself. Correct approach
-        // is another subclass that defines the ssl characteristics.
-        populateRegistrationData("https", instances_ObjMgr[0], instances_ObjMgrComm[i]);
+        // get protocol property
+        String protocol;
+        Uint32 pos = instances_ObjMgrComm[i].findProperty("namespaceType");
+        if (pos != PEG_NOT_FOUND)
+        {
+            CIMProperty p1= instances_ObjMgrComm[i].getProperty(pos);
+            CIMValue v1=p1.getValue();
+            protocol = v1.toString();
+        }
+        
+        // get ipaddress property
+        String IPAddress;
+        pos = instances_ObjMgrComm[i].findProperty("IPAddress");
+        if (pos != PEG_NOT_FOUND)
+        {
+            CIMProperty p1= instances_ObjMgrComm[i].getProperty(pos);
+            CIMValue v1=p1.getValue();
+            IPAddress = v1.toString();
+        }
+        else
+            IPAddress = "127.0.0.1";
+
+        populateRegistrationData(protocol, IPAddress, instances_ObjMgr[0], instances_ObjMgrComm[i]);
     }
     
     // Start the slp listener background thread - nothing is advertised until this function returns. 
@@ -757,8 +724,8 @@ void SLPProvider::getInstance(
         issueSLPRegistrations();
     
     // convert a potential fully qualified reference into a local reference
-   // (class name and keys only).
-     CIMObjectPath localReference = CIMObjectPath(
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
                                     String(),
                                     CIMNamespaceName(),
                                     instanceReference.getClassName(),
@@ -799,22 +766,24 @@ void SLPProvider::enumerateInstances(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::enumerateInstances()");
-
+    CDEBUG("enumerateInstances");
     // if this is the first call, create the registration.    
     if(initFlag == false)
         issueSLPRegistrations();
     
     // begin processing the request
     handler.processing();
+
+    CDEBUG("enumerateInstances. created count instances=" << _instances.size());
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
        // deliver instance
        handler.deliver(_instances[i]);
     }
     
-        // complete processing the request
-        handler.complete();
-        PEG_METHOD_EXIT();
+    // complete processing the request
+    handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SLPProvider::enumerateInstanceNames(
@@ -872,6 +841,66 @@ void SLPProvider::deleteInstance(
 {
     throw CIMNotSupportedException("SLPServiceProvider "
                        "does not support deleteInstance");
+}
+
+/* process the invokemethods defined for this class. The methods include
+   register - forces registration of the CIMOM characteristics as a template.
+   This function can also be done by issuing enumerateinstance calls but the
+   register is more precise.
+   unregister - Forces any registrations to be deregistered and the slp-agen
+   to be closed.
+   update - causes the existing registration to be updated with new information
+*/
+void SLPProvider::invokeMethod(
+	const OperationContext & context,
+	const CIMObjectPath & objectReference,
+	const CIMName & methodName,
+	const Array<CIMParamValue> & inParameters,
+	MethodResultResponseHandler & handler)
+{
+
+    // convert a fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        CIMNamespaceName(),
+        objectReference.getClassName(),
+        objectReference.getKeyBindings());
+    
+    handler.processing();
+    
+    Uint32 response = 0;
+
+    if (objectReference.getClassName().equal ("Sample_MethodProviderClass"))
+    {
+        if (methodName.equal ("register"))
+        {
+            if(initFlag == false)
+                issueSLPRegistrations();
+        }
+        else if (methodName.equal ("unregister"))
+        {
+            if(initFlag == true)
+            {
+            // delete any existing instances.
+            slp_agent.unregister();
+            }
+        }
+        else if (methodName.equal ("update"))
+        {
+            // delete current instances
+            issueSLPRegistrations();
+        }
+
+        // ATTN: Not sure that this is correct exception
+        // for illegal method name.
+        String e =  "SLPServiceProvider does not support";
+        e.append(methodName.getString());
+        e.append(" method.");
+        throw CIMNotSupportedException( e);
+    }
+    handler.deliver(CIMValue(response));
+    handler.complete();
 }
 
 Boolean SLPProvider::tryterminate(void)

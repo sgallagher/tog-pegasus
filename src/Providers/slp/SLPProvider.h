@@ -36,13 +36,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/../slp/slp_agent/peg_slp_agent.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 Boolean initFlag = false;
 
-class SLPProvider: public CIMInstanceProvider
+class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 {
 	public:
         SLPProvider(void);
@@ -93,6 +94,13 @@ class SLPProvider: public CIMInstanceProvider
 
 	    Boolean tryterminate(void);
 
+        virtual void invokeMethod(
+            const OperationContext & context,
+            const CIMObjectPath & objectReference,
+            const CIMName & methodName,
+            const Array<CIMParamValue> & inParameters,
+            MethodResultResponseHandler & handler);
+
 	
 	protected:
 	  
@@ -106,8 +114,9 @@ class SLPProvider: public CIMInstanceProvider
         CIMNamespaceName _interopNamespace;
 
         void populateRegistrationData(const String &protocol,
-                                        const CIMInstance& instance_ObjMgr,
-                                        const CIMInstance& instance_ObjMgrComm);
+            const String& IPAddress,
+            const CIMInstance& instance_ObjMgr,
+            const CIMInstance& instance_ObjMgrComm);
         void issueSLPRegistrations();
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
         void populateTemplateField(CIMInstance& instance, 
@@ -115,7 +124,6 @@ class SLPProvider: public CIMInstanceProvider
             const String& regFieldName,
             const String& value);
         String getHostAddress(String hostName);
-        String getHostName();
         String getRegisteredProfileList();
    };
 

@@ -112,6 +112,15 @@ void CIMOperationRequestDecoder::sendMethodError(
     sendResponse(queueId, message);
 }
 
+void CIMOperationRequestDecoder::sendBadRequestError(
+    Uint32 queueId,
+    const String& cimError)
+{
+    Array<Sint8> message;
+    XmlWriter::appendBadRequestResponseHeader(message, cimError);
+    sendResponse(queueId, message);
+}
+
 void CIMOperationRequestDecoder::handleEnqueue(Message *message)
 {
 
@@ -216,7 +225,30 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (!HTTPMessage::lookupHeader(
 	     headers, "*CIMOperation", cimOperation, true))
       {
-	 // ATTN: error discarded at this time!
+         // Specification for CIM Operations over HTTP says:
+         //     If a CIM Server receives a CIM Operation request without
+         //     this [CIMOperation] header, it MUST NOT process it as if
+         //     it were a CIM Operation Request.  The status code returned
+         //     by the CIM Server in response to such a request is outside
+         //     of the scope of this specification.
+         // The author has chosen to send a 400 Bad Request error, but
+         // without the CIMError header since this request must not be
+         // processed as a CIM operation request.
+         sendBadRequestError(queueId);
+         PEG_METHOD_EXIT();
+	 return;
+      }
+
+      if (!String::equalNoCase(cimOperation, "MethodCall"))
+      {
+         // Specification for CIM Operations over HTTP says:
+         //     If a CIM Server receives CIM Operation request with this
+         //     [CIMOperation] header, but with a missing value or a value
+         //     that is not "MethodCall", then it MUST fail the request with
+         //     status "400 Bad Request". The CIM Server MUST include a
+         //     CIMError header in the response with a value of
+         //     unsupported-operation.
+         sendBadRequestError(queueId, "unsupported-operation");
          PEG_METHOD_EXIT();
 	 return;
       }
@@ -234,14 +266,12 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
       // If it is a method call, then dispatch it to be handled:
 
-      if (!String::equalNoCase(cimOperation, "MethodCall"))
-      {
-	 // ATTN: error discarded at this time!
-         PEG_METHOD_EXIT();
-	 return;
-      }
-
       handleMethodCall(queueId, content, authType, userName);
+   }
+   else
+   {
+      // ATTN-RK-P2-20020304: Handle methods other than POST and M-POST
+      sendBadRequestError(queueId);
    }
     
    PEG_METHOD_EXIT();

@@ -508,6 +508,46 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 
 //------------------------------------------------------------------------------
 //
+// appendBadRequestResponseHeader()
+//
+//     Build HTTP authentication response header for bad requests.
+//
+//     Returns Bad Request message in the following format:
+//
+//        HTTP/1.1 400 Bad Request
+//        CIMError: <error text>    (only if specified by caller)
+//        <HTML><HEAD>
+//        <TITLE>401 Unauthorized</TITLE>
+//        </HEAD><BODY BGCOLOR="#99cc99">
+//        <H2>TEST401 Unauthorized</H2>
+//        <HR>
+//        </BODY></HTML>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendBadRequestResponseHeader(
+    Array<Sint8>& out,
+    const String& cimError)
+{
+    out << "HTTP/1.1 400 Bad Request\r\n";
+    if (cimError != String::EMPTY)
+    {
+        out << "CIMError: " << cimError << "\r\n";
+    }
+    out << "\r\n";
+
+//ATTN: We may need to include the following line, so that the browsers
+//      can display the error message.
+//    out << "<HTML><HEAD>\r\n";
+//    out << "<TITLE>" << "400 Bad Request" <<  "</TITLE>\r\n";
+//    out << "</HEAD><BODY BGCOLOR=\"#99cc99\">\r\n";
+//    out << "<H2>TEST" << "400 Bad Request" << "</H2>\r\n";
+//    out << "<HR>\r\n";
+//    out << "</BODY></HTML>\r\n";
+}
+
+//------------------------------------------------------------------------------
+//
 // _appendMessageElementBegin()
 // _appendMessageElementEnd()
 //

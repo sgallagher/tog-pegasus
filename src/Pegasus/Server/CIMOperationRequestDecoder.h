@@ -74,6 +74,10 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 CIMStatusCode code,
 	 const String& description);
 
+      void sendBadRequestError(
+	 Uint32 queueId, 
+	 const String& cimError = String::EMPTY);
+
       virtual void handleEnqueue(Message *);
 
       virtual void handleEnqueue();

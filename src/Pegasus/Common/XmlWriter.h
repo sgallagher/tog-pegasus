@@ -130,6 +130,10 @@ public:
 	Array<Sint8>& out,
         const String& content);
 
+    static void appendBadRequestResponseHeader(
+	Array<Sint8>& out,
+        const String& cimError = String::EMPTY);
+
     static void appendReturnValueElement(
 	Array<Sint8>& out,
 	const CIMValue& value);

@@ -261,10 +261,10 @@ class PEGASUS_EXPORT Mutex
 
       Mutex(void) ;
       Mutex(int type);
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-      // to share the mutex between different condition variables
+
+      // to be able to share the mutex between different condition variables
       Mutex(const Mutex& _mutex);
-#endif
+
       ~Mutex(void);
 
       // block until gaining the lock - throw a deadlock 

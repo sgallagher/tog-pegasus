@@ -37,6 +37,10 @@
 #include <Pegasus/Common/Tracer.h>
 #include "CIMOperationResponseEncoder.h"
 
+#ifdef PEGASUS_CCOVER
+# include <ccover.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -66,6 +70,9 @@ void CIMOperationResponseEncoder::sendResponse(
 	Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
 		      httpMessage->message.getData());
 
+#ifdef PEGASUS_CCOVER
+        cov_write();
+#endif
     }
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::sendResponse()");
 }

@@ -185,6 +185,12 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       friend class cimom;
       friend class MessageQueueService;
       friend class ProviderManagerService;
+ public:
+      // << Tue Jun  4 16:44:09 2002 mdd >>
+      // debug artifact 
+      Uint32 _source_queue;
+      
+      //<< Tue Jun  4 16:44:24 2002 mdd >>
 
 };
 

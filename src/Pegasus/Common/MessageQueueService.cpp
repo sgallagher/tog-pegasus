@@ -682,6 +682,7 @@ AsyncOpNode *MessageQueueService::get_op(void)
    
    op->_state = ASYNC_OPSTATE_UNKNOWN;
    op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
+   op->_source_queue = _queueId;
    
    return op;
 }

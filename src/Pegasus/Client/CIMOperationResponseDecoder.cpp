@@ -282,19 +282,14 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 		response = _decodeDeleteInstanceResponse(parser, messageId);
 	    else
 	    {
-    	        // ATTN: This message is received due to InvokeMethod 
-	        // from Serevr
-
-	        // We better return since response is unitialized if
-	        // this is reached. For now we print a message:
-	
-	        cout << "INFORM: " << __FILE__ << "(" << __LINE__ << "): ";
-	        cout << "Unexpected case" << endl;
-	        return;
+                // Unrecognized IMethodResponse name attribute
+	        throw XmlValidationError(parser.getLine(),
+	            String("Unrecognized IMethodResponse name \"") +
+                        iMethodResponseName + "\"");
 	    }
 	
 	    //
-	    // Handle end tags:
+	    // Handle end tag:
 	    //
 
 	    XmlReader::expectEndTag(parser, "IMETHODRESPONSE");
@@ -306,17 +301,19 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
               parser, messageId, iMethodResponseName);
 
 	    //
-	    // Handle end tags:
+	    // Handle end tag:
 	    //
 	    XmlReader::expectEndTag(parser, "METHODRESPONSE");
 	}
 	else
 	{
-	    // ATTN: error ignored for now!
-
-	    return;
+	    throw XmlValidationError(parser.getLine(),
+	        "expected METHODRESPONSE or IMETHODRESPONSE element");
 	}
 
+        //
+        // Handle end tags:
+        //
 	XmlReader::expectEndTag(parser, "SIMPLERSP");
 	XmlReader::expectEndTag(parser, "MESSAGE");
 	XmlReader::expectEndTag(parser, "CIM");

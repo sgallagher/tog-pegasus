@@ -83,12 +83,12 @@ public:
     /** Reserves memory for capacity elements. Notice that this does not
         change the size of the array (size() returns what it did before).
         If the capacity of the array is already greater or equal to the
-        capacity argument, this method has no effect. After calling reserve(),
-        getCapacity() returns a value which is greater or equal to the
-        capacity argument.
+        capacity argument, this method has no effect. After calling
+        reserveCapacity(), getCapacity() returns a value which is greater
+        or equal to the capacity argument.
         @param capacity defines the size that is to be reserved
     */
-    void reserve(Uint32 capacity);
+    void reserveCapacity(Uint32 capacity);
 
     /** Make the size of the array grow by size elements. Thenew size will 
         be size() + size. The new elements (there are size of them) are

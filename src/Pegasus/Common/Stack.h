@@ -97,7 +97,7 @@ public:
     /** Const version of indxing operator. */
     const T& operator[](Uint32 i) const { return _rep[i]; }
     
-    void reserve(Uint32 capacity) { _rep.reserve(capacity); }
+    void reserveCapacity(Uint32 capacity) { _rep.reserveCapacity(capacity); }
 
 private:
 

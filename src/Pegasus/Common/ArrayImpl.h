@@ -127,7 +127,7 @@ void Array<PEGASUS_ARRAY_T>::clear()
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-void Array<PEGASUS_ARRAY_T>::reserve(Uint32 capacity)
+void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
 {
     if (capacity > static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->capacity)
     {
@@ -146,7 +146,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::grow(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
     Uint32 oldSize = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size;
-    reserve(oldSize + size);
+    reserveCapacity(oldSize + size);
 
     PEGASUS_ARRAY_T* p = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data() + oldSize;
     Uint32 n = size;
@@ -218,7 +218,7 @@ template<class PEGASUS_ARRAY_T>
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T& x)
 {
-    reserve(size() + 1);
+    reserveCapacity(size() + 1);
     new (_data() + size()) PEGASUS_ARRAY_T(x);
     static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size++;
 }
@@ -228,7 +228,7 @@ template<class PEGASUS_ARRAY_T>
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    reserve(this->size() + size);
+    reserveCapacity(this->size() + size);
     CopyToRaw(_data() + this->size(), x, size);
     static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
 }
@@ -254,7 +254,7 @@ template<class PEGASUS_ARRAY_T>
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    reserve(this->size() + size);
+    reserveCapacity(this->size() + size);
     memmove(_data() + size, _data(), sizeof(PEGASUS_ARRAY_T) * this->size());
     CopyToRaw(_data(), x, size);
     static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
@@ -276,7 +276,7 @@ void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32
     if (pos > this->size())
         throw OutOfBounds();
 
-    reserve(this->size() + size);
+    reserveCapacity(this->size() + size);
 
     Uint32 n = this->size() - pos;
 

@@ -71,7 +71,7 @@ String encodeUserPass(const String& userPass)
 
     Uint32 userPassLength = userPass.size();
 
-    userPassArray.reserve( userPassLength );
+    userPassArray.reserveCapacity( userPassLength );
     userPassArray.clear();
 
     for( Uint32 i = 0; i < userPassLength; i++ )

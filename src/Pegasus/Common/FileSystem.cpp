@@ -159,7 +159,7 @@ void FileSystem::loadFileToMemory(
     if (fp == NULL)
 	throw CannotOpenFile(fileName);
 
-    array.reserve(fileSize);
+    array.reserveCapacity(fileSize);
     char buffer[4096];
     size_t n;
 

@@ -556,7 +556,7 @@ CIMClassRep::CIMClassRep(const CIMClassRep& x) :
     CIMObjectRep(x),
     _superClassName(x._superClassName)
 {
-    _methods.reserve(x._methods.size());
+    _methods.reserveCapacity(x._methods.size());
 
     for (Uint32 i = 0, n = x._methods.size(); i < n; i++)
 	_methods.append(x._methods[i].clone());

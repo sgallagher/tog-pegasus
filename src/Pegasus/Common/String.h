@@ -123,12 +123,13 @@ public:
     void clear();
 
 
-    /** reserve - Reserves memory for capacity characters. Notice that this
-        does not change the size of the string (size() returns what it did
-        before).  If the capacity of the string is already greater or equal
-        to the capacity argument, this method has no effect.  The capacity
-        of a String object has no bearing on its external behavior.  The
-        capacity of a String is set only for performance reasons.
+    /** reserveCapacity - Reserves memory for capacity characters. Notice
+        that this does not change the size of the string (size() returns
+        what it did before).  If the capacity of the string is already
+        greater or equal to the capacity argument, this method has no
+        effect.  The capacity of a String object has no bearing on its
+        external behavior.  The capacity of a String is set only for
+        performance reasons.
 	@param capacity defines the capacity in characters to reserve.
     */
     void reserveCapacity(Uint32 capacity);

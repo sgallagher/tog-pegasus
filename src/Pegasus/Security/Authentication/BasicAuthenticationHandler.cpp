@@ -85,7 +85,7 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     Uint32 length = authHeader.size();
 
-    userPassArray.reserve( length );
+    userPassArray.reserveCapacity( length );
     userPassArray.clear();
 
     for( Uint32 i = 0; i < length; i++ )

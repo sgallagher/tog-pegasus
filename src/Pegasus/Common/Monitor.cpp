@@ -96,7 +96,7 @@ Monitor::Monitor()
 {
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserve(128);
+    _entries.reserveCapacity(128);
     
 }
 
@@ -105,7 +105,7 @@ Monitor::Monitor(Boolean async)
 {
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserve(128);
+    _entries.reserveCapacity(128);
     if( _async == true )
     {
        _thread_pool = new ThreadPool(0, 

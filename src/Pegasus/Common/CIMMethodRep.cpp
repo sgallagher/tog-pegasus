@@ -245,7 +245,7 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
 {
     x._qualifiers.cloneTo(_qualifiers);
 
-    _parameters.reserve(x._parameters.size());
+    _parameters.reserveCapacity(x._parameters.size());
 
     for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
 	_parameters.append(x._parameters[i].clone());

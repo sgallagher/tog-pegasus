@@ -58,7 +58,7 @@ response->setStartProviderTime(startTime);
 #define STAT_SERVEREND \
 response->endServer(); \
 Array<Sint8> timeOut;  \
-timeOut.reserve(10); \
+timeOut.reserveCapacity(10); \
 timeOut << response->getTotalTime();      \
 message.insert(30, timeOut.getData(), timeOut.size()); \
 Uint32 statType = (response->getType() > CIM_GET_CLASS_RESPONSE_MESSAGE)? \

@@ -64,7 +64,7 @@ static const Uint32 _MAX_FREE_COUNT = 16;
 static Boolean _GetLine(fstream& fs, Array<char>& x)
 {
     x.clear();
-    x.reserve(1024);
+    x.reserveCapacity(1024);
 
     char c;
 
@@ -404,10 +404,10 @@ Boolean InstanceIndexFile::enumerateEntries(
 
     const Uint32 COUNT = 1024;
 
-    freeFlags.reserve(COUNT);
-    indices.reserve(COUNT);
-    sizes.reserve(COUNT);
-    instanceNames.reserve(COUNT);
+    freeFlags.reserveCapacity(COUNT);
+    indices.reserveCapacity(COUNT);
+    sizes.reserveCapacity(COUNT);
+    instanceNames.reserveCapacity(COUNT);
 
     //
     // Open input file:

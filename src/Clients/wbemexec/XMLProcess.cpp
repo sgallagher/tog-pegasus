@@ -344,7 +344,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     //
     //  Set headers
     //
-    message.reserve (BUFFERSIZE);
+    message.reserveCapacity (BUFFERSIZE);
 
     //
     //  Generate header prefix

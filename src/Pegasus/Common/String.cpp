@@ -191,7 +191,7 @@ String& String::assign(const char* str)
     _rep->c16a.clear();
 
     Uint32 n = strlen(str) + 1;
-    _rep->c16a.reserve(n);
+    _rep->c16a.reserveCapacity(n);
 
     while (n--)
 	_rep->c16a.append(*str++);
@@ -204,7 +204,7 @@ String& String::assign(const char* str, Uint32 n)
     _rep->c16a.clear();
 
     Uint32 _n = _strnlen(str, n);
-    _rep->c16a.reserve(_n + 1);
+    _rep->c16a.reserveCapacity(_n + 1);
 
     while (_n--)
 	_rep->c16a.append(*str++);
@@ -222,7 +222,7 @@ void String::clear()
 
 void String::reserveCapacity(Uint32 capacity)
 {
-    _rep->c16a.reserve(capacity + 1);
+    _rep->c16a.reserveCapacity(capacity + 1);
 }
 
 Uint32 String::size() const
@@ -279,7 +279,7 @@ String& String::append(const Char16& c)
 String& String::append(const Char16* str, Uint32 n)
 {
     Uint32 m = _strnlen(str, n);
-    _rep->c16a.reserve(_rep->c16a.size() + m);
+    _rep->c16a.reserveCapacity(_rep->c16a.size() + m);
     _rep->c16a.remove(_rep->c16a.size() - 1);
     _rep->c16a.append(str, m);
     _rep->c16a.append('\0');

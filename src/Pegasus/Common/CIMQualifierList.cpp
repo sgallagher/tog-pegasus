@@ -362,7 +362,7 @@ Boolean CIMQualifierList::identical(const CIMQualifierList& x) const
 void CIMQualifierList::cloneTo(CIMQualifierList& x) const
 {
     x._qualifiers.clear();
-    x._qualifiers.reserve(_qualifiers.size());
+    x._qualifiers.reserveCapacity(_qualifiers.size());
 
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
 	x._qualifiers.append(_qualifiers[i].clone());

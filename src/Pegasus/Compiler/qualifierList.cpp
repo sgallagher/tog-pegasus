@@ -47,7 +47,7 @@ qualifierList::init(int size) {
   if (_pv)
     delete (_pv);
   _pv = new qplist;
-  _pv->reserve(size ? size : _initsize);
+  _pv->reserveCapacity(size ? size : _initsize);
 }
 
 void

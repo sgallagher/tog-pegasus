@@ -128,8 +128,8 @@ WQLSelectStatement::WQLSelectStatement()
     // Reserve space for a where clause with up to sixteen terms.
     //
 
-    _operations.reserve(16);
-    _operands.reserve(16);
+    _operations.reserveCapacity(16);
+    _operands.reserveCapacity(16);
 }
 
 WQLSelectStatement::~WQLSelectStatement()
@@ -190,7 +190,7 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 
     WQLSelectStatement* that = (WQLSelectStatement*)this;
     Stack<Boolean> stack;
-    stack.reserve(16);
+    stack.reserveCapacity(16);
 
     // 
     // Counter for operands:

@@ -111,7 +111,7 @@ CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) :
 {
     x._qualifiers.cloneTo(_qualifiers);
 
-    _properties.reserve(x._properties.size());
+    _properties.reserveCapacity(x._properties.size());
 
     for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
 	_properties.append(x._properties[i].clone(true));

@@ -59,7 +59,7 @@ Uint16 _validateGetClass(CIMClient& cli, CIMNamespaceName& nameSpace, CIMName& c
    {
       cerr << "Exception getClass : " << e.getMessage() << endl;
       cerr << "Exception occured in the Pegasus/ControlProviders/Statictic/test file" << endl;
-      retrun(5);
+      return(5);
    }
    return(0);
 }

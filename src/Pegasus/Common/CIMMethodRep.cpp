@@ -28,7 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
 #include "CIMMethod.h"
 #include "CIMMethodRep.h"
 #include "Indentor.h"
@@ -123,7 +122,7 @@ void CIMMethodRep::resolve(
 
     // Check for type mismatch between return types.
 
-    assert (!inheritedMethod.isNull());
+    PEGASUS_ASSERT(!inheritedMethod.isNull());
 
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method

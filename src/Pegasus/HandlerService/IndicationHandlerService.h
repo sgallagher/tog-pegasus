@@ -37,7 +37,6 @@
 #else
 #include <unistd.h>
 #endif 
-#include <cassert>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>

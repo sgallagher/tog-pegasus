@@ -27,7 +27,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
 #include <cstdio>
 #include "CIMPropertyRep.h"
 #include "Indentor.h"
@@ -108,7 +107,7 @@ void CIMPropertyRep::resolve(
     const CIMConstProperty& inheritedProperty,
     Boolean propagateQualifiers)
 {
-    assert (!inheritedProperty.isNull());
+    PEGASUS_ASSERT(!inheritedProperty.isNull());
 
     // Check the type:
 

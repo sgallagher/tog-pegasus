@@ -30,7 +30,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
-#include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>

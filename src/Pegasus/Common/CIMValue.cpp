@@ -30,7 +30,6 @@
 
 #include <cstring>
 #include <cstdio>
-#include <cassert>
 #include <cctype>
 #include "CIMValue.h"
 #include "Union.h"

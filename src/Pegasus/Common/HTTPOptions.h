@@ -56,7 +56,6 @@
 
 
 #include <cstdio>
-#include <cassert>
 #include <iostream>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/HTTPAcceptor.h>

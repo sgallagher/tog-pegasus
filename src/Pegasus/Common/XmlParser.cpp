@@ -84,7 +84,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cctype>
-#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

@@ -35,7 +35,6 @@
 #include <Pegasus/Common/Config.h>
 
 #include <iostream>
-#include <cassert>
 #include <cstdio>
 #include <cctype>
 #include <ctime>

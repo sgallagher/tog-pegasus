@@ -38,7 +38,6 @@
 
 #include <iostream>
 #include <cctype>
-#include <cassert>
 #include <cstdlib>
 #include "Socket.h"
 #include "TLS.h"

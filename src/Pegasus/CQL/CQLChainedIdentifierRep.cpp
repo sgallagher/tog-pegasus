@@ -127,9 +127,13 @@ Boolean CQLChainedIdentifierRep::prepend(CQLIdentifier & id){
 
 void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 {
+  if (_subIdentifiers.size() == 0)
+    return;
+
   CQLIdentifier firstId = _subIdentifiers[0];
   
-  if (!firstId.isScoped())
+  if ((firstId.getName().getString() != String::EMPTY) &&
+      !firstId.isScoped())
   {
     Array<CQLIdentifier> fromList = inContext.getFromList();
 

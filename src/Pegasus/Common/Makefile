@@ -1,6 +1,5 @@
 ROOT = ../../..
 
-
 DIR = Pegasus/Common
 
 include $(ROOT)/mak/config.mak
@@ -10,6 +9,8 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    WindowsSelector.cpp \
+    Selector.cpp \
     Logger.cpp \
     Formatter.cpp \
     CIMInstanceRep.cpp \

@@ -67,7 +67,11 @@ static struct ConfigPropertyRow properties[] =
     {"httpAuthType", "Basic", 0, 0, 0, 1},
 #endif
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0, 1},
+#ifdef PEGASUS_OS_HPUX
+    {"sslCertificateFilePath", "cert.pem", 0, 0, 0, 1}, 
+#else
     {"sslCertificateFilePath", "server.pem", 0, 0, 0, 1}, 
+#endif
     {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
     {"sslTrustFilePath", "client.pem", 0, 0, 0, 1}, 
     {"enableNamespaceAuthorization", "false", 0, 0, 0, 1},

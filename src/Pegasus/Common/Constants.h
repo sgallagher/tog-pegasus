@@ -238,7 +238,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #ifdef PEGASUS_USE_RELEASE_DIRS
 # if defined(PEGASUS_OS_HPUX)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
-#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/client.pem"
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/hp/sslshare/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE

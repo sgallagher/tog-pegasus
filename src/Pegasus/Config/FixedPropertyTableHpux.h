@@ -55,9 +55,9 @@
     {"logdir",              "/var/opt/wbem/logs"},
     {"tempLocalAuthDir",    "/var/opt/wbem/localauth"},
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
-    {"sslCertificateFilePath", "/var/opt/wbem/server.pem"},
-    {"sslKeyFilePath",      "/var/opt/wbem/file.pem"},
-    {"sslTrustFilePath",      "/var/opt/wbem/client.pem"},
+    {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
+    {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
+    {"sslTrustFilePath",      "/etc/opt/hp/sslshare/client.pem"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/opt/wbem/providers/lib"},
 #endif

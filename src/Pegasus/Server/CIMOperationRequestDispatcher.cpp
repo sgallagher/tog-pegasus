@@ -1992,6 +1992,9 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 
    response->dest = poA->_dest;
 
+   /*
+   // ATTN: disable optimization so that all responses go to the aggregation code where
+   // the objects are normalized.
    if(totalResponses == 1)
    {
        if (poA->getRequestType()==CIM_EXEC_QUERY_REQUEST_MESSAGE) {
@@ -2006,6 +2009,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
        PEG_METHOD_EXIT();
        return;
     }
+   */
 
    //if (getenv("CMPI_DEBUG")) asm("int $3");
 
@@ -2091,7 +2095,9 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 
    // Merge the responses into a single CIMEnumerateInstanceNamesResponse
     // If more than one response, go to proper aggregation function
-    if(poA->numberResponses() > 1)
+    // ATTN: disable optimization so that all responses go to the aggregation code where
+    // the objects are normalized.
+    if(poA->numberResponses() >= 1)
     {
     // Multiple responses. Merge them by appending the response components to the first entry
 	// l10n start

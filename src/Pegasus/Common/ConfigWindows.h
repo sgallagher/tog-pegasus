@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ConfigWindows.h,v $
+// Revision 1.4  2001/02/17 00:44:13  bob
+// Added linkage macros for new libraries:  getoopt and Compiler
+//
 // Revision 1.3  2001/01/29 02:23:44  mike
 // Added support for GetInstance operation
 //
@@ -102,6 +105,18 @@ PEGASUS_NAMESPACE_BEGIN
 # define PEGASUS_PROVIDER_LINKAGE PEGASUS_EXPORT
 #else
 # define PEGASUS_PROVIDER_LINKAGE PEGASUS_IMPORT
+#endif
+
+#ifdef PEGASUS_COMPILER_INTERNAL
+# define PEGASUS_COMPILER_LINKAGE PEGASUS_EXPORT
+#else
+# define PEGASUS_COMPILER_LINKAGE PEGASUS_IMPORT
+#endif
+
+#ifdef PEGASUS_GETOOPT_INTERNAL
+# define PEGASUS_GETOOPT_LINKAGE PEGASUS_EXPORT
+#else
+# define PEGASUS_GETOOPT_LINKAGE PEGASUS_IMPORT
 #endif
 
 #define for if (0) ; else for

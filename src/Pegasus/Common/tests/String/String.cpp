@@ -37,6 +37,9 @@
 #include <strstream>
 #include <Pegasus/Common/String.h>
 
+//ATTN: KS-P3-20020603-This added to use the ASSERTTEMP 
+#include <Pegasus/Common/Exception.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 #include <Pegasus/Common/Exception.h>
@@ -338,11 +341,11 @@ int main(int argc, char** argv)
         assert(!String::match(abc, "[de]bc"));
         // ATTN-RK-P3-20020603: This match code is broken
         //assert(String::match(abc, "a[a-c]c"));
-        assert(!String::match(abc, "a[d-x]c"));
+        ASSERTTEMP(!String::match(abc, "a[d-x]c"));
         // ATTN-RK-P3-20020603: This match code does not yet handle escape chars
         //assert(String::match("*test", "\\*test"));
 
-        assert(String::match("abcdef123", "*[0-9]"));
+        ASSERTTEMP(String::match("abcdef123", "*[0-9]"));
 
         assert(String::match("This is a test", "*is*"));
         assert(String::matchNoCase("This is a test", "*IS*"));

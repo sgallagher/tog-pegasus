@@ -65,8 +65,6 @@
 // ==========================================================================
 
 #define NAMESPACE "root/cimv2"
-#define HOST      "localhost"
-#define PORTNUMBER 5988
 #define TIMEOUT   10000                    // timeout value in milliseconds
 
 // ==========================================================================
@@ -344,7 +342,7 @@ int main()
   // Connect
   try
   {
-    c.connect (HOST, PORTNUMBER, String::EMPTY, String::EMPTY);
+    c.connectLocal ();
   }
   catch (Exception& e)
   {

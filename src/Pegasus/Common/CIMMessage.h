@@ -822,9 +822,9 @@ public:
 
     }
 
+    CIMReference classRef;
     CIMReference filterRef;
     CIMReference handlerRef;
-    CIMReference classRef;
     CIMDateTime minimumInterval;
     CIMDateTime maximumInterval;
     Array<String> propertyList;
@@ -854,8 +854,8 @@ public:
 
     }
 
-    CIMReference instanceName;
     String className;
+    CIMReference instanceName;
     CIMDateTime minimumInterval;
     CIMDateTime maximumInterval;
     Array<String> propertyList;

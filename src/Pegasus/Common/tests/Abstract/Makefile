@@ -1,4 +1,4 @@
-ROOT = ../../../../..
+ROOT = $(PEGASUS_ROOT)
 DIR = Pegasus/Common/tests/Abstract
 include $(ROOT)/mak/config.mak
 include ../libraries.mak

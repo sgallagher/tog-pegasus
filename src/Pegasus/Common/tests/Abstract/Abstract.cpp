@@ -33,13 +33,15 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-int main()
+int main(int argc, char** argv)
 {
+    // get the output display flag.
+    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+
     try
     {
 	const String NAMESPACE = "/zzz";
-
+	
 	// Create and populate a declaration context:
 
 	SimpleDeclContext* context = new SimpleDeclContext;
@@ -68,8 +70,7 @@ int main()
 	cout << "Exception: " << e.getMessage() << endl;
 	exit(1);
     }
-
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/CIMScope.h>
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;	 // Flag to control test IO
 
 void test01()
 {
@@ -41,7 +42,8 @@ void test01()
         CIMScope::PROPERTY,
         CIMFlavor::TOINSTANCE);
 
-    qual1.print();
+    if(verbose)
+		qual1.print();
 
     CIMQualifierDecl q2("Abstract", true, CIMScope::CLASS);
     CIMQualifierDecl q3 = q2;
@@ -105,7 +107,8 @@ void test02()
         CIMScope::PROPERTY,
         CIMFlavor::TOINSTANCE);
 
-    cq1.print();
+    if(verbose)
+		cq1.print();
 
     CIMConstQualifierDecl cq2("Abstract", true, CIMScope::CLASS);
     CIMConstQualifierDecl cq3;
@@ -153,8 +156,9 @@ void test02()
     assert(cqclone.identical(cq1) == true);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
         test01();
@@ -165,7 +169,7 @@ int main()
         cerr << "Exception: " << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

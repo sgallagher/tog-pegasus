@@ -38,6 +38,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #define TESTIO
+static char * verbose;			// controls test IO
 
 void test01()
 {
@@ -55,9 +56,12 @@ void test01()
     CIMQualifierDecl q3("q1",v1,CIMScope::CLASS);
 
 #ifdef TESTIO
-    q1.print();
-    q2.print();
-    q3.print();
+	if(verbose)
+	{
+		q1.print();
+		q2.print();
+		q3.print();
+	}
 #endif
 
     context->addQualifierDecl(NAMESPACE, q1);
@@ -82,26 +86,33 @@ void test01()
 	    .addParameter(CIMParameter("port", CIMType::UINT32)));
 
  #ifdef TESTIO
-    class1.print();
-    class2.print();
+    if(verbose)
+	{
+		class1.print();
+		class2.print();
+	}
  #endif
     try{
         class1.resolve(context, NAMESPACE);
-        cout << "Passed basic resolution test" << endl;
+		if(verbose)
+			cout << "Passed basic resolution test" << endl;
 
         // Add assertions on the resolution.
         // Abstract did not move to subclass
         // 2. et.
  #ifdef TESTIO
-    cout << "after resolve " << endl;
-    class1.print();
-    class2.print();
+    if(verbose)
+	{
+		cout << "after resolve " << endl;
+		class1.print();
+		class2.print();
+	}
  #endif
 
     }
     catch (Exception& e)
     {
-        cout << "Resolution Error " << e.getMessage() << endl;
+        cerr << "Resolution Error " << e.getMessage() << endl;
     }
 }
 // Test for qualifier not declared
@@ -120,9 +131,12 @@ void test02()
       //CIMQualifierDecl q3("q1",v1,CIMScope::CLASS);
 
   #ifdef TESTIO
-      q1.print();
-      q2.print();
-      //q3.print();
+      if(verbose)
+	  {
+		  q1.print();
+		  q2.print();
+		  //q3.print();
+	  }
   #endif
 
     context->addQualifierDecl(NAMESPACE, q1);
@@ -146,8 +160,11 @@ void test02()
 	    .addParameter(CIMParameter("hostname", CIMType::STRING))
 	    .addParameter(CIMParameter("port", CIMType::UINT32)));
  #ifdef TESTIO
-    class1.print();
-    class2.print();
+    if(verbose)
+	{
+		class1.print();
+		class2.print();
+	}
  #endif
     try{
         class1.resolve(context, NAMESPACE);
@@ -156,15 +173,16 @@ void test02()
     catch (Exception& e)
     {
         resolved = false;
-        cout << " Found Resolution Error " << e.getMessage() << endl;
+        cerr << " Found Resolution Error " << e.getMessage() << endl;
     }
     // Should have gotten the error
     if (resolved){
-        cout << "Failed find undeclared qualifier test" << endl;
+        cerr << "Failed find undeclared qualifier test" << endl;
         assert(false);
     }
     else{
-        cout << "Passed find undeclared qualifier test" << endl;
+        if(verbose)
+			cout << "Passed find undeclared qualifier test" << endl;
     }
 
 }
@@ -174,9 +192,11 @@ void test02()
 //  Confirm that properties and methods are propagated correctly based on flavors
 //  
 
-int main()
+int main(int argc, char** argv)
 {
-    try
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    
+	try
     {
 	test01();
         test02();
@@ -188,7 +208,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

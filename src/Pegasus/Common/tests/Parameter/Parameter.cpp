@@ -31,6 +31,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;	  // controls IO from test
 
 void test01()
 {
@@ -39,35 +40,41 @@ void test01()
 
     CIMParameter p1("message", CIMType::STRING);
     p1.addQualifier(CIMQualifier("in", true));
-    p1.print(cout);
+	if(verbose)
+		p1.print(cout);
 
     CIMParameter p2("message2", CIMType::STRING);
     p2.addQualifier(CIMQualifier("in", true));
-    p2.print(cout);
+	if(verbose)
+		p2.print(cout);
 
     CIMParameter p3("message3", CIMType::STRING);
     p3.setName("message3a");
     assert(p3.getName() == "message3a");
-    p3.print(cout);
+	if(verbose)
+		p3.print(cout);
     assert(p3.getType() == CIMType::STRING);;
 
     //
     // clone
     //
     CIMParameter p1clone = p1.clone();
-    p1clone.print(cout);
+	if(verbose)
+		p1clone.print(cout);
 
     //
     // toMof
     //
     Array<Sint8> mofOut;
-    p1.toMof(mofOut);
+	if(verbose)
+		p1.toMof(mofOut);
 
     //
     // toXml
     //
     Array<Sint8> xmlOut;
-    p1.toXml(xmlOut);
+	if(verbose)
+		p1.toXml(xmlOut);
 
     //
     // identical
@@ -123,13 +130,15 @@ void test01()
     CIMConstParameter cp3 = p3;
     CIMConstParameter cp4("message4", CIMType::STRING);
 
-    cp1.print(cout);
+	if(verbose)
+		cp1.print(cout);
 
     assert(cp3.getName() == "message3a");
     assert(cp3.getType() == CIMType::STRING);;
 
     const CIMParameter cp1clone = cp1.clone();
-    cp1clone.print(cout);
+	if(verbose)
+		cp1clone.print(cout);
 
     cp1.toXml(xmlOut);
 
@@ -143,8 +152,10 @@ void test01()
     assert(cq1);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     try
     {
         test01();
@@ -154,7 +165,7 @@ int main()
         cout << "Exception: " << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -43,8 +43,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+int main(int argc, char** argv)
 {
+    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
     cout << "Simple Decode test" << endl;
     Uint32 maxLength = 1000;
 
@@ -66,7 +67,8 @@ int main()
         for (Uint32 i = 0; i < out.size(); i++)
             if (out[i] != 0)
             {
-                cout <<"Decode error" << endl;   
+                if(verbose)
+					cout <<"Decode error" << endl;   
             }
     }
     // Test a simple decode to determine if decode correct
@@ -87,7 +89,8 @@ int main()
         for (Uint32 i = 0; i < out.size(); i++)
             if (out[i] != 255)
             {
-                cout << "Decode error " << static_cast<int>(out[i]) << endl;   
+                if(verbose)
+                 cout << "Decode error " << static_cast<int>(out[i]) << endl;   
             }
     }
 
@@ -115,7 +118,9 @@ int main()
         }
     }
 
-    cout << "Code and decode tests. Test 1 - all characters in buffer" << endl;
+	if(verbose)
+		cout << "Code and decode tests. Test 1 - all characters in buffer" 
+			 << endl;
     {
         // Repeat test for buffer size from 0 to 1000 characters long
         for (Uint32 i = 0; i < maxLength; i++)
@@ -150,7 +155,8 @@ int main()
     }
 
     // Test with buffer of all zeros
-    cout << "Test 2 -Test all zero buffer" << endl;
+	if(verbose)
+		cout << "Test 2 -Test all zero buffer" << endl;
     {
         Array<Uint8> in;
         Array<Uint8> out;
@@ -166,7 +172,8 @@ int main()
 
 
     // Test with buffer of char 255
-    cout << "Test 3 -- Test all 1s in buffer" << endl;
+	if(verbose)
+		cout << "Test 3 -- Test all 1s in buffer" << endl;
     {
         Array<Uint8> in;
         Array<Uint8> out;
@@ -195,7 +202,7 @@ int main()
         }
 
     }
-     cout << "+++++ passed all tests" << endl;
-     return 0;
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    return 0;
 }
 

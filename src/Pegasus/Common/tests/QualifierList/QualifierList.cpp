@@ -34,8 +34,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+int main(int argc, char** argv)
 {
+    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
     try
     {
 	const String NAMESPACE = "/zzz";
@@ -81,15 +82,16 @@ int main()
 	qualifiers2.resolve(
 	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1);
 
-        qualifiers2.print();
+        if(verbose)
+			qualifiers2.print();
     }
     catch (Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
-	exit(1);
+		cerr << "Exception: " << e.getMessage() << endl;
+		exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -32,6 +32,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;			// controls test IO
 
 void test01()
 {
@@ -51,10 +52,13 @@ void test01()
        CIMProperty p2clone = p2.clone();
    
     // Test print
-       p1.print(cout);
-       p2.print(cout);
-       p1clone.print(cout);
-       p2clone.print(cout);
+	   if(verbose)
+	   {
+		   p1.print(cout);
+		   p2.print(cout);
+		   p1clone.print(cout);
+		   p2clone.print(cout);
+	   }
 
     // Test toMof
        Array<Sint8> mofOut;
@@ -152,7 +156,8 @@ void test02()
         CIMConstProperty cp2 = p2;
         CIMConstProperty cp3("message3", "hello");
         CIMConstProperty cp1clone = cp1.clone();
-        cp1.print(cout);
+        if(verbose)
+			cp1.print(cout);
 
         Array<Sint8> mofOut;
         cp1.toMof(mofOut);
@@ -177,6 +182,8 @@ void test02()
         }
         catch(OutOfBounds& e)
         {
+			if(verbose)
+				cout << "Exception: " << e.getMessage() << endl;	
         }
 }
 
@@ -195,8 +202,9 @@ void test03()
     list1.clear();
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
         test01();

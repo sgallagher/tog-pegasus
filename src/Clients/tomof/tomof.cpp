@@ -556,8 +556,6 @@ int main(int argc, char** argv)
 					x.append('\0');
 
 					mofFormat(cout, x.getData(), 4);
-
-					//cimClass.printMof(cout); 
 				}
 			}
 	    }

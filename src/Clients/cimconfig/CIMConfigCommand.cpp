@@ -352,7 +352,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
 
-                    _propertyName = options [i].Value ();
+                    try
+                    {
+                        _propertyName = options [i].Value ();
+                    }
+                    catch (InvalidNameException& e)
+                    {
+                        throw InvalidOptionArgumentException(
+                            options[i].Value(), OPTION_GET);
+                    }
 
                     _operationType = OPERATION_TYPE_GET;
 
@@ -395,8 +403,16 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
 
-                    _propertyName  = CIMName (property.subString
-                        (0, equalsIndex ));
+                    try
+                    {
+                        _propertyName = CIMName (property.subString
+                            (0, equalsIndex));
+                    }
+                    catch (InvalidNameException& e)
+                    {
+                        throw InvalidOptionArgumentException(
+                            property, OPTION_SET);
+                    }
 
                     _propertyValue = property.subString( equalsIndex + 1 );
 
@@ -423,7 +439,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
 
-                    _propertyName = options [i].Value ();
+                    try
+                    {
+                        _propertyName = options [i].Value ();
+                    }
+                    catch (InvalidNameException& e)
+                    {
+                        throw InvalidOptionArgumentException(
+                            options[i].Value(), OPTION_UNSET);
+                    }
 
                     _operationType = OPERATION_TYPE_UNSET;
 

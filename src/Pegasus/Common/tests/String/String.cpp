@@ -274,6 +274,7 @@ int main(int argc, char** argv)
 	//    assert(nameSpace == "a/b/c");
 	//}
     }
+#if 0
     // The match code has been removed from the String class
     // Test the string match functions
     {
@@ -342,6 +343,7 @@ int main(int argc, char** argv)
         //    "When in the  of human events it becomes 3 necessary",
         //    tPattern));
     }
+#endif
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

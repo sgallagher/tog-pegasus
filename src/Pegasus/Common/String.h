@@ -355,41 +355,6 @@ public:
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
 
-    /** match matches a string against a GLOB style pattern.
-        Return trues if the String parameter matches the pattern. C-Shell style
-	glob matching is used.
-        @param str String to be matched against the pattern
-        @param pattern Pattern to use in the match
-        @return Boolean true if str matches pattern
-        The pattern definition is as follows:
-        <pre>
-        *             Matches any number of any characters
-        ?             Match exactly one character
-        [chars]       Match any character in chars
-        [chara-charb] Match any character in the range between chara and charb
-        </pre>
-        The literal characters *, ?, [, ] can be included in a string by
-        escaping them with backslash "\".  Ranges of characters can be concatenated.
-        <pre>
-        examples:
-        Boolean result = String::match("This is a test", "*is*");
-        Boolean works =  String::match("abcdef123", "*[0-9]");
-        </pre>
-    */
-    static Boolean match(const String& str, const String& pattern);
-
-    /** matchNoCase Matches a String against a GLOB style pattern independent
-        of case. 
-        Returns true if the str parameter matches the pattern. C-Shell style
-	glob matching is used. Ignore case in all comparisons. Case is
-        ignored in the match.
-        @parm str String containing the string to be matched\
-        @parm pattern GLOB style patterh to use in the match.
-        @return Boolean true if str matches patterh
-        @SeeAlso match
-    */
-    static Boolean matchNoCase(const String& str, const String& pattern);
-
 private:
 
     StringRep* _rep;

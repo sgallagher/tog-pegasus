@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By:   Dan Gorey, djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ public:
     ProviderManager(void);
     virtual ~ProviderManager(void);
 
-    virtual Message * processMessage(Message * message);
+    virtual Message * processMessage(Message * message, ProviderName managerName);
 
     virtual ProviderName findProvider(const ProviderName & providerName);
     virtual ProviderName findProvider(const String & destinationPath);

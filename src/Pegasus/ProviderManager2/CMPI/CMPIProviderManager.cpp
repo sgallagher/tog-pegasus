@@ -25,7 +25,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By:  Dan Gorey, djgorey@us.ibm.com 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
 }
 
 
-Message * CMPIProviderManager::processMessage(Message * request)
+Message * CMPIProviderManager::processMessage(Message * request, ProviderName managerName)
 {
       PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
@@ -132,55 +132,55 @@ Message * CMPIProviderManager::processMessage(Message * request)
     switch(request->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request);
+        response = handleGetInstanceRequest(request,managerName);
 
         break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        response = handleEnumerateInstancesRequest(request);
+        response = handleEnumerateInstancesRequest(request,managerName);
 
         break;
     case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        response = handleEnumerateInstanceNamesRequest(request);
+        response = handleEnumerateInstanceNamesRequest(request,managerName);
 
         break;
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        response = handleCreateInstanceRequest(request);
+        response = handleCreateInstanceRequest(request,managerName);
 
         break;
     case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        response = handleModifyInstanceRequest(request);
+        response = handleModifyInstanceRequest(request,managerName);
 
         break;
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        response = handleDeleteInstanceRequest(request);
+        response = handleDeleteInstanceRequest(request,managerName);
 
         break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecQueryRequest(request);
+        response = handleExecQueryRequest(request,managerName);
 
         break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        response = handleAssociatorsRequest(request);
+        response = handleAssociatorsRequest(request,managerName);
 
         break;
     case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        response = handleAssociatorNamesRequest(request);
+        response = handleAssociatorNamesRequest(request,managerName);
 
         break;
     case CIM_REFERENCES_REQUEST_MESSAGE:
-        response = handleReferencesRequest(request);
+        response = handleReferencesRequest(request,managerName);
 
         break;
     case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        response = handleReferenceNamesRequest(request);
+        response = handleReferenceNamesRequest(request,managerName);
 
         break;
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        response = handleInvokeMethodRequest(request);
+        response = handleInvokeMethodRequest(request,managerName);
 
         break;
     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleCreateSubscriptionRequest(request);
+        response = handleCreateSubscriptionRequest(request,managerName);
 
         break;
 /*    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
@@ -188,15 +188,15 @@ Message * CMPIProviderManager::processMessage(Message * request)
 
         break;
 */  case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleDeleteSubscriptionRequest(request);
+        response = handleDeleteSubscriptionRequest(request,managerName);
 
         break;
     case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request);
+        response = handleEnableIndicationsRequest(request,managerName);
 
         break;
     case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request);
+        response = handleDisableIndicationsRequest(request,managerName);
 
         break;
 /*    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
@@ -204,19 +204,19 @@ Message * CMPIProviderManager::processMessage(Message * request)
         break;
 */
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = handleDisableModuleRequest(request);
+        response = handleDisableModuleRequest(request,managerName);
 
         break;
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = handleEnableModuleRequest(request);
+        response = handleEnableModuleRequest(request,managerName);
 
         break; 
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = handleStopAllProvidersRequest(request);
+        response = handleStopAllProvidersRequest(request,managerName);
 
         break;
     default:
-        response = handleUnsupportedRequest(request);
+        response = handleUnsupportedRequest(request,managerName);
 
         break;
     }
@@ -286,7 +286,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 
 
-Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
@@ -312,7 +312,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
@@ -366,7 +366,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message)
+Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
@@ -391,7 +391,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -450,7 +450,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
+Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
@@ -475,7 +475,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -524,7 +524,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
     return(response);
 }
 
-Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleCreateInstanceRequest");
@@ -550,7 +550,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -602,7 +602,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleModifyInstanceRequest");
@@ -628,7 +628,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -682,7 +682,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleDeleteInstanceRequest");
@@ -708,7 +708,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             ProviderType::INSTANCE);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -756,7 +756,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
+Message * CMPIProviderManager::handleExecQueryRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleExecQueryRequest");
@@ -782,7 +782,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             ProviderType::QUERY);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -839,7 +839,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
+Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorsRequest");
@@ -871,7 +871,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -931,7 +931,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message)
+Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorNamesRequest");
@@ -963,7 +963,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1019,7 +1019,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
+Message * CMPIProviderManager::handleReferencesRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleReferencesRequest");
@@ -1051,7 +1051,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1109,7 +1109,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message)
+Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
@@ -1141,7 +1141,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             ProviderType::ASSOCIATION);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1194,7 +1194,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message)
+Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
@@ -1221,7 +1221,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->methodName);
 
         // resolve provider name
-        name = _resolveProviderName(name);
+        name = _resolveProviderName(managerName);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1321,7 +1321,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    return String::EMPTY;
 }
 
-Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message)
+Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
 
@@ -1433,7 +1433,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message)
+Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDeleteSubscriptionRequest");
 
@@ -1521,7 +1521,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message)
+Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleEnableIndicationsRequest");
 
@@ -1578,7 +1578,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
     return(response);
 }
 
-Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message)
+Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleDisableIndicationsRequest");
 
@@ -1641,7 +1641,7 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
-Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
+Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message, ProviderName managerName)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1765,7 +1765,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message)
+Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message, ProviderName managerName)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1845,7 +1845,7 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
     return(response);
 }
 
-Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message)
+Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleStopAllProvidersRequest");
 
@@ -1876,7 +1876,7 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
     return(response);
 }
 
-Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
+Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message, ProviderName managerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleUnsupportedRequest");
 
@@ -1886,10 +1886,11 @@ Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
     return(0);
 }
 
-ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & providerName)
+ProviderName CMPIProviderManager::_resolveProviderName(ProviderName managerName)
 {
-    ProviderName temp = findProvider(providerName);
-
+    //ProviderName temp = findProvider(providerName);
+    ProviderName temp = managerName;
+    
     String physicalName=_resolvePhysicalName(temp.getPhysicalName());
 
     temp.setPhysicalName(physicalName);

@@ -25,7 +25,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By:    Dan Gorey, djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +63,7 @@ public:
     virtual Boolean insertProvider(const ProviderName & providerName, 
             const String &ns, const String &cn);
   
-    virtual Message * processMessage(Message * request);
+    virtual Message * processMessage (Message * request, ProviderName managerName);
 
     virtual void unload_idle_providers(void) ;
     
@@ -92,41 +92,41 @@ protected:
     CIMRepository *_repository;
     String getFilter(CIMInstance &subscription);
 
-    Message * handleUnsupportedRequest(const Message * message);
+    Message * handleUnsupportedRequest(const Message * message, ProviderName managerName);
 
-    Message * handleGetInstanceRequest(const Message * message);
-    Message * handleEnumerateInstancesRequest(const Message * message);
-    Message * handleEnumerateInstanceNamesRequest(const Message * message);
-    Message * handleCreateInstanceRequest(const Message * message);
-    Message * handleModifyInstanceRequest(const Message * message);
-    Message * handleDeleteInstanceRequest(const Message * message);
+    Message * handleGetInstanceRequest(const Message * message, ProviderName managerName);
+    Message * handleEnumerateInstancesRequest(const Message * message, ProviderName managerName);
+    Message * handleEnumerateInstanceNamesRequest(const Message * message, ProviderName managerName);
+    Message * handleCreateInstanceRequest(const Message * message, ProviderName managerName);
+    Message * handleModifyInstanceRequest(const Message * message, ProviderName managerName);
+    Message * handleDeleteInstanceRequest(const Message * message, ProviderName managerName);
 
-    Message * handleExecQueryRequest(const Message * message);
+    Message * handleExecQueryRequest(const Message * message, ProviderName managerName);
 
-    Message * handleAssociatorsRequest(const Message * message);
-    Message * handleAssociatorNamesRequest(const Message * message);
-    Message * handleReferencesRequest(const Message * message);
-    Message * handleReferenceNamesRequest(const Message * message);
+    Message * handleAssociatorsRequest(const Message * message, ProviderName managerName);
+    Message * handleAssociatorNamesRequest(const Message * message, ProviderName managerName);
+    Message * handleReferencesRequest(const Message * message, ProviderName managerName);
+    Message * handleReferenceNamesRequest(const Message * message, ProviderName managerName);
 /*
     Message * handleGetPropertyRequest(const Message * message);
     Message * handleSetPropertyRequest(const Message * message);
 */
-    Message * handleInvokeMethodRequest(const Message * message);
+    Message * handleInvokeMethodRequest(const Message * message, ProviderName managerName);
 
-    Message * handleCreateSubscriptionRequest(const Message * message);
+    Message * handleCreateSubscriptionRequest(const Message * message, ProviderName managerName);
 //    Message * handleModifySubscriptionRequest(const Message * message);
-    Message * handleDeleteSubscriptionRequest(const Message * message);
-    Message * handleEnableIndicationsRequest(const Message * message);
-    Message * handleDisableIndicationsRequest(const Message * message);
+    Message * handleDeleteSubscriptionRequest(const Message * message, ProviderName managerName);
+    Message * handleEnableIndicationsRequest(const Message * message, ProviderName managerName);
+    Message * handleDisableIndicationsRequest(const Message * message, ProviderName managerName);
 
 //  Not supported by CMPI
 //    Message * handleConsumeIndicationRequest(const Message * message);
 
-    Message * handleDisableModuleRequest(const Message * message);
-    Message * handleEnableModuleRequest(const Message * message);
-    Message * handleStopAllProvidersRequest(const Message * message);
+    Message * handleDisableModuleRequest(const Message * message, ProviderName managerName);
+    Message * handleEnableModuleRequest(const Message * message, ProviderName managerName);
+    Message * handleStopAllProvidersRequest(const Message * message, ProviderName managerName);
 
-    ProviderName _resolveProviderName(const ProviderName & providerName);
+    ProviderName _resolveProviderName(ProviderName managerName);
 };
 
 PEGASUS_NAMESPACE_END

@@ -31,6 +31,7 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Dan Gorey, djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -385,7 +386,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     // get the responsible provider Manager
     ProviderManager * pm = locateProviderManager(message,ifc);
     if (pm) {
-        response = pm->processMessage(request); 
+        response = pm->processMessage(request,providerManagerName); 
     }
     
     else for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
@@ -396,7 +397,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                 dynamic_cast<CIMEnableModuleRequestMessage*>(const_cast<Message*>(message));
              if (request->providerModule.getProperty(request->providerModule.findProperty
                  ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request); 
+             response=pmc->getProviderManager()->processMessage(request,providerManagerName); 
            }
           break;
        case CIM_DISABLE_MODULE_REQUEST_MESSAGE: {
@@ -404,11 +405,11 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
                 dynamic_cast<CIMDisableModuleRequestMessage*>(const_cast<Message*>(message));
              if (request->providerModule.getProperty(request->providerModule.findProperty
                  ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request); 
+             response=pmc->getProviderManager()->processMessage(request,providerManagerName); 
        }
           break;
        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE: {
-          Message  *resp=pmc->getProviderManager()->processMessage(request); 
+          Message  *resp=pmc->getProviderManager()->processMessage(request,providerManagerName); 
 	  if (resp) response=resp; }
           break;
        default:
@@ -468,6 +469,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
            
        // find provider manager
        name = ProviderRegistrar().findProvider(name,false);
+       providerManagerName = name;
        it=name.getInterfaceName();
     }
 

@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By:    Dan Gorey, djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ ProviderManager::~ProviderManager(void)
 {
 }
 
-Message * ProviderManager::processMessage(Message * message)
+Message * ProviderManager::processMessage(Message * message, ProviderName managerName)
 {
     // subclasses should implement this method. if not implented, the base
     // classes generates a generic failure.

@@ -1226,8 +1226,10 @@ SSLCertificateVerifyFunction* SSLContextRep::getSSLCertificateVerifyFunction() c
 SSLContextRep::SSLContextRep(const String& trustStore,
                        const String& certPath,
                        const String& keyPath,
+                       const String& crlPath,
                        SSLCertificateVerifyFunction* verifyCert,
-                       const String& randomFile) {}
+                       const String& randomFile)
+{}
 
 SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 

@@ -14,6 +14,7 @@ DIRS = \
     ExportClient \
     Provider \
     ExportServer \
+    Listener \
     Security/UserManager \
     Security/Authentication \
     WQL \
@@ -29,7 +30,9 @@ DIRS = \
     Client/tests \
     Compiler/tests \
     Security/UserManager/tests \
-    Server/IndicationService/tests 
+    Server/IndicationService/tests \
+    Listener/tests \
+    Consumer/tests
 
 #    Subscription \
 #    Subscription/tests \

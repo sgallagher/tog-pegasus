@@ -61,6 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
     The InteropProvider provides information and manipulates the
     following classes from the DMTF CIM_Interop schema:
     CIM_Namespace - Creation and deletion of namespaces
+    Note: Effective Pegasus 2.4, it processes PG_Namespace
     __Namespace - Creation and deletion of namespaces (deprecated)
     CIM_ObjectManager - Reports on the status of the object manager
     CIM_ObjectManagerCommunicationMechanism - Reports on CIMOM communications
@@ -78,7 +79,7 @@ PEGASUS_NAMESPACE_BEGIN
     This provider implements the following functions:
     - createInstance		( adds a new namespace to the repository)
     - getInstance		( Gets one instance containing a namespace name)
-    - modifyInstance		( Not supported )
+    - modifyInstance		( Limited Support)
     - enumerateInstances	( Lists all namespaces as Instances)
     - enumerateInstanceNames	( Lists all namespace names )
     TBD
@@ -128,10 +129,7 @@ public:
         const CIMInstance& modifiedIns,
 	const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
-	ResponseHandler & handler)
-    {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
-    }
+	ResponseHandler & handler);
 
     virtual void enumerateInstances(
 	const OperationContext & context,
@@ -240,7 +238,7 @@ private:
 
     CIMInstance _getInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
     //
-    CIMInstance _buildInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
+    CIMInstance _buildInstancePGNamespace(const CIMNamespaceName & nameSpace);
 
 
     Array<CIMInstance> _buildInstancesNamespaceInManager();

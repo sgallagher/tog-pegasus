@@ -34,3 +34,17 @@ $(OBJ_DIR)/%.o: %.cpp $(ERROR)
 	@ $(TOUCH) $@
 	@ $(ECHO)
 endif
+
+ifeq ($(_NO_TMP_O), yes)
+$(OBJ_DIR)/%.o: %.c $(ERROR)
+	$(CC) -c -o $@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c
+	@ $(TOUCH) $@
+	@ $(ECHO)
+else
+$(OBJ_DIR)/%.o: %.c $(ERROR)
+	$(CC) -c -o $(_TMP_O) $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c
+	@ $(COPY) $(_TMP_O) $@
+	@ $(RM) $(_TMP_O)
+	@ $(TOUCH) $@
+	@ $(ECHO)
+endif

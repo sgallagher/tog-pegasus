@@ -730,6 +730,26 @@ int main(int argc, char** argv)
 
 #ifdef PEGASUS_OS_HPUX
     umask(S_IWGRP|S_IWOTH);
+
+    //
+    // check if CIMServer is already running
+    // if CIMServer is already running, print message and 
+    // notify parent process (if there is a parent process) to terminate
+    //
+    if(isCIMServerRunning())
+    {
+	cout << "Unable to start CIMServer." << endl;
+	cout << "CIMServer is already running." << endl;
+
+	//
+        // notify parent process (if there is a parent process) to terminate
+        //
+        if (daemonOption)
+                notify_parent();
+
+        exit(1);
+    }
+     
 #endif
 
     // try loop to bind the address, and run the server

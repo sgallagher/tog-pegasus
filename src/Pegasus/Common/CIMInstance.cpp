@@ -136,6 +136,12 @@ CIMConstQualifier CIMInstance::getQualifier(Uint32 index) const
     return _rep->getQualifier(index);
 }
 
+void CIMInstance::removeQualifier(Uint32 index)
+{
+    _checkRep();
+    _rep->removeQualifier(index);
+}
+
 Uint32 CIMInstance::getQualifierCount() const
 {
     _checkRep();

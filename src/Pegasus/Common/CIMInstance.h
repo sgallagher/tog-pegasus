@@ -136,6 +136,13 @@ public:
     */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
+    /** Removes the qualifier defined by the index parameter.
+        @param index Defines the index of the qualifier to be removed.
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of existing qualifier objects for this instance.
+    */
+    void removeQualifier(Uint32 index);
+
     /**	Gets the count of the CIMQualifier objects defined
         for this CIMInstance.
 	@return	Count of the number of CIMQalifier objects in the

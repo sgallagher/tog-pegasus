@@ -439,7 +439,7 @@ CIMClass CIMRepository::getClass(
 	// by setting the property to Null.
 	if (!includeClassOrigin)
 	{
-		PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");		
+		PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
 		
 		Uint32 propertyCount = cimClass.getPropertyCount();
 		for (Uint32 i = 0; i < propertyCount ; i++)
@@ -555,64 +555,65 @@ CIMInstance CIMRepository::getInstance(
 	Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
             true);
     }
-	// Remove properties based on propertylist and localOnly flag (Bug 565)
-	Boolean propertyListNull = propertyList.isNull();
+
+    // Remove properties based on propertylist and localOnly flag (Bug 565)
+    Boolean propertyListNull = propertyList.isNull();
     if ((!propertyListNull) || localOnly)
     {
-		// Loop through properties to remove those that do not filter through
-		// local only attribute and are not in the property list.
-		Uint32 count = cimInstance.getPropertyCount();
-		// Work backwards because removal may be cheaper. Sint32 covers count=0
-		for (Sint32 i = (count - 1); i >= 0; i--)
-		{
-			CIMProperty p = cimInstance.getProperty(i);
-			
-			// if localOnly==true, ignore properties defined in super class
-			if (localOnly && (p.getPropagated()))
-			{
-				cimInstance.removeProperty(i);
-				continue;
-			}
+        // Loop through properties to remove those that do not filter through
+        // local only attribute and are not in the property list.
+        Uint32 count = cimInstance.getPropertyCount();
+        // Work backwards because removal may be cheaper. Sint32 covers count=0
+        for (Sint32 i = (count - 1); i >= 0; i--)
+        {
+            CIMProperty p = cimInstance.getProperty(i);
 
-			// propertyList NULL means all properties.  PropertyList empty, none.
-			// Test for removal if propertyList not NULL. The empty list option
-			// is covered by fact that property is not in the list.
-			if (!propertyListNull)
-				if(!_containsProperty(p, propertyList))
-					cimInstance.removeProperty(i);
-		}
+            // if localOnly==true, ignore properties defined in super class
+            if (localOnly && (p.getPropagated()))
+            {
+                cimInstance.removeProperty(i);
+                continue;
+            }
+
+            // propertyList NULL means all properties.  PropertyList empty, none.
+            // Test for removal if propertyList not NULL. The empty list option
+            // is covered by fact that property is not in the list.
+            if (!propertyListNull)
+                if(!_containsProperty(p, propertyList))
+                    cimInstance.removeProperty(i);
+        }
 
     }
-	// If includequalifiers false, remove all qualifiers from
-	// properties, methods and parameters.
-	/* ATTN:  BUG 601This section removed pending existence of a removequalifer function
-	if(!includeQualifiers)
-	{
-		// remove qualifiers of the class
-		Uint32 count = 0;
-		while((count = cimInstance.getQualifierCount()) > 0)
-			cimInstance.removeQualifier(count - 1);
 
-		// remove qualifiers from the properties
-		for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
-		{
-				CIMProperty p = cimInstance.getProperty(i);
-				count=0;
-				while((count = p.getQualifierCount()) > 0)
-					p.removeQualifier(count - 1);
-		} 
-	}
-	*/
-	// if ClassOrigin Flag false, remove classOrigin info from class object
-	// by setting the property to Null.
-	if (!includeClassOrigin)
-	{
-		PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");		
-		
-		Uint32 propertyCount = cimInstance.getPropertyCount();
-		for (Uint32 i = 0; i < propertyCount ; i++)
-			cimInstance.getProperty(i).setClassOrigin(CIMName());
-	}
+    // If includequalifiers false, remove all qualifiers from
+    // properties, methods and parameters.
+    if(!includeQualifiers)
+    {
+        // remove qualifiers of the class
+        Uint32 count = 0;
+        while((count = cimInstance.getQualifierCount()) > 0)
+            cimInstance.removeQualifier(count - 1);
+
+        // remove qualifiers from the properties
+        for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
+        {
+            CIMProperty p = cimInstance.getProperty(i);
+            count=0;
+            while((count = p.getQualifierCount()) > 0)
+                p.removeQualifier(count - 1);
+        } 
+    }
+
+    // if ClassOrigin Flag false, remove classOrigin info from class object
+    // by setting the property to Null.
+    if (!includeClassOrigin)
+    {
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");        
+        
+        Uint32 propertyCount = cimInstance.getPropertyCount();
+        for (Uint32 i = 0; i < propertyCount ; i++)
+            cimInstance.getProperty(i).setClassOrigin(CIMName());
+    }
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -702,14 +703,15 @@ void _CompactInstanceRepository(
     Array<Uint32> sizes;
     Array<CIMObjectPath> instanceNames;
 
-    if (!InstanceIndexFile::enumerateEntries(
-	indexFilePath, freeFlags, indices, sizes, instanceNames, true))
+	if (!InstanceIndexFile::enumerateEntries(
+    indexFilePath, freeFlags, indices, sizes, instanceNames, true))
     {
         PEG_METHOD_EXIT();
         //l10n 
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-        		MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED","compact failed"));										            
+            MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
+                "compact failed"));
         //l10n end
         
     }
@@ -719,8 +721,9 @@ void _CompactInstanceRepository(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
-        										                  "compact failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
+                "compact failed"));
         //l10n end
     }
 
@@ -733,8 +736,9 @@ void _CompactInstanceRepository(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
-        										                  "compact failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
+                "compact failed"));
         //l10n end
     }
 
@@ -770,8 +774,9 @@ void CIMRepository::deleteInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-        														  "rollback failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
         //l10n end
     }
 
@@ -780,8 +785,9 @@ void CIMRepository::deleteInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-        														  "rollback failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
         //l10n end
     }
 
@@ -809,8 +815,9 @@ void CIMRepository::deleteInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-        														  "begin failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
         //l10n end
     }
 
@@ -819,8 +826,9 @@ void CIMRepository::deleteInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-        														  "begin failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
         //l10n end
     }
 
@@ -837,9 +845,11 @@ void CIMRepository::deleteInstance(
         //errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE",
-        														  "Failed to delete instance: $0", 
-        														  instanceName.toString()));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE",
+                "Failed to delete instance: $0", 
+                instanceName.toString()));
         //l10n end
     }
 
@@ -852,8 +862,9 @@ void CIMRepository::deleteInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-        														  "commit failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
         //l10n end
     }
 
@@ -862,8 +873,9 @@ void CIMRepository::deleteInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-        														  "commit failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
         //l10n end
     }
 
@@ -1114,8 +1126,9 @@ CIMObjectPath CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-        														  "rollback failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
         //l10n end
     }
 
@@ -1124,8 +1137,10 @@ CIMObjectPath CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-        														  "rollback failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
         //l10n end
     }
 
@@ -1151,9 +1166,10 @@ CIMObjectPath CIMRepository::createInstance(
         //errMessage = "class has no keys: " + 
             //cimClass.getClassName().getString();
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.CLASS_HAS_NO_KEYS",
-    															  "class has no keys: $0", 
-    															  cimClass.getClassName().getString()));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.CLASS_HAS_NO_KEYS",
+                "class has no keys: $0", 
+                cimClass.getClassName().getString()));
         //l10n end
     }
 
@@ -1190,8 +1206,9 @@ CIMObjectPath CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-        														  "begin failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
         //l10n end
     }
 
@@ -1200,8 +1217,9 @@ CIMObjectPath CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-        														  "begin failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
         //l10n end
     }
 
@@ -1224,9 +1242,11 @@ CIMObjectPath CIMRepository::createInstance(
 	    //errMessage.append(instanceName.toString());
 	    PEG_METHOD_EXIT();
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
-    															  "Failed to create instance: $0", 
-    															  instanceName.toString()));
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
+                    "Failed to create instance: $0", 
+                    instanceName.toString()));
 	    //l10n end
 	}
     }
@@ -1243,9 +1263,11 @@ CIMObjectPath CIMRepository::createInstance(
         //errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
-    															  "Failed to create instance: $0", 
-    															  instanceName.toString()));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
+                "Failed to create instance: $0", 
+                instanceName.toString()));
 	    //l10n end
     }
 
@@ -1258,8 +1280,9 @@ CIMObjectPath CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-        														  "commit failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
         //l10n end
     }
 
@@ -1268,8 +1291,9 @@ CIMObjectPath CIMRepository::createInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-        														  "commit failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
         //l10n end
     }
 
@@ -1321,8 +1345,10 @@ void CIMRepository::modifyClass(
         String str = "CIMRepository::modifyClass()";
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             //"failed to remove file in CIMRepository::modifyClass()");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_REMOVE_FILE",
-        														  "failed to remove file in $0", str));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_REMOVE_FILE",
+                "failed to remove file in $0", str));
         //l10n end
     }
 
@@ -1366,8 +1392,9 @@ void CIMRepository::modifyInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-        														  "rollback failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
         //l10n end
     }
 
@@ -1376,8 +1403,9 @@ void CIMRepository::modifyInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-        														  "rollback failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
         //l10n end
     }
 
@@ -1390,8 +1418,9 @@ void CIMRepository::modifyInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-        														  "begin failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
         //l10n end
     }
 
@@ -1400,8 +1429,9 @@ void CIMRepository::modifyInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-        														  "begin failed"));														  
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
         //l10n end
     }
 
@@ -1629,8 +1659,10 @@ void CIMRepository::modifyInstance(
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             //"Attempted to modify a key property");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY",
-        														  "Attempted to modify a key property"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY",
+                "Attempted to modify a key property"));
         //l10n end
     }
 
@@ -1663,9 +1695,11 @@ void CIMRepository::modifyInstance(
 	    //errMessage.append(instanceName.toString());
             PEG_METHOD_EXIT();
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
-																  "Failed to modify instance $0",
-																  instanceName.toString()));
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
+                    "Failed to modify instance $0",
+                    instanceName.toString()));
 	    //l10n end
 	}
     }
@@ -1684,9 +1718,11 @@ void CIMRepository::modifyInstance(
 	    //errMessage.append(instanceName.toString());
             PEG_METHOD_EXIT();
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
-																  "Failed to modify instance $0",
-																  instanceName.toString()));
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
+                    "Failed to modify instance $0",
+                    instanceName.toString()));
 	    //l10n end
     }
 
@@ -1699,8 +1735,9 @@ void CIMRepository::modifyInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-        														  "commit failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
         //l10n end
     }
 
@@ -1709,8 +1746,9 @@ void CIMRepository::modifyInstance(
         PEG_METHOD_EXIT();
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-        														  "commit failed"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
         //l10n end
     }
 
@@ -1892,9 +1930,11 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
             //errMessage.append(classNames[i].getString ());
             PEG_METHOD_EXIT();
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES",
-        															  "Failed to load instances in class $0",
-        															  classNames[i].getString()));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES",
+                    "Failed to load instances in class $0",
+                    classNames[i].getString()));
             //10n end
         }
     }
@@ -1951,9 +1991,11 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
             //errMessage.append(classNames[i].getString());
             PEG_METHOD_EXIT();
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES",
-        															  "Failed to load instances in class $0",
-        															  classNames[i].getString()));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES",
+                    "Failed to load instances in class $0",
+                    classNames[i].getString()));
             //l10n end
         }
     }
@@ -2014,9 +2056,11 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
 	    		//errMessage.append(classNames[i].getString());
             PEG_METHOD_EXIT();
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
-        															  "Failed to load instance names in class $0",
-        															  classNames[i].getString()));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
+                    "Failed to load instance names in class $0",
+                    classNames[i].getString()));
             //l10n end
         }
     }
@@ -2083,9 +2127,11 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
 	    		//errMessage.append(classNames[i].getString());
             PEG_METHOD_EXIT();
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
-        															  "Failed to load instance names in class $0",
-        															  classNames[i].getString()));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
+                    "Failed to load instance names in class $0",
+                    classNames[i].getString()));
             //l10n end
         }
     }
@@ -2617,9 +2663,10 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
         String str ="enumerateQualifiers()";
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             //"enumerateQualifiers(): internal error");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Repository.CIMRepository.INTERNAL_ERROR",
-        														  "$0: internal error",
-        														  str));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.INTERNAL_ERROR",
+                "$0: internal error",
+                str));
         //l10n end
     }
 

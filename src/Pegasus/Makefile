@@ -33,6 +33,11 @@ DIRS += \
 	ControlProviders/InteropProvider/tests
 endif
 
+ifdef ENABLE_CMPI_PROVIDER_MANAGER
+DIRS += \
+   Provider/CMPI
+endif
+
 ifdef ENABLE_PROVIDER_MANAGER2
 DIRS += \
     ProviderManager2 \

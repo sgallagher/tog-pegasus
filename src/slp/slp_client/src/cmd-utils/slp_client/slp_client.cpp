@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,27 +25,27 @@
 //
 //==============================================================================
 /*****************************************************************************
- *  Description:   
+ *  Description:
  *
  *  Originated: December 20, 2001
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *               					                    
- *  Copyright (c) 2001 - 2004  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *               					
+ *  Copyright (c) 2001 - 2004  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -71,7 +71,7 @@
  int _winsock_count = 0;
  WSADATA _wsa_data ;
 #include <time.h>
-#endif 
+#endif
 
 struct da_list *alloc_da_node(BOOL head)
 {
@@ -85,7 +85,7 @@ struct da_list *alloc_da_node(BOOL head)
 
 struct da_list *da_node_exists(struct da_list *head, const void *key)
 {
-  
+
   if(head != NULL && _LSLP_IS_HEAD(head) && key != NULL) {
     struct da_list *temp = head->next;
     while( ! _LSLP_IS_HEAD(temp)){
@@ -151,7 +151,7 @@ struct rply_list *rpl_node_exists(struct rply_list *head, const void *key)
     struct rply_list *temp = head->next;
     while( ! _LSLP_IS_HEAD(temp)){
       if( ! strcmp(temp->url, (int8 *)key))
-	return temp;
+          return temp;
       temp = temp->next;
     }
   }
@@ -203,7 +203,7 @@ struct reg_list *reg_node_exists(struct reg_list *head, const void *key)
     struct reg_list *temp = head->next;
     while( ! _LSLP_IS_HEAD(temp)){
       if( ! strcmp(temp->url, (int8 *)key))
-	return temp;
+          return temp;
       temp = temp->next;
     }
   }
@@ -259,7 +259,7 @@ struct url_entry *url_node_exists(struct url_entry *head, const void *key)
     struct url_entry *temp = head->next;
     while( ! _LSLP_IS_HEAD(temp)){
       if( ! strcmp(temp->url, (int8 *)key))
-	return temp;
+         return temp;
       temp = temp->next;
     }
   }
@@ -296,38 +296,38 @@ void free_url_list(struct url_entry *list)
 }
 
 #if defined( _WIN32 ) || defined( BSD ) || defined( PEGASUS_OS_SOLARIS )
- int gethostbyname_r(const char *name, 
-		    struct hostent *resultbuf, 
-		    char *buf, 
-		    size_t bufsize, 
-		    struct hostent **result, 
-		    int *errnop) 
+ int gethostbyname_r(const char *name,
+		    struct hostent *resultbuf,
+		    char *buf,
+		    size_t bufsize,
+		    struct hostent **result,
+		    int *errnop)
 {
   name = name;
   resultbuf = resultbuf;
   buf = buf;
   bufsize = bufsize;
-  
+
   if(NULL == (*result = gethostbyname(name))) {
-#if defined( _WIN32 ) 
+#if defined( _WIN32 )
     *errnop = WSAGetLastError();
 #else
     *errnop = errno;
-#endif 
+#endif
     return(-1);
-  } 
+  }
   return(0);
 }
 
 #endif
 
 #if defined ( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM )
- int gethostbyname_r(const char *name, 
-		    struct hostent *resultbuf, 
-		    char *buf, 
-		    size_t bufsize, 
-		    struct hostent **result, 
-		    int *errnop) 
+ int gethostbyname_r(const char *name,
+		    struct hostent *resultbuf,
+		    char *buf,
+		    size_t bufsize,
+		    struct hostent **result,
+		    int *errnop)
 {
 	name = name;
 	resultbuf = resultbuf;
@@ -337,25 +337,25 @@ void free_url_list(struct url_entry *list)
 
 		*errnop = *__h_errno();
 		return(-1);
-	} 
+	}
 	return(0);
 }
 #endif
 
 #if defined( NUCLEUS )  //jeb
 
- int gethostbyname_r(const char *name, 
-		     struct hostent *resultbuf, 
-		     char *buf, 
-		     size_t bufsize, 
-		     struct hostent **result, 
-		     int *errnop) 
+ int gethostbyname_r(const char *name,
+		     struct hostent *resultbuf,
+		     char *buf,
+		     size_t bufsize,
+		     struct hostent **result,
+		     int *errnop)
 {
   name = name;
   resultbuf = resultbuf;
   buf = buf;
   bufsize = bufsize;
-  
+
   if(NULL == (*result = _LSLP_GETHOSTBYNAME(name))) {
 #ifdef NUCLEUS
       *errnop = -2;
@@ -363,20 +363,20 @@ void free_url_list(struct url_entry *list)
       *errnop = h_errno;
 #endif
     return(-1);
-  } 
+  }
   return(0);
 }
 
 #endif
 
-char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len) 
+char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
 {
   char name[255];
   SOCKADDR_IN  a;
 
   if(addr == NULL || addr_len < 1 )
     return NULL;
-  
+
   if( get_addr_from_url( url, &a, NULL) ) {
 #if defined ( _WIN32 )
     _snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
@@ -389,7 +389,7 @@ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
     snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
     #endif //end of PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #endif
-    
+
     memset(addr, 0x00, addr_len);
     strncpy(addr, name, addr_len - 1 );
     return addr;
@@ -397,20 +397,20 @@ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
   return NULL;
 }
 
-char *slp_get_host_string_from_url(const char *url, char *host, int host_len) 
+char *slp_get_host_string_from_url(const char *url, char *host, int host_len)
 {
   char *s;
   SOCKADDR_IN  addr;
 
   if ( host == NULL || host_len < 1 )
     return NULL;
-  
+
   if (TRUE == get_addr_from_url(url, &addr, &s )) {
     memset(host, 0x00, host_len);
     strncpy(host, s, host_len - 1);
     return host;
   }
-  
+
   return NULL;
 }
 
@@ -420,7 +420,7 @@ BOOL  get_addr_from_url(const int8 *url, SOCKADDR_IN *addr, int8 **host)
   int8 *bptr, *url_dup;
   BOOL ccode = FALSE;
 
-  // isolate the host field 
+  // isolate the host field
   bptr = (url_dup = strdup(url));
   if(bptr == NULL)
     return( FALSE );
@@ -443,7 +443,7 @@ BOOL  get_addr_from_url(const int8 *url, SOCKADDR_IN *addr, int8 **host)
       *portptr = 0x00;
       portptr++;
     } else { portptr = NULL; }
-    
+
     // bptr points to the host name or address
     // portptr points to the port or is null
 
@@ -460,7 +460,7 @@ BOOL  get_addr_from_url(const int8 *url, SOCKADDR_IN *addr, int8 **host)
     else
       addr->sin_port = 0x0000;
     addr->sin_family = AF_INET;
-    
+
     addr->sin_addr.s_addr = inet_addr(bptr);
     if(addr->sin_addr.s_addr == INADDR_NONE) {
       struct hostent *host;
@@ -468,22 +468,22 @@ BOOL  get_addr_from_url(const int8 *url, SOCKADDR_IN *addr, int8 **host)
       uint8 *temp ;
       uint32 result, err;
       size_t hostbuflen = 256;
-      
+
       // hopefully a hostname because dotted decimal notation was invalid
       // look for the user@hostname production
       int8 *userptr;
       userptr = bptr;
       while( (*userptr != 0x00 ) && (*userptr != '@' ) )
-	userptr++;
+          userptr++;
       if( *userptr == '@' )
-	bptr = userptr + 1;
-      
-      temp = (uint8 *)malloc(hostbuflen); 
+          bptr = userptr + 1;
+
+      temp = (uint8 *)malloc(hostbuflen);
       if(temp != NULL) {
 	host = NULL;
-	while(temp != NULL && (result = gethostbyname_r(bptr, &hostbuf, 
-	    (char *)temp, 
-	    hostbuflen, 
+	while(temp != NULL && (result = gethostbyname_r(bptr, &hostbuf,
+	    (char *)temp,
+	    hostbuflen,
 #ifdef NUCLEUS
 	    &host, (int *)&err)) == -1){
 #else
@@ -501,13 +501,13 @@ BOOL  get_addr_from_url(const int8 *url, SOCKADDR_IN *addr, int8 **host)
 	}
 	free(temp);
       } /* we allocated the temp buffer for gethostbyname */
-    } else { 
+    } else {
       ccode = TRUE ;
     } /* host field is not in a valid dotted decimal form */
   } /* isolated the host field in the url  */
   return(ccode);
 }
- 
+
 
 /*** effectively reallocates *list -- FREES MEMORY ***/
 int slp_get_local_interfaces(uint32 **list)
@@ -522,7 +522,7 @@ int errcode;
     return 0;
   if ( *list != NULL )
     free( *list );
-  
+
 #if defined ( _WIN32 )
 
   if ( INVALID_SOCKET != ( sock  = WSASocket(AF_INET,
@@ -531,9 +531,9 @@ int errcode;
     char *output_buf = (char *)calloc(1, buf_size);
     if (output_buf == NULL)
       return 0;
-    
 
-    if ( 0 == (errcode = WSAIoctl( sock, SIO_ADDRESS_LIST_QUERY, NULL, 0, 
+
+    if ( 0 == (errcode = WSAIoctl( sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
 			output_buf, buf_size, &bytes_returned, NULL, NULL)) ) {
 
       SOCKET_ADDRESS_LIST *addr_list;
@@ -543,9 +543,9 @@ int errcode;
 		  addr_list = (SOCKET_ADDRESS_LIST *)output_buf;
       *list = (uint32 *) malloc(sizeof(SOCKET_ADDRESS) * (addr_list->iAddressCount + 1)) ;
       addr = addr_list->Address;
-      
-      for( interfaces = 0, intp = *list, sin = (struct sockaddr_in *)addr->lpSockaddr ; 
-	   interfaces < addr_list->iAddressCount; 
+
+      for( interfaces = 0, intp = *list, sin = (struct sockaddr_in *)addr->lpSockaddr ;
+	   interfaces < addr_list->iAddressCount;
 	   interfaces++ , intp++  ) {
 	*intp = sin->sin_addr.s_addr;
 	addr++;
@@ -556,34 +556,34 @@ int errcode;
     } else {
 errcode = WSAGetLastError();
     }
-    
+
     free(output_buf);
     _LSLP_CLOSESOCKET(sock);
   }
 
 
-#elif defined ( NUCLEUS )   //jeb 
+#elif defined ( NUCLEUS )   //jeb
   /* only one interface do the following: */
   *list = (uint32 *)malloc(sizeof(uint32));
-  
+
   //get name of external ethernet
   NU_IOCTL_OPTION option;
   option.s_optval = (unsigned char *)ETHER0;
 
   //get IP address
   if (NU_Ioctl(IOCTL_GETIFADDR, &option, sizeof(option)) == NU_SUCCESS)
-  {                                                    
+  {
      //get IP address
-     memcpy(*list, option.s_ret.s_ipaddr, 4); 
+     memcpy(*list, option.s_ret.s_ipaddr, 4);
      interfaces = 1;
   }
   else // no interfaces
      interfaces = 0;
 
   *list = (uint32 *)malloc(sizeof uint32);
-  *list[0] = inet_addr(" address of interface "); 
+  *list[0] = inet_addr(" address of interface ");
   interfaces = 1;
-  
+
 #else
   if( -1 < (sock = socket(AF_INET, SOCK_DGRAM, 0) ) ) {
     struct ifconf conf;
@@ -593,15 +593,15 @@ errcode = WSAGetLastError();
     conf.ifc_buf = (char *)calloc( 128, sizeof(struct ifreq ) );
     conf.ifc_len = 128 * sizeof( struct ifreq ) ;
     if( -1 < ioctl(sock, SIOCGIFCONF, &conf ) ) {
-      // count the interfaces 
+      // count the interfaces
 
       struct ifreq *r = conf.ifc_req;
       SOCKADDR_IN *addr ;
       addr = (SOCKADDR_IN *)&r->ifr_addr;
       while(  addr->sin_addr.s_addr != 0 ) {
-	interfaces++;
-	r++;
-	addr = (SOCKADDR_IN *)&r->ifr_addr;
+          interfaces++;
+          r++;
+          addr = (SOCKADDR_IN *)&r->ifr_addr;
       }
 
       // now store the addresses
@@ -618,16 +618,16 @@ errcode = WSAGetLastError();
 	addr = (SOCKADDR_IN *)&r->ifr_addr;
       }
       *this_addr = INADDR_ANY;
-    } // did the ioctl 
+    } // did the ioctl
     free(conf.ifc_buf);
     _LSLP_CLOSESOCKET(sock);
-  } // opened the socket 
+  } // opened the socket
 
-#endif 
+#endif
   // failsafe if the ioctl doesn't work
   if( interfaces == 0 ) {
-    *list = (uint32 *)malloc(sizeof(uint32)) ; 
-    *list[0] = INADDR_ANY; 
+    *list = (uint32 *)malloc(sizeof(uint32)) ;
+    *list[0] = INADDR_ANY;
   }
 
   return(interfaces);
@@ -635,24 +635,24 @@ errcode = WSAGetLastError();
 
 BOOL  slp_join_multicast(SOCKETD sock, uint32 addr)      //jeb
 {
-  
+
 #if defined(NUCLEUS )    //jeb
-  //don't support for now  
+  //don't support for now
   return(FALSE);         //jeb
 
-#else 
+#else
  struct ip_mreq mreq;
   // don't join on the loopback interface
   if (addr == inet_addr("127.0.0.1") )
     return(FALSE);
 
- 
+
   mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
   mreq.imr_interface.s_addr = addr;
-  
-  if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq))) 
+
+  if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq)))
     return(FALSE);
-  
+
   return(TRUE);    //jeb
 #endif
 }
@@ -664,10 +664,10 @@ int slp_join_multicast_all(SOCKETD sock)
 
   uint32 *list = NULL , *lptr = NULL;
   int interface_counter;
-  
+
   int num_interfaces = slp_get_local_interfaces(&list);
   interface_counter = num_interfaces;
-  
+
   lptr = list;
   while ( interface_counter-- && *lptr != INADDR_ANY ) {
     slp_join_multicast(sock, *lptr) ;
@@ -683,7 +683,7 @@ SOCKETD slp_open_listen_sock( void )       //jeb
   SOCKADDR_IN local;
   SOCKETD sock  = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0) ;   //jeb
   int err = 1;
-  
+
 #ifndef NUCLEUS    //jeb not supported
   _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err));
 #endif
@@ -702,14 +702,14 @@ void prepare_pr_buf(struct slp_client *client, const int8 *address)
     return;;
   if(client->_pr_buf_len > LSLP_MTU)
     abort();
-  
-  if(client->_pr_buf_len > 0 && client->_pr_buf_len < (LSLP_MTU - 2)) 
+
+  if(client->_pr_buf_len > 0 && client->_pr_buf_len < (LSLP_MTU - 2))
     client->_pr_buf[client->_pr_buf_len - 1] = ',';
   do {
     client->_pr_buf[client->_pr_buf_len] = *address;
     address++;
     (client->_pr_buf_len)++;
-  }while((*address != 0x00) && (client->_pr_buf_len < LSLP_MTU - 1)); 
+  }while((*address != 0x00) && (client->_pr_buf_len < LSLP_MTU - 1));
   (client->_pr_buf_len)++;
 }
 
@@ -719,7 +719,7 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, int8 response,
   int8 *bptr;
   if(TRUE == ( ((_LSLP_GETFLAGS( client->_rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? FALSE : TRUE   ) ) {
     SOCKETD sock;  //jeb
-    
+
     memset(client->_msg_buf, 0x00, LSLP_MTU);
     bptr = client->_msg_buf;
     _LSLP_SETVERSION(bptr, LSLP_PROTO_VER);
@@ -737,25 +737,25 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, int8 response,
       int err = 1;
 #ifndef NUCLEUS
       _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif      
+#endif
       local.sin_family = AF_INET;
-      local.sin_port = client->_target_port ; 
+      local.sin_port = client->_target_port ;
       local.sin_addr.s_addr = client->_local_addr;
       if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
-	_LSLP_SENDTO(sock, client->_msg_buf, _LSLP_GETLENGTH(client->_msg_buf), 0, 
+	_LSLP_SENDTO(sock, client->_msg_buf, _LSLP_GETLENGTH(client->_msg_buf), 0,
 		     remote, sizeof(SOCKADDR_IN )) ;
-      } // successfully bound this socket 
+      } // successfully bound this socket
       _LSLP_CLOSESOCKET(sock);
     } // successfully opened this socket
   }
 }
 
 
-BOOL prepare_query( struct slp_client *client, 
+BOOL prepare_query( struct slp_client *client,
 		    uint16 xid,
 		    const int8 *service_type,
-		    const int8 *scopes, 
-		    const int8 *predicate  ) 
+		    const int8 *scopes,
+		    const int8 *predicate  )
 {
   int16 len, total_len, buf_len;
   int8 *bptr, *bptrSave;
@@ -792,18 +792,18 @@ BOOL prepare_query( struct slp_client *client,
 	memcpy(bptr + 2, service_type, len);
       else
 	memcpy(bptr + 2, DA_SRVTYPE, len);
-	  	  
+
       total_len += (2 + len);
       bptr += (2 + len);
       /* set the scope len and scope type, advance the buffer */
-	  
+
       if(scopes == NULL)
 	len = DA_SCOPELEN;
       else
 	len = (int16)strlen(scopes);
       if( total_len + 2 + len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, len, 0);
-	if(scopes != NULL) 
+	if(scopes != NULL)
 	  memcpy(bptr + 2, scopes, len);
 	else
 	  memcpy(bptr + 2, DA_SCOPE, DA_SCOPELEN);
@@ -819,7 +819,7 @@ BOOL prepare_query( struct slp_client *client,
 	  _LSLP_SETSHORT(bptr, len, 0);
 	  if(predicate != NULL)
 	    memcpy(bptr + 2, predicate, len);
-	      
+
 	  total_len += (2 + len);
 	  bptrSave = (bptr += (2 + len));
 	  /* <<< bug 1732 Thu Jun 10 08:51:03 2004 mdd >>> force the spi string to be zero length*/
@@ -828,10 +828,10 @@ BOOL prepare_query( struct slp_client *client,
 	  _LSLP_SETSHORT(bptr, 0x0000, 0);
 	  bptr += 2;
 	  total_len += 2;
-	  
+
 
 	  /* 	  lslpStuffSPIList(&bptr, &buf_len, client->_spi); */
-		
+
 	  /* read back the length of the spi */
 	  /* 	  total_len += (2 + _LSLP_GETSHORT(bptrSave, 0)); */
 
@@ -861,7 +861,7 @@ BOOL prepare_query( struct slp_client *client,
 }
 
 
-// <<< Sat Jul 24 16:25:44 2004 mdd >>> attr request 
+// <<< Sat Jul 24 16:25:44 2004 mdd >>> attr request
 
 
 /*       0                   1                   2                   3 */
@@ -880,72 +880,72 @@ BOOL prepare_query( struct slp_client *client,
 /*      |   length of <SLP SPI> string  |        <SLP SPI> string       \ */
 /*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
 
-BOOL prepare_attr_query( struct slp_client *client, 
+BOOL prepare_attr_query( struct slp_client *client,
 			 uint16 xid,
 			 const int8 *url,
-			 const int8 *scopes, 
+			 const int8 *scopes,
 			 const int8 *tags)
 {
   int16 len, total_len;
   int8 *bptr;
   const int8 *scopeptr;
   static int8 default_scope[] = "DEFAULT";
-  
+
   if(url == NULL)
     return FALSE;
-  
-  /* first off, check to see if this is a retry or a new request */ 
+
+  /* first off, check to see if this is a retry or a new request */
   if(xid != client->_xid) {
     /* this is a new request, not a retry */
-    /* reset the previous responder buffer */ 
+    /* reset the previous responder buffer */
     memset(client->_pr_buf, 0x00, LSLP_MTU);
     client->_pr_buf_len = 0;
     client->_xid = xid;
   }
-  
-  /* reset the client's send buffer and initialize the buffer pointer */ 
+
+  /* reset the client's send buffer and initialize the buffer pointer */
   memset(client->_msg_buf, 0x00, LSLP_MTU);
   bptr = client->_msg_buf;
-  
+
   /* initialize the SLP Header */
   _LSLP_SETVERSION(bptr, LSLP_PROTO_VER);
   _LSLP_SETFUNCTION(bptr, LSLP_ATTRREQ);
-  
+
   /* skip the length field until we know the actual length of the message */
 
   _LSLP_SETFLAGS(bptr, 0);
   _LSLP_SETXID(bptr, xid);
   _LSLP_SETLAN(bptr, LSLP_EN_US, LSLP_EN_US_LEN);
-  
-  /* adjust the buffer pointer forward and initialize our length counter */ 
+
+  /* adjust the buffer pointer forward and initialize our length counter */
   bptr += ( total_len = _LSLP_HDRLEN(bptr) );
-  
-  /* make sure the pr buffer will not cause an overflow and set the pr list length */ 
+
+  /* make sure the pr buffer will not cause an overflow and set the pr list length */
   if( client->_pr_buf_len + total_len < LSLP_MTU ) {
     _LSLP_SETSHORT(bptr, (len = client->_pr_buf_len), 0 );
-    /* if there is a pr list, copy it into the msg buffer */ 
+    /* if there is a pr list, copy it into the msg buffer */
     if(len)
       memcpy(bptr + 2, client->_pr_buf, len);
     /* adjust our counter and buffer pointer */
     total_len += ( 2 + len );
     bptr += ( 2 + len );
-    
-    /* if there is room, set the url length and copy the url */ 
+
+    /* if there is room, set the url length and copy the url */
     len = strlen(url);
     if(total_len + 2 + len < LSLP_MTU ) {
       _LSLP_SETSHORT(bptr, len, 0 );
       if(len)
-	memcpy(bptr + 2, url, len);
-      /* adjust counter and buffer pointer */ 
+          memcpy(bptr + 2, url, len);
+      /* adjust counter and buffer pointer */
       total_len += (2 + len);
       bptr += (2 + len);
-      
-      /* if there is room, set the scope list length and copy the scope list */ 
+
+      /* if there is room, set the scope list length and copy the scope list */
       if(scopes == NULL)
 	scopeptr = default_scope;
       else
 	scopeptr = scopes;
-      
+
       len = strlen(scopeptr);
       if(total_len + 2 + len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, len, 0 );
@@ -969,19 +969,19 @@ BOOL prepare_attr_query( struct slp_client *client,
 	  total_len += ( 2 + len );
 	  bptr += ( 2 + len );
 
-	  /* leave the spi length at zero - spi will be deprecated in next version of SLP */ 
-	  /* length needs to account for the spi string length */ 
+	  /* leave the spi length at zero - spi will be deprecated in next version of SLP */
+	  /* length needs to account for the spi string length */
 	  total_len += 2;
-	   
+	
 	  /* now go back and set the length for the entire message */
 	  _LSLP_SETLENGTH(client->_msg_buf, total_len );
 	  return(TRUE);
 
-	} /* if tags list fits */ 
-      } /* if scopes fit */ 
-    } /* if the url fits */ 
-  } /* if pr buffer fits */ 
-  
+	} /* if tags list fits */
+      } /* if scopes fit */
+    } /* if the url fits */
+  } /* if pr buffer fits */
+
   return FALSE;
 }
 
@@ -1000,14 +1000,14 @@ lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
   assert(head != NULL && _LSLP_IS_HEAD(head));
   if( _LSLP_IS_EMPTY(&(client->replies)))
     return NULL;
-  
+
   _LSLP_LINK_HEAD(head, &(client->replies));
   return(head);
 }
 
 
-int find_das(struct slp_client *client, 
-	     const int8 *predicate, 
+int find_das(struct slp_client *client,
+	     const int8 *predicate,
 	     const int8 *scopes)
 {
   converge_srv_req(client, NULL, predicate, scopes);
@@ -1024,12 +1024,12 @@ int find_das(struct slp_client *client,
 /* convergence otherwise. */
 /* periodically forces an active da discovery cycle  */
 
-void discovery_cycle ( struct slp_client *client, 
-		       const int8 *type, 
-		       const int8 *predicate, 
-		       const int8 *scopes) 
+void discovery_cycle ( struct slp_client *client,
+		       const int8 *type,
+		       const int8 *predicate,
+		       const int8 *scopes)
 {
-  // see if we have built a cache of directory agents 
+  // see if we have built a cache of directory agents
   if( _LSLP_IS_EMPTY(&(client->das)) ) {
     // we don't know of any directory agents - see if we need to do active da discovery
     if( ((time(NULL)) - client->_last_da_cycle ) > (60 * 5) )
@@ -1049,10 +1049,10 @@ void discovery_cycle ( struct slp_client *client,
       da = da->next;
     }
   } else {
-    // do a convergence request because we don't have any das to use 
+    // do a convergence request because we don't have any das to use
     converge_srv_req(client, type, predicate, scopes );
   }
-  return; 
+  return;
 }
 
 /* this request MUST be retried <_convergence> times on EACH interface  */
@@ -1061,33 +1061,33 @@ void discovery_cycle ( struct slp_client *client,
 /* discovery method  */
 
 void converge_srv_req(struct slp_client *client,
-		      const int8 *type, 
-		      const int8 *predicate, 
+		      const int8 *type,
+		      const int8 *predicate,
 		      const int8 *scopes)
 {
   uint32 old_local_addr;
   uint32 *p_addr ;
-  uint16 convergence; 
+  uint16 convergence;
   uint32 loopback ;
 
-  
+
   //  old_target_addr = client->_target_addr;
   old_local_addr = client->_local_addr;
   //  client->_target_addr = inet_addr( "239.255.255.253" ) ;
-  
+
   p_addr = client->_local_addr_list;
   loopback = inet_addr("127.0.0.1");
 
   do {
     if( *p_addr == loopback ) {
       p_addr++;
-      continue; 
+      continue;
     }
     client->_local_addr = *p_addr;
     convergence = client->_convergence;
     if(convergence == 0)
       convergence = 1;
-    
+
     if(prepare_query( client, client->_xid + 1, type, scopes, predicate)) {
 	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
 	send_rcv_udp( client , TRUE);
@@ -1103,21 +1103,21 @@ void converge_srv_req(struct slp_client *client,
   }   while( *p_addr != INADDR_ANY ) ;
 
 
-  // always try a local request 
-  local_srv_req(client, type, predicate, scopes); 
- 
+  // always try a local request
+  local_srv_req(client, type, predicate, scopes);
+
     //  client->_target_addr = old_target_addr;
   client->_local_addr = old_local_addr;
   return ;
 }
 
-// this request will be retried MAX <_retries> times 
+// this request will be retried MAX <_retries> times
 // but will always end when the first response is received
 // This request is best when using a directory agent
-void unicast_srv_req( struct slp_client *client, 
-		      const int8 *type, 
-		      const int8 *predicate, 
-		      const int8 *scopes, 
+void unicast_srv_req( struct slp_client *client,
+		      const int8 *type,
+		      const int8 *predicate,
+		      const int8 *scopes,
 		      SOCKADDR_IN *addr )
 {
 
@@ -1132,14 +1132,14 @@ void unicast_srv_req( struct slp_client *client,
 
   tv_save.tv_sec = client->_tv.tv_sec;
   client->_tv.tv_sec = 1;
-  
-  // let the host decide which interface to use 
-  client->_local_addr = INADDR_ANY; 
+
+  // let the host decide which interface to use
+  client->_local_addr = INADDR_ANY;
   client->_target_addr = addr->sin_addr.s_addr;
   client->_target_port = addr->sin_port;
-  
+
   retries = client->_retries;
-  
+
   srv_req(client, type, predicate, scopes, FALSE) ;
 
   while( retries && _LSLP_IS_EMPTY(&(client->replies))) {
@@ -1153,12 +1153,12 @@ void unicast_srv_req( struct slp_client *client,
   return;
 }
 
-// this request is targeted to the loopback interface, 
-// and has a tiny wait timer. It should be resolved quickly. 
+// this request is targeted to the loopback interface,
+// and has a tiny wait timer. It should be resolved quickly.
 // It will never be retried.
 void local_srv_req( struct slp_client *client,
-		    const int8 *type, 
-		    const int8 *predicate, 
+		    const int8 *type,
+		    const int8 *predicate,
 		    const int8 *scopes )
 
 
@@ -1166,13 +1166,13 @@ void local_srv_req( struct slp_client *client,
 
   uint32 target_addr_save, local_addr_save;
   uint16 target_port_save;
-  
+
   struct timeval tv_save;
-  
+
   target_addr_save = client->_target_addr;
   target_port_save = client->_target_port;
   local_addr_save = client->_local_addr;
-  
+
   tv_save.tv_sec = client->_tv.tv_sec;
   tv_save.tv_usec = client->_tv.tv_usec;
   client->_tv.tv_sec = 0;
@@ -1180,9 +1180,9 @@ void local_srv_req( struct slp_client *client,
   client->_tv.tv_usec = 2*TICKS_PER_SECOND;  //socket call with timer UINT32
 #else
   client->_tv.tv_usec = 10000;
-#endif  
-  // let the host decide which interface to use 
-  client->_local_addr = INADDR_ANY; 
+#endif
+  // let the host decide which interface to use
+  client->_local_addr = INADDR_ANY;
   client->_target_addr = inet_addr("127.0.0.1");
   client->_target_port = htons(427);
 
@@ -1192,7 +1192,7 @@ void local_srv_req( struct slp_client *client,
   client->_target_port = target_port_save;
   client->_local_addr = local_addr_save;
   client->_tv.tv_sec = tv_save.tv_sec;
-  
+
   client->_tv.tv_sec = tv_save.tv_sec;
   client->_tv.tv_usec = tv_save.tv_usec;
 
@@ -1201,15 +1201,15 @@ void local_srv_req( struct slp_client *client,
 
 
 // workhorse request function
-void srv_req( struct slp_client *client, 
-	      const int8 *type, 
-	      const int8 *predicate, 
-	      const int8 *scopes, 
+void srv_req( struct slp_client *client,
+	      const int8 *type,
+	      const int8 *predicate,
+	      const int8 *scopes,
 	      BOOL retry )
 {
-  if ((TRUE == prepare_query(client, (retry == TRUE) ? client->_xid : client->_xid + 1, 
-			     type, 
-			     scopes, 
+  if ((TRUE == prepare_query(client, (retry == TRUE) ? client->_xid : client->_xid + 1,
+			     type,
+			     scopes,
 			     predicate ))) {
     if(client->_target_addr == _LSLP_MCAST || client->_target_addr == _LSLP_LOCAL_BCAST) {
       _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
@@ -1224,34 +1224,34 @@ void srv_req( struct slp_client *client,
 /* regardless of how many responses we have received  */
 /* it can be VERY time consuming but is the most thorough  */
 /* discovery method  */
-void converge_attr_req( struct slp_client *client, 
-			const int8 *url, 
-			const int8 *scopes, 
+void converge_attr_req( struct slp_client *client,
+			const int8 *url,
+			const int8 *scopes,
 			const int8 *tags)
 {
 
   uint32 old_local_addr;
   uint32 *p_addr ;
-  uint16 convergence; 
+  uint16 convergence;
   uint32 loopback ;
 
-  
+
   //  old_target_addr = client->_target_addr;
   old_local_addr = client->_local_addr;
-  
+
   p_addr = client->_local_addr_list;
   loopback = inet_addr("127.0.0.1");
 
   do {
     if( *p_addr == loopback ) {
       p_addr++;
-      continue; 
+      continue;
     }
     client->_local_addr = *p_addr;
     convergence = client->_convergence;
     if(convergence == 0)
       convergence = 1;
-    
+
     if(prepare_attr_query( client, client->_xid + 1, url, scopes, tags)) {
 	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
 	send_rcv_udp( client, FALSE );
@@ -1267,22 +1267,22 @@ void converge_attr_req( struct slp_client *client,
   }   while( *p_addr != INADDR_ANY ) ;
 
 
-  // always try a local request 
-  local_attr_req(client, url, scopes, tags); 
- 
+  // always try a local request
+  local_attr_req(client, url, scopes, tags);
+
     //  client->_target_addr = old_target_addr;
   client->_local_addr = old_local_addr;
   return ;
 
 }
 
-// this request will be retried MAX <_retries> times 
+// this request will be retried MAX <_retries> times
 // but will always end when the first response is received
-// This request is best when using a directory agent  
+// This request is best when using a directory agent
 void unicast_attr_req( struct slp_client *client,
-		       const int8 *url, 
+		       const int8 *url,
 		       const int8 *scopes,
-		       const int8 *tags, 
+		       const int8 *tags,
 		       SOCKADDR_IN *addr)
 {
 
@@ -1295,16 +1295,16 @@ void unicast_attr_req( struct slp_client *client,
   local_addr_save = client->_local_addr;
   target_port_save = client->_target_port;
 
-   tv_save.tv_sec = client->_tv.tv_sec; 
-   client->_tv.tv_sec = 1; 
-  
-  // let the host decide which interface to use 
-  client->_local_addr = INADDR_ANY; 
+   tv_save.tv_sec = client->_tv.tv_sec;
+   client->_tv.tv_sec = 1;
+
+  // let the host decide which interface to use
+  client->_local_addr = INADDR_ANY;
   client->_target_addr = addr->sin_addr.s_addr;
   client->_target_port = addr->sin_port;
-  
+
   retries = client->_retries;
-  
+
   attr_req(client, url, scopes, tags, FALSE) ;
 
   while( retries && _LSLP_IS_EMPTY(&(client->replies))) {
@@ -1314,34 +1314,34 @@ void unicast_attr_req( struct slp_client *client,
   client->_target_addr = target_addr_save;
   client->_local_addr = local_addr_save;
   client->_target_port = target_port_save;
-  client->_tv.tv_sec = tv_save.tv_sec; 
+  client->_tv.tv_sec = tv_save.tv_sec;
   return;
 }
 
 
 
-// targeted to the loopback interface  
-void local_attr_req( struct slp_client *client, 
-		      const int8 *url, 
-		      const int8 *scopes, 
+// targeted to the loopback interface
+void local_attr_req( struct slp_client *client,
+		      const int8 *url,
+		      const int8 *scopes,
 		       const int8 *tags )
 {
   uint32 target_addr_save, local_addr_save;
   uint16 target_port_save;
-  
+
   struct timeval tv_save;
-  
+
   target_addr_save = client->_target_addr;
   target_port_save = client->_target_port;
   local_addr_save = client->_local_addr;
-  
+
   tv_save.tv_sec = client->_tv.tv_sec;
   tv_save.tv_usec = client->_tv.tv_usec;
   client->_tv.tv_sec = 0;
   client->_tv.tv_usec = 10000;
 
-  // let the host decide which interface to use 
-  client->_local_addr = INADDR_ANY; 
+  // let the host decide which interface to use
+  client->_local_addr = INADDR_ANY;
   client->_target_addr = inet_addr("127.0.0.1");
   client->_target_port = htons(427);
 
@@ -1351,7 +1351,7 @@ void local_attr_req( struct slp_client *client,
   client->_target_port = target_port_save;
   client->_local_addr = local_addr_save;
   client->_tv.tv_sec = tv_save.tv_sec;
-  
+
   client->_tv.tv_sec = tv_save.tv_sec;
   client->_tv.tv_usec = tv_save.tv_usec;
 
@@ -1362,9 +1362,9 @@ void local_attr_req( struct slp_client *client,
 
 
 // <<< Sat Jul 24 16:22:01 2004 mdd >>> attr request
-// workhorse attr request function 
-void attr_req( struct slp_client *client, 
-	       const int8 *url, 
+// workhorse attr request function
+void attr_req( struct slp_client *client,
+	       const int8 *url,
 	       const int8 *scopes,
 	       const int8 *tags,
 	       BOOL retry)
@@ -1372,14 +1372,14 @@ void attr_req( struct slp_client *client,
 
   if(TRUE == prepare_attr_query(client, (retry == TRUE) ? client->_xid : client->_xid + 1,
 				url, scopes, tags)) {
-    /* check for the multicast address and set the mcast flag if necessary */ 
+    /* check for the multicast address and set the mcast flag if necessary */
     if(client->_target_addr == _LSLP_MCAST || client->_target_addr == _LSLP_LOCAL_BCAST) {
 	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
     }
-    
+
     send_rcv_udp( client , retry);
   }
-  
+
   return;
 }
 
@@ -1402,7 +1402,7 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
 
   int8 *bptr;
   lslpMsg *reply;
-  
+
   int32 total_len, purported_len;
 
   bptr = client->_rcv_buf;
@@ -1417,27 +1417,27 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
   reply->hdr.flags = _LSLP_GETFLAGS(bptr);
   reply->hdr.nextExt = _LSLP_GETNEXTEXT(bptr);
   reply->hdr.xid = _LSLP_GETXID(bptr);
-  
-    
+
+
   reply->hdr.langLen = _LSLP_GETLANLEN(bptr);
   memcpy(reply->hdr.lang, bptr + LSLP_LAN_LEN + 2, (_LSLP_MIN(reply->hdr.langLen, 19)));
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(total_len < purported_len) {
-    
+
     /* process the attr rply */
     reply->hdr.errCode = reply->msg.attrRep.errCode = _LSLP_GETSHORT(bptr, 0);
     reply->msg.attrRep.attrListLen = _LSLP_GETSHORT(bptr, 2);
     if(reply->msg.attrRep.attrListLen + total_len < purported_len) {
-      
+
       total_len += 4;
       bptr += 4;
       reply->msg.attrRep.attrList = (int8 *)calloc(1, reply->msg.attrRep.attrListLen + 1);
       if(reply->msg.attrRep.attrList == NULL) abort();
       memcpy(reply->msg.attrRep.attrList, bptr, reply->msg.attrRep.attrListLen);
-      /* ignore auth blocks, they will be deprecated in next version of protocol */ 
-      
-      
-    } /* attr list len checks out */ 
+      /* ignore auth blocks, they will be deprecated in next version of protocol */
+
+
+    } /* attr list len checks out */
   } /* hdr len checks out */
   /* link the response to the client */
   _LSLP_INSERT(reply, &(client->replies));
@@ -1445,8 +1445,8 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
 
 
 /* failsafe against malformed messages. */
-/* if it sees a message it does not like, it simply returns */ 
-/* bad message is silently discarded. */ 
+/* if it sees a message it does not like, it simply returns */
+/* bad message is silently discarded. */
 
 
 void message_sanity_check(struct slp_client *client)
@@ -1454,41 +1454,41 @@ void message_sanity_check(struct slp_client *client)
   if( _LSLP_GETLENGTH(client->_rcv_buf) > LSLP_MTU ) {
     return;
   }
-  
+
   if( _LSLP_GETVERSION(client->_rcv_buf) != LSLP_PROTO_VER ) {
     return;
   }
-  
-  if ( _LSLP_GETFUNCTION(client->_rcv_buf) < LSLP_SRVRQST || 
+
+  if ( _LSLP_GETFUNCTION(client->_rcv_buf) < LSLP_SRVRQST ||
        _LSLP_GETFUNCTION(client->_rcv_buf) > LSLP_SAADVERT) {
     return;
   }
   return;
-  
+
 }
 
 
 
-void decode_msg( struct slp_client *client, 
+void decode_msg( struct slp_client *client,
 		 SOCKADDR_IN *remote )
 {
   int8 function, response;
-  
+
   message_sanity_check(client);
-  
+
 
   function = _LSLP_GETFUNCTION( client->_rcv_buf );
   if( client->_xid == _LSLP_GETXID( client->_rcv_buf )) {
-    if(function == LSLP_SRVRPLY || 
+    if(function == LSLP_SRVRPLY ||
        function == LSLP_ATTRRPLY ||
        function == LSLP_SRVTYPERPLY) {
       prepare_pr_buf( client, inet_ntoa(remote->sin_addr) );
     }
-    
+
   }
-  
+
   // <<< Fri Dec 21 15:47:06 2001 mdd >>>
-  // increment the correct function counters 
+  // increment the correct function counters
 
 
   switch(function) {
@@ -1509,7 +1509,7 @@ void decode_msg( struct slp_client *client,
   case LSLP_ATTRRPLY:
     decode_attr_rply( client, remote);
     return;
-    
+
   case LSLP_SRVTYPERQST:
     response = LSLP_SRVTYPERPLY;
     break;
@@ -1527,9 +1527,9 @@ void decode_msg( struct slp_client *client,
 
 
 
-/* this is a hack. but it will be consistent with the changes I envision */ 
+/* this is a hack. but it will be consistent with the changes I envision */
 /* for auth blocks and authenticated url entries */
-void decode_srvreg(struct slp_client *client, 
+void decode_srvreg(struct slp_client *client,
 		   SOCKADDR_IN *remote)
 {
   int8 *bptr, *url_string, *attr_string, *type_string, *scopes;
@@ -1537,26 +1537,26 @@ void decode_srvreg(struct slp_client *client,
   int32 total_len, purported_len;
   BOOL mcast;
   int16 str_len;
-  
+
   mcast = ( ((_LSLP_GETFLAGS( client->_rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? TRUE : FALSE   ) ;
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
-  
+
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(purported_len < LSLP_MTU && (total_len < purported_len)) {
     lslpURL *decoded_url;
     int16 diff, err;
     diff = purported_len - total_len;
-    
+
     /* decode the url entry */
     if(NULL != (decoded_url = lslpUnstuffURL(&bptr, &diff, &err))) {
       url_string = decoded_url->url;
       lifetime = (uint16)decoded_url->lifetime;
-      
+
       /* adjust pointers and size variables */
       /* bptr already adjusted by call to lslpUnstuffURL */
       total_len += ((purported_len - total_len) - diff);
-      
+
       /* decode the service type string */
       if((total_len + 2 + (str_len = _LSLP_GETSHORT(bptr, 0))) < purported_len) {
 	if(NULL != (type_string = (int8 *)malloc(str_len + 1))) {
@@ -1566,17 +1566,17 @@ void decode_srvreg(struct slp_client *client,
 	  /* adjust pointers and size variables */
 	  bptr += (2 + str_len);
 	  total_len += (2 + str_len);
-	  
+	
 	  /* decode the scope list */
 	  if((total_len + 2 + (str_len = _LSLP_GETSHORT(bptr, 0))) < purported_len) {
 	    if(NULL != (scopes = (int8 *)malloc(str_len + 1))) {
 	      memcpy(scopes, bptr + 2, str_len);
 	      *(scopes + str_len) = 0x00;
-	      
+	
 	      /* adjust pointers and size variables */
 	      bptr += (2 + str_len);
 	      total_len += (2 + str_len);
-	      
+	
 	      /* decode the attr list */
 	      if((total_len + 2 + (str_len = _LSLP_GETSHORT(bptr, 0))) < purported_len) {
 		if(NULL != (attr_string = (int8 *)malloc(str_len + 1))) {
@@ -1585,7 +1585,7 @@ void decode_srvreg(struct slp_client *client,
 		  /* adjust pointers and size variables */
 		  bptr += (2 + str_len);
 		  total_len += (2 + str_len);
-		  
+		
 		  /* decode the auth block list */
 		  /* lslpUnstuffAuthList( ) */
 		  __srv_reg_local(client, url_string, attr_string, type_string, scopes, lifetime);
@@ -1618,7 +1618,7 @@ void decode_srvrply( struct slp_client *client,
 {
   int8 *bptr, *xtptr, *xtn_limit;
   lslpMsg *reply;
-  
+
   int16 err, count, buf_len;
   int32 total_len, purported_len;
 
@@ -1639,19 +1639,19 @@ void decode_srvrply( struct slp_client *client,
   reply->hdr.flags = _LSLP_GETFLAGS(bptr);
   reply->hdr.nextExt = _LSLP_GETNEXTEXT(bptr);
   reply->hdr.xid = _LSLP_GETXID(bptr);
-  
+
   if((reply->hdr.nextExt != 0x00000000) && (reply->hdr.nextExt < reply->hdr.len )) {
     xtptr = client->_rcv_buf + reply->hdr.nextExt;
     xtn_limit = xtptr + reply->hdr.len;
   }
-  else { xtptr = NULL; } 
-  
+  else { xtptr = NULL; }
+
   reply->hdr.langLen = _LSLP_GETLANLEN(bptr);
   memcpy(reply->hdr.lang, bptr + LSLP_LAN_LEN + 2, (_LSLP_MIN(reply->hdr.langLen, 19)));
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(total_len < purported_len) {
     int32 next_ext = 0;
-    
+
     /* process the srvrply */
     reply->hdr.errCode = reply->msg.srvRply.errCode = _LSLP_GETSHORT(bptr, 0);
     reply->msg.srvRply.urlCount = (count = _LSLP_GETSHORT(bptr, 2));
@@ -1662,10 +1662,10 @@ void decode_srvrply( struct slp_client *client,
       if( NULL == (reply->msg.srvRply.urlList = lslpAllocURLList()))
 	abort();
       if(NULL != xtptr) {
-	if( NULL == (reply->msg.srvRply.attr_list = lslpAllocAtomList())) 
+	if( NULL == (reply->msg.srvRply.attr_list = lslpAllocAtomList()))
 	  abort();
       }
-            
+
       buf_len = LSLP_MTU - total_len;
       /* get the urls */
       while(count-- && buf_len > 0 ) {
@@ -1693,7 +1693,7 @@ void decode_srvrply( struct slp_client *client,
       while((NULL != xtptr) && (xtptr + 9 < xtn_limit )) {
 	next_ext = _LSLP_GET3BYTES(xtptr, 2);
 	if(0x0002 == _LSLP_GETSHORT(xtptr, 0)) {
-	  
+	
 	  //BOOL lslp_pattern_match(const int8 *string, const int8 *pattern, BOOL case_sensitive)
 	  /* find the correct url to associate this attribute extension. */
 	  lslpURL *rply_url = reply->msg.srvRply.urlList;
@@ -1735,7 +1735,7 @@ void decode_srvrply( struct slp_client *client,
 	    free(url_buf);
 	  } /* if the reply contains urls */
 	} /* correct extension */
-	if( next_ext == 0 ) 
+	if( next_ext == 0 )
 	  break;
 	xtptr = client->_rcv_buf + next_ext;
       } /* traversing extensions */
@@ -1793,7 +1793,7 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 	  total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
 	  if(total_len < purported_len) {
 	    struct da_list * exists;
-	    
+	
 	    if(str_len > 0 ) {
 	      if(NULL == (adv->spi = (int8 *)malloc(str_len + 1)))
 		abort();
@@ -1804,7 +1804,7 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 	    /* advance the pointer past the spi string  */
 	    bptr += (str_len + 2);
 	    adv->auth_blocks = _LSLP_GETBYTE(bptr, 0);
-	    
+	
 	    // if we already know about this da, remove the existing
 	    // entry from our cache and insert this new entry
 	    // maybe the stateless boot field changed or the da
@@ -1816,12 +1816,12 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 	    }
 	    /* need code here to handle authenticated urls */
 	    strcpy(&(adv->remote[0]), inet_ntoa(remote->sin_addr)) ;
-	    _LSLP_INSERT(adv, &(client->das)) 
+	    _LSLP_INSERT(adv, &(client->das))
 	    return;
 	  } /*  spi length field is consistent with hdr */
 	} /* attr length field is consistent with hdr */
       } /*  scope length field is consistent with hdr */
-    } 
+    }
     free_da_list_node(adv);
   }
   return;
@@ -1830,23 +1830,23 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 
 void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 {
-  
+
   int8 *bptr, *bptrSave;
   int32 total_len, purported_len;
   BOOL mcast;
   struct lslp_srv_rply_out *rp_out = NULL;
   struct lslp_srv_req *rq = NULL;
   int16 str_len, buf_len, err = LSLP_PARSE_ERROR ;
-  
+
   mcast = ( ((_LSLP_GETFLAGS( client->_rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? TRUE : FALSE   ) ;
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
-  
+
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(purported_len < LSLP_MTU && (total_len < purported_len)) {
     if( ! _LSLP_IS_EMPTY((lslpSrvRegList *)&(client->regs))) {
       // advance past the slp v2 header
-      // get the previous responder list 
+      // get the previous responder list
       str_len = _LSLP_GETSHORT(bptr, 0);
       if ((str_len + total_len + 2) < purported_len ) {
 	if( FALSE == slp_previous_responder( client, (str_len ? bptr + 2 : NULL ) )) {
@@ -1854,7 +1854,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	  if( NULL != rq) {
 	    bptr += 2 + str_len;
 	    total_len += 2 + str_len;
-	    // extract the service type string 
+	    // extract the service type string
 	    rq->srvcTypeLen = (str_len = _LSLP_GETSHORT(bptr, 0));
 	    if(str_len && (str_len + total_len + 2 < purported_len )) {
 	      rq->srvcType = (int8 *)malloc(str_len + 1);
@@ -1866,7 +1866,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	      *(rq->srvcType + str_len) = 0x00;
 	      bptr += 2 + str_len;
 	      total_len += 2 + str_len;
-	      
+	
 	      bptrSave = bptr;
 	      buf_len = LSLP_MTU - total_len;
 	      rq->scopeList = lslpUnstuffScopeList(&bptr, &buf_len, &err);
@@ -1884,7 +1884,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 		      *(rq->predicate + str_len) = 0x00;
 		    }
 		  } /* predicate */
-		  
+		
 		  bptr += str_len + 2;
 		  total_len += str_len + 2;
 		  /* get the spi list */
@@ -1903,7 +1903,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 		  /* initialize the scratch buffer before processing the srvrq */
 		  /* that way we can know if there are extensions if the first 5 bytes changed */
 		  memset(client->_scratch, 0x00, LSLP_MTU);
-		  
+		
 		  _LSLP_SETSHORT(client->_scratch, 0x0000, 0);
 		  _LSLP_SET3BYTES(client->_scratch, 0x00000000, 2);
 		  rp_out = _lslpProcessSrvReq(client, rq, 0);
@@ -1916,16 +1916,16 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
     } /* we have regs */
 
     if(mcast == FALSE || (rp_out != NULL && rp_out->urlCount > 0 )) {
-      SOCKETD sock; //jeb 
+      SOCKETD sock; //jeb
       int8 *extptr, *next_extptr, *next_extptr_save;
       int32 ext_offset;
-      
+
       // we need to respond to this message
       _LSLP_SETVERSION(client->_msg_buf, LSLP_PROTO_VER);
       _LSLP_SETFUNCTION(client->_msg_buf, LSLP_SRVRPLY);
       // skip the length for now
       _LSLP_SETFLAGS(client->_msg_buf, 0);
-      
+
       _LSLP_SETNEXTEXT(client->_msg_buf, 0);
       _LSLP_SETXID( client->_msg_buf, ( _LSLP_GETXID(client->_rcv_buf)));
       _LSLP_SETLAN(client->_msg_buf, LSLP_EN_US, LSLP_EN_US_LEN);
@@ -1956,7 +1956,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
       extptr = client->_scratch;
       next_extptr = client->_msg_buf + LSLP_NEXT_EX;
       ext_offset = (int32)(bptr - client->_msg_buf);
-      
+
       if ( 0x0002 == (_LSLP_GETSHORT(extptr, 0))) {
 	/* set the next extension field in the header */
 	_LSLP_SET3BYTES(next_extptr, ext_offset, 0);
@@ -1985,7 +1985,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	    /* adjust the pointers */
 	    ext_offset += ext_len;
 	    next_extptr = client->_msg_buf + ext_offset + 2;
-	    
+	
 	    /* minimum length of attr extension is 10 bytes - see if we should continue */
 	    if(total_len + 10 >= LSLP_MTU) {
 	      /* no room, set next ext field in this extension to zero */
@@ -1997,20 +1997,20 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	      break;
 	    } /* no more room */
 	  }  else  {
-	    _LSLP_SET3BYTES(next_extptr_save, 0x00000000, 0); 
-	  } 
+	    _LSLP_SET3BYTES(next_extptr_save, 0x00000000, 0);
+	  }
 	} /* while there are extensions */
 	/* terminate the last extension */
-	_LSLP_SET3BYTES(next_extptr_save, 0x00000000, 0); 
+	_LSLP_SET3BYTES(next_extptr_save, 0x00000000, 0);
       } /* if there is at least one extension */
 	
       // ok, now we can set the length
       _LSLP_SETLENGTH(client->_msg_buf, total_len );
-      
+
       _LSLP_SETSHORT(client->_scratch, 0x0000, 0);
       _LSLP_SET3BYTES(client->_scratch, 0x00000000, 2);
-      // client->_msg_buf is stuffed with the service reply. now we need 
-      // to allocate a socket and send it back to the requesting node 
+      // client->_msg_buf is stuffed with the service reply. now we need
+      // to allocate a socket and send it back to the requesting node
 
       if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 	SOCKADDR_IN local;
@@ -2019,18 +2019,18 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	_LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
 #endif	
 	local.sin_family = AF_INET;
-	local.sin_port = client->_target_port ; 
+	local.sin_port = client->_target_port ;
 	local.sin_addr.s_addr = client->_local_addr;
 	if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
 	  if(mcast == TRUE ) {
 	    _LSLP_SLEEP(rand() % 30 );
 	  }
-	  _LSLP_SENDTO(sock, client->_msg_buf, total_len , 0, 
+	  _LSLP_SENDTO(sock, client->_msg_buf, total_len , 0,
 		       remote, sizeof(SOCKADDR_IN )) ;
-	} // successfully bound this socket 
+	} // successfully bound this socket
 	_LSLP_CLOSESOCKET(sock);
       } // successfully opened this socket
-    } // we must respond to this request 
+    } // we must respond to this request
 
     /* free resources */
     if(rq != NULL){
@@ -2059,13 +2059,13 @@ BOOL  srv_reg(struct slp_client *client,
 	      const int8 *attributes,
 	      const int8 *service_type,
 	      const int8 *scopes,
-	      int16 lifetime) 
+	      int16 lifetime)
 {
   int32 len;
   int16 str_len, buf_len;
   int8 *bptr;
   lslpURL *url_entry = NULL;
-  
+
   /* this is always a new request */
   memset( client->_pr_buf, 0x00, LSLP_MTU);
   client->_pr_buf_len = 0;
@@ -2090,7 +2090,7 @@ BOOL  srv_reg(struct slp_client *client,
   url_entry->url = strdup(url);
   url_entry->auths = 0;
   buf_len = LSLP_MTU - len;
-  
+
   if( TRUE == lslpStuffURL(&bptr, &buf_len, url_entry )) {
     len = LSLP_MTU - buf_len ;
     /* stuff the service type string */
@@ -2106,11 +2106,11 @@ BOOL  srv_reg(struct slp_client *client,
       /* stuff the scope list if there is one */
       if(scopes == NULL)
 	str_len = 0;
-      else 
-	str_len = (int16)strlen(scopes);	  
+      else
+	str_len = (int16)strlen(scopes);	
       if(len + 2 + str_len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, str_len, 0);
-	if(str_len) 
+	if(str_len)
 	  memcpy(bptr + 2, scopes, str_len);
 	len += (2 + str_len);
 	bptr += (2 + str_len);
@@ -2123,11 +2123,11 @@ BOOL  srv_reg(struct slp_client *client,
 	  _LSLP_SETSHORT(bptr, str_len, 0);
 	  if(str_len)
 	    memcpy(bptr + 2, attributes, str_len);
-		  
+		
 	  len += ( 2 + str_len);
 	  bptr += (2 + str_len);
 
-	  /* <<< Thu Jun 10 09:03:11 2004 mdd >>> force no authentication blocks */ 
+	  /* <<< Thu Jun 10 09:03:11 2004 mdd >>> force no authentication blocks */
 
 	  /* no attribute auths for now */
 	  if(len + 1 < LSLP_MTU) {
@@ -2136,7 +2136,7 @@ BOOL  srv_reg(struct slp_client *client,
 	  len += 1;
 	  /* set the length field in the header */
 	  _LSLP_SETLENGTH( client->_msg_buf, len );
-	  
+	
 	  retries = client->_retries;
 	  while( --retries ) {
 	    if(TRUE == send_rcv_udp(client, TRUE)) {
@@ -2145,11 +2145,11 @@ BOOL  srv_reg(struct slp_client *client,
 		  memset(client->_msg_buf, 0x00, LSLP_MTU);
 		  if(url_entry != NULL)
 		    lslpFreeURL(url_entry);
-		  return(TRUE); 
+		  return(TRUE);
 		}
 	      }
-	    } // received a response 
-	  } // retrying the unicast 
+	    } // received a response
+	  } // retrying the unicast
 	} /* attribute string fits into buffer */
       } /* scope string fits into buffer  */
     } /* service type fits into buffer  */
@@ -2167,7 +2167,7 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
   SOCKETD sock;               //jeb
   SOCKADDR_IN target, local;
   BOOL ccode = FALSE;
-  
+
   if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
     int err = 1;
 #ifndef NUCLEUS    //jeb
@@ -2178,12 +2178,12 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
 #endif
     local.sin_family = AF_INET;
 
-//jeb    
+//jeb
     local.sin_addr.s_addr = client->_local_addr;
     if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
       int bcast = ( (_LSLP_GETFLAGS(client->_msg_buf)) & LSLP_FLAGS_MCAST) ? 1 : 0 ;
       if(bcast) {
-	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, client->_ttl) )  ||  
+	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, client->_ttl) )  ||
 	    (SOCKET_ERROR == _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_BROADCAST, (const int8 *)&bcast, sizeof(bcast)))) {
 	  _LSLP_CLOSESOCKET(sock);
 	  return(FALSE);
@@ -2203,35 +2203,39 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
       target.sin_addr.s_addr = client->_target_addr;
 
 
-      if(SOCKET_ERROR == (err = _LSLP_SENDTO(sock, 
-					     client->_msg_buf, 
-					     _LSLP_GETLENGTH(client->_msg_buf), 
-					     0, 
+      if(SOCKET_ERROR == (err = _LSLP_SENDTO(sock,
+					     client->_msg_buf,
+					     _LSLP_GETLENGTH(client->_msg_buf),
+					     0,
 					     &target, sizeof(target) ))) {
 	_LSLP_CLOSESOCKET(sock);
 	return(FALSE);
       } /* oops - error sending data */
 
-      while ( 0 < __service_listener(client, sock ) ) { 
-	ccode = TRUE; 
-	if(retry == FALSE) 
-	  break;
+      while ( 0 < __service_listener(client, sock ) ) {
+           ccode = TRUE;
+           // Removing as a temporary fix for bugzilla 2166.
+           // Need to look for a better fix later
+#if 0
+           if(retry == FALSE)
+               break;
+#endif
       }
-    } // bound the socket 
+    } // bound the socket
     _LSLP_CLOSESOCKET(sock);
   } /*  got the socket */
   return(ccode);
 }
-     
 
-int32 service_listener_wait(struct slp_client *client, 
-			       time_t wait, 
-			       SOCKETD extra_sock, 
-			       BOOL one_only, 
+
+int32 service_listener_wait(struct slp_client *client,
+			       time_t wait,
+			       SOCKETD extra_sock,
+			       BOOL one_only,
 			       lslpMsg *list)
 {
   int32 ccode = 0;
-  
+
   if(list != NULL) {
     list->isHead = TRUE;
     list->prev = list->next = list;
@@ -2264,11 +2268,11 @@ int32 __service_listener_wait(struct slp_client *client, time_t wait, SOCKETD ex
 int32 service_listener(struct slp_client *client, SOCKETD extra_sock, lslpMsg *list)
 {
   int32 ccode = 0;
-  
+
   if(list != NULL ) {
     list->isHead = TRUE;
     list->prev = list->next = list;
-    
+
     ccode = __service_listener(client, extra_sock);
     get_response(client, list);
   }
@@ -2279,7 +2283,7 @@ int32 service_listener(struct slp_client *client, SOCKETD extra_sock, lslpMsg *l
 int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //jeb
 {
 
-  struct timeval tv; 
+  struct timeval tv;
   int32 err;
   LSLP_FD_SET fds;
   _LSLP_FD_ZERO(&fds);
@@ -2294,8 +2298,8 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
     err = -1;
     tv.tv_sec = client->_tv.tv_sec;
     tv.tv_usec = client->_tv.tv_usec;
-    err = _LSLP_SELECT(((client->_rcv_sock != INVALID_SOCKET) && 
-			(client->_rcv_sock > extra_sock)) ? 
+    err = _LSLP_SELECT(((client->_rcv_sock != INVALID_SOCKET) &&
+			(client->_rcv_sock > extra_sock)) ?
 		       client->_rcv_sock + 1: extra_sock + 1, &fds, NULL, NULL, &tv);
 
     // was there some data?
@@ -2303,29 +2307,29 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
     {   //yes
         SOCKADDR_IN remote;
         int size = sizeof(SOCKADDR_IN);
-        
-        if (client->_rcv_sock != INVALID_SOCKET) 
+
+        if (client->_rcv_sock != INVALID_SOCKET)
         {
-          if (_LSLP_FD_ISSET(client->_rcv_sock, &fds)) 
+          if (_LSLP_FD_ISSET(client->_rcv_sock, &fds))
           {
      	    err = _LSLP_RECV_FROM(client->_rcv_sock, client->_rcv_buf, LSLP_MTU, 0, &remote, &size);
           }
         }
-        //did we receive data or invalid socket 
-        if (err > 0 ) 
+        //did we receive data or invalid socket
+        if (err > 0 )
         {
-          //go decode the inbound message 
+          //go decode the inbound message
           decode_msg( client, &remote );
           return(err);
         }
         else //error on receive or invalid socket
         {
           _system_info(TRUE,"%s:Receive error=%d,skt=%d",fun_name, err, client->_rcv_sock);
-          //close our socket 
+          //close our socket
           _LSLP_CLOSESOCKET(client->_rcv_sock );
 
           //go check if the interface is still up
-          if ((slp_get_local_interfaces( &(client->_local_addr_list))) > 0  ) 
+          if ((slp_get_local_interfaces( &(client->_local_addr_list))) > 0  )
           {
              if(client->_rcv_sock != INVALID_SOCKET)
       	        client->_rcv_sock = slp_open_listen_sock();
@@ -2334,24 +2338,24 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
           return(err);
         }
     }
-    //was it just no data yet 
-    else if (err == NU_NO_DATA) 
+    //was it just no data yet
+    else if (err == NU_NO_DATA)
     {
       //This is OK just return to retry select again later
       return(err);
     }
-    //see if other than we time-out with no data 
-    else  
+    //see if other than we time-out with no data
+    else
     {
       _system_info(TRUE,"%s:Select:sck error=%d,sck=%d",fun_name, err,client->_rcv_sock);
-      
-      // our interfaces could be disconnected or we could be a laptop that 
-      // just got pulled from the network, etc. 
-      //close our socket 
+
+      // our interfaces could be disconnected or we could be a laptop that
+      // just got pulled from the network, etc.
+      //close our socket
       _LSLP_CLOSESOCKET(client->_rcv_sock );
 
       //go check if the interface is still up
-      if ((slp_get_local_interfaces( &(client->_local_addr_list))) > 0  ) 
+      if ((slp_get_local_interfaces( &(client->_local_addr_list))) > 0  )
       {
          if(client->_rcv_sock != INVALID_SOCKET)
       	    client->_rcv_sock = slp_open_listen_sock();
@@ -2362,22 +2366,22 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
 
 #else //all other OS's
 
-   do { 
+   do {
      tv.tv_sec = client->_tv.tv_sec;
      tv.tv_usec = client->_tv.tv_usec;
-     err = _LSLP_SELECT(((client->_rcv_sock != INVALID_SOCKET) && 
-			 (client->_rcv_sock > extra_sock)) ? 
-			client->_rcv_sock + 1: extra_sock + 1, &fds, NULL, NULL, &tv); 
+     err = _LSLP_SELECT(((client->_rcv_sock != INVALID_SOCKET) &&
+			 (client->_rcv_sock > extra_sock)) ?
+			client->_rcv_sock + 1: extra_sock + 1, &fds, NULL, NULL, &tv);
    } while ( (err < 0 )&& (errno == EINTR)) ;
-  
-   
+
+
    if( 0 < err ) {
      SOCKADDR_IN remote;
      int size = sizeof(SOCKADDR_IN);
      if(client->_rcv_sock != INVALID_SOCKET ) {
        if(_LSLP_FD_ISSET(client->_rcv_sock, &fds)) {
- 	 err = _LSLP_RECV_FROM(client->_rcv_sock, client->_rcv_buf, LSLP_MTU, 0, &remote, &size); 
- 	 decode_msg( client, &remote ); 
+ 	 err = _LSLP_RECV_FROM(client->_rcv_sock, client->_rcv_buf, LSLP_MTU, 0, &remote, &size);
+ 	 decode_msg( client, &remote );
        }
      }
 
@@ -2388,14 +2392,14 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
    }
 
    if (err == SOCKET_ERROR) {
-     // our interfaces could be disconnected or we could be a laptop that 
-     // just got pulled from the network, etc. 
+     // our interfaces could be disconnected or we could be a laptop that
+     // just got pulled from the network, etc.
      _LSLP_CLOSESOCKET(client->_rcv_sock );
      if( 0 < slp_get_local_interfaces( &(client->_local_addr_list) ) ) {
        if(client->_rcv_sock != INVALID_SOCKET)
 	 client->_rcv_sock = slp_open_listen_sock();
      }
-   } 
+   }
    return(err);
 #endif
 
@@ -2410,7 +2414,7 @@ int srv_reg_all( struct slp_client *client,
 {
   uint32 target_addr_save;
   int convergence_save;
-  
+
   // keep track of how many times we register
   int registrations = 0;
 
@@ -2418,11 +2422,11 @@ int srv_reg_all( struct slp_client *client,
   if(client == NULL || url == NULL || attributes == NULL || service_type == NULL || scopes == NULL )
     return(0);
 
-  // save target and convergence parameters 
+  // save target and convergence parameters
   target_addr_save = client->_target_addr;
   convergence_save = client->_convergence;
   client->_convergence = 0;
-  
+
   if(  client->_use_das == TRUE ) {
     find_das(client, NULL, scopes) ;
     if( ! _LSLP_IS_EMPTY(&(client->das)) ) {
@@ -2435,27 +2439,27 @@ int srv_reg_all( struct slp_client *client,
       }
     }
   }
-  // restore parameters 
+  // restore parameters
   client->_convergence = convergence_save;
   client->_target_addr = target_addr_save;
   /* do a unicast srvreg if we have the target set */
   if(client->_target_addr != _LSLP_MCAST) {
     if( TRUE == srv_reg( client, url, attributes, service_type, scopes, lifetime) )
       registrations++;
-  } 
+  }
   return(registrations);
 }
 
-int  srv_reg_local(struct slp_client *client, 
+int  srv_reg_local(struct slp_client *client,
 		   const int8 *url,
 		   const int8 *attributes,
 		   const int8 *service_type,
 		   const int8 *scopes,
 		   uint16 lifetime)
-     
+
 {
   int count = 0;
-    
+
   uint32 target_addr_save;
   int convergence_save;
   assert(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
@@ -2468,11 +2472,11 @@ int  srv_reg_local(struct slp_client *client,
   client->_target_addr = inet_addr("127.0.0.1");
   if(TRUE == srv_reg(client, url, attributes, service_type, scopes, lifetime))
     count = 1;
-  
+
   client->_convergence = convergence_save;
   client->_target_addr = target_addr_save;
   return count;
-  
+
 }
 
 /* Note: this is how srv_reg_local will look with authentication support */
@@ -2491,37 +2495,37 @@ int  srv_reg_local(struct slp_client *client,
 /* } */
 
 
-void __srv_reg_local ( struct slp_client *client, 
+void __srv_reg_local ( struct slp_client *client,
 		       const int8 *url,
-		       const int8 *attributes, 
-		       const int8 *service_type, 
-		       const int8 *scopes, 
-		       uint16 lifetime)   //jeb int16 to uint16  
+		       const int8 *attributes,
+		       const int8 *service_type,
+		       const int8 *scopes,
+		       uint16 lifetime)   //jeb int16 to uint16
 {
 
   int8 *url_copy;
   lslpSrvRegList *reg;
-  
+
   assert(client != NULL && url != NULL && attributes != NULL && \
 	 service_type != NULL && scopes != NULL);
-  
+
   url_copy = strdup(url);
   if(url_copy == NULL)
     abort();
-  
+
   /* update the attributes if an existing registration */
   reg   = client->regs.next;
-  while(! _LSLP_IS_HEAD(reg)) { 
-    if ( 0 == lslp_string_compare(url_copy, reg->url->url)){ 
+  while(! _LSLP_IS_HEAD(reg)) {
+    if ( 0 == lslp_string_compare(url_copy, reg->url->url)){
       free(url_copy);
       reg->directoryTime = lifetime + time(NULL);
-      reg->url->lifetime = lifetime + time(NULL); 
+      reg->url->lifetime = lifetime + time(NULL);
       if(reg->attrList != NULL)
-	lslpFreeAttrList(reg->attrList, LSLP_DESTRUCTOR_DYNAMIC); 
-      reg->attrList = _lslpDecodeAttrString((int8 *)attributes); 
-      return; 
-    } 
-    reg = reg->next; 
+	lslpFreeAttrList(reg->attrList, LSLP_DESTRUCTOR_DYNAMIC);
+      reg->attrList = _lslpDecodeAttrString((int8 *)attributes);
+      return;
+    }
+    reg = reg->next;
   }
   reg = (lslpSrvRegList *)calloc(1, sizeof(lslpSrvRegList));
   if(reg != NULL){
@@ -2570,32 +2574,32 @@ BOOL slp_previous_responder(struct slp_client *client, int8 *pr_list)
   return(FALSE);
 }
 
-struct slp_client *create_slp_client(const int8 *target_addr, 
-				     const int8 *local_interface, 
-				     uint16 target_port, 
-				     const int8 *spi, 
+struct slp_client *create_slp_client(const int8 *target_addr,
+				     const int8 *local_interface,
+				     uint16 target_port,
+				     const int8 *spi,
 				     const int8 *scopes,
-				     BOOL should_listen, 
+				     BOOL should_listen,
 				     BOOL use_das)
 {
   int16 len;
   struct slp_client *client;
   int8 *scope_copy;
-  
-  
+
+
   if(spi == NULL || scopes == NULL )
     return NULL;
-  
+
   client = (struct slp_client *)calloc(1, sizeof(struct slp_client)); //jeb
   if(client == NULL)
     return NULL;
-  
+
 #ifdef _WIN32
   WindowsStartNetwork();
-  
+
 #endif
 
-  /* initialize the random number generator for randomizing the 
+  /* initialize the random number generator for randomizing the
      timing of multicast responses */
   srand(time(NULL));
 
@@ -2623,7 +2627,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
     free(client);
     return NULL;
   }
-  
+
   len = (int16)strlen(scope_copy) + 1;
   client->_spi = lslpScopeStringToList(scope_copy, len);
   free(scope_copy);
@@ -2639,7 +2643,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   client->_tv.tv_usec = TICKS_PER_SECOND; //socket call with timer UINT32
 #else
   client->_tv.tv_usec = 200000;     //.2 sec
-#endif 
+#endif
 
   client->_use_das = use_das;
   client->_retries = 3;
@@ -2648,13 +2652,13 @@ struct slp_client *create_slp_client(const int8 *target_addr,
 
   client->das.isHead = TRUE;
   client->das.next = client->das.prev = &(client->das);
-  
+
   client->replies.isHead = TRUE;
   client->replies.next = client->replies.prev = &(client->replies);
-  
+
   client->regs.isHead = TRUE;
   client->regs.next = client->regs.prev = (lslpSrvRegList *)&(client->regs);
-  
+
   client->_local_addr_list = NULL;
   slp_get_local_interfaces(&(client->_local_addr_list));
 
@@ -2664,7 +2668,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
     client->_rcv_sock = slp_open_listen_sock();
   }
   if(client->_use_das == TRUE) {
-    local_srv_req(client, NULL, NULL, "DEFAULT"); 
+    local_srv_req(client, NULL, NULL, "DEFAULT");
     if( ! _LSLP_IS_EMPTY(&(client->das))) {
       client->_rcv_sock = INVALID_SOCKET;
       client->_use_das = TRUE;
@@ -2672,13 +2676,13 @@ struct slp_client *create_slp_client(const int8 *target_addr,
       client->_da_target_addr = inet_addr("127.0.0.1");
     }
   }
-  
+
 
   /* field and record separators */
   client->_use_separators = FALSE;
   client->_fs = '\0';
   client->_rs = '\0';
-  
+
 
   client->get_response = get_response;
   client->find_das = find_das;
@@ -2687,13 +2691,13 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   client->unicast_srv_req = unicast_srv_req;
   client->local_srv_req = local_srv_req;
   client->srv_req = srv_req;
-  
+
   client->converge_attr_req = converge_attr_req;
   client->unicast_attr_req = unicast_attr_req;
   client->local_attr_req = local_attr_req;
   client->attr_req = attr_req;
   client->decode_attr_rply = decode_attr_rply;
-  
+
   client->srv_reg = srv_reg;
   client->srv_reg_all = srv_reg_all;
   client->srv_reg_local = srv_reg_local;
@@ -2703,21 +2707,21 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   client->decode_srvreq = decode_srvreq;
   client->decode_srvrply = decode_srvrply;
   client->decode_attrreq = decode_attrreq;
-  
+
   client->decode_daadvert = decode_daadvert;
   client->send_rcv_udp = send_rcv_udp;
   client->service_listener_wait = service_listener_wait;
   client->slp_previous_responder = slp_previous_responder;
-  
+
   return client;
 }
 
 void destroy_slp_client(struct slp_client *client)
 {
-  
+
   if(client == NULL)
     return;
-  
+
   _LSLP_CLOSESOCKET(client->_rcv_sock);
   _LSLP_FREE_DEINIT(client->_local_addr_list);
   lslpFreeScopeList((lslpScopeList *)(client->_spi));
@@ -2732,35 +2736,35 @@ void destroy_slp_client(struct slp_client *client)
 /* size of returned buffer will be ((3 * length) + 3 + 2) */
 int8 *encode_opaque(void *buffer, int16 length)
 {
-  static int8 transcode[16] = 
-    { 
-      '0', '1', '2', '3', '4', '5', '6', '7', 
+  static int8 transcode[16] =
+    {
+      '0', '1', '2', '3', '4', '5', '6', '7',
       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
-  
+
   int8 *bptr, *srcptr, *buf;
   int32 encoded_length;
-  
+
   if(buffer == NULL || length == 0)
     return(NULL);
-  
+
   encoded_length = (length * 3) + 5;
   /* see if the encoded length will overflow the max size of an slp string */
   if( 0xffff0000 & encoded_length )
     return NULL;
-  
+
   buf = (int8 *) malloc(encoded_length);
   if(buf == NULL)
     return NULL;
   bptr = buf;
-  
+
   /* encode the length */
   _LSLP_SETSHORT(bptr, (int16)encoded_length, 0);
   bptr += 2;
   srcptr = (int8 *)buffer;
   *bptr = 0x5c; *(bptr + 1) = 0x66; *(bptr + 2) = 0x66;
   bptr += 3;
-  
+
   while(length){
     *bptr = 0x5c;
     *(bptr + 1) = transcode[((*srcptr) & 0xf0) >> 4];
@@ -2776,7 +2780,7 @@ int8 *encode_opaque(void *buffer, int16 length)
 /* ((size of escaped opaque string - 2) / 3) - 1  */
 void *decode_opaque(int8 *buffer)
 {
-  
+
   int16 encoded_length, alloc_length;
   int8 *bptr, *srcptr, *retptr;
 
@@ -2790,10 +2794,10 @@ void *decode_opaque(int8 *buffer)
   if(0 == encoded_length || 0 > encoded_length)
     return NULL;
   alloc_length = (encoded_length / 3) - 1;
-  
+
   srcptr += 2;
-  encoded_length -= 2; 
-  
+  encoded_length -= 2;
+
   /* check the header */
   if( *srcptr == 0x5c ){
     if( (*(srcptr + 1) == 0x46) || (*(srcptr + 1) == 0x66 ) ) {
@@ -2823,7 +2827,7 @@ void *decode_opaque(int8 *buffer)
 	    if( *(srcptr + 2) < 0x3a && *(srcptr + 2) > 0x2f){
 	      /* asci decimal char */
 	      accumulator += *(srcptr + 2) - 0x30;
-	    } 
+	    }
 	    else if( *(srcptr + 2) < 0x47 && *(srcptr + 2) > 0x40){
 	      accumulator += *(srcptr + 2) - 0x37;
 	    }
@@ -2863,18 +2867,18 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
   lslpScopeList *scopes;
   lslpAttrList *attr_tags, *attr_return;
   lslpSrvRegList *regs;
-  
+
   int16 str_len, buf_len, err = 0, parse_err;
   int32 total_len, purported_len;
-  
+
   /* read the length from the slp header */
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
   if(purported_len > LSLP_MTU )
     return;
-  
+
   bptr += (total_len = _LSLP_HDRLEN(bptr));
-  
+
   /* use total_len as a running count of the msg length, ensure it is */
   /* consistent with the purported length to protect against overflow */
   if(total_len < purported_len){
@@ -2914,7 +2918,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 
 		 regs = client->regs.next;
 		 attr_return = NULL;
-		 
+		
 		 while(! _LSLP_IS_HEAD(regs) ){
 		   if( ! lslp_string_compare(regs->url->url, url->url)) {
 		     /* we have a hit on the url, see if the scopes intersect */
@@ -2926,7 +2930,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		   }
 		   regs = regs->next;
 		 }
-		 
+		
 		 /* stuff the attribute reply */
 
 		 _LSLP_SETVERSION(client->_msg_buf, LSLP_PROTO_VER);
@@ -2938,15 +2942,15 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		 _LSLP_SETLAN(client->_msg_buf, LSLP_EN_US, LSLP_EN_US_LEN);
 		 total_len = _LSLP_HDRLEN(client->_msg_buf);
 
-		 
+		
 		 bptr = client->_msg_buf + total_len;
 		 _LSLP_SETSHORT(bptr, err, 0);
 		 bptr += 2;
 		 total_len += 2;
-		 
+		
 		 buf_len = LSLP_MTU - (total_len + 1);
 		 bptrSave = bptr;
-		 
+		
 		 /* stuff the attr list */
 
 		 if( FALSE == lslpStuffAttrList(&bptr, &buf_len, attr_return, attr_tags)){
@@ -2959,31 +2963,31 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		 /* for now don't support auth blocks */
 
 		 _LSLP_SETBYTE(bptr, 0, 0);
-		 
+		
 		 /* to calculate the length, re-read the attr list length */
 		 total_len +=(2 + _LSLP_GETSHORT(bptrSave, 0));
 		 /* add the length of the auth block (zero plus the number of auths) */
 		 total_len += 1;
-		 
+		
 		// ok, now we can set the length
 		_LSLP_SETLENGTH(client->_msg_buf, total_len );
 		
 /* 		client->_msg_buf is stuffed with the attr reply. now we need  */
 /* 		to allocate a socket and send it back to the requesting node  */
 
-		/* only send the response if there is an attribute or if this is a unicast */ 
+		/* only send the response if there is an attribute or if this is a unicast */
 //		if(attr_tags != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
 		  if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 		    SOCKADDR_IN local;
 		    int err = 1;
 #ifndef NUCLEUS
 		    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif		  
+#endif		
 		    local.sin_family = AF_INET;
-		    local.sin_port = client->_target_port ; 
+		    local.sin_port = client->_target_port ;
 		    local.sin_addr.s_addr = client->_local_addr;
 		    if(SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local))) {
-		      _LSLP_SENDTO(sock, client->_msg_buf, total_len , 0, 
+		      _LSLP_SENDTO(sock, client->_msg_buf, total_len , 0,
 				   (remote), sizeof(SOCKADDR_IN )) ;
 		    } /*  successfully bound this socket  */
 		    _LSLP_CLOSESOCKET(sock);
@@ -2995,7 +2999,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 	       } /* scopes intersect */
 	       if(scopes)
 		 lslpFreeScopeList(scopes);
-	       
+	
 	     } /* url string allocated */
 	     if(url)
 	       lslpFreeURL(url);
@@ -3029,7 +3033,7 @@ int8 *lslp_foldString(int8 *s)
     src++;
     if(isspace(*src)) {
       *dst = *src;
-      dst++; 
+      dst++;
       src++;
       while(isspace(*src))
 	src++;
@@ -3058,7 +3062,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   /* always return TRUE on an empty list so we can continue to build the */
   /* msg buffer - an empty list is not an error! */
   if (list == NULL || _LSLP_IS_EMPTY(list)) {
-    _LSLP_SETSHORT((*buf), 0, 0);  
+    _LSLP_SETSHORT((*buf), 0, 0);
     (*buf) += 2;
     (*len) -= 2;
     return(TRUE);
@@ -3067,9 +3071,9 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   lenSave = *len;
   attrs = list->next;
   bptr = *buf;
-  
-  /* <<< Fri May 14 17:13:22 2004 mdd >>> 
-     on some platforms memset must be called with a 4-byte aligned address as the buffer */ 
+
+  /* <<< Fri May 14 17:13:22 2004 mdd >>>
+     on some platforms memset must be called with a 4-byte aligned address as the buffer */
   /*  memset(bptr, 0x00, *len); */
   (*buf) += 2;	 /* reserve space for the attrlist length short */
   (*len) -= 2;
@@ -3078,7 +3082,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
     if(include != NULL && _LSLP_IS_HEAD(include) && (! _LSLP_IS_EMPTY(include))) {
       included = include->next;
       hit = FALSE;
-      
+
       while(! _LSLP_IS_HEAD(included)){
 	if( ! lslp_string_compare(attrs->name, included->name)){
 	  hit = TRUE;
@@ -3087,50 +3091,50 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
 	included = included->next;
       }
     }
-    
+
     if(hit == FALSE){
       attrs = attrs->next;
       continue;
     }
-    
+
     if (attrLen + (int16)strlen(attrs->name) + 3 < *len)
       {
 	/* << Wed Jun  9 14:07:54 2004 mdd >> properly encode multi-valued attributes */
 	if( _LSLP_IS_HEAD(attrs->prev) || lslp_string_compare(attrs->prev->name, attrs->name)) {
- 
+
 
           if (attrs->type != tag) {
-            **buf = '('; 
-            (*buf)++; 
+            **buf = '(';
+            (*buf)++;
             attrLen++;
             (*len)--;
           }
- 
+
           strcpy(*buf, attrs->name);
-          (*buf) += strlen(attrs->name); 
+          (*buf) += strlen(attrs->name);
           attrLen += (int16)strlen(attrs->name);
           (*len) -= (int16)strlen(attrs->name);
 
- 
+
           if (attrs->type != tag)
             {
-              **buf = '='; 
-              (*buf)++; 
+              **buf = '=';
+              (*buf)++;
               attrLen++;
               (*len)--;
             }
-        } /* if not a multi-val */ 
+        } /* if not a multi-val */
         switch (attrs->type)
           {
           case tag:
             ccode = TRUE;
- 
+
             break;
           case string:
             if (attrLen + (int16)strlen(attrs->val.stringVal) + 2 < *len)
               {
                 strcpy(*buf, (attrs->val.stringVal));
-                (*buf) += strlen(attrs->val.stringVal); 
+                (*buf) += strlen(attrs->val.stringVal);
                 attrLen +=  (int16)strlen(attrs->val.stringVal);
                 (*len) -= (int16)strlen(attrs->val.stringVal);
                 ccode = TRUE;
@@ -3189,16 +3193,16 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
           {
 	    /* << Wed Jun  9 14:07:54 2004 mdd >> properly encode multi-valued attributes */
 	    if( _LSLP_IS_HEAD(attrs->next) || lslp_string_compare(attrs->next->name, attrs->name  )) {
-              **buf = ')'; 
-              (*buf)++; 
+              **buf = ')';
+              (*buf)++;
               attrLen++;
               (*len)--;
             }
           }
         if (ccode == TRUE && ! _LSLP_IS_HEAD(attrs->next) && attrLen + 1 < *len)
           {
-            **buf = ','; 
-            (*buf)++; 
+            **buf = ',';
+            (*buf)++;
             attrLen++;
             (*len)--;
           }
@@ -3216,9 +3220,9 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   if(*buf && *(*buf - 1) == ',') {
     *(*buf - 1) = 0x00;
     attrLen -= 1;
- 
+
   }
- 
+
 
   /* set the length short */
   if (ccode == TRUE)
@@ -3227,7 +3231,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
     }
   else
     {
-      (*buf) = bptr; 
+      (*buf) = bptr;
       (*len) = lenSave;
       memset(*buf, 0x00, *len);
     }
@@ -3235,7 +3239,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
 }
 
 
-lslpAttrList *lslpUnstuffAttr(int8 **buf, int16 *len, int16 *err)  
+lslpAttrList *lslpUnstuffAttr(int8 **buf, int16 *len, int16 *err)
 {
   int16 tempLen;
   lslpAttrList *temp = NULL;
@@ -3316,7 +3320,7 @@ void lslpFreeURLList(lslpURL *list)
 
 
 /* this routine may return FALSE AND alter the buffer and length */
-BOOL  lslpStuffURL(int8 **buf, int16 *len, lslpURL *url) 
+BOOL  lslpStuffURL(int8 **buf, int16 *len, lslpURL *url)
 {
   assert((buf != NULL) && (*buf != NULL));
   assert((len != NULL) && (*len > 8));
@@ -3343,7 +3347,7 @@ BOOL  lslpStuffURL(int8 **buf, int16 *len, lslpURL *url)
 }
 
 /* this routine may  return FALSE AND alter the buffer and length */
-BOOL lslpStuffURLList(int8 **buf, int16 *len, lslpURL *list) 
+BOOL lslpStuffURLList(int8 **buf, int16 *len, lslpURL *list)
 {
   BOOL ccode = TRUE;
   assert((buf != NULL) && (*buf != NULL));
@@ -3358,7 +3362,7 @@ BOOL lslpStuffURLList(int8 **buf, int16 *len, lslpURL *list)
   return(ccode);
 }
 
-lslpURL *lslpUnstuffURL(int8 **buf, int16 *len, int16 *err) 
+lslpURL *lslpUnstuffURL(int8 **buf, int16 *len, int16 *err)
 {
 
   int8 *tempurl;
@@ -3372,7 +3376,7 @@ lslpURL *lslpUnstuffURL(int8 **buf, int16 *len, int16 *err)
     temp->len = _LSLP_GETSHORT((*buf), 3);
     (*buf) += 5;
     (*len) -= 5;
-    if(*len >= temp->len) { 
+    if(*len >= temp->len) {
       if (NULL != (temp->url = (int8 *)calloc(1, temp->len + 1))) {
 	memcpy(temp->url, *buf, temp->len);
 	*((temp->url) + temp->len) = 0x00;
@@ -3401,7 +3405,7 @@ void lslpFreeFilterTree(lslpLDAPFilter *root)
   }
   if( ! (_LSLP_IS_HEAD(root->next)) && (! _LSLP_IS_EMPTY(root->next)) )
     lslpFreeFilterTree(root->next);
-  
+
   if(root->attrs.next != NULL) {
     while(! (_LSLP_IS_EMPTY(&(root->attrs)))) {
       lslpAttrList *attrs = root->attrs.next;
@@ -3427,7 +3431,7 @@ BOOL lslpEvaluateOperation(int compare_result, int operation)
   case expr_lt:			/* a <= b  */
     if(compare_result <= 0)
       return(TRUE);
-    break; 
+    break;
   case expr_present:
   case expr_approx:
   default:
@@ -3447,15 +3451,15 @@ BOOL lslpEvaluateAttributes(const lslpAttrList *filter, const lslpAttrList *regi
   case string:
     if(registered->type != string && registered->type != opaque)
       return(FALSE);
-    
+
     if( registered->type == opaque || filter->type == opaque) {
-      return(lslpEvaluateOperation(memcmp(registered->val.stringVal, 
-					  filter->val.stringVal, 
-					  _LSLP_MIN(registered->attr_len, 
+      return(lslpEvaluateOperation(memcmp(registered->val.stringVal,
+					  filter->val.stringVal,
+					  _LSLP_MIN(registered->attr_len,
 						    (int32)strlen(filter->val.stringVal))), op));
     } else {
-      if( TRUE == lslp_pattern_match(registered->val.stringVal, 
-				     filter->val.stringVal, 
+      if( TRUE == lslp_pattern_match(registered->val.stringVal,
+				     filter->val.stringVal,
 				     FALSE)) {
 	return( lslpEvaluateOperation(0, op)) ;
       } else {
@@ -3473,7 +3477,7 @@ BOOL lslpEvaluateAttributes(const lslpAttrList *filter, const lslpAttrList *regi
     if((filter->val.boolVal == 0) && (registered->val.boolVal == 0))
       return(TRUE);
     break;
-  default: 
+  default:
     break;
   }
   return(FALSE);
@@ -3488,7 +3492,7 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
   assert(! _LSLP_IS_HEAD(filter));
   if(filter == NULL || (_LSLP_IS_HEAD(filter)) || attrs == NULL)
     return FALSE;
-  
+
   if(! _LSLP_IS_HEAD(filter->children.next) ) {
     lslpEvaluateFilterTree((lslpLDAPFilter *)filter->children.next, attrs);
   }
@@ -3533,14 +3537,14 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
       attrs = attrs->next;
       while(! _LSLP_IS_HEAD(attrs)) {
 	/* advance to a matching attribute name if it exists */
-      while( (! _LSLP_IS_HEAD(attrs )) && 
+      while( (! _LSLP_IS_HEAD(attrs )) &&
 	     ( FALSE  == lslp_pattern_match(filter->attrs.next->name, attrs->name, FALSE)) ) {
-	attrs = attrs->next ; 
+	attrs = attrs->next ;
       }
       /* either we have traversed the list or found the first matching attribute */
       if( ! _LSLP_IS_HEAD(attrs) ) {
 	/* we found the first matching attribute, now do the comparison */
-	  if (filter->_operator == expr_present || filter->_operator == expr_approx) 
+	  if (filter->_operator == expr_present || filter->_operator == expr_approx)
 	  filter->logical_value = TRUE;
 	else
 	    filter->logical_value = lslpEvaluateAttributes(filter->attrs.next, attrs, filter->_operator );
@@ -3558,7 +3562,7 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
   return(filter->logical_value);
 }
 
-lslpScopeList *lslpScopeStringToList(int8 *s, int16 len) 
+lslpScopeList *lslpScopeStringToList(int8 *s, int16 len)
 {
   int8 *p, *saveP, *t;
   lslpScopeList *h, *temp;
@@ -3570,7 +3574,7 @@ lslpScopeList *lslpScopeStringToList(int8 *s, int16 len)
       return NULL;
     memcpy(p, s, len);
     *(p + len) = 0x00;
-    
+
     while(NULL != (t = strchr(p, ','))) {
       *t = 0x00;
       t++;
@@ -3616,17 +3620,17 @@ BOOL lslpStuffScopeList(int8 **buf, int16 *len, lslpScopeList *list)
   (*buf) += 2;	 /* reserve space for the scopelist length short */
   (*len) -= 2;
   while (! _LSLP_IS_HEAD(scopes) && scopeLen + 1 < *len)
-    { 
+    {
       if (scopeLen + (int16)strlen(scopes->scope) < *len)
 	{
 	  ccode = TRUE;
 	  strcpy(*buf, scopes->scope);
-	  (*buf) += strlen(scopes->scope); 
+	  (*buf) += strlen(scopes->scope);
 	  scopeLen += (int16)strlen(scopes->scope) ;
 	  if (! _LSLP_IS_HEAD(scopes->next) )
 	    {
-	      **buf = ','; 
-	      (*buf)++; 
+	      **buf = ',';
+	      (*buf)++;
 	      scopeLen++;
 	    }
 	}  /* if room for the attr name */
@@ -3668,7 +3672,7 @@ lslpScopeList *lslpUnstuffScopeList(int8 **buf, int16 *len, int16 *err)
   *err = 0;
   tempLen = _LSLP_GETSHORT(*buf, 0);
   (*buf += 2);
-  (*len -= 2);  
+  (*len -= 2);
   if(tempLen != 0) {
     if (tempLen <= *len ) {
       if(NULL != (temp = lslpScopeStringToList(*buf, tempLen))) {
@@ -3693,7 +3697,7 @@ BOOL lslpStuffSPIList(int8 **buf, int16 *len, lslpSPIList *list)
 }
 
 
-BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b) 
+BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
 {
   if((a == NULL) || (b == NULL))
     return(TRUE);
@@ -3742,14 +3746,14 @@ int lslp_string_compare(int8 *s1, int8 *s2)
 }
 
 /* return 1 if char is legal for scope value, 0 otherwise */
-int lslp_isscope(int c) 
-{  
+int lslp_isscope(int c)
+{
   int i;
   static int8 scope_reserved[] = { '(', ')', ',', 0x5c, '!', '<', '=', '>', '~', ';', '*', '+', 0x7f };
-  
+
   if(! _LSLP_ISASCII(c))
     return 0;
-  
+
   if(c < 0x20)
     return(0);
   for(i = 0; i < 13; i++) {
@@ -3845,11 +3849,11 @@ lslpSrvRegList *lslpAllocSrvReg(void)
 	  if (NULL != (l->authList = lslpAllocAuthList())) {
 	    return(l);
 	  }
-	  lslpFreeAttrList(l->attrList, TRUE);     
+	  lslpFreeAttrList(l->attrList, TRUE);
 	}
 	lslpFreeScopeList(l->scopeList);
       }
-      lslpFreeURL(l->url); 
+      lslpFreeURL(l->url);
     }
     free(l);
   }
@@ -3922,7 +3926,7 @@ void lslpFreeAuthBlock(lslpAuthBlock *auth)
   if (auth->spi != NULL)
     free(auth->spi);
   if (auth->block != NULL)
-    free(auth->block); 
+    free(auth->block);
   free(auth);
   return;		
 }	
@@ -3973,7 +3977,7 @@ BOOL lslpStuffAuthList(int8 **buf, int16 *len, lslpAuthBlock *list)
   memset(*buf, 0x00, *len);
   while (! _LSLP_IS_HEAD(auths) && auths->len <= *len)
     {
-      /* store the auth bsd */ 
+      /* store the auth bsd */
       _LSLP_SETSHORT(*buf, auths->descriptor, 0);
       /* store the the bsd size */
       _LSLP_SETSHORT(*buf, auths->len, 2);
@@ -3987,7 +3991,7 @@ BOOL lslpStuffAuthList(int8 **buf, int16 *len, lslpAuthBlock *list)
       /* store the authentication block */
       if (auths->block != NULL && (auths->len - (auths->spiLen + 10) ) > 0 )
 	memcpy(((*buf) + 10 + auths->spiLen), auths->block, (auths->len - (auths->spiLen + 10)));
-      (*buf) += auths->len; 
+      (*buf) += auths->len;
       (*len) -= auths->len;
       numAuths++;
       auths = auths->next;
@@ -4026,7 +4030,7 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
 	  temp->timestamp = _LSLP_GETLONG(*buf, 0);   /* get the timestamp */
 	  (*buf) += 4;                                  /* advance to the spi length */
 	  temp->spiLen = _LSLP_GETSHORT(*buf, 0);     /* get the spi length */
-	  (*buf) += 2;                                  /* advance to the spi */ 
+	  (*buf) += 2;                                  /* advance to the spi */
 	  *len -= 10;
 	  if(*len >= (temp->spiLen)) {
 #if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
@@ -4038,22 +4042,22 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
 	      (*buf) += temp->spiLen;                   /* advance to the next block */
 	      (*len) -= temp->spiLen;
 	      if(*len >= (temp->len - (10 + temp->spiLen))) {
-		if (NULL != (temp->block = 
+		if (NULL != (temp->block =
 #if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
-				 (int8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
+				 (int8 *)calloc((temp->len - (10 + temp->spiLen)) + 1,
 #else
-			     (uint8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
+			     (uint8 *)calloc((temp->len - (10 + temp->spiLen)) + 1,
 #endif
 					     sizeof(uint8)))) {
 		  memcpy(temp->block, *buf, (temp->len - (10 + temp->spiLen)) );
-		  _LSLP_INSERT(temp, list);                /* insert the auth block into the list */ 
+		  _LSLP_INSERT(temp, list);                /* insert the auth block into the list */
 		  (*buf) += (temp->len - (10 + temp->spiLen));
 		  (*len) -= (temp->len - (10 + temp->spiLen));
 		  temp = NULL;
 		} else {*err = LSLP_INTERNAL_ERROR; } /* if we alloced the auth block buffer */
 	      } else { *err = LSLP_PARSE_ERROR;}
 	    } else { *err = LSLP_INTERNAL_ERROR ;}/* if we alloced the spi buffer */
-	  } else { *err = LSLP_PARSE_ERROR;} 
+	  } else { *err = LSLP_PARSE_ERROR;}
 	}else { *err = LSLP_INTERNAL_ERROR; } /* if we alloced the auth block */
 	tempLen--; /* decrement the number of auth blocks */
       } /* while there is room and there are auth blocks to process */
@@ -4061,7 +4065,7 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
       if(tempLen == 0)
 	*err = 0;
       else
-	*err = LSLP_INTERNAL_ERROR ; 
+	*err = LSLP_INTERNAL_ERROR ;
     }
   }
   if(*err != 0 && list != NULL) {
@@ -4131,7 +4135,7 @@ void lslpDestroySrvReq(struct lslp_srv_req *r, int8 flag)
     free(r);
 }	
 
-void lslpDestroySrvRply(struct lslp_srv_rply *r, int8 flag) 
+void lslpDestroySrvRply(struct lslp_srv_rply *r, int8 flag)
 {
   assert(r != NULL);
   if (r->urlList != NULL)
@@ -4273,7 +4277,7 @@ lslpMsg *alloc_slp_msg(BOOL head)
   lslpMsg *ret = (lslpMsg *)calloc(1, sizeof(lslpMsg));
   if(ret != NULL ) {
     ret->dynamic = LSLP_DESTRUCTOR_DYNAMIC;
-    if( head == TRUE ){  
+    if( head == TRUE ){
       ret->next = ret->prev = ret;
       ret->isHead = TRUE;
     }
@@ -4346,8 +4350,8 @@ BOOL lslp_predicate_match(lslpAttrList *a, int8 *b)
   return(FALSE);
 }
 
-struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client, 
-					     struct lslp_srv_req *msg, 
+struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
+					     struct lslp_srv_req *msg,
 					     int16 errCode)
 {
   int8 *buf;
@@ -4357,7 +4361,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
   int8 *extptr, *next_extptr;
   BOOL pile_up_attrs = FALSE;
 
-  struct lslp_srv_rply_out *temp_rply = 
+  struct lslp_srv_rply_out *temp_rply =
     (struct lslp_srv_rply_out *)calloc(1, sizeof(struct lslp_srv_rply_out));
   assert(msg != NULL);
   if(msg != NULL && temp_rply != NULL) {
@@ -4405,7 +4409,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	      /* got our extension */
 	      /* do a sanity check offset five should be 0x0000, */
 	      /* offset 7 should be 0x0000*/
-	      if( (0x0000 == _LSLP_GETSHORT(extptr, 5)) && 
+	      if( (0x0000 == _LSLP_GETSHORT(extptr, 5)) &&
 		  (0x0000 == _LSLP_GETSHORT(extptr, 7)) ) {
 		/* ok, accumulate attribute data */
 		pile_up_attrs = TRUE;
@@ -4416,7 +4420,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	    extptr += _LSLP_GET3BYTES(extptr, 2);
 	    if(extptr == extptr_save)
 	      break;
-	  } /* while traversing extensions */ 
+	  } /* while traversing extensions */
 	} /* if there is an extension */
 	
 
@@ -4425,7 +4429,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	next_extptr = extptr + 2;
 	ext_offset = 0;
 	while(! _LSLP_IS_HEAD(reg)) {
-	  if(time(NULL) > reg->directoryTime) { 
+	  if(time(NULL) > reg->directoryTime) {
 	    /* the lifetime for this registration has expired */
 	    /* unlink and free it */
 	    lslpSrvRegList *temp_reg = reg;
@@ -4437,8 +4441,8 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	  if(TRUE == lslp_srvtype_match(reg->srvType, msg->srvcType)) {
 	    /* we need to check for the special case - of a srvreq with service type directory-agent */
 	    /* - it is allowed to omit scopes */
-	    if((msg->scopeList == NULL) ||  
-	       (_LSLP_IS_EMPTY(msg->scopeList) && (! strncasecmp(msg->srvcType, DA_SRVTYPE, DA_SRVTYPELEN ))) || 
+	    if((msg->scopeList == NULL) ||
+	       (_LSLP_IS_EMPTY(msg->scopeList) && (! strncasecmp(msg->srvcType, DA_SRVTYPE, DA_SRVTYPELEN ))) ||
 	       (TRUE == lslp_scope_intersection(reg->scopeList, msg->scopeList))) {
 	      if(TRUE == lslp_predicate_match(reg->attrList, msg->predicate)) {
 		/* we have a match */
@@ -4510,14 +4514,14 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 #define MAX_RECURSION  10
 BOOL lslp_pattern_match(const int8 *string, const int8 *pattern, BOOL case_sensitive)
 {
-  
+
   int8 s, p;
   static int recursion_level;
   if(recursion_level == MAX_RECURSION) {
     return FALSE;
  }
   recursion_level++;
-  
+
   assert(string != NULL && pattern != NULL);
 
   while(1) {
@@ -4573,7 +4577,7 @@ BOOL lslp_pattern_match(const int8 *string, const int8 *pattern, BOOL case_sensi
       string++;
       continue;
     }
-    
+
     if(p == '[') {
       int8 start, end;
       pattern++;
@@ -4604,7 +4608,7 @@ BOOL lslp_pattern_match(const int8 *string, const int8 *pattern, BOOL case_sensi
 	    break;
 	  }
 	} else if (start == s) {
-	  
+	
 	  break;
 	}
       }
@@ -4663,12 +4667,12 @@ void lslp_print_srv_rply(lslpMsg *srvrply)
   lslpURL *url_list;
   if(srvrply != NULL && srvrply->type == srvRply) {
     /* output errCode, urlCount, urlLen */
-    printf("%d\n%d\n%d\n", srvrply->msg.srvRply.errCode, 
-                           srvrply->msg.srvRply.urlCount, 
+    printf("%d\n%d\n%d\n", srvrply->msg.srvRply.errCode,
+                           srvrply->msg.srvRply.urlCount,
                            srvrply->msg.srvRply.urlLen );
-    if((NULL != srvrply->msg.srvRply.urlList) && 
+    if((NULL != srvrply->msg.srvRply.urlList) &&
        (! _LSLP_IS_EMPTY( srvrply->msg.srvRply.urlList))) {
-      
+
       url_list = srvrply->msg.srvRply.urlList->next;
       while( ! _LSLP_IS_HEAD(url_list)){
 	
@@ -4698,26 +4702,26 @@ void lslp_print_srv_rply(lslpMsg *srvrply)
 void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs)
 {
   BOOL dont_print_extra_rs = FALSE;
-  
+
   lslpURL *url_list;
   if(srvrply != NULL && srvrply->type == srvRply) {
     /* output errCode, urlCount, urlLen */
-    printf("%d%c%d%c%d%c", 
-	   srvrply->msg.srvRply.errCode, 
+    printf("%d%c%d%c%d%c",
+	   srvrply->msg.srvRply.errCode,
 	   fs,
-	   srvrply->msg.srvRply.urlCount, 
+	   srvrply->msg.srvRply.urlCount,
 	   fs,
 	   srvrply->msg.srvRply.urlLen,
 	   fs);
-    if((NULL != srvrply->msg.srvRply.urlList) && 
+    if((NULL != srvrply->msg.srvRply.urlList) &&
        (! _LSLP_IS_EMPTY( srvrply->msg.srvRply.urlList))) {
-      
+
       url_list = srvrply->msg.srvRply.urlList->next;
       while( ! _LSLP_IS_HEAD(url_list)) {
 	
 	if(NULL != url_list->url)
 	  printf("%s%c", url_list->url, fs);
-	else 
+	else
 	  printf("%c", fs);
 	
 	/* see if there are attributes to print */
@@ -4733,20 +4737,20 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs)
 	} else {  /* if no attr list, print the record separator  */
 	  printf("%c", rs);
 	  dont_print_extra_rs = TRUE;
-	  
+	
 	}
 	
 	url_list = url_list->next;
 	/* if there is another url, print a record separator */
-	/* also print the first four fields so the consuming program's */ 
+	/* also print the first four fields so the consuming program's */
 	/* parser doesn't get upset */
 	if( ! _LSLP_IS_HEAD(url_list) && dont_print_extra_rs == FALSE) {
-	  
+	
 	  printf("%c", rs);
-	  printf("%d%c%d%c%d%c", 
-		 srvrply->msg.srvRply.errCode, 
+	  printf("%d%c%d%c%d%c",
+		 srvrply->msg.srvRply.errCode,
 		 fs,
-		 srvrply->msg.srvRply.urlCount, 
+		 srvrply->msg.srvRply.urlCount,
 		 fs,
 		 srvrply->msg.srvRply.urlLen,
 		 fs);
@@ -4757,7 +4761,7 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs)
     } /* if there are urls to print */
     /* print the record separator */
     printf("%c", rs);
-    
+
   }
 }
 
@@ -4765,27 +4769,27 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs)
 SLP_STORAGE_DECL   void lslp_print_attr_rply(lslpMsg *attrrply)
 {
   if(attrrply != NULL && attrrply->type == attrRep) {
-    
-    /* output the err, attr len, attr string */ 
+
+    /* output the err, attr len, attr string */
     printf("error code: %d\nattribute length: %d\n%s\n\n",
-	   attrrply->msg.attrRep.errCode, 
-	   attrrply->msg.attrRep.attrListLen, 
+	   attrrply->msg.attrRep.errCode,
+	   attrrply->msg.attrRep.attrListLen,
 	   attrrply->msg.attrRep.attrList);
-  } else { printf("no correctly formatted responses\n\n"); }   
-  
+  } else { printf("no correctly formatted responses\n\n"); }
+
 }
 
 
 SLP_STORAGE_DECL   void lslp_print_attr_rply_parse(lslpMsg *attrrply, int8 fs, int8 rs)
 {
   if(attrrply != NULL && attrrply->type == attrRep) {
-    
-    /* output the err, attr len, attr string */ 
+
+    /* output the err, attr len, attr string */
     printf("%d%c%d%c%s%c",
 	   attrrply->msg.attrRep.errCode, fs,
-	   attrrply->msg.attrRep.attrListLen,fs, 
+	   attrrply->msg.attrRep.attrListLen,fs,
 	   attrrply->msg.attrRep.attrList, rs);
-  }   
+  }
 }
 
 
@@ -4809,7 +4813,7 @@ SLP_STORAGE_DECL BOOL test_service_type_reg(int8 *type)
 {
   int8 * temp;
   BOOL ccode;
-   
+
   if(type == NULL || ! strlen(type))
     return FALSE;
   temp = strdup(type);
@@ -4825,7 +4829,7 @@ SLP_STORAGE_DECL BOOL test_url(int8 *url)
 
   int8 *temp;
   lslpAtomizedURL *aurl;
-  
+
   if(url == NULL)
     return FALSE;
   temp = strdup(url);
@@ -4843,18 +4847,18 @@ SLP_STORAGE_DECL BOOL test_attribute(int8 *attr)
 {
   int8 *temp;
   lslpAttrList *attr_list;
-  
+
   if(attr == NULL)
     return FALSE;
   if(! strlen(attr))
     return TRUE;
-  
+
   temp = strdup(attr);
   if(temp == NULL) abort();
-  
+
   attr_list = _lslpDecodeAttrString(temp);
   free(temp);
-  
+
   if(attr_list != NULL){
     lslpFreeAttrList(attr_list, TRUE);
     return TRUE;
@@ -4867,20 +4871,20 @@ SLP_STORAGE_DECL BOOL test_scopes(int8 *scopes)
 {
   BOOL ccode;
   int8 *temp;
-  
+
   if(scopes == 0 ){
     return FALSE;
   }
-  
+
   if(! strlen(scopes))
     return TRUE;
-    
+
   temp = strdup(scopes);
   if(temp == 0 ) abort();
   ccode = lslp_islegal_scope(temp);
   free(temp);
 
-  
+
   return ccode;
 }
 
@@ -4888,12 +4892,12 @@ SLP_STORAGE_DECL BOOL test_predicate(int8 *predicate)
 {
   int8 * temp;
   lslpLDAPFilter *filter;
-  
+
   if(predicate == 0)
     return FALSE;
   if(! strlen(predicate))
     return TRUE;
-  
+
   temp = strdup(predicate);
   if(temp == 0) abort();
   filter = _lslpDecodeLDAPFilter(temp);
@@ -4906,9 +4910,9 @@ SLP_STORAGE_DECL BOOL test_predicate(int8 *predicate)
 }
 
 
-SLP_STORAGE_DECL uint32 test_srv_reg(int8 *type, 
-				     int8 *url,   
-				     int8 *attr, 
+SLP_STORAGE_DECL uint32 test_srv_reg(int8 *type,
+				     int8 *url,
+				     int8 *attr,
 				     int8 *scopes)
 {
 
@@ -4927,26 +4931,26 @@ SLP_STORAGE_DECL uint32 test_srv_reg(int8 *type,
 
 
 SLP_STORAGE_DECL uint32 test_query(int8 *type,
-				   int8 *predicate, 
+				   int8 *predicate,
 				   int8 *scopes)
 {
   /* it is legal for predicate and scopes to be empty */
-  
+
   if(type == NULL || 0 == strlen(type) || FALSE == test_service_type(type))
     return 1;
 
   if(predicate != NULL && FALSE == test_predicate(predicate))
     return 2;
-    
+
   if(scopes != NULL && FALSE == test_scopes(scopes))
     return 3;
- 
+
   return 0;
 }
 
 
 
-#ifdef INCLUDE_TEST_CODE     
+#ifdef INCLUDE_TEST_CODE
 
 /* , (serial-number=78-HNRX5)" */
 /* , (fru=model 8657\\-a)" */
@@ -4961,29 +4965,29 @@ SLP_STORAGE_DECL uint32 test_query(int8 *type,
 #define MM_ATTR "management-module, (mangement-module_test =     )"
 #define MM_ATTR2 "(enclosure-serial-number=\\ff\\04\\05), management-module"
 #define MM_ATTR3 "(enclosure-serial-number=\\ff\\04\\05), management-module, (nothing=one)"
-#define MM_SRV_TYPE "service:management-hardware.IBM:management-module" 
+#define MM_SRV_TYPE "service:management-hardware.IBM:management-module"
 #define MM_SCOPES "DEFAULT"
 #define MM_LIFETIME 0xff
 #define MM_PRED "(management-module =*)"
 #define MM_PRED2 "management-module, (enclosure-serial-number=\\ff\\04\\05)"
 
 
-int32 opaque_buf[] = {  
-  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 
+int32 opaque_buf[] = {
+  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
   0x09, 0x0a, 0xfe0b, 0xcdac, 0x0d, 0x0e, 0x10
 };
 int16 opaque_len = 15 * sizeof(int32);
 
 #define NUM_STRINGS_TO_MATCH 8
-int8 *patterns[] = { 
-  "hello, world", 
-  "hEllo, wOrld", 
+int8 *patterns[] = {
+  "hello, world",
+  "hEllo, wOrld",
   "Custer is a h?ll of a d**n*ed fo*\\; -- Phil Sheridan",
   "See Mug, See",
   "management-hardware.[ih][ba][ml]",
   "The telephone is [hlr]eap [bds]ig medicine -- Crazy Horse",
-  "Young kids today are [A-z]ool", 
-  "Young kids today are [A-z]ool" 
+  "Young kids today are [A-z]ool",
+  "Young kids today are [A-z]ool"
 };
 
 int8 *strings[] = {
@@ -4993,7 +4997,7 @@ int8 *strings[] = {
   "see mug, see",
   "management-Hardware.HAL",
   "the telephone is leap dig medicine -- Crazy Horse",
-  "young kids today are cool", 
+  "young kids today are cool",
   "young kids today are fool"
 };
 
@@ -5005,21 +5009,21 @@ int main(int argc, char **argv)
   lslpMsg *replies, rply;
   int i ;
   time_t now, last;
-  
-  
+
+
   struct slp_client *client = create_slp_client(NULL, NULL, 427, "DSA", "DEFAULT, TEST SCOPE", TRUE, TRUE);
-  
+
   if(client != NULL){
     int8 *encoded, *test_buf;
     void *decoded;
     int16 encoded_len;
     printf("Testing opaque encode/decode\n");
-    
+
     encoded = encode_opaque(opaque_buf, opaque_len);
     decoded = decode_opaque(encoded);
     if( memcmp(decoded, opaque_buf, opaque_len) )
       printf("opaque decoder produced mismatch\n");
-    
+
     encoded_len = _LSLP_GETSHORT(encoded, 0 );
     test_buf = (int8 *)calloc(encoded_len, sizeof(int8));
     if(test_buf != NULL) {
@@ -5027,28 +5031,28 @@ int main(int argc, char **argv)
       printf("%s\n", test_buf);
       free(test_buf);
     }
-    
+
     free(encoded);
     free(decoded);
-    
+
     for (i = 0; i < NUM_STRINGS_TO_MATCH ; i++){
       if(TRUE == lslp_pattern_match(strings[i], patterns[i], FALSE))
 	printf("%s MATCHES %s (no case)\n", strings[i], patterns[i]);
-      else 
+      else
 	printf("%s DOES NOT MATCH %s (no case)\n", strings[i], patterns[i]);
     }
-  
+
     for (i = 0; i < NUM_STRINGS_TO_MATCH ; i++){
       if(TRUE == lslp_pattern_match(strings[i], patterns[i], TRUE))
 	printf("%s MATCHES %s \n", strings[i], patterns[i]);
-      else 
+      else
 	printf("%s DOES NOT MATCH %s \n", strings[i], patterns[i]);
     }
-    client->srv_reg_local(client, 
-			  "service:service-agent:\\9.37.98.90", 
-			  "(service-type = )", "service-agent", 
+    client->srv_reg_local(client,
+			  "service:service-agent:\\9.37.98.90",
+			  "(service-type = )", "service-agent",
 			  MM_SCOPES, MM_LIFETIME);
-    
+
     ccode = client->srv_reg_all(client, MM_URL, MM_ATTR, MM_SRV_TYPE, MM_SCOPES, MM_LIFETIME);
     printf("registered with %d agents.\n", ccode );
     ccode = client->srv_reg_all(client, MM_URL2, MM_ATTR2, MM_SRV_TYPE, MM_SCOPES, MM_LIFETIME);
@@ -5058,9 +5062,9 @@ int main(int argc, char **argv)
     client->converge_srv_req(client, MM_SRV_TYPE, MM_PRED, MM_SCOPES);
 
     client->converge_srv_req(client, "service-agent", "(service-type =*)", MM_SCOPES);
-    
+
     replies = &rply;
-    
+
     client->service_listener(client, 0, replies);
     if(_LSLP_IS_HEAD(replies->next))
       printf("Recieved 0 Service Replies\n");
@@ -5068,15 +5072,15 @@ int main(int argc, char **argv)
       replies = replies->next;
       while( ! _LSLP_IS_HEAD(replies)) {
 	if( replies->type == srvRply ) {
-	  printf("SRVRPLY: err_code %d url_count %d, url_len %d \n", 
-		 replies->msg.srvRply.errCode, replies->msg.srvRply.urlCount, 
+	  printf("SRVRPLY: err_code %d url_count %d, url_len %d \n",
+		 replies->msg.srvRply.errCode, replies->msg.srvRply.urlCount,
 		 replies->msg.srvRply.urlLen);
 	  if( NULL != replies->msg.srvRply.urlList ) {
 	    if( ! _LSLP_IS_EMPTY(replies->msg.srvRply.urlList)) {
 	      lslpURL *url_list = replies->msg.srvRply.urlList->next;
 	      while( ! _LSLP_IS_HEAD(url_list)) {
 		printf("\t%s\n", url_list->url);
-		if((NULL != replies->msg.srvRply.attr_list) && 
+		if((NULL != replies->msg.srvRply.attr_list) &&
 		   (! _LSLP_IS_EMPTY(replies->msg.srvRply.attr_list))) {
 		  lslpAtomList *temp = replies->msg.srvRply.attr_list->next;
 		  if(! _LSLP_IS_HEAD(temp)) {
@@ -5096,7 +5100,7 @@ int main(int argc, char **argv)
       } /* traversing replies */
     }
   }
-  
+
   now = (last = time(NULL));
 
   while(1){

@@ -1,0 +1,305 @@
+//%2004////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Amit K Arora, IBM (amitarora@in.ibm.com) - PEP 193
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
+#include <iostream>
+
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
+#define NAMESPACE_CIMV2 "root/cimv2"
+#define NAMESPACE_SAMPLEPROVIDER "root/SampleProvider"
+static const String CIM_QUERYCAPCLASS_NAME("CIM_QueryCapabilities");
+
+
+void _checkIfReturnedValueIsCorrect(Array<Uint16>& providerReturnedVal)
+{
+
+   Array<Uint16> actualVal(CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES);
+
+   if(providerReturnedVal.size() != (unsigned)CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES)
+   {
+      Exception e("Number of capabilities returned by the Provider does not match the actual value.");
+      throw e;
+   }
+
+   CIMQueryCapabilitiesProvider::getFeatureSet(actualVal);
+
+   for(unsigned int j=0; j<(unsigned)CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES; j++)
+   {
+     if(providerReturnedVal[j] != actualVal[j])
+     {
+        char msg[1024];
+        sprintf(msg, "Expected capability value=%u, returned=%d.",
+                actualVal[j], providerReturnedVal[j]);
+        Exception e(msg);
+        throw e;
+     }
+   }
+}
+
+void testEnumInstanceNames(CIMClient& client,char *ns)
+{
+   Array<CIMObjectPath> refs;
+
+   refs = client.enumerateInstanceNames(ns,CIM_QUERYCAPCLASS_NAME);
+
+   if(refs.size() != 1) throw Exception("references.size() incorrect");
+
+   Array<CIMKeyBinding> keys = refs[0].getKeyBindings();
+
+   //-- make sure we're the right instance
+   CIMName keyName;
+   String keyValue;
+
+   if (keys.size() != NUM_KEY_PROPERTIES)
+       throw Exception("Wrong number of keys");
+
+    keyName = keys[0].getName();
+    keyValue = keys[0].getValue();
+
+    if(keyName.getString() != String(PROPERTY_NAME_INSTANCEID) )
+        throw Exception("Incorrect Key");
+    if(keyValue != String(INSTANCEID_VALUE))
+        throw Exception(keyValue);
+
+} 
+   
+void testEnumInstances(CIMClient& client, char* ns)
+{
+    Array<CIMInstance> instances;
+
+   instances = client.enumerateInstances(ns,CIM_QUERYCAPCLASS_NAME);
+
+   if(instances.size() != 1) throw Exception("instances.size() incorrect");
+
+   Array<Uint16> providerReturnedVal;
+   //Array<Uint16> actualVal(NUM_QUERY_CAPABILITIES);
+   Uint32 prop = 0;
+   CIMObjectPath path;
+
+   path = instances[0].getPath();
+   Array<CIMKeyBinding> keys = path.getKeyBindings();
+
+   //-- make sure we're the right instance
+   CIMName keyName;
+   String keyValue;
+
+   if (keys.size() != NUM_KEY_PROPERTIES)
+       throw Exception("Wrong number of keys");
+
+    keyName = keys[0].getName();
+    keyValue = keys[0].getValue();
+
+    if(keyName.getString() != String(PROPERTY_NAME_INSTANCEID) )
+        throw Exception("Incorrect Key");
+    if(keyValue != String(INSTANCEID_VALUE))
+        throw Exception(keyValue);
+
+     prop = instances[0].findProperty(CIMName(PROPERTY_NAME_CQLFEATURES));
+     instances[0].getProperty(prop).getValue().get(providerReturnedVal);
+  
+     _checkIfReturnedValueIsCorrect(providerReturnedVal);
+
+} 
+
+
+void testGetInstance(CIMClient& client, char* ns)
+{
+
+   CIMInstance instance;
+   Array<CIMKeyBinding> keyBindings;
+   keyBindings.append(CIMKeyBinding(PROPERTY_NAME_INSTANCEID,
+                                INSTANCEID_VALUE,
+                                CIMKeyBinding::STRING));
+
+   CIMObjectPath objectPath(String::EMPTY, ns, 
+                  CIM_QUERYCAPCLASS_NAME, keyBindings);
+
+   instance = client.getInstance(ns, objectPath, false);
+
+   Array<Uint16> providerReturnedVal;
+
+   Uint32 prop = instance.findProperty(CIMName(PROPERTY_NAME_CQLFEATURES));
+   instance.getProperty(prop).getValue().get(providerReturnedVal);
+
+   _checkIfReturnedValueIsCorrect(providerReturnedVal);
+}
+
+void testCreateInstance(CIMClient& client, char* ns)
+{
+  CIMObjectPath path;
+  Array<CIMInstance> instances;
+  CIMName keyName;
+  String keyValue;
+
+  instances = client.enumerateInstances(ns, CIM_QUERYCAPCLASS_NAME);
+
+  Array<CIMKeyBinding> keys = instances[0].getPath().getKeyBindings();
+
+  keys[0].setValue("100");
+
+  path = instances[0].getPath();
+  path.setKeyBindings(keys);
+
+  try
+  {
+    path = client.createInstance(ns, instances[0]);
+  }
+  catch(Exception)
+  {
+    // Do nothing. This is expected since createInstance is NOT
+    // supported.
+    return;
+  }
+
+  throw Exception("createInstance is supported");
+}
+
+
+void testDeleteInstance(CIMClient& client, char* ns)
+{
+  Array<CIMInstance> instances;
+
+  instances = client.enumerateInstances(ns, CIM_QUERYCAPCLASS_NAME);
+
+  try
+  {
+    client.deleteInstance(ns, instances[0].getPath());
+  }
+  catch(Exception)
+  {
+    // Do nothing. This is expected since deleteInstance is NOT
+    // supported.
+    return;
+  }
+
+  throw Exception("deleteInstance is supported");
+}
+    
+
+void testModifyInstance(CIMClient& client, char* ns)
+{
+  Array<CIMInstance> instances;
+
+  instances = client.enumerateInstances(ns, CIM_QUERYCAPCLASS_NAME);
+
+  CIMProperty prop;
+  Uint32 pos = instances[0].findProperty(PROPERTY_NAME_CAPTION);
+  prop = instances[0].getProperty(pos);
+  instances[0].removeProperty(pos);
+
+  prop.setValue(CIMValue(String("MODIFIED CAPTION")));
+
+  instances[0].addProperty(prop);
+
+  try
+  {
+    client.modifyInstance(ns, instances[0]);
+  }
+  catch(Exception)
+  {
+    // Do nothing. This is expected since modifyInstance is NOT
+    // supported.
+    return;
+  }
+
+  throw Exception("modifyInstance is supported");
+}
+
+PEGASUS_NAMESPACE_END
+   
+
+int main(int argc, char** argv)
+{
+
+   CIMClient client;
+
+   try
+   {
+     client.connectLocal();
+   }
+   catch (Exception& e)
+   {
+      cerr << "Error: " << e.getMessage() <<  endl;
+      cerr << "Exception occured while trying to connect to the server." 
+           << endl;
+      return(1);
+   }
+
+   String testCaseName;
+
+   try
+   {
+     testCaseName.assign("Enumerate Instance Names");
+     testEnumInstanceNames(client, NAMESPACE_CIMV2);
+     testEnumInstanceNames(client, NAMESPACE_SAMPLEPROVIDER);
+
+     testCaseName.assign("Enumerate Instances");
+     testEnumInstances(client, NAMESPACE_CIMV2);
+     testEnumInstances(client, NAMESPACE_SAMPLEPROVIDER);
+
+     testCaseName.assign("Get Instance");
+     testGetInstance(client, NAMESPACE_CIMV2);
+     testGetInstance(client, NAMESPACE_SAMPLEPROVIDER);
+
+     testCaseName.assign("Create Instance");
+     testCreateInstance(client, NAMESPACE_CIMV2);
+     testCreateInstance(client, NAMESPACE_SAMPLEPROVIDER);
+
+     testCaseName.assign("Delete Instance");
+     testDeleteInstance(client, NAMESPACE_CIMV2);
+     testDeleteInstance(client, NAMESPACE_SAMPLEPROVIDER);
+
+     testCaseName.assign("Modify Instance");
+     testModifyInstance(client, NAMESPACE_CIMV2);
+     testModifyInstance(client, NAMESPACE_SAMPLEPROVIDER);
+   }
+   catch(Exception& e)
+   {
+      cerr << argv[0] << ": Exception Occcured. " << e.getMessage() << endl;
+      cerr << argv[0] << ": " << testCaseName << " Failed. " << endl;
+      exit(1);
+   }
+
+   cout << argv[0] << " +++++ passed all tests" << endl;
+   return 0;
+}
+
+

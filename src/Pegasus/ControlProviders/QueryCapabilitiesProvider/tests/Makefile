@@ -1,0 +1,30 @@
+ROOT=$(PEGASUS_ROOT)
+
+DIR = Pegasus/ControlProviders/QueryCapabilities/tests
+
+include $(ROOT)/mak/config.mak
+
+LIBRARIES= \
+   	pegcommon \
+	pegclient
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
+
+PROGRAM = testCIMQueryCap
+SOURCES = TestCIMQueryCap.cpp
+
+include $(ROOT)/mak/program.mak
+
+CIM_SCHEMA_DIR = $(ROOT)/Schemas/CIMPrelim29
+ALLOW_EXPERIMENTAL = -aE
+SAMPLE_PROVIDER_NS = root/SampleProvider
+
+tests:
+install:
+ 
+poststarttests:
+	@echo 'cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof'
+	@cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@echo 'cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) -n$(SAMPLE_PROVIDER_NS) $(CIM_SCHEMA_DIR)/CIM_Interop.mof'
+	@cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) -n$(SAMPLE_PROVIDER_NS) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	$(PROGRAM)

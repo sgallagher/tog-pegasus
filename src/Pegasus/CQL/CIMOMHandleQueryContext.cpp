@@ -93,5 +93,10 @@ Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(const CIMName& inCla
 				  true);          // deepInheritance
 }
 
+QueryContext* CIMOMHandleQueryContext::clone()
+{
+  return new CIMOMHandleQueryContext(*this);
+}
+
 PEGASUS_NAMESPACE_END
 

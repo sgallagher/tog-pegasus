@@ -90,5 +90,10 @@ Array<CIMName> RepositoryQueryContext::enumerateClassNames(const CIMName& inClas
 				      true);          // deepInheritance
 }
 
+QueryContext* RepositoryQueryContext::clone()
+{
+  return new RepositoryQueryContext(*this);
+}
+
 PEGASUS_NAMESPACE_END
 

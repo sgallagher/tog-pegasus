@@ -36,6 +36,7 @@
 #define Pegasus_CIMOMHandleQueryContext_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/CQL/QueryContext.h> 
@@ -59,6 +60,8 @@ class PEGASUS_CQL_LINKAGE CIMOMHandleQueryContext: public QueryContext
         CIMClass getClass (const CIMName& inClassName);
 
 	Array<CIMName> enumerateClassNames(const CIMName& inClassName);
+
+	QueryContext* clone();
        
   private:  
 	CIMOMHandleQueryContext();

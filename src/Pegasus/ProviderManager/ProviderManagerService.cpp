@@ -375,7 +375,7 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // preserve message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -457,7 +457,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // preserve message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -537,7 +537,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message *
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // preserve message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -609,7 +609,7 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // preserve message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -681,7 +681,7 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // preserve message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -764,7 +764,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // preserve message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -934,8 +934,7 @@ void ProviderManagerService::handleReferenceNamesRequest(const Message * message
     // preserve message key
     response->setKey(request->getKey());
 
-    // call the message queue service method to see if this is an async envelope
-    _enqueueResponse(const_cast<Message *>(static_cast<const Message *>(request)), response);
+    _enqueueResponse(request, response);
 }
 
 void ProviderManagerService::handleGetPropertyRequest(const Message * message) throw()
@@ -1007,7 +1006,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 
     PEGASUS_ASSERT(response != 0);
 
-    // propagate key
+    // propagate message key
     response->setKey(request->getKey());
 
     // create a handler for this request
@@ -1337,10 +1336,106 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
 
 void ProviderManagerService::handleEnableIndications(const Message * message) throw()
 {
+    CIMEnableIndicationsRequestMessage * request =
+	dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMEnableIndicationsResponseMessage * response =
+	new CIMEnableIndicationsResponseMessage(
+	request->messageId,
+	CIMException(),
+	request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    static EnableIndicationsResponseHandler handler(request, response);
+
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->classNames[0]);
+
+	// get the provider file name and logical name
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+
+	// get cached or load new provider module
+	Provider provider = providerManager.getProvider(pair.first, pair.second);
+
+	provider.enableIndications(handler);
+    }
+    catch(CIMException & e)
+    {
+	handler.setStatus(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+	handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+    }
+	
+    _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
 void ProviderManagerService::handleDisableIndications(const Message * message) throw()
 {
+    CIMDisableIndicationsRequestMessage * request =
+	dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMDisableIndicationsResponseMessage * response =
+	new CIMDisableIndicationsResponseMessage(
+	request->messageId,
+	CIMException(),
+	request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    OperationResponseHandler<CIMIndication> handler(request, response);
+
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->classNames[0]);
+
+	// get the provider file name and logical name
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+
+	// get cached or load new provider module
+	Provider provider = providerManager.getProvider(pair.first, pair.second);
+
+	provider.disableIndications();
+    }
+    catch(CIMException & e)
+    {
+	handler.setStatus(e.getCode(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+	handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+    }
+	
+    _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
 PEGASUS_NAMESPACE_END

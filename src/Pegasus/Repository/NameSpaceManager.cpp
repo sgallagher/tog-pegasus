@@ -171,7 +171,7 @@ const String NameSpace::getClassFilePath(const CIMName& className) const
 
     if (!_inheritanceTree.getSuperClass(className, superClassName))
 	throw PEGASUS_CIM_EXCEPTION
-            (CIM_ERR_INVALID_CLASS, className.getString());
+            (CIM_ERR_NOT_FOUND, className.getString());
 
     return _MakeClassFilePath(_nameSpacePath, className, superClassName);
 }
@@ -653,7 +653,7 @@ void NameSpaceManager::checkModify(
     {
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
-            (CIM_ERR_INVALID_CLASS, className.getString());
+            (CIM_ERR_NOT_FOUND, className.getString());
     }
 
     if (!superClassName.equal (oldSuperClassName))

@@ -4931,6 +4931,13 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       // map CIM_ERR_INVALID_CLASS to CIM_ERR_NOT_FOUND
+       if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+       {
+           checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND,
+                                                       className.getString());
+       }
+    
        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		   "CIMOperationRequestDispatcher::handleInvokeMethodRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
 		   request->nameSpace.getString(),
@@ -5260,7 +5267,17 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    {
       _repository->read_unlock();
       PEG_METHOD_EXIT();
-      throw exception;
+
+      // map CIM_ERR_NOT_FOUND to CIM_ERR_INVALID_CLASS
+      if (exception.getCode() == CIM_ERR_NOT_FOUND)
+      {
+         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
+                  request->instanceName.getClassName().getString());
+      }
+      else
+      {
+         throw exception;
+      }
    }
    catch (Exception& exception)
    {
@@ -5347,7 +5364,16 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
    }
    catch(CIMException& exception)
    {
-      cimException = exception;
+      // map CIM_ERR_NOT_FOUND to CIM_ERR_INVALID_CLASS
+      if (exception.getCode() == CIM_ERR_NOT_FOUND)
+      {
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
+                                              className.getString());
+      }
+      else
+      {
+         cimException = exception;
+      }
    }
    catch(Exception& exception)
    {

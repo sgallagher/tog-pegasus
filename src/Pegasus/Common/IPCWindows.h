@@ -93,7 +93,7 @@ typedef struct {
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-#define PEGASUS_CONDITIONAL_NATIVE = 1 
+#define PEGASUS_CONDITIONAL_NATIVE
 typedef HANDLE PEGASUS_COND_TYPE;
 
 typedef struct {
@@ -108,7 +108,7 @@ typedef struct {
 //-----------------------------------------------------------------
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define PEGASUS_ATOMIC_INT_NATIVE = 1
+#define PEGASUS_ATOMIC_INT_NATIVE
 
 typedef LONG  PEGASUS_ATOMIC_TYPE ;
 

@@ -70,7 +70,7 @@ typedef struct {
 /// Conditionals to support native or generic Conditional Semaphore
 //-----------------------------------------------------------------
 
-#define PEGASUS_CONDITIONAL_NATIVE 1
+#define PEGASUS_CONDITIONAL_NATIVE
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
 
@@ -88,7 +88,7 @@ typedef struct {
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-// #define PEGASUS_ATOMIC_INT_NATIVE = 1
+// #define PEGASUS_ATOMIC_INT_NATIVE
 
 // typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 
@@ -98,7 +98,7 @@ typedef struct {
 //-----------------------------------------------------------------
 
 #ifndef SUNOS_5_6
-#define PEGASUS_READWRITE_NATIVE 1
+#define PEGASUS_READWRITE_NATIVE
 
 typedef struct {
     pthread_rwlock_t rwlock;

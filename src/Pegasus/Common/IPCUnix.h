@@ -105,7 +105,7 @@ typedef struct {
 //-----------------------------------------------------------------
 
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#define PEGASUS_CONDITIONAL_NATIVE = 1
+#define PEGASUS_CONDITIONAL_NATIVE
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
 
@@ -125,9 +125,9 @@ typedef struct {
 // implementors should use the native type for faster operations
 
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#define PEGASUS_ATOMIC_INT_NATIVE = 1
+#define PEGASUS_ATOMIC_INT_NATIVE
 #if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-  #define PEGASUS_OLD_ATOMIC_INT = 1
+  #define PEGASUS_OLD_ATOMIC_INT
   typedef atomic_t PEGASUS_ATOMIC_TYPE ;
 
 #else
@@ -182,7 +182,7 @@ typedef struct {
 
 
 //#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
-// #define PEGASUS_READWRITE_NATIVE = 1
+// #define PEGASUS_READWRITE_NATIVE
 
 // typedef struct {
 //     pthread_rwlock_t rwlock;

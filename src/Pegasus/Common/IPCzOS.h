@@ -91,7 +91,7 @@ typedef struct {
 /// Conditionals to support native or generic Conditional Semaphore
 //-----------------------------------------------------------------
 
-#define PEGASUS_CONDITIONAL_NATIVE = 1
+#define PEGASUS_CONDITIONAL_NATIVE
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
 
@@ -109,7 +109,7 @@ typedef struct {
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------
 
-#define PEGASUS_READWRITE_NATIVE = 1
+#define PEGASUS_READWRITE_NATIVE
 
 typedef struct {
      pthread_rwlock_t rwlock;

@@ -27,12 +27,14 @@
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include "AuthenticationInfoRep.h"
+#include <Pegasus/Common/SSLContext.h>
 
 PEGASUS_USING_STD;
 
@@ -47,7 +49,8 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _authSecret(String::EMPTY),
     _privileged(false),
     _authType(String::EMPTY),
-    _authStatus(NEW_REQUEST)
+    _authStatus(NEW_REQUEST),
+    _peerCertificate(0)
 { 
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
@@ -149,5 +152,14 @@ void   AuthenticationInfoRep::setSecurityAssociation()
 }
 #endif
 
+void   AuthenticationInfoRep::setPeerCertificate(SSLCertificateInfo* peerCertificate)
+{
+    PEG_METHOD_ENTER(
+                    TRC_AUTHENTICATION, "AuthenticationInfoRep::setPeerCertificate");
+
+    _peerCertificate = peerCertificate;
+
+    PEG_METHOD_EXIT();
+}
 
 PEGASUS_NAMESPACE_END

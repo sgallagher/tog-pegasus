@@ -27,8 +27,8 @@
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes,
-//                  Hewlett-Packard Company (sushma_fernandes@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,6 +170,14 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     X509   *currentCert;
     int    verifyError = X509_V_OK;
 
+    // If the SSLContext does not have an additional callback
+    // simply return the preverification error.
+    // We do not need to go through the additional steps.
+    if (verify_certificate == NULL)
+    {
+        return (preVerifyOk);
+    }
+
     //
     // get the current certificate
     //
@@ -247,25 +255,56 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 
     if (verify_certificate(certInfo))
     {
+#ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
         verifyError = X509_V_OK;
+#endif
         preVerifyOk = 1;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
             "--> SSL: verify_certificate() returned X509_V_OK");
     }
     else
     {
+#ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
         verifyError = certInfo.getErrorCode();
+#endif
         preVerifyOk = 0;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
             "--> SSL: verify_certificate() returned error %d", verifyError);
     }
 
+    // We need a way for the server to retain the verification result,
+    // so that in 'optional' settings, we can still continue the connection.
+    // We can then give the verification result to a consumer and let them 
+    // decide whether to accept or reject the request.
     //
-    // Reset the error. It is logically not required to reset the error code, but
-    // openSSL code does not take just the return value on a failed certificate
-    // verification.
+    // The problem is that if we don't reset the error, the server verification
+    // gets messed up on the client side.
     //
+    // If SSL client verification is disabled, do things the old way,
+    // since the server will never even use the callback.
+    // 
+    // If SSL client verification is enabled, do not set the error code explicitly.
+    // Instead, require the client to set the error code within its callback.
+    // i.e.
+    // Boolean verifyCertificate(SSLCertificateInfo cert)
+    // {
+    //    cert.setErrorCode(SSLCertificateInfo::V_OK);
+    //    return true;
+    // }
+    //
+    // If clients do not do this w/ PEGASUS_USE_SSL_CLIENT_VERIFICATION enabled,
+    // the server verification will fail because the error code will be the original result.
+    // This is sort of a kluge, but I cannot figure out a better way to do this w/o
+    // some storage tactic.  
+    //
+    // This will definitely be fixed in 2.4.  For 2.3.2, it shouldn't matter since we
+    // are not using server verification.
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    X509_STORE_CTX_set_error(ctx, certInfo.getErrorCode()); 
+#else
     X509_STORE_CTX_set_error(ctx, verifyError);
+#endif
 
     PEG_METHOD_EXIT();
 
@@ -284,14 +323,14 @@ void pegasus_locking_callback( int 		mode,
 
     if ( mode & CRYPTO_LOCK )
     {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Now locking for %d", pegasus_thread_self());
+        /*Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Now locking for %d", pegasus_thread_self());*/
         SSLContextRep::_sslLocks[type].lock( pegasus_thread_self() );
     }
     else
     {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Now unlocking for %d", pegasus_thread_self());
+        /*Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Now unlocking for %d", pegasus_thread_self());*/
         SSLContextRep::_sslLocks[type].unlock( );
     }
 }
@@ -338,7 +377,7 @@ void SSLContextRep::free_ssl()
 // For the OSs that don't have /dev/random device file,
 // must enable PEGASUS_SSL_RANDOMFILE flag.
 //
-SSLContextRep::SSLContextRep(const String& trustPath,
+SSLContextRep::SSLContextRep(const String& trustStore,
                        const String& certPath,
                        const String& keyPath,
                        SSLCertificateVerifyFunction* verifyCert,
@@ -346,14 +385,28 @@ SSLContextRep::SSLContextRep(const String& trustPath,
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
-    _trustPath = trustPath.getCString();
+    _trustStore = trustStore;
 
-    _certPath = certPath.getCString();
+    _certPath = certPath;
 
-    _keyPath = keyPath.getCString();
+    _keyPath = keyPath;
 
+	//ATTN: This cannot be global now that there are multiple SSLContexts.
     verify_certificate = verifyCert;
 
+	_trustStoreAutoUpdate = false;
+
+	_trustStoreUserName = String::EMPTY;
+
+    // If a truststore and/or peer verification function is specified, enable peer verification
+    if (trustStore != String::EMPTY || verifyCert != NULL)
+    {
+        _verifyPeer = true;
+    } 
+    else
+    {
+        _verifyPeer = false;
+    }
 
     // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
     _countRepMutex.lock(pegasus_thread_self());
@@ -402,13 +455,100 @@ SSLContextRep::SSLContextRep(const String& trustPath,
     PEG_METHOD_EXIT();
 }
 
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+SSLContextRep::SSLContextRep(
+                       const String& trustStore,
+                       const String& certPath,
+                       const String& keyPath,
+                       SSLCertificateVerifyFunction* verifyCert,
+                       Boolean trustStoreAutoUpdate,
+					   String trustStoreUserName,
+                       const String& randomFile)
+{
+    PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
+
+    _trustStore = trustStore;
+
+    _certPath = certPath;
+
+    _keyPath = keyPath;
+
+	//ATTN: This cannot be global now that there are multiple SSLContexts.
+    verify_certificate = verifyCert;
+
+    _trustStoreAutoUpdate = trustStoreAutoUpdate;
+
+	_trustStoreUserName = trustStoreUserName;
+
+    // If a truststore and/or peer verification function is specified, enable peer verification
+    if (trustStore != String::EMPTY || verifyCert != NULL)
+    {
+        _verifyPeer = true;
+    } 
+    else
+    {
+        _verifyPeer = false;
+    }
+
+    // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
+    _countRepMutex.lock(pegasus_thread_self());
+
+    try
+    {
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Value of Countrep in constructor %d", _countRep);
+        if ( _countRep == 0 )
+        {
+            init_ssl();
+
+            //
+            // load SSL library
+            //
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Before calling SSL_load_error_strings %d", pegasus_thread_self());
+
+            SSL_load_error_strings();
+
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "After calling SSL_load_error_strings %d", pegasus_thread_self());
+
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "Before calling SSL_library_init %d", pegasus_thread_self());
+
+            SSL_library_init();
+
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "After calling SSL_library_init %d", pegasus_thread_self());
+
+        } 
+    }
+    catch(...)
+    {
+        _countRepMutex.unlock();
+        throw;
+    }
+    _countRep++;
+    _countRepMutex.unlock();
+
+    _randomInit(randomFile);
+
+    _sslContext = _makeSSLContext();
+
+    PEG_METHOD_EXIT();
+}
+#endif
+
 SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
-    _trustPath = sslContextRep._trustPath;
+    _trustStore = sslContextRep._trustStore;
     _certPath = sslContextRep._certPath;
     _keyPath = sslContextRep._keyPath;
+    _verifyPeer = sslContextRep._verifyPeer;
+    _trustStoreAutoUpdate = sslContextRep._trustStoreAutoUpdate;
+	_trustStoreUserName = sslContextRep._trustStoreUserName;
+
     // ATTN: verify_certificate is set implicitly in global variable
     _randomFile = sslContextRep._randomFile;
 
@@ -657,27 +797,66 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     SSL_CTX_set_options(sslContext,SSL_OP_ALL);
     SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
 
-    if (verify_certificate != NULL)
+    if (_verifyPeer)
     {
-        SSL_CTX_set_verify(sslContext, 
-             SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
+        //ATTN: We might still need a flag to specify SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+        // If SSL_VERIFY_FAIL_IF_NO_PEER_CERT is ON, SSL will immediately be terminated if the client sends no certificate
+        // or sends an untrusted certificate.  The callback function is not called in this case; the handshake is simply terminated.
+        // This value has NO effect in from a client perspective
+
+        if (verify_certificate != NULL)
+        {
+			SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
+		}
+        else
+        {
+            SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, prepareForCallback);
+        }
     }
     else
     {
-	SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
+	    SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
     }
+
+    //
+	// Convert SSL paths to C strings for OpenSSL APIs
+	//
+	CString trustStore_cstr = _trustStore.getCString();
+    CString certPath_cstr = _certPath.getCString();
+	CString keyPath_cstr = _keyPath.getCString();
 
     //
     // Check if there is CA certificate file specified. If specified,
     // load the certificates from the file in to the CA trust store.
     //
-    if (strncmp(_trustPath, "", 1) != 0)
+    if (!String::equal(_trustStore, String::EMPTY) && !String::equal(_trustStore, String::EMPTY))
     {
+        //
+        // The truststore may be a single file of CA certificates OR
+        // a directory containing multiple CA certificates.
+        // Check which one it is, and call the load_verify_locations function 
+        // with the appropriate parameter.  Note: It is possible to have both
+        // options, in which the CA file takes precedence over the CA path.  
+        // However, since there is currently only one trust parameter to the
+        // SSL functions, only allow one choice here.  
+        const char* CA_Directory = NULL;
+        const char* CA_File = NULL;
+
+        if (FileSystem::isDirectory((const char*)trustStore_cstr))
+        {
+            CA_Directory = trustStore_cstr;
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,"Truststore is a directory");
+
+        } else if (FileSystem::exists((const char*)trustStore_cstr)) 
+        {
+            CA_File = trustStore_cstr;
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,"Truststore is a file");
+        }
+
         //
         // load certificates in to trust store
         //
-
-        if ((!SSL_CTX_load_verify_locations(sslContext, _trustPath, NULL)) ||
+        if ((!SSL_CTX_load_verify_locations(sslContext, CA_File, CA_Directory)) ||
             (!SSL_CTX_set_default_verify_paths(sslContext)))
         {
             PEG_METHOD_EXIT();
@@ -695,17 +874,16 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     // certificate) specified. If specified, validate and load the 
     // certificate.
     //
-    if (strncmp(_certPath, "", 1) != 0)
+    if (!String::equal(_certPath, String::EMPTY) && !String::equal(_certPath, String::EMPTY))
     {
         //
         // load the specified server certificates
         //
 
-        if (SSL_CTX_use_certificate_file(sslContext,
-            _certPath, SSL_FILETYPE_PEM) <=0)
+        if (SSL_CTX_use_certificate_file(sslContext, certPath_cstr, SSL_FILETYPE_PEM) <=0)
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-                "---> SSL: no certificate found in " + String(_certPath));
+                "---> SSL: no certificate found in " + _certPath);
             PEG_METHOD_EXIT();
             //l10n
             //throw( SSLException("Could not get server certificate."));
@@ -716,18 +894,18 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
 
         //
         // If there is no key file (file containing server
-        // private key) specified or the specified file does not exist,
-        // then try loading the key from the certificate file.
+        // private key) specified, then try loading the key from the certificate file.
+		// As of 2.4, if a keyfile is specified, its location is verified during server
+		// startup and will throw an error if the path is invalid.
         //
-        if ( strncmp(_keyPath, "", 1) == 0  ||
-           !FileSystem::exists(String(_keyPath)) )
+        if (String::equal(_keyPath, String::EMPTY) || String::equal(_keyPath, ""))
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-                "---> SSL: loading key from" + String(_certPath));
+                "---> SSL: loading key from" + _certPath);
             //
             // load the private key and check for validity
             //
-            if (!_verifyPrivateKey(sslContext, _certPath))
+            if (!_verifyPrivateKey(sslContext, certPath_cstr))
             {
                 PEG_METHOD_EXIT();
                 //l10n
@@ -745,14 +923,14 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     // private key) specified and the key was not already loaded.
     // If specified, validate and load the key.
     //
-    if (strncmp(_keyPath, "", 1) != 0 && !keyLoaded)
+    if (!String::equal(_keyPath, String::EMPTY) && !String::equal(_keyPath, String::EMPTY) && !keyLoaded)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-            "---> SSL: loading key from" + String(_keyPath));
+            "---> SSL: loading key from" + _keyPath);
         //
         // load given private key and check for validity
         //
-        if (!_verifyPrivateKey(sslContext, _keyPath))
+        if (!_verifyPrivateKey(sslContext, keyPath_cstr))
         {
             PEG_METHOD_EXIT();
             //l10n
@@ -796,17 +974,58 @@ SSL_CTX * SSLContextRep::getContext() const
 {
     return _sslContext;
 }
+
+String SSLContextRep::getTrustStore() const
+{
+    return _trustStore;
+}
+
+String SSLContextRep::getCertPath() const
+{
+    return _certPath;
+}
+
+String SSLContextRep::getKeyPath() const
+{
+    return _keyPath;
+}
+
+Boolean SSLContextRep::isPeerVerificationEnabled() const
+{
+    return _verifyPeer;
+}
+
+Boolean SSLContextRep::isTrustStoreAutoUpdateEnabled() const
+{
+    return _trustStoreAutoUpdate;
+}
+
+String SSLContextRep::getTrustStoreUserName() const
+{
+	return _trustStoreUserName;
+}
+
 #else 
 
 //
 // these definitions are used if ssl is not available
 //
 
-SSLContextRep::SSLContextRep(const String& trustPath,
+SSLContextRep::SSLContextRep(const String& trustStore,
                        const String& certPath,
                        const String& keyPath,
                        SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile) {}
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+SSLContextRep::SSLContextRep(const String& trustStore,
+                       const String& certPath,
+                       const String& keyPath,
+                       SSLCertificateVerifyFunction* verifyCert,
+                       Boolean trustStoreAutoUpdate,
+					   String trustStoreUserName,
+                       const String& randomFile) {}
+#endif
 
 SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 
@@ -818,6 +1037,18 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx,
                                          const char *keyPath) { return false; }
 
 SSL_CTX * SSLContextRep::getContext() const { return 0; }
+
+String SSLContextRep::getTrustStore() const { return String::EMPTY; }
+
+String SSLContextRep::getCertPath() const { return String::EMPTY; }
+
+String SSLContextRep::getKeyPath() const { return String::EMPTY; }
+
+Boolean SSLContextRep::isPeerVerificationEnabled() const { return false; }
+
+Boolean SSLContextRep::isTrustStoreAutoUpdateEnabled() const { return false; }
+
+String SSLContextRep::getTrustStoreUserName() const { return String::EMPTY; }
 
 void SSLContextRep::init_ssl() {}
 
@@ -833,11 +1064,15 @@ void SSLContextRep::free_ssl() {}
 
 
 SSLContext::SSLContext(
-    const String& trustPath,
+    const String& trustStore,
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-    _rep = new SSLContextRep(trustPath, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    _rep = new SSLContextRep(trustStore, String::EMPTY, String::EMPTY,  verifyCert, false, String::EMPTY, randomFile);
+#else
+    _rep = new SSLContextRep(trustStore, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
+#endif
 }
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
@@ -847,7 +1082,11 @@ SSLContext::SSLContext(
     const String& randomFile,
     Boolean isCIMClient)
 {
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    _rep = new SSLContextRep(certPath, String::EMPTY, String::EMPTY,  verifyCert, false, String::EMPTY, randomFile);
+#else
     _rep = new SSLContextRep(certPath, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
+#endif
 }
 
 SSLContext::SSLContext(
@@ -856,19 +1095,42 @@ SSLContext::SSLContext(
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    _rep = new SSLContextRep(certPath, certKeyPath, String::EMPTY, verifyCert, false, String::EMPTY, randomFile);
+#else
     _rep = new SSLContextRep(certPath, certKeyPath, String::EMPTY, verifyCert, randomFile);
+#endif
 }
 #endif
 
 SSLContext::SSLContext(
-    const String& trustPath,
+    const String& trustStore,
     const String& certPath,
     const String& keyPath,
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-    _rep = new SSLContextRep(trustPath, certPath, keyPath, verifyCert, randomFile);
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    _rep = new SSLContextRep(trustStore, certPath, keyPath, verifyCert, false, String::EMPTY, randomFile);
+#else
+    _rep = new SSLContextRep(trustStore, certPath, keyPath, verifyCert, randomFile);
+#endif
 }
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+SSLContext::SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        Boolean trustStoreAutoUpdate,
+		String trustStoreUserName,
+        const String& randomFile)
+{
+    _rep = new SSLContextRep(trustStore, certPath, keyPath, verifyCert, trustStoreAutoUpdate, trustStoreUserName, randomFile);
+}
+#endif
+
 
 SSLContext::SSLContext(const SSLContext& sslContext)
 {
@@ -885,6 +1147,35 @@ SSLContext::~SSLContext()
     delete _rep;
 }
 
+String SSLContext::getTrustStore() const
+{
+    return (_rep->getTrustStore());
+}
+
+String SSLContext::getCertPath() const
+{
+    return (_rep->getCertPath());
+}
+
+String SSLContext::getKeyPath() const
+{
+    return (_rep->getKeyPath()); 
+}
+
+Boolean SSLContext::isPeerVerificationEnabled() const
+{
+    return (_rep->isPeerVerificationEnabled());
+}
+
+Boolean SSLContext::isTrustStoreAutoUpdateEnabled() const
+{
+    return (_rep->isTrustStoreAutoUpdateEnabled());
+}
+
+String SSLContext::getTrustStoreUserName() const
+{
+	return (_rep->getTrustStoreUserName());
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -958,8 +1249,8 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep->issuerName = issuerName;
     _rep->versionNumber = 0;
     _rep->serialNumber = 0;
-    _rep->notBefore = CIMDateTime(String::EMPTY);
-    _rep->notAfter = CIMDateTime(String::EMPTY);
+    _rep->notBefore = CIMDateTime();
+    _rep->notAfter = CIMDateTime();
     _rep->depth = errorDepth;
     _rep->errorCode = errorCode;
     _rep->errorString = String::EMPTY;

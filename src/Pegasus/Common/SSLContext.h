@@ -27,6 +27,7 @@
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class SSLCertificateInfoRep;
 class SSLContextRep;
+class SSLContext;
 class SSLSocket;
 class CIMServer;
 class CIMxmlIndicationHandler;
@@ -220,6 +222,11 @@ private:
 
     SSLCertificateInfoRep* _rep;
 
+    // SSLSocket needs to use the private constructor to create
+    // a certificate object to pass to the AuthenticationInfo and
+    // OperationContext classes
+    friend class SSLSocket;
+
     friend int prepareForCallback(int, X509_STORE_CTX*);
 };
 
@@ -238,7 +245,7 @@ class PEGASUS_COMMON_LINKAGE SSLContext
 public:
 
     /** Constructor for a SSLContext object.
-    @param trustPath file path of the trust store
+    @param trustStore file path of the trust store
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -248,7 +255,7 @@ public:
     @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
-        const String& trustPath,
+        const String& trustStore,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY);
 
@@ -264,11 +271,46 @@ public:
 
     ~SSLContext();
 
-private:
+    /** Gets the truststore path of the SSLContext object.  This may be a CA file or a directory.
+    @return a string containing the truststore path.
+    */
+    String getTrustStore() const;
+    
+    /** Gets the x509 certificate path of the SSLContext object.
+    @return a string containing the certificate path.
+    */
+    String getCertPath() const;
 
+    /** Gets the private key path of the SSLContext object.
+    @return a string containing the key path
+    */
+    String getKeyPath() const;
+
+    /** Returns whether peer verification is ON of OFF
+    Corresponds to what the SSL_CTX_set_verify
+    @return true if verification is on; false otherwise
+    */
+    Boolean isPeerVerificationEnabled() const;
+
+    /** Returns whether enableSSLTrustStoreAutoUpdate is ON or OFF
+    If on, untrusted certificates sent with privileged credentials will
+    be automatically added to the server's truststore
+    @return true if auto update is on; false otherwise
+    */
+    Boolean isTrustStoreAutoUpdateEnabled() const;
+
+	/** Returns the username associated with the truststore, if applicable
+	This is currently necessary for OperationContext
+	@return the username associated with the truststore or String::EMPTY if not applicable
+	*/
+	String getTrustStoreUserName() const;
+
+#ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+private:
+#endif
     /** Constructor for a SSLContext object. This constructor is intended
-    to be used by the CIMServer only.
-    @param trustPath file path of the trust store.
+    to be used by the CIMServer or CIMClient (with PEGASUS_USE_SSL_CLIENT_VERIFICATION) only.
+    @param trustStore file path of the trust store.
     @param certPath  file path of the server certificate.
     @param KeyPath  file path of the private key. 
     @param verifyCert  function pointer to a certificate verification
@@ -280,11 +322,26 @@ private:
     @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
-        const String& trustPath,
+        const String& trustStore,
         const String& certPath,
         const String& keyPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+private:
+#endif
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        Boolean trustStoreAutoUpdate,
+		String trustStoreUserName,
+        const String& randomFile);
+#endif
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     SSLContext(

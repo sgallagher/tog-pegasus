@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:  Amit Arora (amita@in.ibm.com) for Bug#1170
+//               Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -360,6 +361,26 @@ Boolean bsd_socket_rep::is_secure(void)
    return false;
 }
 
+Boolean bsd_socket_rep::isPeerVerificationEnabled(void)
+{
+    return false;
+}
+
+SSLCertificateInfo* bsd_socket_rep::getPeerCertificate(void)
+{
+    return NULL;
+}
+
+Boolean bsd_socket_rep::isCertificateVerified(void)
+{
+    return false;
+}
+
+Boolean bsd_socket_rep::addTrustedClient(const char* username)
+{
+    return false;
+}
+
 void bsd_socket_rep::set_close_on_exec(void)
 {
    #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -432,6 +453,12 @@ class ssl_socket_rep : public bsd_socket_rep
 
       virtual Boolean incompleteReadOccurred(Sint32 retCode);
       virtual Boolean is_secure(void);
+
+      virtual Boolean isPeerVerificationEnabled(void);
+      virtual SSLCertificateInfo* getPeerCertificate(void); 
+      virtual Boolean isCertificateVerified(void);
+      virtual Boolean addTrustedClient(const char* username);   
+
       const char* get_err_string(void);
 
       void set_ctx(SSLContext *);
@@ -587,6 +614,26 @@ Boolean ssl_socket_rep::incompleteReadOccurred(Sint32 retCode)
 Boolean ssl_socket_rep::is_secure(void)
 {
    return _init();
+}
+
+Boolean ssl_socket_rep::isPeerVerificationEnabled(void)
+{
+    return _internal_socket->isPeerVerificationEnabled();
+}
+
+SSLCertificateInfo* ssl_socket_rep::getPeerCertificate(void)
+{
+   return _internal_socket->getPeerCertificate();
+}
+
+Boolean ssl_socket_rep::isCertificateVerified(void)
+{
+   return _internal_socket->isCertificateVerified();
+}
+
+Boolean ssl_socket_rep::addTrustedClient(const char* username)
+{
+   return _internal_socket->addTrustedClient(username);
 }
 
 const char* ssl_socket_rep::get_err_string(void)
@@ -795,11 +842,30 @@ Boolean pegasus_socket::is_secure(void)
    return _rep->is_secure();
 }
 
+Boolean pegasus_socket::isPeerVerificationEnabled(void)
+{
+    return _rep->isPeerVerificationEnabled();
+}
+
+SSLCertificateInfo* pegasus_socket::getPeerCertificate(void)
+{
+   return _rep->getPeerCertificate();
+}
+
+Boolean pegasus_socket::isCertificateVerified(void)
+{
+   return _rep->isCertificateVerified();
+}
+
+Boolean pegasus_socket::addTrustedClient(const char* username)
+{
+   return _rep->addTrustedClient(username);
+}
+
 void pegasus_socket::set_close_on_exec(void)
 {
    _rep->set_close_on_exec();
 }
-
 
 const char* pegasus_socket::get_err_string(void)
 {

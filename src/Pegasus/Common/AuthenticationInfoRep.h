@@ -26,6 +26,7 @@
 // Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company(jair.santos@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/SSLContext.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -121,6 +123,13 @@ public:
     void setSecurityAssociation();
 #endif
 
+    SSLCertificateInfo* getPeerCertificate() const
+    {
+        return _peerCertificate;
+    }
+
+    void setPeerCertificate(SSLCertificateInfo* peerCertificate);
+
 private:
 
     /** Constructors  */
@@ -140,6 +149,9 @@ private:
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
 #endif
+
+    SSLCertificateInfo* _peerCertificate; //PEP165
+
 };
 
 PEGASUS_NAMESPACE_END

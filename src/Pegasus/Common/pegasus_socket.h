@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:   Amit Arora (amita@in.ibm.com) for Bug#1170
+//                Heather Sterling, IBM (hsterl@us.ibm.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -134,6 +135,11 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
       virtual void set_close_on_exec(void) = 0;
       virtual const char* get_err_string(void) = 0;
 
+      virtual Boolean isPeerVerificationEnabled(void) = 0;
+      virtual SSLCertificateInfo* getPeerCertificate(void) = 0; 
+      virtual Boolean isCertificateVerified(void) = 0;  
+      virtual Boolean addTrustedClient(const char* username) = 0;
+
    private:
 
       abstract_socket(const abstract_socket& );
@@ -187,6 +193,12 @@ class empty_socket_rep : public abstract_socket
 	 static const char* msg = "Unsupported.";
 	 return msg;
       }
+
+      Boolean isPeerVerificationEnabled(void) { return false;}
+      SSLCertificateInfo* getPeerCertificate(void) { return NULL; } 
+      Boolean isCertificateVerified(void) { return 0;}    
+      Boolean addTrustedClient(const char* username) { return false;}   
+
    private:
       empty_socket_rep(int);
 };
@@ -238,6 +250,11 @@ class bsd_socket_rep : public abstract_socket
       virtual Boolean is_secure(void);
       void set_close_on_exec(void);
       virtual const char* get_err_string(void);
+
+      virtual Boolean isPeerVerificationEnabled(void);
+      virtual SSLCertificateInfo* getPeerCertificate(void); 
+      virtual Boolean isCertificateVerified(void);    
+      virtual Boolean addTrustedClient(const char* username);       
 
    private:
 
@@ -318,6 +335,12 @@ public:
 
   Boolean incompleteReadOccurred(Sint32 retCode);
   Boolean is_secure(void);
+
+  Boolean isPeerVerificationEnabled(void);
+  SSLCertificateInfo* getPeerCertificate(void); 
+  Boolean isCertificateVerified(void);    
+  Boolean addTrustedClient(const char* username); 
+
     void set_close_on_exec(void);
       
   const char* get_err_string(void);

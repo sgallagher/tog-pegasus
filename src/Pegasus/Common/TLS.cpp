@@ -29,6 +29,7 @@
 //         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//         Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,11 +39,9 @@
 #include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/FileSystem.h>    
 
 #include "TLS.h"
-
-// switch on if 'server needs certified client'
-//#define CLIENT_CERTIFY
 
 //
 // use the following definitions only if SSL is available
@@ -60,7 +59,8 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
    _SSLCertificate(0),
    _SSLConnection(0),
    _socket(socket),
-   _SSLContext(sslcontext)
+   _SSLContext(sslcontext),
+   _certificateVerified(false)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
@@ -100,6 +100,11 @@ SSLSocket::~SSLSocket()
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
 
     SSL_free(_SSLConnection);
+
+    if (_SSLCertificate) 
+    {
+        delete _SSLCertificate;
+    }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");
 
@@ -181,9 +186,9 @@ Sint32 SSLSocket::accept()
 
     Sint32 ssl_rc,ssl_rsn;
 
-    SSL_do_handshake(_SSLConnection);
-
-    SSL_set_accept_state(_SSLConnection);
+    //ATTN: these methods get implicitly done with the SSL_accept call
+    //SSL_do_handshake(_SSLConnection);
+    //SSL_set_accept_state(_SSLConnection);
 
 redo_accept:
     ssl_rc = SSL_accept(_SSLConnection);
@@ -217,34 +222,87 @@ redo_accept:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Accepted");
 
-#ifdef CLIENT_CERTIFY
-    // get client's certificate
-    // this is usually not needed 
-    X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
-    if (client_cert != NULL)
+    if (_SSLContext->isPeerVerificationEnabled()) 
     {
-       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-               "---> SSL: Client Certificate verified.");
-       }
-       else
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-               "---> SSL: Client Certificate not verified");    
-           PEG_METHOD_EXIT();
-           return -1;
-       }
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to certify client");
 
-       X509_free (client_cert);
+        // get client's certificate
+        X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+        if (client_cert != NULL)
+        {
+            int verifyResult = SSL_get_verify_result(_SSLConnection);
+            Tracer::trace(TRC_SSL, Tracer::LEVEL3, "Verification Result:  %d", verifyResult );
+            
+            if (verifyResult == X509_V_OK)
+            {
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                    "---> SSL: Client Certificate verified.");
+				_certificateVerified = true;
+            }
+            else
+            {
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                     "---> SSL: Client Certificate not verified");    
+            }
+
+            // create the certificate object
+            // this should be sent in the operation context so the consumer may use it
+            // to further determine to accept or reject the request
+            // ATTN: Need to either add to IdentityContainer, create a new Container, or create 
+            // a super IdentityContainer which holds multiple forms of ID
+            char buf[256];
+
+            //subject name
+            X509_NAME_oneline(X509_get_subject_name(client_cert), buf, 256);
+            String subjectName = String(buf);
+
+            //issuer name
+            X509_NAME_oneline(X509_get_issuer_name(client_cert), buf, 256);
+            String issuerName = String(buf);
+
+            //version number
+            //long version = X509_get_version(client_cert);
+
+            //serial number
+            //long serialNumber = ASN1_INTEGER_get(X509_get_serialNumber(client_cert));
+
+            //notBefore
+            //CIMDateTime notBefore(); // = getDateTime(X509_get_notBefore(client_cert));
+
+            //notAfter
+            //CIMDateTime notAfter(); // = getDateTime(X509_get_notAfter(client_cert));
+
+            //depth
+            //int depth = 1;  // how do we get depth from certificate??
+
+            //errorCode
+            int errorCode = verifyResult; //this should contain the verification error still, since it did not get reset in callback
+
+            //errorString
+            String errorStr = String(X509_verify_cert_error_string(errorCode));
+
+            //respCode
+            int respCode = _certificateVerified;  //this holds the eventual result from the verification process
+
+
+            //ATTN: Expand to use private constructor once we figure out the best way to get the remaining parameters
+            _SSLCertificate = new SSLCertificateInfo(subjectName, 
+                                                     issuerName, 
+                                                     1, 
+                                                     errorCode,
+                                                     respCode);   
+
+            X509_free(client_cert);
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified, no certificate received");
+        }
     }
     else
     {
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified");
-       PEG_METHOD_EXIT();
-       return -1;
+	    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client certification disabled");
     }
-#endif
 
     PEG_METHOD_EXIT();
     return ssl_rc;
@@ -288,34 +346,178 @@ redo_connect:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
-    // get server's certificate
-    X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
-    if (server_cert != NULL)
+    if (_SSLContext->isPeerVerificationEnabled())
     {
-       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate verified.");
-       }
-       else
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate NOT verified.");    
-           PEG_METHOD_EXIT();
-           return -1;
-       }
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to verify server certificate.");
 
-       X509_free (server_cert);
-    }
+        X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
+        if (server_cert != NULL)
+        {
+            if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+            {
+                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate verified.");
+            }
+            else
+            {
+                X509_free (server_cert);
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate not verified.");    
+                PEG_METHOD_EXIT();
+                return -1;
+            }
+
+            X509_free (server_cert);
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "-->SSL: Server not certified, no certificate received.");
+            PEG_METHOD_EXIT();
+            return -1;
+        }
+	}
     else
     {
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server not certified.");
-       PEG_METHOD_EXIT();
-       return -1;
+	    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Server certification disabled");
     }
 
     PEG_METHOD_EXIT();
     return ssl_rc;
 }
 
+Boolean SSLSocket::isPeerVerificationEnabled()
+{ 
+    return (_SSLContext->isPeerVerificationEnabled()); 
+}
+
+SSLCertificateInfo* SSLSocket::getPeerCertificate() 
+{ 
+    return _SSLCertificate; 
+}
+
+Boolean SSLSocket::isCertificateVerified()
+{ 
+    return _certificateVerified; 
+}
+
+Boolean SSLSocket::addTrustedClient(const char* username) 
+{
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::addTrustedClient()");
+
+    // check whether we have authority to automatically update truststore
+    if (!_SSLContext->isTrustStoreAutoUpdateEnabled())
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client certificate: enableSSLTrustStoreAutoUpdate is disabled.");
+        return false;
+    }
+
+	// check whether the credentials match those in sslTrustStoreUserName
+	if (strcmp(username, (const char*)_SSLContext->getTrustStoreUserName().getCString()) != 0)
+	{
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client certificate: User credentials do not match sslTrustStoreUserName.");
+        return false;
+	}
+
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add client certificate to truststore.");
+
+    X509 *client_cert = SSL_get_peer_certificate(_SSLConnection);
+
+    if (client_cert != NULL)
+    {
+        unsigned long hashVal = X509_subject_name_hash(client_cert);
+
+        String trustStore = _SSLContext->getTrustStore();
+    
+        if (trustStore == String::EMPTY || String::equal(trustStore, "none"))
+        {
+            // bail if we cannot find the truststore directory
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client -- truststore directory invalid.");
+            return false;
+        }
+        
+        Uint32 index = 0;
+
+        //The files are looked up by the CA subject name hash value. 
+        //If more than one CA certificate with the same name hash value exist, 
+        //the extension must be different (e.g. 9d66eef0.0, 9d66eef0.1 etc)
+        char hashBuffer[32];
+        sprintf(hashBuffer, "%x", hashVal);
+
+        String hashString = "";
+        for (int j = 0; j < 32; j++) 
+        {
+            if (hashBuffer[j] != '\0') 
+            {
+               hashString.append(hashBuffer[j]);
+            } 
+            else
+            {
+                break; // end of hash string
+            }
+        }
+        
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Searching for files like " + hashString);
+
+        FileSystem::translateSlashes(trustStore); 
+        if (FileSystem::isDirectory(trustStore) && FileSystem::canWrite(trustStore)) 
+        {
+            Array<String> trustedCerts;
+            if (FileSystem::getDirectoryContents(trustStore, trustedCerts)) 
+            {
+                Uint32 count = trustedCerts.size();
+                for (Uint32 i = 0; i < count; i++)
+                {
+                    if (String::compare(trustedCerts[i], hashString, hashString.size()) == 0) 
+                    {
+                       index++;
+                    }
+                }
+            } 
+            else
+            {
+                String errorMsg = "Cannot add client certificate to truststore: could not open truststore directory.";
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, errorMsg);
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
+                return false;
+            }
+        } 
+        else
+        {
+            String errorMsg = "Cannot add client certificate to truststore: Truststore directory DNE or does not have write privileges.";
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, errorMsg);
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
+            return false;
+        }
+        
+        //create new file with subject_hash.index in trust directory
+        //copy client certificate into this file
+        //now we trust this client and no longer need to check local OS credentials
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add trusted client to " + trustStore);
+        
+        char filename[1024];
+        sprintf(filename, "%s/%s.%d", 
+                (const char*)trustStore.getCString(),
+                (const char*)hashString.getCString(), 
+                index);
+        
+        //use the ssl functions to write out the client x509 certificate
+        //TODO: add some error checking here
+        BIO* outFile = BIO_new(BIO_s_file());
+        BIO_write_filename(outFile, filename);
+        int i = PEM_write_bio_X509(outFile, client_cert);
+        BIO_free_all(outFile);
+
+        char subject[256];
+        X509_NAME_oneline(X509_get_subject_name(client_cert), subject, 256);
+        String subjectName = String(subject);
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "Client certificate added to truststore: subjectName $0", subjectName);
+
+        X509_free(client_cert);
+    }
+
+    PEG_METHOD_EXIT();
+    return true;
+}
 
 //
 // MP_Socket (Multi-purpose Socket class
@@ -347,7 +549,9 @@ MP_Socket::~MP_Socket()
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::~MP_Socket()");
     if (_isSecure)
+    {
         delete _sslsock;
+    }
     PEG_METHOD_EXIT();
 }   
    
@@ -434,6 +638,42 @@ Sint32 MP_Socket::connect()
     return 0;
 }
 
+Boolean MP_Socket::isPeerVerificationEnabled()
+{
+    if (_isSecure)
+    {
+        return (_sslsock->isPeerVerificationEnabled());
+    }
+    return false;
+}
+
+SSLCertificateInfo* MP_Socket::getPeerCertificate()
+{
+    if (_isSecure)
+    {
+        return (_sslsock->getPeerCertificate());
+    }
+    return NULL;
+}
+
+Boolean MP_Socket::isCertificateVerified()
+{
+    if (_isSecure)
+    {
+        return (_sslsock->isCertificateVerified());
+    }
+    return false;
+}
+
+Boolean MP_Socket::addTrustedClient(const char* username)
+{
+    if (_isSecure)
+    {
+        return (_sslsock->addTrustedClient(username));
+    }
+    return false;
+}
+
 PEGASUS_NAMESPACE_END
 
 #else
@@ -491,6 +731,13 @@ Sint32 MP_Socket::accept() { return 0; }
 
 Sint32 MP_Socket::connect() { return 0; }
 
+Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
+
+SSLCertificateInfo* MP_Socket::getPeerCertificate() { return NULL; }
+
+Boolean MP_Socket::isCertificateVerified() { return false; }
+
+Boolean MP_Socket::addTrustedClient(const char* username) { return false; }
 
 PEGASUS_NAMESPACE_END
 

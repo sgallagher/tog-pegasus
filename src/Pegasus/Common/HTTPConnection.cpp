@@ -30,6 +30,7 @@
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Dave Rosckes (rosckes@us.ibm.com)
 //         Amit Arora, IBM (amita@in.ibm.com)
+//         Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -133,6 +134,17 @@ HTTPConnection::HTTPConnection(
    //Socket::disableBlocking(_socket);
    _socket->disableBlocking();
    _authInfo = new AuthenticationInfo(true);
+
+   // Add SSL verification information to the authentication information
+   if (_socket->isSecure() && _socket->isPeerVerificationEnabled()) 
+   {
+       _authInfo->setPeerCertificate(_socket->getPeerCertificate());
+       if (_socket->isCertificateVerified())
+       {
+           _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+       }
+   }
+
    _responsePending = false;
    _connectionRequestCount = 0;
 
@@ -259,6 +271,29 @@ void HTTPConnection::handleEnqueue(Message *message)
             totalBytesWritten += bytesWritten;
 	    bytesRemaining -= bytesWritten;
 	 }
+
+     //
+     // handle automatic truststore update, if enabled
+     //
+     if (_socket->isSecure() && _socket->isPeerVerificationEnabled())
+     {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+                       "Authenticated = %d; Username = %s",
+                       _authInfo->isAuthenticated(), 
+                       (const char*)_authInfo->getAuthenticatedUser().getCString());
+
+         // If the client sent an untrusted certificate along with valid credentials
+         // for the SSL truststore, add the certificate to the server's truststore.
+         // This will fail in the addTrustedClient function if enableSSLTrustStoreAutoUpdate is 
+         // not enabled.
+         if (_authInfo->isAuthenticated() &&
+             _authInfo->getPeerCertificate() && 
+             _authInfo->getPeerCertificate()->getErrorCode() != SSLCertificateInfo::V_OK)
+         {
+             _socket->addTrustedClient(_authInfo->getAuthenticatedUser().getCString());
+         }
+     }
+
 	 //
 	 // decrement request count
 	 //
@@ -626,6 +661,16 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
 
    _authInfo = new AuthenticationInfo(true);
 
+   // add SSL verification information to the authentication information
+   if (_socket.is_secure() && _socket.isPeerVerificationEnabled()) 
+   {
+       _authInfo->setPeerCertificate(_socket.getPeerCertificate());
+       if (_socket.isCertificateVerified())
+       {
+           _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+       }
+   }
+
    PEG_METHOD_EXIT();
 }
 
@@ -720,6 +765,30 @@ void HTTPConnection2::handleEnqueue(Message *message)
             totalBytesWritten += bytesWritten;
 	    bytesRemaining -= bytesWritten;
 	 }
+
+     //
+     // handle automatic truststore update, if enabled
+     //
+     if (_socket.is_secure() && _socket.isPeerVerificationEnabled())
+     {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+                       "Authenticated = %d; Username = %s",
+                       _authInfo->isAuthenticated(), 
+                       (const char*)_authInfo->getAuthenticatedUser().getCString());
+
+         // If the client sent an untrusted certificate along with valid credentials
+         // for the SSL truststore, add the certificate to the server's truststore.
+         // This will fail in the addTrustedClient function if enableSSLTrustStoreAutoUpdate is 
+         // not enabled.
+         if (_authInfo->isAuthenticated() &&
+             _authInfo->getPeerCertificate() && 
+             _authInfo->getPeerCertificate()->getResponseCode() != SSLCertificateInfo::V_OK)
+         {
+             _socket.addTrustedClient(_authInfo->getAuthenticatedUser().getCString());
+         }
+         
+     }
+
 	 //
 	 // decrement request count
 	 //

@@ -27,6 +27,7 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -214,7 +215,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
-    Boolean authenticated = false;
     deleteMessage = true;
 
     // ATTN-RK-P3-20020408: This check probably shouldn't be necessary, but
@@ -224,19 +224,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // The message is empty; just drop it
         PEG_METHOD_EXIT();
         return;
-    }
-
-    //
-    // get the configured authentication flag
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    Boolean enableAuthentication = false;
-
-    if (String::equal(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
-    {
-        enableAuthentication = true;
     }
 
     //
@@ -252,6 +239,53 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, contentLength);
+
+    //
+    // Handle authentication:
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+    Boolean enableAuthentication = false;
+    Boolean authenticated = false;
+
+    if (String::equal(
+        configManager->getCurrentValue("enableAuthentication"), "true"))
+    {
+        enableAuthentication = true;
+            
+        // Client may have already authenticated via SSL.
+        // In this case, no further attempts to authenticate the client are made
+        authenticated = httpMessage->authInfo->isAuthenticated();
+
+        // If the request is a regular CIMOperation request that was authenticated
+        // via SSL, append the username associated with trusted clients.
+        // This is used in the OperationContext later in the transaction.
+        // Do not append for export requests.
+        String cimOperation;
+        if (authenticated && 
+			httpMessage->authInfo->getPeerCertificate() &&
+			HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true))
+        {
+            String trustStoreUserName = configManager->getCurrentValue("sslTrustStoreUserName");
+            
+            // This should have been verified before server startup; perform an extra check
+            // in case this strategy changes.
+            if (System::isSystemUser((const char*)trustStoreUserName.getCString()))
+            {
+				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+							"HTTPAuthenticatorDelegator - Setting the trusted client certificate to $0", trustStoreUserName);
+                httpMessage->authInfo->setAuthenticatedUser(trustStoreUserName);
+            } 
+            else 
+            {
+                MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_ERROR","Authorization error");
+                String msg(MessageLoader::getMessage(msgParms));
+                _sendHttpError(queueId,
+                               HTTP_STATUS_BADREQUEST,
+                               String::EMPTY,
+                               msg);
+            }
+        }
+    }
 
 // l10n start
    AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;
@@ -344,6 +378,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
 	httpMessage->message.append('\0');
 
+    if (!authenticated && enableAuthentication) 
+    {
         //
         // Search for Authorization header:
         //
@@ -504,6 +540,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	    }
 	}
 #endif
+
+    } //end if(!authenticated && enableAuthentication)
+
 
         if ( authenticated || !enableAuthentication )
         {

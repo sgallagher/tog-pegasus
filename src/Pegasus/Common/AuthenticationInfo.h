@@ -26,6 +26,7 @@
 // Author:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +38,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AuthenticationInfoRep.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/SSLContext.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -292,6 +294,22 @@ public:
         _rep->setSecurityAssociation(); 
     }
 #endif
+
+    /** Retrieves the SSL Certificate object 
+    */ 
+    SSLCertificateInfo* getPeerCertificate() const
+    {
+        _checkRep();
+        return _rep->getPeerCertificate();
+    }
+
+    /** Set the SSL Certificate object 
+    */ 
+    void setPeerCertificate(SSLCertificateInfo* peerCertificate) 
+    {
+        _checkRep();
+        _rep->setPeerCertificate(peerCertificate);
+    }
 
 private:
 

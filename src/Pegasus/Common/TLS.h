@@ -27,6 +27,7 @@
 //
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -90,13 +91,22 @@ public:
 
     Sint32 connect();
 
+    Boolean isPeerVerificationEnabled();
+    
+    Boolean isCertificateVerified();
+
+    SSLCertificateInfo* getPeerCertificate();
+
+    Boolean addTrustedClient(const char* username);
+
 private:
 
-    X509 *   _SSLCertificate;
     SSL * _SSLConnection;
-
     Sint32 _socket;
     SSLContext * _SSLContext;
+
+    SSLCertificateInfo *   _SSLCertificate;
+	Boolean _certificateVerified;
 };
 #else
 
@@ -139,6 +149,14 @@ public:
     Sint32 accept();
 
     Sint32 connect();
+
+    Boolean isPeerVerificationEnabled();
+
+    SSLCertificateInfo* getPeerCertificate();
+
+    Boolean isCertificateVerified();
+
+    Boolean addTrustedClient(const char* username);
 
     union {
         Uint32    _socket;

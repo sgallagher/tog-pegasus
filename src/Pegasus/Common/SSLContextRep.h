@@ -25,8 +25,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
 //
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//                  sushma_fernandes@hp.com
+// Modified By: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +72,7 @@ class PEGASUS_COMMON_LINKAGE SSLContextRep
 public:
 
     /** Constructor for a SSLContextRep object.
-    @param trustPath  trust store file path
+    @param trustStore  trust store file path
     @param certPath  server certificate file path
     @param keyPath  server key file path
     @param verifyCert  function pointer to a certificate verification
@@ -83,17 +83,53 @@ public:
     @exception SSLException  exception indicating failure to create a context.
     */
     SSLContextRep(
-        const String& trustPath,
+        const String& trustStore,
         const String& certPath = String::EMPTY,
         const String& keyPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY);
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    //ATTN: We may need to make this more robust to cover the different variations of SSLContexts
+	
+	/** Constructor for a SSLContextRep object.
+    @param trustStore  trust store file path
+    @param certPath  server certificate file path
+    @param keyPath  server key file path
+    @param verifyCert  function pointer to a certificate verification
+    call back function.
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
+
+    @exception SSLException  exception indicating failure to create a context.
+    */
+    SSLContextRep(
+        const String& trustStore,
+        const String& certPath = String::EMPTY,
+        const String& keyPath = String::EMPTY,
+        SSLCertificateVerifyFunction* verifyCert = NULL,
+        Boolean trustStoreAutoUpdate = false,
+		String trustStoreUserName = String::EMPTY,
+        const String& randomFile = String::EMPTY);
+#endif
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
     ~SSLContextRep();
 
     SSL_CTX * getContext() const;
+
+    String getTrustStore() const;
+
+    String getCertPath() const;
+
+    String getKeyPath() const;
+
+    Boolean isPeerVerificationEnabled() const;
+
+    Boolean isTrustStoreAutoUpdateEnabled() const;
+
+	String getTrustStoreUserName() const;
 
     /*
     Initialize the SSL locking environment. 
@@ -113,11 +149,15 @@ private:
     void _randomInit(const String& randomFile);
     Boolean _verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath);
 
-    CString _trustPath;
-    CString _certPath;
-    CString _keyPath;
+    String _trustStore;
+    String _certPath;
+    String _keyPath;
     String _randomFile;
     SSL_CTX * _sslContext;
+
+    Boolean _verifyPeer;
+    Boolean _trustStoreAutoUpdate;
+	String _trustStoreUserName;
 
     /*
        Mutex containing the SSL locks.

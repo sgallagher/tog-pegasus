@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.h,v $
+// Revision 1.5  2001/04/07 12:01:19  karl
+// remove namespace support
+//
 // Revision 1.4  2001/03/11 21:52:28  karl
 // Stub delete namespace
 //
@@ -274,10 +277,12 @@ public:
     */
     virtual Array<String> enumerateNameSpaces() const;
 
-    /** CIMMethod deleteNameSpace - Deletes a namespace in the repository
-	@param String with the name of the namespace
-	@exception - Throws NoSuchDirectory if 
-    */
+    /** CIMMethod deleteNameSpace - Deletes a namespace in the repository.
+	The deleteNameSpace method will only delete a namespace if there are 
+	no classed defined in the namespace.  Today this is a Pegasus characteristics 
+	and not defined as part of the DMTF standards.
+	@param String with the name of the namespace 
+	@exception - Throws NoSuchDirectory if the Namespace does not exist. */
     void deleteNameSpace(const String& nameSpace);
 
 

@@ -20,6 +20,9 @@ int RmDirHierCmd(const vector<string>& args)
 	filenames.push_back(args[i]);
 
     // Remove the files:
+    // Note that this calls the RemoveFile with true
+    // which causes that command to remove complete
+    // hiearchies, not just individual files.
 
     for (size_t i = 0; i < filenames.size(); i++)
 	RemoveFile(filenames[i], true);

@@ -23,6 +23,9 @@
 // Author: Karl Schopmeyer k.schopmeyer@opengroup.org
 //
 // $Log: __NamespaceProvider.cpp,v $
+// Revision 1.6  2001/04/07 12:01:19  karl
+// remove namespace support
+//
 // Revision 1.5  2001/03/13 01:21:00  karl
 // Add delete namespace
 //
@@ -170,8 +173,9 @@ public:
 	    ns = _repository->enumerateNameSpaces();
 	    for (Uint32 i = 0, n = ns.getSize(); i < n; i++)
 		{
-		cout <<"Loop " << ns[i] << " " << n << " " << myName << endl;  
-		    if (String::equal(ns[i], myName))
+		cout <<"DEBUG Loop " << ns[i] << " " << n << " " << myName << 
+			endl;
+		 if (String::equal(ns[i], myName))
 			 throw CIMException(CIMException::ALREADY_EXISTS);
 		}
      

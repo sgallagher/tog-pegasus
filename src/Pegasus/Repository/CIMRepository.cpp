@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.9  2001/04/07 12:01:19  karl
+// remove namespace support
+//
 // Revision 1.8  2001/03/11 23:35:33  mike
 // Ports to Linux
 //
@@ -1099,8 +1102,27 @@ Array<String> CIMRepository::enumerateNameSpaces() const
 
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
-    // ATTN: Temp code to allow function to be creates
-    throw NoSuchDirectory(nameSpace);
+    String path;
+    _MakeNameSpacePath(_root, nameSpace, path);
+
+    if (!FileSystem::exists(path))
+	throw CIMException(CIMException::INVALID_NAMESPACE);
+
+    // Only delete Namespaces if there are no Classes in the Namespace
+    // At least in this version we do not test the qualifiers, etc.
+    //ATTN: TODO. We need to create an abstraction here so that we
+    // can do things on the basis of namespaces/classes and get to 
+    // the directory implementation only at the last minute.
+    // Actually, if we simply to getClassNames and delete if none
+    // returned, that solves the problem of the test.
+    String classesDir = path;
+    classesDir.append("/classes");
+
+    if (FileSystem::exists(classesDir))
+    {
+	FileSystem::removeDirectoryHier(path);	
+    }
+
 }
 
 // Recall flavor defaults: TOSUBCLASS | OVERRIDABLE

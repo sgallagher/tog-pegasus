@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.7  2001/04/07 12:01:18  karl
+// remove namespace support
+//
 // Revision 1.6  2001/03/11 23:35:33  mike
 // Ports to Linux
 //
@@ -41,8 +44,21 @@
 //
 //END_HISTORY
 
+ #ifdef PEGASUS_OS_TYPE_WINDOWS
+# include <io.h>
+# include <direct.h>
+#else
+# include <unistd.h>
+# include <dirent.h>
+#endif
+
+
 #include <cassert>
+#include <fstream>
 #include <iostream>
+#include <cstdio>
+
+
 #include <Pegasus/Common/FileSystem.h>
 
 using namespace Pegasus;
@@ -50,6 +66,11 @@ using namespace std;
 
 int main()
 {
+    String path;
+    if (!FileSystem::getCurrentDirectory(path))
+        return false;
+    cout <<  "CWD = " << path << endl;
+
     assert(FileSystem::exists("FileSystem.cpp"));
     assert(!FileSystem::exists("NoSuchFile.dat"));
     // assert(!FileSystem::canExecute("FileSytem.cpp"));
@@ -86,7 +107,81 @@ int main()
     assert(String::equal(paths[1], "b"));
     assert(String::equal(paths[2], "c"));
 
-    // Try out renameFile:
+    // Test for getCurrentDirectory
+    // Go to testdir, test for file "a"
+    // Then return and test for file
+    {
+	String saveDir;
+	FileSystem::getCurrentDirectory(saveDir);
+	// Should this be ./testdir????
+	FileSystem::changeDirectory("testdir");
+	assert(FileSystem::exists("a"));
+	FileSystem::changeDirectory(saveDir);
+	assert(FileSystem::exists("FileSystem.cpp"));
+    }
+    // Test the Create and delete functions
+    {
+	String t = "TestDirectory";
+	String t1 = "TestDirectory2";
+	char* f = "TestFile.txt";
+	char* f1 = "TestFile1.txt";
+
+	FileSystem::makeDirectory(t);
+	assert(FileSystem::isDirectory(t));
+	FileSystem::removeDirectory(t);
+	assert(!FileSystem::isDirectory(t));
+
+	// Tests for remove hiearchy command
+	/* ATTN: Removed following until next test ks
+	// because remove hiearchy does not work yet.
+	FileSystem::makeDirectory(t);
+
+	String save_cwd;
+	FileSystem::getCurrentDirectory(save_cwd);
+
+	// create some files in new directory
+	if (!FileSystem::changeDirectory(t))
+	    // ATTN: what is valid error return?
+	    return -1;
+
+  	ofstream of1(f);
+	of1 << "test" << endl;
+	of1.close();
+	assert(FileSystem::exists(f));
+
+  	ofstream of2(f1);
+	of2 << "test" << endl;
+	of2.close();
+	assert(FileSystem::exists(f1));
+        
+	// Create a second level directory
+	FileSystem::makeDirectory(t1);
+
+
+	// Create files in this dir
+	if (!FileSystem::changeDirectory(t1))
+	    return -1;
+
+	ofstream of3("testfile3.txt");
+	of3 << "test" << endl;
+	of3.close();
+
+    	ofstream of4("testfile4.txt");
+	of4 << "test" << endl;
+	of4.close();
+
+	// Go back to top level directory
+
+	FileSystem::changeDirectory(save_cwd);
+        assert(FileSystem::isDirectory(t));
+
+	FileSystem::removeDirectoryHier(t);
+	// ATTN: Removed until above fixed.
+	assert(!FileSystem::isDirectory(t));
+	end-of-temp-removal*/
+        
+    }
+    // Test renameFile:
     {
 	const char FILE1[] = "file1.txt";
 	const char FILE2[] = "file2.txt";

@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Formatter.h,v $
+// Revision 1.2  2001/04/07 12:01:18  karl
+// remove namespace support
+//
 // Revision 1.1  2001/03/22 23:24:23  mike
 // Added new formatter class for formatting log entries and other things.
 //
@@ -38,7 +41,36 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-
+    Formatter is a class to build formatted strings from
+    strings that contain variable defintions.  The
+    variable definitions in the strings are of the form
+    $<int>
+    
+    where <int> is a single digit integer (0 - 9).
+    
+    The variable subsituted my be String, Integer, or real.
+    
+    The format subsitution may be escaped by preceding the
+    $ with a \
+    
+    usage:
+    Formatter::format (FormatString, variable0,.., variable9)
+    
+    Example:
+    <pre>
+    int total = 4;
+    int count = 2;
+    String name = "Output"
+    String output = Formatter::format(
+			"total $0 average $1 on $2", 
+			total,
+			total/count,
+			name);
+    produces the string
+	 
+      "total 4 average 2 on Output"
+    
+    </pre>
 */
 class PEGASUS_COMMON_LINKAGE Formatter
 {
@@ -84,7 +116,8 @@ public:
 	    Real64 _real;
 	};
     };
-
+    /**	 Format function for the formatter
+    */
     static String format(
 	const String& formatString,
 	const Arg& arg0 = Arg(),

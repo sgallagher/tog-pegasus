@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.6  2001/04/07 12:01:18  karl
+// remove namespace support
+//
 // Revision 1.5  2001/03/11 23:35:32  mike
 // Ports to Linux
 //
@@ -54,6 +57,8 @@
 #include "Destroyer.h"
 #include "FileSystem.h"
 #include "Dir.h"
+//DEBUG ONLY
+#include <iostream.h>
 
 // ATTN-B: porting!
 
@@ -66,8 +71,9 @@ static const int ACCESS_READ = 4;
 static const int ACCESS_READ_AND_WRITE = 6;
 #endif
 
-// Clone the path but discard trailing slash if any:
-
+/** Clone the path as a C String but discard 
+    trailing slash if any:
+*/
 static char* _clonePath(const String& path)
 {
     char* p = path.allocateCString();
@@ -92,6 +98,25 @@ Boolean FileSystem::exists(const String& path)
 #else
     return access(p.getPointer(), F_OK) == 0;
 #endif
+}
+
+Boolean FileSystem::getCurrentDirectory(String& path)
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    char* tmp = _getcwd(NULL, 0);
+
+    if (!tmp)
+	return false;
+
+    path.append(tmp);
+    delete [] tmp;
+#else
+    char tmp[4096];
+
+    getcwd(tmp, sizeof(tmp));
+    path.append(tmp);
+#endif
+    return true;
 }
 
 Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
@@ -232,6 +257,45 @@ Boolean FileSystem::removeDirectory(const String& path)
     return rmdir(p.getPointer()) == 0;	
 }
 
+Boolean FileSystem::removeDirectoryHier(const String& path)
+{
+    // ATTN: Mike - remove following cmts and compile
+    cout << "DEBUG RMDIR " << path << endl;
+
+// Even the following does not compile
+    // the ostream operator does not work
+    // ATTN: Mike: remove following cmts and compile
+    // String teststring;
+    // teststring.append("abc");
+    // cout << teststring;
+
+    // Get list of files in the Directory
+    Array<String> fileList;
+    if (!FileSystem::getDirectoryContents(path,fileList))
+	return false;
+
+    // ATTN: Since not tested.  Following is bypass
+    return true;
+
+    // for files-in-directory, delete or recall removedir
+    // Do not yet test for boolean returns on the removes
+    // ATTN Diagnostics still installed ks.
+    for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
+    {
+	if (FileSystem::isDirectory(fileList[i])){
+	    //cout << "DEBUG RMDIR Next " << fileList[i] << endl;
+	    FileSystem::removeDirectoryHier(fileList[i]);
+	}
+
+	else{
+	    //cout << "DEBUG RMFIL " << fileList[i] <<endl;
+	    removeFile(fileList[i]);
+	}
+
+    }
+    return removeDirectory(path);	
+}
+
 Boolean FileSystem::removeFile(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
@@ -315,24 +379,45 @@ Boolean FileSystem::compare(
     fclose(fp2);
     return true;
 }
+/*  Get the file list in the directory into the
+    array of strings provided
+    @return The function should return false under these circumstances:
 
+
+    1. The directory does not exist.
+    2. The file exists but is not a directory.
+    3. The directory is inaccessible.
+
+*/
 Boolean FileSystem::getDirectoryContents(
     const String& path,
     Array<String>& paths)
 {
+    // This may be just extra fluff but added anyway
+    if (!FileSystem::isDirectory(path))
+	return false;
+    
     paths.clear();
-
-    for (Dir dir(path); dir.more(); dir.next())
-    {
-	String name = dir.getName();
-
-	if (String::equal(name, ".") || String::equal(name, ".."))
-	    continue;
-
-	paths.append(name);
+    try
+    { 
+	for (Dir dir(path); dir.more(); dir.next())
+	{
+	    String name = dir.getName();
+    
+	    if (String::equal(name, ".") || String::equal(name, ".."))
+		continue;
+    	    // cout << "DEBUG DIR = " << dir.getName() << endl;
+	    paths.append(name);
+	}
+	return true;
     }
 
-    return true;
+    // Catch the Dir exception
+    catch(CannotOpenDirectory&)
+    {
+    	return false;
+    }
+
 }
 
 Boolean FileSystem::renameFile(

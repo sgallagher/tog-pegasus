@@ -19,6 +19,7 @@ int RmCmd(const vector<string>& args)
 	filenames.push_back(args[i]);
 
     // Remove the files:
+    // Calls RemoveFile to remove individual files
 
     for (size_t i = 0; i < filenames.size(); i++)
     {

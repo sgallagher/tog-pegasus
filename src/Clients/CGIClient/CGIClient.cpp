@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.23  2001/04/07 12:01:18  karl
+// remove namespace support
+//
 // Revision 1.22  2001/03/30 01:59:14  karl
 // clean up get property
 //
@@ -1184,7 +1187,7 @@ const char* tmp;
 
     if (!(tmp = qs.findValue("InstanceName")))
 	ErrorExit("Missing InstanceName field");
-    cout << "GetProperty " << __LINE__ << endl;
+    cout << "DEBUG GetProperty " << __LINE__ << endl;
     // This must be modified for the toString ATTN KS
     CIMReference referenceName;
 
@@ -1207,13 +1210,13 @@ const char* tmp;
 	{
 	    CIMClient client;
 	    client.connect("localhost", 8888);
-	    cout << "GetProperty " << __LINE__ << endl;
+	    cout << "DEBUG GetProperty " << __LINE__ << endl;
 
 	    CIMValue value = client.getProperty(nameSpace, 
 		referenceName, propertyName); 
-	    cout << "GetProperty " << __LINE__ << endl;
+	    cout << "DEBUG GetProperty " << __LINE__ << endl;
 
-	    cout << "value" << TypeToString(value.getType()) << "\n";
+	    cout << "DEBUG value" << TypeToString(value.getType()) << "\n";
 
 		   String valueString = value.toString();
 

@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Dir.h,v $
+// Revision 1.2  2001/04/07 12:01:18  karl
+// remove namespace support
+//
 // Revision 1.1  2001/02/11 05:42:33  mike
 // new
 //
@@ -51,8 +54,31 @@ class PEGASUS_COMMON_LINKAGE Dir
 {
 public:
 
-    /** Start this iterator class on the given path. If the directory 
-	cannot be opened, the CannotOpenDirectory exception is thrown.
+    /** Start this iterator class on the given path.
+	@param String path is the path to the target directory 
+	@return
+	@exception Exception "CannotOpenDirectory thrown if the directory cannot 
+	be opened.
+	<pre>
+	Example builds a String array of file names from current directory
+	    char* path = "./"
+	    Array<String> fileList;
+	    try
+	    { 
+	       for (Dir dir(path); dir.more(); dir.next())
+	       {
+		   String name = dir.getName();
+		   if (String::equal(name, ".") || String::equal(name, ".."))
+		       continue;
+		   paths.append(name);
+	       }
+	       return true;
+	    }
+	    catch(CannotOpenDirectory&)
+	    {
+	       return false;
+	    }
+	</pre>
     */
     Dir(const String& path);
 
@@ -62,7 +88,9 @@ public:
     /// Return true if there are more file names to iterator.
     Boolean more() const { return _more; }
 
-    /// Return the current file name:
+    /** Return the current file name:
+    @return Returns a C string pointer to the current filename.
+    */
     const char* getName() const;
 
     /// Advance the iterator:

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.h,v $
+// Revision 1.4  2001/04/07 12:01:18  karl
+// remove namespace support
+//
 // Revision 1.3  2001/02/13 02:06:40  mike
 // Added renameFile() method.
 //
@@ -49,6 +52,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -92,30 +96,67 @@ public:
     // Get the size of the file in bytes:
 
     static Boolean getFileSize(const String& path, Uint32& size);
+     /** Get the current working Directory
+    */
+    static Boolean getCurrentDirectory(String& path);
 
-    // Remove the given directory:
-
+    /** Remove the given directory. The directory must be empty
+	to be eligible for removal
+	@param String path is the relative or ablsolute path to
+	the directory to remove
+	@return true if directory removed
+    */
     static Boolean removeDirectory(const String& path);
 
-    // Remove the given file:
+    /** Remove a directory hiearchy. Removes a complete hiearchy of
+	directories and files.
+	
+	WARNING: This differs significantly from the <TT>removeDirectory</TT>
+	function in that it removes both directories and files and
+	removes a complete hiearchy.  Use with caution.
+	
+	@parm path defines the high level directory to be removed
+	@return Boolean - ATTN.
+	@exception  - ATTN: Not sure if there is any exception
+    */ 
+    static Boolean removeDirectoryHier(const String& path);
 
+    /** Remove the file defined by the input parameter
+	@param path of file to remove
+	@return Boolean true if directory removed
+    */
     static Boolean removeFile(const String& path);
 
-    // Get the names of the files (and directories) in the given directory:
+    /** Get the names of the files (and directories) in the given directory:
 
+	@param path - the path of the directory from which we will get filenames
+	@param paths - On return, this  Array contains the names of the files 
+	in the directory
+	ATTN: Is this local names or fully qualified names with paths.
+	@return Boolean that is today only true.
+	@exception Throws "NoSuchDirectory" if the directory defined in path does 
+	not exist.
+    */
     static Boolean getDirectoryContents(
 	const String& path,
 	Array<String>& paths);
 
-    // Load the contents of the file into the array. Throws CannotOpenFile if
-    // unable to open file.
+    /** Load the contents of the file into the array. Throws CannotOpenFile if
+	unable to open file.
+    */
 
     static void loadFileToMemory(
 	Array<Sint8>& array,
 	const String& fileName);
 
-    // Return true if the two files are identical. Throws CannotOpenFile if
-    // either file cannot be opened.
+    /** Compare two file for content.
+    @param filename of first file
+    @param filename of second file
+    ATTN: are filenames local or global???
+    @return Return true if the two files are identical. 
+    
+    @exception Throws CannotOpenFile if either file cannot be opened.
+    */
 
     static Boolean compare(
 	const String& fileName1,

@@ -1210,8 +1210,6 @@ public:
     CIMNotifyProviderRegistrationRequestMessage(
         const String & messageId_,
         const Operation operation_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
         const CIMName & className_,
         const Array <CIMNamespaceName> & newNamespaces_,
         const Array <CIMNamespaceName> & oldNamespaces_,
@@ -1221,8 +1219,6 @@ public:
     : CIMRequestMessage(
         CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE,
         messageId_, queueIds_),
-        provider (provider_),
-        providerModule (providerModule_),
         className (className_),
         newNamespaces (newNamespaces_),
         oldNamespaces (oldNamespaces_),
@@ -1234,8 +1230,6 @@ public:
 
     virtual CIMResponseMessage* buildResponse();
 
-    CIMInstance provider;
-    CIMInstance providerModule;
     CIMName className;
     Array <CIMNamespaceName> newNamespaces;
     Array <CIMNamespaceName> oldNamespaces;
@@ -1505,24 +1499,18 @@ class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableRequestMessage
 public:
     CIMNotifyProviderEnableRequestMessage(
 	const String & messageId_,
-	const CIMInstance & providerModule_,
-	const CIMInstance & provider_,
 	const Array <CIMInstance> & capInstances_,
         const QueueIdStack& queueIds_)
     : CIMRequestMessage(
 	CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
 	messageId_,
         queueIds_),
-	providerModule(providerModule_),
-	provider(provider_),
 	capInstances(capInstances_)
     {
     }
 
     virtual CIMResponseMessage* buildResponse();
     
-    CIMInstance providerModule;
-    CIMInstance provider;
     Array <CIMInstance> capInstances;
 };
 

@@ -40,7 +40,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
@@ -1610,12 +1610,11 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
     	CIMNotifyProviderEnableRequestMessage * enable_req = 
 		new CIMNotifyProviderEnableRequestMessage (
 		    XmlWriter::getNextMessageId (),
-		    mInstance,
-		    pInstance,
 		    capInstances,
 		    QueueIdStack(_service->getQueueId()));
 
 	enable_req->operationContext.set(AcceptLanguageListContainer(al));
+    enable_req->operationContext.insert(ProviderIdContainer(mInstance,pInstance));
 	
 	// create request envelope
         AsyncLegacyOperationStart * asyncRequest =

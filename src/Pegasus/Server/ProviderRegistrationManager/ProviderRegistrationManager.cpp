@@ -30,6 +30,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org) - Fix assoc lookup
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2435,14 +2436,14 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                         new CIMNotifyProviderRegistrationRequestMessage(
                                             XmlWriter::getNextMessageId (),
                                             CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
-                                            _providerInstance,
-                                            _moduleInstance,
                                             _className,
                                             _namespaceNames,
                                             _oldNamespaces,
                                             _newPropertyNames,
                                             _oldPropertyNames,
                                             QueueIdStack(_service->getQueueId()));
+
+									notify_req->operationContext.insert(ProviderIdContainer(_moduleInstance,_providerInstance));
 
                                     _sendMessageToSubscription(notify_req);
                                 }
@@ -3428,8 +3429,6 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
             new CIMNotifyProviderRegistrationRequestMessage(
                 XmlWriter::getNextMessageId (),
                 CIMNotifyProviderRegistrationRequestMessage::Operation(OP_DELETE),
-                _providerInstance,
-                _moduleInstance,
                 _className,
                 Array<CIMNamespaceName>(),
                 _namespaceNames,
@@ -3437,6 +3436,7 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
                 _oldPropertyNames,
                 QueueIdStack(_service->getQueueId()));
 
+		notify_req->operationContext.insert(ProviderIdContainer(_moduleInstance,_providerInstance));
         _sendMessageToSubscription(notify_req);
     }
 }
@@ -3530,14 +3530,14 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
             new CIMNotifyProviderRegistrationRequestMessage(
                 XmlWriter::getNextMessageId (),
                 CIMNotifyProviderRegistrationRequestMessage::Operation(OP_MODIFY),
-                _providerInstance,
-                _moduleInstance,
                 _className,
                 _newNamespaceNames,
                 _oldNamespaceNames,
                 _newPropertyNames,
                 _oldPropertyNames,
                 QueueIdStack(_service->getQueueId()));
+
+		notify_req->operationContext.insert(ProviderIdContainer(_moduleInstance,_providerInstance));
 
         _sendMessageToSubscription(notify_req);
     }

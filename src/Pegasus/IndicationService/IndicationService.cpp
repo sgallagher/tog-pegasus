@@ -2145,8 +2145,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
     CIMException cimException;
 
-    CIMInstance provider = request->provider;
-    CIMInstance providerModule = request->providerModule;
+	ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+    CIMInstance provider = pidc.getProvider(); 
+    CIMInstance providerModule = pidc.getModule();
     CIMName className = request->className;
     Array <CIMNamespaceName> newNameSpaces = request->newNamespaces;
     Array <CIMNamespaceName> oldNameSpaces = request->oldNamespaces;
@@ -2643,8 +2644,9 @@ void IndicationService::_handleNotifyProviderEnableRequest
 
     CIMNotifyProviderEnableRequestMessage * request =
         (CIMNotifyProviderEnableRequestMessage *) message;
-    CIMInstance providerModule = request->providerModule;
-    CIMInstance provider = request->provider;
+	ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+    CIMInstance providerModule = pidc.getModule();
+    CIMInstance provider = pidc.getProvider();
     Array <CIMInstance> capabilities = request->capInstances;
 
     CIMException cimException;
@@ -5751,8 +5753,9 @@ void IndicationService::_handleCreateResponseAggregation (
                 (CIMNotifyProviderRegistrationRequestMessage *) 
                     operationAggregate->getOrigRequest ();
             ProviderClassList provider;
-            provider.provider = origRequest->provider;
-            provider.providerModule = origRequest->providerModule;
+			ProviderIdContainer pidc = origRequest->operationContext.get(ProviderIdContainer::NAME);
+			provider.provider = pidc.getProvider(); 
+            provider.providerModule = pidc.getModule();
             provider.classList.append (origRequest->className);
 
             //
@@ -5781,8 +5784,9 @@ void IndicationService::_handleCreateResponseAggregation (
                 (CIMNotifyProviderEnableRequestMessage *) 
                     operationAggregate->getOrigRequest ();
             ProviderClassList provider;
-            provider.provider = origRequest->provider;
-            provider.providerModule = origRequest->providerModule;
+			ProviderIdContainer pidc = origRequest->operationContext.get(ProviderIdContainer::NAME);
+            provider.provider = pidc.getProvider();
+            provider.providerModule = pidc.getModule();
             for (Uint32 j = 0; j < origRequest->capInstances.size (); j++)
             {
                 //
@@ -6016,8 +6020,11 @@ void IndicationService::_handleModifyResponseAggregation (
         (CIMNotifyProviderRegistrationRequestMessage *) 
             operationAggregate->getOrigRequest ();
 
+	ProviderIdContainer pidc = origRequest->operationContext.get(ProviderIdContainer::NAME);
+	CIMInstance provider = pidc.getProvider();
+
     _subscriptionTable->updateClasses 
-        (request->subscriptionInstance.getPath (), origRequest->provider, 
+        (request->subscriptionInstance.getPath (), provider, 
         origRequest->className);
 
     PEG_METHOD_EXIT ();
@@ -6082,8 +6089,9 @@ void IndicationService::_handleDeleteResponseAggregation (
         //  Update the entry in the active subscriptions hash table
         //
         ProviderClassList provider;
-        provider.provider = origRequest->provider;
-        provider.providerModule = origRequest->providerModule;
+		ProviderIdContainer pidc = origRequest->operationContext.get(ProviderIdContainer::NAME); 
+		provider.provider = pidc.getProvider(); 
+        provider.providerModule = pidc.getModule();
         disableProviders = _subscriptionTable->updateProviders
             (request->subscriptionInstance.getPath (), provider, false);
     }

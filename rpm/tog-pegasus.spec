@@ -71,11 +71,11 @@ ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
 %ifarch ia64
-%define PEGASUS_PLATFORM LINUX_IA64_GNU
+%define PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU
 %else
-%define PEGASUS_PLATFORM LINUX_IX86_GNU
+%define PEGASUS_HARDWARE_PLATFORM LINUX_IX86_GNU
 %endif
-export PEGASUS_PLATFORM=%PEGASUS_PLATFORM
+export PEGASUS_PLATFORM=%PEGASUS_HARDWARE_PLATFORM
 
 export OPENSSL_HOME=/usr
 export PEGASUS_HAS_SSL=yes
@@ -433,7 +433,7 @@ install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageElement.h %INCL
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/MessageLoader.h %INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/OperationContext.h %INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_%PEGASUS_PLATFORM.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_PLATFORM.h
+install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/ResponseHandler.h %INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/SSLContext.h %INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/String.h %INCLUDE_DEST_PATH/Pegasus/Common/String.h
@@ -488,10 +488,10 @@ echo "PEGASUS_MOF_DIR =        "%PEGASUS_MOF_DIR>> sampleconfig.txt
 echo "PEGASUS_INCLUDE_DIR =    "%PEGASUS_INCLUDE_DEST_PATH >> sampleconfig.txt
 echo "PEGASUS_SAMPLES_DIR =    "%PEGASUS_SAMPLES_DEST_PATH >> sampleconfig.txt
 echo "PEGASUS_BIN_DIR =        "%PEGASUS_BIN_DIR >> sampleconfig.txt
-echo "PEGASUS_PLATFORM =       "%PEGASUS_PLATFORM >> sampleconfig.txt
+echo "PEGASUS_PLATFORM =       "%PEGASUS_HARDWARE_PLATFORM >> sampleconfig.txt
 cat sampleconfig.txt %SDK_STAGE_LOC/samples/mak/config.mak > sampleconfig.mak
 install -D -m 0444 sampleconfig.mak %SAMPLES_DEST_PATH/mak/config.mak 
-install -D -m 0444  %SDK_STAGE_LOC/samples/mak/%PEGASUS_PLATFORM.mak %SAMPLES_DEST_PATH/mak/%PEGASUS_PLATFORM.mak 
+install -D -m 0444  %SDK_STAGE_LOC/samples/mak/%PEGASUS_HARDWARE_PLATFORM.mak %SAMPLES_DEST_PATH/mak/%PEGASUS_HARDWARE_PLATFORM.mak 
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/library.mak %SAMPLES_DEST_PATH/mak/library.mak 
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/program.mak %SAMPLES_DEST_PATH/mak/program.mak
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/recurse.mak %SAMPLES_DEST_PATH/mak/recurse.mak
@@ -923,7 +923,7 @@ fi
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_PLATFORM.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/String.h
@@ -970,7 +970,7 @@ fi
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/common.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/config.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/library.mak 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/%PEGASUS_PLATFORM.mak
+%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/%PEGASUS_HARDWARE_PLATFORM.mak
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/program.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/recurse.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/Makefile 

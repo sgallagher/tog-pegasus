@@ -101,11 +101,11 @@ protected:
 
     void handleInvokeMethodRequest(const Message * message) throw();
 
-    void handleEnableIndications(const Message * message) throw();
-	void handleDisableIndications(const Message * message) throw();
-	void handleCreateSubscriptionRequest(const Message * message) throw();
+    void handleCreateSubscriptionRequest(const Message * message) throw();
     void handleModifySubscriptionRequest(const Message * message) throw();
     void handleDeleteSubscriptionRequest(const Message * message) throw();
+    void handleEnableIndicationsRequest(const Message * message) throw();
+    void handleDisableIndicationsRequest(const Message * message) throw();
 
 protected:
     ThreadPool _threadPool;

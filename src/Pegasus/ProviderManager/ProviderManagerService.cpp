@@ -351,6 +351,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	service->handleDeleteSubscriptionRequest(message);
 
 	break;
+    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
+	service->handleEnableIndicationsRequest(message);
+
+	break;
+    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+	service->handleDisableIndicationsRequest(message);
+
+	break;
     default:
 	// unsupported messages are ignored
 	break;
@@ -1334,7 +1342,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
     _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
-void ProviderManagerService::handleEnableIndications(const Message * message) throw()
+void ProviderManagerService::handleEnableIndicationsRequest(const Message * message) throw()
 {
     CIMEnableIndicationsRequestMessage * request =
 	dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
@@ -1386,7 +1394,7 @@ void ProviderManagerService::handleEnableIndications(const Message * message) th
     _enqueueResponse(handler.getRequest(), handler.getResponse());
 }
 
-void ProviderManagerService::handleDisableIndications(const Message * message) throw()
+void ProviderManagerService::handleDisableIndicationsRequest(const Message * message) throw()
 {
     CIMDisableIndicationsRequestMessage * request =
 	dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));

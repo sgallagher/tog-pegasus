@@ -29,6 +29,7 @@
 //             (carolann_graves@hp.com)
 //
 // Modified By:  
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -337,6 +338,7 @@ Boolean SubscriptionTable::_providerInUse (
             if (tableValue.providers [j].provider.getPath ().identical 
                 (provider.getPath ()))
             {
+                PEG_METHOD_EXIT ();
                 return true;
             }
         }
@@ -851,13 +853,13 @@ Uint32 SubscriptionTable::providerInList
         if (tableValue.providers [i].provider.getPath ().identical 
             (provider.getPath ()))
         {
+            PEG_METHOD_EXIT ();
             return i;
         }
     }
 
-    return PEG_NOT_FOUND;
-
     PEG_METHOD_EXIT ();
+    return PEG_NOT_FOUND;
 }
 
 
@@ -874,13 +876,13 @@ Uint32 SubscriptionTable::classInList
     {
         if (providerClasses.classList [i].equal (className))
         {
+            PEG_METHOD_EXIT ();
             return i;
         }
     }
 
-    return PEG_NOT_FOUND;
-
     PEG_METHOD_EXIT ();
+    return PEG_NOT_FOUND;
 }
 
 void SubscriptionTable::clear ()

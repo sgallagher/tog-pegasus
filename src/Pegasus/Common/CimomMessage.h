@@ -72,6 +72,9 @@ class PEGASUS_COMMON_LINKAGE async_results
       static const Uint32 ASYNC_CHILD_COMPLETE;
       static const Uint32 ASYNC_PHASE_STARTED;
       static const Uint32 ASYNC_CHILD_STARTED;
+      static const Uint32 CIM_PAUSED;
+      static const Uint32 CIM_STOPPED;
+      
 };
 
 

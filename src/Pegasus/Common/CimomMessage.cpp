@@ -58,6 +58,9 @@ const Uint32 async_results::ASYNC_PHASE_COMPLETE =      0x00000010;
 const Uint32 async_results::ASYNC_CHILD_COMPLETE =      0x00000011;
 const Uint32 async_results::ASYNC_PHASE_STARTED =       0x00000012;
 const Uint32 async_results::ASYNC_CHILD_STARTED =       0x00000013;
+const Uint32 async_results::CIM_PAUSED =                0x00000014;
+const Uint32 async_results::CIM_STOPPED =               0x00000015;
+
 
 
 const Uint32 async_messages::HEARTBEAT =                0x00000000;

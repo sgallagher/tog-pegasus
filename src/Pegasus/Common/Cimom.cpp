@@ -99,8 +99,14 @@ AtomicInt cimom::_xid(0);
 Boolean cimom::route_async(AsyncOpNode *op)
 {
 
-   if( _die.value()  )
+
+   if( _die.value()> 0 )
       return false;
+
+   if( _routed_queue_shutdown.value() > 0 )
+      return false;
+   
+
    _routed_ops.insert_last_wait(op);
    
    return true;
@@ -109,10 +115,36 @@ Boolean cimom::route_async(AsyncOpNode *op)
 
 void cimom::_shutdown_routed_queue(void)
 {
-   _routed_queue_shutdown = 1;
+
+   if (_routed_queue_shutdown.value() > 0 )
+      return ;
    
-   _routed_ops.shutdown_queue();
-   _routing_thread.cancel();
+   AsyncIoctl *msg = new AsyncIoctl(get_xid(),
+				    0, 
+				    CIMOM_Q_ID, 
+				    CIMOM_Q_ID, 
+				    true, 
+				    AsyncIoctl::IO_CLOSE, 
+				    0, 
+				    0);
+   msg->op = get_cached_op();
+   msg->op->_request.insert_first(msg);
+
+   _routed_ops.insert_last_wait(msg->op);
+   msg->op->_client_sem.wait();
+   
+   msg->op->lock();
+   AsyncReply * reply = static_cast<AsyncReply *>(msg->op->_response.remove_first());
+   reply->op = 0;
+   msg->op->unlock();
+   delete reply; 
+      
+   msg->op->_request.remove(msg);
+   msg->op->_state |= ASYNC_OPSTATE_RELEASED;
+   cache_op(msg->op);
+
+   msg->op = 0;
+   delete msg;
 }
 
 
@@ -127,7 +159,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
    {
       try 
       {
-	 op = dispatcher->_routed_ops.remove_first();
+	 op = dispatcher->_routed_ops.remove_first_wait();
       }
       catch(ListClosed & )
       {
@@ -136,7 +168,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
       
       if (op == 0 )
       {
-	 pegasus_yield();
+	 break;
       }
       else 
       {
@@ -150,7 +182,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 	 if(dest == CIMOM_Q_ID )
 	 {
-	    dispatcher->_handle_cimom_op(op);
+	    dispatcher->_handle_cimom_op(op, myself, dispatcher);
 	    accepted = true;
 	 }
 	 else
@@ -274,7 +306,7 @@ void cimom::handleEnqueue(void)
 }
 
 
-void cimom::_handle_cimom_op(AsyncOpNode *op)
+void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queue)
 {
    if(op == 0)
       return;
@@ -289,10 +321,12 @@ void cimom::_handle_cimom_op(AsyncOpNode *op)
 
    Uint32 mask = msg->getMask();
    Uint32 type = msg->getType();
-
+   static_cast<AsyncMessage *>(msg)->_myself = thread;
+   static_cast<AsyncMessage *>(msg)->_service = queue;
 
    if( mask & message_mask::ha_request)
    {
+      op->processing();
       accepted = true;
 
       if( type == async_messages::REGISTER_CIM_SERVICE )
@@ -331,7 +365,6 @@ void cimom::register_module(RegisterCimService *msg)
    // first see if the module is already registered
    Uint32 result = async_results::OK;
 
-   msg->op->processing();
 
    if( 0 != get_module_q(msg->name))
       result = async_results::MODULE_ALREADY_REGISTERED;
@@ -398,7 +431,6 @@ void cimom::deregister_module(Uint32 quid)
 void cimom::update_module(UpdateCimService *msg )
 {
    Uint32 result = async_results::MODULE_NOT_FOUND;
-   msg->op->processing();
 
    _modules.lock();
    message_module *temp = _modules.next(0);
@@ -434,22 +466,81 @@ void cimom::update_module(UpdateCimService *msg )
 void cimom::ioctl(AsyncIoctl *msg)
 {
 
-   msg->op->processing();
+   switch(msg->ctl)
+   {
+      case AsyncIoctl::IO_CLOSE:
+      {
+	 // save my bearings 
+	 Thread *myself = msg->_myself;
+	 cimom *service = static_cast<cimom *>(msg->_service);
+	 
+	 // respond to this message.
+	 AsyncReply *reply = new AsyncReply( async_messages::REPLY,
+					     msg->getKey(),
+					     msg->getRouting(),
+					     0,
+					     msg->op,
+					     async_results::OK,
+					     msg->resp,
+					     msg->block);
+	 _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
+				reply,
+				ASYNC_OPSTATE_COMPLETE,
+				0);
+	 // ensure we do not accept any further messages
 
-   Uint32 result = _ioctl(msg->ctl, msg->intp, msg->voidp);
-   AsyncReply *reply = new AsyncReply( async_messages::REPLY,
-				       msg->getKey(),
-				       msg->getRouting(),
-				       0,
-				       msg->op,
-				       result,
-				       msg->resp,
-				       msg->block);
-   _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			  reply,
-			  ASYNC_OPSTATE_COMPLETE,
-			  0);
+	 // ensure we don't recurse on IO_CLOSE
+	 if( _routed_queue_shutdown.value() > 0 )
+	    break;
+	 
+	 // set the closing flag 
+	 service->_routed_queue_shutdown = 1;
+	 // empty out the queue
+	 while( 1 )
+	 {
+	    AsyncOpNode *operation;
+	    try 
+	    {
+	       operation = service->_routed_ops.remove_first();
+	    }
+	    catch(IPCException & )
+	    {
+	       break;
+	    }
+	    if( operation )
+	    {
+	       service->_handle_cimom_op(operation, myself, service);
+	    }
+	    else
+	       break;
+	 } // message processing loop
 
+	 cout << "exiting meta dispatcher from within IOCTL::CLOSE " << endl;
+	 
+	 // shutdown the AsyncDQueue
+	 service->_routed_ops.shutdown_queue();
+	 // exit the thread ! 
+	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+	 return;
+      }
+
+      default:
+      {
+	 Uint32 result = _ioctl(msg->ctl, msg->intp, msg->voidp);
+	 AsyncReply *reply = new AsyncReply( async_messages::REPLY,
+					     msg->getKey(),
+					     msg->getRouting(),
+					     0,
+					     msg->op,
+					     result,
+					     msg->resp,
+					     msg->block);
+	 _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
+				reply,
+				ASYNC_OPSTATE_COMPLETE,
+				0);
+      }
+   }
 }
 
 
@@ -463,7 +554,6 @@ Uint32 cimom::_ioctl(Uint32 code, Uint32 int_param, void *pointer_param)
 void cimom::find_service_q(FindServiceQueue  *msg)
 {
 
-   msg->op->processing();
 
    Array<Uint32> found;
 
@@ -526,7 +616,6 @@ void cimom::find_service_q(FindServiceQueue  *msg)
 void cimom::enumerate_service(EnumerateService *msg)
 {
 
-   msg->op->processing();
    EnumerateServiceResponse *reply = 0;
    _modules.lock();
    message_module *ret = _modules.next( 0 );
@@ -636,19 +725,19 @@ Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
 
 AsyncOpNode *cimom::get_cached_op(void) throw(IPCException)
 {
-   AsyncOpNode *op;
-   op = new AsyncOpNode();
-   op->_flags = ASYNC_OPFLAGS_META_DISPATCHER;
-   return op;
 
+   AsyncOpNode *op = new AsyncOpNode();
+   
+   op->_state = ASYNC_OPSTATE_UNKNOWN;
+   op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_META_DISPATCHER;
+   
+   return op;
 }
 
 void cimom::cache_op(AsyncOpNode *op) throw(IPCException)
 {
    PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
    delete op;
-   return;
-
 }
 
 void cimom::set_default_op_timeout(const struct timeval *buffer)

@@ -68,6 +68,9 @@ AtomicInt MessageQueueService::_xid(1);
 void MessageQueueService::_shutdown_incoming_queue(void)
 {
    
+   if (_incoming_queue_shutdown.value() > 0 )
+      return ;
+   
    AsyncIoctl *msg = new AsyncIoctl(get_next_xid(),
 				    0, 
 				    _queueId, 
@@ -76,12 +79,11 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 				    AsyncIoctl::IO_CLOSE, 
 				    0, 
 				    0);
+
    msg->op = get_op();
    msg->op->_request.insert_first(msg);
-   Boolean closed = false;
 
-   if (_incoming_queue_shutdown.value() > 0 )
-      return ;
+
    
    _incoming.insert_last_wait(msg->op);
    msg->op->_client_sem.wait();
@@ -90,23 +92,12 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    AsyncReply * reply = static_cast<AsyncReply *>(msg->op->_response.remove_first());
    reply->op = 0;
    msg->op->unlock();
-   if ( reply != 0 )
-   {
-      if(reply->getMask() & message_mask:: ha_async)
-      {
-	 if(reply->getMask() & message_mask::ha_reply)
-	 {
-	    if(reply->result == async_results::OK)
-	       closed = true;
-	 }
-      }
-      delete reply; 
-   }
+   delete reply; 
       
    msg->op->_request.remove(msg);
    msg->op->_state |= ASYNC_OPSTATE_RELEASED;
-   
    return_op(msg->op);
+
    msg->op = 0;
    delete msg;
 }
@@ -382,8 +373,8 @@ AsyncOpNode *MessageQueueService::get_op(void)
 {
    AsyncOpNode *op = new AsyncOpNode();
    
-   op->write_state(ASYNC_OPSTATE_UNKNOWN);
-   op->write_flags(ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL );
+   op->_state = ASYNC_OPSTATE_UNKNOWN;
+   op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
    
    return op;
 }

@@ -350,6 +350,8 @@ int main(int argc, char **argv)
    server.join();
    cout << " delete meta dispatcher" << endl;
    
+   Q_server->_shutdown_routed_queue();
+    
    delete Q_server;  
    
    return(0);

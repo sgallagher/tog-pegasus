@@ -149,7 +149,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       Thread _routing_thread;
 
       static Uint32 get_xid(void);
-      void _handle_cimom_op(AsyncOpNode *op);
+      void _handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queue);
       Uint32 _ioctl(Uint32, Uint32, void *);
 
 

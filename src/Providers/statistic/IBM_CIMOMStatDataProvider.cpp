@@ -65,8 +65,8 @@ void IBM_CIMOMStatDataProvider::getInstance(
 	InstanceResponseHandler & handler)
 {
 	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
+		String::EMPTY,
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 

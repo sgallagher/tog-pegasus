@@ -35,7 +35,7 @@ endif
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
   CIMSERVER_START_SERVICE = cimserver -d
   CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus
+  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   SLEEP = sleep 2
   MUEXE = mu
   COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)

@@ -50,6 +50,21 @@ PEGASUS_USING_PEGASUS;
 
 AtomicInt function_count;
 
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func_blocking(void *parm)
+{
+
+#ifdef PEGASUS_ARCHITECTURE_IA64
+   Uint32 sleep_interval = (Uint64)parm;
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+   unsigned long sleep_interval = (unsigned long)parm;
+#else   
+   Uint32 sleep_interval = (Uint32)parm;
+#endif
+   pegasus_sleep(sleep_interval);
+   function_count++;
+   return 0; 
+}
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
 
@@ -93,8 +108,6 @@ int main(int argc, char **argv)
    
    for(i = 0 ; i < 10; i++)
    {  
-      cout << "Thread Pool scheduling Round " << i << endl;
-      
       try 
       {
  	 tp.allocate_and_awaken((void *)1, work_func );
@@ -154,15 +167,12 @@ int main(int argc, char **argv)
       } 
        catch(Deadlock & )  
       {
-	 cout << "Thread Pool is fully in use... " << endl; 
       }
    }  
-   cout << "deliberately causing deadlock detection to occur ..." << endl;
    pegasus_sleep( 7000 ) ; 
-   cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
-   cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
-    
-   cout << " allocating joinable threads " << endl;
+   tp.kill_dead_threads( );
+   tp.kill_dead_threads( );
+   
    Semaphore blocking(0);
    Boolean success = true;
    
@@ -170,7 +180,7 @@ int main(int argc, char **argv)
    {
       try 
       {
-	 tp.allocate_and_awaken((void *)16, work_func , &blocking);
+	 tp.allocate_and_awaken((void *)16, work_func_blocking , &blocking);
       }
       catch(Deadlock & ) 
       { 
@@ -182,20 +192,14 @@ int main(int argc, char **argv)
    
    
    blocking.wait();
-   cout << " joined " << endl;
    tp.kill_dead_threads( ) ;
 
-   cout << "Killed Dead Threads " << endl;
-
-   cout << "running threads: " << tp.running_count() << endl;
-   
    while(tp.running_count() )
    {  
       tp.kill_dead_threads();
       pegasus_sleep(1);
    }
    
-   cout << "thread routine executed " << function_count.value() << " times" << endl;
 
    cout << argv[0] << " +++++ passed all tests" << endl;
   

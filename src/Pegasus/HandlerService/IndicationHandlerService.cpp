@@ -33,6 +33,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP101
+//              Amit K Arora, IBM (amitarora@in.ibm.com) for Bug#2487
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -376,10 +377,11 @@ IndicationHandlerService::_handleIndication(
             handlerLib.release();
         }
     }
-	CIMHandleIndicationResponseMessage* response( new CIMHandleIndicationResponseMessage(
+	CIMHandleIndicationResponseMessage* response =
+          new CIMHandleIndicationResponseMessage(
             request->messageId,
             cimException,
-            request->queueIds.copyAndPop()));
+            request->queueIds.copyAndPop());
     return response;
 }
 

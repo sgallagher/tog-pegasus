@@ -147,6 +147,10 @@ will be deleted.
     method to determine whether the output parameters returned from
     InvokeMethod operations are of the correct type, or whether they
     have defaulted to String type.
+    
+14. (KS) 4 March 2002 - Corrections for NULL value and the XML code.
+    Corrections to compiler for Null values input (parser and valuectory)
+    
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

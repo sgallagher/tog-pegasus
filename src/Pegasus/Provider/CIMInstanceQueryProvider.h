@@ -35,7 +35,7 @@
 #define Pegasus_CIMInstanceQueryProvider_h
 
 #include "CIMInstanceProvider.h"
-#include <Pegasus/Common/QueryExpression.h>
+#include <Pegasus/Query/QueryExpression/QueryExpression.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

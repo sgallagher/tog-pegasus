@@ -64,6 +64,8 @@ public:
 
     CIMReference getInstanceName(const CIMConstClass& cimClass) const;
 
+    String toString() const;
+
 private:
 
     CIMInstanceRep();

@@ -374,7 +374,7 @@ public:
 	return CIMInstance((CIMInstanceRep*)(_rep->clone()));
     }
 
-    /** getInstnaceName - Get the instance name of this instance. The class
+    /** getInstanceName - Get the instance name of this instance. The class
 	argument is used to determine which fields are keys. The instance
 	name has this from:
 
@@ -390,6 +390,12 @@ public:
     {
 	_checkRep();
 	return _rep->getInstanceName(cimClass);
+    }
+
+    String toString() const
+    {
+	_checkRep();
+	return _rep->toString();
     }
 
 private:
@@ -553,6 +559,12 @@ public:
     {
 	_checkRep();
 	return _rep->getInstanceName(cimClass);
+    }
+
+    String toString() const
+    {
+	_checkRep();
+	return _rep->toString();
     }
 
 private:

@@ -283,4 +283,66 @@ CIMReference CIMInstanceRep::getInstanceName(
     return CIMReference(String(), String(), className, keyBindings);
 }
 
+String CIMInstanceRep::toString() const
+{
+    String objectName;
+    CIMReference object = getPath();
+
+    // Get the host:
+
+    if (object.getHost().size() && object.getNameSpace().size())
+    {
+        objectName = "//";
+        objectName += object.getHost();
+        objectName += "/";
+
+        objectName += object.getNameSpace();
+        objectName += ":";
+    }
+
+    // Get the class name:
+
+    const String& className = getClassName();
+    objectName.append(className);
+
+    //if (isClassName())
+    //    return objectName;
+
+    objectName.append('.');
+
+    // Append each key-value pair:
+
+    //const Array<KeyBinding>& keyBindings = getKeyBindings();
+    CIMConstProperty prop;
+
+    for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
+    {
+        prop = getProperty(i);
+        objectName.append(prop.getName());
+        objectName.append('=');
+
+        //const String& value = _escapeSpecialCharacters(
+        //    prop.getValue());
+        objectName.append(prop.getValue().toString());
+
+        //CIMValue type = prop.getType();
+
+        //if (type == KeyBinding::REFERENCE)
+        //    objectName.append('R');
+
+        //if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+        //    objectName.append('"');
+
+        //objectName.append(value);
+
+        //if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+        //    objectName.append('"');
+
+        if (i + 1 != n)
+            objectName.append(',');
+    }
+
+    return objectName;
+}
+
 PEGASUS_NAMESPACE_END

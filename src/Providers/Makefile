@@ -11,6 +11,7 @@ DIRS = \
     ManagedSystem \
     statistic \
     sample \
-    TestProviders
+    TestProviders \
+    IndicationConsumer
 
 include $(ROOT)/mak/recurse.mak

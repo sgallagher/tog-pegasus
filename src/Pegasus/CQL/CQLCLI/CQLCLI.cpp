@@ -104,7 +104,8 @@ int main(int argc, char ** argv)
 			char* _ptr = text;
 			_text = strcat(_ptr,"\n");	
 			//cout << _text;
-			CQLParser::parse(text,_ss);
+			if(!(strlen(_text) < 2))
+				CQLParser::parse(text,_ss);
 			/*if(argc == 3){
                                 printf("Evaluating query %d...\n",i);
                                 Boolean result = globalParserState->statement->evaluate(_instances[i]);

@@ -48,6 +48,8 @@
 # include <Pegasus/Common/Platform_TRU64_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include <Pegasus/Common/Platform_SOLARIS_SPARC_GNU.h>
+#elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# include <Pegasus/Common/Platform_SOLARIS_SPARC_CC.h>
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <Pegasus/Common/Platform_ZOS_ZSERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)

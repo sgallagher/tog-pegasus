@@ -279,7 +279,7 @@ void PrintHelp(const char* arg0)
     
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS", usage);
-#elif defined(PEGASUS_OS_USE_RELEASE_DIRS)
+#elif defined(PEGASUS_USE_RELEASE_DIRS)
     MessageLoaderParms parms("src.Server.cimserver.MENU.HPUXLINUXIA64GNU", usage);
 #else
     MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD", usage);

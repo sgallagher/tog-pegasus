@@ -1,133 +1,16 @@
-################################################################################
-#
-# Makefile for mu.
-#
-# Building:
-#
-#     On Windows type "make OS=windows"
-#     On Unix type "make"
-#
-################################################################################
+ROOT= ../../..
+DIR = utils/mu
+include $(ROOT)/mak/config.mak
 
-OS=unix
+PROGRAM = mu
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-OS=windows
-BACKWARD_SLASH = 1
-endif
-
-ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
-OS=tru64
-endif
-
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-OS=hpux
-endif
-
-ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-OS=hpux
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
-OS=solaris_gnu
-endif
-
-# Set Parameters for OS type
-ifeq ($(OS),compaq_oss)
-    CXX = c89
-    CXXFLAGS = -Wversion2 -I /cw/rudys/nsm/pegasus/src
-    LIBFLAGS = /usr/lib/crtlmain.o -obey /usr/lib/libc.obey
-    SRLFLAGS = -l zrwslsrl -l zcplsrl -verbose
-    LXX = nld
-    DEFINES = -DOS_OSS
-    PROGRAM = mu
-    EXE_OUT = -o
-    RM = rm -f
-    OBJ = .o
-    PLATFORM_SOURCES = FilesUnix.cpp
-endif
-
-ifeq ($(OS),windows)
-    CXX = cl
-    LXX = $(CXX)
-    CXXFLAGS = -nologo -W3 -GX
-    DEFINES = -DOS_WINDOWS
-    PROGRAM = mu.exe
-    EXE_OUT = -Fe
-    RM = del
-    OBJ = .obj
+ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp
-endif
-
-ifeq ($(OS),unix)
-    CXX = g++
-    LXX = $(CXX)
-    CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
-    DEFINES = -DOS_UNIX
-    PROGRAM = mu
-    EXE_OUT = -o
-    RM = rm -f
-    OBJ = .o
-    PLATFORM_SOURCES = FilesUnix.cpp
-endif
-
-ifeq ($(OS),solaris_gnu)
-    CXX = g++
-    LXX = $(CXX)
-    CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
-    DEFINES = -DOS_UNIX -DOS_SOLARIS_GNU
-    PROGRAM = mu
-    EXE_OUT = -o
-    RM = rm -f
-    OBJ = .o
-    PLATFORM_SOURCES = FilesUnix.cpp
-endif
-
-ifeq ($(OS),tru64)
-    CXX = g++
-    LXX = $(CXX)
-    CXXFLAGS = -O2 -Wall -Wno-unused -pedantic -I../../stdcxx/stream
-    DEFINES = -DOS_TRU64
-    PROGRAM = mu
-    EXE_OUT = -o
-    RM = rm -f
-    OBJ = .o
-    PLATFORM_SOURCES = FilesUnix.cpp
-endif
-
-ifeq ($(OS),hpux)
-    ifdef ACC_COMPILER_COMMAND
-       CXX = $(ACC_COMPILER_COMMAND)
-    else
-       CXX = aCC
-    endif
-    FLAGS += +Z
-    ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-      FLAGS += -DPEGASUS_PLATFORM_HPUX_IA64_ACC +DD64 -AP
-      INCLUDES = -I../../stdcxx/stream
-    else
-      FLAGS += -DPEGASUS_PLATFORM_HPUX_PARISC_ACC +DAportable
-      INCLUDES = -I../../stdcxx/stream
-    endif
-    LXX = $(CXX)
-    CXXFLAGS = $(FLAGS) $(INCLUDES)
-    DEFINES = -DOS_UNIX
-    PROGRAM = mu
-    EXE_OUT = -o
-    RM = rm -f
-    OBJ = .o
-    PLATFORM_SOURCES = FilesUnix.cpp
-endif
-
-ifdef PEGASUS_MU_BIN_DIR
-  ifdef BACKWARD_SLASH
-     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)
-  else
-     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)
-  endif
+    DEFINES += -DOS_WINDOWS
 else
-   FULL_PROGRAM = $(PROGRAM)
+    PLATFORM_SOURCES = FilesUnix.cpp
 endif
+
 
 SOURCES = \
     $(PLATFORM_SOURCES) \
@@ -146,30 +29,8 @@ SOURCES = \
     StripCmd.cpp \
     PrependCmd.cpp
 
-HEADERS = \
-    CompareCmd.h \
-    Config.h \
-    CopyCmd.h \
-    DependCmd.h \
-    EchoCmd.h \
-    Files.h \
-    MkDirHierCmd.h \
-    MoveCmd.h \
-    PwdCmd.h \
-    RmCmd.h \
-    RmDirHierCmd.h \
-    TouchCmd.h \
-    StripCmd.h \
-    PrependCmd.h
+include $(ROOT)/mak/program.mak
 
-OBJECTS=$(SOURCES:.cpp=$(OBJ))
+tests:
 
-$(FULL_PROGRAM): $(OBJECTS)
-	$(LXX) $(CXXFLAGS) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS)
-
-%$(OBJ) : %.cpp
-	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp
-
-clean:
-	- $(RM) $(FULL_PROGRAM)
-	- $(RM) *$(OBJ)
+poststarttests:

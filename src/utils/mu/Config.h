@@ -30,14 +30,14 @@
 #ifndef _Config_h
 #define _Config_h
 
+#include <Pegasus/Common/Config.h>
+
 #ifdef OS_WINDOWS
+/* Work around bug in MSVC++ (for) variable scope */
 # define for if (0) ; else for
-namespace std { };
-using namespace std;
 #endif
 
-#ifdef OS_SOLARIS_GNU
-using namespace std;
-#endif
+#include <iostream>
+PEGASUS_USING_STD;
 
 #endif /* _Config_h */

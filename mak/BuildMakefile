@@ -33,8 +33,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
   MUEXE = mu.exe
-  COPYMU = copy pegasus\src\utils\mu\$(MUEXE) /y $(MUEXE)
-  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -44,8 +43,7 @@ ifeq ($(OS),HPUX)
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -55,8 +53,7 @@ ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -66,8 +63,7 @@ ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  MKDIR = $(MUEXE) mkdirhier
   TESTS = prestarttests poststarttests
 endif
 
@@ -83,7 +79,6 @@ error:
 buildmu:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 	$(MKDIR) $(BIN_DIR)
-	$(COPYMU)
 
 cleanbuild: removeall recheckout buildmu all $(TESTS) 
 

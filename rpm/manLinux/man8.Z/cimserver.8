@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimserver.8,v 1.1 2004/08/27 04:55:12 denise.eckstein Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimserver.8,v 1.2 2005/01/03 11:11:35 a.arora Exp $
 .TA c \" lowercase initial letter of .TH name
 .TH cimserver 8
 .SH NAME
@@ -14,6 +14,10 @@ cimserver \- start or stop the CIM Server; display the version number of the CIM
 .B cimserver -v
 
 .B cimserver -h
+
+.B cimserver --help
+
+.B cimserver --version
 .SS Remarks
 This command can only be executed by a privileged user.
 .SH DESCRIPTION
@@ -112,10 +116,10 @@ The
 command recognizes the following options:
 .RS
 .TP 15
-.B -v
+.B -v, --version
 Display the version number of the CIM Server.
 .TP
-.B -h
+.B -h, --help
 Display the command usage.
 .TP
 .B -s

@@ -50,8 +50,8 @@ void AssociationProvider::terminate(void)
 void AssociationProvider::associators(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & associationClass,
-	const String & resultClass,
+	const CIMName & associationClass,
+	const CIMName & resultClass,
 	const String & role,
 	const String & resultRole,
 	const Boolean includeQualifiers,
@@ -65,8 +65,8 @@ void AssociationProvider::associators(
 void AssociationProvider::associatorNames(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & associationClass,
-	const String & resultClass,
+	const CIMName & associationClass,
+	const CIMName & resultClass,
 	const String & role,
 	const String & resultRole,
 	ObjectPathResponseHandler & handler)
@@ -77,7 +77,7 @@ void AssociationProvider::associatorNames(
 void AssociationProvider::references(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & resultClass,
+	const CIMName & resultClass,
 	const String & role,
 	const Boolean includeQualifiers,
 	const Boolean includeClassOrigin,
@@ -90,7 +90,7 @@ void AssociationProvider::references(
 void AssociationProvider::referenceNames(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
-	const String & resultClass,
+	const CIMName & resultClass,
 	const String & role,
 	ObjectPathResponseHandler & handler)
 {

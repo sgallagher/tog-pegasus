@@ -7,6 +7,7 @@ DIRS = \
 	SNMPIndicationProvider \
 	ProcessIndicationProvider \
 	AlertIndicationProvider \
-        RT_Indication
+	RT_Indication \
+	FamilyProvider
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

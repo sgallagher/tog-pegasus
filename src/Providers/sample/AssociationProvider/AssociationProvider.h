@@ -49,8 +49,8 @@ public:
 	virtual void associators(
 		const OperationContext & context,
 		const CIMObjectPath & objectName,
-		const String & associationClass,
-		const String & resultClass,
+		const CIMName & associationClass,
+		const CIMName & resultClass,
 		const String & role,
 		const String & resultRole,
 		const Boolean includeQualifiers,
@@ -61,8 +61,8 @@ public:
 	virtual void associatorNames(
 		const OperationContext & context,
 		const CIMObjectPath & objectName,
-		const String & associationClass,
-		const String & resultClass,
+		const CIMName & associationClass,
+		const CIMName & resultClass,
 		const String & role,
 		const String & resultRole,
 		ObjectPathResponseHandler & handler);
@@ -70,7 +70,7 @@ public:
 	virtual void references(
 		const OperationContext & context,
 		const CIMObjectPath & objectName,
-		const String & resultClass,
+		const CIMName & resultClass,
 		const String & role,
 		const Boolean includeQualifiers,
 		const Boolean includeClassOrigin,
@@ -80,7 +80,7 @@ public:
 	virtual void referenceNames(
 		const OperationContext & context,
 		const CIMObjectPath & objectName,
-		const String & resultClass,
+		const CIMName & resultClass,
 		const String & role,
 		ObjectPathResponseHandler & handler);
 

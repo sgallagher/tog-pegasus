@@ -1822,25 +1822,6 @@ ProviderName JMPIProviderManager::_resolveProviderName(
         providerId.getModule().findProperty("InterfaceType")).getValue();
     genericValue.get(interfaceName);
 
-    // Check if the provider module is blocked
-    Array<Uint16> operationalStatus;
-    Uint32 pos = providerId.getModule().findProperty(
-        CIMName("OperationalStatus"));
-    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-    providerId.getModule().getProperty(pos).getValue().get(operationalStatus);
-
-    for(Uint32 i = 0; i < operationalStatus.size(); i++)
-    {
-        if(operationalStatus[i] == _MODULE_STOPPED ||
-           operationalStatus[i] == _MODULE_STOPPING)
-        {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
-                MessageLoaderParms(
-                    "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
-                    "provider blocked."));
-        }
-    }
-
     return ProviderName(providerName, fileName, interfaceName, 0);
 }
 

@@ -287,20 +287,64 @@ void ProviderManagerService::handleCimRequest(
 
     if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
         (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
-	(request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
+        (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
     {
-        // Handle CIMOperationRequestMessage and CIMExportIndicationRequestMessage
-		// The provider ID container is already added to operationcontext in CIMOperationRequestDispacther
-		// for all instance, method , association and indication providers under PEP135 , so no need to add it again .
-		// So add it only for ExportIndicationRequestMessage
+        // Handle CIMOperationRequestMessage, CIMExportIndicationRequestMessage,
+        // and CIMInitializeProviderRequestMessage
 
-		if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
-		{
-		    ProviderIdContainer pidc = _getProviderIdContainer(request);
+        // Note: The provider ID container is added to the OperationContext
+        // by the CIMOperationRequestDispatcher for all CIM operation
+        // requests to providers, so it does not need to be added again.
+
+        // Get a ProviderIdContainer for ExportIndicationRequestMessage
+        if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+        {
+            ProviderIdContainer pidc = _getProviderIdContainer(request);
             request->operationContext.insert(pidc);
-		}
+        }
 
-        response = _providerManagerRouter->processMessage(request);
+        //
+        // Check if the target provider is disabled
+        //
+        Boolean moduleDisabled = false;
+        ProviderIdContainer pidc =
+            request->operationContext.get(ProviderIdContainer::NAME);
+        const CIMInstance providerModule = pidc.getModule();
+        Uint32 pos = providerModule.findProperty(CIMName("OperationalStatus"));
+        PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+        Array<Uint16> operationalStatus;
+        providerModule.getProperty(pos).getValue().get(operationalStatus);
+
+        for(Uint32 i = 0; i < operationalStatus.size(); i++)
+        {
+            if ((operationalStatus[i] == _MODULE_STOPPED) ||
+                (operationalStatus[i] == _MODULE_STOPPING))
+            {
+                moduleDisabled = true;
+                break;
+            }
+        }
+
+        if (moduleDisabled)
+        {
+            //
+            // Send a "provider blocked" response
+            //
+            CIMResponseMessage* cimResponse = request->buildResponse();
+            cimResponse->cimException = PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_ACCESS_DENIED,
+                MessageLoaderParms(
+                    "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+                    "provider blocked."));
+            response = cimResponse;
+        }
+        else
+        {
+            //
+            // Forward the request to the appropriate ProviderManagerRouter
+            //
+            response = _providerManagerRouter->processMessage(request);
+        }
     }
     else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
     {

@@ -19,7 +19,8 @@ DIRS = \
     Common/tests \
     Repository/tests \
     Server/tests \
-    Client/tests
+    Client/tests \
+    Compiler/tests
 
 # Compiler \
 # Compiler/cmdline \

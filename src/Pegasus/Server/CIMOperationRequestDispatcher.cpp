@@ -990,7 +990,9 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     }
 
     // Send the remaining response and delete the aggregator.
-    SendForget(poA->getResponse(0));
+    response = poA->getResponse(0);
+    response->dest = poA->dest;
+    SendForget(response);
     delete poA;
  
     PEG_METHOD_EXIT();

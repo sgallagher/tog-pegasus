@@ -136,12 +136,13 @@ inline void enable_cancel(void)
 #define native_cleanup_pop(execute) \
    pthread_cleanup_pop_restore_np(execute)
 
-inline void sleep(int msec)
+inline void pegasus_sleep(int msec)
 {
-  struct timespec timeout;
-  timeout.tv_sec = msec / 1000;
-  timeout.tv_nsec = (msec & 1000) * 1000;
-  nanosleep(&timeout,NULL);
+    struct timespec wait;
+    wait.tv_sec = msec / 1000;
+    msec -= wait.tv_sec * 1000;  // What is this line for?
+    wait.tv_nsec = (msec & 1000) * 1000000;
+    nanosleep(&wait, NULL);
 }
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)
@@ -186,6 +187,11 @@ inline void exit_thread(PEGASUS_THREAD_RETURN rc)
 inline PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
 { 
    return(pthread_self());
+}
+
+inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
+{
+   pthread_cancel(th);
 }
 
 

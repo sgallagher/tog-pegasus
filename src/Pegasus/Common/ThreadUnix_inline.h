@@ -113,12 +113,12 @@ inline void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
    delete cu;
 }
 
+#endif 
+
 inline void Thread::detach(void)
 {
    _is_detached = true;
    pthread_detach(_handle.thid);
 }
-
-#endif 
 
 #endif // ThreadUnix_inline_h

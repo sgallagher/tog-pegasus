@@ -108,9 +108,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 
 	while(true)
 	{
-	   thread->sleep(1);
-	   continue;
-	   
+		if(thread->is_cancelled())
+		{
+			break;
+		}
+		
+		thread->sleep(1);
+		continue;
+	
 		// wait for work
 		queue->_workSemaphore.wait();
 
@@ -126,7 +131,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 		{
 			queue->handleEnqueue();
 		}
-		
 	}
 
 	thread->exit_self(PEGASUS_THREAD_RETURN(0));
@@ -138,8 +142,6 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
 {
     if (!message)
        throw NullPointer();
-    
-
 
     if (getenv("PEGASUS_TRACE"))
     {
@@ -165,11 +167,10 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
     message->_owner = this;
     _count++;
     _mut.unlock();
-    
+
 //    _workSemaphore.signal();
 
     handleEnqueue();
-    
 }
 
 Message* MessageQueue::dequeue() throw(IPCException)

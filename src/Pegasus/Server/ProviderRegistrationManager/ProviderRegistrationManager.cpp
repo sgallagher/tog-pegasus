@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include "ProviderRegistrationTable.h"
@@ -44,21 +45,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**
-   The name of the PG_Provider class 
-*/
-static const char _CLASS_PG_PROVIDER [] = "PG_Provider";
-
-/**
-   The name of the provider capabilities class 
-*/
-static const char _CLASS_PROVIDER_CAPABILITIES [] = "PG_ProviderCapabilities";
-
-/**
-   The name of the provider module class 
-*/
-static const char _CLASS_PROVIDER_MODULE [] = "PG_ProviderModule";
 
 /**
    The name of the operational status property 
@@ -115,11 +101,6 @@ static const char _PROPERTY_SUPPORTEDMETHODS [] = "SupportedMethods";
    The name of the Name property for PG_Provider class
 */
 static const char _PROPERTY_PROVIDER_NAME [] = "Name";
-
-/**
-   The name of the namespace which is owned by CIMOM 
-*/
-static const char INTEROPNAMESPACE [] = "root/PG_InterOp";
 
 /**
    Registered instance provider 
@@ -723,7 +704,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
     try 
     {
 	instance = _repository->getInstance(
- 	    			INTEROPNAMESPACE, localReference);
+ 	    			PEGASUS_NAMESPACENAME_INTEROP, localReference);
     }
 
     catch (CIMException & exception)
@@ -761,7 +742,7 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     try
     {
 	enumInstances = _repository->enumerateInstances(
-	    INTEROPNAMESPACE,
+	    PEGASUS_NAMESPACENAME_INTEROP,
 	    ref.getClassName());
     }
     catch (CIMException & exception)
@@ -802,7 +783,7 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     {
         // get all instance names from repository
         enumInstanceNames = _repository->enumerateInstanceNames(
-	    INTEROPNAMESPACE,
+	    PEGASUS_NAMESPACENAME_INTEROP,
 	    ref.getClassName());
     }
 
@@ -905,7 +886,7 @@ void ProviderRegistrationManager::modifyInstance(
 	// get the original instance 
 	//
 	CIMInstance origInstance = _repository->getInstance(
-	    INTEROPNAMESPACE, newInstanceRef);
+	    PEGASUS_NAMESPACENAME_INTEROP, newInstanceRef);
 
 	//
 	// creates the instance which replaces the original
@@ -1114,8 +1095,8 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     try
     {
 	cimNamedInstances = _repository->enumerateInstances(
-		INTEROPNAMESPACE,
-		_CLASS_PROVIDER_MODULE);
+		PEGASUS_NAMESPACENAME_INTEROP,
+		PEGASUS_CLASSNAME_PROVIDERMODULE);
 
 	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
 	{
@@ -1140,7 +1121,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 		//
 		// update repository
 		//
-		_repository->setProperty(INTEROPNAMESPACE, 
+		_repository->setProperty(PEGASUS_NAMESPACENAME_INTEROP, 
 					 newInstancereference,
 		    			 _PROPERTY_OPERATIONALSTATUS,
 					 status);
@@ -1149,7 +1130,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 		// update the table
 		//
 		CIMInstance _instance = _repository->getInstance(
-					  INTEROPNAMESPACE,
+					  PEGASUS_NAMESPACENAME_INTEROP,
 					  newInstancereference);
 
 		//
@@ -1201,11 +1182,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
 
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-		      "nameSpace = %s; className = %s", INTEROPNAMESPACE,
-		     	_CLASS_PROVIDER_MODULE);	
+		      "nameSpace = %s; className = %s", PEGASUS_NAMESPACENAME_INTEROP,
+		     	PEGASUS_CLASSNAME_PROVIDERMODULE);	
         cimNamedInstances = _repository->enumerateInstances(
-                INTEROPNAMESPACE,
-                _CLASS_PROVIDER_MODULE);
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_PROVIDERMODULE);
 
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 		        "PG_ProviderModule class has = %d instances",
@@ -1236,8 +1217,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         // get all instances of provider class
         //
         cimNamedInstances = _repository->enumerateInstances(
-                INTEROPNAMESPACE,
-                _CLASS_PG_PROVIDER);
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_PROVIDER);
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 		        "PG_Provider class has = %d instances",
 		     	cimNamedInstances.size());	
@@ -1268,8 +1249,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         // get all instances of providerCapabilities class
         //
         cimNamedInstances = _repository->enumerateInstances(
-                INTEROPNAMESPACE,
-                _CLASS_PROVIDER_CAPABILITIES);
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
 
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
@@ -1459,11 +1440,11 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	// 
 	// register PG_ProviderModule class
 	//
-	if (String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+	if (String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
 	{
     	    Array<CIMInstance> instances;
 
-	    cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+	    cimRef = _repository->createInstance(PEGASUS_NAMESPACENAME_INTEROP, instance); 
 
 	    //
 	    // get provider module name
@@ -1485,7 +1466,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	// 
 	// register PG_Provider class
 	//
-	if (String::equalNoCase(className, _CLASS_PG_PROVIDER))
+	if (String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER))
 	{
     	    Array<CIMInstance> instances;
 
@@ -1514,7 +1495,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 		//
 		// the provider module class was registered
 		//
-	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+	        cimRef = _repository->createInstance(PEGASUS_NAMESPACENAME_INTEROP, instance); 
 	        //
 	        // add the instance to the hash table 
 	        //
@@ -1539,7 +1520,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	//
 	// register CIM_Capabilities class
 	//
-	if (String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
+	if (String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
 	{
 	    Array<Uint16> _providerType;
 	    Array<String> _namespaces;
@@ -1812,7 +1793,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 		    }
 		}
 
-	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+	        cimRef = _repository->createInstance(PEGASUS_NAMESPACENAME_INTEROP, instance); 
 		PEG_METHOD_EXIT();
     		return (cimRef);
 	    }
@@ -1862,7 +1843,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	instanceReference.getKeyBindings());
 
     CIMInstance instance = _repository->getInstance(
-	INTEROPNAMESPACE, newInstancereference);
+	PEGASUS_NAMESPACENAME_INTEROP, newInstancereference);
 	    
 
     try
@@ -1870,17 +1851,16 @@ void ProviderRegistrationManager::_deleteInstance(
 	//
 	// unregister PG_ProviderCapability class
 	//
-        if(String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
+        if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
         {
 	    String deletedCapabilityID;
 	    Array<CIMInstance> instances;
-	    Uint32 instancesCount;
 	    Array<Uint16> providerType;
 
 	    //
 	    // delete the instance from repository
 	    //
-	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
+	    _repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, newInstancereference);
 
 	    //
 	    // get the key capabilityID
@@ -1898,9 +1878,8 @@ void ProviderRegistrationManager::_deleteInstance(
 	    {
 		k++;
 		instances = i.value()->getInstances();
-		instancesCount = instances.size();
 
-		for (Uint32 j = 0; j < instancesCount; j++)
+		for (Sint32 j = 0; j < instances.size(); j++)
 		{
 	    	    String capabilityID;
 		    
@@ -1910,13 +1889,14 @@ void ProviderRegistrationManager::_deleteInstance(
 	    	    	instances[j].getProperty(pos).getValue().get(capabilityID);
 		    	if (String::equal(deletedCapabilityID, capabilityID))
 		    	{
-			    if (instancesCount == 1)
+			    if (instances.size()== 1)
 			    {
 			        _registrationTable->table.remove(i.key());
 			    }
 			    else
 			    {
 			        instances.remove(j);
+				j = j - 1;
 			    }
 		        }
 		    }
@@ -1948,7 +1928,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	// Note: Deleteting an instance of PG_Provider will cause the 
 	// associated instances of PG_ProviderCapability to be deleted 
 	//
-        if(String::equalNoCase(className, _CLASS_PG_PROVIDER))
+        if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER))
         {
 	    CIMInstance capInstance;
 	    CIMReference capReference;
@@ -1971,7 +1951,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    //
 	    // delete instance of PG_Provider from repository
 	    //
-	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
+	    _repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, newInstancereference);
 
 	    //
 	    // delete associated instances of PG_ProviderCapability
@@ -1979,7 +1959,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    Array<CIMNamedInstance> enumCapInstances;
 	
 	    enumCapInstances = _repository->enumerateInstances(
-			INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
+			PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES); 	
 
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
@@ -2004,7 +1984,7 @@ void ProviderRegistrationManager::_deleteInstance(
 			capReference.getClassName(),
 			capReference.getKeyBindings());
 
-	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
+	    	    _repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, newCapReference);
 
 		    //
                     // get provider types
@@ -2038,7 +2018,6 @@ void ProviderRegistrationManager::_deleteInstance(
 	    {
 		k++;
 		Array<CIMInstance> instances;
-		Uint32 instancesCount;
 
 		// 
 		// remove all entries which their key's value is same as _deletedProviderKey 
@@ -2050,9 +2029,8 @@ void ProviderRegistrationManager::_deleteInstance(
 		}
 
 		instances = i.value()->getInstances();
-		instancesCount = instances.size();
 
-		for (Uint32 j = 0; j < instancesCount; j++)
+		for (Sint32 j = 0; j < instances.size(); j++)
 		{
 	    	    String _providerName;
 		    
@@ -2062,13 +2040,14 @@ void ProviderRegistrationManager::_deleteInstance(
 	    	    	instances[j].getProperty(pos).getValue().get(_providerName);
 			if (String::equal(deletedProviderName, _providerName))
 		    	{
-			    if (instancesCount == 1)
+			    if (instances.size() == 1)
 			    {
 			        _registrationTable->table.remove(i.key());
 			    }
 			    else
 			    {
 			        instances.remove(j);
+				j = j - 1;
 			    }
 		        }
 		    }
@@ -2084,7 +2063,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	// associated instances of PG_Provider, instances of PG_ProviderCapability 
 	// to be deleted 
 	//
-        if(String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+        if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
         {
 	    String deletedProviderModuleName;
 
@@ -2102,7 +2081,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    //
 	    // delete instance of PG_ProviderModule from repository
 	    //
-	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
+	    _repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, newInstancereference);
 
 	    //
 	    // delete associated instances of PG_Provider
@@ -2110,7 +2089,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    Array<CIMNamedInstance> enumProviderInstances;
 	
 	    enumProviderInstances = _repository->enumerateInstances(
-				INTEROPNAMESPACE, _CLASS_PG_PROVIDER); 	
+				PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER); 	
 
 	    for (Uint32 i = 0, n = enumProviderInstances.size(); i < n; i++)
 	    {
@@ -2139,7 +2118,7 @@ void ProviderRegistrationManager::_deleteInstance(
 			providerReference.getClassName(),
 			providerReference.getKeyBindings());
 
-	    	    _repository->deleteInstance(INTEROPNAMESPACE, newProviderReference);
+	    	    _repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, newProviderReference);
 		    
 		}
 
@@ -2151,7 +2130,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    Array<CIMNamedInstance> enumCapInstances;
 	
 	    enumCapInstances = _repository->enumerateInstances(
-				INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
+				PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES); 	
 
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
@@ -2181,7 +2160,7 @@ void ProviderRegistrationManager::_deleteInstance(
 			capReference.getClassName(),
 			capReference.getKeyBindings());
 
-	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
+	    	    _repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, newCapReference);
 		    
 		    //
                     // get provider types
@@ -2214,7 +2193,6 @@ void ProviderRegistrationManager::_deleteInstance(
 	    {
 		k++;
 		Array<CIMInstance> instances;
-		Uint32 instancesCount;
 
 		// 
 		// remove all entries which key's value is same as _deletedModuleKey 
@@ -2234,9 +2212,8 @@ void ProviderRegistrationManager::_deleteInstance(
 		// the instance;
 		//
 		instances = i.value()->getInstances();
-		instancesCount = instances.size();
 
-		for (Uint32 j = 0; j < instancesCount; j++)
+		for (Uint32 j = 0; j < instances.size(); j++)
 		{
 	    	    String _providerModuleName;
 		    
@@ -2246,13 +2223,14 @@ void ProviderRegistrationManager::_deleteInstance(
 	    	    	instances[j].getProperty(pos).getValue().get(_providerModuleName);
 			if (String::equal(deletedProviderModuleName, _providerModuleName))
 		    	{
-			    if (instancesCount == 1)
+			    if (instances.size() == 1)
 			    {
 			        _registrationTable->table.remove(i.key());
 			    }
 			    else
 			    {
 			        instances.remove(j);
+				j = j - 1;
 			    }
 		        }
 		    }

@@ -30,12 +30,12 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/PG_InterOp";
 const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
 const String CLASSNAME3 = "PG_ProviderCapabilities";
@@ -60,12 +60,12 @@ void TestCreateInstances(CIMClient& client)
 
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
-    instanceName.setNameSpace(NAMESPACE);
+    instanceName.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName.setClassName(CLASSNAME);
 
     try
     {
-        returnRef = client.createInstance(NAMESPACE, cimInstance);
+        returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
     }
     catch(CIMException& e)
     {
@@ -85,12 +85,12 @@ void TestCreateInstances(CIMClient& client)
 
     CIMReference instanceName2 = cimInstance2.getInstanceName(cimClass2);
 
-    instanceName2.setNameSpace(NAMESPACE);
+    instanceName2.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName2.setClassName(CLASSNAME2);
 
     try
     {
-	returnRef2 = client.createInstance(NAMESPACE, cimInstance2);
+	returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
     }
     catch(CIMException& e)
     {
@@ -135,12 +135,12 @@ void TestCreateInstances(CIMClient& client)
 
     CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
-    instanceName3.setNameSpace(NAMESPACE);
+    instanceName3.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName3.setClassName(CLASSNAME3);
 
     try
     {
-        returnRef3 = client.createInstance(NAMESPACE, cimInstance3);
+        returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
     }
     catch(CIMException& e)
     {
@@ -152,7 +152,7 @@ void TestCreateInstances(CIMClient& client)
     keys.append(kb1);
 
     instanceName.setKeyBindings(keys);
-    client.deleteInstance(NAMESPACE, instanceName);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }
 
 int main(int argc, char** argv)

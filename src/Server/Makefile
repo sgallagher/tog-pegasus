@@ -1,7 +1,6 @@
 ROOT = ../..
 DIR = Server
 include $(ROOT)/mak/config.mak
-include $(ROOT)/mak/commands.mak
 
 LIBRARIES = \
     pegclient \
@@ -71,6 +70,8 @@ endif
 tests:
 
 poststarttests:
+
+include $(ROOT)/mak/commands.mak
 
 PEGASUS_CREATE_SSLCNF_OPTIONS = \
    PEGASUS_SSLCNF_COUNTRY_CODE="UK" \

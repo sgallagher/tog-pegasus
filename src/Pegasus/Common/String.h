@@ -417,6 +417,12 @@ public:
     /// Return true if the two strings are equal.
     static Boolean equal(const char* x, const String& y);
 
+    /** equalNoCase - Compares two strings and returuns true if they
+	are equal indpedent of case of the characters.
+	@param x First String parameter
+	@param y Second String parameter
+	@return true if strings are equal independent of case.
+    */
     static Boolean equalNoCase(const String& x, const String& y);
 
     /// Convert the plain old C-string to lower case:

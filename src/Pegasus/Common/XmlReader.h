@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.h,v $
+// Revision 1.7  2001/04/13 21:53:47  karl
+// add get and set property
+//
 // Revision 1.6  2001/04/08 01:13:22  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -353,6 +356,10 @@ public:
     static Boolean getIParamValueTag(
 	XmlParser& parser, 
 	const char*& name);
+
+    static Boolean getPropertyValue(
+	XmlParser& parser, 
+	CIMValue& cimValue);
 
     static Boolean getBooleanValueElement(
 	XmlParser& parser, 

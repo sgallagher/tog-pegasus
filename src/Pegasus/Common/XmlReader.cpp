@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
+// Revision 1.7  2001/04/13 21:53:47  karl
+// add get and set property
+//
 // Revision 1.6  2001/04/08 01:13:22  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -940,6 +943,45 @@ Boolean XmlReader::getValueElement(
 
     value = stringToValue(parser.getLine(), valueString,type);
     return true;
+}
+
+//----------------------------------------------------------------------------
+//
+// getPropertyValue
+//     Expect (ERROR|IRETURNVALUE).!ELEMENT VALUE (#PCDATA)>
+//
+//	PropertyValue:
+//	<!ELEMENT VALUE>
+//
+//	<!ELEMENT VALUE.ARRAY (VALUE*)>
+//
+//	<!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
+//                           INSTANCEPATH|LOCALINSTANCEPATH|INSTANCENAME)>
+//
+//----------------------------------------------------------------------------
+Boolean XmlReader::getPropertyValue(
+    XmlParser& parser, 
+    CIMValue& cimValue)
+{
+    //Test for Element value type
+    CIMType type = CIMType::STRING;
+    if (XmlReader::getValueElement(parser, type, cimValue))
+	return true;
+
+    //Test for Element.array value
+    if(XmlReader::getValueArrayElement(parser, type, cimValue))
+       return true;
+
+    // Test for Value.reference type
+    // ATTN:This returns a different type (CIMReference)
+    // ATTN: Possibly change to simply return result after
+    // we figure out the type differences.
+
+   CIMReference reference;
+   if(XmlReader::getValueReferenceElement(parser, reference))
+      return true;
+
+   return false;
 }
 
 //------------------------------------------------------------------------------

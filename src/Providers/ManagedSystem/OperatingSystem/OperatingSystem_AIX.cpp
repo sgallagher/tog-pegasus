@@ -31,7 +31,6 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>

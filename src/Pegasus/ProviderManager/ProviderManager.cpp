@@ -295,7 +295,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
 
         if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
         {
-        PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getProviderName() << PEGASUS_STD(endl);
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unloading provider for " + _this->_providers[i].getClassName() +
+                " in " + _this->_providers[i].getProviderName());
         void * mypr = (void *)_this->_providers[i].getProvider();
 
         _this->_providers[i].getProvider()->terminate();
@@ -304,7 +306,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
     }
     }
 
-    PEGASUS_STD(cout) << "provider monitor stopped" << PEGASUS_STD(endl);
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        "Provider monitor stopped");
 
     return(0);
 }

@@ -119,7 +119,12 @@ Message * pegasus_module::module_rep::module_receive_message(Message *msg)
    Message * ret;
    _thread_safety.lock(pegasus_thread_self());
    try {  ret = _receive_message(msg, _module_address); }
-   catch(...) {cout << " caught exception in module_receive_message " << endl ;  _thread_safety.unlock(); throw; }
+   catch(...)
+   {
+      // cout << " caught exception in module_receive_message " << endl;
+      _thread_safety.unlock();
+      throw;
+   }
    _thread_safety.unlock();
    return ret;
 }
@@ -676,7 +681,7 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 					    MessageQueue *q, 
 					    void *parm)
 {
-   cout << "entering _async_handleEnqueue " << endl;
+   //cout << "entering _async_handleEnqueue " << endl;
    
    ModuleController *myself = static_cast<ModuleController *>(q);
    Message *request = op->get_request();
@@ -714,7 +719,7 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    }
    
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
-   cout << "calling the second-level callback" << endl;
+   //cout << "calling the second-level callback" << endl;
    
    cb->_module->_send_async_callback(routing, response, cb->_parm); 
    delete cb;
@@ -731,7 +736,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 					  void *callback_parm) 
    throw(Permission, IPCException)
 {
-   printf("verifying handle %p, controller at %p \n", &handle, this);
+   //printf("verifying handle %p, controller at %p \n", &handle, this);
    
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
@@ -746,7 +751,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), 
 					     callback_parm);
    
-   printf("obtained callback handle %p\n", cb);
+   //printf("obtained callback handle %p\n", cb);
    
    message->setRouting(msg_handle);
    message->resp = getQueueId();

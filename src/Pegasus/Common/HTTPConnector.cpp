@@ -180,7 +180,7 @@ void HTTPConnector::handleEnqueue(Message *message)
 
 	    if (socket == closeConnectionMessage->socket)
 	    {
-	       printf("closing socket\n");
+	       //printf("closing socket\n");
 	       _monitor->unsolicitSocketMessages(socket);
 	       _rep->connections.remove(i);
 

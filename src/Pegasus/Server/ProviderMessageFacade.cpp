@@ -75,12 +75,12 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
        {
 	
-       cout << " ProviderMessageFacade::handleRequestMessage " << endl;
+       //cout << " ProviderMessageFacade::handleRequestMessage " << endl;
 
        Message *ret = _handleModifyInstanceRequest(message);
-       cout << " modify instance response " << "type " << ret->getType() << " dest " << ret->dest << endl;
+       //cout << " modify instance response " << "type " << ret->getType() << " dest " << ret->dest << endl;
 
-       cout << " leaving ProviderMessageFacade::handleRequestMessage " << endl;
+       //cout << " leaving ProviderMessageFacade::handleRequestMessage " << endl;
        response = ret;
        }
 
@@ -126,7 +126,7 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
    }
    catch( ... )
    {
-      cout << "caught exception in ProviderMessageFacade::handleRequestMessage" << endl;
+      //cout << "caught exception in ProviderMessageFacade::handleRequestMessage" << endl;
       ;
    }
 
@@ -432,7 +432,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     CIMException cimException;
     CIMObjectPath instanceName;
 
-    cout << "ProviderMessageFacade::_handleModifyInstanceRequest" << endl;
+    //cout << "ProviderMessageFacade::_handleModifyInstanceRequest" << endl;
 
 
     try

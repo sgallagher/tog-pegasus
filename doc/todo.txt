@@ -163,6 +163,8 @@ Topical To-Do List
 
 -   Miscellaneous
 
+    -   Change CompareNoCase() to String::compareNoCase().
+
     -	Place configuration startup parameters in Repository (e.g., port).
 
     -	Integrate logging 

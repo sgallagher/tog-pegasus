@@ -222,6 +222,9 @@ void ServerHandler::outputN (Array<Sint8>& message)
 	Logger::put(Logger::TRACE_LOG, "Handler",Logger::INFORMATION,
 	       "SENT================\n $0", message.getData());
 	message.remove(message.size() - 1);
+
+       // Handler:logMessage(Logger::TRACE_LOG, "Handler",Logger::INFORMATION,
+       //        "SENT================\n $0", message);
         
     }
 

@@ -56,33 +56,34 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The constant represeting the authorization class name
 */
-const String PG_AUTH_CLASS                     = "PG_Authorization";
+static const String PG_AUTH_CLASS                 = "PG_Authorization";
 
 /**
-    The constant representing the default namespace
+    The constant representing the namespace where the authorization
+    instances reside.
 */
-const String AUTHORIZATION_NAMESPACE           = "root/cimv2";
+static const String AUTHORIZATION_NAMESPACE       = "root/cimv2";
 
 /**
     This constant represents the  User name property in the schema
 */
-static const char PROPERTY_NAME_USERNAME []    = "Username";
+static const char PROPERTY_NAME_USERNAME []       = "Username";
 
 /**
     This constant represents the Namespace property in the schema
 */
-static const char PROPERTY_NAME_NAMESPACE []   = "Namespace";
+static const char PROPERTY_NAME_NAMESPACE []      = "Namespace";
 
 /**
     This constant represents the Authorizations property in the schema
 */
-static const char PROPERTY_NAME_AUTHORIZATION []    = "Authorization";
+static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
 
 
 /**
     List of CIM Operations
 */
-//ATTN: Make sure it has all the operations covered
+//ATTN: Make sure to include all the CIM operations here.
 
 static const char* READ_OPERATIONS []    = {
     "GetClass",
@@ -146,36 +147,34 @@ AuthorizationHandler::~AuthorizationHandler()
 //
 Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 {
-    //
-    // ATTN: Implement this
-    // 
-/*
     try
     {
         //
-        // call enumerateInstanceNames
+        // call enumerateNameSpaces to get all the namespaces 
+        // in the repository
         //
-        Array<CIMReference> instanceNames =
-            _repository->enumerateInstanceNames( AUTHORIZATION_NAMESPACE, PG_AUTH_CLASS);
+        Array<String> namespaceNames =
+            _repository->enumerateNameSpaces();
 
         //
         // check for the given namespace
         //
-        for (Uint32 i = 0; i < instanceNames.size(); i++)
-        {
-            Array<KeyBinding> kbArray = instanceNames[i].getKeyBindings();
+        Uint32 size = namespaceNames.size();
 
-            if (kbArray.size() > 0)
-            {
-                if (String::equal(nameSpace, kbArray[0].getValue();
-            }
+        for (Uint32 i = 0; i < size; i++)
+        {
+             if (String::equal(nameSpace, namespaceNames[i]))
+             {
+                 return true;
+             }
         }
-    catch (CIMException& e)
-    {
-	throw InvalidNamespace(nameSpace+e.getMessage());
     }
-*/
-    return true;
+    catch (Exception& e)
+    {
+	throw InvalidNamespace(nameSpace + e.getMessage());
+    }
+
+    return false;
 }
 
 // 
@@ -225,21 +224,14 @@ void AuthorizationHandler::_loadAllAuthorizations()
             //
             // Add authorization to the table
             //
-            if (!_authTable.insert(userName+nameSpace, auth))
-            {
-                //ATTN: Should an exception be thrown or just ignore 
-                //      that instance ?
-                //throw AuthorizationCacheError();
-            }
+            _authTable.insert(userName + nameSpace, auth);
         }
 
     }
     catch(Exception& e)
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        throw e;
     }
-    
-
 
 }
 
@@ -247,27 +239,16 @@ void AuthorizationHandler::setAuthorization(
                             const String& userName,
                             const String& nameSpace,
 			    const String& auth)
-
 {
     //
-    // Check if the auth already exists
+    // Remove auth if it already exists
     //
-    if (_authTable.contains(userName+nameSpace))
-    {
-        //
-        // remove the existing auth TODO: confirm this
-        //
-        if (!_authTable.remove(userName+nameSpace))
-        {
-            //ATTN: Should this exception be thrown here?
-            throw AuthorizationCacheError();
-        }
-    }
+    _authTable.remove(userName + nameSpace);
 
     //
-    // Add authorization to the table
+    // Insert the specified authorization
     //
-    if (!_authTable.insert(userName+nameSpace,auth))
+    if (!_authTable.insert(userName + nameSpace, auth))
     {
         throw AuthorizationCacheError();
     }
@@ -279,11 +260,11 @@ void AuthorizationHandler::removeAuthorization(
                             const String& nameSpace)
 {
     //
-    // remove authorization from the table
+    // Remove the specified authorization
     //
-    if (!_authTable.remove(userName+nameSpace))
+    if (!_authTable.remove(userName + nameSpace))
     {
-        throw AuthorizationCacheError();
+        throw AuthorizationEntryNotFound(userName, nameSpace);
     }
 }
 
@@ -293,14 +274,13 @@ String AuthorizationHandler::getAuthorization(
 {
     String auth;
 
-    // Check if the user exists in the auth table
-    if (!_authTable.contains(userName+nameSpace))
+    //
+    // Get authorization for the specified userName and nameSpace
+    //
+    if (!_authTable.lookup(userName + nameSpace, auth))
     {
-	// TODO: change to auth entry not found
-        throw InvalidUserAndNamespace(userName, nameSpace);
+        throw AuthorizationEntryNotFound(userName, nameSpace);
     }
-
-    _authTable.lookup(userName+nameSpace,auth);
 
     return auth;
 }
@@ -315,10 +295,32 @@ Boolean AuthorizationHandler::verifyAuthorization(
                             const String& cimMethodName)
 {
     Boolean authorized = false;
+    Boolean readOperation = false;
+    Boolean writeOperation = false;
 
     Uint32 readOpSize = sizeof(READ_OPERATIONS) / sizeof(READ_OPERATIONS[0]);
 
     Uint32 writeOpSize = sizeof(WRITE_OPERATIONS) / sizeof(WRITE_OPERATIONS[0]);
+
+    for (Uint32 i = 0; i < readOpSize; i++ )
+    {
+        if ( String::equal(cimMethodName, READ_OPERATIONS[i]) )
+        {
+            readOperation = true;
+            break;
+        }
+    }
+    if ( !readOperation )
+    {
+        for (Uint32 i = 0; i < writeOpSize; i++ )
+        {
+            if ( String::equal(cimMethodName, WRITE_OPERATIONS[i]) )
+            {
+                writeOperation = true;
+                break;
+            }
+        }
+    }
 
     //
     // Get the authorization of the specified user and namespace
@@ -330,50 +332,21 @@ Boolean AuthorizationHandler::verifyAuthorization(
     }
     catch (Exception& e)
     {
-cout << e.getMessage() << endl;
         return authorized;
     }
 
-    if (String::equal(auth, "rw") || String::equal(auth, "wr"))
+    if ( ( String::equal(auth, "rw") || String::equal(auth, "wr") ) &&
+        ( readOperation || writeOperation ) )
     {
-        for (Uint32 i = 0; i < readOpSize; i++ )
-        {
-            if ( String::equal(cimMethodName, READ_OPERATIONS[i]) )
-            {
-                authorized = true;
-                break;
-            }
-        }
-        for (Uint32 i = 0; i < writeOpSize; i++ )
-        {
-            if ( String::equal(cimMethodName, WRITE_OPERATIONS[i]) )
-            {
-                authorized = true;
-                break;
-            }
-        }
+        authorized = true;
     }
-    else if (String::equal(auth, "r"))
+    else if ( String::equal(auth, "r") && readOperation )
     {
-        for (Uint32 i = 0; i < readOpSize; i++ )
-        {
-            if ( String::equal(cimMethodName, READ_OPERATIONS[i]) )
-            {
-                authorized = true;
-                break;
-            }
-        }
+        authorized = true;
     }
-    else if (String::equal(auth, "w"))
+    else if ( String::equal(auth, "w") && writeOperation )
     {
-        for (Uint32 i = 0; i < writeOpSize; i++ )
-        {
-            if ( String::equal(cimMethodName, WRITE_OPERATIONS[i]) )
-            {
-                authorized = true;
-                break;
-            }
-        }
+        authorized = true;
     }
 
     return authorized;

@@ -55,33 +55,33 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The command name.
 */
-static const char COMMAND_NAME []              = "cimauth";
+static const char COMMAND_NAME []                 = "cimauth";
 
 /**
     This constant represents the name of the User name property in the schema
 */
-static const char USER_NAME []                 = "Username";
+static const char PROPERTY_NAME_USERNAME []       = "Username";
 
 /**
     This constant represents the name of the Namespace property in the schema
 */
-static const char NAMESPACE []                 = "Namespace";
+static const char PROPERTY_NAME_NAMESPACE []      = "Namespace";
 
 /**
     This constant represents the name of the authorizations property in the schema
 */
-static const char AUTHORIZATION []            = "Authorization";
+static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
 
 /**
     The usage string for this command.  This string is displayed
     when an error occurs in parsing or validating the command line.
 */
-static const char USAGE []                     = "usage: ";
+static const char USAGE []                        = "usage: ";
 
 /**
     This constant represents the getoopt argument designator
 */
-static const char GETOPT_ARGUMENT_DESIGNATOR   = ':';
+static const char GETOPT_ARGUMENT_DESIGNATOR      = ':';
 
 /*
     These constants represent the operation modes supported by the CLI.
@@ -116,7 +116,7 @@ static const int OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-const String ROOT_NAMESPACE                         = "root/cimv2";
+const String ROOT_NAMESPACE                    = "root/cimv2";
  
 /**
     The constant representing the User class 
@@ -143,62 +143,53 @@ static const char PORT []                      = "port";
     The constants representing the messages.
 */
 
+static const char NOT_PRIVILEGED_USER []         =
+             "You must have superuser privilege to run this command.";
+
 static const char CIMOM_NOT_RUNNING []         = 
-                        "CIMOM may not be running.";
+                        "CIM Server may not be running.";
 
-static const char FILE_NOT_READABLE []         = 
-                        "Unable to read the config file.";
-
-static const char ADD_AUTH_FAILURE []    = 
+static const char ADD_AUTH_FAILURE []          = 
                         "Failed to add authorizations.";
 
-static const char MODIFY_AUTH_FAILURE []  = 
+static const char MODIFY_AUTH_FAILURE []       = 
                         "Failed to modify authorizations.";
 
-static const char REMOVE_AUTH_FAILURE []    = 
+static const char REMOVE_AUTH_FAILURE []       = 
                         "Failed to remove authorizations.";
 
-static const char LIST_AUTH_FAILURE [] = 
+static const char LIST_AUTH_FAILURE []         = 
                         "Failed to list the users. ";
 
-static const char ADD_AUTH_SUCCESS []    = 
+static const char ADD_AUTH_SUCCESS []          = 
                         "Authorizations added successfully.";
 
-static const char MODIFY_AUTH_SUCCESS []  = 
+static const char MODIFY_AUTH_SUCCESS []       = 
                         "Authorizations modified successfully.";
 
-static const char REMOVE_AUTH_SUCCESS[]  = 
+static const char REMOVE_AUTH_SUCCESS[]        = 
                         "Authorizations removed successfully.";
 
-static const char NO_AUTHS_FOUND[] =
+static const char NO_AUTHS_FOUND[]             =
 			"No user authorizations found for listing.";
 
-static const char AUTH_SCHEMA_NOT_LOADED []  =
+static const char AUTH_SCHEMA_NOT_LOADED []    =
     "Please make sure that the authorization schema is loaded on the CIMOM.";
 
-static const char  REQUIRED_ARGS_MISSING []        =
+static const char  REQUIRED_ARGS_MISSING []    =
                         "Required arguments missing.";
 
-static const char AUTH_ALREADY_EXISTS []        =
+static const char AUTH_ALREADY_EXISTS []       =
                         "Specified user authorizations already exists.";
 
-static const char AUTH_NOT_FOUND []        =
+static const char AUTH_NOT_FOUND []            =
                         "Specified user authorizations were not found.";
-
-static const char USERNAME_REQUIRED []        =
-                        "User name is required.";
-
-static const char NAMESPACE_REQUIRED []       =
-                        "Namespace is required.";
-
-static const char AUTHFLAG_REQUIRED []       =
-                        "Read or Write authorization flag is required.";
 
 
 /**
     The constant representing the user provider class name
 */
-static const char PG_USER_MGR_PROV_CLASS []       = "PG_UserManager";
+static const char PG_USER_MGR_PROV_CLASS []    = "PG_UserManager";
 
 /**
     The option character used to specify add user.
@@ -249,7 +240,7 @@ char*     address     = 0;
 This is a CLI used to manage users of the CIM Server.  This command supports 
 operations to add, modify, list and remove users.  
 
-@author Sushma Fernandes, Hewlett-Packard Company
+@author Nag Boranna, Hewlett-Packard Company
 */
 
 class CIMAuthCommand : public Command 
@@ -262,36 +253,18 @@ public:
     */
     CIMAuthCommand ();
 
-    //
-    // Overrides the virtual function setCommand from Command class
-    // This is defined as an empty function. 
-    //
-    void setCommand (
-		      Uint32                   argc, 
-		      char*                    argv [])
-		      throw (CommandFormatException)
-    {
-        // Empty function 
-    }
-
     /**
     Parses the command line, validates the options, and sets instance 
-    variables based on the option arguments. This implementation of
-    setCommand includes the parameters for output and error stream. 
+    variables based on the option arguments. 
 
-    @param  ostream    The stream to which command output is written.
-    @param  ostream    The stream to which command errors are written.
     @param  args       The string array containing the command line arguments
     @param  argc       The int containing the arguments count
 
     @throws  CommandFormatException  if an error is encountered in parsing
                                      the command line
     */
-    void setCommand (
-                      ostream&                outPrintWriter, 
-                      ostream&                errPrintWriter,
-		      Uint32                  argc, 
-		      char*                   argv []);
+    void setCommand (Uint32 argc, char* argv [])
+        throw (CommandFormatException);
 
     /**
     Executes the command and writes the results to the output streams.
@@ -301,9 +274,9 @@ public:
     @return  0        if the command is successful
              1        if an error occurs in executing the command
     */
-    Uint32 execute ( 
-		      ostream&                outPrintWriter,
-                      ostream&                errPrintWriter);
+    Uint32 execute (
+        PEGASUS_STD(ostream)& outPrintWriter,
+        PEGASUS_STD(ostream)& errPrintWriter);
 
 
 private:
@@ -318,8 +291,8 @@ private:
     //
     void _AddAuthorization
         (
-        ostream&    		outPrintWriter, 
-        ostream&    		errPrintWriter
+        PEGASUS_STD(ostream)&    	outPrintWriter, 
+        PEGASUS_STD(ostream)&    	errPrintWriter
         ); 
 
     //
@@ -332,8 +305,8 @@ private:
     //
     void _ModifyAuthorization
         (
-        ostream&                 outPrintWriter,
-        ostream&                 errPrintWriter
+        PEGASUS_STD(ostream)&           outPrintWriter,
+        PEGASUS_STD(ostream)&           errPrintWriter
         );
 
     //
@@ -346,8 +319,8 @@ private:
     //
     void _RemoveAuthorization
         (
-        ostream&		outPrintWriter, 
-        ostream&		errPrintWriter
+        PEGASUS_STD(ostream)&		outPrintWriter, 
+        PEGASUS_STD(ostream)&		errPrintWriter
         ); 
 
     //
@@ -358,8 +331,8 @@ private:
     //
     void _ListAuthorization
     (
-	ostream&                outPrintWriter,
-	ostream&                errPrintWriter
+	PEGASUS_STD(ostream)&           outPrintWriter,
+	PEGASUS_STD(ostream)&           errPrintWriter
     );
 
     //
@@ -457,11 +430,8 @@ CIMAuthCommand::CIMAuthCommand ()
     Parses the command line, validates the options, and sets instance 
     variables based on the option arguments.
 */
-void CIMAuthCommand::setCommand (
-                        ostream& outPrintWriter, 
-                        ostream& errPrintWriter,
-			Uint32   argc, 
-			char*    argv []) 
+void CIMAuthCommand::setCommand (Uint32 argc, char* argv [])
+    throw (CommandFormatException)
 {
     Uint32            i                = 0;
     Uint32            c                = 0;
@@ -517,7 +487,7 @@ void CIMAuthCommand::setCommand (
         {
             //
             //  This path should not be hit
-            //  The cimuser command has no LONGFLAG options
+            //  The cimauth command has no LONGFLAG options
             //
             c = options [i].getopt () [0];
 
@@ -527,7 +497,7 @@ void CIMAuthCommand::setCommand (
         else if (options [i].getType () == Optarg::REGULAR)
         {
             //
-            //  The cimuser command has no non-option argument options
+            //  The cimauth command has no non-option argument options
             //
             UnexpectedArgumentException e (options [i].Value ()); 
             throw e;
@@ -669,16 +639,6 @@ void CIMAuthCommand::setCommand (
                 }
                 case OPTION_READ: 
                 {
-                    if (_operationType != OPERATION_TYPE_ADD &&
-                        _operationType != OPERATION_TYPE_MODIFY)
-                    {
-                        //
-                        // More than one operation option was found
-                        //
-                        UnexpectedOptionException e (OPTION_READ);
-                        throw e;
-                    }
-
                     if (options.isSet (OPTION_READ) > 1)
                     {
                         //
@@ -693,16 +653,6 @@ void CIMAuthCommand::setCommand (
                 }
                 case OPTION_WRITE: 
                 {
-                    if (_operationType != OPERATION_TYPE_ADD &&
-                        _operationType != OPERATION_TYPE_MODIFY)
-                    {
-                        //
-                        // More than one operation option was found
-                        //
-                        UnexpectedOptionException e (OPTION_WRITE);
-                        throw e;
-                    }
-
                     if (options.isSet (OPTION_WRITE) > 1)
                     {
                         //
@@ -727,16 +677,6 @@ void CIMAuthCommand::setCommand (
         }
     }
 
-    // 
-    // Some more validations
-    //
-    if ( _operationType == OPERATION_TYPE_UNINITIALIZED  && 
-	 ( _userNameSet || _namespaceSet || _readFlagSet || _writeFlagSet ) )
-    {
-        CommandFormatException e ( REQUIRED_ARGS_MISSING );
-        throw e;
-    }
-	
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
         //
@@ -753,17 +693,17 @@ void CIMAuthCommand::setCommand (
         if ( !_userNameSet )
         {
             //
-            // An invalid option was encountered
+            // A required option is missing
             //
-            CommandFormatException e (USERNAME_REQUIRED);
+            MissingOptionException e (OPTION_USER_NAME);
             throw e;
         }
         if ( !_namespaceSet )
         {
             //
-            // An invalid option was encountered
+            // A required option is missing
             //
-            CommandFormatException e (NAMESPACE_REQUIRED);
+            MissingOptionException e (OPTION_NAMESPACE);
             throw e;
         }
         if ( !_readFlagSet && !_writeFlagSet )
@@ -781,9 +721,26 @@ void CIMAuthCommand::setCommand (
         if ( !_userNameSet )
         {
             //
-            // An invalid option was encountered
+            // A required option is missing
             //
-            CommandFormatException e (USERNAME_REQUIRED);
+            MissingOptionException e (OPTION_USER_NAME);
+            throw e;
+        }
+    }
+    else if (_operationType != OPERATION_TYPE_ADD &&
+        _operationType != OPERATION_TYPE_MODIFY)
+    {
+        //
+        // Unexpected option was specified
+        //
+        if ( _readFlagSet )
+        {
+            UnexpectedOptionException e (OPTION_READ);
+            throw e;
+        }
+        else if ( _writeFlagSet )
+        {
+            UnexpectedOptionException e (OPTION_WRITE);
             throw e;
         }
     }
@@ -796,7 +753,6 @@ Uint32 CIMAuthCommand::execute (
     ostream& outPrintWriter, 
     ostream& errPrintWriter)
 {
-    Boolean   connected     = false;
     String    portNumberStr = String::EMPTY;
     String    addressStr    = String::EMPTY;
     String    pegasusHome   = String::EMPTY;
@@ -812,20 +768,27 @@ Uint32 CIMAuthCommand::execute (
     //
     // Get environment variable
     //
+    String currentFile;
+    String plannedFile;
 
     const char* env = getenv("PEGASUS_HOME");
 
     if (!env || env == "")
     {
-        cerr << "PEGASUS_HOME environment variable undefined" << endl;
-        exit(1);
+        cerr << "PEGASUS_HOME environment variable undefined," << endl;
+        cerr << "using the configuration files from the current directory." << endl;
+
+        currentFile.append(CURRENT_CONFIG_FILE);
+        plannedFile.append(PLANNED_CONFIG_FILE);
     }
+    else
+    {
+        pegasusHome = env;
+        FileSystem::translateSlashes(pegasusHome);
 
-    pegasusHome = env;
-    FileSystem::translateSlashes(pegasusHome);
-
-    String currentFile = pegasusHome + "/" + CURRENT_CONFIG_FILE;
-    String plannedFile = pegasusHome + "/" + PLANNED_CONFIG_FILE;
+        currentFile.append(pegasusHome + "/" + CURRENT_CONFIG_FILE);
+        plannedFile.append(pegasusHome + "/" + PLANNED_CONFIG_FILE);
+    }
 
     try
     {
@@ -853,13 +816,11 @@ Uint32 CIMAuthCommand::execute (
     }
     catch (FileNotReadable& fnr)
     {
-        errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
-        return ( RC_ERROR );
+        portNumberStr = DEFAULT_PORT_STR;
     }
     catch (ConfigFileSyntaxError& cfse)
     {
-        errPrintWriter << cfse.getMessage() << endl;
-        return ( RC_ERROR );
+        portNumberStr = DEFAULT_PORT_STR;
     }
 
     // 
@@ -884,12 +845,11 @@ Uint32 CIMAuthCommand::execute (
 
         client.connectLocal(address);
 
-        connected = true;
     }
     catch(Exception& e)
     {
         outPrintWriter << CIMOM_NOT_RUNNING << endl;
-        connected = false;
+        return ( RC_ERROR );
     }
 
     //
@@ -900,10 +860,7 @@ Uint32 CIMAuthCommand::execute (
         case OPERATION_TYPE_ADD:
             try
             {
-                if (connected)
-                {
-		    _AddAuthorization( outPrintWriter, errPrintWriter );
-                }
+                _AddAuthorization( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -939,13 +896,10 @@ Uint32 CIMAuthCommand::execute (
 
             break; 
 
-            case OPERATION_TYPE_MODIFY:
+        case OPERATION_TYPE_MODIFY:
             try
             {
-                if (connected)
-                {
-                    _ModifyAuthorization( outPrintWriter, errPrintWriter );
-                }
+                _ModifyAuthorization( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -983,10 +937,7 @@ Uint32 CIMAuthCommand::execute (
         case OPERATION_TYPE_REMOVE:
             try
             {
-                if (connected)
-                {
-                    _RemoveAuthorization( outPrintWriter, errPrintWriter );
-                }
+                _RemoveAuthorization( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -1023,12 +974,7 @@ Uint32 CIMAuthCommand::execute (
         case OPERATION_TYPE_LIST:
             try
             {
-                if (connected)
-                {
-                    _ListAuthorization( outPrintWriter, errPrintWriter );
-                }
-
-                break;
+                _ListAuthorization( outPrintWriter, errPrintWriter );
             }
             catch (CIMException& e)
             {
@@ -1063,6 +1009,7 @@ Uint32 CIMAuthCommand::execute (
             {
                 return ( RC_ERROR );
             }
+            break;
 
         default:
             //
@@ -1097,10 +1044,12 @@ void CIMAuthCommand::_AddAuthorization
         client.connectLocal(address);
 
         CIMInstance newInstance( PG_AUTH_CLASS );
-	newInstance.addProperty ( CIMProperty( USER_NAME, _userName ) );
-	newInstance.addProperty ( CIMProperty( NAMESPACE , _namespace ) );
 	newInstance.addProperty ( 
-            CIMProperty( AUTHORIZATION, _authorizations ) );
+            CIMProperty( PROPERTY_NAME_USERNAME, _userName ) );
+	newInstance.addProperty ( 
+            CIMProperty( PROPERTY_NAME_NAMESPACE , _namespace ) );
+	newInstance.addProperty ( 
+            CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
 	client.createInstance( ROOT_NAMESPACE, newInstance );
 	outPrintWriter << ADD_AUTH_SUCCESS << endl;
@@ -1138,13 +1087,13 @@ void CIMAuthCommand::_ModifyAuthorization
 	//
 	// Build the input params
 	//
-        kb.setName(USER_NAME);
+        kb.setName(PROPERTY_NAME_USERNAME);
         kb.setValue(_userName);
         kb.setType(KeyBinding::STRING);
 
         kbArray.append(kb);
 
-        kb.setName(NAMESPACE);
+        kb.setName(PROPERTY_NAME_NAMESPACE);
         kb.setValue(_namespace);
         kb.setType(KeyBinding::STRING);
 
@@ -1154,22 +1103,12 @@ void CIMAuthCommand::_ModifyAuthorization
             _hostName, ROOT_NAMESPACE, PG_AUTH_CLASS, kbArray);
 
         CIMInstance modifiedInst( PG_AUTH_CLASS );
-	modifiedInst.addProperty( CIMProperty( USER_NAME, _userName ) );
-	modifiedInst.addProperty( CIMProperty( NAMESPACE , _namespace ) );
 	modifiedInst.addProperty( 
-            CIMProperty( AUTHORIZATION, _authorizations ) );
-
-/****
-//ATTN: Remove this if the above code works fine!
-
-        CIMInstance modifiedInst = client.getInstance( ROOT_NAMESPACE, reference );
-
-        Uint32 pos = modifiedInst.findProperty( AUTHORIZATION );
-        CIMProperty prop = (CIMProperty)modifiedInst.getProperty( pos );
-        modifiedInst.removeProperty( pos );
-        prop.setValue( CIMValue( _authorizations ) );
-        modifiedInst.addProperty( prop );
-***/
+            CIMProperty( PROPERTY_NAME_USERNAME, _userName ) );
+	modifiedInst.addProperty( 
+            CIMProperty( PROPERTY_NAME_NAMESPACE , _namespace ) );
+	modifiedInst.addProperty( 
+            CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
         CIMNamedInstance namedInstance( reference, modifiedInst );
         client.modifyInstance( ROOT_NAMESPACE, namedInstance );
@@ -1205,31 +1144,67 @@ void CIMAuthCommand::_RemoveAuthorization
 
         client.connectLocal(address);
 
-        kb.setName(USER_NAME);
-        kb.setValue(_userName);
-        kb.setType(KeyBinding::STRING);
-
-        kbArray.append(kb);
-
-        //
-        // Include namespace if specified
+	//
+        // If namespace is specified
         //
         if ( _namespaceSet )
         {
-            kb.setName(NAMESPACE);
+	    //
+    	    // Build the input params
+	    //
+            kb.setName(PROPERTY_NAME_USERNAME);
+            kb.setValue(_userName);
+            kb.setType(KeyBinding::STRING);
+
+            kbArray.append(kb);
+
+            kb.setName(PROPERTY_NAME_NAMESPACE);
             kb.setValue(_namespace);
             kb.setType(KeyBinding::STRING);
 
             kbArray.append(kb);
+
+            CIMReference reference(
+                _hostName, ROOT_NAMESPACE, PG_AUTH_CLASS, kbArray);
+
+            client.deleteInstance(ROOT_NAMESPACE, reference);
+        }
+        else 
+        {
+            //
+            // ATTN: If namespace is not specified, do enumerate instance
+            // names to get all the namespaces and call delete instance for
+            // each of the namespaces.
+            //
+            Array<CIMReference> instanceNames =
+                client.enumerateInstanceNames(ROOT_NAMESPACE, PG_AUTH_CLASS);
+            //
+            //
+            //
+            for (Uint32 i = 0; i < instanceNames.size(); i++)
+            {
+                String user;
+
+                kbArray = instanceNames[i].getKeyBindings();
+
+                for (Uint32 j = 0; j < kbArray.size(); j++)
+                {
+                    if ( String::equal(kbArray[j].getName(),
+                        PROPERTY_NAME_USERNAME) )
+                    {
+                        user = kbArray[j].getValue();
+                    }
+                }
+
+                if ( String::equal(user, _userName) )
+                {
+                    client.deleteInstance(
+                        ROOT_NAMESPACE, instanceNames[i]);
+                }
+            }
         }
 
-        CIMReference reference(
-            _hostName, ROOT_NAMESPACE, PG_AUTH_CLASS, kbArray);
-
-        client.deleteInstance(ROOT_NAMESPACE, reference);
-
 	outPrintWriter << REMOVE_AUTH_SUCCESS << endl;
-
     }
     catch (CIMException& e)
     {
@@ -1277,21 +1252,21 @@ void CIMAuthCommand::_ListAuthorization
             //
             // get user name
             //
-            Uint32 pos = authInstance.findProperty(USER_NAME);
+            Uint32 pos = authInstance.findProperty(PROPERTY_NAME_USERNAME);
             CIMProperty prop = (CIMProperty)authInstance.getProperty(pos);
             String name = prop.getValue().toString();
 
             //
             // get namespace name
             //
-            pos = authInstance.findProperty(NAMESPACE);
+            pos = authInstance.findProperty(PROPERTY_NAME_NAMESPACE);
             prop = (CIMProperty)authInstance.getProperty(pos);
             String ns = prop.getValue().toString();
 
             //
             // get authorizations
             //
-            pos = authInstance.findProperty(AUTHORIZATION);
+            pos = authInstance.findProperty(PROPERTY_NAME_AUTHORIZATION);
             prop = (CIMProperty)authInstance.getProperty(pos);
             String auth = prop.getValue().toString();
 
@@ -1332,11 +1307,20 @@ int main (int argc, char* argv [])
     CIMAuthCommand*      command;
     Uint32               retCode;
 
+    //
+    // Check if root is issuing the command
+    //
+    if ( !System::isPrivilegedUser() )
+    {
+        cerr << NOT_PRIVILEGED_USER << endl;
+        return 1;
+    }
+
     command  = new CIMAuthCommand ();
 
     try 
     {
-        command->setCommand ( cout, cerr, argc, argv);
+        command->setCommand (argc, argv);
     } 
     catch (CommandFormatException& cfe) 
     {
@@ -1345,7 +1329,7 @@ int main (int argc, char* argv [])
             cerr << COMMAND_NAME << ": " << cfe.getMessage () << endl;
         }
         cerr << command->getUsage () << endl;
-        exit (-1);
+        return 1;
     }
 
     retCode = command->execute (cout, cerr);

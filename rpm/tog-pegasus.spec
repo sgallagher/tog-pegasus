@@ -578,7 +578,6 @@ fi
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/ResponseHandler.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/SSLContext.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/String.h
-%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Platform_LINUX_IX86_GNU.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Consumer/CIMIndicationConsumer.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Consumer/Linkage.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMAssociationProvider.h
@@ -600,6 +599,7 @@ fi
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElement.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/ClientOpPerformanceDataHandler.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMOperationType.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
 
 # SDK Sample Files
 #
@@ -618,7 +618,6 @@ fi
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/Load
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/mak
 %attr(444,root,root) /opt/tog-pegasus/samples/Makefile
-%attr(444,root,root) /opt/tog-pegasus/samples/mak/LINUX_IX86_GNU.mak
 %attr(444,root,root) /opt/tog-pegasus/samples/mak/config.mak
 %attr(444,root,root) /opt/tog-pegasus/samples/mak/program.mak
 %attr(444,root,root) /opt/tog-pegasus/samples/mak/recurse.mak
@@ -629,6 +628,7 @@ fi
 %attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/Makefile
 %attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/Makefile
 %attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/%PEGASUS_HARDWARE_PLATFORM.mak
 %attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/EnumInstances.cpp
 %attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp
 %attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp

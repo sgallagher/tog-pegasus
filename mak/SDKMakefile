@@ -74,7 +74,6 @@ INCLUDE_FILES = \
    Pegasus/Common/ResponseHandler.h \
    Pegasus/Common/SSLContext.h \
    Pegasus/Common/String.h \
-   Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h \
    Pegasus/Consumer/CIMIndicationConsumer.h \
    Pegasus/Consumer/Linkage.h \
    Pegasus/Provider/CIMAssociationProvider.h \
@@ -116,7 +115,6 @@ SAMPLES_DIRS = \
 
 CLIENTSRCPATH1FILES = \
    Makefile \
-   mak/$(PEGASUS_PLATFORM).mak \
    mak/config.mak \
    mak/program.mak \
    mak/recurse.mak \
@@ -183,6 +181,8 @@ stageINCLUDE:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)
 	@$(foreach i, $(INCLUDE_DIRS), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
 	@$(foreach i, $(INCLUDE_FILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+	@$(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h \
+                 $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h
 
 createPlatformFile:
 	@$(ECHO) "ifndef PEGASUS_PROVIDER_LIB_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
@@ -221,6 +221,7 @@ stageSAMPLES:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
 	@$(foreach i, $(SAMPLES_DIRS), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
+	@$(COPY) $(CLIENT_SRCPATH1)/mak/$(PEGASUS_PLATFORM).mak $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(COPY) $(CLIENT_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH3FILES), $(COPY) $(CLIENT_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i);)
@@ -245,6 +246,8 @@ _append_filesSectionToSpecFile:
               "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) \
               "%attr($(Pr__r__r__),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h"  \
+                       >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Sample Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -253,6 +256,7 @@ _append_filesSectionToSpecFile:
               "%dir %attr($(Prwxrwxrwx),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) \
               "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/mak/%PEGASUS_HARDWARE_PLATFORM.mak"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) \
               "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH3FILES), $(ECHO-E) \

@@ -33,6 +33,8 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #ifdef PEGASUS_INTERNALONLY
 #include <Pegasus/Common/CIMPropertyRep.h>
+#else
+class CIMPropertyRep;
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -305,11 +307,12 @@ private:
 
     void _checkRep() const;
 
-    CIMPropertyRep* _rep;
     friend class CIMConstProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
 #endif
+
+    CIMPropertyRep* _rep;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

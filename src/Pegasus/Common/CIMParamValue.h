@@ -33,6 +33,8 @@
 #include <Pegasus/Common/Config.h>
 #ifdef PEGASUS_INTERNALONLY
 #include <Pegasus/Common/CIMParamValueRep.h>
+#else
+class CIMParamValueRep;
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -88,9 +90,9 @@ private:
     CIMParamValue(CIMParamValueRep* rep);
 
     void _checkRep() const;
+#endif
 
     CIMParamValueRep* _rep;
-#endif
 };
 
 #define PEGASUS_ARRAY_T CIMParamValue

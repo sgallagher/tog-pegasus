@@ -1,6 +1,6 @@
 ROOT = ../../../..
 
-DIR = Providers/TestProviders/benchmarkProvider
+DIR = Clients/benchmarkTest/benchmarkProvider
 
 include $(ROOT)/mak/config.mak
 

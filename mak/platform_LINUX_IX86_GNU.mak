@@ -16,7 +16,7 @@ else
 FLAGS = -O2 -W -Wall -Wno-unused
 endif
 
-SYS_LIBS = -ldl -lpthread
+SYS_LIBS = -ldl -lpthread -lcrypt
 
 CXX = g++
 

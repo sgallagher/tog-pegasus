@@ -540,6 +540,15 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
     return *this;
 }
 
+Boolean AtomicInt::DecAndTestIfZero()
+{
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value--;
+    Boolean b = (_rep._value == 0);
+    _rep._mutex.unlock();
+    return b;
+}
+
 #endif // ! PEGASUS_ATOMIC_INT_NATIVE
 //-----------------------------------------------------------------
 // END of generic atomic integer implementation

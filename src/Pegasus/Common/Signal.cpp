@@ -33,7 +33,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <cstdio>
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <unistd.h>
+#endif
 
 void sig_act(int s_n, siginfo_t * s_info, void * sig)
 {

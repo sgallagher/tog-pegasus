@@ -242,7 +242,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
 
       void _closeConnection();
 
-      void _handleReadEvent();
+      void _handleReadEvent(monitor_2_entry* );
 
       pegasus_socket _socket;
       MessageQueue* _outputMessageQueue;

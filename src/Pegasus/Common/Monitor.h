@@ -235,6 +235,8 @@ private:
 };
 
 enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION };
+enum monitor_2_entry_state {IDLE, BUSY, CLOSED };
+
 
 
 class PEGASUS_COMMON_LINKAGE m2e_rep : public Sharable
@@ -253,6 +255,8 @@ public:
     
 
   monitor_2_entry_type type;
+  AtomicInt state;
+
   pegasus_socket psock;
   void* accept_parm;
   void* dispatch_parm;
@@ -278,7 +282,10 @@ public:
   
   monitor_2_entry_type get_type() const;
   void set_type(monitor_2_entry_type);
-  
+
+  monitor_2_entry_state get_state() const;
+  void set_state(monitor_2_entry_state);
+
   pegasus_socket get_sock(void) const;
   
   void set_sock(pegasus_socket&);

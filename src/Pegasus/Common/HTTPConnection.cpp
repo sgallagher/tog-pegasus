@@ -676,8 +676,8 @@ void HTTPConnection2::handleEnqueue(Message *message)
 	 
 	 SocketMessage* socketMessage = (SocketMessage*)message;
 
-	 if (socketMessage->events & SocketMessage::READ)
-	    _handleReadEvent();
+// 	 if (socketMessage->events & SocketMessage::READ)
+// 	    _handleReadEvent();
 
 	 break;
       }
@@ -909,12 +909,12 @@ void HTTPConnection2::_closeConnection()
    // return - don't send the close connection message. 
    // let the monitor dispatch function do the cleanup. 
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::_closeConnection");
-   _dying = 1;
+   
    PEG_METHOD_EXIT();
 
 }
 
-void HTTPConnection2::_handleReadEvent()
+void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::_handleReadEvent");
 
@@ -1007,6 +1007,7 @@ void HTTPConnection2::_handleReadEvent()
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
 			 "HTTPConnection2::_handleReadEvent - bytesRead == 0 - Conection being closed.");
 	   _closeConnection();
+	   entry->set_state(CLOSED);
 	   
 	   //
 	   // decrement request count
@@ -1047,7 +1048,7 @@ void HTTPConnection2::connection_dispatch(monitor_2_entry* entry)
 {
   HTTPConnection2* myself = (HTTPConnection2*) entry->get_dispatch();
   myself->_socket = entry->get_sock();
-  myself->_handleReadEvent();
+  myself->_handleReadEvent(entry);
 }
 
 

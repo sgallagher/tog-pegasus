@@ -333,10 +333,17 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 
 
 ////************************* monitor 2 *****************************////
+////************************* monitor 2 *****************************////
+////************************* monitor 2 *****************************////
+////************************* monitor 2 *****************************////
+////************************* monitor 2 *****************************////
+////************************* monitor 2 *****************************////
+////************************* monitor 2 *****************************////
 
 
 m2e_rep::m2e_rep(void)
-  :Base()
+  :Base(), state(IDLE)
+
 {
 }
 
@@ -344,7 +351,7 @@ m2e_rep::m2e_rep(monitor_2_entry_type _type,
 		 pegasus_socket _sock, 
 		 void* _accept, 
 		 void* _dispatch)
-  : Base(), type(_type), psock(_sock), 
+  : Base(), type(_type), state(IDLE), psock(_sock), 
     accept_parm(_accept), dispatch_parm(_dispatch)
 {
   
@@ -362,6 +369,8 @@ m2e_rep::m2e_rep(const m2e_rep& r)
     psock = r.psock;
     accept_parm = r.accept_parm;
     dispatch_parm = r.dispatch_parm;
+    state = IDLE;
+    
   }
 }
 
@@ -373,6 +382,7 @@ m2e_rep& m2e_rep::operator =(const m2e_rep& r)
     psock = r.psock;
     accept_parm = r.accept_parm;
     dispatch_parm = r.dispatch_parm;
+    state = IDLE;
   }
   return *this;
 }
@@ -456,6 +466,16 @@ void monitor_2_entry::set_type(monitor_2_entry_type t)
 }
 
 
+monitor_2_entry_state  monitor_2_entry::get_state(void) const
+{
+  return (monitor_2_entry_state) _rep->state.value();
+}
+
+void monitor_2_entry::set_state(monitor_2_entry_state t)
+{
+  _rep->state = t;
+}
+
 void* monitor_2_entry::get_accept(void) const
 {
   return _rep->accept_parm;
@@ -528,13 +548,16 @@ monitor_2::monitor_2(void)
 
     _tickler.set_sock(tickler);
     _tickler.set_type(INTERNAL);
-
+    _tickler.set_state(BUSY);
+    
     struct sockaddr_in peer;
     memset(&peer, 0, sizeof(peer));
     PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 
     pegasus_socket accepted = temp.accept((struct sockaddr*)&peer, &peer_size);
     monitor_2_entry* _tickle = new monitor_2_entry(accepted, INTERNAL, 0, 0);
+    _tickle->set_state(BUSY);
+    
     _listeners.insert_first(_tickle);
 
   }
@@ -571,6 +594,12 @@ void monitor_2::run(void)
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
       while(temp != 0 ){
+	if(temp->get_state() == CLOSED ){
+	  monitor_2_entry* closed = temp;
+	  temp = _listeners.next(closed);
+	  _listeners.remove_no_lock(closed);
+	  delete closed;
+	}
 	FD_SET((Sint32) temp->get_sock()  , &rd_fd_set);
 	temp = _listeners.next(temp);
       }
@@ -591,6 +620,7 @@ void monitor_2::run(void)
 	Sint32 fd = (Sint32) temp->get_sock();
 	
 	if(FD_ISSET(fd, &rd_fd_set)) {
+	  temp->set_state(BUSY);
 	  FD_CLR(fd,  &rd_fd_set);
 	  monitor_2_entry* ready = new monitor_2_entry(*temp);
 	  _ready.insert_first((void*)ready);

@@ -116,12 +116,19 @@ bool GetIncludePath(
 
 	    if (*p != '"' && *p != '<')
 	    {
+		return false;
+#if 0
+		// ATTN: noticed that "#include /**/ <path>" style not
+		// handle so just returning silently when this situration
+		// encountered!
+
 		char message[64];
 		sprintf(message, 
 		    "corrupt #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
 		ErrorExit(message);
+#endif
 	    }
 
 	    openDelim = *p++;
@@ -142,12 +149,15 @@ bool GetIncludePath(
 
 	    if (*p != '"' && *p != '>')
 	    {
+		return false;
+#if 0
 		char message[64];
 		sprintf(message, 
 		    "corrupt #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
 		ErrorExit(message);
+#endif
 	    }
 
 	    // Find end of the path (go backwards, skipping whitespace
@@ -155,12 +165,15 @@ bool GetIncludePath(
 
 	    if (p == start)
 	    {
+		return false;
+#if 0
 		char message[64];
 		sprintf(message, 
 		    "empty path in #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
 		ErrorExit(message);
+#endif
 	    }
 
 	    p--;
@@ -170,12 +183,15 @@ bool GetIncludePath(
 
 	    if (p == start)
 	    {
+		return false;
+#if 0
 		char message[64];
 		sprintf(message, 
 		    "empty path in #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
 		ErrorExit(message);
+#endif
 	    }
 
 	    path.assign(start, p - start + 1);

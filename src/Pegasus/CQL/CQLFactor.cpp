@@ -78,6 +78,7 @@ String CQLFactor::toString()
 
 void CQLFactor::applyScopes(Array<CQLScope> inScopes)
 {
+   // TODO:
    return;
 }
 

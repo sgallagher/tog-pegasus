@@ -4,12 +4,13 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/Linkage.h>
-//#include <Pegasus/CQL/CQLExpression.h>
+#include <Pegasus/CQL/CQLScope.h>
+#include <Pegasus/CQL/CQLExpression.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CQLExpression;
+//class CQLExpression;
 
  /** The Enum is private, the definition is public.
       */
@@ -66,16 +67,17 @@ class PEGASUS_CQL_LINKAGE CQLFunction
         Returns a CQLValue object that has already been resolved.
       */
     //##ModelId=40FC3BEA01F9
-    CQLValue getValue(CIMInstance CI, QueryContext& queryCtx);
-
+    CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
+   Array<CQLExpression> getParms();
+   FunctionOpType getFunctionType();
    String toString();
+   void applyScopes(Array<CQLScope> inScopes);
 
   private:
 
    FunctionOpType _funcOpType;
 
-    //##ModelId=40FC3BCB0017
-    //Array<CQLExpression> _parms;
+    Array<CQLExpression> _parms;
 
 };
 

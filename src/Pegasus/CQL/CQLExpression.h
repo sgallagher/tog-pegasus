@@ -36,7 +36,6 @@ class PEGASUS_CQL_LINKAGE CQLExpression
     //##ModelId=40FD308002EE
     CQLExpression(CQLTerm& theTerm);
    CQLExpression(const CQLExpression& inExpress);
-    CQLExpression(CIMInstance& CI, QueryContext& QueryCtx);
     /**  the getValue method evaluates the expression and returns the value.
           Any property that need to be resolved into a value is taken from the
     CIMInstance.
@@ -44,7 +43,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression
     ~CQLExpression(){}
 
     //##ModelId=40FC0323015B
-    CQLValue getValue(CIMInstance CI, QueryContext& QueryCtx);
+    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
 
     /** The appendOperation is used by Bison.
           It is invoked 0 or more times for the CQLExpression, and
@@ -55,10 +54,13 @@ class PEGASUS_CQL_LINKAGE CQLExpression
     void appendOperation(TermOpType theTermOpType, CQLTerm& theTerm);
 
    String toString();
+   Boolean isSimpleValue();
+   Array<CQLTerm> getTerms();
+   Array<TermOpType> getOperators();
+   void applyScopes(Array<CQLScope> inScopes);
 
   private:
    
-    TermOpType _TermOpType;
 
     /**  The _TermOperators member variable is an 
            array of operators that are valid to operate on Terms in a CQL
@@ -68,7 +70,8 @@ class PEGASUS_CQL_LINKAGE CQLExpression
            The array is ordered according to the operation from left to right.
       */
     //##ModelId=40FC036B036A
-    TermOpType _TermOperators[MAXFACTORS];
+    
+    Array<TermOpType> _TermOperators;
 
     /**  The _CQLTerms member variable is an 
            array of operands that are valid in a CQL expression. 

@@ -9,7 +9,7 @@
 #define MAXFACTORS 50
 PEGASUS_NAMESPACE_BEGIN
 
-//class PEGASUS_CQL_LINKAGE CQLFactor;
+
 
 /** enum of multiply, divide and concatenation operators
     
@@ -51,7 +51,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
     CIMInstance.
       */
     //##ModelId=40FC32680152
-    CQLValue getValue(CIMInstance CI, QueryContext& QueryCtx);
+    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
 
     /** The appendOperation is used by Bison.
           It is invoked 0 or more times for the CQLTerm, and
@@ -60,6 +60,12 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       */
     //##ModelId=40FC32BF038F
     void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
+
+   String toString();
+   Boolean isSimpleValue();
+   Array<CQLFactor> getFactors();
+   Array<FactorOpType> getOperators();
+   void applyScopes(Array<CQLScope> inScope); 
 
   private:
     

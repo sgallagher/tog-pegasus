@@ -11,13 +11,38 @@ CQLTerm::CQLTerm(CQLFactor theFactor)
 }
 
 //##ModelId=40FC32680152
-CQLValue CQLTerm::getValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLTerm::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
 }
 
 //##ModelId=40FC32BF038F
 void CQLTerm::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor)
 {
+}
+
+String CQLTerm::toString()
+{
+
+}
+
+Boolean CQLTerm::isSimpleValue()
+{
+
+}
+
+Array<CQLFactor> getFactors()
+{
+
+}
+
+Array<FactorOpType> CQLTerm::getOperators()
+{
+
+}
+
+void CQLTerm::applyScopes(Array<CQLScope> inScope)
+{
+
 }
 
 PEGASUS_NAMESPACE_END

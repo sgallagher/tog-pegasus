@@ -22,10 +22,16 @@ DYNAMIC_LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-_SOURCES = \
-    OperationRequestDecoder.cpp \
-
 SOURCES = \
+    CIMOperationRequestDecoder.cpp \
+    CIMOperationResponseEncoder.cpp \
+    CIMOperationRequestDispatcher.cpp \
+    CIMExportRequestDispatcher.cpp \
+    ProviderTable.cpp \
+    HandlerTable.cpp \
+    CIMServer.cpp
+
+_SOURCES = \
     ClientConnection.cpp \
     Dispatcher.cpp \
     CIMServer.cpp \

@@ -29,7 +29,7 @@
 
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Server/IndicationDispatcher.h>
+#include <Pegasus/Server/CIMExportRequestDispatcher.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -100,7 +100,7 @@ int main()
     r.createInstance(NAMESPACE, indicationInstance);
 
     CIMRepository* repository = new CIMRepository("./testrepository");
-    IndicationDispatcher* dispatcher = new IndicationDispatcher(repository);
+    CIMExportRequestDispatcher* dispatcher = new CIMExportRequestDispatcher(repository);
 
     dispatcher->handleIndication(handlerInstance, indicationInstance, NAMESPACE);
 

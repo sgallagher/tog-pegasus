@@ -34,10 +34,12 @@
 #include <ctime>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TCPChannel.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Server/Dispatcher.h>
-#include "ClientConnection.h"
 #include "CIMServer.h"
+#include "CIMOperationRequestDispatcher.h"
+#include "CIMOperationResponseEncoder.h"
+#include "CIMOperationRequestDecoder.h"
 
 #define DDD(X) // X
 
@@ -45,45 +47,16 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ClientConnectionFactory
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class ClientConnectionFactory : public ChannelHandlerFactory
-{
-public:
-
-    ClientConnectionFactory(MessageQueue* inputQueue)
-	: _inputQueue(inputQueue) { }
-
-    virtual ~ClientConnectionFactory() { }
-
-    virtual ChannelHandler* create()
-	{ return new ClientConnection(_inputQueue); }
-
-private:
-
-    MessageQueue* _inputQueue;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMServer
-//
-////////////////////////////////////////////////////////////////////////////////
-
 CIMServer::CIMServer(
-    Selector* selector,
+    Monitor* monitor,
     const String& rootPath)
-    : _rootPath(rootPath), _dieNow(false)
+    : _dieNow(false), _rootPath(rootPath)
 {
     static const char REPOSITORY[] = "/repository";
 
-    // -- Save the selector or create a new one:
+    // -- Save the monitor or create a new one:
 
-    _selector = selector;
+    _monitor = monitor;
 
     // -- Create a repository:
 
@@ -98,40 +71,39 @@ CIMServer::CIMServer(
 
     CIMRepository* repository = new CIMRepository(rootPath + "/repository");
 
-    // -- Create a dispatcher object:
+    // -- Create queue inter-connections:
 
-    Dispatcher* dispatcher = new Dispatcher(repository);
+    _cimOperationRequestDispatcher 
+	= new CIMOperationRequestDispatcher(repository);
 
-    // -- Create a channel factory:
+    _cimOperationResponseEncoder 
+	= new CIMOperationResponseEncoder;
 
-    ClientConnectionFactory* factory = new ClientConnectionFactory(dispatcher);
+    _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
+	_cimOperationRequestDispatcher, 
+	_cimOperationResponseEncoder->getQueueId());
 
-    // Create an acceptor:
-
-    _acceptor = new TCPChannelAcceptor(factory, _selector);
+    _acceptor = new HTTPAcceptor(_monitor, _cimOperationRequestDecoder);
 }
 
 CIMServer::~CIMServer()
 {
-    // Note: do not delete the acceptor because it belongs to the Selector
+    // Note: do not delete the acceptor because it belongs to the Monitor
     // which takes care of disposing of it.
 }
 
-void CIMServer::bind(const char* address)
+void CIMServer::bind(Uint32 port)
 {
+    // not the best place to build the service url, but it works for now
+    // because the address string is accessible  mdday
 
-  // not the best place to build the service url, but it works for now
-  // because the address string is accessible  mdday
-
-  if (!_acceptor->bind(address))
-    throw CannotBindToAddress(address);
-
+    _acceptor->bind(port);
 }
 
 void CIMServer::runForever()
 {
     if(!_dieNow)
-	_selector->select(100);
+	_monitor->run(100);
 }
 
 PEGASUS_NAMESPACE_END

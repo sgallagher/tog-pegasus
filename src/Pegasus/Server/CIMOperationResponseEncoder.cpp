@@ -108,7 +108,7 @@ void CIMOperationResponseEncoder::sendResponse(
    }
    else
    {
-      Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3, 
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2, 
 		    "Invalid queueId = %i, response not sent.", queueId);
    }
 

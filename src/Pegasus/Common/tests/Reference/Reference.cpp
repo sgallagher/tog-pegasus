@@ -22,6 +22,7 @@
 //==============================================================================
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
+//               Karl Schopmeyer - Add reference object tests.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -97,8 +98,11 @@ void test01()
 	    kbArray = r3.getKeyBindings();
 	    for (Uint32 i = 0; i < kbArray.size(); i++)
 	    {
-			cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
-				 << kbArray[i].getValue() << endl;
+			if (verbose)
+            {
+                cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
+    				 << kbArray[i].getValue() << endl;
+            }
 		if ( kbArray[i].getName() == CIMName ("B") )
 		{
 		    keyValue = kbArray[i].getValue();
@@ -171,8 +175,9 @@ void test01()
      {
         errorDetected = true;
      }
+#ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
-
+#endif
      errorDetected = false;
      try
      {
@@ -195,7 +200,9 @@ void test01()
      {
         errorDetected = true;
      }
+#ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+#endif
 
      errorDetected = false;
      try
@@ -207,7 +214,9 @@ void test01()
      {
         errorDetected = true;
      }
+#ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+#endif
 
      errorDetected = false;
      try
@@ -219,7 +228,9 @@ void test01()
      {
         errorDetected = true;
      }
+#ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+#endif
 
      errorDetected = false;
      try
@@ -231,7 +242,9 @@ void test01()
      {
         errorDetected = true;
      }
+#ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+#endif
 
 }
 

@@ -11,11 +11,6 @@ XMLSCRIPTS = \
     CreateSubscription01 CreateSubscription02 CreateSubscription03 \
     CreateSubscription04 CreateSubscription05 CreateSubscription06 \
     CreateSubscription07 CreateSubscription08 CreateSubscription09 \
-    GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
-    GetHandler01 GetHandler02 GetHandler03 \
-    GetSubscription01 GetSubscription03 \
-    GetSubscription04 GetSubscription05 GetSubscription06 \
-    GetSubscription07 GetSubscription08 GetSubscription09 \
     EnumerateFilters01 \
     EnumerateHandlers01 EnumerateHandlers02 \
     EnumerateSubscriptions01 \
@@ -57,11 +52,16 @@ XMLSCRIPTS = \
     DeleteCapability02 DeleteProvider02 DeleteModule02 \
     DeleteCapability01 DeleteProvider01 DeleteModule01
 #
-# EnumerateInstances requests are currently not run -- currently the request 
-# parameters are ignored and extra properties, etc. are returned in the 
-# instances
-# (See bugzilla #56)
+# GetInstance and EnumerateInstances requests are currently not run -- 
+# Currently the request parameters are ignored and extra properties, etc. are 
+# returned in the instances 
+# (See bugzillas #56, 90, 355, 601, 786, 957, 1046, 1066)
 #
+#   GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
+#   GetHandler01 GetHandler02 GetHandler03 \
+#   GetSubscription01 GetSubscription03 \
+#   GetSubscription04 GetSubscription05 GetSubscription06 \
+#   GetSubscription07 GetSubscription08 GetSubscription09 \
 #   EnumerateFilters01 EnumerateFilters02 \
 #   EnumerateHandlers03 EnumerateHandlers04 \
 #   EnumerateSubscriptions01 EnumerateSubscriptions02 \

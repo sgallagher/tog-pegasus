@@ -105,6 +105,7 @@ cd $PEGASUS_ROOT/mak
 make -f SDKMakefile stageSDK
 
 %install
+%define PEGASUS_PLATFORM       $PEGASUS_PLATFORM
 %define PEGASUS_PROD_DIR       /opt/tog-pegasus
 %define PEGASUS_DEST_LIB_DIR   %PEGASUS_PROD_DIR/lib
 %define PEGASUS_PROVIDER_DIR   %PEGASUS_PROD_DIR/providers
@@ -1955,6 +1956,7 @@ install -D -m 0444  $PEGASUS_ROOT/doc/%PEGASUS_LICENSE_FILE $RPM_BUILD_ROOT%PEGA
 #
 # SDK
 #
+
 %define PEGASUS_INCLUDE_DEST_PATH /opt/tog-pegasus/include
 %define PEGASUS_HTML_DEST_PATH    /opt/tog-pegasus/share/html
 %define PEGASUS_SAMPLES_DEST_PATH /opt/tog-pegasus/share/samples
@@ -2337,7 +2339,18 @@ install -D -m 0444 %SDK_STAGE_LOC/html/TypeMismatchException.html %HTML_DEST_PAT
 install -D -m 0444 %SDK_STAGE_LOC/html/UninitializedObjectException.html %HTML_DEST_PATH/UninitializedObjectException.html
 install -D -m 0444 %SDK_STAGE_LOC/samples/Makefile %SAMPLES_DEST_PATH/Makefile 
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/common.mak %SAMPLES_DEST_PATH/mak/common.mak 
-install -D -m 0444 %SDK_STAGE_LOC/samples/mak/config.mak %SAMPLES_DEST_PATH/mak/config.mak 
+
+echo "PEGASUS_DEST_LIB_DIR =   "%PEGASUS_DEST_LIB_DIR > sampleconfig.txt
+echo "PEGASUS_VARDATA_DIR =    "%PEGASUS_VARDATA_DIR >> sampleconfig.txt
+echo "PEGASUS_PROVIDER_LIB_DIR="%PEGASUS_PROVIDER_LIB_DIR >> sampleconfig.txt
+echo "CIM_MOF_PATH =           "%PEGASUS_MOF_DIR>> sampleconfig.txt
+echo "PEGASUS_INCLUDE_DIR =    "%PEGASUS_INCLUDE_DEST_PATH >> sampleconfig.txt
+echo "SAMPLES_DIR =            "%PEGASUS_SAMPLES_DEST_PATH >> sampleconfig.txt
+echo "PEGASUS_BIN_DIR =        "%PEGASUS_BIN_DIR >> sampleconfig.txt
+echo "PEGASUS_PLATFORM =       "%PEGASUS_PLATFORM >> sampleconfig.txt
+cat sampleconfig.txt %SDK_STAGE_LOC/samples/mak/config.mak > sampleconfig.mak
+install -D -m 0444 sampleconfig.mak %SAMPLES_DEST_PATH/mak/config.mak 
+install -D -m 0444  %SDK_STAGE_LOC/samples/mak/%PEGASUS_PLATFORM.mak %SAMPLES_DEST_PATH/mak/%PEGASUS_PLATFORM.mak 
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/library.mak %SAMPLES_DEST_PATH/mak/library.mak 
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/program.mak %SAMPLES_DEST_PATH/mak/program.mak
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/recurse.mak %SAMPLES_DEST_PATH/mak/recurse.mak
@@ -2393,20 +2406,6 @@ install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/CWS_FilesAndDirR.mof 
 install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/InstanceProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/InstanceProviderR.mof
 install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/MethodProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
 install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/SampleProviderSchema.mof %SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
-
-echo "PEGASUS_LIB_DIR="%PEGASUS_DEST_LIB_DIR > samplebld.txt
-echo "PEGASUS_PROVIDER_LIB_DIR="%PEGASUS_PROVIDER_LIB_DIR >> samplebld.txt
-echo "CIM_MOF_PATH="%PEGASUS_MOF_DIR>> samplebld.txt
-echo "PEGASUS_INCLUDE_DIR="%PEGASUS_INCLUDE_DEST_PATH >> samplebld.txt
-echo "SAMPLES_DIR="%PEGASUS_SAMPLES_DEST_PATH >> samplebld.txt
-echo "PEGASUS_BIN_DIR="%PEGASUS_BIN_DIR >> samplebld.txt
-%ifarch ia64
-cat samplebld.txt %SDK_STAGE_LOC/samples/mak/LINUX_IA64_GNU.mak > samplebld.mak
-install -D -m 0444 samplebld.mak %SAMPLES_DEST_PATH/mak/LINUX_IA64_GNU.mak 
-%else
-cat samplebld.txt %SDK_STAGE_LOC/samples/mak/LINUX_IX86_GNU.mak > samplebld.mak
-install -D -m 0444 samplebld.mak %SAMPLES_DEST_PATH/mak/LINUX_IX86_GNU.mak 
-%endif
 
 rm -Rf $PEGASUS_HOME
 
@@ -4346,7 +4345,7 @@ fi
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
 %ifarch ia64
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IX86_GNU.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IA64_GNU.h
 %else
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IX86_GNU.h
 %endif
@@ -4681,9 +4680,9 @@ fi
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/config.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/library.mak 
 %ifarch ia64
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/LINUX_IA64_GNU.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/LINUX_IA64_GNU.mak
 %else
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/LINUX_IX86_GNU.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/LINUX_IX86_GNU.mak
 %endif
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/program.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/recurse.mak 

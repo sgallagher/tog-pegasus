@@ -1,25 +1,3 @@
-PEGASUS_PLATFORM = LINUX_IX86_GNU
-
-ifndef PEGASUS_LIB_DIR
-  PEGASUS_LIB_DIR = /usr/lib/pegasus
-endif
-
-ifndef PEGASUS_PROVIDER_LIB_DIR
-  PEGASUS_PROVIDER_LIB_DIR = /usr/lib/pegasus/providers
-endif
-
-ifndef CIM_MOF_PATH
-  CIM_MOF_PATH = /usr/share/cim-schema/cim27
-endif
-
-ifndef PEGASUS_INCLUDES
-  PEGASUS_INCLUDES = -I /usr/include
-endif
-
-ifndef SAMPLES_DIR
-  SAMPLES_DIR = /usr/share/doc/packages/pegasus-wbem-devel/samples
-endif
-
 SYM_LINK_LIB = $(PEGASUS_PROVIDER_LIB_DIR)/lib$(LIBRARY)
 
 COMPILE_COMMAND = g++
@@ -28,7 +6,7 @@ COMPILE_C_COMMAND = gcc
 
 PLATFORM_SUFFIX = so
 
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -DINDICATION_DIR=\"/var/cache/pegasus\"
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -DINDICATION_DIR=\"$(PEGASUS_VARDATA_DIR)\"
 
 ## Options:
 ##     -O2          turns on level 2 optimization
@@ -44,10 +22,11 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -DINDICATION_DIR=\"/var/cache/p
 
 PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 
+PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
 
 LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
 
-LIBRARY_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUSLIB_DIR)
+LIBRARY_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
 
 SYS_LIBS = -ldl -lpthread -lcrypt
 

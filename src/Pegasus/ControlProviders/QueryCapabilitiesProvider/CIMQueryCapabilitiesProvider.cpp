@@ -27,7 +27,7 @@
 //
 // Author: Amit K Arora, IBM (amita@in.ibm.com) - PEP 193
 //
-// Modified By: 
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) - Bug#2491
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +36,10 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+
+// To add more capabilities, change the below static variables
+const Uint16 CIMQueryCapabilitiesProvider::FeatureSet[] = {2,8};
+const int CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES = 2;
 
 CIMQueryCapabilitiesProvider::CIMQueryCapabilitiesProvider()
 {

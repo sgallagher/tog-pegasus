@@ -189,6 +189,8 @@ const char ParseError::MSG[] = "parse error: ";
 
 const char MissingNullTerminator::MSG[] = "missing null terminator: ";
 
+const char SSL_Exception::MSG[] = "SSL Exception ";
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMException

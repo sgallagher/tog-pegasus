@@ -718,6 +718,16 @@ public:
     MissingNullTerminator() : Exception(MSG) { }
 };
 
+class PEGASUS_COMMON_LINKAGE SSL_Exception: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    SSL_Exception(const String& message)
+       : Exception(MSG + message) { }
+};
+
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 
 PEGASUS_NAMESPACE_END

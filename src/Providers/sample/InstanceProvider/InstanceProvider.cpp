@@ -200,7 +200,8 @@ void InstanceProvider::createInstance(
 	{
 		if(localReference == _instanceNames[i])
 		{
-			throw ObjectAlreadyExists(localReference.toString());
+			throw CIMObjectAlreadyExistsException(
+                                  localReference.toString());
 		}
 	}
 			

@@ -97,7 +97,7 @@ void ComputerSystemProvider::getInstance(
     String keyValue;
 
     if (keys.size() != keyCount)
-        throw InvalidParameter("Wrong number of keys");
+        throw CIMInvalidParameterException("Wrong number of keys");
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
     {
@@ -121,7 +121,7 @@ void ComputerSystemProvider::getInstance(
 
      if (keyCount)
      {
-        throw InvalidParameter(String::EMPTY);
+        throw CIMInvalidParameterException(String::EMPTY);
      }
 
     // return instance of specified class
@@ -198,7 +198,7 @@ ComputerSystemProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<void>& handler )
 {
-    throw NotSupported(String::EMPTY);
+    throw CIMNotSupportedException(String::EMPTY);
 }
 
 void
@@ -208,7 +208,7 @@ ComputerSystemProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
-    throw NotSupported(String::EMPTY);
+    throw CIMNotSupportedException(String::EMPTY);
 }
 
 void
@@ -217,7 +217,7 @@ ComputerSystemProvider::deleteInstance(
 			  	const CIMObjectPath& ref,
 			  	ResponseHandler<void>& handler )
 {
-    throw NotSupported(String::EMPTY);
+    throw CIMNotSupportedException(String::EMPTY);
 }
 
 void ComputerSystemProvider::initialize(CIMOMHandle& handle)
@@ -307,6 +307,6 @@ void ComputerSystemProvider::_checkClass(String& className)
         !String::equalNoCase(className, CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
         !String::equalNoCase(className, CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
-        throw NotSupported(String::EMPTY);
+        throw CIMNotSupportedException(String::EMPTY);
     }
 }

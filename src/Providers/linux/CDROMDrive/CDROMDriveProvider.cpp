@@ -152,7 +152,7 @@ LinuxCDROMDriveProvider::modifyInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxCDROMDriveProvider::modifyInstance called" << endl;
-   throw NotSupported(CDROMDRIVECLASSNAME"::modifyInstance");
+   throw CIMNotSupportedException(CDROMDRIVECLASSNAME"::modifyInstance");
 }
 
 void
@@ -163,7 +163,7 @@ LinuxCDROMDriveProvider::createInstance(
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxCDROMDriveProvider::createInstance called" << endl;
-   throw NotSupported(CDROMDRIVECLASSNAME"::createInstance");
+   throw CIMNotSupportedException(CDROMDRIVECLASSNAME"::createInstance");
 }
 
 void
@@ -173,7 +173,7 @@ LinuxCDROMDriveProvider::deleteInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxCDROMDriveProvider::deleteInstance called" << endl;
-   throw NotSupported(CDROMDRIVECLASSNAME"::deleteInstance");
+   throw CIMNotSupportedException(CDROMDRIVECLASSNAME"::deleteInstance");
 }
 
 void LinuxCDROMDriveProvider::initialize(CIMOMHandle& handle)

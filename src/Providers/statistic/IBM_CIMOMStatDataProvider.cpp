@@ -134,7 +134,7 @@ void IBM_CIMOMStatDataProvider::modifyInstance(
         const CIMPropertyList & propertyList,
 	ResponseHandler<void> & handler)
 {
-	throw NotSupported("StatisticalData::modifyInstance");
+	throw CIMNotSupportedException("StatisticalData::modifyInstance");
 }
 
 void IBM_CIMOMStatDataProvider::createInstance(
@@ -143,7 +143,7 @@ void IBM_CIMOMStatDataProvider::createInstance(
 	const CIMInstance & instanceObject,
 	ResponseHandler<CIMObjectPath> & handler)
 {
-	throw NotSupported("StatisticalData::createInstance");
+	throw CIMNotSupportedException("StatisticalData::createInstance");
 }
 
 void IBM_CIMOMStatDataProvider::deleteInstance(
@@ -151,7 +151,7 @@ void IBM_CIMOMStatDataProvider::deleteInstance(
 	const CIMObjectPath & instanceReference,
 	ResponseHandler<void> & handler)
 {
-throw NotSupported("StatisticalData::deleteInstance");
+throw CIMNotSupportedException("StatisticalData::deleteInstance");
 }
 
 CIMInstance IBM_CIMOMStatDataProvider::getInstance(Uint16 type)

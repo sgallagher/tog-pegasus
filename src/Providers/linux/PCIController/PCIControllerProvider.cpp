@@ -156,7 +156,7 @@ LinuxPCIControllerProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(classname + "::modifyInstance");
+   throw CIMNotSupportedException(classname + "::modifyInstance");
 }
 
 void
@@ -166,7 +166,7 @@ LinuxPCIControllerProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
-   throw NotSupported(classname + "::createInstance");
+   throw CIMNotSupportedException(classname + "::createInstance");
 }
 
 void
@@ -175,7 +175,7 @@ LinuxPCIControllerProvider::deleteInstance(
 			  	const CIMObjectPath& ref,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(classname + "::deleteInstance");
+   throw CIMNotSupportedException(classname + "::deleteInstance");
 }
 
 void LinuxPCIControllerProvider::initialize(CIMOMHandle& handle)

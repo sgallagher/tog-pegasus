@@ -78,7 +78,7 @@ LinuxIOPortProvider::getInstance(const OperationContext& context,
    }
    else
    {
-      throw NotSupported(className + "::getInstance");
+      throw CIMNotSupportedException(className + "::getInstance");
    }
  
    DeviceLocator deviceLocator(Device_SystemResources,subClass);
@@ -134,7 +134,7 @@ LinuxIOPortProvider::enumerateInstances(
    }
    else
    {
-      throw NotSupported(className + "::enumerateInstances");
+      throw CIMNotSupportedException(className + "::enumerateInstances");
    }
  
    DeviceLocator deviceLocator(Device_SystemResources,subClass);
@@ -174,7 +174,7 @@ LinuxIOPortProvider::enumerateInstanceNames(
    }
    else
    {
-      throw NotSupported(className + "::enumerateInstanceNames");
+      throw CIMNotSupportedException(className + "::enumerateInstanceNames");
    }
  
    DeviceLocator deviceLocator(Device_SystemResources,subClass);
@@ -204,7 +204,7 @@ LinuxIOPortProvider::modifyInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxIOPortProvider::modifyInstance called" << endl;
-   throw NotSupported(IOPORTCLASSNAME "::modifyInstance");
+   throw CIMNotSupportedException(IOPORTCLASSNAME "::modifyInstance");
 }
 
 void 
@@ -215,7 +215,7 @@ LinuxIOPortProvider::createInstance(
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxIOPortProvider::createInstance called" << endl;
-   throw NotSupported(IOPORTCLASSNAME "::createInstance");
+   throw CIMNotSupportedException(IOPORTCLASSNAME "::createInstance");
 }
 
 void 
@@ -225,7 +225,7 @@ LinuxIOPortProvider::deleteInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxIOPortProvider::deleteInstance called" << endl;
-   throw NotSupported(IOPORTCLASSNAME"::deleteInstance");
+   throw CIMNotSupportedException(IOPORTCLASSNAME"::deleteInstance");
 }
 
 void LinuxIOPortProvider::initialize(CIMOMHandle& handle)

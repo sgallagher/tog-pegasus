@@ -397,7 +397,7 @@ void HelloWorldProvider::checkIndication(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	throw NotSupported("HelloWorldProvider::checkIndication");
+	throw CIMNotSupportedException("HelloWorldProvider::checkIndication");
 }
 
 Array<CIMObjectPath> HelloWorldProvider::_enumerateInstanceNames(

@@ -194,7 +194,7 @@ void OperatingSystemProvider::modifyInstance(
 	const CIMPropertyList & propertyList,
 	ResponseHandler<void> & handler)
 {
-	throw NotSupported("OperatingSystem::modifyInstance");
+	throw CIMNotSupportedException("OperatingSystem::modifyInstance");
 }
 
 void OperatingSystemProvider::createInstance(
@@ -203,7 +203,7 @@ void OperatingSystemProvider::createInstance(
 	const CIMInstance & instanceObject,
 	ResponseHandler<CIMObjectPath> & handler)
 {
-	throw NotSupported("OperatingSystem::createInstance");
+	throw CIMNotSupportedException("OperatingSystem::createInstance");
 }
 
 void OperatingSystemProvider::deleteInstance(
@@ -211,7 +211,7 @@ void OperatingSystemProvider::deleteInstance(
 	const CIMObjectPath & instanceReference,
 	ResponseHandler<void> & handler)
 {
-	throw NotSupported("OperatingSystem::deleteInstance");
+	throw CIMNotSupportedException("OperatingSystem::deleteInstance");
 }
 
 Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(

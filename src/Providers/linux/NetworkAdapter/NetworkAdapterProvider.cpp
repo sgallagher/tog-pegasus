@@ -82,7 +82,7 @@ LinuxNetworkAdapterProvider::getInstance(const OperationContext& context,
    }
    else
    {
-      throw NotSupported(className + "::getInstance");
+      throw CIMNotSupportedException(className + "::getInstance");
    }
  
    for (i = 0; i < keys.size(); i++)
@@ -131,7 +131,7 @@ LinuxNetworkAdapterProvider::enumerateInstances(
    }
    else
    {
-      throw NotSupported(className + "::enumerateInstances");
+      throw CIMNotSupportedException(className + "::enumerateInstances");
    }
 
    adapter_names = NetworkAdapterData::list_all_adapters();
@@ -174,7 +174,7 @@ LinuxNetworkAdapterProvider::enumerateInstanceNames(
    }
    else
    {
-      throw NotSupported(className + "::enumerateInstanceNames");
+      throw CIMNotSupportedException(className + "::enumerateInstanceNames");
    }
 
    adapter_names = NetworkAdapterData::list_all_adapters();
@@ -203,7 +203,7 @@ LinuxNetworkAdapterProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(ref.getClassName() + "::modifyInstance");
+   throw CIMNotSupportedException(ref.getClassName() + "::modifyInstance");
 }
 
 void
@@ -213,7 +213,7 @@ LinuxNetworkAdapterProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
-   throw NotSupported(ref.getClassName() + "::createInstance");
+   throw CIMNotSupportedException(ref.getClassName() + "::createInstance");
 }
 
 void
@@ -222,7 +222,7 @@ LinuxNetworkAdapterProvider::deleteInstance(
 			  	const CIMObjectPath& ref,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(ref.getClassName() + "::deleteInstance");
+   throw CIMNotSupportedException(ref.getClassName() + "::deleteInstance");
 }
 
 void LinuxNetworkAdapterProvider::initialize(CIMOMHandle& handle)

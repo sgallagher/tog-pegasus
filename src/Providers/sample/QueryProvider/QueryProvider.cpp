@@ -54,7 +54,7 @@ void QueryProvider::executeQuery(
 	const String & query,
 	ResponseHandler<CIMObject> & handler)
 {
-	throw NotSupported("QueryProvider::executeQuery");
+	throw CIMNotSupportedException("QueryProvider::executeQuery");
 }
 
 PEGASUS_NAMESPACE_END

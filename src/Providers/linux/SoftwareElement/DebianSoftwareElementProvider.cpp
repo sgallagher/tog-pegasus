@@ -205,7 +205,7 @@ DebianSoftwareElementProvider::modifyInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "DebianSoftwareElementProvider::modifyInstance called" << endl;
-   throw NotSupported(DEBIANCLASSNAME "::modifyInstance");
+   throw CIMNotSupportedException(DEBIANCLASSNAME "::modifyInstance");
 }
 
 void 
@@ -216,7 +216,7 @@ DebianSoftwareElementProvider::createInstance(
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "DebianSoftwareElementProvider::createInstance called" << endl;
-   throw NotSupported(DEBIANCLASSNAME "::createInstance");
+   throw CIMNotSupportedException(DEBIANCLASSNAME "::createInstance");
 }
 
 void 
@@ -226,7 +226,7 @@ DebianSoftwareElementProvider::deleteInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "DebianSoftwareElementProvider::deleteInstance called" << endl;
-   throw NotSupported(DEBIANCLASSNAME "::deleteInstance");
+   throw CIMNotSupportedException(DEBIANCLASSNAME "::deleteInstance");
 }
 
 void DebianSoftwareElementProvider::initialize(CIMOMHandle& handle)

@@ -23,7 +23,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
 Parent class for exceptions thrown by providers.
 
-<p>The <tt>OperationFailure</tt> class is an exception class,
+<p>The <tt>CIMOperationFailedException</tt> class is an exception class,
 and the parent class from which exceptions that can be thrown
 by providers are derived. It may also be thrown directly by
 providers to signal a generic operation failure.</p>
@@ -55,7 +55,7 @@ localization of text is not currently supported, it is
 recommended that text strings be structured in message
 catalogs to facilitate future localization.</p>
 */
-class OperationFailure : public CIMException
+class CIMOperationFailedException : public CIMException
 {
 public:
     /**
@@ -64,122 +64,105 @@ public:
     <p>This exception will cause a <tt>CIM_ERR_FAILED</tt>
     status code to be returned to the client.</p>
     */
-    OperationFailure(const String & message) : CIMException(CIM_ERR_FAILED, message)
-    {
-    }
+    CIMOperationFailedException(const String & message);
 
 protected:
-    OperationFailure(const CIMStatusCode code, const String & message) : CIMException(code, message)
-    {
-    }
-};
-
-/**
-Cause a <tt>CIM_ERR_NOT_SUPPORTED</tt> status code to be
-returned to the client.
-*/
-class NotSupported : public OperationFailure
-{
-public:
-    NotSupported(const String & message) : OperationFailure(CIM_ERR_NOT_SUPPORTED, message)
-    {
-    }
+    CIMOperationFailedException(const CIMStatusCode code, const String & message);
 };
 
 /**
 Cause a <tt>CIM_ERR_ACCESS_DENIED</tt> status code to be
 returned to the client.
 */
-class AccessDenied : public OperationFailure
+class CIMAccessDeniedException : public CIMOperationFailedException
 {
 public:
-    AccessDenied(const String & message) : OperationFailure(CIM_ERR_ACCESS_DENIED, message)
-    {
-    }
+    CIMAccessDeniedException(const String & message);
 };
 
 /**
 Cause a <tt>CIM_ERR_INVALID_PARAMETER</tt> status code to be
 returned to the client.
 */
-class InvalidParameter : public OperationFailure
+class CIMInvalidParameterException : public CIMOperationFailedException
 {
 public:
-    InvalidParameter(const String & message) : OperationFailure(CIM_ERR_INVALID_PARAMETER,  message)
-    {
-    }
+    CIMInvalidParameterException(const String & message);
 };
 
+#if 0
 /**
 Cause a <tt>CIM_ERR_INVALID_CLASS</tt> status code to be
 returned to the client.
 */
-class InvalidClass : public OperationFailure
+class CIMInvalidClassException : public CIMOperationFailedException
 {
 public:
-    InvalidClass(const String & message) : OperationFailure(CIM_ERR_INVALID_CLASS,  message)
-    {
-    }
+    CIMInvalidClassException(const String & message);
+};
+#endif
+
+/**
+Cause a <tt>CIM_ERR_NOT_FOUND</tt> status code to be
+returned to the client.
+*/
+class CIMObjectNotFoundException : public CIMOperationFailedException
+{
+public:
+    CIMObjectNotFoundException(const String & message);
 };
 
 /**
-Cause a <tt>CIM_ERR_INVALID_QUERY</tt> status code to be
+Cause a <tt>CIM_ERR_NOT_SUPPORTED</tt> status code to be
 returned to the client.
 */
-class InvalidQuery : public OperationFailure
+class CIMNotSupportedException : public CIMOperationFailedException
 {
 public:
-    InvalidQuery(const String & message) : OperationFailure(CIM_ERR_INVALID_QUERY, message)
-    {
-    }
+    CIMNotSupportedException(const String & message);
 };
 
 /**
 Cause a <tt>CIM_ERR_ALREADY_EXISTS</tt> status code to be
 returned to the client.
 */
-class ObjectAlreadyExists : public OperationFailure
+class CIMObjectAlreadyExistsException : public CIMOperationFailedException
 {
 public:
-    ObjectAlreadyExists(const String & message) : OperationFailure(CIM_ERR_ALREADY_EXISTS, message)
-    {
-    }
-};
-
-/**
-Cause a <tt>CIM_ERR_NOT_FOUND</tt> status code to be
-returned to the client.
-*/
-class ObjectNotFound : public OperationFailure
-{
-public:
-    ObjectNotFound(const String & message) : OperationFailure(CIM_ERR_NOT_FOUND, message)
-    {
-    }
-};
-
-/**
-Cause a <tt>CIM_ERR_METHOD_NOT_FOUND</tt> status code to be
-returned to the client.
-*/
-class MethodNotFound : public OperationFailure
-{
-public:
-    MethodNotFound(const String & message) : OperationFailure(CIM_ERR_METHOD_NOT_FOUND, message)
-    {
-    }
+    CIMObjectAlreadyExistsException(const String & message);
 };
 
 /**
 Cause a <tt>CIM_ERR_NO_SUCH_PROPERTY</tt> status code to be
 returned to the client.
 */
-class PropertyNotFound : public OperationFailure
+class CIMPropertyNotFoundException : public CIMOperationFailedException
 {
 public:
-    PropertyNotFound(const String & message) : OperationFailure(CIM_ERR_NO_SUCH_PROPERTY, message)
-    {
-    }
+    CIMPropertyNotFoundException(const String & message);
+};
+
+#if 0
+// Query operations are not yet supported in Pegasus
+/**
+Cause a <tt>CIM_ERR_INVALID_QUERY</tt> status code to be
+returned to the client.
+*/
+class CIMInvalidQueryException : public CIMOperationFailedException
+{
+public:
+    CIMInvalidQueryException(const String & message);
+};
+#endif
+
+/**
+Cause a <tt>CIM_ERR_METHOD_NOT_FOUND</tt> status code to be
+returned to the client.
+*/
+class CIMMethodNotFoundException : public CIMOperationFailedException
+{
+public:
+    CIMMethodNotFoundException(const String & message);
 };
 
 PEGASUS_NAMESPACE_END

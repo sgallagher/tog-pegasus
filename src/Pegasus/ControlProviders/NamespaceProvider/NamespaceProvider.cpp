@@ -166,13 +166,13 @@ void _getKeyValue (
        pos = namespaceInstance.findProperty(NAMESPACE_PROPERTYNAME);
        if (pos == PEG_NOT_FOUND)
        {
-           throw PropertyNotFound(NAMESPACE_PROPERTYNAME);
+           throw CIMPropertyNotFoundException(NAMESPACE_PROPERTYNAME);
        }
 
        propertyValue = namespaceInstance.getProperty(pos).getValue();
        if (propertyValue.getType() != CIMTYPE_STRING)
        {
-           throw InvalidParameter("Invalid type for property: "
+           throw CIMInvalidParameterException("Invalid type for property: "
                                  + String(NAMESPACE_PROPERTYNAME));
        }
 
@@ -198,7 +198,7 @@ void _getKeyValue (
        }
        else
        {
-           throw InvalidParameter("Invalid key property:  ");
+           throw CIMInvalidParameterException("Invalid key property:  ");
        }
 }
 
@@ -217,7 +217,7 @@ void _generateFullNamespaceName(
        {
           if (!_isNamespace(namespaceNames, parentNamespaceName))
           {
-             throw ObjectNotFound("Parent namespace does not exist: "
+             throw CIMObjectNotFoundException("Parent namespace does not exist: "
                                       + parentNamespaceName);
           }
           // Create full namespace name by prepending parentNamespaceName
@@ -247,7 +247,7 @@ void NamespaceProvider::createInstance(
        if (!myInstance.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
-           throw NotSupported(myInstance.getClassName() +
+           throw CIMNotSupportedException(myInstance.getClassName() +
 			    " not supported by Namespace Provider");
        }
 
@@ -339,7 +339,7 @@ void NamespaceProvider::deleteInstance(
        if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
-           throw NotSupported(instanceName.getClassName() +
+           throw CIMNotSupportedException(instanceName.getClassName() +
 			    " not supported by Namespace Provider");
        }
 
@@ -379,7 +379,7 @@ void NamespaceProvider::deleteInstance(
 
 	   if (String::equalNoCase(deleteNamespaceName, ROOTNS))
            {
-               throw NotSupported("root namespace may be deleted.");
+               throw CIMNotSupportedException("root namespace may be deleted.");
            }
 
 	   _repository->deleteNameSpace(deleteNamespaceName);
@@ -427,7 +427,7 @@ void NamespaceProvider::getInstance(
        if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
-           throw NotSupported(instanceName.getClassName() +
+           throw CIMNotSupportedException(instanceName.getClassName() +
 			    " not supported by Namespace Provider");
        }
 
@@ -467,7 +467,7 @@ void NamespaceProvider::getInstance(
 
            if (!_isNamespace(namespaceNames, getNamespaceName))
            {
-              throw ObjectNotFound("Namespace deos not exist: "
+              throw CIMObjectNotFoundException("Namespace deos not exist: "
                                      + getNamespaceName);
            }
 
@@ -522,7 +522,7 @@ void NamespaceProvider::enumerateInstances(
        if (!ref.getClassName().equal(NAMESPACE_CLASSNAME))
        {
            PEG_METHOD_EXIT();
-           throw NotSupported(ref.getClassName() +
+           throw CIMNotSupportedException(ref.getClassName() +
 			    " not supported by Namespace Provider");
        }
 
@@ -609,7 +609,7 @@ void NamespaceProvider::enumerateInstanceNames(
         if (!classReference.getClassName().equal(NAMESPACE_CLASSNAME))
         {
 	    PEG_METHOD_EXIT();
-            throw NotSupported(classReference.getClassName() +
+            throw CIMNotSupportedException(classReference.getClassName() +
 			    " not supported by Namespace Provider");
         }
 

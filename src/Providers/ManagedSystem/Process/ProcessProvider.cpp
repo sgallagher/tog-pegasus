@@ -139,7 +139,7 @@ void ProcessProvider::createInstance(const OperationContext &context,
 {
   // Current not implemented, but could be done by
   // spawning a process
-  throw NotSupported(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 
@@ -159,7 +159,7 @@ void ProcessProvider::deleteInstance(const OperationContext &context,
 
 {
   // Currently not implemented, but could be done with kill
-  throw NotSupported(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 
@@ -312,7 +312,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 
   // Leave immediately if wrong number of keys
   if ( kbArray.size() != NUMKEYS_UNIX_PROCESS )
-    throw InvalidParameter("Wrong number of keys");
+    throw CIMInvalidParameterException("Wrong number of keys");
 
   // Validate the keys.
   // Each loop iteration will set a bit in keysFound when a valid
@@ -332,7 +332,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
           String::equalNoCase(keyValue, CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
         keysFound |= 1;
       else
-        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
     }
 	
     // CSName can be empty or must match
@@ -342,7 +342,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
           String::equalNoCase(keyValue, _getCSName()))
         keysFound |= 2;
       else
-        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
     }
 
     // OSCreationClassName can be empty or must match
@@ -352,7 +352,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 	  String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
         keysFound |= 4;
       else
-        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
     }
 
     // OSName can be empty or must match
@@ -362,7 +362,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 	  String::equalNoCase(keyValue, _getOSName()))
         keysFound |= 8;
       else
-        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
     }
 
     // CreationClassName can be empty or must match
@@ -372,7 +372,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 	  String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
         keysFound |= 16;
       else
-        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
     }
 
     // Handle must be a valid pid, but we will know that later
@@ -384,7 +384,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
     }
 
     // Key name was not recognized by any of the above tests
-    else throw InvalidParameter(keyName+ ": Unrecognized key");
+    else throw CIMInvalidParameterException(keyName+ ": Unrecognized key");
 		
   } // for
 
@@ -393,7 +393,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
   // and they all had valid names and values, but there were
   // any duplicates (e.g., two Handles, no OSName)
   if(keysFound != (1<<NUMKEYS_UNIX_PROCESS)-1)
-    throw InvalidParameter("Bad object name");
+    throw CIMInvalidParameterException("Bad object name");
 	
   /* Find the instance.  First convert the instance id which is the */
   /* process handle to an integer.  This is necessary because the   */
@@ -416,7 +416,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
     return;
   }
 
-  throw ObjectNotFound(handle+": No such process");
+  throw CIMObjectNotFoundException(handle+": No such process");
 
   return; // can never execute, but required to keep compiler happy
 }
@@ -440,7 +440,7 @@ void ProcessProvider::modifyInstance(const OperationContext &context,
                     ResponseHandler<void> &handler)
 {
   // Could be supported in the future for certain properties
-  throw NotSupported(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -760,5 +760,5 @@ void ProcessProvider::_checkClass(String& className)
 {
   if (!String::equalNoCase(className, CLASS_CIM_PROCESS) &&
       !String::equalNoCase(className, CLASS_UNIX_PROCESS))
-    throw NotSupported(className+": Class not supported");
+    throw CIMNotSupportedException(className+": Class not supported");
 }

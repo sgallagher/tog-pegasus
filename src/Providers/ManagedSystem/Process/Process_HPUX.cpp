@@ -865,7 +865,7 @@ String Process::getOSName(void) const
   /* Call uname, handle errors */ 
   if (uname(&unameInfo) < 0)
   {
-    throw OperationFailure(strerror(errno));
+    throw CIMOperationFailedException(strerror(errno));
   }
   return String(unameInfo.sysname);
 }

@@ -197,10 +197,10 @@ Boolean ComputerSystem::getInitialLoadInfo(CIMProperty& p)
   // perhaps this can change dynamically, so don't do it
   // in initialize()
   FILE *s = fopen("/stand/bootconf","r");
-  if (s == 0) throw OperationFailure("/stand/bootconf: can't open");
+  if (s == 0) throw CIMOperationFailedException("/stand/bootconf: can't open");
   char buf[100];
   if (fgets(buf,100,s) == 0)
-    throw OperationFailure("/stand/bootconf: can't read");
+    throw CIMOperationFailedException("/stand/bootconf: can't read");
   fclose(s);
   Array<String> res;
   res.append(String(buf));
@@ -327,10 +327,10 @@ void ComputerSystem::initialize(void)
 
   // get model using command
   FILE *s = popen("/usr/bin/model","r");
-  if (s == 0) throw OperationFailure("/usr/bin/model: command not found");
+  if (s == 0) throw CIMOperationFailedException("/usr/bin/model: command not found");
   char buf[100];
   if (fgets(buf,100,s) == 0)
-    throw OperationFailure("/usr/bin/model: no output");
+    throw CIMOperationFailedException("/usr/bin/model: no output");
   pclose(s);
   _model.append(String(buf));
 
@@ -355,7 +355,7 @@ void ComputerSystem::initialize(void)
   struct stat st;
   // get get modification time of file
   if (0 != stat("/stand/vmunix", &st))
-    throw OperationFailure("/stand/vmunix: can't access");
+    throw CIMOperationFailedException("/stand/vmunix: can't access");
   // convert to a usable format
   struct tm *t = localtime(&st.st_mtime);
   // convert to CIMDateTime format

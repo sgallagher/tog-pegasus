@@ -148,7 +148,7 @@ void LinuxInterruptProvider::modifyInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxInterruptProvider::modifyInstance called" << endl;
-   throw NotSupported(INTERRUPTCLASSNAME"::modifyInstance");
+   throw CIMNotSupportedException(INTERRUPTCLASSNAME"::modifyInstance");
 }
 
 void LinuxInterruptProvider::createInstance(
@@ -158,7 +158,7 @@ void LinuxInterruptProvider::createInstance(
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxInterruptProvider::createInstance called" << endl;
-   throw NotSupported(INTERRUPTCLASSNAME"::createInstance");
+   throw CIMNotSupportedException(INTERRUPTCLASSNAME"::createInstance");
 }
 
 void LinuxInterruptProvider::deleteInstance(
@@ -167,7 +167,7 @@ void LinuxInterruptProvider::deleteInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxInterruptProvider::deleteInstance called" << endl;
-   throw NotSupported(INTERRUPTCLASSNAME"::deleteInstance");
+   throw CIMNotSupportedException(INTERRUPTCLASSNAME"::deleteInstance");
 }
 
 void LinuxInterruptProvider::initialize(CIMOMHandle& handle)

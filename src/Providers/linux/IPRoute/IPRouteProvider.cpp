@@ -178,7 +178,7 @@ LinuxIPRouteProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(IPROUTECLASSNAME"::modifyInstance");
+   throw CIMNotSupportedException(IPROUTECLASSNAME"::modifyInstance");
 }
 
 void 
@@ -188,7 +188,7 @@ LinuxIPRouteProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
-   throw NotSupported(IPROUTECLASSNAME"::createInstance");
+   throw CIMNotSupportedException(IPROUTECLASSNAME"::createInstance");
 }
 
 void 
@@ -196,7 +196,7 @@ LinuxIPRouteProvider::deleteInstance(const OperationContext& context,
 			  	     const CIMObjectPath& ref,
 			  	     ResponseHandler<void>& handler )
 {
-   throw NotSupported(IPROUTECLASSNAME"::deleteInstance");
+   throw CIMNotSupportedException(IPROUTECLASSNAME"::deleteInstance");
 }
 
 void LinuxIPRouteProvider::initialize(CIMOMHandle& handle)

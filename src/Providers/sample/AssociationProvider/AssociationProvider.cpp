@@ -58,7 +58,7 @@ void AssociationProvider::associators(
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler)
 {
-	throw NotSupported("AssociationProvider::associators");
+	throw CIMNotSupportedException("AssociationProvider::associators");
 }
 
 void AssociationProvider::associatorNames(
@@ -70,7 +70,7 @@ void AssociationProvider::associatorNames(
 	const String & resultRole,
 	ResponseHandler<CIMObjectPath> & handler)
 {
-	throw NotSupported("AssociationProvider::associatorNames");
+	throw CIMNotSupportedException("AssociationProvider::associatorNames");
 }
 
 void AssociationProvider::references(
@@ -82,7 +82,7 @@ void AssociationProvider::references(
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMObject> & handler)
 {
-	throw NotSupported("AssociationProvider::references");
+	throw CIMNotSupportedException("AssociationProvider::references");
 }
 
 void AssociationProvider::referenceNames(
@@ -92,7 +92,7 @@ void AssociationProvider::referenceNames(
 	const String & role,
 	ResponseHandler<CIMObjectPath> & handler)
 {
-	throw NotSupported("AssociationProvider::referenceNames");
+	throw CIMNotSupportedException("AssociationProvider::referenceNames");
 }
 
 PEGASUS_NAMESPACE_END

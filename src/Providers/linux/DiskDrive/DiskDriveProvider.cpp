@@ -152,7 +152,7 @@ LinuxDiskDriveProvider::modifyInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxDiskDriveProvider::modifyInstance called" << endl;
-   throw NotSupported(DISKDRIVECLASSNAME"::modifyInstance");
+   throw CIMNotSupportedException(DISKDRIVECLASSNAME"::modifyInstance");
 }
 
 void
@@ -163,7 +163,7 @@ LinuxDiskDriveProvider::createInstance(
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
    cout << "LinuxDiskDriveProvider::createInstance called" << endl;
-   throw NotSupported(DISKDRIVECLASSNAME"::createInstance");
+   throw CIMNotSupportedException(DISKDRIVECLASSNAME"::createInstance");
 }
 
 void
@@ -173,7 +173,7 @@ LinuxDiskDriveProvider::deleteInstance(
 			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxDiskDriveProvider::deleteInstance called" << endl;
-   throw NotSupported(DISKDRIVECLASSNAME"::deleteInstance");
+   throw CIMNotSupportedException(DISKDRIVECLASSNAME"::deleteInstance");
 }
 
 void LinuxDiskDriveProvider::initialize(CIMOMHandle& handle)

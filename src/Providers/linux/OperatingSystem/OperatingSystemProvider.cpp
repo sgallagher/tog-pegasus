@@ -183,7 +183,7 @@ OperatingSystemProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(OPERATINGSYSTEMCLASSNAME"::modifyInstance");
+   throw CIMNotSupportedException(OPERATINGSYSTEMCLASSNAME"::modifyInstance");
 }
 
 void 
@@ -193,7 +193,7 @@ OperatingSystemProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMObjectPath>& handler )
 {
-   throw NotSupported(OPERATINGSYSTEMCLASSNAME"::createInstance");
+   throw CIMNotSupportedException(OPERATINGSYSTEMCLASSNAME"::createInstance");
 }
 
 void 
@@ -202,7 +202,7 @@ OperatingSystemProvider::deleteInstance(
 			  	const CIMObjectPath& ref,
 			  	ResponseHandler<void>& handler )
 {
-   throw NotSupported(OPERATINGSYSTEMCLASSNAME"::deleteInstance");
+   throw CIMNotSupportedException(OPERATINGSYSTEMCLASSNAME"::deleteInstance");
 }
 
 void OperatingSystemProvider::initialize(CIMOMHandle& handle)
@@ -812,7 +812,7 @@ void OperatingSystemProvider::invokeMethod(
 				Array<CIMParamValue>& outParameters,
 				ResponseHandler<CIMValue>& handler)
 {
-   throw NotSupported(OPERATINGSYSTEMCLASSNAME"::invokeMethod");
+   throw CIMNotSupportedException(OPERATINGSYSTEMCLASSNAME"::invokeMethod");
 }
 
 PEGASUS_NAMESPACE_END

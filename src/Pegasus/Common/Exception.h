@@ -40,8 +40,6 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Linkage.h>
 
-#include <cstring>
-
 PEGASUS_NAMESPACE_BEGIN
 
 // REVIEW: these classes need a major restructuring. This has become the

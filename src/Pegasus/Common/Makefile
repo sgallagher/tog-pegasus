@@ -11,7 +11,6 @@ LIBRARY = pegcommon
 SOURCES = \
     Array.cpp \
     AsyncOpNode.cpp \
-    AsyncResponseHandler.cpp \
     AuthenticationInfo.cpp \
     CGIQueryString.cpp \
     Channel.cpp \
@@ -73,7 +72,6 @@ SOURCES = \
     OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \
-    ResponseHandler.cpp \
     Selector.cpp \
     Service.cpp \
     Sharable.cpp \
@@ -91,15 +89,12 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp
-#    AsyncOpNodeLocal.cpp \
-
 
 SOURCES += TLS.cpp
 
 ##
 ## Took these out again. They broke the NT build.
 ##
-
 
 ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 SOURCES += MT_MessageQueue.cpp

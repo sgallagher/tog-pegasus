@@ -4,7 +4,7 @@ DIR = Pegasus/Common
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL 
+LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
@@ -63,5 +63,7 @@ SOURCES = \
     XmlReader.cpp \
     XmlWriter.cpp \
     CGIQueryString.cpp \
+
+SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak

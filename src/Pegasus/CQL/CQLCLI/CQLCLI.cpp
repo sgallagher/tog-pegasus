@@ -357,6 +357,175 @@ Boolean _normalize(Array<CQLSelectStatement>& _statements,
   return true;                                                                                        
 }
 
+void buildEmbeddedObjects(CIMNamespaceName& ns,
+                          Array<CIMInstance>& instances,
+                          CIMRepository* rep)
+{
+
+  //
+  // Sort out the instances of CQL_TestElement, CQL_TestPropertyTypes,
+  // CIM_ComputerSystem that will be added as embedded objects to
+  // the embedded object test class
+  //
+
+  CIMName nameTE("CQL_TestElement");
+  CIMName instIdName("InstanceId");
+  CIMName nameTPT("CQL_TestPropertyTypes");
+  CIMName nameCS("CIM_ComputerSystem");
+
+  CIMInstance testElem;
+  Array<CIMInstance> testElemArray;
+  Boolean foundTestElem = false;
+
+  CIMInstance testCS;
+  Boolean foundCS = false;
+
+  Array<CIMInstance> testPropTypesArray;
+
+  for (Uint32 i = 0; i < instances.size(); i++)
+  {
+    // Save the CQL_TestElement with InstanceId = 0
+    if (instances[i].getClassName() == nameTE)
+    {
+      Uint32 index = instances[i].findProperty(instIdName);
+      if (index == PEG_NOT_FOUND)
+      {
+        throw Exception("Error building embedded objects.  CQL_TestElement with InstanceId prop not found");
+      }
+      
+      Uint64 instId;
+      instances[i].getProperty(index).getValue().get(instId);
+      if (instId == 0)
+      {
+        foundTestElem = true;
+        testElem = instances[i].clone();
+      }
+    }
+
+    // Save the CQL_TestPropertyType instances as we find them
+    if (instances[i].getClassName() == nameTPT)
+    {
+      testPropTypesArray.append(instances[i].clone());
+    }
+
+    // Save the CIM_ComputerSystem instance
+    if (instances[i].getClassName() == nameCS)
+    {
+      foundCS = true;
+      testCS = instances[i].clone();
+    }
+  }
+
+  if (!foundTestElem)
+  {
+    throw Exception("Error building embedded objects.  CQL_TestElement with InstanceId = 0 not found");
+  }
+
+  if (!foundCS)
+  {
+    throw Exception("Error building embedded objects.  CIM_ComputerSystem not found");
+  }
+
+  if (testPropTypesArray.size() <= 1)
+  {
+    throw Exception("Error building embedded objects. Not enough CQL_TestPropertyTypes found");
+  }
+
+  //
+  // Now build the array of CQL_TestElement (see below for why we are doing this)
+  // 
+
+  testElemArray.append(testElem.clone());
+
+  Uint32 index = testElem.findProperty(instIdName);
+  testElem.removeProperty(index);
+  testElem.addProperty(CIMProperty(instIdName, CIMValue((Uint64)1)));
+  testElemArray.append(testElem.clone());
+
+  index = testElem.findProperty(instIdName);
+  testElem.removeProperty(index);
+  testElem.addProperty(CIMProperty(instIdName, CIMValue((Uint64)2)));
+  testElemArray.append(testElem.clone());
+
+  //
+  // Get the class that will be added as an embedded object
+  //
+
+  CIMClass someClass = rep->getClass(ns,
+                                     "CIM_Process",
+                                     false,  // local only
+                                     true,   // include quals
+                                     true);   // include class origin
+
+  // Build the embedded object structure.
+  //
+  // The structure looks like this:
+  //
+  // class CQL_EmbeddedSubClass is subclass of CQL_EmbeddedBase
+  // class CQL_EmbeddedTestPropertyTypes is subclass of CQL_EmbeddedTestElement
+  //
+  // instance of CQL_EmbeddedSubClass 
+  //
+  //   property InstanceID has value 100
+  //
+  //   property EmbObjBase has
+  //      instance of CQL_EmbeddedTestElement
+  //         property InstanceID has value 1000
+  //         property TEArray has array of instance of CQL_TestElement
+  //             each array element has an InstanceID property
+  //             that matches the index of the element
+  //         property TE has instance of CQL_TestElement
+  //             property InstanceID has value 0
+  //         property CS has instance of CIM_ComputerSystem
+  //         property SomeClass has class of CIM_Process
+  //         property SomeString has a string
+  //   
+  //   property EmbObjSub has
+  //      instance of CQL_EmbeddedTypePropertyTypes
+  //         property InstanceID has value 1001
+  //         property TEArray has array of instance of CQL_TestElement
+  //             each array element has an InstanceID property
+  //             that matches the index of the element
+  //         property TE has instance of CQL_TestElement
+  //             property InstanceID has value 0
+  //         property CS has instance of CIM_ComputerSystem
+  //         property TPTArray has array of instance of CQL_TestPropertyTypes
+  //             the array is built from the instances compiled in the repository
+  //         property TPT has instance of CQL_TestPropertyTypes
+  //             this instance is the first instance found
+  //         property SomeClass has class of CIM_Process
+  //         property SomeUint8 has a uint8
+  //
+
+  // ATTN - uncomment when emb obj are supported
+
+  CIMInstance embTE("CQL_EmbeddedTestElement");
+  embTE.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)1000)));
+  //  embTE.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
+  //  embTE.addProperty(CIMProperty("TE", CIMValue(testElemArray[0])));
+  //  embTE.addProperty(CIMProperty("CS", CIMValue(testCS)));
+  //  embTE.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
+  embTE.addProperty(CIMProperty("SomeString", CIMValue("Huh?")));
+  
+
+  CIMInstance embTPT("CQL_EmbeddedTestPropertyTypes");
+  embTPT.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)1001)));
+  //  embTE.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
+  //  embTE.addProperty(CIMProperty("TE", CIMValue(testElemArray[0])));
+  //  embTE.addProperty(CIMProperty("CS", CIMValue(testCS)));
+  //  embTPT.addProperty(CIMProperty("TPTArray", CIMValue(testPropTypesArray)));
+  //  embTPT.addProperty(CIMProperty("TPT", CIMValue(testPropTypesArray[0])));
+  //  embTPT.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
+  embTPT.addProperty(CIMProperty("SomeUint8", CIMValue((Uint8)3)));
+
+  CIMInstance embSub("CQL_EmbeddedSubClass");
+  embSub.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)100)));
+  //  embSub.addProperty(CIMProperty("EmbObjBase", CIMValue(embTE)));  
+  //  embSub.addProperty(CIMProperty("EmbObjSub", CIMValue(embTPT)));  
+
+  instances.append(embSub);
+}
+
 void help(const char* command){
 	cout << command << " queryFile [option]" << endl;
 	cout << " options:" << endl;
@@ -403,12 +572,13 @@ int main(int argc, char ** argv)
 		_ns = nameSpace;
 	}else{
 		cout << "Using root/SampleProvider as default namespace." << endl;
-        	_ns = String("root/SampleProvider");
+      _ns = String("root/SampleProvider");
 	}
-        CIMRepository* _rep = new CIMRepository(repositoryDir);
-        RepositoryQueryContext _ctx(_ns, _rep);
+
+   CIMRepository* _rep = new CIMRepository(repositoryDir);
+   RepositoryQueryContext _ctx(_ns, _rep);
 	String lang("CIM:CQL");
-        String query("");
+   String query("");
 	CQLSelectStatement _ss(lang,query,_ctx);
 	char text[255];
 	char* _text;
@@ -427,13 +597,18 @@ int main(int argc, char ** argv)
         	const CIMName _testclass(String("CQL_TestPropertyTypes"));
 		const CIMName _testclass1(String("CIM_ComputerSystem"));
 		try{
-                  _instances = _rep->enumerateInstances( _ns, _testclass, true ); // deep inh true
-                  _instances.appendArray(_rep->enumerateInstances( _ns, _testclass1, false )); // deep inh false
+        _instances = _rep->enumerateInstances( _ns, _testclass, true ); // deep inh true
+        _instances.appendArray(_rep->enumerateInstances( _ns, _testclass1, false )); // deep inh false
 		}catch(Exception& e){
-			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;			
-		}
+			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+      }
 	}
 
+   // Add the embedded object instances to the array
+   buildEmbeddedObjects(_ns,
+                        _instances,
+                        _rep);
+   
 	// demo setup
 	if(argc == 3 && strcmp(argv[2],"Demo") == 0){
 		cout << "Running Demo..." << endl;

@@ -173,3 +173,104 @@ class CQL_TestPropertyTypesMissing:CQL_TestElement
           "for the missing property tests.") ]   
      uint64 MissingProperty;   
 };
+
+
+// ==================================================================
+// CQL_EmbeddedBase 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedBase is a class that provides a common "  
+        "superclass for classes used to test embedded objects.")]
+   class CQL_EmbeddedBase
+   {  
+      [Key, 
+       Description (  
+          "An identifier that uniquely identifies each instance "
+          "of the CQL_TestElement hierarchy.") ]   
+     uint64 InstanceId;  
+
+      [Description (
+          "An embedded object on the base class "), 
+        EmbeddedObject]
+     string EmbObjBase;
+   };
+
+// ==================================================================
+// CQL_EmbeddedSubClass 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedSubClass is a class used to test embedded objects.")]
+   class CQL_EmbeddedSubClass : CQL_EmbeddedBase
+   {  
+      [Description (
+          "An embedded object on the base class "), 
+        EmbeddedObject]
+     string EmbObjSubClass;
+   };
+
+
+// ==================================================================
+// CQL_EmbeddedTestElement 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedTestElement is a class that provides a common "  
+        "superclass for classes used to test nested embedded objects.")]
+   class CQL_EmbeddedTestElement
+   {  
+      [Key, 
+       Description (  
+          "An identifier that uniquely identifies each instance "
+          "of the CQL_TestElement hierarchy.") ]   
+     uint64 InstanceId;  
+
+      [Description (
+          "An array of embedded objects of type CQL_TestElement "), 
+        EmbeddedObject]
+     string TEArray[];
+
+      [Description (
+          "An embedded object of type CQL_TestElement "), 
+        EmbeddedObject]
+     string TE;
+
+      [Description (
+          "An embedded object of type CIM_ComputerSystem "), 
+        EmbeddedObject]
+     string CS;
+
+      [Description (
+          "An embedded class"), 
+        EmbeddedObject]
+     string SomeClass;
+
+      [Description (
+          "Just a plain old string ")]
+     string SomeString;
+   };
+
+// ==================================================================
+// CQL_EmbeddedTestPropertyTypes 
+// ================================================================== 
+   [Version ("2.2.0"), Description (
+   "CQL_EmbeddedTestPropertyTypes is a class used to test nested embedded objects.")]
+   class CQL_EmbeddedTestPropertyTypes : CQL_EmbeddedTestElement
+   {  
+      [Description (
+          "An array of embedded objects of type CQL_TestPropertyTypes "), 
+        EmbeddedObject]
+     string TPTArray[];
+
+      [Description (
+          "An embedded object of type CQL_TestPropertyTypes "), 
+        EmbeddedObject]
+     string TPT;
+
+      [Description (
+          "An embedded class"), 
+        EmbeddedObject]
+     string SomeClass;
+
+      [Description (
+          "Just a plain old uint8 ")]
+     uint8 SomeUint8;
+   };

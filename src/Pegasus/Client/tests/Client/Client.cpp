@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.9  2001/03/05 19:54:49  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.8  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -187,6 +190,7 @@ static void TestInstanceOperations(CIMClient& client)
 	cout << "Error: " << e.getMessage() << endl;
     }
 
+#if 0
     // Create a new class:
 
     CIMClass cimClass("myclass");
@@ -217,6 +221,7 @@ static void TestInstanceOperations(CIMClient& client)
     // cimInstance.print();
     // tmp.print();
     // assert(cimInstance.identical(tmp));
+#endif
 }
 
 int main(int argc, char** argv)

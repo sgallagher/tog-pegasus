@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.h,v $
+// Revision 1.3  2001/03/05 19:54:50  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.2  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
@@ -79,7 +82,7 @@ class RepositoryDeclContext;
     for manipulating classes and instances. The others throw this exception:
 
     <pre>
-	CimException(CimException::NOT_SUPPORTED)
+	CIMException(CIMException::NOT_SUPPORTED)
     </pre>
 */
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.7  2001/03/05 19:54:50  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.6  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
@@ -121,7 +124,7 @@ void Dispatcher::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName) 
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void Dispatcher::createClass(
@@ -156,7 +159,7 @@ void Dispatcher::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance) 
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 Array<CIMClass> Dispatcher::enumerateClasses(
@@ -216,7 +219,7 @@ Array<CIMInstance> Dispatcher::execQuery(
     const String& queryLanguage,
     const String& query) 
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -231,7 +234,7 @@ Array<CIMInstance> Dispatcher::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -243,7 +246,7 @@ Array<CIMReference> Dispatcher::associatorNames(
     const String& role,
     const String& resultRole)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -256,7 +259,7 @@ Array<CIMInstance> Dispatcher::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -266,7 +269,7 @@ Array<CIMReference> Dispatcher::referenceNames(
     const String& resultClass,
     const String& role)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -275,7 +278,7 @@ CIMValue Dispatcher::getProperty(
     const CIMReference& instanceName,
     const String& propertyName) 
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
 }
 
@@ -285,7 +288,7 @@ void Dispatcher::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 CIMQualifierDecl Dispatcher::getQualifier(
@@ -322,7 +325,7 @@ CIMValue Dispatcher::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters) 
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
 }
 
@@ -337,7 +340,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     CIMClass cimClass = _repository->getClass(nameSpace, className);
 
     if (!cimClass)
-	throw CimException(CimException::INVALID_CLASS);
+	throw CIMException(CIMException::INVALID_CLASS);
 
     // cimClass.print();
 
@@ -366,7 +369,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 	provider = _providerTable.loadProvider(providerId);
 
 	if (!provider)
-	    throw CimException(CimException::FAILED);
+	    throw CIMException(CIMException::FAILED);
 
 	provider->initialize(*_repository);
     }

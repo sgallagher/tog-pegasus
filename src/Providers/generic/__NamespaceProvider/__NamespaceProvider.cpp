@@ -23,6 +23,9 @@
 // Author: Karl Schopmeyer k.schopmeyer@opengroup.org
 //
 // $Log: __NamespaceProvider.cpp,v $
+// Revision 1.4  2001/03/05 19:54:50  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.3  2001/02/26 10:24:56  karl
 // import
 //
@@ -132,7 +135,7 @@ virtual void createInstance(
 	Uint32 i = myInstance.findProperty("name");
 	if (i == -1)
 	    {
-	        throw CimException(CimException::INVALID_PARAMETER);
+	        throw CIMException(CIMException::INVALID_PARAMETER);
 		return;
 	    }
 	// ATTN: Only allow creation of namespaces if the current namespace
@@ -140,7 +143,7 @@ virtual void createInstance(
 	// seems logical
 
 	if (nameSpace != "root")
-	        throw CimException(CimException::INVALID_NAMESPACE);
+	        throw CIMException(CIMException::INVALID_NAMESPACE);
 		return;
 
 	// get property "name"
@@ -165,7 +168,7 @@ virtual void createInstance(
 	    {
        	cout <<"Loop " << ns[i] << " " << n << " " << myName << endl;  
 		if (String::equal(ns[i], myName))
-		     throw CimException(CimException::ALREADY_EXISTS);
+		     throw CIMException(CIMException::ALREADY_EXISTS);
 	    }
  
 	// create new namespace

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierDeclRep.cpp,v $
+// Revision 1.6  2001/03/05 19:54:50  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.5  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -78,9 +81,9 @@ void test()
     {
 	q2 = r.getQualifier(NAMESPACE, ABSTRACT);
     }
-    catch (CimException& e)
+    catch (CIMException& e)
     {
-	assert(e.getCode() == CimException::NOT_FOUND);
+	assert(e.getCode() == CIMException::NOT_FOUND);
     }
 
     // Create two qualifiers:

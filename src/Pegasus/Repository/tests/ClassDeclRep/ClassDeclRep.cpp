@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.7  2001/03/05 19:54:50  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.6  2001/02/26 04:33:30  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -98,9 +101,9 @@ void Test01()
     {
 	r.deleteClass(NAMESPACE, "Class1");
     }
-    catch (CimException& e)
+    catch (CIMException& e)
     {
-	assert(e.getCode() == CimException::CLASS_HAS_CHILDREN);
+	assert(e.getCode() == CIMException::CLASS_HAS_CHILDREN);
     }
 
     // Delete all classes created here:

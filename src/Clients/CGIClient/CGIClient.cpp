@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.18  2001/03/05 19:54:49  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.17  2001/02/21 01:53:08  karl
 // Namespaces stuff
 //
@@ -100,7 +103,7 @@ Pegasus.
 #include <cstdlib>
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/Stopwatch.h>
+// #include <Pegasus/Common/Stopwatch.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -685,7 +688,9 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     try
     {
 	// Time the connection
+#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
+#endif
 	
 	// Make the Connection
 	CIMClient client;
@@ -695,7 +700,11 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	    nameSpace, className, deepInheritance);
 
 	// Print the results
+#ifdef HAVE_STOPWATCH
 	PrintClassNames(nameSpace, classNames, elapsedTime.getElapsed());
+#else
+	PrintClassNames(nameSpace, classNames, 0.0);
+#endif
 
     }
     catch(Exception& e)
@@ -970,7 +979,9 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
     try
     {
 	// Time the connection
+#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
+#endif
 
 	CIMClient client;
 	client.connect("localhost", 8888);
@@ -989,7 +1000,12 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	}
 
 	// Print the name array
-	PrintInstanceNames(nameSpace, tmpInstanceNames, elapsedTime.getElapsed());
+#ifdef HAVE_STOPWATCH
+	PrintInstanceNames(
+	    nameSpace, tmpInstanceNames, elapsedTime.getElapsed());
+#else
+	PrintInstanceNames(nameSpace, tmpInstanceNames, 0.0);
+#endif
         }
     catch(Exception& e)
     {
@@ -1157,7 +1173,9 @@ static void CreateNameSpace(const CGIQueryString& qs)
     try
     {
 	// Time the connection
+#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
+#endif
 	CIMClient client;
 	client.connect("localhost", 8888);
     
@@ -1165,10 +1183,13 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	client.createInstance(nameSpace, newInstance);
 	PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
 	cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
+#ifdef HAVE_STOPWATCH
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+#else
+	cout << " in " << 0.0 << " Seconds</p>\n";
+#endif
 	cout << "</body>\n" << "</html>\n";
     } 
-
     catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
@@ -1211,7 +1232,9 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
     try
     {
 	// Time the connection
+#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
+#endif
 
 	CIMClient client;
 	client.connect("localhost", 8888);
@@ -1267,7 +1290,11 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	// Close the Page
 	cout << "<p>Click on a namespace to enumerate class Names</p>";
 	cout << "<p>Returned " << instanceNames.getSize() << " Names";
+#ifdef HAVE_STOPWATCH
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+#else
+	cout << " in " << 0.0 << " Seconds</p>\n";
+#endif
 	cout << "</body>\n" << "</html>\n";
          
 	}

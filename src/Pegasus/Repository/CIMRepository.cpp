@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.6  2001/03/05 19:54:50  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.5  2001/02/26 04:33:30  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -192,19 +195,19 @@ static void _MakeNameSpacePath(
 	if (*p == '/')
 	{
 	    if (p[1] == '/')
-		throw CimException(CimException::INVALID_NAMESPACE);
+		throw CIMException(CIMException::INVALID_NAMESPACE);
 	    
 	    *p++ = '#';
 	}
 	else if (!_SkipIdentifier(p))
-	    throw CimException(CimException::INVALID_NAMESPACE);
+	    throw CIMException(CIMException::INVALID_NAMESPACE);
     }
 
     // The last element may NOT be a slash (slashes are translated to
     // #'s above).
 
     if (p[-1] == '#')
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 }
 
 void _FindClass(
@@ -217,7 +220,7 @@ void _FindClass(
     _MakeNameSpacePath(root, nameSpace, path);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     path.append(CLASSES);
 
@@ -226,7 +229,7 @@ void _FindClass(
     Uint32 size = fileNames.getSize();
 
     if (size == 0)
-	throw CimException(CimException::INVALID_CLASS);
+	throw CIMException(CIMException::INVALID_CLASS);
 
     PEGASUS_ASSERT(size == 1);
     path.append(fileNames[0]);
@@ -248,7 +251,7 @@ static void _MakeNewClassPath(
     _MakeNameSpacePath(root, nameSpace, path);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     path.append(CLASSES);
     path.append(className);
@@ -270,7 +273,7 @@ static void _MakeQualfierPath(
     _MakeNameSpacePath(root, nameSpace, path);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     path.append(QUALIFIERS);
     path.append(qualifierName);
@@ -286,7 +289,7 @@ static void _MakeInstanceIndexPath(
     _MakeNameSpacePath(root, nameSpace, path);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     path.append(INSTANCES);
     path.append(className);
@@ -304,7 +307,7 @@ static void _MakeInstancePath(
     _MakeNameSpacePath(root, nameSpace, path);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     path.append(INSTANCES);
     path.append(className);
@@ -603,7 +606,7 @@ CIMInstance CIMRepository::getInstance(
     CIMReference::referenceToInstanceName(instanceName, tmp);
 
     if (!InstanceIndexFile::lookup(indexPath, tmp, index))
-	throw CimException(CimException::FAILED);
+	throw CIMException(CIMException::FAILED);
 
     // Form the path to the instance fiel:
 
@@ -629,7 +632,7 @@ void CIMRepository::deleteClass(
     // Disallow if the class has subclasses:
 
     if (_HasSubclasses(_root, nameSpace, className))
-	throw CimException(CimException::CLASS_HAS_CHILDREN);
+	throw CIMException(CIMException::CLASS_HAS_CHILDREN);
 
     // ATTN-C: check to see if the class has instances:
 
@@ -643,7 +646,7 @@ void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName) 
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void CIMRepository::createClass(
@@ -661,7 +664,7 @@ void CIMRepository::createClass(
     String realPath;
 
     if (FileSystem::existsIgnoreCase(path, realPath))
-	throw CimException(CimException::ALREADY_EXISTS);
+	throw CIMException(CIMException::ALREADY_EXISTS);
     else
 	realPath = path;
 
@@ -701,7 +704,7 @@ void CIMRepository::createInstance(
     Uint32 index;
 
     if (!InstanceIndexFile::insert(indexPath, instanceName, index))
-	throw CimException(CimException::FAILED);
+	throw CIMException(CIMException::FAILED);
 
     // Save the instance to file:
 
@@ -729,7 +732,7 @@ void CIMRepository::modifyClass(
     // Disallow changing the name of the super-class:
 
     if (modifiedClass.getSuperClassName() != oldClass.getSuperClassName())
-	throw CimException(CimException::INVALID_SUPERCLASS);
+	throw CIMException(CIMException::INVALID_SUPERCLASS);
 
     // Delete the old class:
 
@@ -744,7 +747,7 @@ void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance) 
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -782,7 +785,7 @@ Array<String> CIMRepository::enumerateClassNames(
     path.append(CLASSES);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     if (deepInheritance)
     {
@@ -828,7 +831,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -836,7 +839,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -844,7 +847,7 @@ Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,
     const String& query) 
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -859,7 +862,7 @@ Array<CIMInstance> CIMRepository::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -871,7 +874,7 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -884,7 +887,7 @@ Array<CIMInstance> CIMRepository::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
 
@@ -894,7 +897,7 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
@@ -902,8 +905,8 @@ CIMValue CIMRepository::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName) 
-{ 
-    throw CimException(CimException::NOT_SUPPORTED);
+{
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
 }
 
@@ -913,7 +916,7 @@ void CIMRepository::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 { 
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(
@@ -930,7 +933,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
     String realPath;
 
     if (!FileSystem::existsIgnoreCase(path, realPath))
-	throw CimException(CimException::NOT_FOUND);
+	throw CIMException(CIMException::NOT_FOUND);
 
     // Load the qualifier:
 
@@ -978,7 +981,7 @@ void CIMRepository::deleteQualifier(
     String realPath;
 
     if (!FileSystem::existsIgnoreCase(path, realPath))
-	throw CimException(CimException::NOT_FOUND);
+	throw CIMException(CIMException::NOT_FOUND);
 
     if (!FileSystem::removeFile(realPath))
 	throw FailedToRemoveFile(path);
@@ -995,7 +998,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     path.append(QUALIFIERS);
 
     if (!FileSystem::isDirectory(path))
-	throw CimException(CimException::INVALID_NAMESPACE);
+	throw CIMException(CIMException::INVALID_NAMESPACE);
 
     // Get the names of the qualifiers:
 
@@ -1024,7 +1027,7 @@ CIMValue CIMRepository::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters) 
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
 }
 

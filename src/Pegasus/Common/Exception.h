@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.9  2001/03/05 19:54:49  mike
+// Fixed earlier boo boo (renamed CimException to CIMException).
+//
 // Revision 1.8  2001/03/05 04:29:02  mike
 // renamed CimException to CIMException
 //
@@ -553,7 +556,7 @@ public:
 	METHOD_NOT_FOUND = 17
     };
 
-    CIMException(Code code, const String& extraMessage);
+    CIMException(Code code, const String& extraMessage = String());
 
     CIMException::Code getCode() const { return _code; }
 

@@ -24,6 +24,8 @@
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company 
+//              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,13 +42,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & classname)
+extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & providerName)
 {
-	if (String::equalNoCase(classname, "PG_TestPropertyTypes"))
-	{
-		return(new PG_TestPropertyTypes());
-	}
-	return (0);
+    const String PROVIDER_NAME = "PG_TestPropertyTypes";
+    if (String::equalNoCase(providerName, "PG_TestPropertyTypes"))
+    {
+	return(new PG_TestPropertyTypes());
+    }
+    return (0);
 }
 
 PG_TestPropertyTypes::PG_TestPropertyTypes(void)

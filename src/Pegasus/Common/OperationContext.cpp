@@ -212,7 +212,6 @@ IdentityContainer::IdentityContainer(const OperationContext::Container & contain
 }
 
 IdentityContainer::IdentityContainer(const IdentityContainer & container)
-  : OperationContext::Container()
 {
     _rep = new IdentityContainerRep();
     _rep->userName = container._rep->userName;
@@ -297,7 +296,6 @@ SubscriptionInstanceContainer::SubscriptionInstanceContainer
 
 SubscriptionInstanceContainer::SubscriptionInstanceContainer
     (const SubscriptionInstanceContainer & container)
-    : OperationContext::Container()
 {
     _rep = new SubscriptionInstanceContainerRep();
     _rep->subscriptionInstance = container._rep->subscriptionInstance;
@@ -383,7 +381,6 @@ SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
 
 SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
     (const SubscriptionInstanceNamesContainer & container)
-      : OperationContext::Container()
 {
     _rep = new SubscriptionInstanceNamesContainerRep();
     _rep->subscriptionInstanceNames = container._rep->subscriptionInstanceNames;
@@ -475,7 +472,6 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
 
 SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
     (const SubscriptionFilterConditionContainer & container)
-      : OperationContext::Container()
 {
     _rep = new SubscriptionFilterConditionContainerRep();
     _rep->filterCondition = container._rep->filterCondition;
@@ -617,7 +613,6 @@ AcceptLanguageListContainer::AcceptLanguageListContainer
 
 AcceptLanguageListContainer::AcceptLanguageListContainer
     (const AcceptLanguageListContainer & container)
-      : OperationContext::Container()
 {
     _rep = new AcceptLanguageListContainerRep();
     _rep->languages = container._rep->languages;
@@ -703,7 +698,6 @@ SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
 
 SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
     (const SubscriptionLanguageListContainer & container)
-    : OperationContext::Container()
 {
     _rep = new SubscriptionLanguageListContainerRep();
     _rep->languages = container._rep->languages;
@@ -789,7 +783,6 @@ ContentLanguageListContainer::ContentLanguageListContainer
 
 ContentLanguageListContainer::ContentLanguageListContainer
     (const ContentLanguageListContainer & container)
-    : OperationContext::Container()
 {
     _rep = new ContentLanguageListContainerRep();
     _rep->languages = container._rep->languages;
@@ -877,7 +870,6 @@ SnmpTrapOidContainer::SnmpTrapOidContainer
 
 SnmpTrapOidContainer::SnmpTrapOidContainer
     (const SnmpTrapOidContainer & container)
-    : OperationContext::Container()
 {
     _rep = new SnmpTrapOidContainerRep();
     _rep->snmpTrapOid = container._rep->snmpTrapOid;

@@ -59,4 +59,37 @@ XMLSCRIPTS = \
 #   DeleteSubscription15 DeleteFilter13 \
 #   CreateFilter11 CreateFilter12 \
 
+testcleanup:
+	$(MAKE) -i removeproviders
+	$(MAKE) -i removeclasses
+	$(MAKE) clean
+
+removeproviders:
+	cimprovider -r -m ProcessIndicationProviderModule
+	cimprovider -r -m AlertIndicationProviderModule
+	cimprovider -r -m PG_ProviderModule
+
+removeclasses:
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler04.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription01.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription03.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription04.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription05.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription06.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription07.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription08.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription09.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter01.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter02.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter03.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter04.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter05.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter06.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter07.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler01.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler02.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler03.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler04.xml
+	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler09.xml
+
 include $(ROOT)/test/configend.mak

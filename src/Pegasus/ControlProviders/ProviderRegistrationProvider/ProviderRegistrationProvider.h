@@ -165,8 +165,7 @@ protected:
     // otherwise, return false
     //
     Boolean _isIndicationProvider(const String & moduleName,
-                                  const CIMInstance & instance,
-                                  const CIMObjectPath & providerRef);
+                                  const CIMInstance & instance);
 
     Sint16 _enableModule(const CIMObjectPath & moduleRef, 
 			 const String & moduleName,

@@ -1071,7 +1071,7 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
 							  asyncRequest);
     CIMDisableModuleResponseMessage * response =
 	reinterpret_cast<CIMDisableModuleResponseMessage *>(
-             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+             (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
 	CIMException e = response->cimException;
@@ -1112,7 +1112,7 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
 							  asyncRequest);
     CIMEnableModuleResponseMessage * response =
 	reinterpret_cast<CIMEnableModuleResponseMessage *>(
-             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+             (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
 	CIMException e = response->cimException;
@@ -1173,7 +1173,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 		//
 		// if the provider is indication provider
 		//
-		if (_isIndicationProvider(moduleName, instance, reference))
+		if (_isIndicationProvider(moduleName, instance))
 		{
 	            instances.append(instance);
 		}
@@ -1187,7 +1187,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 	//
 	// if the provider is indication provider
 	//
-	if (_isIndicationProvider(moduleName, instance, ref))
+	if (_isIndicationProvider(moduleName, instance))
 	{
 	    instances.append(instance);
 	}
@@ -1334,7 +1334,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 		    providerRef.setKeyBindings(keys);
 		    instance = _providerRegistrationManager->getInstance
 			(providerRef);
-		    if (_isIndicationProvider(moduleName, instance, providerRef))
+		    if (_isIndicationProvider(moduleName, instance))
                     {
                         indProvider = true;
                         indicationProviders.append(true);
@@ -1351,7 +1351,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
         else
         {
 	    instance = _providerRegistrationManager->getInstance(objectReference);
-            if (_isIndicationProvider(moduleName, instance, objectReference))
+            if (_isIndicationProvider(moduleName, instance))
             {
                 indProvider = true;
                 indicationProviders.append(true);
@@ -1621,7 +1621,7 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
 
         CIMNotifyProviderEnableResponseMessage * response =
 	    reinterpret_cast<CIMNotifyProviderEnableResponseMessage *>(
-		(static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+		(dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
 	{
@@ -1638,82 +1638,22 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
     }
 }
 
-// If the provider is indication provider, return true,
+// If provider is an indication provider, return true,
 // otherwise, return false
 Boolean ProviderRegistrationProvider::_isIndicationProvider(
     const String & moduleName,
-    const CIMInstance & instance,
-    const CIMObjectPath & providerRef)
+    const CIMInstance & instance)
 {
     // get provider name
     String providerName;
-    Uint32 pos = instance.findProperty(CIMName (_PROPERTY_PROVIDER_NAME));
+    Uint32 pos = instance.findProperty(_PROPERTY_PROVIDER_NAME);
     if (pos != PEG_NOT_FOUND)
     {
 	instance.getProperty(pos).getValue().get(providerName);	
     }
 
-    CIMObjectPath capabilityRef;
-
-    capabilityRef = CIMObjectPath(providerRef.getHost(),
-				  providerRef.getNameSpace(),
-		       		  PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION,
-		       		  providerRef.getKeyBindings());
-
-    // get all Capabilities instances
-    Array<CIMObjectPath> instanceNames =
-	_providerRegistrationManager->enumerateInstanceNames(capabilityRef);
-			
-    //
-    // get provider module name and provider name from capability reference
-    //
-    String _moduleName, _providerName;
-    CIMInstance capInstance;
-    Array<Uint16> providerTypes;
-    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
-    {
-	Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
-
-	for(Uint32 j=0; j < keys.size(); j++)
-        {
-             if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
-             {
-                  _moduleName = keys[j].getValue();
-             }
-
-             if(keys[j].getName().equal (_PROPERTY_PROVIDERNAME))
-             {
-                  _providerName = keys[j].getValue();
-             }
-
-	     //
-	     // if capability instance has same module name as moduleName
-	     // and same provider name as providerName, get provider type
-	     //
-	     if(String::equal(_moduleName, moduleName) &&
-		String::equal(_providerName, providerName))
-	     {
-		  capInstance = _providerRegistrationManager->getInstance
-				(instanceNames[i]);
-
-		  Uint32 pos = capInstance.findProperty(CIMName (_PROPERTY_PROVIDERTYPE));
-    		  if (pos != PEG_NOT_FOUND)
-		  {
-		       capInstance.getProperty(pos).getValue().get(providerTypes); 
-
-    			for (Uint32 k=0; k < providerTypes.size(); k++)
-    			{
-        		    if (providerTypes[k] == _INDICATION_PROVIDER)
-        		    {
-            			return (true);
-        		    }
-    			}
-		  }
-  	     }
-        }
-    }
-
-    return (false);
+    return (_providerRegistrationManager->isIndicationProvider(
+	    moduleName, providerName));
 }
 
 //

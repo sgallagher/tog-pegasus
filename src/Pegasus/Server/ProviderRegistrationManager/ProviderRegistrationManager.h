@@ -276,6 +276,26 @@ public:
 		Array<CIMInstance> & provider,
 		Array<CIMInstance> & providerModule); 
 
+        /**
+	    This function is called with an (CIMObjectPath ref) specifying a
+            instance of PG_ProviderModule, or instance of PG_Provider, or
+	    instance of PG_ProviderCapabilities, or instance of 
+            PG_ConsumerCapabilities to be returned.
+
+            @param ref specifies the fully qualified object path of the 
+		   instance of interest.
+
+            @param includeQualifiers indicates whether the returned instance 
+                   must include the qualifiers for the instance and properties.
+
+            @param includeClassOrigin indicates whether the returned instance 
+		   must include the class origin for each of the instance 
+                   elements.
+
+            @param propertyList specifies the minimum set of properties 
+                   required in instances returned by this operation.
+        */
+            
 	CIMInstance getInstance(
 		    const CIMObjectPath & ref,
 		    const Boolean includeQualifiers = false,
@@ -317,6 +337,22 @@ public:
 	    Service to load the module and initialize providers in the module
         */
 	void initializeProviders(const CIMInstance & providerModule);
+
+        /**
+            Determines whether specified provider is an indication provider.
+
+            @param    moduleName specifies name of the provider module which 
+                      the provider is in.
+
+	    @param    providerName specifies name of the provider which
+                      needs to be determine.
+
+            @return   True if the provider is an indication provider; 
+                      Otherwise, return false.
+        */
+        Boolean isIndicationProvider(
+           const String & moduleName,
+           const String & providerName);
 
    	enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 

@@ -47,117 +47,298 @@ enum cimom_results
    MODULE_ALREADY_REGISTERED,
    MODULE_NOT_FOUND,
    INTERNAL_ERROR,
+   
+   ASYNC_STARTED,
+   ASYNC_PROCESSING,
+   ASYNC_COMPLETE, 
 
    NUMBER_RESULTS
 };
 
+
+// messages handled by the cimom
 enum cimom_messages
 {
-   HEARTBEAT,
-   MODULE_REGISTER,
-   MODULE_DEREGISTER,
-   ASYNC_OP,
+   CIMOM_HEARTBEAT,
+   CIMOM_REGISTER_SERVICE,
+   CIMOM_DEREGISTER_SERVICE,
+   CIMOM_UPDATE_SERVICE,
+   CIMOM_IOCTL,
    
-   NUMBER_MESSAGES
+   CIMOM_ASYNC_REPLY,
+
+   NUMBER_CIMOM_MESSAGES
 };
 
+// messages handled by services (modules)
+enum service_messages
+{
+   SERVICE_HEARTBEAT,
+   SERVICE_START,
+   SERVICE_STOP,
+   SERVICE_PAUSE,
+   SERVICE_RESUME,
+   SERVICE_IOCTL,
+   SERVICE_ASYNC_OP,
 
-class PEGASUS_CIMOM_LINKAGE CimomRequest : public Message
+   NUMBER_SERVICE_MESSAGES
+} ;
+
+enum lifetime_messages
+{
+   LIFETIME_HEARTBEAT,
+
+   NUMBER_LIFETIME_MESSAGES
+} ;
+
+
+class PEGASUS_CIMOM_LINKAGE Request : public Message
 {
    public:
-      CimomRequest(Uint32 type, 
-		   Uint32 key,
-		   QueueIdStack queue_ids = QueueIdStack(MessageQueue::_CIMOM_Q_ID),
-		   Uint32 routing = 0,
-		   Uint32 mask = message_mask::type_cimom | message_mask::type_request)
+      Request(Uint32 type,
+	      Uint32 key, 
+	      QueueIdStack queue_ids,
+	      Uint32 mask,
+	      Uint32 routing = 0) 
 	 : Message(type, key, routing, mask), queues(queue_ids) {   }
       
-      virtual ~CimomRequest(void);
+      virtual ~Request(void);
+      
       QueueIdStack queues;
 } ;
 
-class PEGASUS_CIMOM_LINKAGE CimomReply : public Message
+
+class PEGASUS_CIMOM_LINKAGE Reply : public Message
 {
    public:
-      CimomReply(Uint32 type,
-		 Uint32 key, 
-		 Uint32 result_code,
-		 QueueIdStack queue_ids,
-		 Uint32 routing = 0,
-		 Uint32 mask = message_mask::type_cimom | message_mask::type_reply)
-	 : Message(type, key, routing, mask), result(result_code), queues(queue_ids)  {   }
+      Reply(Uint32 type, 
+	    Uint32 key, 
+	    Uint32 result_code,
+	    Uint32 mask,
+	    Uint32 routing = 0) 
+	 : Message(type, key, routing, mask),
+	   result(result_code) {  }
 
-      virtual ~CimomReply(void);
+      virtual ~Reply(void);
       
       Uint32 result;
-      QueueIdStack queues;
-};
+} ;
 
 
-class PEGASUS_CIMOM_LINKAGE ModuleRegister : public CimomRequest 
+// heartbeat TO the cimom from a SERVICE 
+
+// class PEGASUS_CIMOM_LINKAGE CimomHeartbeat : pubic Request
+// {
+//    public:
+//       CimomHeartbeat(Uint32 key,
+// 		     QueueIdStack queue_ids,
+// 		     Uint32 mask, 
+// 		     Uint32 routing = 0)
+// 	 : Request(CIMOM_HEARTBEAT, key, queue_ids, mask, routing)   {      }
+      
+//       virtual ~CimomHeartbeat(void);
+      
+// } ;
+
+
+
+// request from a service to the cimom
+class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request 
 {
    public:
-      ModuleRegister(Uint32 key, 
-		     QueueIdStack queue_ids,
-		     const String & module_name,
-		     Uint32 module_capabilities,
-		     Uint32 module_messages,
-		     Uint32 module_queue,
-		     Uint32 routing = 0)
-	 : CimomRequest(MODULE_REGISTER, key, queue_ids, 
-			routing,
-			message_mask::type_cimom | 
-			message_mask::type_request | 
-			message_mask::type_control),
+      CimomRegisterService(Uint32 key, 
+			   QueueIdStack queue_ids,
+			   const String & module_name,
+			   Uint32 module_capabilities,
+			   Uint32 module_mask,
+			   Uint32 module_queue,
+			   Uint32 routing = 0)
+	 : Request(CIMOM_REGISTER_SERVICE, key, queue_ids, routing, 
+		   ( message_mask::type_cimom | message_mask::ha_request )),
 	   name(module_name), capabilities(module_capabilities),
-	   msg_mask( ), q_id(module_queue)  {   }
+	   mask(module_mask ), q_id(module_queue)  {   }
       
-      virtual ~ModuleRegister(void);
+      virtual ~CimomRegisterService(void);
       
       String name;
       Uint32 capabilities;
-      Uint32 msg_mask;
+      Uint32 mask;
       Uint32 q_id;
 };
 
 
-class PEGASUS_CIMOM_LINKAGE ModuleDeregister : public CimomRequest
+// request from a service to the cimom 
+class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public Request
 {
    public:
-      ModuleDeregister(Uint32 key,
-		       QueueIdStack queue_ids, 
-		       Uint32 routing,
-		       Uint32 module_queue)
-	 : CimomRequest(MODULE_DEREGISTER, key, queue_ids,
-			routing,
-			message_mask::type_cimom | 
-			message_mask::type_request | 
-			message_mask::type_control),
+
+      CimomDeregisterService(Uint32 key,
+			     QueueIdStack queue_ids, 
+			     Uint32 module_queue,
+			     Uint32 routing = 0 )
+	 : Request(CIMOM_DEREGISTER_SERVICE, key, queue_ids, routing,
+		   (message_mask::type_cimom | message_mask::ha_request) ),
 	   q_id(module_queue) {  }
-      virtual ~ModuleDeregister();
+
+      virtual ~CimomDeregisterService();
       
 
       Uint32 q_id;
 } ;
 
 
-
-class PEGASUS_CIMOM_LINKAGE AsyncDispatch : public CimomRequest
+// modules can unly update their capabilities or their mask, not their queue_id. 
+// changing a queue_id is equivalent to deregistering and registering. 
+class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public Request
 {
    public:
-      AsyncDispatch(Uint32 type,
-		    Uint32 key, 
-		    Uint32 routing,
-		    Uint32 mask,
-		    AsyncOpNode *operation)
-	 :CimomRequest(ASYNC_OP, key, 
-		       QueueIdStack(MessageQueue::_CIMOM_Q_ID)),
-	  op(operation) {  }
+      CimomUpdateService(Uint32 key, 
+			 QueueIdStack queue_ids,
+			 Uint32 module_capabilities,
+			 Uint32 module_mask,
+			 Uint32 module_queue,
+			 Uint32 routing = 0)
+	 :Request(CIMOM_UPDATE_SERVICE, key, queue_ids, routing,
+		       (message_mask::type_cimom | message_mask::ha_request) ) ,
+	  capabilities(module_capabilities), mask(module_mask),
+	  q_id(module_queue) {  }
+      
+      virtual ~CimomUpdateService();
+
+      Uint32 capabilities;
+      Uint32 mask;
+      Uint32 q_id;
+} ;
+
+
+
+// ioctl issued TO the cimom FROM a Service
+
+// class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Request
+
+
+class PEGASUS_CIMOM_LINKAGE CimomAsyncReply : public Reply
+{
+   public:
+      CimomAsyncReply(Uint32 key,
+			 Uint32 result_code, 
+			 AsyncOpNode *operation,
+			 Uint32 routing = 0)
+	 : Reply(CIMOM_ASYNC_REPLY, key, result_code, 
+		 ( message_mask::type_cimom | message_mask::ha_reply), routing),
+	   op(operation) {  }
+      
+      AsyncOpNode *op;
+};
+
+// async operation issued TO a service FROM the Cimom
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncOp : public Request
+{
+   public:
+      ServiceAsyncOp(Uint32 key,
+		     QueueIdStack queue_ids,
+		     AsyncOpNode *operation,
+		     Uint32 routing = 0)
+	 : Request(SERVICE_ASYNC_OP, key, queue_ids, routing,
+		   ( message_mask::type_service | message_mask::ha_request) ),
+	   op(operation) {  }
       
       AsyncOpNode *op;
 };
 
 
+
+// void handleEnqueue(void )
+// {
+
+//    Message* message = dequeue();
+
+//     if (!message)
+// 	return;
+
+//     switch (message->getType())
+//     {
+//        case SERVICE_ASYNC_OP:
+//        {
+// 	  // pass the async op node to the handler 
+// 	  handleAsyncOpMessage(  static_cast<ServiceAsyncOp *>(message) );
+	  
+// 	  break;
+//        }
+       
+//     }
+
+//     delete message;
+// }
+
+
+// void handleAsyncOpMessage(ServiceAsyncOp *request)
+// {
+
+//    // let the cimom know that you have started processing the op node 
+//    request->op->processing();
+   
+//    // retrieve the original CIM Operation Message from the AsyncOpNode 
+//    Message *encapsulatedMessage = node->get_request();
+   
+//    // now you can process the encapsulated message 
+//    // there are several different ways to do this, below is just one 
+//    switch( encapsulatedMessage->getType() )
+//    {
+//       case CIM_GET_PROPERTY_MESSAGE:
+// 	 handleGetPropertyRequest(request->op, (CIMGetPropertyRequestMessage *)encpasulatedMessage) ;
+// 	 break;
+//    }
+
+//    // construct a reply to the Cimom
+
+//    Reply *reply = new CimomAsyncReply(request->getKey, ASYNC_STARTED, request->op);
+
+   
+//    MessageQueue *queue = MessageQueue::lookup( MessageQueue::_CIMOM_Q_ID  );
+//    queue->enqueue(reply);
+// }
+
+
+// void handleGetPropertyRequest(AsyncOpNode *op, CIMGetPropertyRequestMessage *request)
+// {
+//    AsyncResponseHandler<CIMValue> *rh = new AsyncResponseHandler<CIMValue>( );
+   
+//    rh->set_parent(op);
+   
+//    ProviderHandle * provider = getProvider( ... );
+   
+
+
+//    // see the header for the AsyncResponseHandler -- its interfaces
+// automatically call into the AsyncOpNode to keep the cimom 
+// aware of the processing progress of this operation
+
+//    CIMValue value = provider->getProperty( op->get_context(), 
+// 					   request->nameSpace,
+// 					   request->instanceName, 
+// 					   request->propertyName, 
+// 					   rh);
+
+//     CIMGetPropertyResponseMessage* response =
+//        new CIMGetPropertyResponseMessage(
+// 	  request->messageId,
+// 	  errorCode,
+// 	  errorDescription,
+// 	  request->queueIds.copyAndPop(),
+// 	  value);
+//     // DO NOT enqueue the response message
+
+//     op->put_response(response);
+//     rh->complete();
+    
+   
+//    // do not delete the request message !!!!
+
+//    // update the time stamp on the async op node
+
+//    op->update();
+// }
 
 
 PEGASUS_NAMESPACE_END

@@ -53,21 +53,6 @@ class PEGASUS_CIMOM_LINKAGE module_capabilities
       static const Uint32 trusted;
 } ;
 
-class PEGASUS_CIMOM_LINKAGE module_messages
-{
-   public:
-      Uint32 mask;
-      Uint32 type;
-      Boolean operator == (const module_messages & mm) const
-      {
-	 if( (( mm.mask ^ mask ) & 0x000fffff))
-	    if(mm.type == type)
-	       return true;
-	 return false;
-      }
-} ;
-
-
 class PEGASUS_CIMOM_LINKAGE cimom;
 
 class PEGASUS_CIMOM_LINKAGE message_module
@@ -75,11 +60,11 @@ class PEGASUS_CIMOM_LINKAGE message_module
    public:
       message_module(const String & name,
 		     Uint32 capabilities,
-		     Uint32 messages,
+		     Uint32 mask,
 		     Uint32 queue)
       
 	 : _name(name), _capabilities(capabilities),
-	   _messages(messages), _q_id(queue)  { }
+	   _mask(mask), _q_id(queue)  { }
       
       Boolean operator == (const message_module *mm) const;
       Boolean operator == (const String & name ) const ;
@@ -91,9 +76,8 @@ class PEGASUS_CIMOM_LINKAGE message_module
    private:
       String _name;
       Uint32 _capabilities;
-      Array<module_messages> _messages;
-      Array<String> _classes;
-      Array<String> _namespaces;
+      Uint32 _mask;
+      
       Uint32 _q_id;
       friend class cimom;
 };
@@ -168,7 +152,7 @@ inline Boolean message_module::operator == (const message_module & mm) const
       return true;
    if( _name == mm._name )
       if ( _capabilities == mm._capabilities)
-	 if(_messages == mm._messages)
+	 if(_mask == mm._mask)
 	    if(_q_id == mm._q_id)
 	       return true;
    

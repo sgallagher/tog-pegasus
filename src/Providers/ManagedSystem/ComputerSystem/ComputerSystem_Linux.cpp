@@ -41,167 +41,20 @@
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
 #include <Pegasus/Common/Logger.h> // for Logger
-#include <Pegasus/Common/FileSystem.h> // for FileSystem.renameFile
-#include <Pegasus/Config/ConfigManager.h>     // for getHomedPath
+#include <Pegasus/Common/FileSystem.h>
 #include <iostream>
-#include <stdlib.h>		// for getenv
 #include <unistd.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/param.h>     // for MAXHOSTNAMELEN
-#include <string.h>        // for strcmp
 #include <errno.h>         // for errno
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 
-//  _ProviderCacheDir should eventually be global so all providers
-//  can keep the values of modifiable properties saved
-static String _providerCacheDir;
-
-static String _pinFile;
-static String _tmpFile;
 
 static String _hostName;
-static String _systemLocation;
-static String _serialNumber;
-static CIMDateTime _installDate;
-static String _primaryOwnerName;
-static String _primaryOwnerContact;
-static String _primaryOwnerPager;
-static String _secondaryOwnerName;
-static String _secondaryOwnerContact;
-static String _secondaryOwnerPager;
-
-String getAttribute( char *myAttrId )
-{
-  String 		retVal("Not initialized");
-  char                  inLine[1024];
-  char                   *attrId;
-  char                 *value = NULL;
-  char                 *tokp = NULL;
-
-  // open file
-  ifstream mParmStream(_pinFile.getCString());
-  // Values will be left blank if can't access file
-  if (mParmStream == 0) return retVal;
-
-  while (mParmStream.getline(inLine, sizeof(inLine)))
-  {
-    /* Parse out the line to get the attribute Id and value     */
-    attrId = strtok_r(inLine, "|", &tokp);
-    value = strtok_r(NULL, "\n", &tokp);
-
-    if (NULL == attrId)
-    {
-      continue;
-    }
-
-    if ( strcmp(attrId,myAttrId)  == 0 )
-    {
-      retVal.assign(value);
-      return retVal;
-    }
-  } /* while */
-
-  retVal.assign("Not Found");
-  return retVal;
-
-}
-
-
-Boolean setAttribute( char *newAttrId, String newValue )
-{
-    char                 inLine[1024];
-    char                 *attrId = NULL;
-    char                 *oldValue = NULL;
-    char                 *tokp = NULL;
-
-
-
-    // open file
-    ifstream mParmStream(_pinFile.getCString());
-    ofstream ofs(_tmpFile.getCString());
-
-    // Values will be left blank if can't access file
-    if (mParmStream == 0) return false;
-
-    while (mParmStream.getline(inLine, sizeof(inLine)))
-    {
-      /* Parse out the line to get the attribute Id and oldValue     */
-      attrId = strtok_r(inLine, "|", &tokp);
-      oldValue = strtok_r(NULL, "\n", &tokp);
-  
-      //  Now we want to reset the local oldValue
-      if ( strcmp(attrId,newAttrId)  == 0 )
-      {
-        _primaryOwnerName = newValue;
-	ofs << attrId << "|" << newValue << endl;
-	continue;
-      }
-      else if ( strcmp(attrId,newAttrId)  == 0 )
-      {
-        _primaryOwnerContact = newValue;
-	ofs << attrId << "|" << newValue << endl;
-	continue;
-      }
-      else if ( strcmp(attrId,newAttrId)  == 0 )
-      {
-        _secondaryOwnerName = newValue;
-	ofs << attrId << "|" << newValue << endl;
-	continue;
-      }
-      else if ( strcmp(attrId,newAttrId)  == 0 )
-      {
-        _secondaryOwnerContact = newValue;
-	ofs << attrId << "|" << newValue << endl;
-	continue;
-      }
-      else if ( strcmp(attrId,newAttrId)  == 0 )
-      {
-        _primaryOwnerPager = newValue;
-	ofs << attrId << "|" << newValue << endl;
-	continue;
-      }
-      else if ( strcmp(attrId,newAttrId)  == 0 )
-      {
-        _secondaryOwnerPager = newValue;
-	ofs << attrId << "|" << newValue << endl;
-	continue;
-      }
-      else
-      {
-  	Logger::put(Logger::ERROR_LOG, CLASS_EXTENDED_COMPUTER_SYSTEM, Logger::WARNING,
-		"You tried to set the value of an invalid attribute in PG_ComputerSystem", 234);
-      }
-
-	ofs << attrId << "|" << oldValue << endl;
-    } /* while */
-    
-
-    ofs.close();
-
-    // Let's replace pinFile with out new pin file (tmpFile)
-
-    if ( ! FileSystem::removeFile(_pinFile))
-    {
-       Logger::put(Logger::ERROR_LOG, "PG_ComputerSystem",
-		       Logger::SEVERE,
-		        "Cannot remove PG_ComputerSystem pin file: $0.",_pinFile);
-       return false;
-    }
-      
-    if ( ! FileSystem::renameFile(_tmpFile, _pinFile))
-    {
-       Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::SEVERE,
-        "Cannot overwrite pinFile $0.", _tmpFile);
-       return false; 
-    } 
-
-    return true;
-}
-
 
 ComputerSystem::ComputerSystem()
 {
@@ -238,6 +91,7 @@ Boolean ComputerSystem::getDescription(CIMProperty& p)
 
 Boolean ComputerSystem::getInstallDate(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
@@ -272,54 +126,55 @@ Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 
 Boolean ComputerSystem::getPrimaryOwnerName(CIMProperty& p)
 {
-  // set in initialize() 
-  _primaryOwnerName.assign(getAttribute(PROPERTY_PRIMARY_OWNER_NAME));
-  p = CIMProperty(PROPERTY_PRIMARY_OWNER_NAME,_primaryOwnerName);
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::setPrimaryOwnerName(const String& name)
 {
-  setAttribute(PROPERTY_PRIMARY_OWNER_NAME, name); 
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::getPrimaryOwnerContact(CIMProperty& p)
 {
-  // set in initialize() 
-  _primaryOwnerContact.assign(getAttribute(PROPERTY_PRIMARY_OWNER_CONTACT));
-  p = CIMProperty(PROPERTY_PRIMARY_OWNER_CONTACT,_primaryOwnerContact);
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::setPrimaryOwnerContact(const String& contact)
 {
-  setAttribute(PROPERTY_PRIMARY_OWNER_CONTACT, contact); 
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::getRoles(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getOtherIdentifyingInfo(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getIdentifyingDescriptions(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getDedicated(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getResetCapability(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
@@ -337,11 +192,13 @@ Boolean ComputerSystem::getPowerManagementCapabilities(CIMProperty& p)
 
 Boolean ComputerSystem::getInitialLoadInfo(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getLastLoadInfo(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
@@ -363,87 +220,78 @@ Values {"Full Power", "Power Save - Low Power Mode",
 */
   p = CIMProperty(PROPERTY_POWER_STATE,Uint16(1));  
   return true;
-  return false;
 }
 
 Boolean ComputerSystem::getWakeUpType(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getPrimaryOwnerPager(CIMProperty& p)
 {
-  // set in initialize() 
-  _primaryOwnerPager.assign(getAttribute(PROPERTY_PRIMARY_OWNER_PAGER));
-  p = CIMProperty(PROPERTY_PRIMARY_OWNER_PAGER,_primaryOwnerPager);
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::setPrimaryOwnerPager(const String& pager)
 {
-  setAttribute(PROPERTY_PRIMARY_OWNER_PAGER, pager); 
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::getSecondaryOwnerName(CIMProperty& p)
 {
-  // set in initialize() 
-  _secondaryOwnerName.assign(getAttribute(PROPERTY_SECONDARY_OWNER_NAME));
-  p = CIMProperty(PROPERTY_SECONDARY_OWNER_NAME,_secondaryOwnerName);
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::setSecondaryOwnerName(const String& name)
 {
-  setAttribute(PROPERTY_SECONDARY_OWNER_NAME, name); 
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::getSecondaryOwnerContact(CIMProperty& p)
 {
-  // set in initialize() 
-  _secondaryOwnerContact.assign(getAttribute(PROPERTY_SECONDARY_OWNER_CONTACT));
-  p = CIMProperty(PROPERTY_SECONDARY_OWNER_CONTACT,_secondaryOwnerContact);
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::setSecondaryOwnerContact(const String& contact)
 {
-  setAttribute(PROPERTY_SECONDARY_OWNER_CONTACT, contact); 
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::getSecondaryOwnerPager(CIMProperty& p)
 {
-  // set in initialize() 
-  _secondaryOwnerPager.assign(getAttribute(PROPERTY_SECONDARY_OWNER_PAGER));
-  p = CIMProperty(PROPERTY_SECONDARY_OWNER_PAGER,_secondaryOwnerPager);
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::setSecondaryOwnerPager(const String& pager)
 {
-  setAttribute(PROPERTY_SECONDARY_OWNER_PAGER, pager); 
-  return true;
+  // not supported
+  return false;
 }
 
 Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
 {
+  // not supported
   return false;
 }
 
 Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
+  // not supported
   return false;
 }
-
-
-
 
 /**
  * initialize primarily functions to initialize static global variables
  * that will not be changed frequently. These variables are currently
- * _hostName, _primaryOwner* and _secondaryOwner*
+ * _hostName.
  *
  */
 void ComputerSystem::initialize(void)
@@ -466,54 +314,6 @@ void ComputerSystem::initialize(void)
   }
 
   _hostName.assign(hostName);
-
-  /*
-     // Now initializing "configurable" attributes such as primaryOwnerName
-     // Providers are not allowed to include -lpegconfig in the makefile script
-     // if someone can fix this so I can use the global env variable 
-     // $PEGASUS_HOME it would be appreciated then we can replace the hard-
-     // coded _providerCacheDir with something like these two lines
-  
-  _providerCacheDir = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("home"));
-  _providerCacheDir.append("/providercachedir");
-
-  */
-
-_providerCacheDir.assign("/var/cache/pegasus/providercache");
-_pinFile = _providerCacheDir;
-_pinFile.append("/PG_ComputerSystem.pin");
-_tmpFile = _providerCacheDir;
-_tmpFile.append("/PG_ComputerSystem.tmp");
-
-
-  if (!FileSystem::isDirectory(_providerCacheDir))
-  {
-    if(! FileSystem::makeDirectory(_providerCacheDir))
-    {
-        Logger::put(Logger::ERROR_LOG, CLASS_EXTENDED_COMPUTER_SYSTEM, Logger::WARNING,
-	"Couldn't create provider cache directory: $0.", _providerCacheDir);
-	return;
-    }
-  }
-  if (!FileSystem::exists(_pinFile))
-  {
-    // Then let's create the file
-    Logger::put(Logger::STANDARD_LOG, CLASS_EXTENDED_COMPUTER_SYSTEM, Logger::INFORMATION, 
-    "Creating initial pinFile for PG_ComputerSystem: $0.", _pinFile);
-    ofstream ofs(_pinFile.getCString());
-
-    ofs << "SystemLocation|Not Set" << endl;
-    ofs << PROPERTY_PRIMARY_OWNER_NAME << "|Not Set" << endl;
-    ofs << PROPERTY_PRIMARY_OWNER_CONTACT << "|Not Set" << endl;
-    ofs << PROPERTY_SECONDARY_OWNER_NAME << "|Not Set" << endl;
-    ofs << PROPERTY_SECONDARY_OWNER_CONTACT << "|Not Set" << endl;
-    ofs << PROPERTY_PRIMARY_OWNER_PAGER << "|Not Set" << endl;
-    ofs << PROPERTY_SECONDARY_OWNER_PAGER << "|Not Set" << endl;
-    ofs.close();
-
-  }
-        Logger::put(Logger::ERROR_LOG, CLASS_EXTENDED_COMPUTER_SYSTEM, Logger::WARNING,
-	"Ran Initialize:");
 }
 
 String ComputerSystem::getHostName(void)

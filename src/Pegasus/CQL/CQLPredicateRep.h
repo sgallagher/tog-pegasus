@@ -131,8 +131,6 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
-    Boolean isTerminal()const;
-
     Boolean getInverted()const;
 
     void setInverted();
@@ -140,10 +138,10 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
     /** Appends a predicate to the predicate array. This method should only
             be called by Bison.
         */
+    void appendPredicate(const CQLPredicate& inPredicate);
+
     void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
 
-    void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
-  
     Array<CQLPredicate> getPredicates()const;
   
     CQLSimplePredicate getSimplePredicate()const;
@@ -156,25 +154,15 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     Boolean isSimpleValue()const;
     String toString()const;
-    void appendPredicate(const CQLPredicate& inPredicate);
+
     friend class CQLFactory;
   private:
     
-    
-   BooleanOpType _booleanOpType;
-
    Array<CQLPredicate> _predicates;
    CQLSimplePredicate _simplePredicate;
    Array<BooleanOpType> _operators;
 
-    Boolean _invert;
-
-    /**  If set to TRUE, then the CQLPredicate contains no other CQLPredicates.
-          If set to FALSE, then the CQLPredicate only contains other CQLPredicates
-    that need tobe evaluated.
-      */
-    Boolean _terminal;
-    Boolean _isSimple;
+   Boolean _invert;
 
 };
 

@@ -50,9 +50,9 @@ class PEGASUS_CQL_LINKAGE CQLTermRep;
 class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
 
 /** 
-    enum of multiply, divide and concatenation operators.
+    enum of multiply, divide and string concatenation operators.
 */
-enum FactorOpType { mult, divide, concat };
+enum FactorOpType { /*mult, divide,*/ concat };
 
 /*
 #ifndef PEGASUS_ARRAY_T
@@ -74,7 +74,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
  public:
 
   /** 
-      Contructs CQLTermRep default object.
+      Constructs CQLTermRep default object.
       
       @param  - None.
       @return - None.
@@ -84,7 +84,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
   CQLTerm();
 
   /** 
-      Contructs CQLTermRep from a CQLFactor object.
+      Constructs CQLTermRep from a CQLFactor object.
       
       @param  - theFactor is a CQLFactor object.
       @return - None.
@@ -94,9 +94,9 @@ class PEGASUS_CQL_LINKAGE CQLTerm
   CQLTerm(const CQLFactor& theFactor);
 
   /** 
-      Contructs CQLTermRep from a CQLTermRep object. (copy-constructor)
+      Constructs CQLTermRep from a CQLTermRep object. (copy-constructor)
       
-      @param  - rep is a CQLTermRep object.
+      @param  - inTerm is a CQLTermRep object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -104,7 +104,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
   CQLTerm(const CQLTerm& inTerm);
 
   /** 
-      Destroyes CQLTermRep object.
+      Destroys CQLTermRep object.
      
       @param  - None.
       @return - None.
@@ -125,7 +125,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
   */
   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
   
-  /** The function is used by Bison.
+  /** The function is used by the parser.
       It is invoked 0 or more times for the CQLTerm, and
       when invoked will always pass in an integer that is the Factor operation
       type and a CQLFactor object.
@@ -222,8 +222,9 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
+  /*
   Boolean operator==(const CQLTerm& rhs)const;
-  
+  */
   /** 
       Compare to CQLTerms for non-equality
       
@@ -232,8 +233,9 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
+  /*
   Boolean operator!=(const CQLTerm& rhs)const;
-
+  */
   
   friend class CQLFactory;
   

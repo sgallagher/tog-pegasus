@@ -237,8 +237,9 @@ class PEGASUS_CQL_LINKAGE CQLFactor
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
+  /*
   Boolean operator==(const CQLFactor& factor)const;
-  
+  */
   /** 
       Compare to CQLFactors for non-equality
       
@@ -247,8 +248,9 @@ class PEGASUS_CQL_LINKAGE CQLFactor
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
+  /*
   Boolean operator!=(const CQLFactor& factor)const;
-  
+  */
   friend class CQLFactory;
  private:
   

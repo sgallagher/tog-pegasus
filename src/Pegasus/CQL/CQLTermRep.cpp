@@ -114,8 +114,12 @@ String CQLTermRep::toString()const
   
   for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
     {
+	   /*
       returnStr.append(_FactorOperators[i] == 
 		       mult ? String(" * ") : divide ? String(" / ") : String(" concat "));
+		*/
+		if(_FactorOperators[i] == concat)
+			returnStr.append(String(" || "));
       returnStr.append(_Factors[i+1].toString());
     }
   
@@ -163,7 +167,7 @@ void CQLTermRep::applyContext(QueryContext& inContext,
 
   PEG_METHOD_EXIT();
 }
-
+/*
 Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::operator==()");
@@ -194,5 +198,5 @@ Boolean CQLTermRep::operator!=(const CQLTermRep& rhs)const
 {
   return (!operator==(rhs));
 }
-
+*/
 PEGASUS_NAMESPACE_END

@@ -114,6 +114,7 @@ CQLExpression& CQLExpression::operator=(const CQLExpression& rhs)
 	}
 	return *this;
 }
+/*
 Boolean CQLExpression::operator==(const CQLExpression& expr)const
 {
 	return *_rep == *(expr._rep);
@@ -123,6 +124,6 @@ Boolean CQLExpression::operator!=(const CQLExpression& expr)const
 {
 	return (!operator==(expr));
 }
-
+*/
 PEGASUS_NAMESPACE_END
 

@@ -270,6 +270,8 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    String toString()const;
    void applyContext(QueryContext& _ctx,
                      CQLChainedIdentifier& inCid);
+   
+   static String valueTypeToString(const CQLValue::CQLValueType parmType);
    friend class CQLFactory; 
    friend class CQLValue;
   private:

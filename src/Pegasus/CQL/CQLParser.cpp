@@ -45,6 +45,7 @@ PEGASUS_USING_STD;
 
 extern int CQL_parse();
 extern void CQL_restart (FILE *input_file);
+extern void CQL_Bison_Cleanup();
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -78,7 +79,14 @@ void CQLParser::parse(
     CQL_globalParserState->currentRule = String::EMPTY;
     CQL_globalParserState->statement = &statement;
 
-    CQL_parse();
+	 try{
+    	CQL_parse();
+	 }catch(Exception &e){
+		CQL_Bison_Cleanup();
+		throw e;
+	 }catch(...){
+		CQL_Bison_Cleanup();
+	 }
 
     if (CQL_globalParserState->error)
     {

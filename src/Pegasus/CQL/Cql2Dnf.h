@@ -46,17 +46,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 #include <Pegasus/Common/Linkage.h> 
 
-enum OperationType { CQL_LT, CQL_GT, CQL_EQ, CQL_LE, CQL_GE, CQL_NE, CQL_IS_NULL, CQL_IS_NOT_NULL, CQL_AND, CQL_OR, CQL_NOT, CQL_NOOP};
+enum OperationType { CQL_LT, CQL_GT, CQL_EQ, CQL_LE, CQL_GE, CQL_NE, CQL_IS_NULL, CQL_IS_NOT_NULL, CQL_AND, CQL_OR, CQL_NOT, CQL_NOOP, CQL_ISA, CQL_LIKE};
 
 class term_el
 {
 public:
-    term_el() {}
+    term_el(){}
     term_el(Boolean m, CQLSimplePredicate simplePredicate) :
-       mark(m), _simplePredicate(simplePredicate) {}
+       mark(m), _simplePredicate(simplePredicate){}
     Boolean mark;
     CQLSimplePredicate _simplePredicate;
-
+    Boolean NOT;
     void negate();
     //int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const;
 };

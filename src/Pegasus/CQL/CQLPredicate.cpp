@@ -74,9 +74,6 @@ Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
    return _rep->evaluate(CI,QueryCtx);
 }
 
-Boolean CQLPredicate::isTerminal()const{
-	return _rep->isTerminal();
-}
 Boolean CQLPredicate::getInverted()const{
 	return _rep->getInverted();
 }
@@ -92,10 +89,6 @@ void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate){
 void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator)
 {
 	_rep->appendPredicate(inPredicate,inBooleanOperator);
-}
-
-void CQLPredicate::appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator){
-	_rep->appendPredicate(inSimplePredicate,inBooleanOperator);
 }
 
 Array<CQLPredicate> CQLPredicate::getPredicates()const{

@@ -37,9 +37,13 @@ TRUE
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::Caption = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::Caption
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
-TRUE
+ERROR!
+The object context CIM_Process is not an instance.
+
 =========     7     =========
 -----Query: SELECT * FROM CQL_EmbeddedSubClass  WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::TimeOfLastStateChange = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass.CIM_Process::TimeOfLastStateChange
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_EmbeddedSubClass
-TRUE
+ERROR!
+The object context CIM_Process is not an instance.
+

@@ -387,6 +387,7 @@ try{
 
       const CIMName _cimName(String("CIM_OperatingSystem"));
       CIMInstance _i1(_cimName);
+
       CQLValue a8(_i1);
 
       CQLValue a9(_query.getClass(CIMName("CIM_OperatingSystem")));
@@ -571,10 +572,18 @@ void drive_resolve_specialChars()
       
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
-      a3.resolve(_i1, _query);
 
       a6.resolve(_i1, _query);
 
+      try
+	{
+	  a3.resolve(_i1, _query);
+	  assert(0);
+	}
+      catch(...)
+	{
+	  assert(1);
+	}
 
       try
       {
@@ -588,7 +597,7 @@ void drive_resolve_specialChars()
 
       assert(a1 == CQLValue(Uint64(11)));
       assert(a2 == CQLValue(Uint64(36)));
-      assert(a3 == CQLValue(String("Degraded")));
+
 
       assert(a6 == CQLValue(Uint64(2)));
 

@@ -71,11 +71,11 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
   
   void applyContext(QueryContext& inContext,
 		    CQLChainedIdentifier& inCid);
-  
+/*  
   Boolean operator==(const CQLExpressionRep& rep)const;
   
   Boolean operator!=(const CQLExpressionRep& rep)const;
-  
+  */
   friend class CQLFactory;
   
  private:
@@ -96,7 +96,6 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
   */
   Array<CQLTerm> _CQLTerms;
   
-  Boolean _isSimple;
 };
 
 PEGASUS_NAMESPACE_END

@@ -75,11 +75,11 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
   
   void applyContext(QueryContext& inContext,
 		    CQLChainedIdentifier& inCid);
-  
+/*  
   Boolean operator==(const CQLFactorRep& rep)const;
   
   Boolean operator!=(const CQLFactorRep& rep)const;
-  
+  */
   friend class CQLFactory;
   
  private:

@@ -73,11 +73,11 @@ class PEGASUS_CQL_LINKAGE CQLTermRep
 
    void applyContext(QueryContext& inContext,
                      CQLChainedIdentifier& inCid); 
-
+/*
   Boolean operator==(const CQLTermRep& rhs)const;
   
   Boolean operator!=(const CQLTermRep& rhs)const;
-   
+  */ 
    friend class CQLFactory;
    
  private:

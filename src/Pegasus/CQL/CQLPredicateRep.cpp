@@ -43,54 +43,43 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CQLPredicateRep::CQLPredicateRep():
-_invert(false),_terminal(true)
+_invert(false)
 {
 
 }
 
 CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted):
-_invert(false),_terminal(true)
+  _simplePredicate(inSimplePredicate), _invert(inVerted)
 {
-	_simplePredicate = inSimplePredicate;
-	_invert = inVerted;
+
 }
 
 CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInverted):
-_invert(false),_terminal(true)
+_invert(inInverted)
 {
-/*	 printf("CQLPredicateRep()\n");
-	_predicates.append(inPredicate);
-	printf("CQLPredicateRep() size = %d\n",_predicates.size());
-	_invert = inInverted;
-	_terminal = false;
-*/
+  _predicates.append(inPredicate);
 }
 
 CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep):
-_invert(false),_terminal(true)
+_invert(false)
 {
-	_booleanOpType = rep->_booleanOpType;
 	_predicates = rep->_predicates;
 	_simplePredicate = rep->_simplePredicate;
 	_operators = rep->_operators;
 	_invert = rep->_invert;
-	_terminal = rep->_terminal;
 }
 
 Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
    PEG_METHOD_ENTER(TRC_CQL, "CQLIPredicateRep::evaluate");
 	Boolean result = false;
-                                                                                                                  
+    
   if (isSimple())
   {
     result = _simplePredicate.evaluate(CI, QueryCtx);
   }
   else
   {
-                                                                                                                  
-    PEGASUS_ASSERT(_predicates.size() % 2 == 0);
-                                                                                                                  
     result = _predicates[0].evaluate(CI, QueryCtx);
     for (Uint32 i = 0; i < _operators.size(); i++)
     {
@@ -118,10 +107,6 @@ Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
   return (getInverted()) ? !result : result;
 }
 
-Boolean CQLPredicateRep::isTerminal()const{
-	return _terminal;
-}
-
 Boolean CQLPredicateRep::getInverted()const{
 	return _invert;
 }
@@ -132,18 +117,12 @@ void CQLPredicateRep::setInverted(){
 
 void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate){
 	_predicates.append(inPredicate);
-	_terminal = false;
 }
 
 void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator)
 {
 	_predicates.append(inPredicate);
 	_operators.append(inBooleanOperator);
-	_terminal = false;
-}
-
-void CQLPredicateRep::appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator){
-
 }
 
 Array<CQLPredicate> CQLPredicateRep::getPredicates()const{
@@ -180,21 +159,15 @@ Boolean CQLPredicateRep::isSimple()const{
 }
 
 Boolean CQLPredicateRep::isSimpleValue()const{
-	return (_simplePredicate.isSimpleValue());
+	return (isSimple() && _simplePredicate.isSimpleValue());
 }
 
 String CQLPredicateRep::toString()const{
-	if(_terminal){
-		String s;
-		if(_invert) s = "NOT ";
-		s.append(_simplePredicate.toString());
-		return s;
-	}
 	if(isSimple()){
 		String s;
-                if(_invert) s = "NOT ";
-                s.append(_simplePredicate.toString());
-                return s;
+      if(_invert) s = "NOT ";
+      s.append(_simplePredicate.toString());
+      return s;
 	}
 	String s;
 	if(_invert) s = "NOT ";

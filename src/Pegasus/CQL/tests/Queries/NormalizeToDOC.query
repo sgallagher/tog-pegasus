@@ -31,3 +31,13 @@ select * from class where NOT ((class.propA = 'normalize') AND (class.propB = 't
 select * from x where (x.A = '1' OR x.B = '2' AND ( x.D = '3' OR x.E = '4' )) AND (x.C = '5')
 # (A OR B AND NOT( D OR E )) AND C ---> (A AND C) OR (B AND NOT(D) AND NOT(C)) OR (B AND E AND C)
 select * from x where (x.A = '1' OR x.B = '2' AND NOT( x.D = '3' OR x.E = '4' )) AND (x.C = '5')
+# ISA, LIKE, IS NULL, IS NOT NULL
+select * from class where NOT ((class.propA IS NULL) AND (class.propB = 'this'))
+select * from class where NOT ((class.propA ISA class) AND (class.propB LIKE 'this'))
+select * from x where x.A IS NOT NULL
+select * from x where x.A IS NULL AND x.B IS NULL AND NOT (x.C IS NULL)
+select * from x where x.A LIKE 'this' AND x.B LIKE 'that'
+# (A OR B AND ( D OR E )) AND C ---> (A AND C) OR (B AND D AND C) OR (B AND E AND C)
+select * from x where (x.A LIKE '1' OR x.B = '2' AND ( x.D = '3' OR x.E IS NOT NULL )) AND (x.C LIKE '5')
+select * from x where (x.A <> '1' OR x.B ISA Xclass AND ( x.D = '3' OR x.E = '4' )) AND (x.C IS NULL)
+select * from class where NOT (NOT (x LIKE 'this') OR x LIKE 'that')

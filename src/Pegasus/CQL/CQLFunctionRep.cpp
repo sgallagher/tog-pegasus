@@ -49,6 +49,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CQLFunctionRep::CQLFunctionRep(): _funcOpType(UNKNOWN), _parms() {}
+
 CQLFunctionRep::CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms): _funcOpType(UNKNOWN), _parms(inParms)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::CQLFunctionRep()");
@@ -280,9 +282,9 @@ String CQLFunctionRep::functionTypeToString() const
           returnStr.append("MICROSECONDTOINTERVAL");
           break;
       case UNKNOWN:
-          returnStr.append("UKNOWN");
+          returnStr.append("UNKNOWN");
       default:
-          returnStr.append("UKNOWN");
+          returnStr.append("UNKNOWN");
           break;
   }
   return returnStr;
@@ -308,7 +310,7 @@ void CQLFunctionRep::applyContext(QueryContext& inContext)
    }
   PEG_METHOD_EXIT();
 }
-
+/*
 Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func)const
 {
   if(_funcOpType != func._funcOpType || _parms.size() != func._parms.size())
@@ -326,53 +328,11 @@ Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func)const
 
   return true;
 }
+
 Boolean CQLFunctionRep::operator!=(const CQLFunctionRep& func)const{
 	return (!operator==(func));
 }
-
-
-
-String CQLFunctionRep::parmTypeToString(const CQLValue::CQLValueType parmType) const
-{
-  String returnStr;
-
-  switch (parmType)
-  {
-      case CQLValue::Null_type:
-          returnStr.append("NULL");
-          break;
-      case CQLValue::Sint64_type:
-          returnStr.append("Sint64");
-          break;
-      case CQLValue::Uint64_type:
-          returnStr.append("Uint64");
-          break;
-      case CQLValue::Real_type:
-          returnStr.append("Real");
-          break;
-      case CQLValue::String_type:
-          returnStr.append("String");
-          break;
-      case CQLValue::CIMDateTime_type:
-          returnStr.append("DateTime");
-          break;
-      case CQLValue::CIMReference_type:
-          returnStr.append("CIM Ref");
-          break;
-      case CQLValue::CQLIdentifier_type:
-          returnStr.append("Identifier");
-          break;
-      case CQLValue::CIMObject_type:
-          returnStr.append("CIM Object");
-          break;
-      case CQLValue::Boolean_type:
-          returnStr.append("Boolean");
-          break;
-      default:
-          returnStr.append("Unknown");
-  }
-  return returnStr;
-}
+*/
 
 CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const QueryContext& queryCtx) const
 {
@@ -382,7 +342,7 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -395,12 +355,12 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
 
   if(cqlVal.getValueType() != CQLValue::CIMDateTime_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::CIMDateTime_type));
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(CQLValue::CIMDateTime_type));
     throw CQLRuntimeException(mload);
   }
 
@@ -415,7 +375,7 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext&
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -427,12 +387,12 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext&
 
   if(cqlVal.getValueType() != CQLValue::String_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::String_type));
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(CQLValue::String_type));
     throw CQLRuntimeException(mload);
   }
 
@@ -447,7 +407,7 @@ CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext&
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -459,12 +419,12 @@ CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext&
 
   if(cqlVal.getValueType() != CQLValue::String_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::String_type));
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(CQLValue::String_type));
     throw CQLRuntimeException(mload);
   }
 
@@ -479,7 +439,7 @@ CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext&
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -491,12 +451,12 @@ CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext&
 
   if(cqlVal.getValueType() != CQLValue::String_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::String_type));
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(CQLValue::String_type));
     throw CQLRuntimeException(mload);
   }
   
@@ -516,7 +476,7 @@ CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI, const QueryContext& qu
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -528,12 +488,12 @@ CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI, const QueryContext& qu
 
   if(cqlVal.getValueType() != CQLValue::String_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::String_type));
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(CQLValue::String_type));
     throw CQLRuntimeException(mload);
   }
 
@@ -553,7 +513,7 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -576,11 +536,11 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
     sprintf(buffer, "%.16E", cqlVal.getReal());
   else
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Integer or Real"));
     throw CQLRuntimeException(mload);
   }
@@ -602,7 +562,7 @@ CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI, const QueryCon
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -625,11 +585,11 @@ CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI, const QueryCon
   
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -643,7 +603,7 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -689,11 +649,11 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
 
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, String, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -707,7 +667,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -730,7 +690,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
   // We have a parameter, so resolve it first before we use it.
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
 
-  // If we have a String parameter, then we'll use it to create a CIMObjectPath in order to verify the format is correct.  We will then get the namespace from the object path and return it.  If there is no namespace in the path given, then a blank string will be returned.
+  // If we have a String parameter, then we'll use it to create a CIMObjectPath in order to verify the format is correct.  We will then get the namespace from the object path and return it.  If there is no namespace in the path given, then an empty string will be returned.
   if (cqlVal.getValueType() == CQLValue::String_type)
   {
     CIMObjectPath objPath(cqlVal.getString());
@@ -739,7 +699,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
     return CQLValue(objPath.getNameSpace().getString());
   }
 
-  // If we have a CIMReference parameter, then we will just get the namespace name from the reference and return it.  A refernce is a CIMObjectPath.  If there is no namespace in the path given, then a blank string will be returned.
+  // If we have a CIMReference parameter, then we will just get the namespace name from the reference and return it.  A refernce is a CIMObjectPath.  If there is no namespace in the path given, then an empty string will be returned.
   if (cqlVal.getValueType() == CQLValue::CIMReference_type)
   {
     PEG_METHOD_EXIT();
@@ -761,11 +721,11 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
   
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, String, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -775,7 +735,7 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::nameSpaceType()");
   // This is currently (as of CQL Phase 1, PEP 193) not supported in Pegasus since Pegasus does not yet support WEBM URI references.  Nothing in the current object path can be used to represent the name space type (i.e. the protocol).
-  MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+  MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                            String("Function $0 is not supported."),
                            functionTypeToString());
   throw CQLRuntimeException(mload);
@@ -785,7 +745,7 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -807,7 +767,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -818,7 +778,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
   // We have a parameter, so resolve it first before we use it.
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
   
-  // If we have a String parameter, then we'll use it to create a CIMObjectPath in order to verify the format is correct.  We will then get the host from the object path and return it.  If there is no host in the path given, then a blank string will be returned.
+  // If we have a String parameter, then we'll use it to create a CIMObjectPath in order to verify the format is correct.  We will then get the host from the object path and return it.  If there is no host in the path given, then an empty string will be returned.
   if (cqlVal.getValueType() == CQLValue::String_type)
   {
     CIMObjectPath objPath(cqlVal.getString());
@@ -827,7 +787,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
     return CQLValue(objPath.getHost());
   }
 
-  // If we have a CIMReference parameter, then we will just get the host name from the reference and return it.  A reference is a CIMObjectPath.  If there is no host in the path given, then a blank string will be returned.
+  // If we have a CIMReference parameter, then we will just get the host name from the reference and return it.  A reference is a CIMObjectPath.  If there is no host in the path given, then an empty string will be returned.
   if (cqlVal.getValueType() == CQLValue::CIMReference_type)
   {
     PEG_METHOD_EXIT();
@@ -835,7 +795,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
     return CQLValue(cqlVal.getReference().getHost());
   }
 
-  // If we have a CIMObject, then we retrieve the path of the obejct and return the host from the path.  If there is no host in the path given, then a blank string will be returned.
+  // If we have a CIMObject, then we retrieve the path of the obejct and return the host from the path.  If there is no host in the path given, then an empty string will be returned.
   if (cqlVal.getValueType() == CQLValue::CIMObject_type)
   {
     PEG_METHOD_EXIT();
@@ -845,11 +805,11 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
 
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, String, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -865,7 +825,7 @@ CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI, const QueryContext& qu
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -907,11 +867,11 @@ CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI, const QueryContext& qu
 
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, String, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -938,7 +898,7 @@ CQLValue CQLFunctionRep::classPath(const CIMInstance& CI, const QueryContext& qu
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -989,11 +949,11 @@ CQLValue CQLFunctionRep::classPath(const CIMInstance& CI, const QueryContext& qu
 
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, String, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -1023,7 +983,7 @@ CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI, const QueryContext& q
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -1075,11 +1035,11 @@ CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI, const QueryContext& q
 
   // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Reference, String, or Object"));
     throw CQLRuntimeException(mload);
   }
@@ -1109,7 +1069,7 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI, const QueryC
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                             String(buf),
@@ -1131,12 +1091,12 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI, const QueryC
     // Parameter MUST be an instance object
     if (cqlVal.getValueType() != CQLValue::CIMObject_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+      MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                                String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                                String("1"),
                                functionTypeToString(),
-                               parmTypeToString(cqlVal.getValueType()),
-                               parmTypeToString(CQLValue::CIMObject_type));
+                               CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                               CQLValueRep::valueTypeToString(CQLValue::CIMObject_type));
       throw CQLRuntimeException(mload);
     }
 
@@ -1144,8 +1104,10 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI, const QueryC
     obj = cqlVal.getObject();
     if (!obj.isInstance())
     {
-      MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_OBJECT_TYPE"),
-                               String("CIM Object function parameter must be an instance."));
+      MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_OBJECT_TYPE"),
+                               String("Parameter $0 for function $1 must be a CIM instance."),
+                               String("1"),
+                               functionTypeToString());
       throw CQLRuntimeException(mload);
     }
     // Make a CIM Instance
@@ -1176,7 +1138,7 @@ CQLValue CQLFunctionRep::currentDateTime() const
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -1195,7 +1157,7 @@ CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI, const QueryContext& que
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -1206,12 +1168,12 @@ CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI, const QueryContext& que
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);  
   if(cqlVal.getValueType() != CQLValue::String_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::String_type));
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(CQLValue::String_type));
     throw CQLRuntimeException(mload);
   }
 
@@ -1227,7 +1189,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -1241,11 +1203,11 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
      valType != CQLValue::Sint64_type)
   {
 
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Integer"));
     throw CQLRuntimeException(mload);
   }
@@ -1259,8 +1221,9 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
       char negVal[100];
       sprintf(negVal, "%Ld", intVal);
       MessageLoaderParms mload(String("CQL.CQLFunctionRep.NEGATIVE_INT_ERROR"),
-                               String("Function parameter $0 has a value of $1.  It must be non-negative."),
+                               String("Parameter $0 for function $1 has a value of $2.  It must be non-negative."),
                                String("1"),
+                               functionTypeToString(),
                                String(negVal));
       throw CQLRuntimeException(mload);
     }
@@ -1281,7 +1244,7 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_COUNT"),
                              String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
@@ -1294,11 +1257,11 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
   if(valType != CQLValue::Uint64_type &&
      valType != CQLValue::Sint64_type)
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+    MessageLoaderParms mload(String("CQL.CQLFunctionRep.INVALID_PARM_TYPE"),
                              String("Parameter $0 for function $1 has type $2.  It must be type $3."),
                              String("1"),
                              functionTypeToString(),
-                             parmTypeToString(cqlVal.getValueType()),
+                             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
                              String("Integer"));
     throw CQLRuntimeException(mload);
   }
@@ -1313,8 +1276,9 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
       char negVal[100];
       sprintf(negVal, "%Ld", intVal);
       MessageLoaderParms mload(String("CQL.CQLFunctionRep.NEGATIVE_INT_ERROR"),
-                               String("Function parameter $0 has a value of $1.  It must be non-negative."),
+                               String("Parameter $0 for function $1 has a value of $2.  It must be non-negative."),
                                String("1"),
+                               functionTypeToString(),
                                String(negVal));
       throw CQLRuntimeException(mload);
     }

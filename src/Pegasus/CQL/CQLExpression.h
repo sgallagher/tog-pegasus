@@ -52,7 +52,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
 /**  
     The enum is private, but the definition is public.
 */
-enum TermOpType {TERM_ADD,TERM_SUBTRACT};
+enum TermOpType {/*TERM_ADD,TERM_SUBTRACT*/};
 
 /*
 #ifndef PEGASUS_ARRAY_T
@@ -217,8 +217,9 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
+  /*
   Boolean operator==(const CQLExpression& expr)const;
-   
+   */
   /** 
       Compare to CQLExpressions for non-equality
       
@@ -227,8 +228,9 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
+  /*
   Boolean operator!=(const CQLExpression& expr)const;
-  
+  */
   friend class CQLFactory;
   
  private:

@@ -139,9 +139,10 @@ class PEGASUS_CQL_LINKAGE CQLFunction
 
    CQLFunction& operator=(const CQLFunction& rhs);
    
-   Boolean operator==(const CQLFunction& func)const;
+
+//   Boolean operator==(const CQLFunction& func)const;
    
-   Boolean operator!=(const CQLFunction& func)const;
+  // Boolean operator!=(const CQLFunction& func)const;
    
    friend class CQLFactory;
 

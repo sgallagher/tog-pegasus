@@ -74,8 +74,8 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& leftSideExpres
 
 CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLSimplePredicateRep* rep){
 	_leftSide = rep->_leftSide;
-        _rightSide = rep->_rightSide;
-        _operator = rep->_operator;
+   _rightSide = rep->_rightSide;
+   _operator = rep->_operator;
 	_isSimple = rep->_isSimple;
 }
 

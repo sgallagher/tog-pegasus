@@ -48,79 +48,204 @@ class PEGASUS_CQL_LINKAGE CQLExpression;
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLSimplePredicateRep;
 
-	enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE };
+enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE };
 
+ 
 /** 
-   */
+    The CQLSimplePredicate class contains an arithmetic or string
+    expression that produces a boolean result.
+    
+    <PRE>
+    The CQLSimplePredicate is non-simple if it contains a
+    left-side and right-side CQLExpression.
+    Example: a CQLSimplePredicate representing a < b would contain
+    a left-side CQLExpression representing (a), a < operator,
+    and a right-side CQLExpression representing (b). 
+
+    The CQLSimplePredicate is simple if it contains just a left-side
+    CQLExpression and an operator.
+    Example:  a IS NULL
+    </PRE>
+*/
 class CQLSimplePredicate
 {
   public:
+    /**
+        Default constructor
+
+        @param  -  None.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSimplePredicate();
 
+    /**
+        Constructor. Using this constructor sets isSimple() to true.
+         
+        @param  -  inExpression.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */    
     CQLSimplePredicate(const CQLExpression& inExpression);
 
+    /**
+        Constructor. Using this constructor sets isSimple() to true.
+         
+        @param  -  inExpression.
+        @param  -  inOperator The unary operator.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */    
     CQLSimplePredicate(const CQLExpression& inExpression, 
 		       ExpressionOpType inOperator);
 
+    /**
+        Constructor. 
+         
+        @param  -  leftSideExpression.
+        @param  -  rightSideExpression.
+        @param  -  inOperator The binary operator.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */    
     CQLSimplePredicate(const CQLExpression& leftSideExpression, 
 		       const CQLExpression& rightSideExpression, 
 		       ExpressionOpType inOperator);
 
+    /**
+        Copy Constructor. 
+         
+        @param  -  inSimplePredicate. Object to copy.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */    
      CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate);
 
+    /**
+        Destructor. 
+         
+        <I><B>Experimental Interface</B></I><BR>
+    */  
     ~CQLSimplePredicate();
 
     /**  
-      CQLExpressions: 
-          For an expression, CQLExpression::getValue is called and will return a
-    CQLValue.
-          The appropriate operator is then invoked on CQLValue and that operator
-    function will
-          enforce the type restrictions as documented in the DMTF CQL
-    Specification.
-          That operator then determines whether the predicate is TRUE / FALSE.
+         Evaluates this predicate, using a CIMInstance as a property source.
+
+         <PRE>
+         The CQLSimplePredicate is non-simple if it contains left and
+         right side expressions. A non-simple CQLSimplePredicate is evaluated
+         by in turn evaluating the contained CQLExpressions and then applying
+         the operator.
+
+         For the evaluate method on each CQLExpression, the CQLExpression is
+         resolved to a CQLValue and the value is then applied to the operator. 
     
-    
-       CQLPredicates: 
-          The CQLPredicate is non-terminal if it contains only CQLPredicate
-    objects.
-          A non-terminal CQLPredicate is evaluated by in turn evaluating the
-    contained CQLPredicates and
-          boolean operator.
-         Valid operators are:
-                  AND, OR
-    
-         For the evaluate method on each CQLPredicate. the CQLPredicate is
-    evaluated to TRUE/FALSE and 
-         the result of the evaluation is then applied to the appropriate boolean
-    operator. 
-    
-        The result of the evaluation is and then inverted if the _invert member
-    variable is set to TRUE
-        and then returned to the caller.
-    
-      */
+         The CQLSimplePredicate is simple if it contains only a left-side CQLExpression.
+         A simple CQLSimplePredicate is evaluated by resolving the CQLExpression into 
+         a CQLValue and then applying the operator.
+         </PRE>
+
+         @param  - CI. Instance to evaluate query against.
+         @param  - QueryCtx. Query Context
+         @return - Boolean.
+         @throws - None.
+         <I><B>Experimental Interface</B></I><BR>   
+    */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
+    /**
+        Returns the left-side expression. 
+         
+        @return - left-side expresson
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */   
     CQLExpression getLeftExpression()const;
 
+    /**
+        Returns the right-side expression. 
+         
+        @return - right-side expresson
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */  
     CQLExpression getRightExpression()const;
 
+    /**
+        Returns the operator. 
+         
+        @return - operator for the expressions
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */  
     enum ExpressionOpType getOperation()const;
 
+    /**
+        Sets the operator. 
+         
+        @param  - op The operator to set.
+        @return - None
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */  
+    void setOperation(ExpressionOpType op);
+
+     /**
+        This method normalizes the CQLChainedIdentifier so that properties that require
+        scoping are scoped.
+
+        @param  - queryContext.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     void applyContext(QueryContext& queryContext);
 
+    /**
+       Returns this predicate in string form.
+      
+        @param  - None.
+        @return - string form of predicate.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     String toString()const;
 
+    /**
+       Returns true if this CQLSimplePredicate only has a left-side CQLExpression.
+
+       @param  - None.
+       @return - Boolean.
+       @throws - None.
+       I><B>Experimental Interface</B></I><BR>
+    */
     Boolean isSimple()const;
 
+    /**
+       Returns true if this CQLSimplePredicate is simple, and
+       the left-side CQLExpression only contains a CQLValue.
+      
+       @param  - None.
+       return - Boolean.
+       @throws - None.
+       <I><B>Experimental Interface</B></I><BR>
+    */
     Boolean isSimpleValue()const;
 
+    /**
+       Assignment operator.
+      
+       @param  - rhs. Object to assign to this object.
+       return - This object after assignment.
+       @throws - None.
+       <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSimplePredicate& operator=(const CQLSimplePredicate& rhs);
-
-    Boolean operator==(const CQLSimplePredicate &rhs)const;
-
-    void setOperation(ExpressionOpType op);
 
     friend class CQLFactory;
   private:

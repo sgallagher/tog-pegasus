@@ -29,9 +29,30 @@ Statement with error = SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyType
 Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule class_path
 Statement with error = SELECT * FROM CQL_TestPropertyTypes, alias1, CQL_TestPropertyTypes alias2
 
+Caught Exception: CQL syntax error: syntax error around token 7 in position 59 while processing rule comp_op->_EQ
+Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = '\CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"'
+
+Caught Exception: CQL syntax error: syntax error around token 7 in position 59 while processing rule comp_op->_EQ
+Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = 'CIM_\\\ComputerSystem'
+
+Caught Exception: CQL syntax error: syntax error around token 9 in position 81 while processing rule chain->literal
+Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = '\\'CIM_ComputerSystem'
+
+Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.
+Statement with error = select * from class where class.prop || 'b' || 'c' = 'abc' 
+
+Caught Exception: CQL syntax error: syntax error around token 8 in position 38 while processing rule concat->chain
+Statement with error = select * from class where 'a' || class.prop || 'b' || 'c' = 'abc' 
+
+Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.
+Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'abc' 
+
+Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.
+Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'BertRulesbc' 
+
 Caught Exception: Bad UTF8 encountered parsing rule literal_string in position 76.
 Statement with error = select * from CQL_TestPropertyTypes where PropertyString = '\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD\xFFFD
-There were 10 statements that did NOT parse.
+There were 17 statements that did NOT parse.
 =========Evaluate Query==============
 =========     0     =========
 -----Query: SELECT * FROM CQL_TESTPropertyTypes  WHERE inSTanCEId = 2
@@ -357,6 +378,104 @@ FALSE
 FALSE
 =========     24     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyChar16 = 'A'
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+TRUE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+TRUE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     25     =========
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString = '\CIM_ComputerSystem'
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     26     =========
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString = 'CIM_ComputerSystem.CreationClassName='CIM_RunningOS",Name="sysName"'
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     27     =========
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString = 'CIM_ComputerSystem\'
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     28     =========
+-----Query: SELECT * FROM class  WHERE class.prop = 2
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+ERROR!
+class
+
+=========     29     =========
+-----Query: SELECT * FROM class  WHERE 'a' || 'b' || 'c' = 'abc'
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+ERROR!
+class
+
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+ERROR!
+class
+
+=========     30     =========
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE 'BertRules' || 'b' || 'c' = 'BertRulesbc'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
 FALSE

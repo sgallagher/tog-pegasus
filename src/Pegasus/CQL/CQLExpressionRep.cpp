@@ -39,14 +39,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep()");
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)");
   _CQLTerms.append(theTerm);
   PEG_METHOD_EXIT();
 }
 
 CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep) 
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep()");
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)");
 
   _TermOperators = rep->_TermOperators;
   _CQLTerms = rep->_CQLTerms;
@@ -105,11 +105,11 @@ String CQLExpressionRep::toString()const
 
   if(_CQLTerms.size() > 0){
     returnStr.append(_CQLTerms[0].toString());
-    for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+   /* for(Uint32 i = 0; i < _TermOperators.size(); ++i)
       {
 	returnStr.append(_TermOperators[i] == TERM_ADD ? String(" + ") : String(" - "));
 	returnStr.append(_CQLTerms[i+1].toString());
-      }
+      }*/
   }
 
   PEG_METHOD_EXIT();
@@ -159,7 +159,7 @@ void CQLExpressionRep::applyContext(QueryContext& inContext,
 
   PEG_METHOD_EXIT();
 }
-
+/*
 Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::operator==()");
@@ -196,6 +196,6 @@ Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep)const
 {
   return (!operator==(rep));
 }
-
+*/
 PEGASUS_NAMESPACE_END
 

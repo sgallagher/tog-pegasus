@@ -61,7 +61,13 @@ public:
   // becomes "2.56E-4".  If there is no exponent, then nothing is changed.
   // This will also remove a leading '+' sign from the exponent if it is
   // there.
-  static String formatRealStringExponent(const String &realString);   
+  static String formatRealStringExponent(const String &realString);
+
+private:
+  // This is a helper function which checks if a string has a decimal
+  // point in it.  If so, it calls it a real.  In the case of a badly
+  // formated string, it will fail the format check in StringToReal64.
+  static Boolean isReal(const String &numString);
 };
 
 PEGASUS_NAMESPACE_END

@@ -103,6 +103,28 @@ SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestPropertyTypes
 SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes alias
 SELECT * FROM CQL_TestPropertyTypes, alias1, CQL_TestPropertyTypes alias2
 
+# Escape characters in literals
+#    Fail
+select * FROM CQL_TestPropertyTypes where PropertyString = '\CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"'
+#    Pass
+select * FROM CQL_TestPropertyTypes where PropertyString = '\\CIM_ComputerSystem'
+#    Pass
+select * FROM CQL_TestPropertyTypes where PropertyString = 'CIM_ComputerSystem.CreationClassName=\'CIM_RunningOS",Name="sysName"'
+#    Pass
+select * FROM CQL_TestPropertyTypes where PropertyString = 'CIM_ComputerSystem\\\\'
+#    Fail
+select * FROM CQL_TestPropertyTypes where PropertyString = 'CIM_\\\ComputerSystem'
+#    Pass
+select * FROM CQL_TestPropertyTypes where PropertyString = '\\'CIM_ComputerSystem'
+# leading zeros
+select * from class where class.prop = 002
+#concat operations
+select * from class where 'a' || 'b' || 'c' = 'abc' 
+select * from class where class.prop || 'b' || 'c' = 'abc' 
+select * from class where 'a' || class.prop || 'b' || 'c' = 'abc' 
+select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'abc' 
+select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'BertRulesbc' 
+select * from CQL_TestPropertyTypes where 'BertRules' || 'b' || 'c' = 'BertRulesbc'
 # Bad UTF-8 
 select * from CQL_TestPropertyTypes where PropertyString = 'ÿÿºæ°—ã‚µã‚¤ãƒˆ'
 

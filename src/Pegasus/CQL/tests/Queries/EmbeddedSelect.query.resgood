@@ -721,7 +721,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Prop #7 Name = SomeString, Value = What?
 ----------Prop #8 Name = SomeUint8, Value = 3
 ======================================23
-SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT,EmbObjSub.CQL_EmbeddedTestPropertyTypes::CS,EmbObjSub.* FROM CQL_EmbeddedSubClass 
+SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT,EmbObjSub.CQL_EmbeddedTestElement::TE,EmbObjSub.CQL_EmbeddedTestPropertyTypes::CS,EmbObjSub.* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----Prop #0 Name = EmbObjSub
 ----------Instance of class CQL_EmbeddedTestPropertyTypes

@@ -41,6 +41,14 @@ select * from CQL_TestPropertyTypes where STRINGTOSINT(PropertyStringSint) = -74
 select * from CQL_TestPropertyTypes where STRINGTOREAL(PropertyStringReal) = 98.67
 
 # Test True String to Number conversions
+select * from CQL_TestPropertyTypes where PropertyUint32 = stringtouint('32.32')
+select * from CQL_TestPropertyTypes where PropertyUint32 = stringtouint('32.72')
+select * from CQL_TestPropertyTypes where PropertyUint32 = stringtouint('32.0')
+select * from CQL_TestPropertyTypes where PropertyUint32 = stringtouint('0x01a9b')
+select * from CQL_TestPropertyTypes where PropertySint32 = stringtosint('-32.32')
+select * from CQL_TestPropertyTypes where PropertySint32 = stringtosint('-32.0')
+select * from CQL_TestPropertyTypes where PropertySint32 = stringtosint('-32.72')
+select * from CQL_TestPropertyTypes where PropertySint32 = stringtosint('-0x01a9b')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-32')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-32.0')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-.32e2')
@@ -111,6 +119,7 @@ select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('01a1b')
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('0x')
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('0xFG2')
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('02x34')
+select * from CQL_TestPropertyTypes where PropertyUint32 = stringtouint('0101bb')
 
 # Errors in StringToSint
 select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-32', '-33')
@@ -125,6 +134,7 @@ select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-01a1b'
 select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-0x')
 select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-0xFG2')
 select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-02x34')
+select * from CQL_TestPropertyTypes where PropertySint32 = stringtosint('-0101bb')
 
 # Errors in StringToReal
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('32.32', '33.33')

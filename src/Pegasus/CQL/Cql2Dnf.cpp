@@ -52,22 +52,10 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Terminal element methods 
 //
+
 void term_el::negate()
 {
-    switch (_simplePredicate.getOperation())
-    {
-        case EQ: _simplePredicate.setOperation(NE); break;
-        case NE: _simplePredicate.setOperation(EQ); break;
-        case LT: _simplePredicate.setOperation(GE); break;
-        case LE: _simplePredicate.setOperation(GT); break;
-        case GT: _simplePredicate.setOperation(LE); break;
-        case GE: _simplePredicate.setOperation(LT); break;
-        case IS_NULL: 
-        case IS_NOT_NULL: 
-        case ISA:
-        case LIKE:
-        default: break;
-    }
+   NOT = true;
 };
 
 //
@@ -127,12 +115,12 @@ void eval_el::order(void)
             is_terminal2 = true;
         }
 }
-
+/*
 static bool operator==(const term_el& x, const term_el& y)
 {
 	return x._simplePredicate == y._simplePredicate; 
 }
-
+*/
 //
 // CQL Compiler methods
 //
@@ -239,6 +227,8 @@ void Cql2Dnf::_buildEvalHeap()
             case CQL_LE:
             case CQL_GT:
             case CQL_GE:
+				case CQL_ISA:
+				case CQL_LIKE:
             {
                 PEGASUS_ASSERT(_operands.size() >= 2);
 
@@ -258,7 +248,7 @@ void Cql2Dnf::_buildEvalHeap()
             {
                 PEGASUS_ASSERT(_operands.size() >= 1);
                 CQLExpression expression = _operands[j++];
-		CQLSimplePredicate dummy(expression,EQ);
+		CQLSimplePredicate dummy(expression,IS_NULL);
                 terminal_heap.push(term_el(false, dummy));
 
                 stack.push(stack_el(terminal_heap.size()-1, true));
@@ -270,7 +260,7 @@ void Cql2Dnf::_buildEvalHeap()
             {
                 PEGASUS_ASSERT(_operands.size() >= 1);
                 CQLExpression expression = _operands[j++];
-                CQLSimplePredicate dummy(expression,NE);
+                CQLSimplePredicate dummy(expression,IS_NOT_NULL);
                 terminal_heap.push(term_el(false, dummy));
 
                 stack.push(stack_el(terminal_heap.size()-1, true));
@@ -492,8 +482,8 @@ OperationType Cql2Dnf::_convertOpType(ExpressionOpType op){
 		case LE: return CQL_LE;
 		case IS_NULL: return CQL_IS_NULL;
 		case IS_NOT_NULL: return CQL_IS_NOT_NULL;
-		case ISA:
-		case LIKE: 
+		case ISA: return CQL_ISA;
+		case LIKE: return CQL_LIKE;
 		default: return CQL_NOOP;
 	}
 }
@@ -506,8 +496,10 @@ ExpressionOpType Cql2Dnf::_convertOpType(OperationType op){
                 case CQL_LT: return LT;
                 case CQL_GE: return GE;
                 case CQL_LE: return LE;
-                case CQL_IS_NULL: return IS_NULL; // should never get here
-                case CQL_IS_NOT_NULL: return IS_NOT_NULL; // should never get here
+                case CQL_IS_NULL: return IS_NULL; 
+                case CQL_IS_NOT_NULL: return IS_NOT_NULL;
+					 case CQL_ISA: return ISA;
+					 case CQL_LIKE: return LIKE;
                 default: return EQ; // should never get here
         }
 	return EQ; // should never get here
@@ -518,7 +510,8 @@ void Cql2Dnf::_destruct(CQLPredicate& _p){
 		CQLSimplePredicate _sp = _p.getSimplePredicate();
 		_operations.append(_convertOpType(_sp.getOperation()));
 		_operands.append(_sp.getLeftExpression());
-		_operands.append(_sp.getRightExpression());
+		if((_operations[_operations.size()-1] != CQL_IS_NULL) && (_operations[_operations.size()-1] != CQL_IS_NOT_NULL))
+			_operands.append(_sp.getRightExpression());
 	}
 	else{
 		Array<CQLPredicate> _preds = _p.getPredicates();
@@ -600,8 +593,12 @@ void Cql2Dnf::_construct(){
                         	{
 					CQLPredicate p;
 					CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
+					if(terminal_heap[eval.opn2].NOT == true)
+					   p1.setInverted();
 					p.appendPredicate(p1);
 					CQLPredicate p2(terminal_heap[eval.opn1]._simplePredicate,false);
+					if(terminal_heap[eval.opn1].NOT == true)
+					   p2.setInverted();
 					p.appendPredicate(p2,AND);
 					_preds.append(p);
 					break;
@@ -610,8 +607,12 @@ void Cql2Dnf::_construct(){
                         	{
 					CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
+													 if(terminal_heap[eval.opn2].NOT == true)
+													    p1.setInverted();
                                         p.appendPredicate(p1);
                                         CQLPredicate p2(terminal_heap[eval.opn1]._simplePredicate,false);
+													 if(terminal_heap[eval.opn1].NOT == true)
+                                           p2.setInverted();
                                         p.appendPredicate(p2,OR);
                                         _preds.append(p);
                                         break;
@@ -622,6 +623,8 @@ void Cql2Dnf::_construct(){
                 		case CQL_LT:
                 		case CQL_GE: 
                 		case CQL_LE:
+							case CQL_ISA:
+							case CQL_LIKE:
                 		case CQL_IS_NULL:
                 		case CQL_IS_NOT_NULL: break;
 				
@@ -640,18 +643,22 @@ void Cql2Dnf::_construct(){
                                 }
                                 case CQL_AND:
                                 {
-					CQLPredicate p;
+                                        CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
-					p = _preds[eval.opn2];
+													 if(terminal_heap[eval.opn1].NOT == true)
+                                           p1.setInverted();
+                                        p = _preds[eval.opn2];
                                         p.appendPredicate(p1,AND);
-					_preds.append(p);
+                                        _preds.append(p);
                                         break;
                                 }
                                 case CQL_OR:
                                 {
-					CQLPredicate p;
+                                        CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn1]._simplePredicate,false);
-					p = _preds[eval.opn2];
+													 if(terminal_heap[eval.opn1].NOT == true)
+                                           p1.setInverted();
+                                        p = _preds[eval.opn2];
                                         p.appendPredicate(p1,OR);
                                         _preds.append(p);
                                         break;
@@ -662,6 +669,8 @@ void Cql2Dnf::_construct(){
                                 case CQL_LT:
                                 case CQL_GE:
                                 case CQL_LE:
+										  case CQL_ISA:
+							           case CQL_LIKE:
                                 case CQL_IS_NULL:
                                 case CQL_IS_NOT_NULL: break;
                                
@@ -682,18 +691,22 @@ void Cql2Dnf::_construct(){
                                 }
                                 case CQL_AND:
                                 {
-					CQLPredicate p;
+                                        CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-					p = _preds[eval.opn1];
+													 if(terminal_heap[eval.opn2].NOT == true)
+                                           p1.setInverted();
+                                        p = _preds[eval.opn1];
                                         p.appendPredicate(p1,AND);
                                         _preds.append(p);
                                         break;
                                 }
                                 case CQL_OR:
                                 {
-					CQLPredicate p;
+                                        CQLPredicate p;
                                         CQLPredicate p1(terminal_heap[eval.opn2]._simplePredicate,false);
-					p = _preds[eval.opn1];
+													 if(terminal_heap[eval.opn2].NOT == true)
+                                           p1.setInverted();
+                                        p = _preds[eval.opn1];
                                         p.appendPredicate(p1,OR);
                                         _preds.append(p);
                                         break;
@@ -704,6 +717,8 @@ void Cql2Dnf::_construct(){
                                 case CQL_LT:
                                 case CQL_GE:
                                 case CQL_LE:
+										  case CQL_ISA:
+										  case CQL_LIKE:
                                 case CQL_IS_NULL:
                                 case CQL_IS_NOT_NULL: break;
                                
@@ -742,6 +757,8 @@ void Cql2Dnf::_construct(){
                                 case CQL_LT:
                                 case CQL_GE:
                                 case CQL_LE:
+										  case CQL_ISA:
+										  case CQL_LIKE:
                                 case CQL_IS_NULL:
                                 case CQL_IS_NOT_NULL: break;
                                 

@@ -132,7 +132,7 @@ CQLFactor& CQLFactor::operator=(const CQLFactor& rhs)
   
   return *this;
 }
-
+/*
 Boolean CQLFactor::operator==(const CQLFactor& factor)const
 {
   return (*_rep == *(factor._rep));
@@ -141,5 +141,5 @@ Boolean CQLFactor::operator!=(const CQLFactor& factor)const
 {
   return (!operator==(factor));                                                                                
 }
-
+*/
 PEGASUS_NAMESPACE_END

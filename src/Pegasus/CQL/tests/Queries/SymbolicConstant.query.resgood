@@ -1,4 +1,8 @@
 Using root/SampleProvider as default namespace.
+Caught Exception: CQL syntax error: syntax error around token 9 in position 53 while processing rule comp_op->_EQ
+Statement with error = select * from CIM_ComputerSystem where #'Enabled' = #'Disabled'
+
+There were 1 statements that did NOT parse.
 =========Evaluate Query==============
 =========     0     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState#Enabled = 2
@@ -82,13 +86,6 @@ ERROR!
 The FROM class CIM_Bogus does not exist.
 
 =========     15     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE #Enabled = #Disabled
-
------Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
-ERROR!
-The right side of predicate #Enabled = #Disabled must be a simple property name because a symbolic constant exists on the left side.
-
-=========     16     =========
 -----Query: SELECT * FROM CIM_ComputerSystem  WHERE CIM_ComputerSystem.EnabledState = #Enabled
 
 -----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"

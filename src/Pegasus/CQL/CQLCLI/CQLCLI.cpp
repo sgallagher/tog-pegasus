@@ -58,7 +58,6 @@ PEGASUS_USING_STD;
 FILE *CQL_in;
 int CQL_parse();
 
-
 Boolean cqlcli_verbose = false;
 
 void hackInstances(Array<CIMInstance>& instances)
@@ -538,6 +537,8 @@ Boolean _normalize(Array<CQLSelectStatement>& _statements,
         else
         {
           cout << "-----Top predicate is not simple: " << topPred.toString() << endl;
+			 if( topPred.getInverted() )
+			 	cout << "-----ERROR - Top predicate is inverted: " << topPred.toString() << endl;
 
           Array<CQLPredicate> secondLevelPreds = topPred.getPredicates();
           for (Uint32 n = 0; n < secondLevelPreds.size(); n++)
@@ -549,6 +550,8 @@ Boolean _normalize(Array<CQLSelectStatement>& _statements,
             }
             else
             {
+				  if( secondLevelPreds[n].getInverted() )
+				  	cout << "-----ERROR - 2nd level predicate is inverted: " << secondLevelPreds[n].toString() << endl;
               cout << "-----ERROR - 2nd level predicate is NOT simple!: " 
                    << secondLevelPreds[n].toString() << endl;
             }

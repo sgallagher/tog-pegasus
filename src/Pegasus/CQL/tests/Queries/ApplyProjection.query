@@ -112,3 +112,9 @@ SELECT Alias.alias::PropertyString FROM CQL_TestPropertyTypes alias
 SELECT CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement
 SELECT CQL_TestElement.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement
 SELECT Alias.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement AS alias
+
+# Combined scoping and wildcard tests - scoping class is subclass of FROM
+SELECT CQL_TestPropertyTypes::PropertyString, * FROM CQL_TestElement
+
+# Combined scoping and wildcard tests - scoping class is superclass of FROM
+SELECT CQL_TestElement::InstanceID, * FROM CQL_TestPropertyTypes

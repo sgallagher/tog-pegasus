@@ -93,10 +93,12 @@ CQLFunction& CQLFunction::operator=(const CQLFunction& rhs){
 	return *this;
 }
 
+/*
 Boolean CQLFunction::operator==(const CQLFunction& func)const{
 	return (*_rep == *(func._rep));
 }
 Boolean CQLFunction::operator!=(const CQLFunction& func)const{
 	return (_rep != func._rep);
 }
+*/
 PEGASUS_NAMESPACE_END

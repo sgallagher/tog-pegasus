@@ -223,7 +223,7 @@ Instance of class CQL_TestPropertyTypesMissing
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyUint32, Value = 32
 Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertyUint32, Value = 32
+-----Prop #0 Name = PropertyUint32, Value = 6811
 ======================================22
 SELECT PropertyUint32Array[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
@@ -341,9 +341,9 @@ Instance of class CQL_TestElement
 Instance of class CQL_TestPropertyTypesMissing
 -----No properties left after projection
 Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertySint32, Value = 32
+-----Prop #0 Name = PropertySint32, Value = -32
 Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertySint32, Value = 32
+-----Prop #0 Name = PropertySint32, Value = -6811
 ======================================34
 SELECT PropertySint32Array[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
@@ -478,7 +478,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #4 Name = PropertyChar16Array, Value = A a 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyStringArray, Value = CQL0 CQL1 CQL2 CQL3 
------Prop #1 Name = PropertyUint32, Value = 32
+-----Prop #1 Name = PropertyUint32, Value = 6811
 -----Prop #2 Name = PropertySint8, Value = 16
 -----Prop #3 Name = PropertyDatetime, Value = 20040811105625.000000-360
 -----Prop #4 Name = PropertyChar16Array, Value = A a 
@@ -526,7 +526,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #4 Name = PropertyChar16Array, Value = A a 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyStringArray, Value = CQL0 CQL1 CQL2 CQL3 
------Prop #1 Name = PropertyUint32, Value = 32
+-----Prop #1 Name = PropertyUint32, Value = 6811
 -----Prop #2 Name = PropertySint8, Value = 16
 -----Prop #3 Name = PropertyDatetime, Value = 20040811105625.000000-360
 -----Prop #4 Name = PropertyChar16Array, Value = A a 
@@ -810,3 +810,25 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
+======================================79
+SELECT CQL_TestPropertyTypes::PropertyString,* FROM CQL_TestElement 
+Instance of class CQL_TestElement
+-----Prop #0 Name = InstanceId, Value = 0
+Instance of class CQL_TestPropertyTypesMissing
+-----Prop #0 Name = InstanceId, Value = 3
+Instance of class CQL_TestPropertyTypes
+-----Prop #0 Name = InstanceId, Value = 1
+-----Prop #1 Name = PropertyString, Value = BERT RULES
+Instance of class CQL_TestPropertyTypes
+-----Prop #0 Name = InstanceId, Value = 2
+-----Prop #1 Name = PropertyString, Value = Bert Rules
+======================================80
+SELECT CQL_TestElement::InstanceID,* FROM CQL_TestPropertyTypes 
+Instance of class CQL_TestElement
+-----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestPropertyTypesMissing
+-----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypes
+-----Instance has 58 properties
+Instance of class CQL_TestPropertyTypes
+-----Instance has 58 properties

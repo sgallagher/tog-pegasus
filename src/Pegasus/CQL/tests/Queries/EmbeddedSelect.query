@@ -92,9 +92,9 @@ SELECT EmbObjSub.CQL_NonExistent::TPT, EmbObjSub, EmbObjSub.CQL_EmbeddedTestProp
 # in the tree below the second level
 #==============================================================  
 
-# Good scoping class
+# Good scoping classes
 # Result: project every property in the tree below EmbObjSub 
-SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::CS, EmbObjSub.* FROM CQL_EmbeddedSubClass
+SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestElement::TE, EmbObjSub.CQL_EmbeddedTestPropertyTypes::CS, EmbObjSub.* FROM CQL_EmbeddedSubClass
 
 # Bad scoping classes
 # Result: project every property in the tree below EmbObjSub 

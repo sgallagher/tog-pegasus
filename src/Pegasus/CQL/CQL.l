@@ -1,3 +1,11 @@
+/* 
+   This file describes the language tokens possible for CQL. When a token is matched,
+	the token postion is updated in the CQL_globalParserState, copying from the lex buffer
+	to a shared buffer (shared with the lexer and parser) may happen, then a token identifier
+	is returned to the parser.
+
+*/	
+
 %option never-interactive
 %{
 extern int CQLInput(char* buffer, int& numRead, int numRequested);
@@ -42,6 +50,8 @@ POSITIVE_DECIMAL_DIGIT [1-9]
 DECIMAL_DIGIT [0-9]
 BLANK [ \t]
 IDENT_CHAR [0-9A-Za-z_\x80-\xFF]
+IDENT_CHAR_1 [0-9A-Za-z_\x80-\xFF]
+IDENT_CHAR_NO_NUM [A-Za-z_\x80-\xFF]
 PROP_CHAR [A-Za-z0-9_\[\]\-\#\']
 
 A [Aa]
@@ -262,7 +272,7 @@ Z [Zz]
     return _OR;
 }
 
-{IDENT_CHAR}*\:\:{PROP_CHAR}* {
+{IDENT_CHAR_NO_NUM}{IDENT_CHAR}*\:\:{IDENT_CHAR_NO_NUM}({IDENT_CHAR}*|{IDENT_CHAR}*\[.*\]|{IDENT_CHAR}*#\'.*\') {
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
 	 /* remove any single quotes surrounding embedded literals */
@@ -378,7 +388,7 @@ Z [Zz]
     return NEGATIVE_INTEGER;
 }
 
-[+]?{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {
+[+]?{DECIMAL_DIGIT}+ {
                                                                                                                                        
     sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
     printf__(msg_);
@@ -392,23 +402,6 @@ Z [Zz]
     CQL_lval.strValue[n] = '\0';
                                                                                                                                        
     /*CQL_lval.intValue = strtol(yytext, (char**)0, 10);*/
-    return INTEGER;
-}
-
-
-[+-]?0 {
-
-    sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
-    printf__(msg_);
-    CQL_globalParserState->currentTokenPos+=yyleng;
-    CQL_globalParserState->tokenCount++;
-    size_t n = strlen(yytext);
-    if(CQL_lval.strValue)
-	    delete [] CQL_lval.strValue;
-    CQL_lval.strValue = new char[n + 1];
-    memcpy(CQL_lval.strValue, yytext, n);
-    CQL_lval.strValue[n] = '\0';
-
     return INTEGER;
 }
 
@@ -429,7 +422,7 @@ Z [Zz]
     return NEGATIVE_REAL;
 }
 
-[+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
+([+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)?)|([+]?{DECIMAL_DIGIT}+\.{DECIMAL_DIGIT}*([eE][+-]?{DECIMAL_DIGIT}+)?) {
                                                                                                                                        
     sprintf(msg_,"LEX: %s [REAL] ", yytext);
     printf__(msg_);
@@ -446,7 +439,7 @@ Z [Zz]
     return REAL;
 }
 
-\'((\\')|(\\)|[^'(\\')])*\' {
+\'((\\')|(\\\\)|[^'(\\')])*\' {
 	/* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
     /* ATTN-B: Handle expansion of special characters */
@@ -459,13 +452,11 @@ Z [Zz]
 
     String _esc_doubleslash = "\\\\";
     String _esc_singlequote = "\\'";
-	 String _esc_doublequote = "\\\"";
     String s(yytext);
 
     Uint32 index = 1;
     while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || 
-	       (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND ||
-			 (index = s.find(_esc_doublequote)) != PEG_NOT_FOUND)
+	       (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND)
 	 {
 				if(index == s.size() - 2) // make sure we dont remove the slash from say 'abc\'
 				break;
@@ -662,7 +653,7 @@ Z [Zz]
     return _GT; 
 }
 
-{IDENT_CHAR}({IDENT_CHAR}|{DECIMAL_DIGIT})*  {
+{IDENT_CHAR_NO_NUM}({IDENT_CHAR})*  {
 
     sprintf(msg_,"LEX: %s [IDENTIFIER] ", yytext);
     printf__(msg_);

@@ -45,7 +45,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-    enum BooleanOpType { AND, OR } ;
+enum BooleanOpType { AND, OR } ;
 
 /*
 #ifndef PEGASUS_ARRAY_T
@@ -60,47 +60,22 @@ class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
 
 /** 
-   This object is populated by Bison.
+    The CQLPredicate class contains an expression that produces a boolean
+    result.
+    
+    <PRE>
+    The CQLPredicate is non-simple if it contains only CQLPredicate objects.
+    Example: a CQLPredicate representing (a=1 OR b=2) would contain
+    two CQLPredicates, one representing (a=1), and the other
+    representing (b=2).  These CQLPredicates would in turn be simple. 
 
-   Valid operations for each type of CQLValue are in accordance with the DMTF
-CQL Specification.
-   
-   The CQLPredicate is considered "terminal" if it does not contain any
-CQLPredicate objects.
-    A 'terminal' predicate can be evaluated to TRUE/FALSE by examining the
-CQLExpressions and operator.
-    Valid operators are:
-            <, >, =, <=, >=, <>, IS NULL, IS NOT NULL, ISA, LIKE
-
-   CQLExpressions: 
-      For an expression, CQLExpression::getValue is called and will return a
-CQLValue.
-      The appropriate operator is then invoked on CQLValue and that operator
-function will
-      enforce the type restrictions as documented in the DMTF CQL
-Specification.
-      That operator then determines whether the predicate is TRUE / FALSE.
-
-
-   CQLPredicates: 
-      The CQLPredicate is non-terminal if it contains only CQLPredicate
-objects.
-      A non-terminal CQLPredicate is evaluated by in turn evaluating the
-contained CQLPredicates and
-      boolean operator.
-     Valid operators are:
-              AND, OR
-
-    For the evaluate method on each CQLPredicate. the CQLPredicate is evaluated
-to TRUE/FALSE and 
-     the result of the evaluation is then applied to the appropriate boolean
-operator. 
-
-    The result of the evaluation is and then inverted if the _invert member
-variable is set to TRUE
-    and then returned to the caller.
-
-   */
+    The CQLPredicate is simple if it contains a single CQLSimplePredicate,
+    representing an arithmetic or string expression.
+    Examples:  a = 2
+               (a-b)/ 3 = c
+               a || b = 'abc'
+    </PRE>
+*/
 class PEGASUS_CQL_LINKAGE CQLPredicate
 {
   public:
@@ -116,7 +91,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     /**
         Constructor. Using this constructor sets isSimple() to true.
-                                                                                                                   
+         
         @param  -  inSimplePredicate.
         @param  -  inVerted. Defaults to false.  This is a logical NOT of this predicate
         @return - None.
@@ -127,7 +102,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     /**
         Constructor. Using this constructor sets isSimple() to false.
-                                                                                                                   
+           
         @param  -  inPredicate.
         @param  -  inVerted. Defaults to false.  This is a logical NOT of this predicate
         @return - None.
@@ -138,60 +113,41 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     /**
         Destructor
-                                                                                                                   
+          
         @param  - None.
         @return - None.
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
     */
    ~CQLPredicate();
+
     /**  
-      CQLExpressions: 
-          For an expression, CQLExpression::getValue is called and will return a
-    CQLValue.
-          The appropriate operator is then invoked on CQLValue and that operator
-    function will
-          enforce the type restrictions as documented in the DMTF CQL
-    Specification.
-          That operator then determines whether the predicate is TRUE / FALSE.
-    
-    
-       CQLPredicates: 
-          The CQLPredicate is non-terminal if it contains only CQLPredicate
-    objects.
-          A non-terminal CQLPredicate is evaluated by in turn evaluating the
-    contained CQLPredicates and
-          boolean operator.
-         Valid operators are:
-                  AND, OR
-    
+         Evaluates this predicate, using a CIMInstance as a property source.
+
+         <PRE>
+         The CQLPredicate is non-simple if it contains only CQLPredicate objects.
+         A non-simple CQLPredicate is evaluated by in turn evaluating the
+         contained CQLPredicates and boolean operator.
+
          For the evaluate method on each CQLPredicate. the CQLPredicate is
-    evaluated to TRUE/FALSE and 
-         the result of the evaluation is then applied to the appropriate boolean
-    operator. 
+         evaluated to TRUE/FALSE and the result of the evaluation is then
+         applied to the appropriate boolean operator. 
     
-        The result of the evaluation is and then inverted if the _invert member
-    variable is set to TRUE
-        and then returned to the caller.
+         The result of the evaluation is then inverted if the _invert member
+         variable is set to TRUE and then returned to the caller.
 
-   @param  - CI. Instance to evaluate query against.
-   @param  - QueryCtx. Query Context
-   @return - Boolean.
-   @throws - None.
-   <I><B>Experimental Interface</B></I><BR>   
- 
-      */
+         The CQLPredicate is simple if it contains only a single CQLSimplePredicate.
+         A simple CQLPredicate is evaluated by calling evaluate on 
+         the CQLSimplePredicate.
+         </PRE>
+
+         @param  - CI. Instance to evaluate query against.
+         @param  - QueryCtx. Query Context
+         @return - Boolean.
+         @throws - None.
+         <I><B>Experimental Interface</B></I><BR>   
+       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
-
-    /**
-        Returns true if this CQLPredicate does not contain other CQLPredicates, false otherwise.
-                                                                                                                   
-        @param  - None.
-        @return - Boolean.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
-    Boolean isTerminal()const;
 
     /**
 	Returns true if this predicate has been inverted (NOT), false otherwise	
@@ -205,7 +161,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     /**
         Sets the inverted flag.  Logically NOTting this predicate.
-                                                                                                                   
+         
         @param  - None.
         @return - None.
         @throws - None.
@@ -227,7 +183,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     /**
         Appends a predicate to the predicate array. This method should only
         be called by Bison.
-                                                                                                                   
+
         @param  - inPredicate.
         @param  - inBooleanOperator
         @return - None.
@@ -235,23 +191,10 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
         <I><B>Experimental Interface</B></I><BR>
     */
     void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
-
-    /**
-        Appends a SimplePredicate to the predicate array. This method should only
-        be called by Bison.
-
-        NOTE: THIS METHOD IS NOT IMPLEMENTED
-                                                                                                                   
-        @param  - inSimplePredicate.
-        @return - None.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
-    void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
   
     /**
         Gets the CQLPredicates contained within this CQLPredicate.
-                                                                                                                   
+
         @param  - None.
         @return - Array<CQLPredicate>. 
         @throws - None.
@@ -262,7 +205,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
      /**
         Gets the CQLSimplePredicate contained within this CQLPredicate. Only valid
         if this isSimple() = true.
-                                                                                                                   
+
         @param  - None.
         @return - CQLSimplePredicate.
         @throws - None.
@@ -273,7 +216,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
      /**
         Gets the Operators for this CQLPredicate.
         Given P1 AND P2 OR P3, this would return [AND][OR]
-                                                                                                                   
+    
         @param  - None.
         @return - Array<BooleanOpType>.
         @throws - None.
@@ -284,7 +227,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
      /**
         This method normalizes the CQLChainedIdentifier so that properties that require
         scoping are scoped.
-                                                                                                                   
+
         @param  - queryContext.
         @return - None.
         @throws - None.
@@ -293,7 +236,9 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     void applyContext(QueryContext& queryContext);
 
      /**
-        Returns true if this CQLPredicate contains no CQLPredicates, ie. only has one SimplePredicate.                                                                                                                   
+        Returns true if this CQLPredicate contains no CQLPredicates,
+        ie. only has one CQLSimplePredicate.
+
         @param  - None.
         @return - Boolean.
         @throws - None.
@@ -302,8 +247,10 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     Boolean isSimple()const;
 
      /**
-        Returns true if its SimplePredicate object tree only contains a CQLValue.
-                                                                                                                   
+        Returns true if this CQLPredicate is simple and the contained
+        CQLSimplePredicate is a simple value (isSimpleValue( ) returns
+        true).
+      
         @param  - None.
         @return - Boolean.
         @throws - None.
@@ -311,11 +258,19 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     */
     Boolean isSimpleValue()const;
 
+    /**
+       Returns this predicate in string form.
+      
+        @param  - None.
+        @return - string form of predicate.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     String toString()const;
 
      /**
         Operator=
-                                                                                                                   
+
         @param  - rhs. Right hand side of assignment operator.
         @return - CQLPredicate&.
         @throws - None.

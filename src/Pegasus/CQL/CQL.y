@@ -32,11 +32,6 @@ int chain_state;
 CQLFactory _factory = CQLFactory();
 extern int CQL_error(const char *err);
 
-PEGASUS_NAMESPACE_BEGIN
-                                                                                
-extern CQLParserState* CQL_globalParserState;
-Array<CQLPredicate> _arglist;
-
 enum CQLType { Id, CId, Val, Func, Fact, Trm, Expr, SPred, Pred, Str };
 
 typedef struct CQLObjPtr {
@@ -47,7 +42,8 @@ typedef struct CQLObjPtr {
 Array<CQLObjPtr> _ptrs;
 CQLOBJPTR _ObjPtr;
 
-void cleanup(){
+
+void CQL_Bison_Cleanup(){
 	for(Uint32 i = 0; i < _ptrs.size(); i++){
 	  if(_ptrs[i]._ptr){
 		switch(_ptrs[i].type){
@@ -85,8 +81,14 @@ void cleanup(){
 	}
 	_ptrs.clear();
    _factory.cleanup();
-   _factory = CQLFactory();
+	_factory = CQLFactory();
 }
+
+PEGASUS_NAMESPACE_BEGIN
+                                                                                
+extern CQLParserState* CQL_globalParserState;
+Array<CQLPredicate> _arglist;
+
 
 PEGASUS_NAMESPACE_END
 
@@ -94,20 +96,12 @@ PEGASUS_NAMESPACE_END
 %}
 %union {
    char * strValue;
-   int lineno;
-   int tokenpos;
-   char * linebuf;
    String * _string;
    CQLValue * _value;
-   CQLSelectStatement * _ss;
    CQLIdentifier * _identifier;
    CQLChainedIdentifier * _chainedIdentifier;
-   CQLTerm * _term;
-   CQLFactor * _factor;
    CQLPredicate * _predicate;
-   CQLSimplePredicate * _simplePredicate;
    ExpressionOpType _opType;
-   CQLExpression * _expression;
    void * _node;
 }
 
@@ -226,11 +220,21 @@ identifier  : IDENTIFIER
 		 CQL_globalParserState->currentRule = "identifier";
                  sprintf(msg,"BISON::identifier\n");
 		 printf_(msg);
-	
-                 $$ = new CQLIdentifier(String(CQL_lval.strValue));
-					  _ObjPtr._ptr = $$;
-					  _ObjPtr.type = Id;
-					  _ptrs.append(_ObjPtr);
+                 if(isUTF8Str(CQL_lval.strValue)){	
+                    $$ = new CQLIdentifier(String(CQL_lval.strValue));
+					     _ObjPtr._ptr = $$;
+					     _ObjPtr.type = Id;
+					     _ptrs.append(_ObjPtr);
+					  }else{
+                    sprintf(msg,"BISON::identifier-> BAD UTF\n");
+		              printf_(msg);
+		              throw CQLSyntaxErrorException(
+					         MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+							   String("Bad UTF8 encountered parsing rule $0 in position $1."),
+							   String("identifier"),
+							   CQL_globalParserState->currentTokenPos)
+						  );
+					  }
              }
 ;
 
@@ -274,13 +278,24 @@ scoped_property : SCOPED_PROPERTY
 							CQL_globalParserState->currentRule = "scoped_property";
 							sprintf(msg,"BISON::scoped_property = %s\n",CQL_lval.strValue);
 							printf_(msg);
+                    if(isUTF8Str(CQL_lval.strValue)){
+                       String tmp(CQL_lval.strValue);
+		        			  $$ = new CQLIdentifier(tmp);
+				  			  _ObjPtr._ptr = $$;
+              			  _ObjPtr.type = Id;
+              			  _ptrs.append(_ObjPtr);
 
-		        			String tmp(CQL_lval.strValue);
-		        			$$ = new CQLIdentifier(tmp);
-				  			_ObjPtr._ptr = $$;
-              			_ObjPtr.type = Id;
-              			_ptrs.append(_ObjPtr);
-                  }
+                    }else{
+                       sprintf(msg,"BISON::scoped_property-> BAD UTF\n");
+		                 printf_(msg);
+		                 throw CQLSyntaxErrorException(
+					         MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+							   String("Bad UTF8 encountered parsing rule $0 in position $1."),
+							   String("scoped_property"),
+							   CQL_globalParserState->currentTokenPos)
+						     );
+					     }
+		        	  }
 ;   
 
 /* String */
@@ -301,7 +316,6 @@ literal_string : STRING_LITERAL
 		}else{
 		    sprintf(msg,"BISON::literal_string-> BAD UTF\n");
 		    printf_(msg);
-			 cleanup();
 		    throw CQLSyntaxErrorException(
 					MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
 							   String("Bad UTF8 encountered parsing rule $0 in position $1."),
@@ -578,7 +592,6 @@ chain : literal
 	    }else{
 		/* error */
 		String _msg("chain-> chain DOT scoped_property : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
@@ -608,7 +621,6 @@ chain : literal
             }else{
                 /* error */
 		String _msg("chain-> chain DOT identifier : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
@@ -645,7 +657,6 @@ chain : literal
             }else{
                 /* error */
 		String _msg("chain->chain.identifier#literal_string : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
@@ -689,7 +700,6 @@ chain : literal
 	    }else{
 		/* error */
 		String _msg("chain->chain[ array_index_list ] : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER or CQLVALUE");
-		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER_OR_VALUE"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier or a CQLValue while parsing rule $0 in position $1."),
@@ -708,21 +718,75 @@ concat : chain
 
 	     $$ = ((CQLPredicate*)$1);
          }
-       | concat DBL_PIPE chain
+       | concat DBL_PIPE literal_string
          {
-	     CQL_globalParserState->currentRule = "concat->concat || chain";
-             sprintf(msg,"BISON::concat||chain\n");
-	     printf_(msg);
+	         CQL_globalParserState->currentRule = "concat->concat || literal_string";
+            sprintf(msg,"BISON::concat||literal_string\n");
+	         printf_(msg);
 
-	     if($1->isSimpleValue() && ((CQLPredicate*)$3)->isSimpleValue()){
-		CQLFactor* _fctr1 = ((CQLFactor*)(_factory.getObject($1, Predicate, Factor)));
-		CQLFactor* _fctr2 = ((CQLFactor*)(_factory.getObject($3, Predicate, Factor)));	
-		CQLTerm _term1(*_fctr1);
-		_term1.appendOperation(concat,*_fctr2);
-		$$ = (CQLPredicate*)(_factory.makeObject(&_term1,Predicate));
-		CQLPredicate* _pred = (CQLPredicate*)$3;
-	     }
-         }
+		      CQLValue* tmpval = new CQLValue(*$3);
+	         _ObjPtr._ptr = tmpval;
+            _ObjPtr.type = Val;
+            _ptrs.append(_ObjPtr);  
+
+			   if((CQLPredicate*)$1->isSimple())
+            {
+               CQLSimplePredicate sp = ((CQLPredicate*)$1)->getSimplePredicate();
+					if(sp.isSimple())
+					{
+                  CQLExpression exp = sp.getLeftExpression();
+						if(exp.isSimple())
+						{
+                    CQLTerm* _term = ((CQLTerm*)(_factory.getObject($1, Predicate, Term)));
+                    // check for simple literal values
+                    Array<CQLFactor> factors = _term->getFactors();
+                    for(Uint32 i = 0; i < factors.size(); i++){
+                       if(!factors[i].isSimpleValue()){
+                          MessageLoaderParms mparms("CQL.CQL_y.CONCAT_PRODUCTION_FACTORS_NOT_SIMPLE",
+                                                   "The CQLFactors are not simple while processing rule $0.",
+                                                    CQL_globalParserState->currentRule);
+                          throw CQLSyntaxErrorException(mparms);
+                       }else{
+                          CQLValue val = factors[i].getValue();
+                          if(val.getValueType() != CQLValue::String_type){
+                             MessageLoaderParms mparms("CQL.CQL_y.CONCAT_PRODUCTION_VALUE_NOT_LITERAL",
+                                                       "The CQLValue is not a string literal while processing rule $0.",
+                                                       CQL_globalParserState->currentRule);
+                             throw CQLSyntaxErrorException(mparms);
+		                    }
+                       }
+                    }
+                    CQLFactor* _fctr2 = ((CQLFactor*)(_factory.makeObject(tmpval, Factor)));
+                    _term->appendOperation(concat,*_fctr2);
+                    $$ = (CQLPredicate*)(_factory.makeObject(_term,Predicate)); 
+						}
+                  else
+                  {
+                     MessageLoaderParms mparms("CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
+                                               "The $0 is not simple while processing rule $1.",
+															  String("CQLExpression"),
+                                               CQL_globalParserState->currentRule);
+                     throw CQLSyntaxErrorException(mparms);
+                  }
+					 }
+                else
+                {
+                     MessageLoaderParms mparms("CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
+                                               "The $0 is not simple while processing rule $1.",
+															  String("CQLSimplePredicate"),
+                                               CQL_globalParserState->currentRule);
+                     throw CQLSyntaxErrorException(mparms);
+                }
+				 }
+             else
+             {
+                     MessageLoaderParms mparms("CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
+                                               "The $0 is not simple while processing rule $1.",
+															  String("CQLPredicate"),
+                                               CQL_globalParserState->currentRule);
+                     throw CQLSyntaxErrorException(mparms);
+             }
+        }
 ;
 
 factor : concat
@@ -932,7 +996,6 @@ comp : arith
 	   }else{
 		/* error */
 		String _msg("comp->arith comp_op arith_or_value_symbol : $1 is not simple OR $3 is not simple");
-		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
                                                            String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
@@ -958,7 +1021,6 @@ comp : arith
 	   }else{
 		/* error */
 		String _msg("comp->value_symbol comp_op arith : $3 is not simple");
-		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
                                                            String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
@@ -967,20 +1029,6 @@ comp : arith
                                                  );
 
 	   }
-       }
-     | value_symbol comp_op value_symbol
-       {
-		CQL_globalParserState->currentRule = "comp->value_symbol comp_op value_symbol";
-		sprintf(msg,"BISON::comp->value_symbol comp_op value_symbol\n");
-           	printf_(msg);
-                                                                                                                                                             
-                CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject($1, Expression));
-                CQLExpression* _exp2 = (CQLExpression*)(_factory.makeObject($3,Expression));
-                CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
-                $$ = new CQLPredicate(_sp);
-					 _ObjPtr._ptr = $$;
-                _ObjPtr.type = Pred;
-                _ptrs.append(_ObjPtr);
        }
      | arith _ISA identifier
        {
@@ -1075,7 +1123,7 @@ expr : expr_term
 ;
 
 arg_list : {;}
-         | STAR
+        /* | STAR
            {
 	       CQL_globalParserState->currentRule = "arg_list->STAR";
                sprintf(msg,"BISON::arg_list->STAR\n");
@@ -1083,14 +1131,14 @@ arg_list : {;}
 
 	       CQLIdentifier _id("*");
 	       CQLPredicate* _pred = (CQLPredicate*)(_factory.makeObject(&_id,Predicate));
-	       _arglist.append(*_pred); /* 
+	       _arglist.append(*_pred); 
 					   since arg_list can loop back on itself, 
 					   we need to store away previous solutions 
 					   production.  We keep track of previous productions
 					   in the _arglist array and later pass that to CQLFunction
 					   as part of chain: identifier LPAR arg_list RPAR
-					*/
-           }
+					
+           }*/
          | expr
 	   {
 		   CQL_globalParserState->currentRule = "arg_list->arg_list_sub->expr";
@@ -1229,7 +1277,6 @@ selected_entry : expr
 		     }else{
 			/* error */
 			String _msg("selected_entry->expr : $1 is not a simple value");
-			cleanup();
 		 	throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE_VALUE"),
                                                            String("The CQLPredicate is not a simple value while parsing rule $0 in position $1."),
@@ -1288,7 +1335,7 @@ select_statement : SELECT select_list FROM from_criteria optional_where
 		       CQL_globalParserState->currentRule = "select_statement";
                        sprintf(msg,"select_statement\n\n");
 		       printf_(msg);
-				 cleanup();
+				 CQL_Bison_Cleanup();
                    }
 						 
 ;

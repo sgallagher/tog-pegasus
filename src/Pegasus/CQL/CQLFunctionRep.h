@@ -50,28 +50,26 @@ class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLFunctionRep
 {
   public:
-   
 
-    CQLFunctionRep() {};
 
-   CQLFunctionRep(const CQLFunctionRep* rep);
+    CQLFunctionRep();
 
-    //CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+    CQLFunctionRep(const CQLFunctionRep* rep);
 
     CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
 
-  ~CQLFunctionRep();
+    ~CQLFunctionRep();
 
     /** 
-       The getValue method validates the parms versus FunctionOpType.
-               (A) resolves prarameter  types
-               (B) number of parms
-        and then actually executes the function.
-        Returns a CQLValue object that has already been resolved.
-      */
+     The getValue method validates the parms versus FunctionOpType.
+     (A) resolves prarameter  types
+     (B) number of parms
+     and then actually executes the function.
+     Returns a CQLValue object that has already been resolved.
+     */
     CQLValue resolveValue(const CIMInstance& CI, const QueryContext& queryCtx);
 
-   Array<CQLPredicate> getParms() const;
+    Array<CQLPredicate> getParms() const;
 
    FunctionOpType getFunctionType() const;
 
@@ -79,9 +77,9 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
 
    void applyContext(QueryContext& inContext);
 
-   Boolean operator==(const CQLFunctionRep& func)const;
+  // Boolean operator==(const CQLFunctionRep& func)const;
 
-   Boolean operator!=(const CQLFunctionRep& func)const;
+//   Boolean operator!=(const CQLFunctionRep& func)const;
 
    friend class CQLFactory;
 
@@ -114,7 +112,6 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
 
    // Utility methods to convert enums into strings
    String functionTypeToString() const;
-   String parmTypeToString(const CQLValue::CQLValueType parmType) const;
       
    // Member data
    FunctionOpType _funcOpType;

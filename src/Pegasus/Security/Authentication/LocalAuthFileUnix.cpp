@@ -226,8 +226,19 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::_changeFileOwner()");
 
     struct passwd*        userPasswd;
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+    struct passwd   pwd;
+    struct passwd   *result;
+    char            pwdBuffer[1024];
+
+    if (getpwnam_r(_userName.getCString(), &pwd, pwdBuffer, 1024, &userPasswd)
+								 != 0) {
+	userPasswd = (struct passwd *)NULL;
+    }
+#else
 
     userPasswd = getpwnam(_userName.getCString());
+#endif
 
     if ( userPasswd  == NULL)
     {

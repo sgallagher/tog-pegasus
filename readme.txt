@@ -1,31 +1,31 @@
 Pegasus - A Manageability Services Broker for the DMTF CIM/WBEM Standards
 
-
 Author: Mike Brasher, Karl Schopmeyer
 
-HISTORY_BEGIN
+--------------------------------------------------------------------------------
+
 $Log: readme.txt,v $
-Revision 1.2  2001/01/20 22:44:43  karl
-retrofit for provider interfaces
+Revision 1.3  2001/01/22 15:09:29  mike
+Reworking indentation and breaking width of lines below 80 columns (not finished). Also
+inserted comments and suggestions following "MEB:" annotations.
+
 
 Revision 1.1  2001/01/15 04:26:04  karl
 added Readme
 
+--------------------------------------------------------------------------------
 
 Tagline: Pegasus is an object manager for DMTF CIM objects written in C++
-         and supported but The Open Group
+         and supported buy The Open Group
          
-HISTORY_END
-
-
-Pegasus is an object manager for DMTF CIM objects  It is written in C++ and
+Pegasus is an object manager for DMTF CIM objects. It is written in C++ and
 includes the Object manager, a set of defined interfaces, and SDKs for both
 client, providers, and services extensions.  It is maintained consistent with
 the DMTF CIM and WBEM specifications except for any exceptions noted in the
 documentation.
 
 This distribution represents a work in progress towards building a Pegasus
-release. Pegasus is open source and is covered under the following licnese.
+release. Pegasus is open source and is covered under the following license.
 This version is incomplete and is directed towards evaluators and developers
 of the Pegasus Architecture.
 
@@ -38,8 +38,8 @@ This distribution represnts a snapshot of the current work. Currently Pegasus
 is in phase 1 of a multiphase development project. This snapshot is primarily
 for developers and for evaluation of the project.
 
-More information and  on this project, access to the CVS, and documentation on
-Pegasus is available from the OpenGroup WEB site.
+More information on this project, access to the CVS, and documentation on
+Pegasus are available from the OpenGroup WEB site.
 
 There are separate files in the release for
 
@@ -64,28 +64,34 @@ occur before March 2001.
 To get on the distribution list for Pegasus today, send an email to
 
 m.kirk@opengroup.org
+
 or
+
 k.schopmeyer@opengroup.org
 
 Pegasus Major Components
 ========================
+
 The major components of Pegasus are:
 
-Pegasus Server - WBEM/CIM CIM_Server with interfaces for providers and Clients
+Pegasus Server - WBEM/CIM Server with interfaces for providers and clients
 
-Pegasus Repository - Today Pegasus provides a defined class repository interface and a simple
-file based class repository. Future will include the object repository
+Pegasus Repository - Today Pegasus provides a defined class repository 
+    interface and a simple file based class repository. Future will include 
+    the object [MEB: instance?] repository
 
-Pegasus Client SDK - Tools for building Pegasus clients based on the Pegasus C++ interfaces
-and using the WBEM HTTP/XML protocols or directly interfacing with Pegasus
+Pegasus Client SDK - Tools for building Pegasus clients based on the Pegasus 
+    C++ interfaces and using the WBEM HTTP/XML protocols or directly 
+    interfacing with Pegasus.
 
-Pegasus Test Clients - Simple test clients being developed as part of the Pegasus development
-process
+Pegasus Test Clients - Simple test clients being developed as part of the 
+    Pegasus development process
 
-Pegasus HTML Test Client - To aid some testing we created a test client for Pegasus that uses
-a WEB server (ex. Apache) with a set of CGI modules and HTML to allow the entry of Pegasus
-operations from a WEB browser as forms and the recept of the response as WEB pages. This has
-proven useful as a test tool and can be used for a wide variety of demonstrations.
+Pegasus HTML Test Client - To aid in testing we created a test client for 
+    Pegasus that uses a WEB server (ex. Apache) with a set of CGI modules and 
+    HTML to allow the entry of Pegasus operations from a WEB browser as forms 
+    and the recept of the response as WEB pages. This has proven useful as a 
+    test tool and can be used for a wide variety of demonstrations.
 
 Pegasus Providers - Future (Version 1.0)
 
@@ -94,29 +100,29 @@ Pegasus Service Extensions -  Future (version 1.0)
 Pegasus MOF Compiler - Future (Version 0.9)
 
 Pegasus Dependencies
-===========
+====================
 
 We have worked to minimize the dependence of Pegasus on other software
 packages and tools. Currently Pegasus has the following dependencies
 
-1. ACE_Wrappers communication package - The ACE Wrappers package is used for communication and
-some low level functions within the MSB, the Pegasus client SDK, and the Pegasus Provider SDK.
-ACE is available from the following site.
+1. ACE_Wrappers communication package - The ACE Wrappers package is used for 
+communication and some low level functions within the MSB, the Pegasus client 
+SDK, and the Pegasus Provider SDK.  ACE is available from the following site.
 
+    http://ace.cs.wustl.edu/cvsweb/ace-cvs.cgi/ACE_wrappers/
 
-	http://ace.cs.wustl.edu/cvsweb/ace-cvs.cgi/ACE_wrappers/
-
-Currently we are using version 5.1 of ACE_Wrappers both in Linux and Windows
+Currently we are using version 5.1 of ACE_Wrappers both in Linux and Windows.
 
     http://www.cs.wustl.edu/~schmidt/ACE_wrappers/ACE-5.1.tar.gz
 
-COMMENTS: Pegasus only uses limited facilities from ACE.  However, today we demand the
-installation of the complete ACE library.  One of the action items for the future is
-to provide a more limited ACE library and possibly even to provide an environment
-independent of ACE.  This will depend on the demands of the users.
+COMMENTS: Pegasus only uses limited facilities from ACE.  However, today we 
+demand the installation of the complete ACE library. One of the action items 
+for the future is to provide a more limited ACE library and possibly even to 
+provide an environment independent of ACE. This will depend on the demands of 
+the users.
 
 2. To simplify the building of Pegasus across multiple platforms we have
-stnadardized on a set of build tools including: GNUMAKE. We are using GNUAKE
+standardized on a set of build tools including: GNUMAKE. We are using GNUAKE
 4.79.1 successfully both in Windows and Linux environments.
 
 GNUMAKE is available from
@@ -125,9 +131,10 @@ GNUMAKE is available from
 
 ATTN: I think we need to make our version available on the TOG site.
 
-COMMENT: Unless other users of Pegasus demand it, we will NOT create any build environment
-for Pegasus that does not require GNUMAKE (ex Visual C++). We are open to other developers who
-want to contribute other build structures for particular environments.
+COMMENT: Unless other users of Pegasus demand it, we will NOT create any build 
+environment for Pegasus that does not require GNUMAKE (e.g., Visual C++). We 
+are open to other developers who want to contribute other build structures for 
+particular environments.
 
 
 3. MU.EXE - To minimize the difference between Linux and Windows for GUNMAKE,
@@ -135,17 +142,27 @@ we have created a utility called MU.exe.  The source for this is available
 with the distribution and the binary is distributed in the bin directory of
 the the snapshots for now.
 
+[MEB: the binary for MU.EXE is not distributed in the bin directory; you
+have to build it at this time]
+
+[MEB: MU.EXE is only needed on Windows]
+
+[STOPPED]
+
+
 The Pegasus Directory Structure
 ===============================
 
-Pegasus is distributed as a complete directory structure that should be installed either
-from one of the snapshots or from CVS.
+Pegasus is distributed as a complete directory structure that should be 
+installed either from one of the snapshots or from CVS.
 
 This structure is generally as follows
-Pegasus                         - Root directory
+
+Pegasus                     Root directory
     bin
     build                   Destination for all intermediate files from build
-        bin                 Destination for executable and DLL modules from Pegasus build
+        bin                 Destination for executable and DLL modules from 
+			    Pegasus build
         lib
         obj
     cgi-bin                 Source and make for the Pegasus WEB Based Test client software

@@ -328,12 +328,9 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -420,12 +417,9 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -516,12 +510,9 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -604,12 +595,9 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -694,12 +682,9 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -787,12 +772,9 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -875,12 +857,9 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
@@ -977,12 +956,9 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
        // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
@@ -1083,12 +1059,9 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
@@ -1185,12 +1158,9 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -1288,12 +1258,9 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -1380,12 +1347,9 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         // convert arguments
         OperationContext context;
 
-		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName())); 
-		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CIMObjectPath instanceReference(request->instanceName);
 
@@ -1469,11 +1433,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         const CIMObjectPath &x=request->subscriptionInstance.getPath();
 
 		CIMInstance req_provider, req_providerModule;
-
-		req_provider = ((ProviderIdContainer)request->operationContext.get
-															(ProviderIdContainer::NAME)).getProvider();
-		req_providerModule = ((ProviderIdContainer)request->operationContext.get
-                                                            (ProviderIdContainer::NAME)).getModule();
+		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+		req_provider = pidc.getProvider();
+		req_providerModule = pidc.getModule();
 
         String providerName,providerLocation;
         LocateIndicationProviderNames(req_provider, req_providerModule,
@@ -1505,23 +1467,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         // convert arguments
         OperationContext *context=new OperationContext();
+		context->insert(request->operationContext.get(IdentityContainer::NAME));
+		context->insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context->insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	    context->insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	    context->insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+	    context->insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 
- 		 context->insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName()));
-	     context->insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages()));
-	     context->insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages()));
-	     context->insert(SubscriptionInstanceContainer(((SubscriptionInstanceContainer)request->operationContext.get
-			                             (SubscriptionInstanceContainer::NAME)).getInstance()));
-	     context->insert(SubscriptionLanguageListContainer(((SubscriptionLanguageListContainer)request->operationContext.
-                                             get(SubscriptionLanguageListContainer::NAME)).getLanguages()));
-	     context->insert(SubscriptionFilterConditionContainer(((SubscriptionFilterConditionContainer)
-                            request->operationContext.get(SubscriptionFilterConditionContainer::NAME)).getFilterCondition(),
-                            ((SubscriptionFilterConditionContainer)request->operationContext.get
-			                             (SubscriptionFilterConditionContainer::NAME)).getQueryLanguage()));
-
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+		CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
         CMPIProvider & pr=ph.GetProvider();
 
@@ -1605,11 +1558,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         String providerName,providerLocation;
 
 		CIMInstance req_provider, req_providerModule;
+		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+		req_provider = pidc.getProvider();
+		req_providerModule = pidc.getModule();
 
-		req_provider = ((ProviderIdContainer)request->operationContext.get
-															(ProviderIdContainer::NAME)).getProvider();
-		req_providerModule = ((ProviderIdContainer)request->operationContext.get
-                                                            (ProviderIdContainer::NAME)).getModule();
         LocateIndicationProviderNames(req_provider, req_providerModule,
            providerName,providerLocation);
 
@@ -1644,17 +1596,11 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         // convert arguments
         OperationContext context;
-
- 		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
-			                              (IdentityContainer::NAME)).getUserName()));
-	    context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages()));
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages()));
-	    context.insert(SubscriptionInstanceContainer(((SubscriptionInstanceContainer)request->operationContext.get
-			                             (SubscriptionInstanceContainer::NAME)).getInstance()));
-	    context.insert(SubscriptionLanguageListContainer(((SubscriptionLanguageListContainer)request->operationContext.
-                                             get(SubscriptionLanguageListContainer::NAME)).getLanguages()));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1714,11 +1660,10 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
     try {
         String providerName,providerLocation;
 		CIMInstance req_provider, req_providerModule;
+		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+		req_provider = pidc.getProvider();
+		req_providerModule = pidc.getModule();
 
-		req_provider = ((ProviderIdContainer)request->operationContext.get
-															(ProviderIdContainer::NAME)).getProvider();
-		req_providerModule = ((ProviderIdContainer)request->operationContext.get
-                                                            (ProviderIdContainer::NAME)).getModule();
         LocateIndicationProviderNames(req_provider, req_providerModule,
            providerName,providerLocation);
 
@@ -1738,10 +1683,8 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         // convert arguments
         OperationContext context;
 
-	     context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages()));
-	     context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages()));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CMPIProvider & pr=ph.GetProvider();
 
@@ -1780,11 +1723,10 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
     try {
         String providerName,providerLocation;
 		CIMInstance req_provider, req_providerModule;
+		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+		req_provider = pidc.getProvider();
+		req_providerModule = pidc.getModule();
 
-		req_provider = ((ProviderIdContainer)request->operationContext.get
-															(ProviderIdContainer::NAME)).getProvider();
-		req_providerModule = ((ProviderIdContainer)request->operationContext.get
-                                                            (ProviderIdContainer::NAME)).getModule();
         LocateIndicationProviderNames(req_provider, req_providerModule ,
            providerName,providerLocation);
 
@@ -1804,10 +1746,9 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
         // convert arguments
         OperationContext context;
 
-	    context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
-			                             (AcceptLanguageListContainer::NAME)).getLanguages()));
-	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
-			                             (ContentLanguageListContainer::NAME)).getLanguages()));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+
         CMPIProvider & pr=ph.GetProvider();
 
         CMPIStatus rc={CMPI_RC_OK,NULL};

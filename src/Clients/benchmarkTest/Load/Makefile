@@ -17,19 +17,19 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
 	@$(RMREPOSITORY) $(PROVIDERNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PROVIDERNS) namespace ...
-	@ $(CIMMOFL) -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(PROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(PROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading $(BenchmarkMOF_NAME) class definitions into $(PROVIDERNS) namespace ...
-	@ $(CIMMOFL) -R$(REPOSITORY_DIR) -n$(PROVIDERNS) $(BenchmarkMOF_NAME).mof
+	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-n$(PROVIDERNS)" $(BenchmarkMOF_NAME).mof
 	@ $(ECHO) +++++ Registering benchmark Provider   ...
-	@ $(CIMMOFL) -R$(REPOSITORY_DIR) -n$(INTEROPNS) $(BenchmarkMOF_NAME)R.mof
+	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" $(BenchmarkMOF_NAME)R.mof
 
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PROVIDERNS) namespace ...
-	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(PROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(PROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading $(BenchmarkMOF_NAME) class definitions into $(PROVIDERNS) namespace ...
-	@ cimmof -n$(PROVIDERNS) $(BenchmarkMOF_NAME).mof
+	@ cimmof "-n$(PROVIDERNS)" $(BenchmarkMOF_NAME).mof
 	@ $(ECHO) +++++ Registering benchmark Provider   ...
-	@ cimmof -n$(INTEROPNS) $(BenchmarkMOF_NAME)R.mof
+	@ cimmof "-n$(INTEROPNS)" $(BenchmarkMOF_NAME)R.mof
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
@@ -37,7 +37,7 @@ removerepository:
 
 registerproviders:
 	@ $(ECHO) +++++ Registering benchmark Provider   ...
-	@ cimmof -n$(INTEROPNS) benchmarkProviderR.mof
+	@ cimmof "-n$(INTEROPNS)" benchmarkProviderR.mof
 
 unregister:
 	$(MAKE) -i unregisterproviders

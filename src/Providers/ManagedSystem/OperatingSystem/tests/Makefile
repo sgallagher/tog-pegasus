@@ -25,7 +25,7 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp | cd .
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
-	@ echo +++ $* passed successfully +++
+	@ $(ECHO) +++ $* passed successfully +++
 
 ifeq ($(OS), HPUX)
 XMLSCRIPTS = \

@@ -21,6 +21,7 @@ SCHEMA_DIR=CIM26Prelim
 
 # Define Namespace in which the CIM Schemas are to be Loaded.
 # Note that by default, the CORE is also loaded into root.
+
 NAMESPACE=root/cimv2
 
 MOF_PATH = $(ROOT)/Schemas/$(SCHEMA_DIR)
@@ -30,31 +31,31 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ echo WARNING - This Makefile is deprecated and will be removed in the near future
-	@ echo Please use the equivalent makefile in Schemas
-	@ echo +++++ Removing existing repository named $(REPOSITORY_ROOT)
+	@ $(ECHO) WARNING - This Makefile is deprecated and will be removed in the near future
+	@ $(ECHO) Please use the equivalent makefile in Schemas
+	@ $(ECHO) +++++ Removing existing repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
-	@ echo +++++ Populating CIM repository - this will take a while
-	@ echo +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
-	@ cimmof -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into $(NAMESPACE) namespace...
-	@ cimmof -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof
+	@ $(ECHO) +++++ Populating CIM repository - this will take a while
+	@ $(ECHO) +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
+	cimmof "-I$(MOF_PATH)" -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading CIM_Schema$(SCHEMA_VER).mof into $(NAMESPACE) namespace...
+	cimmof "-I$(MOF_PATH)" "-n$(NAMESPACE)" $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof
 
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 
 # deleted since there is no use for it any more.
 short:
-	@ echo +++++ Populating CIM repository - this will take a minute
-	$(RMREPOSITORY) $(REPOSITORY_ROOT)
-	echo +++++ Loading CIM_Core.mof into root namespace...
-	cimmof -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
+	@ $(ECHO) +++++ Populating CIM repository - this will take a minute
+	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
+	$(ECHO) +++++ Loading CIM_Core.mof into root namespace...
+	cimmof "-I$(MOF_PATH)" "-n$(NAMESPACE)" $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 
 clean:
-	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
+	@ $(ECHO) +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 
 install:
-	@echo Deprecated. Will use the one defined in Schema directory.
+	@ $(ECHO) Deprecated. Will use the one defined in Schema directory.
 depend:
 
 sub:
@@ -74,5 +75,5 @@ strip-license:
 prepend-license:
 
 xml:
-	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
-	@ cimmof --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof
+	@ $(ECHO) +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
+	@ cimmof --xml "-I$(MOF_PATH)" -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof

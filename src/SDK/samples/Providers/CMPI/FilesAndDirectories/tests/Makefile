@@ -8,7 +8,7 @@ XMLSCRIPTS =  \
 
 poststarttests:
 
-	@echo +++++ CWS_Directory Testing FilesAndDirectories provider
+	@$(ECHO) +++++ CWS_Directory Testing FilesAndDirectories provider
 
 	@wbemexec $(WBEMEXECOPTIONS) EnumerateDirNames10000.xml
 	@wbemexec $(WBEMEXECOPTIONS) EnumerateDir10001.xml

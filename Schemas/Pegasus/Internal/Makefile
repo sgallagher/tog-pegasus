@@ -22,25 +22,25 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ echo +++++ Removing existing repository named $(INTERNALNS)
+	@ $(ECHO) +++++ Removing existing repository named $(INTERNALNS)
 	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
-	@ echo +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR)  -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 
 install:
 	$(MKDIRHIER) $(LOCAL_STATE_PREFIX)
 	$(MAKE) REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
 
 repositoryServer:
-	@ echo +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
-	@ cimmof  -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
-	@ cimmof  -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
+	@ cimmof -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
+	@ cimmof "-I$(PG_MOF_PATH)" -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 
 clean:
-	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
+	@ $(ECHO) +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
 
 

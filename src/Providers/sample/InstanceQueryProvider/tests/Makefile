@@ -27,13 +27,13 @@ messages:
 
 poststarttests:
 
-	@echo +++++ Enumerating Sample_InstanceQueryProviderClass $(SAMPLEPROVIDERNS)
+	@$(ECHO) +++++ Enumerating Sample_InstanceQueryProviderClass $(SAMPLEPROVIDERNS)
 
-	CLI ei Sample_InstanceQueryProviderClass -n $(SAMPLEPROVIDERNS) -s -count 3
+	CLI ei Sample_InstanceQueryProviderClass "-n $(SAMPLEPROVIDERNS)" -s -count 3
 
-	@echo +++++ Querying Sample_InstanceQueryProviderClass $(SAMPLEPROVIDERNS)
+	@$(ECHO) +++++ Querying Sample_InstanceQueryProviderClass $(SAMPLEPROVIDERNS)
 	CLI xq "select * from Sample_InstanceQueryProviderClass where identifier=2 or idetifier=3" \
-	 -n $(SAMPLEPROVIDERNS) -s -count 2
+	 "-n $(SAMPLEPROVIDERNS)" -s -count 2
 
 
 

@@ -25,7 +25,7 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp | cd .
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
-	@ echo +++ $* passed successfully +++
+	@ $(ECHO) +++ $* passed successfully +++
 
 XMLCOVREQUESTS = $(foreach i, $(XMLCOVSCRIPTS), $i.xml)
 XMLCOVRESPONSES = $(XMLCOVREQUESTS:.xml=.cov)
@@ -33,7 +33,7 @@ XMLCOVRESPONSES = $(XMLCOVREQUESTS:.xml=.cov)
 %.cov: %.xml
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.cov | cd .
 	@ $(RM) $(TMP_DIR)/$*.cov
-	@ echo +++ $* code coverage exercise complete +++
+	@ $(ECHO) +++ $* code coverage exercise complete +++
 
 ifeq ($(OS), HPUX)
 XMLSCRIPTS = \

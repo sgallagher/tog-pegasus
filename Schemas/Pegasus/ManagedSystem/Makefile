@@ -28,53 +28,54 @@ FILE_PREFIX=HPUX
 endif
 
 install:
-	$(MKDIRHIER) $(LOCAL_STATE_PREFIX)
-	$(MAKE) REPOSITORY_DIR=$(LOCAL_STATE_PREFIX) repository
+	$(MKDIRHIER) "$(LOCAL_STATE_PREFIX)"
+	$(MAKE) "REPOSITORY_DIR=$(LOCAL_STATE_PREFIX)" repository
 
 ifeq ($(MANAGEDSYSTEM_NS_SUPPORTED),true)
 repository:
-	@ echo +++++ Removing existing repository named $(MANAGEDSYSTEMNS)
+	@ $(ECHO) +++++ Removing existing repository named $(MANAGEDSYSTEMNS)
 	@ $(RMREPOSITORY) $(MANAGEDSYSTEMNSDIRECTORY)
-	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(MANAGEDSYSTEMNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
-	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(MANAGEDSYSTEMNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 ifeq ($(EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED),true)
-	@ echo +++++ Loading platform specific class definitions in $(MANAGEDSYSTEMNS) namespace  ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
-	@ echo +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ $(ECHO) +++++ Loading platform specific class definitions in $(MANAGEDSYSTEMNS) namespace  ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 endif
 ifeq ($(PEGASUS_ENABLE_SLP),true)	
-	@ echo +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_SLPProvider$(PG_SCHEMA_VER)R.mof
+	@ $(ECHO) +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" $(PG_MOF_PATH)/$(FILE_PREFIX)_SLPProvider$(PG_SCHEMA_VER)R.mof
 endif
+
 repositoryServer:
-	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
-	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(MANAGEDSYSTEMNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
-	@ cimmof  -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
-	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
-	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(MANAGEDSYSTEMNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof  "-I$(PG_MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
+	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 ifeq ($(EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED),true)
-	@ echo +++++ Loading platform specific class definitions in $(MANAGEDSYSTEMNS) namespace  ...
-	@ cimmof -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
-	@ echo +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
-	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ $(ECHO) +++++ Loading platform specific class definitions in $(MANAGEDSYSTEMNS) namespace  ...
+	@ cimmof "-I$(PG_MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 endif
 ifeq ($(PEGASUS_ENABLE_SLP),true) 
-	@ echo +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
-	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_SLPProvider$(PG_SCHEMA_VER)R.mof
+	@ $(ECHO) +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" $(PG_MOF_PATH)/$(FILE_PREFIX)_SLPProvider$(PG_SCHEMA_VER)R.mof
 endif
 
 clean:
-	@ echo +++++ Removing existing Repository named $(MANAGEDSYSTEMNS)
+	@ $(ECHO) +++++ Removing existing Repository named $(MANAGEDSYSTEMNS)
 	@ $(RMREPOSITORY) $(MANAGEDSYSTEMNSDIRECTORY)
 else
 repository:
-	@ echo +++++ No Managed System Namespace defined for this platform ++++
+	@ $(ECHO) +++++ No Managed System Namespace defined for this platform ++++
 
 clean:
 

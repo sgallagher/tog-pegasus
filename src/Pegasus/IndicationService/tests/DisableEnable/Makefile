@@ -16,37 +16,38 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@echo "TestDisableEnable setup"
+	@$(ECHO) "TestDisableEnable setup"
 	@$(PROGRAM) setup
-	@echo "TestDisableEnable create"
+	@$(ECHO) "TestDisableEnable create"
 	@$(PROGRAM) create
 	cimprovider -d -m ProcessIndicationProviderModule
-	@echo "TestDisableEnable delete"
+	@$(ECHO) "TestDisableEnable delete"
 	@$(PROGRAM) delete
 	cimprovider -e -m ProcessIndicationProviderModule
-	@echo "TestDisableEnable create"
+	@$(ECHO) "TestDisableEnable create"
 	@$(PROGRAM) create
 	cimprovider -d -m ProcessIndicationProviderModule
 	cimprovider -e -m ProcessIndicationProviderModule
-	@echo "TestDisableEnable delete"
+	@$(ECHO) "TestDisableEnable delete"
 	@$(PROGRAM) delete
-	@echo "TestDisableEnable create"
+	@$(ECHO) "TestDisableEnable create"
 	@$(PROGRAM) create
-	@echo "TestDisableEnable create2"
+	@$(ECHO) "TestDisableEnable create2"
 	@$(PROGRAM) create2
-	@echo "TestDisableEnable addProvider"
+	@$(ECHO) "TestDisableEnable addProvider"
 	@$(PROGRAM) addProvider
-	@echo "TestDisableEnable modifyProvider1"
+	@$(ECHO) "TestDisableEnable modifyProvider1"
 	@$(PROGRAM) modifyProvider1
-	@echo "TestDisableEnable modifyProvider2"
+	@$(ECHO) "TestDisableEnable modifyProvider2"
 	@$(PROGRAM) modifyProvider2
-	@echo "TestDisableEnable deleteProvider"
+	@$(ECHO) "TestDisableEnable deleteProvider"
 	@$(PROGRAM) deleteProvider
-	@echo "TestDisableEnable delete2"
+	@$(ECHO) "TestDisableEnable delete2"
 	@$(PROGRAM) delete2
-	@echo "TestDisableEnable delete"
+	@$(ECHO) "TestDisableEnable delete"
 	@$(PROGRAM) delete
-	@echo "TestDisableEnable cleanup"
+	@$(ECHO) "TestDisableEnable cleanup"
 	@$(PROGRAM) cleanup
-	@echo "+++++ TestDisableEnable passed all tests"
+	@$(ECHO) "+++++ TestDisableEnable passed all tests"
+
 install:

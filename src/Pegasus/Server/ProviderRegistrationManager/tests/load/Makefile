@@ -20,20 +20,19 @@ PG_SCHEMA_DIR=VER$(PG_SCHEMA_VER)
 PG_MOF_PATH = $(ROOT)/Schemas/Pegasus/InterOp/$(PG_SCHEMA_DIR)
 
 all:
-	
 
 # Delete and rebuild the repository using the MOF compiler.
 
 localrep:
-	@ echo +++++ Removing existing repository named $(NAMESPACEDIR)
+	@ $(ECHO) +++++ Removing existing repository named $(NAMESPACEDIR)
 	@ $(RMREPOSITORY) $(NAMESPACEDIR)
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
-	@ cimmofl -I$(CIM_SCHEMA_DIR) -R$(REPOSITORYDIR) -n$(NAMESPACENAME) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
-	@ cimmofl -I$(PG_MOF_PATH) -R$(REPOSITORYDIR) -n$(NAMESPACENAME) $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
+	@ cimmofl "-I$(CIM_SCHEMA_DIR)" "-R$(REPOSITORYDIR)" "-n$(NAMESPACENAME)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
+	@ cimmofl "-I$(PG_MOF_PATH)" "-R$(REPOSITORYDIR)" "-n$(NAMESPACENAME)" $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
 
 clean:
-	@ echo +++++ Removing existing CIM Repository named $(NAMESPACEDIR)
+	@ $(ECHO) +++++ Removing existing CIM Repository named $(NAMESPACEDIR)
 	@ $(RMREPOSITORY) $(NAMESPACEDIR)
 
 depend:

@@ -14,11 +14,11 @@ all: test libCMPI_RT_Sample.so
 
 install: all
 	install libCMPI_RT_Sample.so $(PEGDIRLIB)
-	cimmofl -I. -nroot/cimv2 RT_Sample.mof
-	cimmofl -I. -nroot/PG_InterOp RT_SampleR.mof
+	cimmofl "-I." "-nroot/cimv2" RT_Sample.mof
+	cimmofl "-I." "-nroot/PG_InterOp" RT_SampleR.mof
 
 clean:
 	$(RM) *.so *.o
 
 test:
-	@[ -d $(PEGDIRLIB) ] || ( echo $(PEGDIRLIB) does not exist && false)
+	@[ -d $(PEGDIRLIB) ] || ( $(ECHO) $(PEGDIRLIB) does not exist && false)

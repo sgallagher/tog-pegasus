@@ -67,14 +67,14 @@ lex_rule:
 yacc_rule:
 ifeq ($(YACC),yacc)
 	$(YACC) -vd -p WQL_ WQL.y
-	$(COPY) y.tab.c WQLYACC.cpp
-	$(COPY) y.tab.h WQLYACC.h
+	$(COPY) "y.tab.c" "WQLYACC.cpp"
+	$(COPY) "y.tab.h" "WQLYACC.h"
 	$(RM) y.tab.c y.tab.h
 	$(TOUCH) WQLYACC.cpp WQLYACC.h
 else
 	$(YACC) -vd -oWQLtemp -p WQL_ WQL.y
-	$(COPY) WQLtemp WQLYACC.cpp
-	$(COPY) WQLtemp.h WQLYACC.h
+	$(COPY) "WQLtemp" "WQLYACC.cpp
+	$(COPY) "WQLtemp.h" "WQLYACC.h
 	$(RM) WQLtemp WQLtemp.h WQLtemp.output wqltemp.out
 	$(TOUCH) WQLYACC.cpp WQLYACC.h
 endif

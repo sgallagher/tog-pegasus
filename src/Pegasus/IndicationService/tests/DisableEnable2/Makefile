@@ -16,39 +16,40 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@echo "TestDisableEnable2 setup"
+	@$(ECHO) "TestDisableEnable2 setup"
 	@$(PROGRAM) setup
-	@echo "TestDisableEnable2 sendFail"
+	@$(ECHO) "TestDisableEnable2 sendFail"
 	@$(PROGRAM) sendFail
-	@echo "TestDisableEnable2 create"
+	@$(ECHO) "TestDisableEnable2 create"
 	@$(PROGRAM) create
-	@echo "TestDisableEnable2 sendSucceed"
+	@$(ECHO) "TestDisableEnable2 sendSucceed"
 	@$(PROGRAM) sendSucceed
 	cimprovider -d -m RT_IndicationProviderModule
-	@echo "TestDisableEnable2 sendBlock"
+	@$(ECHO) "TestDisableEnable2 sendBlock"
 	@$(PROGRAM) sendBlock
-	@echo "TestDisableEnable2 delete"
+	@$(ECHO) "TestDisableEnable2 delete"
 	@$(PROGRAM) delete
-	@echo "TestDisableEnable2 sendBlock"
+	@$(ECHO) "TestDisableEnable2 sendBlock"
 	@$(PROGRAM) sendBlock
 	cimprovider -e -m RT_IndicationProviderModule
-	@echo "TestDisableEnable2 sendFail"
+	@$(ECHO) "TestDisableEnable2 sendFail"
 	@$(PROGRAM) sendFail
-	@echo "TestDisableEnable2 create"
+	@$(ECHO) "TestDisableEnable2 create"
 	@$(PROGRAM) create
-	@echo "TestDisableEnable2 sendSucceed"
+	@$(ECHO) "TestDisableEnable2 sendSucceed"
 	@$(PROGRAM) sendSucceed
 	cimprovider -d -m RT_IndicationProviderModule
-	@echo "TestDisableEnable2 sendBlock"
+	@$(ECHO) "TestDisableEnable2 sendBlock"
 	@$(PROGRAM) sendBlock
 	cimprovider -e -m RT_IndicationProviderModule
-	@echo "TestDisableEnable2 sendSucceed"
+	@$(ECHO) "TestDisableEnable2 sendSucceed"
 	@$(PROGRAM) sendSucceed
-	@echo "TestDisableEnable2 delete"
+	@$(ECHO) "TestDisableEnable2 delete"
 	@$(PROGRAM) delete
-	@echo "TestDisableEnable2 sendFail"
+	@$(ECHO) "TestDisableEnable2 sendFail"
 	@$(PROGRAM) sendFail
-	@echo "TestDisableEnable2 cleanup"
+	@$(ECHO) "TestDisableEnable2 cleanup"
 	@$(PROGRAM) cleanup
-	@echo "+++++ TestDisableEnable2 passed all tests"
+	@$(ECHO) "+++++ TestDisableEnable2 passed all tests"
+
 install:

@@ -38,17 +38,17 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 include $(ROOT)/mak/library.mak
 
 copy2:
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientRep.cpp ./CIMClientRep.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientRep.h ./CIMClientRep.h
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.cpp ./CIMOperationRequestEncoder.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.h ./CIMOperationRequestEncoder.h
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationResponseDecoder.cpp ./CIMOperationResponseDecoder.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationResponseDecoder.h ./CIMOperationResponseDecoder.h
-	$(COPY) $(ROOT)/src/Pegasus/Client/ClientAuthenticator.cpp ./ClientAuthenticator.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Client/ClientAuthenticator.h ./ClientAuthenticator.h
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientException.cpp ./CIMClientException.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientException.h ./CIMClientException.h
-	$(COPY) $(ROOT)/src/Pegasus/Client/Linkage.h ./Linkage.h
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMClientRep.cpp" "./CIMClientRep.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMClientRep.h" "./CIMClientRep.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.cpp" "./CIMOperationRequestEncoder.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.h" "./CIMOperationRequestEncoder.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMOperationResponseDecoder.cpp" "./CIMOperationResponseDecoder.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMOperationResponseDecoder.h" "./CIMOperationResponseDecoder.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/ClientAuthenticator.cpp" "./ClientAuthenticator.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/ClientAuthenticator.h" "./ClientAuthenticator.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMClientException.cpp" "./CIMClientException.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMClientException.h" "./CIMClientException.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/Linkage.h" "./Linkage.h"
 
 clean2:
 	$(RM) ./CIMClientRep.cpp

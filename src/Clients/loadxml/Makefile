@@ -15,7 +15,7 @@ LIBRARIES += pegrepository
 include $(ROOT)/mak/program.mak
 
 tests:
-	@ echo remove repository at $(REPOSITORY_PATH)
+	@ $(ECHO) remove repository at $(REPOSITORY_PATH)
 	$(RMREPOSITORY) $(REPOSITORY_PATH)/repository
 
 	$(PROGRAM_NAME)  x.xml root $(REPOSITORY_ROOT)

@@ -51,13 +51,13 @@ run:
 	Server $(REPOSITORY_ROOT)
 
 copy2:
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationResponseEncoder.cpp ./CIMOperationResponseEncoder.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationResponseEncoder.h ./CIMOperationResponseEncoder.h
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.cpp ./CIMOperationRequestAuthorizer.cpp 
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.h ./CIMOperationRequestAuthorizer.h 
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.cpp ./CIMServerState.cpp
-	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.h ./CIMServerState.h
-	$(COPY) $(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.h ./HTTPAuthenticatorDelegator.h
+	$(COPY) "$(ROOT)/src/Pegasus/Server/CIMOperationResponseEncoder.cpp" "./CIMOperationResponseEncoder.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Server/CIMOperationResponseEncoder.h" "./CIMOperationResponseEncoder.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.cpp" "./CIMOperationRequestAuthorizer.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Server/CIMOperationRequestAuthorizer.h" "./CIMOperationRequestAuthorizer.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Server/CIMServerState.cpp" "./CIMServerState.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Server/CIMServerState.h" "./CIMServerState.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.h" "./HTTPAuthenticatorDelegator.h"
 
 clean2:
 	$(RM) ./CIMOperationResponseEncoder.cpp

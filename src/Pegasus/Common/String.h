@@ -375,6 +375,8 @@ public:
     /// Return true if the two strings are equal.
     static Boolean equal(const char* x, const String& y);
 
+    static Boolean equalIgnoreCase(const String& x, const String& y);
+
     /// Convert the plain old C-string to lower case:
     static void toLower(char* str);
 

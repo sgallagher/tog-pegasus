@@ -53,28 +53,4 @@ Boolean CIMName::legal(const Char16* name)
     return true;
 }
 
-Boolean CIMName::equal(const String& name1, const String& name2)
-{
-    if (name1.getLength() != name2.getLength())
-	return false;
-
-    const Char16* p = name1.getData();
-    const Char16* q = name2.getData();
-
-    Uint32 n = name1.getLength();
-
-    while (n--)
-    {
-	if (*p <= 127 && *q <= 127)
-	{
-	    if (tolower(*p++) != tolower(*q++))
-		return false;
-	}
-	else if (*p++ != *q++)
-	    return false;
-    }
-
-    return true;
-}
-
 PEGASUS_NAMESPACE_END

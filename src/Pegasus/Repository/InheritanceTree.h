@@ -193,7 +193,7 @@ public:
     Boolean getSubClassNames(
 	const String& className,
 	Boolean deepInheritance,
-	Array<String>& subclassNames);
+	Array<String>& subClassNames) const;
 
 private:
 

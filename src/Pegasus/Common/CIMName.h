@@ -78,7 +78,10 @@ public:
 	@return Return true if the two names are equal. CIM names are
 	case insensitive and so it this method.
     */
-    static Boolean equal(const String& name1, const String& name2);
+    static Boolean equal(const String& name1, const String& name2)
+    {
+	return String::equalIgnoreCase(name1, name2);
+    }
 
 private:
 

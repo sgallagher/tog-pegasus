@@ -278,6 +278,29 @@ Boolean String::equal(const char* x, const String& y)
     return equal(String(x), y);
 }
 
+Boolean String::equalIgnoreCase(const String& x, const String& y)
+{
+    if (x.getLength() != y.getLength())
+	return false;
+
+    const Char16* p = x.getData();
+    const Char16* q = y.getData();
+
+    Uint32 n = x.getLength();
+
+    while (n--)
+    {
+	if (*p <= 127 && *q <= 127)
+	{
+	    if (tolower(*p++) != tolower(*q++))
+		return false;
+	}
+	else if (*p++ != *q++)
+	    return false;
+    }
+
+    return true;
+}
 
 String String::subString(Uint32 pos, Uint32 length) const
 {

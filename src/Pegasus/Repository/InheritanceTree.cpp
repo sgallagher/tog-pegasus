@@ -36,6 +36,20 @@ using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// IgnoreCaseEqualFunc
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct IgnoreCaseEqualFunc
+{
+    static Boolean equal(const String& x, const String& y)
+    {
+        return String::equalIgnoreCase(x, y);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // InheritanceTreeNode
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +59,10 @@ struct InheritanceTreeNode
     InheritanceTreeNode(const String& className);
 
     void addSubClass(InheritanceTreeNode* child);
+
+    void getSubClassNames(
+	Array<String>& subClassNames, 
+	Boolean deepInheritance);
 
     void print(std::ostream& os) const;
 
@@ -69,6 +87,21 @@ void InheritanceTreeNode::addSubClass(InheritanceTreeNode* child)
     subClasses = child;
 }
 
+void InheritanceTreeNode::getSubClassNames(
+    Array<String>& subClassNames, 
+    Boolean deepInheritance)
+{
+    // For each subClass:
+
+    for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
+    {
+	subClassNames.append(p->className);
+
+	if (deepInheritance)
+	    p->getSubClassNames(subClassNames, true);
+    }
+}
+
 void InheritanceTreeNode::print(std::ostream& os) const
 {
     os << className << " : " ;
@@ -88,7 +121,8 @@ void InheritanceTreeNode::print(std::ostream& os) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef HashTable<String, InheritanceTreeNode*> InheritanceTable;
+typedef HashTable<String, InheritanceTreeNode*, IgnoreCaseEqualFunc> 
+    InheritanceTable;
 
 struct InheritanceTreeRep
 {
@@ -186,7 +220,7 @@ void InheritanceTree::check() const
 Boolean InheritanceTree::getSubClassNames(
     const String& className,
     Boolean deepInheritance,
-    Array<String>& subclassNames)
+    Array<String>& subClassNames) const
 {
     // -- Case 1: className is empty: get all class names (if deepInheritance)
     // -- or just root class names (if not deepInheritance).
@@ -199,14 +233,14 @@ Boolean InheritanceTree::getSubClassNames(
 	    {
 		// Append all classes:
 
-		subclassNames.append(i.key());
+		subClassNames.append(i.key());
 		return true;
 	    }
 	    else if (!i.value()->superClass)
 	    {
 		// Just append root classes:
 
-		subclassNames.append(i.key());
+		subClassNames.append(i.key());
 		return true;
 	    }
 	}
@@ -217,9 +251,15 @@ Boolean InheritanceTree::getSubClassNames(
 
     for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
     {
+	if (String::equalIgnoreCase(className, i.key()))
+	{
+	    i.value()->getSubClassNames(subClassNames, deepInheritance);
+	    return true;
+	}
     }
 
-    return true;
+    // Not found!
+    return false;
 }
 
 void InheritanceTree::print(std::ostream& os) const

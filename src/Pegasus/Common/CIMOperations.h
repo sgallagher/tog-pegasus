@@ -33,7 +33,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 /** The CIMOperations Class.
@@ -287,7 +286,6 @@ public:
     virtual void deleteInstance(
         const String& nameSpace,
         const CIMReference& instanceName) = 0;
-
 
     /** The <TT>createClass</TT> method creates a single CIM Class in
     the target Namespace. The Class MUST NOT already exist. The NewClass input
@@ -1059,7 +1057,7 @@ public:
     CIM Object whose associated names are to be returned. This is either a Class
     name or Instance name (model path).
 
-    @param  assocClass The <TT>assocClass</TT> input parameter, if not NULL,
+    @param assocClass The <TT>assocClass</TT> input parameter, if not NULL,
     MUST be a valid CIM Association Class name. It acts as a filter on the
     returned set of names by mandating that each returned name identifies an
     Object that MUST be associated to the source Object via an Instance of this
@@ -1109,7 +1107,6 @@ public:
     </UL>
     */
     virtual Array<CIMReference> associatorNames(
-
         const String& nameSpace,
         const CIMReference& objectName,
         const String& assocClass = String::EMPTY,

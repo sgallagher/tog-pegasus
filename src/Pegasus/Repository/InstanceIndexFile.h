@@ -72,7 +72,6 @@ PEGASUS_NAMESPACE_BEGIN
     Methods are provided for managing the instance index file: adding,
     removing, and modifying instance names.
 */
-
 class PEGASUS_REPOSITORY_LINKAGE InstanceIndexFile
 {
 public:

@@ -40,10 +40,17 @@ export BISON_SIMPLE = bison.simple
 $(OBJ_DIR)/cimmof_tab_wrapper$(OBJ) : cimmof_tab.cpp
 
 cimmof_tab.cpp cimmof_tab.h: cimmof.y
+ifeq ($(YACC),yacc)
+	$(YACC) -vd -p cimmof_ cimmof.y
+	$(COPY) y.tab.c cimmof_tab.cpp
+	$(COPY) y.tab.h cimmof_tab.h
+	$(RM) y.tab.c y.tab.h
+else
 	$(YACC) -vd -ocimmoftemp -p cimmof_ cimmof.y
 	$(COPY) cimmoftemp cimmof_tab.cpp
 	$(COPY) cimmoftemp.h cimmof_tab.h
 	$(RM) cimmoftemp cimmoftemp.h
+endif
 
 $(OBJ_DIR)/cimmof_lex_wrapper$(OBJ) : cimmof_lex.cpp
 

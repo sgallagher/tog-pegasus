@@ -407,6 +407,26 @@ public:
     /// Convert the plain old C-string to lower case:
     static void toLower(char* str);
 
+    /** Split the given string into fields. Fields are separated by
+	whitespace. Fields containing whitespace must be surrounded
+	by quotes. This method modifies the original string (while
+	unescaping embedded quote characters).
+    */
+    static void split(const String& line, Array<String>& fields);
+
+    /** Joins fields into a single string (the reverse of the split() method. 
+    */
+    static void join(Array<String>& fields, String& line);
+
+    /** Escape special characters in a string. This method is used by
+	join(). It escapes newlines, returns, tabs, form-feeds, and full quotes.
+	If the string has spaces, then full quotes will be placed around it.
+	@param in input string
+	@param in output string (which is appended to).
+	@returns true if string has spaces.
+    */
+    static Boolean escape(const String& in, String& out);
+
     /**	EMPTY - Represent an empty string.
 	This member is used to represent empty strings. Using this member
 	avoids an expensive construction of an empty string (e.g., String()).
@@ -519,7 +539,7 @@ PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 */
 PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);
 
-/*  This is an internal class not to be used by the internal Pegasus
+/*  This is an internal class to be used by the internal Pegasus
     components only. It provides an easy way to create an 8-bit string
     representation on the fly without calling allocateCString() and
     then worrying about deleting the string. The underscore before the

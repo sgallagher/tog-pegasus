@@ -60,6 +60,56 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 #include <Pegasus/Common/Exception.h>
 
+static void TestSplit()
+{
+    {
+	String line = " a 	b \"c d e\" fff  \"\" 	gggg";
+	Array<String> fields;
+	String::split(line, fields);
+	assert(fields.size() == 6);
+	assert(fields[0] == "a");
+	assert(fields[1] == "b");
+	assert(fields[2] == "c d e");
+	assert(fields[3] == "fff");
+	assert(fields[4] == "");
+	assert(fields[5] == "gggg");
+    }
+
+    {
+	String line = "";
+	Array<String> fields;
+	String::split(line, fields);
+	assert(fields.size() == 0);
+    }
+
+    {
+	String line = "hello";
+	Array<String> fields;
+	String::split(line, fields);
+	assert(fields.size() == 1);
+	assert(fields[0] == "hello");
+    }
+
+    {
+	String line;
+	Array<String> fields;
+	fields.append("one");
+	fields.append("two \"three\" four");
+	fields.append("five");
+	String::join(fields, line);
+	Boolean result = line == "one \"two \\\"three\\\" four\" five";
+	assert(result);
+
+	fields.clear();
+	String::split(line, fields);
+	assert(fields.size() == 3);
+	assert(fields[0] == "one");
+	result = fields[1] == "two \"three\" four";
+	assert(result);
+	assert(fields[2] == "five");
+    }
+}
+
 int main()
 {
     String s1 = "Hello World";
@@ -311,6 +361,8 @@ int main()
 	    nameSpace.translate('#', '/');
 	    assert(nameSpace == "a/b/c");
 	}
+
+	TestSplit();
     }
 
 

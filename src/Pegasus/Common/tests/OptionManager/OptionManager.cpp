@@ -21,12 +21,12 @@ static const Uint32 NCOLORS = sizeof(colors) / sizeof(colors[0]);
 
 static struct OptionRow options[] =
 {
-    {"host", "", true, Option::STRING, 0, 0, "h"},
-    {"port", "80", false, Option::WHOLE_NUMBER, 0, 0, "p"},
-    {"color", "red", false, Option::STRING, (char**)colors, NCOLORS, "c"},
-    {"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
-    {"message", "Hello World", false, Option::STRING, 0, 0, "m"},
-    {"falsetest","false",false, Option::BOOLEAN, 0, 0, "f",}
+    {"host", "", true, Option::STRING, 0, 0, "h", ""},
+    {"port", "80", false, Option::WHOLE_NUMBER, 0, 0, "p", ""},
+    {"color", "red", false, Option::STRING, (char**)colors, NCOLORS, "c", ""},
+    {"trace", "false", false, Option::BOOLEAN, 0, 0, "t", ""},
+    {"message", "Hello World", false, Option::STRING, 0, 0, "m", ""},
+    {"falsetest","false",false, Option::BOOLEAN, 0, 0, "f", ""}
 };
 
 static const Uint32 NUM_OPTIONS = sizeof(options) / sizeof(options[0]);

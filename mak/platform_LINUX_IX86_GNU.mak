@@ -24,7 +24,7 @@ CXX = g++
 
 SH = sh
 
-YACC = bison
+YACC = yacc
 
 COPY = cp
 

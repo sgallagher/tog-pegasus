@@ -40,6 +40,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String String::EMPTY;
 
+static inline void _SkipWhitespace(const Char16*& p)
+{
+    while (*p && isspace(*p))
+        p++;
+}
+
 inline Uint32 StrLen(const char* str)
 {
     if (!str)
@@ -523,6 +529,136 @@ const Array<String>& EmptyStringArray()
 {
     static Array<String> tmp;
     return tmp;
+}
+
+void String::split(const String& line, Array<String>& fields)
+{
+    fields.clear();
+
+    for (const Char16* p = line.getData(); *p; p++)
+    {
+	_SkipWhitespace(p);
+
+	if (!*p)
+	    break;
+
+	String field;
+
+	if (*p == '"')
+	{
+	    p++;
+
+	    for (; *p && *p != '"'; p++)
+	    {
+		if (*p == '\\')
+		{
+		    p++;
+
+		    switch (*p)
+		    {
+			case '\0':
+			    break;
+
+			case 'n':
+			    field.append('\n');
+			    break;
+
+			case 't':
+			    field.append('\t');
+			    break;
+
+			case 'r':
+			    field.append('\r');
+			    break;
+
+			case 'f':
+			    field.append('\f');
+			    break;
+
+			default:
+			    field.append(*p);
+		    }
+		}
+		else
+		    field.append(*p);
+	    }
+
+	    fields.append(field);
+	}
+	else
+	{
+	    for (; *p && !isspace(*p); p++)
+		field.append(*p);
+
+	    fields.append(field);
+	}
+
+	if (!*p)
+	    break;
+    }
+}
+
+void String::join(Array<String>& fields, String& line)
+{
+    for (Uint32 i = 0, n = fields.size(); i < n; i++)
+    {
+	String tmp;
+	Boolean hasSpaces = escape(fields[i], tmp);
+
+	if (hasSpaces)
+	    line += '"';
+
+	line += tmp;
+
+	if (hasSpaces)
+	    line += '"';
+
+	if (i + 1 != n)
+	    line += ' ';
+    }
+}
+
+Boolean String::escape(const String& in, String& out)
+{
+    Boolean hasSpaces = false;
+
+    out.reserve(out.size() + (2 * in.size()));
+
+    for (Uint32 i = 0, n = in.size(); i < n; i++)
+    {
+	Char16 c = in[i];
+
+	switch (c)
+	{
+	    case '\n':
+		out += "\\n";
+		break;
+
+	    case '\t':
+		out += "\\t";
+		break;
+
+	    case '\r':
+		out += "\\r";
+		break;
+
+	    case '\f':
+		out += "\\f";
+		break;
+
+	    case '\"':
+		out += "\\\"";
+		break;
+
+	    default:
+		out += c;
+		if (!hasSpaces)
+		    hasSpaces = c == ' ';
+		break;
+	}
+    }
+
+    return hasSpaces;
 }
 
 PEGASUS_NAMESPACE_END

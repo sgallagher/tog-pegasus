@@ -1,14 +1,16 @@
-# Makefile for mu.
-# Because mu is required for almost everything else, this makefile
-# was built with minimal dependencies on other makes.
-# Builds mu.exe in the local directory unless MU_BIN_DIR defined.
+################################################################################
 #
-# Set default to windows if OS type not set.
+# Makefile for mu.
+#
+# Building:
+#
+#     On Windows type "make OS_TYPE=windows"
+#     On Unix type "make"
+#
+################################################################################
 
-ifdef PEGASUS_OS_TYPE
-    OS_TYPE=$(PEGASUS_OS_TYPE)
-else
-    OS_TYPE = windows
+ifndef OS_TYPE
+    OS_TYPE = unix
 endif
 
 # Set Parameters for OS type

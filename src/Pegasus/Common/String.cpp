@@ -62,8 +62,13 @@ CString::CString()
 
 CString::CString(const CString& cstr)
 {
-    _rep = (void*)new char[strlen((char*)cstr._rep)+1];
-    strcpy((char*)_rep, (char*)cstr._rep);
+    _rep = 0;
+
+    if (cstr._rep)
+    {
+        _rep = (void*)new char[strlen((char*)cstr._rep)+1];
+        strcpy((char*)_rep, (char*)cstr._rep);
+    }
 }
 
 CString::CString(char* cstr)
@@ -74,18 +79,26 @@ CString::CString(char* cstr)
 CString::~CString()
 {
     if (_rep)
+    {
         delete [] (char*)_rep;
+    }
 }
 
 CString& CString::operator=(const CString& cstr)
 {
-    if (_rep)
+    if (&cstr != this)
     {
-        delete [] (char*)_rep;
-        _rep = 0;
+        if (_rep)
+        {
+            delete [] (char*)_rep;
+            _rep = 0;
+        }
+        if (cstr._rep)
+        {
+            _rep = (char*)new char[strlen((char*)cstr._rep)+1];
+            strcpy((char*)_rep, (char*)cstr._rep);
+        }
     }
-    _rep = (char*)new char[strlen((char*)cstr._rep)+1];
-    strcpy((char*)_rep, (char*)cstr._rep);
     return *this;
 }
 
@@ -239,7 +252,11 @@ String::~String()
 
 String& String::operator=(const String& str)
 {
-    return assign(str);
+    if (&str != this)
+    {
+        assign(str);
+    }
+    return *this;
 }
 
 String& String::assign(const String& str)

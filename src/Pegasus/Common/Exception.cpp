@@ -199,7 +199,6 @@ const char SSL_Exception::MSG[] = "SSL Exception ";
 
 const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 
-const char InvalidAuthType::MSG[] = "Invalid Authentication type";
 
 ////////////////////////////////////////////////////////////////////////////////
 //

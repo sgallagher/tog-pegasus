@@ -338,13 +338,11 @@ void ClientAuthenticator::setPassword(const String& password)
 
 void ClientAuthenticator::setAuthType(ClientAuthenticator::AuthType type)
 {
-    if ( (type != ClientAuthenticator::BASIC) ||
-         (type != ClientAuthenticator::DIGEST) ||
-         (type != ClientAuthenticator::LOCAL) ||
-         (type != ClientAuthenticator::LOCALPRIVILEGED) )
-    {
-        throw InvalidAuthType();
-    } 
+    PEGASUS_ASSERT( (type == ClientAuthenticator::BASIC) ||
+         (type == ClientAuthenticator::DIGEST) ||
+         (type == ClientAuthenticator::LOCAL) ||
+         (type == ClientAuthenticator::LOCALPRIVILEGED) );
+
     _authType = type;
 }
 

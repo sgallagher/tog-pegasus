@@ -771,15 +771,6 @@ public:
     InvalidAuthHeader() : Exception(MSG) { }
 };
 
-class PEGASUS_COMMON_LINKAGE InvalidAuthType: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InvalidAuthType() : Exception(MSG) { }
-};
-
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 
 PEGASUS_NAMESPACE_END

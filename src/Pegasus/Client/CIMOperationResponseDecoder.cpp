@@ -109,31 +109,40 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     httpMessage->parse(startLine, headers, contentLength);
 
-    if (_authenticator->checkResponseHeaderForChallenge(headers))
+    try
     {
-        //
-        // Get the original request, put that in the encoder's queue for
-        // re-sending with authentication challenge response.
-        //
-        Message* reqMessage = _authenticator->getRequestMessage();
-        _encoderQueue->enqueue(reqMessage);
+        if (_authenticator->checkResponseHeaderForChallenge(headers))
+        {
+            //
+            // Get the original request, put that in the encoder's queue for
+            // re-sending with authentication challenge response.
+            //
+            Message* reqMessage = _authenticator->getRequestMessage();
+            _encoderQueue->enqueue(reqMessage);
+
+            return;
+        }
+        else
+        {
+            //
+            // Received a valid/error response from the server.
+            // We do not need the original request message anymore, hence delete
+            // the request message by getting the handle from the ClientAuthenticator.
+            //
+            Message* reqMessage = _authenticator->getRequestMessage();
+            _authenticator->clearRequest();
+            if (reqMessage)
+            {
+                delete reqMessage;
+            }
+        }
+    }
+    catch(InvalidAuthHeader& e)
+    {
+        // ATTN-NB-P2-20020304: This error is discarded like the other errors
+        // in this method. Implement an error handling code for all these errors.
 
         return;
-    }
-    else
-    {
-
-        //
-        // Received a valid/error response from the server.
-        // We do not need the original request message anymore, hence delete
-        // the request message by getting the handle from the ClientAuthenticator.
-        //
-        Message* reqMessage = _authenticator->getRequestMessage();
-	_authenticator->clearRequest();
-        if (reqMessage)
-        {
-            delete reqMessage;
-        }
     }
 
     //

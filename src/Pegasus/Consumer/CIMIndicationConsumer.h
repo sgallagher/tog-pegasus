@@ -46,26 +46,28 @@ implementation simply throw the NotSupported exception.
 class PEGASUS_CONSUMER_LINKAGE CIMIndicationConsumer
 {
 public:
-	CIMIndicationConsumer(void);
-	virtual ~CIMIndicationConsumer(void);
+    
+    CIMIndicationConsumer(void) { };
 
-	/**
-	@param contex contains security and locale information relevant for the lifetime
-	of this operation.
-	
-	@param url
-	
-	@param indicationInstance
-	*/
-	//virtual void handleIndication(
-	//    const OperationContext & context,
-	//    const CIMInstance & indication,
-        //    ResponseHandler<CIMInstance> & handler) = 0;
+    virtual ~CIMIndicationConsumer(void) { };
 
-	virtual void handleIndication(
-		const OperationContext & context,
-		const String & url,
-		const CIMInstance& indicationInstance);
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
+    
+    @param url
+    
+    @param indicationInstance
+    */
+    //virtual void handleIndication(
+    //    const OperationContext & context,
+    //    const CIMInstance & indication,
+    //    ResponseHandler<CIMInstance> & handler) = 0;
+
+    virtual void handleIndication(
+	    const OperationContext & context,
+	    const String & url,
+	    const CIMInstance& indicationInstance) = 0;
 };
 
 PEGASUS_NAMESPACE_END

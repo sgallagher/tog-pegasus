@@ -35,7 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-class PEGASUS_PROVIDER_LINKAGE DisplayConsumer : public CIMIndicationConsumer
+class PEGASUS_CONSUMER_LINKAGE DisplayConsumer : public CIMIndicationConsumer
 {
 public:
 

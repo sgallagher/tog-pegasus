@@ -68,7 +68,7 @@ void ClientPerfDataStore::reset()
 }
      
 
-bClientOpPerformanceData ClientPerfDataStore::createPerfDataStruct()
+ClientOpPerformanceData ClientPerfDataStore::createPerfDataStruct()
 {
     ClientOpPerformanceData _ClientOpPerfData_obj;
     _ClientOpPerfData_obj.roundTripTime = (_networkEndTime-_networkStartTime).toMicroSeconds();

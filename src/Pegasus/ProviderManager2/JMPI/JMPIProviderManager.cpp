@@ -25,7 +25,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com 
 //
-// Modified By:
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -376,9 +376,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 	// convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -477,9 +477,9 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	JMPIProvider & pr=ph.GetProvider();
 
@@ -573,9 +573,9 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
  	JMPIProvider & pr=ph.GetProvider();
@@ -657,9 +657,9 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -738,9 +738,9 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
  	JMPIProvider & pr=ph.GetProvider();
@@ -820,9 +820,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
        // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
  	JMPIProvider & pr=ph.GetProvider();
@@ -933,9 +933,9 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
  	JMPIProvider & pr=ph.GetProvider();
@@ -1038,9 +1038,9 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
  	JMPIProvider & pr=ph.GetProvider();
@@ -1147,9 +1147,9 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
   	JMPIProvider & pr=ph.GetProvider();
 
@@ -1241,9 +1241,9 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CIMObjectPath instanceReference(request->instanceName);
 
@@ -1332,7 +1332,11 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         const CIMObjectPath &x=request->subscriptionInstance.getPath();
 
 	String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
+	CIMInstance req_provider, req_providerModule;
+	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
+	LocateIndicationProviderNames(req_provider, req_providerModule,
 	   providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -1362,16 +1366,12 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         // convert arguments
         OperationContext *context=new OperationContext();
 
-        context->insert(IdentityContainer(request->userName));
-        context->insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context->insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
-
-        context->insert(SubscriptionLanguageListContainer
-            (request->acceptLanguages));
-        context->insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context->insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1440,7 +1440,12 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                  handler);
     try {
 	String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
+	CIMInstance req_provider, req_providerModule;
+	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+	req_provider = pidc.getProvider();
+	req_providerModule = pidc.getModule();
+
+	LocateIndicationProviderNames(req_provider, req_providerModule,
 	   providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -1475,15 +1480,12 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 	// convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-
-        context.insert(SubscriptionLanguageListContainer
-            (request->acceptLanguages));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
-
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+	    
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
   	JMPIProvider & pr=ph.GetProvider();
@@ -1527,7 +1529,12 @@ Message * JMPIProviderManager::handleEnableIndicationsRequest(const Message * me
                  handler);
     try {
         String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
+		CIMInstance req_provider, req_providerModule;
+		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+		req_provider = pidc.getProvider();
+		req_providerModule = pidc.getModule();
+
+	LocateIndicationProviderNames(req_provider, req_providerModule,
 	   providerName,providerLocation);
 
         indProvRecord *provRec;
@@ -1546,8 +1553,8 @@ Message * JMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         // convert arguments
         OperationContext context;
 
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
   	JMPIProvider & pr=ph.GetProvider();
 
@@ -1584,7 +1591,13 @@ Message * JMPIProviderManager::handleDisableIndicationsRequest(const Message * m
                  handler);
     try {
         String providerName,providerLocation;
-	LocateIndicationProviderNames(request->provider, request->providerModule,
+		CIMInstance req_provider, req_providerModule;
+		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+
+		req_provider = pidc.getProvider();
+		req_providerModule = pidc.getModule();
+
+	LocateIndicationProviderNames(req_provider, req_providerModule,
 	   providerName,providerLocation);
 
         indProvRecord *provRec;
@@ -1603,8 +1616,8 @@ Message * JMPIProviderManager::handleDisableIndicationsRequest(const Message * m
         // convert arguments
         OperationContext context;
 
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
   	JMPIProvider & pr=ph.GetProvider();
 

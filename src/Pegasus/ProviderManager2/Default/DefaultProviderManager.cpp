@@ -2172,15 +2172,17 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
 
     response->dest = request->queueIds.top();
 
-    EnableIndicationsResponseHandler *handler =
-        new EnableIndicationsResponseHandler(
-            request, response, request->provider, _indicationCallback);
-
 	CIMInstance req_provider, req_providerModule;
 	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
 
 	req_provider = pidc.getProvider();
 	req_providerModule = pidc.getModule();
+
+    EnableIndicationsResponseHandler *handler =
+        new EnableIndicationsResponseHandler(
+            request, response, req_provider, _indicationCallback);
+
+
 
     try
     {

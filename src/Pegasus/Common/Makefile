@@ -8,7 +8,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
-NEW_SOURCES = \
+_NEW_SOURCES = \
     Monitor.cpp \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp \

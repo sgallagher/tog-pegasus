@@ -428,6 +428,16 @@ public:
     */
     static const String EMPTY;
 
+    /** Return true if the str parameter matches the pattern. C-Shell style
+	glob matching is used.
+    */
+    static Boolean match(const String& str, const String& pattern);
+
+    /** Return true if the str parameter matches the pattern. C-Shell style
+	glob matching is used. Ignore case in all comparisons.
+    */
+    static Boolean matchNoCase(const String& str, const String& pattern);
+
 private:
 
     static Uint32 _min(Uint32 x, Uint32 y) { return x < y ? x : y; }

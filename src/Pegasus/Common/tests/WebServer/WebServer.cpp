@@ -95,7 +95,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
     // requestMessage->print(cout);
 
-    // Split the first line about the method name and the rest:
+    // Parse the request-line:
 
     String methodName;
     String requestUri;
@@ -103,10 +103,6 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
     HTTPMessage::parseRequestLine(
 	startLine, methodName, requestUri, httpVersion);
-
-PEGASUS_OUT(methodName);
-PEGASUS_OUT(requestUri);
-PEGASUS_OUT(httpVersion);
 
     // Handle GET requests:
 

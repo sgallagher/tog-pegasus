@@ -235,7 +235,8 @@ void HTTPMessage::print(ostream& os) const
 Boolean HTTPMessage::lookupHeader(
     Array<HTTPHeader>& headers,
     const String& fieldName,
-    String& fieldValue)
+    String& fieldValue,
+    Boolean wildCardMatch)
 {
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {

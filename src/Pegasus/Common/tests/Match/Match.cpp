@@ -1,7 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -27,55 +26,22 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_HTTPMessage_h
-#define Pegasus_HTTPMessage_h
-
-#include <iostream>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/Pair.h>
+#include <cassert>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Monitor.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
-typedef Pair<String, String> HTTPHeader;
-
-/** This message is sent from a connection to its output queue when
-    a complete HTTP message is received.
-*/
-class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
+int main()
 {
-public:
+    assert(String::match("This is a test", "*is*"));
+    assert(String::match("Hello", "Hello"));
+    assert(String::matchNoCase("HELLO", "hello"));
+    assert(String::match("This is a test", "This is *"));
+    assert(String::match("This is a test", "* is a test"));
+    assert(!String::match("Hello", "Goodbye"));
 
-    HTTPMessage(const Array<Sint8>& message_, Uint32 returnQueueId_ = 0);
+    cout << "+++++ passed all tests" << endl;
 
-    Array<Sint8> message;
-    Uint32 returnQueueId;
-
-    void parse(
-	String& startLine,
-	Array<HTTPHeader>& headers,
-	Sint8*& content,
-	Uint32& contentLength) const;
-
-    void print(PEGASUS_STD(ostream)& os) const;
-
-    static Boolean lookupHeader(
-	Array<HTTPHeader>& headers,
-	const String& fieldName,
-	String& fieldValue,
-	Boolean wildCardMatch = false);
-
-    static Boolean parseRequestLine(
-	const String& startLine,
-	String& methodName,
-	String& requestUri,
-	String& httpVersion);
-};
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_HTTPMessage_h */
+    return 0;
+}

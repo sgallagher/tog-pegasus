@@ -329,7 +329,7 @@ void PG_TestPropertyTypes::createInstance(
 	}
 
 	// ensure the InstanceId key is valid
-        int propIndex = instanceObject.findProperty("InstanceId");
+        Uint32 propIndex = instanceObject.findProperty("InstanceId");
 	if (propIndex == PEG_NOT_FOUND)
 	{
             throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -455,7 +455,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 {
 	Uint32 PropertyCount = instanceObject.getPropertyCount();
 
-	int j;
+	Uint32 j;
 	for (j=0; j<PropertyCount; j++)
 	{
 	  const CIMConstProperty & property = instanceObject.getProperty(j);

@@ -44,7 +44,8 @@ DIRS = \
     DynLoad \
     Logger \
     WebClient \
-    ParamValue 
+    ParamValue \
+	OperationContext
 
 #    MessageQueueService \
 #    WebServer \

@@ -40,7 +40,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 
 #ifdef PEGASUS_OS_OS400
-#include "qycmutiltyUtility.H"
+#include <qycmutiltyUtility.H>
 #endif
 
 PEGASUS_USING_STD;
@@ -67,11 +67,6 @@ main(int argc, char ** argv) {
 #ifdef PEGASUS_OS_OS400
   // Check to ensure the user is authorized to use the command
   if(FALSE == ycmCheckCmdAuthorities())
-  { 
-    return -9;
-  }
-  // Check to make sure the Pegasus Server is not running
-  if ( FALSE != ycmServerIsActive( YCMSERVER_ACTIVE, YCMCIMMOF ) )
   { 
     return -9;
   }

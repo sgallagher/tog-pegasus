@@ -141,16 +141,14 @@ class PEGASUS_EXPORT SimpleThread
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void default_delete(void * data) 
-{ 
-   if( data != NULL)
-      PEGASUS_STD(operator) delete(data); 
-}
+
 
 class  PEGASUS_EXPORT thread_data
 {
 
    public:
+      static void default_delete(void *data);
+      
       thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
       {
 	 PEGASUS_ASSERT(key != NULL);
@@ -168,7 +166,7 @@ class  PEGASUS_EXPORT thread_data
 	 _key = new Sint8 [keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
-	 _data = PEGASUS_STD(operator) new ( _size );
+	 _data = ::operator new(_size) ;
 
       }
 
@@ -181,7 +179,7 @@ class  PEGASUS_EXPORT thread_data
 	 _key = new Sint8[keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
-	 _data = PEGASUS_STD(operator) new(_size);
+	 _data = ::operator new(_size);
 	 memcpy(_data, data, size);
       }
 
@@ -194,16 +192,41 @@ class  PEGASUS_EXPORT thread_data
 	    delete [] _key;
       }  
 
-      void *get_data(void );
-      Uint32 get_size(void);
-      void *put_data(void (*delete_func) (void *), Uint32 size, void *data  )
+      void put_data(void (*del)(void *), size_t size, void *data ) throw(NullPointer)
       {
-	 void *old_data = data;
-	 _delete_func = delete_func;
+	 if(_data != NULL)
+	    if(_delete_func != NULL)
+	       _delete_func(_data);
+
+	 _delete_func = del;
 	 _data = data;
 	 _size = size;
-	 return(old_data);
+	 return ;
       }
+
+      size_t get_size(void) { return _size; }
+
+      void get_data(void **data, size_t *size) 
+      {  
+	 if(data == NULL || size == NULL)
+	    throw NullPointer();
+	 
+	 *data = _data;
+	 *size = _size;
+	 return;
+	 
+      }
+
+      void copy_data(void **buf, size_t *size) throw(BufferTooSmall, NullPointer)
+      {
+	 if((buf == NULL) || (size == NULL)) 
+	    throw NullPointer() ; 
+	 *buf = ::operator new(_size);
+	 *size = _size;
+	 memcpy(*buf, _data, _size);
+	 return;
+      }
+      
       inline Boolean operator==(const void *key) const 
       { 
 	 if ( ! strcmp(_key, (Sint8 *)key)) 

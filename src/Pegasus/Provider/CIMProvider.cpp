@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -73,35 +73,35 @@ void CIMProvider::deleteClass(
 
 void CIMProvider::deleteInstance(
     const String& nameSpace,
-    const CIMReference& instanceName) 
-{ 
+    const CIMReference& instanceName)
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void CIMProvider::createClass(
     const String& nameSpace,
-    CIMClass& newClass) 
+    const CIMClass& newClass)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void CIMProvider::createInstance(
     const String& nameSpace,
-    CIMInstance& newInstance) 
-{ 
+    const CIMInstance& newInstance)
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void CIMProvider::modifyClass(
     const String& nameSpace,
-    CIMClass& modifiedClass) 
+    const CIMClass& modifiedClass)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void CIMProvider::modifyInstance(
     const String& nameSpace,
-    CIMInstance& modifiedInstance) 
+    const CIMInstance& modifiedInstance)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
@@ -142,16 +142,16 @@ Array<CIMInstance> CIMProvider::enumerateInstances(
 
 Array<CIMReference> CIMProvider::enumerateInstanceNames(
     const String& nameSpace,
-    const String& className) 
-{ 
+    const String& className)
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
 
 Array<CIMInstance> CIMProvider::execQuery(
     const String& queryLanguage,
-    const String& query) 
-{ 
+    const String& query)
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
@@ -178,7 +178,7 @@ Array<CIMReference> CIMProvider::associatorNames(
     const String& resultClass,
     const String& role,
     const String& resultRole)
-{ 
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
@@ -201,7 +201,7 @@ Array<CIMReference> CIMProvider::referenceNames(
     const CIMReference& objectName,
     const String& resultClass,
     const String& role)
-{ 
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMReference>();
 }
@@ -209,8 +209,8 @@ Array<CIMReference> CIMProvider::referenceNames(
 CIMValue CIMProvider::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
-    const String& propertyName) 
-{ 
+    const String& propertyName)
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
 }
@@ -220,13 +220,13 @@ void CIMProvider::setProperty(
     const CIMReference& instanceName,
     const String& propertyName,
     const CIMValue& newValue)
-{ 
+{
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 CIMQualifierDecl CIMProvider::getQualifier(
     const String& nameSpace,
-    const String& qualifierName) 
+    const String& qualifierName)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMQualifierDecl();
@@ -234,14 +234,14 @@ CIMQualifierDecl CIMProvider::getQualifier(
 
 void CIMProvider::setQualifier(
     const String& nameSpace,
-    const CIMQualifierDecl& qualifierDecl) 
+    const CIMQualifierDecl& qualifierDecl)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
 
 void CIMProvider::deleteQualifier(
     const String& nameSpace,
-    const String& qualifierName) 
+    const String& qualifierName)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
@@ -258,7 +258,7 @@ CIMValue CIMProvider::invokeMethod(
     const CIMReference& instanceName,
     const String& methodName,
     const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters) 
+    Array<CIMValue>& outParameters)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -360,9 +360,8 @@ public:
     </UL>
     */
     virtual void createClass(
-
 		const String& nameSpace,
-		CIMClass& newClass) = 0;
+		const CIMClass& newClass) = 0;
 
     /** The <TT>createInstance</TT> method creates a single CIM
     Instance in the target Namespace. The Instance MUST NOT already exist.
@@ -434,7 +433,7 @@ public:
     */
     virtual void createInstance(
 	const String& nameSpace,
-	CIMInstance& newInstance) = 0;
+	const CIMInstance& newInstance) = 0;
 
 
     /** The <TT>modifyClass</TT> method modifies an existing CIM Class in the
@@ -549,7 +548,7 @@ public:
     */
     virtual void modifyClass(
         const String& nameSpace,
-        CIMClass& modifiedClass) = 0;
+        const CIMClass& modifiedClass) = 0;
 
     /** The <TT>modifyInstance</TT> method modifies an existing CIM
     Instance in the target Namespace.
@@ -638,7 +637,7 @@ public:
     */
     virtual void modifyInstance(
 	const String& nameSpace,
-	CIMInstance& modifiedInstance) = 0;
+	const CIMInstance& modifiedInstance) = 0;
 
 
     /** The <TT>enumerateClasses</TT> method is used to enumerate subclasses of
@@ -704,12 +703,12 @@ public:
     </UL>
     */
     virtual Array<CIMClass> enumerateClasses(
-		const String& nameSpace,
-		const String& className = String::EMPTY,
-		Boolean deepInheritance = false,
-		Boolean localOnly = true,
-		Boolean includeQualifiers  = true,
-		Boolean includeClassOrigin = false) = 0;
+	const String& nameSpace,
+	const String& className = String::EMPTY,
+	Boolean deepInheritance = false,
+	Boolean localOnly = true,
+	Boolean includeQualifiers  = true,
+	Boolean includeClassOrigin = false) = 0;
 
 
     /** The <TT>enumerateClassNames</TT> operation is used to enumerate the
@@ -747,10 +746,10 @@ public:
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
-    virtual Array<String> enumerateClassNames(
-    const String& nameSpace,
-    const String& className = String::EMPTY,
-    Boolean deepInheritance = false) = 0;
+   virtual Array<String> enumerateClassNames(
+      const String& nameSpace,
+      const String& className = String::EMPTY,
+      Boolean deepInheritance = false) = 0;
 
 
     /** The <TT>enumerateInstances</TT> method enumerates instances of a CIM
@@ -860,7 +859,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-		const Array<String>& propertyList = EmptyStringArray()) = 0;
+       	const Array<String>& propertyList = EmptyStringArray()) = 0;
 
     /** The <TT>enumerateInstanceNames</TT> operation enumerates the
     names (model paths) of the instances of a CIM Class in the target Namespace.
@@ -934,8 +933,8 @@ public:
     */
 
     virtual Array<CIMInstance> execQuery(
-		const String& queryLanguage,
-		const String& query) = 0;
+       	const String& queryLanguage,
+       	const String& query) = 0;
 
     /** The <TT>Associators</TT> method enumerates CIM Objects
     (Classes or Instances) that are associated to a particular source CIM

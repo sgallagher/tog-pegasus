@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -126,14 +126,14 @@ void Dispatcher::deleteInstance(
 
 void Dispatcher::createClass(
     const String& nameSpace,
-    CIMClass& newClass)
+    const CIMClass& newClass)
 {
     _repository->createClass(nameSpace, newClass);
 }
 
 void Dispatcher::createInstance(
     const String& nameSpace,
-    CIMInstance& newInstance)
+    const CIMInstance& newInstance)
 {
     String className = newInstance.getClassName();
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
@@ -147,14 +147,14 @@ void Dispatcher::createInstance(
 
 void Dispatcher::modifyClass(
     const String& nameSpace,
-    CIMClass& modifiedClass)
+    const CIMClass& modifiedClass)
 {
     _repository->modifyClass(nameSpace, modifiedClass);
 }
 
 void Dispatcher::modifyInstance(
     const String& nameSpace,
-    CIMInstance& modifiedInstance)
+    const CIMInstance& modifiedInstance)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
@@ -207,7 +207,7 @@ Array<CIMInstance> Dispatcher::enumerateInstances(
     else
 	return _repository->enumerateInstances(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin, propertyList);
 
-	 return Array<CIMInstance>();
+    return Array<CIMInstance>();
 }
 
 Array<CIMReference> Dispatcher::enumerateInstanceNames(
@@ -383,7 +383,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     // Get the provider qualifier:
     //----------------------------------------------------------------------
 
-    Uint32 pos = cimClass.findQualifier("provider");
+    Uint32 pos = cimClass.findQualifier("framework_module");
     DDD(cout << dptchr << "Lookup Qualifier " << pos << endl;)
 
     if (pos == PEG_NOT_FOUND)

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -225,11 +225,11 @@ struct SetPropertyResult
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class ClientHandler : public Handler 
+class ClientHandler : public Handler
 {
 public:
 
-    ClientHandler(Selector* selector) 
+    ClientHandler(Selector* selector)
 	: _getClassResult(0), _blocked(false), _selector(selector)
     {
 
@@ -252,7 +252,7 @@ public:
     int handleCreateInstanceResponse(XmlParser& parser, const String& messageId);
 
     int handleEnumerateInstanceNamesResponse(
-	XmlParser& parser, 
+	XmlParser& parser,
 	const String& messageId);
 
     int handleDeleteQualifierResponse(XmlParser& parser, const String& messageId);
@@ -297,7 +297,7 @@ public:
 	ModifyClassResult* _modifyClassResult;
 	DeleteClassResult* _deleteClassResult;
 	GetPropertyResult* _getPropertyResult;
-	SetPropertyResult* _setPropertyResult; 
+	SetPropertyResult* _setPropertyResult;
     };
 
 private:
@@ -328,7 +328,7 @@ int ClientHandler::handleMessage()
 	}
 	catch (Exception& e)
 	{
-	    PEGASUS_STD(cerr) << "Error: " 
+	    PEGASUS_STD(cerr) << "Error: "
 		<< e.getMessage() << PEGASUS_STD(endl);
 	}
     }
@@ -395,7 +395,7 @@ int ClientHandler::handleMethodResponse()
 
     if (strcmp(protocolVersion, "1.0") != 0)
     {
-	throw XmlSemanticError(parser.getLine(), 
+	throw XmlSemanticError(parser.getLine(),
 	    "Expected MESSAGE.PROTOCOLVERSION to be \"1.0\"");
     }
 
@@ -413,7 +413,7 @@ int ClientHandler::handleMethodResponse()
     const char* iMethodResponseName = 0;
 
     if (!XmlReader::getIMethodResponseStartTag(parser, iMethodResponseName))
-	throw XmlValidationError(parser.getLine(), 
+	throw XmlValidationError(parser.getLine(),
 	    "expected IMETHODRESPONSE element");
 
     //--------------------------------------------------------------------------
@@ -476,7 +476,7 @@ int ClientHandler::handleMethodResponse()
 //
 //------------------------------------------------------------------------------
 
-int ClientHandler::handleGetClassResponse(XmlParser& parser, const String& messageId) 
+int ClientHandler::handleGetClassResponse(XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -522,8 +522,8 @@ int ClientHandler::handleGetClassResponse(XmlParser& parser, const String& messa
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleGetInstanceResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -573,8 +573,8 @@ int ClientHandler::handleGetInstanceResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateClassNamesResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -622,8 +622,8 @@ int ClientHandler::handleEnumerateClassNamesResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleCreateInstanceResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -663,8 +663,8 @@ int ClientHandler::handleCreateInstanceResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateInstanceNamesResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -689,7 +689,7 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
 	    CIMReference r(
 		String::EMPTY,
 		String::EMPTY,
-		className, 
+		className,
 		keyBindings);
 	    instanceNames.append(r);
 	}
@@ -720,8 +720,8 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleDeleteQualifierResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -761,8 +761,8 @@ int ClientHandler::handleDeleteQualifierResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleGetQualifierResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -806,8 +806,8 @@ int ClientHandler::handleGetQualifierResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleSetQualifierResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -847,8 +847,8 @@ int ClientHandler::handleSetQualifierResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateQualifiersResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -895,8 +895,8 @@ int ClientHandler::handleEnumerateQualifiersResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleEnumerateClassesResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -943,8 +943,8 @@ int ClientHandler::handleEnumerateClassesResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleCreateClassResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -984,8 +984,8 @@ int ClientHandler::handleCreateClassResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleModifyClassResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1025,8 +1025,8 @@ int ClientHandler::handleModifyClassResponse(
 //------------------------------------------------------------------------------
 
 int ClientHandler::handleDeleteClassResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1087,8 +1087,8 @@ int ClientHandler::handleDeleteClassResponse(
 
 // ATTN: the following is not correct or complete.
 int ClientHandler::handleGetPropertyResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1144,8 +1144,8 @@ int ClientHandler::handleGetPropertyResponse(
 //------------------------------------------------------------------------------
 // ATTN: The following is not complete or correct
 int ClientHandler::handleSetPropertyResponse(
-    XmlParser& parser, 
-    const String& messageId) 
+    XmlParser& parser,
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1263,7 +1263,7 @@ void CIMClient::connect(const char* address)
 
     ChannelHandlerFactory* factory = new ClientHandlerFactory(_selector);
 
-    TCPChannelConnector* connector 
+    TCPChannelConnector* connector
 	= new TCPChannelConnector(factory, _selector);
 
     // ATTN-A: need connection timeout here:
@@ -1457,7 +1457,7 @@ void CIMClient::deleteInstance(
 
 void CIMClient::createClass(
     const String& nameSpace,
-    CIMClass& newClass)
+    const CIMClass& newClass)
 {
     String messageId = XmlWriter::getNextMessageId();
 
@@ -1484,7 +1484,7 @@ void CIMClient::createClass(
 
 void CIMClient::createInstance(
     const String& nameSpace,
-    CIMInstance& newInstance) 
+    const CIMInstance& newInstance)
 {
     String messageId = XmlWriter::getNextMessageId();
 
@@ -1513,7 +1513,7 @@ void CIMClient::createInstance(
 
 void CIMClient::modifyClass(
     const String& nameSpace,
-    CIMClass& modifiedClass)
+    const CIMClass& modifiedClass)
 {
     String messageId = XmlWriter::getNextMessageId();
 
@@ -1541,7 +1541,7 @@ void CIMClient::modifyClass(
 
 void CIMClient::modifyInstance(
     const String& nameSpace,
-    CIMInstance& modifiedInstance)
+    const CIMInstance& modifiedInstance)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
 }
@@ -1673,7 +1673,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    EnumerateInstanceNamesResult* result 
+    EnumerateInstanceNamesResult* result
 	= _getHandler()->_enumerateInstanceNamesResult;
     Array<CIMReference> instanceNames = result->instanceNames;
     CIMException::Code code = result->code;
@@ -1688,7 +1688,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
 
 Array<CIMInstance> CIMClient::execQuery(
     const String& queryLanguage,
-    const String& query) 
+    const String& query)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();

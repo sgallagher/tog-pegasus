@@ -18,6 +18,7 @@ LIBRARIES = \
     pegwql
 
 SOURCES = \
+    IndicationOperationAggregate.cpp \
     IndicationService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

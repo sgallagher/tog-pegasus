@@ -46,61 +46,10 @@
 #include <Pegasus/Common/AcceptLanguages.h> // l10n  
 #include <Pegasus/Common/ContentLanguages.h> // l10n
 
+#include "ProviderClassList.h"
+#include "IndicationOperationAggregate.h"
+
 PEGASUS_NAMESPACE_BEGIN
-
-/**
-    Entry for list of indication providers
- */
-struct providerClassList
-{
-    CIMInstance provider;
-    CIMInstance providerModule;
-    Array <CIMName> classList;
-      providerClassList() 
-      {
-      }
-      
-      providerClassList(const providerClassList & rh)
-	 : provider(rh.provider),
-	   providerModule(rh.providerModule),
-	   classList(rh.classList)
-      {
-	 
-      }
-      providerClassList & operator= (const providerClassList & rh)
-      {
-	 if( this != &rh)
-	 {
-	    provider = rh.provider;
-	    providerModule = rh.providerModule;
-	    classList = rh.classList;
-	 }
-	 return *this;
-      }
-};
-
-typedef struct providerClassList ProviderClassList;
-
-struct enableProviderList
-{
-      ProviderClassList *pcl;
-      CIMInstance *cni;
-      
-      enableProviderList(const ProviderClassList & list, 
-			 const CIMInstance & instance)
-      {
-	 pcl = new ProviderClassList(list);
-	 cni = new CIMInstance (instance);
-	 
-      }
-
-      ~enableProviderList() 
-      {
-	 delete pcl;
-	 delete cni;
-      }
-      
-};
 
 /**
     Entry for ActiveSubscriptions table
@@ -427,6 +376,22 @@ private:
         CIMInstance & instance,
         const CIMName & propertyName,
         const String & defaultValue);
+
+    /**
+        Adds an instance in the repository.  Adds or sets properties as 
+        necessary.
+
+        @param   request               the create instance request message
+        @param   instance              instance to be added
+        @param   enabled               indicates instance is a subscription 
+                                         instance and is enabled
+
+        @return  the CIMObjectPath for the instance
+     */
+    CIMObjectPath _createInstance (
+        CIMCreateInstanceRequestMessage * request,
+        CIMInstance instance,
+        Boolean enabled);
 
     /**
         Determines if the user is authorized to modify the instance, and if the
@@ -914,23 +879,19 @@ private:
         Array <CIMName> & indicationSubclasses,
         CIMNamespaceName & sourceNameSpace);
 
-      /**
-	 Asynchronous completion routine for _sendCreateRequests.
-	 
-	 @param  operation            shared data structure that controls msg 
-                                      processing
-	 @param  destination          target queue of completion callback
-	 @param  parm                 user parameter for callback processing
-      */
-
-      static void _sendCreateRequestsCallBack(AsyncOpNode *operation, 
-					      MessageQueue *destination, 
-					      void *parm);
-       
-
     /**
         Sends Create subscription request for the specified subscription
-        to each provider in the list.
+        to each provider in the list.  Create Subscription requests must be 
+        sent to the indication providers in the following cases: (1) on 
+        initialization, for each enabled subscription retrieved from the 
+        repository, (2) on creation of an enabled subscription instance, (3) on
+        modification of a subscription instance, when the state changes to 
+        enabled, and (4) on notification of a provider registration change 
+        newly enabling the provider to serve the subscription.  In cases (2) and
+        (3), there is an original Create Instance or Modify Instance request to
+        which the Indication Service must respond.  In cases (1) and (4), there
+        is an original request (Notify Provider Registration Request), but no 
+        response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the namespace name
@@ -943,13 +904,16 @@ private:
         @param   acceptLangs           the language of the response, and
                                            future indications
         @param   contentLangs          the language of the subscription
+        @param   origRequest           the original request, if any (e.g. Create
+                                           Instance, Modify Instance, Provider 
+                                           Registration change)
+        @param   indicationSubclasses  the indication subclasses for the 
+                                           subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
 
-        @return  True if at least one provider accepted the subscription
-                 False otherwise
      */
-    Boolean _sendCreateRequests (
+    void _sendCreateRequests (
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
@@ -958,23 +922,23 @@ private:
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
         const ContentLanguages & contentLangs,
+        const CIMRequestMessage * origRequest,
+        const Array <CIMName> & indicationSubclasses,
         const String & userName,
         const String & authType = String::EMPTY);
 
-
-      /** 
-	  Callback completion routine for _sendModifyRequests
-	 
-      */
-
-      static void _sendModifyRequestsCallBack(AsyncOpNode *operation,
-					      MessageQueue *destination,
-					      void *parm);
-      
-
     /**
         Sends Modify subscription request for the specified subscription
-        to each provider in the list.
+        to each provider in the list.  Modify Subscription requests must be
+        sent to the indication providers on notification of a provider 
+        registration change, when the provider was formerly serving the 
+        subscription, and is still serving the subscription, in the following 
+        cases: (1) the provider is newly serving an additional indication 
+        subclass specified by the subscription, and (2) the provider is
+        no longer serving an indication subclass specified by the subscription 
+        (but is still serving at least one of the indication subclasses).
+        In cases (1) and (2), there is an original request (Notify Provider 
+        Registration Request), but no response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the namespace name
@@ -987,6 +951,8 @@ private:
         @param   acceptLangs           the language of the response, and
                                            future indications
         @param   contentLangs          the language of the subscription    
+        @param   origRequest           the original request (Provider 
+                                           Registration change)
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
@@ -999,28 +965,33 @@ private:
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
         const ContentLanguages & contentLangs,  
+        const CIMRequestMessage * origRequest,
         const String & userName,
         const String & authType = String::EMPTY);
 
-
-      /** 
-	  Asynchronous completion routine for _sendDeleteRequests. 
-      */
-
-      static void _sendDeleteRequestsCallBack (
-          AsyncOpNode *operation, 
-          MessageQueue *callback_destination,
-          void *parameter);
-
     /**
         Sends Delete subscription request for the specified subscription
-        to each provider in the list.
+        to each provider in the list.  Delete Subscription requests must be
+        sent to the indication providers in the following cases: (1) on deletion
+        of an enabled subscription instance, (2) on modification of a 
+        subscription instance, when the state changes to disabled, and (3) on 
+        notification of a provider registration change newly preventing the 
+        provider from serving the subscription.  
+        In cases (1) and (2), there is an original Delete Instance or Modify 
+        Instance request to which the Indication Service must respond.  In case
+        (1), there is an original request (Notify Provider Registration 
+        Request), but no response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the namespace name
         @param   subscription          the subscription to be modified
         @param   acceptLangs           the language of the response
         @param   contentLangs          the language of the subscription    
+        @param   origRequest           the original request (e.g. Delete
+                                           Instance, Modify Instance, Provider 
+                                           Registration change)
+        @param   indicationSubclasses  the indication subclasses for the 
+                                           subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
@@ -1030,8 +1001,76 @@ private:
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
         const ContentLanguages & contentLangs,  
+        const CIMRequestMessage * origRequest,
+        const Array <CIMName> & indicationSubclasses,
         const String & userName,
         const String & authType = String::EMPTY);
+
+    /**
+        Collects responses from providers for aggregation as they are received,
+        and stores them in the IndicationOperationAggregate instance.  Calls 
+        _handleOperationResponseAggregation to process the responses, once all 
+        expected responses have been received.
+
+        @param  operation            shared data structure that controls msg 
+                                         processing
+        @param  destination          target queue of completion callback
+        @param  userParameter        user parameter for callback processing
+     */
+    static void _aggregationCallBack (
+        AsyncOpNode * operation,
+        MessageQueue * destination,
+        void * userParameter);
+
+    /**
+        Calls the appropriate function to processes responses from providers, 
+        based on the type of request sent to providers, once all responses have
+        been received.  
+
+        @param   operationAggregate    the operation aggregate instance 
+     */
+    void _handleOperationResponseAggregation (
+        IndicationOperationAggregate * operationAggregate);
+
+    /**
+        Processes create subscription responses from providers, once all have 
+        been received.  Takes the appropriate action, based on the type of the 
+        original request, if any, and the responses received.  Sends the 
+        response to the original request, if required.
+
+        @param   operationAggregate    the operation aggregate instance 
+     */
+    void _handleCreateResponseAggregation (
+        IndicationOperationAggregate * operationAggregate);
+
+    /**
+        Processes enable indications responses from providers, once all have 
+        been received.
+
+        @param   operationAggregate    the operation aggregate instance 
+     */
+    void _handleEnableResponseAggregation (
+        IndicationOperationAggregate * operationAggregate);
+
+    /**
+        Processes modify subscription responses from providers, once all have 
+        been received.  Updates the subscription hash tables.
+
+        @param   operationAggregate    the operation aggregate instance 
+     */
+    void _handleModifyResponseAggregation (
+        IndicationOperationAggregate * operationAggregate);
+
+    /**
+        Processes delete subscription responses from providers, once all have 
+        been received.  Updates the subscription hash tables appropriately, 
+        based on the type of the original request, if any.  Sends the response 
+        to the original request, if required.
+
+        @param   operationAggregate    the operation aggregate instance 
+     */
+    void _handleDeleteResponseAggregation (
+        IndicationOperationAggregate * operationAggregate);
 
     /**
         Generates a unique String key for the Active Subscriptions table from 
@@ -1188,19 +1227,14 @@ private:
         /* const */ CIMInstance & alertInstance);
 #endif
       
-     /** Async completion routine for _sendEnable */
-
-      static void _sendEnableCallBack(AsyncOpNode *operation, 
-				     MessageQueue *callback_destination, 
-				     void *parameter);
-      
     /**
         Sends an Enable message to the specified provider.
 
-        @param   enableProvider        the provider to be enabled
+        @param   enableProviders       the providers to be enabled
      */
     void _sendEnable (
-        const ProviderClassList & enableProvider);
+        const Array <ProviderClassList> & enableProviders,
+        const CIMRequestMessage * origRequest);
 
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
@@ -1646,18 +1680,18 @@ private:
     static const char _MSG_INVALID_INSTANCES_KEY [];
 
     static const char _MSG_PROVIDER_NO_LONGER_SERVING [];
-
+    
     static const char _MSG_PROVIDER_NO_LONGER_SERVING_KEY [];
 
     static const char _MSG_PROVIDER_NOW_SERVING [];
-
+    
     static const char _MSG_PROVIDER_NOW_SERVING_KEY [];
 
     static const char _MSG_NO_PROVIDER [];
-
+    
     static const char _MSG_NO_PROVIDER_KEY [];
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif
+#endif  /* Pegasus_IndicationService_h */

@@ -26,7 +26,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
-//				Alex Dunfey	(dunfey_alexander@emc.com)
+//              Alex Dunfey (dunfey_alexander@emc.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -48,23 +48,23 @@ OperatingSystem::~OperatingSystem(void)
 
 Boolean OperatingSystem::getCSName(String& csName)
 {
-  unsigned long nSize = 2048;
-  char value[2048];
+    unsigned long nSize = 2048;
+    char value[2048];
 
 
-  if(!GetComputerName(value, &nSize))
-  {
-	  //Hostname can not be retrieved
-       csName.assign("Unknown");
-	   return false;
-  }
-  else
-  {
-	  csName.assign(value);
-  }
+    if(!GetComputerName(value, &nSize))
+    {
+        //Hostname cannot be retrieved
+        csName.assign("Unknown");
+        return false;
+    }
+    else
+    {
+        csName.assign(value);
+    }
 
 
-  return true;
+    return true;
 }
 
 Boolean OperatingSystem::getName(String& osName)

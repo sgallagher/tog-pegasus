@@ -1535,9 +1535,10 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     {
         _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     }
-    catch( ... )
+    catch(CIMException& e)
     {
-        Tracer::trace(TRC_REPOSITORY, Tracer::LEVEL3, "ATTN: Unhandled exception caught");
+        PEG_METHOD_EXIT();
+        throw e;
     }
         
     classNames.prepend(className);

@@ -81,7 +81,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
       {
 	 if( Internal::count() > 0) {
 	    _mutex->lock(pegasus_thread_self()); 
-	    empty_list();
+	    Base::empty_list();
 	    _mutex->unlock();
 	 }
 	 return;

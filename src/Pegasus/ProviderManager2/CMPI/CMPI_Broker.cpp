@@ -480,8 +480,7 @@ static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,
 
 static CMPIContext* mbPrepareAttachThread(CMPIBroker* mb, CMPIContext* eCtx) {
    DDD(cout<<"--- mbPrepareAttachThread()"<<endl);
-   //Refer to bug 1473
-   //mb=CM_BROKER;
+   mb=CM_BROKER;
    OperationContext *ctx=(OperationContext*)((CMPI_Context*)eCtx)->ctx;
    OperationContext nctx=*ctx;
    CMPIContext* neCtx=new CMPI_Context(*(new OperationContext(nctx)));
@@ -495,7 +494,6 @@ static CMPIContext* mbPrepareAttachThread(CMPIBroker* mb, CMPIContext* eCtx) {
 
 static CMPIStatus mbAttachThread(CMPIBroker* mb, CMPIContext* eCtx) {
     DDD(cout<<"--- mbAttachThread()"<<endl);
-    mb=CM_BROKER;
     ((CMPI_Context*)eCtx)->thr=new CMPI_ThreadContext(mb,eCtx);
     CMReturn(CMPI_RC_OK);
 }

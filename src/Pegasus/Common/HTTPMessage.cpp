@@ -29,6 +29,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
+//				Seema Gupta (gseema@in.ibm.com) for Bug#1096
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -102,21 +103,18 @@ HTTPMessage::HTTPMessage(
 }
 
 
-HTTPMessage::HTTPMessage(HTTPMessage & msg)
+HTTPMessage::HTTPMessage(const HTTPMessage & msg)
    : Base(msg)
 {
-   if(this != &msg)
-   {
       message = msg.message;
       queueId = msg.queueId;
-      authInfo = 0;
+      authInfo = msg.authInfo;
       acceptLanguages = msg.acceptLanguages;
       contentLanguages = msg.contentLanguages;
       acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
       contentLanguagesDecoded = msg.contentLanguagesDecoded;
 			cimException = msg.cimException;
-   }
-}
+ }
 
 
 void HTTPMessage::parse(

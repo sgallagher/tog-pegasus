@@ -28,6 +28,7 @@
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//		   Seema Gupta (gseema@in.ibm.com) for Bug#1096
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +63,7 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
       HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0,
 									const CIMException *cimException_ = 0);
 
-      HTTPMessage(HTTPMessage & msg);
+      HTTPMessage(const HTTPMessage & msg);
 
       Array<Sint8> message;
       Uint32 queueId;

@@ -28,6 +28,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company 
+//              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,8 +48,6 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-
 
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     MessageQueue* outputQueue,
@@ -149,13 +149,15 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     Uint32 queueId = httpMessage->queueId;
 
-    // Save userName:
+    // Save userName and authType:
 
     String userName;
+    String authType = String::EMPTY;
 
     if ( httpMessage->authInfo->isAuthenticated() )
     {
         userName = httpMessage->authInfo->getAuthenticatedUser();
+        authType = httpMessage->authInfo->getAuthType();
     }
 
     // Parse the HTTP message:
@@ -217,7 +219,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
             return;
         }
 
-        handleMethodCall(queueId, content, userName);
+        handleMethodCall(queueId, content, authType, userName);
     }
     
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
@@ -229,6 +231,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMOperationRequestDecoder::handleMethodCall(
     Uint32 queueId,
     Sint8* content,
+    String authType,
     String userName)
 {
     Message* request;
@@ -320,73 +323,73 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
             if (CompareNoCase(cimMethodName, "GetClass") == 0)
                 request = decodeGetClassRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
                 request = decodeGetInstanceRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
                 request = decodeEnumerateClassNamesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "References") == 0)
                 request = decodeReferencesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
                 request = decodeReferenceNamesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
                 request = decodeAssociatorNamesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "Associators") == 0)
                 request = decodeAssociatorsRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
                 request = decodeCreateInstanceRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames") == 0)
                 request = decodeEnumerateInstanceNamesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
                 request = decodeDeleteQualifierRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
                 request = decodeGetQualifierRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
                 request = decodeSetQualifierRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
                 request = decodeEnumerateQualifiersRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
                 request = decodeEnumerateClassesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
                 request = decodeEnumerateClassNamesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
                 request = decodeEnumerateInstancesRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
                 request = decodeCreateClassRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
                 request = decodeModifyClassRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
                 request = decodeModifyInstanceRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
                 request = decodeDeleteClassRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
                 request = decodeDeleteInstanceRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
                 request = decodeGetPropertyRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
                 request = decodeSetPropertyRequest(
-                    queueId, parser, messageId, nameSpace, userName);
+                    queueId, parser, messageId, nameSpace, authType, userName);
             else
             {
                 String description = "Unknown intrinsic method: ";
@@ -476,6 +479,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                         messageId, 
                         reference, 
                         cimMethodName,
+                        authType,
                         userName);
                 }
             }
@@ -545,6 +549,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMClass newClass;
@@ -582,6 +587,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
         nameSpace,
         newClass,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -592,6 +598,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String className;
@@ -678,6 +685,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
         includeClassOrigin,
         propertyList,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -688,6 +696,7 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMClass modifiedClass;
@@ -726,6 +735,7 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
             nameSpace,
             modifiedClass,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -736,6 +746,7 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String className;
@@ -778,6 +789,7 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
             className,
             deepInheritance,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -788,6 +800,7 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String className;
@@ -857,6 +870,7 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
             includeQualifiers,
             includeClassOrigin,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -867,6 +881,7 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String className;
@@ -904,6 +919,7 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
         nameSpace,
         className,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -914,6 +930,7 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMInstance newInstance;
@@ -952,6 +969,7 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
             nameSpace,
             newInstance,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -962,6 +980,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference instanceName;
@@ -1041,6 +1060,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
         includeClassOrigin,
         propertyList,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -1051,6 +1071,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMNamedInstance modifiedInstance;
@@ -1113,6 +1134,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
             includeQualifiers,
             propertyList,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
 
@@ -1124,6 +1146,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String className;
@@ -1213,6 +1236,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
             includeClassOrigin,
             propertyList,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1223,6 +1247,7 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String className;
@@ -1261,6 +1286,7 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
             nameSpace,
             className,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1271,6 +1297,7 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference instanceName;
@@ -1308,6 +1335,7 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
         nameSpace,
         instanceName,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -1318,6 +1346,7 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMQualifierDecl qualifierDeclaration;
@@ -1356,6 +1385,7 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
             nameSpace,
             qualifierDeclaration,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1366,6 +1396,7 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String qualifierName;
@@ -1404,6 +1435,7 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
             nameSpace,
             qualifierName,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1414,6 +1446,7 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
@@ -1427,6 +1460,7 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
             messageId,
             nameSpace,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1437,6 +1471,7 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     String qualifierName;
@@ -1475,6 +1510,7 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
             nameSpace,
             qualifierName,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1485,6 +1521,7 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference objectName;
@@ -1541,6 +1578,7 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
             resultClass,
             role,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1551,6 +1589,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference objectName;
@@ -1640,6 +1679,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
             includeClassOrigin,
             propertyList,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1650,6 +1690,7 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference objectName;
@@ -1724,6 +1765,7 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
             role,
             resultRole,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1734,6 +1776,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference objectName;
@@ -1841,6 +1884,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
             includeClassOrigin,
             propertyList,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
     return(request);
@@ -1851,6 +1895,7 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference instanceName;
@@ -1897,6 +1942,7 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
         instanceName,
         propertyName,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -1907,6 +1953,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace,
+    const String& authType,
     const String& userName)
 {
     CIMReference instanceName;
@@ -1965,6 +2012,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
         propertyName,
         propertyValue,
         QueueIdStack(queueId, _returnQueueId),
+	authType,
         userName);
 
     return(request);
@@ -1976,6 +2024,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
     const String& messageId,
     const CIMReference& reference,
     const String& cimMethodName,
+    const String& authType,
     const String& userName)
 {
     CIMParamValue paramValue;
@@ -1994,6 +2043,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
             cimMethodName.allocateCString(),
             inParameters,
             QueueIdStack(queueId, _returnQueueId),
+	    authType,
             userName);
 
 

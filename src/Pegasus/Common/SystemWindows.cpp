@@ -225,11 +225,13 @@ Boolean System::isSystemUser(char* userName)
     return true;
 }
 
-Boolean System::isPrivilegedUser()
+Boolean System::isPrivilegedUser(const String userName)
 {
     // ATTN: Implement this method to verify if user executing the current
-    //       command is a priviliged user
-    //       This is used in cimuser CLI
+    //       command is a priviliged user, when user name is not passed as
+    //       as argument. If user name is passed the function checks 
+    //       whether the given user is a priviliged user.
+    //       This is used in cimuser CLI and CIMOperationRequestAuthorizer
     return true;
 }
     

@@ -26,6 +26,8 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company 
+//              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,6 +76,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
     void handleMethodCall(
 	Uint32 queueId,
 	Sint8* content,
+	String authType,
         String userName);
 
     CIMCreateClassRequestMessage* decodeCreateClassRequest(
@@ -81,6 +84,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
 
@@ -89,6 +93,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMModifyClassRequestMessage* decodeModifyClassRequest(
@@ -96,6 +101,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
@@ -103,6 +109,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
@@ -110,6 +117,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
@@ -117,6 +125,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
@@ -124,6 +133,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
@@ -131,6 +141,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
@@ -138,6 +149,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMEnumerateInstanceNamesRequestMessage* decodeEnumerateInstanceNamesRequest(
@@ -145,6 +157,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
@@ -152,6 +165,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
@@ -159,6 +173,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
@@ -166,6 +181,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
@@ -173,6 +189,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
@@ -180,6 +197,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
@@ -187,6 +205,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
@@ -194,6 +213,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMReferencesRequestMessage* decodeReferencesRequest(
@@ -201,6 +221,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
@@ -208,6 +229,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
@@ -215,6 +237,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
@@ -222,6 +245,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
@@ -229,6 +253,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	XmlParser& parser, 
 	const String& messageId,
         const String& nameSpace,
+        const String& authType,
         const String& userName);
 
     CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
@@ -237,6 +262,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	const String& messageId,
 	const CIMReference& reference,
 	const String& cimMethodName,
+	const String& authType,
         const String& userName);
         
     void sendMethodError(

@@ -23,7 +23,8 @@
 //
 // Author:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//		(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -139,6 +140,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
 
     String userName = String::EMPTY;
 
+    String authType = String::EMPTY;
+
     String nameSpace = String::EMPTY;
 
     String cimMethodName = String::EMPTY;
@@ -147,72 +150,93 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
     {
         case CIM_GET_CLASS_REQUEST_MESSAGE:
             userName = ((CIMGetClassRequestMessage*)request)->userName;
+            authType = 
+		((CIMGetClassRequestMessage*)request)->authType;
             nameSpace = ((CIMGetClassRequestMessage*)request)->nameSpace;
             cimMethodName = "GetClass";
             break;
 
         case CIM_GET_INSTANCE_REQUEST_MESSAGE:
             userName = ((CIMGetInstanceRequestMessage*)request)->userName;
+            authType = 
+		((CIMGetInstanceRequestMessage*)request)->authType;
             nameSpace = ((CIMGetInstanceRequestMessage*)request)->nameSpace;
             cimMethodName = "GetInstance";
             break;
 
         case CIM_DELETE_CLASS_REQUEST_MESSAGE:
             userName = ((CIMDeleteClassRequestMessage*)request)->userName;
+            authType = 
+		((CIMDeleteClassRequestMessage*)request)->authType;
             nameSpace = ((CIMDeleteClassRequestMessage*)request)->nameSpace;
             cimMethodName = "DeleteClass";
             break;
 
         case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
             userName = ((CIMDeleteInstanceRequestMessage*)request)->userName;
+            authType = 
+		((CIMDeleteInstanceRequestMessage*)request)->authType;
             nameSpace = ((CIMDeleteInstanceRequestMessage*)request)->nameSpace;
             cimMethodName = "DeleteInstance";
             break;
 
         case CIM_CREATE_CLASS_REQUEST_MESSAGE:
             userName = ((CIMCreateClassRequestMessage*)request)->userName;
+            authType = 
+		((CIMCreateClassRequestMessage*)request)->authType;
             nameSpace = ((CIMCreateClassRequestMessage*)request)->nameSpace;
             cimMethodName = "CreateClass";
             break;
 
         case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
             userName = ((CIMCreateInstanceRequestMessage*)request)->userName;
+            authType = 
+		((CIMCreateInstanceRequestMessage*)request)->authType;
             nameSpace = ((CIMCreateInstanceRequestMessage*)request)->nameSpace;
             cimMethodName = "CreateInstance";
             break;
 
         case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
             userName = ((CIMModifyClassRequestMessage*)request)->userName;
+            authType = 
+		((CIMModifyClassRequestMessage*)request)->authType;
             nameSpace = ((CIMModifyClassRequestMessage*)request)->nameSpace;
             cimMethodName = "ModifyClass";
             break;
 
         case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
             userName = ((CIMModifyInstanceRequestMessage*)request)->userName;
+            authType = 
+		 ((CIMModifyInstanceRequestMessage*)request)->authType;
             nameSpace = ((CIMModifyInstanceRequestMessage*)request)->nameSpace;
             cimMethodName = "ModifyInstance";
             break;
 
         case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
             userName = ((CIMEnumerateClassesRequestMessage*)request)->userName;
+            authType = ((CIMEnumerateClassesRequestMessage*)request)->authType;
             nameSpace = ((CIMEnumerateClassesRequestMessage*)request)->nameSpace;
             cimMethodName = "EnumerateClasses";
             break;
 
         case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
             userName = ((CIMEnumerateClassNamesRequestMessage*)request)->userName;
+            authType = 
+		((CIMEnumerateClassNamesRequestMessage*)request)->authType;
             nameSpace = ((CIMEnumerateClassNamesRequestMessage*)request)->nameSpace;
             cimMethodName = "EnumerateClassNames";
             break;
 
         case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
             userName = ((CIMEnumerateInstancesRequestMessage*)request)->userName;
+            authType = ((CIMEnumerateInstancesRequestMessage*)request)->authType;
             nameSpace = ((CIMEnumerateInstancesRequestMessage*)request)->nameSpace;
             cimMethodName = "EnumerateInstances";
             break;
 
         case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
             userName = ((CIMEnumerateInstanceNamesRequestMessage*)request)->userName;
+            authType = ((CIMEnumerateInstanceNamesRequestMessage*)request)->authType;
             nameSpace = ((CIMEnumerateInstanceNamesRequestMessage*)request)->nameSpace;
             cimMethodName = "EnumerateInstanceNames";
             break;
@@ -220,72 +244,84 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
         //ATTN: Implement this when ExecQuery is implemented in the decoder
         case CIM_EXEC_QUERY_REQUEST_MESSAGE:
             //userName = ((CIMExecQueryRequestMessage*)request)->userName;
+            //authType = ((CIMExecQueryRequestMessage*)request)->authType;
             //nameSpace = ((CIMExecQueryRequestMessage*)request)->nameSpace;
             //cimMethodName = "ExecQuery";
             break;
 
         case CIM_ASSOCIATORS_REQUEST_MESSAGE:
             userName = ((CIMAssociatorsRequestMessage*)request)->userName;
+            authType = ((CIMAssociatorsRequestMessage*)request)->authType;
             nameSpace = ((CIMAssociatorsRequestMessage*)request)->nameSpace;
             cimMethodName = "Associators";
             break;
 
         case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
             userName = ((CIMAssociatorNamesRequestMessage*)request)->userName;
+            authType = ((CIMAssociatorNamesRequestMessage*)request)->authType;
             nameSpace = ((CIMAssociatorNamesRequestMessage*)request)->nameSpace;
             cimMethodName = "AssociatorNames";
             break;
 
         case CIM_REFERENCES_REQUEST_MESSAGE:
             userName = ((CIMReferencesRequestMessage*)request)->userName;
+            authType = ((CIMReferencesRequestMessage*)request)->authType;
             nameSpace = ((CIMReferencesRequestMessage*)request)->nameSpace;
             cimMethodName = "References";
             break;
 
         case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
             userName = ((CIMReferenceNamesRequestMessage*)request)->userName;
+            authType = ((CIMReferenceNamesRequestMessage*)request)->authType;
             nameSpace = ((CIMReferenceNamesRequestMessage*)request)->nameSpace;
             cimMethodName = "ReferenceNames";
             break;
 
         case CIM_GET_PROPERTY_REQUEST_MESSAGE:
             userName = ((CIMGetPropertyRequestMessage*)request)->userName;
+            authType = ((CIMGetPropertyRequestMessage*)request)->authType;
             nameSpace = ((CIMGetPropertyRequestMessage*)request)->nameSpace;
             cimMethodName = "GetProperty";
             break;
 
         case CIM_SET_PROPERTY_REQUEST_MESSAGE:
             userName = ((CIMSetPropertyRequestMessage*)request)->userName;
+            authType = ((CIMSetPropertyRequestMessage*)request)->authType;
             nameSpace = ((CIMSetPropertyRequestMessage*)request)->nameSpace;
             cimMethodName = "SetProperty";
             break;
 
         case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
             userName = ((CIMGetQualifierRequestMessage*)request)->userName;
+            authType = ((CIMGetQualifierRequestMessage*)request)->authType;
             nameSpace = ((CIMGetQualifierRequestMessage*)request)->nameSpace;
             cimMethodName = "GetQualifier";
             break;
 
         case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
             userName = ((CIMSetQualifierRequestMessage*)request)->userName;
+            authType = ((CIMSetQualifierRequestMessage*)request)->authType;
             nameSpace = ((CIMSetQualifierRequestMessage*)request)->nameSpace;
             cimMethodName = "SetQualifier";
             break;
 
         case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
             userName = ((CIMDeleteQualifierRequestMessage*)request)->userName;
+            authType = ((CIMDeleteQualifierRequestMessage*)request)->authType;
             nameSpace = ((CIMDeleteQualifierRequestMessage*)request)->nameSpace;
             cimMethodName = "DeleteQualifier";
             break;
 
         case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
             userName = ((CIMEnumerateQualifiersRequestMessage*)request)->userName;
+            authType = ((CIMEnumerateQualifiersRequestMessage*)request)->authType;
             nameSpace = ((CIMEnumerateQualifiersRequestMessage*)request)->nameSpace;
             cimMethodName = "EnumerateQualifiers";
             break;
 
         case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
             userName = ((CIMInvokeMethodRequestMessage*)request)->userName;
+            authType = ((CIMInvokeMethodRequestMessage*)request)->authType;
             nameSpace = ((CIMInvokeMethodRequestMessage*)request)->nameSpace;
             cimMethodName = "InvokeMethod";
             break;
@@ -293,6 +329,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
         case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
             userName = 
                 ((CIMEnableIndicationSubscriptionRequestMessage*)request)->userName;
+            authType = 
+             ((CIMEnableIndicationSubscriptionRequestMessage*)request)->authType;
             nameSpace = 
                 ((CIMEnableIndicationSubscriptionRequestMessage*)request)->nameSpace;
             cimMethodName = "EnableIndicationSubscription";
@@ -301,6 +339,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
         case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
             userName = 
                 ((CIMModifyIndicationSubscriptionRequestMessage*)request)->userName;
+            authType = 
+                ((CIMModifyIndicationSubscriptionRequestMessage*)request)->authType;
             nameSpace = 
                 ((CIMModifyIndicationSubscriptionRequestMessage*)request)->nameSpace;
             cimMethodName = "ModifyIndicationSubscription";
@@ -309,6 +349,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
         case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
             userName = 
                 ((CIMDisableIndicationSubscriptionRequestMessage*)request)->userName;
+            authType = 
+                ((CIMDisableIndicationSubscriptionRequestMessage*)request)->authType;
             nameSpace = 
                 ((CIMDisableIndicationSubscriptionRequestMessage*)request)->nameSpace;
             cimMethodName = "DisableIndicationSubscription";
@@ -345,19 +387,57 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
     //
     UserManager* userManager = UserManager::getInstance();
 
-    if ( !userManager || !userManager->verifyAuthorization(
-        userName, nameSpace, cimMethodName) )
+    //
+    // Get a config manager instance and current value for 
+    // enableRemotePrivilegedUserAccess property.
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    String privilegedAccessEnabled = String::EMPTY; 
+    privilegedAccessEnabled = 
+	   configManager->getCurrentValue("enableRemotePrivilegedUserAccess");
+
+    //
+    // Check if the user is not priviliged, if so perform authorization check.
+    //
+    if ( ! System::isPrivilegedUser(userName) )
     {
-        String description = "Not authorized to run ";
-            description.append(cimMethodName);
-        description.append(" in the namespace ");
-        description.append(nameSpace);
+        if ( !userManager || !userManager->verifyAuthorization(
+              userName, nameSpace, cimMethodName) )
+        {
+            String description = "Not authorized to run ";
+                description.append(cimMethodName);
+            description.append(" in the namespace ");
+            description.append(nameSpace);
+
+            sendError(
+                queueId,
+                ((CIMRequestMessage*)request)->messageId,
+                cimMethodName,
+                CIM_ERR_FAILED,
+                description);
+
+            PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+
+            return;
+        }
+    }
+    //
+    // If the user is privileged, and remote privileged user access is not 
+    // enabled and the auth type is not local then reject access.
+    // If the auth type is local then allow access.
+    //
+    else if ( (!String::equalNoCase(authType,"Local")) &&
+                String::equalNoCase(privilegedAccessEnabled,"false"))
+    {
+        String description =
+               "Remote privileged user access is not enabled.";
 
         sendError(
             queueId,
             ((CIMRequestMessage*)request)->messageId,
             cimMethodName,
-            CIM_ERR_FAILED,
+            CIM_ERR_ACCESS_DENIED,
             description);
 
         PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);

@@ -53,7 +53,7 @@ class PEGASUS_COMMON_LINKAGE AuthenticationInfo
 {
 public:
 
-    enum Status { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
+    enum AuthStatus { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
 
     /** Constructors  */
     AuthenticationInfo();
@@ -64,14 +64,12 @@ public:
     /**
     Get the authentication status of the request
     */
-    Uint32 getAuthStatus() const { return _authStatus; }
-
-    // REVIEW: use Status type instead of Uint32.
+    AuthStatus getAuthStatus() const { return _authStatus; }
 
     /**
     Set the authentication status of the request
     */
-    void   setAuthStatus(Uint32 status);
+    void   setAuthStatus(AuthStatus status);
 
     // REVIEW: comments which just parrot the name of the method are not
     // useful and should be removed.
@@ -84,7 +82,7 @@ public:
     /**
     Set the authenticated user name
     */
-    void   setAuthenticatedUser(String userName);
+    void   setAuthenticatedUser(const String& userName);
 
     /**
     Get the authentication challenge
@@ -94,7 +92,7 @@ public:
     /**
     Set the authentication challenge
     */
-    void   setAuthChallenge(String challenge);
+    void   setAuthChallenge(const String& challenge);
 
     /**
     Get the authentication secret
@@ -104,7 +102,7 @@ public:
     /**
     Set the authentication secret
     */
-    void   setAuthSecret(String secret);
+    void   setAuthSecret(const String& secret);
 
     /**
     Set the privileged flag
@@ -121,11 +119,19 @@ public:
     */
     Boolean isAuthenticated() const { return (_authStatus == AUTHENTICATED) ? true : false; }
 
+    /**
+    Get the authentication type of the request
+    */
+    String getAuthType() const { return _authType; }
+
+    /**
+    Set the authentication type of the request
+    */
+    void   setAuthType(const String& authType);
+
 private:
 
-    // REVIEW: use Status type instead of Uint32.
-
-    Uint32  _authStatus;
+    AuthStatus _authStatus;
 
     String  _authUser;
 
@@ -134,6 +140,8 @@ private:
     String  _authSecret;
 
     Boolean _privileged;
+
+    String  _authType;
 };
 
 PEGASUS_NAMESPACE_END

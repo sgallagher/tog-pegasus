@@ -151,14 +151,16 @@ public:
     static Boolean isSystemUser(char* userName);
 
     /**
-    This function is used to check whether the user running the command is
-    a privileged user. On Unix implementation it checks whether the user
-    is a root user.
+    When the user name is not passed as an argument, this function 
+    checks whether the user running the command is a privileged user.
+    If a user name is given this function checks whether
+    the given user is a privileged user.
 
-    @return             true if the user running the command is a 
-			privileged user, else false
+    @param userName     User name to be checked.
+
+    @return             true if the user is a privileged user, else false
     */
-    static Boolean isPrivilegedUser();
+    static Boolean isPrivilegedUser(const String userName = String::EMPTY);
 
     /**
     This function is used to get the process ID of the calling process.

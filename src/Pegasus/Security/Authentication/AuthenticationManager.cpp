@@ -134,8 +134,8 @@ Boolean AuthenticationManager::performHttpAuthentication
     //
     // Check if the user is already authenticated
     //
-    if (authInfo->isAuthenticated() && (authInfo->isPrivileged() ||
-        String::equal(userName, authInfo->getAuthenticatedUser())))
+    if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
+        String::equal(userName, authInfo->getAuthenticatedUser()))
     {
         PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return true;
@@ -180,6 +180,8 @@ Boolean AuthenticationManager::performHttpAuthentication
     if (authenticated)
     {
         authInfo->setAuthStatus(AuthenticationInfo::AUTHENTICATED);
+
+        authInfo->setAuthType(type);
     }
 
     PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
@@ -217,8 +219,8 @@ Boolean AuthenticationManager::performPegasusAuthentication
     //
     // Check if the user is already authenticated
     //
-    if (authInfo->isAuthenticated() && (authInfo->isPrivileged() ||
-        String::equal(userName, authInfo->getAuthenticatedUser())))
+    if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
+        String::equal(userName, authInfo->getAuthenticatedUser()))
     {
         PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return true;
@@ -248,6 +250,8 @@ Boolean AuthenticationManager::performPegasusAuthentication
         {
             authInfo->setPrivileged(false);
         }
+
+        authInfo->setAuthType(authType);
     }
 
     PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);

@@ -9,31 +9,51 @@ TAG: VERSION_1_07
 
 2. (Markus Mueller) 05 Feb 2002 - AIX support.
 
-3. KS -  18 Feb 02 Add changes to test for and set the NULL value for CIMValues.
+3. (Sushma Fernandes - HP) 13 Feb 2002 Implemented FileSystemPropertyOwner
+    class to support PEGASUS_HOME dependent properties like Repository
+    location, Provider location and Consumer location.
+    The default location for these properties continue to be the same
+    as before. Added support to the Config Manager to own the
+    Pegasus Home variable and implemented method (getHomedPath) to
+    return absolute paths based from Pegasus Home.
+
+    For more information look in to the following files:
+    pegasus/src/Pegasus/Config/ConfigManager.h
+    pegasus/src/Pegasus/Config/ConfigManager.cpp
+    pegasus/src/Pegasus/Config/FileSystemPropertyOwner.h
+    pegasus/src/Pegasus/Config/FileSystemPropertyOwner.cpp
+
+4. KS -  18 Feb 02 Add changes to test for and set the NULL value for CIMValues.
    This forces new CIMValues to have a NULL attributes that is only
    reset when a value is "set" or copied into them.  the XML and MOF
    also deliver a NULL value back when the state of the CIMValue is NULL.
    There is a remaining addition to put an exception on CIMValue gets when
    the NULL attribute is set that we will install later.
    
-4. KS - 19 Feb 2002 Extended testclient slightly and cleaned up numerous bugs.
+5. KS - 19 Feb 2002 Extended testclient slightly and cleaned up numerous bugs.
 
-5. KS - 19 Feb 2002 - Add workpaper in doc/workpaper defining the Pegasus Qualifiers.
+6. KS - 19 Feb 2002 - Add workpaper in doc/workpaper defining the Pegasus Qualifiers.
    Note that this version of the paper still needs work.
 
-6. (Nag Boranna - HP) 20 Feb 2002 - Modified HTTPAcceptor to optionally bind to 
+7. (Nag Boranna - HP) 20 Feb 2002 - Modified HTTPAcceptor to optionally bind to 
 loopback host. Modified CIMClient to connect to loopback host when connectLocal() 
 method is used. Added a new method lookupPort() in System.h to return the system 
 configured wbem port number. Modified cimuser, cimauth and cimconfig CLI's to use 
 modified CIMClient connectLocal() interface.
 
-7. (KS- 21 Feb 2002) - Modified Makefile for repository load so located in
+8. (KS- 21 Feb 2002) - Modified Makefile for repository load so located in
 schema directory.  The one in src/pegasus/compiler/load is deprecated and
 will be deleted.
 
-8. KS-21 Feb 2002 - Added new constructor to CIMValue and associated tests
+9. KS-21 Feb 2002 - Added new constructor to CIMValue and associated tests
 
-9. RK-20 Feb 2002 - Add Array reference to CIMValue and added tests
+10. RK-20 Feb 2002 - Add Array reference to CIMValue and added tests
+
+11. (Sushma Fernandes - HP, Nag Boranna - HP) 22 Feb 2002 Implemented
+    checks for privileged user when performing authorization.
+    Added a configuration property enableRemotePrivilegedUserAccess.
+    This property needs to be set to true to enable privileged user access
+    for remote clients.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
@@ -613,20 +633,6 @@ repository implementation.
     cimserver and TestClient now understand the -SSL, resp. -ssl flag.
 
 60. (Bapu Patil - HP) Updated makefiles to support HP-UX IA64 bits O.S.
-
-61. (Sushma Fernandes - HP) 13 Feb 2001 Implemented FileSystemPropertyOwner 
-    class to support PEGASUS_HOME dependent properties like Repository 
-    location, Provider location and Consumer location. 
-    The default location for these properties continue to be the same 
-    as before. Added support to the Config Manager to own the
-    Pegasus Home variable and implemented method (getHomedPath) to
-    return absolute paths based from Pegasus Home.
-
-    For more information look in to the following files:
-    pegasus/src/Pegasus/Config/ConfigManager.h
-    pegasus/src/Pegasus/Config/ConfigManager.cpp
-    pegasus/src/Pegasus/Config/FileSystemPropertyOwner.h
-    pegasus/src/Pegasus/Config/FileSystemPropertyOwner.cpp
 
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch

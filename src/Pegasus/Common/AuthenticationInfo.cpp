@@ -42,7 +42,8 @@ AuthenticationInfo::AuthenticationInfo()
     _authUser(String::EMPTY),
     _authChallenge(String::EMPTY), 
     _authSecret(String::EMPTY),
-    _privileged(false) 
+    _privileged(false), 
+    _authType(String::EMPTY)
 { 
 
 }
@@ -56,7 +57,7 @@ AuthenticationInfo::~AuthenticationInfo()
 //
 // Set the authentication status of the request
 //
-void   AuthenticationInfo::setAuthStatus(Uint32 status)
+void   AuthenticationInfo::setAuthStatus(AuthStatus status)
 {
     _authStatus = status;
 }
@@ -64,7 +65,7 @@ void   AuthenticationInfo::setAuthStatus(Uint32 status)
 //
 // Set the authenticated user name
 //
-void   AuthenticationInfo::setAuthenticatedUser(String userName)
+void   AuthenticationInfo::setAuthenticatedUser(const String& userName)
 {
     _authUser = userName;
 }
@@ -72,7 +73,7 @@ void   AuthenticationInfo::setAuthenticatedUser(String userName)
 //
 // Set the authentication challenge
 //
-void   AuthenticationInfo::setAuthChallenge(String challenge)
+void   AuthenticationInfo::setAuthChallenge(const String& challenge)
 {
     _authChallenge = challenge;
 }
@@ -80,7 +81,7 @@ void   AuthenticationInfo::setAuthChallenge(String challenge)
 //
 // Set the authentication secret
 //
-void   AuthenticationInfo::setAuthSecret(String secret)
+void   AuthenticationInfo::setAuthSecret(const String& secret)
 {
     _authSecret = secret;
 }
@@ -91,6 +92,14 @@ void   AuthenticationInfo::setAuthSecret(String secret)
 void   AuthenticationInfo::setPrivileged(Boolean privileged)
 {
     _privileged = privileged;
+}
+
+//
+// Set the authentication type of the request
+//
+void   AuthenticationInfo::setAuthType(const String& authType)
+{
+    _authType = authType;
 }
 
 PEGASUS_NAMESPACE_END

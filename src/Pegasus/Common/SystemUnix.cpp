@@ -55,6 +55,7 @@
 #include <time.h>
 #include <netdb.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Destroyer.h>
 
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
 #include <pwd.h>
@@ -340,16 +341,41 @@ Boolean System::isSystemUser(char* userName)
     return true;
 }
 
-Boolean System::isPrivilegedUser()
+Boolean System::isPrivilegedUser(const String userName)
 {
     //
-    // Get the effective UID for the user 
+    // Check if username has been passed
     //
-    if ( geteuid() != 0 )
+    if ( userName != String::EMPTY )
     {
-	return false;
+        //
+        // Check if the given user is a privileged user
+        //
+        struct passwd   pwd;
+        struct passwd   *result;
+        char            pwdBuffer[1024];
+
+        ArrayDestroyer<char> userName_(userName.allocateCString());
+        if (getpwnam_r(userName_.getPointer(), &pwd, pwdBuffer, 1024, &result) == 0)
+        {
+            if ( pwd.pw_uid == 0 )
+            {
+                return true;
+            }
+            return false;
+        }
     }
-    return true;
+    else
+    {
+        //
+        // Get the effective UID for the user
+        //
+        if ( geteuid() != 0 )
+        {
+            return false;
+        }
+        return true;
+    }
 }
 
 Uint32 System::getPID()

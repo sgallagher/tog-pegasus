@@ -108,11 +108,11 @@ Boolean SecureLocalAuthenticator::authenticate
     //
     // remove the auth file created for this user request
     //
-    if (FileSystem::exists(filePath))
+    if (filePath.size())
     {
-        if (!FileSystem::removeFile(filePath))
+        if (FileSystem::exists(filePath))
         {
-           //ATTN: Log an error message 
+            FileSystem::removeFile(filePath);
         }
     }
 

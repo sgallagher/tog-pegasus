@@ -120,7 +120,8 @@ struct PropertyList ConfigManager::properties[] =
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",              (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
-    {"consumerDir",          (ConfigPropertyOwner* )ConfigManager::fileSystemOwner}
+    {"consumerDir",          (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
+    {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 };
 
 const Uint32 NUM_PROPERTIES = 

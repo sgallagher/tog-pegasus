@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By: 
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -207,6 +208,8 @@ private:
     struct ConfigProperty*      _httpAuthType;
 
     struct ConfigProperty*      _passwordFilePath;
+
+    struct ConfigProperty*      _enableRemotePrivilegedUserAccess;
 
 };
 

@@ -54,7 +54,8 @@ static struct ConfigPropertyRow properties[] =
     {"requireAuthentication", "false", 0, 0, 0},
     {"requireAuthorization", "false", 0, 0, 0},
     {"httpAuthType", "Basic", 0, 0, 0},
-    {"passwordFilePath", "cimserver.passwd", 0, 0, 0}
+    {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
+    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -67,6 +68,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _requireAuthorization = new ConfigProperty;
     _httpAuthType = new ConfigProperty;
     _passwordFilePath = new ConfigProperty();
+    _enableRemotePrivilegedUserAccess = new ConfigProperty();
 }
 
 /** Destructor  */
@@ -76,6 +78,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _requireAuthorization;
     delete _httpAuthType;
     delete _passwordFilePath;
+    delete _enableRemotePrivilegedUserAccess;
 }
 
 
@@ -141,6 +144,17 @@ void SecurityPropertyOwner::initialize()
                 _passwordFilePath->currentValue.append("/");
                 _passwordFilePath->currentValue += _passwordFilePath->defaultValue;
             }
+        }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "enableRemotePrivilegedUserAccess"))
+        {
+            _enableRemotePrivilegedUserAccess->propertyName = properties[i].propertyName;
+            _enableRemotePrivilegedUserAccess->defaultValue = properties[i].defaultValue;
+            _enableRemotePrivilegedUserAccess->currentValue = properties[i].defaultValue;
+            _enableRemotePrivilegedUserAccess->plannedValue = properties[i].defaultValue;
+            _enableRemotePrivilegedUserAccess->dynamic = properties[i].dynamic;
+            _enableRemotePrivilegedUserAccess->domain = properties[i].domain;
+            _enableRemotePrivilegedUserAccess->domainSize = properties[i].domainSize;
         }
     }
 
@@ -215,6 +229,21 @@ void SecurityPropertyOwner::getPropertyInfo(
             propertyInfo.append(STRING_FALSE);
         }
     }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        propertyInfo.append(_enableRemotePrivilegedUserAccess->propertyName);
+        propertyInfo.append(_enableRemotePrivilegedUserAccess->defaultValue);
+        propertyInfo.append(_enableRemotePrivilegedUserAccess->currentValue);
+        propertyInfo.append(_enableRemotePrivilegedUserAccess->plannedValue);
+        if (_requireAuthorization->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -241,6 +270,10 @@ const String SecurityPropertyOwner::getDefaultValue(const String& name)
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
         return (_passwordFilePath->defaultValue);
+    }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        return (_enableRemotePrivilegedUserAccess->defaultValue);
     }
     else
     {
@@ -269,6 +302,10 @@ const String SecurityPropertyOwner::getCurrentValue(const String& name)
     {
         return (_passwordFilePath->currentValue);
     }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        return (_enableRemotePrivilegedUserAccess->currentValue);
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -295,6 +332,10 @@ const String SecurityPropertyOwner::getPlannedValue(const String& name)
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
         return (_passwordFilePath->plannedValue);
+    }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        return (_enableRemotePrivilegedUserAccess->plannedValue);
     }
     else
     {
@@ -332,6 +373,10 @@ void SecurityPropertyOwner::initCurrentValue(
     {
         _passwordFilePath->currentValue = value;
     }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        _enableRemotePrivilegedUserAccess->currentValue = value;
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -366,6 +411,10 @@ void SecurityPropertyOwner::initPlannedValue(
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
         _passwordFilePath->plannedValue= value;
+    }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        _enableRemotePrivilegedUserAccess->plannedValue= value;
     }
     else
     {
@@ -412,6 +461,10 @@ void SecurityPropertyOwner::updateCurrentValue(
     {
         _passwordFilePath->currentValue = value;
     }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        _enableRemotePrivilegedUserAccess->currentValue = value;
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -449,6 +502,10 @@ void SecurityPropertyOwner::updatePlannedValue(
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
         _passwordFilePath->plannedValue = value;
+    }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        _enableRemotePrivilegedUserAccess->plannedValue = value;
     }
     else
     {
@@ -565,6 +622,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             }
         }
     }
+    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -592,6 +656,10 @@ Boolean SecurityPropertyOwner::isDynamic(const String& name)
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
         return (_passwordFilePath->dynamic);
+    }
+    if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        return (_enableRemotePrivilegedUserAccess->dynamic);
     }
     else
     {

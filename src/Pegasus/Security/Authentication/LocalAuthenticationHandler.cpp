@@ -90,15 +90,22 @@ Boolean LocalAuthenticationHandler::authenticate(
     // Look for another ':' seperator
     Uint32 colon2 = authHeader.find(colon1 + 1, ':');
 
-    if ( colon1 == PEG_NOT_FOUND )
+    String filePath;
+
+    String secretReceived;
+
+    if ( colon2 == PEG_NOT_FOUND )
     {
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-        return ( authenticated );
+        filePath = String::EMPTY;
+
+        secretReceived = authHeader.subString( colon1 + 1 );    
     }
+    else
+    {
+        filePath = authHeader.subString( colon1 + 1, (colon2 - colon1 - 1) );
 
-    String filePath = authHeader.subString( colon1 + 1, (colon2 - colon1 - 1) );
-
-    String secretReceived = authHeader.subString( colon2 + 1 );    
+        secretReceived = authHeader.subString( colon2 + 1 );    
+    }
 
     authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getAuthChallenge());

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.h,v $
+// Revision 1.2  2001/04/08 05:06:06  mike
+// New Files for Channel Implementation
+//
 // Revision 1.1  2001/04/08 04:46:11  mike
 // Added new selector class for windows
 //
@@ -36,20 +39,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class SelectorHandler;
+
 class PEGASUS_COMMON_LINKAGE Selector
 {
 public:
 
     enum Reason { READ = 1, WRITE = 2, EXCEPTION = 4 };
-
-    class Handler
-    {
-    public:
-
-	virtual ~Handler();
-
-	virtual Boolean handle(Uint32 desc, Uint32 reasons) = 0;
-    };
 
     virtual ~Selector();
 
@@ -58,13 +54,22 @@ public:
     virtual Boolean addHandler(
 	Uint32 desc, 
 	Uint32 reasons,
-	Handler* handler) = 0;
+	SelectorHandler* handler) = 0;
 
-    virtual Boolean removeHandler(Handler* handler) = 0;
+    virtual Boolean removeHandler(SelectorHandler* handler) = 0;
 
     /** Creates a selector for this platform.
     */
     static Selector* create();
+};
+
+class PEGASUS_COMMON_LINKAGE SelectorHandler
+{
+public:
+
+    virtual ~SelectorHandler();
+
+    virtual Boolean handle(Uint32 desc, Uint32 reasons) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.cpp,v $
+// Revision 1.2  2001/04/08 05:06:06  mike
+// New Files for Channel Implementation
+//
 // Revision 1.1  2001/04/08 04:46:11  mike
 // Added new selector class for windows
 //
@@ -43,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Selector::Handler::~Handler()
+SelectorHandler::~SelectorHandler()
 {
 
 }

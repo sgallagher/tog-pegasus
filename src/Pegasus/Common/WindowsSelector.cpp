@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsSelector.cpp,v $
+// Revision 1.2  2001/04/08 05:06:06  mike
+// New Files for Channel Implementation
+//
 // Revision 1.1  2001/04/08 04:46:11  mike
 // Added new selector class for windows
 //
@@ -144,7 +147,7 @@ Boolean WindowsSelector::select(Uint32 milliseconds)
 
 	if (reasons)
 	{
-	    Handler* handler = _entries[i].handler;
+	    SelectorHandler* handler = _entries[i].handler;
 
 	    if (!handler->handle(desc, reasons))
 		removeHandler(handler);
@@ -169,7 +172,7 @@ Boolean WindowsSelector::select(Uint32 milliseconds)
 Boolean WindowsSelector::addHandler(
     Uint32 desc,
     Uint32 reasons,
-    Handler* handler)
+    SelectorHandler* handler)
 {
     // See whether a handler is already registered for this one:
 
@@ -199,7 +202,7 @@ Boolean WindowsSelector::addHandler(
     return true;
 }
 
-Boolean WindowsSelector::removeHandler(Handler* handler)
+Boolean WindowsSelector::removeHandler(SelectorHandler* handler)
 {
     // Look for the given handler and remove it!
 

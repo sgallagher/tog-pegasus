@@ -22,60 +22,40 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: WindowsSelector.h,v $
-// Revision 1.2  2001/04/08 05:06:06  mike
+// $Log: Channel.cpp,v $
+// Revision 1.1  2001/04/08 05:06:06  mike
 // New Files for Channel Implementation
-//
-// Revision 1.1  2001/04/08 04:46:11  mike
-// Added new selector class for windows
 //
 //
 //END_HISTORY
 
-#ifndef Pegasus_CLASSNAME_h
-#define Pegasus_CLASSNAME_h
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Selector.h>
-#include <Pegasus/Common/Array.h>
+#include "Channel.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct WindowsSelectorRep;
-
-/** WindowsSelector class.
-*/
-class WindowsSelector : public Selector
+Channel::~Channel()
 {
-public:
 
-    WindowsSelector();
+}
 
-    virtual ~WindowsSelector();
+ChannelHandler::~ChannelHandler()
+{
 
-    virtual Boolean select(Uint32 milliseconds);
+}
 
-    virtual Boolean addHandler(
-	Uint32 desc, 
-	Uint32 reasons,
-	SelectorHandler* handler);
+ChannelHandlerFactory::~ChannelHandlerFactory()
+{
 
-    virtual Boolean removeHandler(SelectorHandler* handler);
+}
 
-private:
+ChannelConnector::~ChannelConnector()
+{
 
-    Uint32 _findEntry(Uint32 desc) const;
+}
 
-    struct Entry
-    {
-	Uint32 desc;
-	SelectorHandler* handler;
-    };
+ChannelAcceptor::~ChannelAcceptor()
+{
 
-    Array<Entry> _entries;
-    WindowsSelectorRep* _rep;
-};
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_CLASSNAME_h */

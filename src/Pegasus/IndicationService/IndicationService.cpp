@@ -37,6 +37,7 @@
 //               Dan Gorey, IBM (djgorey@us.ibm.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1730
 //               Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//               Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -3597,9 +3598,8 @@ String IndicationService::_checkPropertyWithDefault (
         }
     }
 
-    return result;
-
     PEG_METHOD_EXIT ();
+    return result;
 }
 
 String IndicationService::_initOrValidateStringProperty (
@@ -3632,10 +3632,10 @@ String IndicationService::_initOrValidateStringProperty (
             propertyValue, propertyName.getString ()));
     }
 
-    return result;
-
     PEG_METHOD_EXIT ();
+    return result;
 }
+
 
 
 void IndicationService::_checkProperty (
@@ -3800,8 +3800,8 @@ Boolean IndicationService::_canModify (
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, String::EMPTY);
     }
 
-    return true;
     PEG_METHOD_EXIT ();
+    return true;
 }
 
 Boolean IndicationService::_canDelete (

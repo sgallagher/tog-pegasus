@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/../slp/peg_slp_agent.h>
+#include <Pegasus/../slp/slp_agent/peg_slp_agent.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

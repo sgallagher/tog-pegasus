@@ -38,9 +38,6 @@
 #include <iostream.h>
 //#include <string.h>
 
-
-
-
 //The following include is needed for UUID Generator
 // #include <uuid/uuid.h>
 

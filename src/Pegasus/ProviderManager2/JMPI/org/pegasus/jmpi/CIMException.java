@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,9 +27,9 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -144,26 +144,29 @@ public class CIMException  extends Exception {
       if (msg!=null)
          return(id+" ("+msg+")");
       String str=id;
-      for (int i=0,m=params.length; i<m; i++) {
-          if (i==0) str=str+"\n";
-          else str=str+",";
-          str=str+params[i];
-       }
-       return str;
+      if (params!=null) {
+         for (int i=0,m=params.length; i<m; i++) {
+            if (i==0) str=str+"\n";
+            else str=str+",";
+            str=str+params[i];
+         }
+      }
+      return str;
    }
 
-    public String getMessage() {
+   public String getMessage() {
       if (msg!=null)
          return(msg);
       String str="";
-      for (int i=0,m=params.length; i<m; i++) {
-          if (i!=0) str=str+",";
-          str=str+params[i];
-       }
-       return str;
+      if (params!=null) {
+         for (int i=0,m=params.length; i<m; i++) {
+            if (i!=0) str=str+",";
+            str=str+params[i];
+         }
+      }
+      return str;
    }
 
-  static {
+   static {
    }
 };
-

@@ -243,7 +243,9 @@ void Message::endServer()
        _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
 	Sint16 _provTi, _totTi, _servTi;
-	//May need to use intermedate varriables in doc say that _providerTime should be a Timespan
+
+	/*Programs that call STAT_SERVEREND and STAT_SERVEREND_ERROR which in trun call 
+	endServer()] are not expecting to get any exceptions. So exceptions are commented out*/
 	try
     {
 	_provTi = CIMDateTime::getDifference(_timeProviderStart, _timeProviderEnd);
@@ -251,11 +253,11 @@ void Message::endServer()
 	//If there is an error in the provider no time is added to the count
 	catch (InvalidDateTimeFormatException e)
 	{_provTi = 0;
-	throw e;
+	//throw e;
 	}
 	catch (DateTimeOutOfRangeException e)
 	{_provTi = 0;
-	throw e;
+	//throw e;
 	}
 
 
@@ -266,11 +268,11 @@ void Message::endServer()
 	// if there is an error in the CIMOM no time is added to the count
 	catch (InvalidDateTimeFormatException e) 
 	{_totTi = 0;
-//	throw e;
+	//throw e;
 	}
 	catch (DateTimeOutOfRangeException e) 
 	{_totTi =0;
-//	throw e;
+	//throw e;
 	}		
 
 	totServerTime = _totTi;

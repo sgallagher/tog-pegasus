@@ -1,52 +1,58 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%//////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Day (mdday@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AsyncOpNode.h>
 
+PEGASUS_USING_STD;
+
+
 PEGASUS_NAMESPACE_BEGIN
 
-AsyncOpNode::AsyncOpNode()
-    : _client_sem(0),
-      _state(0),
-      _flags(0),
-      _op_dest(0),
-      _async_callback(0),
-      _callback_node(0),
-      _callback_response_q(0),
-      _callback_ptr(0)
-{
-}
+const Uint32 AsyncOpFlags::UNKNOWN           = 0x00000000;
+const Uint32 AsyncOpFlags::DELIVER           = 0x00000001; 
+const Uint32 AsyncOpFlags::RESERVE           = 0x00000002;
+const Uint32 AsyncOpFlags::PROCESSING        = 0x00000004;
+const Uint32 AsyncOpFlags::COMPLETE          = 0x00000008;
+const Uint32 AsyncOpFlags::INTERVAL_REPEAT   = 0x00000010;
+const Uint32 AsyncOpFlags::INDICATION        = 0x00000020;
+const Uint32 AsyncOpFlags::REMOTE            = 0x00000040;
+const Uint32 AsyncOpFlags::LOCAL_OUT_OF_PROC = 0x00000080;
 
-AsyncOpNode::~AsyncOpNode()
-{
-}
+
+const Uint32 AsyncOpState::NORMAL            = 0x00000000;
+const Uint32 AsyncOpState::PHASED            = 0x00000001;
+const Uint32 AsyncOpState::PARTIAL           = 0x00000002;
+const Uint32 AsyncOpState::TIMEOUT           = 0x00000004;
+const Uint32 AsyncOpState::SINGLE            = 0x00000008;
+const Uint32 AsyncOpState::MULTIPLE          = 0x00000010;
+const Uint32 AsyncOpState::TOTAL             = 0x00000020;
+
+
+
 
 PEGASUS_NAMESPACE_END

@@ -110,7 +110,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 }
 	 catch(...)
 	 {
-	    CIMDummyProvider *dummy = new CIMDummyProvider();
+	    CIMNullProvider *dummy = new CIMNullProvider();
 	    if(dummy == 0)
 	    {
 	       throw NullPointer();

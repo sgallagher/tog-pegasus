@@ -37,15 +37,13 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/HashTable.h>
-
+#include <Pegasus/Provider/CIMNullProvider.h>
 #include <Pegasus/ProviderManager/Lockable.h>
 #include <Pegasus/ProviderManager/Provider.h>
 #include <Pegasus/ProviderManager/ProviderModule.h>
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-
 
 class PEGASUS_SERVER_LINKAGE ProviderManager
 {

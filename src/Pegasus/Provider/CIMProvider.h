@@ -220,41 +220,26 @@ public:
     */
     virtual void terminate(void) = 0;
 
+    /** 
+    Allow a provider to decline a terminate call. If the provider
+    is unable to terminate, it should return false. Otherwise, 
+    it should call its <code>terminate</code> function and then
+    return true, as in the default implementation.
+
+    @exception None
+    */
+    virtual Boolean tryTerminate(void) 
+      {
+	terminate();
+	return true;
+      }
+
 };
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
 typedef CIMProvider CIMBaseProvider;
 #endif
 
-class PEGASUS_PROVIDER_LINKAGE CIMDummyProvider : virtual public CIMProvider
-{
-   public:
-      typedef CIMProvider Base;
-      
-      CIMDummyProvider()
-	 : Base()
-      {
-      }
-
-      ~CIMDummyProvider(void)
-      {
-      }
-
-      void initialize(CIMOMHandle & cimom)
-      {
-	 _cimom = cimom;
-      }
-      void terminate(void) 
-	{
-	  delete this;
-	}
-      
-
-   protected:
-      CIMOMHandle _cimom;
-      
-      
-};
 
 
 PEGASUS_NAMESPACE_END

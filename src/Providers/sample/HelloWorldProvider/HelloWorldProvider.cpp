@@ -33,20 +33,71 @@
 #include <Pegasus/Provider2/CIMProviderStub.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 
 #include "HelloWorldProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-static HelloWorldProvider provider;
-
-extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider_HelloWorldProvider()
+class IndicationThread : public Thread
 {
-	// cast the provider pointer to the primary interface. a cast is needed when
-	// the provider supports multiple interfaces to removed abiguity for the compiler.
-	// CIMBaseProvider cannot be used because all provider interfaces derive from it.
-	// Here, the use of CIMInstanceProvider makes the most sense.
-	return(new CIMProviderStub((CIMInstanceProvider *)&provider));
+public:
+	IndicationThread(void);
+	virtual ~IndicationThread(void);
+
+	void start(const Uint32 frequency, const String & message);
+	void stop(void);
+
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL run(void *);
+
+protected:
+	Uint32 _frequency;
+	String _message;
+
+};
+
+IndicationThread::IndicationThread(void) :
+	Thread(run, 0, false)
+{
+}
+
+IndicationThread::~IndicationThread(void)
+{
+}
+
+void IndicationThread::start(const Uint32 frequency, const String & message)
+{
+	_frequency = frequency;
+	_message = message;
+
+	run(this);
+}
+
+void IndicationThread::stop(void)
+{
+}
+
+PEGASUS_THREAD_RETURN __stdcall IndicationThread::run(void * pv)
+{
+	IndicationThread * pThread = (IndicationThread *)pv;
+	
+	while(true)
+	{
+		// create indication
+		CIMClass indication("Sample_HelloWorldIndication");
+
+		// add message to indication
+		//indication.addProperty(CIMProperty("Message", pThread->getMessage()));
+		
+		// add timestamp to indication
+		//indication.addProperty(CIMProperty("TimeStamp", CIMDateTime()));
+
+		// send indication
+		//_handler->deliver(indication);
+		
+		//pThread->sleep(pThread->getFrequency());
+	}
 }
 
 HelloWorldProvider::HelloWorldProvider(void)
@@ -143,7 +194,6 @@ void HelloWorldProvider::enumerateInstances(
 void HelloWorldProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMReference & classReference,
-	const Array<CIMProperty> & filter,
 	ResponseHandler<CIMReference> & handler)
 {
 	// begin processing the request
@@ -275,76 +325,43 @@ void HelloWorldProvider::deleteInstance(
 	*/
 }
 
-void HelloWorldProvider::enableIndication(
+void HelloWorldProvider::provideIndication(
 	const OperationContext & context,
-	const String & indiationName,
-	const CIMReference & objectReference,
+	const CIMReference & classReference,
+	const CIMDateTime & minimumInterval,
+	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	const Array<CIMProperty> & filter,
-	const Uint32 interval,
 	ResponseHandler<CIMIndication> & handler)
 {
-	/*
-	// evaluate the subscription
-
-	// create and start threads
-	for(Uint32 i = 0; i < _instances.size(); i++)
-	{
-		_monitors.append(IndicationThread());
-		_monitors[_monitors.size() - 1].run(0);
-	}
-	*/
-}
-
-void HelloWorldProvider::disableIndication(
-	const OperationContext & context,
-	const String & indicationName,
-	const CIMReference & objectReference,
-	const Array<String> & propertyList,
-	const Array<CIMProperty> & filter,
-	const Uint32 interval,
-	ResponseHandler<CIMIndication> & handler)
-{
-	/*
-	// stop and destroy threads
-	for(Uint32 i = 0; i < _monitors.size(); i++)
-	{
-		_monitors[i].cancel();
-		_monitors.remove(i);
-	}
-	*/
-}
-
-void HelloWorldProvider::queryIndication(
-	const OperationContext & context,
-	const String & indicationName,
-	const CIMReference & objectReference,
-	const Array<String> & popertyList,
-	const Array<CIMProperty> & filter,
-	ResponseHandler<CIMIndication> & handler)
-{
-	/*
-	// begin processing the request
 	handler.processing();
-	
-	// use the information to build a predicate object
-	CIMPredicate cimPredicate(objectReference, filter);
+}
 
-	// use the predicate object to compare againt cim object
-	for(Uint32 i = 0; i < _instances.size(); i++)
-	{
-		// create and indication if necessary, otherwise do nothing
-		if(cimPredicate.compare(_instances[i]))
-		{
-			handler.deliver(CIMIndication());
-		}
-	}
+void HelloWorldProvider::updateIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const CIMDateTime & minimumInterval,
+	const CIMDateTime & maximumInterval,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMIndication> & handler)
+{
+	handler.processing();
+}
 
-	// complete processing the request
+void HelloWorldProvider::cancelIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	ResponseHandler<CIMIndication> & handler)
+{
 	handler.complete();
-
-	// no need for threads
-	*/
+}
+	
+void HelloWorldProvider::checkIndication(
+	const OperationContext & context,
+	const CIMReference & classReference,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMIndication> & handler)
+{
+	throw NotSupported("HelloWorldProvider::checkIndication");
 }
 
 Array<CIMReference> HelloWorldProvider::_enumerateInstanceNames(
@@ -353,45 +370,9 @@ Array<CIMReference> HelloWorldProvider::_enumerateInstanceNames(
 {
 	SimpleResponseHandler<CIMReference> handler;
 
-	enumerateInstanceNames(context, classReference, Array<CIMProperty>(), handler);
+	enumerateInstanceNames(context, classReference, handler);
 
 	return(handler._objects);
 }
-
-/*
-HelloWorldProvider::IndicationThread::IndicationThread(void) : SimpleThread(PEGASUS_THREAD_RETURN(PEGASUS_THREAD_CDECL * run)(void *), 0, false)
-{
-}
-
-HelloWorldProvider::IndicationThread::IndicationThread(
-	const Uint32 frequency,
-	const String & message) : _frequency(frequency), _message(message)
-{
-}
-
-HelloWorldProvider::IndicationThread::~IndicationThread(void)
-{
-}
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL HelloWorldProvider::IndicationThread::run(void *)
-{
-	while(true)
-	{
-		// create indication
-		CIMClass indication("Sample_HelloWorldIndication");
-
-		// add message to indication
-		indication.addProperty(CIMProperty("Message", _message));
-		
-		// add timestamp to indication
-		indication.addProperty(CIMProperty("TimeStamp", CIMDateTime()));
-
-		// send indication
-		//_handler->deliver(indication);
-		
-		sleep(_frequency);
-	}
-}
-*/
 
 PEGASUS_NAMESPACE_END

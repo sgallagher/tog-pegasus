@@ -32,8 +32,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
 #include <Pegasus/Provider2/CIMIndicationProvider.h>
-//#include <Pegasus/Provider2/CIMPredicate.h>
-//#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -67,7 +67,6 @@ public:
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
 		const CIMReference & ref,
-		const Array<CIMProperty> & filter,
 		ResponseHandler<CIMReference> & handler);
 
 	virtual void modifyInstance(
@@ -87,31 +86,32 @@ public:
 		const CIMReference & ref,
 		ResponseHandler<CIMInstance> & handler);
 
-	// CIMInstanceProvider interface
-	virtual void enableIndication(
+	// CIMIndicationProvider interface
+	virtual void provideIndication(
 		const OperationContext & context,
-		const String & indiationName,
-		const CIMReference & objectReference,
+		const CIMReference & classReference,
+		const CIMDateTime & minimumInterval,
+		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		const Array<CIMProperty> & filter,
-		const Uint32 interval,
 		ResponseHandler<CIMIndication> & handler);
 
-	virtual void disableIndication(
+	virtual void updateIndication(
 		const OperationContext & context,
-		const String & indicationName,
-		const CIMReference & objectReference,
+		const CIMReference & classReference,
+		const CIMDateTime & minimumInterval,
+		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		const Array<CIMProperty> & filter,
-		const Uint32 interval,
 		ResponseHandler<CIMIndication> & handler);
 
-	virtual void queryIndication(
+	virtual void cancelIndication(
 		const OperationContext & context,
-		const String & indicationName,
-		const CIMReference & objectReference,
-		const Array<String> & popertyList,
-		const Array<CIMProperty> & filter,
+		const CIMReference & classReference,
+		ResponseHandler<CIMIndication> & handler);
+
+	virtual void checkIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const Array<String> & propertyList,
 		ResponseHandler<CIMIndication> & handler);
 
 protected:
@@ -120,28 +120,9 @@ protected:
 		const CIMReference & classReference);
 
 protected:
-	/*
-	class IndicationThread : public SimpleThread
-	{
-	public:
-		IndicationThread(void);
-		IndicationThread(const Uint32 frequenct, const String & message);
-		virtual ~IndicationThread(void);
-
-		PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL run(void *);
-
-	protected:
-		Uint32 _frequency;
-		String _message;
-
-	};
-	*/
-
-protected:
 	CIMOMHandle         _cimom;
 	
 	Array<CIMInstance>	_instances;
-	//Array<IndicationThread> _monitors;
 
 };
 

@@ -12,6 +12,7 @@ SOURCES = \
     Array.cpp \
     AsyncOpNode.cpp \
     AuthenticationInfo.cpp \
+    Base64.cpp \
     CGIQueryString.cpp \
     Char16.cpp \
     CIMClass.cpp \

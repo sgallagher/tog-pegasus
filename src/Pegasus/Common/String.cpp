@@ -43,6 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String String::EMPTY;
 
+//ATTN: KS 4 Feb 2002 - The following never referenced on in header
 static inline void _SkipWhitespace(const Char16*& p)
 {
     while (*p && isspace(*p))

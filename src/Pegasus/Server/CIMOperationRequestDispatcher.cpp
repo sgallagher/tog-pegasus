@@ -1254,8 +1254,8 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
         {
             providerInfo.hasProviderNormalization = true;
 
-            /*
             // get the provder module version
+            /*
             if((pos = pmInstance.findProperty("InterfaceVersion")) != PEG_NOT_FOUND)
             {
                 String interfaceVersion;
@@ -1363,20 +1363,6 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
             _lookupInstanceProvider(
                 nameSpace,
                 className);
-
-#if 0 
-        hasProvider = providerInfo.hasProvider;
-
-        if(hasProvider)
-        {
-            serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
-            providerName = providerInfo.controlProviderName;
-
-            //(*container) = providerInfo.providerIdContainer.get();
-
-            //*has_no_query = providerInfo.hasNoQuery;
-        }
-#endif        
     }
 
     PEG_TRACE_STRING(

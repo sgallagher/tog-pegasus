@@ -812,10 +812,6 @@ public:
     UnauthorizedAccess() : Exception(MSG) { }
 };
 
-PEGASUS_COMMON_LINKAGE void ThrowUninitializedHandle();
-
-PEGASUS_COMMON_LINKAGE void ThrowUninitializedObject();
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Exception_h */

@@ -273,7 +273,7 @@ Boolean CIMClass::hasKeys() const
 void CIMClass::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -459,7 +459,7 @@ Boolean CIMConstClass::hasKeys() const
 void CIMConstClass::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 PEGASUS_NAMESPACE_END

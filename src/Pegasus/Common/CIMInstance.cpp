@@ -211,7 +211,7 @@ String CIMInstance::toString() const
 void CIMInstance::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -360,7 +360,7 @@ String CIMConstInstance::toString() const
 void CIMConstInstance::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 PEGASUS_NAMESPACE_END

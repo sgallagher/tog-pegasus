@@ -133,7 +133,7 @@ CIMParamValue CIMParamValue::clone() const
 void CIMParamValue::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 PEGASUS_NAMESPACE_END

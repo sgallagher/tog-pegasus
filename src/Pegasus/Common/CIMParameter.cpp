@@ -155,7 +155,7 @@ CIMConstQualifier CIMParameter::getQualifier(Uint32 pos) const
 void CIMParameter::removeQualifier (Uint32 pos)
 {
     _checkRep ();
-    return _rep->removeQualifier (pos);
+    _rep->removeQualifier (pos);
 }
 
 Uint32 CIMParameter::getQualifierCount() const
@@ -184,7 +184,7 @@ CIMParameter CIMParameter::clone() const
 void CIMParameter::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 
@@ -313,7 +313,7 @@ CIMParameter CIMConstParameter::clone() const
 void CIMConstParameter::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 PEGASUS_NAMESPACE_END

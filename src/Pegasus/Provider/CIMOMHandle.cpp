@@ -54,13 +54,13 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
 
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
     if(_client_handle == 0)
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 }
 
@@ -108,7 +108,7 @@ CIMClass CIMOMHandle::getClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     // encode request
@@ -187,7 +187,7 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMEnumerateClassesRequestMessage * request =
@@ -227,7 +227,7 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMEnumerateClassNamesRequestMessage * request =
@@ -260,7 +260,7 @@ void CIMOMHandle::createClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMCreateClassRequestMessage * request =
@@ -289,7 +289,7 @@ void CIMOMHandle::modifyClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMModifyClassRequestMessage * request =
@@ -318,7 +318,7 @@ void CIMOMHandle::deleteClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     // encode request
@@ -352,7 +352,7 @@ CIMInstance CIMOMHandle::getInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     // encode request
@@ -443,7 +443,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     // encode request
@@ -539,7 +539,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     // encode request
@@ -614,7 +614,7 @@ CIMObjectPath CIMOMHandle::createInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMCreateInstanceRequestMessage * request =
@@ -647,7 +647,7 @@ void CIMOMHandle::modifyInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMModifyInstanceRequestMessage * request =
@@ -680,7 +680,7 @@ void CIMOMHandle::deleteInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMDeleteInstanceRequestMessage * request =
@@ -710,7 +710,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMExecQueryRequestMessage * request =
@@ -750,7 +750,7 @@ Array<CIMObject> CIMOMHandle::associators(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMAssociatorsRequestMessage * request =
@@ -799,7 +799,7 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMAssociatorNamesRequestMessage * request =
@@ -843,7 +843,7 @@ Array<CIMObject> CIMOMHandle::references(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMReferencesRequestMessage * request =
@@ -886,7 +886,7 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMReferenceNamesRequestMessage * request =
@@ -922,7 +922,7 @@ CIMValue CIMOMHandle::getProperty(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMGetPropertyRequestMessage * request =
@@ -957,7 +957,7 @@ void CIMOMHandle::setProperty(
 {
     if((_service == 0) || (_cimom == 0))
     {
-        ThrowUninitializedHandle();
+        throw UninitializedHandle ();
     }
 
     CIMSetPropertyRequestMessage * request =
@@ -994,7 +994,7 @@ CIMValue CIMOMHandle::invokeMethod(
 {
     if((_service == 0) || (_cimom == 0))
     {
-    ThrowUninitializedHandle();
+    throw UninitializedHandle ();
     }
 
     Message* request = new CIMInvokeMethodRequestMessage(

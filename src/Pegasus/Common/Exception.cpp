@@ -292,14 +292,4 @@ String CIMException::getTraceDescription() const
     return traceDescription;
 }
 
-void ThrowUninitializedHandle()
-{
-    throw UninitializedHandle();
-}
-
-void ThrowUninitializedObject()
-{
-    throw UninitializedObject();
-}
-
 PEGASUS_NAMESPACE_END

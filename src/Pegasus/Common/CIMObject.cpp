@@ -228,7 +228,7 @@ CIMObject CIMObject::clone() const
 void CIMObject::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -355,7 +355,7 @@ CIMObject CIMConstObject::clone() const
 void CIMConstObject::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 PEGASUS_NAMESPACE_END

@@ -223,7 +223,7 @@ CIMProperty CIMProperty::clone() const
 void CIMProperty::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -370,7 +370,7 @@ CIMProperty CIMConstProperty::clone() const
 void CIMConstProperty::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedObject();
+        throw UninitializedObject ();
 }
 
 PEGASUS_NAMESPACE_END

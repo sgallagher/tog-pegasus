@@ -92,7 +92,7 @@ public:
         @param value
         @param flavor - Flavor defined for this qualifier definition. Default
         for this parameter is CIMFlavor::NONE.
-        @param propoagated - Boolean defining whether this is a propagated
+        @param propagated - Boolean defining whether this is a propagated
         qualifier.  This is an optional parameter with default = false
         @return -Returns the instantiated qualifier object
     */

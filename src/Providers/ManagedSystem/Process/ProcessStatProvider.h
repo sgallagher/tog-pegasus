@@ -51,6 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define CLASS_CIM_UNITARY_COMPUTER_SYSTEM "CIM_UnitaryComputerSystem"
 #define CLASS_CIM_OPERATING_SYSTEM        "CIM_OperatingSystem"
 #define CLASS_PG_UNIX_PROCESS_STAT        "PG_UnixProcessStatisticalInformation"
+#define CLASS_PG_UNIX_PROCESS             "PG_UnixProcess"
 
 /* ==========================================================================
    The number of keys for the classes.
@@ -154,10 +155,6 @@ private:
   String _hostName;
 
   String _osName;
-  
-  void _chkInit(const OperationContext &);
-  
-  Boolean _initialized;
 };
 
 PEGASUS_NAMESPACE_END

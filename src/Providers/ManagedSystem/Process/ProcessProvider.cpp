@@ -33,8 +33,6 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#define CAPTION "UnixProcess"
-#define DESCRIPTION "The class PG_UnixProcess represents a running process"
 
 /* ==========================================================================
    Includes.
@@ -45,8 +43,6 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-#define NAMESPACE_SYSTEM "root/cimv2"
 
 ProcessProvider::ProcessProvider()
 {
@@ -118,8 +114,6 @@ void ProcessProvider::enumerateInstances(
 {   
     // cout << "ProcessProvider::enumerateInstances()" << endl;
 
-    _chkInit(context);
-
     int                 pIndex;
     String              className;
     Process _p;
@@ -164,8 +158,6 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
 {
     // cout << "ProcessProvider::enumerateInstanceNames()" << endl;
 
-    _chkInit(ctx);
-
     int                 pIndex;
     Process _p;
     String              className;
@@ -188,20 +180,23 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
             Array<KeyBinding> keyBindings;
 
             /* Construct the key bindings. */
+            // NOTE: We are returning empty strings
+            // for all keys except the CreationClassName
+            // and Handle
             keyBindings.append(KeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
-	    	                          CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
+	    	                          String::EMPTY,
                                           KeyBinding::STRING));
 		
             keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
-                                          _getCSName(),
+                                          String::EMPTY,
                                           KeyBinding::STRING));
     
             keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
-		                          CLASS_CIM_OPERATING_SYSTEM,
+		                          String::EMPTY,
                                           KeyBinding::STRING));
 		
             keyBindings.append(KeyBinding(PROPERTY_OS_NAME,
-                                          _getOSName(),
+                                          String::EMPTY,
                                           KeyBinding::STRING));
 
             keyBindings.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
@@ -213,7 +208,7 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
                                           KeyBinding::STRING));
 
             /* Deliver the names. */
-            handler.deliver(CIMReference(_getCSName(), // hostname
+            handler.deliver(CIMReference(String::EMPTY, // hostname
                                          ref.getNameSpace(),
                                          CLASS_PG_UNIX_PROCESS,
                                          keyBindings));
@@ -246,11 +241,8 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 {	
     // cout << "ProcessProvider::getInstance()" << endl;
 
-    _chkInit(ctx);
-
     KeyBinding         kb;
     String             className;
-    String             keyName;
     String             handle;
     int                pid;
     int                i;
@@ -277,39 +269,53 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 
 	kb = kbArray[i];
 
-	keyName = kb.getName();
+	String keyName = kb.getName();
+	String keyValue = kb.getValue();
 
-	if (String::equal(keyName, PROPERTY_CS_CREATION_CLASS_NAME)
-	    && String::equal(kb.getValue(),
-                             CLASS_CIM_UNITARY_COMPUTER_SYSTEM))	   
+        // CSCreationClassName can be empty or must match
+	if (String::equalNoCase(keyName, PROPERTY_CS_CREATION_CLASS_NAME) &&
+	    (String::equal(keyValue, String::EMPTY) ||
+	     String::equalNoCase(keyValue, CLASS_CIM_UNITARY_COMPUTER_SYSTEM)))   
 	{
 	    numberKeys++;
 	}
-	else if (String::equal(keyName, PROPERTY_CS_NAME)
-                 && String::equal(kb.getValue(), _getCSName()))
+	
+	// CSName can be empty or must match
+	else if (String::equalNoCase(keyName, PROPERTY_CS_NAME) &&
+	         (String::equal(keyValue, String::EMPTY) ||
+                  String::equalNoCase(keyValue, _getCSName())))
 	{
 	    numberKeys++;
 	}
-	else if (String::equal(keyName,
-                               PROPERTY_OS_CREATION_CLASS_NAME)
-	         && String::equal(kb.getValue(),
-                                  CLASS_CIM_OPERATING_SYSTEM))	   
+
+        // OSCreationClassName can be empty or must match
+	else if (String::equalNoCase(keyName,PROPERTY_OS_CREATION_CLASS_NAME) &&
+	         (String::equal(keyValue, String::EMPTY) ||
+	          String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM)))
 	{
 	    numberKeys++;
 	}
-	else if (String::equal(keyName, PROPERTY_OS_NAME)
-	         && String::equal(kb.getValue(), _getOSName()))	   
+
+        // OSName can be empty or must match
+	else if (String::equalNoCase(keyName, PROPERTY_OS_NAME) &&
+	         (String::equal(keyValue, String::EMPTY) ||
+	          String::equalNoCase(keyValue, _getOSName())))
 	{
 	    numberKeys++;
 	}
-	else if (String::equal(keyName, PROPERTY_CREATION_CLASS_NAME)
-	         && String::equal(kb.getValue(), CLASS_PG_UNIX_PROCESS))	   
-	{
+
+        // CreationClassName can be empty or must match
+	else if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME) &&
+	         (String::equal(keyValue, String::EMPTY) ||
+	          String::equalNoCase(keyValue, CLASS_PG_UNIX_PROCESS)))
+        {
 	    numberKeys++;
 	}
+
+        // Handle must be a valid pid, but we will know that later
 	else if (String::equal(keyName, PROPERTY_HANDLE))
 	{
-            handle = kb.getValue();
+            handle = keyValue;
 	    numberKeys++;
 	}
 	else
@@ -392,17 +398,13 @@ PARAMETERS        :
 */
 void ProcessProvider::initialize(CIMOMHandle &ch)
 {
-  // cout << "ProcessProvider::initialize()" << endl;
+   // cout << "ProcessProvider::initialize()" << endl;
   _ch = ch;
   
-  // Normally we would obtain CSName and OSName during
-  // initialization from instances of PG_ComputerSystem and
-  // PG_OperatingSystem, respectively, but since CIM operations
-  // through CIMOMHandle require a context parameter, we will
-  // do initialization, if necessary, in the other methods which
-  // are passed this parameter. Meanwhile, set flag.
-  _initialized = false;
-
+  // call platform-specific routine to get values
+  Process _p;
+  _hostName = _p.getCSName();
+  _osName = _p.getOSName();
   return;
   
 }  /* initialize */
@@ -449,10 +451,12 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
 // CIM_ManagedElement
 
 //   string Caption
-  inst.addProperty(CIMProperty(PROPERTY_CAPTION,CAPTION));
+  if (_p.getCaption(s))
+    inst.addProperty(CIMProperty(PROPERTY_CAPTION,s));
 
 //   string Description
-  inst.addProperty(CIMProperty(PROPERTY_DESCRIPTION,DESCRIPTION));
+  if (_p.getDescription(s))
+    inst.addProperty(CIMProperty(PROPERTY_DESCRIPTION,s));
 
 // CIM_ManagedSystemElement
 
@@ -471,26 +475,27 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
 
 // CIM_Process
 
+// We are returning empty strings for the "uninteresting" keys!!!
+
 //   [ key ] string CSCreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_CS_CREATION_CLASS_NAME,
-                               CLASS_CIM_UNITARY_COMPUTER_SYSTEM));
+  inst.addProperty(CIMProperty(PROPERTY_CS_CREATION_CLASS_NAME, String::EMPTY));
 
 //   [ key ] string CSName
-  inst.addProperty(CIMProperty(PROPERTY_CS_NAME,_getCSName()));
+  inst.addProperty(CIMProperty(PROPERTY_CS_NAME, String::EMPTY));
 
 //   [ key ] string OSCreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_OS_CREATION_CLASS_NAME,
-                               CLASS_CIM_OPERATING_SYSTEM));
+  inst.addProperty(CIMProperty(PROPERTY_OS_CREATION_CLASS_NAME, String::EMPTY));
 
 //   [ key ] string OSName
-  inst.addProperty(CIMProperty(PROPERTY_OS_NAME,_getOSName()));
+  inst.addProperty(CIMProperty(PROPERTY_OS_NAME, String::EMPTY));
 
 //   string Name
   if (_p.getName(s))
     inst.addProperty(CIMProperty(PROPERTY_NAME,s));
 
 //   [ key ] string CreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,className));
+  inst.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
+                               CLASS_PG_UNIX_PROCESS));
 
 //   [ key ] string Handle
   inst.addProperty(CIMProperty(PROPERTY_HANDLE,_p.getHandle()));
@@ -505,7 +510,19 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
 
 //   string OtherExecutionDescription
   if (_p.getOtherExecutionDescription(s))
-    inst.addProperty(CIMProperty(PROPERTY_OTHER_EXECUTION_DESCRIPTION,s));
+  {
+    // if an empty string was returned, the value must be set to NULL
+    // with type string, not an array
+    if (String::equal(s,String::EMPTY))
+    {
+      inst.addProperty(CIMProperty(PROPERTY_OTHER_EXECUTION_DESCRIPTION,
+                                   CIMValue(CIMType::STRING, false)));
+    }
+    else
+    {
+      inst.addProperty(CIMProperty(PROPERTY_OTHER_EXECUTION_DESCRIPTION,s));
+    }
+  }
 
 //   datetime CreationDate
   if (_p.getCreationDate(d))
@@ -607,72 +624,6 @@ void ProcessProvider::_checkClass(String& className)
     {
         throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
-}
-
-/*
-================================================================================
-NAME              : _chkInit
-DESCRIPTION       : initializes private members if not already done
-ASSUMPTIONS       : None
-PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             :
-================================================================================
-*/
-void ProcessProvider::_chkInit(const OperationContext &c)
-{
-  if (_initialized) return;
-
-  Process _p;
-
-  // try to obtain instance of CIM_UnitaryComputerSystem
-  Array<CIMReference> csNames = _ch.enumerateInstanceNames(
-                                  c,
-                                  NAMESPACE_SYSTEM,
-                                  CLASS_CIM_UNITARY_COMPUTER_SYSTEM);
-  if (csNames.size() != 0)
-  // we got an array of instanceNames; use only the first
-  {
-    Array<KeyBinding> kb = csNames[0].getKeyBindings();
-    for (int i=0; i<kb.size(); i++)
-    {
-      if (kb[i].getName() == "Name")
-      {
-        _hostName = kb[i].getValue();
-        break;
-      }
-    }
-  }
-  else
-  // That didn't work; call platform-specific code
-  {
-    _hostName = _p.getCSName();
-  }                                 
-
-  // try to obtain instance of CIM_OperatingSystem
-  Array<CIMReference> osNames = _ch.enumerateInstanceNames(
-                                  c,
-                                  NAMESPACE_SYSTEM,
-                                  "PG_OperatingSystem");
-  if (osNames.size() != 0)
-  // Use first instance of array
-  {
-    Array<KeyBinding> kb = osNames[0].getKeyBindings();
-    for (int i=0; i<kb.size(); i++)
-    {
-      if (kb[i].getName() == "Name")
-      {
-        _osName = kb[i].getValue();
-        return;
-      }
-    }
-  }
-  else
-  // Fall back to uname()
-  {
-    _osName = _p.getOSName();
-  }
-  return;
 }
 
 

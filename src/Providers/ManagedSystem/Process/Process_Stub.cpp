@@ -54,6 +54,38 @@ Process::~Process()
 
 /*
 ================================================================================
+NAME              : getCaption
+DESCRIPTION       : 
+ASSUMPTIONS       : 
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::getCaption(String& s) const
+{
+  s = String::EMPTY;
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getDescription
+DESCRIPTION       : 
+ASSUMPTIONS       : 
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::getDescription(String& s) const
+{
+  s = String::EMPTY;
+  return true;
+}
+
+/*
+================================================================================
 NAME              : getInstallDate
 DESCRIPTION       : 
 ASSUMPTIONS       : 
@@ -578,7 +610,7 @@ NOTES             :
 String Process::getHandle(void) const
 {
   // ATTN: This routine must be written to return this key value
-  return "";
+  return String::EMPTY;
 }
 
 
@@ -595,7 +627,7 @@ NOTES             :
 String Process::getCSName(void) const
 {
   // ATTN: This routine must be written to return this key value
-  return "";
+  return String::EMPTY;
 }
 
 
@@ -612,7 +644,7 @@ NOTES             :
 String Process::getOSName(void) const
 {
   // ATTN: This routine must be written to return this key value
-  return "";
+  return String::EMPTY;
 }
 
 

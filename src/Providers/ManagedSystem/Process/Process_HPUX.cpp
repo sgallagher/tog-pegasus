@@ -54,6 +54,40 @@ Process::~Process()
 
 /*
 ================================================================================
+NAME              : getCaption
+DESCRIPTION       : returns pst_ucomm, the "executable basename the
+                  : process is running" (so no path info)
+ASSUMPTIONS       : 
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::getCaption(String& s) const
+{
+  s = pInfo.pst_ucomm;
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getDescription
+DESCRIPTION       : returns pst_cmd (command line) as a string (contrast
+                  : this with ModulePath and Parameters below)
+ASSUMPTIONS       : 
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::getDescription(String& s) const
+{
+  s = pInfo.pst_cmd;
+  return true;
+}
+
+/*
+================================================================================
 NAME              : getInstallDate
 DESCRIPTION       : 
 ASSUMPTIONS       : 
@@ -175,8 +209,20 @@ NOTES             :
 */
 Boolean Process::getOtherExecutionDescription(String& s) const
 {
-  // ATTN need to coordinate this with above
-  s = "";
+  switch (pInfo.pst_stat)
+  {
+  case PS_ZOMBIE:
+    s = "Zombie";
+    break;
+  
+  case PS_OTHER:
+    s = "Other";
+    break;
+  
+  default:
+    s = String::EMPTY; // ExecutionState is not Other
+  }
+
   return true;
 }
 
@@ -203,7 +249,7 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
                        t->tm_min,
                        t->tm_sec,
                        (timezone>0)?'-':'+',
-                       timezone/60);
+                       timezone/60 - (t->tm_isdst? 60:0));
   d = timstr;
   return true;
 }
@@ -737,7 +783,7 @@ String Process::getOSName(void) const
 /*
 ================================================================================
 NAME              : getProcessInfo
-DESCRIPTION       : Call uname() and get the operating system name.
+DESCRIPTION       : Use pstat_getproc() to fill in a struct pst_status
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   : 

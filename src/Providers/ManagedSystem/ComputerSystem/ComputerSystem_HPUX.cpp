@@ -370,8 +370,8 @@ void ComputerSystem::initialize(void)
                        t->tm_hour,
                        t->tm_min,
                        t->tm_sec,
-                       (timezone<0)?'-':'+',
-                       timezone/60);
+                       (timezone>0)?'-':'+',
+                       timezone/60 - ( t->tm_isdst? 60:0 ));
   _installDate = timstr;
 
   // ----------------------------------------------------------

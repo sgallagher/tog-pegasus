@@ -86,7 +86,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PROPERTY_WORKING_SET_SIZE            "WorkingSetSize"
 
 #define PROPERTY_PARENT_PROCESS_ID           "ParentProcessID"
-#define PROPERTY_REAL_USER_ID                "ReadUserID"
+#define PROPERTY_REAL_USER_ID                "RealUserID"
 #define PROPERTY_PROCESS_GROUP_ID            "ProcessGroupID"
 #define PROPERTY_PROCESS_SESSION_ID          "ProcessSessionID"
 #define PROPERTY_PROCESS_TTY                 "ProcessTTY"
@@ -157,10 +157,6 @@ private:
   String _hostName;
 
   String _osName;
-
-  void _chkInit(const OperationContext &);
-
-  Boolean _initialized;
 };
 
 PEGASUS_NAMESPACE_END

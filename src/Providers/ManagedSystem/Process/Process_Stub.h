@@ -58,6 +58,10 @@ public:
   Process();
   ~Process();
 
+  Boolean getCaption(String&) const;
+  
+  Boolean getDescription(String&) const;
+
   Boolean getInstallDate(CIMDateTime&) const;
 
   Boolean getStatus(String&) const;

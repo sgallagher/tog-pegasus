@@ -689,7 +689,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     providerModule = providerModuleInstances[0];
 
   }
-  catch(CIMException & exception)
+  catch(const CIMException &)
   {
     PEG_METHOD_EXIT();
     return (false);
@@ -989,7 +989,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
     }
   }
-  catch (CIMException & exception)
+  catch (const CIMException &)
   {
     PEG_METHOD_EXIT();
     return (false);
@@ -3477,9 +3477,8 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     {
         elementInfo = new ProviderRegistrationTable(instances);
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
-        delete elementInfo;
         PEG_METHOD_EXIT();
         return;
     }

@@ -1032,12 +1032,6 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     const String & providerModuleName,
     Array<Uint16> status)
 {
-    CIMInstance instance;
-    CIMObjectPath reference;
-    Array<CIMInstance> cimNamedInstances;
-    String _providerModuleName;
-    Array<CIMObjectPath> instanceNames;
-
     //
     // create the key by using providerModuleName and MODULE_KEY
     //
@@ -1050,76 +1044,57 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     //
     try
     {
-	instanceNames = _repository->enumerateInstanceNames(
-		PEGASUS_NAMESPACENAME_INTEROP,
-		PEGASUS_CLASSNAME_PROVIDERMODULE);
+	Array <CIMKeyBinding> moduleKeyBindings;
+        moduleKeyBindings.append (CIMKeyBinding
+	    (_PROPERTY_PROVIDERMODULE_NAME,
+             providerModuleName, CIMKeyBinding::STRING));
+        CIMObjectPath reference ("", CIMNamespaceName (),
+            PEGASUS_CLASSNAME_PROVIDERMODULE, moduleKeyBindings);
 
-	for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
-	{
-	    //
-	    // get provider module name from reference
-  	    // 
+        //
+        // update repository
+        //
+        _repository->setProperty(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference, _PROPERTY_OPERATIONALSTATUS, status);
 
-	    Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+	//
+        //  get instance from the repository
+        //
+        CIMInstance _instance = _repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, reference);
 
-	    for(Uint32 j=0; j < keys.size(); j++)
-	    {
-		if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
-		{
-		    _providerModuleName = keys[j].getValue();
-		}
-  	    }
+        //
+        // remove old entry from table
+        //
+        ProviderRegistrationTable* _entry = 0;
 
-	    if (String::equalNoCase(providerModuleName, _providerModuleName))
-	    {
-		//
-		// update repository
-		//
-		_repository->setProperty(
-                    PEGASUS_NAMESPACENAME_INTEROP, 
-                    instanceNames[i], _PROPERTY_OPERATIONALSTATUS, status);
+        if (_registrationTable->table.lookup(_moduleKey, _entry))
+        {
+            delete _entry;
+            _registrationTable->table.remove(_moduleKey);
+        }
 
-		//
-		// update the table
-		//
-		CIMInstance _instance = _repository->getInstance(
-                    PEGASUS_NAMESPACENAME_INTEROP,
-                    instanceNames[i]);
+        //
+        // add the updated instance to the table
+        //
+        Array<CIMInstance> instances;
+        instances.append(_instance);
+        _addInstancesToTable(_moduleKey, instances);
 
-		//
-		// remove old entry from table
-		//
-                ProviderRegistrationTable* _entry = 0;
-
-                if (_registrationTable->table.lookup(_moduleKey, _entry))
-		{
-	            delete _entry;
-		    _registrationTable->table.remove(_moduleKey);
-		}
-
-		//
-		// add the updated instance to the table
-		//
-		Array<CIMInstance> instances;
-		instances.append(_instance);
-		_addInstancesToTable(_moduleKey, instances);
-		
-		_repository->write_unlock();
-		return (true);
-	    }
-	}
+        _repository->write_unlock();
+        return (true);
     }
     catch (CIMException& exception)
     {
-	_repository->write_unlock();
-	return (false);
+        _repository->write_unlock();
+        return (false);
     }
     catch (Exception& exception)
     {
-	_repository->write_unlock();
-	return (false);
+        _repository->write_unlock();
+        return (false);
     }
-
 
     // keep the compiler happy
     return (false);

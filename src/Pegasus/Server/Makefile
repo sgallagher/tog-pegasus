@@ -1,4 +1,4 @@
-ROOT = ../../..
+ROOT = $(PEGASUS_ROOT)
 
 DIR = Pegasus/Server
 
@@ -19,6 +19,7 @@ LOCAL_DEFINES +=  -DENABLE_PROVIDER_MANAGER2
 endif
 
 LIBRARY = pegserver
+		
 
 LIBRARIES = \
     pegcommon \
@@ -32,6 +33,7 @@ LIBRARIES = \
     peghandlerservice \
     pegindicationservice \
     pegwql \
+	pegclient \
     pegprm \
     ConfigSettingProvider \
     UserAuthProvider \

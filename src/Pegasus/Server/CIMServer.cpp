@@ -64,6 +64,12 @@
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 
+#include <Pegasus/Common/Thread.h>
+
+#ifdef PEGASUS_ENABLE_SLP
+#include <Pegasus/Client/CIMClient.h>
+#endif
+
 #ifdef ENABLE_PROVIDER_MANAGER2
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #else
@@ -158,6 +164,10 @@ void CIMServer::_init(void)
 
     String repositoryRootPath = String::EMPTY;
 
+#ifdef PEGASUS_ENABLE_SLP
+    _runSLP = true;         // Boolean cannot be set in definition.
+
+#endif
 
 #if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
     chdir( PEGASUS_CORE_DIR );
@@ -469,37 +479,38 @@ void CIMServer::runForever()
 
     if(!_dieNow)
       {
-	if(false == _monitor->run(100))
-	  {
-	    modulator++;
-	    if( ! (modulator % 5000) )
-	      {
-		try
-		  {
-		    MessageQueueService::_check_idle_flag = 1;
-		    MessageQueueService::_polling_sem.signal();
-		
-            #ifdef ENABLE_PROVIDER_MANAGER2
-            _providerManager->unload_idle_providers();
-            #else
-            ProviderManagerService::getProviderManager()->unload_idle_providers();
-            #endif
+    	if(false == _monitor->run(100))
+    	  {
+    	    modulator++;
+    	    if( ! (modulator % 5000) )
+    	      {
+    		    startSLPProvider();
+        		try
+        		  {
+                    MessageQueueService::_check_idle_flag = 1;
+        		    MessageQueueService::_polling_sem.signal();
+        		
+                    #ifdef ENABLE_PROVIDER_MANAGER2
+                    _providerManager->unload_idle_providers();
+                    #else
+                    ProviderManagerService::getProviderManager()->unload_idle_providers();
+                    #endif
+        
+        		  }
+        		catch(...)
+        		  {
+        		  }
+        	  }
+    	  }
 
-		  }
-		catch(...)
-		  {
-		  }
-	      }
-	  }
-
-	if (handleShutdownSignal)
-	  {
-	    Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-			  "CIMServer::runForever - signal received.  Shutting down.");
-	
-	    ShutdownService::getInstance(this)->shutdown(true, 10, false);
-	    handleShutdownSignal = false;
-	  }
+    	if (handleShutdownSignal)
+    	  {
+    	    Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+    			  "CIMServer::runForever - signal received.  Shutting down.");
+    	
+    	    ShutdownService::getInstance(this)->shutdown(true, 10, false);
+    	    handleShutdownSignal = false;
+    	  }
       }
   }
   else {
@@ -676,5 +687,125 @@ SSLContext* CIMServer::_getSSLContext()
 
     return _sslcontext;
 }
+
+#ifdef PEGASUS_ENABLE_SLP
+// startSLPProvider is a temporary hack to get the slp provider kicked off
+// during startup.  It is placed in the provider manager simply because 
+// the provider manager is the only component of the system that seems to
+// be driven by a timer after startup.  It should never be here and must be
+// moved to somewhere more logical or really replaced. We simply needed
+// something that was run shortly after system startup.
+// KS 15 February 2004.
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* param)
+{
+
+    static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE             = 
+        CIMName ("PG_WBEMSLPTEMPLATE");
+    //
+    // Create CIMClient object
+    //
+    CIMClient client;
+    //
+    // open connection to CIMOM 
+    //
+    String hostStr = System::getHostName();
+
+    try
+    {
+        //
+        client.connectLocal();
+
+        //
+        // set client timeout to 2 seconds
+        //
+        client.setTimeout(40000);
+        // construct CIMObjectPath
+        //
+        String referenceStr = "//";
+        referenceStr.append(hostStr);
+        referenceStr.append("/");  
+        referenceStr.append(PEGASUS_NAMESPACENAME_INTERNAL.getString());
+        referenceStr.append(":");
+        referenceStr.append(PEGASUS_CLASSNAME_WBEMSLPTEMPLATE.getString());
+        CIMObjectPath reference(referenceStr);
+
+        //
+        // issue the invokeMethod request on the register method
+        //
+        Array<CIMParamValue> inParams;
+        Array<CIMParamValue> outParams;
+
+        CIMValue retValue = client.invokeMethod(
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            reference,
+            CIMName("register"),
+            inParams,
+            outParams
+            );
+    }
+
+    catch(CIMException& e)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "SLP Registration Failed. CIMException");
+    }
+
+    catch(Exception& e)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "SLP Registration Failed Startup: CIMServer exception");
+    }
+
+    client.disconnect();
+
+    //ATTN: KS. The cout is temp and should be removed.
+    PEGASUS_STD(cout) << "Started SLP Provider thread." << PEGASUS_STD(endl);
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        "SLP Registered");
+	return( (PEGASUS_THREAD_RETURN)32 );
+}
+void CIMServer::startSLPProvider(void)
+{
+
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::startSLPProvider");
+
+    
+    //PEGASUS_STD(cout) << "SLP provider startup enter. runSLP =" 
+    //    << (_runSLP? "true" : "false") << PEGASUS_STD(endl);
+
+    // This is a onetime function.  If already issued, or config is not to use simply
+    // return
+    if (!_runSLP)
+    {
+        return;
+    }
+
+    // Get Config parameter to determine if we should start SLP.
+    ConfigManager* configManager = ConfigManager::getInstance();
+    _runSLP = String::equal(
+         configManager->getCurrentValue("slp"), "true");
+
+    // If false, do not start.
+    if (!_runSLP)
+    {
+        return;
+    }
+    //This is onetime; reset the switch so this
+    // function does not get called a second time.
+
+    //PEGASUS_STD(cout) << "starting SLP Provider thread. _runSLP=" 
+    //    << (_runSLP? "true" : "false") << PEGASUS_STD(endl);
+    _runSLP = false;
+
+    // Create a separate thread to execute the startup.
+	Thread t( _callSLPProvider, 0, true );
+	t.run();
+    //PEGASUS_STD(cout) << "started SLP Provider thread. _runSLP=" 
+    //    << (_runSLP? "true" : "false") << PEGASUS_STD(endl);
+
+    return;
+}
+#endif
 
 PEGASUS_NAMESPACE_END

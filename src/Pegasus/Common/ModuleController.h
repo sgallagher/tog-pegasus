@@ -25,7 +25,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com) <<< Wed Mar 13 20:49:40 2002 mdd >>>
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +44,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/peg_authorization.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h> 
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -102,7 +103,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	    
 
 	    Mutex _thread_safety;
-	    ModuleController *_controller;
+	    AutoPtr<ModuleController> _controller;//PEP101
 	    String _name;
 	    AtomicInt _reference_count;
 	    AtomicInt _shutting_down;
@@ -158,7 +159,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 
    private:
 
-      module_rep *_rep;
+      AutoPtr<module_rep> _rep;//PEP101
 
       pegasus_module(void)
       {
@@ -272,10 +273,11 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 	    ~callback_handle()
 	    {
 	       if( _module->get_name() == String(PEGASUS_MODULENAME_TEMP) )
-		  delete _module;
+		 // delete _module;
+		 _module.reset();
 	    }
 	    
-	    pegasus_module * _module;
+	    AutoPtr<pegasus_module> _module;//PEP101
 	    void *_parm;
       };
       

@@ -29,6 +29,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -394,7 +396,7 @@ public:
 
 private:
 
-    CIMValueRep* _rep;
+    AutoPtr<CIMValueRep> _rep;//PEP101
 
     friend class CIMMethodRep;
     friend class CIMParameterRep;

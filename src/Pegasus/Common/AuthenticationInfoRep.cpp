@@ -142,8 +142,7 @@ void   AuthenticationInfoRep::setSecurityAssociation()
 
     if ( !_securityAssoc.get() )
     {
-        _securityAssoc = AutoPtr<CIMKerberosSecurityAssociation>(new 
-                                 CIMKerberosSecurityAssociation);
+        _securityAssoc.reset(new CIMKerberosSecurityAssociation);
     }
 
     PEG_METHOD_EXIT();

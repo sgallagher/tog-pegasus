@@ -25,7 +25,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com) << Tue Mar 19 13:19:24 2002 mdd >>
 //
-// Modified By:
+// Modified By:  Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ pegasus_module::module_rep::module_rep(ModuleController *controller,
 				       void (*shutdown_notify)(Uint32 code, void *))
    : Base ( pegasus_internal_identity(peg_credential_types::MODULE) ),
      _thread_safety(),
-     _controller(controller), 
+     _controller(controller),  
      _name(name), 
      _reference_count(1), 
      _shutting_down(0),
@@ -180,15 +180,11 @@ pegasus_module::pegasus_module(ModuleController *controller,
  			       void *module_address,
 			       Message * (*receive_message)(Message *, void *),
 			       void (*async_callback)(Uint32, Message *, void *),
-			       void (*shutdown_notify)(Uint32 code, void *))
+                   void (*shutdown_notify)(Uint32 code, void *)) :
+             _rep(new module_rep(controller, id, module_address,
+                          receive_message, async_callback, shutdown_notify))
 {
-   _rep = new module_rep(controller, 
-			 id, 
-			 module_address, 
-			 receive_message,
-			 async_callback,
-			 shutdown_notify);
-   _allowed_operations = ModuleController::GET_CLIENT_HANDLE |
+      _allowed_operations = ModuleController::GET_CLIENT_HANDLE |
                          ModuleController::REGISTER_MODULE |
                          ModuleController::DEREGISTER_MODULE | 
                          ModuleController::FIND_SERVICE |
@@ -205,7 +201,7 @@ pegasus_module::pegasus_module(ModuleController *controller,
 pegasus_module::pegasus_module(const pegasus_module & mod)
 {
    mod._rep->reference();
-   _rep = mod._rep;
+   _rep.reset(mod._rep.get());
 }
 
 pegasus_module::~pegasus_module(void)
@@ -213,7 +209,7 @@ pegasus_module::~pegasus_module(void)
    _rep->dereference();
    _send_shutdown_notify();
    if( 0 == _rep->reference_count())
-      delete _rep;
+        _rep.reset();
 }
 
 Boolean pegasus_module::authorized(Uint32 operation)
@@ -232,15 +228,15 @@ pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
    if( this != &mod)
    {
       if ( _rep->reference_count() == 0 )
-	 delete _rep;
-      _rep = mod._rep;
+	              _rep.reset();
+      _rep.reset(mod._rep.get());
    }
    return *this;
 }
 
 Boolean pegasus_module::operator== (const pegasus_module & mod) const 
 {
-   if( mod._rep == _rep )
+   if( mod._rep.get() == _rep.get() ) 
       return true;
    return false;
    
@@ -256,7 +252,7 @@ Boolean pegasus_module::operator == (const String &  mod) const
 
 Boolean pegasus_module::operator == (const void *mod) const
 {
-   if ( (reinterpret_cast<const pegasus_module *>(mod))->_rep == _rep)
+   if ( (reinterpret_cast<const pegasus_module *>(mod))->_rep.get() == _rep.get())
       return true;
    return false;
 }
@@ -457,21 +453,20 @@ ModuleController & ModuleController::register_module(const String & controller_n
    // now reserve this module name with the meta dispatcher
 
    Uint32 result = 0 ;
-   RegisteredModule *request = 
-      new RegisteredModule(controller->get_next_xid(),
+   AutoPtr<RegisteredModule> request(new RegisteredModule(controller->get_next_xid(),
 			   0, 
 			   true, 
 			   controller->getQueueId(),
-			   module_name);
+			   module_name));
 
    request->dest = CIMOM_Q_ID;
    
-   AsyncReply * response = controller->SendWait(request);
-   if( response != NULL)
+   AutoPtr<AsyncReply> response(controller->SendWait(request.get()));
+   if( response.get() != NULL) 
       result  = response->result;
    
-   delete request; 
-   delete response;
+   request.reset();
+   response.reset();
    if ( result == async_results::MODULE_ALREADY_REGISTERED){
    	//l10n
       //throw AlreadyExistsException("module \"" + module_name + "\"");
@@ -503,18 +498,17 @@ Boolean ModuleController::deregister_module(const String & module_name)
    throw (Permission)
 
 {
-   DeRegisteredModule *request = 
-      new DeRegisteredModule(get_next_xid(),
+   AutoPtr<DeRegisteredModule> request(new DeRegisteredModule(get_next_xid(),
 			     0,
 			     true,
 			     getQueueId(),
-			     module_name);
+			     module_name));
    request->dest = _meta_dispatcher->getQueueId();
    
-   AsyncReply * response = SendWait(request);
+   AutoPtr<AsyncReply> response(SendWait(request.get()));
 
-   delete request;
-   delete response;
+   request.reset();
+   response.reset();
    
    pegasus_module *module;
 
@@ -581,21 +575,17 @@ Uint32 ModuleController::find_module_in_service(const pegasus_module & handle,
    Uint32 result = 0 ;
    
 
-   FindModuleInService *request = 
-      new FindModuleInService(get_next_xid(),
+   AutoPtr<FindModuleInService> request(new FindModuleInService(get_next_xid(),
 			      0, 
 			      true, 
 			      _meta_dispatcher->getQueueId(),
-			      name);
+			      name)); 
    request->dest = _meta_dispatcher->getQueueId();
-   FindModuleInServiceResponse * response =
-      static_cast<FindModuleInServiceResponse *>(SendWait(request));
-   if( response != NULL)
+   AutoPtr<FindModuleInServiceResponse>
+       response(static_cast<FindModuleInServiceResponse *>(SendWait(request.get())));
+   if( response.get() != NULL)
       result = response->_module_service_queue;
 
-   delete request;
-   delete response;
-   
    return result;
 }
 
@@ -648,29 +638,26 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 					 const String & destination_module, 
 					 AsyncRequest *message)
 {
-   AsyncModuleOperationStart *request = 
-      new AsyncModuleOperationStart(get_next_xid(),
+   AutoPtr<AsyncModuleOperationStart> request(new AsyncModuleOperationStart(get_next_xid(),
 				    0, 
 				    destination_q,
 				    getQueueId(),
 				    true, 
 				    destination_module,
-				    message);
+				    message));
    
    request->dest = destination_q;
-   AsyncModuleOperationResult *response = 
-      static_cast<AsyncModuleOperationResult *>(SendWait(request));
-   
+   AutoPtr<AsyncModuleOperationResult> 
+      response(static_cast<AsyncModuleOperationResult *>(SendWait(request.get())));
+
    AsyncReply *ret = 0;
    
-   if (response != NULL && response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
+   if (response.get() != NULL && response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
    {
       ret = static_cast<AsyncReply *>(response->get_result());
       //clear the request out of the envelope so it can be deleted by the module
    }
    request->get_action();
-   delete request; 
-   delete response;
    return ret;
 }
 
@@ -861,13 +848,12 @@ void ModuleController::_blocking_thread_exec(
    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
    void *parm) 
 {
-   Semaphore *blocking_sem = new Semaphore(0);
-   while (!_thread_pool->allocate_and_awaken(parm, thread_func, blocking_sem))
+   AutoPtr<Semaphore> blocking_sem(new Semaphore(0));
+   while (!_thread_pool->allocate_and_awaken(parm, thread_func, blocking_sem.get()))
    {
       pegasus_yield();
    }
    blocking_sem->wait();
-   delete blocking_sem;
 }
 
 

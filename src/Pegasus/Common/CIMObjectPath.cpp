@@ -28,6 +28,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +40,6 @@
 #include "CIMObjectPath.h"
 #include "Indentor.h"
 #include "CIMName.h"
-#include "Destroyer.h"
 #include "XmlWriter.h"
 #include "XmlReader.h"
 #include "ArrayInternal.h"
@@ -177,19 +177,19 @@ public:
 };
 
 
-CIMKeyBinding::CIMKeyBinding()
+CIMKeyBinding::CIMKeyBinding():
+            _rep(new CIMKeyBindingRep()) 
 {
-    _rep = new CIMKeyBindingRep();
 }
 
-CIMKeyBinding::CIMKeyBinding(const CIMKeyBinding& x)
+CIMKeyBinding::CIMKeyBinding(const CIMKeyBinding& x):
+            _rep(new CIMKeyBindingRep(*(x._rep.get())))
 {
-    _rep = new CIMKeyBindingRep(*x._rep);
 }
 
-CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type)
+CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type) :
+            _rep(new CIMKeyBindingRep(name, value, type)) 
 {
-    _rep = new CIMKeyBindingRep(name, value, type);
 }
 
 CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
@@ -220,17 +220,17 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
         break;
     }
 
-    _rep = new CIMKeyBindingRep(name, kbValue, kbType);
+    _rep.reset(new CIMKeyBindingRep(name, kbValue, kbType));
 }
 
 CIMKeyBinding::~CIMKeyBinding()
 {
-    delete _rep;
 }
 
 CIMKeyBinding& CIMKeyBinding::operator=(const CIMKeyBinding& x)
 {
-    *_rep = *x._rep;
+    CIMKeyBindingRep *tmp = new CIMKeyBindingRep(*x._rep.get());
+    _rep.reset(tmp);
     return *this;
 }
 
@@ -521,14 +521,15 @@ public:
 };
 
 
-CIMObjectPath::CIMObjectPath()
+CIMObjectPath::CIMObjectPath() :
+         _rep(new CIMObjectPathRep()) 
 {
-    _rep = new CIMObjectPathRep();
+    
 }
 
-CIMObjectPath::CIMObjectPath(const CIMObjectPath& x)
+CIMObjectPath::CIMObjectPath(const CIMObjectPath& x) :
+         _rep(new CIMObjectPathRep(*x._rep.get())) 
 {
-    _rep = new CIMObjectPathRep(*x._rep);
 }
 
 CIMObjectPath::CIMObjectPath(const String& objectName)
@@ -537,7 +538,7 @@ CIMObjectPath::CIMObjectPath(const String& objectName)
     CIMObjectPath tmpRef;
     tmpRef.set(objectName);
 
-    _rep = new CIMObjectPathRep(*tmpRef._rep);
+    _rep.reset(new CIMObjectPathRep(*tmpRef._rep.get()));
 }
 
 CIMObjectPath::CIMObjectPath(
@@ -550,17 +551,17 @@ CIMObjectPath::CIMObjectPath(
     CIMObjectPath tmpRef;
     tmpRef.set(host, nameSpace, className, keyBindings);
 
-    _rep = new CIMObjectPathRep(*tmpRef._rep);
+    _rep.reset(new CIMObjectPathRep(*tmpRef._rep.get()));
 }
 
 CIMObjectPath::~CIMObjectPath()
 {
-    delete _rep;
 }
 
 CIMObjectPath& CIMObjectPath::operator=(const CIMObjectPath& x)
 {
-    *_rep = *x._rep;
+    CIMObjectPathRep *tmp = new CIMObjectPathRep(*x._rep.get());
+    _rep.reset(tmp);
     return *this;
 }
 

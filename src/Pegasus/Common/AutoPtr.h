@@ -129,9 +129,8 @@ public:
      }
  
      template<class Y> AutoPtr(AutoPtr<Y> &a) throw()
-         : _ptr(a._ptr)
+         : _ptr(a.release()) 
      {
-         a._ptr = 0;
      }
  
      // Overloading of "=" operator makes sure that the ownership of the memory
@@ -143,10 +142,11 @@ public:
          return(*this);
     }
 
-	 template<class Y> AutoPtr &operator=(AutoPtr<Y> &a) throw()
+   	//template<class Y> AutoPtr &operator=(AutoPtr<Y> &a) throw()
+     template<class Y> AutoPtr<X> &operator=(AutoPtr<Y> &a) throw()  
      {
-         reset(a.release());
-         return(*this);
+          reset(a.release());
+          return(*this);
      }
 
      // This method can be used to get the pointer to heap object encapsulated
@@ -199,7 +199,7 @@ public:
      }
 
      AutoPtr(AutoPtrRef<X> obj) throw()
-         : _ptr((obj.get())._ptr)
+         : _ptr((obj.get()).get())
      {
          // This block intentionally left blank
      }
@@ -241,9 +241,8 @@ public:
      }
  
      template<class Y> AutoArrayPtr(AutoArrayPtr<Y> &a) throw()
-         : _ptr(a._ptr)
+         : _ptr(a.release())  
      {
-         a._ptr = 0;
      }
  
      inline AutoArrayPtr<X> &operator=(AutoArrayPtrRef<X> &a) throw()
@@ -291,7 +290,7 @@ public:
      }
 
      AutoArrayPtr(AutoArrayPtrRef<X> obj) throw()
-         : _ptr((obj.get())._ptr)
+         : _ptr((obj.get()).get())
      {
          // This block intentionally left blank
      }

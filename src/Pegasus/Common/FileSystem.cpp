@@ -27,6 +27,7 @@
 //
 // Modified By:
 //         Ramnath Ravindran(Ramnath.Ravindran@compaq.com)
+//         Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,7 @@
 //#include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include "Destroyer.h"
+#include <Pegasus/Common/AutoPtr.h>
 #include "FileSystem.h"
 #include "Dir.h"
 
@@ -379,10 +380,8 @@ void FileSystem::translateSlashes(String& path)
 // Return the just the base name from the path.
 String  FileSystem::extractFileName(const String& path)
 {
-  char *p_path = new char[path.size() + 1];
-  String basename = System::extract_file_name((const char *)path.getCString(), p_path);
-  
-  delete [] p_path;
+  AutoArrayPtr<char> p_path(new char[path.size() + 1]);
+  String basename = System::extract_file_name((const char *)path.getCString(), p_path.get());
   
   return basename;
 }
@@ -390,10 +389,8 @@ String  FileSystem::extractFileName(const String& path)
 // Return just the path to the file or directory into path
 String FileSystem::extractFilePath(const String& path)
 {
-  char *p_path = new char[path.size() + 1];
-  String newpath = System::extract_file_path((const char *)path.getCString(), p_path);
-  
-  delete [] p_path;
+  AutoArrayPtr<char> p_path(new char[path.size() + 1]);
+  String newpath = System::extract_file_path((const char *)path.getCString(), p_path.get());
   
   return newpath;
 }

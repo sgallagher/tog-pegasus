@@ -25,7 +25,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +36,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -87,7 +88,7 @@ private:
     Boolean _more;
     Boolean _isValid;
     String _path;
-    DirRep* _rep;
+    AutoPtr<DirRep> _rep;
 };
 
 PEGASUS_NAMESPACE_END

@@ -25,11 +25,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Destroyer.h"
 #include "Dir.h"
 #include "InternalException.h"
 
@@ -44,15 +43,16 @@ struct DirRep
     struct _finddata_t findData;
 };
 
-Dir::Dir(const String& path)
+Dir::Dir(const String& path) :
+       _rep(new DirRep)
 {
-    _rep = new DirRep;
     _rep->file = _findfirst((path+"/*").getCString(), &_rep->findData);
 
     if (_rep->file == -1)
     {
 	_more = false;
-        delete _rep;
+        //delete _rep; 
+        _rep.reset();
 	throw CannotOpenDirectory(path);
     }
     else
@@ -64,7 +64,8 @@ Dir::~Dir()
     if (_rep->file != -1)
 	_findclose(_rep->file);
 
-    delete _rep;
+   
+    _rep.reset();
 }
 
 const char* Dir::getName() const

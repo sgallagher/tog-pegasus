@@ -25,11 +25,10 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Destroyer.h"
 #include "Dir.h"
 #include "InternalException.h"
 
@@ -83,10 +82,9 @@ struct DirRep
 };
 
 Dir::Dir(const String& path)
-    : _path(path)
+    : _path(path), _rep(new DirRep)
 {
-    _rep = new DirRep;
-
+ 
 #ifdef PEGASUS_OS_OS400
     CString tmpPathclone = _clonePath(_path);
     const char* tmpPath = tmpPathclone;
@@ -117,7 +115,7 @@ Dir::Dir(const String& path)
         {
 	    _more = false;
             closedir(_rep->dir);
-            delete _rep;
+            _rep.reset();
 	    throw CannotOpenDirectory(_path);
         }
 #else
@@ -128,7 +126,7 @@ Dir::Dir(const String& path)
     else
     {
 	_more = false;
-        delete _rep;
+    _rep.reset();
 	throw CannotOpenDirectory(_path);
     }
 }
@@ -138,7 +136,6 @@ Dir::~Dir()
     if (_rep->dir)
 	closedir(_rep->dir);
 
-    delete _rep;
 }
 
 const char* Dir::getName() const

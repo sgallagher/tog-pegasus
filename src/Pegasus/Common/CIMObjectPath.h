@@ -28,6 +28,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/AutoPtr.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -127,7 +129,7 @@ public:
 
 private:
 
-    CIMKeyBindingRep* _rep;
+    AutoPtr<CIMKeyBindingRep> _rep;//PEP101
 
     friend class CIMObjectPath;
 };
@@ -534,7 +536,7 @@ private:
     */
     String _toStringCanonical() const;
 
-    CIMObjectPathRep* _rep;
+    AutoPtr<CIMObjectPathRep> _rep;//PEP101
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(

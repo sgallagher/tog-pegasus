@@ -30,26 +30,21 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusVersion.h>
-
-#include <iostream>
 #include <Pegasus/ExportClient/CIMExportClient.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-//#define DDD(X) X
-#define DDD(X) // X
-
-DDD(static const char* _CIMXMLINDICATIONHANDLER = "CIMxmlIndicationHandler::";)
 
 static Boolean verifyListenerCertificate(SSLCertificateInfo &certInfo)
 {
@@ -65,41 +60,52 @@ public:
 
     CIMxmlIndicationHandler()
     {
-        DDD(cout << _CIMXMLINDICATIONHANDLER << "CIMxmlIndicationHandler()" << endl;)
+        PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+            "CIMxmlIndicationHandler::CIMxmlIndicationHandler");
+        PEG_METHOD_EXIT();
     }
 
     virtual ~CIMxmlIndicationHandler()
     {
-        DDD(cout << _CIMXMLINDICATIONHANDLER << "~CIMxmlIndicationHandler()" << endl;)
+        PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+            "CIMxmlIndicationHandler::~CIMxmlIndicationHandler");
+        PEG_METHOD_EXIT();
     }
 
     void initialize(CIMRepository* repository)
     {
-        DDD(cout << _CIMXMLINDICATIONHANDLER << "initialize()" << endl;)
+
     }
 
     void terminate()
     {
-        DDD(cout << _CIMXMLINDICATIONHANDLER << "terminate()" << endl;)
+
     }
 
 // l10n
     void handleIndication(
-	const OperationContext& context,
-	CIMInstance& indicationHandlerInstance, 
-	CIMInstance& indicationInstance, 
-	String nameSpace,
-	ContentLanguages& contentLanguages)
+    const OperationContext& context,
+    CIMInstance& indicationHandlerInstance, 
+    CIMInstance& indicationInstance, 
+    String nameSpace,
+    ContentLanguages& contentLanguages)
     {
-	//get destination for the indication
-	Uint32 pos = indicationHandlerInstance.findProperty 
-            (CIMName ("destination"));
+        PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+            "CIMxmlIndicationHandler::handleIndication");
+
+        //get destination for the indication
+        Uint32 pos = indicationHandlerInstance.findProperty(CIMName ("destination"));
         if (pos == PEG_NOT_FOUND)
         {
-            // ATTN: Deal with a malformed handler instance
+            String msg = _getMalformedExceptionMsg();
+
+            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
+
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
         }
 
-	CIMProperty prop = indicationHandlerInstance.getProperty(pos);
+        CIMProperty prop = indicationHandlerInstance.getProperty(pos);
 
         String dest;
         try
@@ -108,10 +114,19 @@ public:
         }
         catch (TypeMismatchException& e)
         {
-            // ATTN: Deal with a malformed handler instance
+            MessageLoaderParms param(
+                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+                "CIMxmlIndicationHandler Error: ");
+
+            String msg = String(MessageLoader::getMessage(param) + e.getMessage());
+
+            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
+
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
         }
-	
-	try
+    
+        try
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
             static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
@@ -119,7 +134,7 @@ public:
             //
             // Get the sslCertificateFilePath property from the Config Manager.
             //
-	    ConfigManager* configManager = ConfigManager::getInstance();
+            ConfigManager* configManager = ConfigManager::getInstance();
 
             String certPath;
             certPath = configManager->getCurrentValue(
@@ -137,30 +152,27 @@ public:
             String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-            // NOTE: It is technically not necessary to set up a random file on
-            // the server side, but it is easier to use a consistent interface
-            // on the client and server than to optimize out the random file on
-            // the server side.
             randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-            SSLContext sslcontext(trustPath, certPath, keyPath, verifyListenerCertificate, randFile);
+            SSLContext sslcontext(trustPath, certPath, keyPath, 
+                verifyListenerCertificate, randFile);
 
-	    Monitor monitor;
-	    HTTPConnector httpConnector( &monitor);
-	    CIMExportClient exportclient( &monitor, &httpConnector);
+            Monitor monitor;
+            HTTPConnector httpConnector( &monitor);
+            CIMExportClient exportclient( &monitor, &httpConnector);
 
             Uint32 colon = dest.find (":");
             Uint32 portNumber = 0;
             Boolean useHttps = false;
             String destStr = dest;
-	    String hostName;
+            String hostName;
 
             //
             // If the URL has https (https://hostname:port/... or
-	    // https://hostname/...) then use SSL 
-            // for Indication delivery. If it has http (http://hostname:port/...
-	    // or http://hostname/...) then do not use SSL.
+            // https://hostname/...) then use SSL for Indication delivery. 
+            // If it has http (http://hostname:port/...
+            // or http://hostname/...) then do not use SSL.
             //
             if (colon != PEG_NOT_FOUND) 
             {
@@ -173,77 +185,92 @@ public:
                 {
                     useHttps = false;
                 }
-		else
-		{
-		    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, httpStr);
-		}
+                else
+                {
+                    String msg = _getMalformedExceptionMsg();
+
+                    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
+
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+                }
             }
-	    else
-	    {
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, dest);
-	    }
+            else
+            {
+                String msg = _getMalformedExceptionMsg();
 
-	    String doubleSlash = dest.subString(colon + 1, 2); 
+                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
-	    if (String::equalNoCase(doubleSlash, "//"))
-	    {
-            	destStr = dest.subString(colon + 3, PEG_NOT_FOUND);
-	    }
-	    else
-	    {
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, dest);
-	    }
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+            }
+
+            String doubleSlash = dest.subString(colon + 1, 2); 
+
+            if (String::equalNoCase(doubleSlash, "//"))
+            {
+                destStr = dest.subString(colon + 3, PEG_NOT_FOUND);
+            }
+            else
+            {
+                String msg = _getMalformedExceptionMsg();
+
+                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
+
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+            }
 
             colon = destStr.find (":");
 
-	     //
-	    // get hostname and port number from destination string
-	    //
-	    if (colon != PEG_NOT_FOUND)
-	    {
-	        hostName = destStr.subString (0, colon);
-	        destStr = destStr.subString(colon + 1, PEG_NOT_FOUND);
+            //
+            // get hostname and port number from destination string
+            //
+            if (colon != PEG_NOT_FOUND)
+            {
+                hostName = destStr.subString (0, colon);
+                destStr = destStr.subString(colon + 1, PEG_NOT_FOUND);
 
-	        Uint32 slash = destStr.find ("/");
-	        String portStr;
+                Uint32 slash = destStr.find ("/");
+                String portStr;
 
-	        if (slash != PEG_NOT_FOUND)
-	        {
-		    portStr = destStr.subString (0, slash);
-	        }
-	        else
-	        {
-		    portStr = destStr.subString (0, PEG_NOT_FOUND);
-	        }
+                if (slash != PEG_NOT_FOUND)
+                {
+                    portStr = destStr.subString (0, slash);
+                }
+                else
+                {
+                    portStr = destStr.subString (0, PEG_NOT_FOUND);
+                }
 
-	        sscanf (portStr.getCString (), "%u", &portNumber);  
-	    }
-	    //
-	    // There is no port number in the destination string,
-	    // get port number from system
-	    //
-	    else
-	    {
-	        Uint32 slash = destStr.find ("/");
-	        if (slash != PEG_NOT_FOUND)
-	        { 
-		    hostName = destStr.subString (0, slash);
-	        }
-	        else
-	        {
-		    hostName = destStr.subString (0, PEG_NOT_FOUND);
-		}
-		if (useHttps)
-		{
-		     portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
-							WBEM_DEFAULT_HTTPS_PORT); 
-		}
-		else
-		{
-		    portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
-							WBEM_DEFAULT_HTTP_PORT);
-		}
-	    }	
+                sscanf (portStr.getCString (), "%u", &portNumber);  
+            }
+            //
+            // There is no port number in the destination string,
+            // get port number from system
+            //
+            else
+            {
+                Uint32 slash = destStr.find ("/");
+                if (slash != PEG_NOT_FOUND)
+                { 
+                    hostName = destStr.subString (0, slash);
+                }
+                else
+                {
+                    hostName = destStr.subString (0, PEG_NOT_FOUND);
+                }
+                if (useHttps)
+                {
+                     portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
+                        WBEM_DEFAULT_HTTPS_PORT); 
+                }
+                else
+                {
+                    portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
+                        WBEM_DEFAULT_HTTP_PORT);
+                }
+            }    
 
             if (useHttps)
             {
@@ -251,11 +278,21 @@ public:
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
 //l10n 485
-                //PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: "
-                    //<< "Cannot do https connection." << PEGASUS_STD(endl);
-                MessageLoaderParms parms("Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", "CIMxmlIndicationHandler Error: ");
-                MessageLoaderParms parms1("Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION", "Cannot do https connection.");
-                PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<  MessageLoader::getMessage(parms1) << PEGASUS_STD(endl);
+                MessageLoaderParms param(
+                    "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+                    "CIMxmlIndicationHandler Error: ");
+                MessageLoaderParms param1(
+                    "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION", 
+                    "Cannot do https connection.");
+
+                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL3,
+                          MessageLoader::getMessage(param) + MessageLoader::getMessage(param1));
+
+                String msg = String(MessageLoader::getMessage(param) + 
+                    MessageLoader::getMessage(param1));
+
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
 #endif
             }
             else
@@ -264,22 +301,43 @@ public:
             }
 
 // l10n 
-	    exportclient.exportIndication(
-		destStr.subString(destStr.find("/")), indicationInstance,
-		contentLanguages);
-	}
-	catch(Exception& e)
+            exportclient.exportIndication(
+                destStr.subString(destStr.find("/")), indicationInstance,
+                contentLanguages);
+        }
+        catch(Exception& e)
         {
             //ATTN: Catch specific exceptions and log the error message 
             // as Indication delivery failed.
 //l10n 485
-            //PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: " << e.getMessage() 
-	    //<< PEGASUS_STD(endl);
-	    	MessageLoaderParms parms("Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", "CIMxmlIndicationHandler Error: ");
-	    	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << e.getMessage() 
-	    << PEGASUS_STD(endl);
+            MessageLoaderParms param(
+                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+                "CIMxmlIndicationHandler Error: ");
+
+            String msg = String(MessageLoader::getMessage(param) + e.getMessage());
+
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
         }
+
+        PEG_METHOD_EXIT();
     }
+
+private:
+    String _getMalformedExceptionMsg()
+    {
+        MessageLoaderParms param(
+            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+            "CIMxmlIndicationHandler Error: ");
+
+        MessageLoaderParms param1(
+            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE", 
+            "Malformed handler instance.");
+
+        return ( String(MessageLoader::getMessage(param) + 
+            MessageLoader::getMessage(param1)) );
+    }
+
 };
 
 // This is the dynamic entry point into this dynamic module. The name of
@@ -289,7 +347,6 @@ public:
 
 extern "C" PEGASUS_EXPORT CIMHandler* 
     PegasusCreateHandler_CIMxmlIndicationHandler() {
-    DDD(cout << "Called PegasusCreateHandler_CIMxmlIndicationHandler" << endl;)
     return new CIMxmlIndicationHandler;
 }
 

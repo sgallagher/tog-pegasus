@@ -2770,6 +2770,8 @@ CIM server listening on HTTPS port {0}."}
 
         Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION:string {"PGS10801: SSL is not available. Cannot support an HTTPS connection."} // 485
 
+        Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE:string {"PGS10802: Malformed handler instance, 'Destination' property not found or not well formed."} // 485
+
 
         // ==========================================================
         // Messages for snmpDeliverTrap_emanate

@@ -169,7 +169,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
    else
    {
       // generic handler. So load it and let it to do.
-      CIMHandler* handlerLib = _lookupHandlerForClass(nameSpace, className);
+      CIMHandler* handlerLib = _lookupHandlerForClass(className);
 
       if (handlerLib)
       {
@@ -187,31 +187,16 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
-   const String& nameSpace,
    const String& className)
 {
-   //----------------------------------------------------------------------
-   // Look up the class:
-   //----------------------------------------------------------------------
-
-   CIMClass cimClass = _repository->getClass(nameSpace, className);
-
-   if (!cimClass)
-      throw CIMException(CIM_ERR_INVALID_CLASS);
-
-   //----------------------------------------------------------------------
-   // Get the handler qualifier:
-   //----------------------------------------------------------------------
-
-   Uint32 pos = cimClass.findQualifier("Handler");
-
-   if (pos == PEG_NOT_FOUND)
-      return 0;
-
-   CIMQualifier q = cimClass.getQualifier(pos);
    String handlerId;
 
-   q.getValue().get(handlerId);
+   if (className == String("PG_IndicationHandlerCIMXML"))
+       handlerId = String("CIMxmlIndicationHandler");
+   if (className == String("PG_IndicationHandlerSNMPMapper"))
+       handlerId = String("snmpIndicationHandler");
+   else
+       return 0;
 
    CIMHandler* handler = _handlerTable.lookupHandler(handlerId);
 

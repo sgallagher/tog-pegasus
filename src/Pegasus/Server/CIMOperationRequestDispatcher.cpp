@@ -468,7 +468,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     //
     if(String::equalNoCase(className, "PG_IndicationSubscription") ||
        String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
        String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
@@ -690,7 +690,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     //
     if(String::equalNoCase(className, "PG_IndicationSubscription") ||
        String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
        String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
@@ -905,7 +905,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+      String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
       String::equalNoCase(className, "PG_IndicationFilter"))
    {
       Array<Uint32> iService;
@@ -937,7 +937,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    }
 
    // TEMP: Test code for ProcessIndication
-   if (className == "TestSoftwarePkg")
+   if ((className == "TestSoftwarePkg") ||
+       (className == "nsatrap"))
    {
       CIMProcessIndicationRequestMessage* message =
 	 new CIMProcessIndicationRequestMessage(
@@ -1165,7 +1166,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     //
     if(String::equalNoCase(className, "PG_IndicationSubscription") ||
        String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
        String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
@@ -1434,7 +1435,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     if(String::equalNoCase(className, "PG_IndicationSubscription") ||
        String::equalNoCase(className, "PG_IndicationHandler") ||
        String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
        String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //
@@ -1616,7 +1617,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     if(String::equalNoCase(className, "PG_IndicationSubscription") ||
        String::equalNoCase(className, "PG_IndicationHandler") ||
        String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
        String::equalNoCase(className, "PG_IndicationFilter"))
     {
         //

@@ -34,6 +34,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include "snmpDeliverTrap_emanate.h"
+#include "prnt_lib.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -104,12 +105,14 @@ void snmpDeliverTrap_emanate::deliverTrap(
 {
     initialize();
 
-    void*   newValue;
+    //void*   newValue;
+    OctetString*   newValue;
     char*   entV2Trap;
     int	    vb_link_flag = 0;
 
     VarBind *vb = NULL;
     VarBind *vb2 = NULL;
+    VarBind *vb3 = NULL;
     
     OID	    *object = NULL;
 
@@ -153,10 +156,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
     agent_addr->octet_ptr[2] = (unsigned char)s3;
     agent_addr->octet_ptr[3] = (unsigned char)s4;
 
-    // ATTN : Write code to get enterprise, genTrap and specTrap
-    // from trapOid. 
-
-    // << 03-12-2002 : NU (HP)
+    // ATTN-NU-20020312 : Write code to get enterprise, genTrap and 
+    // specTrap from trapOid. 
 
     String enterprise;
     
@@ -168,7 +169,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
     // getting trapOid
     OID *sendtrapOid = MakeOIDFromDot(trapOid.allocateCString());
 
-    for(Uint8 i = 0; i < vbOids.size(); i++)
+    for(Uint32 i = 0; i < vbOids.size(); i++)
     {
 	if ((object = MakeOIDFromDot(vbOids[i].allocateCString())) == NULL)
         {
@@ -178,8 +179,14 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
         if (strcmp(vbTypes[i].allocateCString(),"OctetString") == 0)
         {
-            newValue = MakeOctetStringFromText(vbValues[i].allocateCString());
-            if ((vb = MakeVarBindWithValue(object, 
+            newValue = CloneOctetString(MakeOctetStringFromText
+                           (vbValues[i].allocateCString()));
+            if (newValue == NULL)
+            {
+                cout << "Invalid Value provided : " << vbValues[i] << endl;
+                return;
+            }
+            if ((vb2 = MakeVarBindWithValue(object, 
 		(OID *) NULL, 
 		OCTET_PRIM_TYPE, 
 		newValue)) == NULL)
@@ -190,11 +197,16 @@ void snmpDeliverTrap_emanate::deliverTrap(
         }
         else
         {
-            newValue = MakeOctetString(
+            newValue = CloneOctetString(MakeOctetString(
 		(unsigned char *) vbValues[i].allocateCString(),
-		strlen(vbValues[i].allocateCString()));
+		strlen(vbValues[i].allocateCString())));
 
-            if ((vb = MakeVarBindWithValue(object, 
+            if (newValue == NULL)
+            {
+                cout << "Invalid Value provided : " << vbValues[i] << endl;
+                return;
+            }
+            if ((vb2 = MakeVarBindWithValue(object, 
 		(OID *) NULL, 
 		INTEGER_TYPE, 
 		newValue)) == NULL)
@@ -203,24 +215,21 @@ void snmpDeliverTrap_emanate::deliverTrap(
                 return;
             }
         }
-         
-	if (!vb_link_flag)
-	{
-	    vb_link_flag = 1;
-	    vb2 = vb;
-	    FreeOID(object);
-	}
-	else
-	{
-	    vb2->next_var = vb;
-	    vb2 = vb;
-	    FreeOID(object);
-	}
+        if (i == 0)
+        {
+            vb = vb2;
+            vb3 = vb2;
+        }
+        else
+        {
+            vb3->next_var = vb2;
+            vb3 = vb3->next_var;
+        }
+
+	FreeOID(object);
     }
     
-    vb_link_flag = 0;
-    vb2->next_var = NULL;
-    vb->next_var = NULL;
+    vb3->next_var = NULL;
 
     // Now sending the trap
     if (trapType == String("SNMPGeneric"))
@@ -231,6 +240,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
     }
     else if (trapType == String("SNMPv1"))
     {
+        cout << "Sending SNMPv1 Trap : " << trapOid << endl;
         SendNotificationToDestSMIv1Params(
             1,					// notifyType
             6,					// genTrap
@@ -252,11 +262,13 @@ void snmpDeliverTrap_emanate::deliverTrap(
     }
     else if (trapType == String("SNMPv2"))
     {
+        cout << "Sending SNMPv2 Trap : " << trapOid << endl;
         SendNotificationToDestSMIv2Params(
             1,					// notifyType
             sendtrapOid,			// snmpTrapOID
             agent_addr,				// agent_addr
-            vb2,				// vb
+            //vb2,				// vb
+            vb,				// vb
             NULL,				// contextName
             1,					// retryCount
             100,				// timeout

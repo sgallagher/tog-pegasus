@@ -83,6 +83,8 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
         {
             String propName = prop.getName();
             Uint32 propPos = indicationClass.findProperty(propName);
+            if (propPos != PEG_NOT_FOUND)
+            {
             CIMProperty trapProp = indicationClass.getProperty(propPos);
 
             if (trapProp.existsQualifier("MappingStrings"))
@@ -104,7 +106,6 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 			    mapstr2.clear();
 			    mapstr2 = mapstr1.subString(0, 
 				mapstr1.find("DataType.IETF")-1);
-		
 			    propOIDs.append(mapstr2);
                             
 			    propValue.clear();
@@ -112,27 +113,12 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 			    propVALUEs.append(propValue);
                             
 			    mapstr2 = mapstr1.subString(mapstr1.find("|")+2);
-			    
-			    // ATTN: There is a problem with mof compiler in 
-			    // loading mof with MappingString
-			    
-			    // << 12-03-2002 : NU (HP) >>
-
-			    // MappingString{}. It loads if one additional 
-			    // array is specified as follows:
-
-			    // [MappingStrings {
-			    // "OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.2",
-			    // "DataType.IETF | OctetString",
-			    // "Junk"}] 
-			    
-			    // where "Junk" is not required in actual definition.
-
-			    propTYPEs.append(mapstr2.subString(0, mapstr2.find("Junk")-1));
+			    propTYPEs.append(mapstr2);
                         }
 		    }
 		}
 	    }
+            }
         }
     }
 

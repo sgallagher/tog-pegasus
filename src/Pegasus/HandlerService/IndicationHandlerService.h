@@ -90,8 +90,7 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
       HandlerTable _handlerTable;
 
-      CIMHandler* _lookupHandlerForClass(
-	 const String& nameSpace, const String& className);
+      CIMHandler* _lookupHandlerForClass(const String& className);
 
    private:
       CIMRepository* _repository;

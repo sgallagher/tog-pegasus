@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+
 #include <iostream>
 #include <cassert>
 #include <cstdio>
@@ -79,26 +81,26 @@ CIMServer::CIMServer(
 
     // -- Create queue inter-connections:
 
-    _cimOperationRequestDispatcher 
+    _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(repository);
 
-    _cimOperationResponseEncoder 
+    _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
 
     _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-	_cimOperationRequestDispatcher, 
+	_cimOperationRequestDispatcher,
 	_cimOperationResponseEncoder->getQueueId());
 
-    _cimExportRequestDispatcher 
+    _cimExportRequestDispatcher
 	= new CIMExportRequestDispatcher(repository);
 
-    _cimExportResponseEncoder 
+    _cimExportResponseEncoder
 	= new CIMExportResponseEncoder;
 
     _cimExportRequestDecoder = new CIMExportRequestDecoder(
-	_cimExportRequestDispatcher, 
+	_cimExportRequestDispatcher,
 	_cimExportResponseEncoder->getQueueId());
-    
+
     HTTPDelegator* serevrQueue = new HTTPDelegator(
     	_cimOperationRequestDecoder,
      	_cimExportRequestDecoder);

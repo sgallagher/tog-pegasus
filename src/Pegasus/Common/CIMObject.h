@@ -114,6 +114,12 @@ public:
 	return _rep->getClassName();
     }
 
+    const CIMReference& getPath() const
+    {
+	_checkRep();
+	return _rep->getPath();
+    }
+
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
 	@param CIMQualifier object to add to instance
@@ -452,6 +458,12 @@ public:
     {
 	_checkRep();
 	return _rep->getClassName();
+    }
+
+    const CIMReference& getPath() const
+    {
+	_checkRep();
+	return _rep->getPath();
     }
 
     Uint32 findQualifier(const String& name) const

@@ -36,10 +36,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMClassRep::CIMClassRep(
-    const String& className,
+    const CIMReference& reference,
     const String& superClassName)
     :
-    CIMObjectRep(className),
+    CIMObjectRep(reference),
     _superClassName(superClassName)
 {
     if (superClassName.size() && !CIMName::legal(superClassName))
@@ -107,13 +107,13 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     // Reject addition of references to non-associations:
 
     if (!isAssociation() && x.getValue().getType() == CIMType::REFERENCE)
-	throw AddedReferenceToClass(_className);
+	throw AddedReferenceToClass(_reference.getClassName());
 
     // Set the class origin:
     // ATTN: put this check in other places:
 
     if (x.getClassOrigin().size() == 0)
-	CIMProperty(x).setClassOrigin(_className);
+	CIMProperty(x).setClassOrigin(_reference.getClassName());
 
     // Add the property:
 
@@ -178,7 +178,7 @@ void CIMClassRep::resolve(
 {
 #if 0
     if (_resolved)
-	throw ClassAlreadyResolved(_className);
+	throw ClassAlreadyResolved(_reference.getClassName());
 #endif
 
     if (!context)
@@ -371,7 +371,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     // Class opening element:
 
     out << "<CLASS ";
-    out << " NAME=\"" << _className << "\" ";
+    out << " NAME=\"" << _reference.getClassName() << "\" ";
 
     if (_superClassName.size())
 	out << " SUPERCLASS=\"" << _superClassName << "\" ";
@@ -412,7 +412,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
 void CIMClassRep::toMof(Array<Sint8>& out) const
 {
     // Get and format the class qualifiers
-    out << "\n//    Class " << _className;
+    out << "\n//    Class " << _reference.getClassName();
     if (_qualifiers.getCount())
 	out << "\n";
     _qualifiers.toMof(out);
@@ -421,7 +421,7 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     out << "\n";
 
     // output class statement
-    out << "class " << _className;
+    out << "class " << _reference.getClassName();
 
     if (_superClassName.size())
 	out << " : " << _superClassName;

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -66,7 +66,6 @@ public:
     */
     CIMClass() : _rep(0)
     {
-
     }
 
     /** Constructor - Creates a class from a previous class
@@ -104,10 +103,10 @@ public:
 
     */
     CIMClass(
-	const String& className,
+	const CIMReference& reference,
 	const String& superClassName = String())
     {
-	_rep = new CIMClassRep(className, superClassName);
+	_rep = new CIMClassRep(reference, superClassName);
     }
 
     /// Destructor
@@ -149,6 +148,12 @@ public:
     {
 	_checkRep();
 	return _rep->getClassName();
+    }
+
+    const CIMReference& getPath() const
+    {
+	_checkRep();
+	return _rep->getPath();
     }
 
     /** getSuperClassName - Gets the name of the Parent
@@ -277,8 +282,6 @@ public:
 	return *this;
     }
 
-
-
     /** findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
 	@param String parameter with the property name.
@@ -307,7 +310,8 @@ public:
 	_checkRep();
 	return _rep->existsProperty(name);
     }
-    Boolean existsProperty(const String& name) const
+
+	Boolean existsProperty(const String& name) const
     {
        _checkRep();
        return _rep->existsProperty(name);
@@ -508,7 +512,6 @@ public:
 	_rep->printMof(o);
     }
 
-
     /** identical -  Compares with another class
 	ATTN: Clarify exactly what identical means
 	@param Class object for the class to be compared
@@ -566,7 +569,6 @@ public:
 
     CIMConstClass() : _rep(0)
     {
-
     }
 
     CIMConstClass(const CIMConstClass& x)
@@ -610,10 +612,10 @@ public:
     // Throws IllegalName if className argument not legal CIM identifier.
 
     CIMConstClass(
-	const String& className,
+	const CIMReference& reference,
 	const String& superClassName = String())
     {
-	_rep = new CIMClassRep(className, superClassName);
+	_rep = new CIMClassRep(reference, superClassName);
     }
 
     ~CIMConstClass()
@@ -637,6 +639,12 @@ public:
     {
 	_checkRep();
 	return _rep->getClassName();
+    }
+
+    const CIMReference& getPath() const
+    {
+	_checkRep();
+	return _rep->getPath();
     }
 
     const String& getSuperClassName() const

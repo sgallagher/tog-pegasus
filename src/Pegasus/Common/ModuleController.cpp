@@ -84,6 +84,7 @@ void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message
    _thread_safety.lock(pegasus_thread_self());
    try  { _async_callback(msg_handle, msg, parm); }
    catch(...) { _thread_safety.unlock(); throw; }
+   _thread_safety.unlock();
 }
  
 void pegasus_module::module_rep::_send_shutdown_notify(void)

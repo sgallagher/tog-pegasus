@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,28 +29,29 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//               Chip Vincent (cvincent@us.ibm.com)
-//               Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//               Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               Mike Day (mdday@us.ibm.com)
-//               Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//               Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//               Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//               Dave Rosckes (rosckes@us.ibm.com)
-//               Adrian Schuur (schuur@de.ibm.com)
-//				 Seema Gupta (gseema@in.ibm.com for PEP135)
-//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//               Heather Sterling, IBM (hsterl@us.ibm.com), PEP#187
-//               Amit K Arora, IBM (amita@in.ibm.com), for PEP 193
+// Modified By:
+//      Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//      Chip Vincent (cvincent@us.ibm.com)
+//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//      Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//      Mike Day (mdday@us.ibm.com)
+//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//      Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
+//      Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//      Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//      Dave Rosckes (rosckes@us.ibm.com)
+//      Adrian Schuur (schuur@de.ibm.com)
+//      Seema Gupta (gseema@in.ibm.com), PEP#135
+//      Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//      Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP#140/phase2
+//      Heather Sterling, IBM (hsterl@us.ibm.com), PEP#187
+//      Amit K Arora, IBM (amita@in.ibm.com), for PEP#193
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
+
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/ContentLanguages.h> // l10n
@@ -91,14 +92,15 @@ String cimAggregationLocalHost;
 // can be used to determine lost aggregations.
 Uint64 CIMOperationRequestDispatcher::cimOperationAggregationSN=0;
 
-OperationAggregate::OperationAggregate(CIMRequestMessage* request,
-																			 Uint32 msgRequestType,
-																			 String messageId,
-																			 Uint32 dest,
-																			 CIMName className,
-																			 CIMNamespaceName nameSpace,
-																			 QueryExpressionRep *query,
-																			 String queryLanguage)
+OperationAggregate::OperationAggregate(
+    CIMRequestMessage* request,
+    Uint32 msgRequestType,
+    String messageId,
+    Uint32 dest,
+    CIMName className,
+    CIMNamespaceName nameSpace,
+    QueryExpressionRep *query,
+    String queryLanguage)
 	: _messageId(messageId),
 		_msgRequestType(msgRequestType),
 		_dest(dest),
@@ -291,6 +293,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    // Check whether or not AssociationTraversal is supported.
    //
    ConfigManager* configManager = ConfigManager::getInstance();
+
    _enableAssociationTraversal = String::equal(
         configManager->getCurrentValue("enableAssociationTraversal"), "true");
 
@@ -320,6 +323,14 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    _maximumEnumerateBreadth = 1000;
 #endif
 
+   #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+   _enableNormalization =
+       String::equalNoCase(configManager->getCurrentValue("enableNormalization"), "false");
+
+   //_excludeModulesFromNormalization =
+   //    configManager->getCurrentValue("excludeModulesFromNormalization");
+   #endif
+
    _routing_table = DynamicRoutingTable::get_rw_routing_table();
 
   cimAggregationLocalHost = System::getHostName();
@@ -345,7 +356,7 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 
 Boolean
 CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
-																								CIMResponseMessage *&response)
+                                                CIMResponseMessage *&response)
 {
 	static const char func[] = "CIMOperationRequestDispatcher::_enqueueResponse";
 	AutoMutex autoMut(_mut);
@@ -620,7 +631,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
 
      // PG_Namespace.  Note that this means that CIM_Namespace is not
-     // managed by the provider. PG_Namespace is the subclass.  It is not implemented 
+     // managed by the provider. PG_Namespace is the subclass.  It is not implemented
      // so that the information comes from PG_Namespace.
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
 				      _wild,
@@ -1422,10 +1433,13 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
    }
 
     CDEBUG("_lookup all assoc Classes Returned class list of size " << classNames.size() << " className= " << className.getString() << " assocClass= " << assocClass);
-    for (Uint32 i = 0; i < classNames.size(); i++)
-    {
-        CDEBUG(" Count i " << i << "Class rtned " << classNames[i].getString());
-    }
+
+    // CV 20050211 Commented out debug loops
+    //for (Uint32 i = 0; i < classNames.size(); i++)
+    //{
+    //    CDEBUG(" Count i " << i << "Class rtned " << classNames[i].getString());
+    //}
+
     PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
              Formatter::format(" Association Lookup $0 classes found",
                 classNames.size()));
@@ -2307,10 +2321,13 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    // get the class name
    CIMName className = request->instanceName.getClassName();
-
    CIMException checkClassException;
 
-   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   CIMClass cimClass =
+       _getClass(
+           request->nameSpace,
+           className,
+           checkClassException);
 
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
@@ -2351,7 +2368,10 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		}
 
         #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // TODO: create CachedClassDefinitionContainer
+        if(_enableNormalization)
+        {
+            requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
+        }
         #endif
 
     	_forwardRequestToProviderManager(className, serviceName,
@@ -3098,14 +3118,17 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     CDEBUG("EnumerateInstances. lo = " << ((request->localOnly)?
         "true" : "false"));
+
     // get the class name
     CIMName className = request->className;
-    Array<CIMName> localPropertyListArray;
-    CIMClass cimClass;
     CIMException checkClassException;
 
-    cimClass = _getClass(request->nameSpace, className,
-                         checkClassException);
+    CIMClass cimClass =
+        _getClass(
+            request->nameSpace,
+            className,
+            checkClassException);
+
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
         CIMEnumerateInstancesResponseMessage* response =
@@ -3115,8 +3138,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 Array<CIMInstance>());
 
         _enqueueResponse(request, response);
+
         PEG_METHOD_EXIT();
-				STAT_COPYDISPATCHER_REP
+        STAT_COPYDISPATCHER_REP
         return;
     }
 
@@ -3135,6 +3159,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     CDEBUG("CIMOP ei propertyList0= " <<
         _showPropertyList(request->propertyList));
+
+    Array<CIMName> localPropertyListArray;
+
     Boolean rtn;
 
     // Create a propertyList that represents the combination
@@ -3146,10 +3173,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     CDEBUG("EnumerateInstances Built property list size = " <<
         localPropertyListArray.size());
-    for (Uint32 i = 0; i < localPropertyListArray.size() ; i++)
-    {
-        CDEBUG("P= " << localPropertyListArray[i].getString());
-    }
+
+    // CV 20050211 Commented out debug loops
+    //for (Uint32 i = 0; i < localPropertyListArray.size() ; i++)
+    //{
+    //    CDEBUG("P= " << localPropertyListArray[i].getString());
+    //}
 
     CDEBUG("CIMOP ei propertyList1= " <<
         _showPropertyList(request->propertyList));
@@ -3161,6 +3190,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         CIMPropertyList pl(localPropertyListArray);
         request->propertyList = pl;
     }
+
     CDEBUG("CIMOP ei propertyList2= " <<
         _showPropertyList(request->propertyList));
 
@@ -3378,40 +3408,62 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
 			CIMEnumerateInstancesRequestMessage* requestCopy =
 				new CIMEnumerateInstancesRequestMessage(*request);
-			requestCopy->className = providerInfo.className;
 
-			if (providerInfo.providerIdContainer.get() != 0)
-				requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
+            requestCopy->className = providerInfo.className;
+
+            CIMException checkClassException;
+
+            CIMClass cimClass =
+                _getClass(
+                    request->nameSpace,
+                    providerInfo.className,
+                    checkClassException);
+
+            // The following is not correct. Need better way to terminate.
+            if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+            {
+                CIMResponseMessage *response = request->buildResponse();
+
+                _forwardRequestForAggregation(
+                    String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                    String(),
+                    new CIMEnumerateInstancesRequestMessage(*request),
+                    poA,
+                    response);
+            }
+
+            if(providerInfo.providerIdContainer.get() != 0)
+            {
+                requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
+            }
 
             #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-            // TODO: create CachedClassDefinitionContainer
+            if(_enableNormalization)
+            {
+                requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
+            }
             #endif
 
-			CIMException checkClassException;
-			if (request->deepInheritance && request->propertyList.isNull())
-			{
-				// If this class has a provider
-				CIMClass cimClassLocal;
-				cimClassLocal = _getClass(request->nameSpace, providerInfo.className,
-																	checkClassException);
-				// The following is not correct. Need better way to terminate.
-				if (checkClassException.getCode() != CIM_ERR_SUCCESS)
-				{
-					CIMResponseMessage *response = request->buildResponse();
-					_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMEnumerateInstancesRequestMessage(*request), poA, response);
-				}
-				else
-				{
-					_addPropertiesToArray(localPropertyListArray,cimClassLocal);
-					CIMPropertyList pl(localPropertyListArray);
-					requestCopy->propertyList = pl;
-				}
+            if(request->deepInheritance && request->propertyList.isNull())
+            {
+                _addPropertiesToArray(localPropertyListArray, cimClass);
+
+                CIMPropertyList pl(localPropertyListArray);
+
+                requestCopy->propertyList = pl;
 			}
+
 			// Save for test cout << _toStringPropertyList(requestCopy->propertyList) << endl;
-			if (checkClassException.getCode() == CIM_ERR_SUCCESS)
-				_forwardRequestForAggregation(providerInfo.serviceName,
-																			providerInfo.controlProviderName, requestCopy, poA);
-			STAT_PROVIDEREND
+            if(checkClassException.getCode() == CIM_ERR_SUCCESS)
+            {
+                _forwardRequestForAggregation(
+                    providerInfo.serviceName,
+                    providerInfo.controlProviderName,
+                    requestCopy,
+                    poA);
+            }
+
+            STAT_PROVIDEREND
 		} // for all classes and dervied classes
 
     PEG_METHOD_EXIT();
@@ -3451,10 +3503,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
        "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
+    CIMName className = request->className;
     CIMException checkClassException;
-    _checkExistenceOfClass(request->nameSpace,
-                           request->className,
-                           checkClassException);
+
+    CIMClass cimClass =
+        _getClass(
+            request->nameSpace,
+            className,
+            checkClassException);
+
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
         CIMEnumerateInstanceNamesResponseMessage* response =
@@ -3604,9 +3661,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 					// Enumerate instances only for this class
 					cimInstanceNames =
 						_repository->enumerateInstanceNamesForClass(
-																												request->nameSpace,
-																												providerInfo.className,
-																												false);
+                            request->nameSpace,
+                            providerInfo.className,
+                            false);
 				}
 				catch(CIMException& exception)
 				{
@@ -3615,12 +3672,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 				catch(Exception& exception)
 				{
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-																							 exception.getMessage());
+                                                         exception.getMessage());
 				}
 				catch(...)
 				{
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-																							 String::EMPTY);
+                                                         String::EMPTY);
 				}
 
 				STAT_PROVIDEREND
@@ -3677,16 +3734,47 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 			requestCopy->className = providerInfo.className;
 
+            CIMException checkClassException;
+
+            CIMClass cimClass =
+                _getClass(
+                    request->nameSpace,
+                    providerInfo.className,
+                    checkClassException);
+
+            // The following is not correct. Need better way to terminate.
+            if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+            {
+                CIMResponseMessage *response = request->buildResponse();
+
+                _forwardRequestForAggregation(
+                    String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                    String(),
+                    new CIMEnumerateInstanceNamesRequestMessage(*request),
+                    poA,
+                    response);
+            }
+
 			if(providerInfo.providerIdContainer.get() != 0)
-				requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
+            {
+                requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
+            }
 
             #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-            // TODO: create CachedClassDefinitionContainer
+            if(_enableNormalization)
+            {
+                requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
+            }
             #endif
 
-            _forwardRequestForAggregation(providerInfo.serviceName,
-																		providerInfo.controlProviderName,
-																		requestCopy, poA);
+            if(checkClassException.getCode() == CIM_ERR_SUCCESS)
+            {
+                _forwardRequestForAggregation(
+                    providerInfo.serviceName,
+                    providerInfo.controlProviderName,
+                    requestCopy,
+                    poA);
+            }
 
 			STAT_PROVIDEREND
 

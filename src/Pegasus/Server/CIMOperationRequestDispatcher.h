@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -459,6 +459,11 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       Boolean _enableIndicationService;
       Uint32 _maximumEnumerateBreadth;
       static Uint64 cimOperationAggregationSN;
+
+      #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+      Boolean _enableNormalization;
+      Array<String> _excludeModulesFromNormalization;
+      #endif
 
       // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);

@@ -55,6 +55,86 @@ will be deleted.
     This property needs to be set to true to enable privileged user access
     for remote clients.
 
+12. (Roger Kumpf - HP) 22 Feb 2002 - Added type information to extrinsic
+    method (InvokeMethod) operations.  This change involves the addition
+    of PARAMTYPE attributes to PARAMVALUE and RETURNVALUE tags.  This tag
+    allows the server to determine the type of a parameter value without
+    having to look up the method definition in the schema.  It also allows
+    the client API to do the same for output parameters as well as return
+    values.
+
+    PROVIDER IMPLICATIONS:
+
+    Method providers ARE affected by this change.  Previously, all input
+    parameters to invokeMethod were sent to the provider as String type
+    regardless of what the client actually specified or how the method
+    was defined.  With this change, providers will now receive input
+    parameters of the type that was actually specified by the client
+    application (regardless of how the method was defined in the schema).
+
+    However, parameters coming from clients other than the Pegasus client
+    API may omit the PARAMTYPE attribute.  In this case, the operation
+    processor (currently dispatcher) will find these "typeless" parameters
+    and convert them to the correct type based on the method definition.
+    The result is that if the client specifies the parameter type in the
+    XML encoding (as the Pegasus client API does), the method provider
+    will receive the type specified by the client; if the client does not
+    specify the parameter type, the method provider will see the type
+    specified in the method definition.
+
+    CLIENT IMPLICATIONS:
+
+    Clients ARE affected by this change.  Any output parameters that are
+    returned from Pegasus (or other CIM servers using the PARAMTYPE
+    attribute) will now be received by Pegasus clients as the same type
+    sent by the server.  Previously, they would have always been of
+    String type.  In addition, the return value will be received as the
+    correct type rather than as a String.
+
+    Parameters coming from servers other than Pegasus may omit the
+    PARAMTYPE attribute.  In this case, the client will see a
+    CIMParamValue with type==CIMType::NONE, with a CIMValue of type
+    String.  Similarly, return values coming from other servers that omit
+    PARAMTYPE will be seen by the client as String type.  These return
+    values will NOT have the CIMType::NONE hint that parameters get,
+    because they are CIMValues rather than CIMParamValues.
+
+    This behavior will remain for the forseeable future (through
+    Pegasus version 2), as it is not possible to require that other
+    implementations use the PARAMTYPE attribute.
+
+    SIDE EFFECTS:
+
+    In the process of implementing this functionality, I discovered
+    that there was no way to set a CIMValue to be an array of
+    CIMReferences.  This appeared to be an oversight, since method
+    parameters are permitted to be arrays of CIMReferences.  I've
+    added the necessary functionality to the CIMValue class.
+
+    I also found that the CIMParamValue class needed significant
+    clean-up, which I completed.
+
+    SETPROPERTY CHANGES:
+
+    A similar problem in SetProperty operations was addressed by
+    "typing" the specified property value in the operation processor
+    (currently dispatcher).  This is achieved by looking up the
+    relevant schema to get the property definition, and then converting
+    the specified value to that property's type.
+
+    The SetProperty operation encoding has not changed to accomodate
+    inclusion of type information that would obviate the need for this
+    extra processing.  However, clients can avoid this overhead by using
+    ModifyInstance operations (with a property list) instead of SetProperty.
+
+    The GetProperty operation also has NOT been updated with type
+    information.  Client applications using the Pegasus client API will
+    always receive String or reference values when calling GetProperty
+    against any server (Pegasus or not).  Clients that require properties
+    to be returned as the correct type must use GetInstance (perhaps with
+    a property list) rather than GetProperty.
+
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

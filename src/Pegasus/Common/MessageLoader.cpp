@@ -104,6 +104,8 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 
 		//cout << "USING PACKAGE PATH: " << endl;
 		//cout << resbundl_path_ICU << endl;
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using resource bundle path:");
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, resbundl_path_ICU);
 		#ifdef PEGASUS_OS_OS400
 		const char *atoe = resbundl_path_ICU;
 		AtoE((char*)atoe);
@@ -117,10 +119,13 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			
 			if(U_SUCCESS(status)) {
 				//cout << "PROCESS_LOCALE: opened resource bundle" << endl;
-				UErrorCode cout_status = U_ZERO_ERROR;
-				//cout << "PROCESS_LOCALE = " << ures_getLocale(resbundl, &cout_status) << endl;
+				UErrorCode _status = U_ZERO_ERROR;
+				//cout << "PROCESS_LOCALE = " << ures_getLocale(resbundl, &_status) << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale:");
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, ures_getLocale(resbundl, &_status));
 				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
 					//cout << "PROCESS_LOCALE: using fallback or default" << endl;	
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale fallback or default");
 				}
     			msg = extractICUMessage(resbundl,parms);
 
@@ -135,6 +140,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
     			ures_close(resbundl); 
 			} else {
 				//cout << "PROCESS_LOCALE: could not open resouce, formatting default message" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale.  Could not open resource, formatting default message.");
     			msg = formatDefaultMessage(parms);
 			}
 			return msg;
@@ -143,8 +149,10 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			if(al != NULL){			
 				acceptlanguages = *al;
 				//cout << "THREAD_LOCALE: got acceptlanguages from thread" << endl;	
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: got AcceptLanguages from thread.");
 			}else { 
 				//cout << "THREAD_LOCALE: thread returned NULL for acceptlanguages" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: thread returned NULL for AcceptLanguages.");
 			 }		
 		}
 				
@@ -155,6 +163,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		// iterate through AcceptLanguages, use the first resource bundle match
 		acceptlanguages.itrStart();
 		//cout << "LOOPING THROUGH ACCEPTLANGUAGES..." << endl;
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Looping through AcceptLanguages...");
 		while((language_element = acceptlanguages.itrNext()) != AcceptLanguageElement::EMPTY_REF){
 			#ifdef PEGASUS_OS_OS400
 		        CString cstr = language_element.getTag().getCString();
@@ -172,13 +181,17 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			
 			if(U_SUCCESS(status)) {
 				//cout << "ACCEPTLANGUAGES LOOP: opened resource bundle with " << language_element.getTag() << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "ACCEPTLANGUAGES LOOP: opened resource bundle with:");
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, language_element.getTag());
 				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
 					//we want to use the ICU fallback behaviour in the following cases ONLY
 					//cout << "ACCEPTLANGUAGES LOOP: ICU warns using FALLBACK or DEFAULT" << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: ICU warns using FALLBACK or DEFAULT");
 					if((acceptlanguages.size() == 1) && (!parms.useICUfallback) && (status == U_USING_DEFAULT_WARNING)){
 						// in this case we want to return messages from the root bundle
 						status = U_ZERO_ERROR;
 						//cout << "ML::acceptlang.size =1 && !parms.useICUfallback && U_USING_DEFAULT_WARNING" << endl;
+						PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"acceptlang.size =1 && !parms.useICUfallback && U_USING_DEFAULT_WARNING, using root bundle.");
                                         	resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
                                         	if(U_SUCCESS(status)) {
                                                 	msg = extractICUMessage(resbundl,parms);
@@ -188,6 +201,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 					}
 					else if(acceptlanguages.size() == 1 || parms.useICUfallback){
 						//cout << "ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour..." << endl;
+						PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour...");
 						msg = extractICUMessage(resbundl,parms);
 
 						String cl_str(ures_getLocale(resbundl,&status));
@@ -204,6 +218,8 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				}
 				else{  // we found an exact resource bundle match, extract, and set ContentLanguage 
 					//cout << "ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH" << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH:");
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,language_element.getTag());
 					msg = extractICUMessage(resbundl,parms);
 					parms.contentlanguages.append(ContentLanguageElement(language_element.getTag()));	
     				ures_close(resbundl); 
@@ -218,6 +234,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		// now if we DIDNT get a message, we want to enable ICU fallback for the highest priority language
 		if(msg.size() == 0 && acceptlanguages.size() > 0){
 			//cout << "USING ICU FALLBACK" << endl;
+			PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"No message was loaded, using ICU fallback behaviour.");
 			language_element = acceptlanguages.getLanguageElement(0);
 
 			#ifdef PEGASUS_OS_OS400
@@ -236,6 +253,8 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			if(U_SUCCESS(status)) {
 				if(status == U_USING_DEFAULT_WARNING){
 					//cout << "PRIORITY ICU FALLBACK: using default resource bundle with " << language_element.getTag() << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"PRIORITY ICU FALLBACK: using default resource bundle with ");
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, language_element.getTag());
 					status = U_ZERO_ERROR;
 					resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
 					if(U_SUCCESS(status)) {
@@ -259,14 +278,17 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		}
 		if(msg.size() == 0){ 			// else if no message, load message from root bundle explicitly
 			//cout << "EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message" << endl;
+			PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message");
 			status = U_ZERO_ERROR;	
 			resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
 			if(U_SUCCESS(status)){
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle");
 				msg = extractICUMessage(resbundl,parms);
 				//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
 			}else { 
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl; 
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle");
 			}
 
 		}

@@ -781,7 +781,7 @@ int main(int argc, char** argv)
                         SSLContext * sslcontext = new SSLContext(certpath);
 #endif
                         cout << "connecting to " << connectionList[i] << endl;
-		        client.connect(connectionList[i], sslcontext);
+		        client.connect(connectionList[i], sslcontext,userName,password);
 		      }
 	              else
 		      {

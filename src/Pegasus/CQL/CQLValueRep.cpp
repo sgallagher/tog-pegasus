@@ -1719,15 +1719,35 @@ Boolean CQLValueRep::_compareObjects(CIMObject& _in1, CIMObject& _in2)
 	    {
 	      if(prop1[i].getName() == prop2[j].getName())
 		{
-		  if(CQLValue(prop1[i].getValue()) == CQLValue(prop2[j].getValue()))
+		  if(prop1[i].isArray() != prop2[j].isArray())
 		    {
-		      result = true;
 		      break;
+		    }
+		  if(prop1[i].isArray())
+		    {
+		      CQLValueRep left;
+		      CQLValueRep right;
+		      left._setValue(prop1[i].getValue());
+		      right._setValue(prop2[j].getValue());
+		      result = left._compareArray(right);
 		    }
 		  else
 		    {
-		      result = false;
-		      break;
+		      if(CQLValue(prop1[i].getValue()) == CQLValue(prop2[j].getValue()))
+			{
+			  result = true;
+			  break;
+			}
+		      else
+			{
+			  cout << "object:   " << _in1.getPath().toString() << endl;
+			  cout << "property: " << prop1[i].getName().getString() << endl;
+
+			  cout << "object:   " << _in2.getPath().toString() << endl;
+			  cout << "property: " << prop2[j].getName().getString() << endl;
+			  result = false;
+			  break;
+			}
 		    }
 		}
 	    }
@@ -1782,6 +1802,7 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	  {
 	    _cqlVal1.append(CQLValue(_bool1[i]));
 	  }
+	break;
       }
     case CIMTYPE_UINT64:
       {
@@ -1861,6 +1882,7 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	  {
 	    _cqlVal2.append(CQLValue(_bool2[i]));
 	  }
+	break;
       }
     case CIMTYPE_UINT64:
       {
@@ -1916,7 +1938,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	  }
 	break;
       }
-      /*   
     case CIMTYPE_OBJECT:
       {
 	_in2.get(_obj2);
@@ -1925,8 +1946,7 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	    _cqlVal2.append(CQLValue(_obj2[i]));
 	  }
 	break;
-      } 
-      */  
+      }   
     default:
       MessageLoaderParms mload(String("CQL.CQLValueRep.INVALID_ARRAY_COMPARISON"),
 			       String("Invalid array comparison type."));

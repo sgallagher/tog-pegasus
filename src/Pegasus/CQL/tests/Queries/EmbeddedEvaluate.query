@@ -3,11 +3,37 @@
 #
 # Testing resolve on embedded objects
 #
+	
+#Testing to see if we can retrieve a property of type Uint16 from an embedded object.
+# Evaluates to true
 SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2
+
+#Testing to see if we can retrieve a property of type Uint16 from an embedded object.
+# Evaluates to false
 SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 3
-SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS
+
+# This test compares two embedded objects of type CIMInstance.
+# evaluates to true
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TE = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TE
+
+# This test compares two embedded object properties
+# evaluates to true
 SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+
+# This test compares two embedded objects of type CIMClass.
+# evaluates to true
 SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass
+
+# This test compares two embedded objects of type CIMClass and CIMInstance
+# evaluates to false
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS
+
+# This test compares two embedded properties
+# evaluates to true
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase = CQL_EmbeddedSubClass.EmbObjBase
+
+
+
 
 
 

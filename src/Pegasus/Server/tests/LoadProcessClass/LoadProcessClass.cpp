@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.10  2001/02/18 20:01:45  karl
+// clean up conflict in cout that meant nothing
+//
 // Revision 1.9  2001/02/18 19:44:15  mike
 // added meta-qualifiers to root namespace
 //
@@ -93,11 +96,11 @@ int main(int argc, char** argv)
 
 	// cout << "Created Process class with MyProvider Qualifier" <<endl;
 
-	// Create the __NameSpace Class in /root namespace
+	// Create the __NameSpace Class in /root/CIMv20 namespace
 	//delete the class if it exists
 	try
 	{
-	    r.deleteClass(ROOTNAMESPACE, "__Namespace");
+	    r.deleteClass(NAMESPACE, "__Namespace");
 	}
 	catch (Exception&)
 	{
@@ -118,6 +121,27 @@ int main(int argc, char** argv)
 	    .addQualifier(CIMQualifier("key", true))
 	     .addQualifier(CIMQualifier("Description", 
 					"Namespace Name")));
+
+	// Put it into the normal namespace
+	r.createClass(NAMESPACE, cn);
+        cout << "Created __Namespace class with Provider Qualfier" << endl;
+
+
+
+	// Create the __NameSpace Class in /root namespace
+	//delete the class if it exists
+	try
+	{
+	    r.deleteClass(ROOTNAMESPACE, "__Namespace");
+	}
+	catch (Exception&)
+	{
+	    // Ignore no such class error
+	}
+
+	// Now create the __Namespace class
+	// with name property key.
+	// Note that this requires qualifier definition in Root
 
 	r.createClass(ROOTNAMESPACE, cn);
 	// cout << "Created __Namespace class with Provider Qualfier" << endl;

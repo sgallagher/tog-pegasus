@@ -287,7 +287,7 @@ class PEGASUS_COMMON_LINKAGE Semaphore
 #undef PEGASUS_ATOMIC_TYPE
 typedef struct {
       Uint32 _value;
-      Mutex  _mutex;
+      PEGASUS_MUTABLE Mutex  _mutex;
 } PEGASUS_ATOMIC_TYPE;
 
 #endif

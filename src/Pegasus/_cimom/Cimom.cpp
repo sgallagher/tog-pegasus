@@ -68,15 +68,16 @@ void cimom::_enqueueResponse(AsyncOpNode *op)
    // ATTN: make this a loop to enqueue a list of responses 
    AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
    AsyncReply *reply = static_cast<AsyncReply *>(op->_response.next(0));
-   
    PEGASUS_ASSERT(request->getMask() & message_mask::ha_async);
    PEGASUS_ASSERT(reply->getMask() & message_mask::ha_async);
+
    
    // Use the same key as used in the request
    
    reply->setKey(request->getKey());
    reply->setRouting(request->getRouting());
    reply->dest = request->resp;
+   PEGASUS_ASSERT(reply->op == request->op);
    PEGASUS_ASSERT(reply->op->_state & ASYNC_OPSTATE_COMPLETE );
    PEGASUS_ASSERT(reinterpret_cast<void *>(reply->op) == reinterpret_cast<void *>(request->op));
    
@@ -86,26 +87,23 @@ void cimom::_enqueueResponse(AsyncOpNode *op)
    
    // Lookup the message queue:
    
-   
    if(reply->dest == CIMOM_Q_ID )
    {
-      // ATTN:
-      // somehow I got this response message which is for me. 
-      
+      // somehow I got this response message which is for me.
+      _handle_cimom_msg(reply);
+      return;
    }
    
    MessageQueue* queue = MessageQueue::lookup(reply->dest);
    if(queue != 0)
    {
-      // Enqueue the response
-      if(true == queue->accept_async(reply))
+      // if the destination is blocking, don't enqueue the response
+      if(reply->block == true)
       {
-	 if(reply->block == true)
-	 {
-	    reply->op->_client_sem.signal();
-	 }
+	 reply->op->_client_sem.signal();
       }
-      else
+      // destination is not blocking, enqueue the response
+      else if(false == queue->accept_async(reply))
       {
 	 // just set the released bit and we will clean it up automatically
 	 reply->op->_state |= ASYNC_OPSTATE_RELEASED;;
@@ -185,7 +183,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_pending_proc(void *parm)
 	 // enqueue response messages from each op node 
 	 operation = completed.remove_first();
 	 cim_manager->_enqueueResponse(operation);
-	 
 	 cim_manager->_completed_ops.insert_first(operation);
       }
       
@@ -240,17 +237,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
 	 operation = cim_manager->_completed_ops.next(operation);
       } // traversing the list 
       cim_manager->_completed_ops.unlock();
-   }
-   // recycle the dead operations 
-   while( recycle.count() )
-   {
-      cim_manager->cache_op( recycle.remove_first() );
-   }
 
+      // recycle the dead operations 
+      while( recycle.count() )
+      {
+	 cim_manager->cache_op( recycle.remove_first() );
+      }
+   }
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
-
 
 
 void cimom::handleEnqueue(void)
@@ -304,10 +300,18 @@ void cimom::handleEnqueue(void)
        
        if(async_msg->dest != 0 )
        {
-	  dest_queue = MessageQueue::lookup(async_msg->dest);
-	  if( dest_queue != 0 )
+	  if ( async_msg->dest == CIMOM_Q_ID )
 	  {
-	     accepted = dest_queue->accept_async(msg);
+	     _handle_cimom_msg(msg);
+	     accepted = true;
+	  }
+	  else 
+	  {
+	     dest_queue = MessageQueue::lookup(async_msg->dest);
+	     if( dest_queue != 0 )
+	     {
+		accepted = dest_queue->accept_async(msg);
+	     }
 	  }
        }
        else 
@@ -332,19 +336,33 @@ void cimom::handleEnqueue(void)
 	  }
 	  _modules.unlock();
        }
+       // link the op node to the pending list so we can manage 
+       // the result 
+       _pending_ops.insert_last(async_msg->op);
 
-       // if the request is not accepted, recycle it 
-       // if it is accepted, put it on the pending list 
-       if(accepted == true )
-	  _pending_ops.insert_last(async_msg->op);
-       else
-	  cache_op(async_msg->op);
+       // if the request was not accepted, send a NAK response 
+       if(accepted == false )
+       {
+	  if ( msg->getMask() & message_mask::ha_request )
+	  {
+	     
+	     AsyncReply *reply = new AsyncReply(async_messages::REPLY, 
+						msg->getKey(),
+						msg->getRouting(),
+						0, 
+						async_msg->op,
+						async_results::CIM_NAK, 
+						(static_cast<AsyncRequest *>(msg))->resp, 
+						(static_cast<AsyncRequest *>(msg))->block);
+	     // flag this guy as complete 
+	     reply->op->complete();
+	  }
+       }
        return;
     }
     
     // if the message is an AsyncResponse, ensure that the op node is flagged complete
-    // and that it is on the completed list. Normally we shouldn't get a response
-    // on our queue.
+    // and that it is on the completed list. 
 
     if( msg->getMask() & message_mask::ha_reply )
     {
@@ -367,6 +385,62 @@ void cimom::handleEnqueue(void)
     
     return;
 }
+
+      
+void cimom::_handle_cimom_msg(Message *msg)
+{
+   if(msg == 0)
+      return;
+   
+   Uint32 mask = msg->getMask();
+   Uint32 type = msg->getType();
+   
+   if ( mask & message_mask::ha_async )
+   {
+      if( mask & message_mask::ha_request)
+      {
+	 if( type == async_messages::REGISTER_CIM_SERVICE )
+	    register_module(static_cast<RegisterCimService *>(msg));
+	 else if ( type == async_messages::DEREGISTER_CIM_SERVICE )
+	    deregister_module(static_cast<DeRegisterCimService *>(msg));
+	 else if ( type == async_messages::UPDATE_CIM_SERVICE )
+	    update_module(static_cast<UpdateCimService *>(msg ));
+	 else if ( type == async_messages::IOCTL )
+	    ioctl(static_cast<AsyncIoctl *>(msg));
+	 else if ( type == async_messages::FIND_SERVICE_Q )
+	    find_service_q(static_cast<FindServiceQueue *>(msg));
+	 else if (type == async_messages::ENUMERATE_SERVICE)
+	    enumerate_service(static_cast<EnumerateService *>(msg));
+	 else 
+	 {
+	    // we don't handle this message, reply with a NAK 
+	    AsyncReply *reply = new AsyncReply(async_messages::REPLY, 
+					       msg->getKey(),
+					       msg->getRouting(),
+					       0, 
+					       (static_cast<AsyncRequest *>(msg))->op,
+					       async_results::CIM_NAK, 
+					       (static_cast<AsyncRequest *>(msg))->resp, 
+					       (static_cast<AsyncRequest *>(msg))->block);
+	    
+	    // flag this guy as complete 
+	    reply->op->complete();
+	 }
+	 
+      } // an async request 
+      else
+      {
+	 // right now we don't handle any reply messages
+	 // but we must mark the op node as released so 
+	 // the completion thread will delete the messages 
+	 // and recycle the op node
+	 (static_cast<AsyncMessage *>(msg))->op->release();
+      } // an async reply
+   }
+   else
+      delete msg;
+}
+
 
 void cimom::register_module(RegisterCimService *msg)
 {

@@ -33,6 +33,7 @@ PEGASUS_NAMESPACE_BEGIN
 AtomicInt MessageQueueService::_xid(1);
 
 // mutex is UNLOCKED
+// this may be overridden by derived classes 
 void MessageQueueService::handleEnqueue(void)
 {
    Message *msg = dequeue();
@@ -40,7 +41,7 @@ void MessageQueueService::handleEnqueue(void)
    {
       if(msg->getMask() & message_mask::ha_async)
       {
-	 (static_cast<AsyncMessage *>(msg))->op->release();
+	 _handle_async_msg(static_cast<AsyncMessage *>(msg));
       }
       else
 	 delete msg;
@@ -53,6 +54,8 @@ void MessageQueueService::_enqueueAsyncResponse(AsyncRequest *request,
 						Uint32 state, 
 						Uint32 flag)
 {
+   PEGASUS_ASSERT(request != 0  && reply != 0 );
+   
    AsyncOpNode *op = request->op;
    op->lock();
    if (false == op->_response.exists(reply))
@@ -64,21 +67,141 @@ void MessageQueueService::_enqueueAsyncResponse(AsyncRequest *request,
    op->unlock();
 }
 
-
-Message *MessageQueueService::openEnvelope(Message *msg)
+void MessageQueueService::_handle_async_msg(AsyncMessage *msg)
 {
+   if( msg == 0 )
+      return;
+   
    Uint32 mask = msg->getMask();
-   if( mask & message_mask::ha_async )
+   Uint32 type = msg->getType();
+   
+   if (mask & message_mask::ha_async)
    {
-      AsyncOpNode *op = (static_cast<AsyncMessage *>(msg))->op;
-      if(op == 0 )
-	 throw NullPointer();
-      // ATTN
-      // start pulling the last message
-      // when we reach the envelope return null
-
+      if (mask & message_mask::ha_request)
+	 _handle_async_request(static_cast<AsyncRequest *>(msg));
+      else 
+	 _handle_async_reply(static_cast<AsyncReply *>(msg));
    }
-   return 0;
+   else
+      delete msg;
+}
+
+void MessageQueueService::_handle_async_request(AsyncRequest *req)
+{
+   req->op->processing();
+   
+   Uint32 type = req->getType();
+   if( type == async_messages::HEARTBEAT )
+      handle_heartbeat_request(req);
+   else if (type == async_messages::IOCTL)
+      handle_AsyncIoctl(static_cast<AsyncIoctl *>(req));
+   else if (type == async_messages::CIMSERVICE_START)
+      handle_CimServiceStart(static_cast<CimServiceStart *>(req));
+   else if (type == async_messages::CIMSERVICE_STOP)
+      handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+   else if (type == async_messages::CIMSERVICE_PAUSE)
+      handle_CimServicePause(static_cast<CimServicePause *>(req));
+   else if (type == async_messages::CIMSERVICE_RESUME)
+      handle_CimServiceResume(static_cast<CimServiceResume *>(req));
+   else if ( type == async_messages::ASYNC_OP_START)
+      handle_AsyncOperationStart(static_cast<AsyncOperationStart *>(req));
+   else 
+   {
+      // we don't handle this request message 
+      _make_response(req, async_results::CIM_NAK );
+   }
+      
+   req->op->complete();
+}
+
+void MessageQueueService::_handle_async_reply(AsyncReply *rep)
+{
+
+   if (rep->op != 0 )
+      rep->op->processing();
+   
+   Uint32 type = rep->getType();
+   
+   if ( type == async_messages::ASYNC_OP_RESULT )
+      handle_AsyncOperationResult(static_cast<AsyncOperationResult *>(rep));
+   else 
+   {
+      // we don't handle this reply
+      ;
+   }
+
+   if( rep->op != 0 )
+      rep->op->release();
+}
+
+void MessageQueueService::_make_response(AsyncRequest *req, Uint32 code)
+{
+   AsyncReply *reply = 
+      new AsyncReply(async_messages::REPLY,
+		     req->getKey(),
+		     req->getRouting(),
+		     0,
+		     req->op, 
+		     code, 
+		     req->resp,
+		     false);
+   _enqueueAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+}
+
+
+void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
+{
+   // default action is to echo a heartbeat response 
+   
+   AsyncReply *reply = 
+      new AsyncReply(async_messages::HEARTBEAT,
+		     req->getKey(),
+		     req->getRouting(),
+		     0,
+		     req->op, 
+		     async_results::OK, 
+		     req->resp,
+		     false);
+   _enqueueAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+   
+}
+
+
+void MessageQueueService::handle_heartbeat_reply(AsyncReply *rep)
+{ 
+   ;
+}
+      
+void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
+{
+   _make_response(req, async_results::OK);
+}
+void MessageQueueService::handle_CimServiceStart(CimServiceStart *req)
+{
+   _make_response(req, async_results::CIM_NAK);
+}
+void MessageQueueService::handle_CimServiceStop(CimServiceStop *req)
+{
+   _make_response(req, async_results::CIM_NAK);
+}
+void MessageQueueService::handle_CimServicePause(CimServicePause *req)
+{
+   _make_response(req, async_results::CIM_NAK);
+}
+void MessageQueueService::handle_CimServiceResume(CimServiceResume *req)
+{
+   _make_response(req, async_results::CIM_NAK);
+}
+      
+void MessageQueueService::handle_AsyncOperationStart(AsyncOperationStart *req)
+{
+   _make_response(req, async_results::CIM_NAK);
+
+}
+
+void MessageQueueService::handle_AsyncOperationResult(AsyncOperationResult *req)
+{
+   ;
 }
 
 AsyncOpNode *MessageQueueService::get_op(void)
@@ -137,7 +260,7 @@ void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessa
    {
       // manually free the opnode and message
       op->release();
-      _return_op(op);
+      return_op(op);
    }
 }
 
@@ -277,7 +400,7 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 			     true, 
 			     queue);
    
-   unlocked_dq<AsyncMessage reply_list(true);
+   unlocked_dq<AsyncMessage> reply_list(true);
    SendWait(req, &reply_list);
    AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
    
@@ -291,18 +414,17 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 	 {
 	    if(reply->getType() == async_messages::ENUMERATE_SERVICE_RESULT)
 	    {
-	       if( (static_cast<EnumerateServiceResult *>(reply))->result == async_results::OK )
+	       if( (static_cast<EnumerateServiceResponse *>(reply))->result == async_results::OK )
 	       {
 		  if( found == false)
 		  {
 		     found = true;
 		     
-		     result->put_name( (static_cast<EnumerateServiceResult *>(reply))->name);
-		     result->put_capabilities((static_cast<EnumerateServiceResult *>(reply))->capabilities);
-		     result->put_mask((static_cast<EnumerateServiceResult *>(reply))->mask);
-		     result->put_queue((static_cast<EnumerateServiceResult *>(reply))->qid);
+		     result->put_name( (static_cast<EnumerateServiceResponse *>(reply))->name);
+		     result->put_capabilities((static_cast<EnumerateServiceResponse *>(reply))->capabilities);
+		     result->put_mask((static_cast<EnumerateServiceResponse *>(reply))->mask);
+		     result->put_queue((static_cast<EnumerateServiceResponse *>(reply))->qid);
 		  }
-		  
 	       }
 	    }
 	 }

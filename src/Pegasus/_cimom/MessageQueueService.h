@@ -62,11 +62,26 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 
       virtual ~MessageQueueService(void);
       
-      virtual void handleEnqueue();
-//      virtual Boolean accept_async(Message *message) throw(IPCException);
+      // don't allow derived classes to override
+      void handleEnqueue();
+      virtual void handle_heartbeat_request(AsyncRequest *req);
+      virtual void handle_heartbeat_reply(AsyncReply *rep);
+      
+      virtual void handle_AsyncIoctl(AsyncIoctl *req);
+      virtual void handle_CimServiceStart(CimServiceStart *req);
+      virtual void handle_CimServiceStop(CimServiceStop *req);
+      virtual void handle_CimServicePause(CimServicePause *req);
+      virtual void handle_CimServiceResume(CimServiceResume *req);
+      
+      virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
+      virtual void handle_AsyncOperationResult(AsyncOperationResult *req);
+            
+//     virtual Boolean accept_async(Message *message) throw(IPCException);
+//     virtual Boolean messageOK(const Message *msg) ;
+
       virtual Message *openEnvelope(Message *msg);
       
-      void SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage>& reply_list);
+      void SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage> *reply_list);
       Boolean SendAsync(AsyncMessage *msg);
       void _enqueueAsyncResponse(AsyncRequest *request, 
 				 AsyncReply *reply, 
@@ -74,14 +89,20 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 				 Uint32 flag);
             
    protected:
+
+      // handle all your messages. call Base:_handle_async_msg to 
+      // deal with messages you don't handle 
+      virtual void _handle_async_msg(AsyncMessage *msg);
       Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
       Uint32 get_next_xid(void);
-      Array<Uint32> find_services(void);
-      message_module *enumerate_service(Uint32 queue);
-      
-      
+      void find_services(String name,
+			 Uint32 capabilities, 
+			 Uint32 mask, 
+			 Array<Uint32> *results);
+      void enumerate_service(Uint32 queue, message_module *result);
+            
       Uint32 _capabilities;
       Uint32 _mask;
       AsyncOpNode *get_op(void);
@@ -92,6 +113,11 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       struct timeval _default_op_timeout;
       AtomicInt _die;
       static AtomicInt _xid;
+      void _handle_async_request(AsyncRequest *req);
+      void _handle_async_reply(AsyncReply *rep);
+      void _make_response(AsyncRequest *req, Uint32 code);
+
+      
 };
 
 inline Uint32 MessageQueueService::get_next_xid(void)

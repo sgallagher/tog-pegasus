@@ -25,6 +25,10 @@
 //
 // Modified By: Michael E. Brasher (mbrasher@bmc.com)
 //
+//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//					replaced instances of "| ios::binary" with 
+//					PEGASUS_OR_IOS_BINARY
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
@@ -68,7 +72,7 @@ Boolean InstanceDataFile::loadInstance(
 
     fstream fs;
 
-    if (!_openFile(fs, path, ios::binary | ios::in))
+    if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
 	return false;
 
     //
@@ -118,7 +122,7 @@ Boolean InstanceDataFile::loadAllInstances(
 
     fstream fs;
 
-    if (!_openFile(fs, path, ios::binary | ios::in))
+    if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
 	return false;
 
     //
@@ -158,7 +162,7 @@ Boolean InstanceDataFile::appendInstance(
 
     fstream fs;
 
-    if (!_openFile(fs, path, ios::binary | ios::app | ios::out))
+    if (!_openFile(fs, path, ios::app | ios::out PEGASUS_OR_IOS_BINARY))
 	return false;
 
     //
@@ -209,7 +213,7 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
 
     fstream fs;
 
-    if (!_openFile(fs, Cat(path, ".rollback"), ios::binary | ios::out))
+    if (!_openFile(fs, Cat(path, ".rollback"), ios::out PEGASUS_OR_IOS_BINARY))
 	return false;
 
     //
@@ -248,7 +252,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
 
     fstream rollbackFs;
 
-    if (!_openFile(rollbackFs, Cat(path, ".rollback"), ios::binary | ios::in))
+    if (!_openFile(rollbackFs, Cat(path, ".rollback"), ios::in PEGASUS_OR_IOS_BINARY))
 	return false;
 
     //
@@ -308,7 +312,7 @@ Boolean InstanceDataFile::compact(
 
     fstream fs;
 
-    if (!_openFile(fs, path, ios::binary | ios::in))
+    if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
 	return false;
 
     //
@@ -317,7 +321,7 @@ Boolean InstanceDataFile::compact(
 
     fstream tmpFs;
 
-    if (!_openFile(tmpFs, Cat(path, ".tmp"), ios::binary | ios::out))
+    if (!_openFile(tmpFs, Cat(path, ".tmp"), ios::out PEGASUS_OR_IOS_BINARY))
 	return false;
 
     Array<Sint8> data;

@@ -22,8 +22,11 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//
+//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//					replaced instances of "| ios::binary" with 
+//					PEGASUS_OR_IOS_BINARY
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -446,14 +449,14 @@ Boolean InstanceIndexFile::_openFile(
     // Open the file:
     //
 
-    if (!FileSystem::openNoCase(fs, path, ios::binary | ios::in | ios::out))
+    if (!FileSystem::openNoCase(fs, path, ios::in | ios::out PEGASUS_OR_IOS_BINARY))
     {
 	//
 	// File does not exist so create it:
 	//
 
 	ArrayDestroyer<char> p(path.allocateCString());
-	fs.open(p.getPointer(), ios::binary | ios::out);
+	fs.open(p.getPointer(), ios::out PEGASUS_OR_IOS_BINARY);
 
 	if (!fs)
 	    return false;
@@ -465,7 +468,7 @@ Boolean InstanceIndexFile::_openFile(
 	// Reopen the file:
 	//
 
-	if (!FileSystem::openNoCase(fs, path, ios::binary | ios::in | ios::out))
+	if (!FileSystem::openNoCase(fs, path, ios::in | ios::out PEGASUS_OR_IOS_BINARY))
 	    return false;
     }
 

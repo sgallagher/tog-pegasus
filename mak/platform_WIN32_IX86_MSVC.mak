@@ -17,6 +17,10 @@ else
   FLAGS = -GX -GR -W3 -O2 -MD
 endif
 
+ifdef ENABLETIMEOUTWORKAROUNDHACK
+ DEFINES += -DENABLETIMEOUTWORKAROUNDHACK
+endif
+
 RM = mu rm
 
 RMDIRHIER = mu rmdirhier

@@ -38,29 +38,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Local routines:
-//
-////////////////////////////////////////////////////////////////////////////////
-
-static inline int select_wrapper(
-    int nfds,
-    fd_set* rd_fd_set,
-    fd_set* wr_fd_set,
-    fd_set* ex_fd_set,
-    const struct timeval* tv)
-{
-    return select(FD_SETSIZE, rd_fd_set, wr_fd_set, ex_fd_set, tv);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // Routines for starting and stoping socket interface.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 extern Uint32 _socketInterfaceInitCount;
 
-static void _SocketInterfaceInc()
+static void _OpenSocketInterface()
 {
     if (_socketInterfaceInitCount == 0)
     {
@@ -73,7 +57,7 @@ static void _SocketInterfaceInc()
     _socketInterfaceInitCount++;
 }
 
-static void _SocketInterfaceDec()
+static void _CloseSocketInterface()
 {
     _socketInterfaceInitCount--;
 
@@ -105,7 +89,7 @@ struct MonitorRep
 
 Monitor::Monitor()
 {
-    _SocketInterfaceInc();
+    _OpenSocketInterface();
 
     _rep = new MonitorRep;
     FD_ZERO(&_rep->rd_fd_set);
@@ -116,17 +100,12 @@ Monitor::Monitor()
     FD_ZERO(&_rep->active_ex_fd_set);
 }
 
-MonitorHandler::~MonitorHandler()
-{
-    _SocketInterfaceDec();
-}
-
 Monitor::~Monitor()
 {
-    delete _rep;
+    _CloseSocketInterface();
 }
 
-Boolean Monitor::select(Uint32 milliseconds)
+Boolean Monitor::run(Uint32 milliseconds)
 {
     // Windows select() has a strange little bug. It returns immediately if
     // there are no descriptors in the set even if the timeout is non-zero.
@@ -150,7 +129,7 @@ Boolean Monitor::select(Uint32 milliseconds)
 	const Uint32 USEC = (milliseconds % 1000) * 1000;
 	struct timeval tv = { SEC, USEC };
 
-	count = select_wrapper(
+	count = select(
 	    FD_SETSIZE,
 	    &_rep->active_rd_fd_set,
 	    &_rep->active_wr_fd_set,
@@ -172,13 +151,13 @@ Boolean Monitor::select(Uint32 milliseconds)
 	Uint32 events = 0;
 
 	if (FD_ISSET(socket, &_rep->active_rd_fd_set))
-	    events |= READ;
+	    events |= SocketMessage::READ;
 
 	if (FD_ISSET(socket, &_rep->active_wr_fd_set))
-	    events |= WRITE;
+	    events |= SocketMessage::WRITE;
 
 	if (FD_ISSET(socket, &_rep->active_ex_fd_set))
-	    events |= EXCEPTION;
+	    events |= SocketMessage::EXCEPTION;
 
 	if (events)
 	{
@@ -187,17 +166,17 @@ Boolean Monitor::select(Uint32 milliseconds)
 	    if (!queue)
 		unsolicitSocketMessages(_entries[i].queueId);
 
-	    if (events & WRITE)
+	    if (events & SocketMessage::WRITE)
 	    {
 		FD_CLR(socket, &_rep->active_wr_fd_set);
 	    }
 
-	    if (events & EXCEPTION)
+	    if (events & SocketMessage::EXCEPTION)
 	    {
 		FD_CLR(socket, &_rep->active_ex_fd_set);
 	    }
 
-	    if (events & READ)
+	    if (events & SocketMessage::READ)
 	    {
 		FD_CLR(socket, &_rep->active_rd_fd_set);
 	    }
@@ -213,24 +192,24 @@ Boolean Monitor::select(Uint32 milliseconds)
 Boolean Monitor::solicitSocketMessages(
     Sint32 socket, 
     Uint32 events,
-    Uint32 queueId);
+    Uint32 queueId)
 {
     // See whether a handler is already registered for this one:
 
     Uint32 pos = _findEntry(socket);
 
-    if (pos != PEGUSUS_NOT_FOUND)
+    if (pos != PEGASUS_NOT_FOUND)
 	return false;
 
     // Set the events:
 
-    if (events & READ)
+    if (events & SocketMessage::READ)
 	FD_SET(socket, &_rep->rd_fd_set);
 
-    if (events & WRITE)
+    if (events & SocketMessage::WRITE)
 	FD_SET(socket, &_rep->wr_fd_set);
 
-    if (events & EXCEPTION)
+    if (events & SocketMessage::EXCEPTION)
 	FD_SET(socket, &_rep->ex_fd_set);
 
     // Add the entry to the list:
@@ -243,7 +222,7 @@ Boolean Monitor::solicitSocketMessages(
     return true;
 }
 
-Boolean Monitor::unolicitSocketMessages(Sint32 socket)
+Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 {
     // Look for the given entry and remove it:
 

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Message.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,17 +45,17 @@ struct _MonitorEntry
 struct MonitorRep;
 
 /** This message occurs when there is activity on a socket. */
-class SocketMessage
+class SocketMessage : public Message
 {
 public:
+
+    enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
     SocketMessage(Events events_, Uint32 socket_) :
 	Message(SOCKET_MESSAGE), 
 	events(events_), socket(socket_) 
     {
     }
-
-    enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
     Uint32 events;
 
@@ -126,7 +127,6 @@ public:
 	whichever occurs first.
 
 	@param timeoutMsec the number of milliseconds to wait for an event.
-
 	@return true if an event occured.
     */
     Boolean run(Uint32 timeoutMsec);
@@ -135,12 +135,9 @@ public:
 	be one solicitor per socket.
 
 	@param socket the socket to monitor for activity.
-
 	@param events socket events to monitor (see the SocketMessage::Events
 	    enumeration for details).
-
 	@param queueId of queue on which to post socket messages.
-
 	@return false if messages have already been solicited on this socket.
     */
     Boolean solicitSocketMessages(
@@ -149,20 +146,19 @@ public:
 	Uint32 queueId);
 
     /** Unsolicit messages on the given socket.
+
 	@param socket on which to unsolicit messages.
 	@return false if no such solicitation has been made on the given socket.
     */
-    Boolean unolicitSocketMessages(Sint32 socket);
+    Boolean unsolicitSocketMessages(Sint32 socket);
 
 private:
 
     Uint32 _findEntry(Sint32 socket) const;
 
-    Array<MonitorEntry> _entries;
+    Array<_MonitorEntry> _entries;
     MonitorRep* _rep;
 };
-
-PEGASUS_MEMORY_FUNCTIONS(MonitorEntry)
 
 PEGASUS_NAMESPACE_END
 

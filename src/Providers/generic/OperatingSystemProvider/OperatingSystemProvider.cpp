@@ -65,14 +65,14 @@ CIMInstance OperatingSystemProvider::getInstance(const OperationContext & contex
    instance.addProperty(CIMProperty("Name", os.GetName()));
    instance.addProperty(CIMProperty("OSType", os.GetOSType()));
    instance.addProperty(CIMProperty("OtherTypeDescription", os.GetOtherTypeDescription()));
-   instance.addProperty(CIMProperty("CurrentTimeZone", os.GetCurrentTimeZone()));
+	instance.addProperty(CIMProperty("CurrentTimeZone", os.GetCurrentTimeZone()));
    instance.addProperty(CIMProperty("LocalDateTime", os.GetLocalDateTime()));
-   instance.addProperty(CIMProperty("LastBootUpTime", os.GetLastBootUpTime()));
+   //instance.addProperty(CIMProperty("LastBootUpTime", os.GetLastBootUpTime()));
    instance.addProperty(CIMProperty("NumberOfLicensedUsers", os.GetNumberOfLicensedUsers()));
    instance.addProperty(CIMProperty("NumberOfUsers", os.GetNumberOfUsers()));
    instance.addProperty(CIMProperty("NumberOfProcesses", os.GetNumberOfProcesses()));
    instance.addProperty(CIMProperty("MaxNumberOfProcesses", os.GetMaxNumberOfProcesses()));
-   instance.addProperty(CIMProperty("InstallDate", os.GetInstallDate()));
+   //instance.addProperty(CIMProperty("InstallDate", os.GetInstallDate()));
    instance.addProperty(CIMProperty("Version", os.GetVersion()));
    instance.addProperty(CIMProperty("TotalSwapSpaceSize", os.GetTotalSwapSpaceSize()));
    instance.addProperty(CIMProperty("TotalVirtualMemorySize", os.GetTotalVirtualMemorySize()));
@@ -82,7 +82,7 @@ CIMInstance OperatingSystemProvider::getInstance(const OperationContext & contex
    instance.addProperty(CIMProperty("SizeStoredInPagingFiles", os.GetSizeStoredInPagingFiles()));
    instance.addProperty(CIMProperty("FreeSpaceInPagingFiles", os.GetFreeSpaceInPagingFiles()));
    instance.addProperty(CIMProperty("MaxProcessMemorySize", os.GetMaxProcessMemorySize()));
-   instance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
+	instance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
 
    return(instance);
 }

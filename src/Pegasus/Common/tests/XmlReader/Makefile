@@ -12,6 +12,7 @@ SOURCES = XmlReader.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM) x.xml 
+	$(RMREPOSITORY) $(TMP_DIR)/repository
+	$(PROGRAM)
 
 poststarttests:

@@ -7,14 +7,14 @@
     </PROPERTY>
     <PROPERTY NAME="SourceInstance"  TYPE="string" EMBEDDEDOBJECT="object">
         <VALUE>
-            <INSTANCE  CLASSNAME="Sample_LifecycleIndicationProviderClass" >
-                <PROPERTY NAME="uniqueId"  TYPE="uint32">
-                    <VALUE>1</VALUE>
-                </PROPERTY>
-                <PROPERTY NAME="lastOp"  TYPE="string">
-                    <VALUE>createInstance</VALUE>
-                </PROPERTY>
-            </INSTANCE>
+            &lt;INSTANCE  CLASSNAME=&quot;Sample_LifecycleIndicationProviderClass&quot; &gt;
+                &lt;PROPERTY NAME=&quot;uniqueId&quot;  TYPE=&quot;uint32&quot;&gt;
+                    &lt;VALUE&gt;1&lt;/VALUE&gt;
+                &lt;/PROPERTY&gt;
+                &lt;PROPERTY NAME=&quot;lastOp&quot;  TYPE=&quot;string&quot;&gt;
+                    &lt;VALUE&gt;createInstance&lt;/VALUE&gt;
+                &lt;/PROPERTY&gt;
+            &lt;/INSTANCE&gt;
         </VALUE>
     </PROPERTY>
 </INSTANCE>

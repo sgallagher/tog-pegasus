@@ -448,7 +448,6 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
    {
       return;
    }
-   
    op->_client_sem.signal();
    return;
 }

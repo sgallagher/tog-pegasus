@@ -48,7 +48,7 @@ void * AsyncOpNode::operator new(size_t size)
    else
    {
       AsyncOpNode * newBlock =
-	 static_cast<AsyncOpNode *>(::operator new( BLOCK_SIZE * sizeof(AsyncOpNode)));
+	 reinterpret_cast<AsyncOpNode *>(::operator new( BLOCK_SIZE * sizeof(AsyncOpNode)));
       int i;
       for( i = 1; i < BLOCK_SIZE - 1; ++i)
 	 newBlock[i]._parent = &newBlock[i + 1];
@@ -70,7 +70,7 @@ void AsyncOpNode::operator delete(void *dead, size_t size)
       ::operator delete(dead);
       return;
    }
-   AsyncOpNode *node = static_cast<AsyncOpNode *>(dead);
+   AsyncOpNode *node = reinterpret_cast<AsyncOpNode *>(dead);
    _alloc_mut.lock(pegasus_thread_self());
    node->_parent = _headOfFreeList;
    _headOfFreeList = node;

@@ -33,6 +33,50 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
  
+ModuleController::callback_handle * ModuleController::callback_handle::_head;
+const int ModuleController::callback_handle::BLOCK_SIZE = 20;
+Mutex ModuleController::callback_handle::_alloc_mut;
+
+void * ModuleController::callback_handle::operator new(size_t size)
+{
+   if( size != sizeof(callback_handle))
+      return ::operator new(size);
+   _alloc_mut.lock(pegasus_thread_self());
+   callback_handle *node = _head;
+   if(node)
+      _head = reinterpret_cast<callback_handle *>(node->_parm);
+   else
+   {
+      callback_handle *block = 
+	 reinterpret_cast<callback_handle *>(::operator new(BLOCK_SIZE * sizeof(callback_handle)));
+      int i;
+      for(i = 1; i < BLOCK_SIZE - 1; ++i)
+	 block[i]._parm = & block[i + 1];
+      block[BLOCK_SIZE - 1]._parm = NULL;
+      node = block;
+      _head = &block[1];
+   }
+   _alloc_mut.unlock();
+   return node;
+}
+
+
+void ModuleController::callback_handle::operator delete(void *dead, size_t size)
+{
+   if(dead == 0)
+      return;
+   if(size != sizeof(callback_handle))
+   {
+      ::operator delete(dead);
+      return;
+   }
+   callback_handle *node = reinterpret_cast<callback_handle *>(dead);
+   _alloc_mut.lock(pegasus_thread_self());
+   node->_parm = _head;
+   _head = node;
+   _alloc_mut.unlock();
+}
+
 
 pegasus_module::module_rep::module_rep(ModuleController *controller, 
 				       const String & name,
@@ -631,6 +675,8 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 					    MessageQueue *q, 
 					    void *parm)
 {
+   cout << "entering _async_handleEnqueue " << endl;
+   
    ModuleController *myself = static_cast<ModuleController *>(q);
    Message *request = op->get_request();
    Message *response = op->get_response();
@@ -667,6 +713,7 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    }
    
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
+   cout << "calling the second-level callback" << endl;
    
    cb->_module->_send_async_callback(routing, response, cb->_parm); 
    delete cb;
@@ -683,7 +730,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 					  void *callback_parm) 
    throw(Permission, IPCException)
 {
-   printf("verifying handle %p\n", &handle);
+   printf("verifying handle %p, controller at %p \n", &handle, this);
    
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
@@ -1000,7 +1047,7 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 					  Uint32 msg_handle, 
 					  Uint32 destination_q, 
-					  String & destination_module,
+					  const String & destination_module,
 					  AsyncRequest *message, 
 					  void (*async_callback)(Uint32, Message *, void *),
 					  void *callback_parm)

@@ -334,6 +334,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
 	    operation->_flags & ASYNC_OPFLAGS_SAFE_CALLBACK) && 
 	   (operation->_state & ASYNC_OPSTATE_COMPLETE))
       {
+	 
 	 operation->unlock();
 	 _handle_async_callback(operation);
       }

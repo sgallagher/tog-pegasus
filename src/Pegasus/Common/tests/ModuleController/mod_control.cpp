@@ -522,6 +522,44 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    if(success == true )
       cout << "SendAsync to module successful" << endl;
 
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+
+   success = my_module->get_controller()->ClientSendAsync( (*my_module->get_client_handle()),
+							   0, 
+							   svc_qid,
+							   req,
+							   test_module::async_callback,
+							   my_module);
+   
+   delete req;
+   if(success == true )
+      cout << "ClientSendAsync to service successful" << endl;
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+   
+   success = my_module->get_controller()->ClientSendAsync( (*my_module->get_client_handle()),
+							   0, 
+							   peer_qid,
+							   String(parms->_peer),
+							   req,
+							   test_module::async_callback,
+							   my_module);
+   
+   delete req;
+   if(success == true )
+      cout << "ClientSendAsync to module successful" << endl;
+
    pegasus_sleep(1000);
    
    delete my_module;

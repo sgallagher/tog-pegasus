@@ -240,6 +240,14 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       class callback_handle 
       {
 	 public:
+	    static void * operator new(size_t );
+	    static void operator delete(void *, size_t);
+	 private:
+	    static callback_handle *_head;
+	    static const int BLOCK_SIZE;
+	    static Mutex _alloc_mut;
+
+	 public:
 	    callback_handle(pegasus_module * module, void *parm)
 	       : _module(module), _parm(parm)
 	    {
@@ -382,7 +390,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       Boolean ClientSendAsync(const client_handle & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
-			      String & destination_module,
+			      const String & destination_module,
 			      AsyncRequest *message, 
 			      void (*async_callback)(Uint32, Message *, void *),
 			      void *callback_parm )

@@ -236,6 +236,13 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     if (!HTTPMessage::lookupHeader(
 	headers, "CIMOperation", cimOperation, true))
     {
+#ifdef PEGASUS_DEBUG
+            if (getenv("PEGASUS_CLIENT_TRACE"))
+            {
+                cout << "Missing CIMOperation HTTP header on this response" << endl;
+                httpMessage->printAll(cout);
+            }
+#endif
         CIMClientMalformedHTTPException* malformedHTTPException = new
             CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
         ClientExceptionMessage * response =
@@ -278,6 +285,14 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
 
     httpMessage->message.append('\0');
+
+#ifdef PEGASUS_DEBUG
+    // Display of received packet.  Displays the complete received packet
+    // For now, this is conditionally compiled.
+    if (getenv("PEGASUS_CLIENT_TRACE"))
+        XmlWriter::indentedPrint(cout, httpMessage->message.getData());
+#endif
+
 
     // Calculate the beginning of the content from the message size and
     // the content length.  Subtract 1 to take into account the null

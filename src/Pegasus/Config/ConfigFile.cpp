@@ -288,7 +288,7 @@ void ConfigFile::save (ConfigTable* confTable)
 #endif
     ofs.clear();
 
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
     //
     // Set permissions on the config file to 0644
     //
@@ -368,7 +368,7 @@ void ConfigFile::replace (const String& fileName)
 #endif
     ofs.clear();
 
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
     //
     // Set permissions on the config file to 0644
     //

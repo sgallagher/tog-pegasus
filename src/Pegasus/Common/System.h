@@ -42,9 +42,9 @@
 #include <sys/stat.h>
 
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 #ifndef mode_t
-#define mode_t unsigned long
+typedef unsigned long mode_t;
 #endif
 #endif
 

@@ -43,6 +43,7 @@ export BISON_SIMPLE = bison.simple
 
 WQLLEX.cpp: WQL.l
 	$(LEX) -oWQLLEX.cpp -PWQL_ WQL.l
+	$(TOUCH) WQLLEX.cpp
 
 ##
 ## Yacc rule:
@@ -54,9 +55,11 @@ ifeq ($(YACC),yacc)
 	$(COPY) y.tab.c WQLYACC.cpp
 	$(COPY) y.tab.h WQLYACC.h
 	$(RM) y.tab.c y.tab.h
+	$(TOUCH) WQLYACC.cpp WQLYACC.h
 else
 	$(YACC) -vd -oWQLtemp -p WQL_ WQL.y
 	$(COPY) WQLtemp WQLYACC.cpp
 	$(COPY) WQLtemp.h WQLYACC.h
 	$(RM) WQLtemp WQLtemp.h WQLtemp.output
+	$(TOUCH) WQLYACC.cpp WQLYACC.h
 endif

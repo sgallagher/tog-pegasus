@@ -244,7 +244,7 @@ static void TestGetClass(CIMOMHandle & handle)
 }
 
 
-PEGASUS_THREAD_CDECL PEGASUS_THREAD_RETURN test_cimom_handle(void *parm)
+ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_cimom_handle(void *parm)
 {
    
    Thread *th = reinterpret_cast<Thread *>(parm);

@@ -1,11 +1,12 @@
-
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <stdio.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLParserState.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
+#include <Pegasus/CQL/RepositoryQueryContext.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -19,13 +20,22 @@ PEGASUS_NAMESPACE_END
 int main(int argc, char ** argv)
 {
 	// init parser state
+	const char* env = getenv("PEGASUS_HOME");
+        String repositoryDir(env);
+        repositoryDir.append("/repository");
+        CIMNamespaceName _ns("root/cimv2");
+        CIMRepository* _rep = new CIMRepository(repositoryDir);
+        RepositoryQueryContext* _ctx = new RepositoryQueryContext(_ns, _rep);
+
 	const char* text = "blah";
+	String lang("CQL");
+	String query("SELECTSTATEMENT");
 	globalParserState = new CQLParserState;
         globalParserState->error = false;
         globalParserState->text = text;
         globalParserState->textSize = strlen(text) + 1;
         globalParserState->offset = 0;
-        globalParserState->statement = new CQLSelectStatement();
+        globalParserState->statement = new CQLSelectStatement(lang,query,_ctx);
 
 	Boolean readFile = false;
 	if(argc > 1){
@@ -41,9 +51,12 @@ int main(int argc, char ** argv)
 	}
         printf("Starting parser...\n");
 	while(1){
+		globalParserState->statement->clear();
 		CQL_parse();
+	
+        String s = globalParserState->statement->toString();
+	printf("%s\n",(const char*)(s.getCString()));
 	}
-        	
     	return 0;                                                                                                              
 }
 

@@ -1754,6 +1754,7 @@ String CQLValue::toString()const
          break;
       }
       case String_type:  
+	//printf("cqlvalue::tostring string_type\n");
          return *_theValue._S;
          break;
       case CIMDateTime_type:  
@@ -1769,6 +1770,7 @@ String CQLValue::toString()const
          return _theValue._CL->getPath().toString();
          break;
       case CQLIdentifier_type:
+	//printf("cqlvalue::tostring identifier_type\n");
 	return _CQLChainId.toString();
 	break;
       default:

@@ -24,6 +24,7 @@ void printf_(char * msg){
 extern char * yytext;
 int chain_state;
 CQLFactory _factory = CQLFactory();
+CQLFactory _factory1 = CQLFactory();
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
@@ -196,7 +197,9 @@ scoped_property : SCOPED_PROPERTY
 			printf_(msg);
 
 		        String tmp(CQL_lval.strValue);
+			//String tmp1("A::prop#OK");
 		        $$ = new CQLIdentifier(tmp);
+			printf("BISON::scoped_property %s\n",(const char*)$$->toString().getCString());
                   }
 ;   
 
@@ -404,7 +407,9 @@ chain : literal
 	    printf_(msg);
 
             chain_state = CQLIDENTIFIER;
+		printf("BISON::chain-> scoped_property %s\n",(const char*)$1->toString().getCString());
 	    $$ = _factory.makeObject($1,Predicate);
+		printf("BISON::chain-> scoped_property %s\n",(const char*)$1->toString().getCString());
         }
       | identifier LPAR arg_list RPAR
         {
@@ -449,8 +454,7 @@ chain : literal
                 _cid.append(*$3);
                 $$ = _factory.makeObject(&_cid,Predicate);
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
-		CQLChainedIdentifier *_cid;
-                _cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
                 _cid->append(*$3);
                 _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
@@ -495,8 +499,9 @@ chain : literal
         {
             sprintf(msg,"BISON::chain->chain[ array_index_list ]\n");
 	    printf_(msg);
-
+	
             if(chain_state == CQLIDENTIFIER){
+		printf("HERE\n");
 		CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
 		String tmp = _id->getName().getString();
 		tmp.append("[").append(*$3).append("]");
@@ -504,7 +509,8 @@ chain : literal
 		CQLChainedIdentifier _cid(_id1);
 		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;		
-	    }else if(chain_state == CQLCHAINEDIDENTIFIER){
+	    }else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE){
+		 printf("HERE1\n");
 		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		CQLIdentifier tmpid = _cid->getLastIdentifier();
 		String tmp = tmpid.getName().getString();
@@ -515,6 +521,7 @@ chain : literal
                 $$ = $1;
 	    }else{
 		/* error */
+		printf("HERE2\n");
 	    }
         }
 ;
@@ -525,6 +532,7 @@ concat : chain
 	     printf_(msg);
 
 	     $$ = ((CQLPredicate*)$1);
+	     printf("%s\n",(const char*)$$->toString().getCString());
          }
        | concat DBL_PIPE chain
          {
@@ -714,7 +722,7 @@ comp : arith
 	   printf_(msg);
 	   if($1->isSimple() && $3->isSimple()){
 		CQLExpression* _exp1 = (CQLExpression*)(_factory.getObject($1,Predicate,Expression));
-		CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
+		CQLExpression* _exp2 = (CQLExpression*)(_factory1.getObject($3,Predicate,Expression));
 	   	CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
            	$$ = new CQLPredicate(_sp);
 	   }else{
@@ -926,7 +934,9 @@ selected_entry : expr
                      sprintf(msg,"BISON::selected_entry->expr\n");
 		     printf_(msg);
 		     if($1->isSimpleValue()){
+			printf("%s\n",(const char*)$1->toString().getCString());
 		        CQLChainedIdentifier *_cid = (CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier));
+			printf("%s\n",(const char*)_cid->toString().getCString());
 		        globalParserState->statement->appendSelectIdentifier(*_cid);
 		     }else{
 			/* error */

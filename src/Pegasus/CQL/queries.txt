@@ -2,3 +2,9 @@ select * from class
 select * from class where class = 5
 select * from class where class <= 10
 select * from class where class = 'blah'
+select class from class1
+select class.prop from class
+select class.class1.class2.class3.prop from class where prop = 5
+select * from class where class.prop = 5
+select A::prop#OK from class
+select class.class1.class2.A::prop#OK from class where prop != 'blah'

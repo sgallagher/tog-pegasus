@@ -37,6 +37,7 @@
 #include "CQLIdentifierRep.h"
 #include <Pegasus/Query/QueryCommon/QueryIdentifierRep.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
+#include <Pegasus/Common/Tracer.h>
 #include <ctype.h>
 #include <cstdlib>
 PEGASUS_NAMESPACE_BEGIN
@@ -91,6 +92,7 @@ CQLIdentifierRep& CQLIdentifierRep::operator=(const CQLIdentifierRep& rhs)
 
 void CQLIdentifierRep::parse(String identifier)
 {
+PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifier::parse");
 	/*
 	 - Parse for the following:
          1. A::<scoped string>
@@ -178,6 +180,8 @@ void CQLIdentifierRep::parse(String identifier)
 		}
 	}
 	
+PEG_METHOD_EXIT();
+
 }
 
 PEGASUS_NAMESPACE_END

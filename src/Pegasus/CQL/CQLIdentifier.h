@@ -74,11 +74,36 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
 {
   public:
     CQLIdentifier();
-
+    
+    /**  The constructor for a CQLIdentifier object
+          takes a string as input.  The string should contain the
+          property portion of a CQLChainedIdentifier.
+                                                                                                                                                             
+         The constructor parses the input string into the components of
+         the property identifier.
+                                                                                                                                                             
+         @param - identifier.  The raw string to be parsed into a CQLIdentifier
+	 @return - None.
+	 @throws - CQLIdentifierParseException
+      */
     CQLIdentifier(String identifier);
 
+    /**
+	Copy constructor
+
+    	@param - id.  The CQLIdentifier to copy construct from
+        @return - None.
+        @throws - None.
+    */
     CQLIdentifier(const CQLIdentifier& id);
 
+    /**
+        Constructs a CQLIdentifier from its base class
+                                                                                                                                                             
+        @param - identifier.  The raw string to be parsed into a CQLIdentifier
+        @return - None.
+        @throws - None.
+    */
     CQLIdentifier(const QueryIdentifier& id);
 
     ~CQLIdentifier();

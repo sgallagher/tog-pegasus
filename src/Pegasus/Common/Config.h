@@ -112,4 +112,10 @@ PEGASUS_NAMESPACE_END
 #define PEGASUS_OUT(X) \
     PEGASUS_STD(cout) << #X << "=[" << X << "]" << PEGASUS_STD(endl)
 
+#ifdef PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
+# define PEGASUS_UNREACHABLE(CODE)
+#else
+# define PEGASUS_UNREACHABLE(CODE) CODE
+#endif
+
 #endif  /* Pegasus_Config_h */

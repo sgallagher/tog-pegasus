@@ -2972,7 +2972,7 @@ Boolean XmlReader::getObjectPathElement(
 	    "expected INSTANCEPATH or CLASSPATH element");
     }
 
-    return false;
+    PEGASUS_UNREACHABLE ( return false; )
 }
 
 PEGASUS_NAMESPACE_END

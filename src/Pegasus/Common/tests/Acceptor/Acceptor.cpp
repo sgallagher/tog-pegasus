@@ -101,5 +101,5 @@ int main()
 	selector->select(10000);
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( exit(1); )
 }

@@ -809,10 +809,10 @@ int main()
     TCPChannelConnector connector(factory, selector);
 
     Channel* channel = connector.connect("localhost:7777");
-    assert(channel);
+    assert(channel != 0);
 
     for (;;)
 	selector->select(5000);
 
-    return 0;
+    PEGASUS_UNREACHABLE( exit(1); )
 }

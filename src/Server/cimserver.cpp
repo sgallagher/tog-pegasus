@@ -376,8 +376,6 @@ int main(int argc, char** argv)
 	server.bind(address);
 	delete [] address;
 
-
-
 	time_t last = 0;
 	while( 1 )
 	{
@@ -399,8 +397,10 @@ int main(int argc, char** argv)
 	  server.runForever();
 	}
 
-	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "Normal Termination");
+	// This statement is unrechable!
+	//
+	// Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	//   "Normal Termination");
     }
     catch(Exception& e)
     {

@@ -1470,10 +1470,10 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	    String work = tmpInstanceNames[i];
 	    Uint32 pos = work.find('\"');
 	    if (pos != PEG_NOT_FOUND)
-		work = tmpInstanceNames[i].subString((pos+1), -1);
+		work = tmpInstanceNames[i].subString((pos+1), Uint32(-1));
 
 	    // remove trailing quote
-	    work.remove((work.size() - 1),-1);
+	    work.remove((work.size() - 1),Uint32(-1));
 
 	    // Create href for click to get classnames
 

@@ -51,7 +51,7 @@ int main()
 	assert(s1.size() == 2);
 	assert (!s1.isEmpty());
 
-	assert(s1.top() = 2);
+	assert(s1.top() == 2);
 
 	s1.pop();
 	assert(s1.size() == 1);

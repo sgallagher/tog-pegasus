@@ -681,7 +681,6 @@ Array<String> CIMRepository::enumerateClassNames(
 	nameSpace, className, deepInheritance, classNames);
 
     return classNames;
-    return Array<String>();
 }
 
 Array<CIMInstance> CIMRepository::enumerateInstances(

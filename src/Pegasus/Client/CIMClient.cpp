@@ -613,7 +613,7 @@ int ClientHandler::handleGetClassResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleGetInstanceResponse(
@@ -655,7 +655,7 @@ int ClientHandler::handleGetInstanceResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 //STUB{
@@ -697,7 +697,7 @@ int ClientHandler::handleEnumerateClassNamesResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 //STUB}
 
@@ -738,7 +738,7 @@ int ClientHandler::handleReferencesResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleReferenceNamesResponse(
@@ -778,7 +778,7 @@ int ClientHandler::handleReferenceNamesResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleAssociatorNamesResponse(
@@ -818,7 +818,7 @@ int ClientHandler::handleAssociatorNamesResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleAssociatorsResponse(
@@ -858,7 +858,7 @@ int ClientHandler::handleAssociatorsResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleCreateInstanceResponse(
@@ -891,7 +891,7 @@ int ClientHandler::handleCreateInstanceResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleEnumerateInstanceNamesResponse(
@@ -940,7 +940,7 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleDeleteQualifierResponse(
@@ -973,7 +973,7 @@ int ClientHandler::handleDeleteQualifierResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleGetQualifierResponse(
@@ -1010,7 +1010,7 @@ int ClientHandler::handleGetQualifierResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleSetQualifierResponse(
@@ -1043,7 +1043,7 @@ int ClientHandler::handleSetQualifierResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleEnumerateQualifiersResponse(
@@ -1083,7 +1083,7 @@ int ClientHandler::handleEnumerateQualifiersResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleEnumerateClassesResponse(
@@ -1123,7 +1123,7 @@ int ClientHandler::handleEnumerateClassesResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleCreateClassResponse(
@@ -1156,7 +1156,7 @@ int ClientHandler::handleCreateClassResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleModifyClassResponse(
@@ -1189,7 +1189,7 @@ int ClientHandler::handleModifyClassResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleModifyInstanceResponse(
@@ -1222,7 +1222,7 @@ int ClientHandler::handleModifyInstanceResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleDeleteClassResponse(
@@ -1255,7 +1255,7 @@ int ClientHandler::handleDeleteClassResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleDeleteInstanceResponse(
@@ -1288,7 +1288,7 @@ int ClientHandler::handleDeleteInstanceResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 int ClientHandler::handleGetPropertyResponse(

@@ -147,8 +147,9 @@ public:
 
     /** Gets the propagated qualifier.
         @return true if qualifier is propagated, false otherwise.
-    */
-    const Uint32 getPropagated() const;
+	changed from wrong return type Uint32 to Boolean as original intended, see Bug 319
+     */
+    const Boolean getPropagated() const;
 
     /**	Sets the Propagated flag for the object.
         @param propagated - Flag indicating propagation.
@@ -239,7 +240,7 @@ public:
     const CIMFlavor & getFlavor() const;
 
     ///
-    const Uint32 getPropagated() const;
+    const Boolean getPropagated() const;
 
     ///
     Boolean isUninitialized() const;

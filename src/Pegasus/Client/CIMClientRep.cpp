@@ -1075,9 +1075,10 @@ Message* CIMClientRep::_doRequest(
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
 
     //
-    //  Set HTTP method in request to M-POST
+    //  Set HTTP method in request to POST
     //
-    request->setHttpMethod (HTTP_METHOD_M_POST);
+	//Bug 478/418 - Change this to do post call, not mpost
+    request->setHttpMethod (HTTP_METHOD__POST);
 
 // l10n
     // Set the Accept-Languages and Content-Languages into

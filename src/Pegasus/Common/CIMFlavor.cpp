@@ -1,134 +1,134 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cstring>
 #include "CIMFlavor.h"
-#include <Pegasus/Common/InternalException.h>
+#include "Exception.h"
+#include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-const CIMFlavor CIMFlavor::NONE = 0;
-const CIMFlavor CIMFlavor::OVERRIDABLE = 1;
-const CIMFlavor CIMFlavor::ENABLEOVERRIDE = 1;
-const CIMFlavor CIMFlavor::TOSUBCLASS = 2;
-const CIMFlavor CIMFlavor::TOINSTANCE = 4;
-const CIMFlavor CIMFlavor::TRANSLATABLE = 8;
-const CIMFlavor CIMFlavor::TOSUBELEMENTS = TOSUBCLASS;
-const CIMFlavor CIMFlavor::DISABLEOVERRIDE = 16;
-const CIMFlavor CIMFlavor::RESTRICTED = 32;
-const CIMFlavor CIMFlavor::DEFAULTS = OVERRIDABLE + TOSUBCLASS;
+const Uint32 CIMFlavor::NONE = 0;
+const Uint32 CIMFlavor::OVERRIDABLE = 1;
+const Uint32 CIMFlavor::TOSUBCLASS = 2;
+const Uint32 CIMFlavor::TOINSTANCE = 4;
+const Uint32 CIMFlavor::TRANSLATABLE = 8;
+const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS;
 
-
-CIMFlavor::CIMFlavor ()
-    : cimFlavor (CIMFlavor::NONE.cimFlavor)
+static const char* _toString(Boolean x)
 {
+    return x ? "true" : "false";
 }
 
-CIMFlavor::CIMFlavor (const CIMFlavor & flavor)
-    : cimFlavor (flavor.cimFlavor)
+String FlavorToString(Uint32 flavor)
 {
-}
+    Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
+    Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
+    Boolean toInstance = (flavor & CIMFlavor::TOINSTANCE) != 0;
+    Boolean translatable = (flavor & CIMFlavor::TRANSLATABLE) != 0;
 
-CIMFlavor::CIMFlavor (const Uint32 flavor)
-    : cimFlavor (flavor)
-{
-    //
-    //  Test that no undefined bits are set
-    //
-    //  Note that conflicting bits may be set in the Uint32 flavor
-    //  For example, OVERRIDABLE and DISABLEOVERRIDE may both be set
-    //  or TOSUBCLASS and RESTRICTED may both be set
-    //  Currently, the flavor is not checked for these conflicts
-    //  That is corrected later when a CIMQualifierDecl object is constructed
-    //  with the CIMFlavor object
-    //
-    PEGASUS_ASSERT (flavor < 64);
-}
-
-CIMFlavor & CIMFlavor::operator= (const CIMFlavor & flavor)
-{
-    this->cimFlavor = flavor.cimFlavor;
-    return *this;
-}
-
-void CIMFlavor::addFlavor (const CIMFlavor & flavor)
-{
-    this->cimFlavor |= flavor.cimFlavor;
-}
-
-void CIMFlavor::removeFlavor (const CIMFlavor & flavor)
-{
-    this->cimFlavor &= (~flavor.cimFlavor);
-}
-
-Boolean CIMFlavor::hasFlavor (const CIMFlavor & flavor) const
-{
-    return (this->cimFlavor & flavor.cimFlavor) == flavor.cimFlavor;
-}
-
-Boolean CIMFlavor::equal (const CIMFlavor & flavor) const
-{
-    return this->cimFlavor == flavor.cimFlavor;
-}
-
-CIMFlavor CIMFlavor::operator+ (const CIMFlavor & flavor) const
-{
-    return CIMFlavor(this->cimFlavor | flavor.cimFlavor);
-}
-
-String CIMFlavor::toString () const
-{
     String tmp;
 
-    if (this->hasFlavor (CIMFlavor::OVERRIDABLE))
-        tmp.append("OVERRIDABLE ");
+    if (!overridable)
+	tmp += "OVERRIDABLE ";
 
-    if (this->hasFlavor (CIMFlavor::TOSUBCLASS))
-        tmp.append("TOSUBCLASS ");
+    if (!toSubClass)
+	tmp += "TOSUBCLASS ";
 
-    if (this->hasFlavor (CIMFlavor::TOINSTANCE))
-        tmp.append("TOINSTANCE ");
+    if (toInstance)
+	tmp += "TOINSTANCE ";
 
-    if (this->hasFlavor (CIMFlavor::TRANSLATABLE))
-        tmp.append("TRANSLATABLE ");
+    if (translatable)
+	tmp += "TRANSLATABLE ";
 
-    if (this->hasFlavor (CIMFlavor::DISABLEOVERRIDE))
-        tmp.append("DISABLEOVERRIDE ");
-
-    if (this->hasFlavor (CIMFlavor::RESTRICTED))
-        tmp.append("RESTRICTED ");
-
-    if (tmp.size ())
-        tmp.remove (tmp.size () - 1);
+    if (tmp.size())
+	tmp.remove(tmp.size() - 1);
 
     return tmp;
+}
+
+void FlavorToXml(Array<Sint8>& out, Uint32 flavor)
+{
+    Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
+    Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
+    Boolean toInstance = (flavor & CIMFlavor::TOINSTANCE) != 0;
+    Boolean translatable = (flavor & CIMFlavor::TRANSLATABLE) != 0;
+
+    if (!overridable)
+	out << " OVERRIDABLE=\"" << _toString(overridable) << "\"";
+
+    if (!toSubClass)
+	out << " TOSUBCLASS=\"" << _toString(toSubClass) << "\"";
+
+    if (toInstance)
+	out << " TOINSTANCE=\"" << _toString(toInstance) << "\"";
+
+    if (translatable)
+	out << " TRANSLATABLE=\"" << _toString(translatable) << "\"";
+}
+
+/** toMof - Generates the MOF output for the flavors.
+    The BNF for this is:
+    <pre>
+    flavor 	    = ENABLEOVERRIDE | DISABLEOVERRIDE | RESTRICTED |
+			  TOSUBCLASS | TRANSLATABLE
+			  
+    DISABLEOVERRIDE = "disableOverride"
+			  
+    ENABLEOVERRIDE  = "enableoverride"
+
+    RESTRICTED 	    = "restricted"
+    
+    TOSUBCLASS 	    = "tosubclass"
+    
+    TRANSLATABLE    = "translatable"
+    </pre>
+    ATTNKS: This can be done by the function above FlavortoString.
+    ATTNKS: What happened to the restricted Flavor???
+*/
+void FlavorToMof(Array<Sint8>& out, Uint32 flavor)
+{
+    Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
+    Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
+    Boolean toInstance = (flavor & CIMFlavor::TOINSTANCE) != 0;
+    Boolean translatable = (flavor & CIMFlavor::TRANSLATABLE) != 0;
+
+    if (!overridable)
+	out << "EnableOverride " ;
+
+    if (!toSubClass)
+	out << "ToSublass " ;
+
+    if (toInstance)
+	out << "ToInstance ";
+
+    if (translatable)
+	out << "Translatable ";
 }
 
 PEGASUS_NAMESPACE_END

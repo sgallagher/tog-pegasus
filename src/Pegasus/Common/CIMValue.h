@@ -171,7 +171,12 @@ public:
     */
     Boolean isArray() const { return _isArray; }
 
-    /** Returns whether value is null.
+    /** Returns whether the CIMvalue object is null. 
+	Null is the specific condition where no value has
+	yet been set into the value.
+	If a CIMValue object is Null, any get on that object
+	will create an exception.
+	@return Returns True if the CIMValue object is Null
     */
     Boolean isNull() const { return _isNull; }
 
@@ -309,8 +314,10 @@ public:
 
     void get(Array<CIMDateTime>& x) const; 
 
-    /** CIMMethod toXML
-    
+    /** toXML - Converts a CIMValueObject to XML.
+	@out Sint8 Array to hold the XML representation
+	@return Returns the XML representation of the CIMValue
+	object in the input parameter out. 
     */
     void toXml(Array<Sint8>& out) const;
 
@@ -324,6 +331,14 @@ public:
 	</PRE> 
     */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+
+    /** toMof - Converts a CIMValueObject to Mof.
+	@out Sint8 Array to hold the Mof representation
+	@return Returns the Mof representation of the CIMValue
+	object in the input parameter out. 
+    */
+    void toMof(Array<Sint8>& out) const;
+
 
     /** toString - Converts the CIMvalue to a string
 	@return - String output for CIMValue.

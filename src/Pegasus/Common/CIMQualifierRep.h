@@ -1,31 +1,28 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,143 +30,98 @@
 #define Pegasus_QualifierRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMFlavor.h>
-#include <Pegasus/Common/Buffer.h>
-#include <Pegasus/Common/OrderedSet.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifier;
 class CIMQualifier;
 
-class CIMQualifierRep
+class PEGASUS_COMMON_LINKAGE CIMQualifierRep : public Sharable
 {
 public:
 
     CIMQualifierRep(
-        const CIMName& name,
-        const CIMValue& value,
-        const CIMFlavor& flavor,
-        Boolean propagated);
+	const String& name, 
+	const CIMValue& value, 
+	Uint32 flavor,
+	Boolean propagated);
 
-    const CIMName& getName() const
-    {
-        return _name;
+    virtual ~CIMQualifierRep();
+
+    const String& getName() const 
+    { 
+	return _name; 
     }
 
-    Uint32 getNameTag() const
-    {
-        return _nameTag;
+    void setName(const String& name);
+
+    CIMType getType() const 
+    { 
+	return _value.getType(); 
     }
 
-    void increaseOwnerCount()
+    Boolean isArray() const 
     {
-        _ownerCount++;
-        return;
+	return _value.isArray();
     }
 
-    void decreaseOwnerCount()
-    {
-        _ownerCount--;
-        return;
+    const CIMValue& getValue() const 
+    { 
+	return _value; 
     }
 
-    void setName(const CIMName& name);
+    void setValue(const CIMValue& value);
 
-    CIMType getType() const
+    Uint32 getFlavor() const 
     {
-        return _value.getType();
+	return _flavor; 
     }
 
-    Boolean isArray() const
-    {
-        return _value.isArray();
+    Boolean getPropagated() const 
+    { 
+	return _propagated; 
     }
 
-    const CIMValue& getValue() const
+    void setPropagated(Boolean propagated) 
     {
-        return _value;
+	_propagated = propagated; 
     }
 
-    void setValue(const CIMValue& value)
-    {
-        _value = value;
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    const CIMFlavor & getFlavor() const
-    {
-        return _flavor;
-    }
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
-    void setFlavor(const CIMFlavor & flavor)
-    {
-        _flavor = flavor;
-    }
-
-    void unsetFlavor(const CIMFlavor & flavor)
-    {
-        _flavor.removeFlavor (flavor);
-    }
-
-    void resolveFlavor (const CIMFlavor & inheritedFlavor);
-
-    Boolean getPropagated() const
-    {
-        return _propagated;
-    }
-
-    void setPropagated(Boolean propagated)
-    {
-        _propagated = propagated;
-    }
+    void toMof(Array<Sint8>& out) const;
 
     Boolean identical(const CIMQualifierRep* x) const;
 
     CIMQualifierRep* clone() const
     {
-        return new CIMQualifierRep(*this);
-    }
-
-    void Inc()
-    {
-         _refCounter++;
-    }
-
-    void Dec()
-    {
-        if (_refCounter.decAndTestIfZero())
-            delete this;
+	return new CIMQualifierRep(*this);
     }
 
 private:
+
+    CIMQualifierRep();
 
     // Cloning constructor:
 
     CIMQualifierRep(const CIMQualifierRep& x);
 
-    CIMQualifierRep();    // Unimplemented
-    CIMQualifierRep& operator=(const CIMQualifierRep& x);    // Unimplemented
+    CIMQualifierRep& operator=(const CIMQualifierRep& x);
 
-    CIMName _name;
+    String _name;
     CIMValue _value;
-    CIMFlavor _flavor;
+    Uint32 _flavor;
     Boolean _propagated;
-    Uint32 _nameTag;
-
-    // reference counter as member to avoid
-    // virtual function resolution overhead
-    AtomicInt _refCounter;
-    Uint32 _ownerCount;
-
-    friend class CIMQualifierList;
-    friend class CIMBuffer;
 };
 
 PEGASUS_NAMESPACE_END

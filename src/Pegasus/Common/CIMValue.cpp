@@ -170,11 +170,15 @@ static void _UnsignedIntToStr(Uint64 x, char* result)
 
 //------------------------------------------------------------------------------
 //
-// _toXml() routines:
+// _toXml() and _toMof routines:
 //
 //------------------------------------------------------------------------------
 
 inline void _toXml(Array<Sint8>& out, Boolean x)
+{
+    out << (x ? "TRUE" : "FALSE");
+}
+inline void _toMof(Array<Sint8>& out, Boolean x)
 {
     out << (x ? "TRUE" : "FALSE");
 }
@@ -186,18 +190,31 @@ inline void _integerToXml(Array<Sint8>& out, const T& x)
     sprintf(buffer, "%d", x);
     out << (char*)buffer;
 }
-
+/* ATTNKS template<class T>
+inline void _integerToMof(Array<Sint8>& out, const T& x)
+{
+    char buffer[32];
+    sprintf(buffer, "%d", x);
+    out << (char*)buffer;
+}
+*/
 inline void _toXml(Array<Sint8>& out, Uint8 x) { _integerToXml(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint8 x) { _integerToXml(out, x); }
 
 inline void _toXml(Array<Sint8>& out, Sint8 x) { _integerToXml(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint8 x) { _integerToXml(out, x); }
 
 inline void _toXml(Array<Sint8>& out, Uint16 x) { _integerToXml(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint16 x) { _integerToXml(out, x); }
 
 inline void _toXml(Array<Sint8>& out, Sint16 x) { _integerToXml(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint16 x) { _integerToXml(out, x); }
 
 inline void _toXml(Array<Sint8>& out, Uint32 x) { _integerToXml(out, x); }
+inline void _toMof(Array<Sint8>& out, Uint32 x) { _integerToXml(out, x); }
 
 inline void _toXml(Array<Sint8>& out, Sint32 x) { _integerToXml(out, x); }
+inline void _toMof(Array<Sint8>& out, Sint32 x) { _integerToXml(out, x); }
 
 inline void _toXml(Array<Sint8>& out, Uint64 x) 
 { 
@@ -205,8 +222,20 @@ inline void _toXml(Array<Sint8>& out, Uint64 x)
     _UnsignedIntToStr(x, buffer);
     out << buffer;
 }
+inline void _toMof(Array<Sint8>& out, Uint64 x) 
+{ 
+    char buffer[128];
+    _UnsignedIntToStr(x, buffer);
+    out << buffer;
+}
 
 inline void _toXml(Array<Sint8>& out, Sint64 x) 
+{
+    char buffer[128];
+    _SignedIntToStr(x, buffer);
+    out << buffer;
+}
+inline void _toMof(Array<Sint8>& out, Sint64 x) 
 {
     char buffer[128];
     _SignedIntToStr(x, buffer);
@@ -220,8 +249,21 @@ void _toXml(Array<Sint8>& out, Real32 x)
     sprintf(buffer, "%f", x);
     out << buffer;
 }
+void _toMof(Array<Sint8>& out, Real32 x)
+{
+    // ATTN: Does this format match the CIM/XML format?
+    char buffer[128];
+    sprintf(buffer, "%f", x);
+    out << buffer;
+}
 
 void _toXml(Array<Sint8>& out, Real64 x)
+{
+    char buffer[128];
+    sprintf(buffer, "%f", x);
+    out << buffer;
+}
+void _toMof(Array<Sint8>& out, Real64 x)
 {
     char buffer[128];
     sprintf(buffer, "%f", x);
@@ -232,13 +274,45 @@ inline void _toXml(Array<Sint8>& out, Char16 x)
 {
     XmlWriter::appendSpecial(out, x);
 }
+inline void _toMof(Array<Sint8>& out, Char16 x)
+{
+    XmlWriter::appendSpecial(out, x);
+}
 
 inline void _toXml(Array<Sint8>& out, const String& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
+inline void _toMof(Array<Sint8>& out, const String& x)
+{
+    out << "\"";
+    const Char16* tmp = x.getData();
+    char c;
+    while (c = *tmp++)
+    {
+	switch (c)
+	{
+	    case '"':
+		out.append("'", 1);
+		break;
+
+	    case ' ':
+		out.append(Sint8(c));
+		break;
+ 
+	    default:
+		out.append(Sint8(c));
+	}
+
+    }
+    out << "\"";
+}
 
 inline void _toXml(Array<Sint8>& out, const CIMDateTime& x)
+{
+    out << x.getString();
+}
+inline void _toMof(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.getString();
 }
@@ -254,6 +328,23 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 
 	out << "</VALUE>\n";
     }
+}
+template<class T>
+void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
+{
+    Boolean isFirstEntry = true;
+    out << "{";
+    while (size--)
+    {
+	// Put comma on all but first entry.
+	if (!isFirstEntry)
+	{
+	    out << ", ";
+	}
+	isFirstEntry = false;
+	_toMof(out, *p++);
+    }
+    out << "}";
 }
 
 template<class T>
@@ -749,6 +840,140 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	out << "</VALUE>\n";
     }
 }
+void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
+{
+    if (_isArray)
+    {
+	switch (_type)
+	{
+	    case CIMType::BOOLEAN:
+	    {
+		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
+		{
+		    _toMof(out, Boolean(_u._booleanArray->data()[i]));
+		}
+		break;
+	    }
+	    case CIMType::UINT8:
+		_toMof(out, _u._uint8Array->data(), _u._uint8Array->size);
+		break;
+
+	    case CIMType::SINT8:
+		_toMof(out, _u._sint8Array->data(), _u._sint8Array->size);
+		break;
+
+	    case CIMType::UINT16:
+		_toMof(out, _u._uint16Array->data(), _u._uint16Array->size);
+		break;
+
+	    case CIMType::SINT16:
+		_toMof(out, _u._sint16Array->data(), _u._sint16Array->size);
+		break;
+
+	    case CIMType::UINT32:
+		_toMof(out, _u._uint32Array->data(), _u._uint32Array->size);
+		break;
+
+	    case CIMType::SINT32:
+		_toMof(out, _u._sint32Array->data(), _u._sint32Array->size);
+		break;
+
+	    case CIMType::UINT64:
+		_toMof(out, _u._uint64Array->data(), _u._uint64Array->size);
+		break;
+
+	    case CIMType::SINT64:
+		_toMof(out, _u._sint64Array->data(), _u._sint64Array->size);
+		break;
+
+	    case CIMType::REAL32:
+		_toMof(out, _u._real32Array->data(), _u._real32Array->size);
+		break;
+
+	    case CIMType::REAL64:
+		_toMof(out, _u._real64Array->data(), _u._real64Array->size);
+		break;
+
+	    case CIMType::CHAR16:
+		_toMof(out, _u._char16Array->data(), _u._char16Array->size);
+		break;
+
+	    case CIMType::STRING:
+		_toMof(out, _u._stringArray->data(), _u._stringArray->size);
+		break;
+
+	    case CIMType::DATETIME:
+		_toMof(out, _u._dateTimeArray->data(), 
+			    _u._dateTimeArray->size); break;
+	}
+    }
+    else if (_type == CIMType::REFERENCE)
+    {
+	_u._referenceValue->toMof(out);
+    }
+    else
+    {
+	switch (_type)
+	{
+	    case CIMType::BOOLEAN:
+		_toMof(out, Boolean(_u._booleanValue != 0));
+		break;
+
+	    case CIMType::UINT8:
+		_toMof(out, _u._uint8Value);
+		break;
+
+	    case CIMType::SINT8:
+		_toMof(out, _u._sint8Value);
+		break;
+
+	    case CIMType::UINT16:
+		_toMof(out, _u._uint16Value);
+		break;
+
+	    case CIMType::SINT16:
+		_toMof(out, _u._sint16Value);
+		break;
+
+	    case CIMType::UINT32:
+		_toMof(out, _u._uint32Value);
+		break;
+
+	    case CIMType::SINT32:
+		_toMof(out, _u._sint32Value);
+		break;
+
+	    case CIMType::UINT64:
+		_toMof(out, _u._uint64Value);
+		break;
+
+	    case CIMType::SINT64:
+		_toMof(out, _u._sint64Value);
+		break;
+
+	    case CIMType::REAL32:
+		_toMof(out, _u._real32Value);
+		break;
+
+	    case CIMType::REAL64:
+		_toMof(out, _u._real64Value);
+		break;
+
+	    case CIMType::CHAR16:
+		_toMof(out, Char16(_u._char16Value));
+		break;
+
+	    case CIMType::STRING:
+		_toMof(out, *_u._stringValue);
+		break;
+
+	    case CIMType::DATETIME:
+		_toMof(out, *_u._dateTimeValue);
+		break;
+	}
+    }
+}
+
 
 void CIMValue::print(PEGASUS_STD(ostream) &os) const
 {

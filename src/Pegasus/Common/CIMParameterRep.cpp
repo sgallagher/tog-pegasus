@@ -1,122 +1,96 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <cstdio>
 #include "CIMParameter.h"
-#include "CIMParameterRep.h"
+#include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"
-#include "StrLit.h"
+#include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
-    _name(x._name),
-    _type(x._type),
-    _isArray(x._isArray),
-    _arraySize(x._arraySize),
-    _referenceClassName(x._referenceClassName),
-    _refCounter(1),
-    _ownerCount(0)
-{
-    x._qualifiers.cloneTo(_qualifiers);
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
-}
-
 CIMParameterRep::CIMParameterRep(
-    const CIMName& name,
+    const String& name, 
     CIMType type,
     Boolean isArray,
     Uint32 arraySize,
-    const CIMName& referenceClassName)
-    : _name(name), _type(type),
-    _isArray(isArray), _arraySize(arraySize),
-    _referenceClassName(referenceClassName),
-    _refCounter(1),
-    _ownerCount(0)
+    const String& referenceClassName) 
+    : _name(name), _type(type), 
+    _isArray(isArray), _arraySize(arraySize), 
+    _referenceClassName(referenceClassName)
 {
-    // ensure name is not null
-    if (name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
+    if (!CIMName::legal(name))
+	throw IllegalName();
 
-    if ((_arraySize != 0) && !_isArray)
-    {
-        throw TypeMismatchException();
-    }
+    if (_type == CIMType::NONE)
+	throw NullType();
 
-    if (!referenceClassName.isNull())
+    if (_arraySize && !_isArray)
+	throw IncompatibleTypes();
+
+    if (referenceClassName.size())
     {
-        if (_type != CIMTYPE_REFERENCE)
-        {
-            throw TypeMismatchException();
-        }
+	if (!CIMName::legal(referenceClassName))
+	    throw IllegalName();
+
+	if (_type != CIMType::REFERENCE)
+	{
+	    throw ExpectedReferenceValue();
+	}
     }
     else
     {
-        if (_type == CIMTYPE_REFERENCE)
-        {
-            throw TypeMismatchException();
-        }
+
+    // ATTN: revisit this later!
+#if 0
+	if (_type == CIMType::REFERENCE)
+	    throw MissingReferenceClassName();
+#endif
     }
 }
 
-void CIMParameterRep::setName(const CIMName& name)
+CIMParameterRep::~CIMParameterRep()
 {
-    // ensure name is not null
-    if (name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
-    if (_ownerCount != 0 && _name != name)
-    {
-        MessageLoaderParms parms(
-            "Common.CIMParameterRep.CONTAINED_PARAMETER_NAMECHANGEDEXCEPTION",
-            "Attempted to change the name of a parameter"
-                " already in a container.");
-        throw Exception(parms);
-    }
-    _name = name;
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
+
+}
+
+void CIMParameterRep::setName(const String& name) 
+{
+    if (!CIMName::legal(name))
+	throw IllegalName();
+
+    _name = name; 
 }
 
 void CIMParameterRep::resolve(
     DeclContext* declContext,
-    const CIMNamespaceName& nameSpace)
+    const String& nameSpace)
 {
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method
@@ -125,35 +99,146 @@ void CIMParameterRep::resolve(
     CIMQualifierList dummy;
 
     _qualifiers.resolve(
-        declContext,
-        nameSpace,
-        CIMScope::PARAMETER,
-        false,
-        dummy,
-        true);
+	declContext,
+	nameSpace,
+	CIMScope::PARAMETER,
+	false,
+	dummy);
+}
+
+void CIMParameterRep::toXml(Array<Sint8>& out) const
+{
+    if (_isArray)
+    {
+	out << "<PARAMETER.ARRAY";
+
+	out << " NAME=\"" << _name << "\" ";
+
+	out << " TYPE=\"" << TypeToString(_type) << "\"";
+
+	if (_arraySize)
+	{
+	    char buffer[32];
+	    sprintf(buffer, "%d", _arraySize);
+	    out << " ARRAYSIZE=\"" << buffer << "\"";
+	}
+
+	out << ">\n";
+
+	_qualifiers.toXml(out);
+
+	out << "</PARAMETER.ARRAY>\n";
+    }
+    else
+    {
+	out << "<PARAMETER";
+
+	out << " NAME=\"" << _name << "\" ";
+
+	out << " TYPE=\"" << TypeToString(_type) << "\"";
+
+	out << ">\n";
+
+	_qualifiers.toXml(out);
+
+	out << "</PARAMETER>\n";
+    }
+}
+
+/** toMof - puts the Mof representation of teh Parameter object to
+    the output parameter array
+    The BNF for this conversion is:
+    parameterList    = 	parameter *( "," parameter )
+
+	parameter    = 	[ qualifierList ] (dataType|objectRef) parameterName
+				[ array ]
+
+	parameterName= 	IDENTIFIER
+	
+	array 	     = 	"[" [positiveDecimalValue] "]"
+	
+    Format on a single line.
+    */
+void CIMParameterRep::toMof(Array<Sint8>& out) const
+{
+    // Output the qualifiers for the parameter
+    _qualifiers.toMof(out);
+
+    if (_qualifiers.getCount())
+	out << " ";
+
+    // Output the data type and name
+    out << TypeToString(_type) << " " <<  _name;
+
+    if (_isArray)
+    {
+	//Output the array indicator "[ [arraysize] ]"
+	if (_arraySize)
+	{
+	    char buffer[32];
+	    sprintf(buffer, "[%d]", _arraySize);
+	    out << buffer;
+	}
+	else
+	    out << "[]";
+    }
+}
+
+
+void CIMParameterRep::print(PEGASUS_STD(ostream) &os) const 
+{
+    Array<Sint8> tmp;
+    toXml(tmp);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 Boolean CIMParameterRep::identical(const CIMParameterRep* x) const
 {
-    // If the pointers are the same, the objects must be identical
-    if (this == x)
-    {
-        return true;
-    }
-
-    if (!_name.equal (x->_name))
-        return false;
+    if (_name != x->_name)
+	return false;
 
     if (_type != x->_type)
-        return false;
+	return false;
 
-    if (!_referenceClassName.equal (x->_referenceClassName))
-        return false;
+    if (_referenceClassName != x->_referenceClassName)
+	return false;
 
     if (!_qualifiers.identical(x->_qualifiers))
-        return false;
+	return false;
 
     return true;
+}
+
+CIMParameterRep::CIMParameterRep()
+{
+
+}
+
+CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
+    Sharable(),
+    _name(x._name),
+    _type(x._type),
+    _isArray(x._isArray),
+    _arraySize(x._arraySize),
+    _referenceClassName(x._referenceClassName)
+{
+    x._qualifiers.cloneTo(_qualifiers);
+}
+
+CIMParameterRep& CIMParameterRep::operator=(const CIMParameterRep& x) 
+{ 
+    return *this; 
+}
+
+void CIMParameterRep::setType(CIMType type)
+{ 
+    _type = type;
+
+    if (_referenceClassName.size() == 0 && _type == CIMType::REFERENCE)
+    {
+	throw MissingReferenceClassName();
+    }
 }
 
 PEGASUS_NAMESPACE_END

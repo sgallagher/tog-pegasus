@@ -1,31 +1,28 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,783 +30,525 @@
 #define Pegasus_Method_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/CIMParameter.h>
-#include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/CIMMethodRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Resolver;
 class CIMConstMethod;
-class CIMMethodRep;
 
-/**
-    The CIMMethod class represents the DMTF standard CIM method definition.
-    A CIMMethod is generally defined in the context of a CIMClass.
-    A CIMMethod consists of:
-    <ul>
-        <li>A CIMName containing the name of the method
-        <li>A CIMType defining the method return type
-        <li>Zero or more CIMQualifier objects
-        <li>Zero or more CIMParameter objects defining the method parameters
-    </ul>
-    In addition, a CIMMethod has these internal attributes:
-    <ul>
-        <li><b>propagated</b> - An attribute defining whether this CIMMethod
-            is propagated from a superclass.  Note that this is normally set
-            as part of completing the definition of objects (resolving) when
-            they are created as part of a CIM schema and is NOT automatically
-            set when creating a method object.  It can only be logically set
-            in context of the schema in which the CIMMethod is defined.
-        <li><b>classOrigin</b> - An attribute defining the class in which
-            this CIMMethod was originally defined.  This is normally set
-            within the context of the schema in which the CIMMethod is
-            defined.  This attribute is available from objects retrieved
-            from the CIM Server, for example, and provides information on
-            the defintion of this method in the class hierarchy.  The
-            propagated and ClassOrigin attributes can be used together to
-            determine if methods originated with this object or were
-            inherited from higher levels of the hiearchy.
-    </ul>
+/** Class CIMMethod - This class defines the operations associated with
+    manipulation of the Pegasus implementation of the CIM CIMMethod. Within
+    this class, methods are provides for creation, deletion, and manipulation
+    of method declarations.
 
-    <p>The CIMMethod class uses a shared representation model, such that
-    multiple CIMMethod objects may refer to the same data copy.  Assignment
-    and copy operators create new references to the same data, not distinct
-    copies.  An update to a CIMMethod object affects all the CIMMethod
-    objects that refer to the same data copy.  The data remains valid until
-    all the CIMMethod objects that refer to it are destructed.  A separate
-    copy of the data may be created using the clone method.
+    // ATTN: remove the classOrigin and propagated parameters.
 */
 class PEGASUS_COMMON_LINKAGE CIMMethod
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMMethod object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
+    /** Creates and instantiates a CIM method. */
+    CIMMethod() : _rep(0)
+    {
+
+    }
+
+    /** Creates and instantiates a CIM method from another method instance
+	@return pointer to the new method instance
     */
-    CIMMethod();
+    CIMMethod(const CIMMethod& x)
+    {
+	Inc(_rep = x._rep);
+    }
 
-    /**
-        Constructs a CIMMethod object from the value of a specified
-        CIMMethod object, so that both objects refer to the same data copy.
+    /** Assignment operator */
+    CIMMethod& operator=(const CIMMethod& x)
+    {
+	if (x._rep != _rep)
+	{
+	    Dec(_rep);
+	    Inc(_rep = x._rep);
+	}
+	return *this;
+    }
 
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            const CIMMethod cm1(m1);
-        </pre>
-
-        @param x The CIMMethod object from which to construct a new
-            CIMMethod object.
-    */
-    CIMMethod(const CIMMethod& x);
-
-    /**
-        Constructs a CIMMethod object with the specified attributes.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-        </pre>
-
-        @param name A CIMName specifying the name of the method.
-        @param type A CIMType defining the method return type.
-        @param classOrigin A CIMName indicating the class in which the
-            method is locally defined (optional).
-        @param propagated A Boolean indicating whether the method definition
-            is local to the CIMClass in which it appears or was propagated
-            (without modification) from a superclass.
-        @exception UninitializedObjectException If the method name is null.
+    /**	Creates a CIM method with the specified name, type, and classOrigin
+	@param name for the method
+	@param type ATTN
+	@param classOrigin
+	@param propagated
+	@return  Throws IllegalName if name argument not legal CIM identifier.
     */
     CIMMethod(
-        const CIMName& name,
-        CIMType type,
-        const CIMName& classOrigin = CIMName(),
-        Boolean propagated = false);
+	const String& name,
+	CIMType type,
+	const String& classOrigin = String(),
+	Boolean propagated = false)
+    {
+	_rep = new CIMMethodRep(name, type, classOrigin, propagated);
+    }
 
-    /**
-        Destructs the CIMMethod object.
+    /** Desctructor. */
+    ~CIMMethod()
+    {
+	Dec(_rep);
+    }
+
+    /** getName - Gets the name of the method
+	@return String with the name of the method
     */
-    ~CIMMethod();
+    const String& getName() const
+    {
+	_checkRep();
+	return _rep->getName();
+    }
 
-    /**
-        Assigns the value of the specified CIMMethod object to this object,
-        so that both objects refer to the same data copy.
-
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMMethod m2;
-            m2 = m1;
-        </pre>
-
-        @param x The CIMMethod object from which to assign this CIMMethod
-            object.
-        @return A reference to this CIMMethod object.
+    /** setName - Set the method name
+	@param name
+	@exception IllegalName if name argument not legal CIM identifier.
     */
-    CIMMethod& operator=(const CIMMethod& x);
+    void setName(const String& name)
+    {
+	_checkRep();
+	_rep->setName(name);
+    }
 
-    /**
-        Gets the name of the method.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getName() == CIMName ("getHostName"));
-        </pre>
-        @return A CIMName containing the name of the method.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** getType - gets the method type
+	@return The CIM method type for this method.
     */
-    const CIMName& getName() const;
+    CIMType getType() const
+    {
+	_checkRep();
+	return _rep->getType();
+    }
 
-    /**
-        Sets the method name.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m2(CIMName ("test"), CIMTYPE_STRING);
-            m2.setName(CIMName ("getVersion"));
-        </pre>
-        @return A CIMName containing the new name of the method.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-        @exception Exception If the object is already contained by CIMClass
+    /** setType - Sets the method type to the specified CIM method
+	type as defined in CIMType /Ref{TYPE}
     */
-    void setName(const CIMName& name);
+    void setType(CIMType type)
+    {
+	_checkRep();
+	_rep->setType(type);
+    }
 
-    /**
-        Gets the method return type.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getType() == CIMTYPE_STRING);
-        </pre>
-        @return A CIMType containing the method return type.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** getClassOrigin - Returns the class in which this method
+	was defined.
+	@return ATTN:
     */
-    CIMType getType() const;
+    const String& getClassOrigin() const
+    {
+	_checkRep();
+	return _rep->getClassOrigin();
+    }
 
-    /**
-        Sets the method return type to the specified CIMType.
-        This is the type of the CIMValue
-        that is returned on a CIM method invocation.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.setName(CIMName ("getVersion"));
-            assert(m1.getName() == CIMName ("getVersion"));
-        </pre>
-        @param type CIMType to be set into the CIMMethod object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** setClassOrigin - ATTN: */
+    void setClassOrigin(const String& classOrigin)
+    {
+	_checkRep();
+	_rep->setClassOrigin(classOrigin);
+    }
+
+    /** getPropagated - Tests the propogated qualifier
+        @return - returns True if method is propogated
+	*/
+    Boolean getPropagated() const
+    {
+	_checkRep();
+	return _rep->getPropagated();
+    }
+
+    /** setPropagated - Sets the Propagaged Qualifier */
+    void setPropagated(Boolean propagated)
+    {
+	_checkRep();
+	_rep->setPropagated(propagated);
+    }
+
+    /** addQualifier - Adds a Qualifier to the method object.
+	@param CIMQualifier to be added
+	@return Throws AlreadyExists excetpion if the qualifier already exists
+	in the method
+	@exception AlreadyExists exception
     */
-    void setType(CIMType type);
+    CIMMethod& addQualifier(const CIMQualifier& x)
+    {
+	_checkRep();
+	_rep->addQualifier(x);
+	return *this;
+    }
 
-    /**
-        Gets the class in which this method is locally defined.  This
-        information is normally available with methods that are part of
-        schema returned from a CIM Server.
-        @return CIMName containing the classOrigin attribute.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** findQualifier - returns the position of the qualifier with
+	the given name.
+	@param name Name of qualifier to be found.
+	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    const CIMName& getClassOrigin() const;
+    Uint32 findQualifier(const String& name)
+    {
+	_checkRep();
+	return _rep->findQualifier(name);
+    }
 
-    /**
-        Sets the classOrigin attribute with the specified class name.
-        Normally this method is used internally by a CIM Server when
-        defining methods in the context of a schema.
-        @param classOrigin A CIMName specifying the name of the class of
-            origin for the method.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    Uint32 findQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->findQualifier(name);
+    }
+
+    /** existsQualifier - returns the position of the qualifier with
+	the given name.
+	@param name Name of qualifier to be found.
+	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    void setClassOrigin(const CIMName& classOrigin);
+    Boolean existsQualifier(const String& name)
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
 
-    /**
-        Tests the propagated attribute of the object.  The propagated
-        attribute indicates whether this method was propagated from a
-        higher-level class.  Normally this attribute is set as part of
-        defining a method in the context of a schema.  It is set in
-        methods retrieved from a CIM Server.
-        @return True if method is propagated; otherwise, false.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    Boolean existsQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+
+    /** getQualifier - Gets the CIMQualifier defined by the index
+	input as a parameter.
+	@param Index of the qualifier requested.
+	@return CIMQualifier object or exception
+	@exception OutOfBounds exception if the index is outside the range of
+	parameters available from the CIMMethod.
     */
-    Boolean getPropagated() const;
+    CIMQualifier getQualifier(Uint32 pos)
+    {
+	_checkRep();
+	return _rep->getQualifier(pos);
+    }
 
-    /**
-        Sets the propagated attribute.  Normally this is used by a CIM Server
-        when defining a method in the context of a schema.
-        @param propagated A Boolean indicating whether the method is
-            propagated from a superclass.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    CIMConstQualifier getQualifier(Uint32 pos) const
+    {
+	_checkRep();
+	return _rep->getQualifier(pos);
+    }
+
+    /** removeQualifier - Removes the CIMQualifier defined by the
+	position input as a parameter.
+	@param Position of the qualifier requested.
+	@return CIMQualifier object or exception
+	@exception OutOfBounds exception if the index is outside the range of
+	parameters available from the CIMMethod.
     */
-    void setPropagated(Boolean propagated);
+    void removeQualifier(Uint32 pos)
+    {
+	_checkRep();
+	_rep->removeQualifier(pos);
+    }
 
-    /**
-        Adds a qualifier to the method.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-        </pre>
-        @param x The CIMQualifier to be added.
-        @return A reference to this CIMMethod object.
-        @exception AlreadyExistsException If a qualifier with the
-            same name already exists in the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+
+    /** getQualifierCount - Returns the number of Qualifiers attached
+	to this CIMmethod object.
+	@return integer representing number of Qualifiers.
     */
-    CIMMethod& addQualifier(const CIMQualifier& x);
+    Uint32 getQualifierCount() const
+    {
+	_checkRep();
+	return _rep->getQualifierCount();
+    }
 
-    /**
-        Finds a qualifier by name.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            assert(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-        </pre>
-        @param name A CIMName specifying the name of the qualifier to be found.
-        @return Index of the qualifier if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** addParameter - Adds the parameter defined by the input
+	to the CIMMethod
     */
-    Uint32 findQualifier(const CIMName& name) const;
+    CIMMethod& addParameter(const CIMParameter& x)
+    {
+	_checkRep();
+	_rep->addParameter(x);
+	return *this;
+    }
 
-    /**
-        Gets the qualifier at the specified index.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            Uint32 posQualifier = m1.findQualifier(CIMName ("stuff"));
-            if (posQualifier != PEG_NOT_FOUND)
-            {
-                CIMQualifier q = m1.getQualifier(posQualifier);
-            }
-        </pre>
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMQualifier object at the specified index.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of qualifiers available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** findParameter - Finds the parameter whose name is given
+	by the name parameter.
+	@param name Name of parameter to be found.
+	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
-    CIMQualifier getQualifier(Uint32 index);
+    Uint32 findParameter(const String& name)
+    {
+	_checkRep();
+	return _rep->findParameter(name);
+    }
 
-    /**
-        Gets the qualifier at the specified index.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            const CIMMethod m2 = m1;
-            Uint32 posQualifier = m2.findQualifier(CIMName ("stuff"));
-            if (posQualifier != PEG_NOT_FOUND)
-            {
-                CIMConstQualifier q = m2.getQualifier(posQualifier);
-            }
-        </pre>
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMConstQualifier object at the specified index.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of qualifiers available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    Uint32 findParameter(const String& name) const
+    {
+	_checkRep();
+	return _rep->findParameter(name);
+    }
+
+    /** getParameter - ATTN: */
+    CIMParameter getParameter(Uint32 pos)
+    {
+	_checkRep();
+	return _rep->getParameter(pos);
+    }
+
+    /** getParameter - Gets the parameter defined by the index
+	input as a parameter.
+	@param index for the parameter to be returned.
+	@return CIMParameter requested.
+	@Exception OutOfBounds exception is thrown if the index is outside the
+	range of available parameters
     */
-    CIMConstQualifier getQualifier(Uint32 index) const;
+    CIMConstParameter getParameter(Uint32 pos) const
+    {
+	_checkRep();
+	return _rep->getParameter(pos);
+    }
 
-    /**
-        Removes a qualifier from the method.
-        <p><b>Example:</b>
-        <pre>
-            // remove all qualifiers from a class
-            Uint32 count = 0;
-            while ((count = cimClass.getQualifierCount()) > 0)
-                cimClass.removeQualifier(count - 1);
-        </pre>
-        @param index The index of the qualifier to remove.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of qualifiers available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** getParameterCount - Gets the count of the numbeer of
+	Parameters attached to the CIMMethod.
+	@retrun - count of the number of parameters attached to the CIMMethod.
     */
-    void removeQualifier(Uint32 index);
+    Uint32 getParameterCount() const
+    {
+	_checkRep();
+	return _rep->getParameterCount();
+    }
 
-    /**
-        Gets the number of qualifiers in the method.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-            assert(m1.getQualifierCount() == 2);
-        </pre>
-        @return An integer count of the qualifiers in the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** resolve - resolves and completes the CIMMethod */
+    void resolve(
+	DeclContext* declContext,
+	const String& nameSpace,
+	const CIMConstMethod& method)
+    {
+	_checkRep();
+	_rep->resolve(declContext, nameSpace, method);
+    }
+
+    /** resolve - Resolves and completes the CIMMethod */
+    void resolve(
+	DeclContext* declContext,
+	const String& nameSpace)
+    {
+	_checkRep();
+	_rep->resolve(declContext, nameSpace);
+    }
+
+    /** Returns zero if CIMMethod refers to a null pointer */
+    operator int() const
+    {
+	return _rep != 0;
+    }
+
+    /** toXML - puts XML encoding of this CIMMethod object into out 
+	arguemnt. 
     */
-    Uint32 getQualifierCount() const;
+    void toXml(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toXml(out);
+    }
 
-    /**
-        Adds a parameter to the method.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addParameter(CIMParameter(CIMName("ipaddress"), CIMTYPE_STRING));
-        </pre>
-        @param x The CIMParameter to be added.
-        @return A reference to this CIMMethod object.
-        @exception AlreadyExistsException If a parameter with the
-            same name already exists in the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** print - formats and prints this CIMmethod (in CIM XML encoded form). 
     */
-    CIMMethod& addParameter(const CIMParameter& x);
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
+    {
+	_checkRep();
+	_rep->print(o);
+    }
 
-    /**
-        Finds a parameter by name.
-        <p><b>Example:</b>
-        <pre>
-            Uint32 posParameter;
-            posParameter = m1.findParameter(CIMName ("ipaddress"));
-            if (posParameter != PEG_NOT_FOUND)
-                ...
-        </pre>
-        @param name A CIMName specifying the name of the parameter to be found.
-        @return Index of the parameter if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 findParameter(const CIMName& name) const;
+    /** toMof - puts MOF encoding of this object into out arguemnt. 
+    */ 
+    void toMof(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toMof(out);
+    }
 
-    /**
-        Gets the parameter at the specified index.
-        <p><b>Example:</b>
-        <pre>
-            CIMParameter cp;
-            Uint32 parameterIndex = m1.findParameter(CIMName ("ipaddress"));
-            if (parameterIndex != PEG_NOT_FOUND)
-            {
-                cp = m1.getParameter(parameterIndex);
-            }
-        </pre>
-        @param index The index of the parameter to be retrieved.
-        @return The CIMParameter at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of parameters available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMParameter getParameter(Uint32 index);
-
-    /**
-        Gets the parameter at the specified index.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstParameter cp;
-            Uint32 parameterIndex = m1.findParameter(CIMName ("ipaddress"));
-            if (parameterIndex != PEG_NOT_FOUND)
-            {
-                cp = m1.getParameter(parameterIndex);
-            }
-        </pre>
-        @param index The index of the parameter to be retrieved.
-        @return The CIMConstParameter at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of parameters available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMConstParameter getParameter(Uint32 index) const;
-
-    /**
-        Removes a parameter from the method.
-        @param index Index of the parameter to be removed.
-        @exception IndexOutOfBoundsException If the index is outside the
-            range of parameters available from the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    void removeParameter (Uint32 index);
-
-    /**
-        Gets the number of parameters in the method.
-        @return An integer count of the CIMParameters in the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 getParameterCount() const;
-
-    /**
-        Determines whether the object has been initialized.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1;
-            assert(m1.isUninitialized());
-        </pre>
-        @return True if the object has not been initialized, false otherwise.
-    */
-    Boolean isUninitialized() const;
-
-    /**
-        Compares the method with another method.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMConstMethod m2(CIMName ("test"), CIMTYPE_STRING);
-            assert(!m1.identical(m2));
-        </pre>
-        @param x The CIMConstMethod to be compared.
-        @return True if this method is identical to the one specified,
-            false otherwise.
-        @exception UninitializedObjectException If either of the objects
-            is not initialized.
+    /** identical - Returns true if this method is identical to the
+	one given by the argument x.
     */
     Boolean identical(const CIMConstMethod& x) const;
 
-    /**
-        Makes a deep copy of the method.  This creates a new copy
-        of all the method attributes including parameters and qualifiers.
-        @return A new copy of the CIMMethod object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMMethod clone() const;
+    /** CIMMethod clone - makes a distinct replica of this method */
+    CIMMethod clone() const
+    {
+	return CIMMethod(_rep->clone());
+    }
 
 private:
 
-    CIMMethod(CIMMethodRep* rep);
+    CIMMethod(CIMMethodRep* rep) : _rep(rep)
+    {
+    }
+
+    PEGASUS_EXPLICIT CIMMethod(const CIMConstMethod& x);
+
+    void _checkRep() const
+    {
+	if (!_rep)
+	    ThrowUnitializedHandle();
+    }
 
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
-    friend class Resolver;
-    friend class XmlWriter;
-    friend class MofWriter;
-    friend class BinaryStreamer;
+    friend class CIMClassRep;
 };
 
-/**
-    The CIMConstMethod class provides a const interface to a CIMMethod
-    object.  This class is needed because the shared representation model
-    used by CIMMethod does not prevent modification to a const CIMMethod
-    object.  Note that the value of a CIMConstMethod object could still be
-    modified by a CIMMethod object that refers to the same data copy.
-*/
 class PEGASUS_COMMON_LINKAGE CIMConstMethod
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMConstMethod object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
-    */
-    CIMConstMethod();
+    CIMConstMethod() : _rep(0)
+    {
 
-    /**
-        Constructs a CIMConstMethod object from the value of a specified
-        CIMConstMethod object, so that both objects refer to the same data
-        copy.
+    }
 
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod cm1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMConstMethod cm2(m1);
-        </pre>
+    CIMConstMethod(const CIMConstMethod& x)
+    {
+	Inc(_rep = x._rep);
+    }
 
-        @param x The CIMConstMethod object from which to construct a new
-        CIMConstMethod object.
-    */
-    CIMConstMethod(const CIMConstMethod& x);
+    CIMConstMethod(const CIMMethod& x)
+    {
+	Inc(_rep = x._rep);
+    }
 
-    /**
-        Constructs a CIMConstMethod object from the value of a specified
-        CIMMethod object, so that both objects refer to the same data
-        copy.
+    CIMConstMethod& operator=(const CIMConstMethod& x)
+    {
+	if (x._rep != _rep)
+	{
+	    Dec(_rep);
+	    Inc(_rep = x._rep);
+	}
+	return *this;
+    }
 
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMConstMethod cm1(m1);
-        </pre>
+    CIMConstMethod& operator=(const CIMMethod& x)
+    {
+	if (x._rep != _rep)
+	{
+	    Dec(_rep);
+	    Inc(_rep = x._rep);
+	}
+	return *this;
+    }
 
-        @param x The CIMMethod object from which to construct a new
-            CIMConstMethod object.
-    */
-    CIMConstMethod(const CIMMethod& x);
+    // Throws IllegalName if name argument not legal CIM identifier.
 
-    /**
-        Constructs a CIMConstMethod object with the specified attributes.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-        </pre>
-
-        @param name CIMName defining the name for the method.
-        @param type CIMType defining the method return type.
-        @param classOrigin (optional) CIMName representing the class origin.
-            Note that this should normally not be used.  If not provided set to
-            CIMName() (Null name).
-        @param propagated Optional flag indicating whether the definition of
-            the CIM Method is local to the CIM Class (respectively, Instance)
-            in which it appears, or was propagated without modification from
-            a superclass. Default is false. Note that this attribute is
-            normally not set by CIM Clients but is used internally within the
-            CIM Server.
-        @exception UninitializedObjectException If the method name is null.
-    */
     CIMConstMethod(
-        const CIMName& name,
-        CIMType type,
-        const CIMName& classOrigin = CIMName(),
-        Boolean propagated = false);
+	const String& name,
+	CIMType type,
+	const String& classOrigin = String(),
+	Boolean propagated = false)
+    {
+	_rep = new CIMMethodRep(name, type, classOrigin, propagated);
+    }
 
-    /**
-        Destructs the CIMConstMethod object.
-    */
-    ~CIMConstMethod();
+    ~CIMConstMethod()
+    {
+	Dec(_rep);
+    }
 
-    /**
-        Assigns the value of the specified CIMConstMethod object to this
-        object, so that both objects refer to the same data copy.
+    const String& getName() const
+    {
+	_checkRep();
+	return _rep->getName();
+    }
 
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMConstMethod m2;
-            m2 = m1;
-        </pre>
+    CIMType getType() const
+    {
+	_checkRep();
+	return _rep->getType();
+    }
 
-        @param x The CIMConstMethod object from which to assign this
-            CIMConstMethod object.
-        @return A reference to this CIMConstMethod object.
-    */
-    CIMConstMethod& operator=(const CIMConstMethod& x);
+    const String& getClassOrigin() const
+    {
+	_checkRep();
+	return _rep->getClassOrigin();
+    }
 
-    /**
-        Assigns the value of the specified CIMMethod object to this
-        object, so that both objects refer to the same data copy.
+    Boolean getPropagated() const
+    {
+	_checkRep();
+	return _rep->getPropagated();
+    }
 
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMConstMethod m2;
-            m2 = m1;
-        </pre>
+    Uint32 findQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->findQualifier(name);
+    }
 
-        @param x The CIMMethod object from which to assign this
-            CIMConstMethod object.
-        @return A reference to this CIMConstMethod object.
-    */
-    CIMConstMethod& operator=(const CIMMethod& x);
+    Uint32 getQualifier(Uint32 pos) const
+    {
+	_checkRep();
+	return _rep->getQualifier(pos);
+    }
 
-    /**
-        Gets the name of the method.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getName() == CIMName ("getHostName"));
-        </pre>
-        @return CIMName with the name of the method.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMName& getName() const;
+    Uint32 getQualifierCount() const
+    {
+	_checkRep();
+	return _rep->getQualifierCount();
+    }
 
-    /**
-        Gets the method return type.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getType() == CIMTYPE_STRING);
-        </pre>
-        @return A CIMType containing the method return type.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMType getType() const;
+    Uint32 findParameter(const String& name) const
+    {
+	_checkRep();
+	return _rep->findParameter(name);
+    }
 
-    /**
-        Gets the class in which this method was defined. This information
-        is normally available with methods that are part of a schema
-        returned from a CIM Server.
-        @return CIMName containing the classOrigin attribute.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    const CIMName& getClassOrigin() const;
+    CIMConstParameter getParameter(Uint32 pos) const
+    {
+	_checkRep();
+	return _rep->getParameter(pos);
+    }
 
-    /**
-        Tests the propagated attribute of the object.  The propagated
-        attribute indicates whether this method was propagated from a
-        higher-level class.  Normally this attribute is set as part of
-        defining a method in the context of a schema.  It is set in
-        methods retrieved from a CIM Server.
-        @return True if method is propagated; otherwise, false.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Boolean getPropagated() const;
+    Uint32 getParameterCount() const
+    {
+	_checkRep();
+	return _rep->getParameterCount();
+    }
 
-    /**
-        Finds a qualifier by name.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            CIMConstMethod m2(m1);
-            assert(m2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-        </pre>
-        @param name A CIMName specifying the name of the qualifier to be found.
-        @return Index of the qualifier if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 findQualifier(const CIMName& name) const;
+    operator int() const { return _rep != 0; }
 
-    /**
-        Gets the qualifier at the specified index.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            CIMConstMethod m2(m1);
-            Uint32 posQualifier = m2.findQualifier(CIMName ("stuff"));
-            if (posQualifier != PEG_NOT_FOUND)
-            {
-                CIMQualifier q = m2.getQualifier(posQualifier);
-            }
-        </pre>
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMConstQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of qualifiers available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMConstQualifier getQualifier(Uint32 index) const;
+    void toXml(Array<Sint8>& out) const
+    {
+	_checkRep();
+	_rep->toXml(out);
+    }
 
-    /**
-        Gets the number of qualifiers in the method.
-        <p><b>Example:</b>
-        <pre>
-            CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-            CIMConstMethod m2(m1);
-            assert(m2.getQualifierCount() == 2);
-        </pre>
-        @return An integer count of the CIMQualifiers in the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 getQualifierCount() const;
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
+    {
+	_checkRep();
+	_rep->print(o);
+    }
 
-    /**
-        Finds a parameter by name.
-        <p><b>Example:</b>
-        <pre>
-            Uint32 posParameter;
-            posParameter = m1.findParameter(CIMName ("ipaddress"));
-            if (posParameter != PEG_NOT_FOUND)
-                ...
-        </pre>
-        @param name A CIMName specifying the name of the parameter to be found.
-        @return Index of the parameter if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 findParameter(const CIMName& name) const;
+    Boolean identical(const CIMConstMethod& x) const
+    {
+	x._checkRep();
+	_checkRep();
+	return _rep->identical(x._rep);
+    }
 
-    /**
-        Gets the parameter at the specified index.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstParameter cp;
-            Uint32 parameterIndex = m1.findParameter(CIMName ("ipaddress"));
-            if (parameterIndex != PEG_NOT_FOUND)
-            {
-                cp = m1.getParameter(parameterIndex);
-            }
-        </pre>
-        @param index The index of the parameter to be retrieved.
-        @return The CIMConstParameter at the specified index.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of parameters available for the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMConstParameter getParameter(Uint32 index) const;
-
-    /**
-        Gets the number of parameters in the method.
-        @return An integer count of the CIMParameters in the CIMMethod.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    Uint32 getParameterCount() const;
-
-    /**
-        Determines whether the object has been initialized.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod m1;
-            assert(m1.isUninitialized());
-        </pre>
-        @return True if the object has not been initialized, false otherwise.
-     */
-    Boolean isUninitialized() const;
-
-    /**
-        Compares the method with another method.
-        <p><b>Example:</b>
-        <pre>
-            CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            CIMConstMethod m2(CIMName ("test"), CIMTYPE_STRING);
-            assert(!m1.identical(m2));
-        </pre>
-        @param x The CIMConstMethod to be compared.
-        @return True if this method is identical to the one specified,
-            false otherwise.
-        @exception UninitializedObjectException If either of the objects
-            is not initialized.
-    */
-    Boolean identical(const CIMConstMethod& x) const;
-
-    /**
-        Makes a deep copy of the method.  This creates a new copy
-        of all the method attributes including parameters and qualifiers.
-        @return A CIMMethod object with a separate copy of the
-            CIMConstMethod object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
-    CIMMethod clone() const;
+    CIMMethod clone() const
+    {
+	return CIMMethod(_rep->clone());
+    }
 
 private:
+
+    void _checkRep() const
+    {
+	if (!_rep)
+	    ThrowUnitializedHandle();
+    }
 
     CIMMethodRep* _rep;
 
     friend class CIMMethod;
     friend class CIMMethodRep;
-    friend class XmlWriter;
-    friend class MofWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMMethod
-# include <Pegasus/Common/ArrayInter.h>
+# include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

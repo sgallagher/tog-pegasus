@@ -15,6 +15,8 @@ TAG: VERSION_1_07
    also deliver a NULL value back when the state of the CIMValue is NULL.
    There is a remaining addition to put an exception on CIMValue gets when
    the NULL attribute is set that we will install later.
+   
+4. KS - 19 Feb 2002 Extended testclient slightly and cleaned up numerous bugs.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

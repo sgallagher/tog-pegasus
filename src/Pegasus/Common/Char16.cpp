@@ -39,6 +39,8 @@
 #include <cctype>
 #include "Char16.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 Char16::Char16()

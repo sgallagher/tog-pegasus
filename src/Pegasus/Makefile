@@ -8,6 +8,7 @@ TEST_DIRS = \
 DIRS = \
     Common \
     Config \
+    Config/install \
     Repository \
     Protocol \
     Client \

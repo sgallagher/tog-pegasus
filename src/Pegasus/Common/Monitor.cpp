@@ -104,9 +104,9 @@ Monitor::Monitor()
      _stopConnections(0),
      _stopConnectionsSem(0),
      _solicitSocketCount(0),
-     _tickle_client_socket(0),
-     _tickle_server_socket(0),
-     _tickle_peer_socket(0)
+     _tickle_client_socket(-1),
+     _tickle_server_socket(-1),
+     _tickle_peer_socket(-1)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -133,9 +133,9 @@ Monitor::Monitor(Boolean async)
      _stopConnections(0),
      _stopConnectionsSem(0),
      _solicitSocketCount(0),
-     _tickle_client_socket(0),
-     _tickle_server_socket(0),
-     _tickle_peer_socket(0)
+     _tickle_client_socket(-1),
+     _tickle_server_socket(-1),
+     _tickle_peer_socket(-1)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -171,15 +171,15 @@ Monitor::~Monitor()
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
 
     try{
-        if(_tickle_peer_socket > 0)
+        if(_tickle_peer_socket >= 0)
         {
             Socket::close(_tickle_peer_socket);
         }
-        if(_tickle_client_socket > 0)
+        if(_tickle_client_socket >= 0)
         {
             Socket::close(_tickle_client_socket);
         }
-        if(_tickle_server_socket > 0)
+        if(_tickle_server_socket >= 0)
         {
             Socket::close(_tickle_server_socket);
         }

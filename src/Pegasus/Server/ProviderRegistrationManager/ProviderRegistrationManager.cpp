@@ -1271,7 +1271,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 		{
 		    // if operational status is stopping
 		    // change module status to be Stopped
-		    status.clear();
+		    status.remove(j);
 		    status.append(_PROVIDER_STOPPED);
 
 		    CIMObjectPath newInstancereference("", "",

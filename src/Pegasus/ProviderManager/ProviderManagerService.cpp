@@ -465,7 +465,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if(service->_incomingQueue.size() == 0)
     {
-        cout << "ProviderManagerService::handleCimOperation() called with no op node in queue" << endl;
+	cout << "ProviderManagerService::handleCimOperation() called with no op node in queue" << endl;
 
         // thread started with no message in queue.
         return(PEGASUS_THREAD_RETURN(1));
@@ -2165,21 +2165,37 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 
     PEGASUS_ASSERT(request != 0 && async != 0);
 
-    Array<Uint16> operationalStatus;
-
     // get provider module name
     String moduleName;
     CIMInstance mInstance = request->providerModule;
     Uint32 pos = mInstance.findProperty("Name");
 
-    if(pos == PEG_NOT_FOUND)
+    if(pos != PEG_NOT_FOUND)
     {
-        throw CIMException(CIM_ERR_FAILED, "Provider module name not found");
+    	mInstance.getProperty(pos).getValue().get(moduleName);
     }
 
-    mInstance.getProperty(pos).getValue().get(moduleName);
+    //
+    // get operational status
+    //
+    Array<Uint16> operationalStatus;
+    Uint32 pos2 = mInstance.findProperty("OperationalStatus");
 
-    // set module status to be Stopping
+    if (pos2 != PEG_NOT_FOUND)
+    {
+        mInstance.getProperty(pos2).getValue().get(operationalStatus);
+    }
+
+    //
+    // update module status from OK to Stopping
+    //
+    for (Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+    {
+        if (operationalStatus[i] == _MODULE_OK)
+        {
+            operationalStatus.remove(i);
+        }
+    }
     operationalStatus.append(_MODULE_STOPPING);
 
     if(_providerRegistrationManager->setProviderModuleStatus
@@ -2199,8 +2215,14 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         providerManager.unloadProvider(triad.first, triad.second);
     }
 
-    // set module status to be Stopped
-    operationalStatus.clear();
+    // update module status from Stopping to Stopped
+    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+    {
+        if (operationalStatus[i] == _MODULE_STOPPING)
+        {
+            operationalStatus.remove(i);
+        }
+    }
     operationalStatus.append(_MODULE_STOPPED);
 
     if(_providerRegistrationManager->setProviderModuleStatus
@@ -2240,13 +2262,40 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
+    //
+    // get module status
+    //
+    CIMInstance mInstance = request->providerModule;
     Array<Uint16> operationalStatus;
+    Uint32 pos = mInstance.findProperty("OperationalStatus");
 
-    // set module status to be OK
+    if (pos != PEG_NOT_FOUND)
+    {
+        mInstance.getProperty(pos).getValue().get(operationalStatus);
+    }
+
+    // update module status from Stopped to OK
+    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+    {
+        if (operationalStatus[i] == _MODULE_STOPPED)
+        {
+            operationalStatus.remove(i);
+        }
+    }
     operationalStatus.append(_MODULE_OK);
 
+    //
+    // get module name
+    //
+    String moduleName;
+    Uint32 pos2 = mInstance.findProperty("Name");
+    if (pos2 != PEG_NOT_FOUND)
+    {
+	mInstance.getProperty(pos2).getValue().get(moduleName);
+    }
+
     if(_providerRegistrationManager->setProviderModuleStatus
-        (request->moduleName, operationalStatus) == false)
+        (moduleName, operationalStatus) == false)
     {
         throw CIMException(CIM_ERR_FAILED, "set module status failed.");
     }

@@ -707,6 +707,9 @@ void ProviderRegistrationProvider::invokeMethod(
     Array<Uint16> _OperationalStatus =
 	_providerRegistrationManager->getProviderModuleStatus( moduleName);
 
+    // get module instance
+    CIMInstance mInstance = _providerRegistrationManager->getInstance(objectReference);
+
     handler.processing();
 
     Sint16 ret_value;
@@ -727,13 +730,9 @@ void ProviderRegistrationProvider::invokeMethod(
 	    }
 	}
 
-	CIMInstance mInstance;
 	CIMInstance instance;
 	Array<CIMInstance> instances;
 	String _moduleName;
-
-	// get module instance
-	mInstance = _providerRegistrationManager->getInstance(objectReference);
 
 	// get all provider instances which have same module name as moduleName
 	CIMObjectPath providerRef(objectReference.getHost(),
@@ -833,7 +832,7 @@ void ProviderRegistrationProvider::invokeMethod(
 	    CIMEnableModuleRequestMessage * enable_req =
 	        new CIMEnableModuleRequestMessage(
 		    XmlWriter::getNextMessageId (),
-		    moduleName,
+		    mInstance,
 		    QueueIdStack(_service->getQueueId()));
 
   	    Array<Uint16> _opStatus;

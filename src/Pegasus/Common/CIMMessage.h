@@ -1232,7 +1232,7 @@ class CIMEnableModuleRequestMessage : public CIMRequestMessage
 public:
     CIMEnableModuleRequestMessage(
         const String& messageId_,
-        const String& moduleName_,
+        const CIMInstance& providerModule_,
         QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
@@ -1240,13 +1240,13 @@ public:
         CIM_ENABLE_MODULE_REQUEST_MESSAGE,
         messageId_,
         queueIds_),
-        moduleName(moduleName_),
+        providerModule(providerModule_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    String moduleName;
+    CIMInstance providerModule;
     String authType;
     String userName;
 };

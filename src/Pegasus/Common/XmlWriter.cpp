@@ -31,6 +31,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include "Constants.h"
 #include "Destroyer.h"
 #include "CIMClass.h"
 #include "CIMInstance.h"
@@ -500,7 +501,7 @@ void XmlWriter::appendHttpErrorResponseHeader(
         // ATTN-RK-P3-20020404: It is critical that this text not contain '\n'
         // ATTN-RK-P3-20020404: Need to encode this value properly.  (See
         // CIM/HTTP Specification section 3.3.2
-        out << "PGErrorDetail: " << errorDetail << "\r\n";
+        out << PEGASUS_HTTPHEADERTAG_ERRORDETAIL ": " << errorDetail << "\r\n";
     }
     out << "\r\n";
 }

@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +31,7 @@
 #include <iostream>
 #include <cctype>
 #include "HTTPMessage.h"
+#include "Destroyer.h"
 
 PEGASUS_USING_STD;
 
@@ -303,6 +304,45 @@ Boolean HTTPMessage::parseRequestLine(
     // Extract the HTTP version:
 
     httpVersion = startLine.subString(space2 + 1);
+
+    return true;
+}
+
+Boolean HTTPMessage::parseStatusLine(
+    const String& statusLine,
+    String& httpVersion,
+    Uint32& statusCode,
+    String& reasonPhrase)
+{
+    // Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+    // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+
+    // Extract the HTTP version:
+
+    Uint32 space1 = statusLine.find(' ');
+
+    if (space1 == PEGASUS_NOT_FOUND)
+	return false;
+
+    httpVersion = statusLine.subString(0, space1);
+
+    // Extract the status code:
+
+    Uint32 space2 = statusLine.find(space1 + 1, ' ');
+
+    if (space2 == PEGASUS_NOT_FOUND)
+	return false;
+
+    Uint32 statusCodePos = space1 + 1;
+    String statusCodeStr;
+    statusCodeStr = statusLine.subString(statusCodePos, space2 - statusCodePos);
+    ArrayDestroyer<char> statusCodeCharStr(statusCodeStr.allocateCString());
+    if (!sscanf(statusCodeCharStr.getPointer(), "%lu", &statusCode))
+        return false;
+
+    // Extract the reason phrase:
+
+    reasonPhrase = statusLine.subString(space2 + 1);
 
     return true;
 }

@@ -24,9 +24,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-// Modified By: Mike Day (mdday@us.ibm.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Mike Day (mdday@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +56,7 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 type_socket;
       static Uint32 type_connection;
       static Uint32 type_http;
+      static Uint32 type_http_error;
       static Uint32 type_cimom;
       static Uint32 type_control;
       static Uint32 type_service;
@@ -316,6 +318,7 @@ enum MessageType
     // HTTP messages:
 
     HTTP_MESSAGE,
+    HTTP_ERROR_MESSAGE,
 
     NUMBER_OF_MESSAGES
 };

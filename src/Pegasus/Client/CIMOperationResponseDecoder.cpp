@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/System.h>
@@ -142,6 +143,28 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         // ATTN-NB-P2-20020304: This error is discarded like the other errors
         // in this method. Implement an error handling code for all these errors.
 
+        return;
+    }
+
+    //
+    // Check for a success (200 OK) response
+    //
+    String httpVersion;
+    Uint32 statusCode;
+    String reasonPhrase;
+    HTTPMessage::parseStatusLine(startLine, httpVersion, statusCode, reasonPhrase);
+    if (statusCode != 200) // ATTN: Use constants
+    {
+        String cimError;
+        String pegasusError;
+
+        HTTPMessage::lookupHeader(headers, "CIMError", cimError);
+        HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
+
+        HTTPErrorMessage * response =
+            new HTTPErrorMessage(statusCode, cimError, pegasusError);
+
+        _outputQueue->enqueue(response);
         return;
     }
 

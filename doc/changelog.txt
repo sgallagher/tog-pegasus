@@ -51,6 +51,10 @@ TAG: Version_1_09.
    with a propertyList parameter must be modified in accordance with this
    change.  All providers linked into the Pegasus build have been updated.
 
+8. (Roger Kumpf - HP) 11 Apr 2002 - Defined an HTTP error message to be
+   returned to the CIMClient when an HTTP error response is returned.
+   Added a method to parse the status line of an HTTP response.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -23,8 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,8 +80,53 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 String& methodName,
 	 String& requestUri,
 	 String& httpVersion);
+
+      static Boolean parseStatusLine(
+	 const String& statusLine,
+	 String& httpVersion,
+	 Uint32& statusCode,
+	 String& reasonPhrase);
 };
 
 PEGASUS_NAMESPACE_END
+
+/** This message is sent from the response decoder back to the client to turn
+    it into an Exception.
+*/
+class PEGASUS_COMMON_LINKAGE HTTPErrorMessage : public Message
+{
+   public:
+      typedef Message Base;
+
+      HTTPErrorMessage(
+         Uint32 httpStatusCode_,
+         const String& cimError_,
+         const String& pegasusError_)
+         : Message(HTTP_ERROR_MESSAGE),
+           httpStatusCode(httpStatusCode_),
+           cimError(cimError_),
+           pegasusError(pegasusError_)
+      { }
+
+
+      HTTPErrorMessage(HTTPErrorMessage & msg)
+         : Base(msg)
+      {
+         if( this != &msg)
+         {
+            httpStatusCode = msg.httpStatusCode;
+            const_cast<String &>(cimError) = msg.cimError;
+            const_cast<String &>(pegasusError) = msg.pegasusError;
+         }
+      }
+
+      virtual ~HTTPErrorMessage()
+      {
+      }
+
+      Uint32 httpStatusCode;
+      const String cimError;
+      const String pegasusError;
+};
 
 #endif /* Pegasus_HTTPMessage_h */

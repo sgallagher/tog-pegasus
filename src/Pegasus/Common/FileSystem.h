@@ -342,6 +342,34 @@ inline Boolean FileSystem::getFileSizeNoCase(const String& path, Uint32& size)
     return FileSystem::getFileSize(realPath, size);
 }
 
+inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
+{
+    char* tmpPath = path.allocateCString();
+    is.open(tmpPath);
+    delete [] tmpPath;
+    return !!is;
+}
+
+inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
+{
+    char* tmpPath = path.allocateCString();
+    os.open(tmpPath);
+    delete [] tmpPath;
+    return !!os;
+}
+
+inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
+{
+    char* tmpPath = path.allocateCString();
+    os.open(tmpPath, PEGASUS_STD(ios::app));
+    delete [] tmpPath;
+    return !!os;
+}
+
+/** Get the next line from the input file.
+*/
+PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_FileSystem_h */

@@ -427,21 +427,27 @@ CIMUserCommand::CIMUserCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage = String (USAGE);
-    usage.append (COMMAND_NAME);
-    usage.append (Cat(" -", OPTION_ADD));
-    usage.append (Cat(" -",OPTION_USER_NAME, " username")); 
-    usage.append (Cat(" [ -",OPTION_PASSWORD, " password", " ] \n"));
+    String usage;
+    usage.reserve(200);
+    usage.append(USAGE);
+    usage.append(COMMAND_NAME);
 
-    usage.append (Cat("               -", OPTION_MODIFY));
-    usage.append (Cat(" -",OPTION_USER_NAME, " username")); 
-    usage.append (Cat(" [ -",OPTION_PASSWORD, " old password", " ]"));
-    usage.append (Cat(" [ -",OPTION_NEW_PASSWORD, " new password", " ] \n"));
+    usage.append(" -").append(OPTION_ADD);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username");
+    usage.append(" [ -").append(OPTION_PASSWORD).append(" password")
+         .append(" ] \n");
 
-    usage.append (Cat("               -", OPTION_REMOVE));
-    usage.append (Cat(" -",OPTION_USER_NAME, " username \n"));
+    usage.append("               -").append(OPTION_MODIFY);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username");
+    usage.append(" [ -").append(OPTION_PASSWORD).append(" old password")
+         .append(" ]");
+    usage.append(" [ -").append(OPTION_NEW_PASSWORD).append(" new password")
+         .append(" ] \n");
 
-    usage.append (Cat("               -", OPTION_LIST, " \n"));
+    usage.append("               -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username \n");
+
+    usage.append("               -").append(OPTION_LIST).append(" \n");
 
     setUsage (usage);
 }
@@ -465,22 +471,22 @@ void CIMUserCommand::setCommand (
     //
     //  Construct optString
     //
-    optString.append (OPTION_ADD); 
-    optString.append (Cat(
-		       OPTION_USER_NAME, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(
-		       OPTION_PASSWORD, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (OPTION_MODIFY); 
-    optString.append (Cat(
-		       OPTION_USER_NAME, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(
-		       OPTION_PASSWORD, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(
-		       OPTION_NEW_PASSWORD, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (OPTION_REMOVE); 
-    optString.append (Cat(
-		       OPTION_USER_NAME, getoopt::GETOPT_ARGUMENT_DESIGNATOR)); 
-    optString.append (OPTION_LIST); 
+    optString.append(OPTION_ADD);
+    optString.append(OPTION_USER_NAME);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_PASSWORD);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_MODIFY);
+    optString.append(OPTION_USER_NAME);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_PASSWORD);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_NEW_PASSWORD);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_REMOVE);
+    optString.append(OPTION_USER_NAME);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_LIST);
 
     //
     //  Initialize and parse options

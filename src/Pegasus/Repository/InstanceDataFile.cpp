@@ -258,7 +258,7 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
 
     fstream fs;
 
-    if (!_openFile(fs, Cat(path, ".rollback"), ios::out PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(fs, path + ".rollback", ios::out PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
 	return false;
@@ -297,7 +297,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     // return.
     //
 
-    if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+    if (!FileSystem::existsNoCase(path + ".rollback"))
     {
         PEG_METHOD_EXIT();
 	return true;
@@ -309,7 +309,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
 
     fstream rollbackFs;
 
-    if (!_openFile(rollbackFs, Cat(path, ".rollback"), ios::in PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(rollbackFs, path + ".rollback", ios::in PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
 	return false;
@@ -358,7 +358,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     //
 
     PEG_METHOD_EXIT();
-    return FileSystem::removeFileNoCase(Cat(path, ".rollback"));
+    return FileSystem::removeFileNoCase(path + ".rollback");
 }
 
 Boolean InstanceDataFile::commitTransaction(const String& path)
@@ -370,7 +370,7 @@ Boolean InstanceDataFile::commitTransaction(const String& path)
     //
 
     PEG_METHOD_EXIT();
-    return FileSystem::removeFileNoCase(Cat(path, ".rollback"));
+    return FileSystem::removeFileNoCase(path + ".rollback");
 }
 
 Boolean InstanceDataFile::compact(
@@ -399,7 +399,7 @@ Boolean InstanceDataFile::compact(
 
     fstream tmpFs;
 
-    if (!_openFile(tmpFs, Cat(path, ".tmp"), ios::out PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(tmpFs, path + ".tmp", ios::out PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
 	return false;
@@ -465,7 +465,7 @@ Boolean InstanceDataFile::compact(
 	return false;
     }
 
-    if (!FileSystem::renameFileNoCase(Cat(path, ".tmp"), path))
+    if (!FileSystem::renameFileNoCase(path + ".tmp", path))
     {
         PEG_METHOD_EXIT();
 	return false;

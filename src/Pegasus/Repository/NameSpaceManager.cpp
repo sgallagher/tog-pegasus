@@ -58,12 +58,22 @@ static inline String _MakeClassFilePath(
 {
     if (superClassName.size())
     {
-	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.',
-	    superClassName);
+        String returnString(nameSpacePath);
+        returnString.append(_CLASSES_SUFFIX);
+        returnString.append('/');
+        returnString.append(className);
+        returnString.append('.');
+        returnString.append(superClassName);
+        return returnString;
     }
     else
     {
-	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', '#');
+        String returnString(nameSpacePath);
+        returnString.append(_CLASSES_SUFFIX);
+        returnString.append('/');
+        returnString.append(className);
+        returnString.append(".#");
+        return returnString;
     }
 }
 
@@ -77,7 +87,11 @@ static inline String _MakeQualifierFilePath(
     const String& nameSpacePath,
     const String& qualifierName)
 {
-    return Cat(nameSpacePath, _QUALIFIERS_SUFFIX, '/', qualifierName);
+    String returnString(nameSpacePath);
+    returnString.append(_QUALIFIERS_SUFFIX);
+    returnString.append('/');
+    returnString.append(qualifierName);
+    return returnString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +104,11 @@ static inline String _MakeInstanceDataFileBase(
     const String& nameSpacePath,
     const String& className)
 {
-    return Cat(nameSpacePath, _INSTANCES_SUFFIX, '/', className);
+    String returnString(nameSpacePath);
+    returnString.append(_INSTANCES_SUFFIX);
+    returnString.append('/');
+    returnString.append(className);
+    return returnString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -681,7 +699,7 @@ String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
     }
 
     PEG_METHOD_EXIT();
-    return Cat(nameSpace->getNameSpacePath(), _QUALIFIERS_SUFFIX);
+    return nameSpace->getNameSpacePath() + _QUALIFIERS_SUFFIX;
 }
 
 PEGASUS_NAMESPACE_END

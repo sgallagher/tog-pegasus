@@ -189,6 +189,13 @@ TAG: Version_1_09.
 33. (KS) 30 April 2002 - Added Namespace Control Provider. Note that it is 
     not completely tested today and only enumeratenames is guaranteed.
     
+34. (Roger Kumpf - HP) 6 May 2002 - Reworked the String class.  Fixed the
+    places where StrLen() was reading off the end of arrays.  Removed the
+    Cat() functions.  Moved Open(), OpenAppend(), and GetLine() functions
+    to the FileSystem module.  Removed the EmptyStringArray() method.
+    Moved method implementations from header file to source file.  Marked
+    the _CString class for internal use only.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

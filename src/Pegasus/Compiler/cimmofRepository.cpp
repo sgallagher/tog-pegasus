@@ -47,7 +47,7 @@ cimmofRepository::cimmofRepository(const String &path,
 {
   // don't catch the exceptions that might be thrown.  They should go up.
   if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-    _cimrepository = new CIMRepository(Cat(path, "/repository"));
+    _cimrepository = new CIMRepository(path + "/repository");
   }
   _context = new compilerDeclContext(_cimrepository, _ot);
   if (_cimrepository)

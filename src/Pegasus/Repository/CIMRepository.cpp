@@ -147,8 +147,13 @@ static String _MakeAssocInstPath(
     String tmp = nameSpace;
     tmp.translate('/', '#');
 
+    String returnString(repositoryRoot);
+    returnString.append('/');
+    returnString.append(tmp);
+    returnString.append("/instances/associations");
+
     PEG_METHOD_EXIT();
-    return String(Cat(repositoryRoot, "/", tmp, "/instances/associations"));
+    return returnString;
 }
 
 static String _MakeAssocClassPath(
@@ -160,8 +165,13 @@ static String _MakeAssocClassPath(
     String tmp = nameSpace;
     tmp.translate('/', '#');
 
+    String returnString(repositoryRoot);
+    returnString.append('/');
+    returnString.append(tmp);
+    returnString.append("/classes/associations");
+
     PEG_METHOD_EXIT();
-    return String(Cat(repositoryRoot, "/", tmp, "/classes/associations"));
+    return returnString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

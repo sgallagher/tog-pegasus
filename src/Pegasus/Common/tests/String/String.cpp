@@ -137,7 +137,8 @@ int main(int argc, char** argv)
 	assert(s.size() == 2);
 
 	String t1 = "HELLO";
-	String t2 = ToLower(t1);
+	String t2 = t1;
+	t2.toLower();
 	assert(String::equal(t1, "HELLO"));
 	assert(String::equal(t2, "hello"));
     }

@@ -33,6 +33,7 @@
 #include <fstream>
 #include <cstdio>
 #include "OptionManager.h"
+#include "FileSystem.h"
 #include "Destroyer.h"
 
 PEGASUS_USING_STD;

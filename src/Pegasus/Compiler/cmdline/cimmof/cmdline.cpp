@@ -38,6 +38,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

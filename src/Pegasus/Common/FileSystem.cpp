@@ -385,4 +385,24 @@ void FileSystem::translateSlashes(String& path)
     }
 }
 
+Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
+{
+    line.clear();
+
+    Boolean gotChar = false;
+    char c;
+
+    while (is.get(c))
+    {
+        gotChar = true;
+
+        if (c == '\n')
+            break;
+
+        line.append(c);
+    }
+
+    return gotChar;
+}
+
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,12 @@ class PEGASUS_COMMON_LINKAGE String
 {
 public:
 
+    /**	EMPTY - Represent an empty string.
+	This member is used to represent empty strings. Using this member
+	avoids an expensive construction of an empty string (e.g., String()).
+    */
+    static const String EMPTY;
+
     /** Default constructor without parameters. This constructor creates a
 	null string
 	<pre>
@@ -59,54 +66,54 @@ public:
     String();
 
     /// Copy constructor.
-    String(const String& x);
+    String(const String& str);
 
-    /// Initialize with first n characters from x.
-    String(const String& x, Uint32 n);
+    /// Initialize with first n characters from str.
+    String(const String& str, Uint32 n);
 
-    /// Initialize with x.
-    String(const Char16* x);
+    /// Initialize with str.
+    String(const Char16* str);
 
-    /// Initialize with first n characters of x.
-    String(const Char16* x, Uint32 n);
+    /// Initialize with first n characters of str.
+    String(const Char16* str, Uint32 n);
 
     /// Initialize from a plain old C-String:
-    String(const char* x);
+    String(const char* str);
 
     /// Initialize from the first n characters of a plain old C-String:
-    String(const char* x, Uint32 n);
+    String(const char* str, Uint32 n);
 
     /// String destructor. Used by the representation of the String object
     ~String();
 
-    /** Assign this string with x.
+    /** Assign this string with str.
 	<pre>
 	    String t1 = "abc";
 	    String t2 = t1;
 	</pre>
     */
-    String& operator=(const String& x) { return assign(x); }
+    String& operator=(const String& str);
 
-    /// Assign this string with Char16 x.
-    String& operator=(const Char16* x) { assign(x); return *this; }
+    /// Assign this string with Char16 str.
+    String& operator=(const Char16* str);
 
-    /** Assign this string with String x
-    @param x String to assign
+    /** Assign this string with String str
+    @param str String to assign
     @return Returns the String
     */
-    String& assign(const String& x);
+    String& assign(const String& str);
 
-    /// Assign this string with x.
-    String& assign(const Char16* x);
+    /// Assign this string with str.
+    String& assign(const Char16* str);
 
-    /// Assign this string with first n characters of x.
-    String& assign(const Char16* x, Uint32 n);
+    /// Assign this string with first n characters of str.
+    String& assign(const Char16* str, Uint32 n);
 
-    /// Assign this string with the plain old C-String x.
-    String& assign(const char* x);
+    /// Assign this string with the plain old C-String str.
+    String& assign(const char* str);
 
-    /// Assign this string with first n characters of the plain old C-String x.
-    String& assign(const char* x, Uint32 n);
+    /// Assign this string with first n characters of the plain old C-String str.
+    String& assign(const char* str, Uint32 n);
 
     /** clear - Clear this string. After calling clear(), size() will return 0.
 	<pre>
@@ -135,7 +142,7 @@ public:
 	    assert(s.size() == 4);
 	</pre>
     */
-    Uint32 size() const { return _rep.size() - 1; }
+    Uint32 size() const;
 
     /** getData Returns a pointer to the first character in the 
 	null-terminated string string of the String object.
@@ -145,9 +152,9 @@ public:
 	    const Char16* q = t1.getData();
 	</pre>
     */
-    const Char16* getData() const { return _rep.getData(); }
+    const Char16* getData() const;
 
-    /** allocateCString - llocates an 8 bit representation of this String 
+    /** allocateCString - allocates an 8 bit representation of this String 
 	object. The user is responsible for freeing the result. If any 
 	characters are truncated, a TruncatedCharacter exception is thrown.
 	This exception may be suppressed by passing true as the noThrow 
@@ -229,10 +236,7 @@ public:
     String& append(const Char16* str, Uint32 n);
 
     /// Append the characters of str to this String object.
-    String& append(const String& str)
-    {
-	return append(str.getData(), str.size());
-    }
+    String& append(const String& str);
 
     /** Overload operator += appends the parameter String to this String.
 	@param String to append.
@@ -243,19 +247,13 @@ public:
 	assert(test == "abcdef");
 	</pre>
     */
-    String& operator+=(const String& x)
-    {
-	return append(x);
-    }
+    String& operator+=(const String& str);
 
     /** Append the character given by c to this String object.
 	@param c Single character to be appended
 	@return String with appended character
     */
-    String& operator+=(Char16 c)
-    {
-	return append(c);
-    }
+    String& operator+=(Char16 c);
 
     /** Append the character given by c to this string.
 	<pre>
@@ -264,10 +262,7 @@ public:
 	    assert(t1 == "abcd");
 	</pre>
     */
-    String& operator+=(char c)
-    {
-	return append(Char16(c));
-    }
+    String& operator+=(char c);
 
     /** Remove size characters from the string starting at the given
 	position. If size is PEG_NOT_FOUND, then all characters after pos are
@@ -357,6 +352,9 @@ public:
     */
     void toLower();
 
+    /// Convert the plain old C-string to lower case:
+    static void toLower(char* str);
+
     /** Translate any occurences of fromChar to toChar.
     */
     void translate(Char16 fromChar, Char16 toChar);
@@ -374,12 +372,6 @@ public:
     */
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
 
-    /** Just like one above except ignores case differences.
-    */
-    static int compareNoCase(const char* s1, const char* s2, Uint32 n);
-
-    static int compareNoCase(const char* s1, const char* s2);
-
     /** Compare two null-terminated strings.
     	@param s1 First null-terminated string for the comparison.
 	@param s2 Second null-terminated string for the comparison.
@@ -390,6 +382,12 @@ public:
 	String objects.
     */
     static int compare(const Char16* s1, const Char16* s2);
+
+    /** Just like one above except ignores case differences.
+    */
+    static int compareNoCase(const char* s1, const char* s2, Uint32 n);
+
+    static int compareNoCase(const char* s1, const char* s2);
 
     /** Compare two String objects for equality.
 	@param s1 First <TT>String</TT> for comparison.
@@ -403,36 +401,27 @@ public:
 	    assert(String::equal(s1, s3));
 	</pre>
     */
-    static Boolean equal(const String& x, const String& y);
+    static Boolean equal(const String& str1, const String& str2);
 
     /// Return true if the two strings are equal.
-    static Boolean equal(const String& x, const Char16* y);
+    static Boolean equal(const String& str1, const Char16* str2);
 
     /// Return true if the two strings are equal.
-    static Boolean equal(const Char16* x, const String& y);
+    static Boolean equal(const Char16* str1, const String& str2);
 
     /// Return true if the two strings are equal.
-    static Boolean equal(const String& x, const char* y);
+    static Boolean equal(const String& str1, const char* str2);
 
     /// Return true if the two strings are equal.
-    static Boolean equal(const char* x, const String& y);
+    static Boolean equal(const char* str1, const String& str2);
 
     /** equalNoCase - Compares two strings and returuns true if they
 	are equal indpedent of case of the characters.
-	@param x First String parameter
-	@param y Second String parameter
+	@param str1 First String parameter
+	@param str2 Second String parameter
 	@return true if strings are equal independent of case.
     */
-    static Boolean equalNoCase(const String& x, const String& y);
-
-    /// Convert the plain old C-string to lower case:
-    static void toLower(char* str);
-
-    /**	EMPTY - Represent an empty string.
-	This member is used to represent empty strings. Using this member
-	avoids an expensive construction of an empty string (e.g., String()).
-    */
-    static const String EMPTY;
+    static Boolean equalNoCase(const String& str1, const String& str2);
 
     /** match matches a string against a GLOB style pattern.
         Return trues if the String parameter matches the pattern. C-Shell style
@@ -457,7 +446,7 @@ public:
     */
     static Boolean match(const String& str, const String& pattern);
 
-    /** matcHoCase Matchses a String against a GLOB style pattern independent
+    /** matchNoCase Matches a String against a GLOB style pattern independent
         of case. 
         Returns true if the str parameter matches the pattern. C-Shell style
 	glob matching is used. Ignore case in all comparisons. Case is
@@ -471,48 +460,37 @@ public:
 
 private:
 
-    static Uint32 _pegasusMin(Uint32 x, Uint32 y) { return x < y ? x : y; }
-
     Array<Char16> _rep;
 };
 
 /** String operator ==. Test for equality between two strings of any of the
     types String or char*.
     @return Boolean - True if the strings are equal
-
 */
-inline Boolean operator==(const String& x, const String& y)
-{
-    return String::equal(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const String& str1,
+    const String& str2);
 
 /** String operator ==. Test for equality between two strings
 
 */
-inline Boolean operator==(const String& x, const char* y)
-{
-    return String::equal(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(const String& str1, const char* str2);
 
 /** String operator ==. Test for equality between two strings
 
 */
-inline Boolean operator==(const char* x, const String& y)
-{
-    return String::equal(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(const char* str1, const String& str2);
 
 /** String operator ==. Test for equality between two strings
 
 */
-inline Boolean operator!=(const String& x, const String& y)
-{
-    return !String::equal(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator!=(
+    const String& str1,
+    const String& str2);
 
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
-    const String& x);
+    const String& str);
 
 /** overload operator +	 - Concatenates String objects.
 
@@ -523,10 +501,7 @@ PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
 	assert(t2 == "abcdef");
     </pre>
 */
-inline String operator+(const String& x, const String& y)
-{
-    return String(x).append(y);
-}
+PEGASUS_COMMON_LINKAGE String operator+(const String& str1, const String& str2);
 
 /** overload operator < - Compares String obects.
     <pre>
@@ -535,51 +510,36 @@ inline String operator+(const String& x, const String& y)
 	assert (t2 < t1);
     </pre>
 */
-inline Boolean operator<(const String& x, const String& y)
-{
-    return String::compare(x.getData(), y.getData()) < 0;
-}
+PEGASUS_COMMON_LINKAGE Boolean operator<(
+    const String& str1,
+    const String& str2);
 
 /** overload operator <= compares String objects.
 
 */
-inline Boolean operator<=(const String& x, const String& y)
-{
-    return String::compare(x.getData(), y.getData()) <= 0;
-}
+PEGASUS_COMMON_LINKAGE Boolean operator<=(
+    const String& str1,
+    const String& str2);
 
 /** Overload operator > compares String objects
 */
-inline Boolean operator>(const String& x, const String& y)
-{
-    return String::compare(x.getData(), y.getData()) > 0;
-}
+PEGASUS_COMMON_LINKAGE Boolean operator>(
+    const String& str1,
+    const String& str2);
 
 /** overload operator >= - Compares String objects
 */
-inline Boolean operator>=(const String& x, const String& y)
-{
-    return String::compare(x.getData(), y.getData()) >= 0;
-}
-
-/** Return a version of this string whose characters have been shifted
-    to lower case.
-*/
-PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
+PEGASUS_COMMON_LINKAGE Boolean operator>=(
+    const String& str1,
+    const String& str2);
 
 /** Compare two strings but ignore any case differences.
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
-inline int EqualNoCase(const char* s1, const char* s2)
-{
-    return CompareNoCase(s1, s2) == 0;
-}
+PEGASUS_COMMON_LINKAGE int EqualNoCase(const char* s1, const char* s2);
 
-/** Get the next line from the input file.
-*/
-PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);
-
+#ifdef PEGASUS_INTERNALONLY
 /*  This is an internal class to be used by the internal Pegasus
     components only. It provides an easy way to create an 8-bit string
     representation on the fly without calling allocateCString() and
@@ -591,14 +551,14 @@ class _CString
 {
 public:
 
-    _CString(const String& x)
+    _CString(const String& str)
     {
-	_rep = x.allocateCString();
+	_rep = str.allocateCString();
     }
 
-    _CString(const _CString& x)
+    _CString(const _CString& str)
     {
-	_rep = strcpy(new char[strlen(x._rep) + 1], x._rep);
+	_rep = strcpy(new char[strlen(str._rep) + 1], str._rep);
     }
 
     ~_CString()
@@ -606,10 +566,10 @@ public:
 	delete [] _rep;
     }
 
-    _CString& operator=(const _CString& x)
+    _CString& operator=(const _CString& str)
     {
-	if (this != &x)
-	    _rep = strcpy(new char[strlen(x._rep) + 1], x._rep);
+	if (this != &str)
+	    _rep = strcpy(new char[strlen(str._rep) + 1], str._rep);
 
 	return *this;
     }
@@ -628,119 +588,7 @@ private:
 
     char* _rep;
 };
-
-inline Uint32 _Length(const String& s1) { return s1.size(); }
-
-inline Uint32 _Length(const char* s1) { return strlen(s1); }
-
-inline Uint32 _Length(const char) { return 1; }
-
-template<class S1, class S2>
-inline String Cat(const S1& s1, const S2& s2)
-{
-    String tmp;
-    tmp.reserve(_Length(s1) + _Length(s2));
-    tmp.append(s1);
-    tmp.append(s2);
-    return tmp;
-}
-
-template<class S1, class S2, class S3>
-inline String Cat(const S1& s1, const S2& s2, const S3& s3)
-{
-    String tmp;
-    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3));
-    tmp.append(s1);
-    tmp.append(s2);
-    tmp.append(s3);
-    return tmp;
-}
-
-template<class S1, class S2, class S3, class S4>
-inline String Cat(const S1& s1, const S2& s2, const S3& s3, const S4& s4)
-{
-    String tmp;
-    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4));
-    tmp.append(s1);
-    tmp.append(s2);
-    tmp.append(s3);
-    tmp.append(s4);
-    return tmp;
-}
-
-template<class S1, class S2, class S3, class S4, class S5>
-inline String Cat(
-    const S1& s1,
-    const S2& s2,
-    const S3& s3,
-    const S4& s4,
-    const S5& s5)
-{
-    String tmp;
-
-    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) +
-	_Length(s5));
-
-    tmp.append(s1);
-    tmp.append(s2);
-    tmp.append(s3);
-    tmp.append(s4);
-    tmp.append(s5);
-
-    return tmp;
-}
-
-template<class S1, class S2, class S3, class S4, class S5, class S6>
-inline String Cat(
-    const S1& s1,
-    const S2& s2,
-    const S3& s3,
-    const S4& s4,
-    const S5& s5,
-    const S6& s6)
-{
-    String tmp;
-
-    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) +
-	_Length(s5) + _Length(s6));
-
-    tmp.append(s1);
-    tmp.append(s2);
-    tmp.append(s3);
-    tmp.append(s4);
-    tmp.append(s5);
-    tmp.append(s6);
-
-    return tmp;
-}
-
-PEGASUS_COMMON_LINKAGE const Array<String>& EmptyStringArray();
-
-PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
-
-inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
-{
-    char* tmpPath = path.allocateCString();
-    is.open(tmpPath);
-    delete [] tmpPath;
-    return !!is;
-}
-
-inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
-{
-    char* tmpPath = path.allocateCString();
-    os.open(tmpPath);
-    delete [] tmpPath;
-    return !!os;
-}
-
-inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
-{
-    char* tmpPath = path.allocateCString();
-    os.open(tmpPath, PEGASUS_STD(ios::app));
-    delete [] tmpPath;
-    return !!os;
-}
+#endif
 
 #define PEGASUS_ARRAY_T String
 #include <Pegasus/Common/ArrayInter.h>

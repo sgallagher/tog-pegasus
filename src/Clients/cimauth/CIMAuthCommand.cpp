@@ -377,25 +377,28 @@ CIMAuthCommand::CIMAuthCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage = String (USAGE);
-    usage.append (COMMAND_NAME);
-    usage.append (Cat(" -", OPTION_ADD));
-    usage.append (Cat(" -", OPTION_USER_NAME, " username")); 
-    usage.append (Cat(" -", OPTION_NAMESPACE, " namespace"));
-    usage.append (Cat(" [ -", OPTION_READ, " ]")); 
-    usage.append (Cat(" [ -", OPTION_WRITE, " ] \n")); 
+    String usage;
+    usage.reserve(200);
+    usage.append(USAGE);
+    usage.append(COMMAND_NAME);
 
-    usage.append (Cat("               -", OPTION_MODIFY));
-    usage.append (Cat(" -", OPTION_USER_NAME, " username")); 
-    usage.append (Cat(" -", OPTION_NAMESPACE, " namespace"));
-    usage.append (Cat(" [ -", OPTION_READ, " ]")); 
-    usage.append (Cat(" [ -", OPTION_WRITE, " ] \n")); 
+    usage.append(" -").append(OPTION_ADD);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username");
+    usage.append(" -").append(OPTION_NAMESPACE).append(" namespace");
+    usage.append(" [ -").append(OPTION_READ).append(" ]");
+    usage.append(" [ -").append(OPTION_WRITE).append(" ] \n");
 
-    usage.append (Cat("               -", OPTION_REMOVE));
-    usage.append (Cat(" -", OPTION_USER_NAME, " username")); 
-    usage.append (Cat(" [ -", OPTION_NAMESPACE, " namespace ]\n"));
+    usage.append("               -").append(OPTION_MODIFY);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username");
+    usage.append(" -").append(OPTION_NAMESPACE).append(" namespace");
+    usage.append(" [ -").append(OPTION_READ).append(" ]");
+    usage.append(" [ -").append(OPTION_WRITE).append(" ] \n");
 
-    usage.append (Cat("               -", OPTION_LIST, " \n"));
+    usage.append("               -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username");
+    usage.append(" [ -").append(OPTION_NAMESPACE).append(" namespace ]\n");
+
+    usage.append("               -").append(OPTION_LIST).append(" \n");
 
     setUsage (usage);
 }
@@ -416,27 +419,27 @@ void CIMAuthCommand::setCommand (Uint32 argc, char* argv [])
     //
     //  Construct optString
     //
-    optString.append (OPTION_ADD); 
-    optString.append (Cat(
-		       OPTION_USER_NAME, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(
-		       OPTION_NAMESPACE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_ADD); 
+    optString.append(OPTION_USER_NAME);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_NAMESPACE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
-    optString.append (OPTION_MODIFY); 
-    optString.append (Cat(
-		       OPTION_USER_NAME, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(
-		       OPTION_NAMESPACE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_MODIFY); 
+    optString.append(OPTION_USER_NAME);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_NAMESPACE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
-    optString.append (OPTION_REMOVE); 
-    optString.append (Cat(
-		       OPTION_USER_NAME, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(
-		       OPTION_NAMESPACE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_REMOVE); 
+    optString.append(OPTION_USER_NAME);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_NAMESPACE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
-    optString.append (OPTION_LIST); 
-    optString.append (OPTION_READ);
-    optString.append (OPTION_WRITE);
+    optString.append(OPTION_LIST); 
+    optString.append(OPTION_READ);
+    optString.append(OPTION_WRITE);
 
     //
     //  Initialize and parse options

@@ -414,7 +414,7 @@ public:
         const String& defaultValue,
         Boolean required,
         Type type,
-        const Array<String>& domain = EmptyStringArray(),
+        const Array<String>& domain = Array<String>(),
         const String& commandLineOptionName = String(),
         const String& optionHelpMessage = String());
 

@@ -402,20 +402,23 @@ CIMProviderCommand::CIMProviderCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage = String (USAGE);
-    usage.append (COMMAND_NAME);
-    usage.append (Cat(" -", OPTION_DISABLE));
-    usage.append (Cat(" -", OPTION_MODULE, " module \n"));
+    String usage;
+    usage.reserve(200);
+    usage.append(USAGE);
+    usage.append(COMMAND_NAME);
 
-    usage.append (Cat("                   -", OPTION_ENABLE));
-    usage.append (Cat(" -", OPTION_MODULE, " module \n"));
+    usage.append(" -").append(OPTION_DISABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
-    usage.append (Cat("                   -", OPTION_REMOVE));
-    usage.append (Cat(" -", OPTION_MODULE, " module"));
-    usage.append (Cat(" [ -", OPTION_PROVIDER," provider ] \n"));
+    usage.append("                   -").append(OPTION_ENABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
-    usage.append (Cat("                   -", OPTION_LIST));
-    usage.append (Cat(" [ -", OPTION_MODULE, " module ] \n"));
+    usage.append("                   -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_MODULE).append(" module");
+    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] \n");
+
+    usage.append("                   -").append(OPTION_LIST);
+    usage.append(" [ -").append(OPTION_MODULE).append(" module ] \n");
 
     setUsage (usage);
 }
@@ -439,15 +442,20 @@ void CIMProviderCommand::setCommand (
     //
     //  Construct optString
     //
-    optString.append (OPTION_DISABLE);
-    optString.append (Cat(OPTION_MODULE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (OPTION_ENABLE);
-    optString.append (Cat(OPTION_MODULE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (OPTION_REMOVE);
-    optString.append (Cat(OPTION_MODULE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (Cat(OPTION_PROVIDER, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
-    optString.append (OPTION_LIST);
-    optString.append (Cat(OPTION_MODULE, getoopt::GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_DISABLE);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_ENABLE);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_REMOVE);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_PROVIDER);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    optString.append(OPTION_LIST);
+    optString.append(OPTION_MODULE);
+    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
     //
     //  Initialize and parse options

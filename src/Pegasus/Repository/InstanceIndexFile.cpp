@@ -851,7 +851,7 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
     // to roll back).
     //
 
-    if (!FileSystem::existsNoCase(Cat(path, ".rollback")))
+    if (!FileSystem::existsNoCase(path + ".rollback"))
     {
         PEG_METHOD_EXIT();
 	return true;
@@ -869,7 +869,7 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
     }
 
     PEG_METHOD_EXIT();
-    return FileSystem::renameFileNoCase(Cat(path, ".rollback"), path);
+    return FileSystem::renameFileNoCase(path + ".rollback", path);
 }
 
 Boolean InstanceIndexFile::commitTransaction(const String& path)

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,6 @@
 #include <cctype>
 #include "String.h"
 #include "Exception.h"
-#include "String.h"
 #include <iostream>
 
 PEGASUS_USING_STD;
@@ -41,15 +40,13 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-const String String::EMPTY = String();
+///////////////////////////////////////////////////////////////////////////////
+//
+// String
+//
+///////////////////////////////////////////////////////////////////////////////
 
-#if 0    // Apparently dead code
-static inline void _SkipWhitespace(const Char16*& p)
-{
-    while (*p && isspace(*p))
-        p++;
-}
-#endif
+const String String::EMPTY = String();
 
 Uint32 _strnlen(const char* str, Uint32 n)
 {
@@ -83,7 +80,7 @@ Uint32 _strnlen(const Char16* str, Uint32 n)
     return n;
 }
 
-inline Uint32 StrLen(const char* str)
+inline Uint32 _StrLen(const char* str)
 {
     if (!str)
 	throw NullPointer();
@@ -91,7 +88,7 @@ inline Uint32 StrLen(const char* str)
     return strlen(str);
 }
 
-inline Uint32 StrLen(const Char16* str)
+inline Uint32 _StrLen(const Char16* str)
 {
     if (!str)
 	throw NullPointer();
@@ -109,24 +106,24 @@ String::String()
     _rep.append('\0');
 }
 
-String::String(const String& x) : _rep(x._rep)
+String::String(const String& str)
+    : _rep(str._rep)
 {
-
 }
 
-String::String(const String& x, Uint32 n)
+String::String(const String& str, Uint32 n)
 {
-    assign(x.getData(), n);
+    assign(str.getData(), n);
 }
 
-String::String(const Char16* x) : _rep(x, StrLen(x) + 1)
+String::String(const Char16* str)
+    : _rep(str, _StrLen(str) + 1)
 {
-
 }
 
-String::String(const Char16* x, Uint32 n)
+String::String(const Char16* str, Uint32 n)
 {
-    assign(x, n);
+    assign(str, n);
 }
 
 String::String(const char* str)
@@ -134,15 +131,35 @@ String::String(const char* str)
     assign(str);
 }
 
-String::String(const char* str, Uint32 n_)
+String::String(const char* str, Uint32 n)
 {
-    assign(str, n_);
+    assign(str, n);
 }
 
-String& String::assign(const Char16* x)
+String::~String()
+{
+}
+
+String& String::operator=(const String& str)
+{
+    return assign(str);
+}
+
+String& String::operator=(const Char16* str)
+{
+    return assign(str);
+}
+
+String& String::assign(const String& str)
+{
+    _rep = str._rep;
+    return *this;
+}
+
+String& String::assign(const Char16* str)
 {
     _rep.clear();
-    _rep.append(x, StrLen(x) + 1);
+    _rep.append(str, _StrLen(str) + 1);
     return *this;
 }
 
@@ -155,32 +172,53 @@ String& String::assign(const Char16* str, Uint32 n)
     return *this;
 }
 
-String& String::assign(const char* x)
+String& String::assign(const char* str)
 {
     _rep.clear();
 
-    Uint32 n = strlen(x) + 1;
+    Uint32 n = strlen(str) + 1;
     _rep.reserve(n);
 
     while (n--)
-	_rep.append(*x++);
+	_rep.append(*str++);
 
     return *this;
 }
 
-String& String::assign(const char* x, Uint32 n_)
+String& String::assign(const char* str, Uint32 n)
 {
     _rep.clear();
 
-    Uint32 n = _strnlen(x, n_);
-    _rep.reserve(n + 1);
+    Uint32 _n = _strnlen(str, n);
+    _rep.reserve(_n + 1);
 
-    while (n--)
-	_rep.append(*x++);
+    while (_n--)
+	_rep.append(*str++);
 
     _rep.append('\0');
 
     return *this;
+}
+
+void String::clear()
+{
+    _rep.clear();
+    _rep.append('\0');
+}
+
+void String::reserve(Uint32 capacity)
+{
+    _rep.reserve(capacity + 1);
+}
+
+Uint32 String::size() const
+{
+    return _rep.size() - 1;
+}
+
+const Char16* String::getData() const
+{
+    return _rep.getData();
 }
 
 char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
@@ -210,7 +248,7 @@ void String::appendToCString(
     if (!str)
 	throw NullPointer();
 
-    Uint32 n = _pegasusMin(size(), length);
+    Uint32 n = (size() < length)? size() : length;
 
     char* p = str + strlen(str);
     const Char16* q = getData();
@@ -243,6 +281,12 @@ const Char16 String::operator[](Uint32 i) const
     return _rep[i];
 }
 
+String& String::append(const Char16& c)
+{
+    _rep.insert(_rep.size() - 1, c);
+    return *this;
+}
+
 String& String::append(const Char16* str, Uint32 n)
 {
     Uint32 m = _strnlen(str, n);
@@ -251,6 +295,26 @@ String& String::append(const Char16* str, Uint32 n)
     _rep.append(str, m);
     _rep.append('\0');
     return *this;
+}
+
+String& String::append(const String& str)
+{
+    return append(str.getData(), str.size());
+}
+
+String& String::operator+=(const String& str)
+{
+    return append(str);
+}
+
+String& String::operator+=(Char16 c)
+{
+    return append(c);
+}
+
+String& String::operator+=(char c)
+{
+    return append(Char16(c));
 }
 
 void String::remove(Uint32 pos, Uint32 size)
@@ -263,91 +327,6 @@ void String::remove(Uint32 pos, Uint32 size)
 
     if (size)
 	_rep.remove(pos, size);
-}
-
-int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
-{
-    while (n--)
-    {
-	int r = *s1++ - *s2++;
-
-	if (r)
-	    return r;
-    }
-
-    return 0;
-}
-
-int String::compareNoCase(const char* s1, const char* s2, Uint32 n)
-{
-    while (n--)
-    {
-	int r = tolower(*s1++) - tolower(*s2++);
-
-	if (r)
-	    return r;
-    }
-
-    return 0;
-}
-
-Boolean String::equal(const String& x, const String& y)
-{
-    if (x.size() != y.size())
-	return false;
-
-    return String::compare(x.getData(), y.getData(), x.size()) == 0;
-}
-
-Boolean String::equal(const String& x, const Char16* y)
-{
-    if (x.size() != StrLen(y))
-	return false;
-
-    return String::compare(x.getData(), y, x.size()) == 0;
-}
-
-Boolean String::equal(const Char16* x, const String& y)
-{
-    return equal(y, x);
-}
-
-Boolean String::equal(const String& x, const char* y)
-{
-    return equal(x, String(y));
-}
-
-Boolean String::equal(const char* x, const String& y)
-{
-    return equal(String(x), y);
-}
-
-Boolean String::equalNoCase(const String& x, const String& y)
-{
-    if (x.size() != y.size())
-	return false;
-
-    const Char16* p = x.getData();
-    const Char16* q = y.getData();
-
-    Uint32 n = x.size();
-
-    while (n--)
-    {
-#ifdef PEGASUS_HAS_EBCDIC
-	if (*p <= 255 && *q <= 255)
-#else
-	if (*p <= 127 && *q <= 127)
-#endif
-	{
-	    if (tolower(*p++) != tolower(*q++))
-		return false;
-	}
-	else if (*p++ != *q++)
-	    return false;
-    }
-
-    return true;
 }
 
 String String::subString(Uint32 pos, Uint32 length) const
@@ -422,12 +401,12 @@ Uint32 String::find(const String& s) const
     return PEG_NOT_FOUND;
 }
 
-Uint32 String::find(const char* s) const
+Uint32 String::find(const Char16* s) const
 {
     return find(String(s));
 }
 
-Uint32 String::find(const Char16* s) const
+Uint32 String::find(const char* s) const
 {
     return find(String(s));
 }
@@ -459,6 +438,12 @@ void String::toLower()
     }
 }
 
+void String::toLower(char* str)
+{
+    while (*str)
+	tolower(*str++);
+}
+
 void String::translate(Char16 fromChar, Char16 toChar)
 {
     for (Char16* p = &_rep[0]; *p; p++)
@@ -466,6 +451,24 @@ void String::translate(Char16 fromChar, Char16 toChar)
 	if (*p == fromChar)
 	    *p = toChar;
     }
+}
+
+void String::print() const
+{
+    cout << *this << endl;
+}
+
+int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
+{
+    while (n--)
+    {
+	int r = *s1++ - *s2++;
+
+	if (r)
+	    return r;
+    }
+
+    return 0;
 }
 
 int String::compare(const Char16* s1, const Char16* s2)
@@ -482,6 +485,19 @@ int String::compare(const Char16* s1, const Char16* s2)
 	return -1;
     else if (*s1)
 	return 1;
+
+    return 0;
+}
+
+int String::compareNoCase(const char* s1, const char* s2, Uint32 n)
+{
+    while (n--)
+    {
+	int r = tolower(*s1++) - tolower(*s2++);
+
+	if (r)
+	    return r;
+    }
 
     return 0;
 }
@@ -504,114 +520,65 @@ int String::compareNoCase(const char* s1, const char* s2)
     return 0;
 }
 
-PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& x)
+Boolean String::equal(const String& str1, const String& str2)
 {
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-	os << x[i];
+    if (str1.size() != str2.size())
+	return false;
 
-    return os;
+    return String::compare(str1.getData(), str2.getData(), str1.size()) == 0;
 }
 
-void String::toLower(char* str)
+Boolean String::equal(const String& str1, const Char16* str2)
 {
-    while (*str)
-	tolower(*str++);
+    if (str1.size() != _StrLen(str2))
+	return false;
+
+    return String::compare(str1.getData(), str2, str1.size()) == 0;
 }
 
-String ToLower(const String& str)
+Boolean String::equal(const Char16* str1, const String& str2)
 {
-    String tmp(str);
+    return equal(str2, str1);
+}
 
-    for (Uint32 i = 0, n = tmp.size(); i < n; i++)
+Boolean String::equal(const String& str1, const char* str2)
+{
+    return equal(str1, String(str2));
+}
+
+Boolean String::equal(const char* str1, const String& str2)
+{
+    return equal(String(str1), str2);
+}
+
+Boolean String::equalNoCase(const String& str1, const String& str2)
+{
+    if (str1.size() != str2.size())
+	return false;
+
+    const Char16* p = str1.getData();
+    const Char16* q = str2.getData();
+
+    Uint32 n = str1.size();
+
+    while (n--)
     {
-	Char16 c = tmp[i];
-
 #ifdef PEGASUS_HAS_EBCDIC
-	if (c <= 255)
+	if (*p <= 255 && *q <= 255)
 #else
-	if (c <= 127)
+	if (*p <= 127 && *q <= 127)
 #endif
-	    tmp[i] = tolower(c);
+	{
+	    if (tolower(*p++) != tolower(*q++))
+		return false;
+	}
+	else if (*p++ != *q++)
+	    return false;
     }
 
-    return tmp;
+    return true;
 }
 
-int CompareNoCase(const char* s1, const char* s2)
-{
-    while (*s1 && *s2)
-    {
-	int r = tolower(*s1++) - tolower(*s2++);
-
-	if (r)
-	    return r;
-    }
-
-    if (*s2)
-	return -1;
-    else if (*s1)
-	return 1;
-
-    return 0;
-}
-
-Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
-{
-    line.clear();
-
-    Boolean gotChar = false;
-    char c;
-
-    while (is.get(c))
-    {
-	gotChar = true;
-
-	if (c == '\n')
-	    break;
-
-	line.append(c);
-    }
-
-    return gotChar;
-}
-
-String::~String()
-{
-}
-
-String& String::assign(const String& x)
-{
-    _rep = x._rep;
-    return *this;
-}
-
-String& String::append(const Char16& c)
-{
-    _rep.insert(_rep.size() - 1, c);
-    return *this;
-}
-
-void String::clear()
-{
-    _rep.clear();
-    _rep.append('\0');
-}
-
-void String::print() const
-{
-    cout << *this << endl;
-}
-
-void String::reserve(Uint32 capacity)
-{
-    _rep.reserve(capacity + 1);
-}
-
-const Array<String>& EmptyStringArray()
-{
-    static Array<String> tmp;
-    return tmp;
-}
 //#define NEWMATCHFUNCTION
 #if defined NEWMATCHFUNCTION
  // Wildcard String matching function that may be useful in the future
@@ -946,6 +913,7 @@ int _StringMatch(
     }
 }
 #endif
+
 Boolean String::match(const String& str, const String& pattern)
 {
     return _StringMatch(
@@ -956,6 +924,89 @@ Boolean String::matchNoCase(const String& str, const String& pattern)
 {
     return _StringMatch(
 	(Uint16*)str.getData(), (Uint16*)pattern.getData(), 1) != 0;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// String-related functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+Boolean operator==(const String& str1, const String& str2)
+{
+    return String::equal(str1, str2);
+}
+
+Boolean operator==(const String& str1, const char* str2)
+{
+    return String::equal(str1, str2);
+}
+
+Boolean operator==(const char* str1, const String& str2)
+{
+    return String::equal(str1, str2);
+}
+
+Boolean operator!=(const String& str1, const String& str2)
+{
+    return !String::equal(str1, str2);
+}
+
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str1)
+{
+    for (Uint32 i = 0, n = str1.size(); i < n; i++)
+	os << str1[i];
+
+    return os;
+}
+
+String operator+(const String& str1, const String& str2)
+{
+    return String(str1).append(str2);
+}
+
+Boolean operator<(const String& str1, const String& str2)
+{
+    return String::compare(str1.getData(), str2.getData()) < 0;
+}
+
+Boolean operator<=(const String& str1, const String& str2)
+{
+    return String::compare(str1.getData(), str2.getData()) <= 0;
+}
+
+Boolean operator>(const String& str1, const String& str2)
+{
+    return String::compare(str1.getData(), str2.getData()) > 0;
+}
+
+Boolean operator>=(const String& str1, const String& str2)
+{
+    return String::compare(str1.getData(), str2.getData()) >= 0;
+}
+
+int CompareNoCase(const char* s1, const char* s2)
+{
+    while (*s1 && *s2)
+    {
+	int r = tolower(*s1++) - tolower(*s2++);
+
+	if (r)
+	    return r;
+    }
+
+    if (*s2)
+	return -1;
+    else if (*s1)
+	return 1;
+
+    return 0;
+}
+
+int EqualNoCase(const char* s1, const char* s2)
+{
+    return CompareNoCase(s1, s2) == 0;
 }
 
 PEGASUS_NAMESPACE_END

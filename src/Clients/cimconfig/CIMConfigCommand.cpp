@@ -229,24 +229,27 @@ CIMConfigCommand::CIMConfigCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage = String (USAGE);
-    usage.append (COMMAND_NAME);
-    usage.append (Cat(" -", OPTION_GET, " name"));
-    usage.append (Cat(" [ -", OPTION_CURRENT_VALUE)); 
-    usage.append (Cat(" ] [ -", OPTION_DEFAULT_VALUE));
-    usage.append (Cat(" ] [ -", OPTION_PLANNED_VALUE, " ]\n"));
+    String usage;
+    usage.reserve(200);
+    usage.append(USAGE);
+    usage.append(COMMAND_NAME);
 
-    usage.append (Cat("                 -", OPTION_SET, " name=value"));
-    usage.append (Cat(" [ -", OPTION_CURRENT_VALUE)); 
-    usage.append (Cat(" ] [ -", OPTION_PLANNED_VALUE, " ]\n"));
+    usage.append(" -").append(OPTION_GET).append(" name");
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
+    usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
-    usage.append (Cat("                 -", OPTION_UNSET, " name"));
-    usage.append (Cat(" [ -", OPTION_CURRENT_VALUE)); 
-    usage.append (Cat(" ] [ -", OPTION_PLANNED_VALUE, " ]\n"));
+    usage.append("                 -").append(OPTION_SET).append(" name=value");
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
-    usage.append (Cat("                 -", OPTION_LIST));
-    usage.append (Cat(" [ -", OPTION_CURRENT_VALUE)); 
-    usage.append (Cat(" | -", OPTION_PLANNED_VALUE, " ]\n"));
+    usage.append("                 -").append(OPTION_UNSET).append(" name");
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+
+    usage.append("                 -").append(OPTION_LIST);
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
+    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
     setUsage (usage);
 }
@@ -269,15 +272,19 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     //
     //  Construct optString
     //
-    optString.append (Cat(OPTION_GET, GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_GET);
+    optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
-    optString.append (Cat(OPTION_SET, GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_SET);
+    optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
-    optString.append (Cat(OPTION_UNSET, GETOPT_ARGUMENT_DESIGNATOR));
+    optString.append(OPTION_UNSET);
+    optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
-    optString.append (Cat(OPTION_LIST, OPTION_CURRENT_VALUE));
-    
-    optString.append (Cat(OPTION_PLANNED_VALUE, OPTION_DEFAULT_VALUE));
+    optString.append(OPTION_LIST);
+    optString.append(OPTION_CURRENT_VALUE);
+    optString.append(OPTION_PLANNED_VALUE);
+    optString.append(OPTION_DEFAULT_VALUE);
 
     //
     //  Initialize and parse options

@@ -28,7 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <strstream>
-#include <string>
 #include "Base64.h"
 #include <Pegasus/Common/ArrayInternal.h>
 
@@ -134,30 +133,30 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
 #endif
 
     //Strip any non-base64 characters from the input
-    PEGASUS_STD(string) str;
+    Array<Sint8> str;
     for (Uint32 j=0;j<strInput.size();j++)
     {
         if (_IsBase64(strInput[j]))
-            str += strInput[j];
+            str.append(strInput[j]);
     }
 
     Array<Uint8> retArray;
 
     // Return if the input is zero length
-    if (str.length() == 0)
+    if (str.size() == 0)
         return retArray;
 
     //  comment
-    for (size_t i=0; i < str.length();i+=4)
+    for (Uint32 i=0; i < str.size(); i+=4)
     {
         char c1='A',c2='A',c3='A',c4='A';
 
         c1 = str[i];
-        if (i+1<str.length())
+        if (i+1<str.size())
             c2 = str[i+1];
-        if (i+2<str.length())
+        if (i+2<str.size())
             c3 = str[i+2];
-        if (i+3<str.length())
+        if (i+3<str.size())
             c4 = str[i+3];
 
         Uint8 by1=0,by2=0,by3=0,by4=0;

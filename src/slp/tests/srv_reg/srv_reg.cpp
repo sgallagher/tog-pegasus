@@ -103,9 +103,9 @@ int main(int argc, char **argv)
     {
       if (argc > 1)
         {
-          for (Uint32 files = 1 ; files < argc; files++)
+          for (int files = 1 ; files < argc; files++)
             {
-              Array<Sint8> slpRegInfo;
+              Array<char> slpRegInfo;
               String fileName(argv[files]);
               String attributeString;
               String url;

@@ -121,7 +121,8 @@ public:
     /** Constructor for a SSLContext object.
     @param certPath  certificate file path
     @param verifyCert  function pointer to a certificate verification
-    call back function.
+    call back function.  A null pointer indicates that no callback is
+    requested for certificate verification.
     @param randomFile  file path of a random file that is used as a seed 
     for random number generation by OpenSSL.
     @param isCIMClient  flag indicating that the context is created by

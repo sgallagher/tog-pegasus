@@ -124,7 +124,9 @@ Boolean IndicationOperationAggregate::requiresResponse ()
 {
     if ((getOrigType () == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
         (getOrigType () == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType () == CIM_DELETE_INSTANCE_REQUEST_MESSAGE))
+        (getOrigType () == CIM_DELETE_INSTANCE_REQUEST_MESSAGE) ||
+        (getOrigType () == CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE) ||
+        (getOrigType () == CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE))
     {
         return true;
     }
@@ -137,6 +139,16 @@ Boolean IndicationOperationAggregate::requiresResponse ()
 Array <CIMName> & IndicationOperationAggregate::getIndicationSubclasses ()
 {
     return _indicationSubclasses;
+}
+
+void IndicationOperationAggregate::setPath (const CIMObjectPath & path)
+{
+    _path = path;
+}
+
+CIMObjectPath & IndicationOperationAggregate::getPath ()
+{
+    return _path;
 }
 
 Uint32 IndicationOperationAggregate::getNumberIssued ()

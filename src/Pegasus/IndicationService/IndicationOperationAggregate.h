@@ -137,6 +137,23 @@ public:
     Array <CIMName> & getIndicationSubclasses ();
 
     /**
+        Stores the object path of the created instance in the operation 
+        aggregate object, if original request was to create a subscription 
+        instance.
+
+        @param   path                  the object path of the created instance
+    */
+    void setPath (const CIMObjectPath & path);
+
+    /**
+        Gets the object path of the created instance, if original request was
+        to create a subscription instance.
+
+        @return  CIMObjectPath of the created instance
+    */
+    CIMObjectPath & getPath ();
+
+    /**
         Gets the number of requests to be issued for this aggregation.
 
         @return  number of requests to be issued
@@ -231,6 +248,7 @@ private:
 
     CIMRequestMessage * _origRequest;
     Array <CIMName> _indicationSubclasses;
+    CIMObjectPath _path;
     Uint32 _numberIssued;
     Array <CIMRequestMessage *> _requestList;
     Mutex _appendRequestMutex;

@@ -701,7 +701,7 @@ private:
         @param   contentLangs          the language of the subscription
         @param   origRequest           the original request, if any (e.g. Create
                                            Instance, Modify Instance, Provider 
-                                           Registration change)
+                                           Registration change, Provider Enable)
         @param   indicationSubclasses  the indication subclasses for the 
                                            subscription
         @param   userName              the userName for authentication
@@ -793,7 +793,7 @@ private:
         @param   subscription          the subscription to be modified
         @param   acceptLangs           the language of the response
         @param   contentLangs          the language of the subscription    
-        @param   origRequest           the original request (e.g. Delete
+        @param   origRequest           the original request, if any (e.g. Delete
                                            Instance, Modify Instance, Provider 
                                            Registration change)
         @param   indicationSubclasses  the indication subclasses for the 
@@ -926,15 +926,24 @@ private:
         Sends an Enable Indications request to the specified providers.
 
         @param   enableProviders       the providers to be enabled
+        @param   origRequest           the original request, if any (e.g. Create
+                                           Instance, Modify Instance, Provider 
+                                           Registration change, Provider Enable)
+        @param   path                  path of created instance (for create 
+                                         instance request)
      */
     void _sendEnable (
         const Array <ProviderClassList> & enableProviders,
-        const CIMRequestMessage * origRequest);
+        const CIMRequestMessage * origRequest,
+        const CIMObjectPath & path = CIMObjectPath ());
 
     /**
         Sends a Disable Indications request to the specified providers.
 
         @param   disableProviders      the providers to be disabled
+        @param   origRequest           the original request, if any (e.g. Delete
+                                           Instance, Modify Instance, Provider 
+                                           Registration change)
      */
     void _sendDisable 
         (const Array <ProviderClassList> & disableProviders,

@@ -60,7 +60,6 @@ XMLCOVSCRIPTS =
 endif
 endif
 endif
-endif
 
 clean:
 	$(RM) $(XMLRESPONSES)

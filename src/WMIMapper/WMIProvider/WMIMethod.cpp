@@ -267,6 +267,7 @@ WMIMethod::WMIMethod(const BSTR & name,
 	CComBSTR			bsName = name;
 	CComVariant			vValue = NULL;
 	CIMTYPE				returnValueType;
+	HRESULT			hr;
 	
 	qualifierList = WMIQualifierSet(pQualifierSet);
 

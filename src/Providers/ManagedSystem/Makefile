@@ -30,7 +30,6 @@ include $(ROOT)/mak/config.mak
 
 DIRS =  \
         OperatingSystem \
-	OperatingSystem/tests \
         ComputerSystem \
         Process
 

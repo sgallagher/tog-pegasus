@@ -46,22 +46,24 @@
 #include "CmpiContext.h"
 #include "CmpiBroker.h"
 #include "CmpiArgs.h"
+#include "Linkage.h"
 
 
-class CmpiMethodMI : virtual public CmpiBaseMI {
-  public:
-    CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx) : 
-     CmpiBaseMI (mbp,ctx) {}
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiMethodMI : virtual public CmpiBaseMI {
+public:
+   CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
+   CmpiBaseMI (mbp,ctx) {
+   }
 
    static CMPIStatus driveInvokeMethod
-      (CMPIMethodMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop, const char* methodName,
-       CMPIArgs* eIn, CMPIArgs* eOut);
+   (CMPIMethodMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, const char* methodName,
+    CMPIArgs* eIn, CMPIArgs* eOut);
 
    virtual CmpiStatus invokeMethod
-              (const CmpiContext& ctx, CmpiResult& rslt,
-	       const CmpiObjectPath& ref, const char* methodName,
-	       const CmpiArgs& in, CmpiArgs& out);
+   (const CmpiContext& ctx, CmpiResult& rslt,
+    const CmpiObjectPath& ref, const char* methodName,
+    const CmpiArgs& in, CmpiArgs& out);
 };
 
 #endif

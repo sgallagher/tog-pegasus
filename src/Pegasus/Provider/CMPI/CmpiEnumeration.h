@@ -40,6 +40,7 @@
 #include "CmpiStatus.h"
 #include "CmpiObjectPath.h"
 #include "CmpiBroker.h"
+#include "Linkage.h"
 
 class CmpiObjectPath;
 
@@ -47,25 +48,30 @@ class CmpiObjectPath;
     CmpiBroker services.
 */
 
-class CmpiEnumeration : public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiEnumeration : public CmpiObject {
    friend class CmpiBroker;
-  protected:
+protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIEnumeration.
    */
    inline CmpiEnumeration(CMPIEnumeration* enc)
-      { this->enc=enc; }
+   {
+      this->enc=enc;
+   }
 
    /** getEnc - Gets the encapsulated CMPIEnumeration.
    */
    inline CMPIEnumeration *getEnc() const
-     { return (CMPIEnumeration*)enc; }
-  private:
+   {
+      return (CMPIEnumeration*)enc;
+   }
+private:
 
    /** Constructor - Should not be called
    */
-   CmpiEnumeration() {}
-  public:
+   CmpiEnumeration() {
+   }
+public:
 
    /** getNext - Gets next entry.
    */

@@ -41,24 +41,25 @@
 #include "cmpimacs.h"
 
 #include "CmpiProviderBase.h"
+#include "Linkage.h"
 
 class CmpiBroker;
 class CmpiContext;
 class CmpiStatus;
 
-class CmpiBaseMI {
-  public:
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBaseMI {
+public:
    virtual ~CmpiBaseMI();
-   
+
    CmpiBaseMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveBaseCleanup
-     (void* mi, CMPIContext* eCtx);
+   (void* mi, CMPIContext* eCtx);
 
    virtual CmpiStatus initialize(const CmpiContext& ctx);
    virtual CmpiStatus cleanup(CmpiContext& ctx);
 
- protected:
+protected:
    CmpiBroker* broker;
 };
 

@@ -45,11 +45,16 @@
 //#include "CmpiObject.h"
 //#include "CmpiObjectPath.h"
 #include "CmpiStatus.h"
+#include "Linkage.h"
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#define strcasecmp _stricmp
+#endif
 
 /** This class wraps a CIMOM specific string representation.
 */
 
-class CmpiString { //: public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiString { //: public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiData;
    friend class CmpiObjectPath;
@@ -57,8 +62,8 @@ class CmpiString { //: public CmpiObject {
    friend class CmpiObject;
    friend class CmpiArgs;
    friend class CmpiArrayIdx;
-  private:
-  protected:
+private:
+protected:
    void *enc;
    /** Constructor - Internal use only
    */
@@ -69,13 +74,17 @@ class CmpiString { //: public CmpiObject {
    /** Gets the encapsulated CMPIString.
    */
    inline CMPIString *getEnc() const
-     { return (CMPIString*)enc; }
-  public:
+   {
+      return (CMPIString*)enc;
+   }
+public:
 
    /** Constructor - Empty string
    */
    CmpiString()
-     { enc=NULL; }
+   {
+      enc=NULL;
+   }
 
    /** Constructor - Copy constructor
    */
@@ -84,22 +93,34 @@ class CmpiString { //: public CmpiObject {
    /** charPtr - get pointer to char* representation
    */
    inline const char* charPtr() const
-     { if (getEnc()) return (const char*)getEnc()->hdl;
-       else return NULL; }
+   {
+      if (getEnc())
+         return (const char*)getEnc()->hdl;
+      else
+         return NULL;
+   }
 
    /** charPtr - Case sensitive compare
    */
    inline CmpiBoolean equals(const char *str) const
-     { return (strcmp(charPtr(),str)==0); }
+   {
+      return (strcmp(charPtr(),str)==0);
+   }
    inline CmpiBoolean equals(const CmpiString& str) const
-     { return (strcmp(charPtr(),str.charPtr())==0); }
+   {
+      return (strcmp(charPtr(),str.charPtr())==0);
+   }
 
    /** charPtr - Case insensitive compare
    */
    inline CmpiBoolean equalsIgnoreCase(const char *str) const
-     { return (strcasecmp(charPtr(),str)==0); }
+   {
+      return (strcasecmp(charPtr(),str)==0);
+   }
    inline CmpiBoolean equalsIgnoreCase(const CmpiString& str) const
-     { return (strcasecmp(charPtr(),str.charPtr())==0); }
+   {
+      return (strcasecmp(charPtr(),str.charPtr())==0);
+   }
 };
 
 #endif

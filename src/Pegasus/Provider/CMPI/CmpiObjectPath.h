@@ -41,6 +41,7 @@
 #include "CmpiStatus.h"
 #include "CmpiData.h"
 #include "CmpiBaseMI.h"
+#include "Linkage.h"
 
 
 /** The ObjectPath class represents the value of a Instance reference. It constains
@@ -48,7 +49,7 @@
     represent a class reference. In that case key properties will be ignored.
 */
 
-class CmpiObjectPath : public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiObjectPath : public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiResult;
    friend class CmpiInstance;
@@ -58,9 +59,9 @@ class CmpiObjectPath : public CmpiObject {
    friend class CmpiPropertyMI;
    friend class CmpiIndicationMI;
    friend class CmpiData;
-  protected:
+protected:
 
-  private:
+private:
 
    /** Constructor - Should not be called
    */
@@ -68,14 +69,14 @@ class CmpiObjectPath : public CmpiObject {
    void *CmpiObjectPath::makeObjectPath(CMPIBroker *mb, const char *ns, const char *cls);
    void *CmpiObjectPath::makeObjectPath(CMPIBroker *mb, const CmpiString& ns, const char *cls);
    CmpiBoolean CmpiObjectPath::doClassPathIsA(CMPIBroker *mb, const char *className) const;
-  public:
+public:
 
-    /**	Constructor - Creates an ObjectPath object with the classname
-	from the input parameter.
-	@param ns defining namespace or NULL
-	@param cls defining classname or NULL
-	@return The new ObjectPath object
-    */
+   /** Constructor - Creates an ObjectPath object with the classname
+   from the input parameter.
+   @param ns defining namespace or NULL
+   @param cls defining classname or NULL
+   @return The new ObjectPath object
+   */
    inline CmpiObjectPath(const char *ns, const char *cls) {
       enc=makeObjectPath(CmpiProviderBase::getBroker(),ns,cls);
    }
@@ -86,87 +87,96 @@ class CmpiObjectPath : public CmpiObject {
    /** Constructor used by MIDrivers to encapsulate CMPIObjectPathes.
    */
    inline CmpiObjectPath(CMPIObjectPath* c)
-      : CmpiObject((void*)c) {}
+         : CmpiObject((void*)c) {
+   }
 
    /** Gets the encapsulated CMPIObjectPath.
    */
    inline CMPIObjectPath *getEnc() const
-      { return (CMPIObjectPath*)enc; }
+   {
+      return (CMPIObjectPath*)enc;
+   }
 
-    /**	classPathIsA - Tests whether this CIM ObjectPath is a reference
-        to a CIM class is of type <className>.
-	@param className CIM classname to be tested for.
-	@return True or False
-    */
+   /** classPathIsA - Tests whether this CIM ObjectPath is a reference
+       to a CIM class is of type <className>.
+   @param className CIM classname to be tested for.
+   @return True or False
+   */
    inline CmpiBoolean classPathIsA(const char *className) const {
       return doClassPathIsA(CmpiProviderBase::getBroker(),className);
    }
 
-    /** getHostname - returns the hostname component of the
-        ObjectPath
-        @return CmpiString containing the hostname.
-    */
+   /** getHostname - returns the hostname component of the
+       ObjectPath
+       @return CmpiString containing the hostname.
+   */
    CmpiString getHostname() const;
 
-    /** setHostname - Sets the hostname component.
-        @param hn representing the hostname.
-    */
+   /** setHostname - Sets the hostname component.
+       @param hn representing the hostname.
+   */
    void setHostname(const char* hn);
    inline void setHostname(CmpiString hn)
-      { setHostname(hn.charPtr()); }
+   {
+      setHostname(hn.charPtr());
+   }
 
-    /** getNameSpace - returns the namespace component of the
-        ObjectPath
-        @return CmpiString containing the namespace.
-    */
+   /** getNameSpace - returns the namespace component of the
+       ObjectPath
+       @return CmpiString containing the namespace.
+   */
    CmpiString getNameSpace() const;
 
-    /** setNameSpace - Sets the namespace component.
-        @param ns representing the namespace.
-    */
+   /** setNameSpace - Sets the namespace component.
+       @param ns representing the namespace.
+   */
    void setNameSpace(const char* ns);
    inline void setNameSpace(CmpiString ns)
-      { setNameSpace(ns.charPtr()); }
+   {
+      setNameSpace(ns.charPtr());
+   }
 
-    /** getClassName - returns the classname component of the
-        ObjectPath
-        @return CmpiString containing the namespace.
-    */
+   /** getClassName - returns the classname component of the
+       ObjectPath
+       @return CmpiString containing the namespace.
+   */
    CmpiString getClassName() const;
 
-    /** setClassName - Sets the classname component.
-        @param hn representing the hostname.
-    */
+   /** setClassName - Sets the classname component.
+       @param hn representing the hostname.
+   */
    void setClassName(const char* hn);
    inline void setClassName(CmpiString hn)
-      { setClassName(hn.charPtr()); }
+   {
+      setClassName(hn.charPtr());
+   }
 
-    /**	getKeyCount - Gets the number of key properties
-	defined for this ObjectPath.
-	@return	Number of key properties of this ObjectPath.
-    */
+   /** getKeyCount - Gets the number of key properties
+   defined for this ObjectPath.
+   @return Number of key properties of this ObjectPath.
+   */
    unsigned int getKeyCount() const;
 
-    /**	getKey - Gets the CmpiData object representing the value
-        associated with the key
-	@param name key name.
-	@return CmpiData value object associated with the key.
-    */
+   /** getKey - Gets the CmpiData object representing the value
+       associated with the key
+   @param name key name.
+   @return CmpiData value object associated with the key.
+   */
    CmpiData getKey(const char* name) const;
 
-    /**	getKey - Gets the CmpiData object defined
-	by the input index parameter.
-	@param index Index into the key property array.
-	@param name Optional output parameter returning the key name.
-	@return CmpiData value object corresponding to the index.
-    */
+   /** getKey - Gets the CmpiData object defined
+   by the input index parameter.
+   @param index Index into the key property array.
+   @param name Optional output parameter returning the key name.
+   @return CmpiData value object corresponding to the index.
+   */
    CmpiData getKey(const int index, CmpiString *name=NULL);
 
-    /**	setKey - adds/replaces a key value defined by the input
-	parameter to the ObjectPath
-	@param name key name.
-	@param data Type and Value to be added.
-    */
+   /** setKey - adds/replaces a key value defined by the input
+   parameter to the ObjectPath
+   @param name key name.
+   @param data Type and Value to be added.
+   */
    void setKey(const char* name, const CmpiData data);
 };
 

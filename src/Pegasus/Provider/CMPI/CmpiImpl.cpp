@@ -929,9 +929,10 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) {
 
 void CmpiObjectPath::setKey(const char* name, const CmpiData data) {
    CmpiData dt=CmpiData(data);
-   CMPIStatus rc=getEnc()->ft->addKey(getEnc(),name,
-      dt.data.type!=CMPI_chars ? &dt.data.value : (CMPIValue*)dt.data.value.chars,
-      dt.data.type);
+   CMPIStatus rc=getEnc()->ft->addKey(
+      getEnc(),name,
+         dt.data.type!=CMPI_chars ? &dt.data.value : (CMPIValue*)dt.data.value.chars,
+         dt.data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -945,9 +946,8 @@ void CmpiObjectPath::setKey(const char* name, const CmpiData data) {
 
 
 void CmpiResult::returnData(const CmpiData& d) {
-   CMPIStatus rc=getEnc()->ft->returnData(getEnc(),
-      &((CmpiData)d).data.value,d.data.type);
-      if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
+   CMPIStatus rc=getEnc()->ft->returnData(getEnc(),&((CmpiData)d).data.value,d.data.type);
+   if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
 void CmpiResult::returnData(const CmpiInstance& d) {

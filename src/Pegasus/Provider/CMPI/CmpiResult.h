@@ -41,34 +41,39 @@
 #include "CmpiData.h"
 #include "CmpiInstance.h"
 #include "CmpiObjectPath.h"
+#include "Linkage.h"
 
 
 /** This class acts as a container to hold values returned by provider functions.
 */
 
-class CmpiResult : public CmpiObject{
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiResult : public CmpiObject{
    friend class CmpiInstanceMI;
    friend class CmpiAssociationMI;
    friend class CmpiMethodMI;
    friend class CmpiPropertyMI;
    friend class CmpiIndicationMI;
- private:
+private:
 
    /** Constructor - Should not be called
    */
-   CmpiResult() {}
-  protected:
+   CmpiResult() {
+   }
+protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIResult.
    */
    CmpiResult(CMPIResult* r)
-      : CmpiObject((void*)r) {}
+         : CmpiObject((void*)r) {
+   }
 
    /** getEnc - Gets the encapsulated CMPIResult.
    */
    inline CMPIResult *getEnc() const
-      { return (CMPIResult*)enc; }
-  public:
+   {
+      return (CMPIResult*)enc;
+   }
+public:
 
    /** returnData - Return a CmpiData instance.
    */
@@ -81,7 +86,7 @@ class CmpiResult : public CmpiObject{
    /** returnData - Return a CmpiObjectPath object.
    */
    void returnData(const CmpiObjectPath& d);
- 
+
    /** returnDone - Indicate all data returned.
    */
    void returnDone();

@@ -40,15 +40,17 @@
 #include "CmpiInstance.h"
 #include "CmpiBaseMI.h"
 #include "CmpiData.h"
+#include "Linkage.h"
 
 
-class CmpiArrayIdx {
-  friend class CmpiArray;
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArrayIdx {
+   friend class CmpiArray;
    const CmpiArray &ar;
    CMPICount idx;
    CmpiArrayIdx(const CmpiArray &a, CMPICount i)
-     : ar(a), idx(i) {}
-  public:
+         : ar(a), idx(i) {
+   }
+public:
    CmpiArrayIdx& operator=(const CmpiData&);
    CmpiData getData() const;
 
@@ -113,38 +115,44 @@ class CmpiArrayIdx {
       Data extraction uses type conversion operators.
       Extraction operations can be appended to an array indexing operation
       like this:
-
+ 
         CmpiString state;
-
-	CmpiArray states;
-
+ 
+ CmpiArray states;
+ 
         states=ci.getProperty("States");
-
-	state=states[3];
-
-	Assignment statements use array indexing operations as well:
-
-	states[5]="offline";
-
+ 
+ state=states[3];
+ 
+ Assignment statements use array indexing operations as well:
+ 
+ states[5]="offline";
+ 
        Type mismatches will be signalled by exceptions.
 */
 class CmpiArray : public CmpiObject {
-  friend class CmpiArrayIdx;
-  friend class CmpiData;
-  friend class CmpiEnumeration;
-   void operator=(int x) {}
+   friend class CmpiArrayIdx;
+   friend class CmpiData;
+   friend class CmpiEnumeration;
+   void operator=(int x) {
+   }
 
    /** Gets the encapsulated CMPIArray.
    */
    inline CMPIArray *getEnc() const
-      { return (CMPIArray*)enc; }
+   {
+      return (CMPIArray*)enc;
+   }
    void *makeArray(CMPIBroker *mb,CMPICount max, CMPIType type);
-   CmpiArray(CMPIArray *arr) {enc=arr;}
-  public:
+   CmpiArray(CMPIArray *arr) {
+      enc=arr;
+   }
+public:
    inline CmpiArray(CMPICount max, CMPIType type) {
       enc=makeArray(CmpiProviderBase::getBroker(),max,type);
    }
-   CmpiArray() {}
+   CmpiArray() {
+   }
    CMPICount size() const;
    inline CmpiArrayIdx operator[](int idx) const {
       return CmpiArrayIdx(*this,idx);

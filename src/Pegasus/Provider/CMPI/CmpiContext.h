@@ -38,35 +38,40 @@
 
 #include "CmpiObject.h"
 #include "CmpiStatus.h"
+#include "Linkage.h"
 
 /** This class acts as a container to holding provider functions context information.
 */
 
-class CmpiContext : public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiContext : public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiInstanceMI;
    friend class CmpiMethodMI;
    friend class CmpiAssociationMI;
    friend class CmpiPropertyMI;
    friend class CmpiIndicationMI;
-  private:
-  protected:
+private:
+protected:
 
    /** Constructor - Should not be called
    */
-   CmpiContext() {}
+   CmpiContext() {
+   }
 
-  public:
+public:
 
    /** Constructor used by MIDrivers to encapsulate CMPIContext.
    */
    inline CmpiContext(CMPIContext* c)
-      : CmpiObject((void*)c) {}
+         : CmpiObject((void*)c) {
+   }
 
    /** getEnc - Gets the encapsulated CMPIContext.
    */
    inline CMPIContext *getEnc() const
-      { return (CMPIContext*)enc; }
+   {
+      return (CMPIContext*)enc;
+   }
 
    /** invocationFlags - InvocationFlags entry name.
    */
@@ -74,7 +79,7 @@ class CmpiContext : public CmpiObject {
 
    /** getEntry - Gets a named context entry.
    */
-  CmpiData getEntry(const char* name);
+   CmpiData getEntry(const char* name);
 };
 
 #endif

@@ -47,275 +47,279 @@ class CmpiArgs;
 #include "CmpiObjectPath.h"
 #include "CmpiBaseMI.h"
 #include "CmpiEnumeration.h"
+#include "Linkage.h"
 
 /** This class encapsulates services provided by the CIM Object Manager
 */
 
-class CmpiBroker : public CmpiObject {
-  public:
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBroker : public CmpiObject {
+public:
    /** constructor to encapsulate CMPIBroker.
    */
    inline CmpiBroker(CMPIBroker* b)
-      : CmpiObject((void*)b) {}
+         : CmpiObject((void*)b) {
+   }
 
    /** getEnc - Gets the encapsulated CMPIBroker.
    */
    inline CMPIBroker *getEnc() const
-      { return (CMPIBroker*)enc; }
+   {
+      return (CMPIBroker*)enc;
+   }
 
    /** This function prepares the CMPI run time system to accept
          a thread that will be using CMPI services. The returned
-	 CMPIContext object must be used by the subsequent attachThread()
-	 and detachThread() invocations.
-	 @param ctx Old Context object
-	 @return New Context object to be used by thread to be attached.
+   CMPIContext object must be used by the subsequent attachThread()
+   and detachThread() invocations.
+   @param ctx Old Context object
+   @return New Context object to be used by thread to be attached.
    */
    CmpiContext prepareAttachThread
-                (const CmpiContext& ctx);
+   (const CmpiContext& ctx);
 
-      /** This function informs the CMPI run time system that the current
-         thread with Context will begin using CMPI services.
-	 @param ctx Context object
+   /** This function informs the CMPI run time system that the current
+      thread with Context will begin using CMPI services.
+   @param ctx Context object
    */
    void attachThread
-                (const CmpiContext& ctx);
+   (const CmpiContext& ctx);
 
-      /** This function informs the CMPI run time system that the current thread
-         will not be using CMPI services anymore. The Context object will be
-	 freed during this operation.
-	 @param ctx Context object
+   /** This function informs the CMPI run time system that the current thread
+      will not be using CMPI services anymore. The Context object will be
+   freed during this operation.
+   @param ctx Context object
    */
-  void detachThread
-                (const CmpiContext& ctx);
+   void detachThread
+   (const CmpiContext& ctx);
 
-     // class 0 services
+   // class 0 services
 
-      /** This function requests delivery of an Indication. The CIMOM will
-         locate pertinent subscribers and notify them about the event.
-	 @param ctx Context object
-	 @param ns Namespace
-	 @param ind Indication Instance
+   /** This function requests delivery of an Indication. The CIMOM will
+      locate pertinent subscribers and notify them about the event.
+   @param ctx Context object
+   @param ns Namespace
+   @param ind Indication Instance
    */
    void deliverIndication
-                (const CmpiContext& ctx, const char* ns,const CmpiInstance& ind);
+   (const CmpiContext& ctx, const char* ns,const CmpiInstance& ind);
 
-     // class 1 services
+   // class 1 services
 
-      /** Enumerate Instance Names of the class (and subclasses) defined by <op>.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace and classname components.
-	 @return Enumeration of ObjectPathes.
+   /** Enumerate Instance Names of the class (and subclasses) defined by <op>.
+   @param ctx Context object
+   @param op ObjectPath containing namespace and classname components.
+   @return Enumeration of ObjectPathes.
    */
    CmpiEnumeration enumInstanceNames
-                (const CmpiContext& ctx, const CmpiObjectPath& op);
+   (const CmpiContext& ctx, const CmpiObjectPath& op);
 
-      /** Get Instance using <op> as reference. Instance structure can be
-         controled using the CMPIInvocationFlags entry in <ctx>.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
-	 @param properties If not NULL, the members of the array define one or more Property
-	     names. Each returned Object MUST NOT include elements for any Properties
-	     missing from this list
-	 @return The Instance.
+   /** Get Instance using <op> as reference. Instance structure can be
+      controled using the CMPIInvocationFlags entry in <ctx>.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
+   @param properties If not NULL, the members of the array define one or more Property
+   names. Each returned Object MUST NOT include elements for any Properties
+   missing from this list
+   @return The Instance.
    */
    CmpiInstance getInstance
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		const char** properties);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char** properties);
 
-     // class 2 services
+   // class 2 services
 
-      /** Create Instance from <inst> using <op> as reference.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
-	 @param inst Complete instance.
-	 @return The assigned instance reference.
+   /** Create Instance from <inst> using <op> as reference.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
+   @param inst Complete instance.
+   @return The assigned instance reference.
    */
    CmpiObjectPath createInstance
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		const CmpiInstance& inst);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const CmpiInstance& inst);
 
-      /** Replace an existing Instance from <inst> using <op> as reference.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
-	 @param inst Complete instance.
+   /** Replace an existing Instance from <inst> using <op> as reference.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
+   @param inst Complete instance.
    */
    void setInstance
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		const CmpiInstance& inst);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const CmpiInstance& inst);
 
-      /** Delete an existing Instance using <op> as reference.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
+   /** Delete an existing Instance using <op> as reference.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
    */
    void deleteInstance
-                (const CmpiContext& ctx, const CmpiObjectPath& op);
+   (const CmpiContext& ctx, const CmpiObjectPath& op);
 
-      /** Query the enumeration of instances of the class (and subclasses) defined
-         by <op> using <query> expression.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace and classname components.
-	 @param query Query expression
-	 @param lang Query Language
-	 @return Resulting eumeration of Instances.
+   /** Query the enumeration of instances of the class (and subclasses) defined
+      by <op> using <query> expression.
+   @param ctx Context object
+   @param op ObjectPath containing namespace and classname components.
+   @param query Query expression
+   @param lang Query Language
+   @return Resulting eumeration of Instances.
    */
    CmpiEnumeration execQuery
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* query, const char* lang);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* query, const char* lang);
 
-      /** Enumerate Instances of the class (and subclasses) defined by <op>.
-         Instance structure and inheritance scope can be controled using the
-	 CMPIInvocationFlags entry in <ctx>.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace and classname components.
-	 @param properties If not NULL, the members of the array define one or more Property
-	     names. Each returned Object MUST NOT include elements for any Properties
-	     missing from this list
-	 @return Enumeration of Instances.
+   /** Enumerate Instances of the class (and subclasses) defined by <op>.
+      Instance structure and inheritance scope can be controled using the
+   CMPIInvocationFlags entry in <ctx>.
+   @param ctx Context object
+   @param op ObjectPath containing namespace and classname components.
+   @param properties If not NULL, the members of the array define one or more Property
+   names. Each returned Object MUST NOT include elements for any Properties
+   missing from this list
+   @return Enumeration of Instances.
    */
    CmpiEnumeration enumInstances
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char** properties);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char** properties);
 
-      /** Enumerate instances associated with the Instance defined by the <op>.
-	 @param ctx Context object
-	 @param op Source ObjectPath containing namespace, classname and key components.
-	 @param assocClass If not NULL, MUST be a valid Association Class name.
-	    It acts as a filter on the returned set of Objects by mandating that
-	    each returned Object MUST be associated to the source Object via an
-	    Instance of this Class or one of its subclasses.
-	 @param resultClass If not NULL, MUST be a valid Class name.
-	    It acts as a filter on the returned set of Objects by mandating that
-	    each returned Object MUST be either an Instance of this Class (or one
-	    of its subclasses).
-	 @param role If not NULL, MUST be a valid Property name.
-	    It acts as a filter on the returned set of Objects by mandating
-	    that each returned Object MUST be associated to the source Object
-	    via an Association in which the source Object plays the specified role
-	    (i.e. the name of the Property in the Association Class that refers
-	    to the source Object MUST match the value of this parameter).
-	 @param resultRole If not NULL, MUST be a valid Property name.
-	    It acts as a filter on the returned set of Objects by mandating
-	    that each returned Object MUST be associated to the source Object
-	    via an Association in which the returned Object plays the specified role
-	    (i.e. the name of the Property in the Association Class that refers to
-	    the returned Object MUST match the value of this parameter).
-	 @param properties If not NULL, the members of the array define one or more Property
-	     names. Each returned Object MUST NOT include elements for any Properties
-	     missing from this list
-	 @return Enumeration of Instances.
+   /** Enumerate instances associated with the Instance defined by the <op>.
+   @param ctx Context object
+   @param op Source ObjectPath containing namespace, classname and key components.
+   @param assocClass If not NULL, MUST be a valid Association Class name.
+   It acts as a filter on the returned set of Objects by mandating that
+   each returned Object MUST be associated to the source Object via an
+   Instance of this Class or one of its subclasses.
+   @param resultClass If not NULL, MUST be a valid Class name.
+   It acts as a filter on the returned set of Objects by mandating that
+   each returned Object MUST be either an Instance of this Class (or one
+   of its subclasses).
+   @param role If not NULL, MUST be a valid Property name.
+   It acts as a filter on the returned set of Objects by mandating
+   that each returned Object MUST be associated to the source Object
+   via an Association in which the source Object plays the specified role
+   (i.e. the name of the Property in the Association Class that refers
+   to the source Object MUST match the value of this parameter).
+   @param resultRole If not NULL, MUST be a valid Property name.
+   It acts as a filter on the returned set of Objects by mandating
+   that each returned Object MUST be associated to the source Object
+   via an Association in which the returned Object plays the specified role
+   (i.e. the name of the Property in the Association Class that refers to
+   the returned Object MUST match the value of this parameter).
+   @param properties If not NULL, the members of the array define one or more Property
+   names. Each returned Object MUST NOT include elements for any Properties
+   missing from this list
+   @return Enumeration of Instances.
    */
    CmpiEnumeration associators
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* assocClass, const char* resultClass,
-		 const char* role, const char* resultRole, 
-		 const char** properties);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* assocClass, const char* resultClass,
+    const char* role, const char* resultRole,
+    const char** properties);
 
-      /** Enumerate ObjectPaths associated with the Instance defined by <op>.
-	 @param ctx Context object
-	 @param op Source ObjectPath containing namespace, classname and key components.
-	 @param assocClass If not NULL, MUST be a valid Association Class name.
-	    It acts as a filter on the returned set of Objects by mandating that
-	    each returned Object MUST be associated to the source Object via an
-	    Instance of this Class or one of its subclasses.
-	 @param resultClass If not NULL, MUST be a valid Class name.
-	    It acts as a filter on the returned set of Objects by mandating that
-	    each returned Object MUST be either an Instance of this Class (or one
-	    of its subclasses).
-	 @param role If not NULL, MUST be a valid Property name.
-	    It acts as a filter on the returned set of Objects by mandating
-	    that each returned Object MUST be associated to the source Object
-	    via an Association in which the source Object plays the specified role
-	    (i.e. the name of the Property in the Association Class that refers
-	    to the source Object MUST match the value of this parameter).
-	 @param resultRole If not NULL, MUST be a valid Property name.
-	    It acts as a filter on the returned set of Objects by mandating
-	    that each returned Object MUST be associated to the source Object
-	    via an Association in which the returned Object plays the specified role
-	    (i.e. the name of the Property in the Association Class that refers to
-	    the returned Object MUST match the value of this parameter).
-	 @return Enumeration of ObjectPaths.
+   /** Enumerate ObjectPaths associated with the Instance defined by <op>.
+   @param ctx Context object
+   @param op Source ObjectPath containing namespace, classname and key components.
+   @param assocClass If not NULL, MUST be a valid Association Class name.
+   It acts as a filter on the returned set of Objects by mandating that
+   each returned Object MUST be associated to the source Object via an
+   Instance of this Class or one of its subclasses.
+   @param resultClass If not NULL, MUST be a valid Class name.
+   It acts as a filter on the returned set of Objects by mandating that
+   each returned Object MUST be either an Instance of this Class (or one
+   of its subclasses).
+   @param role If not NULL, MUST be a valid Property name.
+   It acts as a filter on the returned set of Objects by mandating
+   that each returned Object MUST be associated to the source Object
+   via an Association in which the source Object plays the specified role
+   (i.e. the name of the Property in the Association Class that refers
+   to the source Object MUST match the value of this parameter).
+   @param resultRole If not NULL, MUST be a valid Property name.
+   It acts as a filter on the returned set of Objects by mandating
+   that each returned Object MUST be associated to the source Object
+   via an Association in which the returned Object plays the specified role
+   (i.e. the name of the Property in the Association Class that refers to
+   the returned Object MUST match the value of this parameter).
+   @return Enumeration of ObjectPaths.
    */
    CmpiEnumeration associatorNames
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* assocClass, const char* resultClass,
-		 const char* role, const char* resultRole);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* assocClass, const char* resultClass,
+    const char* role, const char* resultRole);
 
-       /** Enumerates the association instances that refer to the instance defined by
-           <op>.
-	 @param ctx Context object
-	 @param op Source ObjectPath containing namespace, classname and key components.
-	 @param resultClass If not NULL, MUST be a valid Class name.
-	    It acts as a filter on the returned set of Objects by mandating that
-	    each returned Object MUST be either an Instance of this Class (or one
-	    of its subclasses).
-	 @param role If not NULL, MUST be a valid Property name.
-	    It acts as a filter on the returned set of Objects by mandating
-	    that each returned Object MUST be associated to the source Object
-	    via an Association in which the source Object plays the specified role
-	    (i.e. the name of the Property in the Association Class that refers
-	    to the source Object MUST match the value of this parameter).
-	 @param properties If not NULL, the members of the array define one or more Property
-	     names. Each returned Object MUST NOT include elements for any Properties
-	     missing from this list
-	 @return Enumeration of ObjectPaths.
+   /** Enumerates the association instances that refer to the instance defined by
+       <op>.
+   @param ctx Context object
+   @param op Source ObjectPath containing namespace, classname and key components.
+   @param resultClass If not NULL, MUST be a valid Class name.
+   It acts as a filter on the returned set of Objects by mandating that
+   each returned Object MUST be either an Instance of this Class (or one
+   of its subclasses).
+   @param role If not NULL, MUST be a valid Property name.
+   It acts as a filter on the returned set of Objects by mandating
+   that each returned Object MUST be associated to the source Object
+   via an Association in which the source Object plays the specified role
+   (i.e. the name of the Property in the Association Class that refers
+   to the source Object MUST match the value of this parameter).
+   @param properties If not NULL, the members of the array define one or more Property
+   names. Each returned Object MUST NOT include elements for any Properties
+   missing from this list
+   @return Enumeration of ObjectPaths.
    */
    CmpiEnumeration references
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* resultClass, const char* role,
-		 const char** properties);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* resultClass, const char* role,
+    const char** properties);
 
-      /** Enumerates the association ObjectPaths that refer to the instance defined by
-           <op>.
-	 @param ctx Context object
-	 @param op Source ObjectPath containing namespace, classname and key components.
-	 @param resultClass If not NULL, MUST be a valid Class name.
-	    It acts as a filter on the returned set of Objects by mandating that
-	    each returned Object MUST be either an Instance of this Class (or one
-	    of its subclasses).
-	 @param role If not NULL, MUST be a valid Property name.
-	    It acts as a filter on the returned set of Objects by mandating
-	    that each returned Object MUST be associated to the source Object
-	    via an Association in which the source Object plays the specified role
-	    (i.e. the name of the Property in the Association Class that refers
-	    to the source Object MUST match the value of this parameter).
-	 @return Enumeration of ObjectPaths.
+   /** Enumerates the association ObjectPaths that refer to the instance defined by
+        <op>.
+   @param ctx Context object
+   @param op Source ObjectPath containing namespace, classname and key components.
+   @param resultClass If not NULL, MUST be a valid Class name.
+   It acts as a filter on the returned set of Objects by mandating that
+   each returned Object MUST be either an Instance of this Class (or one
+   of its subclasses).
+   @param role If not NULL, MUST be a valid Property name.
+   It acts as a filter on the returned set of Objects by mandating
+   that each returned Object MUST be associated to the source Object
+   via an Association in which the source Object plays the specified role
+   (i.e. the name of the Property in the Association Class that refers
+   to the source Object MUST match the value of this parameter).
+   @return Enumeration of ObjectPaths.
    */
    CmpiEnumeration referenceNames
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* resultClass, const char* role);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* resultClass, const char* role);
 
-      /** Invoke a named, extrinsic method of an Instance
-         defined by the <op> parameter.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
-	 @param method Method name
-	 @param in Input parameters.
-	 @param out Output parameters.
-	 @return Method return value.
+   /** Invoke a named, extrinsic method of an Instance
+      defined by the <op> parameter.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
+   @param method Method name
+   @param in Input parameters.
+   @param out Output parameters.
+   @return Method return value.
    */
    CmpiData invokeMethod
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* method, const CmpiArgs& in, CmpiArgs& out);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* method, const CmpiArgs& in, CmpiArgs& out);
 
-      /** Set the named property value of an Instance defined by the <op> parameter.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
-	 @param name Property name
-	 @param data Property value.
+   /** Set the named property value of an Instance defined by the <op> parameter.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
+   @param name Property name
+   @param data Property value.
    */
    void setProperty
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* name, const CmpiData& data);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* name, const CmpiData& data);
 
-      /** Get the named property value of an Instance defined by the <op> parameter.
-	 @param ctx Context object
-	 @param op ObjectPath containing namespace, classname and key components.
-	 @param name Property name
-	 @return Property value.
+   /** Get the named property value of an Instance defined by the <op> parameter.
+   @param ctx Context object
+   @param op ObjectPath containing namespace, classname and key components.
+   @param name Property name
+   @return Property value.
    */
    CmpiData getProperty
-                (const CmpiContext& ctx, const CmpiObjectPath& op,
-		 const char* name);
+   (const CmpiContext& ctx, const CmpiObjectPath& op,
+    const char* name);
 };
 
 #endif

@@ -43,35 +43,41 @@
 
 //#include "CmpiBaseMI.h"
 #include "CmpiString.h"
+#include "Linkage.h"
 
 class CmpiBroker;
 
 /** Abstract base class for all Cmpi classes.
 */
 
-class CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiObject {
    friend class CmpiBroker;
    friend class CmpiObjectPath;
    friend class CmpiInstance;
-  protected:
+protected:
    /** Protected pointer to encapsulated CMPI instance
    */
-    void *enc;
+   void *enc;
    /** Constructor - Do nothing
    */
-   CmpiObject() : enc(0) {}
+   CmpiObject() : enc(0) {
+   }
    /** Constructor - Normal base class constructor
    */
    inline CmpiObject(const void* enc)
-      { this->enc=(void*)enc; }
+   {
+      this->enc=(void*)enc;
+   }
    CmpiString doToString(CMPIBroker *mb);
    CmpiBoolean doIsA(CMPIBroker *mb, const char *typeName) const;
-  private:
-  public:
+private:
+public:
    /** isNull - Test for valid encapsualtion pointer
    */
    inline CmpiBoolean isNull() const
-      { return (enc==NULL); }
+   {
+      return (enc==NULL);
+   }
    /** toString - Produc;s CIMOM specific string representation of object
    */
    inline CmpiString toString() {

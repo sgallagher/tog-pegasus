@@ -43,6 +43,7 @@
 #include "CmpiObjectPath.h"
 #include "CmpiBroker.h"
 #include "CmpiData.h"
+#include "Linkage.h"
 
 class CmpiObjectPath;
 
@@ -50,92 +51,97 @@ class CmpiObjectPath;
     instances and their parts.
 */
 
-class CmpiInstance : public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiInstance : public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiResult;
    friend class CmpiInstanceMI;
    friend class CmpiMethodMI;
    friend class CmpiData;
-  protected:
+protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPIInstance.
    */
    inline CmpiInstance(const CMPIInstance* enc)
-      { this->enc=(void*)enc; }
+   {
+      this->enc=(void*)enc;
+   }
 
    /** Gets the encapsulated CMPIInstance.
    */
    inline CMPIInstance *getEnc() const
-      { return (CMPIInstance*)enc; }
-   private:
+   {
+      return (CMPIInstance*)enc;
+   }
+private:
 
    /** Constructor - Should not be called
    */
-   CmpiInstance() {}
+   CmpiInstance() {
+   }
 
    /** Internal make function
    */
    void *CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop);
    CmpiBoolean doInstanceIsA(CMPIBroker *mb, const char *className);
 
-  public:
-    /**	Constructor - Creates an Instance object with the classname
-	from the input parameter.
-	@param op defining classname and namespace
-	@return The new Instance object
-    */
+public:
+   /** Constructor - Creates an Instance object with the classname
+   from the input parameter.
+   @param op defining classname and namespace
+   @return The new Instance object
+   */
    inline CmpiInstance(const CmpiObjectPath& op) {
       enc=makeInstance(CmpiProviderBase::getBroker(),op);
    }
 
-    /**	instanceIsA - Tests whether this CIM Instance is of type <className>.
-	@param className CIM classname to be tested for.
-	@return True or False
-    */
+   /** instanceIsA - Tests whether this CIM Instance is of type <className>.
+   @param className CIM classname to be tested for.
+   @return True or False
+   */
    inline CmpiBoolean instanceIsA(const char *className) {
       return doInstanceIsA(CmpiProviderBase::getBroker(),className);
    }
 
-    /**	getPropertyCount - Gets the number of Properties
-	defined for this Instance.
-	@return	Number of Properties of this instance.
-    */
+   /** getPropertyCount - Gets the number of Properties
+   defined for this Instance.
+   @return Number of Properties of this instance.
+   */
    unsigned int getPropertyCount();
 
-    /**	getProperty - Gets the CmpiData object representing the value
-        associated with the property name
-	@param name Property name.
-	@return CmpiData value object associated with the property.
-    */
+   /** getProperty - Gets the CmpiData object representing the value
+       associated with the property name
+   @param name Property name.
+   @return CmpiData value object associated with the property.
+   */
    CmpiData getProperty(const char* name) const;
 
-    /**	getProperty - Gets the CmpiData object defined
-	by the input index parameter.
-	@param index Index into the Property array.
-	@param name Optional output parameter returning the property name.
-	@return CmpiData value object corresponding to the index.
-    */
+   /** getProperty - Gets the CmpiData object defined
+   by the input index parameter.
+   @param index Index into the Property array.
+   @param name Optional output parameter returning the property name.
+   @return CmpiData value object corresponding to the index.
+   */
    CmpiData getProperty(const int index, CmpiString *name=NULL);
 
-    /**	setProperty - adds/replaces a property value defined by the input
-	parameter to the Instance
-	@param name Property name.
-	@param data Type and Value to be added.
-    */
+   /** setProperty - adds/replaces a property value defined by the input
+   parameter to the Instance
+   @param name Property name.
+   @param data Type and Value to be added.
+   */
    void setProperty(const char* name, const CmpiData data);
 
-    /**	setPropertyFilter - specifies the list of properties that is accepted
-        for setProperty operestions.
-	@param properties List of properties
-	@param keys List of key properties (required)
-    */
+   /** setPropertyFilter - specifies the list of properties that is accepted
+       for setProperty operestions.
+   @param properties List of properties
+   @param keys List of key properties (required)
+   */
 
    void setPropertyFilter(const char** properties, const char** keys);
 
-    /**	getObjectPath - generates an ObjectPath out of the namespace, classname and
-	key propeties of this Instance
-	@return the generated ObjectPath.
-    */
+   /** getObjectPath - generates an ObjectPath out of the namespace, classname and
+   key propeties of this Instance
+   @return the generated ObjectPath.
+   */
    CmpiObjectPath getObjectPath() const;
 };
 

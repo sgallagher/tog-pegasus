@@ -47,54 +47,56 @@
 #include "CmpiInstance.h"
 #include "CmpiResult.h"
 #include "CmpiContext.h"
+#include "Linkage.h"
 
-class CmpiInstanceMI : virtual public CmpiBaseMI {
-  public:
-    CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx) : 
-     CmpiBaseMI (mbp,ctx) {}
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiInstanceMI : virtual public CmpiBaseMI {
+public:
+   CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
+   CmpiBaseMI (mbp,ctx) {
+   }
 
    static CMPIStatus driveEnumInstanceNames
-      (CMPIInstanceMI* mi,CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop);
+   (CMPIInstanceMI* mi,CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop);
    static CMPIStatus driveEnumInstances
-      (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop, char* *properties);
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, char* *properties);
    static CMPIStatus driveGetInstance
-      (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop, char* *properties);
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, char* *properties);
    static CMPIStatus driveCreateInstance
-      (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop, CMPIInstance* eInst);
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, CMPIInstance* eInst);
    static CMPIStatus driveSetInstance
-      (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop, CMPIInstance* eInst, char* *properties);
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, CMPIInstance* eInst, char* *properties);
    static CMPIStatus driveDeleteInstance
-      (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop);
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop);
    static CMPIStatus driveExecQuery
-      (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eCop, char* language ,char* query);
+   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eCop, char* language ,char* query);
 
 
    virtual CmpiStatus enumInstanceNames
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
    virtual CmpiStatus enumInstances
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-	       const char* *properties);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const char* *properties);
    virtual CmpiStatus getInstance
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-	       const char* *properties);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const char* *properties);
    virtual CmpiStatus createInstance
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-               const CmpiInstance& inst);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const CmpiInstance& inst);
    virtual CmpiStatus setInstance
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-               const CmpiInstance& inst, const char* *properties);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const CmpiInstance& inst, const char* *properties);
    virtual CmpiStatus deleteInstance
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
    virtual CmpiStatus execQuery
-              (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-               const char* language, const char* query);
+   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
+    const char* language, const char* query);
 };
 
 #endif

@@ -34,22 +34,26 @@
 #define _CmpiCharData_h_
 
 #include "CmpiData.h"
+#include "Linkage.h"
 
 
 /** This class wraps a CMPICharData value item. CharData extraction uses type conversion operators.
       Extraction operations can be appended to a property type retrieval statement
       like this:
-
+ 
         CmpiString name = cop.getKey("DeviceID");
-
+ 
        Type mismatches will be signalled by exceptions.
 */
-class CmpiCharData : public CmpiData {
-  public:
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiCharData : public CmpiData {
+public:
    /** Constructor - singed 8 bit as input.
    */
    inline CmpiCharData(CMPIChar16 d)
-      { data.value.char16=d;  data.type=CMPI_char16; }
+   {
+      data.value.char16=d;
+      data.type=CMPI_char16;
+   }
 };
 
 #endif

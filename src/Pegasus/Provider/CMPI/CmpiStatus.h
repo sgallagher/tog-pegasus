@@ -37,18 +37,19 @@
 #include "cmpift.h"
 
 #include "CmpiBaseMI.h"
+#include "Linkage.h"
 
 /** This class represents the status of a provider function invocation.
 */
 
-class CmpiStatus {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiStatus {
    friend class CmpiInstanceMI;
    friend class CmpiMethodMI;
    friend class CmpiBaseMI;
    friend class CmpiAssociationMI;
    friend class CmpiPropertyMI;
    friend class CmpiIndicationMI;
-  protected:
+protected:
 
    /** CmpiStatus actually is a CMPIStatus struct.
    */
@@ -57,13 +58,15 @@ class CmpiStatus {
    /** status - Returns CMPIStatus struct, to be used by MI drivers only.
    */
    inline CMPIStatus status() const
-      { return st; }
-  private:
+   {
+      return st;
+   }
+private:
 
    /** Constructor - not to be used.
    */
    CmpiStatus();
-  public:
+public:
 
    /** Aux Constructor - set from CMPIStatus.
        @param stat the CMPIStatus
@@ -80,19 +83,23 @@ class CmpiStatus {
        @param msg Descriptive message.
    */
    inline CmpiStatus(const CMPIrc rcp, const char *msg) {
-     st.rc=rcp;
-     st.msg=CMNewString(CmpiProviderBase::getBroker(),(char*)msg,NULL);
+      st.rc=rcp;
+      st.msg=CMNewString(CmpiProviderBase::getBroker(),(char*)msg,NULL);
    }
-//   CmpiStatus(const CMPIrc rc, const char *msg);
+   //   CmpiStatus(const CMPIrc rc, const char *msg);
    /** rc - get the rc value.
    */
    inline CMPIrc rc() const
-      { return st.rc; }
+   {
+      return st.rc;
+   }
 
    /** msg - get the msg component.
    */
    inline const char*  msg()
-      { return st.msg?CMGetCharPtr(st.msg):0; }
+   {
+      return st.msg?CMGetCharPtr(st.msg):0;
+   }
 };
 
 #endif

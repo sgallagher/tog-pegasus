@@ -43,6 +43,7 @@
 #include "CmpiObjectPath.h"
 #include "CmpiBroker.h"
 #include "CmpiData.h"
+#include "Linkage.h"
 
 class CmpiObjectPath;
 
@@ -50,27 +51,32 @@ class CmpiObjectPath;
     SelectExps and their parts.
 */
 
-class CmpiSelectExp : public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiSelectExp : public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiResult;
    friend class CmpiIndicationMI;
-  protected:
+protected:
 
    /** Protected constructor used by MIDrivers to encapsulate CMPISelectExp.
    */
    inline CmpiSelectExp(const CMPISelectExp* enc)
-      { this->enc=(void*)enc; }
+   {
+      this->enc=(void*)enc;
+   }
 
    /** Gets the encapsulated CMPISelectExp.
    */
    inline CMPISelectExp *getEnc() const
-      { return (CMPISelectExp*)enc; }
-   private:
+   {
+      return (CMPISelectExp*)enc;
+   }
+private:
 
    /** Constructor - Should not be called
    */
-   CmpiSelectExp() {}
-  public:
+   CmpiSelectExp() {
+   }
+public:
 };
 
 #endif

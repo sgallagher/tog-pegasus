@@ -32,27 +32,28 @@
 
 #ifndef _CmpiProviderBase_h_
 #define _CmpiProviderBase_h_
+#include "Linkage.h"
 
-class CmpiProviderBase {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiProviderBase {
    static CmpiProviderBase *base;
    int useCount;
-  public:
+public:
    static CMPIBroker *getBroker();
    static void setBroker(const CMPIBroker *mb);
 
    inline int init() {
-     useCount++;
-     if (useCount==1) 
-       return 1; 
-     else
-       return 0;
+      useCount++;
+      if (useCount==1)
+         return 1;
+      else
+         return 0;
    }
    inline int term() {
-     useCount--;
-     if (base->useCount==0) 
-       return 1; 
-     else
-       return 0;
+      useCount--;
+      if (base->useCount==0)
+         return 1;
+      else
+         return 0;
    }
    CmpiProviderBase() {
       useCount=0;

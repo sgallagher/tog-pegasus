@@ -45,26 +45,28 @@
 #include "CmpiResult.h"
 #include "CmpiContext.h"
 #include "CmpiArgs.h"
+#include "Linkage.h"
 
 
-class CmpiPropertyMI : virtual public CmpiBaseMI {
-  public:
-   CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx) : 
-     CmpiBaseMI (mbp,ctx) {}
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiPropertyMI : virtual public CmpiBaseMI {
+public:
+   CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx) :
+   CmpiBaseMI (mbp,ctx) {
+   }
 
    static CMPIStatus driveSetProperty
-      (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eOp, char* name, CMPIData data);
+   (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eOp, char* name, CMPIData data);
    static CMPIStatus driveGetProperty
-      (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-       CMPIObjectPath* eOp, char* name);
+   (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
+    CMPIObjectPath* eOp, char* name);
 
    virtual CmpiStatus setProperty
-      (const CmpiContext& ctx, CmpiResult& rslt,
-       const CmpiObjectPath& op, const char* name, const CmpiData& data);
+   (const CmpiContext& ctx, CmpiResult& rslt,
+    const CmpiObjectPath& op, const char* name, const CmpiData& data);
    virtual CmpiStatus getProperty
-      (const CmpiContext& ctx, CmpiResult& rslt,
-       const CmpiObjectPath& op, const char* name);
+   (const CmpiContext& ctx, CmpiResult& rslt,
+    const CmpiObjectPath& op, const char* name);
 };
 
 #endif

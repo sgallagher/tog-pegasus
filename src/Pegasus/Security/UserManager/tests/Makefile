@@ -3,7 +3,7 @@ ROOT=../../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-	UserManager 
-#    AuthorizationHandler
+	UserManager \
+	AuthorizationHandler
 
 include $(ROOT)/mak/recurse.mak

@@ -30,7 +30,8 @@
 // implementation of getoopt
 
 #include "getoopt.h"
-#include <String.h>
+#include <cctype>
+#include <cstdlib>
 
 using namespace std;
 

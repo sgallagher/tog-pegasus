@@ -23,6 +23,9 @@
 // Author: Bob Blair
 //
 // $Log: getoopt.h,v $
+// Revision 1.5  2001/04/24 21:15:49  mike
+// port back to Linux
+//
 // Revision 1.4  2001/04/24 00:00:15  mike
 // Ported compiler to use String and Array (rather than STL equivalents)
 //
@@ -53,7 +56,6 @@
 #ifndef _GETOOPT_H_
 #define _GETOOPT_H_
 
-#include <String>
 #include <iostream>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>

@@ -4,6 +4,7 @@ include $(ROOT)/mak/config.mak
 
 TEST_DIRS = \
 
+
 DIRS = \
     Common \
     Repository \
@@ -13,8 +14,8 @@ DIRS = \
     Server \
     getoopt \
     Compiler \
-    Compiler/cmdline \
     Compiler/load \
+    Compiler/cmdline \
     Common/tests \
     Repository/tests \
     Server/tests \

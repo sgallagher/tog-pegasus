@@ -31,6 +31,7 @@
 //
 
 #include <fstream>
+#include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/String.h>
 

@@ -25,6 +25,7 @@
 //END_HISTORY
 
 #include <iostream>
+#include <cstdlib>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Common/OptionManager.h>
@@ -125,7 +126,7 @@ int main(int argc, char** argv)
     {
 	cerr << argv[0] << ": unrecognized options: ";
 
-	for (Uint32 i = 1; i < argc; i++)
+	for (int i = 1; i < argc; i++)
 	    cerr << argv[i] << ' ';
 	cout << endl;
 	exit(1);

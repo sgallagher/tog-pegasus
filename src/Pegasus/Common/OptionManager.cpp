@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.10  2001/04/24 21:15:48  mike
+// port back to Linux
+//
 // Revision 1.9  2001/04/24 00:00:14  mike
 // Ported compiler to use String and Array (rather than STL equivalents)
 //
@@ -54,7 +57,9 @@
 //END_HISTORY
 
 #include <cstdlib>
+#include <cctype>
 #include <fstream>
+#include <cstdio>
 #include "OptionManager.h"
 #include "Destroyer.h"
 
@@ -533,6 +538,9 @@ Boolean Option::isValid(const String& value) const
 
 		case WHOLE_NUMBER:
 		    return x >= 0;
+
+		default:
+		    break;
 	    }
 	}
     }

@@ -1,5 +1,7 @@
 #include "Service.h"
 
+PEGASUS_NAMESPACE_BEGIN
+
 bool Service::run(
     int argc,
     char** argv,
@@ -15,3 +17,5 @@ bool Service::run(
 
     return false;
 }
+
+PEGASUS_NAMESPACE_END

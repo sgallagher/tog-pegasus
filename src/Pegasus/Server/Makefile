@@ -26,7 +26,8 @@ LIBRARIES = \
     pegindicationservice \
     pegwql \
     pegprm \
-    ConfigSettingProvider
+    ConfigSettingProvider \
+    UserAuthProvider
 
 PRE_DEPEND_INCLUDES = -I./depends
 

@@ -323,6 +323,10 @@ will be deleted.
     Providers tree to the Pegasus tree, since it really is statically
     linked into the server.
 
+36. (Roger Kumpf - HP) 27 Mar 2002 - Integrated the UserAuthProvider with
+    the ModuleController as a control provider.  Moved the UserAuthProvider
+    from the Providers tree to the Pegasus tree.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

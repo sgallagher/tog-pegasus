@@ -111,6 +111,14 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
+    if (String::equalNoCase(className, "PG_Authorization") ||
+        String::equalNoCase(className, "PG_User"))
+    {
+        service = "ModuleController";
+        provider = "ModuleController::UserAuthProvider";
+        PEG_METHOD_EXIT();
+        return true;
+    }
     if (String::equalNoCase(className, "PG_Provider") ||
         String::equalNoCase(className, "PG_ProviderCapabilities") ||
         String::equalNoCase(className, "PG_ProviderModule"))

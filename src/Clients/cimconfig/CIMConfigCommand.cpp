@@ -93,7 +93,7 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-const String NAMESPACE                         = "root/cimv2";
+const String INTERNAL_NAMESPACE                = "root/PG_Internal";
  
 /**
     The constants representing the string literals.
@@ -1069,9 +1069,10 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, NAMESPACE, PG_CONFIG_CLASS, kbArray);
+            _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
-        CIMInstance cimInstance = _client->getInstance(NAMESPACE, reference);
+        CIMInstance cimInstance =
+            _client->getInstance(INTERNAL_NAMESPACE, reference);
 
         Uint32 pos = cimInstance.findProperty(PROPERTY_NAME);
         prop = (CIMProperty)cimInstance.getProperty(pos);
@@ -1127,9 +1128,10 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, NAMESPACE, PG_CONFIG_CLASS, kbArray);
+            _hostName, INTERNAL_NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
-        CIMInstance modifiedInst = _client->getInstance(NAMESPACE, reference);
+        CIMInstance modifiedInst =
+            _client->getInstance(INTERNAL_NAMESPACE, reference);
 
         if ( _currentValueSet )
         {
@@ -1158,7 +1160,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         }
 
         CIMNamedInstance namedInstance(reference, modifiedInst);
-        _client->modifyInstance(NAMESPACE, namedInstance);
+        _client->modifyInstance(INTERNAL_NAMESPACE, namedInstance);
 
     }
     catch (CIMException& e)
@@ -1193,7 +1195,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             // get all the instances of class PG_ConfigSetting
             //
             configNamedInstances =
-                _client->enumerateInstances(NAMESPACE, PG_CONFIG_CLASS);
+                _client->enumerateInstances(INTERNAL_NAMESPACE, PG_CONFIG_CLASS);
 
             //
             // copy all the property names and values
@@ -1233,7 +1235,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             // call enumerateInstanceNames
             //
             Array<CIMReference> instanceNames =
-                _client->enumerateInstanceNames(NAMESPACE, PG_CONFIG_CLASS);
+                _client->enumerateInstanceNames(INTERNAL_NAMESPACE, PG_CONFIG_CLASS);
 
             //
             // copy all the property names

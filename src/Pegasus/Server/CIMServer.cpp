@@ -63,6 +63,7 @@
 #include "HTTPAuthenticatorDelegator.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
+#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 
 
 PEGASUS_USING_STD;
@@ -89,6 +90,27 @@ class ConfigProviderCallback
         static ProviderMessageFacade* _cfp;
 };
 ProviderMessageFacade* ConfigProviderCallback::_cfp = 0;
+
+// Need a static method to act as a callback for the user/authorization control
+// provider.  This doesn't belong here, but I don't have a better place to
+// put it right now.
+class UserAuthProviderCallback
+{
+    public:
+        static void setProvider(ProviderMessageFacade* cfp)
+        {
+            _cfp = cfp;
+        }
+
+        static Message * receive_message(Message * message)
+        {
+            return _cfp->handleRequestMessage(message);
+        }
+
+    private:
+        static ProviderMessageFacade* _cfp;
+};
+ProviderMessageFacade* UserAuthProviderCallback::_cfp = 0;
 
 
 CIMServer::CIMServer(
@@ -131,15 +153,27 @@ CIMServer::CIMServer(
     _providerManager = new ProviderManagerService(_providerRegistrationManager);
     _handlerService = new IndicationHandlerService(_repository);
 
-    // Create the control service and control providers
+    // Create the control service
+    ModuleController* controlService = new ModuleController("ModuleController");
+
+    // Create the Configuration control provider
     ProviderMessageFacade * configProvider =
         new ProviderMessageFacade(new ConfigSettingProvider());
     ConfigProviderCallback::setProvider(configProvider);
-    ModuleController* controlService = new ModuleController("ModuleController");
     ModuleController::register_module("ModuleController",
                                       "ModuleController::ConfigProvider",
                                       configProvider,
                                       ConfigProviderCallback::receive_message,
+                                      0, 0);
+
+    // Create the User/Authorization control provider
+    ProviderMessageFacade * userAuthProvider =
+        new ProviderMessageFacade(new UserAuthProvider(_repository));
+    UserAuthProviderCallback::setProvider(userAuthProvider);
+    ModuleController::register_module("ModuleController",
+                                      "ModuleController::UserAuthProvider",
+                                      userAuthProvider,
+                                      UserAuthProviderCallback::receive_message,
                                       0, 0);
 
     _cimOperationRequestDispatcher

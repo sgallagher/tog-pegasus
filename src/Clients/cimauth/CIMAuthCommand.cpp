@@ -112,7 +112,7 @@ static const int OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-const String ROOT_NAMESPACE                    = "root/cimv2";
+const String INTERNAL_NAMESPACE                = "root/PG_Internal";
  
 /**
     The constant representing the User class 
@@ -963,7 +963,7 @@ void CIMAuthCommand::_AddAuthorization
 	newInstance.addProperty ( 
             CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
-	_client->createInstance( ROOT_NAMESPACE, newInstance );
+	_client->createInstance( INTERNAL_NAMESPACE, newInstance );
 	outPrintWriter << ADD_AUTH_SUCCESS << endl;
 
     }
@@ -1007,7 +1007,7 @@ void CIMAuthCommand::_ModifyAuthorization
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, ROOT_NAMESPACE, PG_AUTH_CLASS, kbArray);
+            _hostName, INTERNAL_NAMESPACE, PG_AUTH_CLASS, kbArray);
 
         CIMInstance modifiedInst( PG_AUTH_CLASS );
 	modifiedInst.addProperty( 
@@ -1018,7 +1018,7 @@ void CIMAuthCommand::_ModifyAuthorization
             CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
         CIMNamedInstance namedInstance( reference, modifiedInst );
-        _client->modifyInstance( ROOT_NAMESPACE, namedInstance );
+        _client->modifyInstance( INTERNAL_NAMESPACE, namedInstance );
         outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
     }
     catch (CIMException& e)
@@ -1066,9 +1066,9 @@ void CIMAuthCommand::_RemoveAuthorization
             kbArray.append(kb);
 
             CIMReference reference(
-                _hostName, ROOT_NAMESPACE, PG_AUTH_CLASS, kbArray);
+                _hostName, INTERNAL_NAMESPACE, PG_AUTH_CLASS, kbArray);
 
-            _client->deleteInstance(ROOT_NAMESPACE, reference);
+            _client->deleteInstance(INTERNAL_NAMESPACE, reference);
         }
         else 
         {
@@ -1078,7 +1078,7 @@ void CIMAuthCommand::_RemoveAuthorization
             // each of the namespaces.
             //
             Array<CIMReference> instanceNames =
-                _client->enumerateInstanceNames(ROOT_NAMESPACE, PG_AUTH_CLASS);
+                _client->enumerateInstanceNames(INTERNAL_NAMESPACE, PG_AUTH_CLASS);
             //
             //
             //
@@ -1100,7 +1100,7 @@ void CIMAuthCommand::_RemoveAuthorization
                 if ( String::equal(user, _userName) )
                 {
                     _client->deleteInstance(
-                        ROOT_NAMESPACE, instanceNames[i]);
+                        INTERNAL_NAMESPACE, instanceNames[i]);
                 }
             }
         }
@@ -1135,7 +1135,7 @@ void CIMAuthCommand::_ListAuthorization
         // get all the instances of class PG_Authorization
         //
         authNamedInstances =
-            _client->enumerateInstances(ROOT_NAMESPACE, PG_AUTH_CLASS);
+            _client->enumerateInstances(INTERNAL_NAMESPACE, PG_AUTH_CLASS);
 
         //
         // display all the user names, namespaces, and authorizations

@@ -618,13 +618,13 @@ CIMProviderCommand::CIMProviderCommand ()
 	
 	#ifdef PEGASUS_OS_OS400
 	
-		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderComand.MENU.PEGASUS_OS_OS400",usage);
+		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
 	
 	#else
 		
-		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderComand.MENU.STANDARD",usage);
+		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderCommand.MENU.STANDARD",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
 		

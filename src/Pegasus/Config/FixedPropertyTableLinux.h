@@ -43,16 +43,16 @@
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB)
-    {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},
-    {"logdir",              "/var/log/pegasus"},
-    {"tempLocalAuthDir",    "/var/cache/pegasus/localauth"},
-    {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
-    {"sslCertificateFilePath", "/etc/pegasus/server.pem"},
-    {"sslKeyFilePath",      "/etc/pegasus/file.pem"},
-    {"sslTrustStore",      "/etc/pegasus/client.pem"},
-    {"exportSSLTrustStore", "/etc/pegasus/indication_trust.pem"},
-    {"repositoryDir",       "/var/lib/pegasus/repository"},
-    {"providerDir",         "/usr/lib/pegasus/providers"},
+    {"traceFilePath",       "/var/opt/tog-pegasus/cache/cimserver.trc"},
+    {"logdir",              "/var/opt/tog-pegasus/log"},
+    {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
+    {"passwordFilePath",    "/etc/opt/tog-pegasus/cimserver.passwd"},
+    {"sslCertificateFilePath", "/etc/opt/tog-pegasus/server.pem"},
+    {"sslKeyFilePath",      "/etc/opt/tog-pegasus/file.pem"},
+    {"sslTrustStore",       PEGASUS_SSLCLIENT_CERTIFICATEFILE},
+    {"exportSSLTrustStore", "/etc/opt/tog-pegasus/indication_trust.pem"},
+    {"repositoryDir",       "/var/opt/tog-pegasus/repository"},
+    {"providerDir",         "/opt/tog-pegasus/providers/lib"},
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},

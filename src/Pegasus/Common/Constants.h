@@ -324,19 +324,19 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMOMSTATDATA =
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/opt/freeware/cimom/pegasus/etc/cimxml.socket"
 # elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
-#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/pegasus/client.pem"
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/tog-pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
-#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/pegasus/ssl.rnd"
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/tog-pegasus/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE
-#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/pegasus/cimserver.rnd"
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/tog-pegasus/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
-#  define PEGASUS_LOCAL_AUTH_DIR            "/var/cache/pegasus/localauth"
+#  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/tog-pegasus/cache/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
-#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/pegasus/socket/cimxml.socket"
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/run/tog-pegasus/socket/cimxml.socket"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
-#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/usr/sbin/cimservera"
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/tog-pegasus/sbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
-#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/usr/sbin/cimprovagt"
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/tog-pegasus/sbin/cimprovagt"
 # elif defined(PEGASUS_OS_LSB)
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/lsb-pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE

@@ -33,17 +33,17 @@
 /**
     Default file name for the current configuration.
 */
-static char CURRENT_CONFIG_FILE [] = "/etc/pegasus/cimserver_current.conf";
+static char CURRENT_CONFIG_FILE [] = "/var/opt/tog-pegasus/cimserver_current.conf";
 
 /**
     Default file name for the planned configuration.
 */
-static char PLANNED_CONFIG_FILE [] = "/etc/pegasus/cimserver_planned.conf";
+static char PLANNED_CONFIG_FILE [] = "/var/opt/tog-pegasus/cimserver_planned.conf";
 
 /**
     Default file name for the cimserver startup file containing the PID.
 */
-static char CIMSERVER_START_FILE [] = "/var/run/cimserver.pid";
+static char CIMSERVER_START_FILE [] = "/var/run/tog-pegasus/cimserver.pid";
 #elif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
 /**
     Default file name for the current configuration.

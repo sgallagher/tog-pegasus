@@ -238,7 +238,8 @@ void Tracer::_traceString(
     {
         if (_isTraceEnabled(traceComponent,traceLevel))
         {
-            trace(traceComponent,traceLevel,"%s",traceString.getCString());
+            trace(traceComponent,traceLevel,"%s",
+                       (const char *)traceString.getCString());
         }
     }
 }
@@ -262,7 +263,8 @@ void Tracer::_traceString(
     {
         if ( _isTraceEnabled( traceComponent, traceLevel ) )
         {
-            trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceString.getCString());
+            trace(fileName,lineNum,traceComponent,traceLevel,"%s",
+                     (const char *)traceString.getCString());
         }
     }
 }

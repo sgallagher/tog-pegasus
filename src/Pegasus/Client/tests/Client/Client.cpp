@@ -42,6 +42,12 @@ const String NAMESPACE = "root/cimv2";
 static const char CERTIFICATE[] = "server.pem";
 static const char RANDOMFILE[] = "ssl.rnd";
 
+static Boolean verifyCertificate(CertificateInfo &certInfo)
+{
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
+}
+
 static void TestGetClass(CIMClient& client)
 {
     CIMClass c = client.getClass(
@@ -377,17 +383,18 @@ int main(int argc, char** argv)
                }
                randFile.append(RANDOMFILE);
 
-               SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+               SSLContext * sslcontext =
+                   new SSLContext(certpath, verifyCertificate, randFile, true);
 #else
-               SSLContext * sslcontext = new SSLContext(certpath);
-
+               SSLContext * sslcontext =
+                   new SSLContext(certpath, verifyCertificate, String::EMPTY, true);
 #endif
 
-               client.connect("localhost:5988", sslcontext);
+               client.connectLocal(sslcontext);
         }
         else
         { 
-	      client.connect("localhost:5988");
+	      client.connectLocal();
         }
 
 	TestGetClass(client);

@@ -739,7 +739,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 else
                 {
-                    outPrintWriter << "Current value can not be determined "
+                    outPrintWriter << "Current value can not be determined " <<
                         "because the CIM server is not running." << endl;
                 }
             }
@@ -792,9 +792,10 @@ Uint32 CIMConfigCommand::execute (
                 {
                     if (_currentValueSet)
                     {
-                        errPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
-                            _propertyName <<"' can not be updated" <<
-                            IN_CONFIG_FILE << endl;
+                        outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
+                            _propertyName <<"' can not be set " <<
+                            "because the CIM server is not running." << endl;
+
                         return ( RC_ERROR );
                     }
                     else if (_plannedValueSet)
@@ -802,7 +803,7 @@ Uint32 CIMConfigCommand::execute (
                         if ( !_configFileHandler->updatePlannedValue( 
                             _propertyName, _propertyValue, false ) )
                         {
-                            errPrintWriter << "Failed to update the planned" 
+                            outPrintWriter << "Failed to update the planned" 
                                 << " value of the Property '" << _propertyName 
                                 << "'" << IN_CONFIG_FILE << endl;
                             return ( RC_ERROR );
@@ -898,8 +899,8 @@ Uint32 CIMConfigCommand::execute (
                     if (_currentValueSet)
                     {
                         outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
-                            _propertyName <<"' can not be unset" <<
-                            IN_CONFIG_FILE  << endl;
+                            _propertyName <<"' can not be unset " <<
+                            "because the CIM server is not running." << endl;
 
                         return ( RC_ERROR );
                     }
@@ -985,21 +986,16 @@ Uint32 CIMConfigCommand::execute (
                 }
                 else
                 {
-                    if (_currentValueSet)
-                    {
-                        _configFileHandler->getAllCurrentProperties(
-                            propertyNames, propertyValues);
-                    }
-                    else if (_plannedValueSet)
+                    if (_plannedValueSet)
                     {
                         _configFileHandler->getAllPlannedProperties(
                             propertyNames, propertyValues);
-
                     }
                     else
                     {
-                        _configFileHandler->getAllCurrentPropertyNames(
-                            propertyNames);
+                        outPrintWriter << "Current value of properties can not be " <<
+                            "listed because the CIM server is not running." << endl;
+                        break;
                     }
                 }
 

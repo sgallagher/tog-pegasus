@@ -144,6 +144,12 @@ static const char PASSWORD_BLANK []  =
 static const char CERTIFICATE[] = "server.pem";
 static const char RANDOMFILE[]  = "ssl.rnd";
 
+static Boolean verifyCertificate(CertificateInfo &certInfo)
+{
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
+}
+
 /**
   
     Constructs a WbemExecCommand and initializes instance variables.
@@ -267,11 +273,13 @@ WbemExecCommand::WbemExecCommand ()
 	  }
 	randFile.append(RANDOMFILE);
 	
-	SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+        SSLContext * sslcontext =
+            new SSLContext(certpath, verifyCertificate, randFile, true);
 #else
-	SSLContext * sslcontext = new SSLContext(certpath);
-	
+        SSLContext * sslcontext =
+            new SSLContext(certpath, verifyCertificate, String::EMPTY, true);
 #endif
+
 	if( connectToLocal )
 	  {
 	    client.connectLocal( sslcontext );

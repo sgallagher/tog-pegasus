@@ -39,22 +39,22 @@ class PEGASUS_EXPORT CertificateInfo
 {
 public:
     CertificateInfo(
-        String subjectName,
-        String issuerName,
-        int errorDepth,
-        int errorCode);
+        const String subjectName,
+        const String issuerName,
+        const int errorDepth,
+        const int errorCode);
 
     ~CertificateInfo();
 
-    String getSubjectName();
+    const String getSubjectName();
 
-    String getIssuerName();
+    const String getIssuerName();
 
-    int getErrorDepth();
+    const int getErrorDepth();
 
-    int getErrorCode();
+    const int getErrorCode();
 
-    void setResponseCode(int respCode);
+    void setResponseCode(const int respCode);
 
 private:
     String _subjectName;

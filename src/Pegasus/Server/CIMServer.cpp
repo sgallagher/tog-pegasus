@@ -87,6 +87,15 @@ static Message * controlProviderReceiveMessageCallback(
     return mpf->handleRequestMessage(message);
 }
 
+static Boolean verifyClientCertificate(CertificateInfo &certInfo)
+{
+#ifdef CLIENT_CERTIFY
+    //ATTN-NB-03-05132002: Add code to handle client certificate verification.
+    return true;
+#else
+    return true;
+#endif
+}
 
 CIMServer::CIMServer(
     Monitor* monitor,
@@ -262,7 +271,7 @@ CIMServer::CIMServer(
         String certPath = ConfigManager::getPegasusHome();
         certPath.append(CERTIFICATE);
 
-        sslcontext = new SSLContext(certPath);
+        sslcontext = new SSLContext(certPath, verifyClientCertificate);
     }
     else
         sslcontext = NULL;

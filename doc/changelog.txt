@@ -242,6 +242,13 @@ TAG: Version_1_09.
     at will in an effort to match types.  I've replaced all instances of
     the int cast operator with isNull() methods.
 
+40. (Nag Boranna - HP) 14 May 2002 - HP-Nag: Added SSL Certificate verification
+    code in TLS.cpp, created a new class CertificateInfo to pass certificate
+    information to the client's call back function. Modified CIMServer.cpp and
+    the Command lines that are using SSLContext to pass a call back function.
+    Fixed few display messages in CIMConfigCommand.cpp to show meaningfule
+    messages when CIM server is not running.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

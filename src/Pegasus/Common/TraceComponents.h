@@ -112,7 +112,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "IPC",
     "IndicationHandlerService",
     "CIMExportRequestDispatcher",
-    "Memory"
+    "Memory",
+    "SSL"
 };
 /** Constants identifying the Trace components. These constants are used by 
     the component to identify its Trace messages. The component ID needs to
@@ -162,7 +163,8 @@ enum TRACE_COMPONENT_ID
     TRC_IPC,
     TRC_IND_HANDLE,
     TRC_EXP_REQUEST_DISP,
-    TRC_MEMORY
+    TRC_MEMORY,
+    TRC_SSL
 };
 
 PEGASUS_NAMESPACE_END

@@ -33,10 +33,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CertificateInfo::CertificateInfo(
-    String subjectName,
-    String issuerName,
-    int errorDepth,
-    int errorCode)
+    const String subjectName,
+    const String issuerName,
+    const int errorDepth,
+    const int errorCode)
     : 
     _subjectName(subjectName),
     _issuerName(issuerName),
@@ -51,27 +51,27 @@ CertificateInfo::~CertificateInfo()
 
 }
 
-String CertificateInfo::getSubjectName()
+const String CertificateInfo::getSubjectName()
 {
     return (_subjectName);
 }
 
-String CertificateInfo::getIssuerName()
+const String CertificateInfo::getIssuerName()
 {
     return (_issuerName);
 }
 
-int CertificateInfo::getErrorDepth()
+const int CertificateInfo::getErrorDepth()
 {
     return (_errorDepth);
 }
 
-int CertificateInfo::getErrorCode()
+const int CertificateInfo::getErrorCode()
 {
     return (_errorCode);
 }
 
-void CertificateInfo::setResponseCode(int respCode)
+void CertificateInfo::setResponseCode(const int respCode)
 {
     _respCode = respCode;
 }

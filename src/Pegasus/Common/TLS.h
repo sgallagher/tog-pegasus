@@ -47,16 +47,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef Boolean (*VERIFY_CERTIFICATE) (CertificateInfo *);
+typedef Boolean (*VERIFY_CERTIFICATE) (CertificateInfo &certInfo);
 
 class PEGASUS_EXPORT SSLContext
 {
 public:
 
    SSLContext(const String& certPath,
+              VERIFY_CERTIFICATE verifyCert = NULL,
               const String& randomFile = String::EMPTY,
-              Boolean isCIMClient = false,
-              VERIFY_CERTIFICATE verifyCert = NULL)
+              Boolean isCIMClient = false)
               throw(SSL_Exception);
 
     ~SSLContext();

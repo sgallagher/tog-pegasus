@@ -785,6 +785,12 @@ static void TestEnumerateInstances( CIMClient& client,
     }
 }
 
+static Boolean verifyCertificate(CertificateInfo &certInfo)
+{
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////
 //    OPTION MANAGEMENT
 ///////////////////////////////////////////////////////////////
@@ -1049,10 +1055,13 @@ int main(int argc, char** argv)
                         }
                         randFile.append(RANDOMFILE);
 
-                        SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+                        SSLContext * sslcontext = 
+                            new SSLContext(certpath, verifyCertificate, randFile, true);
 #else
-                        SSLContext * sslcontext = new SSLContext(certpath);
+                        SSLContext * sslcontext = 
+                            new SSLContext(certpath, verifyCertificate, String::EMPTY, true);
 #endif
+
 			if (om.isTrue("local"))
 			{
 			     cout << "Using local SSL connection mechanism " << endl;

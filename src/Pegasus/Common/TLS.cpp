@@ -30,6 +30,7 @@
 
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "TLS.h"
 #define PEGASUS_CERT "/server.pem"
@@ -82,7 +83,7 @@ static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
 
 static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 {
-    //PEG_METHOD_ENTER(TRC_SSL, "CertificateManager::prepareForCallback()");
+    PEG_METHOD_ENTER(TRC_SSL, "CertificateManager::prepareForCallback()");
 
     char   buf[256];
     X509   *err_cert;
@@ -138,15 +139,14 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
     //
     // Call the verify_certificate() callback
     //
-    CertificateInfo *certInfo = 
-        new CertificateInfo(subjectName, issuerName, depth, err);
+    CertificateInfo certInfo(subjectName, issuerName, depth, err);
 
     if (verify_certificate(certInfo))
     {
         preverifyOk = 1;
     }
 
-    delete certInfo;
+    //delete certInfo;
 
     // ATTN-NB-03-05102002: Overriding the default verification result, may
     // need to be changed to make it more generic.
@@ -157,7 +157,7 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 
     TLS_DEBUG(cerr << "verify return: " << preverifyOk << endl;)
 
-    //PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
     return(preverifyOk);
 }
 
@@ -176,9 +176,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //
 SSLContext::SSLContext(const String& certPath,
+                       VERIFY_CERTIFICATE verifyCert,
                        const String& randomFile,
-                       Boolean isCIMClient,
-                       VERIFY_CERTIFICATE verifyCert)
+                       Boolean isCIMClient)
     throw(SSL_Exception)
 {
     TLS_DEBUG(cout << "Entering SSLContext::SSLContext()\n";)
@@ -380,7 +380,7 @@ void SSLSocket::uninitializeInterface()
 
 Sint32 SSLSocket::accept()
 {
-    //PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
 
     Sint32 ssl_rc,ssl_rsn;
 
@@ -440,13 +440,12 @@ redo_accept:
     }
 #endif
 
-    //PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
     return ssl_rc;
 }
 
 Sint32 SSLSocket::connect()
 {
-    //PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
     Sint32 ssl_rc,ssl_rsn;
 
     SSL_set_connect_state(_SSLConnection);
@@ -496,7 +495,6 @@ redo_connect:
        return -1;
     }
 
-    //PEG_METHOD_EXIT();
     return ssl_rc;
 }
 
@@ -610,9 +608,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 
 SSLContext::SSLContext(const String& certPath,
+                       VERIFY_CERTIFICATE verifyCert,
                        const String& randomFile,
-                       Boolean isCIMClient,
-                       VERIFY_CERTIFICATE verifyCert) throw(SSL_Exception) {}
+                       Boolean isCIMClient) throw(SSL_Exception) {}
 SSLContext::~SSLContext() {}
 SSL_CTX * SSLContext::getContext() { return NULL; }
 

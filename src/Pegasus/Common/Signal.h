@@ -119,7 +119,7 @@ class PEGASUS_COMMON_LINKAGE SignalHandler
 
 };
 
-SignalHandler * getSigHandle();
+PEGASUS_COMMON_LINKAGE SignalHandler * getSigHandle();
 
 PEGASUS_NAMESPACE_END
 

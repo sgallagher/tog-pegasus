@@ -27,6 +27,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
+#include <stdlib.h>
+#include <stdio.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>

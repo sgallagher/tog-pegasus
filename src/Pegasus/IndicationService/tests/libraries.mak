@@ -2,4 +2,5 @@ LIBRARIES = \
     pegcommon \
     pegrepository \
     pegclient \
-    pegserver
+    pegserver \
+	pegconfig

@@ -91,12 +91,13 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     // Enumerate NameSpaces using the old technique
     String className = "__Namespace";
 
-    // Call enumerate Instances CIM Method
+    Array<CIMReference> instanceNames;
 
+    // Call enumerate Instances CIM Method
     try 
     {
 		 // cout << " Enumerate Namespaces " << className << endl;
-		 Array<CIMReference> instanceNames = client.enumerateInstanceNames(
+		 instanceNames = client.enumerateInstanceNames(
 		     globalNamespace, className);
     
 		 cout << instanceNames.size() << " Namespaces" << endl;
@@ -104,7 +105,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     
 		 if (verboseTest)
 		 {
-		     Array<String> tmpInstanceNames;
+		     // Array<String> tmpInstanceNames;
     
 		     for (Uint32 i = 0; i < instanceNames.size(); i++)
 		 		 cout << instanceNames[i].toString() << endl;
@@ -116,10 +117,80 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 		 //tmpInstanceNames.append(instanceNames[i].toString());
     catch(CIMClientException& e)
     {
-		 cout << "Error NameSpace Enumeration:" << endl;
-		 cout << e.getMessage() << endl;
+	 PEGASUS_STD(cerr) << "CIMClient Exception NameSpace Enumeration: "
+		    << e.getMessage() << PEGASUS_STD(endl);
+	 return;
     }
+    catch(Exception& e)
+    {
+	PEGASUS_STD(cerr) << "Exception Namespace Enumeration: " << e.getMessage() 
+	<< PEGASUS_STD(endl);
+        return;
+    }
+    // If conducting active test, try to create and delete a namespace.
+    if(activeTest)
+    {
+	if(verboseTest)
+	    cout << "Conducting Create / Delete namespace test " << endl;
 
+	// Build the instance name for __namespace
+	String testNamespaceName = "karl/junk";
+	String instanceName = className;
+	instanceName.append( ".Name=\"");
+	instanceName.append(testNamespaceName);
+	instanceName.append("\"");
+	if(verboseTest)
+	{
+	    cout << "Creating " << instanceName << endl;   
+	}
+	//if(testNamespace)      Add the test for existance code here ATTN
+	//{
+	//    instanceNames   
+	//}
+	// Create the new instance
+	try
+	{
+	    // Build the new instance
+	    CIMInstance newInstance(instanceName);
+	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
+	    client.createInstance(globalNamespace, newInstance);
+	}
+	catch(CIMClientException& e)
+	{
+	     PEGASUS_STD(cerr) << "CIMClientException NameSpace Creation: "
+			<< e.getMessage() << " Creating " << instanceName
+		        << PEGASUS_STD(endl);
+	     return;
+	}
+	catch(Exception& e)
+	{
+	    PEGASUS_STD(cerr) << "Exception NameSpace Creation: " << e.getMessage() << PEGASUS_STD(endl);
+	    return;
+	}
+
+	// Creation was OK.  Now delete it
+
+	CIMReference myReference(instanceName);
+	cout << "CIMReference for delete";
+	myReference.print(cout);
+	try
+	{
+	    client.deleteInstance(globalNamespace, myReference);
+	}
+	catch(CIMClientException& e)
+	{
+	     PEGASUS_STD(cerr) << "CIMClientException NameSpace Deletion: "
+			<< e.getMessage() << " Deleting " << instanceName
+		        << PEGASUS_STD(endl);
+	     return;
+	}
+	catch(Exception& e)
+	{
+	    PEGASUS_STD(cerr) << "Exception NameSpace Deletion: " << e.getMessage() << PEGASUS_STD(endl);
+	    return;
+	}
+
+    }
 
 }
 
@@ -738,7 +809,7 @@ void GetOptions(
 		 		 		 "Displays TestClient Version "},
 
 		 {"verbose", "false", false, Option::BOOLEAN, 0, 0, "verbose",
-		 		 		 "Displays Pegasus Version "},
+		 		 		 "If set, outputs extra information "},
 
 		 {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
 		 		     "Prints help message with command line options "},
@@ -756,6 +827,7 @@ void GetOptions(
 
 		 {"password", "", false, Option::STRING, 0, 0, "password",
 		 		 		 "Specifies password" }
+
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -850,7 +922,12 @@ int main(int argc, char** argv)
 	// Set up number of test repetitions.  Will repeat entire test this number of times
 	// Default is zero
 	String repeats;
-	Uint32 repeatTestCount;
+	Uint32 repeatTestCount = 0;
+	/* ATTN: KS P0 Test and fix function added to Option Manager
+	*/
+	if (!om.lookupIntegerValue("repeat", repeatTestCount))
+	    repeatTestCount = 1;
+	/*
 	if (om.lookupValue("repeat", repeats))
         {
 		char* repeatsStr = repeats.allocateCString();
@@ -859,6 +936,7 @@ int main(int argc, char** argv)
         }
 	else
 		repeatTestCount = 1;
+	*/
 	if(verboseTest)
 		cout << "Test repeat count " << repeatTestCount << endl;
 

@@ -55,7 +55,7 @@ PEGASUS_EXPORT String slp_get_host_name(void)
   String s = String();
   Sint8 *buf = new Sint8[255];
   if( 0 == gethostname(buf, 254) ) 
-    s += buf;
+    s.append(buf);
   delete buf;
   return(s);
 }

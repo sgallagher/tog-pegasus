@@ -46,6 +46,7 @@
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPILocalProviderManager.h>
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -86,6 +87,7 @@ public:
    struct indSelectRecord {
       indSelectRecord() : eSelx(NULL) {}
       CMPI_SelectExp *eSelx;
+	  CIMOMHandleQueryContext *qContext;
    };
 
    typedef HashTable<String,indProvRecord*,  EqualFunc<String>,HashFunc<String> > IndProvTab;

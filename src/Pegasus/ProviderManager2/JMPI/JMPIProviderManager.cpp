@@ -50,6 +50,7 @@
 
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
+#include <Pegasus/ProviderManager2/JMPI/JMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 #include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
@@ -1708,14 +1709,19 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
                 (SubscriptionFilterConditionContainer::NAME);
 
+        JMPIProvider & pr=ph.GetProvider();
+
+		CIMOMHandleQueryContext *qcontext=new CIMOMHandleQueryContext(CIMNamespaceName(request->nameSpace.getString()),
+																	  *pr._cimom_handle);
+
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
-			NULL,
-			request->nameSpace.getString(),
+			qcontext,
 			request->query,
                 	sub_cntr.getQueryLanguage());
-        srec->eSelx=eSelx;
 
-        JMPIProvider & pr=ph.GetProvider();
+        srec->eSelx=eSelx;
+	 	srec->qContext=qcontext;
+
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.createSubscriptionRequest: " + pr.getName());
@@ -1841,6 +1847,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         selxTab.lookup(sPathString,srec);
 
         CMPI_SelectExp *eSelx=srec->eSelx;
+		CIMOMHandleQueryContext *qContext=srec->qContext;
+
         selxTab.remove(sPathString);
 
         // convert arguments
@@ -1909,6 +1917,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
        delete eSelx;
+	   delete qContext;
+	   delete srec;
 
     }
     HandlerCatch(handler);

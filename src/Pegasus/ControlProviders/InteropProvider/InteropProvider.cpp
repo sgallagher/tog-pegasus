@@ -906,9 +906,8 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager(
         char * envDescription;
         envDescription = getenv("PEGASUS_CIMOM_DESCRIPTION");
     
-        description = (envDescription) ?
-            envDescription :
-            "Pegasus " + String(PEGASUS_PRODUCT_NAME) + " Version " +
+        description = (envDescription) ? envDescription :
+            String(PEGASUS_PRODUCT_NAME) + " Version " +
                 String(PEGASUS_PRODUCT_VERSION);
     
         _setPropertyValue(instance, CIMName("Description"), description);

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Thread.h>
 

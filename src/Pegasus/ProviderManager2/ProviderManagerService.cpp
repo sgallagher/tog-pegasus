@@ -77,11 +77,19 @@ Array<Pair<String, String> > _initializeFileNames(void)
     Array<Pair<String, String> > temp;
 
     #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
+    #if defined(PEGASUS_OS_OS400)
+    temp.append(Pair<String, String>(_resolveFileName("QSYS/QYCMDFTPVM"), String("DEFAULT")));
+    #else
     temp.append(Pair<String, String>(_resolveFileName("DefaultProviderManager"), String("DEFAULT")));
+    #endif
     #endif
 
     #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
+    #if defined(PEGASUS_OS_OS400)
+    temp.append(Pair<String, String>(_resolveFileName("QSYS/QYCMCMPIPM"), String("CMPI")));
+    #else
     temp.append(Pair<String, String>(_resolveFileName("CMPIProviderManager"), String("CMPI")));
+    #endif
     #endif
 
     return(temp);

@@ -91,7 +91,7 @@ enum CIMType
     column in the table above, but that is subject to change in later 
     revisions.
  */
-const char * cimTypeToString (
+PEGASUS_COMMON_LINKAGE const char * cimTypeToString (
     const CIMType type);
 
 PEGASUS_NAMESPACE_END

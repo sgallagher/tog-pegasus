@@ -209,7 +209,7 @@ protected:
     void _construct();
 
     OperationType _convertOpType(ExpressionOpType op);
-
+    ExpressionOpType _convertOpType(OperationType op);
     void _gatherDisj(Array<stack_el>& stk);
 
     void _gatherConj(Array<stack_el>& stk, stack_el sel);

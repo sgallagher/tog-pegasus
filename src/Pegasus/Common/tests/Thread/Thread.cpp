@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 		char *data = NULL;
 		try {
 			data = new char[2];
-		} catch (bad_alloc &e)
+		} catch (bad_alloc)
 		{
 			cerr << "Not enough memory. Changing the amount of threads used." << endl;
 			max_threads = i;

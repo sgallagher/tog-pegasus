@@ -1129,15 +1129,23 @@ void ProviderManagerService::handleCreateSubscriptionRequest(const Message * mes
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
 
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "under construction.");
+	// convert arguments
+	OperationContext context;
+
+	CIMReference subscriptionName = request->subscriptionInstance.getPath();
 	
-	/*
+	Array<CIMReference> classNames;
+
+	CIMPropertyList propertyList;
+	
+	Uint16 repeatNotificationPolicy = 2;
+	
 	provider.createSubscription(
-	    OperationContext(),
+	    context,
 	    subscriptionName,
 	    classNames,
+	    propertyList,
 	    repeatNotificationPolicy);
-	*/
     }
     catch(CIMException & e)
     {
@@ -1183,15 +1191,22 @@ void ProviderManagerService::handleModifySubscriptionRequest(const Message * mes
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
 	
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "under construction.");
+	OperationContext context;
 	
-	/*
+	CIMReference subscriptionName;
+
+	Array<CIMReference> classNames;
+
+	CIMPropertyList propertyList;
+	
+	Uint16 repeatNotificationPolicy = 2;
+	
 	provider.modifySubscription(
-	    OperationContext(),
+	    context,
 	    subscriptionName,
 	    classNames,
+	    propertyList,
 	    repeatNotificationPolicy);
-	*/
     }
     catch(CIMException & e)
     {
@@ -1237,14 +1252,16 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
 
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "under construction.");
+	OperationContext context;
 	
-	/*
+	CIMReference subscriptionName;
+
+	Array<CIMReference> classNames;
+
 	provider.deleteSubscription(
-	    OperationContext(),
+	    context,
 	    subscriptionName,
 	    classNames);
-	*/	
     }
     catch(CIMException & e)
     {

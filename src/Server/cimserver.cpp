@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     }
 
     // Check the trace options and set global variable
-    Boolean pegasusIOTrace = true; 
+    Boolean pegasusIOTrace = false; 
     if (om.valueEquals("trace", "true"))
     {
          Handler::sethandlerTrace(true);

@@ -28,6 +28,7 @@
 #ifndef X_h
 #define X_h
 
+#include <cstring>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 

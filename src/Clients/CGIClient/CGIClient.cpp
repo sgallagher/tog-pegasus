@@ -48,9 +48,15 @@ Pegasus.
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+
+#define DDD(X) X
+//#define DDD(X) /* X */
+
 
 /** Class to hold, get, put, etc. the host info.
 This info must be maintained between calls to CGI client
@@ -221,7 +227,7 @@ static void PrintA(const String& href, const String& content)
 static void PrintTableHeader(const String& tableName)
 {
     cout << "<h2>" << tableName << "</h2>\n";
-    cout << "<table border=1 width=\"50%\">\n";
+    cout << "<table border=1 width=\"90%\">\n";
     cout << "<tr>\n";
     cout << "<th>CIMName</th>\n";
     cout << "<th>CIMType</th>\n";
@@ -235,7 +241,7 @@ Propogated indicator.
 static void PrintPropertiesTableHeader(const String& tableName)
 {
     cout << "<h2>" << tableName << "</h2>\n";
-    cout << "<table border=1 width=\"50%\">\n";
+    cout << "<table border=1 width=\"90%\">\n";
     cout << "<tr>\n";
     cout << "<th>CIMName</th>\n";
     cout << "<th>CIMType</th>\n";
@@ -476,6 +482,8 @@ void PrintClass(
 
     if (includeQualifiers)
 	PrintQualifiers(cimClass);
+    else
+	cout << "IncludeQualifier Parameter False" << endl;
     PrintObjectProperties(nameSpace, cimClass,includeClassOrigin);
     PrintClassMethods(cimClass);
 
@@ -527,7 +535,7 @@ void PrintPropertyDeclaration(CIMProperty& property)
 static void GetClass(const CGIQueryString& qs)
 {
     String nameSpace = GetNameSpaceQueryField(qs);
-
+    DDD(cout << "GetClass" << endl;)
     // Get ClassName:
     const char* tmp;
 
@@ -699,6 +707,8 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 
     // Get ClassName:
     String className;
+
+    DDD(cout << "EnumerateClassNames" << endl;)
 
     const char* tmp;
 
@@ -1015,6 +1025,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 
     // Get ClassName:
     String className;
+    DDD(cout << "EnumerateInstanceNames for " << className <<endl;)
 
     const char* tmp;
 
@@ -1572,8 +1583,6 @@ static void ClassInheritance(const CGIQueryString& qs)
     // Get ClassName:
     String className;
 
-
-
     const char* tmp;
 
     // Get the timeout that is an option on this command
@@ -1757,6 +1766,14 @@ static void ClassTree(const CGIQueryString& qs)
 */
 int main(int argc, char** argv)
 {
+    Logger::setHomeDirectory("");
+    
+    /*Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::WARNING,
+	"X=$0, Y=$1, Z=$2", 
+	88, 
+	"Hello World", 
+	7.5);
+    */
     cout << "Content-type: text/html\r\n\r\n";
 
     if (argc != 1)
@@ -1771,6 +1788,10 @@ int main(int argc, char** argv)
     {
         char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
 	// DEBUG cout << "Query String " << tmp << endl;
+
+	Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::INFORMATION,
+	    "Query String $0", queryString);
+
 
 	CGIQueryString qs(queryString);
 

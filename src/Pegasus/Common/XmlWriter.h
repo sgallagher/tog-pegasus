@@ -300,7 +300,7 @@ public:
     static void appendNamedInstanceIParameter(
 	Array<Sint8>& out,
 	const char* name,
-	const CIMInstance& namedInstance);
+	const CIMInstance& namedInstance) ;
 
     static void appendPropertyNameIParameter(
 	Array<Sint8>& out,

@@ -170,7 +170,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
     memcpy(&_rep->active_rd_fd_set, &_rep->rd_fd_set, sizeof(fd_set));
-    memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
+//    memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
     memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
     
     const Uint32 SECONDS = milliseconds / 1000;
@@ -180,7 +180,8 @@ Boolean Monitor::run(Uint32 milliseconds)
     count = select(
        FD_SETSIZE,
        &_rep->active_rd_fd_set,
-       &_rep->active_wr_fd_set,
+//       &_rep->active_wr_fd_set,
+       NULL,
        &_rep->active_ex_fd_set,
        &tv);
     if (count == 0)
@@ -228,8 +229,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 	if (FD_ISSET(socket, &_rep->active_rd_fd_set))
 	    events |= SocketMessage::READ;
 
-	if (FD_ISSET(socket, &_rep->active_wr_fd_set))
-	    events |= SocketMessage::WRITE;
+// 	if (FD_ISSET(socket, &_rep->active_wr_fd_set))
+// 	    events |= SocketMessage::WRITE;
 
 	if (FD_ISSET(socket, &_rep->active_ex_fd_set))
 	    events |= SocketMessage::EXCEPTION;
@@ -237,24 +238,25 @@ Boolean Monitor::run(Uint32 milliseconds)
 	if (events)
 	{
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-               "Monitor::run - Socket Event Detected events = %d", events);
-	    if (events & SocketMessage::WRITE)
-	    {
-	       FD_CLR(socket, &_rep->active_wr_fd_set);
-	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			     "Monitor::run FD_CLR WRITE");
-	    }
-	    if (events & SocketMessage::EXCEPTION)
-	    {
-  	       FD_CLR(socket, &_rep->active_ex_fd_set);
-	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			     "Monitor::run FD_CLR EXECEPTION");
-	    }
+			  "Monitor::run - Socket Event Detected events = %d", events);
+// 	    if (events & SocketMessage::WRITE)
+// 	    {
+// 	       FD_CLR(socket, &_rep->active_wr_fd_set);
+// 	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+// 			     "Monitor::run FD_CLR WRITE");
+// 	    }
+
 	    if (events & SocketMessage::READ)
 	    {
 	       FD_CLR(socket, &_rep->active_rd_fd_set);
 	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			     "Monitor::run FD_CLR READ");
+	    }
+	    else if (events & SocketMessage::EXCEPTION)
+	    {
+  	       FD_CLR(socket, &_rep->active_ex_fd_set);
+	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			     "Monitor::run FD_CLR EXECEPTION");
 	    }
 	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
 	    if( ! queue )

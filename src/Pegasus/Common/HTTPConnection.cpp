@@ -474,16 +474,16 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    Boolean handled_events = false;
    int events = 0;
    
-   fd_set fdread, fdwrite;
+   fd_set fdread; // , fdwrite;
    do 
    {
       struct timeval tv = { 0, 1 };
       
       FD_ZERO(&fdread);
-      FD_ZERO(&fdwrite);
+//      FD_ZERO(&fdwrite);
       FD_SET(getSocket(), &fdread);
-      FD_SET(getSocket(), &fdwrite);
-      events = select(FD_SETSIZE, &fdread, &fdwrite, NULL, &tv);
+//      FD_SET(getSocket(), &fdwrite);
+      events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
       if(events && events != SOCKET_ERROR && _dying.value() == 0 )
 #else
@@ -494,15 +494,18 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	 if( FD_ISSET(getSocket(), &fdread))
 	 {
 	    events |= SocketMessage::READ;
+	    Message *msg = new SocketMessage(getSocket(), events);
+	    handleEnqueue(msg);
+	    handled_events = true;
 	 }
+	 else 
+	    break;
 	 
-	 if (FD_ISSET(getSocket(), &fdwrite))
-	 {
-	    events |= SocketMessage::WRITE;
-	 }
-	 Message *msg = new SocketMessage(getSocket(), events);
-	 handleEnqueue(msg);
-	 handled_events = true;
+// 	 if (FD_ISSET(getSocket(), &fdwrite))
+// 	 {
+// 	    events |= SocketMessage::WRITE;
+// 	 }
+
       }
       else
 	 break;

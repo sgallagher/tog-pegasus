@@ -58,7 +58,7 @@ PEGASUS_USING_STD;
 */
 #define IO 1
 
-static char * verbose;
+char * verbose;
 
 
 /* This template provides a complete set of tests of simple CIMValues for

@@ -1,17 +1,13 @@
-ROOT = ../../..
+ROOT = ../../../..
 
-include ../libraries.mak
+include ../../libraries.mak
 
-DIR = TestProviders/PG_TestPropertyTypes
+DIR = /Providers/TestProviders/PG_TestPropertyTypes
 
 include $(ROOT)/mak/config.mak
 
 LIBRARY = PG_TestPropertyTypes
 
-LIBRARIES = \
-    pegcommon \
-    pegprovider 
-	
 SOURCES = \
    PG_TestPropertyTypes.cpp
 

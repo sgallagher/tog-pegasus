@@ -1,7 +1,7 @@
 # Recurse the directories defined in DIRS
 # This makefile simply recurses all of the toplevel provider directories
 
-ROOT = ../..
+ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 

@@ -577,7 +577,7 @@ Condition::~Condition()
 // Native implementation of semaphore object
 //-----------------------------------------------------------------
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) && !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) && !defined(USE_PTHREAD_COND_IN_SEMAPHORE)
 
 Semaphore::Semaphore(Uint32 initial)
 {

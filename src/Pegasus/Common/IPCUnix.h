@@ -47,6 +47,12 @@
 #include <sys/timex.h>
 #endif
 
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if GCC_VERSION > 30202
+	#define USE_PTHREAD_COND_IN_SEMAPHORE
+#endif
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 int timeval_subtract (struct timeval *result, 
@@ -66,7 +72,7 @@ typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
-#if !defined(PEGASUS_OS_ZOS_ZSERIES_IBM) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if !defined(PEGASUS_OS_ZOS_ZSERIES_IBM) && !defined(PEGASUS_OS_DARWIN) && !defined(USE_PTHREAD_COND_IN_SEMAPHORE)
 typedef struct {
     sem_t sem;
     pthread_t owner;

@@ -158,17 +158,23 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 
     }
     // Build instances of the referenced class
+    String _father("Father");
+    String _mother("Mother");
+    String _son1("Son1");
+    String _son2("Son2");
+    String _daughter1("Daughter1");
+    String _daughter2("Daughter2");
     Uint32 Father = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(String("Father")));
+    _instances.append(_buildPersonDynamicInstance(_father));
     //CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
     Uint32 Mother = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(String("Mother")));
+    _instances.append(_buildPersonDynamicInstance(_mother));
     Uint32 Son1 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(String("Son1")));
+    _instances.append(_buildPersonDynamicInstance(_son1));
     Uint32 Son2 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(String("Son2")));
+    _instances.append(_buildPersonDynamicInstance(_son2));
     Uint32 Daughter1 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(String("Daughter1")));
+    _instances.append(_buildPersonDynamicInstance(_daughter1));
 
     CDEBUG ("initialize - referenced Class Instances Built");
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
@@ -699,7 +705,7 @@ void SampleFamilyProvider::associators(
         CDEBUG("Associators Assoc Class = " << associationClass.getString() << " Role = " << role);
         if (associationClass.isNull() || instance.getClassName().equal(associationClass))
         {
-            if (role != String.EMPTY)
+            if (role != String::EMPTY)
             {
                 Uint32 pos;
                 if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
@@ -824,7 +830,7 @@ void SampleFamilyProvider::associatorNames(
         CDEBUG("AssocNames Assoc Class = " << associationClass.getString() << " Role = " << role);
         if (associationClass.isNull() || instance.getClassName().equal(associationClass))
         {
-            if (role != String.EMPTY)
+            if (role != String::EMPTY)
             {
                 Uint32 pos;
                 if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
@@ -945,7 +951,7 @@ void SampleFamilyProvider::references(
         if (resultClass.isNull() || instance.getClassName().equal(resultClass))
         {
             CDEBUG("Passed resultClassTest");
-            if (role != String.EMPTY)
+            if (role != String::EMPTY)
             {
                 CDEBUG("Role not empty");
                 Uint32 pos;
@@ -1026,7 +1032,7 @@ void SampleFamilyProvider::referenceNames(
 
 
 	// For all of the association objects.
-    CDEBUG("resultClass= " << ((resultClass.isNull())? "NULL" : resultClass) << " Role = " << ((role == String.EMPTY)? "EMPTY" : role));
+    // CDEBUG("resultClass= " << ((resultClass.isNull()) ? "NULL" : resultClass) << " Role = " << ((role == String.EMPTY)? "EMPTY" : role));
     for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
 	{
         CIMInstance instance = _instancesLineageDynamic[i];
@@ -1035,7 +1041,7 @@ void SampleFamilyProvider::referenceNames(
         if (resultClass.isNull() || objectPath.getClassName().equal(resultClass))
         {
             CDEBUG("Passed result Class Test");
-            if (role != String.EMPTY)
+            if (role != String::EMPTY)
             {
                 Uint32 pos;
                 if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)

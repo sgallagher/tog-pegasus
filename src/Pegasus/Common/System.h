@@ -197,7 +197,7 @@ public:
         The path can be relative or absolute. If the path is the root,
         then empty string is returned.        
     */
-    static char *System::extract_file_name(const char *fullpath, char *basename);
+    static char *extract_file_name(const char *fullpath, char *basename);
 
     /** Return just the pathname into dirname. The fullpath can be relative
         or absolute. This method returns a path minus the file or
@@ -207,10 +207,10 @@ public:
         a file or directory name, in which case, just the file or directory
         name is returned. 
     */
-    static char *System::extract_file_path(const char *fullpath, char *dirname);
+    static char *extract_file_path(const char *fullpath, char *dirname);
 
     // Is absolute path?
-    static Boolean System::is_absolute_path(const char *path);
+    static Boolean is_absolute_path(const char *path);
 
 #if defined(PEGASUS_OS_HPUX)
     static Boolean bindVerbose;

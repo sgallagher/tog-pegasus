@@ -135,7 +135,7 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
 
     PEG_METHOD_EXIT();
 
-    return PAM_SUCCESS;
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

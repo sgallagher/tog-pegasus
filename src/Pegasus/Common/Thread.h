@@ -142,7 +142,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 	 
       }
 
-      void copy_data(void **buf, size_t *size) throw(BufferTooSmall, NullPointer)
+      void copy_data(void **buf, size_t *size) throw(NullPointer)
       {
 	 if((buf == NULL) || (size == NULL)) 
 	    throw NullPointer() ; 

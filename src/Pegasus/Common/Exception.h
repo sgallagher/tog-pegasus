@@ -734,26 +734,6 @@ public:
     TimedOut() : Exception(MSG) { }
 };
 
-// ATTN: P1 this exception should derive from the Exception class to define
-// the standard message interface. Try blocks which catch the class
-// Exception will miss this one.
-
-class PEGASUS_COMMON_LINKAGE BufferTooSmall
-{
-public:
-
-    BufferTooSmall(Uint32 needed)
-    {
-	required_size = needed;
-    }
-
-    Uint32 required_size;
-
-private:
-
-    BufferTooSmall(void);
-};
-
 class PEGASUS_COMMON_LINKAGE ParseError : public Exception
 {
 public:

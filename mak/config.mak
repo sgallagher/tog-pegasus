@@ -248,6 +248,17 @@ DEFINES+= -DPEGASUS_USE_23HTTPMONITOR_SERVER
 DEFINES+= -DPEGASUS_USE_23HTTPMONITOR_CLIENT
 #endif
 
+# PEP 161
+# Control whether utf-8 filenames are supported by the repository
+ifdef PEGASUS_SUPPORT_UTF8_FILENAME
+	DEFINES+= -DPEGASUS_SUPPORT_UTF8_FILENAME
+
+	# Control whether utf-8 filenames in the repository are escaped
+	ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+	DEFINES+= -DPEGASUS_REPOSITORY_ESCAPE_UTF8
+	endif
+endif
+
 # is the pegasus slp classes
 ifdef PEGASUS_SLP_CLASSES
 	DEFINES+= -DPEGASUS_SLP_CLASSES

@@ -60,8 +60,8 @@ CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal):
   _CQLExp(),
   _CQLVal(inCQLVal),
   _CQLFunct(),
-  _simpleValue(true),
   _invert(false),
+  _simpleValue(true),
   _containedType(VALUE)
 
 {
@@ -74,8 +74,8 @@ CQLFactorRep::CQLFactorRep(const CQLExpression& inCQLExp):
   _CQLExp(inCQLExp),
   _CQLVal(),
   _CQLFunct(),
-  _simpleValue(false),
   _invert(false),
+  _simpleValue(false),
   _containedType(EXPRESSION)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::CQLFactorRep(const CQLExpression& inCQLExp)");
@@ -87,8 +87,8 @@ CQLFactorRep::CQLFactorRep(const CQLFunction& inCQLFunc):
   _CQLExp(),
   _CQLVal(),
   _CQLFunct(inCQLFunc),
-  _simpleValue(false),
   _invert(false),
+  _simpleValue(false),
   _containedType(FUNCTION)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::CQLFactorRep(const CQLFunction& inCQLFunc)");

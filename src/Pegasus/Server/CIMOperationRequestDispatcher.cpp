@@ -2270,7 +2270,8 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 
         for (Uint32 k=0; k<charPtrArray.size(); k++)
         {
-            delete charPtrArray[k];
+            // ATTN: How to delete a const char* ?
+            //delete charPtrArray[k];
         }
     }
     else

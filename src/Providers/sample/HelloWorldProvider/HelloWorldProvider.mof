@@ -1,0 +1,23 @@
+[provider("HelloWorldProvider")]
+class Sample_HelloWorldConfiguration
+{
+   [key,
+	read]
+   Uint8 Identifier;
+	
+	[read, write,
+	uints("Seconds")]
+	Uint16 Frequency;
+	
+	[read, write]
+	string Message;
+};
+
+class Sample_HelloWorldIndication : public CIM_ProcessInidcation
+{
+	[read]
+	string Message;
+	
+	[read]
+	datetime TimeStamp;
+};

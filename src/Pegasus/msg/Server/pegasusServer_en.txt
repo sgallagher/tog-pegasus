@@ -3763,6 +3763,18 @@ CIM server listening on HTTPS port {0}."}
         */
 	Pegasus.Server.HTTPAuthenticatorDelegator.CIMOPERATIONS_NOT_SUPPORTED:string{"PGS13002:  CIMOperation request not supported on this port."}
 
+        /**
+        * @note HTTPAuthenticatorDelegator:
+        * @version 2.5
+        */   
+	Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE:string{"PGS13003:  The certificate used for authentication is not valid."}
+	
+        /**
+        * @note HTTPAuthenticatorDelegator:
+        * @version 2.5
+        */
+	Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME:string{"PGS13004:  No username is registered to this certificate."}
+
 
 	// ==========================================================
         // Messages for Server.CIMServer

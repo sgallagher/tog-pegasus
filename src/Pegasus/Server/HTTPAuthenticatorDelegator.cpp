@@ -348,7 +348,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 			(String::equal(httpMessage->authInfo->getAuthType(), AuthenticationInfoRep::AUTH_TYPE_SSL)) &&
 			HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true))
         {
-			PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "HTTPAuthDelegator was authenticated via SSL");
+			PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "Client was authenticated via trusted SSL certificate.");
 
 			//PEP187
 			String trustStore = configManager->getCurrentValue("sslTrustStore");
@@ -360,11 +360,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 				
 				if (!clientCertificate) 
 				{
-					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "HTTPAuthDelegator auth error");
-					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_ERROR","Authorization error");
+					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE", 
+                                                "The certificate used for authentication is not valid.");
 					String msg(MessageLoader::getMessage(msgParms));
 					_sendHttpError(queueId,
-								   HTTP_STATUS_BADREQUEST,
+								   HTTP_STATUS_UNAUTHORIZED,
 								   String::EMPTY,
 								   msg);
 					PEG_METHOD_EXIT();
@@ -390,7 +390,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 											PEGASUS_CLASSNAME_CERTIFICATE,
 											keyBindings);
 	
-				PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Certificate COP: " + cimObjectPath.toString());
+				PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Client Certificate COP: " + cimObjectPath.toString());
 			   
                 CIMInstance cimInstance;
 				CIMValue value;
@@ -401,15 +401,20 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 				try 
 				{
 					cimInstance = _repository->getInstance(PEGASUS_NAMESPACENAME_CERTIFICATE, cimObjectPath);
-					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "HTTPAuthDelegator gotciminstance");
 					
 				} catch (CIMException& e)
 				{
-					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "The certificate used for authentication cannot be located in the repository.");
-					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE","The certificate used for authentication cannot be located in the repository.");
+                    //this scenario can occur if a certificate cached on the server was deleted
+                    //openssl would not pick up the deletion but we would pick it up here when we went to look it up
+                    //in the repository
+					Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+								"HTTPAuthenticatorDelegator - Bailing, the certificate used for authentication is not valid.");
+                    MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE",
+                                                "The certificate used for authentication is not valid.");
 					String msg(MessageLoader::getMessage(msgParms));
+                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
 					_sendHttpError(queueId,
-								   HTTP_STATUS_BADREQUEST,
+								   HTTP_STATUS_UNAUTHORIZED,
 								   String::EMPTY,
 								   msg);
 					PEG_METHOD_EXIT();
@@ -423,20 +428,21 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 					value.get(userName);
 					httpMessage->authInfo->setAuthenticatedUser(userName);
 
-					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "User name for certificate is " + userName);
+					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "User name for certificate is " + userName);
 					Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-								"HTTPAuthenticatorDelegator - Setting the trusted client certificate to $0", userName);
+								"HTTPAuthenticatorDelegator - The trusted client certificate is registered to $0.", userName);
 				} else
 				{
-					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "No username associated with certificate.");
-				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-								"No username associated with certificate.");
-					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_ERROR","No username associated with certificate.");
-                String msg(MessageLoader::getMessage(msgParms));
-                _sendHttpError(queueId,
-                               HTTP_STATUS_BADREQUEST,
-                               String::EMPTY,
-                               msg);
+				    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+								"HTTPAuthenticatorDelegator - Bailing, no username is registered to this certificate.");
+					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME",
+                                                "No username is registered to this certificate.");
+                    String msg(MessageLoader::getMessage(msgParms));
+                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
+                    _sendHttpError(queueId,
+                                   HTTP_STATUS_UNAUTHORIZED,
+                                   String::EMPTY,
+                                   msg);
 					PEG_METHOD_EXIT();
 					return;
 				}
@@ -447,6 +453,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 				//user was already verified as a valid system user during server startup
 				String trustStoreUserName = configManager->getCurrentValue("sslTrustStoreUserName");
                 httpMessage->authInfo->setAuthenticatedUser(trustStoreUserName);
+
+                PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "User name for certificate is " + trustStoreUserName);
+				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				     		"HTTPAuthenticatorDelegator - The trusted client certificate is registered to $0.", trustStoreUserName);
+
 			}
 		}
 

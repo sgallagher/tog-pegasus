@@ -1440,7 +1440,7 @@ Uint32 XmlReader::getFlavor(
 //
 //------------------------------------------------------------------------------
 
-Uint32 XmlReader::getOptionalScope(XmlParser& parser)
+CIMScope XmlReader::getOptionalScope(XmlParser& parser)
 {
     XmlEntry entry;
 
@@ -1458,30 +1458,30 @@ Uint32 XmlReader::getOptionalScope(XmlParser& parser)
     }
 
     Uint32 line = parser.getLine();
-    Uint32 scope = 0;
+    CIMScope scope = CIMScope ();
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "CLASS", false, false))
-	scope |= CIMScope::CLASS;
+	scope.addScope (CIMScope::CLASS);
 
     if (getCimBooleanAttribute(
 	line, entry, "SCOPE", "ASSOCIATION", false, false))
-	scope |= CIMScope::ASSOCIATION;
+	scope.addScope (CIMScope::ASSOCIATION);
 
     if (getCimBooleanAttribute(
 	line, entry, "SCOPE", "REFERENCE", false, false))
-	scope |= CIMScope::REFERENCE;
+	scope.addScope (CIMScope::REFERENCE);
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "PROPERTY", false, false))
-	scope |= CIMScope::PROPERTY;
+	scope.addScope (CIMScope::PROPERTY);
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "METHOD", false, false))
-	scope |= CIMScope::METHOD;
+	scope.addScope (CIMScope::METHOD);
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "PARAMETER", false, false))
-	scope |= CIMScope::PARAMETER;
+	scope.addScope (CIMScope::PARAMETER);
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "INDICATION",false, false))
-	scope |= CIMScope::INDICATION;
+	scope.addScope (CIMScope::INDICATION);
 
     if (!isEmptyTag)
 	expectEndTag(parser, "SCOPE");
@@ -2753,7 +2753,7 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // No need to look for interior elements if empty tag:
 
-    Uint32 scope = CIMScope::NONE;
+    CIMScope scope = CIMScope ();
     CIMValue value;
 
     if (!empty)

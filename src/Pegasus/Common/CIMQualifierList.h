@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +35,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 
@@ -161,7 +163,7 @@ public:
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
-	Uint32 scope,
+	CIMScope scope,
 	Boolean isInstancePart,
 	CIMQualifierList& inheritedQualifiers,
 	Boolean propagateQualifiers);

@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +53,7 @@ public:
     CIMQualifierDeclRep(
 	const CIMName& name, 
 	const CIMValue& value, 
-	Uint32 scope,
+	CIMScope scope,
 	Uint32 flavor,
 	Uint32 arraySize);
 
@@ -82,7 +83,7 @@ public:
 
     void setValue(const CIMValue& value);
 
-    Uint32 getScope() const 
+    const CIMScope & getScope () const 
     {
 	return _scope; 
     }
@@ -124,7 +125,7 @@ private:
 
     CIMName _name;
     CIMValue _value;
-    Uint32 _scope;
+    CIMScope _scope;
     Uint32 _flavor;
     Uint32 _arraySize;
 };

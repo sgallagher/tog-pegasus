@@ -230,7 +230,7 @@ public:
 
     static void appendScopeElement(
         Array<Sint8>& out,
-        Uint32 scope);
+        const CIMScope & scope);
 
     static void appendMethodCallHeader(
 	Array<Sint8>& out,

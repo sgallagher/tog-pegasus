@@ -961,7 +961,7 @@ void PrintQualifierRow(const String& nameSpace,
     cout << "</td>";
     cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
     cout << "<td>" << value.toString() << "</td>\n";
-    cout << "<td>" << ScopeToString(qd.getScope()) << "</td>\n";
+    cout << "<td>" << qd.getScope ().toString () << "</td>\n";
     cout << "<td>" << MofWriter::getQualifierFlavor(qd.getFlavor()) << "</td>\n";
     cout << "<td>" << qd.getArraySize() << "</td>\n";
 

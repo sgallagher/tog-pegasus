@@ -254,6 +254,16 @@ public:
 	: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
 };
 
+class PEGASUS_COMMON_LINKAGE InvalidScope : public Exception
+{
+public:
+
+    static const char MSG [];
+
+    InvalidScope (const String scopeString)
+	: Exception (MSG + scopeString) { }
+};
+
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
 {

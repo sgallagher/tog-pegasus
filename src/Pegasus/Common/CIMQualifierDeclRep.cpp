@@ -48,7 +48,7 @@ PEGASUS_USING_STD;
 CIMQualifierDeclRep::CIMQualifierDeclRep(
     const CIMName& name,
     const CIMValue& value,
-    Uint32 scope,
+    CIMScope scope,
     Uint32 flavor,
     Uint32 arraySize)
     :
@@ -214,7 +214,7 @@ Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 	this == x ||
 	_name.equal(x->_name) &&
 	_value == x->_value &&
-	_scope == x->_scope &&
+	(_scope.equal (x->_scope)) &&
 	_flavor == x->_flavor &&
 	_arraySize == x->_arraySize;
 }

@@ -23,7 +23,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By: 
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +94,7 @@ public:
 
     static String getQualifierFlavor(Uint32 flavor);
 
-    static String getQualifierScope(Uint32 scope);
+    static String getQualifierScope(const CIMScope & scope);
 
 private:
 

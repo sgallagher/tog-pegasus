@@ -1843,7 +1843,7 @@ case 152:
 case 153:
 #line 768 "cimmof.y"
 { 
-                        yyval.strval = new String(ScopeToString(yyvsp[0].ival));
+                        yyval.strval = new String(CIMScope (yyvsp[0].ival).toString ());
                         g_flavor = 0; ;
     break;}
 case 154:

@@ -23,13 +23,14 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
+#include <Pegasus/Common/Exception.h>
 #include "CIMScope.h"
-#include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,31 +42,116 @@ const Uint32 CIMScope::PROPERTY = 8;
 const Uint32 CIMScope::REFERENCE = 16;
 const Uint32 CIMScope::METHOD = 32;
 const Uint32 CIMScope::PARAMETER = 64;
-const Uint32 CIMScope::ANY = (1 | 2 | 4 | 8 | 16 | 32 | 64 );
+const Uint32 CIMScope::ANY = (1 | 2 | 4 | 8 | 16 | 32 | 64);
 
-String ScopeToString(Uint32 scope)
+CIMScope::CIMScope ()
+    : cimScope (CIMScope::NONE)
+{
+}
+
+CIMScope::CIMScope (const CIMScope & scope)
+    : cimScope (scope.cimScope)
+{
+}
+
+CIMScope::CIMScope (const Uint32 scope)
+    : cimScope (scope)
+{
+    if (scope > CIMScope::ANY)
+    {
+        //
+        //  Invalid scope value
+        //
+        String scopeString;
+        char buffer [32];
+        sprintf (buffer, "%lu", (unsigned long) scope);
+        scopeString = buffer;
+        throw InvalidScope (scopeString);
+    }
+}
+
+CIMScope & CIMScope::operator= (const CIMScope & scope)
+{
+    this->cimScope = scope.cimScope;
+    return *this;
+}
+
+void CIMScope::addScope (const Uint32 scope)
+{
+    if (scope > CIMScope::ANY)
+    {
+        //
+        //  Invalid scope value
+        //
+        String scopeString;
+        char buffer [32];
+        sprintf (buffer, "%lu", (unsigned long) scope);
+        scopeString = buffer;
+        throw InvalidScope (scopeString);
+    }
+
+    this->cimScope |= scope;
+}
+
+Boolean CIMScope::hasScope (const Uint32 scope) const
+{
+    if ((this->cimScope & scope) == scope)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+Boolean CIMScope::hasScope (const CIMScope & scope) const
+{
+    if ((this->cimScope & scope.cimScope) == scope.cimScope)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+Boolean CIMScope::equal (const CIMScope & scope) const
+{
+    if (this->cimScope == scope.cimScope)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+String CIMScope::toString () const
 {
     String tmp;
 
-    if (scope & CIMScope::CLASS)
+    if (this->hasScope (CIMScope::CLASS))
 	tmp += "CLASS ";
 
-    if (scope & CIMScope::ASSOCIATION)
+    if (this->hasScope (CIMScope::ASSOCIATION))
 	tmp += "ASSOCIATION ";
 
-    if (scope & CIMScope::INDICATION)
+    if (this->hasScope (CIMScope::INDICATION))
 	tmp += "INDICATION ";
 
-    if (scope & CIMScope::PROPERTY)
+    if (this->hasScope (CIMScope::PROPERTY))
 	tmp += "PROPERTY ";
 
-    if (scope & CIMScope::REFERENCE)
+    if (this->hasScope (CIMScope::REFERENCE))
 	tmp += "REFERENCE ";
 
-    if (scope & CIMScope::METHOD)
+    if (this->hasScope (CIMScope::METHOD))
 	tmp += "METHOD ";
 
-    if (scope & CIMScope::PARAMETER)
+    if (this->hasScope (CIMScope::PARAMETER))
 	tmp += "PARAMETER ";
 
     if (tmp.size())

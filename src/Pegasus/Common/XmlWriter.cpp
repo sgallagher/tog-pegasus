@@ -1346,31 +1346,31 @@ void XmlWriter::appendQualifierFlavorEntity(
 
 void XmlWriter::appendScopeElement(
     Array<Sint8>& out,
-    Uint32 scope)
+    const CIMScope & scope)
 {
-    if (scope)
+    if (!(scope.equal (CIMScope ())))
     {
         out << "<SCOPE";
 
-        if (scope & CIMScope::CLASS)
+        if (scope.hasScope (CIMScope::CLASS))
             out << " CLASS=\"true\"";
 
-        if (scope & CIMScope::ASSOCIATION)
+        if (scope.hasScope (CIMScope::ASSOCIATION))
             out << " ASSOCIATION=\"true\"";
 
-        if (scope & CIMScope::REFERENCE)
+        if (scope.hasScope (CIMScope::REFERENCE))
             out << " REFERENCE=\"true\"";
 
-        if (scope & CIMScope::PROPERTY)
+        if (scope.hasScope (CIMScope::PROPERTY))
             out << " PROPERTY=\"true\"";
 
-        if (scope & CIMScope::METHOD)
+        if (scope.hasScope (CIMScope::METHOD))
             out << " METHOD=\"true\"";
 
-        if (scope & CIMScope::PARAMETER)
+        if (scope.hasScope (CIMScope::PARAMETER))
             out << " PARAMETER=\"true\"";
 
-        if (scope & CIMScope::INDICATION)
+        if (scope.hasScope (CIMScope::INDICATION))
             out << " INDICATION=\"true\"";
 
         out << "/>";

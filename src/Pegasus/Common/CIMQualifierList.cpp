@@ -117,7 +117,7 @@ Uint32 CIMQualifierList::findReverse(const CIMName& name) const
 void CIMQualifierList::resolve(
     DeclContext* declContext,
     const String& nameSpace,
-    Uint32 scope, 			 // Scope of the entity being resolved.
+    CIMScope scope, 			 // Scope of the entity being resolved.
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
     Boolean propagateQualifiers)	// Apparently not used ks 24 mar 2002
@@ -168,8 +168,8 @@ void CIMQualifierList::resolve(
 			// a valid scope (such as Scope::ASSOCIATION) which is not Scope::CLASS
 			// ks Mar 2002. Reinstalled 23 March 2002 to test.
 
-		if (!(qd.getScope() & scope))
-			throw BadQualifierScope(qd.getName(), ScopeToString(scope));
+		if (!(qd.getScope().hasScope (scope)))
+			throw BadQualifierScope(qd.getName(), scope.toString ());
 //#endif
 		//----------------------------------------------------------------------
 		// Resolve the qualifierflavor. Since Flavors are a combination of inheritance

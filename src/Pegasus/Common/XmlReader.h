@@ -195,7 +195,7 @@ public:
 	Uint32 lineNumber, 
 	const char* tagName);
 
-    static Uint32 getOptionalScope(
+    static CIMScope getOptionalScope(
 	XmlParser& parser);
 
     static Boolean getQualifierElement(

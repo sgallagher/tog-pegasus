@@ -70,7 +70,7 @@ void test01()
     //
     // Test getScope and getFlavor
     //
-    assert(qual1.getScope() == CIMScope::PROPERTY);
+    assert(qual1.getScope().equal (CIMScope::PROPERTY));
     assert(qual1.isFlavor(CIMFlavor::TOINSTANCE));
 	// This should be the defaults if nothing specified.
     assert(qual1.isFlavor(CIMFlavor::TOSUBCLASS));
@@ -149,7 +149,7 @@ void test02()
     //
     // Test getScope and getFlavor
     //
-    assert(cq1.getScope() == CIMScope::PROPERTY);
+    assert(cq1.getScope().equal (CIMScope (CIMScope::PROPERTY)));
     assert(cq1.isFlavor(CIMFlavor::TOINSTANCE));
 
     //

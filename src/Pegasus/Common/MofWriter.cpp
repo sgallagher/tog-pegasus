@@ -683,15 +683,15 @@ String MofWriter::getQualifierFlavor(Uint32 flavor)
 //
 //------------------------------------------------------------------------------
 
-String MofWriter::getQualifierScope(Uint32 scope)
+String MofWriter::getQualifierScope (const CIMScope & scope)
 {
-    if ((scope & CIMScope::ANY) == CIMScope::ANY)
+    if (scope.equal (CIMScope (CIMScope::ANY)))
     {
         return "any";
     }
     else
     {
-        String tmp = ScopeToString(scope);
+        String tmp = scope.toString ();
         tmp.toLower();
         return tmp;
     }

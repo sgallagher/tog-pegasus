@@ -766,7 +766,7 @@ qualifier: qualifierName typedQualifierParameter flavor
 // KS 4 march change g_flavor to set defaults
 qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = 0; }
              | metaElement { 
-                        $$ = new String(ScopeToString($1));
+                        $$ = new String(CIMScope ($1).toString ());
                         g_flavor = 0; } ;
 
 typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN 

@@ -104,10 +104,10 @@ void CIMPropertyRep::resolve(
     // superClass's property with the same name). This method
     // will throw an exception if the validation fails.
 
-    Uint32 scope = CIMScope::PROPERTY;
+    CIMScope scope = CIMScope (CIMScope::PROPERTY);
 
     if (_value.getType() == CIMTYPE_REFERENCE)
-	scope = CIMScope::REFERENCE;
+	scope = CIMScope (CIMScope::REFERENCE);
 
     _qualifiers.resolve(
 	declContext,
@@ -128,10 +128,10 @@ void CIMPropertyRep::resolve(
 {
     CIMQualifierList dummy;
 
-    Uint32 scope = CIMScope::PROPERTY;
+    CIMScope scope = CIMScope (CIMScope::PROPERTY);
 
     if (_value.getType() == CIMTYPE_REFERENCE)
-	scope = CIMScope::REFERENCE;
+	scope = CIMScope (CIMScope::REFERENCE);
 
     _qualifiers.resolve(
 	declContext,

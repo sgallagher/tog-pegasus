@@ -86,7 +86,7 @@ public:
     CIMQualifierDecl(
         const CIMName& name, 
         const CIMValue& value, 
-        Uint32 scope,
+        CIMScope scope,
         Uint32 flavor = CIMFlavor::DEFAULTS,
         Uint32 arraySize = 0);
 
@@ -129,7 +129,7 @@ public:
 
     /** CIMMethod
     */
-    Uint32 getScope() const;
+    const CIMScope & getScope() const;
 
     /** getFlavor - Gets the Flavor definition from the qualifer declaration
         constant
@@ -215,7 +215,7 @@ public:
     CIMConstQualifierDecl(
         const CIMName& name, 
         const CIMValue& value, 
-        Uint32 scope,
+        CIMScope scope,
         Uint32 flavor = CIMFlavor::DEFAULTS,
         Uint32 arraySize = 0);
 
@@ -240,7 +240,7 @@ public:
     const CIMValue& getValue() const;
 
     ///
-    Uint32 getScope() const;
+    const CIMScope & getScope() const;
 
     ///
     const Uint32 getFlavor() const;

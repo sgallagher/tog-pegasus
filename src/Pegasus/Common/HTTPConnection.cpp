@@ -46,9 +46,22 @@
 #include "Tracer.h"
 
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+#include <Pegasus/Common/XmlWriter.h>
+#include "CIMKerberosSecurityAssociation.h"
+#endif
+
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+/**
+    Constant representing the Kerberos authentication challenge header.
+*/
+static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
+#endif
 
 // initialize the request count
 
@@ -180,13 +193,70 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+         // Note: There is still work to do in this area.  This is probably not functional.
+         CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+         char* outmessage = NULL;
+         Uint32   outlength = 0;
+         if ((int)httpMessage->authInfo == 99)
+         {
+             if ( sa )
+             {
+                 if (sa->getClientAuthenticated())
+                 { 
+	           if (sa->wrap_message((const char*)httpMessage->message.getData(),
+                                        httpMessage->message.size(),
+                                        outmessage,
+                                        outlength))
+                   {
+                        // build a bad request
+                        Array<Sint8> statusMsg;
+                        statusMsg = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+                   }
+                 }
+                 else
+                 {
+                      // set authenticated flag in _authInfo to not authenticated because the
+                      // wrap resulted in an expired token or credential.
+                      _authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
+                      // build a 401 response 
+                      Array<Sint8> statusMsg;
+                      // do we need to add a token here or just restart the negotiate again???
+                      // authResponse.append(sa->getServerToken());
+                      XmlWriter::appendUnauthorizedResponseHeader(statusMsg, KERBEROS_CHALLENGE_HEADER);
+                 }
+             }           
+         }
+#endif
+
+
 	 // ATTN: convert over to asynchronous write scheme:
 
 	 // Send response message to the client (use synchronous I/O for now:
 
 	 _socket->enableBlocking();
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+         // Note: There is still work to do in this area.  This is probably not functional.
+         // need to convert outmessage to an Array<Sin8>&
+         // what to do about the const aspect of buffer???
+         Array<Sint8> buffer;
+         if (sa)
+         {
+             for (Uint32 i = 0; i <= outlength; i++)
+             { 
+                buffer[i] = outmessage[i];
+             }
+         }
+         else
+         {
+	     buffer = httpMessage->message;
+         }
+         if (outmessage)
+             delete [] outmessage;
+#else
 	 const Array<Sint8>& buffer = httpMessage->message;
+#endif
 	 const Uint32 CHUNK_SIZE = 16 * 1024;
 
 	 SignalHandler::ignore(PEGASUS_SIGPIPE);

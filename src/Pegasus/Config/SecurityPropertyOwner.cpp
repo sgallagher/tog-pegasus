@@ -61,12 +61,19 @@ static struct ConfigPropertyRow properties[] =
     {"usePAMAuthentication", "false", 0, 0, 0, 1},
     {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0, 1},
 #endif
+#if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
+    {"httpAuthType", "Kerberos", 0, 0, 0, 1},
+#else
     {"httpAuthType", "Basic", 0, 0, 0, 1},
+#endif
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0, 1},
     {"sslCertificateFilePath", "server.pem", 0, 0, 0, 1}, 
     {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
     {"sslTrustFilePath", "client.pem", 0, 0, 0, 1}, 
     {"enableNamespaceAuthorization", "false", 0, 0, 0, 1},
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    {"kerberosServiceName", "cimom", 0, 0, 0, 1}
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -84,6 +91,9 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _keyFilePath = new ConfigProperty();
     _trustFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+        _kerberosServiceName = new ConfigProperty();
+#endif
 }
 
 /** Destructor  */
@@ -98,6 +108,9 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _keyFilePath;
     delete _trustFilePath;
     delete _enableRemotePrivilegedUserAccess;
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+     delete _kerberosServiceName;
+#endif
 }
 
 
@@ -258,6 +271,19 @@ void SecurityPropertyOwner::initialize()
             _enableRemotePrivilegedUserAccess->domainSize = properties[i].domainSize;
             _enableRemotePrivilegedUserAccess->externallyVisible = properties[i].externallyVisible;
         }
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+        else if (String::equalNoCase(properties[i].propertyName, "kerberosServiceName"))
+        {
+            _kerberosServiceName->propertyName = properties[i].propertyName;
+            _kerberosServiceName->defaultValue = properties[i].defaultValue;
+            _kerberosServiceName->currentValue = properties[i].defaultValue;
+            _kerberosServiceName->plannedValue = properties[i].defaultValue;
+            _kerberosServiceName->dynamic = properties[i].dynamic;
+            _kerberosServiceName->domain = properties[i].domain;
+            _kerberosServiceName->domainSize = properties[i].domainSize;
+            _kerberosServiceName->externallyVisible = properties[i].externallyVisible;
+        }
+#endif
     }
 
 }
@@ -302,6 +328,12 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _enableRemotePrivilegedUserAccess;
     }
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
+    {
+        return _kerberosServiceName;
+    }
+#endif
     else
     {
         throw UnrecognizedConfigProperty(name);
@@ -456,7 +488,11 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
-        if(String::equal(value, "Basic") || String::equal(value, "Digest"))
+        if(String::equal(value, "Basic") || String::equal(value, "Digest")
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+            || String::equal(value, "Kerberos") 
+#endif
+        )
         {
             retVal = true;
         }
@@ -583,6 +619,24 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             retVal = true;
         }
     }
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
+    {
+        String serviceName(value);
+
+        //
+        // Check if the service name is empty
+        //
+        if (serviceName == String::EMPTY || serviceName== "")
+        {
+            retVal =  false;
+        }
+       else
+        {
+           retVal =  true;
+        }
+    }
+#endif
     else
     {
         throw UnrecognizedConfigProperty(name);

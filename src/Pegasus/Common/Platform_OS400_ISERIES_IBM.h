@@ -99,4 +99,6 @@
 
 #define PEGASUS_USE_SYSLOGS
 
+//#define PEGASUS_KERBEROS_AUTHENTICATION
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

@@ -424,16 +424,22 @@ void IndicationService::_initialize (void)
         CIMInstance instance = activeSubscriptions [i];
         String creator = instance.getProperty (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
-//l10n            
+
+//l10n start            
 	// Get the language tags that were saved with the subscription instance 
-        String acceptLangs;
-        instance.getProperty (instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS)).
-            getValue().
-            get(acceptLangs);            
-        String contentLangs;
-        instance.getProperty (instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS)).
-            getValue().
-            get(contentLangs);   
+        String acceptLangs = String::EMPTY;
+	Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+ 	if (propIndex != PEG_NOT_FOUND)
+        {  
+             instance.getProperty(propIndex).getValue().get(acceptLangs);   
+        }         
+        String contentLangs = String::EMPTY;
+	propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+ 	if (propIndex != PEG_NOT_FOUND)
+        {  
+             instance.getProperty(propIndex).getValue().get(contentLangs);   
+        }
+// l10n end     
 
         if (!_sendCreateRequests (indicationProviders, sourceNameSpace,
             propertyList, condition, queryLanguage,
@@ -909,17 +915,22 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
 // l10n start
-	Uint32 clIndex = instance.findProperty
-			(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
-        instance.getProperty(clIndex).getValue().get(contentLangs);   
- 
         //
         //  Remove the language properties from instance before returning
         //
-        instance.removeProperty (instance.findProperty 
-            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
-        instance.removeProperty (instance.findProperty
-	        (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));            
+	Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);      
+        if (propIndex != PEG_NOT_FOUND)
+        {
+             instance.removeProperty (propIndex); 
+        }   
+
+	propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
+        if (propIndex != PEG_NOT_FOUND)
+        {
+             // Get the content languages to be sent in the Content-Language header
+             instance.getProperty(propIndex).getValue().get(contentLangs);
+             instance.removeProperty (propIndex); 
+        }    
 // l10n end   
 
         //
@@ -1003,10 +1014,10 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 	// Vars used to aggregate the content languages of the subscription
 	// instances.
 	Boolean langMismatch = false;
-	Uint32 clIndex;
+	Uint32 propIndex;
         
         //
-        //  Remove Creator property from instances before returning
+        //  Remove Creator and language properties from instances before returning
         //
         for (Uint8 i = 0; i < enumInstances.size (); i++)
         {
@@ -1015,11 +1026,21 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
 // l10n start
-	    clIndex =  enumInstances [i].findProperty
-				(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
-            String contentLangs;
- 	    enumInstances [i].getProperty(clIndex).getValue().get(contentLangs);   
+	    propIndex = enumInstances [i].findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
+            String contentLangs = String::EMPTY;
+            if (propIndex != PEG_NOT_FOUND)
+            {
+ 	         enumInstances [i].getProperty(propIndex).getValue().get(contentLangs); 
+                 enumInstances [i].removeProperty(propIndex); 
+            }
 
+            propIndex = enumInstances [i].findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 enumInstances [i].removeProperty(propIndex); 
+            }
+
+            // Determine what to set into the Content-Language header back to the client
 	    if (!langMismatch)
             {
 		if (contentLangs == String::EMPTY)
@@ -1040,13 +1061,6 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 			}
 		}	
 	    }	
-			
-            enumInstances [i].removeProperty 
-                (enumInstances [i].findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
-            enumInstances [i].removeProperty 
-                (enumInstances [i].findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));   			
 // l10n end			
 
             //
@@ -1342,7 +1356,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS, 
                     acceptLangs.toString()));
 
-	            ContentLanguages contentLangs = request->contentLanguages;
+	        ContentLanguages contentLangs = request->contentLanguages;
                 modifiedInstance.addProperty (CIMProperty 
                     (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS, 
                     contentLangs.toString()));
@@ -2113,15 +2127,20 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
-// l10n
-            String acceptLangs;
-            instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS)).getValue ()
-                .get(acceptLangs);
-            String contentLangs;
-            instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS)).getValue ()
-                .get(contentLangs);                                    
+// l10n start
+            String acceptLangs = String::EMPTY;
+            Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);  			
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 instance.getProperty(propIndex).getValue().get(acceptLangs);
+            }
+            String contentLangs = String::EMPTY;
+            propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);  			
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 instance.getProperty(propIndex).getValue().get(contentLangs);
+            }
+// l10n end
 
             //
             //  Look up the subscription in the active subscriptions table
@@ -2254,15 +2273,20 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
-// l10n
-            String acceptLangs;
-            instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS)).getValue ()
-                .get(acceptLangs);
-            String contentLangs;
-            instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS)).getValue ()
-                .get(contentLangs);    
+// l10n start
+            String acceptLangs = String::EMPTY;
+            Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);  			
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 instance.getProperty(propIndex).getValue().get(acceptLangs);
+            }
+            String contentLangs = String::EMPTY;
+            propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);  			
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 instance.getProperty(propIndex).getValue().get(contentLangs);
+            }
+// l10n end
 
             //
             //  Look up the subscription in the active subscriptions table
@@ -4424,17 +4448,20 @@ void IndicationService::_deleteReferencingSubscriptions (
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
-// l10n                
-            String acceptLangs;
-            instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS))
-                .getValue ().
-                get (acceptLangs); 
-            String contentLangs;
-            instance.getProperty (instance.findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS))
-                .getValue ().
-                get (contentLangs);    
+// l10n start                
+            String acceptLangs = String::EMPTY;
+            Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);  			
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 instance.getProperty(propIndex).getValue().get(acceptLangs);
+            }
+            String contentLangs = String::EMPTY;
+            propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);  			
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 instance.getProperty(propIndex).getValue().get(contentLangs);
+            }
+// l10n end
 
             CIMObjectPath instanceName = 
                 subscriptions [i].getPath ();

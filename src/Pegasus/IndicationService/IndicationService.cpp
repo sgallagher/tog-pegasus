@@ -825,12 +825,25 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         _checkNonprivilegedAuthorization(request->userName);
 
         //
+        //  Add Creator to property list, if not null
+        //  Also, if a Subscription and Time Remaining is requested,
+        //  Ensure Subscription Duration and Start Time are in property list
+        //
+        Boolean setTimeRemaining;
+        Boolean startTimeAdded;
+        Boolean durationAdded;
+        CIMPropertyList propertyList = request->propertyList;
+        CIMName className = request->instanceName.getClassName ();
+        _updatePropertyList (className, propertyList, setTimeRemaining, 
+            startTimeAdded, durationAdded);
+
+        //
         //  Get instance from repository
         //
         instance = _repository->getInstance (request->nameSpace, 
             request->instanceName, request->localOnly, 
             request->includeQualifiers, request->includeClassOrigin, 
-            request->propertyList);
+            propertyList);
 
         //
         //  Remove Creator property from instance before returning
@@ -875,10 +888,19 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         //  If a subscription with a duration, calculate subscription time 
         //  remaining, and add property to the instance
         //
-        if (request->instanceName.getClassName ().equal
-            (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+        if (setTimeRemaining)
         {
             _setTimeRemaining (instance);
+            if (startTimeAdded)
+            {
+                instance.removeProperty (instance.findProperty 
+                    (_PROPERTY_STARTTIME));
+            }
+            if (durationAdded)
+            {
+                instance.removeProperty (instance.findProperty 
+                    (_PROPERTY_DURATION));
+            }
         }
     }
     catch (CIMException& exception)
@@ -945,11 +967,23 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     {
         _checkNonprivilegedAuthorization(request->userName);
 
+        //
+        //  Add Creator to property list, if not null
+        //  Also, if a Subscription and Time Remaining is requested,
+        //  Ensure Subscription Duration and Start Time are in property list
+        //
+        Boolean setTimeRemaining;
+        Boolean startTimeAdded;
+        Boolean durationAdded;
+        CIMPropertyList propertyList = request->propertyList;
+        _updatePropertyList (request->className,
+            propertyList, setTimeRemaining, startTimeAdded, durationAdded);
+
         enumInstances = _repository->enumerateInstancesForClass
             (request->nameSpace, request->className, 
              request->deepInheritance, request->localOnly, 
              request->includeQualifiers, request->includeClassOrigin, 
-             false, request->propertyList);
+             false, propertyList);
 
 // l10n
 	// Vars used to aggregate the content languages of the subscription
@@ -1017,9 +1051,19 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             //  If a subscription with a duration, calculate subscription time 
             //  remaining, and add property to the instance
             //
-            if (request->className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+            if (setTimeRemaining)
             {
                 _setTimeRemaining (enumInstances [i]);
+                if (startTimeAdded)
+                {
+                    enumInstances [i].removeProperty 
+                        (enumInstances [i].findProperty (_PROPERTY_STARTTIME));
+                }
+                if (durationAdded)
+                {
+                    enumInstances [i].removeProperty 
+                        (enumInstances [i].findProperty (_PROPERTY_DURATION));
+                }
             }
 
             returnedInstances.append (enumInstances [i]);
@@ -7291,6 +7335,72 @@ Boolean IndicationService::_getState (
 
     PEG_METHOD_EXIT ();
     return true;
+}
+
+void IndicationService::_updatePropertyList
+    (CIMName & className,
+     CIMPropertyList & propertyList,
+     Boolean & setTimeRemaining,
+     Boolean & startTimeAdded,
+     Boolean & durationAdded)
+{
+    PEG_METHOD_ENTER ( TRC_INDICATION_SERVICE,
+        "IndicationService::_updatePropertyList");
+
+    //
+    //  A null propertyList means all properties
+    //  If the class is Subscription, that includes the Time Remaining property
+    //
+    if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+    {
+        setTimeRemaining = true;
+    }
+    else
+    {
+        setTimeRemaining = false;
+    }
+    startTimeAdded = false;
+    durationAdded = false;
+    if (!propertyList.isNull ())
+    {
+        setTimeRemaining = false;
+        Array <CIMName> properties = propertyList.getPropertyNameArray ();
+
+        //
+        //  Add Creator to property list
+        //
+        if (!ContainsCIMName (properties, 
+            PEGASUS_PROPERTYNAME_INDSUB_CREATOR))
+        {
+            properties.append (PEGASUS_PROPERTYNAME_INDSUB_CREATOR);
+        }
+
+        //
+        //  If a Subscription and Time Remaining is requested,
+        //  Ensure Subscription Duration and Start Time are in property list
+        //
+        if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+        {
+            if (ContainsCIMName (properties, _PROPERTY_TIMEREMAINING))
+            {
+                setTimeRemaining = true;
+                if (!ContainsCIMName (properties, _PROPERTY_STARTTIME))
+                {
+                    properties.append (_PROPERTY_STARTTIME);
+                    startTimeAdded = true;
+                }
+                if (!ContainsCIMName (properties, _PROPERTY_DURATION))
+                {
+                    properties.append (_PROPERTY_DURATION);
+                    durationAdded = true;
+                }
+            }
+        }
+        propertyList.clear ();
+        propertyList.set (properties);
+    }
+
+    PEG_METHOD_EXIT ();
 }
 
 String IndicationService::_getSubscriptionLogString

@@ -1308,6 +1308,30 @@ private:
         const String & userName);
 
     /**
+        Updates the propertyList, in preparation for calling the Repository.
+        If the propertyList is not null, the Creator property must be added to 
+        the list.  Also, if the request is for the Subscription class, the 
+        value of the Time Remaining property need only be calculated if it is 
+        requested.  In that case, the Subscription Duration and Start Time 
+        properties must be added to the list if not already there. 
+
+        @param   className             class name for the request
+        @param   propertyList          list of properties requested
+        @param   setTimeRemaining      indicates whether Time Remaining property
+                                       was requested
+        @param   startTimeAdded        indicates whether Start Time property was
+                                       added to the list
+        @param   durationAdded         indicates whether Duration property was
+                                       added to the list
+     */
+    void _updatePropertyList
+        (CIMName & className,
+         CIMPropertyList & propertyList,
+         Boolean & setTimeRemaining,
+         Boolean & startTimeAdded,
+         Boolean & durationAdded);
+
+    /**
         Gets a String containing the comma-separated Subscription Filter Name 
         and Handler Name, for use in a log message to identify the subscription.
 

@@ -5,52 +5,42 @@
 <IMETHODRESPONSE NAME="GetInstance">
 <IRETURNVALUE>
 <INSTANCE CLASSNAME="PG_IndicationHandlerSNMPMapper">
-<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
-<VALUE>
-PG_IndicationHandlerSNMP describes the destination for Indications to be delivered via SNMP Trap
-</VALUE>
-</QUALIFIER>
-<PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="Owner" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="SNMPCommunityName" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<PROPERTY NAME="SystemName" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<PROPERTY NAME="CreationClassName" TYPE="string">
 <VALUE>
 PG_IndicationHandlerSNMPMapper
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<PROPERTY NAME="Name" TYPE="string">
 <VALUE>
 Handler03
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TrapDestination" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
+<PROPERTY NAME="TargetHost" TYPE="string">
 <VALUE>
 localhost
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SNMPVersion" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" TYPE="string">
+<PROPERTY NAME="TargetHostFormat" TYPE="uint16">
 <VALUE>
-SNMPv2
+2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="PersistenceType" CLASSORIGIN="CIM_IndicationHandler" TYPE="uint16">
+<PROPERTY NAME="SNMPVersion" TYPE="uint16">
+<VALUE>
+3
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="PersistenceType" TYPE="uint16">
 <VALUE>
 2
 </VALUE>

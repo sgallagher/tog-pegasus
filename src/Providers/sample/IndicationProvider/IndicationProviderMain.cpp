@@ -27,20 +27,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider2/CIMProviderStub.h>
 #include <Pegasus/Common/String.h>
 
 #include "IndicationProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-static IndicationProvider provider;
-
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & className)
+extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & className)
 {
 	if(String::equalNoCase(className, "sample_dummyindication"))
 	{
-		return(new CIMProviderStub(&provider));
+		return(new IndicationProvider());
 	}
 
 	return(0);

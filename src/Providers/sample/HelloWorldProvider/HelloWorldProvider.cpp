@@ -200,7 +200,14 @@ void HelloWorldProvider::enumerateInstanceNames(
 	handler.processing();
 
 	// get class definition from repository
-	CIMClass cimclass = _cimom.getClass(classReference.getNameSpace(), classReference.getClassName());
+	CIMClass cimclass = _cimom.getClass(
+		OperationContext(),
+		classReference.getNameSpace(),
+		classReference.getClassName(),
+		false,
+		false,
+		false,
+		Array<String>());
 
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)

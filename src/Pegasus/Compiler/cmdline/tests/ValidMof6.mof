@@ -1,0 +1,18 @@
+class ValidMof6 {
+    [key] uint32 id;
+    uint32  A1;
+};
+
+instance of ValidMof6 {
+    id = 1;
+    A1 = NULL;
+};
+
+instance of ValidMof6 {
+    id = 2;
+    A1 = 0;
+};
+
+instance of ValidMof6 {
+    id = 3;
+};

@@ -36,9 +36,6 @@ TRUE
 The product that has been installed and created the software features and software elements on the system.
 </VALUE>
 </QUALIFIER>
-<VALUE.REFERENCE>
-<CLASSNAME NAME="CIM_Product"/>
-</VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct" CLASSORIGIN="CIM_InstalledProductImage">
 <QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
@@ -51,9 +48,6 @@ TRUE
 The collection representing the set of software features and elements that are the result of one product installation.
 </VALUE>
 </QUALIFIER>
-<VALUE.REFERENCE>
-<CLASSNAME NAME="CIM_InstalledProduct"/>
-</VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
 </CLASS>
 </IRETURNVALUE>

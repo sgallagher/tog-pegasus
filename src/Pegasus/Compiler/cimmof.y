@@ -198,7 +198,7 @@ cimmof_error(char *msg) {
 %type <strval> TOK_POSITIVE_DECIMAL_VALUE TOK_OCTAL_VALUE TOK_HEX_VALUE 
 %type <strval> TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
 %type <strval> TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
-%type <strval> stringValue stringValues defaultValue initializer constantValue
+%type <strval> stringValue stringValues initializer constantValue
 %type <strval> nonNullConstantValue
 %type <strval> arrayInitializer constantValues 
 %type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE qualifierParameter
@@ -207,7 +207,7 @@ cimmof_error(char *msg) {
 %type <strval> referenceInitializer aliasInitializer objectHandle
 %type <strval> TOK_UNEXPECTED_CHAR
 
-%type <typedinitializer> typedInitializer
+%type <typedinitializer> typedInitializer typedDefaultValue
 
 %type <modelpath> modelPath 
 %type <keybinding> keyValuePair
@@ -301,9 +301,10 @@ propertyDeclaration: qualifierList propertyBody propertyEnd
 } ;
 
 // KS 8 March 2002 - Extended to pass isArray and arraySize
-propertyBody: dataType propertyName array defaultValue
+propertyBody: dataType propertyName array typedDefaultValue
 {
-  CIMValue *v = valueFactory::createValue($1, $3, true,  $4);
+  CIMValue *v = valueFactory::createValue($1, $3, 
+                      ($4->type == CIMMOF_NULL_VALUE), $4->value);
   if ($3 == -1) {
     $$ = cimmofParser::Instance()->newProperty(*$2, *v, false, 0);
 } else {                                           
@@ -380,8 +381,12 @@ array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
      | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET { $$ = 0; } 
      | /* empty */ { $$ = -1; } ;
 
-defaultValue: TOK_EQUAL initializer { $$ = $2; }  
-            | /* empty */ { $$ = new String(String::EMPTY); } ;
+typedDefaultValue: TOK_EQUAL typedInitializer { $$ = $2; }  
+            | {   /* empty */
+                  g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
+                  g_typedInitializerValue.value = new String(String::EMPTY); 
+                  $$ = &g_typedInitializerValue;
+              };
 
 initializer: constantValue { $$ = $1; }
            | arrayInitializer { $$ = $1; }
@@ -648,10 +653,11 @@ qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
 } ;
 
 
-qualifierValue: TOK_COLON dataType array defaultValue
+qualifierValue: TOK_COLON dataType array typedDefaultValue
 {
-    $$ = valueFactory::createValue($2, $3, false, $4);
-    delete $4;
+    $$ = valueFactory::createValue($2, $3, 
+                $4->type == CIMMOF_NULL_VALUE, $4->value);
+    delete $4->value;
 } ;
 
 scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = $2; } ;

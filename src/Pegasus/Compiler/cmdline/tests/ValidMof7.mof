@@ -1,0 +1,11 @@
+[Association, Description (" ")]
+class B 
+{
+   [key] C REF Antecedent;
+   [key] C REF Dependent;
+};
+
+[Association, Description (" ")]
+class A : B 
+{
+};

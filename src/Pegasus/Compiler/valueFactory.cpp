@@ -365,18 +365,14 @@ valueFactory::createValue(CIMType::Tag type, int arrayDimension,
                           Boolean isNULL,
 			  const String *repp)
 {
-// ATTN-DME-P1-20020427: Processing NULL Initializer values is incomplete.
-// Currently only the arrayInitializer element cimmof.y has been modified to
-// return CIMMOF_NULL_VALUE
-
   const String &rep = *repp;
   CIMDateTime dt;
   if (arrayDimension == -1) { // this is not an array type
       
-      // KS add test for size.  If empty string set type but NULL attribute
-      if (rep.size() == 0)
-        return new CIMValue(type, false);
-    
+    if (isNULL)
+    {
+       return new CIMValue(type, false);
+    }
     switch(type) {
     case CIMType::UINT8:    return new CIMValue((Uint8)  valueFactory::Stoi(rep));
     case CIMType::SINT8:    return new CIMValue((Sint8)  valueFactory::Stoi(rep));

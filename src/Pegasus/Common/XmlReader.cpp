@@ -2482,8 +2482,8 @@ Boolean XmlReader::getPropertyReferenceElement(
 
     // Create property:
 
-    CIMValue value;
-    value.set(CIMReference());
+    CIMValue value = CIMValue(CIMType::REFERENCE, false, 0);
+//    value.set(CIMReference());
     property = CIMProperty(
 	name, value, 0, referenceClass, classOrigin, propagated);
 

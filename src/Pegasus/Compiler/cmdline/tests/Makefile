@@ -13,6 +13,26 @@ TMPFILE = $(ROOT)/src/$(DIR)/tmp
 
 NAMESPACE = -ntest
 
+NewTests:
+	@$(RMDIRHIER) ./repository
+	@cimmofl $(NAMESPACE) -R. -I$(MOF_PATH) $(MOF_PATH)/CIM_Core25.mof
+	@$(ECHO) "cimmofl -R. ValidMof4.mof"
+	@cimmofl $(NAMESPACE) -R. ValidMof4.mof
+	@$(DIFF) ./repository/test/instances/ValidMof4.instances ValidMof4.instances.master
+	@$(ECHO) "*** Test Passed Successfully ***"
+	@$(ECHO) "cimmofl -R. ValidMof5.mof"
+	@cimmofl $(NAMESPACE) -R. ValidMof5.mof
+	@$(DIFF) ./repository/test/instances/ValidMof5.instances ValidMof5.instances.master
+	@$(ECHO) "*** Test Passed Successfully ***"
+	@$(ECHO) "cimmofl -R. ValidMof6.mof"
+	@cimmofl $(NAMESPACE) -R. ValidMof6.mof
+	@$(DIFF) ./repository/test/instances/ValidMof6.instances ValidMof6.instances.master
+	@$(ECHO) "*** Test Passed Successfully ***"
+	@$(ECHO) "cimmofl -R. ValidMof7.mof"
+	@cimmofl $(NAMESPACE) -R. ValidMof7.mof
+	@$(DIFF) ./repository/test/classes/A.B ValidMof7.A.master
+	@$(DIFF) ./repository/test/classes/B.# ValidMof7.B.master
+	@$(ECHO) "*** Test Passed Successfully ***"
 
 clean:
 	@$(RM) $(TMPFILE)
@@ -66,10 +86,14 @@ tests:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl -R. ValidMof4.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) -R. ValidMof4.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "cimmofl -R. ValidMof5.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R. ValidMof5.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(MAKE) -i -s tests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test Passed +++
 	@$(MAKE) -i -s defects
+
 
 tests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)

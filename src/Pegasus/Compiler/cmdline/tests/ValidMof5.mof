@@ -1,0 +1,23 @@
+class ValidMof5 {
+    [key] uint32 id;
+    string  A1;
+};
+
+instance of ValidMof5 {
+    id = 1;
+    A1 = NULL;
+};
+
+instance of ValidMof5 {
+    id = 2;
+    A1 = "";
+};
+
+instance of ValidMof5 {
+    id = 3;
+    A1 = "Denise";
+};
+
+instance of ValidMof5 {
+    id = 4;
+};

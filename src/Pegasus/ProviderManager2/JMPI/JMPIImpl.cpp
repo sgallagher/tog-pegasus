@@ -1000,6 +1000,10 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent
    String ns(str);
    jEnv->ReleaseStringUTFChars(jNs,str);
 
+   CIMObjectPath ref(CIMObjectPath(ind->getPath()));
+   ref.setNameSpace(ns);
+   ind->setPath(ref);
+
    JMPIProviderManager::indProvRecord *prec;
    OperationContext* context;
 

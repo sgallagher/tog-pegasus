@@ -916,7 +916,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 	}
 	
 #else
-	if(os == cout || os == cerr){
     	for (Uint32 i = 0, n = str.size(); i < n; i++)
     	{
         	Uint16 code = str[i];
@@ -933,14 +932,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
             	os << buffer;
         	}
     	}
-	}
-	/* the following commented out section should be looked at for 2.4
-	else{
-		CString cstr = str.getCStringUTF8();
-    	const char* utf8str = cstr;
-    	os << utf8str;
-	}
-	*/
 #endif // End of PEGASUS_HAS_ICU #else leg.
 
     return os;

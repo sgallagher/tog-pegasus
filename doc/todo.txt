@@ -1,4 +1,9 @@
 
+    -   Fix bug in which the messageId is calculated inside the XmlWriter.
+	It should be calculated by the caller.
+
+    -	Delete CIMOperations.h.
+
     -	Get rid of message keys? They don't seem to be used.
 
     -	Fix bug in src/Pegasus/Client/tests/Client in which associators()

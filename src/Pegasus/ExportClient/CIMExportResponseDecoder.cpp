@@ -404,7 +404,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	//          String("Received unsupported protocol version \"") +
 	//          protocolVersion + "\", expected \"1.0\"");
 
-	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"1.0\"", protocolVersion);
+	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"$1\"", protocolVersion, "1.0");
 	String mlString(MessageLoader::getMessage(mlParms));
 	
 	CIMClientResponseException* responseException =

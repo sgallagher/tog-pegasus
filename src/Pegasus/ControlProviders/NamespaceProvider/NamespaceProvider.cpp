@@ -427,7 +427,7 @@ void NamespaceProvider::deleteInstance(
            		//l10n
                //throw CIMNotSupportedException("root namespace may be deleted.");
                throw CIMNotSupportedException(MessageLoaderParms(
-               					"ControlProviders.NamespaceProvider.NamespaceProvider.ROOT_NAMESPACE_MAY_BE_DELETED",
+               					"ControlProviders.NamespaceProvider.NamespaceProvider.ROOT_NAMESPACE_CANNOT_BE_DELETED",
                					"root namespace may be deleted."));
            }
 

@@ -150,14 +150,15 @@ static const char FAILED_TO_UNSET_PROPERTY []  =
 static const char FAILED_TO_LIST_PROPERTIES [] = 
                         "Failed to list the config properties. ";
 
-static const char CURRENT_VALUE_OF_PROPERTY [] =
-                        "Current value for the property '";
+// no longer used
+// static const char CURRENT_VALUE_OF_PROPERTY [] =
+                        // "Current value for the property '";
 
-static const char PLANNED_VALUE_OF_PROPERTY [] =
-                        "Planned value for the property '";
+// static const char PLANNED_VALUE_OF_PROPERTY [] =
+                        // "Planned value for the property '";
 
-static const char DEFAULT_VALUE_OF_PROPERTY [] =
-                        "Default value for the property '";
+// static const char DEFAULT_VALUE_OF_PROPERTY [] =
+                        // "Default value for the property '";
 
 static const char IS_SET_TO []                 = "' is set to ";
 

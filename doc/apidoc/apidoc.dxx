@@ -202,12 +202,6 @@ just in this text file.
        //@}
     /// @name Client Interfaces
        //@{
-	    /** @name Pegasus Operations
-	    NOTE That this section should probably go away
-	    */
-	        //@{
-		    //@Include: ../../doc/CIMOperations.h
-		//@}
 	    /// @name Pegasus Client CIM Operation and Connection Interfaces   
 		//@{    
 		    //@Include: ../../src/Pegasus/Client/CIMClient.h
@@ -216,8 +210,8 @@ just in this text file.
 	    /// @name Pegasus Client SLP interfaces   
 		//@{    
 		    //@Include: ../../src/Pegasus/Client/CIMServerDiscovery.h
-		    //@Include: ../../src/Pegasus/Client/CIMServerDescription.h
-		    //@Include: ../../src/Pegasus/Client/Attribute.h
+		    //@Include: ../../src/Pegasus/Common/CIMServerDescription.h
+		    //@Include: ../../src/Pegasus/Common/Attribute.h
 		//@}
 	    /// @name Pegasus Listener Interfaces   
 		//@{    

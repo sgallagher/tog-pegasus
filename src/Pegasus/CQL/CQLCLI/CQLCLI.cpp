@@ -755,6 +755,47 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   instances.append(embSub);
 }
 
+void sortInstances(Array<CIMInstance>& x)
+{
+    Uint32 n = x.size();
+
+    if (n < 2)
+        return;
+
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+        for (Uint32 j = 0; j < n - 1; j++)
+        {
+            // This is not quite a lexigraphical sort because
+            // CQL_TestPropertyTypesMissing will sort before
+            // CQL_TestPropertyTypes.  It was done this way 
+            // so that the .resgood files don't need to change.
+          
+            String str1 = x[j].getClassName().getString();  
+            String str2 = x[j+1].getClassName().getString();  
+
+            Uint32 sz1 = str1.size();
+            Uint32 sz2 = str2.size();
+
+            if (sz1 > sz2)
+            {
+              str1.remove(sz2);
+            }
+            else if (sz2 > sz1)
+            {
+              str2.remove(sz1);
+            }
+
+            int comp = String::compareNoCase(str1, str2);
+            if ((comp == 0 && sz2 > sz1) || comp > 0)
+            {
+                CIMInstance t = x[j];
+                x[j] = x[j+1];
+                x[j+1] = t;
+            }
+        }
+    }
+}
 
 Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIMNamespaceName& _ns, CIMRepository* _rep)
 {
@@ -774,7 +815,8 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
     }
     catch(Exception& e)
     {
-      cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+      cout << endl << endl << "Exception: Invalid namespace/class: " <<
+        e.getMessage() << endl << endl;
       return false;
     }
 
@@ -798,6 +840,11 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
     {
       const CIMName _testclass(className);
       _instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
+
+      // Sort the CQL instances to avoid the class ordering problem that happens
+      // because the order depends on how the file system orders the class files
+      // in the repository.
+      sortInstances(_instances);
     }
     catch(Exception& e){
       cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
@@ -815,6 +862,13 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
       // Deep inh = true for CQL_TestElement to also get CQL_TestPropertyTypes
       // and CQL_TestPropertyTypesMissing
       _instances = _rep->enumerateInstances( _ns, _testclass1, true ); // deep inh true
+
+      // Sort the CQL instances to avoid the class ordering problem that happens
+      // because the order depends on how the file system orders the class files
+      // in the repository.
+      // NOTE - do not sort the CIM_ComputerSystem because the resgood files expect
+      // the CIM_ComputerSystem to be after the CQL instances.
+      sortInstances(_instances);
 
       // Deep inh = false to only get the CIM_ComputerSystem
       _instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, false )); // deep inh false

@@ -44,7 +44,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static CMPILocalProviderManager *my_instance = 0;
-
+#undef IDLE_LIMIT
+#define IDLE_LIMIT 50
 CMPILocalProviderManager::CMPILocalProviderManager(void)
     :  _idle_timeout(IDLE_LIMIT), _unload_idle_flag(1)
 {
@@ -311,7 +312,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                                 {
                                     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                         "CMPIProvider terminated: " +  provider->getName());
-                                }
+                               }
                             }
                             catch(...)
                             {
@@ -330,8 +331,10 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Destroying CMPIProvider's CIMOM Handle: " +
                                     provider->getName());
+                                _providers.remove(provider->getName());
                                 delete provider->_cimom_handle;
                                 provider->reset();
+				delete provider;
                         }
                     }
                 }
@@ -533,11 +536,12 @@ CMPIProvider* CMPILocalProviderManager::_initProvider(
             }
             catch(...)
             {
+                _providers.remove(provider->getName());
                 // delete the cimom handle
 	        delete provider->_cimom_handle;
-
 	        // set provider status to UNINITIALIZED
-                provider->reset();
+               provider->reset();
+               delete provider;
             }
         }
     }  // unlock the provider mutex
@@ -595,6 +599,7 @@ void CMPILocalProviderManager::_unloadProvider( CMPIProvider * provider)
         // delete the cimom handle
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Destroying CMPIProvider's CIMOM Handle " + provider->_name );
+        _providers.remove(provider->getName());
         delete provider->_cimom_handle;
 
         PEGASUS_ASSERT(provider->_module != 0);
@@ -607,7 +612,8 @@ void CMPILocalProviderManager::_unloadProvider( CMPIProvider * provider)
             provider->getName());
 
         // set provider status to UNINITIALIZED
-	provider->reset();
+        provider->reset();
+        delete provider;
     }
 
     PEG_METHOD_EXIT();

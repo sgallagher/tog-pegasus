@@ -355,7 +355,7 @@ typedef struct {
 /// Atomic Integer class definition
 //-----------------------------------------------------------------
 
-class AtomicInt
+class PEGASUS_EXPORT AtomicInt
 {
    public:
 

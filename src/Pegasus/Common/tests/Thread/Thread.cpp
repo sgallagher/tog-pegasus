@@ -76,21 +76,19 @@ int main(int argc, char **argv)
   
    for(i = 0; i < 40; i++)
    {
-      cout << " joining reader thread " << i << endl;
-      readers[i]->join();
+     readers[i]->join();
       delete readers[i];
    }
 
    for(i = 0; i < 10; i++)
    {
-      cout << " joining writer thread " << i << endl;
       writers[i]->join();
       delete writers[i];
    }
 
    delete rw; 
    
-   cout << "read operations: " << read_count.value() << endl;
+   cout << endl << "read operations: " << read_count.value() << endl;
    cout << "write operations: " << write_count.value() << endl;
 
    return(0);
@@ -118,14 +116,14 @@ void exit_one(void *parm)
 {
    
    Thread *my_handle = (Thread *)parm;
-   cout << "cleanup level 1 from %ld: " << my_handle->self() << endl;
+   cout << "1";
 }
 
 void exit_two(void *parm)
 {
    
    Thread *my_handle = (Thread *)parm;
-   cout << "cleanup level 2 from %ld: " << my_handle->self() << endl;
+   cout << "2";
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
@@ -135,7 +133,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << endl << "r";
+   cout << "r";
    
    char *keys[] = 
       {
@@ -170,8 +168,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
       int i = 0;
       
       char *my_storage = (char *)calloc(256, sizeof(char));
-      sprintf(my_storage, "%ld", myself + i);
-      cout << "creating thread local storage: " << myself << endl;
+      //    sprintf(my_storage, "%ld", myself + i);
       try 
       {
 	 my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
@@ -182,8 +179,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
       cout << "Exception while trying to put local storage: " << myself << endl;
       abort();
       }
-
-
       try 
       {
 	 my_parm->wait_read(myself);
@@ -195,12 +190,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
 	 abort();
       }
       
-      cout << "R";
       read_count++;
-      
+      cout << "+";
       my_handle->sleep(1);
-
-      cout << "referencing local storage" << myself <<endl;
 
       try
       {
@@ -245,8 +237,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
 	 cout << "Exception while trying to release a read lock" << endl;
 	 abort();
       }
-
-      cout << "deleting local storage: " << myself << endl;
       
       try 
       {
@@ -273,7 +263,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << endl << "w";
+   cout << "w";
    
    while(die == false) 
    {
@@ -287,8 +277,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
 	 cout << "Exception while trying to get a write lock" << endl;
 	 abort();
       }
-      cout << "W";
       write_count++;
+      cout << "*";
       my_handle->sleep(1);
       try 
       {

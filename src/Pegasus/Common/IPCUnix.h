@@ -132,13 +132,14 @@ typedef struct {
 //  For RH linux 7.1, the generic r/w lock in IPC.cpp performs 
 //  much better than the pthreads native implementation.
 //  
-//  Here are the data:
+//  Here are the data (remember that there are 4 readers for every one
+//  writer):
 // 
-//  Generic  read operations  3186
-//           write operations  739
+//  Generic  read operations  6538     <- 4:1 ratio of reads to writes
+//           write operations 1422
 //
-//  Native   read operations   348
-//           write operations 2032
+//  Native   read operations   2060    <- 1:1 even though there are 
+//           write operations  2033       4 readers for every writer
 //
 //
 //  Comments -

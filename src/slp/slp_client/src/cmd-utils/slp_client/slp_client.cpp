@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.4 2004/06/10 15:26:56 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.5 2004/07/27 18:45:41 karl Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -790,12 +790,22 @@ BOOL prepare_query( struct slp_client *client,
 	      
 	  total_len += (2 + len);
 	  bptrSave = (bptr += (2 + len));
+	  /* <<< bug 1732 Thu Jun 10 08:51:03 2004 mdd >>> force the spi string to be zero length*/
 	  /* stuff the spi */
 	  buf_len = LSLP_MTU - total_len;
-	  lslpStuffSPIList(&bptr, &buf_len, client->_spi);
+	  _LSLP_SETSHORT(bptr, 0x0000, 0);
+	  bptr += 2;
+	  total_len += 2;
+	  
+
+	  /* 	  lslpStuffSPIList(&bptr, &buf_len, client->_spi); */
 		
 	  /* read back the length of the spi */
-	  total_len += (2 + _LSLP_GETSHORT(bptrSave, 0));
+	  /* 	  total_len += (2 + _LSLP_GETSHORT(bptrSave, 0)); */
+
+
+	  /* <<< Thu Jun 10 08:51:03 2004 mdd >>>  force the spi string to be zero length*/
+
 	  assert(total_len == bptr - client->_msg_buf);
 	  /*  always add an attr extension to an srvrq if there is room */
 	  if(total_len + 9 <= LSLP_MTU ) {

@@ -58,9 +58,10 @@ Boolean InstanceDataFile::_openFile(
     if (FileSystem::openNoCase(fs, path, mode))
 #endif
     {
-        PEG_METHOD_EXIT();
-	return true;
+       PEG_METHOD_EXIT();
+       return true;
     }
+    fs.open(path.getCString(), mode);
     PEG_METHOD_EXIT();
     return !!fs;
 }

@@ -10,16 +10,6 @@ HTTPVERSION = -v 1.1
 USER = -u guest
 PASSWORD = -w guest
 
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-   DIFF = mu compare
-else
-   DIFF = diff
-endif
-
-ifeq ($(OS), VMS)
-   DIFF = mu compare
-endif
-
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
 XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 

@@ -368,7 +368,7 @@ repository implementation.
     Note that the repository also does not yet handle the PropertyList in
     ModifyInstance correctly.
 
-47. (Roger Kumpf - HP) 21 Nov 2001 I have updated the Provider2 instance
+48. (Roger Kumpf - HP) 21 Nov 2001 I have updated the Provider2 instance
     provider API to match the changes made to the EnumerateInstances and
     ModifyInstance operations.  These changes were made to comply with
     the DMTF specification.
@@ -401,6 +401,12 @@ repository implementation.
     However, whenever the PropertyList is not null, the providers throw
     a NOT_SUPPORTED exception.
 
+49. (Rudy Schuet - Compaq) 25 NOV 2001  To support the NSK platform,
+    files Platform_NSK_NONSTOP_NMCPLUS.h and ConfigNsk.h were added to
+    the Common module. File Config.h was modified to include the NSK
+    platform and a new option PEGASUS_HAVE_NO_STD that allows compilation
+    without the standard (std) namespace.
+  
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

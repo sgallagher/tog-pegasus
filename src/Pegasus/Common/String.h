@@ -60,18 +60,27 @@ class PEGASUS_COMMON_LINKAGE CString
 {
 public:
 
-    ///
+    /** Constructs a CString object with null values (default constructor).
+    */
     CString();
 
-    ///
+    /** REVIEWERS: Describe method here.
+    @param cstr Specifies the name of the CString instance.
+    */
     CString(const CString& cstr);
 
-    ///
+    /** CString destructor.
+    */
     ~CString();
 
-    ///
+    /** Assigns the values of one CString instance to another.
+    @param cstr Specifies the name of the CString instance whose values 
+    are assigned to CString.
+    */
     CString& operator=(const CString& cstr);
 
+    /** REVIEWERS: Describe constructor here.
+    */
     operator const char*() const;
 
 private:
@@ -85,55 +94,78 @@ private:
 
 /**
     The Pegasus String C++ Class implements the CIM string type.
+    REVIEWERS: We need more definition here.
 */
 class PEGASUS_COMMON_LINKAGE String
 {
 public:
 
     /**	This member is used to represent an empty string. Using this 
-        member avoids construction of an empty string (e.g., String()).
+        member avoids construction of an empty string (for example, String()).
     */
     static const String EMPTY;
 
     /** Default constructor without parameters. This constructor creates a
-	null string.
+	null string. For example, 
 	<pre>
 	    String test;
 	</pre>
     */
     String();
 
-    /// Copy constructor.
+    /** Copy constructor.
+    @param str Specifies the name of the String instance.
+    */
     String(const String& str);
 
-    /// Initialize with first n characters from str.
+    /** Initialize with first n characters from str.
+    @param str Specifies the name of the String instance.
+    @param n Specifies the Uint32 size to use for the length of the string object.
+    */
     String(const String& str, Uint32 n);
 
-    /// Initialize with str.
+    /** Initialize with str.
+    @param str Specifies the name of the String instance.
+    */
     String(const Char16* str);
 
-    /// Initialize with first n characters of str.
+    /** Initialize with first n characters of str.
+    @param str Specifies the name of the String instance.
+    @param n Specifies the Uint32 size.
+    */
     String(const Char16* str, Uint32 n);
 
-    /// Initialize from a plain old C-String:
+    /** Initialize from a plain C-String:
+    @param str Specifies the name of the String instance.
+    */
     String(const char* str);
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /// Initialize from a plain old C-String, allowing UTF-8:
+    /** Initialize from a plain C-String that allows UTF-8:
+    @param str Specifies the name of the String instance.
+    @param utfFlag Specifies the name of the character constructor.
+    */
     String(const char* str, const char* utfFlag);
 #endif
 
-    /// Initialize from the first n characters of a plain old C-String:
+    /** Initialize from the first n characters of a plain C-String:
+    @param str Specifies the name of the String instance.
+    @param u Specifies the Uint32 size.
+    */
     String(const char* str, Uint32 n);
 
-    /// Destructor. 
+    /** String destructor. 
+    */
     ~String();
 
-    /** Assign this string with str.
+    /** Assign this string with str. For example,
 	<pre>
 	    String t1 = "abc";
 	    String t2 = t1;
 	</pre>
+	String t2 is assigned the value of t1.
+        @param str Specifies the name of the String to assign to another 
+        String instance.
     */
     String& operator=(const String& str);
 
@@ -143,16 +175,25 @@ public:
     */
     String& assign(const String& str);
 
-    /// Assign this string with str.
+    /** Assign this string with str.
+    */
     String& assign(const Char16* str);
 
-    /// Assign this string with first n characters of str.
+    /** Assign this string with first n characters of str.
+    @param n REVIEWERS: Insert text here.
+    @param str REVIEWERS: Insert text here.
+    */
     String& assign(const Char16* str, Uint32 n);
 
-    /// Assign this string with the plain old C-String str.
+    /** Assign this string with the plain C-String str.
+    @param str REVIEWERS: Insert text here.
+    */
     String& assign(const char* str);
 
-    /// Assign this string with first n characters of the plain old C-String str.
+    /** Assign this string with first n characters of the plain C-String str.
+    @param str REVIEWERS: Insert text here.
+    @param n REVIEWERS: Insert text here.
+    */
     String& assign(const char* str, Uint32 n);
 
     /** Clear this string. After calling clear(), size() will return 0.
@@ -171,30 +212,32 @@ public:
         effect.  The capacity of a String object has no bearing on its
         external behavior.  The capacity of a String is set only for
         performance reasons.
-	@param capacity defines the capacity in characters to reserve.
+	@param capacity Defines the capacity in characters to reserve.
     */
     void reserveCapacity(Uint32 capacity);
 
     /** Returns the length of the String object.
-	@return Length of the string in characters.
+	@return Length of the String in characters. For example, 
 	<pre>
 	    String s = "abcd";
 	    assert(s.size() == 4);
 	</pre>
+        returns a value of 4 for the length.
     */
     Uint32 size() const;
 
     /** Returns a pointer to the first character in the 
 	null-terminated Char16 buffer of the String object.
-	@return	Pointer to the first character of the String object.
+	@return	Pointer to the first character of the String object. For example, 
     	<pre>
 	    String test = "abc";
 	    const Char16* q = test.getChar16Data();
 	</pre>
+        points to the first character in the String instance named test.
     */
     const Char16* getChar16Data() const;
 
-    /** Create an 8-bit representation of this String object.
+    /** Create an 8-bit representation of this String object. For example,
 
         @return CString object that provides access to the 8-bit String
         representation.
@@ -214,8 +257,8 @@ public:
 
     /** Returns the specified character of the String object.
 	@param index Index of the character to access.
-        @return specified character of the String object.
-	@exception IndexOutOfBoundsException if the index
+        @return Specified character of the String object.
+	@exception IndexOutOfBoundsException If the index
 	is outside the bounds of the String.
 	<pre>
 	    String test = "abc;
@@ -226,8 +269,8 @@ public:
 
     /** Returns the specified character of the String object (const version).
 	@param index Index of the character to access.
-        @return specified character of the String object.
-	@exception IndexOutOfBoundsException if the index
+        @return Specified character of the String object.
+	@exception IndexOutOfBoundsException If the index
 	is outside the bounds of the String.
     */
     const Char16 operator[](Uint32 index) const;
@@ -243,7 +286,10 @@ public:
     */
     String& append(const Char16& c);
 
-    /// Append n characters from str to this String.
+    /** Append n characters from str to this String.
+    @param str REVIEWERS: Insert text here.
+    @param n REVIEWERS: Insert text here.
+    */
     String& append(const Char16* str, Uint32 n);
 
     /** Append the given String to this String.
@@ -273,23 +319,23 @@ public:
 	    assert(String::equal(s, ""));
 	    assert(s.size() == 0);
 	</pre>
-	@exception IndexOutOfBoundsException if size is greater than
+	@exception IndexOutOfBoundsException If size is greater than
 	length of String plus starting index for remove.
     */
     void remove(Uint32 index, Uint32 size = PEG_NOT_FOUND);
 
     /** Return a new String which is initialzed with <TT>length</TT>
 	characters from this string starting at <TT>index</TT>.
-	@param <TT>index</TT> is the index in string to start getting the
+	@param index Specifies the index in string to start getting the
 	substring.
-	@param <TT>length</TT> is the number of characters to get. If length
+	@param length Specifies the number of characters to get. If length
 	is PEG_NOT_FOUND, then all characters after index are added to the new
 	string.
-	@return String with the defined substring.
+	@return String Specifies the Sting with the defined substring.
     */
     String subString(Uint32 index, Uint32 length = PEG_NOT_FOUND) const;
 
-    /** Find the index of the first occurence of the character c.
+    /** Find the index of the first occurrence of the character c.
 	If the character is not found, PEG_NOT_FOUND is returned.
 	@param c Char to be found in the String.
 	@return Position of the character in the string or PEG_NOT_FOUND if not
@@ -297,7 +343,12 @@ public:
     */
     Uint32 find(Char16 c) const;
 
-    /** Same as above but starts searching from the given index. 
+    /** Find the index of the first occurence of the character c.
+	If the character is not found, PEG_NOT_FOUND is returned.
+        This begins searching from the given index. 
+	@param c Char to be found in the String.
+	@return Position of the character in the string or PEG_NOT_FOUND if not
+	found.
     */
     Uint32 find(Uint32 index, Char16 c) const;
 
@@ -317,16 +368,16 @@ public:
     */
     Uint32 reverseFind(Char16 c) const;
 
-    /** Converts all characters in this string to lower case.
+    /** Converts all characters in this string to lowercase characters.
     */
     void toLower();
 
-    /** Compare the first n characters of the two strings..
+    /** Compare the first n characters of the two strings.
     	@param s1 First null-terminated string for the comparison.
 	@param s2 Second null-terminated string for the comparison.
 	@param n Number of characters to compare.
-	@return Return -1 if s1 is lexographically less than s2; if they are
-	equavalent return 0; otherwise return 1.
+	@return Return -1 If s1 is lexographically less than s2; if they are
+	equivalent return 0; otherwise return 1.
     */
     static int compare(const String& s1, const String& s2, Uint32 n);
 
@@ -341,8 +392,14 @@ public:
     */
     static int compare(const String& s1, const String& s2);
 
-    /** Just like the compare method defined above except that 
-        the compareNoCase ignores case differences.
+    /** Compare two null-terminated strings but ignore case.
+        @param s1 First null-terminated string for the comparison.
+	@param s2 Second null-terminated string for the comparison.
+	@return Return -1 if s1 is less than s2; if equal return 0;
+	otherwise return 1.
+
+	NOTE: Use the comparison operators <,<= > >= to compare
+	String objects.
     */
     static int compareNoCase(const String& s1, const String& s2);
 
@@ -350,7 +407,7 @@ public:
 	@param s1 First <TT>String</TT> for comparison.
 	@param s2 Second <TT>String</TT> for comparison.
 
-	@return true if the two strings are equal, false otherwise.
+	@return true If the two strings are equal; otherwise, false. For example, 
 	<pre>
 	    String s1 = "Hello World";
 	    String s2 = s1;
@@ -364,7 +421,7 @@ public:
 	are equal indepedent of case of the characters.
 	@param str1 First String parameter.
 	@param str2 Second String parameter.
-	@return true if strings are equal independent of case, flase
+	@return true If strings are equal independent of case, flase
         otherwise.
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
@@ -394,34 +451,45 @@ private:
     StringRep* _rep;
 };
 
-/** String operator ==. Test for equality between two strings of any of the
+/** String operator == tests for equality between two strings of any of the
     types String or char*.
-    @return true if the strings are equal, false otherwise.
+    @return true If the strings are equal; otherwise, false.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const String& str1,
     const String& str2);
 
 /** String operator ==. Test for equality between two strings.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(const String& str1, const char* str2);
 
 /** String operator ==. Test for equality between two strings.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(const char* str1, const String& str2);
 
 /** String operator ==. Test for equality between two strings.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const String& str1,
     const String& str2);
 
-///
+/** REVIEWERS: Insert description here.
+    @param str REVIEWERS: Insert description here.
+    @param os REVIEWERS: Insert description here.
+*/
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const String& str);
 
-/** overload operator +	 - Concatenates String objects.
+/** This overload operator (+) concatenates String objects. For example, 
     <pre>
 	String t1 = "abc";
 	String t2;
@@ -431,37 +499,47 @@ PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
 */
 PEGASUS_COMMON_LINKAGE String operator+(const String& str1, const String& str2);
 
-/** overload operator < - Compares String obects.
+/** The overload operator (<) compares String obects.
     <pre>
 	String t1 = "def";
 	String t2 = "a";
 	assert (t2 < t1);
     </pre>
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator<(
     const String& str1,
     const String& str2);
 
-/** overload operator <= compares String objects.
+/** The overload operator (<=) compares String objects.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator<=(
     const String& str1,
     const String& str2);
 
-/** Overload operator > compares String objects
+/** The overload operator (>) compares String objects.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator>(
     const String& str1,
     const String& str2);
 
-/** overload operator >= - Compares String objects
+/** The overload operator (>=) compares String objects.
+    @param str1 REVIEWERS: Insert description here.
+    @param str2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator>=(
     const String& str1,
     const String& str2);
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
-/** Compare two strings but ignore any case differences.
+/** Compares two strings but ignores any case differences.
+    @param s1 REVIEWERS: Insert description here.
+    @param s2 REVIEWERS: Insert description here.
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 #endif

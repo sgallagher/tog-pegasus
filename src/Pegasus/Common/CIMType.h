@@ -92,6 +92,7 @@ enum CIMType
     Note: the current implementation returns a string matching the first 
     column in the table above, but that is subject to change in later 
     revisions.
+    @param type REVIEWERS: Insert description here.
  */
 PEGASUS_COMMON_LINKAGE const char * cimTypeToString (
     const CIMType type);

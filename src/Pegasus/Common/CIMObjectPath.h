@@ -58,10 +58,13 @@ public:
 
     enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
 
-    /** Default constructor. */
+    /** Constructs a CIMKeyBinding object with null values (default constructor).
+     */
     CIMKeyBinding();
 
-    /** Copy constructor. */
+    /** Copy constructor. 
+    @param x Specifies the name of the CIMKeyBinding instance.
+    */
     CIMKeyBinding(const CIMKeyBinding& x);
 
     /** Constructs a CIMKeyBinding with a name, value, and type.
@@ -75,36 +78,51 @@ public:
         CIMValue types to CIMKeyBinding types.
         @param name CIMName for the key for this binding object.
         @param value CIMValue from which to extract the value for this key.
-        @exception TypeMismatchException if the type of the value is not valid
-        for a key property.
+        @exception TypeMismatchException True if the type of the value is not valid
+        for a key property; otherwise, false.
     */
     CIMKeyBinding(const CIMName& name, const CIMValue& value);
 
-    /** Destructor */
+    /** CIMKeyBinding destructor 
+    */
     ~CIMKeyBinding();
 
-    /** Assignment operator. */
+    /** Assigns the values of the specified CIMKeyBinding instance 
+    to the CIMKeyBinding object.
+    */
     CIMKeyBinding& operator=(const CIMKeyBinding& x);
 
-    ///
+    /** REVIEWERS: Insert description here.
+    */
     const CIMName& getName() const;
 
-    ///
+    /** REVIEWERS: Insert description here.
+    @param name Reviewers: Insert description here.
+    */
     void setName(const CIMName& name);
 
-    ///
+    /** REVIEWERS: Insert description here.
+    */
     const String& getValue() const;
 
-    ///
+    /** REVIEWERS: Insert description here.
+    @param value Reviewers: Insert description here.
+    */
     void setValue(const String& value);
 
-    ///
+    /** REVIEWERS: Insert description here.
+    */
     Type getType() const;
 
-    /// 
+    /** REVIEWERS: Insert description here.
+    @param type Reviewers: Insert description here.
+    */
     void setType(Type type);
 
-    ///
+    /** REVIEWERS: Insert description here.
+    @param value Reviewers: Insert description here.
+    @return Reviewers: Insert description here.
+    */
     Boolean equal(CIMValue value);
 
 private:
@@ -179,7 +197,7 @@ class XmlWriter;
     TennisPlayer.first="Patrick",last="Rafter"
     </pre>
 
-    This of course presupposes the existence of a class called "TennisPlayer"
+    This presupposes the existence of a class called "TennisPlayer"
     that has key properties named "first" and "last". For example, here is what
     the MOF might look like:
 
@@ -343,16 +361,21 @@ class PEGASUS_COMMON_LINKAGE CIMObjectPath
 {
 public:
 
-    /** Default constructor. */
+    /** Constructs a CIMObjectPath object with null values (default constructor). 
+    */
     CIMObjectPath();
 
-    /** Copy constructor. */
+    /** Copies the values of the specified CIMObjectPath instance to the 
+    CIMObjectPath object.
+    @param x Specifies the name of the CIMObjectPath instance.
+    */
     CIMObjectPath(const CIMObjectPath& x);
 
     /** Initializes a CIMObjectPath object from a CIM object name.
         @param objectName String representing the object name.
         @return Returns the initialized CIMObjectPath
-        @exception MalformedObjectNameException if the name is not parsable.
+        @exception MalformedObjectNameException True if the name is not parsable;
+        otherwise, false.
         <PRE>
             CIMObjectPath r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
         </PRE>
@@ -375,10 +398,13 @@ public:
         //
         const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
-    /** Destructor. */
+    /** Destroys CIMObjectPath object.
+    */
     ~CIMObjectPath();
 
-    /** Assignment operator. */
+    /** Assigns the values of the CIMObjectPath instance to the CIMObjectPath object.
+    @param x Specifies the name of the CIMObjectPath instance.
+     */
     CIMObjectPath& operator=(const CIMObjectPath& x);
 
     /** Clears out the internal fields of this object making it an empty
@@ -390,7 +416,12 @@ public:
     /** Sets this reference from constituent elements. The effect is same
         as if the object was initialized using the constructor above that
         has the same arguments.
-        @exception MalformedObjectNameException if host name is illformed.
+        @exception MalformedObjectNameException True if host name is not specified
+		correctly otherwise, false.
+        @param host REVIEWERS: Insert description here.
+        @param nameSpace REVIEWERS: Insert description here.
+        @param className REVIEWERS: Insert description here.
+        @param keyBindings REVIEWERS: Insert description here.
     */
     void set(
         const String& host,
@@ -401,10 +432,14 @@ public:
         //
         const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
-    /** Set the reference from an object name . */
+    /** Set the reference from an object name. 
+    @param objectName Specifies the name of the String instance.
+    */
     void set(const String& objectName);
 
-    /** Same as set() above except that it is an assignment operator. */
+    /** Set the reference from an object name using an assignment operator. 
+    @param objectName Specifies the name of the String instance.
+    */
     CIMObjectPath& operator=(const String& objectName);
 
     /** Gets the hostname component of the CIMObjectPath.
@@ -419,7 +454,7 @@ public:
         CIMObjectPath r1;
         r1.setHost("fred:5988");
         </PRE>
-        Note that Pegasus does no checking on valid host names.
+        Note that Pegasus does not check whether or not the host names are valid.
     */
     void setHost(const String& host);
 
@@ -479,7 +514,7 @@ public:
         for as are the case insensitivity characteristics defined by
         the specification.
         @param x CIMObjectPath for comparison.
-        @return true if the objects have identical components, false otherwise.
+        @return True if the objects have identical components; otherwise, false.
     */
     Boolean identical(const CIMObjectPath& x) const;
 
@@ -493,7 +528,7 @@ public:
 
 private:
 
-    /** Stringizes object into canonical form (in which all keys are sorted
+    /** String object into canonical form (in which all keys are sorted
         into ascending order and classnames and keynames are shifted to
         lower case.
     */

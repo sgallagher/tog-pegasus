@@ -60,24 +60,25 @@ class PEGASUS_COMMON_LINKAGE CIMProperty
 {
 public:
 
-    /** CIMProperty constructor. */
+    /** Creates a CIMProperty object with null values (default contstructor). 
+    */
     CIMProperty();
 
-    /** CIMProperty constructor. Constructs this property form another 
-        CIMProperty object
+    /** Constructs a CIMPropery object from another 
+        CIMProperty object.
     */
     CIMProperty(const CIMProperty& x);
 
     /** Constructs a CIMProperty with the specified attributes.
-        @param value - CIMValue defines the value for the property.
-        @param arraySize (optional) - Size of array if fixed array size.
-        @param referenceClassName (optional) - CIMName parameter that defines the 
+        @param value Specifies the name of the CIMValue property.
+        @param arraySize Specifies the size of array, if fixed array size (optional).
+        @param referenceClassName CIMName parameter that defines the 
         reference class name for the property. This parameter is required if
-        the property is type CIMObjectPath.
-        @param classOrigin (optional) - CIMName parameter to define the class 
-        origin of the property. 
-        @param propagated (optional) - If true defines the property as 
-        propagated.
+        the property is type CIMObjectPath. (optional)
+        @param classOrigin CIMName parameter to define the class 
+        origin of the property (optional). 
+        @param propagated If true, this parameter defines the property as 
+        propagated (optional).
         @return    The constructed CIM property object.
     */
     CIMProperty(
@@ -88,14 +89,17 @@ public:
         const CIMName& classOrigin = CIMName(),
         Boolean propagated = false);
 
-    /** ~CIMProperty(). */
+    /** Destructs the CIMProperty object.
+    */
     ~CIMProperty();
 
-    /// 
+    /** REVIEWERS: Insert description here.
+    @param x REVIEWERS: Insert description here.
+    */
     CIMProperty& operator=(const CIMProperty& x);
 
     /** Gets the name of the property.
-        @return CIMName containing the property name.
+        @return CIMName containing the property name. For example, 
         <pre>
         CIMProperty p1("count", Uint32(231));
         assert(p1.getName() == "count");
@@ -104,22 +108,26 @@ public:
     const CIMName& getName() const;
 
     /** Set the property name.
-        @param name  CIMName containing the name for the parameter name.
+        @param name  Specifies the CIMName that contains the name for 
+        the parameter name.
     */
     void setName(const CIMName& name);
 
-    /** Get the value of the property. */
+    /** Get the value of the property. 
+    */
     const CIMValue& getValue() const;
 
-    /** Get the type of the property. */
+    /** Get the type of the property. 
+    */
     CIMType getType() const;
 
-    /** Check if the property is an array type. */
+    /** Check if the property is an array type. 
+    */
     Boolean isArray() const;
 
     /** Sets the Value in the Property object from the input 
         parameter.
-        @param value - CIMValue containing the value to be put into the 
+        @param value Specifies the CIMValue that contains the value to be put into the 
         property.
     */
     void setValue(const CIMValue& value);
@@ -144,60 +152,62 @@ public:
     const CIMName& getClassOrigin() const;
 
     /** Sets the Class Origin attribute.
-        @param classOrigin - CIMName containing the classOrigin.
+        @param classOrigin Specifies the CIMName that contains the classOrigin.
     */
     void setClassOrigin(const CIMName& classOrigin);
 
     /** Tests if this property is propagated.
-        @return true if the class is propagated, false otherwise.
+        @return True if the class is propagated; otherwise, false.
     */
     Boolean getPropagated() const;
 
     /** Sets the propagated attribute true or false.
-        @param x - true or false representing propagated state to be set.
+        @param x Specifies a true or false value that represents
+        the propagated state to be set.
     */
     void setPropagated(Boolean propagated);
 
     /** Adds a qualifier object to the property and
         increases the qualifier count.
-        @param x - CIMQualifier object to be added.
-        @return the resulting CIMProperpty.
-        @exception AlreadyExistsException if the qualifier already exists.
+        @param x CIMQualifier object to be added.
+        @return The resulting CIMProperpty.
+        @exception AlreadyExistsException True if the qualifier already 
+        exists; otherwise, false..
     */
     CIMProperty& addQualifier(const CIMQualifier& x);
 
     /** Finds the qualifier object defined by the name parameter 
         if it is attached to this CIMProperty.
-        @param name  - CIMName parameter defining name of Qualifier
+        @param name CIMName parameter that defines the name of Qualifier
         object.
-        @return Position of the qualifier object or PEG_NOT_FOUND (-1) 
+        @return Position of the qualifier object or PEG_NOT_FOUND (-1),  
         if not found.
     */
     Uint32 findQualifier(const CIMName& name) const;
 
     /** Gets the Qualifier object specified by the input parameter.
-        @param index - Index parameter for the Qualifier object to be
+        @param index Index parameter for the Qualifier object to be
         retrieved.
         @return CIMQualifier object at specified index.
-        @exception IndexOutOfBoundsException if index is outside range
-        of Qualifiers in this property object.
+        @exception IndexOutOfBoundsException If index is outside range
+        of Qualifiers in this property object; otherwise, false.
     */
     CIMQualifier getQualifier(Uint32 index);
 
     /** Returns the qualifier at the specified index.
-        @param index - Index of the qualifier. Can be obtained from the
+        @param index Specifies the index of the qualifier. The index is obtained from the
         findQualifier method.
         @return The qualifier object.
-        @exception IndexOutOfBoundsException if index is outside the range
-        of qualifiers that exist for the property.
+        @exception IndexOutOfBoundsException If index is outside the range
+        of qualifiers that exist for the property; otherwise, false.
     */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
     /** Removes the CIMQualifier defined by the 
         index input as a parameter.
-        @param index - Index of the qualifier requested.
-        @exception IndexOutOfBoundsException if the index is outside the
-        range of qualifiers in this property object.
+        @param index Index of the qualifier requested.
+        @exception IndexOutOfBoundsException If the index is outside the
+        range of qualifiers in this property object; otherwise, false.
     */
     void removeQualifier(Uint32 index);
     
@@ -210,19 +220,19 @@ public:
 
     /** Compares the CIMProperty object with
         another CIMProperty object defined by the input parameter.
-        @param x - CIMPropery object for comparison.
-        @return true if the objects are identical, false otherwise.
+        @param x CIMPropery object for comparison.
+        @return True if the objects are identical; otherwise, false.
     */
     Boolean identical(const CIMConstProperty& x) const;
 
     /** Makes a deep copy (clone) of the given object.
-        @return copy of the CIMProperty object.
+        @return Copy of the CIMProperty object.
     */
     CIMProperty clone() const;
 
     /** Determines if the object has not been initialized.
-        @return  true if the object has not been initialized,
-                 false otherwise.
+        @return  True if the object has not been initialized;
+        otherwise, false.
     */
     Boolean isUninitialized() const;
 
@@ -230,9 +240,10 @@ private:
 
     CIMProperty(CIMPropertyRep* rep);
 
-    // This constructor allows the CIMClassRep friend class to cast
-    // away constness.
-
+    /** This constructor allows the CIMClassRep friend class to cast
+    away constness.
+    @param x Specifies the name of the CIMConstProperty instance.
+    */ 
     PEGASUS_EXPLICIT CIMProperty(const CIMConstProperty& x);
 
     void _checkRep() const;
@@ -258,16 +269,20 @@ class PEGASUS_COMMON_LINKAGE CIMConstProperty
 {
 public:
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstProperty();
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstProperty(const CIMConstProperty& x);
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstProperty(const CIMProperty& x);
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstProperty(
         const CIMName& name,
         const CIMValue& value,
@@ -276,52 +291,68 @@ public:
         const CIMName& classOrigin = CIMName(),
         Boolean propagated = false);
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     ~CIMConstProperty();
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstProperty& operator=(const CIMConstProperty& x);
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstProperty& operator=(const CIMProperty& x);
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     const CIMName& getName() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     const CIMValue& getValue() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMType getType() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     Boolean isArray() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     Uint32 getArraySize() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     const CIMName& getReferenceClassName() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     const CIMName& getClassOrigin() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     Boolean getPropagated() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     Uint32 findQualifier(const CIMName& name) const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     Uint32 getQualifierCount() const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     Boolean identical(const CIMConstProperty& x) const;
 
-    ///
+    /** REVIEWERS: Insert text here.
+    */
     CIMProperty clone() const;
 
     ///

@@ -78,13 +78,15 @@ static const Uint32 OPERATION_COMPLETE =                0x00000200;
 class OperationContextRep;
 
 /**
-Context information from client.
+Contains context information from clients in objects referred to as containers.
 
-<p>The <tt>OperationContext</tt> class carries information about
-the context in which the client program issued the request.
-Currently, the identity of the user is the only supported
-information. Providers must use this to determine whether
-the requested operation should be permitted on behalf of
+<p>The OperationContext class carries information about
+the context in which the client program issued the request. The OperationContext 
+class contains containers that specify types of information. 
+Currently, the only supported container is the container that specifies
+the identity of the user. Providers must use the user container
+to determine whether the requested operation should be 
+permitted on behalf of
 the issuing user.
 
 For example, providers can get the user name information from the
@@ -104,7 +106,7 @@ public:
     
         <p>The <tt>Container</tt> object carries the information that
         the provider may access. A container name determines which
-        container is being referenced. Currently, only the container
+        container is used. Currently, only the container
         carrying the user identity of the client is available.</p>
     */
     class PEGASUS_COMMON_LINKAGE Container
@@ -114,10 +116,13 @@ public:
         Container(const Uint32 key = CONTEXT_EMPTY);
 #endif
 
-        ///
+        /** Destructs Container.
+        */
         virtual ~Container(void);
 
-        ///
+        /** REVIEWERS: Insert description here. What parameters 
+        need to be described, if any?
+        */
         virtual String getName(void) const = 0;
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -143,35 +148,52 @@ public:
     };
 
 public:
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    */
     OperationContext(void);
 
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    @param context Specifies the name of the OperationContext container.
+    */
     OperationContext(const OperationContext & context);
 
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    */
     virtual ~OperationContext(void);
 
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    @param context Specifies the name of the OperationContext container.
+    */
     OperationContext & operator=(const OperationContext & context);
 
-    /// Removes all containers in the current object.
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    */
     void clear(void);
 
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    @param containerName Specifies the name of the String container.
+    */
+    
     const Container & get(const String& containerName) const;
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
     const Container & get(const Uint32 key) const;
 #endif
 
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the container.
+    */
     void set(const Container & container);
 
-    ///
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the container.
+    */
     void insert(const Container & container);
 
-    ///
+
+    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    @param containerName Specifies the name of the container.
+    */
     void remove(const String& containerName);
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -186,7 +208,7 @@ protected:
 
 class IdentityContainerRep;
 
-///
+/// Insert description here. 
 class PEGASUS_COMMON_LINKAGE IdentityContainer
     :
 #ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
@@ -195,28 +217,53 @@ class PEGASUS_COMMON_LINKAGE IdentityContainer
               public OperationContext::Container
 {
 public:
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
 
-    ///
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+        @param container Specifies the name of the Container.
+    */
     IdentityContainer(const OperationContext::Container & container);
-    ///
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+        @param container Specifies the name of the IdentityContainer.
+    */
     IdentityContainer(const IdentityContainer & container);
-    ///
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+        @param userName Specifies the name of the String.
+    */
     IdentityContainer(const String & userName);
-    ///
+
+    /** REVIEWERS: Insert description here.
+    */
     virtual ~IdentityContainer(void);
-    ///
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+        @param container Specifies the name of the IdentityContainer.
+    */
     IdentityContainer & operator=(const IdentityContainer & container);
-    ///
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual String getName(void) const;
-    ///
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
-    ///
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual void destroy(void);
-    ///
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     String getUserName(void) const;
 
 protected:
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     IdentityContainerRep* _rep;
 
 };
@@ -228,22 +275,48 @@ class PEGASUS_COMMON_LINKAGE SubscriptionInstanceContainer
     : virtual public OperationContext::Container
 {
 public:
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionInstanceContainer
         (const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionInstanceContainer
         (const SubscriptionInstanceContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionInstanceContainer(const CIMInstance & subscriptionInstance);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual ~SubscriptionInstanceContainer(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param operator Specifies the name of the SubscriptionInstanceContainer
+    */
     SubscriptionInstanceContainer & operator=
         (const SubscriptionInstanceContainer & container);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. 
+    */
     CIMInstance getInstance(void) const;
 
 protected:
@@ -257,25 +330,57 @@ class PEGASUS_COMMON_LINKAGE SubscriptionFilterConditionContainer
     : virtual public OperationContext::Container
 {
 public:
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionFilterConditionContainer
         (const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param conainer REVIEWERS: Insert description here.
+    */
     SubscriptionFilterConditionContainer
         (const SubscriptionFilterConditionContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param filterCondition REVIEWERS: Insert description here.
+    @param queryLanguage REVIEWERS: Insert description here.
+    */
     SubscriptionFilterConditionContainer
         (const String & filterCondition, 
         const String & queryLanguage);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual ~SubscriptionFilterConditionContainer(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container REVIEWERS: Insert description here.
+    */
     SubscriptionFilterConditionContainer & operator=
         (const SubscriptionFilterConditionContainer & container);
 
+    /** REVIEWERS: Insert description here. 
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. 
+    */
     String getFilterCondition(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     String getQueryLanguage(void) const;
 
 protected:
@@ -283,29 +388,60 @@ protected:
 
 };
 
+    /**REVIEWERS: Insert class description here.
+    */
 class SubscriptionInstanceNamesContainerRep;
 
+    /**REVIEWERS: Insert class description here.
+    */
 class PEGASUS_COMMON_LINKAGE SubscriptionInstanceNamesContainer
     : virtual public OperationContext::Container
 {
 public:
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionInstanceNamesContainer
         (const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionInstanceNamesContainer
         (const SubscriptionInstanceNamesContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionInstanceNamesContainer
         (const Array<CIMObjectPath> & subscriptionInstanceNames);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual ~SubscriptionInstanceNamesContainer(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container REVIEWERS: Insert description here.
+    */
     SubscriptionInstanceNamesContainer & operator=
         (const SubscriptionInstanceNamesContainer & container);
 
+    /** REVIEWERS: Insert description here. 
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     Array<CIMObjectPath> getInstanceNames(void) const;
 
 protected:
@@ -313,18 +449,37 @@ protected:
 
 };
 
-
+    ///Insert class description here. 
 class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext::Container
 {
    public:
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       static const String NAME;
       
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       TimeoutContainer(const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       TimeoutContainer(Uint32 timeout);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       virtual void destroy(void);
       
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
       Uint32 getTimeOut(void) const;
    protected:
       Uint32 _value;
@@ -346,82 +501,173 @@ class PEGASUS_COMMON_LINKAGE AcceptLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
-
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     AcceptLanguageListContainer
         (const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     AcceptLanguageListContainer
         (const AcceptLanguageListContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     AcceptLanguageListContainer(const AcceptLanguages & languages);
+    
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual ~AcceptLanguageListContainer(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     AcceptLanguageListContainer & operator=
         (const AcceptLanguageListContainer & container);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     AcceptLanguages getLanguages(void) const;
 
 protected:
    AcceptLanguageListContainerRep* _rep;
 
 };
-
+    /** REVIEWERS: Insert class description here. 
+    */
 class SubscriptionLanguageListContainerRep;
 
+    /** REVIEWERS: Insert class description here. 
+    */
 class PEGASUS_COMMON_LINKAGE SubscriptionLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
     
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionLanguageListContainer
         (const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionLanguageListContainer
         (const SubscriptionLanguageListContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionLanguageListContainer(const AcceptLanguages & languages);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual ~SubscriptionLanguageListContainer(void); 
      
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the SubscriptionLanguageListContainer.
+    */    
     SubscriptionLanguageListContainer & operator=
         (const SubscriptionLanguageListContainer & container);
 
+    /** REVIEWERS: Insert description here. 
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     AcceptLanguages getLanguages(void) const;
 
 protected:
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     SubscriptionLanguageListContainerRep* _rep;
 };    
 
+    /** REVIEWERS: Insert class description here. 
+    */
 class ContentLanguageListContainerRep;
-
+    /** REVIEWERS: Insert class description here. 
+    */
 class PEGASUS_COMMON_LINKAGE ContentLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the OperationContext container.
+    */
     ContentLanguageListContainer
         (const OperationContext::Container & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the ContentLanguageListContainer.
+    */
     ContentLanguageListContainer
         (const ContentLanguageListContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param languages Specifies the name of the ContentLanguages container.
+    */
     ContentLanguageListContainer(const ContentLanguages & languages);
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual ~ContentLanguageListContainer(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the ContentLanguageListContainer.
+    */
     ContentLanguageListContainer & operator=
         (const ContentLanguageListContainer & container);
 
+    /** REVIEWERS: Insert description here. 
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. 
+    */
     ContentLanguages getLanguages(void) const;
 
 protected:
+    /** REVIEWERS: Insert description here. 
+    */
    ContentLanguageListContainerRep* _rep;
 
 };
@@ -438,22 +684,52 @@ class PEGASUS_COMMON_LINKAGE SnmpTrapOidContainer
     : virtual public OperationContext::Container
 {
 public:
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     static const String NAME;
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the container.  
+    */
     SnmpTrapOidContainer
         (const OperationContext::Container & container);
+    
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the SnmpTrapOidContainer container.   
+    */
     SnmpTrapOidContainer
         (const SnmpTrapOidContainer & container);
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param snmpTrapOid Specifies the name of the String container.
+    */
     SnmpTrapOidContainer(const String & snmpTrapOid);
+
+    /** REVIEWERS: Insert description here. 
+    */
     virtual ~SnmpTrapOidContainer(void);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    @param container Specifies the name of the SnmpTrapOidContainer.
+    */
     SnmpTrapOidContainer & operator=
         (const SnmpTrapOidContainer & container);
 
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual String getName(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */
     virtual OperationContext::Container * clone(void) const;
+
+    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    */    
     virtual void destroy(void);
 
+    /** REVIEWERS: Insert description here. 
+    */
     String getSnmpTrapOid(void) const;
 
 protected:

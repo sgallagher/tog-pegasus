@@ -274,11 +274,14 @@ void test04()
     CIMValue v2;
     v2 = p2.getValue();
     assert(v2.getType() ==  CIMTYPE_REFERENCE);
-    // ATTN: KS 27 Feb 2003. Why does the following test not work. I assume that the value should
+
+    // ATTN: P3 KS 27 Feb 2003. Why does the following test not work. I assume that the value should
     // b e null in this case.
     //assert(v2.isNull());
+
     CIMObjectPath pathout2;
     v1.get(pathout2);
+    // Now compare the paths
 
     
     if(verbose)

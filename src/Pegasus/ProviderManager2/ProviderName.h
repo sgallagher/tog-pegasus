@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 #include <Pegasus/Server/Linkage.h>
 
@@ -44,53 +45,42 @@ class PEGASUS_SERVER_LINKAGE ProviderName
 {
 public:
     ProviderName(void);
-    //ProviderName(const String & s);
-    /*
-    physicalName - the fully qualified name to the physical component that is responsible for providing
-        for the object named in objectName.
-
-    logicalName - the logical name associated with the physical component. It is possible for one physical
-        component to have one or more logical components.
-
-    objectName - the relative or fully qualified CIM object name of interest.
-    */
+    
     ProviderName(
-        const String & objectName,
         const String & logicalName,
         const String & physicalName,
         const String & interfaceName,
         const Uint32 capabilities,
         const CIMName & method=CIMName());
 
-    ~ProviderName(void);
+    ProviderName(
+        const CIMNamespaceName & nameSpace,
+        const CIMName & className,
+        const Uint32 capabilities,
+        const CIMName & method=CIMName());
+        
+     ProviderName(
+        const CIMObjectPath & path,
+        const Uint32 capabilities,
+        const CIMName & method=CIMName());
+        
+   ~ProviderName(void);
 
-    String toString(void) const;
-
-    String getObjectName(void) const;
-    void setObjectName(const String & objectName);
-
-    String getLogicalName(void) const;
-    void setLogicalName(const String & logicalName);
-
-    String getPhysicalName(void) const;
-    void setPhysicalName(const String & physicalName);
-
+    String getLogicalName() const;
+    String getPhysicalName() const;
+    void   setPhysicalName(const String & physicalName);
     String getInterfaceName(void) const;
-    void setInterfaceName(const String & interfaceName);
-
     Uint32 getCapabilitiesMask(void) const;
-    void setCapabilitiesMask(const Uint32 capabilities);
-
     CIMName getMethodName(void) const;
-    void setMethodName(const CIMName & method);
+    CIMNamespaceName getNameSpace() const;
+    CIMName getClassName() const;
 
 private:
+    CIMNamespaceName _nameSpace;
+    CIMName _className;
     String _physicalName;
     String _interfaceName;
-
     String _logicalName;
-    String _objectName;
-
     Uint32 _capabilities;
     
     CIMName _method;

@@ -385,7 +385,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     // get the responsible provider Manager
     ProviderManager * pm = locateProviderManager(message,ifc);
     if (pm) {
-        response = pm->processMessage(request);
+        response = pm->processMessage(request); 
     }
     
     else for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
@@ -461,13 +461,11 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
        if (p->providerType==ProviderType::METHOD)
           method=((CIMInvokeMethodRequestMessage*)p)->methodName;
        
-       ProviderName name(
-           CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
-           String::EMPTY,
-           String::EMPTY,
-           String::EMPTY,
+       ProviderName name(nameSpace, 
+           className,
            p->providerType,
            method);
+           
        // find provider manager
        name = ProviderRegistrar().findProvider(name,false);
        it=name.getInterfaceName();

@@ -308,10 +308,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -389,10 +386,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             request->className);
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -475,10 +469,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
        // build an internal provider name from the request arguments
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -552,10 +543,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->newInstance.getPath().getKeyBindings());
 
 	ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -632,10 +620,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             request->modifiedInstance.getPath ().getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -714,10 +699,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -790,10 +772,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message) t
             request->className);
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::QUERY);
 
         // resolve provider name
@@ -881,10 +860,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->assocClass.getString());
 
          ProviderName name(
-            assocPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -975,10 +951,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             request->assocClass.getString());
       
       ProviderName name(
-            assocPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1065,10 +1038,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
             request->resultClass.getString());
 
         ProviderName name(
-            resultPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1157,10 +1127,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             request->resultClass.getString());
 
         ProviderName name(
-            resultPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1238,11 +1205,9 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->instanceName.getKeyBindings());
 
        ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            ProviderType::METHOD);
+            objectPath,
+            ProviderType::METHOD,
+            request->methodName);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1304,26 +1269,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
     return(response); 
 }
-/*
-struct indProvRecord {
-   indProvRecord() : enabled(false), count(1), handler(NULL) {}
-   Boolean enabled;
-   int count;
-   EnableIndicationsResponseHandler* handler;
-};
 
-struct indSelectRecord {
-   indSelectRecord() : eSelx(NULL) {}
-   CMPI_SelectExp *eSelx;
-};
-
-
-typedef HashTable<String,indProvRecord*,EqualFunc<String>,HashFunc<String> > IndProvTab;
-typedef HashTable<String,indSelectRecord*,EqualFunc<String>,HashFunc<String> > IndSelectTab;
-
-IndProvTab provTab;
-IndSelectTab selxTab;
-*/
 int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
                                   String& providerName, String& location)
 {
@@ -1331,7 +1277,7 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
-    pmInstance.getProperty(pos).getValue().get(location);
+    pmInstance.getProperty(pos).getValue().get(location); 
     return 0;
 }
 

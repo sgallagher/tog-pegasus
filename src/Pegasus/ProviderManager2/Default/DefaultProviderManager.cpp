@@ -264,10 +264,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -374,10 +371,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             request->className);
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -486,10 +480,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
         // build an internal provider name from the request arguments
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -593,10 +584,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             request->newInstance.getPath().getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -700,10 +688,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             request->modifiedInstance.getPath ().getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -811,10 +796,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -916,10 +898,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
             request->className);
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::QUERY);
 
         // resolve provider name
@@ -1039,10 +1018,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             request->assocClass.getString());
 
         ProviderName name(
-            assocPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1153,10 +1129,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             request->assocClass.getString());
 
         ProviderName name(
-            assocPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1263,10 +1236,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             request->resultClass.getString());
 
         ProviderName name(
-            resultPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1378,10 +1348,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             request->resultClass.getString());
 
         ProviderName name(
-            resultPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1485,10 +1452,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             0);
 
         // resolve provider name
@@ -1596,10 +1560,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             0);
 
         // resolve provider name
@@ -1710,10 +1671,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::METHOD,
             request->methodName);
 
@@ -1830,7 +1788,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
            request->providerModule.getProperty(
            request->providerModule.findProperty("Location")).getValue().toString());
 
-        ProviderName name(String::EMPTY,
+        ProviderName name(
            request->provider.getProperty(request->provider.findProperty
               ("Name")).getValue ().toString (),
            physicalName,
@@ -1962,7 +1920,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
            request->providerModule.getProperty(
            request->providerModule.findProperty("Location")).getValue().toString());
 
-        ProviderName name(String::EMPTY,
+        ProviderName name(
            request->provider.getProperty(request->provider.findProperty
               ("Name")).getValue ().toString (),
            physicalName,
@@ -2094,7 +2052,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
            request->providerModule.getProperty(
            request->providerModule.findProperty("Location")).getValue().toString());
 
-        ProviderName name(String::EMPTY,
+        ProviderName name(
            request->provider.getProperty(request->provider.findProperty
               ("Name")).getValue ().toString (),
            physicalName,
@@ -2211,7 +2169,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
           request->providerModule.getProperty(
 	      request->providerModule.findProperty("Location")).getValue().toString());
 
-       ProviderName name(String::EMPTY,
+       ProviderName name(
                request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
 	       physicalName,
@@ -2297,7 +2255,7 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
               request->providerModule.getProperty(
 	         request->providerModule.findProperty("Location")).getValue().toString());
 
-       ProviderName name(String::EMPTY,
+       ProviderName name(
                request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
 	       physicalName,
@@ -2381,7 +2339,6 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
     try
     {
         ProviderName name(
-            String::EMPTY,
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
@@ -2485,7 +2442,6 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
     try
     {
        ProviderName name(
-            String::EMPTY,
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,

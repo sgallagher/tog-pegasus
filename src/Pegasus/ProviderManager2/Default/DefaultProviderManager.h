@@ -49,6 +49,7 @@
 #include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/ProviderManager2/ProviderName.h>
 
 #include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
@@ -106,22 +107,7 @@ protected:
     Message * handleEnableModuleRequest(const Message * message) throw();
     Message * handleStopAllProvidersRequest(const Message * message) throw();
 
-    /**
-        Inserts an entry into the enabled indication providers table.
-
-        @param   provider              the provider instance
-        @param   handler               pointer to the indication response handler
-    */
     void _insertEntry(const Provider & provider, const EnableIndicationsResponseHandler *handler);
-
-    /**
-        Generates a String key from by combining the provider and provider
-	    module names.
-
-        @param   provider              the provider instance
-
-        @return  the generated key
-     */
     EnableIndicationsResponseHandler * _removeEntry(const String & key);
 
     String _generateKey(const Provider & provider);
@@ -131,10 +117,6 @@ protected:
     ProviderName _resolveProviderName(String & destinationPath);
 
 protected:
-    /**
-        Table holding indication response handlers, one for each provider
-    	that has indications enabled.
-    */
     IndicationResponseTable _responseTable;
 
 };

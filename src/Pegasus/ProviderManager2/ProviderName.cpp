@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,59 +39,30 @@ ProviderName::ProviderName(void) : _capabilities(0)
 {
 }
 
-/*
-ProviderName::ProviderName(const String & providerName)
-    : _capabilities(0)
+ProviderName::ProviderName(
+    const CIMNamespaceName & nameSpace,
+    const CIMName & className,
+    const Uint32 capabilities,
+    const CIMName & method)
+    : _capabilities(capabilities)
 {
-    // NOTE: format ::= <physical_name>::<logical_name>::<object_name>::<capabilities>
-
-    String s = providerName;
-
-    Uint32 beg = 0;
-    Uint32 end = 0;
-
-    // get physical name
-    beg = 0;
-    end = s.find("::");
-
-    String temp = s.subString(beg, end - beg);
-    _physicalName = temp;
-
-    s.remove(beg, end + 2); // skip past the "::"
-    beg = end;
-
-    // get logical name
-    beg = 0;
-    end = s.find("::");
-
-    temp = s.subString(beg, end - beg);
-    _logicalName = temp;
-
-    s.remove(beg, end + 2); // skip past the "::"
-    beg = end;
-
-    // get object name
-    beg = 0;
-    end = s.find("::");
-
-    temp = s.subString(beg, end - beg);
-    _objectName = temp;
-
-    //s.remove(beg, end + 2); // skip past the "::"
-    //beg = end;
-
-    _objectName = temp;
-
-    // get capabilities mask
-    beg = 0;
-    end = s.find("::");
-
-    _physicalName = String(s.subString(beg, end - beg));
+    _nameSpace = nameSpace;
+    _className = className;
+    _method = method;
 }
-*/
 
 ProviderName::ProviderName(
-    const String & objectName,
+    const CIMObjectPath & path,
+    const Uint32 capabilities,
+    const CIMName & method)
+    : _capabilities(capabilities)
+{
+    _nameSpace = path.getNameSpace();
+    _className = path.getClassName();
+    _method = method;
+}
+
+ProviderName::ProviderName(
     const String & logicalName,
     const String & physicalName,
     const String & interfaceName,
@@ -99,38 +70,15 @@ ProviderName::ProviderName(
     const CIMName & method)
     : _capabilities(capabilities)
 {
-    // ATTN: validate arguments ???
-    _objectName = objectName;
-
     _logicalName = logicalName;
-
     _physicalName = physicalName;
-
-    _interfaceName = interfaceName;
-    
+    _interfaceName = interfaceName;    
     _method = method;
 }
 
 ProviderName::~ProviderName(void)
 {
 }
-
-
-String ProviderName::toString(void) const
-{
-    String s;
-
-    s.append(_physicalName);
-    s.append("::");
-    s.append(_logicalName);
-    s.append("::");
-    s.append(_objectName);
-    //s.append("::");
-    //s.append(CIMValue(_capabilities).toString());
-
-    return(s); 
-}
-
 
 String ProviderName::getPhysicalName(void) const
 {
@@ -147,29 +95,9 @@ String ProviderName::getLogicalName(void) const
     return(_logicalName);
 }
 
-void ProviderName::setLogicalName(const String & logicalName)
-{
-    _logicalName = logicalName;
-}
-
-String ProviderName::getObjectName(void) const
-{
-    return(_objectName);
-}
-
-void ProviderName::setObjectName(const String & logicalName)
-{
-    _logicalName = logicalName;
-}
-
 String ProviderName::getInterfaceName(void) const
 {
     return(_interfaceName);
-}
-
-void ProviderName::setInterfaceName(const String & interfaceName)
-{
-    _interfaceName = interfaceName;
 }
 
 Uint32 ProviderName::getCapabilitiesMask(void) const
@@ -177,20 +105,17 @@ Uint32 ProviderName::getCapabilitiesMask(void) const
     return(_capabilities);
 }
 
-void ProviderName::setCapabilitiesMask(const Uint32 capabilities)
-{
-    _capabilities = capabilities;
-}
-
-
 CIMName ProviderName::getMethodName(void) const
 {
     return(_method);
 }
 
-void ProviderName::setMethodName(const CIMName & method)
-{
-    _method = method;
+CIMName ProviderName::getClassName() const {
+   return _className;
 }
+
+CIMNamespaceName ProviderName::getNameSpace() const {
+   return _nameSpace;
+}   
 
 PEGASUS_NAMESPACE_END

@@ -65,6 +65,7 @@
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <arpa/inet.h>
+#include <__ftp.h>
 #endif
 
 #if defined(PEGASUS_USE_SYSLOGS) 
@@ -559,7 +560,7 @@ String System::getFullyQualifiedHostName ()
     return fqName;
 #elif defined(PEGASUS_OS_ZOS)
 	char hostName [PEGASUS_MAXHOSTNAMELEN];
-	char domainName [PEGASUS_MAXHOSTNAMELEN];
+	char *domainName;
 	String fqName;
 	// receive short name of the local host
 	if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
@@ -567,7 +568,8 @@ String System::getFullyQualifiedHostName ()
 		return String::EMPTY;
 	}
 	// get domain name of the local host
-	if (domainName= __ipDomainName() == 0)
+	domainName= __ipDomainName();
+	if (domainName == 0)
 	{
 		return String::EMPTY;
 	}

@@ -33,12 +33,13 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMParamValue.h>
+
+#include <Pegasus/Provider2/ResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permisyion is hereby granted, free of charge, to any person obtaining a copy
+// Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
 // deal in the Software without restriction, including without limitation the 
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
@@ -37,6 +37,8 @@
 #include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+// REVIEW: missing "PEGASUS_" prefixes:
 
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
 #define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010

@@ -32,6 +32,8 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -121,7 +123,7 @@ static struct OwnerEntry _properties[] =
     {"logdir",              (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"logtrace",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"cleanlogs",           (ConfigPropertyOwner* )ConfigManager::logOwner},
-    {"severity",            (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"logLevel",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"enableHttpConnection", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableHttpsConnection",(ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"httpPort",            (ConfigPropertyOwner* )ConfigManager::defaultOwner},

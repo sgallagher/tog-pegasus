@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By: 
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -210,7 +210,7 @@ private:
 
     struct ConfigProperty*      _trace;
 
-    struct ConfigProperty*      _severity;
+    struct ConfigProperty*      _logLevel;
 
 };
 

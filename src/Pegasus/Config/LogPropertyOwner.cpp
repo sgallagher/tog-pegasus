@@ -25,6 +25,8 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -35,6 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "LogPropertyOwner.h"
+#include <Pegasus/Common/Logger.h>
 
 
 PEGASUS_USING_STD;
@@ -51,7 +54,7 @@ static struct ConfigPropertyRow properties[] =
     {"logdir", "./logs", 1, 0, 0},
     {"cleanlogs", "false", 0, 0, 0},
     {"trace", "false", 0, 0, 0},
-    {"severity", "ALL", 0, 0, 0}
+    {"logLevel", "INFORMATION", 1, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -64,7 +67,7 @@ LogPropertyOwner::LogPropertyOwner()
     _logdir        = new ConfigProperty;
     _cleanlogs    = new ConfigProperty;
     _trace       = new ConfigProperty;
-    _severity    = new ConfigProperty;
+    _logLevel    = new ConfigProperty;
 }
 
 /** Destructor  */
@@ -74,7 +77,7 @@ LogPropertyOwner::~LogPropertyOwner()
     delete _logdir;
     delete _cleanlogs;
     delete _trace;
-    delete _severity;
+    delete _logLevel;
 }
 
 
@@ -128,15 +131,15 @@ void LogPropertyOwner::initialize()
             _trace->domain = properties[i].domain;
             _trace->domainSize = properties[i].domainSize;
         }
-        else if (String::equalNoCase(properties[i].propertyName, "severity"))
+        else if (String::equalNoCase(properties[i].propertyName, "logLevel"))
         {
-            _severity->propertyName = properties[i].propertyName;
-            _severity->defaultValue = properties[i].defaultValue;
-            _severity->currentValue = properties[i].defaultValue;
-            _severity->plannedValue = properties[i].defaultValue;
-            _severity->dynamic = properties[i].dynamic;
-            _severity->domain = properties[i].domain;
-            _severity->domainSize = properties[i].domainSize;
+            _logLevel->propertyName = properties[i].propertyName;
+            _logLevel->defaultValue = properties[i].defaultValue;
+            _logLevel->currentValue = properties[i].defaultValue;
+            _logLevel->plannedValue = properties[i].defaultValue;
+            _logLevel->dynamic = properties[i].dynamic;
+            _logLevel->domain = properties[i].domain;
+            _logLevel->domainSize = properties[i].domainSize;
         }
     }
 }
@@ -160,9 +163,9 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     {
         return _trace;
     }
-    else if (String::equalNoCase(_severity->propertyName, name))
+    else if (String::equalNoCase(_logLevel->propertyName, name))
     {
-        return _severity;
+        return _logLevel;
     }
     else
     {
@@ -230,8 +233,16 @@ void LogPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    configProperty->currentValue = value;
+    if(String::equalNoCase(_logLevel->propertyName,name))
+    {
+	_logLevel->currentValue = value;
+	Logger::setlogLevelMask(_logLevel->currentValue);
+    }
+    else
+    {
+	struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+	configProperty->currentValue = value;
+    }
 }
 
 
@@ -290,6 +301,19 @@ Checks to see if the given value is valid or not.
 */
 Boolean LogPropertyOwner::isValid(const String& name, const String& value)
 {
+    if (String::equalNoCase(_logLevel->propertyName, name))
+    {
+	//
+	// Check if the logLevel is valid
+	//
+	if (!Logger::isValidlogLevel(value))
+	{
+	    throw InvalidPropertyValue(name, value);
+        }
+
+        return true;
+    }
+
     // ATTN: Add validation code
     return 1;
 }

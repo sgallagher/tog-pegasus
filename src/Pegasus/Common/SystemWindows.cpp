@@ -27,6 +27,8 @@
 //
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "System.h"
@@ -293,5 +295,23 @@ Boolean System::is_absolute_path(const char *path)
  
   return (strcasecmp(_fullpath( full, path, _MAX_PATH ), path) == 0) ? true : false;
 }
+
+void System::openlog(const String ident)
+{
+    return;
+}
+
+void System::syslog(Uint32 severity, const char *data)
+{
+    return;
+}
+
+void System::closelog()
+{
+    return;
+}
+
+// System ID constants for Logger::put and Logger::trace
+const String System::CIMSERVER = "cimserver";  // Server system ID
 
 PEGASUS_NAMESPACE_END

@@ -27,6 +27,8 @@
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Nag Boranna (nagaraja_boranna@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_OS_HPUX
@@ -43,6 +45,7 @@
 #  include <qleawi.h>                /* QleActBndPgm(),QleGetExp()     */
 #  include <qycmutiltyUtility.H>
 #  include <unistd.cleinc>
+#  include "qycmmsgclsMessage.H" // ycmMessage class
 #else
 # include <dlfcn.h>
 #endif
@@ -53,6 +56,10 @@
 
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
 #include <crypt.h> 
+#endif
+
+#if defined(PEGASUS_USE_SYSLOGS) 
+#include <syslog.h>
 #endif
 
 #include <sys/stat.h>
@@ -600,5 +607,93 @@ Boolean System::is_absolute_path(const char *path)
   
   return false;
 }
+
+void System::openlog(const String ident)
+{
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+
+    openlog(ident, LOG_PID|LOG_CONS, LOG_DAEMON);
+
+#endif
+
+    return;
+}
+
+void System::syslog(Uint32 severity, const char *data)
+{
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+
+    // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
+    // certain messages will go to the Syslog and others to the 
+    // Pegasus Logger.
+    Uint32 syslogLevel = LOG_DEBUG;
+
+    // Map the log levels.
+    if (severity & Logger::TRACE) syslogLevel =       LOG_DEBUG;
+    if (severity & Logger::INFORMATION) syslogLevel = LOG_INFO;
+    if (severity & Logger::WARNING) syslogLevel =     LOG_WARNING;
+    if (severity & Logger::SEVERE) syslogLevel =      LOG_ERR;
+    if (severity & Logger::FATAL) syslogLevel =       LOG_CRIT;
+
+    syslog(syslogLevel, "%s", data);
+
+#elif defined(PEGASUS_OS_OS400)
+
+    std::string replacementData = data;
+    // All messages will go to the joblog. In the future
+    // some messages may go to other message queues yet
+    // to be determined.
+    if ((severity & Logger::TRACE) ||
+	(severity & Logger::INFORMATION))
+    {
+
+	// turn into ycmMessage so we can put it in the job log
+	ycmMessage theMessage(msgCPxDF80,
+			      CPIprefix,
+			      replacementData,
+			      "Logger",ycmCTLCIMID);
+
+	// put the message in the joblog
+	theMessage.joblogIt(UnitOfWorkError,
+			    ycmMessage::Informational);
+    }
+
+    if ((severity & Logger::WARNING) ||
+	(severity & Logger::SEVERE)  ||
+	(severity & Logger::FATAL))
+    {
+	// turn into ycmMessage so we can put it in the job log
+	ycmMessage theMessage(msgCPxDF82,
+			      CPDprefix,
+			      replacementData,
+			      "Logger",ycmCTLCIMID);
+
+	// put the message in the joblog
+	theMessage.joblogIt(UnitOfWorkError,
+			    ycmMessage::Diagnostic);
+    }
+
+#endif
+
+    return;
+}
+
+void System::closelog()
+{
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+
+    closelog();
+
+#endif
+
+    return;
+}
+
+// System ID constants for Logger::put and Logger::trace
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+const String System::CIMSERVER = "qycmcimom";  // Server system ID
+#else
+const String System::CIMSERVER = "cimserver";  // Server system ID
+#endif
     
 PEGASUS_NAMESPACE_END

@@ -30,6 +30,7 @@
 //   Date      Release   Revisor           Revision
 //   04NOV01   1         Rudy Schuet       Initial creation
 //   16NOV01   1         Nag Boranna       Added get login name function
+//   13MAR03   2.2       Dave Rosckes      Added syslog stubs.
 //
 // ***************************************************************************
 //                                                                             
@@ -146,5 +147,23 @@ Uint32 System::getPID()
     //       This is used by the Tracer
     return 0;
 }
+
+void System::openlog(const String ident)
+{
+    return;
+}
+
+void System::syslog(Uint32 severity, const char *data)
+{
+    return;
+}
+
+void System::closelog()
+{
+    return;
+}
+
+// System ID constants for Logger::put and Logger::trace
+const String System::CIMSERVER = "cimserver";  // Server system ID
     
 PEGASUS_NAMESPACE_END

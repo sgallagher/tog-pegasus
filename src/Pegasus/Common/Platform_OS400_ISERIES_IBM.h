@@ -26,6 +26,8 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_OS400_ISERIES_IBM_h
@@ -87,5 +89,7 @@
 #define PEGASUS_LOCAL_DOMAIN_SOCKET
 
 #define PEGASUS_HAS_PERFINST
+
+#define PEGASUS_USE_SYSLOGS
 
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

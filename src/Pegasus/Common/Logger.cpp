@@ -37,14 +37,6 @@
 #include "System.h"
 #include "Destroyer.h"
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) 
-#include <syslog.h>
-#endif
-
-#ifdef PEGASUS_OS_OS400
-#include "qycmmsgclsMessage.H" // ycmMessage class
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -55,14 +47,31 @@ const Uint32 Logger::WARNING = (1 << 2);
 const Uint32 Logger::SEVERE = (1 << 3);
 const Uint32 Logger::FATAL = (1 << 4);
 
+static char const* LOGLEVEL_LIST[] =
+{
+    "TRACE",
+    "INFORMATION",
+    "WARNING",
+    "SEVERE",
+    "FATAL"
+};
+
+
 LoggerRep* Logger::_rep = 0;
 String Logger::_homeDirectory = ".";
 
-// FUTURE-SF-P3-20020517 : This may need to be configurable. At least needs 
-// to be set to 0xFF by default always.
-Uint32 Logger::_severityMask = 0xFF;      // Set all on by default
+const Uint32 Logger::_NUM_LOGLEVEL = 5;
+
+// Set separator
+const char Logger::_SEPARATOR = '@';
+
+Uint32 Logger::_severityMask; 
 
 Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
+
+// Set the return codes
+const Boolean Logger::_SUCCESS = 1;
+const Boolean Logger::_FAILURE = 0;
 
 /* _allocLogFileName. Allocates the name from a name set.
     Today this is static.  However, it should be completely
@@ -149,10 +158,11 @@ private:
     ofstream _logs[int(Logger::NUM_LOGS)];
 };
 
-void Logger::put(
+void Logger::_putInternal(
     LogFileType logFileType,
     const String& systemId,
-    Uint32 severity,
+    const Uint32 logComponent, // TODO: Support logComponent mask in future release 
+    Uint32 logLevel,
     const String& formatString,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
@@ -165,14 +175,14 @@ void Logger::put(
     const Formatter::Arg& arg8,
     const Formatter::Arg& arg9)
 {
-    // Test for severity against severity mask to determine
+    // Test for logLevel against severity mask to determine
     // if we write this log.
-    if ((_severityMask & severity) != 0) 
+    if ((_severityMask & logLevel) != 0) 
     {
 	if (!_rep)
 	   _rep = new LoggerRep(_homeDirectory);
 
-	// Get the Severity String
+	// Get the logLevel String
 	// This converts bitmap to string based on highest order
 	// bit set
 	// ATTN: KS Fix this more efficiently.
@@ -190,77 +200,108 @@ void Logger::put(
         String logMsg = Formatter::format(formatString,
                 arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-            // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
-            // certain messages will go to the Syslog and others to the 
-            // Pegasus Logger.
-            Uint32 syslogLevel = LOG_DEBUG;
-
-            // Map the log levels.
-            if (severity & Logger::TRACE) syslogLevel =       LOG_DEBUG;
-            if (severity & Logger::INFORMATION) syslogLevel = LOG_INFO;
-            if (severity & Logger::WARNING) syslogLevel =     LOG_WARNING;
-            if (severity & Logger::SEVERE) syslogLevel =      LOG_ERR;
-            if (severity & Logger::FATAL) syslogLevel =       LOG_CRIT;
-  
+#if defined(PEGASUS_USE_SYSLOGS)
+           
             // Open the syslog.
             // Ignore the systemId and open the log as cimserver
-            openlog("cimserver", LOG_PID|LOG_CONS, LOG_DAEMON);
+	    System::openlog(systemId);
 
             // Log the message
-            syslog(syslogLevel, "%s", (const char*)logMsg.getCString());
+	    System::syslog(logLevel,(const char*)logMsg.getCString());
 
             // Close the syslog.
-            closelog();
-
-       #elif defined(PEGASUS_OS_OS400)
-
-	    std::string replacementData = (const char*)logMsg.getCString();
-	    // All messages will go to the joblog. In the future
-	    // some messages may go to other message queues yet
-	    // to be determined.
-	    if ((severity & Logger::TRACE) ||
-		(severity & Logger::INFORMATION))
-	    {
-
-		// turn into ycmMessage so we can put it in the job log
-		ycmMessage theMessage(msgCPxDF80,
-				      CPIprefix,
-				      replacementData,
-				      "Logger",ycmCTLCIMID);
-
-		// put the message in the joblog
-		theMessage.joblogIt(UnitOfWorkError,
-				    ycmMessage::Informational);
-	    }
-
-            if ((severity & Logger::WARNING) ||
-		(severity & Logger::SEVERE)  ||
-                (severity & Logger::FATAL))
-	    {
-		// turn into ycmMessage so we can put it in the job log
-		ycmMessage theMessage(msgCPxDF82,
-                                      CPDprefix,
-                                      replacementData,
-				      "Logger",ycmCTLCIMID);
-
-               // put the message in the joblog
-               theMessage.joblogIt(UnitOfWorkError,
-				   ycmMessage::Diagnostic);
-            }
+	    System::closelog();
 
        #else
-	    const char* tmp = "";
-	    if (severity & Logger::TRACE) tmp =       "TRACE   ";
-	    if (severity & Logger::INFORMATION) tmp = "INFO    ";
-            if (severity & Logger::WARNING) tmp =     "WARNING ";
-	    if (severity & Logger::SEVERE) tmp =      "SEVERE  ";
-	    if (severity & Logger::FATAL) tmp =       "FATAL   ";
-                _rep->logOf(logFileType) << System::getCurrentASCIITime() 
-                 << " " << tmp << logMsg << endl;
-       #endif
 
+	    // Prepend the systemId to the incoming message
+	    String messageString(systemId);
+	    messageString.append(": ");
+	    messageString.append(logMsg);
+
+	    const char* tmp = "";
+	    if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
+	    if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
+            if (logLevel & Logger::WARNING) tmp =     "WARNING ";
+	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
+	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
+                _rep->logOf(logFileType) << System::getCurrentASCIITime() 
+                 << " " << tmp << messageString << endl;
+
+       #endif
     }
+}
+
+void Logger::put(
+		 LogFileType logFileType,
+		 const String& systemId,
+		 Uint32 logLevel,
+		 const String& formatString,
+		 const Formatter::Arg& arg0,
+		 const Formatter::Arg& arg1,
+		 const Formatter::Arg& arg2,
+		 const Formatter::Arg& arg3,
+		 const Formatter::Arg& arg4,
+		 const Formatter::Arg& arg5,
+		 const Formatter::Arg& arg6,
+		 const Formatter::Arg& arg7,
+		 const Formatter::Arg& arg8,
+		 const Formatter::Arg& arg9)
+{
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);
+}
+
+void Logger::trace(
+		   LogFileType logFileType,
+		   const String& systemId,
+		   const Uint32 logComponent,
+		   const String& formatString,
+		   const Formatter::Arg& arg0,
+		   const Formatter::Arg& arg1,
+		   const Formatter::Arg& arg2,
+		   const Formatter::Arg& arg3,
+		   const Formatter::Arg& arg4,
+		   const Formatter::Arg& arg5,
+		   const Formatter::Arg& arg6,
+		   const Formatter::Arg& arg7,
+		   const Formatter::Arg& arg8,
+		   const Formatter::Arg& arg9)
+{
+    Uint32 logLevel = Logger::TRACE;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);
 }
 
 void Logger::clean(const String& directory)
@@ -280,5 +321,113 @@ void Logger::setHomeDirectory(const String& homeDirectory)
 {
     _homeDirectory = homeDirectory;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Set logLevel. 
+////////////////////////////////////////////////////////////////////////////////
+void Logger::setlogLevelMask( const String logLevelList )
+{
+    Uint32 position          = 0;
+    Uint32 logLevelType;
+    String logLevelName      = logLevelList;
+
+    // Check if logLevel has been specified
+    if (logLevelName != String::EMPTY)
+    {
+        // initialise _severityMask
+        _severityMask = 0;
+
+ 	// Set logLevelType to indicate the level of logging
+        // required by the user.
+	if (String::equalNoCase(logLevelName,"TRACE"))
+	{
+	    logLevelType =  Logger::TRACE;
+	}
+	else if (String::equalNoCase(logLevelName,"INFORMATION"))
+	{
+	    logLevelType =  Logger::INFORMATION;
+	}
+	else if (String::equalNoCase(logLevelName,"WARNING"))
+	{
+	    logLevelType = Logger::WARNING;
+	}
+	else if (String::equalNoCase(logLevelName,"SEVERE"))
+	{
+	    logLevelType = Logger::SEVERE;
+	}
+	else if (String::equalNoCase(logLevelName,"FATAL"))
+	{
+	    logLevelType = Logger::FATAL;
+	}
+	// Setting _severityMask.  NOTE:  When adding new logLevels
+        // it is essential that they are adding in ascending order
+        // based on priority.  Once a case statement is true we will
+        // continue to set all following log levels with a higher
+        // priority.
+	switch(logLevelType)
+	{
+	    case Logger::TRACE:
+		  _severityMask |= Logger::TRACE;
+	    case Logger::INFORMATION:
+		  _severityMask |= Logger::INFORMATION;
+	    case Logger::WARNING:
+		  _severityMask |= Logger::WARNING;
+	    case Logger::SEVERE:
+		  _severityMask |= Logger::SEVERE;
+	    case Logger::FATAL:
+		  _severityMask |= Logger::FATAL;
+	}
+    }
+    else
+    {
+	// Property logLevel not specified, set default value.
+	_severityMask = ~Logger::TRACE;
+    }
+    return ;
+}
+
+Boolean Logger::isValidlogLevel(
+    const String logLevel)
+{
+    // Validate the logLevel and modify the logLevel argument
+    // to reflect the invalid logLevel
+
+    Uint32    position=0;
+    Uint32    index=0;
+    String    logLevelName = String::EMPTY;
+    Boolean   validlogLevel=false;
+    Boolean   retCode=true;
+
+    logLevelName = logLevel;
+
+    if (logLevelName != String::EMPTY)
+    {
+	// Lookup the index for logLevel name in _logLevel_LIST
+	index = 0;
+	validlogLevel = false;
+
+	while (index < _NUM_LOGLEVEL)
+	{
+	    if (String::equalNoCase(logLevelName, LOGLEVEL_LIST[index]))
+	    {
+		// Found logLevel, break from the loop
+		validlogLevel = true;
+		break;
+	    }
+	    else
+	    {
+		index++;
+	    }
+	}
+    }
+    else
+    {
+	// logLevels is empty, it is a valid value so return true
+	return _SUCCESS;
+    }
+
+    return validlogLevel;
+}
+
 
 PEGASUS_NAMESPACE_END

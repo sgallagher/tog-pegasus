@@ -70,8 +70,8 @@
     22.	Revise licensing headers on all files.
 
     23. Add $Log: CodeReviewNotes.txt,v $
-    23. Add Revision 1.8  2001/12/27 16:56:49  mike
-    23. Add Added more review comments.
+    23. Add Revision 1.9  2001/12/27 20:32:55  mike
+    23. Add Added review comments and did minor reformatting.
     23. Add CVS directives to each file.
 
     24. Avoid inlining of large functions.

@@ -294,6 +294,8 @@ TAG: Version_1_09.
     CIMBaseProvider - an example, the AdapterSkeleton, can be found in 
     src/Providers/generic/CMPIAdapter/
 
+50. (MM) 23 May 2002 - New AtomicInt implementation using pthread_spinlocks.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

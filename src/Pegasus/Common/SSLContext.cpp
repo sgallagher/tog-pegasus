@@ -187,7 +187,6 @@ SSLContextRep::SSLContextRep(const String& certPath,
                        VERIFY_CERTIFICATE verifyCert,
                        const String& randomFile,
                        Boolean isCIMClient)
-    throw(SSLException)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -325,7 +324,7 @@ SSL_CTX * SSLContextRep::getContext() const
 SSLContextRep::SSLContextRep(const String& certPath,
                        VERIFY_CERTIFICATE verifyCert,
                        const String& randomFile,
-                       Boolean isCIMClient) throw(SSLException) {}
+                       Boolean isCIMClient) {}
 
 SSLContextRep::~SSLContextRep() {}
 
@@ -344,7 +343,7 @@ SSLContext::SSLContext(
     const String& certPath,
     VERIFY_CERTIFICATE verifyCert,
     const String& randomFile,
-    Boolean isCIMClient) throw(SSLException) 
+    Boolean isCIMClient)
 {
     _rep = new SSLContextRep(certPath, verifyCert, randomFile, isCIMClient);
 }

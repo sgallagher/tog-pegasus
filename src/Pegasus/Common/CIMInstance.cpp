@@ -61,7 +61,7 @@ CIMInstance::CIMInstance(const CIMInstance& x)
     Inc(_rep = x._rep);
 }
 
-CIMInstance::CIMInstance(const CIMObject& x) throw(DynamicCastFailedException)
+CIMInstance::CIMInstance(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailedException();
@@ -155,19 +155,19 @@ Uint32 CIMInstance::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMProperty CIMInstance::getProperty(Uint32 index) throw(IndexOutOfBoundsException)
+CIMProperty CIMInstance::getProperty(Uint32 index)
 {
     _checkRep();
     return _rep->getProperty(index);
 }
 
-CIMConstProperty CIMInstance::getProperty(Uint32 index) const throw(IndexOutOfBoundsException)
+CIMConstProperty CIMInstance::getProperty(Uint32 index) const
 {
     _checkRep();
     return _rep->getProperty(index);
 }
 
-void CIMInstance::removeProperty(Uint32 index)  throw(IndexOutOfBoundsException)
+void CIMInstance::removeProperty(Uint32 index)
 {
     _checkRep();
     _rep->removeProperty(index);
@@ -235,7 +235,7 @@ CIMConstInstance::CIMConstInstance(const CIMInstance& x)
     Inc(_rep = x._rep);
 }
 
-CIMConstInstance::CIMConstInstance(const CIMObject& x) throw(DynamicCastFailedException)
+CIMConstInstance::CIMConstInstance(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailedException();
@@ -243,7 +243,6 @@ CIMConstInstance::CIMConstInstance(const CIMObject& x) throw(DynamicCastFailedEx
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
-    throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailedException();

@@ -63,12 +63,16 @@ public:
     CIMInstance();
 
     /** Constructor - Create a CIMInstance object from another Instance.
-	@param Instance object from which the new instance is created.
-	@return New instance
+	@param x Instance object from which the new instance is created.
     */
     CIMInstance(const CIMInstance& x);
 
-    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x) throw(DynamicCastFailedException);
+    /**	Constructor - Creates an Instance object from the given CIMObject
+	@param x CIMObject from which to create the CIMInstance
+	@exception DynamicCastFailedException If a CIMInstance can not be
+        created from the given CIMObject
+    */
+    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x);
 
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
@@ -162,17 +166,17 @@ public:
     */
     Uint32 findProperty(const CIMName& name) const;
 
-    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
+    /**	getProperty - Gets the CIMProperty object in the CIMInstance defined
 	by the input index parameter.
 	@param Index to the property object in the CIMInstance.
     	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
-	@exception Throws the IndexOutOfBoundsException exception if the index
-	is out of bounds
+	@exception IndexOutOfBoundsException if index is outside the range of
+        properties in this instance
     */
-    CIMProperty getProperty(Uint32 index) throw(IndexOutOfBoundsException);
+    CIMProperty getProperty(Uint32 index);
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
@@ -181,10 +185,10 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
-	@exception Throws the IndexOutOfBoundsException exception if the index
-	is out of bounds
+	@exception IndexOutOfBoundsException if index is outside the range of
+        properties in this instance
     */
-    CIMConstProperty getProperty(Uint32 index) const throw(IndexOutOfBoundsException);
+    CIMConstProperty getProperty(Uint32 index) const;
 
     /** removeProperty - Removes the property represented
 	by the index input parameter from the instance.
@@ -193,7 +197,7 @@ public:
 	@exception IndexOutOfBoundsException if index is outside the range of
         properties in this instance
     */
-    void removeProperty(Uint32 index) throw(IndexOutOfBoundsException);
+    void removeProperty(Uint32 index);
 
     /**	getPropertyCount - Gets the numbercount of CIMProperty
 	objects defined for this CIMInstance.
@@ -279,11 +283,9 @@ public:
 
     CIMConstInstance(const CIMInstance& x);
 
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x)
-        throw(DynamicCastFailedException);
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x);
 
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x)
-        throw(DynamicCastFailedException);
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x);
 
     CIMConstInstance(const CIMName& className);
 

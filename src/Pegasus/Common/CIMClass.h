@@ -74,8 +74,12 @@ public:
     */
     CIMClass(const CIMClass& x);
 
-    PEGASUS_EXPLICIT CIMClass(const CIMObject& x)
-        throw(DynamicCastFailedException);
+    /**	Constructor - Creates a Class object from the given CIMObject
+	@param x CIMObject from which to create the CIMClass
+	@exception DynamicCastFailedException If a CIMClass can not be
+        created from the given CIMObject
+    */
+    PEGASUS_EXPLICIT CIMClass(const CIMObject& x);
 
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
@@ -334,11 +338,9 @@ public:
 
     CIMConstClass(const CIMClass& x);
 
-    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x)
-        throw(DynamicCastFailedException);
+    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x);
 
-    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x)
-        throw(DynamicCastFailedException);
+    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x);
 
     CIMConstClass(
 	const CIMName& className,

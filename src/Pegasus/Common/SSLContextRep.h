@@ -63,7 +63,7 @@ public:
         const String& certPath,
         VERIFY_CERTIFICATE verifyCert = NULL,
         const String& randomFile = String::EMPTY,
-        Boolean isCIMClient = false) throw(SSLException);
+        Boolean isCIMClient = false);
 
     ~SSLContextRep();
 

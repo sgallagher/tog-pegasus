@@ -43,6 +43,7 @@ int main()
     {
 	Array<String> all;
 	Array<String> values;
+        String value;
 
 	ConfigFileHandler _config("cimserver_current.conf",  
             "cimserver_planned.conf", true);
@@ -53,8 +54,8 @@ int main()
 
 	for (Uint32 i = 0; i < all.size(); i++)
 	{
-            _config.getCurrentValue(all[i]); 
-            _config.getPlannedValue(all[i]); 
+            _config.getCurrentValue(all[i], value);
+            _config.getPlannedValue(all[i], value);
 	}
 
         all.clear();
@@ -63,7 +64,7 @@ int main()
 
 	for (Uint32 i = 0; i < all.size(); i++)
 	{
-            _config.getPlannedValue(all[i]); 
+            _config.getPlannedValue(all[i], value);
 	}
 
         all.clear();
@@ -73,7 +74,7 @@ int main()
 
 	for (Uint32 i = 0; i < all.size(); i++)
 	{
-            _config.getCurrentValue(all[i]); 
+            _config.getCurrentValue(all[i], value);
 	}
 
     }

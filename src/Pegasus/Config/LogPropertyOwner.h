@@ -197,6 +197,8 @@ public:
 
 private:
 
+    struct ConfigProperty* _lookupConfigProperty(const String& name);
+
     /**
     The log properties owned by this class
     */

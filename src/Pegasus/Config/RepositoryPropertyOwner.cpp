@@ -91,6 +91,20 @@ void RepositoryPropertyOwner::initialize()
     }
 }
 
+struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
+    const String& name)
+{
+    if (String::equalNoCase(
+            _repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        return _repositoryIsDefaultInstanceProvider;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+}
+
 /** 
 Get information about the specified property.
 */
@@ -100,24 +114,19 @@ void RepositoryPropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
     {
-        propertyInfo.append(_repositoryIsDefaultInstanceProvider->propertyName);
-        propertyInfo.append(_repositoryIsDefaultInstanceProvider->defaultValue);
-        propertyInfo.append(_repositoryIsDefaultInstanceProvider->currentValue);
-        propertyInfo.append(_repositoryIsDefaultInstanceProvider->plannedValue);
-        if (_repositoryIsDefaultInstanceProvider->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
+        propertyInfo.append(STRING_TRUE);
     }
     else
     {
-        throw UnrecognizedConfigProperty(name);
+        propertyInfo.append(STRING_FALSE);
     }
 }
 
@@ -126,14 +135,8 @@ Get default value of the specified property.
 */
 const String RepositoryPropertyOwner::getDefaultValue(const String& name)
 {
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
-    {
-        return (_repositoryIsDefaultInstanceProvider->defaultValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->defaultValue;
 }
 
 /** 
@@ -141,14 +144,8 @@ Get current value of the specified property.
 */
 const String RepositoryPropertyOwner::getCurrentValue(const String& name)
 {
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
-    {
-        return (_repositoryIsDefaultInstanceProvider->currentValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->currentValue;
 }
 
 /** 
@@ -156,14 +153,8 @@ Get planned value of the specified property.
 */
 const String RepositoryPropertyOwner::getPlannedValue(const String& name)
 {
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
-    {
-        return (_repositoryIsDefaultInstanceProvider->plannedValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->plannedValue;
 }
 
 
@@ -174,15 +165,8 @@ void RepositoryPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
-    {
-        _repositoryIsDefaultInstanceProvider->currentValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -193,14 +177,8 @@ void RepositoryPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
-    {
-        _repositoryIsDefaultInstanceProvider->plannedValue= value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -219,12 +197,9 @@ void RepositoryPropertyOwner::updateCurrentValue(
     }
 
     //
-    // Validate the specified value and call initPlannedValue
+    // Update does the same thing as initialization
     //
-    if (isValid(name, value))
-    {
-        initCurrentValue(name, value);
-    }
+    initCurrentValue(name, value);
 }
 
 
@@ -236,12 +211,9 @@ void RepositoryPropertyOwner::updatePlannedValue(
     const String& value)
 {
     //
-    // Validate the specified value and call initPlannedValue
+    // Update does the same thing as initialization
     //
-    if (isValid(name, value))
-    {
-        initPlannedValue(name, value);
-    }
+    initPlannedValue(name, value);
 }
 
 /** 
@@ -273,14 +245,8 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean RepositoryPropertyOwner::isDynamic(const String& name)
 {
-    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
-    {
-        return (_repositoryIsDefaultInstanceProvider->dynamic);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->dynamic;
 }
 
 

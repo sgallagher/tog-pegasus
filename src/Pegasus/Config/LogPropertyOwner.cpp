@@ -141,6 +141,35 @@ void LogPropertyOwner::initialize()
     }
 }
 
+struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
+    const String& name)
+{
+    if (String::equalNoCase(_logtrace->propertyName, name))
+    {
+        return _logtrace;
+    }
+    else if (String::equalNoCase(_logdir->propertyName, name))
+    {
+        return _logdir;
+    }
+    else if (String::equalNoCase(_cleanlogs->propertyName, name))
+    {
+        return _cleanlogs;
+    }
+    else if (String::equalNoCase(_trace->propertyName, name))
+    {
+        return _trace;
+    }
+    else if (String::equalNoCase(_severity->propertyName, name))
+    {
+        return _severity;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+}
+
 /** 
 Get information about the specified property.
 */
@@ -150,84 +179,19 @@ void LogPropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    if (String::equalNoCase(_logtrace->propertyName, name))
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
     {
-        propertyInfo.append(_logtrace->propertyName);
-        propertyInfo.append(_logtrace->defaultValue);
-        propertyInfo.append(_logtrace->currentValue);
-        propertyInfo.append(_logtrace->plannedValue);
-        if (_logtrace->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        propertyInfo.append(_logdir->propertyName);
-        propertyInfo.append(_logdir->defaultValue);
-        propertyInfo.append(_logdir->currentValue);
-        propertyInfo.append(_logdir->plannedValue);
-        if (_logdir->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-        propertyInfo.append(_cleanlogs->propertyName);
-        propertyInfo.append(_cleanlogs->defaultValue);
-        propertyInfo.append(_cleanlogs->currentValue);
-        propertyInfo.append(_cleanlogs->plannedValue);
-        if (_cleanlogs->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        propertyInfo.append(_trace->propertyName);
-        propertyInfo.append(_trace->defaultValue);
-        propertyInfo.append(_trace->currentValue);
-        propertyInfo.append(_trace->plannedValue);
-        if (_trace->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        propertyInfo.append(_severity->propertyName);
-        propertyInfo.append(_severity->defaultValue);
-        propertyInfo.append(_severity->currentValue);
-        propertyInfo.append(_severity->plannedValue);
-        if (_severity->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
+        propertyInfo.append(STRING_TRUE);
     }
     else
     {
-        throw UnrecognizedConfigProperty(name);
+        propertyInfo.append(STRING_FALSE);
     }
 }
 
@@ -236,30 +200,8 @@ Get default value of the specified property.
 */
 const String LogPropertyOwner::getDefaultValue(const String& name)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        return (_logtrace->defaultValue);
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        return (_logdir->defaultValue);
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-        return (_cleanlogs->defaultValue);
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        return (_trace->defaultValue);
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        return (_severity->defaultValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->defaultValue;
 }
 
 /** 
@@ -267,30 +209,8 @@ Get current value of the specified property.
 */
 const String LogPropertyOwner::getCurrentValue(const String& name)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        return (_logtrace->currentValue);
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        return (_logdir->currentValue);
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-        return (_cleanlogs->currentValue);
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        return (_trace->currentValue);
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        return (_severity->currentValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->currentValue;
 }
 
 /** 
@@ -298,30 +218,8 @@ Get planned value of the specified property.
 */
 const String LogPropertyOwner::getPlannedValue(const String& name)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        return (_logtrace->plannedValue);
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        return (_logdir->plannedValue);
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-        return (_cleanlogs->plannedValue);
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        return (_trace->plannedValue);
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        return (_severity->plannedValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->plannedValue;
 }
 
 
@@ -332,30 +230,8 @@ void LogPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        _logtrace->currentValue = value;
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        _logdir->currentValue = value;
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-       _cleanlogs->currentValue = value;
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        _trace->currentValue = value;
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        _severity->currentValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -366,30 +242,8 @@ void LogPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        _logtrace->plannedValue= value;
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        _logdir->plannedValue= value;
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-       _cleanlogs->plannedValue= value;
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        _trace->plannedValue= value;
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        _severity->plannedValue= value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -436,7 +290,7 @@ Checks to see if the given value is valid or not.
 */
 Boolean LogPropertyOwner::isValid(const String& name, const String& value)
 {
-    // TODO: Add validation code
+    // ATTN: Add validation code
     return 1;
 }
 
@@ -445,30 +299,8 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean LogPropertyOwner::isDynamic(const String& name)
 {
-    if (String::equalNoCase(_logtrace->propertyName, name))
-    {
-        return (_logtrace->dynamic);
-    }
-    else if (String::equalNoCase(_logdir->propertyName, name))
-    {
-        return (_logdir->dynamic);
-    }
-    else if (String::equalNoCase(_cleanlogs->propertyName, name))
-    {
-        return (_cleanlogs->dynamic);
-    }
-    else if (String::equalNoCase(_trace->propertyName, name))
-    {
-        return (_trace->dynamic);
-    }
-    else if (String::equalNoCase(_severity->propertyName, name))
-    {
-        return (_severity->dynamic);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->dynamic;
 }
 
 

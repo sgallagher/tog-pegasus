@@ -135,6 +135,27 @@ void FileSystemPropertyOwner::initialize()
     }
 }
 
+struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
+    const String& name)
+{
+    if (String::equalNoCase(_repositoryDir->propertyName, name))
+    {
+        return _repositoryDir;
+    }
+    else if (String::equalNoCase(_providerDir->propertyName, name))
+    {
+        return _providerDir;
+    }
+    else if (String::equalNoCase(_consumerDir->propertyName, name))
+    {
+        return _consumerDir;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+}
+
 /** 
 Get information about the specified property.
 */
@@ -144,54 +165,19 @@ void FileSystemPropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
     {
-        propertyInfo.append(_repositoryDir->propertyName);
-        propertyInfo.append(_repositoryDir->defaultValue);
-        propertyInfo.append(_repositoryDir->currentValue);
-        propertyInfo.append(_repositoryDir->plannedValue);
-        if (_repositoryDir->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        propertyInfo.append(_providerDir->propertyName);
-        propertyInfo.append(_providerDir->defaultValue);
-        propertyInfo.append(_providerDir->currentValue);
-        propertyInfo.append(_providerDir->plannedValue);
-        if (_providerDir->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        propertyInfo.append(_consumerDir->propertyName);
-        propertyInfo.append(_consumerDir->defaultValue);
-        propertyInfo.append(_consumerDir->currentValue);
-        propertyInfo.append(_consumerDir->plannedValue);
-        if (_consumerDir->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
+        propertyInfo.append(STRING_TRUE);
     }
     else
     {
-        throw UnrecognizedConfigProperty(name);
+        propertyInfo.append(STRING_FALSE);
     }
 }
 
@@ -201,22 +187,8 @@ Get default value of the specified property.
 */
 const String FileSystemPropertyOwner::getDefaultValue(const String& name)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        return (_repositoryDir->defaultValue);
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        return (_providerDir->defaultValue);
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        return (_consumerDir->defaultValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->defaultValue;
 }
 
 /** 
@@ -224,22 +196,8 @@ Get current value of the specified property.
 */
 const String FileSystemPropertyOwner::getCurrentValue(const String& name)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        return (_repositoryDir->currentValue);
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        return (_providerDir->currentValue);
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        return (_consumerDir->currentValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->currentValue;
 }
 
 /** 
@@ -247,22 +205,8 @@ Get planned value of the specified property.
 */
 const String FileSystemPropertyOwner::getPlannedValue(const String& name)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        return (_repositoryDir->plannedValue);
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        return (_providerDir->plannedValue);
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        return (_consumerDir->plannedValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->plannedValue;
 }
 
 /** 
@@ -272,22 +216,8 @@ void FileSystemPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        _repositoryDir->currentValue = value;
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        _providerDir->currentValue = value;
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        _consumerDir->currentValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -298,22 +228,8 @@ void FileSystemPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        _repositoryDir->plannedValue = value;
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        _providerDir->plannedValue = value;
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        _consumerDir->plannedValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -330,6 +246,9 @@ void FileSystemPropertyOwner::updateCurrentValue(
     {
         throw NonDynamicConfigProperty(name); 
     }
+
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -340,22 +259,8 @@ void FileSystemPropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        _repositoryDir->plannedValue = value;
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        _providerDir->plannedValue = value;
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        _consumerDir->plannedValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -376,22 +281,8 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean FileSystemPropertyOwner::isDynamic(const String& name)
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
-    {
-        return (_repositoryDir->dynamic);
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        return (_providerDir->dynamic);
-    }
-    else if (String::equalNoCase(_consumerDir->propertyName, name))
-    {
-        return (_consumerDir->dynamic);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->dynamic;
 }
 
 

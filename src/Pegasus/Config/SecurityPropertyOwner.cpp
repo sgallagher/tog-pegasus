@@ -160,6 +160,36 @@ void SecurityPropertyOwner::initialize()
 
 }
 
+struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
+    const String& name)
+{
+    if (String::equalNoCase(_requireAuthentication->propertyName, name))
+    {
+        return _requireAuthentication;
+    }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        return _requireAuthorization;
+    }
+    else if (String::equalNoCase(_httpAuthType->propertyName, name))
+    {
+        return _httpAuthType;
+    }
+    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    {
+        return _passwordFilePath;
+    }
+    else if (String::equalNoCase(
+                 _enableRemotePrivilegedUserAccess->propertyName, name))
+    {
+        return _enableRemotePrivilegedUserAccess;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+}
+
 /** 
 Get information about the specified property.
 */
@@ -169,84 +199,19 @@ void SecurityPropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
     {
-        propertyInfo.append(_requireAuthentication->propertyName);
-        propertyInfo.append(_requireAuthentication->defaultValue);
-        propertyInfo.append(_requireAuthentication->currentValue);
-        propertyInfo.append(_requireAuthentication->plannedValue);
-        if (_requireAuthentication->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        propertyInfo.append(_requireAuthorization->propertyName);
-        propertyInfo.append(_requireAuthorization->defaultValue);
-        propertyInfo.append(_requireAuthorization->currentValue);
-        propertyInfo.append(_requireAuthorization->plannedValue);
-        if (_requireAuthorization->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        propertyInfo.append(_httpAuthType->propertyName);
-        propertyInfo.append(_httpAuthType->defaultValue);
-        propertyInfo.append(_httpAuthType->currentValue);
-        propertyInfo.append(_httpAuthType->plannedValue);
-        if (_httpAuthType->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        propertyInfo.append(_passwordFilePath->propertyName);
-        propertyInfo.append(_passwordFilePath->defaultValue);
-        propertyInfo.append(_passwordFilePath->currentValue);
-        propertyInfo.append(_passwordFilePath->plannedValue);
-        if (_passwordFilePath->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        propertyInfo.append(_enableRemotePrivilegedUserAccess->propertyName);
-        propertyInfo.append(_enableRemotePrivilegedUserAccess->defaultValue);
-        propertyInfo.append(_enableRemotePrivilegedUserAccess->currentValue);
-        propertyInfo.append(_enableRemotePrivilegedUserAccess->plannedValue);
-        if (_requireAuthorization->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
+        propertyInfo.append(STRING_TRUE);
     }
     else
     {
-        throw UnrecognizedConfigProperty(name);
+        propertyInfo.append(STRING_FALSE);
     }
 }
 
@@ -255,30 +220,8 @@ Get default value of the specified property.
 */
 const String SecurityPropertyOwner::getDefaultValue(const String& name)
 {
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        return (_requireAuthentication->defaultValue);
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        return (_requireAuthorization->defaultValue);
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        return (_httpAuthType->defaultValue);
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        return (_passwordFilePath->defaultValue);
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        return (_enableRemotePrivilegedUserAccess->defaultValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->defaultValue;
 }
 
 /** 
@@ -286,30 +229,8 @@ Get current value of the specified property.
 */
 const String SecurityPropertyOwner::getCurrentValue(const String& name)
 {
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        return (_requireAuthentication->currentValue);
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        return (_requireAuthorization->currentValue);
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        return (_httpAuthType->currentValue);
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        return (_passwordFilePath->currentValue);
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        return (_enableRemotePrivilegedUserAccess->currentValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->currentValue;
 }
 
 /** 
@@ -317,30 +238,8 @@ Get planned value of the specified property.
 */
 const String SecurityPropertyOwner::getPlannedValue(const String& name)
 {
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        return (_requireAuthentication->plannedValue);
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        return (_requireAuthorization->plannedValue);
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        return (_httpAuthType->plannedValue);
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        return (_passwordFilePath->plannedValue);
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        return (_enableRemotePrivilegedUserAccess->plannedValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->plannedValue;
 }
 
 
@@ -351,31 +250,8 @@ void SecurityPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        _requireAuthentication->currentValue = value;
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        _requireAuthorization->currentValue = value;
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        _httpAuthType->currentValue = value;
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        _passwordFilePath->currentValue = value;
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        _enableRemotePrivilegedUserAccess->currentValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -386,30 +262,8 @@ void SecurityPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        _requireAuthentication->plannedValue= value;
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        _requireAuthorization->plannedValue= value;
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        _httpAuthType->plannedValue= value;
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        _passwordFilePath->plannedValue= value;
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        _enableRemotePrivilegedUserAccess->plannedValue= value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -420,14 +274,6 @@ void SecurityPropertyOwner::updateCurrentValue(
     const String& value) 
 {
     //
-    // Validate the specified value 
-    //
-    if (!isValid(name, value))
-    {
-        throw InvalidPropertyValue(name, value);
-    }
-
-    //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
@@ -435,30 +281,8 @@ void SecurityPropertyOwner::updateCurrentValue(
         throw NonDynamicConfigProperty(name); 
     }
 
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        _requireAuthentication->currentValue = value;
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        _requireAuthorization->currentValue = value;
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        _httpAuthType->currentValue = value;
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        _passwordFilePath->currentValue = value;
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        _enableRemotePrivilegedUserAccess->currentValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -469,38 +293,8 @@ void SecurityPropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
 {
-    //
-    // Validate the specified value 
-    //
-    if (!isValid(name, value))
-    {
-        throw InvalidPropertyValue(name, value);
-    }
-
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        _requireAuthentication->plannedValue = value;
-    }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        _requireAuthorization->plannedValue = value;
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        _httpAuthType->plannedValue = value;
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        _passwordFilePath->plannedValue = value;
-    }
-    else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        _enableRemotePrivilegedUserAccess->plannedValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -626,30 +420,8 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean SecurityPropertyOwner::isDynamic(const String& name)
 {
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
-    {
-        return (_requireAuthentication->dynamic);
-    }
-    if (String::equalNoCase(_requireAuthorization->propertyName, name))
-    {
-        return (_requireAuthorization->dynamic);
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
-    {
-        return (_httpAuthType->dynamic);
-    }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
-    {
-        return (_passwordFilePath->dynamic);
-    }
-    if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        return (_enableRemotePrivilegedUserAccess->dynamic);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->dynamic;
 }
 
 

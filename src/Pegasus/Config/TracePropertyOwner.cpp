@@ -229,6 +229,27 @@ void TracePropertyOwner::initialize()
     }
 }
 
+struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
+    const String& name)
+{
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+        return _traceComponents;
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        return _traceLevel;
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        return _traceFilePath;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+}
+
 /** 
 Get information about the specified property.
 */
@@ -238,54 +259,19 @@ void TracePropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    if (String::equalNoCase(_traceComponents->propertyName, name))
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
     {
-        propertyInfo.append(_traceComponents->propertyName);
-        propertyInfo.append(_traceComponents->defaultValue);
-        propertyInfo.append(_traceComponents->currentValue);
-        propertyInfo.append(_traceComponents->plannedValue);
-        if (_traceComponents->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        propertyInfo.append(_traceLevel->propertyName);
-        propertyInfo.append(_traceLevel->defaultValue);
-        propertyInfo.append(_traceLevel->currentValue);
-        propertyInfo.append(_traceLevel->plannedValue);
-        if (_traceLevel->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        propertyInfo.append(_traceFilePath->propertyName);
-        propertyInfo.append(_traceFilePath->defaultValue);
-        propertyInfo.append(_traceFilePath->currentValue);
-        propertyInfo.append(_traceFilePath->plannedValue);
-        if (_traceFilePath->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
+        propertyInfo.append(STRING_TRUE);
     }
     else
     {
-        throw UnrecognizedConfigProperty(name);
+        propertyInfo.append(STRING_FALSE);
     }
 }
 
@@ -294,22 +280,8 @@ Get default value of the specified property.
 */
 const String TracePropertyOwner::getDefaultValue(const String& name)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        return (_traceComponents->defaultValue);
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        return (_traceLevel->defaultValue);
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        return (_traceFilePath->defaultValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->defaultValue;
 }
 
 /** 
@@ -317,22 +289,8 @@ Get current value of the specified property.
 */
 const String TracePropertyOwner::getCurrentValue(const String& name)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        return (_traceComponents->currentValue);
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        return (_traceLevel->currentValue);
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        return (_traceFilePath->currentValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->currentValue;
 }
 
 /** 
@@ -340,22 +298,8 @@ Get planned value of the specified property.
 */
 const String TracePropertyOwner::getPlannedValue(const String& name)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        return (_traceComponents->plannedValue);
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        return (_traceLevel->plannedValue);
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        return (_traceFilePath->plannedValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->plannedValue;
 }
 
 /** 
@@ -396,22 +340,8 @@ void TracePropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        _traceComponents->plannedValue= value;
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        _traceLevel->plannedValue= value;
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        _traceFilePath->plannedValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -430,28 +360,9 @@ void TracePropertyOwner::updateCurrentValue(
     }
 
     //
-    // Perform validation
+    // Update does the same thing as initialization
     //
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        _traceComponents->currentValue = value;
-        Tracer::setTraceComponents(_traceComponents->currentValue);
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        _traceLevel->currentValue = value;
-        Tracer::setTraceLevel( getTraceLevel( value ) );
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        ArrayDestroyer<char> fileName(value.allocateCString());
-        _traceFilePath->currentValue = value;
-        Tracer::setTraceFile(fileName.getPointer());
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    initCurrentValue(name, value);
 }
 
 
@@ -462,22 +373,8 @@ void TracePropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        _traceComponents->plannedValue = value;
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        _traceLevel->plannedValue = value;
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        _traceFilePath->plannedValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -498,7 +395,7 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 	    throw InvalidPropertyValue(name, invalidComponents);
         }
 
-        return 1;
+        return true;
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
@@ -507,7 +404,7 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 	//
         if ( isLevelValid( value ) )
         {
-            return 1;
+            return true;
         }
 	else
 	{
@@ -524,7 +421,7 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 	{
 	    throw InvalidPropertyValue(name, value);
 	}
-        return 1;
+        return true;
     }
     else
     {
@@ -537,22 +434,8 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean TracePropertyOwner::isDynamic(const String& name)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
-    {
-        return (_traceComponents->dynamic);
-    }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
-    {
-        return (_traceLevel->dynamic);
-    }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
-    {
-        return (_traceFilePath->dynamic);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->dynamic;
 }
 
 

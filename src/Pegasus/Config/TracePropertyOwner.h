@@ -186,6 +186,8 @@ public:
         //throw (UnrecognizedConfigProperty);
 
 private:
+    struct ConfigProperty* _lookupConfigProperty(const String& name);
+
     /**
     The trace properties owned by this class
     */

@@ -172,6 +172,9 @@ TAG: Version_1_09.
     are to be updated.  It uses a "null" value to indicate that the value
     should be unset (reset to default).
 
+29. (Roger Kumpf - HP) 24 Apr 2002 - Restructured the configuration
+    property owners to remove redundant code.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

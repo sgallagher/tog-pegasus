@@ -117,6 +117,23 @@ void ShutdownPropertyOwner::initialize()
     }
 }
 
+struct ConfigProperty* ShutdownPropertyOwner::_lookupConfigProperty(
+    const String& name)
+{
+    if (String::equalNoCase(_operationTimeout->propertyName, name))
+    {
+        return _operationTimeout;
+    }
+    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
+    {
+        return _shutdownTimeout;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+}
+
 /** 
 Get information about the specified property.
 */
@@ -126,39 +143,19 @@ void ShutdownPropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
     {
-        propertyInfo.append(_operationTimeout->propertyName);
-        propertyInfo.append(_operationTimeout->defaultValue);
-        propertyInfo.append(_operationTimeout->currentValue);
-        propertyInfo.append(_operationTimeout->plannedValue);
-        if (_operationTimeout->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        propertyInfo.append(_shutdownTimeout->propertyName);
-        propertyInfo.append(_shutdownTimeout->defaultValue);
-        propertyInfo.append(_shutdownTimeout->currentValue);
-        propertyInfo.append(_shutdownTimeout->plannedValue);
-        if (_shutdownTimeout->dynamic)
-        {
-            propertyInfo.append(STRING_TRUE);
-        }
-        else
-        {
-            propertyInfo.append(STRING_FALSE);
-        }
+        propertyInfo.append(STRING_TRUE);
     }
     else
     {
-        throw UnrecognizedConfigProperty(name);
+        propertyInfo.append(STRING_FALSE);
     }
 }
 
@@ -167,17 +164,8 @@ Get default value of the specified property.
 */
 const String ShutdownPropertyOwner::getDefaultValue(const String& name)
 {
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        return (_operationTimeout->defaultValue);
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        return (_shutdownTimeout->defaultValue);
-    }
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->defaultValue;
 }
 
 /** 
@@ -185,18 +173,8 @@ Get current value of the specified property.
 */
 const String ShutdownPropertyOwner::getCurrentValue(const String& name)
 {
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        return (_operationTimeout->currentValue);
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        return (_shutdownTimeout->currentValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->currentValue;
 }
 
 /** 
@@ -204,18 +182,8 @@ Get planned value of the specified property.
 */
 const String ShutdownPropertyOwner::getPlannedValue(const String& name)
 {
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        return (_operationTimeout->plannedValue);
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        return (_shutdownTimeout->plannedValue);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->plannedValue;
 }
 
 /** 
@@ -225,19 +193,8 @@ void ShutdownPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    // Perform validation
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        _operationTimeout->currentValue = value;
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        _shutdownTimeout->currentValue = value;
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->currentValue = value;
 }
 
 
@@ -248,24 +205,8 @@ void ShutdownPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-	if ( isValid ( name, value ) )
-	{
-            _operationTimeout->plannedValue= value;
-        }
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        if ( isValid ( name, value ) )
-        {
-            _shutdownTimeout->plannedValue= value;
-        }
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    configProperty->plannedValue = value;
 }
 
 /** 
@@ -356,18 +297,8 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean ShutdownPropertyOwner::isDynamic(const String& name)
 {
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        return (_operationTimeout->dynamic);
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
-    {
-        return (_shutdownTimeout->dynamic);
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return configProperty->dynamic;
 }
 
 

@@ -198,6 +198,8 @@ public:
 
 private:
 
+    struct ConfigProperty* _lookupConfigProperty(const String& name);
+
     /**
     The security properties owned by this class
     */

@@ -307,7 +307,7 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
 #endif
 
 // statisticals
-   STAT_COPYDISPATCHER
+   //STAT_COPYDISPATCHER
 //
    service->SendForget(response);
    delete asyncRequest;

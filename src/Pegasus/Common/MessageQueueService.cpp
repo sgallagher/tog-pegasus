@@ -56,8 +56,6 @@ ThreadPool *MessageQueueService::get_thread_pool(void)
    return _thread_pool;
 }
 
-void unload_idle_providers(void);
-
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threads(void *parm)
 {
 

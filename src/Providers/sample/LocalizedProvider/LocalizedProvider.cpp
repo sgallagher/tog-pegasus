@@ -181,6 +181,9 @@ Char16 hangugo[] = {0xD55C, 0xAD6D, 0xC5B4,
 'g','l','o','b','a','l',
 			0x00};	
 
+// Serializes access to the instance array during enumerateInstances
+Mutex mutex;
+
 // Constructor - initializes parameters for the MessageLoader that won't
 // be changing.
 LocalizedProvider::LocalizedProvider() :
@@ -305,46 +308,59 @@ void LocalizedProvider::enumerateInstances(
 	Boolean langMismatch = false;
         Boolean firstInstance = true;
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-        // Since this provider is supporting 2 classes, only return instances
-        // of the requested class.
-        if (classReference.getClassName().getString() != 
-			_instanceNames[i].getClassName().getString())
+        mutex.lock(pegasus_thread_self());
+
+        try
         {
-            continue;
-        }        
+            for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+            {
+                // Since this provider is supporting 2 classes, only return instances
+                // of the requested class.
+                if (classReference.getClassName().getString() != 
+                               _instanceNames[i].getClassName().getString())
+                {
+                    continue;
+                }        
 
-		// Load the localized properties and figure out what content
-		// language to return for this instance, based on the design 
-		// mentioned above.
-        ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
-                                                        _instanceLangs[i],
-                                                        _instances[i]);
+                // Load the localized properties and figure out what content
+                // language to return for this instance, based on the design 
+                // mentioned above.
+                ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
+                                                                _instanceLangs[i],
+                                                                _instances[i]);
 
-		// Since we are returning more than one instance, and the 
-		// content language we are returning applies to all the instances,
-		// we need to 'aggregate' the languages of all the instances.
-		// If all the instances have the same language, then return
-		// that language in the content language to the client.  If there
-		// is a language mismatch in the instances, then do not return
-		// any ContentLanguages to the client.
-		if (firstInstance)
-		{
-			// Set the aggregated content language to the first instance lang.	
-			aggregatedLangs = rtnLangs;	
+                // Since we are returning more than one instance, and the 
+                // content language we are returning applies to all the instances,
+                // we need to 'aggregate' the languages of all the instances.
+                // If all the instances have the same language, then return
+                // that language in the content language to the client.  If there
+                // is a language mismatch in the instances, then do not return
+                // any ContentLanguages to the client.
+                if (firstInstance)
+                {
+                    // Set the aggregated content language to the first instance lang.	
+                    aggregatedLangs = rtnLangs;	
                     firstInstance = false;
-		}
-		else if (langMismatch == false && rtnLangs != aggregatedLangs)
-		{
-			// A mismatch was found.  Set the aggegrated content lang to empty	
-			langMismatch = true;	
-			aggregatedLangs = ContentLanguages::EMPTY;
-		}
+                }
+                else if (langMismatch == false && rtnLangs != aggregatedLangs)
+                {
+                    // A mismatch was found.  Set the aggegrated content lang to empty	
+                    langMismatch = true;	
+                    aggregatedLangs = ContentLanguages::EMPTY;
+                }
 	
-		// deliver instance
-		handler.deliver(_instances[i]);
-	}
+                // deliver instance
+cout << "delivering " << i << endl;
+                handler.deliver(_instances[i]);
+            }  // end for
+        }      // end try
+        catch (...)
+        {
+            mutex.unlock();
+            throw;
+        } 
+
+        mutex.unlock();
 
 	// Set the aggregated content language into the response
 	handler.setLanguages(aggregatedLangs);

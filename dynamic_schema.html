@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>PEP # ?:Supporting Dynamic Core Schema in Pegasus 2.2</title>
+    <link rel="stylesheet" type="text/css" href="http://www.soft-hackle.net/md.css">
+  </head>
+
+  <body>
+  <body>
+  <table >
+    <tr>
+
+      <td>
+	<img height="70" src="http://www.opengroup.org/images/pegicon2.gif" width="70" border="0">
+      </td>
+      <td>
+	<h1>PEP # ?:Supporting Dynamic Core Schema in Pegasus 2.2</h1>
+      </td>
+    </tr>
+  </table>
+
+    <table class="comment">
+      <tr align="left">
+	<th>Type</th><th>Status</th><th>Approveers</th>
+      </tr>
+      <tr>
+	<td>Architecture</td><td>Draft</td><td>Pegasus architecture team</td>
+      </tr>
+    </table>
+    <table class="comment">
+      <tr align="left">
+	<th>Version</th><th>Date</th><th>Author</th><th>Comments</th>
+      </tr>
+      <tr>
+	<td>1.0</td><td>Fri Feb 28 09:51:20 2003</td><td>IBM/Mike Day
+	</td><td><i>Design Proposal, to be extended with implementation details</i></td>
+      </tr>
+    </table>
+    <hr>
+
+	<h2>Summary</h2>
+
+	<p>
+	  The premise of CIM/Wbem is to provide normalized access to
+	  heterogenous computing resources. This is a difficult
+	  technical to solve but the benefits are tremendous for
+	  writers of systems management software. 
+	</p>
+
+	<p>
+	 The ability of CIM/Wbem implementations to provide normalized
+	  access to heterogenous resources derives from the
+	  extensibility of the CIM meta schema, or modelling
+	  language. CIM models can be extended or revised
+	  dynamically. There is limited polymorphism built into the
+	  CIM Schema. 
+	</p>
+	<p>
+	  CIM/Wbem does not isolate program code from data
+	  model. Rather, it separates the access mechanism from the
+	  resource. This means, for example, that specific schema
+	  classes can be supported by custom source code. However, the
+	  CIM/Wbem infrastructure which includes the access protocol,
+	  schema repository, and operations, have no requirement to be
+	  aware of specific schema classes. 
+	</p>
+
+	<p>
+	  Most of Pegasus is implemented to take advantage of this
+	  separation of infrastructure from resource
+	  instrumentation. We can define new classes and provide
+	  instances of those classes dynamically without modifying any
+	  of the Pegasus source code. 
+	</p>
+	<p>
+	  However in some critical infrastructure components,
+	  Pegasus is hardcoded to support specific schema definitions
+	  and classes. Further, it is hardcoded to preclude schema
+	  extension for important portions of the CIM schema.
+	</p>
+	<p>
+	  Schema components that are statically coded in Pegasus today
+	  include the Provider schema, the Indication Schema,
+	  and Authentication.
+	</p>
+	<p>
+	  The static nature of the Provider, Indication, and
+	  Authentication schemas causes Pegasus to enforce behavior
+	  that is not the subject of any DMTF standards. For example, today
+	  only C++ providers are allowed, and the provider interface
+	  (which is not standardized) is statically hardcoded in
+	  Pegasus from the Schema to the dynamic library support for providers.
+	</p>
+	<p>
+	  Other examples of non-standardized behavior that is enforced
+	  by hard-coded schema support in Pegasus include Indication
+	  Handling, Indication formats, and authentication options.
+	</p>
+	
+	<h2>Problem Solved/Feature Added</h2>
+	<p>
+	  
+	</p>
+
+	
+	<h2> Proposed schedule.</h2>
+	
+	<h2>Risk Mitigation</h2>
+	
+    <hr>
+    <address><a href="mailto:mdday@us.ibm.com">Michael Day</a></address>
+<!-- Created: Fri Feb 28 09:49:31 EST 2003 -->
+<!-- hhmts start -->
+Last modified: Fri Feb 28 12:34:34 EST 2003
+<!-- hhmts end -->
+  </body>
+</html>

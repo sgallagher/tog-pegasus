@@ -49,8 +49,7 @@ class ProviderRegistrationManager;
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
 public:
-    ProviderManagerService(
-        ProviderRegistrationManager* providerRegistrationManager);
+    ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
     virtual ~ProviderManagerService(void);
 
     // short term hack

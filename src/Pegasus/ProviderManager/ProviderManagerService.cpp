@@ -42,7 +42,6 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
-//#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -83,7 +82,7 @@ static struct timeval dwait = { 10, 0};
 static struct timeval deadwait = { 1, 0};
 
 ProviderManagerService::ProviderManagerService(
-    ProviderRegistrationManager* providerRegistrationManager)
+    ProviderRegistrationManager * providerRegistrationManager)
     : MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId()),
     _threadPool(10, "ProviderManagerService", 2, 7, await, dwait, deadwait),
     _threadSemaphore(0),
@@ -102,91 +101,90 @@ ProviderManager * ProviderManagerService::getProviderManager(void)
 
 Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
 {
-   CIMInstance pInstance;
-   CIMInstance pmInstance;
-   String providerName;
-   String location;
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+    String providerName;
+    String location;
 
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                    "ProviderManagerService::_lookupProviderForClass");
-   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "nameSpace = " + objectPath.getNameSpace() +
-                        "; className = " + objectPath.getClassName());
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForClass");
 
-  if (_providerRegistrationManager->lookupInstanceProvider(
-                         objectPath.getNameSpace(), objectPath.getClassName(), 
-                             pInstance, pmInstance))
-  {
-      // get the provider Name
-      Uint32 pos = pmInstance.findProperty("Name");
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	"nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
 
-      if ( pos != PEG_NOT_FOUND )
-      {
-          pmInstance.getProperty(pos).getValue().get(providerName);
+    // get the provider and provider module instance from the registration manager
+    if(_providerRegistrationManager->lookupInstanceProvider(
+	objectPath.getNameSpace(), objectPath.getClassName(),
+	pInstance, pmInstance) == false)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	    "Provider registration not found.");
+	
+	PEG_METHOD_EXIT();
+	
+	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
 
-          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                             "providerName = " + providerName + " found.");
-      }
-      else
-      {
-          Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                         "Provider name not found.");
-          PEG_METHOD_EXIT();
-          return(Pair<String, String>(String::EMPTY, String::EMPTY));
-       }
+    // get the provider name from the provider instance
+    Uint32 pos = pInstance.findProperty("Name");
 
-      // get the provider Location
-      pos = pmInstance.findProperty("Location");
+    if(pos == PEG_NOT_FOUND)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	    "Provider name not found.");
 
-      if ( pos != PEG_NOT_FOUND )
-      {
-          pmInstance.getProperty(pos).getValue().get(location);
+	PEG_METHOD_EXIT();
 
-          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                             "location = " + location + " found.");
-      }
-      else
-      {
-          Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                         "Provider location not found.");
-          PEG_METHOD_EXIT();
-          return(Pair<String, String>(String::EMPTY, String::EMPTY));
-      }
-   }
-   else
-   {
-      Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Provider location not found.");
-       PEG_METHOD_EXIT();
-       return(Pair<String, String>(String::EMPTY, String::EMPTY));
-   }
+	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
+	
+    pInstance.getProperty(pos).getValue().get(providerName);
 
-/*
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	"providerName = " + providerName + " found.");
 
+    // get the provider location from the provider module instance
+    pos = pmInstance.findProperty("Location");
+
+    if(pos == PEG_NOT_FOUND)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	    "Provider location not found.");
+
+	PEG_METHOD_EXIT();
+
+	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
+
+    pmInstance.getProperty(pos).getValue().get(location);
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	"location = " + location + " found.");
+
+    /*
     CIMOMHandle _cimom(this);
 
     // get all provider capability instances
     Array<CIMInstance> cimInstances =
-	_cimom.enumerateInstances(
-	    OperationContext(),
-	    "root/cimv2",
-	    "PG_ProviderCapabilities",
-	    false, false, false, false,
-	    CIMPropertyList());
+    _cimom.enumerateInstances(
+	OperationContext(),
+	"root/cimv2",
+	"PG_ProviderCapabilities",
+	false, false, false, false,
+	CIMPropertyList());
 
     CIMInstance cimInstance;
 
     for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
     {
-	// check class name
-	String className = cimInstances[i].getProperty(cimInstances[i].findProperty("ClassName")).getValue().toString();
+    // check class name
+    String className = cimInstances[i].getProperty(cimInstances[i].findProperty("ClassName")).getValue().toString();
 
-	if(String::equalNoCase(className, objectPath.getClassName()))
-	{
-	    cimInstance = cimInstances[i];
+    if(String::equalNoCase(className, objectPath.getClassName()))
+    {
+	cimInstance = cimInstances[i];
 
-	    break;
-	}
+	break;
+    }
     }
 
     // get provider and provider module name
@@ -195,17 +193,16 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 
     // get the module instance
     CIMInstance moduleInstance =
-	_cimom.getInstance(
-	    OperationContext(),
-	    "root/cimv2",
-	    CIMObjectPath("root/cimv2:PG_ProviderModule.Name=\"" + moduleName +"\""),
-	    false, false, false,
-	    CIMPropertyList());
+    _cimom.getInstance(
+	OperationContext(),
+	"root/cimv2",
+	CIMObjectPath("root/cimv2:PG_ProviderModule.Name=\"" + moduleName +"\""),
+	false, false, false,
+	CIMPropertyList());
 
     // get the module location
     String location = moduleInstance.getProperty(moduleInstance.findProperty("Location")).getValue().toString();
-
-*/
+    */
 
     String fileName;
 
@@ -220,6 +217,7 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     #endif
 
     PEG_METHOD_EXIT();
+
     return(Pair<String, String>(fileName, providerName));
 }
 
@@ -227,8 +225,7 @@ Boolean ProviderManagerService::messageOK(const Message * message)
 {
     PEGASUS_ASSERT(message != 0);
 
-    return(MessageQueueService::messageOK(message));
-/*
+    /*
     Boolean rc = false;
 
     switch(message->getType())
@@ -245,17 +242,19 @@ Boolean ProviderManagerService::messageOK(const Message * message)
     case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
     case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
     case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	rc = true;
-	
-	break;
+    rc = true;
+
+    break;
     default:
-	rc = false;
-	
-	break;
+    rc = false;
+
+    break;
     }
 
     return(rc);
-*/
+    */
+
+    return(MessageQueueService::messageOK(message));
 }
 
 void ProviderManagerService::handleEnqueue(void)
@@ -272,12 +271,12 @@ void ProviderManagerService::handleEnqueue(Message * message)
     AsyncOpNode * op = this->get_op();
 
     AsyncLegacyOperationStart * asyncRequest =
-	    new AsyncLegacyOperationStart(
-		    get_next_xid(),
-		    op,
-		    this->getQueueId(),
-		    message,
-		    this->getQueueId());
+	new AsyncLegacyOperationStart(
+	get_next_xid(),
+	op,
+	this->getQueueId(),
+	message,
+	this->getQueueId());
 
     _handle_async_request(asyncRequest);
 
@@ -449,14 +448,15 @@ void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
 
     try
     {
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    request->instanceName.getClassName());
+	    request->instanceName.getClassName(),
+	    request->instanceName.getKeyBindings());
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -473,14 +473,9 @@ void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
 	    0,
 	    0);
 
-	CIMReference instanceReference(request->instanceName);
-
-	// ATTN: propagate namespace
-	instanceReference.setNameSpace(request->nameSpace);
-
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
-	
+
 	// ATTN: strip flags inappropriate for providers
 	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
 
@@ -491,7 +486,7 @@ void ProviderManagerService::handleGetInstanceRequest(Message * message) throw()
 	// forward request
 	provider.getInstance(
 	    context,
-	    instanceReference,
+	    objectPath,
 	    flags,
 	    propertyList.getPropertyNameArray(),
 	    handler);
@@ -546,14 +541,14 @@ void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) 
 
     try
     {
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
 	    request->className);
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -570,12 +565,9 @@ void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) 
 	    0,
 	    0);
 
-	// ATTN: propagate namespace
-	classReference.setNameSpace(request->nameSpace);
-
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
-	
+
 	// ATTN: strip flags inappropriate for providers
 	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
 
@@ -585,7 +577,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(Message * message) 
 
 	provider.enumerateInstances(
 	    context,
-	    classReference,
+	    objectPath,
 	    flags,
 	    propertyList.getPropertyNameArray(),
 	    handler);
@@ -639,14 +631,14 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(Message * messa
 
     try
     {
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
 	    request->className);
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -663,14 +655,11 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(Message * messa
 	    0,
 	    0);
 
-	// ATTN: propagate namespace
-	classReference.setNameSpace(request->nameSpace);
-
 	SimpleResponseHandler<CIMReference> handler;
 
 	provider.enumerateInstanceNames(
 	    context,
-	    classReference,
+	    objectPath,
 	    handler);
 
 	// save returned instance
@@ -718,16 +707,15 @@ void ProviderManagerService::handleCreateInstanceRequest(Message * message) thro
 
     try
     {
-	String className = request->newInstance.getClassName();
-
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    className);
+	    request->newInstance.getPath().getClassName(),
+	    request->newInstance.getPath().getKeyBindings());
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -744,20 +732,12 @@ void ProviderManagerService::handleCreateInstanceRequest(Message * message) thro
 	    0,
 	    0);
 
-	CIMReference instanceReference;
-
-	// ATTN: propagate namespace
-	instanceReference.setNameSpace(request->nameSpace);
-
-	// ATTN: need to handle key binding
-	instanceReference.setClassName(className);
-
 	SimpleResponseHandler<CIMReference> handler;
 
 	// forward request
 	provider.createInstance(
 	    context,
-	    instanceReference,
+	    objectPath,
 	    request->newInstance,
 	    handler);
 
@@ -812,17 +792,15 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
 
     try
     {
-	instanceName = request->modifiedInstance.getInstanceName();
-	String className = instanceName.getClassName();
-
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    className);
+	    request->modifiedInstance.getInstance().getPath().getClassName(),
+	    request->modifiedInstance.getInstance().getPath().getKeyBindings());
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -841,7 +819,7 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
 
 	// convert flags to bitmask
 	Uint32 flags = OperationFlag::convert(false);
-	
+
 	// ATTN: strip flags inappropriate for providers
 	flags = flags | ~OperationFlag::LOCAL_ONLY | ~OperationFlag::DEEP_INHERITANCE;
 
@@ -852,7 +830,7 @@ void ProviderManagerService::handleModifyInstanceRequest(Message * message) thro
 	// forward request
 	provider.modifyInstance(
 	    context,
-	    instanceName,
+	    objectPath,
 	    request->modifiedInstance.getInstance(),
 	    flags,
 	    propertyList.getPropertyNameArray(),
@@ -897,16 +875,15 @@ void ProviderManagerService::handleDeleteInstanceRequest(Message * message) thro
 
     try
     {
-	String className = request->instanceName.getClassName();
-
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    className);
+	    request->instanceName.getClassName(),
+	    request->instanceName.getKeyBindings());
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -927,7 +904,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(Message * message) thro
 	// forward request
 	provider.deleteInstance(
 	    context,
-	    request->instanceName,
+	    objectPath,
 	    handler);
     }
     catch(CIMException & e)
@@ -1139,7 +1116,7 @@ void ProviderManagerService::handleInvokeMethodRequest(Message * message) throw(
 
     try
     {
-	// make class reference
+	// make target object path
 	CIMReference classReference(
 	    System::getHostName(),
 	    request->nameSpace,
@@ -1163,7 +1140,7 @@ void ProviderManagerService::handleInvokeMethodRequest(Message * message) throw(
 	    0,
 	    0);
 
-	CIMReference instanceReference(request->instanceName);
+	CIMObjectPath instanceReference(request->instanceName);
 
 	// ATTN: propagate namespace
 	instanceReference.setNameSpace(request->nameSpace);
@@ -1229,14 +1206,14 @@ void ProviderManagerService::handleEnableIndicationRequest(Message * message) th
 
     try
     {
-	// make class reference
-	CIMReference classReference(
+	// make target object path
+	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
 	    request->classNames[0]);
 
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(classReference);
+	Pair<String, String> pair = _lookupProviderForClass(objectPath);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);

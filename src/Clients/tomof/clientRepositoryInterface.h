@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1720
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -80,7 +81,7 @@ class clientRepositoryInterface
   };
   clientRepositoryInterface();
 
-  ~clientRepositoryInterface();
+  virtual ~clientRepositoryInterface();
 
   void init(_repositoryType type, String location);
 

@@ -153,14 +153,14 @@ Z [Zz]
 
 {T}{R}{U}{E} {
 
-    printf("LEX: %s [TRUE] ", yytext);
-    return TRUE;
+    printf("LEX: %s [_TRUE] ", yytext);
+    return _TRUE;
 }
 
 {F}{A}{L}{S}{E} {
 
-    printf("LEX: %s [FALSE] ", yytext);
-    return FALSE;
+    printf("LEX: %s [_FALSE] ", yytext);
+    return _FALSE;
 }
 
 {N}{U}{L}{L} {

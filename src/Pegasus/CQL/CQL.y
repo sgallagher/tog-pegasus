@@ -54,8 +54,8 @@ PEGASUS_NAMESPACE_END
 %token <strValue> NEGATIVE_INTEGER
 %token <strValue> REAL 
 %token <strValue> NEGATIVE_REAL
-%token <strValue> TRUE 
-%token <strValue> FALSE 
+%token <strValue> _TRUE 
+%token <strValue> _FALSE 
 %token <strValue> SCOPED_PROPERTY
 %token <strValue> LPAR 
 %token <strValue> RPAR 
@@ -274,14 +274,14 @@ literal : literal_string
           {
               printf("BISON::literal->real_value\n");
           }
-        | TRUE
+        | _TRUE
           {
-              printf("BISON::literal->TRUE\n");
+              printf("BISON::literal->_TRUE\n");
               $$ = new CQLValue(Boolean(true));
           }
-        | FALSE
+        | _FALSE
           {
-              printf("BISON::literal->FALSE\n");
+              printf("BISON::literal->_FALSE\n");
               $$ = new CQLValue(Boolean(false));
           }
 ;

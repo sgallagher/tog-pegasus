@@ -29,7 +29,7 @@
 
 #include "benchmarkDefinition.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 #define MAX_NUMBER_OF_PROPERTIES   50
 #define MAX_SIZE_OF_PROPERTY_VALUE 1000
@@ -140,6 +140,4 @@ Uint32 benchmarkDefinition::getConfiguration(
 
     return(CIM_ERR_SUCCESS);
 }
-
-PEGASUS_NAMESPACE_END
 

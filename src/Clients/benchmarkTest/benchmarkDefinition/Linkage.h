@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -22,44 +22,22 @@
 //==============================================================================
 //
 // Author: Denise Eckstein, Hewlett-Packard Company
+//           (denise_eckstein@hp.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_benchmarkDefinition_h
-#define Pegasus_benchmarkDefinition_h
-
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
-#include "Linkage.h"
 
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
-
-class PEGASUS_BENCHMARK_LINKAGE benchmarkDefinition
-{
-public:
-
-   benchmarkDefinition();
-
-   const CIMName& getClassName(Uint32 index);
-
-   Uint32 getNumberOfClassDefinitions();
-
-   Uint32 getConfiguration(
-                          const CIMName& className,
-                          Uint32& numberOfProperties,
-                          Uint32& sizeOfPropertyValue,
-                          Uint32& numberOfInstances);
-
-private:
-
-   Array<CIMName> _benchmarkDefinitionClassNames;
-   Uint32 _numberOfClassDefinitions;
-   Uint32 _maxClassDefinitionIndex;
-
-};
-
-#endif /* Pegasus_benchmarkDefinition_h */
-
+#ifndef PEGASUS_BENCHMARK_LINKAGE
+#  ifdef PEGASUS_OS_TYPE_WINDOWS
+#    ifdef PEGASUS_BENCHMARK_INTERNAL
+#      define PEGASUS_BENCHMARK_LINKAGE PEGASUS_EXPORT
+#    else
+#      define PEGASUS_BENCHMARK_LINKAGE PEGASUS_IMPORT
+#    endif
+#  else
+#    define PEGASUS_BENCHMARK_LINKAGE /* empty */
+#  endif
+#endif

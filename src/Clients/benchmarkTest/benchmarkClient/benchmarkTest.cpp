@@ -51,6 +51,10 @@
 #include "../benchmarkDefinition/benchmarkDefinition.h"
 
 
+#ifndef PLATFORM_PRODUCT_VERSION
+ #define PLATFORM_PRODUCT_VERSION "1.0.0"
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define NAMESPACE CIMNamespaceName ("root/benchmark")
@@ -428,7 +432,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (TypeMismatchException)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -472,7 +476,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (TypeMismatchException)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -528,7 +532,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_iterations);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (TypeMismatchException)
                     {
                         InvalidOptionArgumentException e (_iterationsStr,
                             _OPTION_ITERATIONS);
@@ -555,7 +559,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_testID);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (TypeMismatchException)
                     {
                         InvalidOptionArgumentException e (_testIDStr,
                             _OPTION_TESTID);
@@ -1252,11 +1256,14 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
            benchmarkTestCommand::_getSystemConfiguration(outPrintWriter, errPrintWriter);
         }
 
+
+#if 0
 	testID++;
 	if (!_testIDSet || (testID == _testID))
 	{
            benchmarkTestCommand::dobenchmarkTest1(testID, outPrintWriter, errPrintWriter);
         }
+#endif
 
 	testID++;
 	if (!_testIDSet || (testID == _testID))
@@ -1335,5 +1342,5 @@ int main (int argc, char* argv [])
     }
 
     rc = command.execute (cout, cerr);
-    exit (rc);
+    return (rc);
 }

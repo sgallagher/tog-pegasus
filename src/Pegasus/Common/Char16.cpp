@@ -39,7 +39,9 @@
 #include <cctype>
 #include "Char16.h"
 
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 PEGASUS_USING_STD;
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -36,8 +36,9 @@ Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{release}.tar.gz
-Requires: openssl-devel >= 0.9.6 lsb >= 1.3
+Requires: openssl >= 0.9.6 lsb >= 1.3
 Provides: cimserver tog-pegasus-2.4
+BuildRequires: openssl-devel >= 0.9.6
 
 %description
 OpenPegasus WBEM Services for Linux enables management solutions that deliver

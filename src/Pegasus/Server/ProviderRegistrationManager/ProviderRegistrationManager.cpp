@@ -2282,6 +2282,8 @@ void ProviderRegistrationManager::_addInstancesToTable(
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
 	//ATTN-YZ-P3-20020301:Is this proper exception 
 	PEG_METHOD_EXIT();
+        // ATTN (MM 20020404) ran into problems with this exception
+        // because of one SBLIM provider that serves two classes
         //throw CIMException(CIM_ERR_FAILED, "can not insert element to the table ");
     }
     PEG_METHOD_EXIT();

@@ -1115,7 +1115,11 @@ MessageLoader::_useProcessLocale = false;
 #endif
 
 	Monitor monitor(true);
+	//	monitor_2 monitor;
+	
 	CIMServer server(&monitor);
+
+	
 
         if (enableHttpConnection)
         {

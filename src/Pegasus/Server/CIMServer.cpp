@@ -106,16 +106,35 @@ void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 
 
 CIMServer::CIMServer(Monitor* monitor)
-   : _dieNow(false)
+  : _dieNow(false), _monitor(monitor), monitor2(0), _type(OLD)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
+    _init();
+    
+    PEG_METHOD_EXIT();
+}
+
+
+CIMServer::CIMServer(monitor_2* m2)
+  : _dieNow(false), _monitor(0), monitor2(m2), _type(NEW)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
+    _init();
+
+    monitor2->set_accept_dispatch(pegasus_acceptor::accept_dispatch);
+    monitor2->set_session_dispatch(HTTPConnection2::connection_dispatch);
+    
+    PEG_METHOD_EXIT();
+}
+
+
+void CIMServer::_init(void)
+{
 
     String repositoryRootPath = String::EMPTY;
 
     // -- Save the monitor or create a new one:
     
-    _monitor = monitor;
-
     repositoryRootPath =
 	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
@@ -278,8 +297,10 @@ CIMServer::CIMServer(Monitor* monitor)
     getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGTERM);
 
-    PEG_METHOD_EXIT();
 }
+
+
+
 
 CIMServer::~CIMServer()
 {
@@ -304,87 +325,110 @@ void CIMServer::addAcceptor(
     Uint32 portNumber,
     Boolean useSSL)
 {
+  if(_type == OLD ){
     HTTPAcceptor* acceptor;
     acceptor = new HTTPAcceptor(_monitor,
                                 _httpAuthenticatorDelegator,
                                 localConnection,
                                 portNumber,
                                 useSSL ? _getSSLContext() : 0);
-
+    
     _acceptors.append(acceptor);
+  }
+  else {
+    pegasus_acceptor* acceptor = 
+      new pegasus_acceptor(monitor2,
+			   _httpAuthenticatorDelegator,
+			   localConnection,
+			   portNumber,
+			   useSSL ? _getSSLContext() : 0);
+    acceptor->bind();
+  }
 }
 
 void CIMServer::bind()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
 
-    if (_acceptors.size() == 0)
-    {
-      // l10n
+    if(_type == OLD) {
       
-      // throw BindFailedException("No CIM Server connections are enabled.");
-
-      MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
+      if (_acceptors.size() == 0)
+	{
+	  // l10n
       
-      throw BindFailedException(mlp);
-    }
+	  // throw BindFailedException("No CIM Server connections are enabled.");
 
-    for (Uint32 i=0; i<_acceptors.size(); i++)
-    {
-        _acceptors[i]->bind();
-    }
+	  MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
+      
+	  throw BindFailedException(mlp);
+	}
 
+      for (Uint32 i=0; i<_acceptors.size(); i++)
+	{
+	  _acceptors[i]->bind();
+	}
+    }
+    
     PEG_METHOD_EXIT();
 }
 
 void CIMServer::runForever()
 {
-   // Note: Trace code in this method will be invoked frequently.
+  if(_type == OLD) {
+ 
+    // Note: Trace code in this method will be invoked frequently.
 
-   static int modulator = 0;
+    static int modulator = 0;
    
-   if(!_dieNow)
-   {
-      if(false == _monitor->run(100))
+    if(!_dieNow)
       {
-	 modulator++;
-	 if( ! (modulator % 5000) )
-	 {
-	    try 
-	    {
- 	       MessageQueueService::_check_idle_flag = 1;
- 	       MessageQueueService::_polling_sem.signal();
- 	       ProviderManagerService::getProviderManager()->unload_idle_providers();
- 	       _monitor->kill_idle_threads();
-	    }
-	    catch(...)
-	    {
-	    }
-	 }
-	 
-      }
+	if(false == _monitor->run(100))
+	  {
+	    modulator++;
+	    if( ! (modulator % 5000) )
+	      {
+		try 
+		  {
+		    MessageQueueService::_check_idle_flag = 1;
+		    MessageQueueService::_polling_sem.signal();
+		    ProviderManagerService::getProviderManager()->unload_idle_providers();
+		    _monitor->kill_idle_threads();
+		  }
+		catch(...)
+		  {
+		  }
+	      }
+	  }
 
-      if (handleShutdownSignal)
-      {
-         Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-		       "CIMServer::runForever - signal received.  Shutting down.");
+	if (handleShutdownSignal)
+	  {
+	    Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+			  "CIMServer::runForever - signal received.  Shutting down.");
 	 
-         ShutdownService::getInstance(this)->shutdown(true, 10, false);
-         handleShutdownSignal = false;
+	    ShutdownService::getInstance(this)->shutdown(true, 10, false);
+	    handleShutdownSignal = false;
+	  }
       }
-   }
-   
+  }
+  else {
+    monitor2->run();
+  }
+  
 }
 
 void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    for (Uint32 i=0; i<_acceptors.size(); i++)
-    {
-        _acceptors[i]->closeConnectionSocket();
+    if(_type == OLD) {
+      
+      for (Uint32 i=0; i<_acceptors.size(); i++)
+	{
+	  _acceptors[i]->closeConnectionSocket();
+	}
     }
-
+    
+      
     PEG_METHOD_EXIT();
 }
 
@@ -471,11 +515,14 @@ Uint32 CIMServer::getOutstandingRequestCount()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getOutstandingRequestCount()");
 
     Uint32 requestCount = 0;
-    for (Uint32 i=0; i<_acceptors.size(); i++)
-    {
-        requestCount += _acceptors[i]->getOutstandingRequestCount();
-    }
 
+    if(_type == OLD) {
+      for (Uint32 i=0; i<_acceptors.size(); i++)
+	{
+	  requestCount += _acceptors[i]->getOutstandingRequestCount();
+	}
+    }
+    
     PEG_METHOD_EXIT();
     return requestCount;
 }

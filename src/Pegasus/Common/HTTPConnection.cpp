@@ -283,7 +283,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 	 // Send response message to the client (use synchronous I/O for now:
 
-	 _socket->enableBlocking();
+
 
 	 const Array<Sint8>& buffer = httpMessage->message;
  
@@ -463,6 +463,8 @@ void HTTPConnection::_handleReadEvent()
     lock_connection();
 #endif
 
+
+    
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
     for (;;)
@@ -496,6 +498,8 @@ void HTTPConnection::_handleReadEvent()
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
     }
+
+    
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
      "_socket->read bytesRead = %d", bytesRead);
    
@@ -919,7 +923,7 @@ void HTTPConnection2::_handleReadEvent()
 #ifdef LOCK_CONNECTION_ENABLED
     lock_connection();
 #endif
-
+    _socket.disableBlocking();
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
     for (;;)
@@ -953,6 +957,7 @@ void HTTPConnection2::_handleReadEvent()
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
     }
+    _socket.enableBlocking();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
      "_socket.read bytesRead = %d", bytesRead);
    

@@ -70,7 +70,9 @@ class PEGASUS_SERVER_LINKAGE CIMServer
 public:
 
     enum Protocol { PROPRIETARY, STANDARD };
-
+    enum server_type {OLD, NEW };
+    
+    
     /** Constructor - Creates a CIMServer object.
         The CIM Server objects establishes a repository object,
         a dispatcher object, and creates a channnel factory and
@@ -79,6 +81,8 @@ public:
         @exception - ATTN
     */
     CIMServer(Monitor* monitor);
+    CIMServer(monitor_2* monitor2);
+    
 
     ~CIMServer();
 
@@ -159,6 +163,12 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;
     SSLContext* _sslcontext;
+    monitor_2* monitor2;
+    server_type _type;
+    
+    void _init(void);
+    
+    
 };
 
 PEGASUS_NAMESPACE_END

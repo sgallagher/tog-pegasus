@@ -1779,7 +1779,22 @@ void CIMOperationRequestDispatcher::postProcessEnumerateInstanceNamesResponse(
    CIMEnumerateInstanceNamesRequestMessage* request
    Array<CIMResponseMessage> responses)
 {
-    //note that the above is not complete as a call but a start.
+    /* Determine if there any "good" responses. If all responses are error
+       we return CIMException.
+    */
+
+    /* We have at least one good response.  Now delete the error responses.  We will
+	not pass them back to the client.
+    */
+
+
+    /* Merge the responses into a single CIMEnumerateInstanceNamesResponse
+    */
+
+    /* Eliminate Duplicate responses.  We compare the keys for duplicates.
+    */
+    /* Notes for me.  To eliminate the duplicates probably to do it at the
+       merge. 
 }
 */
 void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
@@ -1841,65 +1856,28 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	   //    << " servicename= " << serviceName
 	   //    << "controlProviderName= " << controlProviderName 
 	   //    << " i = " << i << endl; 
-	     
 	}
-       // Issue here whether we should get from the repository everything or just 
-       // this class.  We will probably go to the repository for each class and
-       // repository is set up to switch to that
-       /* For the moment, drop this code and put it after we have decided
-          whether we can get ANYTHING from the services and control providers.
-       else if (_repository->isDefaultInstanceProvider())
-	{
-	   //Here we 
-	   
-	   CIMException cimException;
-	   STAT_PROVIDERSTART
-	   Array<CIMReference> instanceNames;
-	   //cout << "KSTEST enuminstnames default "<< endl;
-	   _repository->read_lock();
-	   try
-	   {
-	      instanceNames = _repository->enumerateInstanceNames(
-		 request->nameSpace,
-		 request->className);
-	   }
-	   catch(CIMException& exception)
-	   {
-	      cimException = exception;
-	   }
-	   catch(Exception& exception)
-	   {
-	      cimException =
-		 PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   }
-	   catch(...)
-	   {
-	      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-	   }
-	   _repository->read_unlock();
-
-	   STAT_PROVIDEREND
-
-	   CIMEnumerateInstanceNamesResponseMessage* response =
-	      new CIMEnumerateInstanceNamesResponseMessage(
-		 request->messageId,
-		 cimException,
-		 request->queueIds.copyAndPop(),
-		 instanceNames);
-
-	   STAT_COPYDISPATCHER_REP
-
-	   //MIKEDAY here we want to be able to get this response (actually these
-	   //responses off to the common list so I get them back to the post processor
-	   //with everything else.
-	   //
-	   _enqueueResponse(request, response);
-	}
-	End of the loop to get things from the default.*/
    }
 
    // Loop and send to all existing providers in sendlist
    Uint32 ps = serviceNames.size();
+
+   // Test for "enumerate to Broad" and if so, execute exception.
+   // NOTE: ps == 0 disables the test.
+   if(ps != 0  && ps < MAX_ENUMERATE_BREADTH)
+   {
+       CIMEnumerateInstanceNamesResponseMessage* response =
+         new CIMEnumerateInstanceNamesResponseMessage(
+            request->messageId,
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate to Broad"),
+            request->queueIds.copyAndPop(),
+            Array<CIMReference>());
+
+      STAT_COPYDISPATCHER
+
+      _enqueueResponse(request, response);
+       
+   }
    if(ps > 0)
    {
        for(Uint32 i = 0; i < ps; i++ )

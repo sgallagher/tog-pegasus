@@ -1001,7 +1001,8 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
     }
     catch (WbemExecException& e)
     {
-        errPrintWriter << e.getMessage () << endl;
+      errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
+	e.getMessage () << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);

@@ -31,6 +31,7 @@
 //                (sushma_fernandes@hp.com)
 // Modified By: Dan Gorey, IBM (djgorey@us.ibm.com)
 // Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,8 +100,35 @@ static Boolean _MakeAddress(
     AtoE(ebcdicHost);
 #endif
 	
+////////////////////////////////////////////////////////////////////////////////
+// This code used to check if the first character of "hostname" was alphabetic
+// to indicate hostname instead of IP address. But RFC 1123, section 2.1, relaxed
+// this requirement to alphabetic character *or* digit. So bug 1462 changed the
+// flow here to call inet_addr first to check for a valid IP address in dotted
+// decimal notation. If it's not a valid IP address, then try to validate
+// it as a hostname.
+// RFC 1123 states: The host SHOULD check the string syntactically for a 
+// dotted-decimal number before looking it up in the Domain Name System. 
+// Hence the call to inet_addr() first.
+////////////////////////////////////////////////////////////////////////////////
+
+#ifdef PEGASUS_OS_OS400
+   unsigned long tmp_addr = inet_addr(ebcdicHost);
+#else
+    #ifdef PEGASUS_OS_ZOS
+   unsigned long tmp_addr = inet_addr_ebcdic((char *)hostname);
+    #else
+   unsigned long tmp_addr = inet_addr((char *)hostname);
+    #endif
+#endif
+
    struct hostent *entry;
-   if (isalpha(hostname[0]))
+
+// Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
+//       A better solution would be to use inet_aton() or equivalent, as
+//       inet_addr() is now considered "obsolete".
+
+   if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
    {
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 #define HOSTENT_BUFF_SIZE        8192
@@ -134,22 +162,8 @@ static Boolean _MakeAddress(
       address.sin_family = entry->h_addrtype;
       address.sin_port = htons(port);
    }     
-   else
+   else    // else hostname *is* a dotted-decimal IP address
    {
-#ifdef PEGASUS_OS_OS400
-      unsigned long tmp_addr = inet_addr(ebcdicHost);
-#else
-    #ifdef PEGASUS_OS_ZOS
-      unsigned long tmp_addr = inet_addr_ebcdic((char *)hostname);
-    #else
-      unsigned long tmp_addr = inet_addr((char *)hostname);
-    #endif
-#endif
-      
-      if(tmp_addr == 0xFFFFFFFF)
-      {
-	  return false;
-      }
       memset(&address, 0, sizeof(address));
       address.sin_family = AF_INET;
       address.sin_addr.s_addr = tmp_addr;

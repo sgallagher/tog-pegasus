@@ -31,6 +31,7 @@
 //					replaced instances of "| ios::binary" with
 //					PEGASUS_OR_IOS_BINARY
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -174,9 +175,33 @@ Uint32 System::_acquireIP(const char* hostname)
 	AtoE(ebcdicHost);
 #endif
 
+////////////////////////////////////////////////////////////////////////////////
+// This code used to check if the first character of "hostname" was alphabetic
+// to indicate hostname instead of IP address. But RFC 1123, section 2.1, relaxed
+// this requirement to alphabetic character *or* digit. So bug 1462 changed the
+// flow here to call inet_addr first to check for a valid IP address in dotted
+// decimal notation. If it's not a valid IP address, then try to validate
+// it as a hostname.
+// RFC 1123 states: The host SHOULD check the string syntactically for a 
+// dotted-decimal number before looking it up in the Domain Name System. 
+// Hence the call to inet_addr() first.
+////////////////////////////////////////////////////////////////////////////////
+
+#ifdef PEGASUS_OS_OS400
+	Uint32 tmp_addr = inet_addr(ebcdicHost);
+#elif defined(PEGASUS_OS_ZOS)
+	Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
+#else
+	Uint32 tmp_addr = inet_addr((char *) hostname);
+#endif
+
 	struct hostent *entry;
 
-	if (isalpha(hostname[0]))
+// Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
+//       A better solution would be to use inet_aton() or equivalent, as
+//       inet_addr() is now considered "obsolete".
+
+    if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
 	{
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 #define HOSTENT_BUFF_SIZE        8192
@@ -215,24 +240,9 @@ Uint32 System::_acquireIP(const char* hostname)
 		ip = (ip << 8) + ip_part2;
 		ip = (ip << 8) + ip_part3;
 		ip = (ip << 8) + ip_part4;
-	} else
+	}
+    else    // else hostname *is* a dotted-decimal IP address
 	{
-		// given hostname starts with an numeric character
-		// get address in network byte order
-#ifdef PEGASUS_OS_OS400
-		Uint32 tmp_addr = inet_addr(ebcdicHost);
-#elif defined(PEGASUS_OS_ZOS)
-		Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
-#else
-		Uint32 tmp_addr = inet_addr((char *) hostname);
-#endif
-		
-		// 0xFFFFFFF is same as -1 in an unsigned int32
-		if (tmp_addr == 0xFFFFFFFF)
-		{
-			// error, given ip does not follow format requirements
-			return 0xFFFFFFFF;
-		}		
 		// resolve hostaddr to a real host entry
 		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
 		entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);

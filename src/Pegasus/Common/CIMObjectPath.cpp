@@ -28,6 +28,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -431,26 +432,51 @@ public:
         // fully-qualified domain name (e.g., xyz.company.com) or may be an
         // IP address.  A port number may follow the hostname.
         // Hostnames must match one of the following regular expressions:
-        // ^([A-Za-z][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*(:[0-9]*)?$
+        // ^([A-Za-z0-9][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*(:[0-9]*)?$
         // ^([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)(:[0-9]*)?$
+        // Note for Bug#1462. Be careful here, from RFC 1123:
+        // - The syntax of a legal Internet host name was specified in 
+        //   RFC-952 [DNS:4]. One aspect of host name syntax is hereby 
+        //   changed: the restriction on the first character is relaxed to 
+        //   allow either a letter or a digit. 
+        // - If a dotted-decimal number can be entered without identifying
+        //   delimiters, then a full syntactic check must be made, because
+        //   a segment of a host domain name is now allowed to begin with a
+        //   digit and could legally be entirely numeric (see Section 6.1.2.4).
+        //   However, a valid host name can never have the dotted-decimal form
+        //   #.#.#.#, since at least the highest-level component label will be
+        //   alphabetic. 
+        // The algorithm below has been updated accordingly.
         //------------------------------------------------------------------
 
         Uint32 i = 0;
 
+        Boolean isValid = false;
+
         if (isdigit(hostname[0]))
         {
-            // Validate an IP address
+            //--------------------------------------------------------------
+            // Attempt to validate an IP address, but keep in mind that it 
+            // might be a host name, since the leading character can now be
+            // a digit.
+            //--------------------------------------------------------------
+            isValid = true;
 
             for (Uint32 octet=1; octet<=4; octet++)
             {
                 Uint32 octetValue = 0;
 
+                //----------------------------------------------------------
+                // If a non-digit is encountered in the input parameter,
+                // then break from here and attempt to validate as host name.
+                //----------------------------------------------------------
                 if (!isdigit(hostname[i]))
                 {
-                    return false;
+                    isValid = false;
+                    break;
                 }
 
-                while (isdigit(hostname[i]))
+                while (isdigit(hostname[i]))  // skip over digits
                 {
                     octetValue = octetValue*10 + (hostname[i] - '0');
                     i++;
@@ -458,32 +484,53 @@ public:
 
                 if (octetValue > 255)
                 {
-                    return false;
+                    isValid = false;
+                    break;
                 }
 
+                // Check for invalid character in IP address
                 if ((octet != 4) && (hostname[i++] != '.'))
                 {
-                    return false;
+                    isValid = false;
+                    break;
+                }
+
+                // Check for the case where it's a valid host name that happens
+                // to have 4 (or more) leading all-numeric host segments.
+                if ((octet == 4) && (hostname[i] != ':') && hostname[i] != char(0))
+                {
+                    isValid = false;
+                    break;
                 }
             }
         }
-        else
+        if (!isValid)   // if it is not a valid IP address
         {
-            // Validate a hostname
+            i = 0;  // reset index for host name check
+
+            // Validate a host name
+            isValid = true;
 
             Boolean expectHostSegment = true;
+            Boolean hostSegmentIsNumeric;
 
             while (expectHostSegment == true)
             {
                 expectHostSegment = false;
+                hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!isalpha(hostname[i++]))
+                if (!isalnum(hostname[i++]))
                 {
                     return false;
                 }
 
                 while (isalnum(hostname[i]) || (hostname[i] == '-'))
                 {
+                    // If a non-digit is encountered, set "all-numeric"
+                    // flag to false
+                    if (isalpha(hostname[i]) || (hostname[i] == '-')) {
+                        hostSegmentIsNumeric = false;
+                    }
                     i++;
                 }
 
@@ -493,6 +540,16 @@ public:
                     expectHostSegment = true;
                 }
             }
+            // If the last Host Segment is all numeric, then return false.
+            // RFC 1123 says "highest-level component label will be alphabetic".
+            if (hostSegmentIsNumeric) {
+                return false;
+            }
+        }
+
+        if (!isValid) // if not a valid IP address or host name
+        {
+            return false;
         }
 
         // Check for a port number:

@@ -173,6 +173,24 @@ void test01()
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
      CIMObjectPath h4("//usoPen-9.ustA-1-a.org:9876543210/root/cimv25:"
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h6("//usopen-9.usta-1-a.1org:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h7("//192.168.1.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h8("//192.168.0.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h9("//192.168.1.80.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h10("//192.168.0.80.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h11("//192.168.1.80.255.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h12("//192.168.0.80.254.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h13("//192.168.257.80.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h14("//192.256.0.80.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
      // try IPAddress as hostname which should be good
      CIMObjectPath h_ip0("//192.168.1.80:77/root/cimv25:"
@@ -197,7 +215,7 @@ void test01()
      try
      {
         // Missing port
-        CIMObjectPath h5("//192.168.256.80:/root/cimv25:"
+        CIMObjectPath h5("//192.168.1.80:/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");
      } catch (const Exception&)
      {
@@ -296,19 +314,6 @@ void test01()
         errorDetected = true;
      }
      assert(errorDetected);
-
-     errorDetected = false;
-     try
-     {
-        // Leading numeric (the second 1) 
-        CIMObjectPath h1("//usopen-9.usta-1-a.1org:77/root/cimv25:"
-                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception&)
-     {
-        errorDetected = true;
-     }
-     assert(errorDetected);
-
 
      errorDetected = false;
      try

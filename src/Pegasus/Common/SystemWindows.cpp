@@ -30,12 +30,11 @@
 //              Bapu Patil (bapu_patil@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "System.h"
-
-PEGASUS_NAMESPACE_BEGIN
 
 #include <windows.h>
 #ifndef _WINSOCKAPI_
@@ -51,6 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
 #include <sys/types.h>
 #include <windows.h>
 #include <process.h>
+
+PEGASUS_NAMESPACE_BEGIN
 
 #define ACCESS_EXISTS 0
 #define ACCESS_WRITE 2

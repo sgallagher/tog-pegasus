@@ -105,13 +105,14 @@
 #include <fstream>
 
 // Globalization headers
-#include "LocalizedProvider.h"
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/ContentLanguages.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+
+#include "LocalizedProvider.h"
 
 PEGASUS_USING_STD;
 

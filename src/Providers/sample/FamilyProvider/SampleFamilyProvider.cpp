@@ -29,11 +29,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "SampleFamilyProvider.h"
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 
+#include "SampleFamilyProvider.h"
 
 PEGASUS_USING_PEGASUS;
 

@@ -25,7 +25,7 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By: 
+// Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////  
 
@@ -33,8 +33,6 @@
 #define PegasusCompiler_Compiler_Common_Defs_h
 
 #include <Pegasus/Compiler/Linkage.h>
-
-PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE compilerCommonDefs {
  public: 

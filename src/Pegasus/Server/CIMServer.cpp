@@ -62,7 +62,7 @@
 #include "CIMOperationRequestAuthorizer.h"
 #include "HTTPAuthenticatorDelegator.h"
 #include <Pegasus/Common/ModuleController.h>
-#include <Providers/generic/ConfigSettingProvider/ConfigSettingProvider.h>
+#include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 
 
 PEGASUS_USING_STD;

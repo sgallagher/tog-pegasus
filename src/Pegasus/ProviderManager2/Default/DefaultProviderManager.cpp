@@ -31,6 +31,7 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -339,9 +340,12 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -443,9 +447,12 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -548,10 +555,12 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
-
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
         // forward request
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstanceNames: " +
@@ -649,9 +658,12 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         // forward request
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -750,9 +762,12 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -855,9 +870,12 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         // forward request
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -962,9 +980,12 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         QueryExpression qx(QueryExpressionFactory::routeBuildQueryExpressionRep
            (request->queryLanguage,request->query));
@@ -1070,10 +1091,12 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
-
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
         // ATTN KS STAT_GETSTARTTIME;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1178,9 +1201,12 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1282,9 +1308,12 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         STAT_GETSTARTTIME;
 
@@ -1391,9 +1420,12 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         STAT_GETSTARTTIME;
 
@@ -1492,9 +1524,12 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         CIMName propertyName = request->propertyName;
 
@@ -1597,9 +1632,12 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         CIMName propertyName = request->propertyName;
         CIMValue propertyValue = request->newValue;
@@ -1705,9 +1743,12 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+		context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages())); 
 
         CIMObjectPath instanceReference(request->instanceName);
 
@@ -1804,34 +1845,40 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             request->nameSpace.getString(),
             temp);
 
-        String physicalName=_resolvePhysicalName(
-           request->providerModule.getProperty(
-           request->providerModule.findProperty("Location")).getValue().toString());
+		CIMInstance req_provider, req_providerModule;
 
-        ProviderName name(
-           request->provider.getProperty(request->provider.findProperty
-              ("Name")).getValue ().toString (),
-           physicalName,
-           request->providerModule.getProperty(request->providerModule.findProperty
-              ("InterfaceType")).getValue().toString(),
-           0);
+		req_provider = ((ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME)).getProvider();
+		req_providerModule = ((ProviderIdContainer)request->operationContext.get
+                                                             (ProviderIdContainer::NAME)).getModule();
+        String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
+                                                  req_providerModule.findProperty("Location")).getValue().toString());
 
-        // get cached or load new provider module
+        ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
+                                  physicalName,
+                                  req_providerModule.getProperty(req_providerModule.findProperty
+                                  ("InterfaceType")).getValue().toString(),
+                                   0);
+		// get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
-        context.insert(SubscriptionLanguageListContainer
-            (request->acceptLanguages));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		 context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+			                              (IdentityContainer::NAME)).getUserName()));
+	     context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+			                             (AcceptLanguageListContainer::NAME)).getLanguages()));
+	     context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages()));
+	     context.insert(SubscriptionInstanceContainer(((SubscriptionInstanceContainer)request->operationContext.get
+			                             (SubscriptionInstanceContainer::NAME)).getInstance()));
+	     context.insert(SubscriptionLanguageListContainer(((SubscriptionLanguageListContainer)request->operationContext.
+                                             get(SubscriptionLanguageListContainer::NAME)).getLanguages()));
+	     context.insert(SubscriptionFilterConditionContainer(((SubscriptionFilterConditionContainer)
+                            request->operationContext.get(SubscriptionFilterConditionContainer::NAME)).getFilterCondition(),
+                            ((SubscriptionFilterConditionContainer)request->operationContext.get
+			                             (SubscriptionFilterConditionContainer::NAME)).getQueryLanguage()));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1935,18 +1982,21 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             System::getHostName(),
             request->nameSpace.getString(),
             temp);
+			
+			CIMInstance req_provider, req_providerModule;
+            req_provider = ((ProviderIdContainer)request->operationContext.get
+														(ProviderIdContainer::NAME)).getProvider();
+            req_providerModule = ((ProviderIdContainer)request->operationContext.get
+                                                        (ProviderIdContainer::NAME)).getModule();
+         
+            String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
+                                                  req_providerModule.findProperty("Location")).getValue().toString());
 
-        String physicalName=_resolvePhysicalName(
-           request->providerModule.getProperty(
-           request->providerModule.findProperty("Location")).getValue().toString());
-
-        ProviderName name(
-           request->provider.getProperty(request->provider.findProperty
-              ("Name")).getValue ().toString (),
-           physicalName,
-           request->providerModule.getProperty(request->providerModule.findProperty
-              ("InterfaceType")).getValue().toString(),
-           0);
+            ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
+                                  physicalName,
+                                  req_providerModule.getProperty(req_providerModule.findProperty
+                                  ("InterfaceType")).getValue().toString(),
+                                   0);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1955,15 +2005,20 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
-        context.insert(SubscriptionLanguageListContainer
-            (request->acceptLanguages));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
+		context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+                                                      (IdentityContainer::NAME)).getUserName()));
+        context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+                                                     (AcceptLanguageListContainer::NAME)).getLanguages()));
+        context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+                                                     (ContentLanguageListContainer::NAME)).getLanguages()));
+        context.insert(SubscriptionInstanceContainer(((SubscriptionInstanceContainer)request->operationContext.get
+                                                     (SubscriptionInstanceContainer::NAME)).getInstance()));
+        context.insert(SubscriptionLanguageListContainer(((SubscriptionLanguageListContainer)request->operationContext.
+                                             get(SubscriptionLanguageListContainer::NAME)).getLanguages()));
+        context.insert(SubscriptionFilterConditionContainer(((SubscriptionFilterConditionContainer)
+                            request->operationContext.get(SubscriptionFilterConditionContainer::NAME)).getFilterCondition(),
+                            ((SubscriptionFilterConditionContainer)request->operationContext.get
+                                                     (SubscriptionFilterConditionContainer::NAME)).getQueryLanguage()));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -2068,17 +2123,20 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             request->nameSpace.getString(),
             temp);
 
-        String physicalName=_resolvePhysicalName(
-           request->providerModule.getProperty(
-           request->providerModule.findProperty("Location")).getValue().toString());
+           CIMInstance req_provider, req_providerModule;
+              req_provider = ((ProviderIdContainer)request->operationContext.get
+															(ProviderIdContainer::NAME)).getProvider();
+              req_providerModule = ((ProviderIdContainer)request->operationContext.get
+                                                             (ProviderIdContainer::NAME)).getModule();
+        
+              String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
+                                                  req_providerModule.findProperty("Location")).getValue().toString());
 
-        ProviderName name(
-           request->provider.getProperty(request->provider.findProperty
-              ("Name")).getValue ().toString (),
-           physicalName,
-           request->providerModule.getProperty(request->providerModule.findProperty
-              ("InterfaceType")).getValue().toString(),
-           0);
+              ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
+                                  physicalName,
+                                  req_providerModule.getProperty(req_providerModule.findProperty
+                                  ("InterfaceType")).getValue().toString(),
+                                   0);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2087,14 +2145,16 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionLanguageListContainer
-            (request->acceptLanguages));
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
-
+        context.insert(IdentityContainer(((IdentityContainer)request->operationContext.get
+                                                      (IdentityContainer::NAME)).getUserName()));
+        context.insert(AcceptLanguageListContainer(((AcceptLanguageListContainer)request->operationContext.get
+                                                     (AcceptLanguageListContainer::NAME)).getLanguages()));
+        context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+                                                     (ContentLanguageListContainer::NAME)).getLanguages()));
+        context.insert(SubscriptionInstanceContainer(((SubscriptionInstanceContainer)request->operationContext.get
+                                                     (SubscriptionInstanceContainer::NAME)).getInstance()));
+        context.insert(SubscriptionLanguageListContainer(((SubscriptionLanguageListContainer)request->operationContext.
+                                             get(SubscriptionLanguageListContainer::NAME)).getLanguages()));
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
         Array<CIMObjectPath> classNames;
@@ -2176,19 +2236,22 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
         new EnableIndicationsResponseHandler(
             request, response, request->provider, _indicationCallback);
 
+    CIMInstance req_provider, req_providerModule;
+                req_provider = ((ProviderIdContainer)request->operationContext.get
+													(ProviderIdContainer::NAME)).getProvider();
+                req_providerModule = ((ProviderIdContainer)request->operationContext.get
+                                                     (ProviderIdContainer::NAME)).getModule(); 
+
     try
     {
-       String physicalName=_resolvePhysicalName(
-          request->providerModule.getProperty(
-              request->providerModule.findProperty("Location")).getValue().toString());
+          String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
+                                                    req_providerModule.findProperty("Location")).getValue().toString());
 
-       ProviderName name(
-               request->provider.getProperty(request->provider.findProperty
-                   ("Name")).getValue ().toString (),
-               physicalName,
-               request->providerModule.getProperty(request->providerModule.findProperty
-                    ("InterfaceType")).getValue().toString(),
-               0);
+          ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
+                                  physicalName,
+                                  req_providerModule.getProperty(req_providerModule.findProperty
+                                  ("InterfaceType")).getValue().toString(),
+                                   0);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2263,20 +2326,25 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 
     OperationResponseHandler handler(request, response);
 
+    CIMInstance req_provider, req_providerModule;
+                req_provider = ((ProviderIdContainer)request->operationContext.get
+															(ProviderIdContainer::NAME)).getProvider();
+                req_providerModule = ((ProviderIdContainer)request->operationContext.get
+                                                             (ProviderIdContainer::NAME)).getModule();
+     
     try
     {
        String physicalName=_resolvePhysicalName(
-              request->providerModule.getProperty(
-                 request->providerModule.findProperty("Location")).getValue().toString());
+              req_providerModule.getProperty(
+                req_providerModule.findProperty("Location")).getValue().toString());
 
        ProviderName name(
-               request->provider.getProperty(request->provider.findProperty
+               req_provider.getProperty(req_provider.findProperty
                    ("Name")).getValue ().toString (),
                physicalName,
-               request->providerModule.getProperty(request->providerModule.findProperty
+                req_providerModule.getProperty(req_providerModule.findProperty
                     ("InterfaceType")).getValue().toString(),
             0);
-
         // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
@@ -2373,7 +2441,9 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 // make sure that Content-Language is set in the consume msg.
 // NOTE: A-L is not needed to be set in the consume msg.
       // add the langs to the context
-      context.insert(ContentLanguageListContainer(request->contentLanguages));
+
+	  context.insert(ContentLanguageListContainer(((ContentLanguageListContainer)request->operationContext.get
+			                             (ContentLanguageListContainer::NAME)).getLanguages()));
 
       CIMInstance indication_copy = request->indicationInstance;
       pm_service_op_lock op_lock(&ph.GetProvider());

@@ -253,8 +253,9 @@ class PEGASUS_COMMON_LINKAGE Semaphore
       
       ~Semaphore( );
 
-      // block until this semaphore is in a signalled state 
-      void wait(void) ;
+      // block until this semaphore is in a signalled state, or
+      // throw an exception if the wait failed.
+      void wait(void) throw(WaitFailed);
 
       // wait succeeds immediately if semaphore has a non-zero count, 
       // return immediately and throw and exception if the 

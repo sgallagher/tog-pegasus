@@ -65,7 +65,7 @@ void Mutex::unlock() throw(Permission) {}
 
 Semaphore::Semaphore(Uint32 initial) {}
 Semaphore::~Semaphore() {}
-void Semaphore::wait(void) {}
+void Semaphore::wait(void) throw(WaitFailed) {}
 void Semaphore::try_wait(void) throw(WaitFailed) {}
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut) {}
 void Semaphore::signal() {}

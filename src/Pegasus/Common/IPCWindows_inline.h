@@ -98,7 +98,7 @@ inline void Mutex::unlock() throw(Permission)
 //-----------------------------------------------------------------
 
 // block until this semaphore is in a signalled state
-inline void Semaphore::wait(void) 
+inline void Semaphore::wait(void) throw(WaitFailed) 
 {
    DWORD errorcode = WaitForSingleObject(_semaphore.sem, INFINITE);
    if(errorcode != WAIT_FAILED)

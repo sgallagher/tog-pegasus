@@ -76,7 +76,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
    while ( _stop_polling.value()  == 0 ) 
    {
-      _polling_sem.wait();
+      try
+      {
+         _polling_sem.wait();
+      }
+      catch (WaitFailed)
+      {
+         myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+      }
+
       if(_stop_polling.value() != 0 )
       {
          break;

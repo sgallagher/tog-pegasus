@@ -578,10 +578,12 @@ Semaphore::~Semaphore()
    }
 }
 
-// block until this semaphore is in a signalled state
- void Semaphore::wait(void) 
+// block until this semaphore is in a signalled state, or
+// throw an exception if the wait fails 
+ void Semaphore::wait(void) throw(WaitFailed) 
 {
-   sem_wait(&_semaphore.sem);
+   if (sem_wait(&_semaphore.sem))
+      throw(WaitFailed(_semaphore.owner));
 }
 
 // wait succeeds immediately if semaphore has a non-zero count, 
@@ -724,8 +726,9 @@ static void semaphore_cleanup(void *arg)
 #endif
 
 
-// block until this semaphore is in a signalled state
-void Semaphore::wait(void) 
+// block until this semaphore is in a signalled state or
+// throw an exception if the wait fails
+void Semaphore::wait(void) throw(WaitFailed) 
 {
    // Acquire mutex to enter critical section.
    pthread_mutex_lock (&_semaphore.mutex);

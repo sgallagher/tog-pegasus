@@ -36,6 +36,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Willis White (whiwill@us.ibm.com) PEP 128
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -466,5 +467,18 @@ CIMValue CIMClient::invokeMethod(
         inParameters,
         outParameters);
 }
+
+
+void CIMClient::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
+{
+  _rep->registerClientOpPerformanceDataHandler(handler);
+}
+
+   
+void CIMClient::deregisterClientOpPerformanceDataHandler()
+{
+  _rep->deregisterClientOpPerformanceDataHandler();
+}
+
 
 PEGASUS_NAMESPACE_END

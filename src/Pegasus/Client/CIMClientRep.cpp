@@ -1082,9 +1082,10 @@ Message* CIMClientRep::_doRequest(
 
 
         //gathering statistical information about client operation
-     perfDataStore.reset();
-     CIMOperationType currentMessageType = perfDataStore.setOperationType(request->getType());
-     perfDataStore.setMessageID(request->messageId);
+     ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
+     perfDataStore->reset();
+     perfDataStore->setOperationType(request->getType());
+     perfDataStore->setMessageID(request->messageId);
 
 
     // Sending a new request, so clear out the response Content-Languages
@@ -1217,6 +1218,36 @@ Message* CIMClientRep::_doRequest(
                     delete response;
                     throw cimException;
                 }
+
+
+                /* if excicution gets here everytihng is working correctly and a proper response
+                was generated and recived */
+
+                //check that client side statistics are valid before handing them to the 
+                // client application via a call back
+                Boolean re_check = perfDataStore->checkMessageIDandType(cimResponse->messageId,
+                                                                        cimResponse->getType());
+
+                if (re_check && !perfDataStore->getStatError() && perfDataStore->isClassRegistered()) 
+                {  
+                   ClientOpPerformanceData item;
+
+                   try{
+                      item = perfDataStore->createPerfDataStruct();
+                      perfDataStore->handler_prt->handleClientOpPerformanceData(item);
+                   }
+                  catch(Exception& e){
+                    cerr << "Exception : " << e.getMessage() << endl;
+                    exit(1);
+                   }
+                   catch(CIMException& e){
+                    cout << e.getMessage() << endl;
+                   }
+                   catch(...){
+                      cerr << " Caught General Exception:" << endl;
+                   }
+                  
+                }//end of if statmet that call the callback method
                 return response;
             }
             else
@@ -1361,5 +1392,22 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 	}
 
 }
+
+
+void CIMClientRep::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
+{    
+   ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
+   perfDataStore->handler_prt = &handler;
+   perfDataStore->setClassRegistered(true);
+}
+    
+
+void CIMClientRep::deregisterClientOpPerformanceDataHandler()
+{
+    ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
+    perfDataStore->handler_prt = NULL;
+    perfDataStore->setClassRegistered(false);
+}
+
 
 PEGASUS_NAMESPACE_END

@@ -69,7 +69,6 @@
 
 #include "CIMOperationResponseDecoder.h"
 #include "CIMOperationRequestEncoder.h"
-#include "ClientAuthenticator.h"
 #include "ClientPerfDataStore.h"
 
 
@@ -297,6 +296,11 @@ public:
         Array<CIMParamValue>& outParameters
     );
 
+    void registerClientOpPerformanceDataHandler(
+        ClientOpPerformanceDataHandler & handler);
+    
+    void deregisterClientOpPerformanceDataHandler();
+
 private:
 
     void _connect();
@@ -328,9 +332,6 @@ private:
     AcceptLanguages requestAcceptLanguages;
     ContentLanguages requestContentLanguages;
     ContentLanguages responseContentLanguages;
-
-    //PEP 128
-     ClientPerfDataStore perfDataStore;
 
 	// mszer : Additions Stage1 PEP#139
 

@@ -48,6 +48,7 @@
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Common/AcceptLanguages.h> //l10n
+#include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1800,6 +1801,17 @@ public:
 	const Array<CIMParamValue>& inParameters,
 	Array<CIMParamValue>& outParameters
     );
+
+    /**Registers a ClientOpPerformanceDataHandler object. Only one Handler can be registered
+    at a time. A subsequent registration replaces a previous one.
+    @param handler The ClientOpPerformanceDataHandler object instance being registered.
+    */
+    void registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler);
+
+    /**Un-Registers a client statistics ClientOpPerformanceDataHandler.
+    */
+    void deregisterClientOpPerformanceDataHandler();
+
 
 private:
 

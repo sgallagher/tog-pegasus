@@ -871,7 +871,7 @@ void CIMOperationRequestEncoder::_sendRequest(Array<char>& buffer)
             /* collecting statistical information 
                 - requestSize (contentLength) and network Start Time
             */
-    ClientPerfDataStore* dataStore_prt = ClientPerfDataStore::current();
+    ClientPerfDataStore* dataStore_prt = ClientPerfDataStore::Instance();
 
         //these variables are needed to call HTTPMessage::parse, all we need is contentLength
     String startLine;

@@ -52,6 +52,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Client/ClientOpPerformanceDataHandler.h> //PEP# 128
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -87,6 +88,12 @@ public:
     virtual void setRequestContentLanguages(const ContentLanguages& langs) = 0;
     virtual void setRequestDefaultLanguages() = 0;
 // l10n end
+
+//  PEP# 128 Client Satistics
+    virtual void registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler) = 0;
+    virtual void deregisterClientOpPerformanceDataHandler() = 0;
+// PEP# 128 end
+
 
     virtual void connect(
         const String& host,

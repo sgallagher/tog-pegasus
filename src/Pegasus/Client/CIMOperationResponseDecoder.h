@@ -1,72 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Brasher (mbrasher@bmc.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMOperationResponseDecoder_h
-#define Pegasus_CIMOperationResponseDecoder_h
+#ifndef Pegasus_Client_h
+#define Pegasus_Client_h
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Client/ClientAuthenticator.h>
-#include <Pegasus/Client/CIMClientException.h>
-#include <Pegasus/Client/Linkage.h>
-#include "ClientPerfDataStore.h"
-
 
 PEGASUS_NAMESPACE_BEGIN
 
-class XmlParser;
-
-/**
-    This message is sent from the response decoder to the CIMClient, indicating
-    an error in issuing a CIM request.
-*/
-class PEGASUS_CLIENT_LINKAGE ClientExceptionMessage : public Message
-{
-public:
-    ClientExceptionMessage(Exception* clientException_)
-        :
-        Message(CLIENT_EXCEPTION_MESSAGE),
-        clientException(clientException_)
-    {
-    }
-
-    Exception* clientException;
-};
-
-
-/** This class receives HTTP messages and decodes them into CIM Operation
+/** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.
 */
 class PEGASUS_CLIENT_LINKAGE CIMOperationResponseDecoder : public MessageQueue
@@ -74,172 +44,84 @@ class PEGASUS_CLIENT_LINKAGE CIMOperationResponseDecoder : public MessageQueue
 public:
 
     /** Constuctor.
-        @param outputQueue queue to receive decoded HTTP messages.
+	@param outputQueue queue to receive decoded HTTP messages.
     */
-    CIMOperationResponseDecoder(
-        MessageQueue* outputQueue,
-        MessageQueue* encoderQueue,
-        ClientAuthenticator* authenticator
-        );
+    CIMOperationResponseDecoder(MessageQueue* outputQueue);
 
     /** Destructor. */
     ~CIMOperationResponseDecoder();
 
-    /** Initializes the encoder queue */
-    void setEncoderQueue(MessageQueue* encoderQueue);
-
     /** This method is called when a message is enqueued on this queue. */
     virtual void handleEnqueue();
 
-    /**
-        This methods gives the Decoder access to the ClientPerfDataStore that
-        is in CIMClientRep. A pointer to  the CIMClientRep::ClientPerfDataStore
-        is passed in
-    */
-    void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
+    /** Returns the queue name. */
+    virtual const char* getQueueName() const;
 
 private:
 
-    void _handleHTTPMessage(HTTPMessage* message);
+    void _decodeCreateClassResponse(
+	HTTPMessage* httpMessage);
 
-    void _handleMethodResponse(
-        const char* content,
-        Uint32 contentLength,
-        const ContentLanguageList& contentLanguages,
-        Boolean reconnect,
-        bool binaryResponse);
+    void _decodeGetClassResponse(
+	HTTPMessage* httpMessage);
 
-    CIMCreateClassResponseMessage* _decodeCreateClassResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeModifyClassResponse(
+	HTTPMessage* httpMessage);
 
-    CIMGetClassResponseMessage* _decodeGetClassResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeEnumerateClassNamesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMModifyClassResponseMessage* _decodeModifyClassResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeEnumerateClassesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMEnumerateClassNamesResponseMessage* _decodeEnumerateClassNamesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeDeleteClassResponse(
+	HTTPMessage* httpMessage);
 
-    CIMEnumerateClassesResponseMessage* _decodeEnumerateClassesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeCreateInstanceResponse(
+	HTTPMessage* httpMessage);
 
-    CIMDeleteClassResponseMessage* _decodeDeleteClassResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeGetInstanceResponse(
+	HTTPMessage* httpMessage);
 
-    CIMCreateInstanceResponseMessage* _decodeCreateInstanceResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeModifyInstanceResponse(
+	HTTPMessage* httpMessage);
 
-    CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeEnumerateInstanceNamesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMModifyInstanceResponseMessage* _decodeModifyInstanceResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeEnumerateInstancesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMEnumerateInstanceNamesResponseMessage*
-        _decodeEnumerateInstanceNamesResponse(
-            XmlParser& parser,
-            const String& messageId,
-            Boolean isEmptyImethodresponseTag);
+    void _decodeDeleteInstanceResponse(
+	HTTPMessage* httpMessage);
 
-    CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeSetQualifierResponse(
+	HTTPMessage* httpMessage);
 
-    CIMDeleteInstanceResponseMessage* _decodeDeleteInstanceResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeGetQualifierResponse(
+	HTTPMessage* httpMessage);
 
-    CIMGetPropertyResponseMessage* _decodeGetPropertyResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeEnumerateQualifiersResponse(
+	HTTPMessage* httpMessage);
 
-    CIMSetPropertyResponseMessage* _decodeSetPropertyResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeDeleteQualifierResponse(
+	HTTPMessage* httpMessage);
 
-    CIMSetQualifierResponseMessage* _decodeSetQualifierResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeReferenceNamesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMGetQualifierResponseMessage* _decodeGetQualifierResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeReferencesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMEnumerateQualifiersResponseMessage* _decodeEnumerateQualifiersResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeAssociatorNamesResponse(
+	HTTPMessage* httpMessage);
 
-    CIMDeleteQualifierResponseMessage* _decodeDeleteQualifierResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    void _decodeAssociatorsResponse(
+	HTTPMessage* httpMessage);
 
-    CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
-
-    CIMReferencesResponseMessage* _decodeReferencesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
-
-    CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
-
-    CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
-
-    CIMExecQueryResponseMessage* _decodeExecQueryResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
-
-    CIMInvokeMethodResponseMessage* _decodeInvokeMethodResponse(
-        XmlParser& parser,
-        const String& messageId,
-        const String& methodName,
-        Boolean isEmptyMethodresponseTag);
-
-    MessageQueue*        _outputQueue;
-
-    MessageQueue*        _encoderQueue;
-
-    ClientAuthenticator* _authenticator;
-
-    ClientPerfDataStore* dataStore;
+    MessageQueue* _outputQueue;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CIMOperationResponseDecoder_h */
+#endif /* Pegasus_Client_h */

@@ -59,8 +59,6 @@ public:
 
 private:
 
-    static String _getNextMessageId();
-
     void _encodeCreateClassRequest(
 	CIMCreateClassRequestMessage* message);
 

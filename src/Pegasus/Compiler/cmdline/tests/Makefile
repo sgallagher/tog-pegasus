@@ -115,3 +115,6 @@ tests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl --help" >> $(RESULTFILE)
 	@cimmofl --help >> $(RESULTFILE) $(REDIRECTERROR)
+
+poststarttests:
+

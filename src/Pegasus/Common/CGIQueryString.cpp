@@ -89,7 +89,13 @@ void CGIQueryString::_ParseCGIQueryString(
 {
     // First split about the '&' characters:
 
+#ifdef PEGASUS_OS_SOLARIS
+char *last;
+    for (char* p = strtok_r(queryString, "&", &last); p;
+					p = strtok_r(NULL, "&", &last))
+#else
     for (char* p = strtok(queryString, "&"); p; p = strtok(NULL, "&"))
+#endif
     {
 	char* name = p;
 

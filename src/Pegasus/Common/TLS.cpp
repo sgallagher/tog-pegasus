@@ -44,11 +44,6 @@
 #include "TLS.h"
 
 
-// switch on if 'client needs certified server'
-// generally you do not need this defined, since CIM clients can pass a verification function into the constructor
-// added by hns for server SSL auth
-//#define SERVER_CERTIFY
-
 //
 // use the following definitions only if SSL is available
 // 
@@ -342,10 +337,6 @@ redo_connect:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
-    // modified by hns for server SSL verification
-    // do not disconnect if server certificate is not in client truststore
-    // allow verification function to take care of that
-#ifdef SERVER_CERTIFY
     // get server's certificate
     X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
     if (server_cert != NULL)
@@ -357,8 +348,8 @@ redo_connect:
        else
        {
            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate NOT verified.");    
-           //PEG_METHOD_EXIT();
-           //return -1;
+           PEG_METHOD_EXIT();
+           return -1;
        }
 
        X509_free (server_cert);
@@ -366,12 +357,11 @@ redo_connect:
     else
     {
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server not certified.");
-       //PEG_METHOD_EXIT();
-       //return -1;
-    }
-#endif
-
        PEG_METHOD_EXIT();
+       return -1;
+    }
+
+    PEG_METHOD_EXIT();
     return ssl_rc;
     }
 

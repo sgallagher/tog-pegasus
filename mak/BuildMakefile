@@ -20,12 +20,11 @@
 ## NOTE: Please add platform specific environment variables as appropriate. 
 ##
 ###############################################################################
-
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  CIMSERVER_START_SERVICE = cimserver -install
-  CIMSERVER_STOP_SERVICE = cimserver -remove
+  CIMSERVER_START_SERVICE =
+  CIMSERVER_STOP_SERVICE =
+  SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
-  SLEEP =  
   MUEXE = mu.exe
   COPYMU = copy pegasus\src\utils\mu\$(MUEXE) /y $(MUEXE)
   MKDIR = pegasus/src/utils/mu/mu mkdirhier
@@ -35,8 +34,8 @@ endif
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
   CIMSERVER_START_SERVICE = cimserver -d
   CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
+  SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
-  SLEEP = sleep 2
   MUEXE = mu
   COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
   MKDIR = pegasus/src/utils/mu/mu mkdirhier
@@ -75,6 +74,7 @@ prestarttests:
 	$(MAKE) --directory=pegasus -f Makefile config
 	$(MAKE) --directory=pegasus -f Makefile user
 	$(MAKE) --directory=pegasus -f Makefile shutdownService
+	$(MAKE) --directory=pegasus -f Makefile registration
 	$(MAKE) --directory=pegasus -f Makefile tests
 	$(MAKE) --directory=pegasus/src/Server -f Makefile install
 	$(MAKE) --directory=pegasus/test -f Makefile clean

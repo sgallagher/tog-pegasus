@@ -353,28 +353,32 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(v
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
    MessageQueueService *service = reinterpret_cast<MessageQueueService *>(parm);
+
+   if ( service->_die.value() != 0)
+		 return (0);
+
    // pull messages off the incoming queue and dispatch them. then 
    // check pending messages that are non-blocking
    AsyncOpNode *operation = 0;
-   
-   if ( service->_die.value() == 0 ) 
-    {
-	 try 
+
+	 // many operations may have been queued.
+	 do
 	 {
-	    operation = service->_incoming.remove_first();
-	 }
-	 catch(ListClosed & )
-	 {
-	    operation = 0;
-	    
-	    return(0);
-	 }
-	 if( operation )
-	 {
-	    operation->_service_ptr = service;
-	    service->_handle_incoming_operation(operation);
-	 }
-    }
+		 try 
+		 {
+			 operation = service->_incoming.remove_first();
+		 }
+		 catch(ListClosed &)
+		 {
+			 break;
+		 }
+
+		 if (operation)
+		 {
+			 operation->_service_ptr = service;
+			 service->_handle_incoming_operation(operation);
+		 }
+	 } while (operation);
 
    return(0);
 }

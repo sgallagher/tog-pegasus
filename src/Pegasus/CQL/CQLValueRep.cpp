@@ -1043,17 +1043,23 @@ void CQLValueRep::_validate(const CQLValueRep& x)
    return;
 }
 
-void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
+void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_setValue()");
   CIMValue tmp;
+  Uint32 index;
+
+  if(key != -1)
+    {
+      index = (Uint32)key;
+    }
   if(cv.isArray())
     {
       switch(cv.getType())
 	{
 	case CIMTYPE_BOOLEAN:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1072,7 +1078,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Uint8> _uint;
 	    cv.get(_uint);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Uint64> _uint64;
 		for(Uint32 i = 0; i < _uint.size(); ++i)
@@ -1093,7 +1099,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Uint16> _uint;
 	    cv.get(_uint);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Uint64> _uint64;
 		for(Uint32 i = 0; i < _uint.size(); ++i)
@@ -1114,7 +1120,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Uint32> _uint;
 	    cv.get(_uint);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Uint64> _uint64;
 		for(Uint32 i = 0; i < _uint.size(); ++i)
@@ -1132,7 +1138,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }
 	case CIMTYPE_UINT64:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1150,7 +1156,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Sint8> _sint;
 	    cv.get(_sint);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Sint64> _sint64;
 		for(Uint32 i = 0; i < _sint.size(); ++i)
@@ -1171,7 +1177,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Sint16> _sint;
 	    cv.get(_sint);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Sint64> _sint64;
 		for(Uint32 i = 0; i < _sint.size(); ++i)
@@ -1192,7 +1198,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Sint32> _sint;
 	    cv.get(_sint);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Sint64> _sint64;
 		for(Uint32 i = 0; i < _sint.size(); ++i)
@@ -1210,7 +1216,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }
 	case CIMTYPE_SINT64:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1229,7 +1235,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Real32> _real;
 	    cv.get(_real);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<Real64> _real64;
 		for(Uint32 i = 0; i < _real.size(); ++i)
@@ -1247,7 +1253,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }
 	case CIMTYPE_REAL64:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1265,7 +1271,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	    Array<Char16> _str16;
 	    cv.get(_str16);
 
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		Array<String> _str;
 		for(Uint32 i = 0; i < _str16.size(); ++i)
@@ -1283,7 +1289,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }
 	case CIMTYPE_STRING:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1298,7 +1304,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }  
 	case CIMTYPE_DATETIME:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1313,7 +1319,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }
 	case CIMTYPE_REFERENCE:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }
@@ -1329,7 +1335,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
      /* embobj
 	case CIMTYPE_EMBEDDED:
 	  {
-	    if(index == -1)
+	    if(key == -1)
 	      {
 		_theValue = cv;
 	      }

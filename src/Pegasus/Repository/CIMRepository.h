@@ -44,6 +44,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMRepositoryBase.h>
+#include <Pegasus/Common/ContentLanguages.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Repository/Linkage.h>
@@ -97,24 +98,28 @@ public:
     /// createClass
     virtual void createClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& newClass);
+        const CIMClass& newClass,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
 
     /// createInstance
     virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
-        const CIMInstance& newInstance);
+        const CIMInstance& newInstance,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
 
     /// modifyClass
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass);
+        const CIMClass& modifiedClass,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
 
     /// modifyInstance
     virtual void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
 
     /// enumerateClasses
     virtual Array<CIMClass> enumerateClasses(
@@ -139,7 +144,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+	const CIMPropertyList& propertyList = CIMPropertyList());
 
     /** enumerateInstances for a single Class. This and the forClass
     // in enumerate instancenames are a temp hack to get a version
@@ -179,7 +184,7 @@ public:
     virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const Boolean includeInheritance = true);
+        const Boolean includeInheritance = true	);
 
 
     /// execQuery
@@ -236,7 +241,8 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
-        const CIMValue& newValue = CIMValue());
+        const CIMValue& newValue = CIMValue(),
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
 
     /// getQualifier
     virtual CIMQualifierDecl getQualifier(
@@ -246,7 +252,8 @@ public:
     /// setQualifier
     virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
-        const CIMQualifierDecl& qualifierDecl);
+        const CIMQualifierDecl& qualifierDecl,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
 
     /// deleteQualifier
     virtual void deleteQualifier(
@@ -255,7 +262,7 @@ public:
 
     /// enumerateQualifiers
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-        const CIMNamespaceName& nameSpace);
+	const CIMNamespaceName& nameSpace);
 
     /** CIMMethod createNameSpace - Creates a new namespace in the repository
         @param String with the name of the namespace

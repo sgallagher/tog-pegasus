@@ -1066,9 +1066,17 @@ void CIMRepository::_createAssocClassEntries(
 
 void CIMRepository::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass)
+    const CIMClass& newClass,
+    const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
+
+    if (contentLangs.size() > 0)
+    {
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+			       "The Content-Language header is not supported for this request"));
+    }
 
     WriteLock lock(_lock);
     _createClass(nameSpace, newClass);
@@ -1217,9 +1225,17 @@ void CIMRepository::_createAssocInstEntries(
 
 CIMObjectPath CIMRepository::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance)
+    const CIMInstance& newInstance,
+    const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
+
+    if (contentLangs.size() > 0)
+    {
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+			       "The Content-Language header is not supported for this request"));
+    }
 
     WriteLock lock(_lock);
     CIMObjectPath instanceName = _createInstance(nameSpace, newInstance);
@@ -1437,9 +1453,17 @@ CIMObjectPath CIMRepository::_createInstance(
 
 void CIMRepository::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass)
+    const CIMClass& modifiedClass,
+    const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
+
+    if (contentLangs.size() > 0)
+    {
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+			       "The Content-Language header is not supported for this request"));
+    }
 
     WriteLock lock(_lock);
     _modifyClass(nameSpace, modifiedClass);
@@ -1510,9 +1534,17 @@ void CIMRepository::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
+
+    if (contentLangs.size() > 0)
+    {
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+			       "The Content-Language header is not supported for this request"));
+    }
 
     WriteLock lock(_lock);
 
@@ -2766,9 +2798,17 @@ void CIMRepository::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue)
+    const CIMValue& newValue,
+    const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setProperty");
+
+    if (contentLangs.size() > 0)
+    {
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+			       "The Content-Language header is not supported for this request"));
+    }
 
     // It is not necessary to control access to the ReadWriteSem _lock here.
     // This method calls modifyInstance, which does its own access control.
@@ -2846,9 +2886,17 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 
 void CIMRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDecl)
+    const CIMQualifierDecl& qualifierDecl,
+    const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
+
+    if (contentLangs.size() > 0)
+    {
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+			       "The Content-Language header is not supported for this request."));
+    }
 
     WriteLock lock(_lock);
     _setQualifier(nameSpace, qualifierDecl);

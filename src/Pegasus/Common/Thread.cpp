@@ -937,13 +937,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	       
 	       // signal the thread's sleep semaphore to awaken it
 	       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	       
-	       if(sleep_sem == 0)
-	       {
-		  q->unlock();
-		  th->dereference_tsd();
-		  throw NullPointer();
-	       }
+	       PEGASUS_ASSERT(sleep_sem != 0);
 	       
 	       bodies++;
 	       th->dereference_tsd();

@@ -118,7 +118,13 @@ private:
 
     CIMQualifierDeclRep(const CIMQualifierDeclRep& x);
 
-    CIMQualifierDeclRep& operator=(const CIMQualifierDeclRep& x);
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
+    CIMQualifierDeclRep& operator=(const CIMQualifierDeclRep& x)
+    {
+        PEGASUS_ASSERT(0);
+        return *this;
+    }
 
     String _name;
     CIMValue _value;

@@ -130,7 +130,13 @@ private:
 
     CIMParameterRep(const CIMParameterRep& x);
 
-    CIMParameterRep& operator=(const CIMParameterRep& x);
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
+    CIMParameterRep& operator=(const CIMParameterRep& x)
+    {
+        PEGASUS_ASSERT(0);
+        return *this;
+    }
 
     String _name;
     CIMType _type;

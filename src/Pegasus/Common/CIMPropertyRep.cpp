@@ -28,7 +28,7 @@
 
 #include <cassert>
 #include <cstdio>
-#include "CIMProperty.h"
+#include "CIMPropertyRep.h"
 #include "XmlWriter.h"
 #include "Indentor.h"
 #include "CIMName.h"
@@ -361,11 +361,6 @@ CIMPropertyRep::CIMPropertyRep(
 {
     if (propagateQualifiers)
 	x._qualifiers.cloneTo(_qualifiers);
-}
-
-CIMPropertyRep& CIMPropertyRep::operator=(const CIMPropertyRep& x)
-{
-    return *this;
 }
 
 void CIMPropertyRep::setValue(const CIMValue& value)

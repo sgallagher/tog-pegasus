@@ -170,7 +170,13 @@ private:
 
     CIMMethodRep(const CIMMethodRep& x);
 
-    CIMMethodRep& operator=(const CIMMethodRep& x);
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
+    CIMMethodRep& operator=(const CIMMethodRep& x)
+    {
+        PEGASUS_ASSERT(0);
+        return *this;
+    }
 
     String _name;
     CIMType _type;

@@ -236,11 +236,6 @@ CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
     x._qualifiers.cloneTo(_qualifiers);
 }
 
-CIMParameterRep& CIMParameterRep::operator=(const CIMParameterRep& x) 
-{ 
-    return *this; 
-}
-
 void CIMParameterRep::setType(CIMType type)
 { 
     _type = type;

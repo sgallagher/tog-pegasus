@@ -36,7 +36,6 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Sharable.h>
-#include <Pegasus/Common/Pair.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -171,7 +170,13 @@ private:
 
     CIMPropertyRep(const CIMPropertyRep& x, Boolean propagateQualifiers);
 
-    CIMPropertyRep& operator=(const CIMPropertyRep& x);
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
+    CIMPropertyRep& operator=(const CIMPropertyRep& x)
+    {
+        PEGASUS_ASSERT(0);
+        return *this;
+    }
 
     String _name;
     CIMValue _value;

@@ -30,7 +30,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cstdio>
 #include "XmlWriter.h"
-#include "CIMParamValue.h"
+#include "CIMParamValueRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -106,14 +106,6 @@ CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
     _value(x._value),
     _isTyped(x._isTyped)
 {
-}
-
-// ATTN-RK-P3-20010219: Is this correct?  (See also CIMMethodRep.cpp,
-// CIMParameterRep.cpp, CIMPropertyRep.cpp, CIMQualifierDeclRep.cpp,
-// CIMQualifierRep.cpp)
-CIMParamValueRep& CIMParamValueRep::operator=(const CIMParamValueRep& x) 
-{ 
-    return *this; 
 }
 
 void CIMParamValueRep::setParameterName(String& parameterName)

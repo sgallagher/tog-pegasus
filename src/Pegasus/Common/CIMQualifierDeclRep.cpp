@@ -229,12 +229,6 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
 
 }
 
-CIMQualifierDeclRep& CIMQualifierDeclRep::operator=(const CIMQualifierDeclRep&
-x)
-{
-    return *this;
-}
-
 Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 {
     return

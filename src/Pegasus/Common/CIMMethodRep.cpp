@@ -257,11 +257,6 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
 	_parameters.append(x._parameters[i].clone());
 }
 
-CIMMethodRep& CIMMethodRep::operator=(const CIMMethodRep& x)
-{
-    return *this;
-}
-
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 {
     if (_name != x->_name)

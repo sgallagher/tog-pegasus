@@ -200,11 +200,6 @@ CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) :
 
 }
 
-CIMQualifierRep& CIMQualifierRep::operator=(const CIMQualifierRep& x) 
-{ 
-    return *this; 
-}
-
 Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 {
     return

@@ -32,10 +32,7 @@
 
 #include "CMPI_Version.h"
 
-//#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Stack.h>
-//#include <Pegasus/Common/Linkage.h>
-
 #include <Pegasus/WQL/WQLParser.h>
 
 #include "CMPI_Wql2Dnf.h"

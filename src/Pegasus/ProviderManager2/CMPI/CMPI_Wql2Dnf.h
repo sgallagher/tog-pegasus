@@ -34,7 +34,6 @@
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 
-//#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
@@ -42,6 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#undef  PEGASUS_COMMON_LINKAGE
 #define PEGASUS_COMMON_LINKAGE
 
 #include <Pegasus/Common/Linkage.h> 

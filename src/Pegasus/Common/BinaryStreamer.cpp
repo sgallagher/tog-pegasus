@@ -49,7 +49,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-int removeDescription=-1;
+PEGASUS_EXPORT int removeDescription=-1;
 
 void BinaryStreamer::encode(Array<Sint8>& out, const CIMClass& cls)
 {

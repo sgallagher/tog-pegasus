@@ -55,8 +55,8 @@ public:
    virtual void decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst) = 0;
    virtual void decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual) = 0;
 
-   virtual void indentedOut(PEGASUS_STD(ostream)& os, Array<Sint8>& in,
-                            Uint32 indentChars) {
+   virtual void write(PEGASUS_STD(ostream)& os, Array<Sint8>& in)
+   {
       os.write((char*)in.getData(), in.size());
    }
 };

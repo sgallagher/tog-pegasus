@@ -64,10 +64,4 @@ void XmlStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierD
    XmlReader::getObject(parser, qual);
 }
 
-void indentedOut(PEGASUS_STD(ostream)& os, Array<Sint8>& in,
-                            Uint32 indentChars) {
-   in.append('\0');
-   XmlWriter::indentedPrint(os, in.getData(), indentChars);
-}
-
 PEGASUS_NAMESPACE_END

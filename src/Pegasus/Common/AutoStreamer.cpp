@@ -69,9 +69,9 @@ void AutoStreamer::encode(Array<Sint8>& out, const CIMQualifierDecl& qual)
    _primary->encode(out,qual);
 }
 
-void AutoStreamer::indentedOut(PEGASUS_STD(ostream)& os, Array<Sint8>& in, Uint32 indentChars)
+void AutoStreamer::write(PEGASUS_STD(ostream)& os, Array<Sint8>& in)
 {
-   _primary->indentedOut(os,in,indentChars);
+   _primary->write(os,in);
 }
 
 

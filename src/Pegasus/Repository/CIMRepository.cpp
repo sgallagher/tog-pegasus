@@ -77,7 +77,6 @@
 #define PEG_METHOD_EXIT()
 #endif
 
-#define INDENT_XML_FILES
 /* See bug report 1046
 The following fix  turns off the filtering of enumerate
 instances for localOnly, includeQualifiers, IncludClassOrigin
@@ -431,13 +430,7 @@ void _SaveObject(const String& path, Array<Sint8>& objectXml,
         throw CannotOpenFile(path);
     }
 
-#ifdef INDENT_XML_FILES
-    streamer->indentedOut(os, objectXml, 2);
-//   objectXml.append('\0');
-//   XmlWriter::indentedPrint(os, objectXml.getData(), 2);
-#else
-    os.write((char*)objectXml.getData(), objectXml.size());
-#endif
+    streamer->write(os, objectXml);
 
     PEG_METHOD_EXIT();
 }

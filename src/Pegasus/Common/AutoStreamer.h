@@ -62,7 +62,7 @@ public:
    void decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst);
    void decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual);
 
-   void indentedOut(PEGASUS_STD(ostream)& os, Array<Sint8>& in, Uint32 indentChars);
+   void write(PEGASUS_STD(ostream)& os, Array<Sint8>& in);
 };
 
 

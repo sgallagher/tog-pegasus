@@ -758,16 +758,12 @@ void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
             getValue().
             get(roundTripStringProp);  
 	
-	cout << "string is " << roundTripStringProp << endl;
-
     // Get the round trip char16 sent by the client
     Char16 roundTripCharProp; 
     instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPCHAR_PROP)).
             getValue().
             get(roundTripCharProp); 
 	
-	cout << "string is " << roundTripCharProp << endl;
-
     // Now compare the string and char16 from the client to the ones we expect
     // This checks that Unicode chars were not lost
     if ((roundTripString != roundTripStringProp) ||

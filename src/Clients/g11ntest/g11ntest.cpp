@@ -571,7 +571,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
           Uint32 i = 0;
           for (; i < cimNInstances2.size(); i++)
           {
-              if (cimNInstances2[i].getClassName().getString() == String(SUBCLASSNAME))
+              if (cimNInstances2[i].getClassName() == SUBCLASSNAME)
               {
                   break;
               }
@@ -628,7 +628,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
           Uint32 j = 0;
           for (; j < cimNInstances.size(); j++)
           {
-              if (cimNInstances[j].getClassName().getString() == String(CLASSNAME))
+              if (cimNInstances[j].getClassName() == CLASSNAME)
               {
                   break;
               }

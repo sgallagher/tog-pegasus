@@ -43,7 +43,7 @@
     {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
 #endif
     {"httpAuthType",        "Basic"},
-    {"repositoryIsDefaultInstanceProvider", "false"},
+    {"repositoryIsDefaultInstanceProvider", "true"},
 #endif
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},

@@ -68,6 +68,11 @@ and ReferenceName functions.  This included extensive update to the HTML
 pages.
 
 16. (Denise E.) Changes to slp client support code for HPUX (
+
+17. (Markus Mueller) Additional changes to support dynamic libraries. Fixed
+ProviderTable tests. Fixed build process (slp with PEGASUS_SUPPORTS_DYNLIB).
+Made cimserver accept the -D flag to eliminate the need for environment
+variables.
 ------------------------------------------------------------------------------
 --
 Version 0.97.3 - Released 5 June 2001

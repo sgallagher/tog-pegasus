@@ -104,7 +104,6 @@ inline void Thread::join(void)
 				// hang forever.
 				if( WaitForSingleObject( _handle.thid, 10000 ) == WAIT_TIMEOUT )
 				{
-					std::cerr << "Thread::join(): Terminating a thread: handle = " << _handle.thid << std::endl;
 					TerminateThread( _handle.thid, 0 );
 				}
 			}

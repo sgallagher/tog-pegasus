@@ -1,0 +1,23 @@
+instance of CIM_Provider {
+SystemCreationClassName = "CIM_ComputerSystem";
+SystemName = "";
+CreationClassName = "CIM_Provider";
+Name = "LinuxIPRouteProvider";
+Location = "LinuxIPRouteProvider";
+};
+
+instance of CIM_ProviderCapabilities {
+InstanceID = "PGLinux_IPRouteProvider_1";
+Name = "PGLinux_IPRouteProvider";
+ClassName = "Linux_IPRoute";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxIPRouteProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_IPRouteProvider_1\"";
+};
+

@@ -1,0 +1,14 @@
+This directory contains providers for the Pegasus wbem project.  The
+important directories in this directory are:
+
+ProviderData - The core classes for the provider functionality.
+		ProviderData classes contain all the functionality of
+		the providers and the code implementing the 
+		CIMInstanceProvider API is only a small layer between 
+		the API and the ProviderData class.
+
+ProviderSupport - Classes used by ProviderData to carry out their
+		functionality.  This includes file parsing routines, 
+		bus walking code and other generic support for use by 
+		all ProviderData classes.  Not all ProviderData classes 
+		use ProviderSupport classes.  

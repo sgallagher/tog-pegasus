@@ -1,0 +1,23 @@
+instance of CIM_Provider {
+SystemCreationClassName = "CIM_ComputerSystem";
+SystemName = "";
+CreationClassName = "CIM_Provider";
+Name = "LinuxCDROMDriveProvider";
+Location = "LinuxCDROMDriveProvider";
+};
+
+instance of CIM_ProviderCapabilities  {
+InstanceID = "PGLinux_CDROMDriveProvider_1";
+Name = "PGLinux_CDROMDriveProvider";
+ClassName = "Linux_CDROMDrive";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxCDROMDriveProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_CDROMDriveProvider_1\"";
+};
+

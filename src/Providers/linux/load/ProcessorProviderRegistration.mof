@@ -1,0 +1,23 @@
+instance of CIM_Provider {
+SystemCreationClassName = "CIM_ComputerSystem";
+SystemName = "";
+CreationClassName = "CIM_Provider";
+Name = "LinuxProcessorProvider";
+Location = "LinuxProcessorProvider";
+};
+
+instance of CIM_ProviderCapabilities {
+InstanceID = "PGLinux_ProcessorProvider_1";
+Name = "PGLinux_ProcessorProvider";
+ClassName = "Linux_Processor";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxProcessorProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_ProcessorProvider_1\"";
+};
+

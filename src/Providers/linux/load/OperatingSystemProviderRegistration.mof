@@ -1,0 +1,23 @@
+instance of CIM_Provider {
+SystemCreationClassName = "CIM_ComputerSystem";
+SystemName = "";
+CreationClassName = "CIM_Provider";
+Name = "LinuxOperatingSystemProvider";
+Location = "LinuxOperatingSystemProvider";
+};
+
+instance of CIM_ProviderCapabilities {
+InstanceID = "PGLinux_OperatingSystemProvider_1";
+Name = "PGLinux_OperatingSystemProvider";
+ClassName = "Linux_OperatingSystem";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxOperatingSystemProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_OperatingSystemProvider_1\"";
+};
+

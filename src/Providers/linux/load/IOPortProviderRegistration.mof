@@ -1,0 +1,37 @@
+instance of CIM_Provider {
+SystemCreationClassName = "CIM_ComputerSystem";
+SystemName = "";
+CreationClassName = "CIM_Provider";
+Name = "LinuxIOPortProvider";
+Location = "LinuxIOPortProvider";
+};
+
+instance of CIM_ProviderCapabilities {
+InstanceID = "PGLinux_IOPortProvider_1";
+Name = "PGLinux_IOPortProvider";
+ClassName = "Linux_PortResource";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderCapabilities  {
+InstanceID = "PGLinux_IOPortProvider_2";
+Name = "PGLinux_IOPortProvider";
+ClassName = "Linux_MemoryResource";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxIOPortProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_IOPortProvider_1\"";
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxIOPortProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_IOPortProvider_2\"";
+};

@@ -1,0 +1,212 @@
+//%////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
+//
+// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+//              Christopher Neufeld <neufeld@linuxcare.com>
+//              Al Stone            <ahs3@fc.hp.com>
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/CIMReference.h>
+#include "InterruptProvider.h"
+#include "InterruptData.h"
+
+#include <iostream>
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
+LinuxInterruptProvider::LinuxInterruptProvider(void)
+{
+}
+
+LinuxInterruptProvider::~LinuxInterruptProvider(void)
+{
+}
+
+
+void LinuxInterruptProvider::getInstance(const OperationContext& context,
+					 const CIMReference& ref,
+					 const Uint32 flags,
+					 const Array<String>& propertyList,
+					 ResponseHandler<CIMInstance>& handler)
+{
+   InterruptData interruptData;
+   InterruptData *curInterrupt;
+   Array<KeyBinding> keys = ref.getKeyBindings();
+   Uint32 i;
+   String nameString;
+ 
+   handler.processing();
+ 
+   /* Get the interrupt that was requested */
+   i = 0;
+   while (i < keys.size())
+   {
+      if (keys[i].getName() == "IRQNumber")
+         nameString = keys[i].getValue();
+      i++;
+   }
+   if (nameString != String::EMPTY)
+   {
+      curInterrupt = interruptData.GetInterrupt(nameString);    
+      if (curInterrupt != NULL)
+      {
+         CIMInstance instance = build_instance(INTERRUPTCLASSNAME,curInterrupt);
+         handler.deliver(instance);
+         delete curInterrupt;
+      }
+   }
+   handler.complete();
+   return;
+}
+
+
+void 
+LinuxInterruptProvider::enumerateInstances(
+      				const OperationContext& context, 
+			        const CIMReference& ref, 
+			        const Uint32 flags, 
+			        const Array<String>& propertyList,
+			        ResponseHandler<CIMInstance>& handler )
+{
+   InterruptData interruptData;
+   InterruptData* curInterrupt;
+ 
+   handler.processing();
+   
+   curInterrupt = interruptData.GetFirstInterrupt();
+ 
+   while (curInterrupt)
+   {
+      handler.deliver(build_instance(INTERRUPTCLASSNAME, curInterrupt));
+      delete curInterrupt;
+      curInterrupt = interruptData.GetNextInterrupt();
+   }
+   interruptData.EndGetInterrupt();
+ 
+   handler.complete();
+}
+
+void LinuxInterruptProvider::enumerateInstanceNames(
+      					const OperationContext& context,
+			  		const CIMReference& ref,
+			  		ResponseHandler<CIMReference>& handler)
+{
+   InterruptData interruptData;
+   InterruptData* curInterrupt;
+
+   handler.processing();
+
+   curInterrupt = interruptData.GetFirstInterrupt();
+   while (curInterrupt)
+   {
+      handler.deliver(fill_reference(ref.getNameSpace(), 
+	       			     INTERRUPTCLASSNAME,
+				     curInterrupt));
+      delete curInterrupt;
+      curInterrupt = interruptData.GetNextInterrupt();
+   }
+   interruptData.EndGetInterrupt();
+
+   handler.complete();
+}
+
+void LinuxInterruptProvider::modifyInstance(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	const CIMInstance& instanceObject,
+			  	const Uint32 flags, 
+			  	const Array<String>& propertyList,
+			  	ResponseHandler<CIMInstance>& handler )
+{
+   cout << "LinuxInterruptProvider::modifyInstance called" << endl;
+   throw NotSupported(INTERRUPTCLASSNAME"::modifyInstance");
+}
+
+void LinuxInterruptProvider::createInstance(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	const CIMInstance& instanceObject,
+			  	ResponseHandler<CIMReference>& handler )
+{
+   cout << "LinuxInterruptProvider::createInstance called" << endl;
+   throw NotSupported(INTERRUPTCLASSNAME"::createInstance");
+}
+
+void LinuxInterruptProvider::deleteInstance(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	ResponseHandler<CIMInstance>& handler )
+{
+   cout << "LinuxInterruptProvider::deleteInstance called" << endl;
+   throw NotSupported(INTERRUPTCLASSNAME"::deleteInstance");
+}
+
+void LinuxInterruptProvider::initialize(CIMOMHandle& handle)
+{
+}
+
+
+void LinuxInterruptProvider::terminate(void)
+{
+}
+
+CIMReference 
+LinuxInterruptProvider::fill_reference(const String& nameSpace, 
+      				       const String& className,
+				       const InterruptData* ptr)
+{
+   Array<KeyBinding> keys;
+
+   keys.append(KeyBinding("IRQNumber", 
+	    	          ptr->getIRQNumber(),
+                          KeyBinding::STRING));
+
+   return CIMReference(System::getHostName(), nameSpace, className, keys);
+}
+
+CIMInstance 
+LinuxInterruptProvider::build_instance(const String& className,
+      				       const InterruptData* ptr)
+{
+   CIMInstance instance(className);
+
+   instance.addProperty(CIMProperty("IRQNumber",ptr->getIRQNumber()));
+   instance.addProperty(CIMProperty("Availability",ptr->getAvailability()));
+   instance.addProperty(CIMProperty("TriggerType",ptr->getTriggerType()));
+   instance.addProperty(CIMProperty("TriggerLevel",ptr->getTriggerLevel()));
+   instance.addProperty(CIMProperty("Shareable",ptr->getShareable()));
+   instance.addProperty(CIMProperty("Hardware",ptr->getHardware()));
+
+   return instance; 
+}
+
+PEGASUS_NAMESPACE_END

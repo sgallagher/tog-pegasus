@@ -1,0 +1,23 @@
+instance of CIM_Provider  {
+SystemCreationClassName = "CIM_ComputerSystem";
+SystemName = "";
+CreationClassName = "CIM_Provider";
+Name = "LinuxPCIControllerProvider";
+Location = "LinuxPCIControllerProvider";
+};
+
+instance of CIM_ProviderCapabilities  {
+InstanceID = "PGLinux_PCIControllerProvider_1";
+Name = "PGLinux_PCIControllerProvider";
+ClassName = "Linux_PCIController";
+//ProviderType = { 2 }; // Instance
+OtherProviderType = "";
+//SupportedProperties = {}; // All properties 
+//SupportedMethods = {}; // All methods
+};
+
+instance of CIM_ProviderElementCapabilities {
+        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxPCIControllerProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
+        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_PCIControllerProvider_1\"";
+};
+

@@ -1,0 +1,258 @@
+//%////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
+//
+// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+//              Christopher Neufeld <neufeld@linuxcare.com>
+//              Al Stone            <ahs3@fc.hp.com>
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/Exception.h>
+
+#include "PCIControllerProvider.h"
+#include "PCIControllerData.h"
+
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
+#define DEBUG(X) Logger::put(Logger::DEBUG_LOG, "Linux_PCIControllerProvider", Logger::INFORMATION, "$0", X)
+
+void
+LinuxPCIControllerProvider::getInstance(const OperationContext& context,
+					const CIMReference& ref,
+					const Uint32 flags,
+					const Array<String>& propertyList,
+					ResponseHandler<CIMInstance>& handler)
+{
+   PCIControllerData *dptr1, *dptr2;
+   Array<KeyBinding> keys = ref.getKeyBindings();
+   Uint32 i;
+   String uniqueKeyID;
+ 
+ 
+   /* Get the unique ID of the controller that was requested */
+   for (i = 0; i < keys.size(); i++)
+      if(keys[i].getName() == "DeviceID")
+         uniqueKeyID = keys[i].getValue();
+ 
+   if (i == keys.size())
+      return;   // didn't find the key
+ 
+   handler.processing();
+ 
+   dptr1 = new PCIControllerData;
+ 
+   DEBUG("lpcp-> built PCIControllerData");
+
+   while (dptr1 != NULL)
+   {
+      if (dptr1->GetLogicalDeviceID() == uniqueKeyID)
+      {
+         CIMInstance instance = build_instance(classname, dptr1);
+         handler.deliver(instance);
+
+	 DEBUG("lpcp-> delivered instance");
+         delete dptr1;
+         break;
+      }
+ 
+      dptr2 = dptr1->GetNext();
+      delete dptr1;
+      dptr1 = dptr2;
+   }
+ 
+   handler.complete();
+   return;
+}
+
+
+void 
+LinuxPCIControllerProvider::enumerateInstances(
+      				const OperationContext& context, 
+				const CIMReference& ref, 
+				const Uint32 flags, 
+				const Array<String>& propertyList,
+				ResponseHandler<CIMInstance>& handler )
+{
+   PCIControllerData *dptr1, *dptr2;
+
+   handler.processing();
+  
+   dptr1 = new PCIControllerData;
+
+   while (dptr1 != NULL)
+   {
+      handler.deliver(build_instance(classname, dptr1));
+      dptr2 = dptr1->GetNext();
+      delete dptr1;
+      dptr1 = dptr2;
+   }
+
+   handler.complete();
+
+}
+
+void
+LinuxPCIControllerProvider::enumerateInstanceNames(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	ResponseHandler<CIMReference>& handler )
+{
+   PCIControllerData *dptr1, *dptr2;
+
+   handler.processing();
+  
+   dptr1 = new PCIControllerData;
+   dptr1->initialize();
+
+   while (dptr1 != NULL)
+   {
+      handler.deliver(fill_reference(ref.getNameSpace(), classname, dptr1));
+      dptr2 = dptr1->GetNext();
+      delete dptr1;
+      dptr1 = dptr2;
+   }
+ 
+   handler.complete();
+}
+
+
+void 
+LinuxPCIControllerProvider::modifyInstance(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	const CIMInstance& instanceObject,
+			  	const Uint32 flags, 
+			  	const Array<String>& propertyList,
+			  	ResponseHandler<CIMInstance>& handler )
+{
+   throw NotSupported(classname + "::modifyInstance");
+}
+
+void
+LinuxPCIControllerProvider::createInstance(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	const CIMInstance& instanceObject,
+			  	ResponseHandler<CIMReference>& handler )
+{
+   throw NotSupported(classname + "::createInstance");
+}
+
+void
+LinuxPCIControllerProvider::deleteInstance(
+      				const OperationContext& context,
+			  	const CIMReference& ref,
+			  	ResponseHandler<CIMInstance>& handler )
+{
+   throw NotSupported(classname + "::deleteInstance");
+}
+
+void LinuxPCIControllerProvider::initialize(CIMOMHandle& handle)
+{
+}
+
+
+void LinuxPCIControllerProvider::terminate(void)
+{
+}
+
+
+CIMReference
+LinuxPCIControllerProvider::fill_reference(String const& nameSpace,
+					   String const& className, 
+					   PCIControllerData const* ptr)
+{
+   Array<KeyBinding> keys;
+
+
+   keys.append(KeyBinding("CreationClassName", "PCIController",
+			  KeyBinding::STRING));
+   keys.append(KeyBinding("DeviceID", ptr->GetLogicalDeviceID(),
+			  KeyBinding::STRING));
+
+   return CIMReference(System::getHostName(), nameSpace, 
+		       className, keys);
+}
+
+
+CIMInstance 
+LinuxPCIControllerProvider::build_instance(String const& className, 
+					  PCIControllerData const* ptr)
+{
+   CIMInstance instance(className);
+ 
+#define ADD_TO_INSTANCE(x) do { try { instance.addProperty(CIMProperty(#x, ptr->Get ## x())); } catch (AccessedInvalidData &e) { } } while (0)
+ 
+   DEBUG("lpcp-> adding to the instance (logical device fields)");
+
+   // Logical device fields:
+   ADD_TO_INSTANCE(LogicalDeviceID);
+   ADD_TO_INSTANCE(PowerManagementSupported);
+   ADD_TO_INSTANCE(PowerManagementCapabilities);
+   ADD_TO_INSTANCE(Availability);
+   ADD_TO_INSTANCE(StatusInfo);
+   ADD_TO_INSTANCE(LastErrorCode);
+   ADD_TO_INSTANCE(ErrorDescription);
+   ADD_TO_INSTANCE(ErrorCleared);
+   ADD_TO_INSTANCE(OtherIdentifyingInfo);
+   ADD_TO_INSTANCE(IdentifyingDescriptions);
+   ADD_TO_INSTANCE(PowerOnHours);
+   ADD_TO_INSTANCE(TotalPowerOnHours);
+   ADD_TO_INSTANCE(AdditionalAvailability);
+   ADD_TO_INSTANCE(MaxQuiesceTime);
+ 
+   DEBUG("lpcp-> adding to the instance (controller device fields)");
+   // Controller device fields
+   ADD_TO_INSTANCE(TimeOfLastReset);
+   ADD_TO_INSTANCE(ProtocolSupported);
+   ADD_TO_INSTANCE(MaxNumberControlled);
+   ADD_TO_INSTANCE(ProtocolDescription);
+   
+   DEBUG("lpcp-> adding to the instance (PCI controller device fields)");
+   // PCI Controller device fields
+   ADD_TO_INSTANCE(ClassCode);
+   ADD_TO_INSTANCE(Capabilities);
+   ADD_TO_INSTANCE(CapabilityDescriptions);
+   ADD_TO_INSTANCE(DeviceSelectTiming);
+   ADD_TO_INSTANCE(CacheLineSize);
+   ADD_TO_INSTANCE(LatencyTimer);
+   ADD_TO_INSTANCE(InterruptPin);
+   ADD_TO_INSTANCE(ExpansionROMBaseAddress);
+   ADD_TO_INSTANCE(SelfTestEnabled);
+ 
+   DEBUG("lpcp-> adding to the instance done");
+   return instance; 
+}
+
+PEGASUS_NAMESPACE_END

@@ -1,0 +1,257 @@
+1.0 Introduction
+
+This is a summary of some of the general details of the way the Linuxcare
+providers have been written.
+
+In producing providers we have decided to break the implementation out into
+several different major functional groups.  These groups are the provider 
+interface classes themselves, the classes providing the bulk of the 
+implementation and any support classes necessary.  These groups are 
+implemented using four different class types.
+
+2.0 CIMInstanceProvider Classes
+
+The first set of classes are derived from CIMInstanceProvider and the other
+Pegasus provider base classes.  The classes derived from
+CIMInstanceProvider are considered the providers themselves in the Pegasus
+nomenclature.  Pegasus instantiates these classes by calling the
+PegasusCreateProvider function for the appropriate class name.  The general
+philosophy has been to ensure that as little work as possible is done in
+these classes.  As a rule, a provider constructs "ProviderData" objects,
+and calls methods within those objects to fill in instances and references.
+This makes the providers exceedingly lightweight, which helps to insulate
+against changes to the provider API.
+
+3.0 ProviderData Classes
+
+The second set of classes are derived from ProviderData.  These classes 
+contain the bulk of the implementation of the providers including locating 
+all instances and returning all of the information for a particular
+instance.  
+
+These classes can in turn call other classes to assist in that process.  In
+some cases it might be that the ProviderData classes are themselves very
+thin and only wrap another class that performs all the work.  In this case
+it is still required to have the ProviderData class to maintain a
+consistant view of providers to Pegasus.  The intention is that the
+CIMInstanceProvider classes will all be thin wrappers around the
+ProviderData classes regardless of how the ProviderData classes are
+implemented.
+
+The ProviderData classes are intended to be closely related to the WBEM
+schema, usually leading to a simple pairing of one WBEM class with one
+ProviderData class.  Sometimes it is appropriate to have more than one WBEM
+class per ProviderData class where the differences between the two WBEM
+classes are trivial.  This rule also holds for the CIMInstanceProvider
+classes as well.
+
+4.0 ProviderSupport Classes
+
+The next set of classes are call ProviderSupport classes.  These classes
+contain code that is common between different types of ProviderData
+classes.  Currently the two different classes that fall into this category
+are the DeviceLocator and the FileReader.  Each of these classes is
+currently used by several ProviderData classes.
+
+4.1 DeviceLocator
+
+An entire category of WBEM data is obtained by examining the contents of 
+various buses on the currently running system.  A DeviceLocator class was 
+created to perform generic searches of this type, and this class returns 
+objects from a DeviceInformation class.  For providers interested in this 
+category of WBEM data, the ProviderData object creates DeviceLocator objects, 
+uses them to retrieve DeviceInformation objects, and uses the data contained 
+therein, possibly supplementing it with additional data from other sources.
+The DeviceLocator class is used by submitting a search criteria and then
+requesting all devices that match the specific criteria.  
+
+4.1.1 Search Criteria
+
+The search criteria is a hierarchial set of device and system resource
+types.  The list was obtained initially from the PCI device clasification
+and was further added to by specific system resources.  A perl script
+'generateDeviceTypes.pl' is used to generate the list from the PCI
+information in /usr/share/pci.ids as well as the system resources
+information in pegasus.ids.
+
+4.1.2 DeviceLocator Plugins
+
+The DeviceLocator class is a wrapper class around plugins for specific
+devices on the system.  Each plugin follows an API that the DeviceLocator
+dictates.  When a ProviderData class requests information about a specific
+type of device, the DeviceLocator initializes each plugin in turn
+determining which plugins can be used to search for that device type.
+Which devices and what device information any particular plugin supports
+are up to the developer of the plugin and will be influenced by the WBEM
+Schema and the specific information that is available on the system.  Each
+plugin returns information in an object instantiated from a class derived
+from DeviceInformation.  A pointer to this object is passed back to the
+user of the DeviceLocator object, and the user is responsible for deleting
+this pointer when he has finished using the information contained in it.
+
+4.1.3 DeviceInformation Classes
+
+The DeviceInformation classes are used to return information about the
+specific device types.  The information returned in these classes can
+either be specific to the DeviceLocator plugin, to the WBEM schema 
+or a combination of the two.  The specific implementation is left to the
+developer.  The intention is that the developer of the ProviderData class
+will also develop the DeviceLocator plugin.  This is reasonable because
+the two are so closely related.  
+
+This class is used to pass information from the plugin to the user of the
+DeviceLocator.  It is not intended that the DeviceInformation classes
+always mirror exactly their corresponding schema, but in some cases it
+might be convenient that they do so.  Some DeviceLocator plugins map very
+well to the WBEM schema while others comprise only a subsection of one WBEM
+class, or aggregate several WBEM classes.  In these cases modeling the
+DeviceInformation classes after the plugin is more appropriate, letting the
+ProviderData class handle the amalgamation or extraction of the appropriate
+information for the specific WBEM class.
+
+4.2 FileReader
+
+Much of the WBEM data is obtained by parsing files or the output of
+executed system binaries.  A FileReader class was created to produce an
+abstraction that would simplify this parsing.  At present, there are two
+such parsers, FileScanner, which searches for files, then scans the
+contents of the files located, and ExecScanner, which executes a binary and
+parses the standard output stream from that binary.  Both of these classes
+are derived from an abstract base class, StreamScanner.
+
+4.2.1 StreamScanner
+
+The StreamScanner class parses the text stream associated with a FILE*
+handle.  The stream to parse must be set by a derived class.  The
+StreamScanner object can then be given a set of regular expressions to
+search in the stream.  The stream is loaded, one line at a time, and each
+line is compared against all regular expressions.  When a match is found,
+the line is returned to the caller, along with, optionally, the index of
+the regular expression from the search set which matched the line and a
+vector<> of String objects holding substring matches if those were
+specified in the regular expression.  The regular expression set can be
+changed after any match, so that the choice of regular expressions is made
+by a programmed state machine, or the set can be reused for the duration of
+the stream.  The file pointer in the stream is never rewound, each line is
+read exactly once.  When the end of file is reached, that is signaled to
+the caller.
+
+4.2.2 FileScanner
+
+The FileScanner class searches the directory tree under a given directory
+for regular files which match any of a set of regular expressions.  The
+order in which filenames are examined is unordered within a directory, and
+in a depth-first manner when encountering subdirectories.  Once a file is
+located, the filename is returned to the user and the StreamScanner
+components are prepared for parsing the contents of the file.  The user may
+now set the regular expressions used for searching the contents of the
+file, possibly based on the filename returned.  When the end of the stream
+is encountered, the caller is informed, and the caller may then choose to
+resume the file search.
+
+4.2.3 ExecScanner
+
+The ExecScanner class executes a command and passes the standard output
+stream of that command to the StreamScanner components for parsing.
+
+5.0 Programming Styles
+
+Several different programming styles and approaches were used in the files.
+The intention is to demonstrate a variety of solutions so that the
+recipient can choose a comfortable style, and so that the necessary
+immutable components of the system are easier to pick out from the
+components which the programmer is free to treat differently.
+
+The first set of providers implemented were the OperatingSystem provider
+and the SoftwareElement provider.  The first set of providers to use the
+Device locator were the Processor provider and the DiskDrive provider.  The
+latest providers, which follow the design that we feel is the most
+appropriate, are the PCIController provider and the NetworkAdapter
+provider.
+
+6.0 Further Recommendations
+
+After the experimentation with these different programming approaches, we
+have settled on a recommended standard for future providers.  Not all the
+providers written so far follow this standard, but it is expected that
+future providers would benefit from doing so.  These recommendations are:
+
+- Provider classes have no direct access to DeviceInformation or
+  DeviceLocator classes, they work only through ProviderData.
+- Provider classes are otherwise extremely thin.
+- Providers for a CIM class, when asked to fill an instance, request every
+  unpropagated CIM variable for the class and its parent classes, by
+  calling a method within the appropriate ProviderData objects, that method
+  being named "Get<<CIM_variable_name>>()".  They do this in a try{} block,
+  catching and ignoring the "AccessedInvalidData" exception.  The
+  ProviderData class is required to define every CIM variable, but those
+  which it may not be able to set it should make a validated<TYPE>.  That
+  type will throw the exception when accessed, allowing the provider to
+  skip over fields which are uninitialized without the programmer having to
+  reserve special "invalid data" values in the type.  The advantage of this
+  approach is that, should the previously unavailable data be made
+  available by a later tool, the programmer has only to code in a
+  validated<TYPE>.setValue() call in the ProviderData class, and it will
+  automagically be inserted into the filled instance without any further
+  coding being required.
+
+
+7.0 Directory Structure
+
+All of the classes discussed above are placed under the pegasus/src/Providers 
+directory.  Directory layout for that directory is as follows:
+
+pegasus/src/Providers
+
+	Most of the changes took place under this directory.
+
+
+pegasus/src/Providers/CIMInstanceProvider
+
+	New providers were written here.  Each provider binary is built in
+	a separate directory.
+
+
+pegasus/src/Providers/CIMProvider
+
+	Obsolete
+
+
+pegasus/src/Providers/Include
+
+	Holds generic .h files which might be used in more than one
+	location within ProviderData, ProviderSupport, or
+	CIMInstanceProvider.  Any classes defined here (such as some
+	generic parent classes like LogicalDevice) must not use a .cpp
+	file, their methods are all inlined into the class definition in
+	the .h file.
+
+
+pegasus/src/Providers/ProviderData
+
+	Holds ProviderData class definitions, used by providers.
+
+
+pegasus/src/Providers/ProviderSupport
+
+	A generic location for utilities of possible use to ProviderData
+	classes.
+
+
+pegasus/src/Providers/ProviderSupport/DeviceLocator
+
+	The bus scanning routines.  The DeviceLocator object returns
+	pointers to DeviceInformation objects.
+
+
+pegasus/src/Providers/ProviderSupport/FileReader
+
+	A pair of very useful support methods.  One does a recursive search
+	on a directory, scanning for files whose names match one of a set
+	of given regular expressions.  For each file located, the invoker
+	gets the name of the file, and can request a search of the contents
+	of the file, looking for other regular expressions.  Substrings of
+	the regular expressions are then returned in an array for easy
+	analysis.  The other method is exactly the same, but rather than
+	searching a directory, it executes a named binary and parses the
+	output of the binary.

@@ -1,0 +1,40 @@
+# List of known device classes, subclasses and programming interfaces
+
+# Syntax:
+# C class	class_name
+#	subclass	subclass_name  		<-- single tab
+#		prog-if  prog-if_name  	<-- two tabs
+
+C 00  Mass storage device
+	00  disk
+	01  floppy
+	02  CD-ROM
+	03  worm
+	04  magneto optical
+	05  tape
+	06  DVD
+C 01  Ports
+	00  serial
+	01  parallel
+C 02  System Resources
+	00  IRQ
+	01  DMA
+	02  IO Port
+	03  IO Memory
+C 03  Process
+	00  Process
+	01  Kernel Thread
+C 04  IPV4 Network Settings
+	00  IP Routes
+	01  Interfaces
+		00  Local Loopback
+		01  Ethernet
+		02  Token Ring
+
+C 05  IPV6 Network Settings
+
+C 06  Volumes
+	00  Partitions
+	01  Mounts
+		00  local
+		01  remote

@@ -46,6 +46,7 @@
 #include "Linkage.h"
 
 class CmpiObjectPath;
+class CmpiData;
 
 /** This class represents the instance of a CIM class. It is used manipulate
     instances and their parts.

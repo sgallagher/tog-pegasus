@@ -1175,7 +1175,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
     // CMPISelectCond macros
 
-    
+
 
 #ifdef CMPI_INLINE
        /** Return the number of sub conditions that are partof this SelectCond.
@@ -1755,7 +1755,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifndef DOC_ONLY
    // MI factory stubs
 
-  #define CMNoHook if (brkr) 
+  #define CMNoHook if (brkr)
 #endif
 
 /*
@@ -1968,7 +1968,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
   #if defined(CMPI_VER_86)
     #define CMIndicationMIStubExtensions(pfx) pfx##EnableIndications, \
-       pfx##DisableIndications, 
+       pfx##DisableIndications,
   #else
     #define CMIndicationMIStubExtensions(pfx)
   #endif
@@ -2035,11 +2035,15 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_InstanceMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&instMIFT; \
-   CmpiInstanceMI *provider=new cn(CmpiBroker(broker),ctx); \
-   mi.hdl=provider; \
-   if (base##pn.init()) { \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
        provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
     } \
+   mi.hdl=provider; \
+   base##pn.incUseCount(); \
     return &mi; \
  }
 #endif
@@ -2076,11 +2080,15 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_AssociationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&assocMIFT; \
-   CmpiAssociationMI *provider=new cn(CmpiBroker(broker),ctx); \
-   mi.hdl=provider; \
-   if (base##pn.init()) { \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
        provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
     } \
+   mi.hdl=provider; \
+   base##pn.incUseCount(); \
     return &mi; \
  }
 #endif
@@ -2114,11 +2122,15 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&methMIFT; \
-   CmpiMethodMI *provider=new cn(CmpiBroker(broker),ctx); \
-   mi.hdl=provider; \
-   if (base##pn.init()) { \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
        provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
     } \
+   mi.hdl=provider; \
+   base##pn.incUseCount(); \
     return &mi; \
  }
 #endif
@@ -2152,11 +2164,15 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_MethodMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&propMIFT; \
-   CmpiPropertyMI *provider=new cn(CmpiBroker(broker),ctx); \
-   mi.hdl=provider; \
-   if (base##pn.init()) { \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
        provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
     } \
+   mi.hdl=provider; \
+   base##pn.incUseCount(); \
    return &mi; \
  }
 #endif
@@ -2179,7 +2195,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
   #if defined(CMPI_VER_86)
     #define CMIndicationMIFactoryExtensions Indication::driveEnableIndications, \
-       Indication::driveDisableIndications, 
+       Indication::driveDisableIndications,
   #else
     #define CMIndicationMIFactoryExtensions
   #endif
@@ -2202,11 +2218,15 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    fprintf(stderr,"--- _Create_IndicationMI() broker: %p\n",broker); \
    CmpiContext ctx(ctxp); \
    mi.ft=&indMIFT; \
-   CmpiIndicationMI *provider=new cn(CmpiBroker(broker),ctx); \
-   mi.hdl=provider; \
-   if (base##pn.init()) { \
+   CmpiBaseMI *provider=base##pn.getBaseMI(); \
+   if (provider == 0) {\
+     provider = new cn(CmpiBroker(broker),ctx); \
+     provider->setProviderBase(&base##pn); \
        provider->initialize(ctx); \
+     base##pn.setBaseMI(provider); \
     } \
+   mi.hdl=provider; \
+   base##pn.incUseCount(); \
   return &mi; \
  }
 #endif

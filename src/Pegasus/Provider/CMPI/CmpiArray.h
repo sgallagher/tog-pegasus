@@ -44,7 +44,7 @@
 
 class CmpiArray;
 class CmpiInstance;
-
+class CmpiData;
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArrayIdx {
    friend class CmpiArray;
@@ -116,19 +116,19 @@ public:
       Data extraction uses type conversion operators.
       Extraction operations can be appended to an array indexing operation
       like this:
- 
+
         CmpiString state;
- 
+
  CmpiArray states;
- 
+
         states=ci.getProperty("States");
- 
+
  state=states[3];
- 
+
  Assignment statements use array indexing operations as well:
- 
+
  states[5]="offline";
- 
+
        Type mismatches will be signalled by exceptions.
 */
 

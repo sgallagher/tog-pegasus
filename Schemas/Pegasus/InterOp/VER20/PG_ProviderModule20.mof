@@ -198,7 +198,7 @@ class PG_ConsumerCapabilities : PG_CapabilitiesRegistration {
 // PG_ProviderCapabilitiesElements
 // ==================================================================
 
-[Association, Version("2.0.0"), Description (
+[Association, Version("2.4.0"), Description (
       "ProviderCapabilitiesElements is an association describing "
       "the capabilities that are supported by a Provider. ") ]
 class PG_ProviderCapabilitiesElements : CIM_Dependency {

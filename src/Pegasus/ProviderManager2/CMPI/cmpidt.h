@@ -48,15 +48,47 @@ extern "C" {
    #define CMPIVersion085 85     //  0.85
    #define CMPIVersion086 86     //  0.86
 
-// Version compile switches to control inclusion of new CMPI support
-// Version definitions are cummulative
-// A new version definition must #define all previous definitions
+
+// CMPI_VERSION compile switch should be used during MI compilation only.
+// It is used define minimal version support needed from Management Broker.
+// This value will be set in <mi-name>_Create<mi-type>MI.mi_version
+
+#ifdef CMPI_VERSION
+  #if (CMPI_VERSION==80)
+     #define CMPI_VER_80 1
+  #elif (CMPI_VERSION==85)
+     #define CMPI_VER_85 1
+  #elif (CMPI_VERSION==86)
+     #define CMPI_VER_86 1
+  #else
+     #error Unsupported CMPI_VERSION defined
+  #endif
+#else
+  #define CMPI_VER_80
+#endif
+
+
+// CMPI_VER_x switche is used by Management Broker implementations only.
+
+// It defines the CMPI version supported by the Managmeent Broker.
+// This value must be set in the ftVersion field of all functions tables.
+
+// Version definitions are cummulative.
+// A new version definition must #define all previous definitions.
+
+// During MI loading MBs must ensure that
+//  <mi-name>_Create<mi-type>MI.miVersion<=<mi-name>_Create<mi-type>MI.ftVersion
+// If this is not the case, the MI might require higher version MB support.
 
 #if   defined (CMPI_VER_86) || defined(CMPI_VER_ALL)
+   // enable() disable() support in _CMPIIndicationMIFT
+   // toString() in _CMPIObjectPathFT
+   // support for NULL return from <mi-name>_Create<mi-type>MI
   #define CMPI_VER_85
   #define CMPI_VER_80
   #define CMPICurrentVersion CMPIVersion086
 #elif   defined (CMPI_VER_85) || defined(CMPI_VER_ALL)
+   // getMessage() globalization support in _CMPIBrokerEncFT
   #define CMPI_VER_80
   #define CMPICurrentVersion CMPIVersion085
 #elif defined (CMPI_VER_80) || defined(CMPI_VER_ALL)
@@ -269,6 +301,7 @@ extern "C" {
 
 
    typedef unsigned short CMPIValueState;
+        #define CMPI_goodValue (0)
         #define CMPI_nullValue (1<<8)
         #define CMPI_keyValue  (2<<8)
         #define CMPI_badValue  (0x80<<8)

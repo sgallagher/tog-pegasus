@@ -383,40 +383,6 @@ public:
     /** Makes a deep copy (clone) of the given object. */
     CIMValue clone() const;
 
-    /** toXML - Converts a CIMValue object to XML. The XML is appended
-        to the Array provided with the call.  Returns the result as an
-        XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,
-        or <VALUE.REFARRAY> tags. If the CIMValue is Null, no element is
-        returned.
-        @param out Sint8 Array to hold the XML representation
-        @return Returns the XML representation of the CIMValue
-        object in the input parameter out.
-    */
-    void toXml(Array<Sint8>& out) const;
-
-    /** toXML - Converts a CIMValue object to XML. There is no input
-        parameter and the result is returned as a String rather
-        than appended to an 8-bit array as above.  Returns the
-        element as value wrapped in the <VALUE>, <VALUE.ARRAY>,
-        <VALUE.REFERENCE>, or <VALUE.REFARRAY> tags. If the
-        CIMValue is Null, no element is returned.
-        @return Returns the XML representation of the CIMValue
-        object in String form.
-    */
-    String toXml() const;
-
-    /** CIMMethod print - Format and print the Value as XML to std output
-        stream
-        @param o Stream to output to. Defaults to cout.
-        @return None
-        <PRE>
-        Example:
-            CIMValue value(Boolean(true));
-            value.print();  // Prints "true"
-        </PRE>
-    */
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
-
     /** toMof - Converts a CIMValueObject to Mof.
         @out Sint8 Array to hold the Mof representation
         @return Returns the Mof representation of the CIMValue

@@ -679,7 +679,7 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    }
 
    Array<Sint8> body;
-   response->value.toXml(body);
+   XmlWriter::appendValueElement(body, response->value);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetProperty", response->messageId, body);

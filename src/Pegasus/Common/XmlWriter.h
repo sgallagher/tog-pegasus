@@ -61,7 +61,17 @@ public:
 	append(out, Char16(x));
     }
 
+    static void append(Array<Sint8>& out, Boolean x);
+
     static void append(Array<Sint8>& out, Uint32 x);
+
+    static void append(Array<Sint8>& out, Sint32 x);
+
+    static void append(Array<Sint8>& out, Uint64 x);
+
+    static void append(Array<Sint8>& out, Sint64 x);
+
+    static void append(Array<Sint8>& out, Real64 x);
 
     static void append(Array<Sint8>& out, const char* str);
 
@@ -113,6 +123,14 @@ public:
     static void appendLocalObjectPathElement(
 	Array<Sint8>& out,
 	const CIMReference& objectPath);
+
+    static void appendValueElement(
+        Array<Sint8>& out,
+        const CIMValue& value);
+
+    static void printValueElement(
+        const CIMValue& value,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendMethodCallHeader(
 	Array<Sint8>& out,

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -47,7 +48,7 @@ void test01(const T& x)
     CIMValue v3;
     v3 = v2;
     if (verbose)
-        v3.print(cout);
+        XmlWriter::printValueElement(v3, cout);
 
     Array<Sint8> tmp1;
     v3.toMof(tmp1);

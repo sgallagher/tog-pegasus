@@ -187,7 +187,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	_qualifiers.toXml(out);
 
-	_value.toXml(out);
+	XmlWriter::appendValueElement(out, _value);
 
 	out << "</PROPERTY.ARRAY>\n";
     }
@@ -209,7 +209,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	_qualifiers.toXml(out);
         
-	_value.toXml(out);
+	XmlWriter::appendValueElement(out, _value);
 
 	out << "</PROPERTY.REFERENCE>\n";
     }
@@ -230,7 +230,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	_qualifiers.toXml(out);
         
-	_value.toXml(out);
+	XmlWriter::appendValueElement(out, _value);
 
 	out << "</PROPERTY>\n";
     }

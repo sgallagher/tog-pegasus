@@ -123,7 +123,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
     out << ">\n";
 
     ScopeToXml(out, _scope);
-    _value.toXml(out);
+    XmlWriter::appendValueElement(out, _value);
 
     out << "</QUALIFIER.DECLARATION>\n";
 }

@@ -42,6 +42,7 @@
 
 #include <cassert>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -75,7 +76,7 @@ void test01(const T& x)
     if (verbose)
     {
 	cout << "\n----------------------\n";
-	v3.print();
+	XmlWriter::printValueElement(v3, cout);
     }
 #endif
     try
@@ -98,8 +99,9 @@ void test01(const T& x)
         mofout.append('\0');
 
         // Test toXml
-        String xmlString = v.toXml();
-        String xmlString1 = v.toXml();
+        Array<Sint8> out;
+        XmlWriter::appendValueElement(out, v);
+        XmlWriter::appendValueElement(out, v);
 
         // Test toString
         String valueString = v.toString();
@@ -132,7 +134,9 @@ void test01(const T& x)
 
         // get the String and XML outputs for v
         String valueString2 = v.toString();
-        String xmlString2 = v.toXml();
+        Array<Sint8> xmlBuffer;
+        XmlWriter::appendValueElement(xmlBuffer, v);
+        xmlBuffer.append('\0');
 
         Array<Sint8> mofOutput2;
         v.toMof(mofOutput2);
@@ -142,7 +146,7 @@ void test01(const T& x)
 	{
 	    cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
 	    cout << "toString NULL Output [" << valueString2 << "]" << endl;
-	    cout << " XML NULL = [" << xmlString2 << "]" << endl;
+	    cout << " XML NULL = [" << xmlBuffer.getData() << "]" << endl;
 	}
 #endif
         v.clear();
@@ -175,7 +179,7 @@ void test02(const Array<T>& x)
     if (verbose)
     {
 	cout << "\n----------------------\n";
-	va3.print();
+	XmlWriter::printValueElement(va3, cout);
     }
 #endif
     try
@@ -208,8 +212,9 @@ void test02(const Array<T>& x)
 
 
         // Test toXml
-        String xmlString = va.toXml();
-        String xmlString1 = va.toXml();
+        Array<Sint8> out;
+        XmlWriter::appendValueElement(out, va);
+        XmlWriter::appendValueElement(out, va);
         // Test toString
         String valueString = va.toString();
 #ifdef IO
@@ -243,7 +248,9 @@ void test02(const Array<T>& x)
 
         // get the String and XML outputs for v
         String valueString2 = va.toString();
-        String xmlString2 = va.toXml();
+        Array<Sint8> xmlBuffer;
+        XmlWriter::appendValueElement(xmlBuffer, va);
+        xmlBuffer.append('\0');
 
         Array<Sint8> mofOutput2;
         va.toMof(mofOutput2);
@@ -253,7 +260,7 @@ void test02(const Array<T>& x)
 	{
 	    cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
 	    cout << "toString NULL Output [" << valueString2 << "]" << endl;
-	    cout << " XML NULL = [" << xmlString2 << "]" << endl;
+	    cout << " XML NULL = [" << xmlBuffer.getData() << "]" << endl;
 	}
 #endif
         va.clear();

@@ -36,6 +36,7 @@
 #include "Destroyer.h"
 #include "CIMClass.h"
 #include "CIMInstance.h"
+#include "CIMValue.h"
 #include "CIMQualifierDecl.h"
 #include "XmlWriter.h"
 #include "XmlParser.h"
@@ -162,10 +163,54 @@ void XmlWriter::append(Array<Sint8>& out, Char16 x)
     _appendChar(out, x);
 }
 
+void XmlWriter::append(Array<Sint8>& out, Boolean x)
+{
+    append(out, (x ? "TRUE" : "FALSE"));
+}
+
 void XmlWriter::append(Array<Sint8>& out, Uint32 x)
 {
     char buffer[32];
+    sprintf(buffer, "%u", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Array<Sint8>& out, Sint32 x)
+{
+    char buffer[32];
     sprintf(buffer, "%d", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Array<Sint8>& out, Uint64 x)
+{
+    char buffer[32];  // Should need 21 chars max
+    // I know I shouldn't put platform flags here, but the other way is too hard
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    sprintf(buffer, "%I64u", x);
+#else
+    sprintf(buffer, "%llu", x);
+#endif
+    append(out, buffer);
+}
+
+void XmlWriter::append(Array<Sint8>& out, Sint64 x)
+{
+    char buffer[32];  // Should need 21 chars max
+    // I know I shouldn't put platform flags here, but the other way is too hard
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    sprintf(buffer, "%I64d", x);
+#else
+    sprintf(buffer, "%lld", x);
+#endif
+    append(out, buffer);
+}
+
+void XmlWriter::append(Array<Sint8>& out, Real64 x)
+{
+    char buffer[128];
+    // %e gives '[-]m.dddddde+/-xx', which seems compatible with CIM/XML spec
+    sprintf(buffer, "%e", x);
     append(out, buffer);
 }
 
@@ -413,6 +458,402 @@ void XmlWriter::appendLocalObjectPathElement(
     {
         appendLocalClassPathElement(out, objectPath);
     }
+}
+
+//------------------------------------------------------------------------------
+//
+// Helper functions for appendValueElement()
+//
+//------------------------------------------------------------------------------
+
+inline void _appendValue(Array<Sint8>& out, Boolean x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, Uint8 x)
+{
+    XmlWriter::append(out, Uint32(x));
+}
+
+inline void _appendValue(Array<Sint8>& out, Sint8 x)
+{
+    XmlWriter::append(out, Sint32(x));
+}
+
+inline void _appendValue(Array<Sint8>& out, Uint16 x)
+{
+    XmlWriter::append(out, Uint32(x));
+}
+
+inline void _appendValue(Array<Sint8>& out, Sint16 x)
+{
+    XmlWriter::append(out, Sint32(x));
+}
+
+inline void _appendValue(Array<Sint8>& out, Uint32 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, Sint32 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, Uint64 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, Sint64 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, Real32 x)
+{
+    XmlWriter::append(out, Real64(x));
+}
+
+inline void _appendValue(Array<Sint8>& out, Real64 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, Char16 x)
+{
+    XmlWriter::appendSpecial(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, const String& x)
+{
+    XmlWriter::appendSpecial(out, x);
+}
+
+inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
+{
+    out << x.getString();  //ATTN: append() method?
+}
+
+inline void _appendValue(Array<Sint8>& out, const CIMReference& x)
+{
+    x.toXml(out);
+}
+
+void _appendValueArray(Array<Sint8>& out, const CIMReference* p, Uint32 size)
+{
+    out << "<VALUE.REFARRAY>\n";
+    while (size--)
+    {
+        _appendValue(out, *p++);
+    }
+    out << "</VALUE.REFARRAY>\n";
+}
+
+template<class T>
+void _appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
+{
+    out << "<VALUE.ARRAY>\n";
+
+    while (size--)
+    {
+        out << "<VALUE>";
+        _appendValue(out, *p++);
+        out << "</VALUE>\n";
+    }
+
+    out << "</VALUE.ARRAY>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendValueElement()
+//
+//    Converts a CIMValue object to XML. The XML is appended
+//    to the Array provided with the call.  Returns the result as an
+//    XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,
+//    or <VALUE.REFARRAY> tags. If the CIMValue is Null, nothing is appended.
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendValueElement(
+    Array<Sint8>& out, 
+    const CIMValue& value)
+{
+    if (value.isNull())
+    {
+        return;
+    }
+    if (value.isArray())
+    {
+        switch (value.getType())
+        {
+            case CIMType::BOOLEAN:
+            {
+                Array<Boolean> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::UINT8:
+            {
+                Array<Uint8> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::SINT8:
+            {
+                Array<Sint8> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::UINT16:
+            {
+                Array<Uint16> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::SINT16:
+            {
+                Array<Sint16> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::UINT32:
+            {
+                Array<Uint32> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::SINT32:
+            {
+                Array<Sint32> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::UINT64:
+            {
+                Array<Uint64> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::SINT64:
+            {
+                Array<Sint64> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::REAL32:
+            {
+                Array<Real32> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::REAL64:
+            {
+                Array<Real64> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::CHAR16:
+            {
+                Array<Char16> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::STRING:
+            {
+                Array<String> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::DATETIME:
+            {
+                Array<CIMDateTime> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            case CIMType::REFERENCE:
+            {
+                Array<CIMReference> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+
+            default:
+                throw CIMValueInvalidType();
+        }
+    }
+    else if (value.getType() == CIMType::REFERENCE)
+    {
+        // Has to be separate because it uses VALUE.REFERENCE tag
+        CIMReference v;
+        value.get(v);
+        _appendValue(out, v);
+    }
+    else
+    {
+        out << "<VALUE>";
+
+        switch (value.getType())
+        {
+            case CIMType::BOOLEAN:
+            {
+                Boolean v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::UINT8:
+            {
+                Uint8 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::SINT8:
+            {
+                Sint8 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::UINT16:
+            {
+                Uint16 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::SINT16:
+            {
+                Sint16 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::UINT32:
+            {
+                Uint32 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::SINT32:
+            {
+                Sint32 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::UINT64:
+            {
+                Uint64 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::SINT64:
+            {
+                Sint64 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::REAL32:
+            {
+                Real32 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::REAL64:
+            {
+                Real64 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::CHAR16:
+            {
+                Char16 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::STRING:
+            {
+                String v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMType::DATETIME:
+            {
+                CIMDateTime v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            default:
+                throw CIMValueInvalidType();
+        }
+
+        out << "</VALUE>\n";
+    }
+}
+
+void XmlWriter::printValueElement(
+    const CIMValue& value,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendValueElement(tmp, value);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 //------------------------------------------------------------------------------
@@ -782,8 +1223,8 @@ void XmlWriter::appendReturnValueElement(
 
     out << ">\n";
 
-    // Add value. If value is Null, then this method shouldn't have been called
-    value.toXml(out);
+    // Add value.
+    appendValueElement(out, value);
     out << "</RETURNVALUE>\n";
 }
 
@@ -823,7 +1264,9 @@ void XmlWriter::appendBooleanIParameter(
     Boolean flag)
 {
     _appendIParamValueElementBegin(out, name);
-    out << "<VALUE>" << (flag ? "TRUE" : "FALSE") << "</VALUE>\n";
+    out << "<VALUE>";
+    append(out, flag);
+    out << "</VALUE>\n";
     _appendIParamValueElementEnd(out);
 }
 
@@ -996,7 +1439,7 @@ void XmlWriter::appendPropertyValueIParameter(
     const CIMValue& value)
 {
     _appendIParamValueElementBegin(out, name);
-    value.toXml(out);
+    appendValueElement(out, value);
     _appendIParamValueElementEnd(out);
 }
 

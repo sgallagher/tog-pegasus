@@ -271,7 +271,7 @@ Boolean MessageQueueService::_enqueueResponse(
 
 void MessageQueueService::_make_response(Message *req, Uint32 code)
 {
-   return cimom::_make_response(req, code);
+   cimom::_make_response(req, code);
 }
 
 
@@ -280,7 +280,7 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
 						Uint32 state, 
 						Uint32 flag)
 {
-   return cimom::_completeAsyncResponse(request, reply, state, flag);
+   cimom::_completeAsyncResponse(request, reply, state, flag);
 }
 
 

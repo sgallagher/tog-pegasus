@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -166,6 +166,17 @@ String System::getHostName()
         gethostname(hostname, sizeof(hostname));
 
     return hostname;
+}
+
+String System::getPassword(const char* prompt)
+{
+    //
+    // This function needs to be implemented
+    // Return a dummy string for now
+    //
+    String password("dummy");
+
+    return password;
 }
 
 PEGASUS_NAMESPACE_END

@@ -316,6 +316,12 @@ repository implementation.
     from EnumerateInstances.  The client and provider APIs need to
     be updated to use this class.
 
+45. (Sushma Fernandes - HP) 19 Nov 2001  Added the cimuser command line 
+    source files. This CLI allows addition, modification, removal and listing 
+    of CIM users. The CLI is not linked to the main makefile as the Provider 
+    functionality is yet to be implemented. Added the function 
+    String getPassword(char* prompt) to the System.h and cpp files.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

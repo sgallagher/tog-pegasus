@@ -72,4 +72,15 @@ String System::getHostName()
   else return String();                           
 } 
 
+String System::getPassword(const char* prompt)
+{
+    //
+    // This function needs to be implemented
+    // Return a dummy string for now
+    //
+    String password("dummy");
+
+    return password;
+}
+
 PEGASUS_NAMESPACE_END

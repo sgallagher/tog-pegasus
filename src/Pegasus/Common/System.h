@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +106,16 @@ public:
 	const char* symbolName);
 
     static String getHostName();
+
+    /**
+    This function is used to input a password with echo disabled.
+    The function reads up to a newline and returns a password of at most
+    8 characters.
+
+    @param  prompt      String containing the message prompt to be displayed
+    @return             password obtained from the user
+    */ 
+    static String getPassword(const char* prompt);
 };
 
 PEGASUS_NAMESPACE_END

@@ -25,6 +25,7 @@
 // Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
 //
 // Modified By: Nag Boranna (nagaraja_boranna@hp.com)
+//              Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -248,6 +249,16 @@ String System::getHostName()
         gethostname(hostname, sizeof(hostname));
 
     return hostname;
+}
+
+String System::getPassword(const char* prompt)
+{
+
+    String password;
+
+    password = String(getpass( prompt ));
+
+    return password; 
 }
 
 PEGASUS_NAMESPACE_END

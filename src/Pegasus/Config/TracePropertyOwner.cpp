@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 #include "ConfigManager.h"
 #include "TracePropertyOwner.h"
 
@@ -287,11 +288,16 @@ void TracePropertyOwner::initCurrentValue(
 	        // Check whether the filepath was set
 	        if ( retCode == 1 )
 	        {
-	            Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,
+	        	//l10n
+	            //Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,
+	              //  Logger::WARNING,
+	                //"Unable to write to trace file $0",
+	                //(const char*)fileName);
+				Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,
 	                Logger::WARNING,
+	                "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
 	                "Unable to write to trace file $0",
 	                (const char*)fileName);
-
 	            _traceFilePath->currentValue = "";
                 }
             }
@@ -317,10 +323,16 @@ void TracePropertyOwner::initCurrentValue(
 	        // Check whether the filepath was set
 	        if ( retCode == 1 )
 	        {
-	            Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,
-	             Logger::WARNING,
-	             "Unable to write to trace file $0",
-	             (const char*)fileName);
+	        	//l10n
+	            //Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,
+	             //Logger::WARNING,
+	             //"Unable to write to trace file $0",
+	             //(const char*)fileName);
+	             Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,
+	                Logger::WARNING,
+	                "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
+	                "Unable to write to trace file $0",
+	                (const char*)fileName);
 	            _traceFilePath->currentValue = "";
                 }
             }

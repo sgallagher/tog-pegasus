@@ -38,7 +38,11 @@ String ConfigFileSyntaxError::_formatMessage(
     char buffer[32];
     sprintf(buffer, "%d", line);
 
-    String result = "Syntax error in configuration file: ";
+//l10n
+    //String result = "Syntax error in configuration file: ";
+    MessageLoaderParms parms("Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR","Syntax error in configuration file: ");
+    String result = MessageLoader::getMessage(parms);
+//l10n end
     result.append(file);
     result.append("(");
     result.append(buffer);

@@ -55,6 +55,8 @@ public:
 
     ~CString();
 
+    CString& operator=(const CString& cstr);
+
     operator const char*() const;
 
 private:

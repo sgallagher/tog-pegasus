@@ -66,6 +66,13 @@ CString::~CString()
         delete [] _rep;
 }
 
+CString& CString::operator=(const CString& cstr)
+{
+    _rep = new char[strlen(cstr._rep)+1];
+    _rep = strcpy(_rep, cstr._rep);
+    return *this;
+}
+
 CString::operator const char*() const
 {
     return _rep;

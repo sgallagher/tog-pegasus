@@ -1918,12 +1918,7 @@ CIMValue CIMOMHandle::invokeMethod(
    PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::invokeMethod()");
    cimom_handle_op_semaphore opsem(_rep);
 
-// ATTN: IBM-CC - ifdef'ing this to keep changes OS/400 only due to lateness in the release
-#ifdef PEGASUS_OS_OS400
    CIMInvokeMethodRequestMessage* request = new CIMInvokeMethodRequestMessage(
-#else
-   Message* request = new CIMInvokeMethodRequestMessage(
-#endif
       XmlWriter::getNextMessageId(),
       nameSpace,
       instanceName,

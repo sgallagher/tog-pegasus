@@ -1,0 +1,88 @@
+// ===================================================================
+// Title:       Software Resource MOF
+// $State: Exp $
+// $Date: 2005/02/24 20:05:58 $
+// $Source: /cvs/MSB/pegasus/Schemas/CIMPrelim291/Attic/Database_SWResources.mof,v $
+// $Revision: 1.1 $
+// ===================================================================
+//#pragma inLine ("Includes/copyright.inc")
+// Copyright 1998-2005 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// 
+// Implementation of certain elements of this standard or proposed
+// standard may be subject to third party patent rights, including
+// provisional patent rights (herein "patent rights"). DMTF makes
+// no representations to users of the standard as to the existence
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or
+// claimants, nor for any incomplete or inaccurate identification or
+// disclosure of such rights, owners or claimants. DMTF shall have no
+// liability to any party, in any manner or circumstance, under any
+// legal theory whatsoever, for failure to recognize, disclose, or
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product,
+// protocols or testing procedures. DMTF shall have no liability to
+// any party implementing such standard, whether such implementation
+// is foreseeable or not, nor to any patent owner or claimant, and shall
+// have no liability or responsibility for costs or losses incurred if
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the
+// standard from any and all claims of infringement by a patent owner
+// for such implementations.
+// 
+// For information about patents held by third-parties which have
+// notified the DMTF that, in their opinion, such patent may relate to
+// or impact implementations of DMTF standards, visit
+// http://www.dmtf.org/about/policies/disclosures.php.
+//#pragma inLine
+// ===================================================================
+// Description: This class represents a component of the SW resource
+//      model defined in the application_SWResources.mof schema.
+//      This class is included as a separate component in the
+//      database model because it references the database model
+//      and should not exist unless the database model is installed.
+//      The class defines the association to connect a SWResource aspect
+//      of the SWResources model to a database.
+// 
+//      The object classes below are listed in an order that
+//      avoids forward references. Required objects, defined
+//      by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.9 Preliminary
+//      14 May 2004
+//         - CR 1312 - Original Software Resource Model
+// ===================================================================
+
+#pragma locale ("en_US")
+
+
+// ==================================================================
+// SWRDatabase
+// ==================================================================
+
+   [Association, Experimental, Version ( "2.8.1000" ), Description (
+       "SWRDatabaseAspect is the association between multiple database "
+       "software resources (i.e., the aspects) and the one database "
+       "(mostly a couple of files) controlled by the operating system.")]
+class CIM_SWRDatabaseAspect : CIM_SWRManageableAspect {
+
+      [Override ( "SystemElement" ), Description (
+          "The common database which is viewed as software resource.")]
+   CIM_CommonDatabase REF SystemElement;
+
+      [Override ( "SameElement" ), Description (
+          "SameElement is the aspect: the software resource "
+          "'Database'.")]
+   CIM_SWRDatabase REF SameElement;
+};
+
+// ===================================================================
+// end of file
+// ===================================================================

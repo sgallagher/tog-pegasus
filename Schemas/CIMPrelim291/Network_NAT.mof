@@ -1,0 +1,276 @@
+// ===================================================================
+// Title:  Network NAT
+// $State: Exp $
+// $Date: 2005/02/24 20:05:58 $
+// $Source: /cvs/MSB/pegasus/Schemas/CIMPrelim291/Attic/Network_NAT.mof,v $
+// $Revision: 1.1 $
+// ===================================================================
+//#pragma inLine ("Includes/copyright.inc")
+// Copyright 1998-2005 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// 
+// Implementation of certain elements of this standard or proposed
+// standard may be subject to third party patent rights, including
+// provisional patent rights (herein "patent rights"). DMTF makes
+// no representations to users of the standard as to the existence
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or
+// claimants, nor for any incomplete or inaccurate identification or
+// disclosure of such rights, owners or claimants. DMTF shall have no
+// liability to any party, in any manner or circumstance, under any
+// legal theory whatsoever, for failure to recognize, disclose, or
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product,
+// protocols or testing procedures. DMTF shall have no liability to
+// any party implementing such standard, whether such implementation
+// is foreseeable or not, nor to any patent owner or claimant, and shall
+// have no liability or responsibility for costs or losses incurred if
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the
+// standard from any and all claims of infringement by a patent owner
+// for such implementations.
+// 
+// For information about patents held by third-parties which have
+// notified the DMTF that, in their opinion, such patent may relate to
+// or impact implementations of DMTF standards, visit
+// http://www.dmtf.org/about/policies/disclosures.php.
+//#pragma inLine
+// ===================================================================
+// Description: The Network Model extends the management concepts to
+//              represent protocol interfaces and network/protocol
+//              services.  This file defines classes to manage
+//              NAT (Network Address Translation).
+// 
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.9 Preliminary, initial release
+// ===================================================================
+
+#pragma Locale ("en_US")
+
+
+// ==================================================================
+// NATService
+// ==================================================================
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "NATService describes that address translation is being "
+       "performed by the hosting system. NAT stands for Network "
+       "Address Translation and allows an organization's network to "
+       "appear from the outside to use a different address space than "
+       "what it really is using. The specific parameters of the "
+       "translation(s) are defined as NATSettingData, and associated "
+       "with this service using the ElementSettingData relationship.")]
+class CIM_NATService : CIM_ForwardingService {
+};
+
+// ==================================================================
+// NATSettingData
+// ==================================================================
+   [Experimental, Abstract, Version ( "2.8.1000" ), Description (
+       "NATSettingData is an abstract class specifying the general "
+       "parameters of an address translation. This data is specific to "
+       "the system on which the NATService is running. The scoping "
+       "system is described using the inherited ScopedSetting "
+       "association.")]
+class CIM_NATSettingData : CIM_ScopedSettingData {
+
+      [Description (
+          "Indicates whether the translation is of internal addresses "
+          "for external visibility (TRUE) or external addresses for "
+          "internal use (FALSE).")]
+   boolean IsInside;
+
+      [Description (
+          "Indicates whether the addresses to be translated are based "
+          "on examining source addressing (2), destination addressing "
+          "(3) or both (4). The latter is referred to as 'Policy NAT'."), 
+       ValueMap { "2", "3", "4" }, 
+       Values { "Source", "Destination",
+       "Both Source and Destination" }]
+   uint16 AddressExamined;
+};
+
+
+// ==================================================================
+// NATListBasedSettings
+// ==================================================================
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "NATListBasedSettings extends the general NATSettingData class "
+       "to describe that the address translation is dynamically chosen "
+       "from a list, and translated using a pool of possible "
+       "addresses. A parameter indicates whether the addresses "
+       "(translated to) can be reused (aka, overloaded). This is also "
+       "referred to as PAT - port address translation, since the "
+       "overloading relies on TCP and UDP port values to disambiguate "
+       "connections. \n"
+       "\n"
+       "Via a mandatory association to a FilterList, the addresses to "
+       "be translated are described. Via another mandatory "
+       "association, TranslationPoolForNAT, the information regarding "
+       "the resulting/translated addresses are defined.")]
+class CIM_NATListBasedSettings : CIM_NATSettingData {
+
+      [Description (
+          "Indicates whether the address(es) that are translated to "
+          "(the global, external addresses), may be used by more than "
+          "one local address needing translation. The translation MUST "
+          "be defined as 'inside' (IsInside= TRUE) for this property "
+          "to be valid."), 
+       ModelCorrespondence { "CIM_NATSettingData.IsInside" }]
+   boolean OverloadingPermitted;
+};
+
+
+// ==================================================================
+// NATStaticSettings
+// ==================================================================
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "NATStaticSettings describes a single static address "
+       "translation - both the local and global sides. It is a "
+       "specialization of NATSettingData.")]
+class CIM_NATStaticSettings : CIM_NATSettingData {
+
+      [Description (
+          "Specifies the 'inside' address for translation. Whether the "
+          "address is translated 'to' or 'from' is dependent on the "
+          "value of the inherited property, IsInside. If IsInside is "
+          "TRUE, then LocalAddress represents the address of a system "
+          "on the 'inside' network, that is translated to the "
+          "GlobalAddress for external access. On the other hand, if "
+          "IsInside is FALSE, then LocalAddress represents the address "
+          "of an 'outside' host as it appears to the 'inside' network. "
+          "In this case, the GlobalAddress is translated to the "
+          "LocalAddress for 'inside' network access."), 
+       ModelCorrespondence { "CIM_NATSettingData.IsInside" }]
+   string InsideAddress;
+
+      [Description (
+          "Specifies the 'outside' address for translation. Whether "
+          "the address is translated 'to' or 'from' is dependent on "
+          "the value of the inherited property, IsInside. If IsInside "
+          "is TRUE, then GlobalAddress represents the address of an "
+          "'inside' host, as it appears to the outside world. In this "
+          "case, the LocalAddress is translated to the GlobalAddress "
+          "for external access. On the other hand, if IsInside is "
+          "FALSE, then GlobalAddress represents the address of an "
+          "'outside' host as assigned on the outside network, by its "
+          "owner. This address is translated to the LocalAddress for "
+          "access through the 'inside' network."), 
+       ModelCorrespondence { "CIM_NATSettingData.IsInside" }]
+   string OutsideAddress;
+};
+
+
+// ==================================================================
+// TimeoutsForNATTranslation
+// ==================================================================
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "TimeoutsForNATTranslation describes general setting and "
+       "configuration data for the NAT translation service running on "
+       "a system. The scoping system is described using the inherited "
+       "ScopedSetting association.")]
+class CIM_TimeoutsForNATTranslation : CIM_ScopedSettingData {
+
+      [Description (
+          "Specifies the idle timeout (as a datetime interval) for "
+          "dynamic translations (ones involving an address pool). The "
+          "default value is 86400 seconds.")]
+   datetime TranslationTimeout = "00000000000000.086400:000";
+
+      [Description (
+          "Specifies the idle timeout (as a datetime interval) that "
+          "applies to port address translations over a UDP Port. The "
+          "default value is 300 seconds.")]
+   datetime UDPTimeout = "00000000000000.000300:000";
+
+      [Description (
+          "Specifies the idle timeout (as a datetime interval) that "
+          "applies to port address translations over a TCP Port. The "
+          "default value is 86400 seconds.")]
+   datetime TCPTimeout = "00000000000000.086400:000";
+};
+
+
+// ==================================================================
+// AddressesToBeTranslated
+// ==================================================================
+   [Association, Experimental, Version ( "2.8.1000" ), Description (
+       "AddressesToBeTranslated defines the specific addresses to be "
+       "translated for an instance of NATListBasedSettings. The "
+       "addresses are defined by a FilterList. Packets that satisfy "
+       "the FilterEntries aggregated into the FilterList are "
+       "translated.")]
+class CIM_AddressesToBeTranslated : CIM_Dependency {
+
+      [Override ( "Antecedent" ), Min ( 1 ), Max ( 1 ), Description (
+          "The list defining the addresses to be translated.")]
+   CIM_FilterList REF Antecedent;
+
+      [Override ( "Dependent" ), Description (
+          "The specific translation that uses the FilterList.")]
+   CIM_NATListBasedSettings REF Dependent;
+};
+
+
+// ==================================================================
+// TranslationPoolForNAT
+// ==================================================================
+   [Association, Experimental, Version ( "2.8.1000" ), Description (
+       "TranslationPoolForNAT associates a pool/range of addresses "
+       "available as the result of a translation, with the specific "
+       "translation that uses this pool.")]
+class CIM_TranslationPoolForNAT : CIM_Dependency {
+
+      [Override ( "Antecedent" ), Min ( 1 ), Max ( 1 ), Description (
+          "The pool/range of addresses available for translation.")]
+   CIM_RangeOfIPAddresses REF Antecedent;
+
+      [Override ( "Dependent" ), Description (
+          "The specific translation that uses the pool of addresses.")]
+   CIM_NATListBasedSettings REF Dependent;
+};
+
+
+// ==================================================================
+// NATServiceRunningOnEndpoint
+// ==================================================================
+   [Association, Experimental, Version ( "2.8.1000" ), Description (
+       "NATServiceRunningOnEndpoint indicates that a NAT service is "
+       "translating addresses for packets communicated through the "
+       "referenced protocol endpoint/ interface.")]
+class CIM_NATServiceRunningOnEndpoint : CIM_ForwardsAmong {
+
+      [Override ( "Antecedent" ), Description (
+          "The endpoint/interface whose traffic is translated.")]
+   CIM_ProtocolEndpoint REF Antecedent;
+
+      [Override ( "Dependent" ), Description (
+          "The NAT service that performs the translation.")]
+   CIM_NATService REF Dependent;
+
+      [Description (
+          "Indicates whether the endpoint is connected to the "
+          "'inside'/local network (2), is in the external world (3) or "
+          "is in neither. The latter applies to firewall NATing where "
+          "a DMZ exists - neither inside or outside, but bridging the "
+          "two."), 
+       ValueMap { "2", "3", "4" }, 
+       Values { "Connected to Inside Network",
+          "Connected to Outside Network", "Connected to DMZ" }]
+   uint16 ConnectedNetwork;
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================
+

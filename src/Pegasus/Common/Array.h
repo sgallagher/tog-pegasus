@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.10  2001/02/21 01:50:30  karl
+// comments
+//
 // Revision 1.9  2001/02/18 02:49:00  mike
 // Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
 //
@@ -221,6 +224,7 @@ public:
 
     /** Constructs an array with size elements. The elements are
 	initialized with their copy constructor.
+	@param size defines the number of elements
     */
     Array(Uint32 size);
 
@@ -254,8 +258,9 @@ public:
 	change the size of the array (getSize() returns what it did before).
 	If the capacity of the array is already greater or equal to the
 	capacity argument, this method has no effect. After calling reserve(),
-	getCapicty() returns a value which is greater or equal to the capacity 
-	argument.
+	getCapacity() returns a value which is greater or equal to the 
+capacity argument.
+	@param capacity defines the size that is to be reserved
     */
     void reserve(Uint32 capacity)
     {
@@ -266,13 +271,17 @@ public:
     /** Make the size of the array grow by size elements (new size will be
 	getSize() + size). The new elements (there are size of them) are 
 	initialized with x.
+	@parm size defines the number of elements by which the array is to 
+	grow. 
     */
     void grow(Uint32 size, const T& x);
 
     /// Swaps the contents of two arrays.
     void swap(Array<T>& x);
 
-    /// Returns the number of elements in the array.
+    /** Returns the number of elements in the array.
+    @return The number of elements in the array.
+    */
     Uint32 getSize() const { return _rep->size; }
 
     /// Returns the capacity of the array.
@@ -284,8 +293,9 @@ public:
 	return _rep->data(); 
     }
 
-    /** Returns the element at the index given by the pos argument. Returns
-	a reference to that element so that it may be modified.
+    /** Returns the element at the index given by the pos argument. 
+    @return A reference to the elementdefined by index so that it may be 
+    modified. 
     */
     T& operator[](Uint32 pos);
 
@@ -297,6 +307,7 @@ public:
 
     /** Appends an element to the end of the array. This increases the size
 	of the array by one.
+	@param Element to append.
     */
     void append(const T& x);
 
@@ -305,6 +316,7 @@ public:
 
     /** Appends one array to another. The size of this array grows by the
 	size of the other.
+	@param Array to append.
     */
     void appendArray(const Array<T>& x)
     {
@@ -313,6 +325,7 @@ public:
 
     /** Appends one element to the beginning of the array. This increases
 	the size by one.
+	@param Element to prepend.
     */
     void prepend(const T& x);
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.7  2001/02/21 01:50:30  karl
+// comments
+//
 // Revision 1.6  2001/02/11 05:42:33  mike
 // new
 //
@@ -60,7 +63,8 @@
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+/** Class Exception
+*/
 class PEGASUS_COMMON_LINKAGE Exception
 {
 public:
@@ -77,17 +81,29 @@ protected:
 
     String _message;
 };
-
+/** Class AssertionFailureException
+This is an Exception class tied to the definiton of an assert named
+PEGASUS_ASSERT.  This assertion can be included at any point in Pegasus
+code
+*/
 class PEGASUS_COMMON_LINKAGE AssertionFailureException : public Exception
 {
 public:
 
     AssertionFailureException(
-	const char* file, 
+	const char* file,
 	size_t line,
 	const String& message);
 };
+/** define PEGASUS_ASSERT assertion statement.  This statement
+tests the condition defined by the parameters and if not True
+executes a
 
+<PRE>
+	throw AssertionFailureException
+</PRE>
+defining the file, line and condition that was tested.
+*/
 #define PEGASUS_ASSERT(COND) \
     do \
     { \
@@ -97,6 +113,7 @@ public:
 	} \
     } while (0)
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE BadReference : public Exception
 {
 public:
@@ -104,6 +121,7 @@ public:
     BadReference(const String& message) : Exception(message) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE OutOfBounds : public Exception
 {
 public:
@@ -113,6 +131,7 @@ public:
     OutOfBounds() : Exception(MSG) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
 {
 public:
@@ -122,6 +141,7 @@ public:
     AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
 {
 public:
@@ -131,6 +151,7 @@ public:
     NullPointer() : Exception(MSG) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE IllegalName : public Exception
 {
 public:
@@ -140,6 +161,7 @@ public:
     IllegalName() : Exception(MSG) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE UnitializedHandle : public Exception
 {
 public:
@@ -149,6 +171,7 @@ public:
     UnitializedHandle() : Exception(MSG) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchSuperClass : public Exception
 {
 public:
@@ -158,6 +181,7 @@ public:
     NoSuchSuperClass(const String& className) : Exception(MSG + className) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchClass : public Exception
 {
 public:
@@ -167,6 +191,7 @@ public:
     NoSuchClass(const String& className) : Exception(MSG + className) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE InvalidPropertyOverride : public Exception
 {
 public:
@@ -177,6 +202,7 @@ public:
 	: Exception(MSG + message) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE InvalidMethodOverride : public Exception
 {
 public:
@@ -187,6 +213,7 @@ public:
 	: Exception(MSG + message) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE UndeclaredQualifier : public Exception
 {
 public:
@@ -197,23 +224,25 @@ public:
 	: Exception(MSG + qualifierName) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE BadQualifierScope : public Exception
 {
 public:
 
     static const char MSG[];
 
-    BadQualifierScope(const String& qualifierName, const String& scopeString) 
+    BadQualifierScope(const String& qualifierName, const String& scopeString)
 	: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
 {
 public:
 
     static const char MSG[];
 
-    BadQualifierOverride(const String& qualifierName) 
+    BadQualifierOverride(const String& qualifierName)
 	: Exception(MSG + qualifierName) { }
 };
 
@@ -223,10 +252,11 @@ public:
 
     static const char MSG[];
 
-    BadQualifierType(const String& qualifierName) 
+    BadQualifierType(const String& qualifierName)
 	: Exception(MSG + qualifierName) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NullType : public Exception
 {
 public:
@@ -236,36 +266,40 @@ public:
     NullType() : Exception(MSG) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE AddedReferenceToClass : public Exception
 {
 public:
 
     static const char MSG[];
 
-    AddedReferenceToClass(const String& className) 
+    AddedReferenceToClass(const String& className)
 	: Exception(MSG + className) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
 {
 public:
 
     static const char MSG[];
 
-    ClassAlreadyResolved(const String& className) 
+    ClassAlreadyResolved(const String& className)
 	: Exception(MSG + className) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE ClassNotResolved : public Exception
 {
 public:
 
     static const char MSG[];
 
-    ClassNotResolved(const String& className) 
+    ClassNotResolved(const String& className)
 	: Exception(MSG + className) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE InstanceAlreadyResolved : public Exception
 {
 public:
@@ -275,6 +309,7 @@ public:
     InstanceAlreadyResolved() : Exception(MSG) { }
 };
 
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE InstantiatedAbstractClass : public Exception
 {
 public:
@@ -283,17 +318,17 @@ public:
 
     InstantiatedAbstractClass() : Exception(MSG) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchProperty : public Exception
 {
 public:
 
     static const char MSG[];
 
-    NoSuchProperty(const String& propertyName) 
+    NoSuchProperty(const String& propertyName)
 	: Exception(MSG + propertyName) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE TruncatedCharacter : public Exception
 {
 public:
@@ -302,7 +337,7 @@ public:
 
     TruncatedCharacter() : Exception(MSG) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE ExpectedReferenceValue : public Exception
 {
 public:
@@ -311,7 +346,7 @@ public:
 
     ExpectedReferenceValue() : Exception(MSG) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE MissingReferenceClassName : public Exception
 {
 public:
@@ -320,7 +355,7 @@ public:
 
     MissingReferenceClassName() : Exception(MSG) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE IllegalTypeTag : public Exception
 {
 public:
@@ -329,7 +364,7 @@ public:
 
     IllegalTypeTag() : Exception(MSG) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE TypeMismatch : public Exception
 {
 public:
@@ -338,7 +373,7 @@ public:
 
     TypeMismatch() : Exception(MSG) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
 {
 public:
@@ -347,7 +382,7 @@ public:
 
     NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE FailedToRemoveDirectory : public Exception
 {
 public:
@@ -356,7 +391,7 @@ public:
 
     FailedToRemoveDirectory(const String& path) : Exception(MSG + path) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE FailedToRemoveFile : public Exception
 {
 public:
@@ -365,14 +400,14 @@ public:
 
     FailedToRemoveFile(const String& path) : Exception(MSG + path) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchDirectory : public Exception
 {
 public:
 
     static const char MSG[];
 
-    NoSuchDirectory(const String& directoryName) 
+    NoSuchDirectory(const String& directoryName)
 	: Exception(MSG + directoryName) { }
 };
 
@@ -382,40 +417,40 @@ public:
 
     static const char MSG[];
 
-    ChangeDirectoryFailed(const String& directoryName) 
+    ChangeDirectoryFailed(const String& directoryName)
 	: Exception(MSG + directoryName) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE CannotCreateDirectory : public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotCreateDirectory(const String& path) 
+    CannotCreateDirectory(const String& path)
 	: Exception(MSG + path) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchNameSpace : public Exception
 {
 public:
 
     static const char MSG[];
 
-    NoSuchNameSpace(const String& directoryName) 
+    NoSuchNameSpace(const String& directoryName)
 	: Exception(MSG + directoryName) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE CannotOpenFile : public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotOpenFile(const String& path) 
+    CannotOpenFile(const String& path)
 	: Exception(MSG + path) { }
 };
-
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
 {
 public:
@@ -424,7 +459,14 @@ public:
 
     NotImplemented(const String& method) : Exception(MSG + method) { }
 };
+/* Class CimException - Defines the CIM exceptions that are formally
+defined in the CIM Operations over HTTP specification.
 
+@example
+<PRE>
+	throw CimException(CimException::NOT_SUPPORTED);
+</PRE>
+*/
 class PEGASUS_COMMON_LINKAGE CimException : public Exception
 {
 public:
@@ -458,7 +500,7 @@ public:
 
 	NOT_FOUND = 6,
 
-	// The requested operation is not supported. 
+	// The requested operation is not supported.
 
 	NOT_SUPPORTED = 7,
 
@@ -568,7 +610,7 @@ public:
 
     static const char MSG[];
 
-    BadInstanceName(const String& instanceName) 
+    BadInstanceName(const String& instanceName)
 	: Exception(MSG + instanceName) { }
 };
 
@@ -578,7 +620,7 @@ public:
 
     static const char MSG[];
 
-    DynamicLoadFailed(const String& libraryName) 
+    DynamicLoadFailed(const String& libraryName)
 	: Exception(MSG + libraryName) { }
 };
 
@@ -588,7 +630,7 @@ public:
 
     static const char MSG[];
 
-    DynamicLookupFailed(const String& symbolName) 
+    DynamicLookupFailed(const String& symbolName)
 	: Exception(MSG + symbolName) { }
 };
 

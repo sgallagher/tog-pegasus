@@ -1491,6 +1491,27 @@ class CIMStopAllProvidersRequestMessage : public CIMRequestMessage
     }
 };
 
+class CIMInitializeProviderRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMInitializeProviderRequestMessage(
+	const String & messageId_,
+	const CIMInstance & providerModule_,
+	const CIMInstance & provider_,
+	QueueIdStack queueIds_)
+    : CIMRequestMessage(
+	CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
+	messageId_,
+        queueIds_),
+	providerModule(providerModule_),
+	provider(provider_)
+	{
+	}
+    
+    CIMInstance providerModule;
+    CIMInstance provider;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
     : public CIMResponseMessage
 {
@@ -2092,6 +2113,22 @@ class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableResponseMessage
          const QueueIdStack& queueIds_)
          :
          CIMResponseMessage(CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE,
+                            messageId_, cimException_, queueIds_)
+      {
+      }
+};
+
+class PEGASUS_COMMON_LINKAGE CIMInitializeProviderResponseMessage
+   : public CIMResponseMessage
+{
+   public:
+
+      CIMInitializeProviderResponseMessage(
+         const String& messageId_,
+         const CIMException& cimException_,
+         const QueueIdStack& queueIds_)
+         :
+         CIMResponseMessage(CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE,
                             messageId_, cimException_, queueIds_)
       {
       }

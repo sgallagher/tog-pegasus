@@ -127,6 +127,7 @@ protected:
     Message * handleDisableModuleRequest(const Message * message) throw();
     Message * handleEnableModuleRequest(const Message * message) throw();
     Message * handleStopAllProvidersRequest(const Message * message) throw();
+    Message * handleInitializeProviderRequest(const Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 };

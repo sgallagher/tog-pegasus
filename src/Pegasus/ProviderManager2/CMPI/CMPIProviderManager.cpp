@@ -217,6 +217,10 @@ Message * CMPIProviderManager::processMessage(Message * request)
         response = handleStopAllProvidersRequest(request);
 
         break;
+    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+	response = handleInitializeProviderRequest(request);
+
+	break;
     default:
         response = handleUnsupportedRequest(request);
 
@@ -264,6 +268,9 @@ void CMPIProviderManager::unload_idle_providers(void)
      HandlerIntroBase(type,type,message,request,response,handler,METHODINTRO)
 
 #define HandlerIntroInd(type,message,request,response,handler) \
+     HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
+
+#define HandlerIntroInit(type,message,request,response,handler) \
      HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
 
 #define HandlerIntro(type,message,request,response,handler,respType) \
@@ -1918,6 +1925,31 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+
+Message * CMPIProviderManager::handleInitializeProviderRequest(const Message * message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleInitializeProviderRequest");
+
+    HandlerIntroInit(InitializeProvider,message,request,response,handler);
+
+    try
+    {
+        // resolve provider name
+	ProviderName name = _resolveProviderName(
+	    request->operationContext.get(ProviderIdContainer::NAME));
+
+        // get cached or load new provider module
+        CMPIProvider::OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), 
+		name.getLogicalName(), String::EMPTY);
+
+    }
+    HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
 

@@ -216,6 +216,13 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     {
         // This operation is not provider-specific
     }
+    else if (dynamic_cast<CIMInitializeProviderRequestMessage*>(request) != 0)
+    {
+        // Provider information is in CIMInitializeProviderRequestMessage
+        CIMInitializeProviderRequestMessage* initReq =
+            dynamic_cast<CIMInitializeProviderRequestMessage*>(request);
+        providerModule = initReq->providerModule;
+    }
     else
     {
         // Error: Unrecognized message type.

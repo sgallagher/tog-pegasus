@@ -109,6 +109,88 @@ ProviderRegistrationManager::~ProviderRegistrationManager(void)
     }
 }
 
+void ProviderRegistrationManager::initializeProviders(void)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderRegistrationManager::initializeProviders");
+
+    Array<CIMInstance> instances;
+
+    ReadLock lock(_registrationTableLock);
+
+    try
+    {
+        for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+        {
+            instances = i.value()->getInstances();
+
+            for (Uint32 j = 0; j < instances.size(); j++)
+	    {
+	        Uint32 pos = instances[j].findProperty(_PROPERTY_AUTOSTART);
+
+	        if (pos != PEG_NOT_FOUND)
+	        {
+		    Boolean autoStart;
+		    instances[j].getProperty(pos).getValue().get(autoStart);
+
+		    // if autoStart is true, send message to Provider 
+		    // Manager Service to load and initialize provider
+		    if (autoStart)
+		    {
+		        Uint32 pos2 = instances[j].findProperty(
+                            _PROPERTY_PROVIDERMODULENAME);
+		        if (pos2 != PEG_NOT_FOUND)
+		        {
+			    // get provider module name
+		            String module;
+			    instances[j].getProperty(pos2).getValue().get(module);
+
+			    // Use provider module name to generate a key
+			    String _moduleKey = _generateKey(module, MODULE_KEY);
+			    // get provider module instance from the table
+			    ProviderRegistrationTable* _providerModule = 0;
+			    if (!_registrationTable->table.lookup(_moduleKey, 
+				_providerModule))
+			    {
+				Logger::put_l (Logger::STANDARD_LOG, 
+					       System::CIMSERVER,
+					       Logger::WARNING,
+					       MODULE_NOT_FOUND_KEY,
+					       MODULE_NOT_FOUND, module);
+			    }
+                            else
+			    {
+                                Array<CIMInstance> providerModuleInstances = 
+                                    _providerModule->getInstances();
+
+                                _sendInitializeProviderMessage(
+                                    instances[j], providerModuleInstances[0]);	
+			    }
+		        }
+		    }
+	        }
+	    }
+        }
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "CIMException: " + e.getMessage());
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception: " + e.getMessage());
+    }
+    catch(...)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+	    "Exception: Unknown");
+    }
+
+    PEG_METHOD_EXIT();
+}
+
 Boolean ProviderRegistrationManager::lookupInstanceProvider(
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
@@ -3360,6 +3442,68 @@ void ProviderRegistrationManager::_setStatus(
             instance,
             true,
             CIMPropertyList());
+    }
+}
+
+// get provider manager service
+void ProviderRegistrationManager::_sendInitializeProviderMessage(
+    const CIMInstance & provider,
+    const CIMInstance & providerModule)
+{
+    pegasus_internal_identity _id = peg_credential_types::MODULE;
+    ModuleController * _controller;
+    ModuleController::client_handle *_client_handle;
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if(_client_handle == NULL)
+    {
+        throw UninitializedObjectException();
+    }
+
+    MessageQueue * queue = MessageQueue::lookup(
+	PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+
+    MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
+
+    if (service != NULL)
+    {
+        CIMInitializeProviderRequestMessage * notify_req =
+            new CIMInitializeProviderRequestMessage (
+            XmlWriter::getNextMessageId (),
+            providerModule,
+            provider,
+            QueueIdStack(service->getQueueId()));
+
+        // create request envelope
+        AsyncLegacyOperationStart * asyncRequest =
+            new AsyncLegacyOperationStart (
+            service->get_next_xid(),
+            NULL,
+            service->getQueueId(),
+            notify_req,
+            service->getQueueId());
+
+        AsyncReply * asyncReply = 
+            _controller->ClientSendWait(*_client_handle,
+            service->getQueueId(),
+            asyncRequest);
+
+	CIMInitializeProviderResponseMessage * response =
+	    reinterpret_cast<CIMInitializeProviderResponseMessage *>(
+	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+        if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+	{
+	    CIMException e = response->cimException;
+
+	    Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+		Logger::WARNING, PROVIDER_CANNOT_BE_LOAD_KEY,
+		PROVIDER_CANNOT_BE_LOAD, e.getMessage());
+
+	    delete asyncRequest;
+	    delete asyncReply;
+	    delete response;
+	}
     }
 }
 

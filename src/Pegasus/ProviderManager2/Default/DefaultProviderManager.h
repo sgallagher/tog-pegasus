@@ -107,6 +107,7 @@ protected:
     Message * handleDisableModuleRequest(const Message * message);
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
+    Message * handleInitializeProviderRequest(const Message * message);
 
     void _insertEntry(const Provider & provider, const EnableIndicationsResponseHandler *handler);
     EnableIndicationsResponseHandler * _removeEntry(const String & key);

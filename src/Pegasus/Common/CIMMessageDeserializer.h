@@ -161,6 +161,9 @@ private:
     static CIMInvokeMethodRequestMessage*
         _deserializeCIMInvokeMethodRequestMessage(XmlParser& parser);
 
+    static CIMInitializeProviderRequestMessage*
+        _deserializeCIMInitializeProviderRequestMessage(XmlParser& parser);
+
     //
     // CIMIndicationRequestMessages
     //
@@ -253,6 +256,9 @@ private:
 
     static CIMInvokeMethodResponseMessage*
         _deserializeCIMInvokeMethodResponseMessage(XmlParser& parser);
+
+    static CIMInitializeProviderResponseMessage*
+        _deserializeCIMInitializeProviderResponseMessage(XmlParser& parser);
 
     //
     // CIM Indication Response Messages

@@ -198,6 +198,10 @@ Message * DefaultProviderManager::processMessage(Message * request)
         response = handleStopAllProvidersRequest(request);
 
         break;
+    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+	response = handleInitializeProviderRequest(request);
+
+	break;
     default:
         response = handleUnsupportedRequest(request);
 
@@ -217,6 +221,71 @@ Message * DefaultProviderManager::handleUnsupportedRequest(const Message * messa
 
     // a null response implies unsupported or unknown operation
     return(0);
+}
+
+Message * DefaultProviderManager::handleInitializeProviderRequest(
+    const Message * message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+	"DefaultProviderManager::handleInitializeProviderRequest");
+
+    CIMInitializeProviderRequestMessage * request =
+        dynamic_cast<CIMInitializeProviderRequestMessage *>
+	    (const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMInitializeProviderResponseMessage * response =
+        new CIMInitializeProviderResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod(request->getHttpMethod());
+
+    OperationResponseHandler handler(request, response);
+
+    try
+    {
+        // resolve provider name
+	ProviderName name = _resolveProviderName(
+	    request->operationContext.get(ProviderIdContainer::NAME));
+
+        // get cached or load new provider module
+        OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), 
+		name.getLogicalName(), String::EMPTY);
+
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "CIMException: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage());
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
+
+    PEG_METHOD_EXIT();
+
+    return(response);
 }
 
 Message * DefaultProviderManager::handleGetInstanceRequest(const Message * message)

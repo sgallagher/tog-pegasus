@@ -283,7 +283,8 @@ void ProviderManagerService::handleCimRequest(
     Message * response = 0;
 
     if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
-        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
+        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
+	(request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
     {
         // Handle CIMOperationRequestMessage and
         // CIMExportIndicationRequestMessage
@@ -592,6 +593,17 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         // These messages are handled specially by the ProviderManagerService
         PEGASUS_ASSERT(0);
         break;
+
+    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+    {
+        // Provider information is already in the message
+        const CIMInitializeProviderRequestMessage* request =
+            dynamic_cast<const CIMInitializeProviderRequestMessage*>(message);
+        providerModule = request->providerModule;
+        provider = request->provider;
+        break;
+    }
+
     }
 
     PEGASUS_ASSERT(!providerModule.isUninitialized());

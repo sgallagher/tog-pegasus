@@ -240,6 +240,11 @@ private:
         Array<Sint8>& out,
         CIMStopAllProvidersRequestMessage* message);
 
+    static void _serializeCIMInitializeProviderRequestMessage(
+        Array<Sint8>& out,
+        CIMInitializeProviderRequestMessage* message);
+
+
     //
     //
     // CIM Response Messages
@@ -359,6 +364,10 @@ private:
     static void _serializeCIMStopAllProvidersResponseMessage(
         Array<Sint8>& out,
         CIMStopAllProvidersResponseMessage* message);
+
+    static void _serializeCIMInitializeProviderResponseMessage(
+        Array<Sint8>& out,
+        CIMInitializeProviderResponseMessage* message);
 
 };
 

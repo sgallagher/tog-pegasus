@@ -328,6 +328,9 @@ void CIMServer::_init(void)
     getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGTERM);
 
+    // Load and initialize providers registed with AutoStart = true
+    _providerRegistrationManager->initializeProviders();
+
 }
 
 

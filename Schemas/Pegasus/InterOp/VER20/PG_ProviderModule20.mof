@@ -111,6 +111,9 @@ class PG_Provider : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
        "uniquely identifies the provider within the Provider Module.")]
    string Name;
+      [Description("Indicates whether this provider should be started when "
+       "the CIM Server is started, rather than on an as-needed basis.")] 
+   boolean AutoStart = false;
 };
 
 // ==================================================================

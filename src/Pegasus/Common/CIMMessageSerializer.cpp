@@ -285,6 +285,11 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             _serializeCIMStopAllProvidersRequestMessage(
                 out, (CIMStopAllProvidersRequestMessage*)cimMessage);
             break;
+        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+            _serializeCIMInitializeProviderRequestMessage(
+                out, (CIMInitializeProviderRequestMessage*)cimMessage);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -472,6 +477,11 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMStopAllProvidersResponseMessage(
                 out, (CIMStopAllProvidersResponseMessage*)cimMessage);
             break;
+        case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
+            _serializeCIMInitializeProviderResponseMessage(
+                out, (CIMInitializeProviderResponseMessage*)cimMessage);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
     }
@@ -1252,6 +1262,17 @@ void CIMMessageSerializer::_serializeCIMStopAllProvidersRequestMessage(
     // No additional attributes to serialize!
 }
 
+//
+// _serializeCIMInitializeProviderRequestMessage
+//
+void CIMMessageSerializer::_serializeCIMInitializeProviderRequestMessage(
+    Array<Sint8>& out,
+    CIMInitializeProviderRequestMessage* message)
+{
+    _serializeCIMInstance(out, message->providerModule);
+    _serializeCIMInstance(out, message->provider);
+}
+
 
 //
 //
@@ -1597,6 +1618,16 @@ void CIMMessageSerializer::_serializeCIMEnableModuleResponseMessage(
 void CIMMessageSerializer::_serializeCIMStopAllProvidersResponseMessage(
     Array<Sint8>& out,
     CIMStopAllProvidersResponseMessage* message)
+{
+    // No additional attributes to serialize!
+}
+
+//
+// _serializeCIMInitializeProviderResponseMessage
+//
+void CIMMessageSerializer::_serializeCIMInitializeProviderResponseMessage(
+    Array<Sint8>& out,
+    CIMInitializeProviderResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

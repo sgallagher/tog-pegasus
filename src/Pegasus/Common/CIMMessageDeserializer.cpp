@@ -285,6 +285,10 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
             message = _deserializeCIMStopAllProvidersRequestMessage(parser);
             break;
+        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+            message = _deserializeCIMInitializeProviderRequestMessage(parser);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -446,6 +450,10 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             message = _deserializeCIMStopAllProvidersResponseMessage(parser);
             break;
+        case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
+            message = _deserializeCIMInitializeProviderResponseMessage(parser);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
     }
@@ -1811,6 +1819,29 @@ CIMMessageDeserializer::_deserializeCIMStopAllProvidersRequestMessage(
     return(message);
 }
 
+//
+// _deserializeCIMInitializeProviderRequestMessage
+//
+CIMInitializeProviderRequestMessage*
+CIMMessageDeserializer::_deserializeCIMInitializeProviderRequestMessage(
+    XmlParser& parser)
+{
+    CIMInstance providerModule;
+    CIMInstance provider;
+
+    _deserializeCIMInstance(parser, providerModule);
+    _deserializeCIMInstance(parser, provider);
+
+    CIMInitializeProviderRequestMessage* message =
+        new CIMInitializeProviderRequestMessage(
+            String::EMPTY,         // messageId
+            providerModule,
+            provider,
+            QueueIdStack());       // queueIds
+
+    return(message);
+}
+
 
 //
 //
@@ -2390,6 +2421,22 @@ CIMMessageDeserializer::_deserializeCIMStopAllProvidersResponseMessage(
 {
     CIMStopAllProvidersResponseMessage* message =
         new CIMStopAllProvidersResponseMessage(
+            String::EMPTY,         // messageId
+            CIMException(),        // cimException
+            QueueIdStack());       // queueIds
+
+    return(message);
+}
+
+//
+// _deserializeCIMInitializeProviderResponseMessage
+//
+CIMInitializeProviderResponseMessage*
+CIMMessageDeserializer::_deserializeCIMInitializeProviderResponseMessage(
+    XmlParser& parser)
+{
+    CIMInitializeProviderResponseMessage* message =
+        new CIMInitializeProviderResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
             QueueIdStack());       // queueIds

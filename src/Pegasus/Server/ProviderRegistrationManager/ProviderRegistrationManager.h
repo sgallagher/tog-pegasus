@@ -144,6 +144,11 @@ static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
 static const CIMName _PROPERTY_INDICATIONDESTINATIONS = CIMName ("Destinations");
 
 /**
+   The name of the AutoStart property for PG_Provider class
+*/
+static const CIMName _PROPERTY_AUTOSTART = CIMName ("AutoStart");
+
+/**
    Registered instance provider 
 */
 static const char INS_PROVIDER [] = "Instance";
@@ -187,6 +192,10 @@ static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistratio
 //L10N TODO DONE
 static const char CONSUMER_NOT_REGISTERED [] = " Consumer capability has not been registered yet.";
 static const char CONSUMER_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
+static const char PROVIDER_CANNOT_BE_LOAD [] = 
+" Can not initialize and load the provider.";
+static const char PROVIDER_CANNOT_BE_LOAD_KEY [] = 
+"Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_CANNOT_BE_LOAD";
 /**
    Registered instance provider type
 */
@@ -295,6 +304,12 @@ public:
 
 	Boolean setProviderModuleStatus(const String & providerModuleName, Array<Uint16> status);
 
+	// Iterate through registration hash table, if AutoStart property
+	// is set to true in a PG_Provider instance, send initialize provider
+	// request message to Provider Manager Service to load and initialize 
+	// the provider
+        void initializeProviders();
+
    	enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 
 protected:
@@ -333,6 +348,10 @@ protected:
 
 	void _sendMessageToSubscription(
 		CIMNotifyProviderRegistrationRequestMessage * notify);
+
+	void _sendInitializeProviderMessage(
+	    const CIMInstance & provider,
+	    const CIMInstance & providerModule);
 
 private:
 

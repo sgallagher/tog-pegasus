@@ -988,6 +988,80 @@ public:
     String userName;
 };
 
+class CIMProcessIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMProcessIndicationRequestMessage(
+        const String & messageId_,
+        const String & nameSpace_,
+        const CIMInstance& indicationInstance_,
+        QueueIdStack queueIds_)
+        :
+        CIMRequestMessage(
+            CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+        nameSpace (nameSpace_),
+        indicationInstance(indicationInstance_)
+    {
+
+    }
+
+    String nameSpace;
+    CIMInstance indicationInstance;
+};
+
+class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
+{
+public:
+    enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
+
+    CIMNotifyProviderRegistrationRequestMessage(
+	const String & messageId_,
+	const Operation operation_,
+        const String & providerName_,
+	const String & className_,
+	const CIMPropertyList & newPropertyNames_,
+        const CIMPropertyList & oldPropertyNames_,
+	QueueIdStack queueIds_)
+	:
+	CIMRequestMessage(
+            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE, 
+	    messageId_, queueIds_),
+	operation(operation_),
+	providerName (providerName_),
+	className (className_),
+	newPropertyNames (newPropertyNames_),
+	oldPropertyNames (oldPropertyNames_)
+    {
+    
+    }
+
+    String providerName;    
+    String className;
+    CIMPropertyList newPropertyNames;
+    CIMPropertyList oldPropertyNames;
+    Operation operation;
+};
+
+class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMNotifyProviderTerminationRequestMessage(
+	const String & messageId_,
+        const String & providerName_,
+	QueueIdStack queueIds_)
+	:
+	CIMRequestMessage(
+            CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE, 
+	    messageId_, queueIds_),
+	providerName (providerName_)
+    {
+    
+    }
+
+    String providerName;    
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
     : public CIMResponseMessage
 {
@@ -1507,6 +1581,22 @@ public:
         CIMResponseMessage
             (CIM_DISABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
                 messageId_, errorCode_, errorDescription_, queueIds_)
+    {
+    }
+};
+
+class CIMProcessIndicationResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMProcessIndicationResponseMessage(
+        const String& messageId_,
+        CIMStatusCode errorCode_,
+        const String& errorDescription_,
+        const QueueIdStack& queueIds_)
+        :
+        CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+            messageId_, errorCode_, errorDescription_, queueIds_)
     {
     }
 };

@@ -23,6 +23,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -211,7 +212,7 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
 	
 	virtual void updateIndication(
 		const OperationContext & context,
@@ -219,24 +220,69 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void cancelIndication(
 		const OperationContext & context,
 		const CIMReference & classReference,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void checkIndication(
 		const OperationContext & context,
 		const CIMReference & classReference,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
+
+	virtual void enableIndication(
+		const OperationContext & context,
+		const String & nameSpace,
+		const Array<String> & classNames,
+		const String & providerName,
+		const Array<String> & propertyList,
+		const Uint16 repeatNotificationPolicy,
+		const String & otherRepeatNotificationPolicy,
+		const CIMDateTime & repeatNotificationInterval,
+		const CIMDateTime & repeatNotificationGap,
+		const Uint16 repeatNotificationCount,
+		const String & condition,
+		const String & queryLanguage,
+		const CIMInstance & subscription,
+		ResponseHandler<CIMInstance> & handler);
+
+	virtual void disableIndication(
+		const OperationContext & context,
+		const String & nameSpace,
+		const Array<String> & classNames,
+		const String & providerName,
+		const CIMInstance & subscription,
+		ResponseHandler<CIMInstance> & handler);
+
+	virtual void modifyIndication(
+		const OperationContext & context,
+		const String & nameSpace,
+		const Array<String> & classNames,
+		const String & providerName,
+		const Array<String> & propertyList,
+		const Uint16 repeatNotificationPolicy,
+		const String & otherRepeatNotificationPolicy,
+		const CIMDateTime & repeatNotificationInterval,
+		const CIMDateTime & repeatNotificationGap,
+		const Uint16 repeatNotificationCount,
+		const String & condition,
+		const String & queryLanguage,
+		const CIMInstance & subscription,
+		ResponseHandler<CIMInstance> & handler);
 
 	// CIMIndicationConsumer interface
 	virtual void handleIndication(
 		const OperationContext & context,
-		const CIMIndication & indication,
-		ResponseHandler<CIMIndication> & handler);
+		const CIMInstance & indication,
+		ResponseHandler<CIMInstance> & handler);
+
+	virtual void handleIndication(
+                const OperationContext & context,
+                const String & url,
+                const CIMInstance& indicationInstance) { }
 
 protected:
 	CIMBaseProvider * _provider;

@@ -51,6 +51,7 @@
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ProviderManager/ProviderManagerQueue.h>
 #include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
+#include <Pegasus/Server/IndicationService/IndicationService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,38 +59,36 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
 public:
 
-      typedef MessageQueue Base;
+    typedef MessageQueue Base;
 
-      CIMOperationRequestDispatcher(
-	  CIMRepository* repository,
-	  CIMServer* server);
+    CIMOperationRequestDispatcher(
+	CIMRepository* repository, CIMServer* server);
 
-      virtual ~CIMOperationRequestDispatcher();
+    virtual ~CIMOperationRequestDispatcher();
 
-      virtual void handleEnqueue();
+    virtual void handleEnqueue();
 
-      virtual const char* getQueueName() const;
+    virtual const char* getQueueName() const;
 
-      void handleGetClassRequest(
-	 CIMGetClassRequestMessage* request);
+    void handleGetClassRequest(
+	CIMGetClassRequestMessage* request);
 
-      void handleGetInstanceRequest(
-	 CIMGetInstanceRequestMessage* request);
+    void handleGetInstanceRequest(
+	CIMGetInstanceRequestMessage* request);
 
-      void handleDeleteClassRequest(
-	 CIMDeleteClassRequestMessage* request);
+    void handleDeleteClassRequest(
+	CIMDeleteClassRequestMessage* request);
 
-      void handleDeleteInstanceRequest(
-	 CIMDeleteInstanceRequestMessage* request);
+    void handleDeleteInstanceRequest(
+	CIMDeleteInstanceRequestMessage* request);
 
-      void handleCreateClassRequest(
-	 CIMCreateClassRequestMessage* request);
+    void handleCreateClassRequest(
+	CIMCreateClassRequestMessage* request);
 
-      void handleCreateInstanceRequest(
-	 CIMCreateInstanceRequestMessage* request);
+    void handleCreateInstanceRequest(
+	CIMCreateInstanceRequestMessage* request);
 
-      void handleModifyClassRequest(
-	
+    void handleModifyClassRequest(
 	CIMModifyClassRequestMessage* request);
 
     void handleModifyInstanceRequest(
@@ -149,29 +148,35 @@ public:
     void handleDisableIndicationSubscriptionRequest(
         CIMDisableIndicationSubscriptionRequestMessage* request);
 
+    void handleProcessIndicationRequest(
+        CIMProcessIndicationRequestMessage* request);
+
     //void loadRegisteredProviders(void);
 
 protected:
+
     String _lookupProviderForClass(
-	const String& nameSpace,
-	const String& className);
+	const String& nameSpace, const String& className);
 
-	void _enqueueResponse(
-	CIMRequestMessage* request,
-	CIMResponseMessage* response);
+    void _enqueueResponse(
+	CIMRequestMessage* request, CIMResponseMessage* response);
 
-	Message * _waitForResponse(
+    Message * _waitForResponse(
 	const Uint32 messageType,
 	const Uint32 messageKey,
 	const Uint32 timeout = 0xffffffff);
 
-protected:
-	CIMRepository * _repository;
+    CIMRepository * _repository;
+    
     ServiceCIMOMHandle _cimom;
-	ProviderManagerQueue _providerManager;
-	ConfigurationManagerQueue _configurationManager;
-	AtomicInt _dying;
 
+    ProviderManagerQueue _providerManager;
+    
+    ConfigurationManagerQueue _configurationManager;
+
+    IndicationService _indicationService;
+    
+    AtomicInt _dying;
 };
 
 PEGASUS_NAMESPACE_END

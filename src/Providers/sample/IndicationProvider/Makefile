@@ -5,7 +5,7 @@ DIR = Providers/sample/IndicationProvider
 
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SampleIndicationProvider
+LIBRARY = HelloWorldProvider
 
 LIBRARIES = \
 	 pegcommon \

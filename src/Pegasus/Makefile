@@ -17,7 +17,7 @@ DIRS = \
     Security/UserManager \
     Security/Authentication \
     WQL \
-	Server \
+    Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
     Handler/snmpIndicationHandler \
@@ -29,9 +29,10 @@ DIRS = \
     Client/tests \
     Compiler/tests \
     Security/UserManager/tests \
-    Security/Authentication/tests 
+    Security/Authentication/tests \
+    Server/IndicationService/tests 
 
 #    Subscription \
-#    Subscription/tests \
+#    Subscription/tests 
 
 include $(ROOT)/mak/recurse.mak

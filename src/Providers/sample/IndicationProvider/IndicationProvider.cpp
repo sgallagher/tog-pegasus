@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +30,8 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 #include "IndicationProvider.h"
 
@@ -59,10 +61,10 @@ void IndicationProvider::provideIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	// ensure the provider supports the type of indication requested.
-	if(!String::equalNoCase(classReference.getClassName(), "sample_indication"))
+	if(!String::equalNoCase(classReference.getClassName(), "sample_helloworldindication"))
 	{
 		throw InvalidClass(classReference.getClassName());
 	}
@@ -79,7 +81,7 @@ void IndicationProvider::updateIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	// acknowledge request
 	handler.processing();
@@ -92,7 +94,7 @@ void IndicationProvider::updateIndication(
 void IndicationProvider::cancelIndication(
 	const OperationContext & context,
 	const CIMReference & classReference,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	// acknowledge request
 	handler.processing();
@@ -111,13 +113,13 @@ void IndicationProvider::checkIndication(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("IndicationProvider::checkIndication");
 }
 
 IndicationProvider::IndicationThread::IndicationThread(
-	ResponseHandler<CIMIndication> & handler) throw() :
+	ResponseHandler<CIMInstance> & handler) throw() :
 	Thread(run, this, false)
 {
 	_pHandler = &handler;
@@ -144,7 +146,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
 	while(true)
 	{
 		// create indication
-		CIMIndication indication("Sample_Indication");
+		CIMInstance indication("Sample_HelloWorldIndication");
 
 		// send indication
 		pThread->_pHandler->deliver(indication);
@@ -157,6 +159,57 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
 #else
 	pThread->exit_self(NULL);
 #endif
+}
+
+void IndicationProvider::enableIndication(
+        const OperationContext & context,
+        const String & nameSpace,
+        const Array<String> & classNames,
+        const String & providerName,
+        const Array<String> & propertyList,
+        const Uint16 repeatNotificationPolicy,
+        const String & otherRepeatNotificationPolicy,
+        const CIMDateTime & repeatNotificationInterval,
+        const CIMDateTime & repeatNotificationGap,
+        const Uint16 repeatNotificationCount,
+        const String & condition,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        ResponseHandler<CIMInstance> & handler)
+{
+    // acknowledge request
+    handler.processing();
+
+    pThread = new IndicationThread(handler);
+}
+
+
+void IndicationProvider::disableIndication(
+        const OperationContext & context,
+        const String & nameSpace,
+        const Array<String> & classNames,
+        const String & providerName,
+        const CIMInstance & subscription,
+        ResponseHandler<CIMInstance> & handler)
+{
+}
+
+void IndicationProvider::modifyIndication(
+        const OperationContext & context,
+        const String & nameSpace,
+        const Array<String> & classNames,
+        const String & providerName,
+        const Array<String> & propertyList,
+        const Uint16 repeatNotificationPolicy,
+        const String & otherRepeatNotificationPolicy,
+        const CIMDateTime & repeatNotificationInterval,
+        const CIMDateTime & repeatNotificationGap,
+        const Uint16 repeatNotificationCount,
+        const String & condition,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        ResponseHandler<CIMInstance> & handler)
+{
 }
 
 PEGASUS_NAMESPACE_END

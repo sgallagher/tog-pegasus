@@ -34,6 +34,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include "CIMBaseProviderFacade.h"
 #include "CIMOperationRequestDispatcher.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -52,9 +54,11 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 	_repository(repository),
 	_cimom(this, server, repository),
 	_providerManager(_cimom),
-	_configurationManager(_cimom)
+	_configurationManager(_cimom),
+	_indicationService(_cimom)
 {
 	DDD(cout << _DISPATCHER << endl;)
+	_indicationService.initialize(_cimom);
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()	
@@ -142,6 +146,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 			}
 
 			// invalid provider name
+
 			break;
 		}
 	}
@@ -386,6 +391,11 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 		handleDisableIndicationSubscriptionRequest(
 			(CIMDisableIndicationSubscriptionRequestMessage*)request);
 		break;
+
+        case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+	        handleProcessIndicationRequest(
+                	(CIMProcessIndicationRequestMessage*)request);
+            	break;
 	}
 
 	delete request;
@@ -454,14 +464,30 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
 	// check the class name for an "internal provider"
 	if(String::equalNoCase(className, "CIM_Provider") ||
-		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
-		String::equalNoCase(className, "PG_Provider"))
+	    String::equalNoCase(className, "CIM_ProviderCapabilities") ||
+	    String::equalNoCase(className, "PG_Provider"))
 	{
-		// send to the configuration manager. it will generate the
-		// appropriate response message.
-		_configurationManager.enqueue(new CIMGetInstanceRequestMessage(*request));
+	    // send to the configuration manager. it will generate the
+	    // appropriate response message.
+	    _configurationManager.enqueue(new CIMGetInstanceRequestMessage(*request));
 
-		return;
+	    return;
+	}
+
+	// 
+	// check the class name for subscription, filter and handler
+	//
+	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+	    String::equalNoCase(className, "CIM_IndicationFilter"))
+	{
+	    // 
+	    // Send to the indication service. It will generate the
+	    // appropriate response message.
+	    //
+	    _indicationService.enqueue(new CIMGetInstanceRequestMessage(*request));
+
+	    return;
 	}
 
 	// get provider for class
@@ -578,6 +604,22 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 		return;
 	}
 
+	// 
+	// check the class name for subscription, filter and handler
+	//
+	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+	    String::equalNoCase(className, "CIM_IndicationFilter"))
+	{
+	    // 
+	    // Send to the indication service. It will generate the
+	    // appropriate response message.
+	    //
+	    _indicationService.enqueue(new CIMDeleteInstanceRequestMessage(*request));
+
+	    return;
+	}
+
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
 	if(providerName.size() != 0)
@@ -679,11 +721,28 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 		String::equalNoCase(className, "CIM_ProviderCapabilities") ||
 		String::equalNoCase(className, "PG_Provider"))
 	{
-		// send to the configuration manager. it will generate the
-		// appropriate response message.
-		_configurationManager.enqueue(new CIMCreateInstanceRequestMessage(*request));
+	    // send to the configuration manager. it will generate the
+	    // appropriate response message.
+	    _configurationManager.enqueue(new CIMCreateInstanceRequestMessage(*request));
 
-		return;
+	    return;
+	}
+
+	// 
+	// check the class name for subscription, filter and handler
+	//
+
+	if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+	    String::equalNoCase(className, "CIM_IndicationFilter"))
+	{
+	    // 
+	    // Send to the indication service. It will generate the
+	    // appropriate response message.
+	    //
+	    _indicationService.enqueue(request);
+
+	    return;
 	}
 
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
@@ -796,6 +855,22 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 		_configurationManager.enqueue(new CIMModifyInstanceRequestMessage(*request));
 
 		return;
+	}
+
+	// 
+	// check the class name for subscription, filter and handler
+	//
+	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+	    String::equalNoCase(className, "CIM_IndicationFilter"))
+	{
+	    // 
+	    // Send to the indication service. It will generate the
+	    // appropriate response message.
+	    //
+	    _indicationService.enqueue(new CIMModifyInstanceRequestMessage(*request));
+
+	    return;
 	}
 
 	// check the class name for an "external provider"
@@ -960,6 +1035,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 		return;
 	}
 
+	// 
+	// check the class name for subscription, filter and handler
+	//
+	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+	    String::equalNoCase(className, "CIM_IndicationFilter"))
+	{
+	    // 
+	    // Send to the indication service. It will generate the
+	    // appropriate response message.
+	    //
+	    _indicationService.enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+
+	    return;
+	}
+
 	// check the class name for an "external provider"
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
@@ -1034,16 +1125,32 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		return;
 	}
 
+        //
+        // check the class name for subscription, filter and handler
+        //
+        if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+            String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+            String::equalNoCase(className, "CIM_IndicationFilter"))
+        {
+            //
+            // Send to the indication service. It will generate the
+            // appropriate response message.
+            //
+            _indicationService.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+
+            return;
+        } 
+
 	// check the class name for an "external provider"
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
+	//String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
-	{
+	//if(providerName.size() != 0)
+	//{
 		// forward request to the provider manager
-		_providerManager.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+		//_providerManager.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
-		return;
-	}
+		//return;
+	//}
 	
 	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
 	String errorDescription;
@@ -1646,252 +1753,221 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 	CIMEnableIndicationSubscriptionRequestMessage* request)
 {
-	// ATTN: under construction
-	
-	/*
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription = String::EMPTY;
+
+    try
+    {
+	// 
 	// check the class name for an "external provider"
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
+	//
+	String providerName = _lookupProviderForClass(
+	    request->nameSpace, request->classNames[0]);
 
-	if(providerName)
+	if(providerName.size() != 0)
 	{
-		// forward request to the provider manager
-		_providerManager.enqueue(request);
-
-		return;
+	    // 
+	    // forward request to the provider manager
+	    //
+	    _providerManager.enqueue(
+		new CIMEnableIndicationSubscriptionRequestMessage(*request));
+	    return;
 	}
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription = String::EMPTY;
-
-	try
+	else
 	{
-		if(request->providerName.size () != 0)
-		{
-			//
-			// attempt to load provider
-			//
-			//
-			//  ATTN: Provider to be loaded is known to serve all classes
-			//  in classNames list.  The getProvider function requires a class
-			//  name.  There is no form that takes only the provider name.
-			//  Currently, the first class name in the list is passed to
-			//  getProvider.  It shouldn't matter which class name is passed in.
-			//
-			CIMBaseProvider * provider = _providerManager.getProvider
-				(request->providerName, request->classNames [0]);
-
-			CIMBaseProviderFacade facade(provider);
-
-			SimpleResponseHandler<CIMIndication> responseHandler;
-
-			facade.enableIndicationSubscription (
-				//
-				//  ATTN: pass thresholding parameter values in
-				//  operation context
-				//
-				OperationContext (),
-				request->classNames,
-				request->propertyList,
-				request->repeatNotificationPolicy,
-				request->condition,
-				request->queryLanguage,
-				request->subscription,
-				responseHandler);
-		}
-		else
-		{
-			errorCode = CIM_ERR_FAILED;
-			errorDescription = "Provider not available";
-		}
+	    errorCode = CIM_ERR_FAILED;
+	    errorDescription = "Class in request is without Provider";
 	}
-	catch(CIMException& exception)
-	{
-		errorCode = exception.getCode ();
-		errorDescription = exception.getMessage ();
-	}
-	catch(Exception& exception)
-	{
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage ();
-	}
-	catch(...)
-	{
-		errorCode = CIM_ERR_FAILED;
-	}
+    }
+    catch(CIMException& exception)
+    {
+	errorCode = exception.getCode ();
+	errorDescription = exception.getMessage ();
+    }
+    catch(Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage ();
+    }
+    catch(...)
+    {
+	errorCode = CIM_ERR_FAILED;
+    }
 
-	CIMEnableIndicationSubscriptionResponseMessage* response =
-		new CIMEnableIndicationSubscriptionResponseMessage (
-		request->messageId,
-		errorCode,
-		errorDescription,
-		request->queueIds.copyAndPop ());
+    CIMEnableIndicationSubscriptionResponseMessage* response =
+	new CIMEnableIndicationSubscriptionResponseMessage (
+	request->messageId,
+	errorCode,
+	errorDescription,
+	request->queueIds.copyAndPop ());
 
-	_enqueueResponse (request, response);
-	*/
+    _enqueueResponse (request, response);
 }
 
 void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 	CIMModifyIndicationSubscriptionRequestMessage* request)
 {
-	// ATTN: under construction
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription = String::EMPTY;
 
-	/*
-	// check the class name for an "external provider"
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
+    try
+    {
+	//
+	// attempt to load provider
+	//
+	//
+	//  ATTN: Provider to be loaded is known to serve all classes
+	//  in classNames list.  The getProvider function requires a class
+	//  name.  There is no form that takes only the provider name.
+	//  Currently, the first class name in the list is passed to
+	//  getProvider.  It shouldn't matter which class name is passed in.
+	//
+        ProviderModule module = _providerManager.getProviderModule(
+	    request->classNames[0]);
 
-	if(providerName)
-	{
-		// forward request to the provider manager
-		_providerManager.enqueue(request);
-
-		return;
-	}
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription = String::EMPTY;
+	CIMBaseProviderFacade facade(module.getProvider());
 
 	try
 	{
-		if(request->providerName.size () != 0)
-		{
-			//
-			// attempt to load provider
-			//
-			//
-			//  ATTN: Provider to be loaded is known to serve all classes
-			//  in classNames list.  The getProvider function requires a class
-			//  name.  There is no form that takes only the provider name.
-			//  Currently, the first class name in the list is passed to
-			//  getProvider.  It shouldn't matter which class name is passed in.
-			//
-			CIMBaseProvider * provider = _providerManager.getProvider
-				(request->providerName, request->classNames [0]);
+	    SimpleResponseHandler<CIMInstance> responseHandler;
 
-			CIMBaseProviderFacade facade(provider);
-
-			SimpleResponseHandler<CIMIndication> responseHandler;
-
-			facade.modifyIndicationSubscription (
-				//
-				//  ATTN: pass thresholding parameter values in
-				//  operation context
-				//
-				OperationContext (),
-				request->classNames,
-				request->propertyList,
-				request->repeatNotificationPolicy,
-				request->condition,
-				request->queryLanguage,
-				request->subscription,
-				responseHandler);
-		}
-		else
-		{
-			errorCode = CIM_ERR_FAILED;
-			errorDescription = "Provider not available";
-		}
+	    //
+	    //  ATTN: pass thresholding parameter values in
+	    //  operation context
+	    //
+	    facade.modifyIndication(
+		OperationContext (),
+		request->nameSpace,
+		request->classNames,
+		request->providerName,
+		request->propertyList,
+		request->repeatNotificationPolicy,
+		request->otherRepeatNotificationPolicy,
+		request->repeatNotificationInterval,
+		request->repeatNotificationGap,
+		request->repeatNotificationCount,
+		request->condition,
+		request->queryLanguage,
+		request->subscription,
+		responseHandler);
 	}
-	catch(CIMException& exception)
+	catch (...)
 	{
-		errorCode = exception.getCode ();
-		errorDescription = exception.getMessage ();
+	    errorCode = CIM_ERR_FAILED;
+	    errorDescription = "Provider not available";
 	}
-	catch(Exception& exception)
-	{
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage ();
-	}
-	catch(...)
-	{
-		errorCode = CIM_ERR_FAILED;
-	}
+    }
+    catch(CIMException& exception)
+    {
+	errorCode = exception.getCode ();
+	errorDescription = exception.getMessage ();
+    }
+    catch(Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage ();
+    }
+    catch(...)
+    {
+	errorCode = CIM_ERR_FAILED;
+    }
 
-	CIMModifyIndicationSubscriptionResponseMessage* response =
-		new CIMModifyIndicationSubscriptionResponseMessage (
-		request->messageId,
-		errorCode,
-		errorDescription,
-		request->queueIds.copyAndPop ());
+    CIMModifyIndicationSubscriptionResponseMessage* response =
+	new CIMModifyIndicationSubscriptionResponseMessage (
+	request->messageId,
+	errorCode,
+	errorDescription,
+	request->queueIds.copyAndPop ());
 
-	_enqueueResponse (request, response);
-	*/
+    _enqueueResponse (request, response);
 }
 
 void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 	CIMDisableIndicationSubscriptionRequestMessage* request)
 {
-	// ATTN: under construction
-	
-	/*
-	// check the class name for an "external provider"
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription = String::EMPTY;
 
-	if(providerName)
-	{
-		// forward request to the provider manager
-		_providerManager.enqueue(request);
+    try
+    {
+	//
+	// attempt to load provider
+	//
+	//
+	//  ATTN: Provider to be loaded is known to serve all classes
+	//  in classNames list.  The getProvider function requires a class
+	//  name.  There is no form that takes only the provider name.
+	//  Currently, the first class name in the list is passed to
+	//  getProvider.  It shouldn't matter which class name is passed in.
+	//
+	ProviderModule module = _providerManager.getProviderModule(
+	    request->classNames[0]);
 
-		return;
-	}
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription = String::EMPTY;
+	CIMBaseProviderFacade facade(module.getProvider());
+
+	SimpleResponseHandler<CIMInstance> responseHandler;
 
 	try
 	{
-		if(request->providerName.size () != 0)
-		{
-			//
-			// attempt to load provider
-			//
-			//
-			//  ATTN: Provider to be loaded is known to serve all classes
-			//  in classNames list.  The getProvider function requires a class
-			//  name.  There is no form that takes only the provider name.
-			//  Currently, the first class name in the list is passed to
-			//  getProvider.  It shouldn't matter which class name is passed in.
-			//
-			CIMBaseProvider * provider = _providerManager.getProvider
-				(request->providerName, request->classNames [0]);
-
-			CIMBaseProviderFacade facade(provider);
-
-			SimpleResponseHandler<CIMIndication> responseHandler;
-
-			facade.disableIndicationSubscription (
-				OperationContext (),
-				request->classNames,
-				request->subscription,
-				responseHandler);
-		}
-		else
-		{
-			errorCode = CIM_ERR_FAILED;
-			errorDescription = "Provider not available";
-		}
-	}
-	catch(CIMException& exception)
-	{
-		errorCode = exception.getCode ();
-		errorDescription = exception.getMessage ();
-	}
-	catch(Exception& exception)
-	{
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage ();
-	}
+	    //
+	    //  ATTN: pass thresholding parameter values in
+	    //  operation context
+	    //
+	    facade.disableIndication(
+		OperationContext(),
+		request->nameSpace,
+		request->classNames,
+		request->providerName,
+		request->subscription,
+		responseHandler);
+	    }
 	catch(...)
 	{
 		errorCode = CIM_ERR_FAILED;
+		errorDescription = "Provider not available";
 	}
+    }
+    catch(CIMException& exception)
+    {
+	    errorCode = exception.getCode ();
+	    errorDescription = exception.getMessage ();
+    }
+    catch(Exception& exception)
+    {
+	    errorCode = CIM_ERR_FAILED;
+	    errorDescription = exception.getMessage ();
+    }
+    catch(...)
+    {
+	    errorCode = CIM_ERR_FAILED;
+    }
 
-	CIMDisableIndicationSubscriptionResponseMessage* response =
-		new CIMDisableIndicationSubscriptionResponseMessage (
-		request->messageId,
-		errorCode,
-		errorDescription,
-		request->queueIds.copyAndPop ());
+    CIMDisableIndicationSubscriptionResponseMessage* response =
+	new CIMDisableIndicationSubscriptionResponseMessage (
+	request->messageId,
+	errorCode,
+	errorDescription,
+	request->queueIds.copyAndPop ());
 
-	_enqueueResponse (request, response);
-	*/
+    _enqueueResponse (request, response);
 }
+
+void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
+        CIMProcessIndicationRequestMessage* request)
+{
+   
+    // 
+    // forward request to IndicationService. IndicartionService will take care
+    // of response to this request.
+    //
+
+    _indicationService.enqueue(new CIMProcessIndicationRequestMessage(*request));
+    return;
+}
+
+//
+// ATTN : Do we need following code now?
+//
 
 /*
 void CIMOperationRequestDispatcher::loadRegisteredProviders(void)

@@ -24,6 +24,7 @@
 //
 // Modified By: Markus Mueller (sedgewick_de@yahoo.de)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -445,7 +446,7 @@ void CIMBaseProviderFacade::provideIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("CIMBaseProviderFacade::provideIndication");
 }
@@ -456,7 +457,7 @@ void CIMBaseProviderFacade::updateIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("CIMBaseProviderFacade::updateIndication");
 }
@@ -464,7 +465,7 @@ void CIMBaseProviderFacade::updateIndication(
 void CIMBaseProviderFacade::cancelIndication(
 	const OperationContext & context,
 	const CIMReference & classReference,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("CIMBaseProviderFacade::cancelIndication");
 }
@@ -473,17 +474,106 @@ void CIMBaseProviderFacade::checkIndication(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("CIMBaseProviderFacade::checkIndication");
 }
 
 void CIMBaseProviderFacade::handleIndication(
 	const OperationContext & context,
-	const CIMIndication & indication,
-	ResponseHandler<CIMIndication> & handler)
+	const CIMInstance & indication,
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("CIMBaseProviderFacade::handleIndication");
+}
+
+void CIMBaseProviderFacade::enableIndication(
+	const OperationContext & context,
+	const String & nameSpace,
+	const Array<String> & classNames,
+	const String & providerName,
+	const Array<String> & propertyList,
+	const Uint16 repeatNotificationPolicy,
+	const String & otherRepeatNotificationPolicy,
+	const CIMDateTime & repeatNotificationInterval,
+	const CIMDateTime & repeatNotificationGap,
+	const Uint16 repeatNotificationCount,
+	const String & condition,
+	const String & queryLanguage,
+	const CIMInstance & subscription,
+	ResponseHandler<CIMInstance> & handler)
+{
+    	// Get appropriate interface
+	CIMIndicationProvider * provider = 
+	    dynamic_cast<CIMIndicationProvider *>(_provider);
+
+	if(provider == 0)
+	{
+		throw NotSupported("CIMInstanceProvider::*");
+	}
+
+	// forward request
+	provider->enableIndication(context, nameSpace, classNames,
+	    providerName, propertyList, repeatNotificationPolicy, 
+	    otherRepeatNotificationPolicy, repeatNotificationInterval, 
+	    repeatNotificationGap, repeatNotificationCount, condition, 
+	    queryLanguage, subscription, handler);
+}
+
+
+void CIMBaseProviderFacade::disableIndication(
+	const OperationContext & context,
+	const String & nameSpace,
+	const Array<String> & classNames,
+	const String & providerName,
+	const CIMInstance & subscription,
+	ResponseHandler<CIMInstance> & handler)
+{
+	// Get appropriate interface
+	CIMIndicationProvider * provider = 
+	    dynamic_cast<CIMIndicationProvider *>(_provider);
+
+	if(provider == 0)
+	{
+		throw NotSupported("CIMInstanceProvider::*");
+	}
+
+	// forward request
+	provider->disableIndication(context, nameSpace, classNames, 
+	    providerName, subscription, handler);
+}
+
+void CIMBaseProviderFacade::modifyIndication(
+	const OperationContext & context,
+	const String & nameSpace,
+	const Array<String> & classNames,
+	const String & providerName,
+	const Array<String> & propertyList,
+	const Uint16 repeatNotificationPolicy,
+	const String & otherRepeatNotificationPolicy,
+	const CIMDateTime & repeatNotificationInterval,
+	const CIMDateTime & repeatNotificationGap,
+	const Uint16 repeatNotificationCount,
+	const String & condition,
+	const String & queryLanguage,
+	const CIMInstance & subscription,
+	ResponseHandler<CIMInstance> & handler)
+{
+	// Get appropriate interface
+	CIMIndicationProvider * provider = 
+	    dynamic_cast<CIMIndicationProvider *>(_provider);
+
+	if(provider == 0)
+	{
+		throw NotSupported("CIMInstanceProvider::*");
+	}
+
+	// forward 
+	provider->modifyIndication(context, nameSpace, 
+	    classNames, providerName, propertyList, repeatNotificationPolicy, 
+	    otherRepeatNotificationPolicy, repeatNotificationInterval, 
+	    repeatNotificationGap, repeatNotificationCount, condition, 
+	    queryLanguage, subscription, handler);
 }
 
 PEGASUS_NAMESPACE_END

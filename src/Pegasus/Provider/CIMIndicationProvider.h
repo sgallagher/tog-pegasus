@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@
 #define Pegasus_CIMIndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMIndication.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Provider/CIMBaseProvider.h>
 
 #include <Pegasus/Common/Array.h>
@@ -129,7 +129,7 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler) = 0;
+		ResponseHandler<CIMInstance> & handler) = 0;
 	
 	/**
 	Instructs the provider update the information regarding the indication of the type specified
@@ -195,7 +195,7 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler) = 0;
+		ResponseHandler<CIMInstance> & handler) = 0;
 
 	/**
 	Instructs the provider to stop providing indications of the type specified in the
@@ -225,7 +225,7 @@ public:
 	virtual void cancelIndication(
 		const OperationContext & context,
 		const CIMReference & classReference,
-		ResponseHandler<CIMIndication> & handler) = 0;
+		ResponseHandler<CIMInstance> & handler) = 0;
 
 	/**
 	Instructs the provider to check the managed resource and immediately generate indications,
@@ -254,7 +254,47 @@ public:
 		const OperationContext & context,
 		const CIMReference & classReference,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler) = 0;
+		ResponseHandler<CIMInstance> & handler) = 0;
+
+	virtual void enableIndication(
+	    const OperationContext & context,
+	    const String & nameSpace,
+	    const Array<String> & classNames,
+	    const String & providerName,
+	    const Array<String> & propertyList,
+	    const Uint16 repeatNotificationPolicy,
+	    const String & otherRepeatNotificationPolicy,
+	    const CIMDateTime & repeatNotificationInterval,
+	    const CIMDateTime & repeatNotificationGap,
+	    const Uint16 repeatNotificationCount,
+	    const String & condition,
+	    const String & queryLanguage,
+	    const CIMInstance & subscription,
+	    ResponseHandler<CIMInstance> & handler) = 0;
+
+	virtual void disableIndication(
+	    const OperationContext & context,
+	    const String & nameSpace,
+	    const Array<String> & classNames,
+	    const String & providerName,
+	    const CIMInstance & subscription,
+	    ResponseHandler<CIMInstance> & handler) = 0;
+
+	virtual void modifyIndication(
+	    const OperationContext & context,
+	    const String & nameSpace,
+	    const Array<String> & classNames,
+	    const String & providerName,
+	    const Array<String> & propertyList,
+	    const Uint16 repeatNotificationPolicy,
+	    const String & otherRepeatNotificationPolicy,
+	    const CIMDateTime & repeatNotificationInterval,
+	    const CIMDateTime & repeatNotificationGap,
+	    const Uint16 repeatNotificationCount,
+	    const String & condition,
+	    const String & queryLanguage,
+	    const CIMInstance & subscription,
+	    ResponseHandler<CIMInstance> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

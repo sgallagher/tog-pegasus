@@ -33,7 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMBaseProvider.h>
 
-#include <Pegasus/Common/CIMIndication.h>
+#include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -61,8 +61,8 @@ public:
 	*/
 	virtual void handleIndication(
 	    const OperationContext & context,
-	    const CIMIndication & indication,
-		ResponseHandler<CIMIndication> & handler) = 0;
+	    const CIMInstance & indication,
+		ResponseHandler<CIMInstance> & handler) = 0;
 
 	// ATTN: The following method is only for testing purposes.
 	virtual void handleIndication(

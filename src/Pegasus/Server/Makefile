@@ -4,7 +4,8 @@ DIR = Pegasus/Server
 
 OBJECT_DIRS = \
 	ProviderManager \
-	ConfigurationManager
+	ConfigurationManager \
+	IndicationService
 
 include $(ROOT)/mak/config.mak
 
@@ -21,7 +22,8 @@ LIBRARIES = \
     pegexportserver \
     pegconfig \
     peguser \
-    peglocalauth
+    peglocalauth \
+    pegwql
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -31,16 +33,18 @@ SOURCES = \
     CIMOperationRequestDispatcher.cpp \
     CIMOperationRequestAuthorizer.cpp \
     HTTPAuthenticatorDelegator.cpp \
+    CIMBaseProviderFacade.cpp \
     ShutdownService.cpp \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
     ProviderManager/ProviderManagerQueue.cpp \
     ProviderManager/ProviderModule.cpp \
-	ProviderManager/ProviderFacade.cpp \
+    ProviderManager/ProviderFacade.cpp \
     ProviderManager/ProviderBlockedEntry.cpp \
-	ConfigurationManager/ConfigurationManagerQueue.cpp \
-	ConfigurationManager/PG_RegistrationProvider.cpp
+    ConfigurationManager/ConfigurationManagerQueue.cpp \
+    ConfigurationManager/PG_RegistrationProvider.cpp \
+    IndicationService/IndicationService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -36,6 +36,34 @@ Version 1.06 working towards 1.1 Started 13 December 2001
    service were both running. The service wasn't accessible to the TestClient 
    program.
 
+6. (Nitin Upasani - Jan 25, 2002) Operations on CIM_IndicationSubscription, 
+    CIM_IndicationHandlerCIMXML and CIM_IndicationFilter classes will be now processed
+    in new queue, IndicationService which will get invoked from dispatcher.
+    CIM_CREATE_INSTANCE_REQUEST_MESSAGE
+    CIM_MODIFY_INSTANCE_REQUEST_MESSAGE
+    CIM_DELETE_INSTANCE_REQUEST_MESSAGE
+    CIM_GET_INSTANCE_REQUEST_MESSAGE
+    CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE
+    CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE
+
+    This new service will also take care of processing the indications on receiving
+    CIM_PROCESS_INDICATION_REQUEST_MESSAGE. This message should come from 
+    IndicationProvider or some other mechanism which is not yet clear. 
+
+    IndicationService will also receive following messages from PG_ProviderRegistration
+    when a new IndicationProvider will get registered.
+    CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
+    CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE
+
+    I had also defined new Indication Provider APIs, enableIndication, disableIndication
+    and modifyIndication with more parameters passed and eventually planning to terminate
+    old APIs (provideIndication, cancelIndication and updateIndication). Also there is a 
+    plan to implement one more call as startIndication and will be done soon.
+
+    There are three new test programs in IndicationService directory, which will create 
+    Filter, Indication and Subscription instances using IndicationService.
+
+    Also modified sample IndicationProvider code with the new APIs introduced.
 
 -------------------------------------------------------------------------
 

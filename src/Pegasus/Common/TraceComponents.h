@@ -24,6 +24,7 @@
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +100,9 @@ static char const* TRACE_COMPONENT_LIST[] =
     "SubscriptionService",
     "Registration",
     "Shutdown",
-    "Server"
+    "Server",
+    "IndicationService",
+    "ConfigurationManager" 
 };
 
 /** Constants identifying the Trace components. These constants are used by 
@@ -138,7 +141,9 @@ enum TRACE_COMPONENT_ID
     TRC_SUBSCRIPTION_SERVICE,
     TRC_REGISTRATION,
     TRC_SHUTDOWN,
-    TRC_SERVER
+    TRC_SERVER,
+    TRC_INDICATION_SERVICE,
+    TRC_CONFIGURATION_MANAGER
 };
 
 PEGASUS_NAMESPACE_END

@@ -467,21 +467,6 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 	    (CIMInvokeMethodRequestMessage*)request);
 	 break;
 
-      case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 handleEnableIndicationSubscriptionRequest(
-	    (CIMEnableIndicationSubscriptionRequestMessage*)request);
-	 break;
-
-      case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 handleModifyIndicationSubscriptionRequest(
-	    (CIMModifyIndicationSubscriptionRequestMessage*)request);
-	 break;
-
-      case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 handleDisableIndicationSubscriptionRequest(
-	    (CIMDisableIndicationSubscriptionRequestMessage*)request);
-	 break;
-
       case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
 	 handleProcessIndicationRequest(
 	    (CIMProcessIndicationRequestMessage*)request);
@@ -2361,48 +2346,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	 request->methodName);
 
    _enqueueResponse(request, response);
-
-   PEG_METHOD_EXIT();
-}
-
-void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
-   CIMEnableIndicationSubscriptionRequestMessage* request)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::"
-          "handleEnableIndicationSubscriptionRequest()");
-
-    //
-    //  ATTN-CAKG-P3-20020326: This method to be removed - no longer used
-    //
-
-   PEG_METHOD_EXIT();
-}
-
-void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
-   CIMModifyIndicationSubscriptionRequestMessage* request)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::"
-          "handleModifyIndicationSubscriptionRequest()");
-
-    //
-    //  ATTN-CAKG-P3-20020326: This method to be removed - no longer used
-    //
-
-   PEG_METHOD_EXIT();
-}
-
-void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
-   CIMDisableIndicationSubscriptionRequestMessage* request)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::"
-          "handleDisableIndicationSubscriptionRequest()");
-
-    //
-    //  ATTN-CAKG-P3-20020326: This method to be removed - no longer used
-    //
 
    PEG_METHOD_EXIT();
 }

@@ -140,15 +140,6 @@ public:
       void handleInvokeMethodRequest(
 	 CIMInvokeMethodRequestMessage* request);
 
-      void handleEnableIndicationSubscriptionRequest(
-	 CIMEnableIndicationSubscriptionRequestMessage* request);
-
-      void handleModifyIndicationSubscriptionRequest(
-	 CIMModifyIndicationSubscriptionRequestMessage* request);
-
-      void handleDisableIndicationSubscriptionRequest(
-	 CIMDisableIndicationSubscriptionRequestMessage* request);
-
       void handleProcessIndicationRequest(
 	 CIMProcessIndicationRequestMessage* request);
 

@@ -39,17 +39,17 @@
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderRegistration
+class PEGASUS_PPM_LINKAGE ProviderRegistration
 {
 public:
 
 };
 
-class PEGASUS_SERVER_LINKAGE ProviderRegistrar
+class PEGASUS_PPM_LINKAGE ProviderRegistrar
 {
 public:
     ProviderRegistrar(void);
@@ -68,8 +68,8 @@ public:
 //hack
 class ProviderRegistrationManager;
 
-PEGASUS_SERVER_LINKAGE void SetProviderRegistrationManager(ProviderRegistrationManager * p);
-PEGASUS_SERVER_LINKAGE ProviderRegistrationManager * GetProviderRegistrationManager(void);
+PEGASUS_PPM_LINKAGE void SetProviderRegistrationManager(ProviderRegistrationManager * p);
+PEGASUS_PPM_LINKAGE ProviderRegistrationManager * GetProviderRegistrationManager(void);
 
 PEGASUS_NAMESPACE_END
 

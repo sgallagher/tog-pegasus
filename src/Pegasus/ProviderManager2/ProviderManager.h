@@ -40,9 +40,11 @@
 
 #include <Pegasus/ProviderManager2/ProviderRegistrar.h>
 
+#include <Pegasus/ProviderManager2/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderManager
+class PEGASUS_PPM_LINKAGE ProviderManager
 {
 public:
     ProviderManager(void);

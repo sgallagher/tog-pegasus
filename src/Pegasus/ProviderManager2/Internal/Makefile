@@ -1,6 +1,6 @@
-ROOT = ../../../../..
+ROOT = ../../../..
 
-DIR = Pegasus/ProviderManager2/tests/ProviderManager
+DIR = Pegasus/ProviderManager2/Internal
 
 include $(ROOT)/mak/config.mak
 
@@ -8,7 +8,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY
 
-LIBRARY = TestProviderManager
+LIBRARY = InternalProviderManager
 
 LIBRARIES = \
     pegcommon \
@@ -17,7 +17,7 @@ LIBRARIES = \
 	pegprm
 
 SOURCES = \
-	TestProviderManagerMain.cpp \
-	TestProviderManager.cpp
+	InternalProviderManagerMain.cpp \
+	InternalProviderManager.cpp
 
 include $(ROOT)/mak/library.mak

@@ -23,23 +23,40 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Adrian Schuur (schuur@de.ibm.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#ifndef Pegasus_MutexLock_h
+#define Pegasus_MutexLock_h
 
-#ifndef PEGASUS_DEFPM_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_DEFPM_INTERNAL
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_DEFPM_LINKAGE /* empty */
-#  endif
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
+
+#include <Pegasus/ProviderManager2/Linkage.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+class PEGASUS_PPM_LINKAGE MutexLock
+{
+public:
+    MutexLock(Mutex & mutex) : _mutex(mutex)
+    {
+        _mutex.lock(pegasus_thread_self());
+    }
+
+    ~MutexLock(void)
+    {
+        _mutex.unlock();
+    }
+
+private:
+    Mutex & _mutex;
+
+};
+
+PEGASUS_NAMESPACE_END
+
 #endif

@@ -37,11 +37,11 @@
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Logger.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
 {
 public:
     SimpleResponseHandler(void)
@@ -93,7 +93,7 @@ public:
     }
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
     SimpleInstanceResponseHandler(void)
@@ -130,7 +130,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleObjectPathResponseHandler : public SimpleResponseHandler, public ObjectPathResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleObjectPathResponseHandler : public SimpleResponseHandler, public ObjectPathResponseHandler
 {
 public:
     SimpleObjectPathResponseHandler(void)
@@ -166,7 +166,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleMethodResultResponseHandler : public SimpleResponseHandler, public MethodResultResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleMethodResultResponseHandler : public SimpleResponseHandler, public MethodResultResponseHandler
 {
 public:
     SimpleMethodResultResponseHandler(void)
@@ -214,7 +214,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleIndicationResponseHandler : public SimpleResponseHandler, public IndicationResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleIndicationResponseHandler : public SimpleResponseHandler, public IndicationResponseHandler
 {
 public:
     SimpleIndicationResponseHandler(void)
@@ -274,7 +274,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleObjectResponseHandler : public SimpleResponseHandler, public ObjectResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleObjectResponseHandler : public SimpleResponseHandler, public ObjectResponseHandler
 {
 public:
     SimpleObjectResponseHandler(void)
@@ -311,7 +311,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleInstance2ObjectResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleInstance2ObjectResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
     SimpleInstance2ObjectResponseHandler(void)
@@ -348,7 +348,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
 {
 public:
     SimpleValueResponseHandler(void)
@@ -385,7 +385,7 @@ private:
 
 };
 
-class PEGASUS_SERVER_LINKAGE SimpleClassResponseHandler : public SimpleResponseHandler, public ClassResponseHandler
+class PEGASUS_DEFPM_LINKAGE SimpleClassResponseHandler : public SimpleResponseHandler, public ClassResponseHandler
 {
 public:
     SimpleClassResponseHandler(void)

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -23,23 +23,33 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
+// Author:
 //
-// Modified By: Adrian Schuur (schuur@de.ibm.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_TestProviderManager_h
+#define Pegasus_TestProviderManager_h
+
 #include <Pegasus/Common/Config.h>
 
-#ifndef PEGASUS_DEFPM_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_DEFPM_INTERNAL
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_DEFPM_LINKAGE /* empty */
-#  endif
+#include <Pegasus/ProviderManager2/ProviderManager.h>
+
+#include <Pegasus/ProviderManager2/Linkage.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+class PEGASUS_PPM_LINKAGE TestProviderManager : public ProviderManager
+{
+public:
+    TestProviderManager(void);
+    virtual ~TestProviderManager(void);
+
+    virtual Message * processMessage(Message * request) throw();
+
+};
+
+PEGASUS_NAMESPACE_END
+
 #endif

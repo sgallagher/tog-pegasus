@@ -42,7 +42,7 @@
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 #include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
 
-class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
+class PEGASUS_DEFPM_LINKAGE Provider : public ProviderFacade
 {
 public:
     enum Status

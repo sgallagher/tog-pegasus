@@ -31,8 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CMPIProviderModule_h
-#define Pegasus_CMPIProviderModule_h
+#ifndef Pegasus_CMPIResolverModule_h
+#define Pegasus_CMPIResolverModule_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -46,58 +46,70 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The CMPIProviderModule class represents the physical module, as defined by the
+// The CMPIResolverModule class represents the physical module, as defined by the
 // operation, that contains a provider. This class effectively encapsulates the
 // "physical" portion of a provider.
 
 
-class PEGASUS_CMPIPM_LINKAGE CMPIProviderModule
+struct provider_address;
+
+typedef provider_address* (*RESOLVE_INSTANCE) ( const char * provider,
+				      CMPIObjectPath * cop,
+				      CMPIContext * ctx );
+typedef provider_address* (*RESOLVE_CLASS) ( const char * provider,
+				      CMPIObjectPath * cop,
+				      CMPIContext * ctx );
+
+class PEGASUS_CMPIPM_LINKAGE CMPIResolverModule
 {
 
     friend class CMPILocalProviderManager;
 
+
 public:
-    virtual ~CMPIProviderModule(void);
-    const String & getFileName(void) const;
-    ProviderVector load(const String & providerName);
-    void unloadModule(void);
+    ~CMPIResolverModule(void) {}
+    void load() {
+        _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
+        String s0 = "ResolverLoadFailure";
+        if(_library == 0) {
+           throw Exception(MessageLoaderParms("ProviderManager.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
+               "$0 ($1):Cannot load library, error: $3",
+               s0,
+               _fileName,
+               System::dynamicLoadError()));
+         }
+         resolveInstanceEntry=(RESOLVE_INSTANCE)
+	    System::loadDynamicSymbol(_library,"resolve_instance");
+         resolveClassEntry=(RESOLVE_CLASS)
+	    System::loadDynamicSymbol(_library,"resolve_class");
+	 if (!resolveInstanceEntry || !resolveClassEntry) {
+           throw Exception(s0+" "+_fileName+String(": not a remote location resolver"));
+	 }
+   }
+    void unloadModule(void) {}
+
+    provider_address* resolveInstance(const char *provider,
+                              CMPIObjectPath *cop, CMPIContext *ctx) {
+        return resolveInstanceEntry(provider,cop,ctx);
+    }
+    provider_address* resolveClass(const char *provider,
+                              CMPIObjectPath *cop, CMPIContext *ctx) {
+        return resolveClassEntry(provider,cop,ctx);
+    }
 
 protected:
     String _fileName;
-    String _interfaceName;
-    AtomicInt _ref_count;
     DynamicLibraryHandle _library;
-    Uint32 _refCount;
+    RESOLVE_INSTANCE resolveInstanceEntry;
+    RESOLVE_CLASS resolveClassEntry;
 
 private:
-    CMPIProviderModule(const String & fileName, const String & interfaceName);
-    const String & getProviderName(void) const;
-    const String & getInterfaceName(void) const ;
-    virtual CIMProvider * getProvider(void) const;
+    CMPIResolverModule(const String & fileName) {
+       _fileName=fileName;
+    }
 
-    String _providerName;
-    CIMProvider * _provider;
 };
 
-inline const String & CMPIProviderModule::getFileName(void) const
-{
-    return(_fileName);
-}
-
-inline const String & CMPIProviderModule::getInterfaceName(void) const
-{
-    return(_interfaceName);
-}
-
-inline const String & CMPIProviderModule::getProviderName(void) const
-{
-    return(_providerName);
-}
-
-inline CIMProvider * CMPIProviderModule::getProvider(void) const
-{
-    return(_provider);
-}
 
 PEGASUS_NAMESPACE_END
 

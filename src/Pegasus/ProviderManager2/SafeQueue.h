@@ -23,23 +23,117 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Adrian Schuur (schuur@de.ibm.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#ifndef Pegasus_SafeQueue_h
+#define Pegasus_SafeQueue_h
 
-#ifndef PEGASUS_DEFPM_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_DEFPM_INTERNAL
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_DEFPM_LINKAGE /* empty */
-#  endif
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Queue.h>
+#include <Pegasus/Common/IPC.h>
+
+#include <Pegasus/ProviderManager2/Linkage.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+template<class T>
+class PEGASUS_PPM_LINKAGE SafeQueue
+{
+public:
+    SafeQueue(void);
+    virtual ~SafeQueue(void);
+
+    void enqueue(const T & O);
+    T dequeue(void);
+
+    T & front(void);
+    const T & front(void) const;
+
+    T & back(void);
+    const T & back(void) const;
+
+    Uint32 size(void) const;
+
+protected:
+    mutable Mutex _mutex;
+    Queue<T> _queue;
+
+};
+
+template<class T>
+SafeQueue<T>::SafeQueue(void)
+{
+}
+
+template<class T>
+SafeQueue<T>::~SafeQueue(void)
+{
+}
+
+template<class T>
+void SafeQueue<T>::enqueue(const T & O)
+{
+    AutoMutex lock(_mutex);
+
+    _queue.enqueue(O);
+}
+
+template<class T>
+T SafeQueue<T>::dequeue(void)
+{
+    AutoMutex lock(_mutex);
+
+    T O = _queue.front();
+
+    _queue.dequeue();
+
+    return(O);
+}
+
+template<class T>
+T & SafeQueue<T>::front(void)
+{
+    AutoMutex lock(_mutex);
+
+    return(_queue.front());
+}
+
+template<class T>
+const T & SafeQueue<T>::front(void) const
+{
+    AutoMutex lock(_mutex);
+
+    return(_queue.front());
+}
+
+template<class T>
+T & SafeQueue<T>::back(void)
+{
+    AutoMutex lock(_mutex);
+
+    return(_queue.back());
+}
+
+template<class T>
+const T & SafeQueue<T>::back(void) const
+{
+    AutoMutex lock(_mutex);
+
+    return(_queue.back());
+}
+
+template<class T>
+Uint32 SafeQueue<T>::size(void) const
+{
+    AutoMutex lock(_mutex);
+
+    return(_queue.size());
+}
+
+PEGASUS_NAMESPACE_END
+
 #endif

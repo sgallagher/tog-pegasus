@@ -542,7 +542,7 @@ class PEGASUS_EXPORT Condition
       // create the condition variable
       Condition(void)  ;
       ~Condition(void);
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
       Condition(const Mutex& mutex);
 #endif
 

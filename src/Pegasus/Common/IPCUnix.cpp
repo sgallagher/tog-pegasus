@@ -185,7 +185,7 @@ Mutex::Mutex(int mutex_type)
 }
 
 // to be able share the mutex between different condition variables
-Mutex::Mutex(const Pegasus::Mutex& mutex)
+Mutex::Mutex(const Mutex& mutex)
 {
    _mutex = mutex._mutex;
 }
@@ -519,11 +519,18 @@ Condition::Condition()
 #endif
 }
 
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 Condition::Condition(const Pegasus::Mutex& mutex)
 {
    _cond_mutex = Mutex(mutex);
    _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
+}
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+Condition::Condition(const Mutex& mutex)
+{
+   _cond_mutex = Mutex(mutex);
+   PEGASUS_COND_TYPE tmpCond = PTHREAD_COND_INITIALIZER;
+   memcpy(&_condition, &tmpCond, sizeof(PEGASUS_COND_TYPE));
 }
 #endif
 

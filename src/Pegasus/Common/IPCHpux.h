@@ -27,15 +27,13 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-# include <sched.h>
+#include <sched.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
-
-
 
 
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
@@ -87,9 +85,14 @@ typedef struct {
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#define PEGASUS_ATOMIC_INT_NATIVE = 1
+// ATTN: RK - sig_atomic_t is defined on HP-UX, but the atomic_read()
+// and atomic_write() methods are not defined.  Use the non-native
+// implementation for now.
 
-typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
+// #define PEGASUS_ATOMIC_INT_NATIVE = 1
+
+// typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
+
 
 //-----------------------------------------------------------------
 /// Conditionals to support native or generic read/write semaphores
@@ -101,6 +104,4 @@ typedef struct {
     pthread_rwlock_t rwlock;
     pthread_t owner;
 } PEGASUS_RWLOCK_HANDLE;
-
-
 

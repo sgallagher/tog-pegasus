@@ -25,7 +25,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.2 2003/12/17 20:45:33 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -64,6 +64,8 @@ extern "C" {
 #ifndef _MT
 #define _MT
 #endif
+
+#define WIN32_LEAN_AND_MEAN
 
 #include <winsock2.h>
 #include <ws2tcpip.h>

@@ -94,7 +94,11 @@ public:
 
     /** Tells the provider to monitor for indications matching the specified
         subscription.  The provider may reject the subscription by throwing a
-        CIMNotSupportedException.
+        CIMNotSupportedException.  An indication provider must reject the 
+        subscription as not supported if the provider cannot carry out the 
+        specified RepeatNotificationPolicy with the specified 
+        RepeatNotificationInterval, RepeatNotificationGap and
+        RepeatNotificationCount.
 
         Note that it is not necessary for a simple indication provider to
         take any action on createSubscription, modifySubscription, or

@@ -26,8 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_SimpleResponseHandler_h
-#define Pegasus_SimpleResponseHandler_h
+#ifndef Pegasus_SimpleResponseHandlerRep_h
+#define Pegasus_SimpleResponseHandlerRep_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
@@ -37,104 +37,90 @@
 PEGASUS_NAMESPACE_BEGIN
 
 template<class T>
-class SimpleResponseHandler : public ResponseHandler<T>
+class PEGASUS_COMMON_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
 {
 public:
-    /**  ATTN:
-    */
-    SimpleResponseHandler(void)
+    SimpleResponseHandler(void) : ResponseHandler<T>(new SimpleResponseHandlerRep<T>())
     {
-    };
+    }
 
-    /** ATTN:
-    */
+    SimpleResponseHandler(const SimpleResponseHandler & handler) : ResponseHandler<T>(handler)
+    {
+    }
+
     virtual ~SimpleResponseHandler(void)
     {
-    };
+    }
 
-    /** ATTN:
-    */
-    virtual void deliver(const T & object);
-    virtual void deliver(const OperationContext & context, const T & object);
+    SimpleResponseHandler & operator=(const SimpleResponseHandler & handler)
+    {
+        if(this == &handler)
+        {
+            return(*this);
+        }
 
-    /** ATTN:
-    */
-    virtual void deliver(const Array<T> & objects);
-    virtual void deliver(const OperationContext & context, const Array<T> & objects);
+        ResponseHandler::operator=(handler);
 
-    /** ATTN:
-    */
-    virtual void reserve(const Uint32 size);
+        return(*this);
+    }
 
-    /** ATTN:
-    */
-    virtual void processing(void);
+    const Array<T> getObjects(void) const
+    {
+        SimpleResponseHandlerRep<T> * rep =
+            reinterpret_cast<SimpleResponseHandlerRep<T> *>(getRep());
 
-    /** ATTN:
-    */
-    virtual void complete(void);
-    virtual void complete(const OperationContext & context);
+        return(rep->getObjects());
+    }
 
-    const Array<T> & getObjects(void) const;
+};
+
+template<class T>
+class SimpleResponseHandlerRep : public ResponseHandlerRep<T>
+{
+public:
+    SimpleResponseHandlerRep(void)
+    {
+    }
+
+    virtual ~SimpleResponseHandlerRep(void)
+    {
+    }
+
+    virtual void deliver(const OperationContext & context, const T & object)
+    {
+        _objects.append(object);
+    }
+
+    virtual void deliver(const OperationContext & context, const Array<T> & objects)
+    {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(context, objects[i]);
+        }
+    }
+
+    virtual void reserve(const Uint32 size)
+    {
+        _objects.reserve(size);
+    }
+
+    virtual void processing(void)
+    {
+    }
+
+    virtual void complete(const OperationContext & context)
+    {
+    }
+
+    const Array<T> & getObjects(void) const
+    {
+        return(_objects);
+    }
 
 public:
     Array<T> _objects;
 
 };
-
-template<class T>
-inline void SimpleResponseHandler<T>::deliver(const T & object)
-{
-    _objects.append(object);
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::deliver(const OperationContext & context, const T & object)
-{
-    deliver(object);
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::deliver(const Array<T> & objects)
-{
-    for(Uint32 i = 0,n = objects.size(); i < n; i++)
-    {
-	deliver(objects[i]);
-    }
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::deliver(const OperationContext & context, const Array<T> & objects)
-{
-    deliver(objects);
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::reserve(const Uint32 size)
-{
-    _objects.reserve(size);
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::processing(void)
-{
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::complete(void)
-{
-}
-
-template<class T>
-inline void SimpleResponseHandler<T>::complete(const OperationContext & context)
-{
-}
-
-template<class T>
-inline const Array<T> & SimpleResponseHandler<T>::getObjects(void) const
-{
-    return(_objects);
-}
 
 PEGASUS_NAMESPACE_END
 

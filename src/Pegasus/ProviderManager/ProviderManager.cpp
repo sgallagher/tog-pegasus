@@ -135,7 +135,7 @@ void ProviderManager::unloadProvider(
     }
 }
 
-void ProviderManager::shutdownAllProviders()
+void ProviderManager::shutdownAllProviders(void)
 {
     //
     // terminate all providers
@@ -149,8 +149,8 @@ void ProviderManager::shutdownAllProviders()
     {
 	try
 	{
-	    _providers[0].terminateProvider();
-	    //_providers[0].terminate();
+	    //_providers[0].terminateProvider();
+	    _providers[0].terminate();
 
 	    _providers.remove(0);
             numProviders--;
@@ -158,7 +158,7 @@ void ProviderManager::shutdownAllProviders()
 	catch(...)
 	{
             Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "Error occurred while terminating provider $0.", 
+                "Error occurred while terminating provider $0.",
                 _providers[0].getName());
 	}
     }

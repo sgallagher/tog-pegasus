@@ -14,6 +14,7 @@ LIBRARY = pegprovider
 SOURCES = \
 	OperationFlag.cpp \
 	ResponseHandler.cpp \
+	ResponseHandlerRep.cpp \
 	SimpleResponseHandler.cpp \
     CIMOMHandle.cpp \
     CIMBaseProvider.cpp \

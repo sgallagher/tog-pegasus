@@ -51,10 +51,7 @@ public:
     void loadProvider(const String & fileName, const String & providerName);
     void unloadProvider(const String & fileName, const String & providerName);
 
-    void shutdownAllProviders();
-
-private:
-    Provider _loadProvider(const String & fileName, const String & providerName);
+    void shutdownAllProviders(void);
 
 protected:
     Mutex _mutex;

@@ -33,17 +33,17 @@
 PEGASUS_NAMESPACE_BEGIN
 
 Provider::Provider(const String & name, const String & path)
-    : ProviderFacade(0), _module(path, name)
-{
-}
-
-Provider::Provider(const Provider & p)
-    : ProviderFacade(p._module.getProvider()), _module(p._module)
+    : ProviderFacade(0), _module(path, name), _status(UNKNOWN)
 {
 }
 
 Provider::~Provider(void)
 {
+}
+
+Provider::Status Provider::getStatus(void) const
+{
+    return(_status);
 }
 
 String Provider::getName(void) const
@@ -53,48 +53,56 @@ String Provider::getName(void) const
 
 void Provider::initialize(CIMOMHandle & cimom)
 {
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
+    _status = INITIALIZING;
 
-    _module.load();
+    try
+    {
+	// yield before a potentially lengthy operation.
+	pegasus_yield();
 
-    ProviderFacade::_provider = _module.getProvider();
+	_module.load();
 
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
+	ProviderFacade::_provider = _module.getProvider();
 
-    ProviderFacade::initialize(cimom);
+	// yield before a potentially lengthy operation.
+	pegasus_yield();
+
+	ProviderFacade::initialize(cimom);
+    }
+    catch(...)
+    {
+	_status = UNKNOWN;
+
+	throw;
+    }
+
+    _status = INITIALIZED;
 }
 
 void Provider::terminate(void)
 {
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
+    _status = TERMINATING;
 
-    ProviderFacade::terminate();
-
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
-
-    _module.unload();
-}
-
-void Provider::terminateProvider(void)
-{
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
-
-    ProviderFacade::terminate();
-
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
-
-    if(_provider != 0)
+    try
     {
-        delete _provider;
+	// yield before a potentially lengthy operation.
+	pegasus_yield();
 
-        _provider = 0;
+	ProviderFacade::terminate();
+
+	// yield before a potentially lengthy operation.
+	pegasus_yield();
+
+	_module.unload();
     }
+    catch(...)
+    {
+	_status = UNKNOWN;
+
+	throw;
+    }
+
+    _status = TERMINATED;
 }
 
 PEGASUS_NAMESPACE_END

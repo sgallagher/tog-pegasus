@@ -404,9 +404,9 @@ void ProviderFacade::getProperty(
         propertyList,
         instanceHandler);
 
-    if(instanceHandler._objects.size())
+    if(instanceHandler.getObjects().size())
     {
-        CIMInstance instance = instanceHandler._objects[0];
+        CIMInstance instance = instanceHandler.getObjects()[0];
 
         Uint32 pos = instance.findProperty(propertyName);
 

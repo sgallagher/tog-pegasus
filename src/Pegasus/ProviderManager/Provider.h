@@ -43,17 +43,27 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 {
 public:
+    enum Status {
+	UNKNOWN,
+	INITIALIZING,
+	INITIALIZED,
+	TERMINATING,
+	TERMINATED
+    };
+
+public:
+    Provider(void);
     Provider(const String & name, const String & path);
-    Provider(const Provider & p);
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate(void);
-    virtual void terminateProvider(void);
 
+    Status getStatus(void) const;
     String getName(void) const;
 
 protected:
+    Status _status;
     ProviderModule _module;
 
 };

@@ -115,25 +115,25 @@ class GetInstanceResponseHandler:  public OperationResponseHandler<CIMInstance>
 {
 public:
     GetInstanceResponseHandler(
-	CIMGetInstanceRequestMessage * request,
-	CIMGetInstanceResponseMessage * response)
+        CIMGetInstanceRequestMessage * request,
+        CIMGetInstanceResponseMessage * response)
     : OperationResponseHandler<CIMInstance>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	if(getObjects().size() == 0)
-	{
-	    // error? provider claims success,
-	    // but did not deliver an instance.
-	    setStatus(CIM_ERR_NOT_FOUND);
+        if(getObjects().size() == 0)
+        {
+            // error? provider claims success,
+            // but did not deliver an instance.
+            setStatus(CIM_ERR_NOT_FOUND);
 
-	    return;
-	}
+            return;
+        }
 
-	static_cast<CIMGetInstanceResponseMessage *>(
-	    getResponse())->cimInstance = getObjects()[0];
+        static_cast<CIMGetInstanceResponseMessage *>(
+            getResponse())->cimInstance = getObjects()[0];
     }
 };
 
@@ -141,27 +141,27 @@ class EnumerateInstancesResponseHandler : public OperationResponseHandler<CIMIns
 {
 public:
     EnumerateInstancesResponseHandler(
-	CIMEnumerateInstancesRequestMessage * request,
-	CIMEnumerateInstancesResponseMessage * response)
+        CIMEnumerateInstancesRequestMessage * request,
+        CIMEnumerateInstancesResponseMessage * response)
     : OperationResponseHandler<CIMInstance>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	Array<CIMNamedInstance> cimInstances;
+        Array<CIMNamedInstance> cimInstances;
 
-	// ATTN: can be removed once CIMNamedInstance is removed
-	for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
-	{
-	    CIMInstance cimInstance(getObjects()[i]);
+        // ATTN: can be removed once CIMNamedInstance is removed
+        for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
+        {
+            CIMInstance cimInstance(getObjects()[i]);
 
-	    cimInstances.append(CIMNamedInstance(cimInstance.getPath(),
-		cimInstance));
-	}
+            cimInstances.append(CIMNamedInstance(cimInstance.getPath(),
+                cimInstance));
+        }
 
-	static_cast<CIMEnumerateInstancesResponseMessage *>(
-	    getResponse())->cimNamedInstances = cimInstances;
+        static_cast<CIMEnumerateInstancesResponseMessage *>(
+            getResponse())->cimNamedInstances = cimInstances;
     }
 
 };
@@ -170,16 +170,16 @@ class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler<CI
 {
 public:
     EnumerateInstanceNamesResponseHandler(
-	CIMEnumerateInstanceNamesRequestMessage * request,
-	CIMEnumerateInstanceNamesResponseMessage * response)
+        CIMEnumerateInstanceNamesRequestMessage * request,
+        CIMEnumerateInstanceNamesResponseMessage * response)
     : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	static_cast<CIMEnumerateInstanceNamesResponseMessage *>(
-	    getResponse())->instanceNames = getObjects();
+        static_cast<CIMEnumerateInstanceNamesResponseMessage *>(
+            getResponse())->instanceNames = getObjects();
     }
 
 };
@@ -188,22 +188,22 @@ class CreateInstanceResponseHandler : public OperationResponseHandler<CIMObjectP
 {
 public:
     CreateInstanceResponseHandler(
-	CIMCreateInstanceRequestMessage * request,
-	CIMCreateInstanceResponseMessage * response)
+        CIMCreateInstanceRequestMessage * request,
+        CIMCreateInstanceResponseMessage * response)
     : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	if(getObjects().size() == 0)
-	{
-	    // ATTN: is it an error to not return instance name?
-	    return;
-	}
+        if(getObjects().size() == 0)
+        {
+            // ATTN: is it an error to not return instance name?
+            return;
+        }
 
-	static_cast<CIMCreateInstanceResponseMessage *>(
-	    getResponse())->instanceName = getObjects()[0];
+        static_cast<CIMCreateInstanceResponseMessage *>(
+            getResponse())->instanceName = getObjects()[0];
     }
 
 };
@@ -212,8 +212,8 @@ class ModifyInstanceResponseHandler : public OperationResponseHandler<CIMInstanc
 {
 public:
     ModifyInstanceResponseHandler(
-	CIMModifyInstanceRequestMessage * request,
-	CIMModifyInstanceResponseMessage * response)
+        CIMModifyInstanceRequestMessage * request,
+        CIMModifyInstanceResponseMessage * response)
     : OperationResponseHandler<CIMInstance>(request, response)
     {
     }
@@ -224,8 +224,8 @@ class DeleteInstanceResponseHandler : public OperationResponseHandler<CIMInstanc
 {
 public:
     DeleteInstanceResponseHandler(
-	CIMDeleteInstanceRequestMessage * request,
-	CIMDeleteInstanceResponseMessage * response)
+        CIMDeleteInstanceRequestMessage * request,
+        CIMDeleteInstanceResponseMessage * response)
     : OperationResponseHandler<CIMInstance>(request, response)
     {
     }
@@ -236,25 +236,25 @@ class GetPropertyResponseHandler : public OperationResponseHandler<CIMValue>
 {
 public:
     GetPropertyResponseHandler(
-	CIMGetPropertyRequestMessage * request,
-	CIMGetPropertyResponseMessage * response)
+        CIMGetPropertyRequestMessage * request,
+        CIMGetPropertyResponseMessage * response)
     : OperationResponseHandler<CIMValue>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	if(getObjects().size() == 0)
-	{
-	    // error? provider claims success,
-	    // but did not deliver an instance.
-	    setStatus(CIM_ERR_NOT_FOUND);
+        if(getObjects().size() == 0)
+        {
+            // error? provider claims success,
+            // but did not deliver an instance.
+            setStatus(CIM_ERR_NOT_FOUND);
 
-	    return;
-	}
+            return;
+        }
 
-	static_cast<CIMGetPropertyResponseMessage *>(
-	    getResponse())->value = getObjects()[0];
+        static_cast<CIMGetPropertyResponseMessage *>(
+            getResponse())->value = getObjects()[0];
     }
 };
 
@@ -262,8 +262,8 @@ class SetPropertyResponseHandler : public OperationResponseHandler<CIMValue>
 {
 public:
     SetPropertyResponseHandler(
-	CIMSetPropertyRequestMessage * request,
-	CIMSetPropertyResponseMessage * response)
+        CIMSetPropertyRequestMessage * request,
+        CIMSetPropertyResponseMessage * response)
     : OperationResponseHandler<CIMValue>(request, response)
     {
     }
@@ -274,16 +274,16 @@ class AssociatorNamesResponseHandler : public OperationResponseHandler<CIMObject
 {
 public:
     AssociatorNamesResponseHandler(
-	CIMAssociatorNamesRequestMessage * request,
-	CIMAssociatorNamesResponseMessage * response)
+        CIMAssociatorNamesRequestMessage * request,
+        CIMAssociatorNamesResponseMessage * response)
     : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	static_cast<CIMAssociatorNamesResponseMessage *>(
-	    getResponse())->objectNames.appendArray(getObjects());
+        static_cast<CIMAssociatorNamesResponseMessage *>(
+            getResponse())->objectNames.appendArray(getObjects());
     }
 
 };
@@ -292,27 +292,27 @@ class ReferencesResponseHandler : public OperationResponseHandler<CIMObject>
 {
 public:
     ReferencesResponseHandler(
-	CIMReferencesRequestMessage * request,
-	CIMReferencesResponseMessage * response)
+        CIMReferencesRequestMessage * request,
+        CIMReferencesResponseMessage * response)
     : OperationResponseHandler<CIMObject>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	Array<CIMObjectWithPath> cimObjects;
+        Array<CIMObjectWithPath> cimObjects;
 
-	// ATTN: can be removed once CIMNamedInstance is removed
-	for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
-	{
-	    CIMObject cimObject(getObjects()[i]);
+        // ATTN: can be removed once CIMNamedInstance is removed
+        for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
+        {
+            CIMObject cimObject(getObjects()[i]);
 
-	    cimObjects.append(
-		CIMObjectWithPath(cimObject.getPath(), cimObject));
-	}
+            cimObjects.append(
+                CIMObjectWithPath(cimObject.getPath(), cimObject));
+        }
 
-	static_cast<CIMReferencesResponseMessage *>(
-	    getResponse())->cimObjects.appendArray(cimObjects);
+        static_cast<CIMReferencesResponseMessage *>(
+            getResponse())->cimObjects.appendArray(cimObjects);
     }
 
 };
@@ -321,16 +321,16 @@ class ReferenceNamesResponseHandler : public OperationResponseHandler<CIMObjectP
 {
 public:
     ReferenceNamesResponseHandler(
-	CIMReferenceNamesRequestMessage * request,
-	CIMReferenceNamesResponseMessage * response)
+        CIMReferenceNamesRequestMessage * request,
+        CIMReferenceNamesResponseMessage * response)
     : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	static_cast<CIMReferenceNamesResponseMessage *>(
-	    getResponse())->objectNames.appendArray(getObjects());
+        static_cast<CIMReferenceNamesResponseMessage *>(
+            getResponse())->objectNames.appendArray(getObjects());
     }
 
 };
@@ -339,22 +339,22 @@ class InvokeMethodResponseHandler : public OperationResponseHandler<CIMValue>
 {
 public:
     InvokeMethodResponseHandler(
-	CIMInvokeMethodRequestMessage * request,
-	CIMInvokeMethodResponseMessage * response)
+        CIMInvokeMethodRequestMessage * request,
+        CIMInvokeMethodResponseMessage * response)
     : OperationResponseHandler<CIMValue>(request, response)
     {
     }
 
     virtual void complete(const OperationContext & context)
     {
-	if(getObjects().size() == 0)
-	{
-	    // ATTN: error? provider claims success, but did not deliver a CIMValue.
-	    return;
-	}
+        if(getObjects().size() == 0)
+        {
+            // ATTN: error? provider claims success, but did not deliver a CIMValue.
+            return;
+        }
 
-	static_cast<CIMInvokeMethodResponseMessage *>(
-	    getResponse())->retValue = getObjects()[0];
+        static_cast<CIMInvokeMethodResponseMessage *>(
+            getResponse())->retValue = getObjects()[0];
     }
 
 };
@@ -363,89 +363,88 @@ class EnableIndicationsResponseHandler : public OperationResponseHandler<CIMIndi
 {
 public:
     EnableIndicationsResponseHandler(
-	CIMEnableIndicationsRequestMessage * request,
-	CIMEnableIndicationsResponseMessage * response,
-	MessageQueueService * source,
-	MessageQueueService * target = 0)
-    :
-    OperationResponseHandler<CIMIndication>(request, response),
-    _source(source),
-    _target(target)
+        CIMEnableIndicationsRequestMessage * request,
+        CIMEnableIndicationsResponseMessage * response,
+        MessageQueueService * source,
+        MessageQueueService * target = 0)
+    : OperationResponseHandler<CIMIndication>(request, response),
+        _source(source),
+        _target(target)
     {
-	PEGASUS_ASSERT(_source != 0);
-	
-	// get indication service
-	if(_target == 0)
-	{
-	    Array<Uint32> serviceIds;
+        PEGASUS_ASSERT(_source != 0);
 
-	    _source->find_services(PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
+        // get indication service
+        if(_target == 0)
+        {
+            Array<Uint32> serviceIds;
 
-	    PEGASUS_ASSERT(serviceIds.size() != 0);
+            _source->find_services(PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
 
-	    _target = dynamic_cast<MessageQueueService *>(MessageQueue::lookup(serviceIds[0]));
+            PEGASUS_ASSERT(serviceIds.size() != 0);
 
-	    PEGASUS_ASSERT(_target != 0);
-	}
+            _target = dynamic_cast<MessageQueueService *>(MessageQueue::lookup(serviceIds[0]));
+
+            PEGASUS_ASSERT(_target != 0);
+        }
     }
 
     virtual void deliver(const CIMIndication & cimIndication)
     {
-	OperationContext context;
+        OperationContext context;
 
-	deliver(context, cimIndication);
+        deliver(context, cimIndication);
     }
 
     virtual void deliver(const OperationContext & context, const CIMIndication & cimIndication)
     {
-	// ATTN: temporarily convert indication to instance
-	CIMInstance cimInstance(cimIndication);
-	
-	// create message
-	CIMProcessIndicationRequestMessage * request =
-	    new CIMProcessIndicationRequestMessage(
-		getRequest()->messageId,
-		cimInstance.getPath().getNameSpace(),
-		cimInstance,
-		QueueIdStack(_target->getQueueId(), _source->getQueueId()));
+        // ATTN: temporarily convert indication to instance
+        CIMInstance cimInstance(cimIndication);
 
-	// send message
-	// <<< Wed Apr 10 21:04:00 2002 mdd >>>
+        // create message
+        CIMProcessIndicationRequestMessage * request =
+            new CIMProcessIndicationRequestMessage(
+            getRequest()->messageId,
+            cimInstance.getPath().getNameSpace(),
+            cimInstance,
+            QueueIdStack(_target->getQueueId(), _source->getQueueId()));
+
+        // send message
+        // <<< Wed Apr 10 21:04:00 2002 mdd >>>
         // AsyncOpNode * op = _source->get_op();
 
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
-		_source->get_next_xid(),
-                0,
-                _target->getQueueId(),
-                request,
-                _target->getQueueId());
+            _source->get_next_xid(),
+            0,
+            _target->getQueueId(),
+            request,
+            _target->getQueueId());
 
-	PEGASUS_ASSERT(asyncRequest != 0);
-	
-	//AsyncReply * asyncReply = _source->SendWait(asyncRequest);
-	// <<< Wed Apr 10 21:04:50 2002 mdd >>>
-	_source->SendForget(asyncRequest);
-	//PEGASUS_ASSERT(asyncReply != 0);
-	
-	//  Chip - receiver of the request should delete it
-	//delete asyncRequest;
-	// <<< Wed Apr 10 21:05:10 2002 mdd >>>
+        PEGASUS_ASSERT(asyncRequest != 0);
+
+        //AsyncReply * asyncReply = _source->SendWait(asyncRequest);
+        // <<< Wed Apr 10 21:04:50 2002 mdd >>>
+        _source->SendForget(asyncRequest);
+        //PEGASUS_ASSERT(asyncReply != 0);
+
+        //  Chip - receiver of the request should delete it
+        //delete asyncRequest;
+        // <<< Wed Apr 10 21:05:10 2002 mdd >>>
     }
 
     virtual void deliver(const Array<CIMIndication> & cimIndications)
     {
-	OperationContext context;
+        OperationContext context;
 
-	deliver(context, cimIndications);
+        deliver(context, cimIndications);
     }
 
     virtual void deliver(const OperationContext & context, const Array<CIMIndication> & cimIndications)
     {
-	for(Uint32 i = 0, n = cimIndications.size(); i < n; i++)
-	{
-	    deliver(context, cimIndications[i]);
-	}
+        for(Uint32 i = 0, n = cimIndications.size(); i < n; i++)
+        {
+            deliver(context, cimIndications[i]);
+        }
     }
 
 protected:

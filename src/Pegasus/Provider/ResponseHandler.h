@@ -33,44 +33,165 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/OperationContext.h>
 
+#include <Pegasus/Provider/ResponseHandlerRep.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-template<class object_type>
+template<class T>
 class PEGASUS_COMMON_LINKAGE ResponseHandler
 {
 public:
-      /** ATTN:
-      */
-      ResponseHandler(void) {};
+    /**
+    ATTN:
+    */
+    ResponseHandler(void);
 
-      /** ATTN:
-      */
-      virtual ~ResponseHandler(void) {};
+    /**
+    ATTN:
+    */
+    ResponseHandler(const ResponseHandler & handler);
 
-      /** ATTN:
-      */
-      virtual void deliver(const object_type & object) = 0;
-      virtual void deliver(const OperationContext & context, const object_type & object) = 0;
+    /**
+    ATTN:
+    */
+    virtual ~ResponseHandler(void);
 
-      /** ATTN:
-      */
-      virtual void deliver(const Array<object_type> & objects) = 0;
-      virtual void deliver(const OperationContext & context, const Array<object_type> & objects) = 0;
+    /**
+    ATTN:
+    */
+    ResponseHandler & operator=(const ResponseHandler & handler);
 
-      /** ATTN:
-      */
-      virtual void reserve(const Uint32 size) = 0;
+    /**
+    ATTN:
+    */
+    virtual void deliver(const T & object);
+    virtual void deliver(const OperationContext & context, const T & object);
 
-      /** ATTN:
-      */
-      virtual void processing(void) = 0;
+    /**
+    ATTN:
+    */
+    virtual void deliver(const Array<T> & objects);
+    virtual void deliver(const OperationContext & context, const Array<T> & objects);
 
-      /** ATTN:
-      */
-      virtual void complete(void) = 0;
+    /**
+    ATTN:
+    */
+    virtual void reserve(const Uint32 size);
 
-      virtual void complete(const OperationContext & context) = 0;
+    /**
+    ATTN:
+    */
+    virtual void processing(void);
+
+    /**
+    ATTN:
+    */
+    virtual void complete(void);
+    virtual void complete(const OperationContext & context);
+
+protected:
+    ResponseHandler(ResponseHandlerRep<T> * rep);
+
+    ResponseHandlerRep<T> * getRep(void) const;
+
+protected:
+    ResponseHandlerRep<T> * _rep;
 };
+
+template<class T>
+inline ResponseHandler<T>::ResponseHandler(void) : _rep(0)
+{
+}
+
+template<class T>
+inline ResponseHandler<T>::ResponseHandler(const ResponseHandler<T> & handler)
+{
+    Inc(_rep = handler._rep);
+}
+
+template<class T>
+inline ResponseHandler<T>::ResponseHandler(ResponseHandlerRep<T> * rep) : _rep(rep)
+{
+}
+
+template<class T>
+inline ResponseHandler<T>::~ResponseHandler(void)
+{
+    Dec(_rep);
+}
+
+template<class T>
+inline ResponseHandler<T> & ResponseHandler<T>::operator=(const ResponseHandler<T> & handler)
+{
+    if(this == &handler)
+    {
+        return(*this);
+    }
+
+    Dec(_rep);
+    Inc(_rep = handler._rep);
+
+    return(*this);
+}
+
+template<class T>
+inline ResponseHandlerRep<T> * ResponseHandler<T>::getRep(void) const
+{
+    if(_rep == 0)
+    {
+        throw UninitializedHandle();
+    }
+
+    return(_rep);
+}
+
+template<class T>
+inline void ResponseHandler<T>::deliver(const T & object)
+{
+    getRep()->deliver(OperationContext(), object);
+}
+
+template<class T>
+inline void ResponseHandler<T>::deliver(const OperationContext & context, const T & object)
+{
+    getRep()->deliver(context, object);
+}
+
+template<class T>
+inline void ResponseHandler<T>::deliver(const Array<T> & objects)
+{
+    getRep()->deliver(OperationContext(), objects);
+}
+
+template<class T>
+inline void ResponseHandler<T>::deliver(const OperationContext & context, const Array<T> & objects)
+{
+    getRep()->deliver(context, objects);
+}
+
+template<class T>
+inline void ResponseHandler<T>::reserve(const Uint32 size)
+{
+    getRep()->reserve(size);
+}
+
+template<class T>
+inline void ResponseHandler<T>::processing(void)
+{
+    getRep()->processing();
+}
+
+template<class T>
+inline void ResponseHandler<T>::complete(void)
+{
+    getRep()->complete(OperationContext());
+}
+
+template<class T>
+inline void ResponseHandler<T>::complete(const OperationContext & context)
+{
+    getRep()->complete(context);
+}
 
 PEGASUS_NAMESPACE_END
 

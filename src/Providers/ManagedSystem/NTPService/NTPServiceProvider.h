@@ -42,6 +42,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/OperationContext.h>
+#include "NTPService.h"
 
 //------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
@@ -126,10 +127,12 @@ class NTPServiceProvider: public CIMInstanceProvider,
     private:
           // Builds a reference (a set of Key,Value pairs)
         CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace,
-                                       const CIMName &className);
+                                       const CIMName &className,
+				       NTPService ntp);
           // Builds a filled-in instance.
         CIMInstance    _build_instance(const CIMName & classname,
                                     const CIMNamespaceName & nameSpace,
-                                    const Array<CIMKeyBinding> keys);
+                                    const Array<CIMKeyBinding> keys,
+				    NTPService ntp);
 };
 #endif

@@ -57,8 +57,6 @@ static const String PROPERTY_NAME("Name");
 static const String PROPERTY_SEARCH_LIST("SearchList");
 static const String PROPERTY_ADDRESSES("Addresses");
 
-DNSService *dns;
-
 DNSServiceProvider::DNSServiceProvider(void)
 {
 }
@@ -89,9 +87,9 @@ DNSServiceProvider::getInstance(
 		"DNSServiceProvider does not support class " +
 		className.getString());
 
-    dns = new DNSService();
+    DNSService dns;
 
-    if (!dns->AccessOk(context))
+    if (!dns.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by DNSProvider");
 
     //-- make sure we're the right instance
@@ -110,11 +108,11 @@ DNSServiceProvider::getInstance(
     // Despite test cases, don't get invoked with 2 keys of the same
     // name.
 
-    if(!dns->getSystemName(systemName))
+    if(!dns.getSystemName(systemName))
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine system name");
     
-    if(!dns->getDNSName(dName))
+    if(!dns.getDNSName(dName))
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine domain name");
     
@@ -149,7 +147,8 @@ DNSServiceProvider::getInstance(
     //-- fill 'er up...
     instance = _build_instance(className, 
                                instanceReference.getNameSpace(), 
-                               instanceReference.getKeyBindings());
+                               instanceReference.getKeyBindings(),
+			       dns);
     handler.deliver(instance);
     handler.complete();
 }
@@ -181,15 +180,16 @@ DNSServiceProvider::enumerateInstances(
     {
         handler.processing();
 
-        dns = new DNSService();
+	DNSService dns;
 
-	    if (!dns->AccessOk(context))
+	    if (!dns.AccessOk(context))
 	       throw CIMAccessDeniedException("Access denied by DNSProvider");
 
-        newref = _fill_reference(classReference.getNameSpace(), className);
+        newref = _fill_reference(classReference.getNameSpace(), className, dns);
         instance = _build_instance(className, 
                                    classReference.getNameSpace(), 
-                                   classReference.getKeyBindings());
+                                   classReference.getKeyBindings(),
+				   dns);
         instance.setPath(newref);
         handler.deliver(instance);
         handler.complete();
@@ -221,14 +221,14 @@ DNSServiceProvider::enumerateInstanceNames(
                            "does not support class " + className.getString());
     }
 
-    dns = new DNSService();
+    DNSService dns;
 
-    if (!dns->AccessOk(context))
+    if (!dns.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by DNSProvider");
 
     handler.processing();
     // in terms of the class we use, want to set to what was requested
-    newref = _fill_reference(classReference.getNameSpace(), className);
+    newref = _fill_reference(classReference.getNameSpace(), className, dns);
     handler.deliver(newref);
     handler.complete();
 }
@@ -285,7 +285,8 @@ DNSServiceProvider::terminate(void)
 CIMInstance
 DNSServiceProvider::_build_instance(const CIMName & className,
                                         const CIMNamespaceName & nameSpace,
-                                        const Array<CIMKeyBinding> keys)
+                                        const Array<CIMKeyBinding> keys,
+					DNSService dns)
 {
 #ifdef DEBUG
     cout << "DNSServiceProvider::_build_instance()" << endl;
@@ -295,7 +296,7 @@ DNSServiceProvider::_build_instance(const CIMName & className,
     String strValue;
     Array<String> strArr;
 
-    if(dns->getSystemName(strValue)) 
+    if(dns.getSystemName(strValue)) 
     {
         instance.setPath(CIMObjectPath(strValue, nameSpace, className, keys));
         instance.addProperty(CIMProperty(PROPERTY_SYSTEM_NAME, strValue));
@@ -309,7 +310,7 @@ DNSServiceProvider::_build_instance(const CIMName & className,
 	 strValue << "'" << endl;
 #endif
 
-    if(dns->getDNSName(strValue)) 
+    if(dns.getDNSName(strValue)) 
         instance.addProperty(CIMProperty(PROPERTY_NAME, strValue));
     else
         throw CIMOperationFailedException("DNSProvider "
@@ -326,16 +327,16 @@ DNSServiceProvider::_build_instance(const CIMName & className,
     instance.addProperty(CIMProperty(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
                                      CLASS_CIM_UNITARY_COMPUTER_SYSTEM));
 
-    if(dns->getCaption(strValue)) 
+    if(dns.getCaption(strValue)) 
         instance.addProperty(CIMProperty(PROPERTY_CAPTION, strValue));
 
-    if(dns->getDescription(strValue)) 
+    if(dns.getDescription(strValue)) 
         instance.addProperty(CIMProperty(PROPERTY_DESCRIPTION, strValue));
 
-    if(dns->getSearchList(strArr)) 
+    if(dns.getSearchList(strArr)) 
         instance.addProperty(CIMProperty(PROPERTY_SEARCH_LIST, strArr));
 
-    if(dns->getAddresses(strArr)) 
+    if(dns.getAddresses(strArr)) 
         instance.addProperty(CIMProperty(PROPERTY_ADDRESSES, strArr));
 
 #ifdef DEBUG
@@ -351,7 +352,8 @@ DNSServiceProvider::_build_instance(const CIMName & className,
 
 CIMObjectPath
 DNSServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
-                                        const CIMName &className)
+                                        const CIMName &className,
+					DNSService dns)
 {
 #ifdef DEBUG
     cout << "DNSServiceProvider::_fill_reference()" << endl;
@@ -368,14 +370,14 @@ DNSServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
 			   CLASS_PG_DNS_SERVICE,
                            CIMKeyBinding::STRING));
 
-    if(dns->getDNSName(strValue)) 
+    if(dns.getDNSName(strValue)) 
         keys.append(CIMKeyBinding(PROPERTY_NAME, strValue,
                                  CIMKeyBinding::STRING));
     else
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine Name property");
         
-    if(!dns->getSystemName(strValue)) 
+    if(!dns.getSystemName(strValue)) 
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine System Name property");
 

@@ -56,7 +56,6 @@ NTPProviderSecurity::NTPProviderSecurity(const OperationContext & context)
 //------------------------------------------------------------------------------
 NTPProviderSecurity::~NTPProviderSecurity(void)
 {
-	delete this;    
 }    
 
 //------------------------------------------------------------------------------
@@ -64,8 +63,7 @@ NTPProviderSecurity::~NTPProviderSecurity(void)
 //
 // REMARKS: Status of context user
 //
-// PARAMETERS:    [IN]  username  -> user to retrieve information
-//                [IN]  filename  -> file name to verify access    
+// PARAMETERS:    [IN]  filename  -> file name to verify access    
 //                [IN]  chkoper   -> valid options: SEC_OPT_READ,
 //											  		SEC_OPT_WRITE,
 //											  		SEC_OPT_READ_WRITE or
@@ -74,8 +72,7 @@ NTPProviderSecurity::~NTPProviderSecurity(void)
 // RETURN: TRUE, if user have privileges, otherwise FALSE
 //------------------------------------------------------------------------------
 Boolean
-NTPProviderSecurity::checkAccess(const String username, 
-                           const String filename,
+NTPProviderSecurity::checkAccess(const String filename,
                            const String chkoper) 
 {
     FILE *fp;
@@ -88,7 +85,7 @@ NTPProviderSecurity::checkAccess(const String username,
     	   trt, tgr;
     Boolean ok = false,
     		isRoot = false,
-   		    okUser = (username.size() > 0);
+   		    okUser = (secUsername.size() > 0);
     char buffer[500];
     char *member;
     gid_t grps[100];
@@ -106,11 +103,11 @@ NTPProviderSecurity::checkAccess(const String username,
     if(okUser) {
 	    // Retrieve uid from user
 	    strValue.clear();
-        // Go through password entries and find the entry that matches "username"
+        // Go through password entries and find the entry that matches "secUsername"
 	    pwd = getpwent();
 	    if(pwd != NULL) {
 	    	strValue.assign(pwd->pw_name);
-	    	while(!String::equalNoCase(strValue, username)) {
+	    	while(!String::equalNoCase(strValue, secUsername)) {
 	            pwd = getpwent();
 	            if(pwd == NULL)
 	                break;
@@ -121,7 +118,7 @@ NTPProviderSecurity::checkAccess(const String username,
         endpwent();
 
         // If we didn't find the entry - just return
-        if(strValue.size() == 0 || !String::equalNoCase(strValue, username))
+        if(strValue.size() == 0 || !String::equalNoCase(strValue, secUsername))
             return ok;
 
 		// DLH set the group and user id
@@ -147,7 +144,7 @@ NTPProviderSecurity::checkAccess(const String username,
 		        }
 		        for(i=0; i < strMembers.size(); i++) {
 		        	strValue.assign(strMembers[i]);
-		        	ps = strValue.find(username);
+		        	ps = strValue.find(secUsername);
 		        	if(ps >= 0) {
 		            	grps[ngr++] = grp->gr_gid;
 		            	break;
@@ -225,19 +222,4 @@ NTPProviderSecurity::checkAccess(const String username,
             break;
     }
     return ok;    
-}
-
-//------------------------------------------------------------------------------
-// FUNCTION: getUserContext
-//
-// REMARKS: Retrieves the context user name
-//
-// PARAMETERS: 
-//
-// RETURN: string that will contain the context user
-//------------------------------------------------------------------------------
-String
-NTPProviderSecurity::getUserContext(void) 
-{    
-    return secUsername;
 }

@@ -37,6 +37,7 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Pair.h>
+#include "DNSService.h"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -104,11 +105,13 @@ class DNSServiceProvider :
 	private:
       	// Builds a reference (a set of Key,Value pairs)
 		CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace,
-					      const CIMName &className);
+					      const CIMName &className,
+					      DNSService dns);
       	// Builds a filled-in instance.
 		CIMInstance _build_instance(const CIMName & classname,
                                             const CIMNamespaceName & nameSpace,
-                                            const Array<CIMKeyBinding> keys);
+                                            const Array<CIMKeyBinding> keys,
+					    DNSService dns);
 
 };
 

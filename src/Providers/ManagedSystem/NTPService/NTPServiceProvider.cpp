@@ -38,17 +38,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/ProviderException.h>
 
-#include "NTPService.h"
 #include "NTPServiceProvider.h"
 
 //------------------------------------------------------------------------------
 PEGASUS_USING_STD;
-
-//------------------------------------------------------------------------------
-// GLOBAL VARIABLES
-//------------------------------------------------------------------------------
-//pointer to a instrumentation object
-NTPService *ntp;
 
 //==============================================================================
 //
@@ -91,9 +84,9 @@ NTPServiceProvider::getInstance(const OperationContext & context,
     if (!className.equal (CLASS_NAME))
         throw CIMNotSupportedException("NTPServiceProvider does not support class " + className.getString());
     
-    ntp = new NTPService();
+    NTPService ntp;
 
-    if (!ntp->AccessOk(context))
+    if (!ntp.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by NTPServiceProvider");
 
     //-- make sure we're the right instance
@@ -110,12 +103,12 @@ NTPServiceProvider::getInstance(const OperationContext & context,
         throw CIMInvalidParameterException("Wrong number of keys");
     
     // Retrieve name property value
-    if(!ntp->getSystemName(systemName))
+    if(!ntp.getSystemName(systemName))
         throw CIMObjectNotFoundException("NTPServiceProvider "
             "can't create PG_NTPService instance");
     
     // Retrieve service name property value
-    if(!ntp->getNTPName(svcName))
+    if(!ntp.getNTPName(svcName))
         throw CIMObjectNotFoundException("NTPServiceProvider "
             "can't create PG_NTPService instance - no service name");
 
@@ -145,10 +138,9 @@ NTPServiceProvider::getInstance(const OperationContext & context,
         throw CIMInvalidParameterException("Wrong keys");
 
     handler.processing();
-    instance = _build_instance(className, ref.getNameSpace(), keys);
+    instance = _build_instance(className, ref.getNameSpace(), keys, ntp);
     handler.deliver(instance);
     handler.complete();
-    delete ntp;
     return;
 }
 
@@ -169,7 +161,7 @@ NTPServiceProvider::enumerateInstances(const OperationContext & context,
     
     className = ref.getClassName();
 
-    ntp = new NTPService();
+    NTPService ntp;
     
     // only return instances when enumerate on our subclass, CIMOM
     // will call us as natural part of recursing through subtree on
@@ -178,16 +170,18 @@ NTPServiceProvider::enumerateInstances(const OperationContext & context,
     if (!className.equal (CLASS_NAME))
         throw CIMNotSupportedException("NTPServiceProvider does not support class " + className.getString());
 
-    if (!ntp->AccessOk(context))
+    if (!ntp.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by NTPServiceProvider");
 
     handler.processing();
-    newref = _fill_reference(ref.getNameSpace(), className);
-    instance = _build_instance(className, ref.getNameSpace(), ref.getKeyBindings());
+    newref = _fill_reference(ref.getNameSpace(), className, ntp);
+    instance = _build_instance(className,
+                               ref.getNameSpace(),
+			       ref.getKeyBindings(),
+			       ntp);
     instance.setPath(newref);
     handler.deliver(instance);
     handler.complete();
-    delete ntp;
     return;
 }
 
@@ -209,19 +203,18 @@ NTPServiceProvider::enumerateInstanceNames(const OperationContext & context,
 
     className = ref.getClassName();
 
-    ntp = new NTPService();
+    NTPService ntp;
     
     if (!className.equal (CLASS_NAME))
         throw CIMNotSupportedException("NTPServiceProvider does not support class " + className.getString());
 
-    if (!ntp->AccessOk(context))
+    if (!ntp.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by NTPServiceProvider");
 
     handler.processing();
-    newref = _fill_reference(ref.getNameSpace(), className);
+    newref = _fill_reference(ref.getNameSpace(), className, ntp);
     handler.deliver(newref);
     handler.complete();
-    delete ntp;
     return;
 }
 
@@ -303,13 +296,15 @@ NTPServiceProvider::terminate(void)
 CIMInstance
 NTPServiceProvider::_build_instance(const CIMName & className,
                                         const CIMNamespaceName & nameSpace,
-                                        const Array<CIMKeyBinding> keys) {
+                                        const Array<CIMKeyBinding> keys,
+					NTPService ntp)
+{
     CIMInstance instance(className);
     String strValue;
     String hostName;
     Array<String> lst;
 
-    if(!ntp->getLocalHostName(hostName))
+    if(!ntp.getLocalHostName(hostName))
         hostName.assign("localhost");
 
     instance.setPath(CIMObjectPath(hostName,
@@ -320,7 +315,7 @@ NTPServiceProvider::_build_instance(const CIMName & className,
     instance.addProperty(CIMProperty(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
                                       SYSTEM_CREATION_CLASS_NAME.getString()));
 
-    if(!ntp->getSystemName(hostName))
+    if(!ntp.getSystemName(hostName))
         hostName.assign("localhost");
 
     instance.addProperty(CIMProperty(PROPERTY_SYSTEM_NAME, hostName));
@@ -328,28 +323,28 @@ NTPServiceProvider::_build_instance(const CIMName & className,
     instance.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
                                       CREATION_CLASS_NAME.getString()));
 
-    if(!ntp->getNTPName(strValue)) {
+    if(!ntp.getNTPName(strValue)) {
         throw CIMOperationFailedException("NTPServiceProvider "
               "can't determine Name property");
     }
     
     instance.addProperty(CIMProperty(PROPERTY_NAME, strValue));
 
-    if(!ntp->getCaption(strValue)) {
+    if(!ntp.getCaption(strValue)) {
         throw CIMOperationFailedException("NTPServiceProvider "
               "can't determine Caption property");
     }
 
     instance.addProperty(CIMProperty(PROPERTY_CAPTION, strValue));
 
-    if(!ntp->getDescription(strValue)) {
+    if(!ntp.getDescription(strValue)) {
         throw CIMOperationFailedException("NTPServiceProvider "
               "can't determine Description property");
     }
 
     instance.addProperty(CIMProperty(PROPERTY_DESCRIPTION, strValue));
 
-    if(!ntp->getServerAddress(lst)) {
+    if(!ntp.getServerAddress(lst)) {
         throw CIMOperationFailedException("NTPServiceProvider "
               "can't determine ServerAddress property");
     }
@@ -365,7 +360,8 @@ NTPServiceProvider::_build_instance(const CIMName & className,
 //------------------------------------------------------------------------------
 CIMObjectPath
 NTPServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
-                                         const CIMName &className)
+                                         const CIMName &className,
+					 NTPService ntp)
 {
     Array<CIMKeyBinding> keys;
     String hostName;
@@ -376,7 +372,7 @@ NTPServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
                            SYSTEM_CREATION_CLASS_NAME.getString(),
                            CIMKeyBinding::STRING));
 
-    if(!ntp->getSystemName(hostName))
+    if(!ntp.getSystemName(hostName))
         hostName.assign("localhost");
 
     keys.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME, hostName, CIMKeyBinding::STRING));
@@ -385,7 +381,7 @@ NTPServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
                            CREATION_CLASS_NAME.getString(),
                            CIMKeyBinding::STRING));
 
-    if(!ntp->getNTPName(strValue))
+    if(!ntp.getNTPName(strValue))
         strValue.assign("unknown");
 
     keys.append(CIMKeyBinding(PROPERTY_NAME,

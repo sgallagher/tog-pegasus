@@ -245,9 +245,8 @@ Boolean NTPService::getLocalHostName(String & hostName)
 //------------------------------------------------------------------------------
 Boolean NTPService::AccessOk(const OperationContext & context)
 {
-    sec = new NTPProviderSecurity(context);  // Pointer defined into NTPProviderSecurity.h file
-    Boolean ok = sec->checkAccess(sec->getUserContext(),
-                                  NTP_FILE_CONFIG,
+    NTPProviderSecurity sec(context);
+    Boolean ok = sec.checkAccess(NTP_FILE_CONFIG,
                                   SEC_OPT_READ);
     return ok;
 }

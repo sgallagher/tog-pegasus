@@ -405,9 +405,8 @@ DNSService::getDNSInfo()
 Boolean 
 DNSService::AccessOk(const OperationContext & context)
 {
-    sec = new NTPProviderSecurity(context);  // Pointer defined into System.h file
-    Boolean ok = sec->checkAccess(sec->getUserContext(),
-                                  DNS_FILE_CONFIG,
+    NTPProviderSecurity sec(context);
+    Boolean ok = sec.checkAccess(DNS_FILE_CONFIG,
                                   SEC_OPT_READ);
     return ok;
 }

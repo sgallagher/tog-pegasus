@@ -80,17 +80,8 @@ public:
     //
 
 	// This function retrieves the permissions of file by username
-	Boolean checkAccess(const String username, 
-    					const String filename,
-    					const String chkoper);
-    
-	// This function retrieves the context user name
-	String getUserContext(void);
-
-private:
-    //
-    // Private Functions
-    //
+	Boolean checkAccess(const String filename,
+    		            const String chkoper);
 
 private:
     //
@@ -98,8 +89,5 @@ private:
     //
     String secUsername;
 };
-
-// Global pointer to access SecurityProvider class
-NTPProviderSecurity *sec;
 
 #endif

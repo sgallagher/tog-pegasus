@@ -32,7 +32,7 @@
 #include <cctype>
 #include "CIMName.h"
 
-static bool illegalNameException = false;
+static bool illegalNameException = true;
 
 PEGASUS_NAMESPACE_BEGIN
 

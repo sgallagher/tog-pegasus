@@ -51,9 +51,9 @@ class PEGASUS_COMMON_LINKAGE SSLCertificateInfo
 {
 public:
     /** Constructor for a SSLCertificateInfo object.
-    @param subjectName subject name of the certificate.
-    @param issuerName  issuer name of the certificate.
-    @param errorDepth  depth of the certificate chain.
+    @param subjectName subject name of the certificate
+    @param issuerName  issuer name of the certificate
+    @param errorDepth  depth of the certificate chain
     @param errorCode   error code from the default verification of the
     certificates by the Open SSL library.
     */
@@ -61,37 +61,42 @@ public:
         const String subjectName,
         const String issuerName,
         const int errorDepth,
-        const int errorCode);
+        const int errorCode,
+        const int respCode);
 
     /** Copy constructor for a SSLCertificateInfo object.
-    @param certificateInfo SSLCertificateInfo object to copy.
+    @param certificateInfo SSLCertificateInfo object to copy
     */
     SSLCertificateInfo(const SSLCertificateInfo& certificateInfo);
 
-    /// Destructor.
     ~SSLCertificateInfo();
 
-    /** Gets the subject name of the certificate.
+    /** Gets the subject name of the certificate
     @return a string containing the subject name.
     */
     String getSubjectName() const;
 
-    /** Gets the issuer name of the certificate.
+    /** Gets the issuer name of the certificate
     @return a string containing the issuer name.
     */
     String getIssuerName() const;
 
-    /** Gets the depth of the certificate chain.
-    @return an int containing the depth of the certificate chain.
+    /** Gets the depth of the certificate chain
+    @return an int containing the depth of the certificate chain
     */
     int getErrorDepth() const;
 
-    /** Gets the preverify error code.
-    @return an int containing the preverification error code. 
+    /** Gets the preverify error code
+    @return an int containing the preverification error code 
     */
     int getErrorCode() const;
 
-    /** Sets the response code.
+    /** Gets the preverify response code
+    @return an int containing the preverify response code 
+    */
+    int getResponseCode() const;
+
+    /** Sets the response code
     @param respCode response code to be set.
     */
     void setResponseCode(const int respCode);
@@ -106,7 +111,7 @@ private:
 
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
-/** This class provides the interface that a client can use to create
+/** This class provides the interface that a client uses to create
     SSL context.
 
     For the OSs that don't have /dev/random device file,
@@ -118,7 +123,7 @@ class PEGASUS_COMMON_LINKAGE SSLContext
 public:
 
     /** Constructor for a SSLContext object.
-    @param certPath  certificate file path.
+    @param certPath  certificate file path
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -140,19 +145,37 @@ public:
         Boolean isCIMClient);
 #endif
 
-    ///
     SSLContext(const SSLContext& sslContext);
 
-    /// Destructor.
     ~SSLContext();
 
 private:
+
+    /** Constructor for a SSLContext object. This constructor is intended
+    to be used by the CIMServer only.
+    @param certPath  certificate file path
+    @param certKeyPath  certificate key file path
+    @param verifyCert  function pointer to a certificate verification
+    call back function.  A null pointer indicates that no callback is
+    requested for certificate verification.
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
+
+    @exception SSLException indicates failure to create an SSL context.
+    */
+    SSLContext(
+        const String& certPath,
+        const String& certKeyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile);
 
     SSLContext();
 
     SSLContextRep* _rep;
 
     friend class SSLSocket;
+
+    friend class CIMServer;
 };
 
 PEGASUS_NAMESPACE_END

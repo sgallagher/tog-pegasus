@@ -494,7 +494,7 @@ SSLContext* CIMServer::_getSSLContext()
         randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-        _sslcontext = new SSLContext(certPath, 0, randFile);
+        _sslcontext = new SSLContext(String::EMPTY, certPath, 0, randFile);
     }
 
     return _sslcontext;

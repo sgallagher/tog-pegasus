@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include "SSLContext.h"
 #include "SSLContextRep.h"
@@ -45,9 +46,6 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-// switch on if 'server needs certified client'
-//#define CLIENT_CERTIFY
 
 //
 // use the following definitions only if SSL is available
@@ -60,40 +58,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 // ATTN-RK-20020905: This global variable is unsafe with multiple SSL contexts
 SSLCertificateVerifyFunction* verify_certificate;
-
-static int cert_verify(SSL_CTX *ctx, const char *cert_file, const char *key_file)
-{
-    PEG_METHOD_ENTER(TRC_SSL, "cert_verify()");
-
-    if (cert_file != NULL)
-    {
-        if (SSL_CTX_use_certificate_file(ctx,cert_file,SSL_FILETYPE_PEM) <=0)
-        {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-                "---> SSL: no certificate found in " + String(cert_file));
-            PEG_METHOD_EXIT();
-            return 0;
-        }
-        if (key_file == NULL) key_file=cert_file;
-        if (SSL_CTX_use_PrivateKey_file(ctx,key_file,SSL_FILETYPE_PEM) <= 0)
-        {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-                "---> SSL: no private key found in " + String(key_file));
-            PEG_METHOD_EXIT();
-            return 0;
-        }
-
-        if (!SSL_CTX_check_private_key(ctx)) 
-        {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-                "---> SSL: Private and public key do not match");
-            PEG_METHOD_EXIT();
-            return 0;
-        }
-    }
-    PEG_METHOD_EXIT();
-    return -1;
-}
 
 static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 {
@@ -152,20 +116,11 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
     //
     // Call the verify_certificate() callback
     //
-    SSLCertificateInfo certInfo(subjectName, issuerName, depth, err);
+    SSLCertificateInfo certInfo(subjectName, issuerName, depth, err, preverifyOk);
 
     if (verify_certificate(certInfo))
     {
         preverifyOk = 1;
-    }
-
-    //delete certInfo;
-
-    // ATTN-NB-03-05102002: Overriding the default verification result, may
-    // need to be changed to make it more generic.
-    if (preverifyOk)
-    {
-        X509_STORE_CTX_set_error(ctx, verify_error);
     }
 
     PEG_METHOD_EXIT();
@@ -180,12 +135,15 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 // must enable PEGASUS_SSL_RANDOMFILE flag.
 //
 SSLContextRep::SSLContextRep(const String& certPath,
+                       const String& certKeyPath,
                        SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
     _certPath = certPath.getCString();
+
+    _certKeyPath = certKeyPath.getCString();
 
     verify_certificate = verifyCert;
 
@@ -195,42 +153,7 @@ SSLContextRep::SSLContextRep(const String& certPath,
     SSL_load_error_strings();
     SSL_library_init();
 
-#ifdef PEGASUS_SSL_RANDOMFILE
-    
-    //
-    // Initialise OpenSSL 0.9.5 random number generator.
-    //
-    if ( randomFile == String::EMPTY )
-    {
-        PEG_METHOD_EXIT();
-        throw( SSLException("Random seed file required"));
-    }
-
-    int ret = RAND_load_file(randomFile.getCString(), -1);
-    if ( ret < 0 )
-    {
-        PEG_METHOD_EXIT();
-        throw( SSLException("RAND_load_file - failed"));
-    }
-
-    //
-    // Will do more seeding
-    //
-    long seedNumber;
-    srandom((unsigned int)time(NULL)); // Initialize
-    seedNumber = random();
-    RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
-
-    int  seedRet = RAND_status();
-    if ( seedRet == 0 )
-    {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-            "Not enough data , RAND_status = " + seedRet );
-        PEG_METHOD_EXIT();
-        throw( SSLException("RAND_seed - Not enough seed data "));
-    }
-
-#endif // end of PEGASUS_SSL_RANDOMFILE
+    _randomInit(randomFile);
 
     _sslContext = _makeSSLContext();
 
@@ -242,6 +165,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
     _certPath = sslContextRep._certPath;
+    _certKeyPath = sslContextRep._certKeyPath;
     // ATTN: verify_certificate is set implicitly in global variable
     _randomFile = sslContextRep._randomFile;
     _sslContext = _makeSSLContext();
@@ -262,6 +186,121 @@ SSLContextRep::~SSLContextRep()
     PEG_METHOD_EXIT();
 }
 
+//
+// initialize OpenSSL's PRNG
+//
+void SSLContextRep::_randomInit(const String& randomFile)
+{
+    PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_randomInit()");
+
+    Boolean ret;
+    int retVal = 0;
+    int seeded = 0;
+
+    const int DEV_RANDOM_BYTES = 64;            /* how many bytes to read */
+    const String devRandom = "/dev/random";     /* random device name */
+    const String devUrandom = "/dev/urandom";   /* pseudo-random device name */
+
+#ifdef PEGASUS_SSL_DEVRANDOM
+
+    if ( FileSystem::exists(devRandom) )
+    {
+        while ( RAND_status() == 0 )
+        {
+            //
+            // Always attempt to seed from good entropy sources, first 
+            // try /dev/random
+            //
+            retVal = RAND_load_file(devRandom.getCString(), DEV_RANDOM_BYTES);
+            if (retVal < 0)
+            {
+                break;
+            }
+        }
+    }
+
+    if ( FileSystem::exists(devUrandom) )
+    {
+        while ( RAND_status() == 0 )
+        {
+            //
+            // If there isn't /dev/random try /dev/urandom
+            //
+            retVal = RAND_load_file(devUrandom.getCString(), DEV_RANDOM_BYTES);
+            if (retVal < 0)
+            {
+                break;
+            }
+        }
+    }
+#endif  /* PEGASUS_SSL_DEVRANDOM */
+
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+    if ( RAND_status() == 0 )
+    {
+        //
+        // Initialise OpenSSL random number generator.
+        //
+        if ( randomFile == String::EMPTY )
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                "Random seed file is required.");
+            PEG_METHOD_EXIT();
+            throw( SSLException("Random seed file required"));
+        }
+
+        //
+        // Try the given random seed file
+        //
+        ret = FileSystem::exists(randomFile);
+        if( ret )
+        {
+            retVal = RAND_load_file(randomFile.getCString(), -1);
+            if ( retVal < 0 )
+            {
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                    "Not enough seed data in seed file: " + randomFile);
+                PEG_METHOD_EXIT();
+                throw( SSLException("Not enough seed data in random seed file."));
+            }
+        }
+
+        if ( RAND_status() == 0 )
+        {
+            //
+            // Try to do more seeding
+            //
+            long seedNumber;
+            srandom((unsigned int)time(NULL)); // Initialize
+            seedNumber = random();
+            RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
+
+            int  seedRet = RAND_status();
+            if ( seedRet == 0 )
+            {
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                    "Not enough seed data in random seed file, RAND_status = " + 
+                    seedRet );
+                PEG_METHOD_EXIT();
+                throw( SSLException("Not enough seed data in random seed file."));
+            }
+        }
+    }
+#endif  /* PEGASUS_SSL_RANDOMFILE */
+
+    int  seedRet = RAND_status();
+    if ( seedRet == 0 )
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            "Not enough seed data , RAND_status = " + seedRet );
+        PEG_METHOD_EXIT();
+        throw( SSLException("Not enough seed data."));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
 SSL_CTX * SSLContextRep::_makeSSLContext()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::_makeSSLContext()");
@@ -278,7 +317,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         throw( SSLException("Could not get SSL CTX"));
     }
 
-#ifdef PEGASUS_OS_HPUX
+#ifdef PEGASUS_SSL_WEAKENCRYPTION
     if (!(SSL_CTX_set_cipher_list(sslContext, SSL_TXT_EXP40)))
         throw( SSLException("Could not set the cipher list"));
 #endif
@@ -290,30 +329,93 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     SSL_CTX_set_quiet_shutdown(sslContext, 1);
     SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_options(sslContext,SSL_OP_ALL);
+    SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
 
-#ifdef CLIENT_CERTIFY
-    SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
-        prepareForCallback);
-#else
     if (verify_certificate != NULL)
     {
         SSL_CTX_set_verify(sslContext, 
             SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
     }
-#endif
-
-    //
-    // check certificate given to me
-    //
-
-    if (!cert_verify(sslContext, _certPath, _certPath))
+    else
     {
-        PEG_METHOD_EXIT();
-        throw( SSLException("Could not get certificate and/or private key"));
+        SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
+    }
+
+    //
+    // Check if there is CA certificate file specified. If specified,
+    // load the certificates from the file in to the CA trust store.
+    //
+    if (strncmp(_certPath, "", 1) != 0)
+    {
+        //
+        // load certificates in to trust store
+        //
+
+        if ((!SSL_CTX_load_verify_locations(sslContext, _certPath, NULL)) ||
+            (!SSL_CTX_set_default_verify_paths(sslContext)))
+        {
+            PEG_METHOD_EXIT();
+            throw( SSLException("Could not load certificates in to trust store."));
+        }
+    }
+
+    //
+    // Check if there is a certificate key file (file containing server
+    // certificate and private key) specified. If specified, validate the
+    // certificate and the private key, and load them.
+    //
+    if (strncmp(_certKeyPath, "", 1) != 0)
+    {
+        //
+        // load the specified server certificates
+        //
+
+        if (SSL_CTX_use_certificate_file(sslContext,
+            _certKeyPath, SSL_FILETYPE_PEM) <=0)
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                "---> SSL: no certificate found in " + String(_certKeyPath));
+            PEG_METHOD_EXIT();
+            throw( SSLException("Could not get server certificate."));
+        }
+
+        //
+        // load given private key and check for validity
+        //
+
+        if (!_verifyPrivateKey(sslContext, _certKeyPath))
+        {
+            PEG_METHOD_EXIT();
+            throw( SSLException("Could not get private key."));
+        }
     }
 
     PEG_METHOD_EXIT();
     return sslContext;
+}
+
+Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath)
+{
+    PEG_METHOD_ENTER(TRC_SSL, "_verifyPrivateKey()");
+
+    if (SSL_CTX_use_PrivateKey_file(ctx, keyFilePath, SSL_FILETYPE_PEM) <= 0)
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            "---> SSL: no private key found in " + String(keyFilePath));
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    if (!SSL_CTX_check_private_key(ctx))
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            "---> SSL: Private and public key do not match");
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    PEG_METHOD_EXIT();
+    return true;
 }
 
 SSL_CTX * SSLContextRep::getContext() const 
@@ -327,6 +429,7 @@ SSL_CTX * SSLContextRep::getContext() const
 //
 
 SSLContextRep::SSLContextRep(const String& certPath,
+                       const String& certKeyPath,
                        SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile) {}
 
@@ -335,6 +438,9 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 SSLContextRep::~SSLContextRep() {}
 
 SSL_CTX * SSLContextRep::_makeSSLContext() { return 0; }
+
+Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx,
+                                         const char *keyFilePath) { return false; }
 
 SSL_CTX * SSLContextRep::getContext() const { return 0; }
 
@@ -352,7 +458,7 @@ SSLContext::SSLContext(
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-    _rep = new SSLContextRep(certPath, verifyCert, randomFile);
+    _rep = new SSLContextRep(certPath, String::EMPTY, verifyCert, randomFile);
 }
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -362,9 +468,18 @@ SSLContext::SSLContext(
     const String& randomFile,
     Boolean isCIMClient)
 {
-    _rep = new SSLContextRep(certPath, verifyCert, randomFile);
+    _rep = new SSLContextRep(certPath, String::EMPTY, verifyCert, randomFile);
 }
 #endif
+
+SSLContext::SSLContext(
+    const String& certPath,
+    const String& certKeyPath,
+    SSLCertificateVerifyFunction* verifyCert,
+    const String& randomFile)
+{
+    _rep = new SSLContextRep(certPath, certKeyPath, verifyCert, randomFile);
+}
 
 SSLContext::SSLContext(const SSLContext& sslContext)
 {
@@ -403,14 +518,15 @@ SSLCertificateInfo::SSLCertificateInfo(
     const String subjectName,
     const String issuerName,
     const int errorDepth,
-    const int errorCode)
+    const int errorCode,
+    const int respCode)
 {
     _rep = new SSLCertificateInfoRep();
     _rep->subjectName = subjectName;
     _rep->issuerName = issuerName;
     _rep->errorDepth = errorDepth;
     _rep->errorCode = errorCode;
-    _rep->respCode = 0;
+    _rep->respCode = respCode;
 }
 
 SSLCertificateInfo::SSLCertificateInfo(
@@ -452,6 +568,11 @@ int SSLCertificateInfo::getErrorDepth() const
 int SSLCertificateInfo::getErrorCode() const
 {
     return (_rep->errorCode);
+}
+
+int SSLCertificateInfo::getResponseCode() const
+{
+    return (_rep->respCode);
 }
 
 void SSLCertificateInfo::setResponseCode(const int respCode)

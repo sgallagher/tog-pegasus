@@ -50,6 +50,7 @@ public:
 
     /** Constructor for a SSLContextRep object.
     @param certPath  certificate file path
+    @param certKeyPath  server certificate and key file path
     @param verifyCert  function pointer to a certificate verification
     call back function.
     @param randomFile  file path of a random file that is used as a seed
@@ -59,6 +60,7 @@ public:
     */
     SSLContextRep(
         const String& certPath,
+        const String& certKeyPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY);
 
@@ -71,8 +73,11 @@ public:
 private:
 
     SSL_CTX * _makeSSLContext();
+    void _randomInit(const String& randomFile);
+    Boolean _verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath);
 
     CString _certPath;
+    CString _certKeyPath;
     String _randomFile;
     SSL_CTX * _sslContext;
 };

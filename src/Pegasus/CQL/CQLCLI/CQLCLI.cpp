@@ -443,10 +443,6 @@ int main(int argc, char ** argv)
 		_instances.remove(6,6);
 	}
 	
-	cout << "testOption = " << testOption << endl;
-	cout << "className = " << className << endl;
-	cout << "nameSpace = " << nameSpace << endl;
-
 	// setup input stream
 	if(argc >= 2){
 		ifstream queryInputSource(argv[1]);

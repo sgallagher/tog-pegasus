@@ -132,12 +132,12 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifndef DOC_ONLY
   #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-	#define  __declspec(dllexport)
+	#define  CMPI_EXTERN_C __declspec(dllexport)
   #else
 	#ifdef __cplusplus
-      #define  extern "C"
+      #define  CMPI_EXTERN_C extern "C"
     #else
-      #define
+      #define CMPI_EXTERN_C
     #endif
   #endif
 #endif

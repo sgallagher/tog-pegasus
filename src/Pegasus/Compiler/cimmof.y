@@ -294,10 +294,16 @@ propertyDeclaration: qualifierList propertyBody propertyEnd
   apply(&g_qualifierList, $$);
 } ;
 
+// KS 8 March 2002 - Extended to pass isArray and arraySize
 propertyBody: dataType propertyName array defaultValue
 {
   CIMValue *v = valueFactory::createValue($1, $3, $4);
-  $$ = cimmofParser::Instance()->newProperty(*$2, *v);
+  if ($3 == -1) {
+    $$ = cimmofParser::Instance()->newProperty(*$2, *v, false, 0);
+} else {                                           
+    $$ = cimmofParser::Instance()->newProperty(*$2, *v, true, $3);
+  }
+
   delete $2;
   delete $4;
   delete v;
@@ -312,7 +318,8 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
   if (!String::equal(*$5, String::EMPTY))
     s += "." + *$5;
   CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, &s);
-  $$ = cimmofParser::Instance()->newProperty(*$4, *v, *$2);
+  //KS add the isArray and arraysize parameters. 8 mar 2002
+  $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
   apply(&g_qualifierList, $$);
   delete $2;
   delete $4;
@@ -519,6 +526,7 @@ instanceBody: TOK_LEFTCURLYBRACE valueInitializers TOK_RIGHTCURLYBRACE
 valueInitializers: valueInitializer
                  | valueInitializers valueInitializer ;
 
+// ATTN-KS-P1 -  7 Mar 2002 - The array in the following is incorrect.
 valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
                   initializer TOK_SEMICOLON 
 {

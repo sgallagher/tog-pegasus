@@ -777,14 +777,19 @@ cimmofParser::newInstance(const String &className)
 // When a property of a class being declared is discovered, creat the
 // new CIMProperty object.
 //----------------------------------------------------------------------
+
+// KS 8 Mar 2002 - Added is array and arraySize to parameters
 CIMProperty *
 cimmofParser::newProperty(const String &name, const CIMValue &val,
+                          const Boolean isArray,
+                          const Uint32 arraySize,
 			  const String &referencedObject) const
 {
   CIMProperty *p = 0;
   
   try {
-    p = new CIMProperty(name, val, 0, referencedObject);
+     //ATTNKS: P1 Note that we are not passing isArray
+    p = new CIMProperty(name, val, arraySize, referencedObject);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
     arglist.append(name);
@@ -1083,7 +1088,8 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     maybeThrowParseError(message);
   }
   const CIMValue defaultValue(false);
-  CIMProperty *p = newProperty(propertyName, defaultValue);
+  // KS 8 Mar add the values for isArray and arraysize (defaults)
+  CIMProperty *p = newProperty(propertyName, defaultValue, false, 0);
   return p;
 }
 

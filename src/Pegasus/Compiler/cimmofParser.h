@@ -166,6 +166,8 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   CIMInstance *newInstance(const String &name);
   // Called when a new property is discovered
   CIMProperty *newProperty(const String &name, const CIMValue &val,
+                           const Boolean isArray,
+                           const Uint32 arraySize,
 			   const String &referencedObj = String::EMPTY) const;
   // Called when a property production inside a class is complete
   int applyProperty(CIMClass &c, CIMProperty &p);

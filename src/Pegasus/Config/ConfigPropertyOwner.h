@@ -244,6 +244,16 @@ struct ConfigProperty
 */
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef PEGASUS_HAVE_BOOLEAN
+struct ConfigPropertyRow
+{
+    const char* propertyName;
+    const char* defaultValue;
+    int         dynamic;
+    char**      domain;
+    Uint32      domainSize;
+};
+#else
 struct ConfigPropertyRow
 {
     const char* propertyName;
@@ -252,6 +262,7 @@ struct ConfigPropertyRow
     char**      domain;
     Uint32      domainSize;
 };
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////

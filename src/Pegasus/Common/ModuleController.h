@@ -199,8 +199,10 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       static const Uint32 CLIENT_BLOCKING_THREAD_EXEC;
       static const Uint32 CLIENT_ASYNC_THREAD_EXEC;
       
+// ATTN-DME-P2-20020406 Removed private declaration.  client_handle is
+//          currently used in Pegasus/Provider/CIMOMHandle.cpp
 
-   private: 
+//   private: 
       class client_handle : public pegasus_auth_handle
       {
 	 public:

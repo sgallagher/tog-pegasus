@@ -42,20 +42,18 @@
 #define YY_INPUT(b, r, m) abort()
 #define exit(i) abort()
 #define fread(a, b, c, d) abort()
-#undef ECHO
-#define ECHO  attrerror(yytext)
 #include "slp_client.h"
 #include "y_attr.h"
 
 static int16 heapIndex;
-static int8 heap[2052];
-static int8 buf[2052];
-static int8 *_lslp_strdup(int8 *s);
-void attrerror(int8 *, ...);
+static char heap[2052];
+static char buf[2052];
+static char *_lslp_strdup(const char *s);
+void attrerror(const char *, ...);
 int32 attrwrap(void);
 int32 attrlex(void);
 void attr_close_lexer(uint32 handle);
-uint32 attr_init_lexer(int8 *s);
+size_t attr_init_lexer(const char *s);
 
 %}
 
@@ -154,9 +152,9 @@ val			(("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 
 %%
 
-static int8 *_lslp_strdup(int8 *s)
+static char *_lslp_strdup(const char *s)
 {
-  int8 *p = &heap[heapIndex];
+  char *p = &heap[heapIndex];
   do { heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
@@ -167,17 +165,17 @@ void attr_close_lexer(uint32 handle)
   attr_delete_buffer((YY_BUFFER_STATE)handle);
 }
 
-uint32 attr_init_lexer(int8 *s)
+size_t attr_init_lexer(const char *s)
 {
   memset(&buf[0], 0x00, 2052);
   memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
   strncpy(&buf[0], s, 2052);
-  return((uint32)attr_scan_buffer(&buf[0], strlen(s) + 2));
+  return((size_t) attr_scan_buffer(&buf[0], strlen(s) + 2));
 }
 
 
-void attrerror(int8 *s, ...)
+void attrerror(const char *s, ...)
 {
 	
  /* (va, s);

@@ -637,16 +637,80 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
    const CIMCreateInstanceRequestMessage * request =
       (const CIMCreateInstanceRequestMessage *)message;
 
-   CIMReference cimReference;
+   CIMInstance cimInstance;
+   CIMReference instanceName;
+   Status status;
+
+   try
+   {
+      String className = request->newInstance.getClassName();
+
+      // make class reference
+      CIMReference classReference(
+         "",
+         request->nameSpace,
+         className);
+
+      // get the provider file name and logical name
+      Pair<String, String> pair = _lookupProviderForClass(classReference);
+
+      // get cached or load new provider module
+      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+      // encapsulate the physical provider in a facade
+      ProviderFacade facade(module.getProvider());
+
+      // convert arguments
+      OperationContext context;
+
+      CIMReference instanceReference;
+
+      // ATTN: propagate namespace
+      instanceReference.setNameSpace(request->nameSpace);
+
+      // ATTN: need to handle key binding
+      instanceReference.setClassName(className);
+
+      SimpleResponseHandler<CIMReference> handler;
+
+      // forward request
+      facade.createInstance(
+         context,
+         instanceReference,
+         request->newInstance,
+         handler);
+
+      // error? provider claims success, but did not deliver an 
+      // instance name.
+      if(handler._objects.size() == 0)
+      {
+          throw CIMException(CIM_ERR_NOT_FOUND);
+      }
+
+      // save returned instance name
+      instanceName = handler._objects[0];
+   }
+   catch(CIMException & e)
+   {
+      status = Status(e.getCode(), e.getMessage());
+   }
+   catch(Exception & e)
+   {
+      status = Status(CIM_ERR_FAILED, e.getMessage());
+   }
+   catch(...)
+   {
+      status = Status(CIM_ERR_FAILED, "Unknown Error");
+   }
 
    // create response message
    CIMCreateInstanceResponseMessage * response =
       new CIMCreateInstanceResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop(),
-	 cimReference);
+         request->messageId,
+         CIMStatusCode(status.getCode()),
+         status.getMessage(),
+         request->queueIds.copyAndPop(),
+         instanceName);
 
    // preserve message key
    response->setKey(request->getKey());
@@ -665,13 +729,67 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
    const CIMModifyInstanceRequestMessage * request =
       (const CIMModifyInstanceRequestMessage *)message;
 
+   CIMReference instanceName;
+   Status status;
+
+   try
+   {
+      instanceName = request->modifiedInstance.getInstanceName();
+      String className = instanceName.getClassName();
+
+      // make class reference
+      CIMReference classReference(
+         instanceName.getHost(),
+         request->nameSpace,
+         className);
+
+      // get the provider file name and logical name
+      Pair<String, String> pair = _lookupProviderForClass(classReference);
+
+      // get cached or load new provider module
+      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+      // encapsulate the physical provider in a facade
+      ProviderFacade facade(module.getProvider());
+
+      // convert arguments
+      OperationContext context;
+
+      // ATTN: convert flags to bitmask
+      Uint32 flags = OperationFlag::convert(false);
+      CIMPropertyList propertyList(request->propertyList);
+
+      SimpleResponseHandler<CIMInstance> handler;
+
+      // forward request
+      facade.modifyInstance(
+         context,
+         instanceName,
+         request->modifiedInstance.getInstance(),
+         flags,
+         propertyList.getPropertyNameArray(),
+         handler);
+   }
+   catch(CIMException & e)
+   {
+      status = Status(e.getCode(), e.getMessage());
+   }
+   catch(Exception & e)
+   {
+      status = Status(CIM_ERR_FAILED, e.getMessage());
+   }
+   catch(...)
+   {
+      status = Status(CIM_ERR_FAILED, "Unknown Error");
+   }
+
    // create response message
    CIMModifyInstanceResponseMessage * response =
       new CIMModifyInstanceResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop());
+         request->messageId,
+         CIMStatusCode(status.getCode()),
+         status.getMessage(),
+         request->queueIds.copyAndPop());
 
    // preserve message key
    response->setKey(request->getKey());
@@ -690,13 +808,58 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
    const CIMDeleteInstanceRequestMessage * request =
       (const CIMDeleteInstanceRequestMessage *)message;
 
+   Status status;
+
+   try
+   {
+      String className = request->instanceName.getClassName();
+
+      // make class reference
+      CIMReference classReference(
+         request->instanceName.getHost(),
+         request->nameSpace,
+         className);
+
+      // get the provider file name and logical name
+      Pair<String, String> pair = _lookupProviderForClass(classReference);
+
+      // get cached or load new provider module
+      ProviderModule module = providerManager.getProviderModule(pair.first, pair.second);
+
+      // encapsulate the physical provider in a facade
+      ProviderFacade facade(module.getProvider());
+
+      // convert arguments
+      OperationContext context;
+
+      SimpleResponseHandler<CIMInstance> handler;
+
+      // forward request
+      facade.deleteInstance(
+         context,
+         request->instanceName,
+         handler);
+   }
+   catch(CIMException & e)
+   {
+      status = Status(e.getCode(), e.getMessage());
+   }
+   catch(Exception & e)
+   {
+      status = Status(CIM_ERR_FAILED, e.getMessage());
+   }
+   catch(...)
+   {
+      status = Status(CIM_ERR_FAILED, "Unknown Error");
+   }
+
    // create response message
    CIMDeleteInstanceResponseMessage * response =
       new CIMDeleteInstanceResponseMessage(
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "not implemented",
-	 request->queueIds.copyAndPop());
+         request->messageId,
+         CIMStatusCode(status.getCode()),
+         status.getMessage(),
+         request->queueIds.copyAndPop());
 
    // preserve message key
    response->setKey(request->getKey());
@@ -808,7 +971,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
 	 outParameters,
 	 handler);
 
-      // error? provider claims success, but did not deliver an instance.
+      // error? provider claims success, but did not deliver a CIMValue.
       if(handler._objects.size() == 0)
       {
 	 throw CIMException(CIM_ERR_NOT_FOUND);

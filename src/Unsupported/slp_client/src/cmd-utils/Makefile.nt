@@ -1,0 +1,15 @@
+#
+# Need to run vcvars32.bat and make sure bison 1.35 is in your path
+#
+# c:\progra~1\MICROS~1.NET\Vc7\bin\vcvars32
+# set path=%path%;C:\Program Files\GnuWin32\bin
+
+SRC_CLIENT=slp_client
+SRC_SRVREG=../slp_srvreg
+SRC_QUERY=../slp_query
+
+
+SRC_DIRS := $(SRC_CLIENT) $(SRC_SRVREG) $(SRC_QUERY) 
+
+all clean:
+	$(foreach dir, $(SRC_DIRS),cd $(dir) && $(MAKE) -f Makefile.nt $@;)

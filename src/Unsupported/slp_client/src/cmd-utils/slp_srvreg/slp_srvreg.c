@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_srvreg/Attic/slp_srvreg.c,v 1.2 2003/05/21 19:05:50 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_srvreg/Attic/slp_srvreg.c,v 1.3 2003/11/18 23:59:20 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -34,8 +34,11 @@
 
 #define SLP_LIB_IMPORT
 #include "../slp_client/slp_client.h"
+#ifdef _WIN32
+#include <time.h>
+#endif
 
-int8 *type, *url, *attrs, *addr, *scopes, *interface, *spi;
+int8 *type, *url, *attrs, *addr, *scopes, *iface, *spi;
 uint16 life = 0x0fff, port=427;
 BOOL should_listen = FALSE, dir_agent = FALSE, test = FALSE;
 
@@ -52,8 +55,8 @@ void free_globals(void)
     free(addr);
   if(scopes != NULL)
     free(scopes);
-  if(interface != NULL)
-    free(interface);
+  if(iface != NULL)
+    free(iface);
 }
 
 
@@ -128,19 +131,19 @@ BOOL get_options(int argc, char *argv[])
 	bptr = argv[i] + 2;
 	while(*bptr != '=') bptr++;
 	bptr++;
-	life = strtoul(bptr, NULL, 10);
+	life = (uint16)strtoul(bptr, NULL, 10);
       } else if(TRUE == lslp_pattern_match(argv[i] + 2, "port=*", FALSE)) {
 	bptr = argv[i] + 2;
 	while(*bptr != '=') bptr++;
 	bptr++;
-	port = strtoul(bptr, NULL, 10);
+	port = (uint16)strtoul(bptr, NULL, 10);
       } else if(TRUE == lslp_pattern_match(argv[i] + 2, "interface=*", FALSE)) {
 	bptr = argv[i] + 2;
 	while(*bptr != '=') bptr++;
 	bptr++;
-	if(interface != NULL)
-	  free(interface);
-	interface = strdup(bptr);
+	if(iface != NULL)
+	  free(iface);
+	iface = strdup(bptr);
       } else if(TRUE == lslp_pattern_match(argv[i] + 2, "daemon=true*", FALSE)) {
 	should_listen = TRUE;
       } else if(TRUE == lslp_pattern_match(argv[i] + 2, "test*", FALSE)) {
@@ -175,7 +178,7 @@ int main(int argc, char **argv)
     }
     
     if(NULL != (client = create_slp_client(addr, 
-					   interface, 
+					   iface, 
 					   port, 
 					   "DSA", 
 					   scopes, 

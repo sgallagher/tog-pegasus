@@ -1,0 +1,7 @@
+
+SRC_DIRS := src 
+
+all clean:
+	$(foreach dir, $(SRC_DIRS),cd $(dir) && $(MAKE) -f Makefile.nt $@;)
+
+

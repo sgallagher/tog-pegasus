@@ -1,0 +1,23 @@
+CC=cl.exe
+ifdef DEBUG
+CFLAGS=/nologo /Od /D "WIN32" /D "_DEBUG" /Gm /EHsc /RTC1 /MTd /W3 /c /Zi /TC
+LDFLAGS=/nologo /dll /debug
+else
+CFLAGS=/nologo /O2 /D "WIN32" /EHsc /MT /W3 /c /TC
+LDFLAGS=/nologo /dll
+endif
+
+
+all: slp_srvreg.exe
+
+##############################################################
+# slp_query
+##############################################################
+slp_srvreg.obj : slp_srvreg.c
+	$(CC) $(CFLAGS) $<
+slp_srvreg.exe : slp_srvreg.obj
+	$(CC) /nologo /Fe$@ slp_srvreg.obj ../slp_client/slp_client.lib Ws2_32.lib
+
+clean:
+	$(RM) *.obj *.pdb *.idb *.exe
+

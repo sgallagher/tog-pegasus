@@ -94,8 +94,12 @@
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+#ifdef _WIN32
+#define DLL_IMPORT __declspec(dllimport)
+#define DLL_EXPORT __declspec(dllexport)
+#else
 #define DLL_IMPORT 
-
 #define DLL_EXPORT 
+#endif
 
 /* #undef WORDS_BIG_ENDIAN */

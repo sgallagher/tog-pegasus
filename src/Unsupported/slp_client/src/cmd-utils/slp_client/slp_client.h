@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.h,v 1.4 2003/10/23 17:35:40 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/slp_client.h,v 1.5 2003/11/18 23:59:20 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -947,12 +947,12 @@ char *slp_get_host_name( char *buf, int buf_size  );
 						      int16 errCode);
   /* a is an attribute list, while b is a string representation of an ldap filter  */
  BOOL lslp_predicate_match(lslpAttrList *a, int8 *b);
- BOOL  lslp_pattern_match(const int8 *s, const int8 *p, BOOL case_sensitive);
  int8 * lslp_get_next_ext(int8 *hdr_buf);
 
 
 /***** Functions Exported by the library *****/
 
+SLP_STORAGE_DECL BOOL  lslp_pattern_match(const int8 *s, const int8 *p, BOOL case_sensitive);
 SLP_STORAGE_DECL struct slp_client *create_slp_client(const int8 *target_addr, 
 							     const int8 *local_interface, 
 							     uint16 target_port, 

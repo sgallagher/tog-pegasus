@@ -1,0 +1,5 @@
+
+DIRS = cmd-utils
+
+all clean:
+	$(foreach dir, $(DIRS), cd $(dir) && $(MAKE) -f Makefile.nt $@;)

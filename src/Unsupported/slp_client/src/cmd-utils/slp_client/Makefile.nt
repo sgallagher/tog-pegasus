@@ -1,8 +1,18 @@
+##############################################################
+# Requires GNU Bison 1.35 and bison.simple
+##############################################################
 export BISON_SIMPLE := bison.simple
 CC=cl.exe
-CFLAGS=/nologo /Od /D "WIN32" /D "_DEBUG" /Gm /EHsc /RTC1 /MDd /W3 /c /ZI /TC
 LINKER=link
-LDFLAGS=/nologo /dll /debug 
+
+ifdef DEBUG
+CFLAGS=/nologo /Od /D "WIN32" /D "_DEBUG" /Gm /EHsc /RTC1 /MDd /W3 /c /Zi /TC
+LDFLAGS=/nologo /dll /debug
+else
+CFLAGS=/nologo /O2 /D "WIN32" /EHsc /MD /W3 /c /TC
+LDFLAGS=/nologo /dll
+endif
+
 LIBS=Ws2_32.lib
 LEX=flex
 YACC=bison
@@ -102,4 +112,5 @@ slp_client.dll : $(OBJECTS)
 	$(LINKER) $(LDFLAGS) -out:$@ $(OBJECTS) $(LIBS)
 
 clean:
-	$(RM) l_attr.c y_attr.c l_url.c y_url.c l_filter.c y_filter.c *.dll $(OBJECTS) *.pdb *.idb
+	$(RM) l_attr.c y_attr.c l_url.c y_url.c l_filter.c y_filter.c *.dll $(OBJECTS) *.pdb *.idb *.ilk *.exp *.lib
+

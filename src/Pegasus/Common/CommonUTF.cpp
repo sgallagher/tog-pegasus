@@ -308,19 +308,19 @@ Boolean isUTF8Str(const char *legal)
                       0x00};*/
 //  char tmp_[] = "class";
 //  char * tmp = legal;
-    Uint32 count = 0;
-        Uint32 size = strlen(legal);
+    size_t count = 0;
+    const size_t size = strlen(legal);
 //  printf("size = %d\n",size);
-        while(count<size)
-        {
+    while(count<size)
+    {
 //      printf("count = %d\n",count);
-                if(isUTF8(&legal[count]) == true){
-                    UTF8_NEXT(legal,count);
+        if(isUTF8(&legal[count]) == true){
+            UTF8_NEXT(legal,count);
         }else{
 //          printf("bad string\n");
             return false;
         }
-        }
+    }
 //  printf("good string\n");
     return true;
 /*

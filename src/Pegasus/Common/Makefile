@@ -45,7 +45,6 @@ SOURCES = \
     CIMQualifierList.cpp \
     CIMQualifierNames.cpp \
     CIMQualifierRep.cpp \
-    CIMReference.cpp \
     CIMScope.cpp \
     CIMStatusCode.cpp \
     CIMType.cpp \

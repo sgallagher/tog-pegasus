@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.4  2001/04/14 03:37:16  mike
+// Added new example to test option manager
+//
 // Revision 1.3  2001/04/14 02:26:42  mike
 // More on option manager implementation
 //
@@ -41,6 +44,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -211,6 +215,7 @@ public:
 	&param argc - number of argument on the command line.
 	&param argv - list of command line arguments.
 	&throw BadCommandLineOption when validation fails.
+	&throw MissingCommandLineOptionArgument
     */
     void mergeCommandLine(int& argc, char**& argv);
 
@@ -244,14 +249,19 @@ public:
     void checkRequiredOptions() const;
 
     /** Lookup the option with the given name.
-	@return false if no such option.
+	@return 0 if no such option.
     */
-    const Option* lookupOption(const String& optionName) const;
+    const Option* lookupOption(const String& name) const;
 
     /** Print all the options. */
     void print() const;
 
 private:
+
+    /** Lookup the option by its commandLineOptionName.
+	@return 0 if no such option.
+    */
+    Option* _lookupOptionByCommandLineOptionName(const String& name);
 
     Array<Option*> _options;
 };
@@ -441,6 +451,22 @@ private:
     String _configFileVariableName;
     String _commandLineOptionName;
     Boolean _foundValue;
+};
+
+class MissingCommandLineOptionArgument : public Exception
+{
+public:
+
+    MissingCommandLineOptionArgument(const String& optionName)
+	: Exception("Missing command line option argument: " + optionName) { }
+};
+
+class BadCommandLineOption : public Exception
+{
+public:
+
+    BadCommandLineOption(const String& optionName)
+	: Exception("Bad command line option: " + optionName) { }
 };
 
 PEGASUS_NAMESPACE_END

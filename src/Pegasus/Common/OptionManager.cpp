@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.4  2001/04/14 03:37:16  mike
+// Added new example to test option manager
+//
 // Revision 1.3  2001/04/14 02:26:42  mike
 // More on option manager implementation
 //
@@ -74,7 +77,61 @@ Boolean OptionManager::registerOption(Option* option)
 
 void OptionManager::mergeCommandLine(int& argc, char**& argv)
 {
-    // ATTN-A: Implement
+    for (int i = 0; i < argc; )
+    {
+	// Check for -option:
+
+	const char* arg = argv[i];
+
+	if (*arg == '-')
+	{
+	    // Look for the option:
+
+	    Option* option = _lookupOptionByCommandLineOptionName(arg + 1);
+
+	    if (!option)
+	    {
+		i++;
+		continue;
+	    }
+
+	    // Get the option argument if any:
+
+	    const char* optionArgument = "true";
+
+	    if (option->getType() != Option::BOOLEAN)
+	    {
+		if (i + 1 == argc)
+		    throw MissingCommandLineOptionArgument(arg);
+
+		optionArgument = argv[i + 1];
+	    }
+
+	    // Validate the value:
+
+	    if (!option->isValid(optionArgument))
+		throw BadCommandLineOption(arg);
+
+	    // Set the value:
+
+	    option->setValue(optionArgument);
+
+	    // Remove the option and its argument from the command line:
+
+	    if (option->getType() == Option::BOOLEAN)
+	    {
+		memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+		argc--;
+	    }
+	    else
+	    {
+		memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+		argc -= 2;
+	    }
+	}
+	else
+	    i++;
+    }
 }
 
 void OptionManager::mergeEnvironment()
@@ -92,11 +149,22 @@ void OptionManager::checkRequiredOptions() const
     // ATTN-A: Implement
 }
 
-const Option* OptionManager::lookupOption(const String& optionName) const
+const Option* OptionManager::lookupOption(const String& name) const
 {
     for (Uint32 i = 0; i < _options.getSize(); i++)
     {
-	if (_options[i]->getOptionName() == optionName)
+	if (_options[i]->getOptionName() == name)
+	    return _options[i];
+    }
+
+    return 0;
+}
+
+Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
+{
+    for (Uint32 i = 0; i < _options.getSize(); i++)
+    {
+	if (_options[i]->getCommandLineOptionName() == name)
 	    return _options[i];
     }
 
@@ -108,8 +176,10 @@ void OptionManager::print() const
     for (Uint32 i = 0; i < _options.getSize(); i++)
     {
 	Option* option = _options[i];
-	cout << option->getOptionName() << "=" << option->getValue() << endl;
+	cout << option->getOptionName() << "=\"";
+	cout << option->getValue() << "\"\n";
     }
+    cout << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +251,7 @@ Option& Option::operator=(const Option& x)
 Boolean Option::isValid(const String& value) const
 {
     // ATTN-A: Implement
-    return false;
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

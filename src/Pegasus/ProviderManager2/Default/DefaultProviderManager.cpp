@@ -260,7 +260,8 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -369,7 +370,8 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -480,8 +482,8 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             String::EMPTY,
             0);
 
-        // resolve the physical and logical provider name
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -587,7 +589,8 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -693,7 +696,8 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -803,7 +807,8 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -943,7 +948,8 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1051,7 +1057,8 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1155,7 +1162,8 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1264,7 +1272,8 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1370,7 +1379,8 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1480,7 +1490,8 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1593,7 +1604,8 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1720,7 +1732,8 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1861,7 +1874,8 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2002,7 +2016,8 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             String::EMPTY,
             0);
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2200,7 +2215,8 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
             String::EMPTY,
             objectPath.toString());
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
         */
 
         // get cached or load new provider module
@@ -2297,7 +2313,8 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
             String::EMPTY,
             objectPath.toString());
 
-        name = findProvider(name);
+        // resolve provider name
+        name = _resolveProviderName(name);
         */
 
         // get cached or load new provider module
@@ -2652,6 +2669,32 @@ String DefaultProviderManager::_generateKey (
     PEG_METHOD_EXIT();
 
     return(tableKey);
+}
+
+ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & providerName)
+{
+    ProviderName temp = findProvider(providerName);
+
+    String physicalName = temp.getPhysicalName();
+
+    // fully qualify physical provider name (module), if not already done so.
+    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    physicalName = physicalName + String(".dll");
+    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    physicalName = root + String("/lib") + physicalName + String(".so"));
+    #elif defined(PEGASUS_OS_HPUX)
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    physicalName = root + String("/lib") + moduleLocation + String(".sl"));
+    #elif defined(PEGASUS_OS_OS400)
+    // do nothing
+    #else
+    foo // needs code
+    #endif
+
+    temp.setPhysicalName(physicalName);
+
+    return(temp);
 }
 
 PEGASUS_NAMESPACE_END

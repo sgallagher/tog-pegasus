@@ -122,6 +122,8 @@ protected:
 
     String _generateKey(const Provider & provider);
 
+    ProviderName _resolveProviderName(const ProviderName & providerName);
+
 protected:
     /**
         Table holding indication response handlers, one for each provider

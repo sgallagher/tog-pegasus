@@ -290,7 +290,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     if(service->_incomingQueue.size() == 0)
     {
 	// thread started with no message in queue.
-	return(1);
+	return(PEGASUS_THREAD_RETURN(1));
     }
 
     // get message from service queue

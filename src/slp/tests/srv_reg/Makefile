@@ -1,4 +1,4 @@
-ROOT = ../../../..
+ROOT = $(PEGASUS_ROOT)
 DIR = Pegasus/../slp/tests/srvreg
 include $(ROOT)/mak/config.mak
 include ../libraries.mak

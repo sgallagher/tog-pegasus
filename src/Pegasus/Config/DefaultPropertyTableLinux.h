@@ -39,8 +39,8 @@
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"logLevel", "SEVERE", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -61,8 +61,8 @@
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
     {"logLevel", "INFORMATION", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},

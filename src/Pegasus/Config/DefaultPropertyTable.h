@@ -48,8 +48,8 @@
 #elif defined (PEGASUS_OS_VMS)
 #include "DefaultPropertyTableVms.h"
 #else
-    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},

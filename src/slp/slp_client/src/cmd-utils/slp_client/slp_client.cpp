@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.2 2004/06/03 23:22:30 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.3 2004/06/10 15:32:24 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -2574,7 +2574,7 @@ int8 *lslp_foldString(int8 *s)
 
 BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList *include)
 {
-		
+ 
   lslpAttrList *attrs, *included;
   int16 attrLen = 0, lenSave;
   int8 *bptr;
@@ -2587,7 +2587,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   /* always return TRUE on an empty list so we can continue to build the */
   /* msg buffer - an empty list is not an error! */
   if (list == NULL || _LSLP_IS_EMPTY(list)) {
-    _LSLP_SETSHORT((*buf), 0, 0);  
+    _LSLP_SETSHORT((*buf), 0, 0); 
     (*buf) += 2;
     (*len) -= 2;
     return(TRUE);
@@ -2596,134 +2596,165 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   lenSave = *len;
   attrs = list->next;
   bptr = *buf;
-  memset(bptr, 0x00, *len);
-  (*buf) += 2;	 /* reserve space for the attrlist length short */
+ 
+  /* <<< Fri May 14 17:13:22 2004 mdd >>> 
+     on some platforms memset must be called with a 4-byte aligned address 
+as the buffer */ 
+  /*  memset(bptr, 0x00, *len); */
+  (*buf) += 2;   /* reserve space for the attrlist length short */
   (*len) -= 2;
   while (! _LSLP_IS_HEAD(attrs) && attrLen + 1 < *len) {
     assert(attrs->type != head);
-    if(include != NULL && _LSLP_IS_HEAD(include) && (! _LSLP_IS_EMPTY(include))) {
+    if(include != NULL && _LSLP_IS_HEAD(include) && (!_LSLP_IS_EMPTY(include))) {
       included = include->next;
       hit = FALSE;
-      
+ 
       while(! _LSLP_IS_HEAD(included)){
-	if( ! lslp_string_compare(attrs->name, included->name)){
-	  hit = TRUE;
-	  break;
-	}
-	included = included->next;
+        if( ! lslp_string_compare(attrs->name, included->name)){
+          hit = TRUE;
+          break;
+        }
+        included = included->next;
       }
     }
-    
+ 
     if(hit == FALSE){
       attrs = attrs->next;
       continue;
     }
-    
+ 
     if (attrLen + (int16)strlen(attrs->name) + 3 < *len)
       {
-	if (attrs->type != tag)
-	  {
-	    **buf = '(';  
-	    (*buf)++; 
-	    attrLen++;
-	    (*len)--;
-	  }
-	strcpy(*buf, attrs->name);
-	(*buf) += strlen(attrs->name); 
-	attrLen += (int16)strlen(attrs->name);
-	(*len) -= (int16)strlen(attrs->name);
-	if (attrs->type != tag)
-	  {
-	    **buf = '='; 
-	    (*buf)++; 
-	    attrLen++;
-	    (*len)--;
-	  }
-	switch (attrs->type)
-	  {
-	  case tag:
-	    break;
-	  case string:
-	    if (attrLen + (int16)strlen(attrs->val.stringVal) + 2 < *len)
-	      {
-		strcpy(*buf, (attrs->val.stringVal));
-		(*buf) += strlen(attrs->val.stringVal); 
-		attrLen +=  (int16)strlen(attrs->val.stringVal);
-		(*len) -= (int16)strlen(attrs->val.stringVal);
-		ccode = TRUE;
-	      }
-	    else
-	      ccode = FALSE;
-	    break;
-	  case integer:
-	    if (attrLen + 33 + 2 < *len)
-	      {
-		_itoa( attrs->val.intVal, *buf, 10 );
-		attrLen += (int16)strlen(*buf);
-		(*buf) += strlen(*buf);
-		(*len) -= (int16)strlen(*buf);
-		ccode = TRUE;
-	      }
-	    else
-	      ccode = FALSE;
-	    break;
-	  case bool_type:
-	    if (attrLen + 6 + 2 < *len)
-	      {
-		if (attrs->val.boolVal)
-		  strcpy(*buf, "TRUE");
-		else
-		  strcpy(*buf, "FALSE");
-		attrLen += (int16)strlen(*buf);
-		(*buf) += strlen(*buf);
-		(*len) -= (int16)strlen(*buf);
-		ccode = TRUE;
-	      }
-	    else
-	      ccode = FALSE;
-	    break;
-	  case opaque:
-	    {
-	      int16 opLen;
-	      opLen = (_LSLP_GETSHORT(((int8 *)attrs->val.opaqueVal), 0));
-	      if (attrLen + opLen + 3 < *len)
-		{
-		  memcpy(*buf, (((int8 *)attrs->val.opaqueVal) + 2), opLen);
-		  (*buf) += opLen;
-		  attrLen += opLen;
-		  (*len) -= opLen;
-		  ccode = TRUE;
-		}
-	      else
-		ccode = FALSE;
-	      break;
-	    }
-	  default:
-	    ccode = FALSE;
-	    break;
-	  }
-	if (ccode == TRUE && attrLen + 2 < *len && attrs->type != tag)
-	  {
-	    **buf = ')'; 
-	    (*buf)++; 
-	    attrLen++;
-	    (*len)--;
-	  }
-	if (ccode == TRUE && ! _LSLP_IS_HEAD(attrs->next) && attrLen + 1 < *len)
-	  {
-	    **buf = ','; 
-	    (*buf)++; 
-	    attrLen++;
-	    (*len)--;
-	  }
+        /* << Wed Jun  9 14:07:54 2004 mdd >> properly encode multi-valued 
+attributes */
+        if( _LSLP_IS_HEAD(attrs->prev) || 
+lslp_string_compare(attrs->prev->name, attrs->name)) {
+ 
+
+          if (attrs->type != tag) {
+            **buf = '('; 
+            (*buf)++; 
+            attrLen++;
+            (*len)--;
+          }
+ 
+          strcpy(*buf, attrs->name);
+          (*buf) += strlen(attrs->name); 
+          attrLen += (int16)strlen(attrs->name);
+          (*len) -= (int16)strlen(attrs->name);
+
+ 
+          if (attrs->type != tag)
+            {
+              **buf = '='; 
+              (*buf)++; 
+              attrLen++;
+              (*len)--;
+            }
+        } /* if not a multi-val */ 
+        switch (attrs->type)
+          {
+          case tag:
+            ccode = TRUE;
+ 
+            break;
+          case string:
+            if (attrLen + (int16)strlen(attrs->val.stringVal) + 2 < *len)
+              {
+                strcpy(*buf, (attrs->val.stringVal));
+                (*buf) += strlen(attrs->val.stringVal); 
+                attrLen +=  (int16)strlen(attrs->val.stringVal);
+                (*len) -= (int16)strlen(attrs->val.stringVal);
+                ccode = TRUE;
+              }
+            else
+              ccode = FALSE;
+            break;
+          case integer:
+            if (attrLen + 33 + 2 < *len)
+              {
+                _itoa( attrs->val.intVal, *buf, 10 );
+                attrLen += (int16)strlen(*buf);
+                (*buf) += strlen(*buf);
+                (*len) -= (int16)strlen(*buf);
+                ccode = TRUE;
+              }
+            else
+              ccode = FALSE;
+            break;
+          case bool_type:
+            if (attrLen + 6 + 2 < *len)
+              {
+                if (attrs->val.boolVal)
+                  strcpy(*buf, "TRUE");
+                else
+                  strcpy(*buf, "FALSE");
+                attrLen += (int16)strlen(*buf);
+                (*buf) += strlen(*buf);
+                (*len) -= (int16)strlen(*buf);
+                ccode = TRUE;
+              }
+            else
+              ccode = FALSE;
+            break;
+          case opaque:
+            {
+              int16 opLen;
+              opLen = (_LSLP_GETSHORT(((int8 *)attrs->val.opaqueVal), 0));
+              if (attrLen + opLen + 3 < *len)
+                {
+                  memcpy(*buf, (((int8 *)attrs->val.opaqueVal) + 2), opLen);
+                  (*buf) += opLen;
+                  attrLen += opLen;
+                  (*len) -= opLen;
+                  ccode = TRUE;
+                }
+              else
+                ccode = FALSE;
+              break;
+            }
+          default:
+            ccode = FALSE;
+            break;
+          }
+        if (ccode == TRUE && attrLen + 2 < *len && attrs->type != tag)
+          {
+            /* << Wed Jun  9 14:07:54 2004 mdd >> properly encode 
+multi-valued attributes */
+            if( _LSLP_IS_HEAD(attrs->next) || 
+lslp_string_compare(attrs->next->name, attrs->name  )) {
+              **buf = ')'; 
+              (*buf)++; 
+              attrLen++;
+              (*len)--;
+            }
+          }
+        if (ccode == TRUE && ! _LSLP_IS_HEAD(attrs->next) && attrLen + 1 < *len)
+          {
+            **buf = ','; 
+            (*buf)++; 
+            attrLen++;
+            (*len)--;
+          }
       }  /* if room for the attr name */
     else
       {
-	ccode = FALSE;
-	break;
+        ccode = FALSE;
+        break;
       }
     attrs = attrs->next;
   } /* while we are traversing the attr list */
+
+  /* check for a trailing comma, which may end up in the buffer if we are 
+*/
+  /* selecting attributes based upon a tag list */
+  if(*buf && *(*buf - 1) == ',') {
+    *(*buf - 1) = 0x00;
+    attrLen -= 1;
+ 
+  }
+ 
+
   /* set the length short */
   if (ccode == TRUE)
     {
@@ -2736,8 +2767,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
       memset(*buf, 0x00, *len);
     }
   return(ccode);
-}	
-
+}
 
 lslpAttrList *lslpUnstuffAttr(int8 **buf, int16 *len, int16 *err)  
 {

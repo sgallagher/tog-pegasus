@@ -34,13 +34,6 @@
 
 #include "cmpidt.h"
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-// Per bug #2041
-#ifndef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-	#error Warning: PEGASUS_USE_EXPERIMENTAL_INTERFACES is not defined.
-	#error Append -DPEGASUS_USE_EXPERIMENTAL_INTERFACES to CFLAGS environment variable
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2554,5 +2547,4 @@ extern "C" {
  };
 #endif
 
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #endif // _CMPIFT_H_

@@ -1,6 +1,5 @@
 #pragma include ("PG_OperatingSystem20R.mof")
 #pragma include ("PG_ComputerSystem20R.mof")
 #pragma include ("PG_UnixProcess20R.mof")
-#pragma include ("CIMOMStatDataR.mof")
 #pragma include ("PG_Processor20R.mof")
 #pragma include ("PG_IP20R.mof")

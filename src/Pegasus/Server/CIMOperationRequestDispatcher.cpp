@@ -237,6 +237,23 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+
+
+ #ifdef PEGASUS_HAS_PERFINST
+
+          _routing_table.insert_record(PEGASUS_CLASSNAME_CIMOMSTATDATA,
+                                       PEGASUS_NAMESPACENAME_CIMOMSTATDATA,
+                                       DynamicRoutingTable::INTERNAL,
+                                       0,
+                                       static_cast<MessageQueueService *>
+                                       (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                                       PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
+                                       PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+ #endif
+
+
+
 #ifdef PEGASUS_ENABLE_SLP
      // PG_Namespace.  Note that this means that CIM_Namespace is not
      // managed by the provider.  It is not implemented so that the

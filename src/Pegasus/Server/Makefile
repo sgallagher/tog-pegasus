@@ -52,6 +52,13 @@ LIBRARIES += \
 	DefaultProviderManager
 endif
 
+ifdef PEGASUS_HAS_PERFINST
+ LIBRARIES += \
+       CIMOMStatDataProvider
+endif
+
+
+
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \

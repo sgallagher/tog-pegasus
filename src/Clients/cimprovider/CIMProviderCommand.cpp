@@ -30,7 +30,8 @@
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
-//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//               Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#2311
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -607,42 +608,41 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append(COMMAND_NAME);
 
 #ifdef PEGASUS_OS_OS400
-    usage.append("  [ -").append(OPTION_DISABLE);
+    usage.append(" -").append(OPTION_DISABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                    [ -").append(OPTION_ENABLE);
+    usage.append("                   -").append(OPTION_ENABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                    [ -").append(OPTION_REMOVE);
+    usage.append("                   -").append(OPTION_REMOVE);
     usage.append(" -").append(OPTION_MODULE).append(" module");
     usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                    [ -").append(OPTION_LIST);
+    usage.append("                   -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
-    usage.append(" | -").append(OPTION_MODULE).append(" module ] ] \n");
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
 #else
-    usage.append("  [ -").append(OPTION_DISABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module ] ");
+    usage.append(" -").append(OPTION_DISABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
-    usage.append("[ -").append(OPTION_ENABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module ]\n");
+    usage.append("                   -").append(OPTION_ENABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
-    usage.append("                    [ -").append(OPTION_REMOVE);
+    usage.append("                   -").append(OPTION_REMOVE);
     usage.append(" -").append(OPTION_MODULE).append(" module");
-    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ]\n");
+    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] \n");
 
-    usage.append("                    [ -").append(OPTION_LIST);
+    usage.append("                   -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
-    usage.append(" | -").append(OPTION_MODULE).append(" module ] ]\n");
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
 #endif
     //PEP167 changes - common for all platforms
-    usage.append("                    [ -").append(OPTION_HELP).append(" ] [ --")
-         .append(LONG_HELP).append(" ] ");
-
-    usage.append("[ --").append(LONG_VERSION).append(" ] \n");
+    usage.append("                   -").append(OPTION_HELP).append("\n");
+    usage.append("                   --").append(LONG_HELP).append("\n");
+    usage.append("                   --").append(LONG_VERSION).append("\n");
 
     usage.append("Options : \n");
     usage.append("    -d         - Disable the specified CIM provider module\n");

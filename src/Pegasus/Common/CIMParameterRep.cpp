@@ -63,7 +63,7 @@ CIMParameterRep::CIMParameterRep(
     }
     else
     {
-        // ATTN: revisit this later!
+        // ATTN: revisit this later!  (Make consistent with CIMPropertyRep)
 #if 0
 	if (_type == CIMTYPE_REFERENCE)
 	    throw TypeMismatchException();
@@ -112,30 +112,52 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 {
     if (_isArray)
     {
-	out << "<PARAMETER.ARRAY";
+        if (_type == CIMTYPE_REFERENCE)
+        {
+            out << "<PARAMETER.REFARRAY";
+            out << " NAME=\"" << _name << "\"";
 
-	out << " NAME=\"" << _name << "\" ";
+            if (!_referenceClassName.isNull())
+            {
+                out << " REFERENCECLASS=\"" << _referenceClassName.getString()
+                    << "\"";
+            }
 
-	out << " TYPE=\"" << cimTypeToString (_type) << "\"";
+            out << ">\n";
 
-	if (_arraySize)
-	{
-	    char buffer[32];
-	    sprintf(buffer, "%d", _arraySize);
-	    out << " ARRAYSIZE=\"" << buffer << "\"";
-	}
+            _qualifiers.toXml(out);
 
-	out << ">\n";
+            out << "</PARAMETER.REFARRAY>\n";
+        }
+        else
+        {
+            out << "<PARAMETER.ARRAY";
+            out << " NAME=\"" << _name << "\" ";
+            out << " TYPE=\"" << cimTypeToString (_type) << "\"";
 
-	_qualifiers.toXml(out);
+            if (_arraySize)
+            {
+                char buffer[32];
+                sprintf(buffer, "%d", _arraySize);
+                out << " ARRAYSIZE=\"" << buffer << "\"";
+            }
 
-	out << "</PARAMETER.ARRAY>\n";
+            out << ">\n";
+
+            _qualifiers.toXml(out);
+
+            out << "</PARAMETER.ARRAY>\n";
+        }
     }
     else if (_type == CIMTYPE_REFERENCE)
     {
 	out << "<PARAMETER.REFERENCE";
-	out << " NAME=\"" << _name << "\" ";
-	out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+	out << " NAME=\"" << _name << "\"";
+        if (!_referenceClassName.isNull())
+        {
+	    out << " REFERENCECLASS=\"" << _referenceClassName.getString() <<
+                   "\"";
+        }
 	out << ">\n";
 
 	_qualifiers.toXml(out);

@@ -65,7 +65,14 @@ MSG_ROOT = $(HOME_DIR)/msg
 
 # define the location for the repository
 REPOSITORY_DIR = $(HOME_DIR)
-REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
+REPOSITORY_NAME = repository
+REPOSITORY_ROOT = $(REPOSITORY_DIR)/$(REPOSITORY_NAME)
+
+# define the repository mode 
+#	XML = XML format
+#	BIN = Binary format
+#
+REPOSITORY_MODE = XML
 
 # The two variables, CIM_SCHEMA_DIR and CIM_SCHEMA_VER,
 # are used to control the version of the CIM Schema

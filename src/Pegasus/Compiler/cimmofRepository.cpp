@@ -51,13 +51,12 @@
 
 PEGASUS_USING_PEGASUS;
 
-cimmofRepository::cimmofRepository(const String &path, 
-				   compilerCommonDefs::operationType ot) :
+cimmofRepository::cimmofRepository(const String &path, const CIMRepository_Mode Mode,  compilerCommonDefs::operationType ot) :
   _cimrepository(0), _context(0), _ot(ot)
 {
   // don't catch the exceptions that might be thrown.  They should go up.
   if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-    _cimrepository = new CIMRepository(path + "/repository");
+    _cimrepository = new CIMRepository(path, Mode );
   }
   _context = new compilerDeclContext(_cimrepository, _ot);
   if (_cimrepository)

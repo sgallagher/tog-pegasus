@@ -74,6 +74,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Array<String> _include_paths;
   Array<String> _filespecs;
   String       _repository;
+  String        _repository_name;
+  String        _repository_mode;
   String                _namespacePath;
   Boolean         _syntax_only;
   Boolean         _is_local;
@@ -93,6 +95,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   PEGASUS_STD(ostream)      *_warningos;
  public:
   mofCompilerOptions() : _repository(String::EMPTY), 
+    _repository_name(String::EMPTY),
+    _repository_mode(String::EMPTY),
     _namespacePath(""),
     _syntax_only(false),
     _is_local(false),
@@ -113,9 +117,15 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void add_filespecs(const String &spec) { _filespecs.append(spec); }
   const Array<String>& get_include_path_list() const {return _include_paths; }
   const Array<String>& get_filespec_list() const { return _filespecs; }
-  void  set_repository_name(const String &repository) { \
+  void  set_repository(const String &repository) { \
     _repository = repository; }
-  const String &get_repository_name() const { return _repository; }
+  const String &get_repository() const { return _repository; }
+  void  set_repository_name(const String &repository_name) { \
+    _repository_name = repository_name; }
+  const String &get_repository_name() const { return _repository_name; }
+  void  set_repository_mode(const String &repository_mode) { \
+    _repository_mode = repository_mode; }
+  const String &get_repository_mode() const { return _repository_mode; }
   void set_syntax_only() { _syntax_only = true; }
   void reset_syntax_only() { _syntax_only = false; }
   Boolean syntax_only() const { return _syntax_only; }

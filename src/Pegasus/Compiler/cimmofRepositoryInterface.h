@@ -64,6 +64,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Compiler/Linkage.h>
 #include "mofCompilerOptions.h"
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -85,7 +86,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface {
   };
   cimmofRepositoryInterface();
   virtual ~cimmofRepositoryInterface();
-  void init(_repositoryType type, String location,
+  void init(_repositoryType type, String location, CIMRepository_Mode Mode,
 	    compilerCommonDefs::operationType ot);
   Boolean ok() const { return _repository || _client; }
   virtual void addClass(

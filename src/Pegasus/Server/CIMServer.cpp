@@ -196,6 +196,8 @@ void CIMServer::_init(void)
 {
 
     String repositoryRootPath = String::EMPTY;
+    int binaryMode;
+    CIMRepository_Mode Mode;
 
 #ifdef PEGASUS_ENABLE_SLP
     _runSLP = true;         // Boolean cannot be set in definition.
@@ -226,7 +228,14 @@ void CIMServer::_init(void)
     }
 #endif
 
-    _repository = new CIMRepository(repositoryRootPath);
+    binaryMode = (ConfigManager::getInstance()->getCurrentValue(
+        "enableBinaryRepository") == "true");
+
+    Mode.flag = CIMRepository_Mode::NONE;
+    if (binaryMode) 
+      Mode.flag |= CIMRepository_Mode::BIN;
+
+    _repository = new CIMRepository(repositoryRootPath, Mode);
 
     // -- Create a UserManager object:
 

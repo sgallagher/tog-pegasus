@@ -15,6 +15,7 @@ DIRS = \
     QualifierDeclRep \
     ClassDeclRep \
     SharedNameSpace \
-    SharedInheritanceTree
+    SharedInheritanceTree \
+    CompareRepositories 
 
 include ../../../../mak/recurse.mak

@@ -106,6 +106,8 @@ PEGASUS_NAMESPACE_BEGIN
 static const Uint32 _MAX_FREE_COUNT = 16;
 static int binaryMode = -1; // PEP 164
 
+// #define TEST_OUTPUT	
+
 //
 //  The following _xx functions are local to the repository implementation
 //
@@ -450,22 +452,24 @@ void _SaveObject(const String& path, Array<char>& objectXml,
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMRepository::CIMRepository(const String& repositoryRoot)
+CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_Mode mode)
    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
      _lock(), _resolveInstance(true)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
-    if (binaryMode==-1) { // PEP 164
-       binaryMode = (ConfigManager::getInstance()->getCurrentValue(
-        "enableBinaryRepository") == "true");
-    }
+    binaryMode = mode.flag & CIMRepository_Mode::BIN;
+#ifdef TEST_OUTPUT   
+    cout << "CIMRepository: binaryMode="  << binaryMode << "mode.flag=" << mode.flag << "\n";
+#endif // TEST_OUTPUT
 
     if (binaryMode>0) { // PEP 164
+      // BUILD BINARY 
        streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
     }
     else { // streamer=new XmlStreamer();
+      // BUILD XML 
        streamer=new AutoStreamer(new XmlStreamer(),0xff);
        ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
@@ -477,6 +481,41 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 
     PEG_METHOD_EXIT();
 }
+
+CIMRepository::CIMRepository(const String& repositoryRoot)
+   : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
+     _lock(), _resolveInstance(true)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
+
+    if (binaryMode==-1) { // PEP 164
+       binaryMode = (ConfigManager::getInstance()->getCurrentValue(
+        "enableBinaryRepository") == "true");
+    }
+
+#ifdef TEST_OUTPUT   
+    cout << "CIMRepository: binaryMode="  << binaryMode << "\n";
+#endif // TEST_OUTPUT
+
+    if (binaryMode>0) { // PEP 164
+      // BUILD BINARY 
+       streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
+       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    }
+    else { // streamer=new XmlStreamer();
+      // BUILD XML 
+       streamer=new AutoStreamer(new XmlStreamer(),0xff);
+       ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
+       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    }
+
+    _context = new RepositoryDeclContext(this);
+    _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
+        "repositoryIsDefaultInstanceProvider") == "true");
+
+    PEG_METHOD_EXIT();
+}
+
 
 CIMRepository::~CIMRepository()
 {

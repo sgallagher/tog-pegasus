@@ -70,6 +70,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
+
 //
 // These routines are in the lexer.  They are there because
 // there is no need for class cimmofParser to know the details
@@ -130,7 +131,7 @@ cimmofParser::setRepository(void) {
   cimmofMessages::arglist arglist;
   const String &s = getDefaultNamespacePath();
   if (_cmdline) {
-    String rep = _cmdline->get_repository_name();
+    String rep = _cmdline->get_repository();
     if (rep != "") {
       cimmofRepositoryInterface::_repositoryType rt;
       if (_cmdline->is_local())
@@ -138,7 +139,18 @@ cimmofParser::setRepository(void) {
       else
         rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_CLIENT;
       try {
-	_repository.init(rt, rep, _ot);
+	// need to cat repo name to the dir 
+	String rep_name = _cmdline->get_repository_name();
+	String combined = rep + "/";
+	combined = combined + rep_name;
+
+	CIMRepository_Mode Mode;
+	Mode.flag = CIMRepository_Mode::NONE;
+
+	String mode = _cmdline->get_repository_mode();
+	if (String::equalNoCase(mode, "BIN") ) 
+	  Mode.flag |= CIMRepository_Mode::BIN;
+	_repository.init(rt, combined, Mode,  _ot);
       } catch(Exception &e) {
 	arglist.append(rep);
 	arglist.append(e.getMessage());

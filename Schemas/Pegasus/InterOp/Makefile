@@ -32,26 +32,26 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(INTEROPNS)
 	@ $(RMREPOSITORY) $(INTEROPNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(CIM_SCHEMA_DIR)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(CIM_SCHEMA_DIR)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 
 ifdef PEGASUS_BUILD_INTEROP 
 	@ $(ECHO) +++++ Loading CIM_Interop$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop$(CIM_SCHEMA_VER).mof 
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(CIM_SCHEMA_DIR)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop$(CIM_SCHEMA_VER).mof 
 endif
  
 	@ $(ECHO) +++++ Loading PG_InterOpSchema$(PG_SCHEMA_VER).mof into $(INTEROPNS) namespace...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
 
 # Bug 1222
 # The following code is temporary.  These classes should be incorporated into PG_InteropSchema
 # however, this cannot be done now because we cannot conditionally compile MOF.	
 ifdef PEGASUS_BUILD_INTEROP 
 	@ $(ECHO) +++++ Loading PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER).mof 
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_SCHEMA_VER).mof 
 	@ $(ECHO) +++++ Loading PG_Namespace$(PG_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_Namespace$(PG_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(PG_MOF_PATH)" -n$(INTEROPNS) $(ALLOW_EXPERIMENTAL) $(PG_MOF_PATH)/PG_Namespace$(PG_SCHEMA_VER).mof
 endif
 	
 install:

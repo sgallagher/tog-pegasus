@@ -52,7 +52,8 @@ enum opttypes {FILESPEC,
 	       INCLUDEPATH,
 	       SUPPRESSFLAG,
 	       NAMESPACE,
-	       REPOSITORYNAME, 
+	       REPOSITORYDIR,
+
 	       UPDATEFLAG,
 	       ALLOWFLAG,
 #ifndef PEGASUS_OS_HPUX
@@ -66,6 +67,8 @@ enum opttypes {FILESPEC,
 #endif
 	       VERSIONFLAG,
              OPTEND_CIMMOF,    //PEP167
+	       REPOSITORYNAME,
+	       REPOSITORYMODE,
              OPTEND_CIMMOFL};  //PEP167
 
 struct optspec {
@@ -96,4 +99,6 @@ struct optspec {
 #endif
 
 #define ROOTCIMV2 "root/cimv2"
+#define REPOSITORY_NAME_DEFAULT "repository"
+#define REPOSITORY_MODE_DEFAULT "XML"
 #endif

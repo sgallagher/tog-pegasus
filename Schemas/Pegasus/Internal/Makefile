@@ -25,12 +25,12 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(INTERNALNS)
 	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTERNALNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(PG_MOF_PATH)" -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 ifdef PEGASUS_ENABLE_SLP
 	@ $(ECHO) +++++ Loading PG_SLPTemplate.mof into $(INTERNALNS) namespace...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-I$(PG_MOF_PATH)" -n$(INTERNALNS) $(PG_MOF_PATH)/PG_SLPTemplate.mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) "-I$(PG_MOF_PATH)" -n$(INTERNALNS) $(PG_MOF_PATH)/PG_SLPTemplate.mof
 endif
 
 

@@ -133,9 +133,9 @@ help(ostream &os, int progtype) {
 #endif
   if(progtype == 1)
   {
-      help.append("\n               [ -R repository ] [ --CIMRepository repository ] ");
+      help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ] ");
+      help.append("\n               [ -N repositoryname ] [ -M repositorymode] ");
   }
-
   help.append("\n");
   if(progtype == 1)
       help.append(" "); //Display alignment, if cimmofl is used
@@ -146,7 +146,7 @@ help(ostream &os, int progtype) {
   help.append( "    -aV             - Allow both Major and Down Revision Schema changes\n");
   // PEP167 - '--CIMRepository' disabled for cimmof ONLY.
   if(progtype == 1)
-      help.append( "    --CIMRepository - Specify the repository path\n");
+      help.append( "    --CIMRepository - Specify the repository directory\n");
   help.append( "    -E              - Syntax check only\n");
   help.append( "    -h, --help      - Display this help message\n");
   help.append( "    -I              - Specify an include path\n");
@@ -156,8 +156,12 @@ help(ostream &os, int progtype) {
   help.append( "    -q              - Suppress all messages except command line usage errors\n");
 #endif
   // PEP167 - '-R' disabled for cimmof ONLY.
-  if(progtype == 1)
-      help.append( "    -R              - Specify the repository path\n");
+  if(progtype == 1) {
+      help.append( "    -R              - Specify the repository directory\n");
+      help.append( "    -N              - Specify the repository name - defaults to \"repository\"\n");
+      help.append( "    -M              - Repository mode [XML, BIN] - defaults to \"XML\"\n");
+
+  }
   //PEP167 - Remove and disable 'f' and 'file' options. No longer required
   //help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
   //help.append( " --file=file -- specify file containing list of MOFs.\n");
@@ -237,8 +241,10 @@ static struct optspec optspecs[] =
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
-    {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
-    {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVEARG},
+    {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
+    {(char*)"CIMRepository", REPOSITORYDIR, true, getoopt::MUSTHAVEARG},
+    {(char*)"N", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
+    {(char*)"M", REPOSITORYMODE, false, getoopt::MUSTHAVEARG},
     {(char*)"", OPTEND_CIMMOFL, false, getoopt::NOARG}
 };
 
@@ -294,19 +300,19 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 	    strcpy(home, peghome);
 	    EtoA(home);
 	}
-	cmdlinedata.set_repository_name(home);
+	cmdlinedata.set_repository(home);
 #else
-      cmdlinedata.set_repository_name(peghome);
+      cmdlinedata.set_repository(peghome);
 #endif
     } else {
 #if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
       // Default to the shipped OS/400 CIM directory so that
       // the user doesn't need to set PEGASUS_HOME
-      cmdlinedata.set_repository_name(OS400_DEFAULT_PEGASUS_HOME);
+      cmdlinedata.set_repository(OS400_DEFAULT_PEGASUS_HOME);
 #endif
     }
   } else {
-    cmdlinedata.set_repository_name(DEFAULT_SERVER_AND_PORT);
+    cmdlinedata.set_repository(DEFAULT_SERVER_AND_PORT);
   }
   cmdlinedata.reset_syntax_only();
   cmdlinedata.reset_suppress_warnings();
@@ -314,6 +320,8 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.reset_trace();
   cmdlinedata.add_include_path(".");
   cmdlinedata.set_namespacePath(ROOTCIMV2);
+  cmdlinedata.set_repository_name(REPOSITORY_NAME_DEFAULT);
+  cmdlinedata.set_repository_mode(REPOSITORY_MODE_DEFAULT);
   cmdlinedata.set_erroros(PEGASUS_STD(cerr));
   cmdlinedata.set_warningos(PEGASUS_STD(cerr));
   cmdlinedata.reset_operationType();
@@ -441,7 +449,27 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         break;
       case NAMESPACE: cmdlinedata.set_namespacePath(arg.optarg());
         break;
+      case REPOSITORYDIR:  cmdlinedata.set_repository(arg.optarg());
+	break;
       case REPOSITORYNAME:  cmdlinedata.set_repository_name(arg.optarg());
+	break;
+      case REPOSITORYMODE: 
+	{
+	  cmdlinedata.set_repository_mode(arg.optarg());
+
+	  if(String::equalNoCase(arg.optarg(), "XML") ||
+	     String::equalNoCase(arg.optarg(), "BIN")) {}
+	  else
+	    {
+	      //l10n
+	      //throw ArgumentErrorsException(
+	      //"Unknown value specified for option -M.");
+	      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION_A",
+				       "Unknown value specified for option -M.");
+	      throw ArgumentErrorsException(parms);
+	    }	    
+
+	}
 	break;
       case UPDATEFLAG:
         { 
@@ -577,8 +605,9 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
      help(helpos, getType(argv[0]));
      return(-1);
   }
+ 
+  if (String::equal(cmdlinedata.get_repository(), String::EMPTY)) {
 
-  if (String::equal(cmdlinedata.get_repository_name(), String::EMPTY)) {
   	//l10n
     //throw CmdlineNoRepository(
           //"You must specify -R or set PEGASUS_HOME environment variable");

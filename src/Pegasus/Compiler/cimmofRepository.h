@@ -58,7 +58,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMPILER_LINKAGE cimmofRepository  {
  public:
-  cimmofRepository(const String &path, compilerCommonDefs::operationType ot);
+  cimmofRepository(const String &path, const CIMRepository_Mode Mode, compilerCommonDefs::operationType ot);
   virtual ~cimmofRepository();
 
   // Add some methods for use at the compiler level

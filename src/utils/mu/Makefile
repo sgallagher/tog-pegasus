@@ -11,13 +11,13 @@ else
 endif
 
 # Set Parameters for OS type
-ifeq ($(OS_TYPE),COMPAQ_OSS)
-    OS_TYPE = oss 
+ifeq ($(OS_TYPE),compaq_oss)
+    OS_TYPE = oss
     CXX = c89
-    CXXFLAGS = -Wversion2 -I /cw/rudys/nsm/pegasus/src                     
+    CXXFLAGS = -Wversion2 -I /cw/rudys/nsm/pegasus/src
     LIBFLAGS = /usr/lib/crtlmain.o -obey /usr/lib/libc.obey
     SRLFLAGS = -l zrwslsrl -l zcplsrl -verbose
-    LXX = nld                 
+    LXX = nld
     DEFINES = -DOS_TYPE_OSS
     PROGRAM = mu
     EXE_OUT = -o
@@ -39,7 +39,7 @@ ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp
 endif
 
-ifeq ($(OS_TYPE),unix) 
+ifeq ($(OS_TYPE),unix)
     OS_TYPE = unix
     CXX = g++
     LXX = $(CXX)
@@ -54,7 +54,7 @@ endif
 
 #Setup MU_BIN_DIR Directory
 ifndef MU_BIN_DIR
-MU_BIN_DIR = ./
+    MU_BIN_DIR = ./
 endif
 
 SOURCES = \
@@ -89,10 +89,11 @@ HEADERS = \
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
 $(MU_BIN_DIR)$(PROGRAM): $(OBJECTS)
-	$(CXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(MU_BIN_DIR)$(PROGRAM) $(OBJECTS)
+	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(MU_BIN_DIR)$(PROGRAM)
+	$(OBJECTS)
 
 %$(OBJ) : %.cpp
-	$(LXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp
+	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp
 
 ifeq ($(OS_TYPE),windows)
     TMP_MU_BIN_DIR = $(subst /,\,$(MU_BIN_DIR))
@@ -101,5 +102,6 @@ else
 endif
 
 clean:
-	- $(RM) $(TMP_MU_BIN_DIR)$(PROGRAM) 
+	- $(RM) $(TMP_MU_BIN_DIR)$(PROGRAM)
 	- $(RM) *$(OBJ)
+

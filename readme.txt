@@ -565,7 +565,7 @@ rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 Please follow section 11 and 16 before reading this section.
 
 To configure Pegasus to take advantage of SSL, configure
-cimserver_planned.conf to have:
+CIMserver to have the following configuration options set to:
 
 	sslTrustFilePath=client.pem
 	sslCertificateFilePath=server.pem
@@ -573,12 +573,16 @@ cimserver_planned.conf to have:
 	httpsPort=5989
 	enableHttpsConnection=true
 
+using the 'cimconfig' utility:
+ 
+	cimconfig -p -s enableHttpsConnection=true
+
 (The client.pem and server.pem are the certifications
 files created per the steps in the earlier section).
 
 For good riddance you might consider closing down
-the cleartext 5988 port. Modify your cimserver_planned.conf
-to include:
+the cleartext 5988 port. Modify your CIMserver to 
+(using 'cimconfig') to have the option:
 
 	enableHttpConnection=false
 
@@ -599,13 +603,17 @@ important steps:
  a).  Copy the rpm/wbem file in-to /etc/pam.d directory.
       This notifies PAM what kind of libraries to use when authenticating
       Pegasus.
- b).  Edit  cimserver_planned.conf to include:
+ b).  Modify CIMserver configuration options:
 
 	usePAMAuthentication=true
 	enableAuthentication=true
 
       And if you want to allow 'root' (*not recommended*)
 	enableRemotePrivilegedUserAccess=true
+
+      using the 'cimconfig' operation, such as:
+
+	cimconfig -p -s usePAMAuthentication=true
 
 The user is authenticated using HTTP Basic method, thererfore it is
 strongly suggested you use SSL connection instead of normal HTTP connection.

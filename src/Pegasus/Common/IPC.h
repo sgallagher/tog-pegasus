@@ -405,7 +405,7 @@ class PEGASUS_EXPORT cond_waiter {
 };
 
 typedef struct peg_condition{
-      internal_dq<cond_waiter> _waiters;
+      internal_dq  _waiters;
       Mutex _spin;
       peg_condition() : _waiters(true), _spin()  { }
 } PEGASUS_COND_TYPE;

@@ -60,24 +60,12 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       virtual ~MessageQueueService(void);
       
-      virtual void handle_heartbeat_request(AsyncRequest *req);
-      virtual void handle_heartbeat_reply(AsyncReply *rep);
-      
-      virtual void handle_AsyncIoctl(AsyncIoctl *req);
-      virtual void handle_CimServiceStart(CimServiceStart *req);
-      virtual void handle_CimServiceStop(CimServiceStop *req);
-      virtual void handle_CimServicePause(CimServicePause *req);
-      virtual void handle_CimServiceResume(CimServiceResume *req);
-      
-      virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
-      virtual void handle_AsyncOperationResult(AsyncOperationResult *rep);
-      virtual void handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req);
-      virtual void handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep);
+
       
       virtual Boolean isAsync(void) {  return true;  }
       
-      virtual Boolean accept_async(AsyncOpNode *op);
-      virtual Boolean messageOK(const Message *msg) ;
+
+
       
       virtual void enqueue(Message *) throw(IPCException);
       
@@ -90,10 +78,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Boolean  SendForget(Message *msg);
       Boolean ForwardOp(AsyncOpNode *, Uint32 destination);
       
-      void _completeAsyncResponse(AsyncRequest *request, 
-				 AsyncReply *reply, 
-				 Uint32 state, 
-				 Uint32 flag);
+
       Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
@@ -110,6 +95,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Uint32 _mask;
       AtomicInt _die;
    protected:
+      virtual Boolean accept_async(AsyncOpNode *op);
+      virtual Boolean messageOK(const Message *msg) ;
       virtual void handleEnqueue(void) = 0;
       virtual void handleEnqueue(Message *) = 0;
       Boolean _enqueueResponse(Message *, Message *);
@@ -118,28 +105,42 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void _handle_async_callback(AsyncOpNode *operation);     
       virtual void _make_response(Message *req, Uint32 code);
       
+
+      virtual void handle_heartbeat_request(AsyncRequest *req);
+      virtual void handle_heartbeat_reply(AsyncReply *rep);
+      
+      virtual void handle_AsyncIoctl(AsyncIoctl *req);
+      virtual void handle_CimServiceStart(CimServiceStart *req);
+      virtual void handle_CimServiceStop(CimServiceStop *req);
+      virtual void handle_CimServicePause(CimServicePause *req);
+      virtual void handle_CimServiceResume(CimServiceResume *req);
+      
+      virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
+      virtual void handle_AsyncOperationResult(AsyncOperationResult *rep);
+      virtual void handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req);
+      virtual void handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep);
+
+      void _completeAsyncResponse(AsyncRequest *request, 
+				 AsyncReply *reply, 
+				 Uint32 state, 
+				 Uint32 flag);
+
       static cimom *_meta_dispatcher;
       static AtomicInt _service_count;
       static Mutex _meta_dispatcher_mutex;
       
-
    private: 
       
       DQueue<AsyncOpNode> _pending;
       AsyncDQueue<AsyncOpNode> _incoming;
-      
+
+
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
       AtomicInt _incoming_queue_shutdown;
-      
       Thread _req_thread;
-      
       struct timeval _default_op_timeout;
-
       static AtomicInt _xid;
-      
-
-
-
+      friend class cimom;
 };
 
 PEGASUS_NAMESPACE_END

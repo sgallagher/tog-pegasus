@@ -549,4 +549,46 @@ String SubscriptionFilterConditionContainer::getQueryLanguage(void) const
     return(_rep->queryLanguage);
 }
 
+
+const String TimeoutContainer::NAME = "TimeoutContainer";
+
+TimeoutContainer::TimeoutContainer(const OperationContext::Container & container)
+{
+   const TimeoutContainer * p = dynamic_cast<const TimeoutContainer *>(&container);
+   if(p == 0)
+   {
+      throw DynamicCastFailedException();
+   }
+   _value = p->_value;
+}
+
+TimeoutContainer::TimeoutContainer(Uint32 timeout)
+{
+   _value = timeout;
+}
+
+String TimeoutContainer::getName(void) const 
+{
+   return (NAME);
+}
+
+OperationContext::Container * TimeoutContainer::clone(void) const
+{
+   return (new TimeoutContainer(_value));
+}
+
+void TimeoutContainer::destroy(void)
+{
+   delete this;
+}
+
+Uint32 TimeoutContainer::getTimeOut(void) const
+{
+   return _value;
+}
+
+
+
+
+
 PEGASUS_NAMESPACE_END

@@ -34,10 +34,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMProvider::CIMProvider(void)
 {
+
 }
 
 CIMProvider::~CIMProvider(void)
 {
+
 }
 
 PEGASUS_NAMESPACE_END

@@ -54,44 +54,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-const String TimeoutContainer::NAME = "TimeoutContainer";
-
-TimeoutContainer::TimeoutContainer(const OperationContext::Container & container)
-{
-   const TimeoutContainer * p = dynamic_cast<const TimeoutContainer *>(&container);
-   if(p == 0)
-   {
-      throw DynamicCastFailedException();
-   }
-   _value = p->_value;
-}
-
-TimeoutContainer::TimeoutContainer(Uint32 timeout)
-{
-   _value = timeout;
-}
-
-String TimeoutContainer::getName(void) const 
-{
-   return (NAME);
-}
-
-OperationContext::Container * TimeoutContainer::clone(void) const
-{
-   return (new TimeoutContainer(_value));
-}
-
-void TimeoutContainer::destroy(void)
-{
-   delete this;
-}
-
-Uint32 TimeoutContainer::getTimeOut(void) const
-{
-   return _value;
-}
-
-
 
 class CIMOMHandle;
 class cimom_handle_op_semaphore;
@@ -140,8 +102,7 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue(void);
 
-      Message *do_request(Message *, Uint32 response_type, const OperationContext & context) 
-	 throw();
+      Message *do_request(Message *, Uint32 response_type, const OperationContext & context) ;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
       MessageQueue * q_exists(Uint32 qid) const
@@ -480,7 +441,6 @@ CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
 Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request, 
 						    Uint32 response_type,
 						    const OperationContext & context) 
-   throw()
 {
    PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
                     "CIMOMHandle::_cimom_handle_rep::do_request(Message *, Uint32, Uint32)");
@@ -489,18 +449,13 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
    {
       _recursion.try_lock(pegasus_thread_self());
    }
-   catch(AlreadyLocked & )
+   catch(IPCException &)
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
-		       "AlreadyLocked Exception, throwing Deadlock");
-      throw Deadlock(pegasus_thread_self());
+		       "IPC Exception, throwing CIMException");
+      throw CIMException(CIM_ERR_ACCESS_DENIED, "Recursive Use of CIMOMHandle Attempted");
    }
-   catch(Deadlock & )
-   {
-      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
-		       "Deadlock Exception");
-      throw;
-   }
+   
    catch(...)
    {
       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
@@ -601,7 +556,7 @@ CIMOMHandle::~CIMOMHandle(void)
    Dec(_rep);
 }
 
-CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
+CIMOMHandle & CIMOMHandle::operator =(const CIMOMHandle & handle)
 {
    if(this != &handle)
    {

@@ -601,9 +601,12 @@ Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
    if(interval && interval->tv_sec == 0 && interval->tv_usec == 0)
       return false;
    
-   struct timeval now, finish, remaining;
+   struct timeval now, finish, remaining ;
    Uint32 usec;
    pegasus_gettimeofday(&now);
+   /* remove valgrind error */
+   pegasus_gettimeofday(&remaining);
+   
 
    finish.tv_sec = start->tv_sec + interval->tv_sec;
    usec = start->tv_usec + interval->tv_usec;

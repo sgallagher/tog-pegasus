@@ -308,6 +308,27 @@ protected:
 
 };
 
+
+class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext::Container
+{
+   public:
+      static const String NAME;
+      
+      TimeoutContainer(const OperationContext::Container & container);
+      TimeoutContainer(Uint32 timeout);
+      virtual String getName(void) const;
+      virtual OperationContext::Container * clone(void) const;
+      virtual void destroy(void);
+      
+      Uint32 getTimeOut(void) const;
+   protected:
+      Uint32 _value;
+   private:
+      TimeoutContainer(void);
+};
+
+
+
 PEGASUS_NAMESPACE_END
 
 #endif

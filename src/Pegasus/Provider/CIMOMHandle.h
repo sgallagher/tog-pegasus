@@ -52,24 +52,6 @@ class Provider;
 
 class cimom_handle_op_semaphore;
 
-class PEGASUS_PROVIDER_LINKAGE TimeoutContainer : public OperationContext::Container
-{
-   public:
-      static const String NAME;
-      
-      TimeoutContainer(const OperationContext::Container & container);
-      TimeoutContainer(Uint32 timeout);
-      virtual String getName(void) const;
-      virtual OperationContext::Container * clone(void) const;
-      virtual void destroy(void);
-      
-      Uint32 getTimeOut(void) const;
-   protected:
-      Uint32 _value;
-   private:
-      TimeoutContainer(void);
-};
-
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
@@ -83,7 +65,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       /** */
       virtual ~CIMOMHandle(void);
 
-      CIMOMHandle & operator=(const CIMOMHandle & handle);
+      CIMOMHandle & operator =(const CIMOMHandle & handle);
       
       CIMClass getClass(
 	 const OperationContext & context,
@@ -237,10 +219,10 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       virtual void protect(void);
 // allow provider manager to unload when idle 
       virtual void unprotect(void);
-      
+   private:      
       class _cimom_handle_rep;
       _cimom_handle_rep *_rep;
-   private:
+
       friend class Provider;
       friend class cimom_handle_op_semaphore;
       virtual void get_idle_timer(struct timeval *);

@@ -1099,7 +1099,7 @@ int main(int argc, char** argv)
 		     Stopwatch elapsedTime;
 		     cout << "Create client" << endl;
 		     CIMClient client;
-		     client.setTimeout(60 * 1000);
+		     client.setTimeout(360 * 1000);
 		     cout << "Client created" << endl;
 
                      //

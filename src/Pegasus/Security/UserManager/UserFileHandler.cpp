@@ -44,6 +44,7 @@
 
 #include <Pegasus/Security/UserManager/UserFileHandler.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -190,21 +191,30 @@ void UserFileHandler::_Update(
     }
     catch (TimeOut e)
     {
-	throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
-	"Timed out trying to perform requested operation."
-	"Please re-try the operation again.");
+    	//l10n
+	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
+	//"Timed out trying to perform requested operation."
+	//"Please re-try the operation again.");
+	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.TIMEOUT",
+									"Timed out trying to perform requested operation.Please re-try the operation again."));
     }
     catch (WaitFailed e)
     {
-	throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
-	"Timed out trying to perform requested operation."
-	"Please re-try the operation again.");
+    //l10n
+	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
+	//"Timed out trying to perform requested operation."
+	//"Please re-try the operation again.");
+	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.TIMEOUT",
+									"Timed out trying to perform requested operation.Please re-try the operation again."));
     }
     catch (Deadlock e)
     {
-	throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
-	"Deak lock encountered trying to perform requested operation."
-	"Please re-try the operation again.");
+    //l10n
+	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
+	//"Deak lock encountered trying to perform requested operation."
+	//"Please re-try the operation again.");
+	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.DEADLOCK",
+						"Deak lock encountered trying to perform requested operation.Please re-try the operation again."));
     }
 
     switch (operation)
@@ -228,9 +238,13 @@ void UserFileHandler::_Update(
                 if (!_passwordTable.insert(userName,password))
                 {
                     _mutex->unlock();
-                    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
-			Logger::SEVERE, 
-			"Error updating user information for : $0.",userName);
+                    //l10n
+                    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
+					//Logger::SEVERE, 
+					//"Error updating user information for : $0.",userName);
+					Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,Logger::SEVERE, 
+						"Security.UserManager.UserFileHandler.ERROR_UPDATING_USER_INFO",
+						"Error updating user information for : $0.",userName);
                     PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }

@@ -102,9 +102,16 @@ PasswordFile::PasswordFile (const String& fileName)
     }
     catch( NoSuchFile& e )
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+    	//l10n
+        //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            //"Password file not found : $0.", _passwordFile);
+        //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"Creating blank password file.");
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "Security.UserManager.PasswordFile.PWD_FILE_NOT_FOUND",
             "Password file not found : $0.", _passwordFile);
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "Security.UserManager.PasswordFile.CREATING_BLANK_PWD_FILE",
             "Creating blank password file.");
         PasswordTable pt;
         save(pt);
@@ -148,15 +155,27 @@ void PasswordFile::load (PasswordTable& passwordTable)
 		throw CannotRemoveFile(_passwordFile);
             }
         }
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+        //l10n
+        //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"Trying to use the backup file : $0.", _passwordBackupFile);
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE",
             "Trying to use the backup file : $0.", _passwordBackupFile);
 	if (! FileSystem::renameFile(_passwordBackupFile, _passwordFile))
 	{
-            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Unable to use the backup file : $0.", _passwordBackupFile);
+			//l10n
+            //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"Unable to use the backup file : $0.", _passwordBackupFile);
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            	"Security.UserManager.PasswordFile.CANNOT_USE_BACKUP_FILE",
+            	"Unable to use the backup file : $0.", _passwordBackupFile);
 	    throw CannotRenameFile(_passwordBackupFile);
         }
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+        //l10n
+        //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"Recovered using the backup file : $0.", _passwordBackupFile);
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "Security.UserManager.PasswordFile.RECOVERED_USING_BACKUP_FILE",
             "Recovered using the backup file : $0.", _passwordBackupFile);
     }
     if (! FileSystem::exists(_passwordFile))
@@ -170,7 +189,11 @@ void PasswordFile::load (PasswordTable& passwordTable)
     ifstream ifs(_passwordFile.getCString());
     if (!ifs)
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+    	//l10n
+        //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            //"Error opening password file : $0.", _passwordFile);
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "Security.UserManager.PasswordFile.ERROR_OPENING_PWD_FILE",
             "Error opening password file : $0.", _passwordFile);
         return;
     }
@@ -232,9 +255,12 @@ void PasswordFile::load (PasswordTable& passwordTable)
         {
 	    //
 	    // Did not find Colon, log a message and skip entry
-            //
-            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Error in reading password entry for : $0.", userName);
+            //l10n
+            //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"Error in reading password entry for : $0.", userName);
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            	"Security.UserManager.PasswordFile.ERROR_READING_PWD_ENTRY",
+            	"Error in reading password entry for : $0.", userName);
 	    continue;
         }
 
@@ -266,8 +292,12 @@ void PasswordFile::load (PasswordTable& passwordTable)
             //
             // Duplicate entry for user, ignore the new entry.
             //
-            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Duplicate user: $0.", userName);
+            //l10n
+            //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"Duplicate user: $0.", userName);
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+            	"Security.UserManager.PasswordFile.DUPLICATE_USER",
+            	"Duplicate user: $0.", userName);
         }
     }
 
@@ -293,8 +323,12 @@ void PasswordFile::save (PasswordTable& passwordTable)
 	{
             if ( ! FileSystem::removeFile(_passwordFile))
 	    {
-                Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Cannot remove password file : $0.", _passwordFile);
+	    		//l10n
+                //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                //"Cannot remove password file : $0.", _passwordFile);
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                	"Security.UserManager.PasswordFile.CANNOT_REMOVE_PWD_FILE",
+                	"Cannot remove password file : $0.", _passwordFile);
 	        throw CannotRemoveFile(_passwordFile);
             }
         }
@@ -305,8 +339,12 @@ void PasswordFile::save (PasswordTable& passwordTable)
 	{
             if ( ! FileSystem::renameFile(_passwordFile, _passwordBackupFile))
 	    {
-                Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Cannot rename password file : $0.", _passwordFile);
+	    		//l10n
+                //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                //"Cannot rename password file : $0.", _passwordFile);
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                	"Security.UserManager.PasswordFile.CANNOT_RENAME_PWD_FILE",
+                	"Cannot rename password file : $0.", _passwordFile);
 	        throw CannotRenameFile(_passwordFile);
             }
         }
@@ -349,10 +387,14 @@ void PasswordFile::save (PasswordTable& passwordTable)
     {
 	if ( ! FileSystem::removeFile(_passwordBackupFile))
 	{
-            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
-	    Logger::SEVERE,
-            "Cannot remove backup password file : $0.",
-	    _passwordBackupFile);
+		//l10n
+            //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
+	    //Logger::SEVERE,
+          //  "Cannot remove backup password file : $0.",
+	    //_passwordBackupFile);
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "Security.UserManager.PasswordFile.CANNOT_REMOVE_BACKUP_PWD_FILE",
+            "Cannot remove backup password file : $0.", _passwordBackupFile);
 	    throw CannotRemoveFile(_passwordBackupFile);
         }
     }

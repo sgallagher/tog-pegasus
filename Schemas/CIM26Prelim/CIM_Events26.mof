@@ -6,12 +6,12 @@
 // Date:       05/23/2001
 // Description: The object classes below are listed in an order that
 //              avoids forward references. Required objects, defined 
-//		    by other working groups, are omitted. 
+//                  by other working groups, are omitted. 
 // ===================================================================
 // Date:    12/18/2000 - Initial release, Version 2.5
 // Author:  DMTF Event Working Group
 //====================================================================
-//	    Revision History
+//          Revision History
 //
 // Date     5/23/2001 - v2.6 Change name of IndicationHandlerXMLHTTP to 
 //                      IndicationHandlerCIM-XML to reflect DMTF naming
@@ -398,7 +398,7 @@ class CIM_AlertIndication : CIM_ProcessIndication
       "3 - Quality of Service Alert. An Indication of this type is "
       "principally associated with a degradation or errors in the "
       "performance or function of an entity. \n"
-	"4 - Processing Error. An Indication of this type is "
+        "4 - Processing Error. An Indication of this type is "
       "principally associated with a software or processing fault. \n"
       "5 - Device Alert. An Indication of this type is principally "
       "associated with an equipment or hardware fault. \n"
@@ -415,8 +415,8 @@ class CIM_AlertIndication : CIM_ProcessIndication
       "issues."),
      ValueMap {"1", "2", "3", "4", "5", "6", "7", "8"},
      Values {"Other", "Communications Alert", 
-	       "Quality of Service Alert", "Processing Error", 
-	       "Device Alert", "Environmental Alert", "Model Change",
+               "Quality of Service Alert", "Processing Error", 
+               "Device Alert", "Environmental Alert", "Model Change",
              "Security Alert"},
      MappingStrings {"Recommendation.ITU|X733.Event type"} ]
     uint16 AlertType;
@@ -460,7 +460,7 @@ class CIM_AlertIndication : CIM_ProcessIndication
       "An enumerated value that describes the probable cause of the "
       "situation which resulted in the AlertIndication."),
      Values {"Unknown", "Other", "Adapter Error", 
-	   "Application Subsystem Failure", "Bandwidth Reduced", 
+           "Application Subsystem Failure", "Bandwidth Reduced", 
          "Connection Establishment Error", 
          "Communications Protocol Error", 
          "Communications Subsystem Failure", 
@@ -498,7 +498,7 @@ class CIM_AlertIndication : CIM_ProcessIndication
     uint16 ProbableCause;
 
     [Description (
-	"Provides additional information related to the "
+        "Provides additional information related to the "
       "ProbableCause.") ]
     string ProbableCauseDescription;
 
@@ -724,7 +724,7 @@ class CIM_IndicationHandler: CIM_ManagedElement
      "CIM_IndicationHandlerCIM-XML describes the destination for "
      "Indications to be delivered via HTTP, using a CIM-XML "
      "representation.") ]
-class CIM_IndicationHandlerCIM-XML : CIM_IndicationHandler
+class CIM_IndicationHandlerCIMXML : CIM_IndicationHandler
 {
     [Required, Description (
       "The destination URL to which HTTP/CIM-XML Indication messages "

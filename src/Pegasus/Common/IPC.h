@@ -259,7 +259,13 @@ class  PEGASUS_COMMON_LINKAGE auto_mutex
 
       ~auto_mutex(void)
       {
-	 _mut->unlock();
+	 try
+	 {
+	    _mut->unlock();
+	 }
+	 catch(...)
+	 {
+	 }
       }
    private:
       auto_mutex(void);

@@ -48,14 +48,14 @@
 
 #include <Pegasus/ProviderManager2/SafeQueue.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class ProviderRegistrationManager;
 class ProviderManager;
 
-class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
+class PEGASUS_PPM_LINKAGE ProviderManagerService : public MessageQueueService
 {
 public:
     static ProviderManagerService* providerManagerService;

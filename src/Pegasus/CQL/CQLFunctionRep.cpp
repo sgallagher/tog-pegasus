@@ -38,7 +38,8 @@
 //#include <Pegasus/CQL/CQLExpression.h>
 //#include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLFactory.h>
-#include <Pegasus/Common/XmlReader.h>
+//#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/CQL/CQLUtilities.h>
 PEGASUS_NAMESPACE_BEGIN
 /*
 CQLFunctionRep::CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms)
@@ -301,7 +302,7 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext&
 {
   if(_parms.size() != 1)
     {
-      throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
+      throw(Exception(String("CQLFunctionRep::stringToUint -- incorrect number of parameters")));
     }
 
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
@@ -311,53 +312,41 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext&
       throw(Exception(String("CQLFunctionRep::stringToUint -- not a String")));
     }
 
-  Uint64 x;
-
-  XmlReader::stringToUnsignedInteger(cqlVal.getString().getCString(),x);
-    
-  return CQLValue(x);
+  return CQLValue(CQLUtilities::stringToUint64(cqlVal.getString()));
 }
 
 CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext& queryCtx)
 {
   if(_parms.size() != 1)
     {
-      throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
+      throw(Exception(String("CQLFunctionRep::stringToSint -- too many predicates")));
     }
 
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
 
   if(cqlVal.getValueType() != CQLValue::String_type)
     {
-      throw(Exception(String("CQLFunctionRep::stringToUint -- not a String")));
+      throw(Exception(String("CQLFunctionRep::stringToSint -- not a String")));
     }
 
-  Sint64 x;
-
-  XmlReader::stringToSignedInteger(cqlVal.getString().getCString(),x);
-    
-  return CQLValue(x);
+  return CQLValue(CQLUtilities::stringToSint64(cqlVal.getString()));
 }
 
 CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext& queryCtx)
 {
   if(_parms.size() != 1)
     {
-      throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
+      throw(Exception(String("CQLFunctionRep::stringToReal -- too many predicates")));
     }
 
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
 
   if(cqlVal.getValueType() != CQLValue::String_type)
     {
-      throw(Exception(String("CQLFunctionRep::stringToUint -- not a String")));
-    }
-
-  Real64 x;
-
-  XmlReader::stringToReal(cqlVal.getString().getCString(),x);
-    
-   return CQLValue(x);
+      throw(Exception(String("CQLFunctionRep::stringToReal -- not a String")));
+  }
+  
+  return CQLValue(CQLUtilities::stringToReal64(cqlVal.getString()));
 }
 
 CQLValue CQLFunctionRep::stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx)

@@ -4,3 +4,6 @@ This line added by MJK.
 
 
 This is a big test
+
+Testing commit messages
+

@@ -48,10 +48,23 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
 public:
-    ///	Constructor
+    /**	Constructor with no value. This constructor creates an NULL CIMValue
+        object set to null and with type CIMType:none and !arraytype.
+    */
     CIMValue();
 
-    ///	Constructor
+    /** Constructor with only the Type. This constructor creates a NULL CIMValue
+        object with the array indicator set as shown and with the
+    */
+    CIMValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
+
+    /**	Constructor with the Value constructor and a value.  This constructs a
+        CIMValue object with the type defined by the value constructor and the value
+        installed
+        <pre>
+        ATTN: Add example
+        </pre> 
+    */
     CIMValue(Boolean x) { _init(); set(x); }
 
     ///	Constructor
@@ -223,12 +236,16 @@ public:
         @param arraySize (optional)  Uint32parameter indicating the array
         size
         @return void
+        <pre>
+            CIMValue value;                   // Create a CIMValue object
+            value.setNullValue(CIMType::BOOLEAN, false);  // Set it       
+        </pre>
     */
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
     /** set - Sets the type, Array attribute and puts the value provided
         into the value of the target CIMValue. This function sets the
-        CIMValue to nonNull also.
+        CIMValue to nonNull also. The result is a complete CIMValue object
         All of the CIMTypes defined in ATTN: and the Array types defined in
         ATTN: may be set.
         @param x Typed value (ex. Boolean(true).

@@ -410,7 +410,6 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 template<class T>
 void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
-    //ATTNKS: Account for the Null value here
     Boolean isFirstEntry = true;
     // if there are any entries in the array output them
     if (size)
@@ -440,6 +439,12 @@ void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
 CIMValue::CIMValue()
 {
     _init();
+}
+
+CIMValue::CIMValue(CIMType type, Boolean isArray, Uint32 arraySize)
+{
+    _init();
+    setNullValue(type, isArray, arraySize);
 }
 
 CIMValue::CIMValue(const CIMValue& x)
@@ -599,6 +604,8 @@ void CIMValue::assign(const CIMValue& x)
 		_u._referenceValue
 		    = new CIMReference(*(x._u._referenceValue));
 		break;
+            
+            // Should never get here. testing complete enum
             default:
                 throw CIMValueInvalidType();
 	}
@@ -675,7 +682,7 @@ Uint32 CIMValue::getArraySize() const
 	case CIMType::REFERENCE:
 	    return _u._referenceArray->size;
 	    break;
-
+        // Should never get here. switch on complete enum
         default:
             throw CIMValueInvalidType();
     }

@@ -227,8 +227,7 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        _workSemaphore.signal();
        
     }
-    
-    
+       
     _mut.unlock();
 
     if(_async == false )
@@ -243,11 +242,9 @@ Boolean MessageQueue::accept_async(Message *message) throw(IPCException)
       throw NullPointer();
    if(_async == false)
       return false;
-
-
+   
    if (false == messageOK(message))
       return false;
-   
    
    if (getenv("PEGASUS_TRACE"))
    {

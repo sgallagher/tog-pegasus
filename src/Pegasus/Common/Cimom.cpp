@@ -423,6 +423,8 @@ void cimom::handleEnqueue(void)
 	 if ( msg->getMask() & message_mask::ha_request )
 	 {
 	     
+	    cout << " meta generating NAK " << async_msg->dest << endl;
+	    
 	    AsyncReply *reply = new AsyncReply(async_messages::REPLY, 
 					       msg->getKey(),
 					       msg->getRouting(),
@@ -551,16 +553,13 @@ void cimom::deregister_module(Uint32 quid)
 {
 
    _modules.lock();
-   cout << "locked module list " << endl;
    
    message_module *temp = _modules.next(0);
    while( temp != 0 )
    {
       if (temp->_q_id == quid)
       {
-	 cout << "preparing to remove  module qid " << quid << endl;
 	 _modules.remove_no_lock(temp);
-	 cout << " found module " << endl ;
 	 
 	 break;
       }
@@ -568,7 +567,6 @@ void cimom::deregister_module(Uint32 quid)
    }
 
    _modules.unlock();
-   cout << "unlocked module list " << endl;
 }
 
 void cimom::deregister_module(DeRegisterCimService *msg)
@@ -578,20 +576,16 @@ void cimom::deregister_module(DeRegisterCimService *msg)
 
    msg->op->processing();
    
-   cout << " rcvd deregister " << endl;
    
    _modules.lock();
-   cout << "locked module list " << endl;
    
    message_module *temp = _modules.next(0);
    while( temp != 0 )
    {
       if (temp->_q_id == msg->queue)
       {
-	 cout << "preparing to compare module qid " << msg->queue << endl;
 	 
 	 _modules.remove_no_lock(temp);
-	 cout << " found module " << endl ;
 	 
 	 break;
       }
@@ -600,12 +594,10 @@ void cimom::deregister_module(DeRegisterCimService *msg)
 
    _modules.unlock();
 
-      cout << "unlocked module list " << endl;
    if(temp == 0)
       result = async_results::MODULE_NOT_FOUND;
    else
    {
-      cout << " deleting module " << endl;
       
       delete temp;
    }

@@ -34,7 +34,7 @@ MessageQueueService::MessageQueueService(const char *name,
 					 Uint32 queueID, 
 					 Uint32 capabilities, 
 					 Uint32 mask) 
-   : Base(name, false, queueID),
+   : Base(name, true,  queueID),
      _capabilities(capabilities),
      _mask(mask),
      _die(0)
@@ -372,7 +372,6 @@ Boolean MessageQueueService::register_service(String name,
 	 {
 	    if((static_cast<AsyncReply *>(reply))->result == async_results::OK)
 	       registered = true;
-	    cout << " service registered " << _queueId << endl;
 	    
 	 }
       }
@@ -417,6 +416,10 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 
 Boolean MessageQueueService::deregister_service(void)
 {
+
+//   _meta_dispatcher->deregister_module(_queueId);
+//   return true;
+   
 
    AsyncOpNode *op = _meta_dispatcher->get_cached_op();
    op->_state |= ASYNC_OPSTATE_UNKNOWN;

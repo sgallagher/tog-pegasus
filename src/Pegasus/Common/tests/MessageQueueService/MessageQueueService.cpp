@@ -226,7 +226,10 @@ Boolean MessageQueueServer::messageOK(const Message *msg)
    {
       return true;
    }
-   return false;
+   else
+   {
+      return false;
+   }
 }
 
 void MessageQueueServer::handle_test_request(AsyncRequest *msg)
@@ -241,7 +244,6 @@ void MessageQueueServer::handle_test_request(AsyncRequest *msg)
 			   msg->dest, 
 			   "i am a test response");
       _enqueueAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
-      
    }
 }
 
@@ -292,12 +294,12 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
 		       greeting);
 
 
-   AsyncMessage *response = SendWait(req );
+   AsyncMessage *response = SendWait(req);
    if( response != 0  )
    {
+//      cout << "rsp type " << response->getType() << "rsp code " << static_cast<AsyncReply *>(response)->result << endl;
       msg_count++; 
       delete response;
-
    }
 }
 
@@ -315,7 +317,7 @@ int main(int argc, char **argv)
 
    server.run();
    client.run();
-   while( msg_count.value() < 100 )
+   while( msg_count.value() < 10000 )
    {
       pegasus_sleep(10);
    }
@@ -337,15 +339,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
    MessageQueueClient *q_client = new MessageQueueClient("test client");
    q_client->register_service("test client", q_client->_client_capabilities, q_client->_client_mask);
+   cout << " client registered " << endl;
+   
    Array<Uint32> services;
    while( services.size() == 0 )
    {
       q_client->find_services(String("test server"), 0, 0, &services);
       my_handle->sleep(10);  
-
    }
    
-   while (msg_count.value() < 100 )
+   cout << "found server at " << services[0] << endl;
+   
+   while (msg_count.value() < 10000 )
    {
       q_client->send_test_request("i am the test client" , services[0]);
    }
@@ -382,6 +387,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    MessageQueueServer *q_server = new MessageQueueServer("test server") ;
 
    q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
+   
+   cout << "test server registered" << endl;
    
    while( q_server->dienow.value()  < 1  )
    {

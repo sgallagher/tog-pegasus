@@ -22,12 +22,12 @@ _TMP_O = $(PEGASUS_PLATFORM).o
 
 ifeq ($(_NO_TMP_O), yes)
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
-	$(CXX) -c -o $@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+	$(CXX) -c -o $@ $(FLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(TOUCH) $@
 	@ $(ECHO)
 else
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
-	$(CXX) -c -o $(_TMP_O) $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+	$(CXX) -c -o $(_TMP_O) $(FLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(COPY) $(_TMP_O) $@
 	@ $(RM) $(_TMP_O)
 	@ $(TOUCH) $@
@@ -36,12 +36,12 @@ endif
 
 ifeq ($(_NO_TMP_O), yes)
 $(OBJ_DIR)/%.o: %.c $(ERROR)
-	$(CC) -c -o $@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c
+	$(CC) -c -o $@ $(FLAGS) $(EXTRA_C_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c
 	@ $(TOUCH) $@
 	@ $(ECHO)
 else
 $(OBJ_DIR)/%.o: %.c $(ERROR)
-	$(CC) -c -o $(_TMP_O) $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c
+	$(CC) -c -o $(_TMP_O) $(FLAGS) $(EXTRA_C_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c
 	@ $(COPY) $(_TMP_O) $@
 	@ $(RM) $(_TMP_O)
 	@ $(TOUCH) $@

@@ -375,3 +375,22 @@ else
  DEFINES += -DPEGASUS_DEST_LIB_DIR=\"$(PEGASUS_DEST_LIB_DIR)\"
 endif
 
+################################################################################
+##
+## Additional build flags passed in through environment variables.
+## These flags are added to the compile/link commands.
+##
+################################################################################
+
+ifdef PEGASUS_EXTRA_CXX_FLAGS
+    EXTRA_CXX_FLAGS = $(PEGASUS_EXTRA_CXX_FLAGS)
+endif
+
+ifdef PEGASUS_EXTRA_C_FLAGS
+    EXTRA_C_FLAGS = $(PEGASUS_EXTRA_C_FLAGS)
+endif
+
+ifdef PEGASUS_EXTRA_LINK_FLAGS
+    EXTRA_LINK_FLAGS = $(PEGASUS_EXTRA_LINK_FLAGS)
+endif
+

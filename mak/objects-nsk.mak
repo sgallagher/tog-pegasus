@@ -9,7 +9,7 @@
 
 _TMP_O = .tmp.o
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
-	$(CXX) -c -o$(_TMP_O) $(FLAGS) $(GUARDIAN_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+	$(CXX) -c -o$(_TMP_O) $(FLAGS) $(EXTRA_CXX_FLAGS) $(GUARDIAN_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	$(COPY) $(_TMP_O) $@
 	$(RM) $(_TMP_O)
 	@ $(ECHO)

@@ -66,16 +66,15 @@ endif
 
 
 ifdef PEGASUS_DEBUG
-FLAGS += $(CFLAGS) -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+FLAGS += -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 else
-FLAGS += $(CFLAGS) -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s -fno-enforce-eh-specs
+FLAGS += -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s -fno-enforce-eh-specs
   ifdef PEGASUS_OPTIMIZE_FOR_SIZE
     FLAGS += -Os
   else
     FLAGS += -O2
   endif
 endif
-
 
 ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes

@@ -16,7 +16,7 @@ FLAGS = $(PR_FLAGS)
 endif
 
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
-	$(CXX) -c -o $(_TMP_O) $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+	$(CXX) -c -o $(_TMP_O) $(FLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(COPY) $(_TMP_O) $@
 	@ $(RM) $(_TMP_O)
 	@ $(TOUCH) $@

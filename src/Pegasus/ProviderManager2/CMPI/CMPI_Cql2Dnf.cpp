@@ -60,7 +60,13 @@ PEGASUS_NAMESPACE_BEGIN
   String
 CQL2String (const CQLExpression & o)
 {
-  CQLValue val = o.getTerms ()[0].getFactors ()[0].getValue ();
+  CQLValue val;
+  if (o.isSimpleValue ())
+    {
+      val = o.getTerms ()[0].getFactors ()[0].getValue ();
+    }
+  else
+    return "NULL_VALUE";
 
   if (val.getValueType () == CQLValue::Null_type)
     return "NULL_VALUE";
@@ -210,6 +216,7 @@ CMPI_Cql2Dnf::_populateTableau ()
   //cerr << cqs.getQuery() << endl;
 
   CMPI_TableauRow tr;
+  CQLValue dummy ("");
   for (Uint32 i = 0; i < pred_Array.size (); i++)
     {
       CQLPredicate pred = pred_Array[i];
@@ -228,13 +235,25 @@ CMPI_Cql2Dnf::_populateTableau ()
           CQLValue lhs_val;
           CQLValue rhs_val;
 
-          if (lhs_cql.isSimpleValue ())
-            //if (lhs_cql.getTerms ().size () != 0)
-            lhs_val = lhs_cql.getTerms ()[0].getFactors ()[0].getValue ();
-          if (rhs_cql.isSimpleValue ())
-            //if (rhs_cql.getTerms ().size () != 0)
-            rhs_val = rhs_cql.getTerms ()[0].getFactors ()[0].getValue ();
 
+          if (lhs_cql.isSimpleValue ())
+            {
+              //if (lhs_cql.getTerms ().size () != 0)
+              lhs_val = lhs_cql.getTerms ()[0].getFactors ()[0].getValue ();
+            }
+          else
+            {
+              lhs_val = dummy;
+            }
+          if (rhs_cql.isSimpleValue ())
+            {
+              //if (rhs_cql.getTerms ().size () != 0)
+              rhs_val = rhs_cql.getTerms ()[0].getFactors ()[0].getValue ();
+            }
+          else
+            {
+              rhs_val = dummy;
+            }
           // Have both side of the operation, such as 'A < 2'
           CMPI_QueryOperand lhs (CQL2String (lhs_cql),
                                  CQL2Type (lhs_val.getValueType ()));
@@ -243,22 +262,15 @@ CMPI_Cql2Dnf::_populateTableau ()
 
           // Add it as an row to the table row. 
           tr.append (CMPI_term_el (false, opr, lhs, rhs));
-
           if (i < oper_Array.size ())
             {
               // If the next operation is OR (disjunction), then treat the table row 
               // as as set of conjunctions and ..
               if (oper_Array[i] == OR)
                 {
-                  /*
-                     cerr << " (L: " << lhs_cql.
-                     toString () << ", R: " << rhs_cql.toString () << ") OR " <<endl;
-                   */
-
                   // .. put the table of conjunctives in the tableau.  Each element in the 
                   // tableau is a set of conjunctives. It is understood that the boolean
                   // logic seperating the conjunctives is the disjunctive operator (OR).
-
                   _tableau.append (tr);
                   // Clear the table of conjunctives for the next operands.
                   tr.clear ();
@@ -267,20 +279,13 @@ CMPI_Cql2Dnf::_populateTableau ()
               // If the operator is a conjunction, let the operands pile up on
               // the table row until there is disjunction (OR) or there are ..
 
-              /*
-                 else { 
-                 cerr << " (L: " << lhs_cql.
-                 toString () << ", R: " << rhs_cql.toString () << ") AND "<<endl;
-
-                 }
-               */
             }
           else
             {
               // ... no more operations. This is the last operand. Add it
               // to the tableau as a disjunctions.
-              _tableau.append (tr);
 
+              _tableau.append (tr);
             }
         }
     }

@@ -34,7 +34,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
-#if defined(Pegasus_Platform_LINUX_IX86_GNU_h)
+#if defined(PEGASUS_OS_TYPE_UNIX)
 #include <errno.h>
 #endif
 #include "CIMName.h"

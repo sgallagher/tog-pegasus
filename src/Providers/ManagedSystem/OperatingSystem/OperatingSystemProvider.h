@@ -114,14 +114,17 @@ class OperatingSystemProvider: public CIMInstanceProvider,
 			ResponseHandler<CIMValue>& handler);
 
    protected:
-      /** Builds a filled-in instance. */
+      // store off for future use
+      CIMOMHandle _cimomhandle;
+      
+      // Builds a filled-in instance. 
       CIMInstance _build_instance(const CIMReference &objectReference);
 
-      /** Builds a reference (a set of Key,Value pairs) */
+      // Builds a reference (a set of Key,Value pairs) 
       CIMReference _fill_reference(const String &nameSpace, 
 			           const String &className);
     
-      /** Get the values needed */
+      // Get the values needed 
       String _hostName();
       String _osName();
       Uint16 _osType();

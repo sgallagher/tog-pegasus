@@ -140,6 +140,16 @@ static const char IND_PROVIDER [] = "Indication";
 static const char MET_PROVIDER [] = "Method";
 
 /**
+   Registered provider
+*/
+static const char PROVIDER_KEY [] = "Provider";
+
+/**
+   Registered module
+*/
+static const char MODULE_KEY [] = "Module";
+
+/**
    Registered instance provider type
 */
 static const Uint16 _INSTANCE_PROVIDER    = 2;
@@ -257,6 +267,11 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         instances[0].getProperty(pos).getValue().get(providerName);
 
+	//
+	// create the key by using providerName and PROVIDER_KEY
+	//
+	String _providerKey = _generateKey(providerName, PROVIDER_KEY);
+
         //
         // get provider module name
         //
@@ -268,10 +283,15 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
 
+	//
+	// create the key by using providerModuleName and MODULE_KEY
+	//
+	String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+
         // 
-        // get provider instance from the table by using providerName to be key
+        // get provider instance from the table 
         //
-        if (!_registrationTable->table.lookup(providerName, _provider))
+        if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
 	    throw CIMException(CIM_ERR_FAILED, "can not find the provider");
         }
@@ -280,10 +300,9 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         provider = providerInstances[0];
 
         // 
-        // get provider module instance from the table by using providerModule
-        // name to be key
+        // get provider module instance from the table 
         //
-        if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+        if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
 	    throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
         }
@@ -397,10 +416,20 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 	
     }
 
-    // 
-    // get provider instance from the table by using providerName to be key
     //
-    if (!_registrationTable->table.lookup(providerName, _provider))
+    // create the key by using providerName and PROVIDER_KEY
+    //
+    String _providerKey = _generateKey(providerName, PROVIDER_KEY);
+
+    //
+    // create the key by using providerModuleName and MODULE_KEY
+    //
+    String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+
+    // 
+    // get provider instance from the table 
+    //
+    if (!_registrationTable->table.lookup(_providerKey, _provider))
     {
 	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
     }
@@ -409,22 +438,22 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     provider = providerInstances[0];
 
     // 
-    // get provider module instance from the table by using providerModule
-    // name to be key
+    // get provider module instance from the table 
     //
-    if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
 	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
     }
+    
+    Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
+    providerModule = providerModuleInstances[0];
+    
   }
   catch(CIMException & exception)
   {
 	return (false);
   }
 
-    Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
-    providerModule = providerModuleInstances[0];
-    
     return (true);
 }
 
@@ -509,6 +538,11 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	instances[i].getProperty(pos2).getValue().get(providerName);
 
 	//
+	// create the key by using providerName and PROVIDER_KEY
+	//
+	String _providerKey = _generateKey(providerName, PROVIDER_KEY);	
+
+	//
 	// get provider module name
 	//
 	Uint32 pos3 = instances[i].findProperty(_PROPERTY_PROVIDERMODULENAME);
@@ -518,13 +552,18 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     	}
 	instances[i].getProperty(pos3).getValue().get(providerModuleName);
 
+	//
+	// create the key by using providerModuleName and MODULE_KEY
+	//
+	String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+
 	if (value.isNull())
 	{
 	    //
 	    // provider supportes all the properties
-	    // get provider instance from the table by using providerName to be key
+	    // get provider instance from the table 
 	    //
-	    if (!_registrationTable->table.lookup(providerName, _provider))
+	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    {
         	throw CIMException(CIM_ERR_FAILED, "can not find the provider");
     	    }
@@ -540,10 +579,9 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    }
 
 	    //
-	    // get provider module instance from the table by using providerModule 
-	    // Name to be key
+	    // get provider module instance from the table
 	    //
-	    if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+	    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     	    {
         	throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
     	    }
@@ -587,7 +625,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    	    // get provider instance from the table by using 
 		    // providerName to be key
 	    	    //
-	    	    if (!_registrationTable->table.lookup(providerName, _provider))
+	    	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    	    {
         		throw CIMException(CIM_ERR_FAILED, "can not find the provider");
     	    	     }
@@ -604,10 +642,9 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             	     }
 
 		     //
-                     // get provider module instance from the table by using 
-		     // providerModule Name to be key
+                     // get provider module instance from the table
             	     //
-            	     if (!_registrationTable->table.lookup(providerModuleName, _providerModule))
+            	     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
             	     {
                          throw CIMException(CIM_ERR_FAILED, "can not find the provider module");
             	     }
@@ -795,7 +832,8 @@ CIMReference ProviderRegistrationManager::createInstance(
 	    // the hash table 
 	    //
 	    instances.append(instance);
-	    _addInstancesToTable(_providerModule, instances);
+	    String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
+            _addInstancesToTable(_moduleKey, instances);
 
 	    PEG_METHOD_EXIT();
 	    return (cimRef);
@@ -816,21 +854,30 @@ CIMReference ProviderRegistrationManager::createInstance(
 		(_PROPERTY_PROVIDER_NAME)).getValue().get(_providerName);
 
 	    //
+            // create the key by using _providerName and PROVIDER_KEY
+            //
+            String _providerKey = _generateKey(_providerName, PROVIDER_KEY);
+
+	    //
+            // create the key by using _providerModule and MODULE_KEY
+            //
+            String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
+
+	    //
 	    // check if the PG_ProviderModule class was registered
 	    //
-	    if (_registrationTable->table.contains(_providerModule))
+	    if (_registrationTable->table.contains(_moduleKey))
 	    {   
 		//
 		// the provider module class was registered
 		//
 	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
 	        //
-	        // Use provider name to be a key, add the instance to
-	        // the hash table 
+	        // add the instance to the hash table 
 	        //
 		instances.append(instance);
 
-	        _addInstancesToTable(_providerName, instances);
+	        _addInstancesToTable(_providerKey, instances);
 
 		PEG_METHOD_EXIT();
 	        return (cimRef);
@@ -869,9 +916,19 @@ CIMReference ProviderRegistrationManager::createInstance(
 		(_PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
 
 	    //
+            // create the key by using _providerName and PROVIDER_KEY
+            //
+            String _providerKey = _generateKey(_providerName, PROVIDER_KEY);
+
+	    //
+            // create the key by using _providerModule and MODULE_KEY
+            //
+            String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
+
+	    //
 	    // check if the PG_Provider class was registered
 	    //
-	    if (_registrationTable->table.contains(_providerName))
+	    if (_registrationTable->table.contains(_providerKey))
 	    {
 		//
 		// the PG_Provider class was registered
@@ -1242,10 +1299,15 @@ void ProviderRegistrationManager::deleteInstance(
 	    String deletedProviderName;
 
 	    //
-	    // get the key provider name
+	    // get the provider name
 	    //
 	    instance.getProperty(instance.findProperty(
 		_PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
+
+	    //
+	    // create the key by using deletedProviderName and PROVIDER_KEY
+            //
+            String _deletedProviderKey = _generateKey(deletedProviderName, PROVIDER_KEY);
 
 	    //
 	    // delete instance of PG_Provider from repository
@@ -1319,10 +1381,10 @@ void ProviderRegistrationManager::deleteInstance(
 		Uint32 instancesCount;
 
 		// 
-		// remove all entries which their key's value is same as provider name 
+		// remove all entries which their key's value is same as _deletedProviderKey 
 		// from the table
 		//
-		if (String::equal(deletedProviderName, i.key()))
+		if (String::equal(_deletedProviderKey, i.key()))
 		{
 		    _registrationTable->table.remove(i.key());
 		}
@@ -1371,6 +1433,11 @@ void ProviderRegistrationManager::deleteInstance(
 	    //
 	    instance.getProperty(instance.findProperty(
 		 _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
+	    //
+            // create the key by using deletedProviderModuleName and MODULE_KEY
+            //
+            String _deletedModuleKey = _generateKey(deletedProviderModuleName, MODULE_KEY);
+
 
 	    //
 	    // delete instance of PG_ProviderModule from repository
@@ -1489,10 +1556,10 @@ void ProviderRegistrationManager::deleteInstance(
 		Uint32 instancesCount;
 
 		// 
-		// remove all entries which key's value is same as deleted provider 
-		// module name from the table
+		// remove all entries which key's value is same as _deletedModuleKey 
+		// from the table
 		//
-		if (String::equal(deletedProviderModuleName, i.key()))
+		if (String::equal(_deletedModuleKey, i.key()))
 		{
 		    _registrationTable->table.remove(i.key());
 		}
@@ -1555,12 +1622,17 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
     Array<CIMInstance> instances;
 
     //
-    // Find the entry whose key's value is same as providerModuleName
+    // create the key by using providerModuleName and MODULE_KEY
+    //
+    String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+
+    //
+    // Find the entry whose key's value is same as _moduleKey
     // get provider module status from the value
     //
     for (Table::Iterator i=_registrationTable->table.start(); i; i++)
     {
-	if (String::equal(i.key(), providerModuleName))
+	if (String::equal(i.key(), _moduleKey))
 	{
 	    instances = i.value()->getInstances();
 
@@ -1581,6 +1653,11 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     CIMReference reference;
     Array<CIMNamedInstance> cimNamedInstances;
     String _providerModuleName;
+
+    //
+    // create the key by using providerModuleName and MODULE_KEY
+    //
+    String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
 
     //
     // find the instance from repository
@@ -1629,14 +1706,14 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 		//
 		// remove old entry from table
 		//
-		_registrationTable->table.remove(providerModuleName);
+		_registrationTable->table.remove(_moduleKey);
 
 		//
 		// add the updated instance to the table
 		//
 		Array<CIMInstance> instances;
 		instances.append(_instance);
-		_addInstancesToTable(providerModuleName, instances);
+		_addInstancesToTable(_moduleKey, instances);
 		
 		return (true);
 	    }
@@ -1695,11 +1772,15 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(providerModuleName);
 	
 	    //
-            // Use provider module name to be a key, add the instance to
-            // the hash table
+            // create the key by using providerModuleName and MODULE_KEY
+            //
+            String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+
+	    //
+            // add the instance to the hash table by using _moduleKey
             //
             instances.append(instance);
-            _addInstancesToTable(providerModuleName, instances);
+            _addInstancesToTable(_moduleKey, instances);
     	}
 
         //
@@ -1723,11 +1804,15 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             (_PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
 
 	    //
-            // Use provider name to be a key, add the instance to
-            // the hash table
+            // create the key by using providerName and PROVIDER_KEY
+            //
+            String _providerKey = _generateKey(providerName, PROVIDER_KEY);
+
+	    //
+            // add the instance to the hash table by using _providerKey
             //
             instances.append(instance);
-            _addInstancesToTable(providerName, instances);
+            _addInstancesToTable(_providerKey, instances);
     	}
 
         //
@@ -1933,6 +2018,16 @@ void ProviderRegistrationManager::_addInstancesToTable(
 }
 
 String ProviderRegistrationManager::_generateKey(
+    const String & name,
+    const String & provider)
+{
+    String providerKey = name;
+    providerKey.append(provider);
+
+    return (providerKey);
+}
+
+String ProviderRegistrationManager::_generateKey(
     const String & namespaceName,
     const String & className,
     const String & providerType)
@@ -1971,7 +2066,7 @@ String ProviderRegistrationManager::_generateKey(
 
 //
 // get provider instance and module instance from registration table 
-// by using provider name or provider module name to be a key
+// by using provider name or provider module name
 //
 void ProviderRegistrationManager::_getInstances(
     const String & providerName,
@@ -1985,9 +2080,19 @@ void ProviderRegistrationManager::_getInstances(
     ProviderRegistrationTable* _module;
 
     //
+    // create the key by using providerName and PROVIDER_KEY
+    //
+    String _providerKey = _generateKey(providerName, PROVIDER_KEY);
+
+    //
+    // create the key by using moduleName and MODULE_KEY
+    //
+    String _moduleKey = _generateKey(moduleName, MODULE_KEY);
+
+    //
     // get provider instance
     //
-    if (_registrationTable->table.lookup(providerName, _provider))
+    if (_registrationTable->table.lookup(_providerKey, _provider))
     {
 	_providerInstances = _provider->getInstances();
 	providerInstance = _providerInstances[0];
@@ -1996,7 +2101,7 @@ void ProviderRegistrationManager::_getInstances(
     //
     // get provider module instance
     //
-    if (_registrationTable->table.lookup(moduleName, _module))
+    if (_registrationTable->table.lookup(_moduleKey, _module))
     {
 	_moduleInstances = _module->getInstances();
 	moduleInstance = _moduleInstances[0];

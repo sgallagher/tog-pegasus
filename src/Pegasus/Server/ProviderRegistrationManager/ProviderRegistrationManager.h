@@ -87,7 +87,10 @@ public:
 
 	Array<CIMReference> enumerateInstanceNames(const CIMReference & ref);
 
-//	void modifyInstance(const CIMReference & ref, const CIMInstance & instance);
+	void modifyInstance(const CIMReference & ref, 
+			    const CIMInstance & instance,
+			    const Uint32 flags,
+			    const Array<String> & propertyList);
 
 	CIMReference createInstance(const CIMReference & ref, 
 		const CIMInstance & instance);
@@ -111,6 +114,9 @@ protected:
 	PG_Provider, and instances of PG_ProviderCapability 
 	*/
 	RegistrationTable* _registrationTable;
+
+	String _generateKey(const String & name, 
+		const String & provider);
 
 	String _generateKey(const String & namespaceName, 
 		const String & className,

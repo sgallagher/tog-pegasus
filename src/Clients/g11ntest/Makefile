@@ -31,12 +31,8 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-ifdef PEGASUS_USE_DEFAULT_MESSAGES
-	$(PROGRAM_NOICU)
-else
-  ifdef PEGASUS_HAS_MESSAGES
+ifdef PEGASUS_HAS_MESSAGES
 	$(PROGRAM_ICU)
-  else
+else
 	$(PROGRAM_NOICU)
-  endif
 endif

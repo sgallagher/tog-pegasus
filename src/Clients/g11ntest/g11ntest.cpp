@@ -2031,6 +2031,47 @@ static void TestLocalizedIndications( CIMClient& client,
   }
 }
 
+
+// This function is used to control the default message loading in the server.
+// When make poststarttests is run with ICU enabled, the PEGASUS_USE_DEFAULT_MESSAGES
+// env var is set.  This env var causes the server to return default messages
+// even though ICU is used.  This is needed to pass the wbemexec testcases that
+// expect the default messages.  However, when this program is run with ICU
+// enabled, messages from the resource bundles are expected from the server.
+// This function controls whether the MessageLoader in the server loads from 
+// the resource bundles.
+Boolean setServerDefaultMessageLoading(CIMClient & client, 
+				       Boolean newSetting)
+{
+  const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMName SETTER_METHOD = CIMName("setDefaultMessageLoading");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+
+  // Set the language objects to be sent to the LocalizedProvider
+  // This is required by the provider
+  AcceptLanguages AL_DE;
+  AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+  ContentLanguages CL_DE("de"); 
+  client.setRequestAcceptLanguages(AL_DE);
+  client.setRequestContentLanguages(CL_DE);
+
+  // Set the new default message loading value
+  Array<CIMParamValue> inParams;
+  inParams.append( CIMParamValue(  "newSetting", CIMValue( newSetting ) ) );
+  Array<CIMParamValue> outParams;
+  CIMValue rtnVal = client.invokeMethod(
+	SAMPLE_NAMESPACE, 
+	REFERENCE, 
+	SETTER_METHOD,
+	inParams, 
+	outParams);
+
+  // The old value is returned by the provider
+  Boolean oldSetting;
+  rtnVal.get(oldSetting);
+  return oldSetting;
+}
+
 // l10n end
 
 
@@ -2271,72 +2312,90 @@ int main(int argc, char** argv)
             cout << "Start Try Block" << endl;
             try
             {
-                     cout << "Set Stopwatch" << endl;
-                     Stopwatch elapsedTime;
-                     cout << "Create client" << endl;
-                     CIMClient client;
-                     client.setTimeout(360 * 1000);
-                     cout << "Client created" << endl;
+	      cout << "Set Stopwatch" << endl;
+	      Stopwatch elapsedTime;
+	      cout << "Create client" << endl;
+	      CIMClient client;
+	      client.setTimeout(360 * 1000);
+	      cout << "Client created" << endl;
 
-                     //
-                     //  Get host and port number from connection list entry
-                     //
-                     Uint32 index = connectionList[i].find (':');
-                     String host = connectionList[i].subString (0, index);
-                     Uint32 portNumber = 0;
-                     if (index != PEG_NOT_FOUND)
-                     {
-	                 String portStr = connectionList[i].subString 
-                             (index + 1, connectionList[i].size ());
-	                 sscanf (portStr.getCString (), "%u", &portNumber);
-                     }
+	      //
+	      //  Get host and port number from connection list entry
+	      //
+	      Uint32 index = connectionList[i].find (':');
+	      String host = connectionList[i].subString (0, index);
+	      Uint32 portNumber = 0;
+	      if (index != PEG_NOT_FOUND)
+		{
+		  String portStr = connectionList[i].subString 
+		    (index + 1, connectionList[i].size ());
+		  sscanf (portStr.getCString (), "%u", &portNumber);
+		}
 
-                     if (om.isTrue("local"))
-                     {
-                        cout << "Using local connection mechanism " << endl;
-                        client.connectLocal();
-                     }
-                     else
-                     {
-                        cout << "Connecting to " << connectionList[i] << endl;
-                        client.connect (host, portNumber,
+	      if (om.isTrue("local"))
+		{
+		  cout << "Using local connection mechanism " << endl;
+		  client.connectLocal();
+                }
+	      else
+		{
+		  cout << "Connecting to " << connectionList[i] << endl;
+		  client.connect (host, portNumber,
                                    userName, password);
-                     }
-                     cout << "Client Connected" << endl;
+		}
+	      cout << "Client Connected" << endl;
 
-                     testStart("Test Server Error Messages");
-                     elapsedTime.reset();
-                     TestServerMessages(client, reqLang, rspLang, activeTest, verboseTest);
-                     testEnd(elapsedTime.getElapsed());
+	      if (verboseTest)
+		cout << "Disabling default message loading in the server" << endl;
+	      Boolean oldSetting = setServerDefaultMessageLoading(client, 
+								  false);
 
-                     testStart("Test Instance Operations");
-                     elapsedTime.reset();
-                     TestLocalizedInstances(client, activeTest, verboseTest);
-                     testEnd(elapsedTime.getElapsed());
+	      try
+              {
+		testStart("Test Server Error Messages");
+		elapsedTime.reset();
+		TestServerMessages(client, reqLang, rspLang, activeTest, verboseTest);
+		testEnd(elapsedTime.getElapsed());
 
-                     testStart("Test Method Operations");
-                     elapsedTime.reset();
-                     TestLocalizedMethods(client, activeTest, verboseTest);
-                     testEnd(elapsedTime.getElapsed());
+		testStart("Test Instance Operations");
+		elapsedTime.reset();
+		TestLocalizedInstances(client, activeTest, verboseTest);
+		testEnd(elapsedTime.getElapsed());
 
-                     testStart("Test Class, Qualifier, and Namespace Operations");
-                     elapsedTime.reset();
-                     TestUTFRepository(client, utfRepNames, activeTest, verboseTest);
-                     testEnd(elapsedTime.getElapsed());
+		testStart("Test Method Operations");
+		elapsedTime.reset();
+		TestLocalizedMethods(client, activeTest, verboseTest);
+		testEnd(elapsedTime.getElapsed());
 
-                     testStart("Test Indication Operations");
-                     elapsedTime.reset();
-                     TestLocalizedIndications(client, activeTest, verboseTest,
+		testStart("Test Class, Qualifier, and Namespace Operations");
+		elapsedTime.reset();
+		TestUTFRepository(client, utfRepNames, activeTest, verboseTest);
+		testEnd(elapsedTime.getElapsed());
+
+		testStart("Test Indication Operations");
+		elapsedTime.reset();
+		TestLocalizedIndications(client, activeTest, verboseTest,
 					      skipListener ,listenerHost);
-                     testEnd(elapsedTime.getElapsed());
+		testEnd(elapsedTime.getElapsed());
+	      }
+	      catch (Exception & e1)
+	      {
+		// Restore the default message loading value before we leave
+		setServerDefaultMessageLoading(client, oldSetting);
+		throw e1;
+	      }
 
-                     client.disconnect();
+	      if (verboseTest)
+		cout << "Restoring the old default message loading value" << endl;
+	      setServerDefaultMessageLoading(client, oldSetting);
+
+	      client.disconnect();
             }
             catch(Exception& e)
             {
-                      PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
-                      PEGASUS_STD(endl);
-                      exit(1);
+	      PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
+	      PEGASUS_STD(endl);
+	      exit(1);
             }
         }
     }

@@ -321,12 +321,15 @@ void PG_TestPropertyTypes::createInstance(
 //	}
 
         // create the CIMReference to return
-        KeyBinding kb(instanceObject.getProperty(propIndex).getName(),
-                      instanceObject.getProperty(propIndex).getValue().toString(),
-                      KeyBinding::NUMERIC);
+        KeyBinding kb1(instanceObject.getProperty(propIndex).getName(),
+                       instanceObject.getProperty(propIndex).getValue().toString(),
+                       KeyBinding::NUMERIC);
+        KeyBinding kb2("CreationClassName", "PG_TestPropertyTypes",
+                       KeyBinding::STRING);
         CIMReference returnReference(instanceReference);
 	Array<KeyBinding> keys;
-        keys.append(kb);
+        keys.append(kb1);
+        keys.append(kb2);
         returnReference.setKeyBindings(keys);
 
 	// ensure the property values are valid

@@ -43,7 +43,7 @@ void cim_server_service(int argc, char **argv ) { return; }
 unsigned int cimserver_remove_nt_service(void) { return(0) ; }
 unsigned int cimserver_install_nt_service(String &pegasusHome ) { return(0) ; }
 
-const char *fname = "/etc/wbem/cimserver_start.conf";
+const char *fname = "/etc/opt/wbem/cimserver_start.conf";
 pid_t server_pid;
 
 // daemon_init , RW Stevens, "Advance UNIX Programming"
@@ -63,6 +63,41 @@ int cimserver_fork(void)
   server_pid = getpid();
 
   return(0);
+}
+
+Boolean isCIMServerRunning(void)
+{
+  FILE *pid_file;
+  pid_t pid = 0;
+
+  // open the file containing the CIMServer process ID
+  pid_file = fopen(fname, "rw");
+  if (!pid_file)
+  {
+      return false;
+  }
+
+  // get the pid from the file
+  fscanf(pid_file, "%ld\n", &pid);
+
+  if (pid == 0)
+  {
+     return false;
+  }
+
+  //
+  // check to see if cimserver process is alive
+  //
+#if defined(PEGASUS_OS_HPUX)
+  struct pst_status pstru;
+
+  if (pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid) != -1)
+  {
+      return true;
+  }
+#endif
+
+  return false;
 }
 
 int cimserver_kill(void) 

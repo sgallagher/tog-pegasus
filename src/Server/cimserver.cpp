@@ -141,7 +141,7 @@ static const char OPTION_BINDVERBOSE = 'X';
 #endif
 
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
-static const String CIMSERVERSTART_FILE = "/etc/wbem/cimserver_start.conf";
+static const String CIMSERVERSTART_FILE = "/etc/opt/wbem/cimserver_start.conf";
 
 ConfigManager*    configManager;
 
@@ -213,7 +213,11 @@ void PrintHelp(const char* arg0)
     usage.append ("                - sets CIM Server configuration property\n");
 
     cout << endl;
+#if defined(PEGASUS_OS_HPUX)
+    cout << PLATFORM_PRODUCT_NAME << " " << PLATFORM_PRODUCT_VERSION << endl;
+#else
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
+#endif
     cout << endl;
     cout << usage << endl;
 }
@@ -238,11 +242,9 @@ void shutdownCIMOM(Uint32 timeoutValue)
         client.connectLocal();
 
         //
-        // set client timeout to 2 seconds more than the shutdown timeout
-        // so that the command client does not timeout before the cimserver 
-        // terminates
+        // set client timeout to 2 seconds
         //
-        client.setTimeOut( (timeoutValue+2)*1000 );
+        client.setTimeOut(2000);
     }
     catch(CIMClientException& e)
     {
@@ -286,7 +288,15 @@ void shutdownCIMOM(Uint32 timeoutValue)
     catch(CIMClientCIMException& e)
     {
         PEGASUS_STD(cerr) << "Failed to shutdown server: ";
-        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
+        {
+            PEGASUS_STD(cerr) << "The repository may be empty.";
+            PEGASUS_STD(cerr) << PEGASUS_STD(endl);
+        }
+        else
+        {
+            PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        }
         exit(1);
     }
     catch(CIMClientException& e)
@@ -299,8 +309,30 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         // give CIM Server some time to finish up
         //
-        System::sleep(1);
-        cimserver_kill();
+        //System::sleep(1);
+        //cimserver_kill();
+
+        //
+        // Check to see if CIMServer is still running.  If CIMServer
+        // is still running and the shutdown timeout has not expired,
+        // loop and wait one second until either CIM Server is
+        // terminated or until timeout expires.  If timeout expires
+        // and CIMServer is still running, kill the CIMServer
+        // process.
+        //
+        Uint32 maxWaitTime = timeoutValue - 2;
+        Boolean running = isCIMServerRunning();
+        while ( running && maxWaitTime > 0 )
+        {
+            System::sleep(1);
+            running = isCIMServerRunning();
+            maxWaitTime = maxWaitTime - 1;
+        }
+
+        if (running)
+        {
+            cimserver_kill();
+        }
     }
     catch(Exception& e)
     {
@@ -366,7 +398,11 @@ int main(int argc, char** argv)
                 //
                 if (*option == OPTION_VERSION)
                 {
+#if defined(PEGASUS_OS_HPUX)
+                    cout << PLATFORM_PRODUCT_VERSION << endl;
+#else
                     cout << PEGASUS_VERSION << endl;
+#endif
                     exit(0);
                 }
                 //
@@ -377,6 +413,7 @@ int main(int argc, char** argv)
                     PrintHelp(argv[0]);
                     exit(0);
                 }
+#ifndef PEGASUS_OS_HPUX
                 else if (*option == OPTION_HOME)
                 {
                     if (i + 1 < argc)
@@ -392,6 +429,7 @@ int main(int argc, char** argv)
                     memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
                     argc -= 2;
                 }
+#endif
 #if defined(PEGASUS_OS_HPUX)
                 //
                 // Check to see if user asked for the version (-X option):
@@ -504,12 +542,6 @@ int main(int argc, char** argv)
         if (String::equal(configManager->getCurrentValue("daemon"), "true"))
         {
             daemonOption = true;
-	    // do we need to run as a daemon ?
-	    if (daemonOption)
-	    {
-	       if(-1 == cimserver_fork())
-		  exit(-1);
-	    }
         }
 	
         //
@@ -621,6 +653,7 @@ int main(int argc, char** argv)
     }
 
     // Put out startup up message.
+#ifndef PEGASUS_OS_HPUX
     cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	 " on port " << address << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
@@ -629,8 +662,18 @@ int main(int argc, char** argv)
 	 << (useSLP ? " SLP reg. " : " No SLP ")
          << (useSSL ? " Use SSL " : " No SSL ")
 	<< endl;
+#endif
 
+    // do we need to run as a daemon ?
+    if (daemonOption)
+    {
+        if(-1 == cimserver_fork())
+          exit(-1);
+    }
 
+#ifdef PEGASUS_OS_HPUX
+    umask(S_IWGRP|S_IWOTH);
+#endif
 
     // try loop to bind the address, and run the server
     try
@@ -653,7 +696,7 @@ int main(int argc, char** argv)
 	// bind throws an exception if the bind fails
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 	cout << "Binding to domain socket" << endl;
-#else
+#elif !defined(PEGASUS_OS_HPUX)
 	cout << "Binding to " << address << endl;
 #endif
 
@@ -679,13 +722,20 @@ int main(int argc, char** argv)
             fclose(pid_file);
         }
 #endif
+#ifndef PEGASUS_OS_HPUX
 	cout << "Started. " << endl;
+#endif
 
         // Put server started message to the logger
+#ifdef PEGASUS_OS_HPUX
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                    "Started $0 version $1 on port $2.",
+                    PLATFORM_PRODUCT_NAME, PLATFORM_PRODUCT_VERSION, address);
+#else
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
                     "Started $0 version $1 on port $2.",
                     PEGASUS_NAME, PEGASUS_VERSION, address);
-
+#endif
 
 	
         //

@@ -40,13 +40,15 @@
 enum opttypes {FILESPEC,
 	       HELPFLAG, 
 	       INCLUDEPATH,
-	       REPOSITORYNAME, 
-	       SYNTAXFLAG,
 	       SUPPRESSFLAG,
-	       FILELIST,
 	       NAMESPACE,
+	       REPOSITORYNAME, 
+#ifndef PEGASUS_OS_HPUX
+	       SYNTAXFLAG,
+	       FILELIST,
 	       TRACEFLAG,
 	       XMLFLAG,
+#endif
 	       OPTEND};
 
 struct optspec {

@@ -57,6 +57,7 @@ void GetOptions(
 void cim_server_service(int argc, char **argv ) { cimserver_windows_main(argc, argv); exit(0); }
 int cimserver_fork( ) { return(0); }
 int cimserver_kill( ) { return(0); }
+Boolean isCIMServerRunning( ) { return(false); }
 
 static void __cdecl cimserver_windows_thread(void *parm) 
 {

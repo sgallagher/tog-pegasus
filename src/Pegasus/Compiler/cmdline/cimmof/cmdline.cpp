@@ -64,7 +64,15 @@ PEGASUS_USING_PEGASUS;
 
 static ostream & 
 help(ostream &os) {
-  os << endl << "MofCompiler version " << COMPILER_VERSION << endl << endl;
+  os << endl << "MOF Compiler version " << COMPILER_VERSION << endl << endl;
+#ifdef PEGASUS_OS_HPUX
+  os << "Usage: cimmof [-h] [-w] [-I path] [-n namespace] [file, ...]" << endl;
+  os << "    -h           - show this help " << endl;
+  os << "    -w           - suppress warnings " << endl;
+  os << "    -I path      - specify an include path " << endl;
+  os << "    -n namespace - override the default CIMRepository namespace "
+     << endl;
+#else
   os << "Usage: cimmof -hEw -Ipath -Rrepository -ffile" << endl;
   os << "  -h, --help -- show this help." << endl;
   os << "  -E -- syntax check only." << endl;
@@ -82,6 +90,7 @@ help(ostream &os) {
      << endl;
   os << " --trace or --trace=ttracefile -- trace to file (default to stdout)."
      << endl;
+#endif
   return os;
 }
 
@@ -109,18 +118,20 @@ static struct optspec optspecs[] =
     {(char*)"", FILESPEC, false, getoopt::NOARG},
     {(char*)"h", HELPFLAG, false, getoopt::NOARG},
     {(char*)"help", HELPFLAG, true, getoopt::NOARG},
-    {(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
-    {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
     {(char*)"n", NAMESPACE, false, getoopt::MUSTHAVEARG},
     {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVEARG}, 
     {(char*)"I", INCLUDEPATH, false, getoopt::MUSTHAVEARG},
     {(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVEARG},
+    {(char*)"w", SUPPRESSFLAG, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
     {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVEARG},
+#ifndef PEGASUS_OS_HPUX
+    {(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
+    {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG}, 
-    {(char*)"w", SUPPRESSFLAG, false, getoopt::NOARG},
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
+#endif
     {(char*)"", OPTEND, false, getoopt::NOARG}
 };
 
@@ -238,13 +249,16 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         break;
       case INCLUDEPATH:cmdlinedata.add_include_path(arg.optarg());
         break;
+      case SUPPRESSFLAG: cmdlinedata.set_suppress_warnings();
+        break;
+      case NAMESPACE: cmdlinedata.set_namespacePath(arg.optarg());
+        break;
       case REPOSITORYNAME:  cmdlinedata.set_repository_name(arg.optarg());
 	break;
+#ifndef PEGASUS_OS_HPUX
       case SYNTAXFLAG: cmdlinedata.set_syntax_only();
 		       cmdlinedata.set_operationType(
 				compilerCommonDefs::DO_NOT_ADD_TO_REPOSITORY);
-	break;
-      case SUPPRESSFLAG: cmdlinedata.set_suppress_warnings();
 	break;
       case TRACEFLAG: 
 	{
@@ -272,9 +286,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	}
 	break;
       }
+#endif
       case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());
-	break;
-      case NAMESPACE: cmdlinedata.set_namespacePath(arg.optarg());
 	break;
       case OPTEND: return -1;  // shouldn't happen
 	break;

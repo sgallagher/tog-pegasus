@@ -18,7 +18,7 @@
 // ==============================================================================
 
 
-en:table {
+root:table {
 
 	Clients.CLI.USAGE_STRING:string {"VALID USAGE OF THIS COMMAND: "}
 

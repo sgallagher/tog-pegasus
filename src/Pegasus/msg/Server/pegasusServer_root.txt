@@ -17,7 +17,7 @@
 //     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
 // ==============================================================================
 
-en:table {
+root:table {
 
 	Common.CIMStatusCode.CIM_ERR_SUCCESS:string {"CIM_ERR_SUCCESS: SUCCESSFUL"}
 

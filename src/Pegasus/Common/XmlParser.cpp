@@ -139,6 +139,23 @@ static EntityReference _references[] =
     { "&apos;", 6, '\'' }
 };
 
+
+// Implements a check for a whitespace character, without calling
+// isspace( ).  The isspace( ) function is locale-sensitive,
+// and incorrectly flags some chars above 0x7f as whitespace.  This
+// causes the XmlParser to incorrectly parse UTF-8 data.
+//
+// Section 2.3 of XML 1.0 Standard (http://www.w3.org/TR/REC-xml)
+// defines white space as:
+// S    ::=    (#x20 | #x9 | #xD | #xA)+ 
+static int _isspace(char c)
+{
+	if (c == ' ' || c == '\r' || c == '\t' || c == '\n')
+		return 1;
+	return 0;
+}
+
+
 static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
 
 // Remove all redundant spaces from the given string:
@@ -151,8 +168,8 @@ static void _normalize(char* text)
 
     // Remove leading spaces:
 
-    while (isspace(*p))
-	p++;
+    while (_isspace(*p))
+		p++;
 
     if (p != text)
 	memmove(text, p, end - p + 1);
@@ -165,7 +182,7 @@ static void _normalize(char* text)
     {
 	// Advance to the next space:
 
-	while (*p && !isspace(*p))
+	while (*p && !_isspace(*p))
 	    p++;
 
 	if (!*p)
@@ -175,7 +192,7 @@ static void _normalize(char* text)
 
 	char* q = p++;
 
-	while (isspace(*p))
+	while (_isspace(*p))
 	    p++;
 
 	// Discard trailing spaces (if we are at the end):
@@ -477,7 +494,7 @@ XmlParser::~XmlParser()
 
 void XmlParser::_skipWhitespace(char*& p)
 {
-    while (*p && isspace(*p))
+    while (*p && _isspace(*p))
     {
 	if (*p == '\n')
 	    _line++;
@@ -503,7 +520,7 @@ Boolean XmlParser::_getElementName(char*& p)
 
     // The next character must be a space:
 
-    if (isspace(*p))
+    if (_isspace(*p))
     {
 	*p++ = '\0';
 	_skipWhitespace(p);
@@ -537,7 +554,7 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 
     // The next character must be a space:
 
-    if (isspace(*p))
+    if (_isspace(*p))
     {
 	*p++ = '\0';
 	_skipWhitespace(p);
@@ -947,13 +964,13 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 	{
 	    // The next thing must a space or a "?>":
 
-	    if (!(p[0] == '?' && p[1] == '>') && !isspace(*p))
+	    if (!(p[0] == '?' && p[1] == '>') && !_isspace(*p))
 	    {
 		throw XmlException(
 		    XmlException::BAD_ATTRIBUTE_VALUE, _line);
 	    }
 	}
-	else if (!(*p == '>' || (p[0] == '/' && p[1] == '>') || isspace(*p)))
+	else if (!(*p == '>' || (p[0] == '/' && p[1] == '>') || _isspace(*p)))
 	{
 	    // The next thing must be a space or a '>':
 
@@ -1033,7 +1050,7 @@ static void _findEnds(
 {
     first = str;
 
-    while (isspace(*first))
+    while (_isspace(*first))
 	first++;
 
     if (!*first)
@@ -1044,7 +1061,7 @@ static void _findEnds(
 
     last = first + strlen(first);
 
-    while (last != first && isspace(last[-1]))
+    while (last != first && _isspace(last[-1]))
 	last--;
 }
 

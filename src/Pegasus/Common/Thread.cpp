@@ -457,7 +457,20 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
-   for( ; i < 2; i++)
+//   for( ; i < 2; i++) << Fri Sep 13 12:49:46 2002 mdd >>
+// This change prevents the thread pool from killing hung threads.
+// The definition of a hung thread is one that has been on the run queue for too long. 
+// "too long" is defined as a time interval that is set when the thread pool is created. 
+// Cancelling "hung" threads has proved to be problematic. 
+
+// With this change the thread pool will not cancel hung threads. This may prevent a 
+// crash depending upon the state of the hung thread. It will cause the thread to hang 
+// around and not do anything besides waste space. 
+
+// Idle threads, those that have not executed a routine for a time interval, continue to be 
+// destroyed. This is normal and should not cause any problems. 
+
+   for( ; i < 1; i++)
    { 
       q = map[i];
       if(q->count() > 0 )

@@ -59,15 +59,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 #else   
    Uint32 sleep_interval = (Uint32)parm;
 #endif
-   pegasus_sleep(sleep_interval);
+//   pegasus_sleep(sleep_interval);
    function_count++;
-   if( ! (function_count.value() % 100) )
-   {
-      while(1)
-      { 
-	 pegasus_yield();
-      }
-   }
+//    if( ! (function_count.value() % 100) )
+//    {
+//       while(1)
+//       { 
+// 	 pegasus_yield();
+//       }
+//    }
    
    return 0; 
 }  
@@ -179,6 +179,8 @@ int main(int argc, char **argv)
 
    cout << "Killed Dead Threads " << endl;
 
+   cout << "running threads: " << tp.running_count() << endl;
+   
    while(tp.running_count() )
    {  
       tp.kill_dead_threads();

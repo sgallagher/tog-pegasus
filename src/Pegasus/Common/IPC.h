@@ -387,6 +387,12 @@ class AtomicInt
       AtomicInt& operator-=(const AtomicInt& val);
       AtomicInt& operator-=(Uint32 val);
 
+      inline Boolean operator>(Uint32 cmp) {return (this->value() > cmp);}
+      inline Boolean operator>=(Uint32 cmp) {return (this->value() >= cmp);}
+      inline Boolean operator<(Uint32 cmp) {return (this->value() < cmp);}
+      inline Boolean operator<=(Uint32 cmp) {return (this->value() <= cmp);}
+      inline Boolean operator==(Uint32 cmp) {return (this->value() == cmp);}
+
       // Mutex * getMutex(); keep this hidden - it will only exist on platforms
       // without native atomic types 
 

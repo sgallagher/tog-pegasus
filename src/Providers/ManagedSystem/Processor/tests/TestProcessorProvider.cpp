@@ -159,7 +159,7 @@ PEGASUS_USING_PEGASUS;
 static CIMClient c;
 static Boolean processorTestVerbose = false;
 
-void errorExit(CIMException& e)
+void errorExit(Exception& e)
 {
   cout << "Error: Failed" << endl << e.getMessage() << endl;
   exit(1);
@@ -180,7 +180,7 @@ int testClass(const String& className)
   {
     refs = c.enumerateInstanceNames(NAMESPACE,className);
   }
-  catch (CIMException& e)
+  catch (Exception& e)
   {
     cout << endl;
     errorExit(e);
@@ -210,7 +210,7 @@ int testClass(const String& className)
   {
     inst = c.getInstance(NAMESPACE,ref);
   }
-  catch (CIMException& e)
+  catch (Exception& e)
   {
     errorExit(e);
   }
@@ -636,10 +636,6 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_INVALID_PARAMETER) status = 1;
   }
-  catch (CIMException& e)
-  {
-    // any other exception is a failure; leave status alone
-  }
   if (status == 0)
   {
     cout << "+++++ Error: bad instance name not rejected" << endl;
@@ -661,10 +657,6 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (CIMException& e)
-  {
-    // any other CIMException is a problem; leave status alone
-  }
   if (status == 0)
   {
     cout << "+++++ Error: createInstance didn't throw exception" << endl;
@@ -685,10 +677,6 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (CIMException& e)
-  {
-    // any other CIMException is a problem; leave status alone
-  }
   if (status == 0)
   {
     cout << "+++++ Error: deleteInstance didn't throw exception" << endl;
@@ -706,7 +694,7 @@ int testClass(const String& className)
   {
     ia = c.enumerateInstances(NAMESPACE,className);
   }
-  catch (CIMException& e)
+  catch (Exception& e)
   {
     errorExit(e);
   }
@@ -732,10 +720,6 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (CIMException& e)
-  {
-    // any other CIMException is a problem; leave status alone
-  }
   if (status == 0)
   {
     cout << "+++++ Error: modifyInstance didn't throw exception" << endl;
@@ -760,7 +744,7 @@ int main(int argc, char *argv[])
   {
     c.connectLocal();
   }
-  catch (CIMException& e)
+  catch (Exception& e)
   {
     errorExit(e);
   }

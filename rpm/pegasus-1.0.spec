@@ -75,6 +75,33 @@ mkdir -p $RPM_BUILD_ROOT/var/pegasus/log
 mkdir -p $RPM_BUILD_ROOT/etc/pegasus
 touch $RPM_BUILD_ROOT/etc/pegasus/pegasus.conf
 
+# Copy the necessary include files
+
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Client
+cp $PEGASUS_ROOT/src/Pegasus/Client/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Client
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Common
+cp $PEGASUS_ROOT/src/Pegasus/Common/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Common
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Compiler
+cp $PEGASUS_ROOT/src/Pegasus/Compiler/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Compiler
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Config
+cp $PEGASUS_ROOT/src/Pegasus/Config/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Config
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Handler
+cp $PEGASUS_ROOT/src/Pegasus/Handler/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Handler
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Protocol
+cp $PEGASUS_ROOT/src/Pegasus/Protocol/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Protocol
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Provider
+cp $PEGASUS_ROOT/src/Pegasus/Provider/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Provider
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Provider2
+cp $PEGASUS_ROOT/src/Pegasus/Provider2/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Provider2
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Repository
+cp $PEGASUS_ROOT/src/Pegasus/Repository/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Repository
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Security/Authentication
+cp $PEGASUS_ROOT/src/Pegasus/Security/Authentication/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Security/Authentication
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/Server
+cp $PEGASUS_ROOT/src/Pegasus/Server/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/Server
+mkdir -p $RPM_BUILD_ROOT/usr/local/include/Pegasus/getoopt
+cp $PEGASUS_ROOT/src/Pegasus/getoopt/*.h $RPM_BUILD_ROOT/usr/local/include/Pegasus/getoopt
+
 #make INSTALLROOT=$RPM_BUILD_ROOT install
 #%__mkdir -p $RPM_BUILD_ROOT/usr/pegasus/lib/mof
 #%__mkdir -p $RPM_BUILD_ROOT/var/pegasus
@@ -93,17 +120,32 @@ sbin/insserv etc/init.d
 
 %dir %attr(-,root,root) /usr/local/bin
 %dir %attr(-,root,root) /usr/local/lib
+%dir %attr(-,root,root) /usr/local/include
 %dir %attr(-,root,root) /var/pegasus/log
 %dir %attr(-,root,root) /etc/pegasus/mof
 %dir %attr(-,root,root) /etc/pegasus/repository
+%dir %attr(-,root,root) /usr/local/include/Pegasus
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Client
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Common
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Compiler
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Config
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Handler
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Protocol
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Provider
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Provider2
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Repository
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Security
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Security/Authentication
+%dir %attr(-,root,root) /usr/local/include/Pegasus/Server
+%dir %attr(-,root,root) /usr/local/include/Pegasus/getoopt
 
 %config %attr(-,root,root) /etc/pegasus/pegasus.conf
 %config %attr(-,root,root) /etc/rc.d/pegasus
 
-%attr(-,root,root) /usr/local/lib/libCIMConfigSettingProvider.so
-%attr(-,root,root) /usr/local/lib/libCIMxmlIndicationHandler.so
+#%attr(-,root,root) /usr/local/lib/libCIMxmlIndicationHandler.so
+%attr(-,root,root) /usr/local/lib/libConfigSettingProvider.so
 %attr(-,root,root) /usr/local/lib/libDynLib.so
-%attr(-,root,root) /usr/local/lib/libHelloWorldProvider.so
+#%attr(-,root,root) /usr/local/lib/libHelloWorldProvider.so
 %attr(-,root,root) /usr/local/lib/libMyProvider.so
 %attr(-,root,root) /usr/local/lib/lib__NamespaceProvider.so
 %attr(-,root,root) /usr/local/lib/libpegclient.so
@@ -118,7 +160,7 @@ sbin/insserv etc/init.d
 %attr(-,root,root) /usr/local/lib/libpegprovider2.so
 %attr(-,root,root) /usr/local/lib/libpegrepository.so
 %attr(-,root,root) /usr/local/lib/libpegserver.so
-%attr(-,root,root) /usr/local/lib/libsendmailIndicationHandler.so
+#%attr(-,root,root) /usr/local/lib/libsendmailIndicationHandler.so
 %attr(-,root,root) /usr/local/lib/libslp.so
 
 %attr(-,root,root) /usr/local/bin/CGIClient
@@ -143,3 +185,17 @@ sbin/insserv etc/init.d
 %attr(-,root,root) /etc/pegasus/mof/CIM_System25.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_System25_Add.mof
 %attr(-,root,root) /etc/pegasus/mof/CIM_User25.mof
+
+%attr(-,root,root) /usr/local/include/Pegasus/Client/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Common/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Compiler/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Config/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Handler/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Protocol/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Provider/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Provider2/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Repository/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Security/Authentication/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/Server/*.h
+%attr(-,root,root) /usr/local/include/Pegasus/getoopt/*.h
+

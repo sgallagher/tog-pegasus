@@ -318,7 +318,7 @@ public:
 	const CIMPropertyList & propertyList,
 	const Uint16 repeatNotificationPolicy) = 0;
 
-    virtual void disableSubscription(
+    virtual void deleteSubscription(
 	const OperationContext & context,
 	const CIMObjectPath & subscriptionName,
 	const Array<CIMObjectPath> & classNames) = 0;

@@ -2621,7 +2621,7 @@ void DefaultProviderManager::_insertEntry (
     const Provider & provider,
     const EnableIndicationsResponseHandler *handler)
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_insertEntry");
 
     String tableKey = _generateKey
@@ -2635,7 +2635,7 @@ void DefaultProviderManager::_insertEntry (
 EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
     const String & key)
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_removeEntry");
     EnableIndicationsResponseHandler *ret = 0;
 
@@ -2652,7 +2652,7 @@ String DefaultProviderManager::_generateKey (
 {
     String tableKey;
 
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_generateKey");
 
     //
@@ -2674,7 +2674,7 @@ String DefaultProviderManager::_generateKey (
 {
     String tableKey;
 
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
                       "DefaultProviderManagerService::_generateKey");
 
     //

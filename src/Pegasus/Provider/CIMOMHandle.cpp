@@ -449,6 +449,30 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
 			     "Unexpected Exception");
       throw;
    }
+
+// l10n start
+    // Set an AcceptLanguage into the request from the current
+    // Thread.  This will allow exceptions thrown by the server
+    // to be localized.
+    // l10n TODO - need to design the CIMOMHandle interface
+    // so that the caller can specify AcceptLanguages and
+    // and ContentLanguages on the request (through OperationContext)
+    // and get the ContentLanguages from the response (new API).
+    CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+    if (cimmsg != NULL)
+    {
+      AcceptLanguages * pal = Thread::getLanguages();
+      if (pal != NULL)
+      {
+        cimmsg->acceptLanguages = *pal;
+      }
+    }
+    else
+    {
+      ;  // ignore if not a CIMMessage
+    }    
+// l10n end
+
    cimom_handle_dispatch *dp = 
       new cimom_handle_dispatch(request, get_qid(), get_output_qid());
 

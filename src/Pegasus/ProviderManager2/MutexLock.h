@@ -44,7 +44,7 @@ class PEGASUS_SERVER_LINKAGE MutexLock
 public:
     MutexLock(Mutex & mutex) : _mutex(mutex)
     {
-        _mutex.timed_lock(0xffffffff, pegasus_thread_self());
+        _mutex.lock(pegasus_thread_self());
     }
 
     ~MutexLock(void)

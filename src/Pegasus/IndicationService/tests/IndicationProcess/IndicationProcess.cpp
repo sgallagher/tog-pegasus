@@ -59,7 +59,10 @@ CIMObjectPath CreateHandler1Instance (CIMClient& client)
     return (Ref);
 }
 
-CIMObjectPath CreateFilterInstance (CIMClient& client, const String query, const String name)
+CIMObjectPath CreateFilterInstance (CIMClient& client,
+                                    const String query,
+                                    const String qlang,
+                                    const String name)
 {
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty(CIMProperty (CIMName ("SystemCreationClassName"),
@@ -71,9 +74,9 @@ CIMObjectPath CreateFilterInstance (CIMClient& client, const String query, const
     filterInstance.addProperty(CIMProperty(CIMName ("Name"),
         String(name)));
     filterInstance.addProperty (CIMProperty(CIMName ("Query"),
-	String(query)));
+        String(query)));
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
-        String("WQL")));
+        String(qlang)));
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
         String("root/SampleProvider")));
 
@@ -124,10 +127,8 @@ void DeleteInstance (CIMClient& client, const CIMObjectPath Ref)
     client.deleteInstance(NAMESPACE, Ref);
 }
 
-int main(int argc, char** argv)
+int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 {
-    CIMClient client;
-    client.connectLocal();
     CIMObjectPath Handler1Ref; 
     CIMObjectPath Filter1Ref, Filter2Ref;
     CIMObjectPath Subscription1Ref, Subscription2Ref;
@@ -149,12 +150,10 @@ int main(int argc, char** argv)
                        << PEGASUS_STD (endl);
     try
     {
-	String query1="SELECT MethodName FROM rt_testindication";
-	String query2="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != \"x\"";
-	String name1 = "TestFilter01";
-	String name2 = "TestFilter02";
-        Filter1Ref = CreateFilterInstance (client, query1, name1);
-        Filter2Ref = CreateFilterInstance (client, query2, name2);
+      String name1 = "TestFilter01";
+      String name2 = "TestFilter02";
+      Filter1Ref = CreateFilterInstance (client, query1, qlang, name1);
+      Filter2Ref = CreateFilterInstance (client, query2, qlang, name2);
     }
     catch (Exception& e)
     {
@@ -165,7 +164,8 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    PEGASUS_STD (cout) << "+++++ filter instances created" 
+    PEGASUS_STD (cout) << "+++++ filter instances created for "
+                       << qlang 
                        << PEGASUS_STD (endl);
     try
     {
@@ -196,33 +196,33 @@ int main(int argc, char** argv)
     {
         oldIndicationFile = INDICATION_DIR;
         oldIndicationFile.append("/oldIndicationFile");
-	if (FileSystem::exists(oldIndicationFile))
-	{
-	    FileSystem::removeFile(oldIndicationFile);
-	}
-   	if (!FileSystem::renameFile(indicationFile2, oldIndicationFile))
-	{
-	    FileSystem::removeFile(indicationFile2);
-	}
+        if (FileSystem::exists(oldIndicationFile))
+        {
+          FileSystem::removeFile(oldIndicationFile);
+        }
+        if (!FileSystem::renameFile(indicationFile2, oldIndicationFile))
+        {
+          FileSystem::removeFile(indicationFile2);
+        }
     }
 
     try
     {
-	//
-        // generate three indications
-	//
-	for(Uint8 i = 0; i < 3; i++)
-	{
-            generateIndication(client);
-	}
+      //
+      // generate three indications
+      //
+      for(Uint8 i = 0; i < 3; i++)
+      {
+        generateIndication(client);
+      }
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
-                           << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "generate indication failed" 
-                           << PEGASUS_STD (endl);
-        return -1;
+      PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
+                         << PEGASUS_STD (endl);
+      PEGASUS_STD (cerr) << "generate indication failed" 
+                         << PEGASUS_STD (endl);
+      return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ indications generated" 
@@ -232,19 +232,19 @@ int main(int argc, char** argv)
 
     try
     {
-        DeleteInstance (client, Subscription1Ref);
-        DeleteInstance (client, Subscription2Ref);
-        DeleteInstance (client, Filter1Ref);
-        DeleteInstance (client, Filter2Ref);
-        DeleteInstance (client, Handler1Ref);
+      DeleteInstance (client, Subscription1Ref);
+      DeleteInstance (client, Subscription2Ref);
+      DeleteInstance (client, Filter1Ref);
+      DeleteInstance (client, Filter2Ref);
+      DeleteInstance (client, Handler1Ref);
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
-                           << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "delete instance failed" 
-                           << PEGASUS_STD (endl);
-        return -1;
+      PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
+                         << PEGASUS_STD (endl);
+      PEGASUS_STD (cerr) << "delete instance failed" 
+                         << PEGASUS_STD (endl);
+      return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ instances deleted" 
@@ -264,38 +264,67 @@ int main(int argc, char** argv)
 
     if (FileSystem::exists(indicationFile) && FileSystem::exists(masterFile))
     {
-        if (FileSystem::compareFiles(indicationFile, masterFile))
-        {
-	    PEGASUS_STD (cout) << "+++++ passed all tests." << PEGASUS_STD (endl);
-    	    // remove indicationFile
-   	    FileSystem::removeFile(indicationFile);
-    	    return 0;
-        }
-        else
-        {
-	    PEGASUS_STD (cerr) << "----- tests failed" << PEGASUS_STD (endl);
-    	    // rename indicationFile to be indicationLog_FAILED 
-	    // and remove indicationFile
-	    indication_failed = INDICATION_DIR;
-	    indication_failed.append("/indicationLog_FAILED");
-	    FileSystem::renameFile(indicationFile, indication_failed);
-    	    FileSystem::removeFile(indicationFile);
-	    return 1;
-        }
+      if (FileSystem::compareFiles(indicationFile, masterFile))
+      {
+        PEGASUS_STD (cout) << "+++++ passed all tests." << PEGASUS_STD (endl);
+        // remove indicationFile
+        FileSystem::removeFile(indicationFile);
+        return 0;
+      }
+      else
+      {
+        PEGASUS_STD (cerr) << "----- tests failed" << PEGASUS_STD (endl);
+        // rename indicationFile to be indicationLog_FAILED 
+        // and remove indicationFile
+        indication_failed = INDICATION_DIR;
+        indication_failed.append("/indicationLog_FAILED");
+        FileSystem::renameFile(indicationFile, indication_failed);
+        FileSystem::removeFile(indicationFile);
+        return 1;
+      }
     }
     else
     {
-	PEGASUS_STD (cerr) << "----- tests failed" << PEGASUS_STD (endl);
-    	// rename indicationFile to be indicationFile_FAILED 
-	// and remove indicationFile
-  	if (FileSystem::exists(indicationFile))
-    	{
-	    indication_failed = INDICATION_DIR;
-	    indication_failed.append("/indicationLog_FAILED");
-	    FileSystem::renameFile(indicationFile, indication_failed);
- 	    FileSystem::removeFile(indicationFile);
-	}
-	return 1;
+      PEGASUS_STD (cerr) << "----- tests failed" << PEGASUS_STD (endl);
+      // rename indicationFile to be indicationFile_FAILED 
+      // and remove indicationFile
+      if (FileSystem::exists(indicationFile))
+      {
+        indication_failed = INDICATION_DIR;
+        indication_failed.append("/indicationLog_FAILED");
+        FileSystem::renameFile(indicationFile, indication_failed);
+        FileSystem::removeFile(indicationFile);
+      }
+      return 1;
     }
+}
 
+int main(int argc, char** argv)
+{
+    CIMClient client;
+    client.connectLocal();
+
+    String query1="SELECT MethodName FROM rt_testindication";
+
+    // Note that CQL expects single quote around string literals, 
+    // while WQL expects double quote.
+    String query2wql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != \"x\"";
+    String query2cql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != 'x'";
+    
+    String wql("WQL");
+    String cql("CIM:CQL");
+
+    PEGASUS_STD (cout) << "+++++ start wql test" << PEGASUS_STD (endl);
+    int rc;
+    rc = _test(client, wql, query1, query2wql);
+    if (rc != 0)
+      return rc;
+
+#ifndef PEGASUS_DISABLE_CQL  
+    PEGASUS_STD (cout) << "+++++ start cql test" << PEGASUS_STD (endl);
+    return _test(client, cql, query1, query2cql);      
+#else
+    PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl); 
+    return 0;
+#endif
 }

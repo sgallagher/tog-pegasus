@@ -66,7 +66,8 @@ void _createHandlerInstance
 void _createFilterInstance 
     (CIMClient & client, 
      const String & name,
-     const String & query)
+     const String & query,
+     const String & qlang)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty (CIMProperty (CIMName 
@@ -78,7 +79,7 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("Name"), name));
     filterInstance.addProperty (CIMProperty (CIMName ("Query"), query));
     filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
-        String ("WQL")));
+        String (qlang)));
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCENAMESPACE.getString ()));
 
@@ -115,10 +116,11 @@ void _renameLogFile (const String & indicationLogFileName)
 }
 
 Boolean _checkIndicationLog
-    (const String & id,
+    (Uint32 id,
      const String & methodName,
      Boolean allProperties,
-     Boolean noIndications)
+     Boolean noIndications,
+     const String & qlang)
 {
     String indicationLogFileName;
 
@@ -205,7 +207,15 @@ Boolean _checkIndicationLog
                 }
                 if (String::equalNoCase (propertyName, "IndicationIdentifier"))
                 {
-                    if (!String::equal (propertyValue, id))
+                    if(String::equalNoCase(qlang, "cim:cql"))
+                    {
+                      id += 9;
+                    }
+
+                    char idStr[10];
+                    sprintf(idStr, "%d", id); 
+                    
+                    if (!String::equal (propertyValue, idStr))
                     {
                         _renameLogFile (indicationLogFileName);
                         return false;
@@ -493,18 +503,20 @@ void _usage ()
         << "| checkNormal | checkMissing | checkExtra | checkMatching "
         << "| checkUnmatchingNamespace | checkUnmatchingClassName "
         << "| checkNormalAll | checkMissingAll | checkExtraAll "
-        << "| delete1 | delete2 | cleanup}" 
+        << "| delete1 | delete2 | cleanup} {wql | cim:cql}" 
         << PEGASUS_STD (endl);
 }
 
-void _setup (CIMClient & client)
+void _setup (CIMClient & client, String& qlang)
 {
     try
     {
         _createFilterInstance (client, String ("PIFilter01"), String 
-            ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications FROM RT_TestIndication"));
+            ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications FROM RT_TestIndication"),
+            qlang);
         _createFilterInstance (client, String ("PIFilter02"),
-            String ("SELECT * FROM RT_TestIndication"));
+            String ("SELECT * FROM RT_TestIndication"),
+            qlang);
         _createHandlerInstance (client, String ("PIHandler01"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
     }
@@ -685,13 +697,14 @@ void _sendUnmatchingClassName (CIMClient & client)
 
 void _check
     (const String & opt,
-     const String & id,
+     Uint32 id,
      const String & methodName,
      Boolean allProperties,
-     Boolean noIndications)
+     Boolean noIndications,
+     const String & qlang)
 {
     Boolean result = _checkIndicationLog (id, methodName, allProperties,
-        noIndications);
+        noIndications, qlang);
 
     if (!result)
     {
@@ -758,6 +771,165 @@ void _cleanup (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
+int _test(CIMClient& client, const char* opt, String& qlang)
+{
+  if (String::equalNoCase (opt, "setup"))
+  { 
+    _setup (client, qlang);
+  }
+  else if (String::equalNoCase (opt, "create1"))
+  {
+    _create1 (client);
+  }
+  else if (String::equalNoCase (opt, "create2"))
+  {
+    _create2 (client);
+  }
+  else if (String::equalNoCase (opt, "sendNormal"))
+  {
+    _sendNormal (client);
+  }
+  else if (String::equalNoCase (opt, "sendMissing"))
+  {
+    _sendMissing (client);
+  }
+  else if (String::equalNoCase (opt, "sendExtra"))
+  {
+    _sendExtra (client);
+  }
+  else if (String::equalNoCase (opt, "sendMatching"))
+  {
+    _sendMatching (client);
+  }
+  else if (String::equalNoCase (opt, "sendUnmatchingNamespace"))
+  {
+    _sendUnmatchingNamespace (client);
+  }
+  else if (String::equalNoCase (opt, "sendUnmatchingClassName"))
+  {
+    _sendUnmatchingClassName (client);
+  }
+  else if (String::equalNoCase (opt, "checkNormal"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  Only the properties included in the SELECT list of the filter 
+    //  query should be included in the indication instance
+    //
+    _check (opt, 1, String ("SendTestIndicationNormal"), 
+            false, false, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkMissing"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  None should be received in this case, since a required property
+    //  is missing from the indication instance
+    //
+    _check (opt, 2, 
+            String ("SendTestIndicationMissingProperty"), false, true, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkExtra"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  The extra property added to the indication instance by the 
+    //  indication provider should not appear in the indication
+    //  Only the properties included in the SELECT list of the filter 
+    //  query should be included in the indication instance
+    //
+    _check (opt, 3, 
+            String ("SendTestIndicationExtraProperty"), false, false, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkMatching"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  Only the properties included in the SELECT list of the filter 
+    //  query should be included in the indication instance
+    //
+    _check (opt, 4, 
+            String ("SendTestIndicationMatchingInstance"), false, false, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkUnmatchingNamespace"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  None should be received in this case, since the namespace of 
+    //  the generated indication instance does not match the filter 
+    //  source namespace of the subscription instance name in the 
+    //  operation context
+    //
+    _check (opt, 5, 
+            String ("SendTestIndicationUnmatchingNamespace"), false, true, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkUnmatchingClassName"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  None should be received in this case, since the class name of 
+    //  the generated indication instance does not match the filter 
+    //  query indication class of the subscription instance name in the
+    //  operation context
+    //
+    _check (opt, 6, 
+            String ("SendTestIndicationUnmatchingClassName"), false, true, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkNormalAll"))
+  {    
+    //
+    //  Check indications received by Simple Display Consumer
+    //  All properties should be included in the indication instance,
+    //  since the filter query specifies SELECT *
+    //
+    _check (opt, 7, 
+            String ("SendTestIndicationNormal"), true, false, qlang);
+   }
+  else if (String::equalNoCase (opt, "checkMissingAll"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  None should be received in this case, since a required property
+    //  is missing from the indication instance
+    //
+    _check (opt, 8, 
+            String ("SendTestIndicationMissingProperty"), true, true, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkExtraAll"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  The extra property added to the indication instance by the 
+    //  indication provider should not appear in the indication
+    //  All properties should be included in the indication instance,
+    //  since the filter query specifies SELECT *
+    //
+    _check (opt, 9, 
+            String ("SendTestIndicationExtraProperty"), true, false, qlang);
+  }
+  else if (String::equalNoCase (opt, "delete1"))
+  {
+    _delete1 (client);
+  }
+  else if (String::equalNoCase (opt, "delete2"))
+  {
+    _delete2 (client);
+  }
+  else if (String::equalNoCase (opt, "cleanup"))
+  {
+    _cleanup (client);
+  }
+  else
+  {
+    PEGASUS_STD (cerr) << "Invalid option: " << opt 
+                       << PEGASUS_STD (endl);
+    _usage ();
+    return -1;
+  }
+
+  return 0;
+}
+
 int main (int argc, char** argv)
 {
     CIMClient client;
@@ -771,7 +943,7 @@ int main (int argc, char** argv)
         return -1;
     }
 
-    if (argc != 2)
+    if (argc != 3)
     {
         _usage ();
         return 1;
@@ -780,160 +952,22 @@ int main (int argc, char** argv)
     else
     {
         const char * opt = argv [1];
+        const char * optLang = argv [2];
+        String qlang(optLang);
 
-        if (String::equalNoCase (opt, "setup"))
+#ifdef PEGASUS_DISABLE_CQL
+        if (String::equalNoCase(qlang, "cim:cql"))
         {
-            _setup (client);
-        }
-        else if (String::equalNoCase (opt, "create1"))
-        {
-            _create1 (client);
-        }
-        else if (String::equalNoCase (opt, "create2"))
-        {
-            _create2 (client);
-        }
-        else if (String::equalNoCase (opt, "sendNormal"))
-        {
-            _sendNormal (client);
-        }
-        else if (String::equalNoCase (opt, "sendMissing"))
-        {
-            _sendMissing (client);
-        }
-        else if (String::equalNoCase (opt, "sendExtra"))
-        {
-            _sendExtra (client);
-        }
-        else if (String::equalNoCase (opt, "sendMatching"))
-        {
-            _sendMatching (client);
-        }
-        else if (String::equalNoCase (opt, "sendUnmatchingNamespace"))
-        {
-            _sendUnmatchingNamespace (client);
-        }
-        else if (String::equalNoCase (opt, "sendUnmatchingClassName"))
-        {
-            _sendUnmatchingClassName (client);
-        }
-        else if (String::equalNoCase (opt, "checkNormal"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  Only the properties included in the SELECT list of the filter 
-            //  query should be included in the indication instance
-            //
-            _check (opt, String ("1"), String ("SendTestIndicationNormal"), 
-                false, false);
-        }
-        else if (String::equalNoCase (opt, "checkMissing"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  None should be received in this case, since a required property
-            //  is missing from the indication instance
-            //
-            _check (opt, String ("2"), 
-                String ("SendTestIndicationMissingProperty"), false, true);
-        }
-        else if (String::equalNoCase (opt, "checkExtra"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  The extra property added to the indication instance by the 
-            //  indication provider should not appear in the indication
-            //  Only the properties included in the SELECT list of the filter 
-            //  query should be included in the indication instance
-            //
-            _check (opt, String ("3"), 
-                String ("SendTestIndicationExtraProperty"), false, false);
-        }
-        else if (String::equalNoCase (opt, "checkMatching"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  Only the properties included in the SELECT list of the filter 
-            //  query should be included in the indication instance
-            //
-            _check (opt, String ("4"), 
-                String ("SendTestIndicationMatchingInstance"), false, false);
-        }
-        else if (String::equalNoCase (opt, "checkUnmatchingNamespace"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  None should be received in this case, since the namespace of 
-            //  the generated indication instance does not match the filter 
-            //  source namespace of the subscription instance name in the 
-            //  operation context
-            //
-            _check (opt, String ("5"), 
-                String ("SendTestIndicationUnmatchingNamespace"), false, true);
-        }
-        else if (String::equalNoCase (opt, "checkUnmatchingClassName"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  None should be received in this case, since the class name of 
-            //  the generated indication instance does not match the filter 
-            //  query indication class of the subscription instance name in the
-            //  operation context
-            //
-            _check (opt, String ("6"), 
-                String ("SendTestIndicationUnmatchingClassName"), false, true);
-        }
-        else if (String::equalNoCase (opt, "checkNormalAll"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  All properties should be included in the indication instance,
-            //  since the filter query specifies SELECT *
-            //
-            _check (opt, String ("7"), 
-                String ("SendTestIndicationNormal"), true, false);
-        }
-        else if (String::equalNoCase (opt, "checkMissingAll"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  None should be received in this case, since a required property
-            //  is missing from the indication instance
-            //
-            _check (opt, String ("8"), 
-                String ("SendTestIndicationMissingProperty"), true, true);
-        }
-        else if (String::equalNoCase (opt, "checkExtraAll"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  The extra property added to the indication instance by the 
-            //  indication provider should not appear in the indication
-            //  All properties should be included in the indication instance,
-            //  since the filter query specifies SELECT *
-            //
-            _check (opt, String ("9"), 
-                String ("SendTestIndicationExtraProperty"), true, false);
-        }
-        else if (String::equalNoCase (opt, "delete1"))
-        {
-            _delete1 (client);
-        }
-        else if (String::equalNoCase (opt, "delete2"))
-        {
-            _delete2 (client);
-        }
-        else if (String::equalNoCase (opt, "cleanup"))
-        {
-            _cleanup (client);
+          PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
+          return 0;
         }
         else
         {
-            PEGASUS_STD (cerr) << "Invalid option: " << opt 
-                << PEGASUS_STD (endl);
-            _usage ();
-            return -1;
+          return _test(client, opt, qlang);
         }
+#else
+        return _test(client, opt, qlang);
+#endif
     }
 
     return 0;

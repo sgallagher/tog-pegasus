@@ -695,7 +695,7 @@ void _register (CIMClient & client)
 //
 //  Valid test cases: create, get, enumerate, modify, delete operations
 //
-void _valid (CIMClient & client)
+void _valid (CIMClient & client, String& qlang)
 {
     CIMObjectPath path;
     String query;
@@ -718,7 +718,7 @@ void _valid (CIMClient & client)
     _addStringProperty (filter01, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _addStringProperty (filter01, "Query", query);
-    _addStringProperty (filter01, "QueryLanguage", "WQL");
+    _addStringProperty (filter01, "QueryLanguage", qlang);
     path = client.createInstance (NAMESPACE, filter01);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter01");
@@ -733,7 +733,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "WQL");
+    _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
     //
     //  Enumerate filters
@@ -751,7 +751,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (instances [0], "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (instances [0], "Query", query);
-    _checkStringProperty (instances [0], "QueryLanguage", "WQL");
+    _checkStringProperty (instances [0], "QueryLanguage", qlang);
 
     paths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDFILTER);
@@ -769,7 +769,7 @@ void _valid (CIMClient & client)
         "FROM CIM_ProcessIndication";
     _addStringProperty (filter02, "Name", "Filter02");
     _addStringProperty (filter02, "Query", query);
-    _addStringProperty (filter02, "QueryLanguage", "WQL");
+    _addStringProperty (filter02, "QueryLanguage", qlang);
     _addStringProperty (filter02, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter02);
@@ -786,7 +786,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "WQL");
+    _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
     //
     //  Create filter that selects one property from CIM_ProcessIndication
@@ -795,7 +795,7 @@ void _valid (CIMClient & client)
     query = "SELECT IndicationTime FROM CIM_ProcessIndication";
     _addStringProperty (filter03, "Name", "Filter03");
     _addStringProperty (filter03, "Query", query);
-    _addStringProperty (filter03, "QueryLanguage", "WQL");
+    _addStringProperty (filter03, "QueryLanguage", qlang);
     _addStringProperty (filter03, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter03);
@@ -812,7 +812,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "WQL");
+    _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
     //
     //  Create filter that selects properties from CIM_ProcessIndication
@@ -824,7 +824,7 @@ void _valid (CIMClient & client)
           "WHERE IndicationTime IS NOT NULL";
     _addStringProperty (filter04, "Name", "Filter04");
     _addStringProperty (filter04, "Query", query);
-    _addStringProperty (filter04, "QueryLanguage", "WQL");
+    _addStringProperty (filter04, "QueryLanguage", qlang);
     _addStringProperty (filter04, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter04);
@@ -841,7 +841,40 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "WQL");
+    _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
+
+
+#ifndef PEGASUS_DISABLE_CQL
+    //
+    //  Create filter that selects properties from CIM_ProcessIndication
+    //  and has a where clause condition that includes an array property.
+    //  Note: this is only allowed by CQL.
+    //
+    CIMInstance filter04a (PEGASUS_CLASSNAME_INDFILTER);
+    query = "SELECT IndicationTime, IndicationIdentifier "
+          "FROM CIM_ProcessIndication "
+          "WHERE IndicationTime IS NOT NULL AND CorrelatedIndications IS NOT NULL";
+    _addStringProperty (filter04a, "Name", "Filter04a");
+    _addStringProperty (filter04a, "Query", query);
+    _addStringProperty (filter04a, "QueryLanguage", "CIM:CQL");  // hardcode to CQL
+    _addStringProperty (filter04a, "SourceNamespace", 
+        SOURCENAMESPACE.getString ());
+    path = client.createInstance (NAMESPACE, filter04a);
+
+    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter04a");
+    retrievedInstance = client.getInstance (NAMESPACE, path);
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+        System::getSystemCreationClassName ());
+    _checkStringProperty (retrievedInstance, "SystemName", 
+        System::getFullyQualifiedHostName ());
+    _checkStringProperty (retrievedInstance, "CreationClassName", 
+        PEGASUS_CLASSNAME_INDFILTER.getString ());
+    _checkStringProperty (retrievedInstance, "Name", "Filter04a");
+    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+        SOURCENAMESPACE.getString ());
+    _checkStringProperty (retrievedInstance, "Query", query);
+    _checkStringProperty (retrievedInstance, "QueryLanguage", "CIM:CQL"); // hardcode to CQL
+#endif
 
     //
     //  Create filter that selects all properties from CIM_ProcessIndication
@@ -852,7 +885,7 @@ void _valid (CIMClient & client)
         "WHERE IndicationTime IS NOT NULL";
     _addStringProperty (filter05, "Name", "Filter05");
     _addStringProperty (filter05, "Query", query);
-    _addStringProperty (filter05, "QueryLanguage", "WQL");
+    _addStringProperty (filter05, "QueryLanguage", qlang);
     _addStringProperty (filter05, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter05);
@@ -869,7 +902,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "WQL");
+    _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
     //
     //  Create filter that selects all properties from CIM_AlertIndication
@@ -879,7 +912,7 @@ void _valid (CIMClient & client)
     query = "SELECT * FROM CIM_AlertIndication WHERE AlertType = 5";
     _addStringProperty (filter06, "Name", "Filter06");
     _addStringProperty (filter06, "Query", query);
-    _addStringProperty (filter06, "QueryLanguage", "WQL");
+    _addStringProperty (filter06, "QueryLanguage", qlang);
     _addStringProperty (filter06, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter06);
@@ -896,7 +929,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "SourceNamespace", 
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "WQL");
+    _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
     //
     //  Create persistent CIMXML handler
@@ -1239,11 +1272,20 @@ void _valid (CIMClient & client)
     //
     instances = client.enumerateInstances (NAMESPACE, 
         PEGASUS_CLASSNAME_INDFILTER);
+#ifndef PEGASUS_DISABLE_CQL
+    PEGASUS_ASSERT (instances.size () == 7);
+#else
     PEGASUS_ASSERT (instances.size () == 6);
+#endif
+
 
     paths = client.enumerateInstanceNames (NAMESPACE, 
         PEGASUS_CLASSNAME_INDFILTER);
+#ifndef PEGASUS_DISABLE_CQL
+    PEGASUS_ASSERT (paths.size () == 7);
+#else
     PEGASUS_ASSERT (paths.size () == 6);
+#endif
 
     //
     //  Enumerate handlers
@@ -1384,6 +1426,10 @@ void _valid (CIMClient & client)
 //
 void _default (CIMClient & client)
 {
+    // Note: since these testcases are used to test defaulted
+    // properties on the filters, handlers, and subscriptions,
+    // there is no need for CQL-specific tests.
+
     //
     //  Filter: Missing SystemCreationClassName must get default value
     //          Missing SystemName must get default value
@@ -1570,6 +1616,137 @@ void _default (CIMClient & client)
 }
 
 //
+//  Error test cases: invalid queries
+//
+void _errorQueries (CIMClient & client, String& qlang)
+{
+    //
+    //  Filter: Invalid query - invalid indication class name in FROM clause of
+    //          CIM_IndicationFilter Query property
+    //
+    try
+    {
+        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
+        String query = "SELECT * FROM CIM_ManagedElement";
+        _addStringProperty (filter, "Name", "Filter00");
+        _addStringProperty (filter, "Query", query);
+        _addStringProperty (filter, "QueryLanguage", qlang);
+        _addStringProperty (filter, "SourceNamespace", 
+            SOURCENAMESPACE.getString ());
+        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+#ifdef PEGASUS_DISABLE_CQL
+        if (String::equalNoCase(qlang, "cim:cql"))
+        {
+          // If CQL is disabled, then a non-supported error
+          // for invalid language is expected.
+          _checkExceptionCode(e, CIM_ERR_NOT_SUPPORTED);
+
+          return;
+        }
+        else
+        {
+          _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+        }
+#else        
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+#endif
+    }
+
+    //
+    //  Filter: Invalid query - parse error (join)
+    //
+    try
+    {
+        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
+        String query = 
+            "SELECT * FROM CIM_ProcessIndication, CIM_AlertIndication";
+        _addStringProperty (filter, "Name", "Filter00");
+        _addStringProperty (filter, "Query", query);
+        _addStringProperty (filter, "QueryLanguage", qlang);
+        _addStringProperty (filter, "SourceNamespace", 
+            SOURCENAMESPACE.getString ());
+        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+    }
+
+    //
+    //  Filter: Invalid query - Array property is not supported in the WQL 
+    //          WHERE clause.
+    //          Note: CQL allows array properties in the WHERE clause.
+    //
+    try
+    {
+        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
+        String query = 
+            "SELECT * FROM CIM_ProcessIndication "
+            "WHERE CorrelatedIndications IS NOT NULL";
+        _addStringProperty (filter, "Name", "Filter00");
+        _addStringProperty (filter, "Query", query);
+        _addStringProperty (filter, "QueryLanguage", "WQL"); // hardcode to WQL
+        _addStringProperty (filter, "SourceNamespace", 
+            SOURCENAMESPACE.getString ());
+        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //          
+    //  Filter: Invalid query - Property referenced in the WHERE clause not
+    //          found in the indication class in the FROM clause
+    //
+    try
+    {
+        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
+        String query = 
+            "SELECT * FROM CIM_ProcessIndication "
+            "WHERE AlertType = 3";
+        _addStringProperty (filter, "Name", "Filter00");
+        _addStringProperty (filter, "Query", query);
+        _addStringProperty (filter, "QueryLanguage", qlang);
+        _addStringProperty (filter, "SourceNamespace", 
+            SOURCENAMESPACE.getString ());
+        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+    }
+
+    //          
+    //  Filter: Invalid query - Property referenced in the SELECT clause 
+    //          not found in the indication class in the FROM clause
+    //
+    try
+    {
+        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
+        String query = "SELECT PerceivedSeverity FROM CIM_ProcessIndication";
+        _addStringProperty (filter, "Name", "Filter00");
+        _addStringProperty (filter, "Query", query);
+        _addStringProperty (filter, "QueryLanguage", qlang);
+        _addStringProperty (filter, "SourceNamespace", 
+            SOURCENAMESPACE.getString ());
+        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+    }
+}
+
+//
 //  Error test cases: create, modify and delete requests
 //
 void _error (CIMClient & client)
@@ -1606,7 +1783,7 @@ void _error (CIMClient & client)
         _addUint16Property (filter, "SystemCreationClassName", 1);
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "QueryLanguage", "WQL");
+        _addStringProperty (filter, "QueryLanguage",  "WQL");
         _addStringProperty (filter, "SourceNamespace", 
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
@@ -1953,115 +2130,6 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addUint16Property (filter, "QueryLanguage", 1);
-        _addStringProperty (filter, "SourceNamespace", 
-            SOURCENAMESPACE.getString ());
-        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
-        PEGASUS_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
-
-    //
-    //  Filter: Invalid query - invalid indication class name in FROM clause of
-    //          CIM_IndicationFilter Query property
-    //
-    try
-    {
-        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = "SELECT * FROM CIM_ManagedElement";
-        _addStringProperty (filter, "Name", "Filter00");
-        _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
-            SOURCENAMESPACE.getString ());
-        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
-        PEGASUS_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
-
-    //
-    //  Filter: Invalid query - parse error (join)
-    //
-    try
-    {
-        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = 
-            "SELECT * FROM CIM_ProcessIndication, CIM_AlertIndication";
-        _addStringProperty (filter, "Name", "Filter00");
-        _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
-            SOURCENAMESPACE.getString ());
-        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
-        PEGASUS_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
-
-    //
-    //  Filter: Invalid query - Array property is not supported in the WQL 
-    //          WHERE clause
-    //
-    try
-    {
-        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = 
-            "SELECT * FROM CIM_ProcessIndication "
-            "WHERE CorrelatedIndications IS NOT NULL";
-        _addStringProperty (filter, "Name", "Filter00");
-        _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
-            SOURCENAMESPACE.getString ());
-        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
-        PEGASUS_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
-    }
-
-    //          
-    //  Filter: Invalid query - Property referenced in the WQL WHERE clause not
-    //          found in the indication class in the FROM clause
-    //
-    try
-    {
-        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = 
-            "SELECT * FROM CIM_ProcessIndication "
-            "WHERE AlertType = 3";
-        _addStringProperty (filter, "Name", "Filter00");
-        _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
-            SOURCENAMESPACE.getString ());
-        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
-        PEGASUS_ASSERT (false);
-    }
-    catch (CIMException & e)
-    {
-        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-    }
-
-    //          
-    //  Filter: Invalid query - Property referenced in the WQL SELECT clause 
-    //          not found in the indication class in the FROM clause
-    //
-    try
-    {
-        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = "SELECT PerceivedSeverity FROM CIM_ProcessIndication";
-        _addStringProperty (filter, "Name", "Filter00");
-        _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "QueryLanguage", "WQL");
         _addStringProperty (filter, "SourceNamespace", 
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
@@ -3317,6 +3385,9 @@ void _delete (CIMClient & client)
     _deleteFilterInstance (client, "Filter02");
     _deleteFilterInstance (client, "Filter03");
     _deleteFilterInstance (client, "Filter04");
+#ifndef PEGASUS_DISABLE_CQL
+    _deleteFilterInstance (client, "Filter04a");
+#endif
     _deleteFilterInstance (client, "Filter05");
     _deleteFilterInstance (client, "Filter06");
 }
@@ -3325,10 +3396,22 @@ void _test (CIMClient & client)
 {
     try
     {
-        _valid (client);
+         String wql("WQL");
+         String cql("CIM:CQL");
+
+        _valid (client, wql);
         _default (client);
+        _errorQueries(client, wql);
         _error (client);
         _delete (client);
+
+#ifndef PEGASUS_DISABLE_CQL
+        _valid (client, cql);
+#endif
+        _errorQueries(client, cql);
+#ifndef PEGASUS_DISABLE_CQL
+        _delete (client);
+#endif
     }
 
     catch (Exception & e)
@@ -3494,6 +3577,14 @@ void _cleanup (CIMClient & client)
     try
     {
         _deleteFilterInstance (client, "Filter04");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteFilterInstance (client, "Filter04a");
     }
     catch (...)
     {

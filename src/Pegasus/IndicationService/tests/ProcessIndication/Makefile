@@ -16,53 +16,101 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@$(ECHO) "TestProcessIndication setup"
-	@$(PROGRAM) setup
-	@$(ECHO) "TestProcessIndication create1"
-	@$(PROGRAM) create1
-	@$(ECHO) "TestProcessIndication sendNormal"
-	@$(PROGRAM) sendNormal
-	@$(ECHO) "TestProcessIndication checkNormal"
-	@$(PROGRAM) checkNormal
-	@$(ECHO) "TestProcessIndication sendMissing"
-	@$(PROGRAM) sendMissing
-	@$(ECHO) "TestProcessIndication checkMissing"
-	@$(PROGRAM) checkMissing
-	@$(ECHO) "TestProcessIndication sendExtra"
-	@$(PROGRAM) sendExtra
-	@$(ECHO) "TestProcessIndication checkExtra"
-	@$(PROGRAM) checkExtra
-	@$(ECHO) "TestProcessIndication sendMatching"
-	@$(PROGRAM) sendMatching
-	@$(ECHO) "TestProcessIndication checkMatching"
-	@$(PROGRAM) checkMatching
-	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace"
-	@$(PROGRAM) sendUnmatchingNamespace
-	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace"
-	@$(PROGRAM) checkUnmatchingNamespace
-	@$(ECHO) "TestProcessIndication sendUnmatchingClassName"
-	@$(PROGRAM) sendUnmatchingClassName
-	@$(ECHO) "TestProcessIndication checkUnmatchingClassName"
-	@$(PROGRAM) checkUnmatchingClassName
-	@$(ECHO) "TestProcessIndication delete1"
-	@$(PROGRAM) delete1
-	@$(ECHO) "TestProcessIndication create2"
-	@$(PROGRAM) create2
-	@$(ECHO) "TestProcessIndication sendNormal"
-	@$(PROGRAM) sendNormal
-	@$(ECHO) "TestProcessIndication checkNormalAll"
-	@$(PROGRAM) checkNormalAll
-	@$(ECHO) "TestProcessIndication sendMissing"
-	@$(PROGRAM) sendMissing
-	@$(ECHO) "TestProcessIndication checkMissingAll"
-	@$(PROGRAM) checkMissingAll
-	@$(ECHO) "TestProcessIndication sendExtra"
-	@$(PROGRAM) sendExtra
-	@$(ECHO) "TestProcessIndication checkExtraAll"
-	@$(PROGRAM) checkExtraAll
-	@$(ECHO) "TestProcessIndication delete2"
-	@$(PROGRAM) delete2
-	@$(ECHO) "TestProcessIndication cleanup"
-	@$(PROGRAM) cleanup
+	@$(ECHO) "TestProcessIndication setup wql"
+	@$(PROGRAM) setup wql
+	@$(ECHO) "TestProcessIndication create1 wql"
+	@$(PROGRAM) create1 wql
+	@$(ECHO) "TestProcessIndication sendNormal wql"
+	@$(PROGRAM) sendNormal wql
+	@$(ECHO) "TestProcessIndication checkNormal wql"
+	@$(PROGRAM) checkNormal wql
+	@$(ECHO) "TestProcessIndication sendMissing wql"
+	@$(PROGRAM) sendMissing wql
+	@$(ECHO) "TestProcessIndication checkMissing wql"
+	@$(PROGRAM) checkMissing wql
+	@$(ECHO) "TestProcessIndication sendExtra wql"
+	@$(PROGRAM) sendExtra wql
+	@$(ECHO) "TestProcessIndication checkExtra wql"
+	@$(PROGRAM) checkExtra wql
+	@$(ECHO) "TestProcessIndication sendMatching wql"
+	@$(PROGRAM) sendMatching wql
+	@$(ECHO) "TestProcessIndication checkMatching wql"
+	@$(PROGRAM) checkMatching wql
+	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace wql"
+	@$(PROGRAM) sendUnmatchingNamespace wql
+	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace wql"
+	@$(PROGRAM) checkUnmatchingNamespace wql
+	@$(ECHO) "TestProcessIndication sendUnmatchingClassName wql"
+	@$(PROGRAM) sendUnmatchingClassName wql
+	@$(ECHO) "TestProcessIndication checkUnmatchingClassName wql"
+	@$(PROGRAM) checkUnmatchingClassName wql
+	@$(ECHO) "TestProcessIndication delete1 wql"
+	@$(PROGRAM) delete1 wql
+	@$(ECHO) "TestProcessIndication create2 wql"
+	@$(PROGRAM) create2 wql
+	@$(ECHO) "TestProcessIndication sendNormal wql"
+	@$(PROGRAM) sendNormal wql
+	@$(ECHO) "TestProcessIndication checkNormalAll wql"
+	@$(PROGRAM) checkNormalAll wql
+	@$(ECHO) "TestProcessIndication sendMissing wql"
+	@$(PROGRAM) sendMissing wql
+	@$(ECHO) "TestProcessIndication checkMissingAll wql"
+	@$(PROGRAM) checkMissingAll wql
+	@$(ECHO) "TestProcessIndication sendExtra wql"
+	@$(PROGRAM) sendExtra wql
+	@$(ECHO) "TestProcessIndication checkExtraAll wql"
+	@$(PROGRAM) checkExtraAll wql
+	@$(ECHO) "TestProcessIndication delete2 wql"
+	@$(PROGRAM) delete2 wql
+	@$(ECHO) "TestProcessIndication cleanup wql"
+	@$(PROGRAM) cleanup wql
+	@$(ECHO) "TestProcessIndication setup cim:cql"
+	@$(PROGRAM) setup cim:cql
+	@$(ECHO) "TestProcessIndication create1 cim:cql"
+	@$(PROGRAM) create1 cim:cql
+	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
+	@$(PROGRAM) sendNormal cim:cql
+	@$(ECHO) "TestProcessIndication checkNormal cim:cql"
+	@$(PROGRAM) checkNormal cim:cql
+	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
+	@$(PROGRAM) sendMissing cim:cql
+	@$(ECHO) "TestProcessIndication checkMissing cim:cql"
+	@$(PROGRAM) checkMissing cim:cql
+	@$(ECHO) "TestProcessIndication sendExtra cim:cql"
+	@$(PROGRAM) sendExtra cim:cql
+	@$(ECHO) "TestProcessIndication checkExtra cim:cql"
+	@$(PROGRAM) checkExtra cim:cql
+	@$(ECHO) "TestProcessIndication sendMatching cim:cql"
+	@$(PROGRAM) sendMatching cim:cql
+	@$(ECHO) "TestProcessIndication checkMatching cim:cql"
+	@$(PROGRAM) checkMatching cim:cql
+	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace cim:cql"
+	@$(PROGRAM) sendUnmatchingNamespace cim:cql
+	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace cim:cql"
+	@$(PROGRAM) checkUnmatchingNamespace cim:cql
+	@$(ECHO) "TestProcessIndication sendUnmatchingClassName cim:cql"
+	@$(PROGRAM) sendUnmatchingClassName cim:cql
+	@$(ECHO) "TestProcessIndication checkUnmatchingClassName cim:cql"
+	@$(PROGRAM) checkUnmatchingClassName cim:cql
+	@$(ECHO) "TestProcessIndication delete1 cim:cql"
+	@$(PROGRAM) delete1 cim:cql
+	@$(ECHO) "TestProcessIndication create2 cim:cql"
+	@$(PROGRAM) create2 cim:cql 
+	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
+	@$(PROGRAM) sendNormal cim:cql
+	@$(ECHO) "TestProcessIndication checkNormalAll cim:cql"
+	@$(PROGRAM) checkNormalAll cim:cql
+	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
+	@$(PROGRAM) sendMissing cim:cql
+	@$(ECHO) "TestProcessIndication checkMissingAll cim:cql"
+	@$(PROGRAM) checkMissingAll cim:cql
+	@$(ECHO) "TestProcessIndication sendExtra cim:cql"
+	@$(PROGRAM) sendExtra cim:cql
+	@$(ECHO) "TestProcessIndication checkExtraAll cim:cql"
+	@$(PROGRAM) checkExtraAll cim:cql
+	@$(ECHO) "TestProcessIndication delete2 cim:cql"
+	@$(PROGRAM) delete2 cim:cql
+	@$(ECHO) "TestProcessIndication cleanup cim:cql"
+	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "+++++ TestProcessIndication passed all tests"
 install:

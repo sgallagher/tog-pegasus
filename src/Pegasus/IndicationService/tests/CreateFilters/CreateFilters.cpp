@@ -40,7 +40,7 @@ PEGASUS_USING_STD;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
-void TestCreateFilterInstances(CIMClient& client)
+void TestCreateFilterInstances(CIMClient& client, String& qlang)
 {
     CIMClass filterClass = client.getClass(NAMESPACE, 
         CIMName ("CIM_IndicationFilter"), false);
@@ -119,8 +119,7 @@ void TestCreateFilterInstances(CIMClient& client)
 		break;
 	}
 
-	filterInstance.addProperty(CIMProperty(CIMName ("QueryLanguage"), 
-            String("WQL")));
+	filterInstance.addProperty(CIMProperty(CIMName ("QueryLanguage"), qlang));
 	CIMObjectPath filterRef = filterInstance.buildPath(filterClass);
 	client.createInstance(NAMESPACE, filterInstance);
     }
@@ -133,7 +132,13 @@ int main(int argc, char** argv)
 
     try 
     {
-        TestCreateFilterInstances(client);
+        String wql("WQL");
+        String cql("CIM:CQL");
+
+        PEGASUS_STD (cout) << "+++++ start wql test" << PEGASUS_STD (endl);
+        TestCreateFilterInstances(client, wql);
+        PEGASUS_STD (cout) << "+++++ start cql test" << PEGASUS_STD (endl);
+        TestCreateFilterInstances(client, cql);
     }
     catch (Exception& e)
     {

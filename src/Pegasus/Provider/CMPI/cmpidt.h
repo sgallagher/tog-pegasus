@@ -27,7 +27,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Marek Szermutzky (mszermutzky@de.ibm.com) for Bugzilla 2320
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -380,6 +380,7 @@ extern "C" {
    #define CMPI_FLAG_IncludeQualifiers  4
    #define CMPI_FLAG_IncludeClassOrigin 8
 
+   #define CMPIPrincipal       "CMPIPrincipal"
    #define CMPIInvocationFlags "CMPIInvocationFlags"
 
    typedef enum _CMPIrc {

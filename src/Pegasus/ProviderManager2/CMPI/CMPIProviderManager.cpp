@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,6 +28,7 @@
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Marek Szermutzky (mszermutzky@de.ibm.com) for Bugzilla 2320
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -363,6 +364,13 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -466,6 +474,13 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -561,6 +576,13 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
@@ -660,6 +682,13 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
@@ -763,6 +792,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -858,6 +894,13 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
@@ -965,6 +1008,14 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -997,7 +1048,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-    
+
     }
     HandlerCatch(handler);
 
@@ -1081,6 +1132,13 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
@@ -1192,6 +1250,13 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
@@ -1305,6 +1370,13 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1412,6 +1484,13 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1518,6 +1597,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
@@ -1672,6 +1758,13 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1786,6 +1879,13 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         DDD(cerr<<"--- CMPIProviderManager::deleteSubscriptionRequest"<<endl);
 
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1848,7 +1948,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
            provRec->enabled=true;
                    ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
            provRec->handler=new EnableIndicationsResponseHandler(
-               request, response, req_provider, _indicationCallback); 
+               request, response, req_provider, _indicationCallback);
         }
 
         Boolean remote=false;

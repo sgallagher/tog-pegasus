@@ -1,0 +1,240 @@
+//%////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+// Author: Paulo F. Borges		<pfborges@wowmail.com>
+//
+// Modified By: 
+//              
+//%////////////////////////////////////////////////////////////////////////////
+
+// Make sure MOF includes all necessary CIM superclasses
+
+// ==================================================================
+// ManagedElement
+// ================================================================== 
+   [Abstract, Version("2.6.0"), Description (
+     "ManagedElement is an abstract class that provides a common "  
+     "superclass (or top of the inheritance tree) for the "
+     "non-association classes in the CIM Schema.")]
+class CIM_ManagedElement {  
+      [MaxLen (64), Description (  
+        "The Caption property is a short textual description (one-"    
+        "line string) of the object.") ]   
+   string Caption;  
+      [Description (  
+        "The Description property provides a textual description of "
+        "the object.") ]   
+   string Description;    
+};
+     
+// ================================================================== 
+//    ManagedSystemElement
+// ==================================================================
+   [Abstract, Version("2.6.0"), Description (
+     "CIM_ManagedSystemElement is the base class for the System "
+     "Element hierarchy. Membership Criteria: Any distinguishable "
+     "component of a System is a candidate for inclusion in this "
+     "class. Examples: software components, such as files; and "
+     "devices, such as disk drives and controllers, and physical "
+     "components such as chips and cards.") ] 
+class CIM_ManagedSystemElement : CIM_ManagedElement {
+      [Description (
+        "A datetime value indicating when the object was installed. "
+        "A lack of a value does not indicate that the object is not "
+        "installed."), 
+       MappingStrings {"MIF.DMTF|ComponentID|001.5"} ] 
+   datetime InstallDate;
+      [MaxLen (256), Description (
+        "The Name property defines the label by which the object is "
+        "known. When subclassed, the Name property can be overridden "
+        "to be a Key property.") ] 
+   string Name;
+      [MaxLen (10), Description ( 
+        "  A string indicating the current status of the object. " 
+        "Various operational and non-operational statuses are " 
+        "defined. Operational statuses are \"OK\", \"Degraded\", " 
+        "\"Stressed\" and \"Pred Fail\". \"Stressed\" indicates that " 
+        "the Element is functioning, but needs attention. Examples " 
+        "of \"Stressed\" states are overload, overheated, etc. The " 
+        "condition \"Pred Fail\" (failure predicted) indicates that " 
+        "an Element is functioning properly but predicting a failure " 
+        "in the near future. An example is a SMART-enabled hard " 
+        "drive. \n" 
+        "  Non-operational statuses can also be specified. These " 
+        "are \"Error\", \"NonRecover\", \"Starting\", \"Stopping\", " 
+        " \"Stopped\", " 
+        "\"Service\", \"No Contact\" and \"Lost Comm\". \"NonRecover\" " 
+        "indicates that a non-recoverable error has occurred. " 
+        "\"Service\" describes an Element being configured, maintained, " 
+        "cleaned, or otherwise administered. This status could apply " 
+        "during mirror-resilvering of a disk, reload of a user " 
+        "permissions list, or other administrative task. Not all such " 
+        "work is on-line, yet the Element is neither \"OK\" nor in " 
+        "one of the other states. \"No Contact\" indicates that the " 
+        "current instance of the monitoring system has knowledge of " 
+        "this Element but has never been able to establish " 
+        "communications with it. \"Lost Comm\" indicates that " 
+        "the ManagedSystemElement is known to exist and has been " 
+        "contacted successfully in the past, but is currently unreachable." 
+        "\"Stopped\" indicates that the ManagedSystemElement is known " 
+        "to exist, it is not operational (i.e. it is unable to " 
+        "provide service to users), but it has not failed. It has purposely " 
+        "been made non-operational. The Element " 
+        "may have never been \"OK\", the Element may have initiated its " 
+        "own stop, or a management system may have initiated the stop."), 
+       ValueMap {"OK", "Error", "Degraded", "Unknown", "Pred Fail", 
+                 "Starting", "Stopping", "Service", "Stressed", 
+                 "NonRecover", "No Contact", "Lost Comm", "Stopped"} ] 
+   string Status; 
+};
+
+// ==================================================================
+//    LogicalElement
+// ==================================================================
+   [Abstract, Version("2.6.0"), Description (
+     "CIM_LogicalElement is a base class for all the components of "
+     "a System that represent abstract system components, such "
+     "as Files, Processes, or system capabilities in the form "
+     "of Logical Devices.") ] 
+class CIM_LogicalElement : CIM_ManagedSystemElement {
+};
+
+// ==================================================================
+//    System
+// ==================================================================
+   [Abstract, Version("2.6.0"), Description (
+     "A CIM_System is a LogicalElement that aggregates an "
+     "enumerable set of Managed System Elements. The aggregation "
+     "operates as a functional whole. Within any particular "
+     "subclass of System, there is a well-defined list of "
+     "Managed System Element classes whose instances must be "
+     "aggregated.") ] 
+class CIM_System : CIM_LogicalElement {
+      [Key, MaxLen (256), Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allows all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+   string CreationClassName;
+      [Key, MaxLen (256), Override ("Name"), Description (
+        "The inherited Name serves as key of a System instance in " 
+        "an enterprise environment.") ] 
+   string Name;
+      [MaxLen (64), Description (
+        "The System object and its derivatives are Top Level Objects "
+        "of CIM. They provide the scope for numerous components. " 
+        "Having unique System keys is required. A heuristic can be "
+        "defined in individual System subclasses to attempt to always "
+        "generate the same System Name Key. The NameFormat property "
+        "identifies how the System name was generated, using "
+        "the subclass' heuristic.") ] 
+   string NameFormat;
+      [MaxLen (64), Description (
+        "The name of the primary system owner."),
+       MappingStrings {"MIF.DMTF|General Information|001.4"} ]  
+   string PrimaryOwnerName;
+      [MaxLen (256), Description (
+        "A string that provides information on how the primary system "
+        "owner can be reached (e.g. phone number, email address, "
+        "...)."),
+       MappingStrings {"MIF.DMTF|General Information|001.3"} ] 
+   string PrimaryOwnerContact;
+      [Description (
+        "An array (bag) of strings that specify the roles this System "
+        "plays in the IT-environment. Subclasses of System may "
+        "override this property to define explicit Roles values. "
+        "Alternately, a Working Group may describe the heuristics, "
+        "conventions and guidelines for specifying Roles. For "
+        "example, for an instance of a networking system, the Roles "
+        "property might contain the string, 'Switch' or 'Bridge'.") ]
+   string Roles[];
+};
+
+// ==================================================================
+//    AdminDomain
+// ==================================================================
+   [Version("2.6.0"), Description (
+     "This is a special grouping of ManagedSystemElements. The "
+     "grouping is viewed as a single entity, reflecting that all "
+     "of its components are administered similarly - either by "
+     "the same user, group of users or policy. It serves as "
+     "an aggregation point to associate one or more of the "
+     "following elements: network devices, such as routers and "
+     "switches, servers, and other resources that can be "
+     "accessed by end systems. This grouping of devices "
+     "plays an essential role in ensuring that the same "
+     "administrative policy and actions are applied to all "
+     "of the devices in the grouping. The specific behavior "
+     "and/or semantics of the AdminDomain can be identified "
+     "through its aggregated and associated entities."
+     "\n\n"
+     "The System class and its subclasses provide the scope for "
+     "numerous types of managed objects. As such, these classes "
+     "must have the ability to create unique keys. This attribute "
+     "is used by the System class and its subclasses to define a "
+     "unique Name, independent of the specific discovery protocol "
+     "used. Use of the heuristic is optional, but recommended."
+     "\n\n"
+     "AdminDomain is a part of the Core model, which has frequently "
+     "been used in the Networks Model to group "
+     "together various network resources that must be "
+     "administered the same way, perhaps using the same "
+     "policies. Viewed in this light, its principal subclass is "
+     "AutonomousSystem.") ]
+class CIM_AdminDomain : CIM_System {
+      [Override ("NameFormat"), Description (
+        "The NameFormat property identifies how the Name of the "
+        "AdminDomain is generated, using the heuristic specified "
+        "in the CIM V2 System Model spec. It assumes that the "
+        "documented rules are traversed in order, to determine and "
+        "assign a Name. The NameFormat Values list defines the "
+        "precedence order for assigning the Name of the "
+        "AdminDomain."), 
+       ValueMap {"Other", "AS", "NAP", "NOC", "POP", "RNP", "IP",
+            "IPX", "SNA", "Dial", "WAN", "LAN", "ISDN", "Frame Relay",
+            "ATM", "E.164", "IB", "FC", "Policy Repository" },
+       Values {"Other", "Autonomous System",
+               "Network Access Provider", "Network Operations Center",
+               "Point of Presence", "Regional Network Provider",
+               "IP", "IPX", "SNA", "Dial", "WAN", "LAN", "ISDN",
+               "Frame Relay", "ATM", "E.164", "Infiniband", 
+               "Fibre Channel", "Policy Repository"} ]
+   string NameFormat;
+};
+
+// ==================================================================
+//    PG_NTPAdminDomain
+// ==================================================================
+   [Version("1.0.0"), Description (
+     "An extension of the AdminDomain class which describes a "
+     "Network Time Protocol (NTP). This class specifies the IP "
+     "address(es) of the server(s) that are responsible for "
+     "providing time to the client host.") ]
+class PG_NTPAdminDomain : CIM_AdminDomain {
+      [MaxLen (256), Description (
+	    "The IP address or addresses in dot notation format of "
+		"the NTP server(s) to which the client host might "
+		"synchronize.")]
+   string ServerAddress[];
+};

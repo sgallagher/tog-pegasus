@@ -273,8 +273,9 @@ NOTES             :
 */
 Boolean Process::getCreationDate(CIMDateTime& d) const
 {
-  // convert time to a usable format
-  struct tm *t = localtime((time_t*)&pInfo.pst_start);
+  // convert 64-bit pInfo data to 32-bit needed by localtime()
+  time_t start = pInfo.pst_start;
+  struct tm *t = localtime(&start);
 
   // If localtime() failed, we will not return this property
   // There's really no way it can fail for a process start time
@@ -294,7 +295,7 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
                        t->tm_sec,
                        (timezone>0)?'-':'+',
                        timezone/60 - (t->tm_isdst? 60:0));
-  d = CIMDateTime (timstr);
+  d = CIMDateTime(timstr);
   return true;
 }
 

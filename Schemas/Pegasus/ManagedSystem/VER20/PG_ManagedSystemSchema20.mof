@@ -2,3 +2,6 @@
 #pragma include ("PG_ComputerSystem20.mof")
 #pragma include ("PG_UnixProcess20.mof")
 #pragma include ("IBM_CIMOMStatData.mof")
+#pragma include ("PG_Processor20.mof")
+#pragma include ("PG_DNSAdminDomain20.mof")
+#pragma include ("PG_NTPAdminDomain20.mof")

@@ -19,29 +19,48 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
+#//=============================================================================
+#//
+#// Author: Christopher Neufeld <neufeld@linuxcare.com>
+#//         David Kennedy       <dkennedy@linuxcare.com>
+#//
+#// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+#//              Christopher Neufeld <neufeld@linuxcare.com>
+#//              Paulo Fernando Borges da Silva <pfborges@wowmail.com>
+#//
 #//%////////////////////////////////////////////////////////////////////////////
-#
-# Recurse the directories defined in DIRS
-#
 
-ROOT = ../../..
+ROOT = $(PEGASUS_ROOT)
+
+PROVIDERROOT = $(ROOT)/src/Providers/linux
+PROVIDERINCLUDE_ROOT = $(PROVIDERROOT)/Include
+PROVIDERSUPPORT_ROOT = $(PROVIDERROOT)/ProviderSupport
+PROVIDERDATA_ROOT    = $(PROVIDERROOT)/ProviderData
+
+DIR = Providers/ManagedSystem/DNSAdminDomain
 
 include $(ROOT)/mak/config.mak
 
-DIRS =  \
-        OperatingSystem \
-        OperatingSystem/tests \
-        OperatingSystem/tests/OSTestClient \
-        ComputerSystem \
-        ComputerSystem/tests \
-        Process \
-        Process/tests \
-        Processor \
-        Processor/tests \
-        DNSAdminDomain \
-        DNSAdminDomain/tests/DNSTestClient \
-        NTPAdminDomain \
-        NTPAdminDomain/tests/NTPTestClient
+LIBRARY = DNSProvider
 
-include $(ROOT)/mak/recurse.mak
+EXTRA_INCLUDES = -I$(PROVIDERDATA_ROOT)/DNSAdminDomain \
+		-I$(PROVIDERDATA_ROOT)/Include \
+		-I$(PROVIDERDATA_ROOT)
+
+SOURCES = \
+	DNSAdminDomainProvider.cpp \
+	DNSAdminDomainProviderMain.cpp \
+        DNSAdminDomain.cpp
+
+LIBRARIES = \
+	pegcommon \
+	pegprovider
+
+DYNAMIC_LIBRARIES = \
+	-lpegcommon \
+	-lpegprovider
+
+include $(ROOT)/mak/library.mak
+
+tests:
 

@@ -1,0 +1,41 @@
+instance of PG_ProviderModule 
+{
+   Name = "ProcessorProviderModule";
+   Location = "ProcessorProviderModule";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
+};
+
+// Provider for CIM_Processor
+
+instance of PG_Provider 
+{
+  ProviderModuleName = "ProcessorProviderModule";
+  Name = "ProcessorProvider";
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "ProcessorProviderModule";
+  ProviderName = "ProcessorProvider";
+  CapabilityID = "1";
+  ClassName = "CIM_Processor";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "ProcessorProviderModule";
+  ProviderName = "ProcessorProvider";
+  CapabilityID = "2";
+  ClassName = "PG_Processor";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};

@@ -240,6 +240,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       {
 	 if(_disallow->value() > 0)
 	 {
+	    unlock();
 	    throw ListClosed();
 	 }	    
 	 _slot->lock_object(pegasus_thread_self());
@@ -265,6 +266,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       {
 	 if(_disallow->value() > 0)
 	 {
+	    unlock();
 	    throw ListClosed();
 	 }	    
 	 _node->lock_object(pegasus_thread_self());
@@ -291,7 +293,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       {
 	 if(_disallow->value() > 0)
 	 {
-	    unlock();
+	    unlock();	    
 	    throw ListClosed();
 	 }
 	 if( pegasus_thread_self() != _cond->get_owner())

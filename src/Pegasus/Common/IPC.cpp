@@ -576,7 +576,7 @@ Condition::~Condition(void)
 void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   cond_mutex->lock(caller);
+   _cond_mutex->lock(caller);
    
    try
    {
@@ -584,10 +584,10 @@ void Condition::signal(PEGASUS_THREAD_TYPE caller)
    }
    catch(...)
    {
-      cond_mutex->unlock();
+      _cond_mutex->unlock();
       throw;
    }
-      cond_mutex->unlock();
+      _cond_mutex->unlock();
 }
 
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)

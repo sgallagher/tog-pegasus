@@ -40,6 +40,7 @@
 //         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
 //         David Dillard, VERITAS Software Corp.
 //             (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -163,6 +164,15 @@ static const char REQUIRED_ARGS_MISSING []        =
 
 static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
+static const char ERR_OPTION_NOT_SUPPORTED [] =
+                        "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED";
+
+static const char ERR_USAGE [] =
+                        "Incorrect usage. Use '--help' to obtain command syntax.";
+
+static const char ERR_USAGE_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
 
 /**
     This constant signifies that an operation option has not been recorded
@@ -1187,11 +1197,19 @@ int main (int argc, char* argv [])
         cerr << WbemExecCommand::COMMAND_NAME << ": " << msg <<  endl;
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-          cerr << WbemExecCommand::COMMAND_NAME <<  
-            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+              parms.msg_src_path = MSG_PATH;
+           cerr << WbemExecCommand::COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
         else
-          cerr << WbemExecCommand::COMMAND_NAME <<  
-            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+              parms.msg_src_path = MSG_PATH;
+           cerr << WbemExecCommand::COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         exit (Command::RC_ERROR);
     }

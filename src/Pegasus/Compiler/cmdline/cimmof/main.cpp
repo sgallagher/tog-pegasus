@@ -32,6 +32,7 @@
 // Modified By: Seema Gupta (gseema@in.ibm.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +80,8 @@ void os400_return_msg(int ret, String msg_, Boolean qsh);
 #endif
 
 #define NAMESPACE_ROOT "root/cimv2"
+
+static const char MSG_PATH [] 				= "pegasus/pegasusServer";
 
 int
 main(int argc, char ** argv) {
@@ -148,12 +151,22 @@ main(int argc, char ** argv) {
 
    cerr << argv[0] << ": " << msg ;
 
-   if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-     cerr << argv[0] <<
-        ": Invalid option. Use '--help' to obtain command syntax" << endl;
-    else
-      cerr << argv[0] <<
-        ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+         {
+            MessageLoaderParms parms;
+            parms.msg_id = "Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED";
+            parms.default_msg = "Invalid option. Use '--help' to obtain command syntax.";
+            parms.msg_src_path = MSG_PATH;
+            cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
+         }
+        else
+         {
+            MessageLoaderParms parms;
+            parms.msg_id = "Compiler.cimmofMessages.ERR_USAGE";
+            parms.default_msg = "Incorrect usage. Use '--help' to obtain command syntax.";
+            parms.msg_src_path = MSG_PATH;
+            cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
     ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
   } catch (CmdlineNoRepository &e) {

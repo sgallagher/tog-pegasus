@@ -35,6 +35,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amita@in.ibm.com) - Bug#2311,#2333,#2351
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -311,6 +312,14 @@ static const char   PASSWORD_SAME_ERROR []  =
                         "Error, new and old passwords cannot be same.";
                         
 static const char   PASSWORD_SAME_ERROR_KEY []  = "Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR";
+
+static const char ERR_OPTION_NOT_SUPPORTED [] = "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.cimuser.CIMUserCommand.ERR_OPTION_NOT_SUPPORTED";
+
+static const char ERR_USAGE [] = "Incorrect usage. Use '--help' to obtain command syntax.";
+
+static const char ERR_USAGE_KEY [] = "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 static const char   LONG_HELP []  = "help";
 
@@ -1530,8 +1539,10 @@ int main (int argc, char* argv [])
     //
     if ( !System::isPrivilegedUser(System::getEffectiveUserName()) )
     {
-	cerr << NOT_PRIVILEGED_USER << endl;
-	return 1;
+        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY, NOT_PRIVILEGED_USER);
+        parms.msg_src_path = MSG_PATH;
+        cerr << MessageLoader::getMessage(parms) << endl;
+        return 1;
     }
 	 
     command.reset(new CIMUserCommand ());
@@ -1547,11 +1558,19 @@ int main (int argc, char* argv [])
         cerr << COMMAND_NAME << ": " << msg <<  endl;
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-          cerr << COMMAND_NAME <<
-            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
         else
-          cerr << COMMAND_NAME <<
-            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         return 1;
     }

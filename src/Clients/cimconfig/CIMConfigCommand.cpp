@@ -37,7 +37,7 @@
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#1794
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -405,6 +405,16 @@ static const char REQUIRED_ARGS_MISSING []        =
                         "Required arguments missing.";
 
 static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
+static const char ERR_OPTION_NOT_SUPPORTED [] =
+                        "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED";
+
+static const char ERR_USAGE [] =
+                        "Incorrect usage. Use '--help' to obtain command syntax.";
+
+static const char ERR_USAGE_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
 
 
 //l10n end default messages and keys
@@ -2019,15 +2029,22 @@ int main (int argc, char* argv [])
     catch (const CommandFormatException& cfe) 
     {
         String msg(cfe.getMessage());
-
         cerr << COMMAND_NAME << ": " << msg <<  endl;
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-          cerr << COMMAND_NAME <<
-            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+              parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
         else
-          cerr << COMMAND_NAME <<
-            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+              parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         exit (Command::RC_ERROR);
     }

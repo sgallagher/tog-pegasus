@@ -34,6 +34,7 @@
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //               Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //               Amit K Arora, IBM (amita@in.ibm.com) Bug#2311,#2333,#2351
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -284,7 +285,7 @@ static const char NO_MODULE_REGISTERED_KEY[] =
 		"Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED";
 
 static const char ERR_OPTION_NOT_SUPPORTED[] =
-			"-p option was not supported.";
+			"Invalid option. Use '--help' to obtain command syntax.";
 
 static const char ERR_OPTION_NOT_SUPPORTED_KEY[] =
 		"Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED";
@@ -323,6 +324,12 @@ static const char UNEXPECTED_OPTION [] = "Unexpected Option.";
 
 static const char UNEXPECTED_OPTION_KEY [] =
 	"Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION";
+
+static const char ERR_USAGE_KEY [] =
+                        "Clients.cimprovider.CIMProviderCommand.ERR_USAGE";
+
+static const char ERR_USAGE [] =
+                        "Incorrect usage. Use '--help' to obtain command syntax.";
 
 static const char   LONG_HELP []  = "help";
 
@@ -1033,7 +1040,7 @@ void CIMProviderCommand::setCommand (
         // No operation type was specified
         // Show the usage
         //
-        CommandFormatException e ( REQUIRED_ARGS_MISSING );
+        CommandFormatException e ( localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING) );
         throw e;
     }
 
@@ -2102,11 +2109,19 @@ int main (int argc, char* argv [])
         cerr << COMMAND_NAME << ": " << msg <<  endl;
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-          cerr << COMMAND_NAME <<
-            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
         else
-          cerr << COMMAND_NAME <<
-            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         return 1;
     }

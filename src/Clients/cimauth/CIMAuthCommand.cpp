@@ -33,7 +33,7 @@
 //               (carolann_graves@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2311,#2333,#2351
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -245,6 +245,17 @@ static const char AUTH_NOT_FOUND []            =
 static const char AUTH_NOT_FOUND_KEY [] = 
 		"Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND";
 
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] =
+         "Clients.cimauth.CIMAuthCommand.ERR_OPTION_NOT_SUPPORTED";
+
+static const char ERR_OPTION_NOT_SUPPORTED [] =
+         "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_USAGE_KEY [] =
+         "Clients.cimauth.CIMAuthCommand.ERR_USAGE";
+
+static const char ERR_USAGE [] =
+         "Incorrect usage. Use '--help' to obtain command syntax.";
 //l10n end default messages and resource keys
 
 /**
@@ -849,7 +860,7 @@ void CIMAuthCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified 
         // Show the usage 
         //
-        CommandFormatException e ( REQUIRED_ARGS_MISSING );
+        CommandFormatException e ( localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
         throw e;
     }
 
@@ -1594,16 +1605,22 @@ int main (int argc, char* argv [])
     catch (CommandFormatException& cfe) 
     {
         String msg(cfe.getMessage());
-
         cerr << COMMAND_NAME << ": " << msg <<  endl;
 
-        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-          cerr << COMMAND_NAME <<
-            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+       if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
         else
-          cerr << COMMAND_NAME <<
-            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
-
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
         exit (Command::RC_ERROR);
     }
 

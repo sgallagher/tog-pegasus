@@ -62,7 +62,7 @@ PEGASUS_USING_PEGASUS;
  
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
 
-static ostream & 
+ostream & 
 help(ostream &os) {
   os << endl << "MOF Compiler version " << COMPILER_VERSION << endl << endl;
 #ifdef PEGASUS_OS_HPUX
@@ -73,7 +73,8 @@ help(ostream &os) {
   os << "    -n namespace - override the default CIMRepository namespace "
      << endl;
 #else
-  os << "Usage: cimmof -hEw -Ipath -Rrepository -ffile" << endl;
+  os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
+  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] mof_file1 mof_file2 ..." << endl;
   os << "  -h, --help -- show this help." << endl;
   os << "  -E -- syntax check only." << endl;
   os << "  -w -- suppress warnings." << endl;
@@ -83,8 +84,8 @@ help(ostream &os) {
   os << "  -ffile -- specify file containing a list of MOFs to compile."
        << endl;
   os << " --file=file -- specify file containing list of MOFs." << endl;
-  os << " -npath -- override the default CIMRepository namespace." << endl;
-  os << " --namespace=path -- override default CIMRepository namespace." 
+  os << " -npath -- override the default CIMRepository namespace (root/cimv2)." << endl;
+  os << " --namespace=path -- override default CIMRepository namespace (root/cimv2)." 
        << endl;
   os << " --xml -- output XML only, to stdout.  Do not update repository."
      << endl;
@@ -306,5 +307,13 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     throw CmdlineNoRepository(
           "You must specify -R or set PEGASUS_HOME environment variable");
   }
+
+  // If no mof files to process, then throw error.
+  // (user needs to specify -f file, or give us a mof file on the command line)
+  if (cmdlinedata.get_filespec_list().size() == 0) {
+    throw ArgumentErrorsException(
+          "You must specify some MOF files to process.");
+  }
+
   return 0;
 }

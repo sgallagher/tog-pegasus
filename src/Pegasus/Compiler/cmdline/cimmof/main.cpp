@@ -56,6 +56,8 @@ static mofCompilerOptions cmdline;
 
 extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
+extern "C++" ostream& help(ostream& os);
+
 #define NAMESPACE_ROOT "root/cimv2"
 
 int
@@ -79,6 +81,7 @@ main(int argc, char ** argv) {
     ret = processCmdLine(argc, argv, cmdline, cerr);
   } catch (ArgumentErrorsException &e) {
     cerr << e.getMessage() << endl;
+    help(cerr);
     ret =  -2;
   } catch (CmdlineNoRepository &e) {
     cerr << e.getMessage() << endl;

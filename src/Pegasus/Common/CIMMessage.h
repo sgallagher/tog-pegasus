@@ -96,20 +96,27 @@ enum CIMMessageType
 class CIMMessage : public Message
 {
 public:
-    CIMMessage(Uint32 type) : Message(type) { }
+    CIMMessage(Uint32 type, const String& messageId_) 
+	: Message(type), messageId(messageId_) { }
+
+    const String& messageId;
 };
 
 class CIMRequestMessage : public CIMMessage
 {
 public:
-    CIMRequestMessage(Uint32 type_) : CIMMessage(type_) { }
+    CIMRequestMessage(Uint32 type_, const String& messageId_) 
+	: CIMMessage(type_, messageId_) { }
 };
 
 class CIMResponseMessage : public CIMMessage
 {
 public:
-    CIMResponseMessage(Uint32 type, CIMStatusCode code_) 
-	: CIMMessage(type), code(code_) { }
+    CIMResponseMessage(
+	Uint32 type_, 
+	const String& messageId_,
+	CIMStatusCode code_)
+	: CIMMessage(type_, messageId_), code(code_)  { }
 
     CIMStatusCode code;
 };
@@ -119,6 +126,7 @@ class CIMGetClassRequestMessage : public CIMRequestMessage
 public:
     
     CIMGetClassRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& className_,
 	Boolean localOnly_,
@@ -126,7 +134,7 @@ public:
 	Boolean includeClassOrigin_,
 	const Array<String>& propertyList_) 
 	:
-	CIMRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	className(className_),
 	localOnly(localOnly_),
@@ -147,6 +155,7 @@ public:
 class CIMGetInstanceRequestMessage : public CIMRequestMessage
 {
     CIMGetInstanceRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
 	Boolean localOnly_,
@@ -154,7 +163,7 @@ class CIMGetInstanceRequestMessage : public CIMRequestMessage
 	Boolean includeClassOrigin_,
 	const Array<String>& propertyList_)
 	:
-	CIMRequestMessage(CIM_GET_INSTANCE_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_GET_INSTANCE_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
 	localOnly(localOnly_),
@@ -178,10 +187,11 @@ class CIMDeleteClassRequestMessage : public CIMRequestMessage
 public:
     
     CIMDeleteClassRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& className_)
 	:
-	CIMRequestMessage(CIM_DELETE_CLASS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_DELETE_CLASS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	className(className_)
     {
@@ -197,10 +207,11 @@ class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
 public:
     
     CIMDeleteInstanceRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& instanceName_)
 	:
-	CIMRequestMessage(CIM_DELETE_INSTANCE_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_DELETE_INSTANCE_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_)
     {
@@ -216,10 +227,11 @@ class CIMCreateClassRequestMessage : public CIMRequestMessage
 public:
 
     CIMCreateClassRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMClass& newClass_)
 	:
-	CIMRequestMessage(CIM_CREATE_CLASS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_CREATE_CLASS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	newClass(newClass_)
     {
@@ -235,10 +247,11 @@ class CIMCreateInstanceRequestMessage : public CIMRequestMessage
 public:
 
     CIMCreateInstanceRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMInstance& newInstance_)
 	:
-	CIMRequestMessage(CIM_CREATE_INSTANCE_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	newInstance(newInstance_)
     {
@@ -254,10 +267,11 @@ class CIMModifyClassRequestMessage : public CIMRequestMessage
 public:
 
     CIMModifyClassRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMClass& modifiedClass_)
 	:
-	CIMRequestMessage(CIM_MODIFY_CLASS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_MODIFY_CLASS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	modifiedClass(modifiedClass_)
     {
@@ -273,10 +287,11 @@ class CIMModifyInstanceRequestMessage : public CIMRequestMessage
 public:
 
     CIMModifyInstanceRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMInstance& modifiedInstance_)
 	:
-	CIMRequestMessage(CIM_MODIFY_INSTANCE_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	modifiedInstance(modifiedInstance_)
     {
@@ -291,6 +306,7 @@ class CIMEnumerateClassesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateClassesRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& className_,
 	Boolean deepInheritance_,
@@ -298,7 +314,7 @@ public:
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_)
 	:
-	CIMRequestMessage(CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	className(className_),
 	deepInheritance(deepInheritance_),
@@ -320,11 +336,13 @@ class CIMEnumerateClassNamesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateClassNamesRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& className_,
 	Boolean deepInheritance_)
 	:
-	CIMRequestMessage(CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE),
+	CIMRequestMessage(
+	    CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	className(className_),
 	deepInheritance(deepInheritance_)
@@ -342,6 +360,7 @@ class CIMEnumerateInstancesRequestMessage : public CIMRequestMessage
 public:
 
     CIMEnumerateInstancesRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& className_,
 	Boolean deepInheritance_,
@@ -350,7 +369,7 @@ public:
 	Boolean includeClassOrigin_,
 	const Array<String>& propertyList_)
 	:
-	CIMRequestMessage(CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	className(className_),
 	deepInheritance(deepInheritance_),
@@ -371,15 +390,17 @@ public:
     Array<String> propertyList;
 };
 
-class CIMEnumerateInstanceNames : public CIMRequestMessage
+class CIMEnumerateInstanceNamesRequestMessage : public CIMRequestMessage
 {
 public:
 
-    CIMEnumerateInstanceNames(
+    CIMEnumerateInstanceNamesRequestMessage(
+	const String& messageId_,
 	const String& nameSpace_,
 	const String& className_)
 	:
-	CIMRequestMessage(CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE),
+	CIMRequestMessage(
+	    CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	className(className_)
     {
@@ -394,10 +415,11 @@ class CIMExecQueryRequestMessage : public CIMRequestMessage
 public:
 
     CIMExecQueryRequestMessage(
+        const String& messageId_,
 	const String& queryLanguage_,
 	const String& query_)
 	:
-	CIMRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_),
 	queryLanguage(queryLanguage_),
 	query(query_)
     {
@@ -412,6 +434,7 @@ class CIMAssociatorsRequestMessage : CIMRequestMessage
 public:    
 
     CIMAssociatorsRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& objectName_,
 	const String& assocClass_,
@@ -422,7 +445,7 @@ public:
 	Boolean includeClassOrigin_,
 	const Array<String>& propertyList_)
 	:
-	CIMRequestMessage(CIM_ASSOCIATORS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
 	assocClass(assocClass_),
@@ -452,6 +475,7 @@ class CIMAssociatorNamesRequestMessage : CIMRequestMessage
 public:
 
     CIMAssociatorNamesRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& objectName_,
 	const String& assocClass_,
@@ -459,7 +483,7 @@ public:
 	const String& role_,
 	const String& resultRole_)
 	: 
-	CIMRequestMessage(CIM_ASSOCIATORS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
 	assocClass(assocClass_),
@@ -482,6 +506,7 @@ class CIMReferencesRequestMessage : public CIMRequestMessage
 public:
 
     CIMReferencesRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& objectName_,
 	const String& resultClass_,
@@ -490,7 +515,7 @@ public:
 	Boolean includeClassOrigin_,
 	const Array<String>& propertyList_)
 	:
-	CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
 	resultClass(resultClass),
@@ -516,12 +541,13 @@ class CIMReferenceNamesRequestMessage : public CIMRequestMessage
 public:
 
     CIMReferenceNamesRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& objectName_,
 	const String& resultClass_,
 	const String& role_)
 	:
-	CIMRequestMessage(CIM_REFERENCE_NAMES_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_REFERENCE_NAMES_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
 	resultClass(resultClass_),
@@ -540,11 +566,12 @@ class CIMGetPropertyRequestMessage : public CIMRequestMessage
 public:
 
     CIMGetPropertyRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
 	const String& propertyName_)
 	:
-	CIMRequestMessage(CIM_GET_PROPERTY_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_GET_PROPERTY_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
 	propertyName(propertyName_)
@@ -562,12 +589,13 @@ class CIMSetPropertyRequestMessage : public CIMRequestMessage
 public:
 
     CIMSetPropertyRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
 	const String& propertyName_,
 	const CIMValue& newValue_)
 	:
-	CIMRequestMessage(CIM_SET_PROPERTY_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_SET_PROPERTY_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
 	propertyName(propertyName_),
@@ -587,10 +615,11 @@ class CIMGetQualifierRequestMessage : public CIMRequestMessage
 public:
 
     CIMGetQualifierRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& qualifierName_)
 	:
-	CIMRequestMessage(CIM_GET_QUALIFIER_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	qualifierName(qualifierName_)
     {
@@ -606,10 +635,11 @@ class CIMSetQualifierRequestMessage : public CIMRequestMessage
 public:
 
     CIMSetQualifierRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMQualifierDecl& qualifierDeclaration_)
 	:
-	CIMRequestMessage(CIM_GET_QUALIFIER_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	qualifierDeclaration(qualifierDeclaration_)
     {
@@ -625,10 +655,11 @@ class CIMDeleteQualifierRequestMessage : public CIMRequestMessage
 public:
 
     CIMDeleteQualifierRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const String& qualifierName_)
 	:
-	CIMRequestMessage(CIM_DELETE_QUALIFIER_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	qualifierName(qualifierName_)
     {
@@ -644,9 +675,10 @@ class CIMEnumerateQualifiersRequestMessage : public CIMRequestMessage
 public:
 
     CIMEnumerateQualifiersRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_) 
 	:
-	CIMRequestMessage(CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_)
     {
 
@@ -660,12 +692,13 @@ class CIMInvokeMethodRequestMessage : public CIMRequestMessage
 public:
 
     CIMInvokeMethodRequestMessage(
+        const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
 	const String& methodName_,
 	const Array<CIMValue>& inParameters_)
 	:
-	CIMRequestMessage(CIM_INVOKE_METHOD_REQUEST_MESSAGE),
+	CIMRequestMessage(CIM_INVOKE_METHOD_REQUEST_MESSAGE, messageId_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
 	methodName(methodName_),
@@ -685,10 +718,11 @@ class CIMGetClassResponseMessage : public CIMResponseMessage
 public:
 
     CIMGetClassResponseMessage(
+        const String& messageId_,
 	CIMStatusCode code_,
 	const CIMClass& cimClass_)
 	:
-	CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE, code_),
+	CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE, messageId_, code_),
 	cimClass(cimClass_)
     {
     }
@@ -701,10 +735,11 @@ class CIMGetInstanceResponseMessage : public CIMResponseMessage
 public:
 
     CIMGetInstanceResponseMessage(
+        const String& messageId_,
 	CIMStatusCode code_,
 	const CIMInstance& cimInstance_)
 	:
-	CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE, code_),
+	CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE, messageId_, code_),
 	cimInstance(cimInstance_)
     {
     }
@@ -716,9 +751,12 @@ class CIMDeleteClassResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMDeleteClassResponseMessage(CIMStatusCode code_)
+    CIMDeleteClassResponseMessage(
+	const String& messageId_, 
+	CIMStatusCode code_)
 	: 
-	CIMResponseMessage(CIM_DELETE_CLASS_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(
+	    CIM_DELETE_CLASS_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -727,9 +765,12 @@ class CIMDeleteInstanceResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMDeleteInstanceResponseMessage(CIMStatusCode code_)
+    CIMDeleteInstanceResponseMessage(
+	const String& messageId_,
+	CIMStatusCode code_)
 	: 
-	CIMResponseMessage(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(
+	    CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -738,9 +779,11 @@ class CIMCreateClassResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMCreateClassResponseMessage(CIMStatusCode code_)
+    CIMCreateClassResponseMessage(
+	const String& messageId_,
+	CIMStatusCode code_)
 	: 
-	CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -749,9 +792,12 @@ class CIMCreateInstanceResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMCreateInstanceResponseMessage(CIMStatusCode code_)
+    CIMCreateInstanceResponseMessage(
+	const String& messageId_,
+	CIMStatusCode code_)
 	: 
-	CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(
+	    CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -760,9 +806,10 @@ class CIMModifyClassResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMModifyClassResponseMessage(CIMStatusCode code_)
+    CIMModifyClassResponseMessage(
+	const String& messageId_, CIMStatusCode code_)
 	: 
-	CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -771,9 +818,12 @@ class CIMModifyInstanceResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMModifyInstanceResponseMessage(CIMStatusCode code_)
+    CIMModifyInstanceResponseMessage(
+        const String& messageId_,
+	CIMStatusCode code_)
 	: 
-	CIMResponseMessage(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(
+	    CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -783,10 +833,12 @@ class CIMEnumerateClassesResponseMessage : public CIMResponseMessage
 public:
 
     CIMEnumerateClassesResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMClass>& cimClasses_)
         :
-        CIMResponseMessage(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, messageId_, code_),
 	cimClasses(cimClasses_)
     {
     }
@@ -799,10 +851,12 @@ class CIMEnumerateClassNameResponseMessage : public CIMResponseMessage
 public:
 
     CIMEnumerateClassNameResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<String>& classNames_)
         :
-        CIMResponseMessage(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, messageId_, code_),
 	classNames(classNames_)
     {
     }
@@ -815,10 +869,12 @@ class CIMEnumerateInstancesResponseMessage : public CIMResponseMessage
 public:
 
     CIMEnumerateInstancesResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMInstance>& cimInstances_)
         :
-        CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, messageId_, code_),
 	cimInstances(cimInstances_)
     {
     }
@@ -831,10 +887,12 @@ class CIMEnumerateInstanceNameResponseMessage : public CIMResponseMessage
 public:
 
     CIMEnumerateInstanceNameResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMReference>& instanceNames_)
         :
-        CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,code_),
+        CIMResponseMessage(
+	    CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE, messageId_, code_),
 	instanceNames(instanceNames_)
     {
     }
@@ -847,10 +905,11 @@ class CIMExecQueryResponseMessage : public CIMResponseMessage
 public:
 
     CIMExecQueryResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMInstance>& cimInstances_)
         :
-        CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE, messageId_, code_),
         cimInstances(cimInstances_)
     {
     }
@@ -863,10 +922,11 @@ class CIMAssociatorsResponseMessage : public CIMResponseMessage
 public:
 
     CIMAssociatorsResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMObjectWithPath>& cimObjects_)
         :
-        CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE, messageId_, code_),
         cimObjects(cimObjects_)
     {
     }
@@ -879,10 +939,12 @@ class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
 public:
 
     CIMAssociatorNamesResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMReference>& objectNames_)
         :
-        CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, messageId_, code_),
         objectNames(objectNames_)
     {
     }
@@ -895,10 +957,11 @@ class CIMReferencesResponseMessage : public CIMResponseMessage
 public:
 
     CIMReferencesResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMObjectWithPath>& cimObjects_)
         :
-        CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE, messageId_, code_),
         cimObjects(cimObjects_)
     {
     }
@@ -911,10 +974,12 @@ class CIMReferenceNamesResponseMessage : public CIMResponseMessage
 public:
 
     CIMReferenceNamesResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMReference>& objectNames_)
         :
-        CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, messageId_, code_),
         objectNames(objectNames_)
     {
     }
@@ -927,10 +992,12 @@ class CIMGetPropertyResponseMessage : public CIMResponseMessage
 public:
 
     CIMGetPropertyResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const CIMValue& value_)
         :
-        CIMResponseMessage(CIM_GET_PROPERTY_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_GET_PROPERTY_RESPONSE_MESSAGE, messageId_, code_),
         value(value_)
     {
     }
@@ -942,9 +1009,9 @@ class CIMSetPropertyResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMSetPropertyResponseMessage(CIMStatusCode code_)
+    CIMSetPropertyResponseMessage(const String& messageId_, CIMStatusCode code_)
         : 
-	CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -954,10 +1021,12 @@ class CIMGetQualifierResponseMessage : public CIMResponseMessage
 public:
 
     CIMGetQualifierResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const CIMQualifierDecl& cimQualifierDecl_)
         :
-        CIMResponseMessage(CIM_GET_QUALIFIER_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_GET_QUALIFIER_RESPONSE_MESSAGE, messageId_, code_),
         cimQualifierDecl(cimQualifierDecl_)
     {
     }
@@ -969,9 +1038,12 @@ class CIMSetQualifierResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMSetQualifierResponseMessage(CIMStatusCode code_)
+    CIMSetQualifierResponseMessage(
+	const String& messageId_, 
+	CIMStatusCode code_)
         : 
-	CIMResponseMessage(CIM_SET_QUALIFIER_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(
+	    CIM_SET_QUALIFIER_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -980,9 +1052,12 @@ class CIMDeleteQualifierResponseMessage : public CIMResponseMessage
 {
 public:
 
-    CIMDeleteQualifierResponseMessage(CIMStatusCode code_)
+    CIMDeleteQualifierResponseMessage(
+	const String& messageId_, 
+	CIMStatusCode code_)
         : 
-	CIMResponseMessage(CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, code_)
+	CIMResponseMessage(
+	    CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, messageId_, code_)
     {
     }
 };
@@ -992,10 +1067,12 @@ class CIMEnumerateQualifiersResponseMessage : public CIMResponseMessage
 public:
 
     CIMEnumerateQualifiersResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
         const Array<CIMQualifierDecl>& cimQualifierDecls_)
         :
-        CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, messageId_, code_),
         cimQualifierDecls(cimQualifierDecls_)
     {
     }
@@ -1008,11 +1085,13 @@ class CIMInvokeMethodResponseMessage : public CIMResponseMessage
 public:
 
     CIMInvokeMethodResponseMessage(
+        const String& messageId_,
         CIMStatusCode code_,
 	CIMValue& value_,
         const Array<CIMValue>& outParameters_)
         :
-        CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE, code_),
+        CIMResponseMessage(
+	    CIM_INVOKE_METHOD_RESPONSE_MESSAGE, messageId_, code_),
 	value(value_),
         outParameters(outParameters_)
     {

@@ -1892,7 +1892,16 @@ void XmlWriter::appendClassNameIParameter(
     const CIMName& className)
 {
     _appendIParamValueElementBegin(out, name);
-    appendClassNameElement(out, className);
+
+    //
+    //  A NULL (unassigned) value for a parameter is specified by an 
+    //  <IPARAMVALUE> element with no subelement
+    //
+    if (!className.isNull ())
+    {
+        appendClassNameElement(out, className);
+    }
+
     _appendIParamValueElementEnd(out);
 }
 
@@ -2027,15 +2036,21 @@ void XmlWriter::appendPropertyListIParameter(
     Array<Sint8>& out,
     const CIMPropertyList& propertyList)
 {
-    // ATTN: P3 KS 4 Mar 2002 - As check shouldn't we check for null property list
     _appendIParamValueElementBegin(out, "PropertyList");
 
-    out << "<VALUE.ARRAY>\n";
-    for (Uint32 i = 0; i < propertyList.size(); i++)
+    //
+    //  A NULL (unassigned) value for a parameter is specified by an 
+    //  <IPARAMVALUE> element with no subelement
+    //
+    if (!propertyList.isNull ())
     {
-        out << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
+        out << "<VALUE.ARRAY>\n";
+        for (Uint32 i = 0; i < propertyList.size(); i++)
+        {
+            out << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
+        }
+        out << "</VALUE.ARRAY>\n";
     }
-    out << "</VALUE.ARRAY>\n";
 
     _appendIParamValueElementEnd(out);
 }

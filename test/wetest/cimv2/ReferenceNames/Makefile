@@ -4,8 +4,6 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-defects = References45001
-
-XMLSCRIPTS = References45000 References45002 References45003 References45004 References45005
+XMLSCRIPTS = ReferenceNames61000 ReferenceNames61001 ReferenceNames61002
 
 include $(ROOT)/test/configend.mak

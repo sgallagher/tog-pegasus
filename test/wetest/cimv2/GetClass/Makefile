@@ -18,7 +18,8 @@ XMLSCRIPTS = \
 	   GetClass00019 \
 	   GetClass00020 \
 	   GetClass00021 \
-	   GetClass00022
+	   GetClass00022 \
+	   GetClass00023
 
 ifndef SECURITY_ENABLED
 XMLSCRIPTS += \

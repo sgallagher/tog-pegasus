@@ -6,6 +6,7 @@ include $(ROOT)/test/config.mak
 XMLSCRIPTS = \
    GetProperty82000 \
    GetProperty82100 \
-   SetProperty82200
+   SetProperty82200 \
+   SetProperty82300
 
 include $(ROOT)/test/configend.mak

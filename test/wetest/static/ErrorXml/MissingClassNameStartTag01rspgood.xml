@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Validation error: on line 11: expected CLASSNAME element
+PGErrorDetail: Validation error: on line 11: Expected close of IPARAMVALUE element, got LASSNAME instead
 

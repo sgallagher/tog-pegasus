@@ -1182,7 +1182,10 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
-	 XmlReader::getClassNameElement(parser, className, true);
+         //
+         //  ClassName may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, className, false);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
@@ -1246,7 +1249,10 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
-	 XmlReader::getClassNameElement(parser, className, true);
+         //
+         //  ClassName may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, className, false);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
@@ -2035,13 +2041,19 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
-	 XmlReader::getClassNameElement(parser, resultClass, true);
+         //
+         //  ResultClass may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, resultClass, false);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
-	 XmlReader::getStringValueElement(parser, role, true);
+         //
+         //  Role may be NULL
+         //
+	 XmlReader::getStringValueElement(parser, role, false);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
@@ -2113,13 +2125,19 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
-	 XmlReader::getClassNameElement(parser, resultClass, true);
+         //
+         //  ResultClass may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, resultClass, false);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
-	 XmlReader::getStringValueElement(parser, role, true);
+         //
+         //  Role may be NULL
+         //
+	 XmlReader::getStringValueElement(parser, role, false);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
@@ -2221,25 +2239,37 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
       }
       else if (System::strcasecmp(name, "AssocClass") == 0)
       {
-	 XmlReader::getClassNameElement(parser, assocClass, true);
+         //
+         //  AssocClass may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, assocClass, false);
 	 duplicateParameter = gotAssocClass;
 	 gotAssocClass = true;
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
-	 XmlReader::getClassNameElement(parser, resultClass, true);
+         //
+         //  ResultClass may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, resultClass, false);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
-	 XmlReader::getStringValueElement(parser, role, true);
+         //
+         //  Role may be NULL
+         //
+	 XmlReader::getStringValueElement(parser, role, false);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
       else if (System::strcasecmp(name, "ResultRole") == 0)
       {
-	 XmlReader::getStringValueElement(parser, resultRole, true);
+         //
+         //  ResultRole may be NULL
+         //
+	 XmlReader::getStringValueElement(parser, resultRole, false);
 	 duplicateParameter = gotResultRole;
 	 gotResultRole = true;
       }
@@ -2317,25 +2347,37 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
       }
       else if (System::strcasecmp(name, "AssocClass") == 0)
       {
-	 XmlReader::getClassNameElement(parser, assocClass, true);
+         //
+         //  AssocClass may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, assocClass, false);
 	 duplicateParameter = gotAssocClass;
 	 gotAssocClass = true;
       }
       else if (System::strcasecmp(name, "ResultClass") == 0)
       {
-	 XmlReader::getClassNameElement(parser, resultClass, true);
+         //
+         //  ResultClass may be NULL
+         //
+	 XmlReader::getClassNameElement(parser, resultClass, false);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
       else if (System::strcasecmp(name, "Role") == 0)
       {
-	 XmlReader::getStringValueElement(parser, role, true);
+         //
+         //  Role may be NULL
+         //
+	 XmlReader::getStringValueElement(parser, role, false);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
       else if (System::strcasecmp(name, "ResultRole") == 0)
       {
-	 XmlReader::getStringValueElement(parser, resultRole, true);
+         //
+         //  ResultRole may be NULL
+         //
+	 XmlReader::getStringValueElement(parser, resultRole, false);
 	 duplicateParameter = gotResultRole;
 	 gotResultRole = true;
       }

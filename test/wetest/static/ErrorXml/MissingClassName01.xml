@@ -8,6 +8,7 @@
      <NAMESPACE NAME="cimv2"/>
     </LOCALNAMESPACEPATH>
     <IPARAMVALUE NAME="ClassName">
+      <CLASSNAME/>
     </IPARAMVALUE>
     <IPARAMVALUE NAME="DeepInheritance">
      <VALUE>

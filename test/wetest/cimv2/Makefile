@@ -16,12 +16,14 @@ DIRS = \
 	DeleteClass\
 	EnumerateClasses\
 	EnumerateClassNames\
+	EnumerateInstances \
 	EnumerateInstanceNames\
 	EnumerateQualifiers\
 	GetQualifier\
 	SetQualifier\
 	DeleteQualifier\
-	References 
+	References \
+	ReferenceNames
 
 
 include $(ROOT)/mak/recurse.mak

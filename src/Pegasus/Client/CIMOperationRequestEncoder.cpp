@@ -574,8 +574,15 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
     XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
-    XmlWriter::appendStringIParameter(
-	params, "Role", message->role);
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+	    params, "Role", message->role);
+    }
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("ReferenceNames"), message->messageId,
@@ -596,8 +603,15 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
     XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
-    XmlWriter::appendStringIParameter(
-	params, "Role", message->role);
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+	    params, "Role", message->role);
+    }
 
     if (message->includeQualifiers != false)
 	XmlWriter::appendBooleanIParameter(params, "IncludeQualifiers", true);
@@ -631,11 +645,25 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
     XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
-    XmlWriter::appendStringIParameter(
-	params, "Role", message->role);
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+	    params, "Role", message->role);
+    }
 
-    XmlWriter::appendStringIParameter(
-	params, "ResultRole", message->resultRole);
+    //
+    //  The Client API has no way to represent a NULL resultRole;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->resultRole != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+	    params, "ResultRole", message->resultRole);
+    }
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("AssociatorNames"), message->messageId,
@@ -659,11 +687,25 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
     XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
-    XmlWriter::appendStringIParameter(
-	params, "Role", message->role);
+    //
+    //  The Client API has no way to represent a NULL role;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->role != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+	    params, "Role", message->role);
+    }
 
-    XmlWriter::appendStringIParameter(
-	params, "ResultRole", message->resultRole);
+    //
+    //  The Client API has no way to represent a NULL resultRole;
+    //  An empty string is interpreted as NULL
+    //
+    if (message->resultRole != String::EMPTY)
+    {
+        XmlWriter::appendStringIParameter(
+	    params, "ResultRole", message->resultRole);
+    }
 
     if (message->includeQualifiers != false)
 	XmlWriter::appendBooleanIParameter(params, "IncludeQualifiers", true);

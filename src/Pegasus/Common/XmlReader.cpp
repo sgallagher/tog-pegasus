@@ -1970,7 +1970,7 @@ Boolean XmlReader::getClassNameElement(
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     className = getCimNameAttribute(
-	parser.getLine(), entry, "CLASSNAME", true);
+	parser.getLine(), entry, "CLASSNAME", false);
 
     if (!empty)
 	expectEndTag(parser, "CLASSNAME");

@@ -85,6 +85,20 @@ void GetOptions(
     om.checkRequiredOptions();
 }
 
+void PrintHelp(const char* arg0)
+{
+    cout << '\n';
+    cout << PEGASUS_VERSION << endl;
+    cout << '\n';
+    cout << "Usage: " << arg0 << " [-port <port_num> -t -h -v]\n";
+    cout << '\n';
+    cout << "    -h - prints this help message\n";
+    cout << "    -port - specifies port number to listen on\n";
+    cout << "    -v - prints out the version number\n";
+    cout << "    -t - turns on trace mode\n";
+    cout << endl;
+}
+
 int main(int argc, char** argv)
 {
     // Get environment variables:
@@ -138,7 +152,7 @@ int main(int argc, char** argv)
 
     if (om.lookupValue("help", helpOption) && helpOption == "true")
     {
-	cerr << "No help yet!" << endl;
+	PrintHelp(argv[0]);
 	exit(0);
     }
 

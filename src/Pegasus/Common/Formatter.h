@@ -36,6 +36,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -155,5 +157,7 @@ public:
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif /*  PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
 #endif /* Pegasus_Formatter_h */

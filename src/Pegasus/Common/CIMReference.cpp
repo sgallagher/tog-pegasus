@@ -507,7 +507,8 @@ void CIMReference::_parseKeyBindingPairs(
                 n++;
 	    }
 
-	    if (strncmp(p, "TRUE", n) != 0 && strncmp(p, "FALSE", n) != 0)
+	    if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
+                  ((strncmp(p, "FALSE", n) == 0) && n == 5)))
 		throw IllformedObjectName(objectName);
 
 	    valueString.assign(p, n);

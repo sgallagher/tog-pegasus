@@ -51,15 +51,15 @@ class CIMMethodRep;
 /** The CIMMethod class is used to represent CIM methods in Pegasus.
     A CIMMethod consists of the following entities:
     <ul>
-        <li>Name of the method, a \Ref{CIMName}.
+        <li>Name of the method, a CIMName.
 
-        <li>CIM type of the method return value, a \Ref{CIMType}.
+        <li>CIM type of the method return value, a CIMType.
 
-        <li>Optional qualifiers (see \Ref{CIMQualifier}) for the method.
-        A method can contain zero or more CIMQualifiers.
+        <li>Optional qualifiers (see CIMQualifier) for the method.
+        A method can contain zero or more CIMQualifier objects.
 
-        <li>Optional parameters (see \Ref{CIMParameter}) for the method.
-        A CIMMethod may contain zero or more CIMParameters.
+        <li>Optional parameters (see CIMParameter) for the method.
+        A CIMMethod may contain zero or more CIMParameter objects.
     </ul>
     In addition, a CIMMethod contains the following internal attributes:
     <ul>
@@ -79,7 +79,7 @@ class CIMMethodRep;
         methods originated with the current object or were inherited from
         higher levels in the hiearchy.
     </ul>
-    A CIMMethod is generally defined in the context of a \Ref{CIMClass}.
+    A CIMMethod is generally defined in the context of a CIMClass.
 
     CIMMethod uses shared representations, meaning that multiple
     CIMMethod objects may refer to the same copy of data. Assignment and copy
@@ -87,8 +87,8 @@ class CIMMethodRep;
     A distinct copy may be created using the clone method.
     {@link Shared Classes}
     @see CIMConstMethod
-    @see CIMParameters
-    @see CIMQualifiers
+    @see CIMParameter
+    @see CIMQualifier
     @see CIMType
     @see CIMClass
 */

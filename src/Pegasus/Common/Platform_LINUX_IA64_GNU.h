@@ -44,8 +44,6 @@
 
 #define PEGASUS_COMPILER_GNU
 
-#define PLATFORM_VERSION_SUPPORTED
-
 #define PEGASUS_UINT64 unsigned long long
 
 #define PEGASUS_SINT64 long long

@@ -302,8 +302,7 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
 // Native implementation of semaphore object
 //-----------------------------------------------------------------
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) 
-	&& !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 
 // block until this semaphore is in a signalled state
 inline void Semaphore::wait(void) 

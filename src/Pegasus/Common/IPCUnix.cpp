@@ -331,8 +331,7 @@ Condition::~Condition()
 // END of native conditional semaphore implementation
 //-----------------------------------------------------------------
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-		&& !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)

@@ -42,6 +42,7 @@
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
 class FAKE_MESSAGE  
 {
@@ -85,7 +86,7 @@ typedef struct
 
 AtomicInt replies;
 AtomicInt requests;
-Pegasus::Mutex msg_mutex;
+Mutex msg_mutex;
 
 const Uint32 NUMBER_MSGS = 100000; 
 const int NUMBER_CLIENTS = 20;
@@ -284,3 +285,5 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
 }
+
+PEGASUS_NAMESPACE_END

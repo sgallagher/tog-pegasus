@@ -78,7 +78,7 @@ public:
     : _manager(0)
     {
         _physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
-            "/" + FileSystem::buildLibraryFileName(physicalName);
+            String("/") + FileSystem::buildLibraryFileName(physicalName);
 
         _logicalName = logicalName;
         _interfaceName = interfaceName;

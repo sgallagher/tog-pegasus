@@ -60,7 +60,7 @@ typedef CIMHandler* (*CreateHandlerFunc)();
 CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 {
     String fileName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
-        "/" + FileSystem::buildLibraryFileName(handlerId);
+        String("/") + FileSystem::buildLibraryFileName(handlerId);
 
     DynamicLibraryHandle libraryHandle = 
 	System::loadDynamicLibrary(fileName.getCString());

@@ -44,7 +44,7 @@ DIRS = \
     WebClient
 
 ifeq ($(OS),linux)
-SOURCES += IPC
+DIRS += IPC Thread
 endif
 
 include $(ROOT)/mak/recurse.mak

@@ -636,7 +636,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	    if (msg != NULL)
  	    {
 			AcceptLanguages *langs = 
-   					new AcceptLanguages(msg->acceptLanguages);	
+                   new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
+											(AcceptLanguageListContainer::NAME)).getLanguages());
 			Thread::setLanguages(langs);   		
 	    }
 	    else
@@ -819,13 +820,10 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         // convert arguments
         OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -933,13 +931,10 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         // convert arguments
         OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -1044,13 +1039,10 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         // convert arguments
         OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	 
 
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -1151,13 +1143,10 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         // convert arguments
         OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
 
@@ -1259,13 +1248,10 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         // convert arguments
         OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	 
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -1371,12 +1357,10 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         // forward request
         STAT_GETSTARTTIME;
@@ -1553,13 +1537,10 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
                // convert arguments
                OperationContext context;
 
-               // add the user name to the context
-               context.insert(IdentityContainer(request->userName));
-
-//l10n
-               // add the langs to the context
-	       context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-    	       context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	  
 
                // ATTN KS STAT_GETSTARTTIME;
                pm_service_op_lock op_lock(&ph.GetProvider());
@@ -1679,13 +1660,10 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // convert arguments
             OperationContext context;
 
-            // add the user name to the context
-            context.insert(IdentityContainer(request->userName));
-
-//l10n
-            // add the langs to the context
-            context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-            context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	    pm_service_op_lock op_lock(&ph.GetProvider());
             ph.GetProvider().associatorNames(
@@ -1795,13 +1773,10 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             // convert arguments
             OperationContext context;
 
-            // add the user name to the context
-            context.insert(IdentityContainer(request->userName));
-
-//l10n
-            // add the langs to the context
-            context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-            context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
             STAT_GETSTARTTIME;
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -1917,13 +1892,10 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             // convert arguments
             OperationContext context;
 
-            // add the user name to the context
-            context.insert(IdentityContainer(request->userName));
-
-//l10n
-            // add the langs to the context
-            context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-            context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	  
 
             STAT_GETSTARTTIME;
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -2030,13 +2002,10 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     	// convert arguments
     	OperationContext context;
 
-    	// add the user name to the context
-    	context.insert(IdentityContainer(request->userName));
-
-//l10n
-        // add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	  
 
         CIMName propertyName = request->propertyName;
 
@@ -2142,13 +2111,10 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     	// convert arguments
     	OperationContext context;
 
-    	// add the user name to the context
-    	context.insert(IdentityContainer(request->userName));
-
-//l10n
-        // add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
     	CIMName propertyName = request->propertyName;
     	CIMValue propertyValue = request->newValue;
@@ -2260,13 +2226,10 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
         // convert arguments
         OperationContext context;
 
-        // add the user name to the context
-        context.insert(IdentityContainer(request->userName));
-
-//l10n
-        // add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+        // add the user name and langs to the context
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
         CIMObjectPath instanceReference(request->instanceName);
 
@@ -2363,20 +2326,12 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	// convert arguments
 	OperationContext context;
 
-	context.insert(IdentityContainer(request->userName));
-	       context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
-
-// l10n
-        context.insert(SubscriptionLanguageListContainer
-	    (request->acceptLanguages));
-	    
-//l10n
-	// add the langs to the context
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+	context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME)); 
 	
 	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -2485,21 +2440,12 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
-
-// l10n
-        context.insert(SubscriptionLanguageListContainer
-	    (request->acceptLanguages));    
-
-//l10n
-	// add the langs to the context
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));	
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -2607,19 +2553,12 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         // convert arguments
         OperationContext context;
 
-        context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-
-// l10n
-        context.insert(SubscriptionLanguageListContainer
-	    (request->acceptLanguages));
-		    
-//l10n
-	// add the langs to the context
-        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-        context.insert(ContentLanguageListContainer(request->contentLanguages));
-
+		context.insert(request->operationContext.get(IdentityContainer::NAME));
+		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
+	    
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
         Array<CIMObjectPath> classNames;
@@ -3305,7 +3244,7 @@ void ProviderManagerService::handleExportIndicationRequest(AsyncOpNode *op,
 // make sure that Content-Language is set in the consume msg.
 // NOTE: A-L is not needed to be set in the consume msg.
       // add the langs to the context
-      context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+      context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
       CIMInstance indication_copy = request->indicationInstance;
       pm_service_op_lock op_lock(&ph.GetProvider());

@@ -27,7 +27,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include<Pegasus/Common/Config.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,37 +78,37 @@ typedef struct lslp_lib_list {
 } LSLP_LIB_LIST;
 
 
-PEGASUS_EXPORT BOOL lslp_lib_set_convergence(const int8 *id, int8 convergence) ;
-PEGASUS_EXPORT BOOL lslp_lib_set_port(const int8 *id, int16 target_port) ;
-PEGASUS_EXPORT BOOL lslp_lib_set_target_addr(const int8 *id, const int8 *target_addr);
-PEGASUS_EXPORT BOOL lslp_lib_set_local_interface(const int8 *id, const int8 *);
-PEGASUS_EXPORT BOOL lslp_lib_set_delimitor(const int8 *id, const int8 delimitor);
-PEGASUS_EXPORT BOOL lslp_lib_set_timout_retry(const int8 *id, uint32 t_sec, uint32 t_usec, int8 retries, uint8 ttl);
-PEGASUS_EXPORT BOOL lslp_lib_set_spi(const int8 *id, const int8 *spi) ;
-PEGASUS_EXPORT BOOL lslp_lib_init(const int8 *id, 
+BOOL lslp_lib_set_convergence(const int8 *id, int8 convergence) ;
+BOOL lslp_lib_set_port(const int8 *id, int16 target_port) ;
+BOOL lslp_lib_set_target_addr(const int8 *id, const int8 *target_addr);
+BOOL lslp_lib_set_local_interface(const int8 *id, const int8 *);
+BOOL lslp_lib_set_delimitor(const int8 *id, const int8 delimitor);
+BOOL lslp_lib_set_timout_retry(const int8 *id, uint32 t_sec, uint32 t_usec, int8 retries, uint8 ttl);
+BOOL lslp_lib_set_spi(const int8 *id, const int8 *spi) ;
+BOOL lslp_lib_init(const int8 *id, 
 		   const int8 *target_addr, 
 		   const int8 *local_addr, 
 		   int16 target_port, 
 		   const int8 *spi);
-PEGASUS_EXPORT  void lslp_lib_deinit(const int8 *id);
-PEGASUS_EXPORT LSLP_LIB_LIST *lslp_lib_converge_srv_req(const int8 *id, 
-					   const int8 *type, 
-					   const int8 *predicate, 
-					   const int8 *scopes) ;
-PEGASUS_EXPORT LSLP_LIB_LIST  *lslp_lib_srv_req(const int8 *id,
-				   const int8 *type, 
-				   const int8 *predicate, 
-				   const int8 *scopes);
-PEGASUS_EXPORT BOOL lslp_lib_srv_reg(int8 *id, 
-			int8 *url,
-			int8 *attributes,
-			int8 *service_type,
-			int8 *scopes,
-			int16 lifetime);
-  
-PEGASUS_EXPORT void lslp_lib_free_list(LSLP_LIB_LIST *list) ;
+void lslp_lib_deinit(const int8 *id);
+LSLP_LIB_LIST *lslp_lib_converge_srv_req(const int8 *id, 
+					 const int8 *type, 
+					 const int8 *predicate, 
+					 const int8 *scopes) ;
+LSLP_LIB_LIST  *lslp_lib_srv_req(const int8 *id,
+				 const int8 *type, 
+				 const int8 *predicate, 
+				 const int8 *scopes);
+BOOL lslp_lib_srv_reg(int8 *id, 
+		      int8 *url,
+		      int8 *attributes,
+		      int8 *service_type,
+		      int8 *scopes,
+		      int16 lifetime);
 
-PEGASUS_EXPORT void lslp_lib_srv_reg_all(int8 *id, 
+void lslp_lib_free_list(LSLP_LIB_LIST *list) ;
+
+void lslp_lib_srv_reg_all(int8 *id, 
 			  int8 *url,
 			  int8 *attributes,
 			  int8 *service_type,
@@ -117,10 +116,11 @@ PEGASUS_EXPORT void lslp_lib_srv_reg_all(int8 *id,
 			  int16 lifetime,
 			  int *succeeded,
 			  int *failed) ;
-PEGASUS_EXPORT int8 *lslp_lib_get_host_name(void);
 
-PEGASUS_EXPORT BOOL lslp_lib_get_addr_from_url(const int8 *url, struct sockaddr_in *addr ) ;
-PEGASUS_EXPORT int8 *lslp_lib_get_addr_string_from_url(const int8 *url) ;
+int8 *lslp_lib_get_host_name(void) ;
+
+BOOL lslp_lib_get_addr_from_url(const int8 *url, struct sockaddr_in *addr ) ;
+int8 *lslp_lib_get_addr_string_from_url(const int8 *url) ;
 
 #ifdef __cplusplus
 }

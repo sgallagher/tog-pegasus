@@ -782,16 +782,33 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     try
     {
-	cimObjects = _repository->associators(
-	    request->nameSpace,
-	    request->objectName,
-	    request->assocClass,
-	    request->resultClass,
-	    request->role,
-	    request->resultRole,
-	    request->includeQualifiers,
-	    request->includeClassOrigin,
-	    request->propertyList);
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->objectName.getClassName());
+
+	if (provider) {
+	    cimObjects = provider->associators(
+ 	        request->nameSpace,
+	        request->objectName,
+	        request->assocClass,
+	        request->resultClass,
+	        request->role,
+	        request->resultRole,
+	        request->includeQualifiers,
+	        request->includeClassOrigin,
+	        request->propertyList);
+	}
+	else {
+	    cimObjects = _repository->associators(
+ 	        request->nameSpace,
+	        request->objectName,
+	        request->assocClass,
+	        request->resultClass,
+	        request->role,
+	        request->resultRole,
+	        request->includeQualifiers,
+	        request->includeClassOrigin,
+	        request->propertyList);
+ 	}
     }
     catch (CIMException& exception)
     {
@@ -824,13 +841,27 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
     try
     {
-	objectNames = _repository->associatorNames(
-	    request->nameSpace,
-	    request->objectName,
-	    request->assocClass,
-	    request->resultClass,
-	    request->role,
-	    request->resultRole);
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->objectName.getClassName());
+
+	if (provider) {
+	    objectNames = provider->associatorNames(
+	        request->nameSpace,
+	        request->objectName,
+	        request->assocClass,
+	        request->resultClass,
+	        request->role,
+	        request->resultRole);
+        }
+	else {
+	    objectNames = _repository->associatorNames(
+	        request->nameSpace,
+	        request->objectName,
+	        request->assocClass,
+	        request->resultClass,
+	        request->role,
+	        request->resultRole);
+        }
     }
     catch (CIMException& exception)
     {
@@ -863,14 +894,29 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
     try
     {
-	cimObjects = _repository->references(
-	    request->nameSpace,
-	    request->objectName,
-	    request->resultClass,
-	    request->role,
-	    request->includeQualifiers,
-	    request->includeClassOrigin,
-	    request->propertyList);
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->objectName.getClassName());
+
+	if (provider) {
+	    cimObjects = provider->references(
+	        request->nameSpace,
+	        request->objectName,
+	        request->resultClass,
+	        request->role,
+	        request->includeQualifiers,
+	        request->includeClassOrigin,
+	        request->propertyList);
+        }
+	else {
+	    cimObjects = _repository->references(
+	        request->nameSpace,
+	        request->objectName,
+	        request->resultClass,
+	        request->role,
+	        request->includeQualifiers,
+	        request->includeClassOrigin,
+	        request->propertyList);
+        }
     }
     catch (CIMException& exception)
     {
@@ -903,11 +949,23 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
     try
     {
-	objectNames = _repository->referenceNames(
-	    request->nameSpace,
-	    request->objectName,
-	    request->resultClass,
-	    request->role);
+	CIMProvider* provider = _lookupProviderForClass(
+	    request->nameSpace, request->objectName.getClassName());
+
+	if (provider) {
+	    objectNames = provider->referenceNames(
+	        request->nameSpace,
+	        request->objectName,
+	        request->resultClass,
+	        request->role);
+        }
+	else {
+	    objectNames = _repository->referenceNames(
+	        request->nameSpace,
+	        request->objectName,
+	        request->resultClass,
+	        request->role);
+        }
     }
     catch (CIMException& exception)
     {

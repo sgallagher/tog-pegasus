@@ -211,73 +211,10 @@ public:
 	ResponseHandler<CIMObject> & handler);
 
     // CIMIndicationProvider interface
-    virtual void provideIndication(
-	const OperationContext & context,
-	const CIMReference & classReference,
-	const CIMDateTime & minimumInterval,
-	const CIMDateTime & maximumInterval,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler);
+    virtual void enableIndications(
+	ResponseHandler<CIMIndication> & handler);
 
-    virtual void updateIndication(
-	const OperationContext & context,
-	const CIMReference & classReference,
-	const CIMDateTime & minimumInterval,
-	const CIMDateTime & maximumInterval,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler);
-
-    virtual void cancelIndication(
-	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMInstance> & handler);
-
-    virtual void checkIndication(
-	const OperationContext & context,
-	const CIMReference & classReference,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler);
-
-    virtual void enableIndication(
-	const OperationContext & context,
-	const String & nameSpace,
-	const Array<String> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy,
-	const String & otherRepeatNotificationPolicy,
-	const CIMDateTime & repeatNotificationInterval,
-	const CIMDateTime & repeatNotificationGap,
-	const Uint16 repeatNotificationCount,
-	const String & condition,
-	const String & queryLanguage,
-	const CIMInstance & subscription,
-	ResponseHandler<CIMInstance> & handler);
-
-    virtual void disableIndication(
-	const OperationContext & context,
-	const String & nameSpace,
-	const Array<String> & classNames,
-	const CIMInstance & subscription,
-	ResponseHandler<CIMInstance> & handler);
-
-    virtual void modifyIndication(
-	const OperationContext & context,
-	const String & nameSpace,
-	const Array<String> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy,
-	const String & otherRepeatNotificationPolicy,
-	const CIMDateTime & repeatNotificationInterval,
-	const CIMDateTime & repeatNotificationGap,
-	const Uint16 repeatNotificationCount,
-	const String & condition,
-	const String & queryLanguage,
-	const CIMInstance & subscription,
-	ResponseHandler<CIMInstance> & handler);
-
-    /*
-    virtual void enableIndications(ResponseHandler<CIMIndication> & handler);
-    virtual void disbleIndications(void);
+    virtual void disableIndications(void);
 
     virtual void createSubscription(
 	const OperationContext & context,
@@ -297,13 +234,14 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & subscriptionName,
 	const Array<CIMObjectPath> & classNames);
-    */
 
     // CIMIndicationConsumer interface
     virtual void handleIndication(
 	const OperationContext & context,
 	const CIMInstance & indication,
-	ResponseHandler<CIMInstance> & handler);
+	ResponseHandler<CIMInstance> & handler)
+    {
+    }
 
     virtual void handleIndication(
 	const OperationContext & context,

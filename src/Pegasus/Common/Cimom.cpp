@@ -101,44 +101,13 @@ Boolean cimom::route_async(AsyncOpNode *op)
 
    if( _die.value()  )
       return false;
-<<<<<<< Cimom.cpp
-   
    _routed_ops.insert_last(op);
    
-=======
-
-   _routed_ops.insert_last_wait(op);
-
->>>>>>> 1.6
    return true;
 
 }
 
-<<<<<<< Cimom.cpp
-=======
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_internal_proc(void *parm)
-{
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   cimom *dispatcher = reinterpret_cast<cimom *>(myself->get_parm());
 
-   while( dispatcher->_die.value() < 1 )
-   {
-      dispatcher->_internal_ops.wait_for_node();
-      AsyncOpNode *op = dispatcher->_internal_ops.next(0);
-      op = dispatcher->_internal_ops.remove_no_lock(op);
-      dispatcher->_internal_ops.unlock();
-      cout << " cimom internal " << op->get_request()->getRouting() << endl;
-
-      dispatcher->_handle_cimom_op(op);
-
-   } // loop
-
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
-   return(0);
-}
-
-
->>>>>>> 1.6
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 {
 
@@ -166,7 +135,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
       if(dest == CIMOM_Q_ID )
       {
-	 Cimom.cpp
 	 dispatcher->_handle_cimom_op(op);
 	 accepted = true;
       }

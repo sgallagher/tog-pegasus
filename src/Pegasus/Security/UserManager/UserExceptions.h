@@ -86,18 +86,6 @@ public:
 };
 
 /** 
-PasswordFileSyntaxError Exception class 
-*/
-class PEGASUS_USERMANAGER_LINKAGE PasswordFileSyntaxError : public Exception
-{
-public:
-    PasswordFileSyntaxError(const String& file, Uint32 line)
-        : Exception(_formatMessage(file, line)) { }
-
-    static String _formatMessage(const String& file, Uint32 line);
-};
-
-/** 
 PasswordCacheError Exception class 
 */
 class PEGASUS_USERMANAGER_LINKAGE PasswordCacheError : public Exception

@@ -93,12 +93,10 @@ public:
     Load the username and password from the password file.
 
     @param     passwordTable   hash table containing the username and password.
-    @exception PasswordFileSyntaxError if password file contains a syntax error.
 
     Note: Original code was taken from OptionManager::mergeFile() 
     */
     void load(PasswordTable& passwordTable);
-        //throw (PasswordFileSyntaxError);
 
 
 

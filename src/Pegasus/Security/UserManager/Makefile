@@ -11,7 +11,6 @@ LIBRARY = peguser
 include ./libraries.mak
 
 SOURCES = \
-        UserExceptions.cpp \
 	PasswordFile.cpp \
 	UserFileHandler.cpp \
 	AuthorizationHandler.cpp \

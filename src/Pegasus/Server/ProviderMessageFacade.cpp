@@ -472,6 +472,8 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     try
     {
 	// make target object path
+        // ATTN-RK-P2-20020329: The KeyBinding array does not get set
+        // [correctly] here.
 	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
@@ -503,7 +505,8 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	// forward request
 	modifyInstance(
 	    context,
-	    objectPath,
+	    // ATTN: objectPath,
+	    request->modifiedInstance.getInstanceName(),
 	    request->modifiedInstance.getInstance(),
 	    flags,
 	    propertyList.getPropertyNameArray(),

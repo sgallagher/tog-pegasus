@@ -161,7 +161,7 @@ void HTTPConnection::handleEnqueue(Message *message)
    {
       case SOCKET_MESSAGE:
       {
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
 
 	 SocketMessage* socketMessage = (SocketMessage*)message;
@@ -174,7 +174,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 
       case HTTP_MESSAGE:
       {
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
 
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
@@ -212,8 +212,8 @@ void HTTPConnection::handleEnqueue(Message *message)
 	    bytesRemaining -= bytesWritten;
 
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                "_socket->write bytesWritten = %d, bytesRemaining = %d",
-                bytesWritten, bytesRemaining);
+                "Socket Write: bytesWritten = %d, bytesRemaining = %d, data = %s ",
+                bytesWritten, bytesRemaining, buffer.getData());
 	 }
 	 //
 	 // decrement request count

@@ -6,7 +6,11 @@ ARCHITECTURE = parisc
 
 COMPILER = acc
 
-SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
+ifeq ($(HPUX_IA64_VERSION), yes)
+#  SYS_INCLUDES = -I$(ROOT)/opt/aCC/std_include
+else
+  SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
+endif
 
 ifdef PEGASUS_CCOVER
  SYS_INCLUDES += -I/opt/ccover11/include
@@ -46,7 +50,8 @@ DEPEND_INCLUDES =
 IAFLAGS =
 
 ifeq ($(HPUX_IA64_VERSION), yes)
-  IAFLAGS =  -AP 
+  DEFINES += -DPEGASUS_ARCHITECTURE_IA64
+  IAFLAGS = +DD64 -mt
 else
   IAFLAGS =  +DAportable 
 endif

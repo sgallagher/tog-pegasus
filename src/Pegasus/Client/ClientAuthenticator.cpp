@@ -446,7 +446,7 @@ String ClientAuthenticator::_getSubStringUptoMarker(
     //
     // Look for the marker
     //
-    char *pos = strchr(*line, marker);
+    const char *pos = strchr(*line, marker);
 
     if (pos)
     {

@@ -52,8 +52,12 @@ AtomicInt function_count;
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
-   
+
+#ifdef PEGASUS_ARCHITECTURE_IA64
+   Uint32 sleep_interval = (Uint64)parm;
+#else   
    Uint32 sleep_interval = (Uint32)parm;
+#endif
    pegasus_sleep(sleep_interval);
    function_count++;
    if( ! (function_count.value() % 100) )

@@ -253,7 +253,7 @@ template<class PEGASUS_ARRAY_T>
 void Print(Array<PEGASUS_ARRAY_T>& x)
 {
     for (Uint32 i = 0, n = x.size(); i < n; i++)
-	cout << x[i] << endl;
+	PEGASUS_STD(cout) << x[i] << PEGASUS_STD(endl);
 }
 
 #define PEGASUS_ARRAY_T Boolean

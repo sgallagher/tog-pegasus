@@ -41,6 +41,7 @@
 #endif
 
 #include "InternalException.h"
+//#include "NativeCleanup.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -122,6 +123,11 @@ ReadWriteSem::~ReadWriteSem(void)
    _rwlock._internal_lock.unlock();
 }
 
+
+
+
+
+
 //-----------------------------------------------------------------
 // if milliseconds == -1, wait indefinately
 // if milliseconds == 0, fast wait 
@@ -134,7 +140,11 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 // Lock this object to maintain integrity while we decide 
 // exactly what to do next.
 //-----------------------------------------------------------------
-   AutoPtr<IPCException> caught;
+    //   AutoPtr<IPCException> caught;
+    IPCException  caught((PEGASUS_THREAD_TYPE)0);
+    WaitFailed caughtWaitFailed((PEGASUS_THREAD_TYPE)0);
+    TimeOut caughtTimeOut((PEGASUS_THREAD_TYPE)0);
+    TooManyReaders caughtTooManyReaders((PEGASUS_THREAD_TYPE)0);
    
    { // cleanup stack frame 
       native_cleanup_push(extricate_read_write, this);
@@ -149,8 +159,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       }
       catch(IPCException& e)
       {
-	 caught.reset(new IPCException(e));
-	 goto throw_from_here;
+         caught = e;
+	       goto throw_from_here;
       }
       
       if(mode == PEG_SEM_WRITE)
@@ -165,11 +175,12 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    if(_readers.value() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new WaitFailed(pegasus_thread_self()));
+	       //caught.reset(new WaitFailed(pegasus_thread_self()));
+         caughtWaitFailed = *new WaitFailed(pegasus_thread_self());
 	       goto throw_from_here;
 	    }
 	 }
-	 else if(milliseconds == -1) // infinite wait
+	   else if(milliseconds == -1) // infinite wait
 	 {
 	    while(_readers.value() > 0 )
 	       pegasus_yield();
@@ -185,7 +196,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	       if((now.tv_usec > start.tv_usec) || now.tv_sec > start.tv_sec )
 	       {
 		  _rwlock._internal_lock.unlock();
-		  caught.reset(new TimeOut(pegasus_thread_self()));
+		  //caught.reset(new TimeOut(pegasus_thread_self()));
+      caughtTimeOut = *new TimeOut(pegasus_thread_self());
 		  goto throw_from_here;
 	       }
 	       pegasus_yield();
@@ -204,7 +216,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e) 
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new IPCException(e));
+         caught = e;
 	       goto throw_from_here;
 	    }
 	 }
@@ -217,7 +229,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch (IPCException& e) 
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new IPCException(e));
+         caught = e;
 	       goto throw_from_here;
 	    }
 	 }
@@ -230,7 +242,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new IPCException(e));
+         caught = e;
 	       goto throw_from_here;
 	    }
 	 }
@@ -255,7 +267,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    if(_writers.value() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new WaitFailed(pegasus_thread_self()));
+	       //caught.reset(new WaitFailed(pegasus_thread_self()));
+         caughtWaitFailed =  *new WaitFailed(pegasus_thread_self());
 	       goto throw_from_here;
 	    }
 	 }
@@ -276,7 +289,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	       if((now.tv_usec > start.tv_usec) || (now.tv_sec > start.tv_sec))
 	       {
 		  _rwlock._internal_lock.unlock();
-		  caught.reset(new TimeOut(pegasus_thread_self()));
+		  //caught.reset(new TimeOut(pegasus_thread_self()));
+      caughtTimeOut = *new TimeOut(pegasus_thread_self());
 		  goto throw_from_here;
 	       }
 	       pegasus_yield();
@@ -299,9 +313,9 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    {
 	       // the wait failed, there must be too many readers already. 
 	       // unlock the object
-	      e = e;
+	      caughtTooManyReaders = *new TooManyReaders(pegasus_thread_self());
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new TooManyReaders(pegasus_thread_self()));
+	       //caught.reset(new TooManyReaders(pegasus_thread_self()));
 	    }
 	 }
 	 else if(milliseconds == -1) // infinite wait
@@ -313,8 +327,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new IPCException(e));
-	       goto throw_from_here;
+        caught =e;
+        goto throw_from_here;
 	    }
 	 }      
 	 else // timed wait
@@ -326,7 +340,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    catch(IPCException& e)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       caught.reset(new IPCException(e));
+         caught = e;
 	       goto throw_from_here;
 	    }
 	 }
@@ -341,11 +355,23 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
   throw_from_here:
       native_cleanup_pop(0);
    } // cleanup stack frame 
-   if(caught.get() != 0)
-      throw(*caught.get());
+
+   if (caught.get_owner() != 0)
+      throw(caught);
+   else if (caughtWaitFailed.get_owner() != 0)
+      throw(caughtWaitFailed);
+   else if (caughtTimeOut.get_owner() != 0)
+      throw(caughtTimeOut);
+   else if (caughtTooManyReaders.get_owner() != 0)
+      throw(caughtTooManyReaders);
    return;
 }
 
+
+
+
+
+//---------------------------------------------------------------------
 void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
    throw(Deadlock, Permission, WaitFailed, TooManyReaders)
 {

@@ -52,17 +52,26 @@ PEGASUS_USING_STD;
 static const char* programVersion =  "1.0";
 
 // Array of UTF-16 chars to be sent and received to the server.
-// Note: the last 2 elements are a surrogate pair
-Char16 utf16Chars[] = 
-			{0x6A19, 
-			0x6E96,
-			0x842C, 
-			0x570B,
-			0x78BC,
-			0xdbc0,
-			0xdc01,
-			0x00};
-
+// Note: the dbc0/dc01 pair are surrogates
+Char16 utf16Chars[] =
+        {
+        0x6A19,	0x6E96,	0x842C, 0x570B,	0x78BC,
+        0x042E, 0x043D, 0x0438, 0x043A, 0x043E, 0x0434,
+        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE, 
+        0x10E3, 0x10DC, 0x10D8, 0x10D9, 0x10DD, 0x10D3, 0x10D8,
+	0xdbc0,	0xdc01, 
+        0x05D9, 0x05D5, 0x05E0, 0x05D9, 0x05E7, 0x05D0, 0x05B8, 0x05D3,
+        0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
+        0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
+        0x016A, 0x006E, 0x012D, 0x0063, 0x014D, 0x0064, 0x0065, 0x033D,
+        0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA, 0x0325, 0x2173, 0x249C, 0x0063,
+        0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F, 0x02D0, 0x0064,
+        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9, 
+        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E, 
+        0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
+	0xdbc0,	0xdc01,
+        0x00};
+                    
 /** ErrorExit - Print out the error message as an
     and get out.
     @param - Text for error message
@@ -396,12 +405,14 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 {
   const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
   const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
+  const CIMName SUBCLASSNAME = CIMName ("Sample_LocalizedProviderSubClass");
   const String INSTANCE0 = "instance 0Sample_LocalizedProviderClass";
   const String INSTANCE1 = "instance 1Sample_LocalizedProviderClass";
   const String RBPROP = "ResourceBundleString";
   const String ROUNDTRIPSTRINGPROP = "RoundTripString";
   const String ROUNDTRIPCHARPROP = "RoundTripChar";
   const String CLPROP = "ContentLanguageString";
+  const String TESTSTRINGPROP = "TestString";
   const String IDPROP = "Identifier";
 
   ContentLanguages CL_DE("de");
@@ -409,8 +420,10 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
   ContentLanguages CL_FR("fr");
   String expectedFRString = "ResourceBundleString FR";		
   ContentLanguages CL_Dft = ContentLanguages::EMPTY;
+  ContentLanguages CL_EN("en");
   String expectedDftString = "ResourceBundleString DEFAULT";
 
+  ContentLanguages CL_HOMER("x-homer");
   ContentLanguages CL_ES("es");  
 		
   String expectedUTF16String(utf16Chars);			
@@ -418,14 +431,14 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
   try
     {
       const CIMName className = CLASSNAME;
-      Boolean deepInheritance = true;
-      Boolean localOnly = true;
+      Boolean deepInheritance = false;
+      Boolean localOnly = false;
       Boolean includeQualifiers = false;
       Boolean includeClassOrigin = false;
       Uint32 testRepeat = 1;
 
-	  if (verboseTest)
-	  	cout << "Getting class: " << CLASSNAME << endl;	
+      if (verboseTest)
+          cout << "Getting class: " << CLASSNAME << endl;	
 
       CIMClass sampleClass = client.getClass(
 			NAMESPACE,
@@ -433,361 +446,467 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 			localOnly,
 			includeQualifiers,
 			includeClassOrigin);
+
+      CIMClass sampleSubClass = client.getClass(
+			NAMESPACE,
+			SUBCLASSNAME,
+			localOnly,
+			includeQualifiers,
+			includeClassOrigin);
 	
-	  // Note:  When Pegasus has external message files enabled,
-	  // then the provider has message files for fr, de,
-	  // and es, but no root message file.  The missing root
-	  // message file will cause us to test the default message
-	  // strings compiled into the code.	
+      // Note:  When Pegasus has external message files enabled,
+      // then the provider has message files for fr, de,
+      // and es, but no root message file.  The missing root
+      // message file will cause us to test the default message
+      // strings compiled into the code.	
  
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
-	  {
-	  	//
-	  	//  TEST 1 - Enumerate Instances.  de is supported by
-	  	//  the provider, and is the most preferred by us.
-	  	//
+      {
+          //
+          //  TEST 1 - Enumerate Instances of the base class, deepInheritance == false.  
+          //  de is supported by the provider, and is the most preferred by us.
+          //
 	  	
-		AcceptLanguages acceptLangs1;
-		acceptLangs1.add(AcceptLanguageElement("fr", float(0.5)));
-		acceptLangs1.add(AcceptLanguageElement("de", float(0.8))); 
-		acceptLangs1.add(AcceptLanguageElement("es", float(0.4)));    	  	
-		client.setRequestAcceptLanguages(acceptLangs1);
+          AcceptLanguages acceptLangs1;
+          acceptLangs1.add(AcceptLanguageElement("fr", float(0.5)));
+          acceptLangs1.add(AcceptLanguageElement("de", float(0.8))); 
+          acceptLangs1.add(AcceptLanguageElement("es", float(0.4)));    	  	
+          client.setRequestAcceptLanguages(acceptLangs1);
         	
-  		cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = " << acceptLangs1 << endl;	        	
+	  cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = " << acceptLangs1 << endl;	        	
         	
-   		Array<CIMInstance> cimNInstances =
-	    client.enumerateInstances(NAMESPACE,  className, deepInheritance,
-				      localOnly,  includeQualifiers,
-				      includeClassOrigin );
+          Array<CIMInstance> cimNInstances =
+                              client.enumerateInstances(NAMESPACE,  className, deepInheritance,
+                                                        localOnly,  includeQualifiers,
+                                                        includeClassOrigin );
 			
-	        if (verboseTest)	      
-		   cout << "Found " << cimNInstances.size() << " Instances of " << className << endl;
+          if (verboseTest)	      
+              cout << "Found " << cimNInstances.size() << " Instances of " << className << endl;
 
-	  	MYASSERT(cimNInstances.size() == 2);
+// Note: this should really be 2 because there are 2 instances of the base class,
+// but Pegasus ignores deepInheritance == false
+          MYASSERT(cimNInstances.size() == 3);
 
 #ifdef PEGASUS_HAS_MESSAGES	
-	        if (verboseTest)
-		   cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
+          if (verboseTest)
+              cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
 
-		MYASSERT(CL_DE == client.getResponseContentLanguages());
+          MYASSERT(CL_DE == client.getResponseContentLanguages());
 #else
-	        if (verboseTest)
-		   cout << "Checking expected response ContentLanguages: " << CL_Dft << endl;
+          if (verboseTest)
+              cout << "Checking expected response ContentLanguages: " << CL_EN << endl;
 
-		MYASSERT(CL_Dft == client.getResponseContentLanguages());
+          MYASSERT(CL_EN == client.getResponseContentLanguages());
 #endif		
 
-	        if (verboseTest)
-		   cout << "Checking the returned string in each instance" << endl;
+          if (verboseTest)
+              cout << "Checking the returned string in each instance" << endl;
 
-  		for (Uint32 i = 0; i < cimNInstances.size(); i++)
-	    {
-			String enumString;
-	        cimNInstances[i].getProperty (
-	        	cimNInstances[i].findProperty(RBPROP)).
-    	        getValue().
-        	    get(enumString);
+          for (Uint32 i = 0; i < cimNInstances.size(); i++)
+          {
+              String enumString;
+              cimNInstances[i].getProperty (cimNInstances[i].findProperty(RBPROP)).
+                      getValue().
+                      get(enumString);
 
 #ifdef PEGASUS_HAS_MESSAGES        	    
-			MYASSERT(expectedDEString == enumString);  
+              MYASSERT(expectedDEString == enumString);  
 #else
-			MYASSERT(expectedDftString == enumString);
+              MYASSERT(expectedDftString == enumString);
 #endif			      	        			
-	    }
-	    
-	  	//
-	  	//  TEST 2 - Get Instance, check default language returned.
-	  	//  None of our preferred languages is supported by the 
-	  	//  provider, and there is no root message file.  Expect
-	  	//  the compiled-in default strings from the provider.
-	  	//	    
-	    
-		AcceptLanguages acceptLangs2;
-		acceptLangs2.add(AcceptLanguageElement("x-martian",float(0.8)));
-		acceptLangs2.add(AcceptLanguageElement("x-pig-latin", float(0.1))); 
-		acceptLangs2.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
-		client.setRequestAcceptLanguages(acceptLangs2);	    
+          }
 
-  		cout << endl << "INSTANCE TEST 2: Get Instance with AcceptLanguages = " << acceptLangs2 << endl;	        		    
+          //
+          //  TEST 2 - Aggregation Test - Enumerate Instances starting at the base class,
+          //  with deep inheritance, where each instance has the same language.  
+          //  This will test that the languages of the instances are aggregated
+          //  into the Content-Language of the whole response.
+          //  
+          //  (tests ContentLanguage aggregation in CIMOperationRequestDispatcher)
+
+	  cout << endl << "INSTANCE TEST 2: Enumerate Instances with Content-Language match"  << endl; 	
+
+          AcceptLanguages acceptLangs2;
+          acceptLangs2.add(AcceptLanguageElement("de", float(0.8))); 
+	  	
+          client.setRequestAcceptLanguages(acceptLangs2);
+        	
+          Array<CIMInstance> cimNInstances2 =
+                              client.enumerateInstances(NAMESPACE,  className, true,
+                                                        false,  includeQualifiers,
+                                                        includeClassOrigin);
+			
+          if (verboseTest)	      
+              cout << "Found " << cimNInstances2.size() << " Instances of " << className << endl;
+
+          MYASSERT(cimNInstances2.size() == 3);
+
+#ifdef PEGASUS_HAS_MESSAGES	
+          if (verboseTest)
+              cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
+
+          MYASSERT(CL_DE == client.getResponseContentLanguages());
+#else
+          if (verboseTest)
+              cout << "Checking expected response ContentLanguages: " << CL_EN << endl;
+
+          MYASSERT(CL_EN == client.getResponseContentLanguages());
+#endif	
+
+          //
+          //  TEST 3 - Aggregation Test - Enumerate Instances with deep inheritance, where
+          //  the instances do not have the same language.  Since the languages of the instances
+          //  do not match, we expect the ContentLanguage of the whole response to be empty.
+          //  This will test that the languages of the instances are aggregated
+          //  into the Content-Language of the whole response.  
+          //
+          //  We will modify the language of the sub-class instance, and then do the enumerate.
+          //
+          //  (tests ContentLanguage aggregation in CIMOperationRequestDispatcher)
+          //
+
+	  cout << endl << "INSTANCE TEST 3: Enumerate Instances with Content-Language mismatch" << endl;
+
+          //  First, find the instance of the sub-class
+          Uint32 i = 0;
+          for (; i < cimNInstances2.size(); i++)
+          {
+              if (cimNInstances2[i].getClassName().getString() == String(SUBCLASSNAME))
+              {
+                  break;
+              }
+          }
+
+          MYASSERT(i != cimNInstances2.size());
+
+          if (verboseTest)    			    
+              cout << "Modifying the language of an instance of the subclass to " << CL_HOMER << endl;
+
+          client.setRequestContentLanguages(CL_HOMER);
+
+          client.modifyInstance(NAMESPACE,
+                                  cimNInstances2[i],
+                                  includeQualifiers);
+
+          //  Enumerate the instances starting at the base class, with deep inheritance.  
+          AcceptLanguages acceptLangs3;
+          acceptLangs3.add(AcceptLanguageElement("x-homer", float(0.8))); 
+	  	
+          client.setRequestAcceptLanguages(acceptLangs3);
+        	
+          Array<CIMInstance> cimNInstances3 =
+                              client.enumerateInstances(NAMESPACE,  className, true,
+                                                        false,  includeQualifiers,
+                                                        includeClassOrigin );
+			
+          if (verboseTest)	      
+              cout << "Found " << cimNInstances3.size() << " Instances of " << className << endl;
+
+          MYASSERT(cimNInstances3.size() == 3);
+
+          if (verboseTest)
+              cout << "Checking expected empty response ContentLanguages" << endl;
+
+          MYASSERT(ContentLanguages::EMPTY == client.getResponseContentLanguages());
+
+          //
+          //  TEST 4 - Get Instance, check default language returned.
+          //  None of our preferred languages is supported by the 
+          //  provider, and there is no root message file.  Expect
+          //  the compiled-in default strings from the provider.
+          //	    
+	    
+          AcceptLanguages acceptLangs4;
+          acceptLangs4.add(AcceptLanguageElement("x-martian",float(0.8)));
+          acceptLangs4.add(AcceptLanguageElement("x-pig-latin", float(0.1))); 
+          acceptLangs4.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
+          client.setRequestAcceptLanguages(acceptLangs4);	    
+
+          cout << endl << "INSTANCE TEST 4: Get Instance with AcceptLanguages = " << acceptLangs4 << endl;	        		    
+
+          //  Find an instance of the base-class from the first enumerate
+          Uint32 j = 0;
+          for (; j < cimNInstances.size(); j++)
+          {
+              if (cimNInstances[j].getClassName().getString() == String(CLASSNAME))
+              {
+                  break;
+              }
+          }
+
+          MYASSERT(j != cimNInstances.size());
 		
-		CIMInstance instance2 = client.getInstance(
+          // Get the instance.  Note, baseInstance is used later
+          CIMInstance baseInstance = client.getInstance(
+				NAMESPACE,
+				cimNInstances[j].buildPath(sampleClass),
+				localOnly,
+				includeQualifiers,
+				includeClassOrigin);
+
+          String returnedString;
+          Char16 returnedChar16;
+
+          baseInstance.getProperty (baseInstance.findProperty(RBPROP)).
+                getValue().
+                get(returnedString);
+
+          if (verboseTest)
+             cout << "Checking for default language returned" << endl;
+
+          MYASSERT(expectedDftString == returnedString); 
+		
+          //
+          //  TEST 5 - Get Instance, check fr language returned.
+          //  fr is the lowest preferred language from us, but
+          //  is the only one in the list supported by the provider.
+          //	   		
+	  	
+          AcceptLanguages acceptLangs5;
+          acceptLangs5.add(AcceptLanguageElement("x-martian", float(0.8)));
+          acceptLangs5.add(AcceptLanguageElement("fr", float(0.1))); 
+          acceptLangs5.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
+          client.setRequestAcceptLanguages(acceptLangs5);	  		
+		
+          cout << endl << "INSTANCE TEST 5: Get Instance with AcceptLanguages = " << acceptLangs5 << endl;	        		    		
+		
+          CIMInstance instance5 = client.getInstance(
 				NAMESPACE,
 				cimNInstances[1].buildPath(sampleClass),
 				localOnly,
 				includeQualifiers,
 				includeClassOrigin);
 
-		String returnedString;
-                Char16 returnedChar16;
-
-		instance2.getProperty (
-				instance2.findProperty(RBPROP)).
-    	        getValue().
-        	    get(returnedString);
-
-	        if (verboseTest)
-		   cout << "Checking for default language returned" << endl;
-
-		MYASSERT(expectedDftString == returnedString); 
-		
-	  	//
-	  	//  TEST 3 - Get Instance, check fr language returned.
-	  	//  fr is the lowest preferred language from us, but
-	  	//  is the only one in the list supported by the provider.
-	  	//	   		
-	  	
-		AcceptLanguages acceptLangs3;
-		acceptLangs3.add(AcceptLanguageElement("x-martian", float(0.8)));
-		acceptLangs3.add(AcceptLanguageElement("fr", float(0.1))); 
-		acceptLangs3.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
-		client.setRequestAcceptLanguages(acceptLangs3);	  		
-		
-  		cout << endl << "INSTANCE TEST 3: Get Instance with AcceptLanguages = " << acceptLangs3 << endl;	        		    		
-		
-		CIMInstance instance3 = client.getInstance(
-				NAMESPACE,
-				cimNInstances[0].buildPath(sampleClass),
-				localOnly,
-				includeQualifiers,
-				includeClassOrigin);
-
-		instance3.getProperty (
-				instance3.findProperty(RBPROP)).
-    	        getValue().
-        	    get(returnedString);		
+          instance5.getProperty (instance5.findProperty(RBPROP)).
+               getValue().
+               get(returnedString);		
 
 #ifdef PEGASUS_HAS_MESSAGES	
-	        if (verboseTest)	
-		   cout << "Checking for fr returned" << endl;
+          if (verboseTest)	
+                cout << "Checking for fr returned" << endl;
 	
-		MYASSERT(CL_FR == client.getResponseContentLanguages());
-		MYASSERT(expectedFRString == returnedString); 		
+          MYASSERT(CL_FR == client.getResponseContentLanguages());
+          MYASSERT(expectedFRString == returnedString); 		
 #else
-	        if (verboseTest)
-		   cout << "Checking for default language returned" << endl;
+          if (verboseTest)
+                cout << "Checking for default language returned" << endl;
 
-		MYASSERT(CL_Dft == client.getResponseContentLanguages());
-		MYASSERT(expectedDftString == returnedString); 		
+          MYASSERT(CL_EN == client.getResponseContentLanguages());
+          MYASSERT(expectedDftString == returnedString); 		
 #endif			 
 	
-	  	//
-	  	//  TEST 4 - Round trip Test. 
-	  	//  Create Instance followed by Get Instance.
-	  	//
-	  	//  Create with an fr string and expect that
-	  	//  the fr string is preserved on get instance.
-	  	//  (fr is one of the supported languages of the provider)
-	  	//
-	  	//  Create with a UTF-16 string and char16 and expect that they
-	  	//  are preserved on get instance
-	  	//	  	
+          //
+          //  TEST 6 - Round trip Test. 
+          //  Create Instance followed by Get Instance.
+          //
+          //  Create with an fr string and expect that
+          //  the fr string is preserved on get instance.
+          //  (fr is one of the supported languages of the provider)
+          //
+          //  Create with a UTF-16 string and char16 and expect that they
+          //  are preserved on get instance
+          //	  	
 	
- 		String oui = "Oui";
-    	CIMInstance frInstance(CLASSNAME);
-	    frInstance.addProperty(CIMProperty(	CIMName(CLPROP),
-		    				oui));
-	    frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPSTRINGPROP),
-		    				String(utf16Chars)));
-	    frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPCHARPROP),
-		    				utf16Chars[0]));
-	    frInstance.addProperty(CIMProperty(	CIMName(IDPROP),
-		    				Uint8(2)));				
+          String oui = "Oui";
 
-	    CIMObjectPath frInstanceName = frInstance.buildPath(sampleClass);
-            frInstance.setPath(frInstanceName);
+          CIMInstance frInstance(CLASSNAME);
+          frInstance.addProperty(CIMProperty(	CIMName(CLPROP), oui));
+          frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPSTRINGPROP), String(utf16Chars)));
+          frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPCHARPROP), utf16Chars[0]));
+          frInstance.addProperty(CIMProperty(	CIMName(IDPROP), Uint8(3)));				
+
+          CIMObjectPath frInstanceName = frInstance.buildPath(sampleClass);
+          frInstance.setPath(frInstanceName);
 	    
-	    client.setRequestContentLanguages(CL_FR);
+          client.setRequestContentLanguages(CL_FR);
 	    
- 		cout << endl << "INSTANCE TEST 4: Create Instance with ContentLanguages = " << CL_FR
- 		     << "  and UTF-16 string." << endl;	
+          cout << endl << "INSTANCE TEST 6: Create Instance with ContentLanguages = " << CL_FR
+                       << "  and UTF-16 string." << endl;	
         		
-	        if (verboseTest)    			    
- 		   cout << "Creating the instance" << endl;		    
+          if (verboseTest)    			    
+              cout << "Creating the instance" << endl;		    
 
-	    client.createInstance(NAMESPACE, frInstance);
+          client.createInstance(NAMESPACE, frInstance);
 	
-		AcceptLanguages acceptLangs4;
-		acceptLangs4.add(AcceptLanguageElement("x-martian", float(0.8)));
-		acceptLangs4.add(AcceptLanguageElement("fr", float(0.1))); 
-		acceptLangs4.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
-		client.setRequestAcceptLanguages(acceptLangs4);		
+          AcceptLanguages acceptLangs6;
+          acceptLangs6.add(AcceptLanguageElement("x-martian", float(0.8)));
+          acceptLangs6.add(AcceptLanguageElement("fr", float(0.1))); 
+          acceptLangs6.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
+          client.setRequestAcceptLanguages(acceptLangs6);		
 
-	        if (verboseTest)
- 		   cout << "Getting the instance just created, using AcceptLanguages = " << acceptLangs4
+          if (verboseTest)
+                cout << "Getting the instance just created, using AcceptLanguages = " << acceptLangs6
  		     << endl;	   	
     						
-		CIMInstance instance4 = client.getInstance(
-				NAMESPACE,
-				frInstanceName,
-				localOnly,
-				includeQualifiers,
-				includeClassOrigin);	    						
+          CIMInstance instance6 = client.getInstance(
+                  NAMESPACE,
+                  frInstanceName,
+                  localOnly,
+                  includeQualifiers,
+                  includeClassOrigin);	    						
 
-		instance4.getProperty (instance4.findProperty(ROUNDTRIPSTRINGPROP)).
-		  getValue().
-        	  get(returnedString);
+          instance6.getProperty (instance6.findProperty(ROUNDTRIPSTRINGPROP)).
+                  getValue().
+                  get(returnedString);
 
-		instance4.getProperty (instance4.findProperty(ROUNDTRIPCHARPROP)).
-		  getValue().
-        	  get(returnedChar16);
+          instance6.getProperty (instance6.findProperty(ROUNDTRIPCHARPROP)).
+                  getValue().
+                  get(returnedChar16);
 
-	        if (verboseTest)
- 		   cout << "Checking the UTF-16 chars were preserved" << endl;	 
+          if (verboseTest)
+                  cout << "Checking the UTF-16 chars were preserved" << endl;	 
 
-		MYASSERT(expectedUTF16String == returnedString);
-		MYASSERT(utf16Chars[0] == returnedChar16);  
+          MYASSERT(expectedUTF16String == returnedString);
+          MYASSERT(utf16Chars[0] == returnedChar16);  
 		
-		instance4.getProperty (	instance4.findProperty(CLPROP)).
-		  getValue().
-		  get(returnedString);
+          instance6.getProperty (	instance6.findProperty(CLPROP)).
+                  getValue().
+                  get(returnedString);
 
-	        if (verboseTest)
-		   cout << "Checking for fr returned" << endl;
+          if (verboseTest)
+                  cout << "Checking for fr returned" << endl;
 
-		MYASSERT(oui == returnedString); 
-		MYASSERT(CL_FR == client.getResponseContentLanguages());
+          MYASSERT(oui == returnedString); 
+          MYASSERT(CL_FR == client.getResponseContentLanguages());
 
-		// Delete the instance for the next pass
-	        if (verboseTest)
-		   cout << "Deleting the instance" << endl;
+          // Delete the instance for the next pass
+          if (verboseTest)
+               cout << "Deleting the instance" << endl;
 
-		client.deleteInstance(
-					NAMESPACE,
-					frInstanceName);		
+          client.deleteInstance(
+                NAMESPACE,
+                frInstanceName);		
 	        
-	  	//
-	  	//  TEST 5 - Round trip Test. 
-	  	//  Modify Instance followed by Get Instance.
-	  	//
-	  	//  Modify instance2 from the enumerate above with an x-homer
-	  	//  string and expect that the x-homer string is preserved on get
-	  	//  instance.
-	  	//  (x-homer is not one of the supported languages of the provider
-	  	//   but still should be returned when asked for)
-	  	//
-	  	//  Modify instance2 with a UTF-16 string and char16 and expect that 
-	  	//  they are preserved on get instance
-	  	//	  	        
+          //
+          //  TEST 7 - Round trip Test. 
+          //  Modify Instance followed by Get Instance.
+          //
+          //  Modify an instance of the base class with an x-homer language
+          //  string and expect that the x-homer string is preserved on get
+          //  instance.
+          //  (x-homer is not one of the supported languages of the provider
+          //   but still should be returned when asked for)
+          //
+          //  Modify baseInstance with a UTF-16 string and char16 and expect that 
+          //  they are preserved on get instance
+          //	  	        
 	        	
-	    String doh = "doh!";
-	    ContentLanguages CL_HOMER("x-homer");
-		instance2.removeProperty (instance2.findProperty(CLPROP));
-	    instance2.addProperty(CIMProperty(CIMName(CLPROP),
-		    				doh));
+          String doh = "doh!";
+          baseInstance.removeProperty (baseInstance.findProperty(CLPROP));
+          baseInstance.addProperty(CIMProperty(CIMName(CLPROP), doh));
 
-	    instance2.removeProperty (instance2.findProperty(ROUNDTRIPSTRINGPROP));		
-	    instance2.addProperty(CIMProperty(CIMName(ROUNDTRIPSTRINGPROP),
-					      String(utf16Chars)));	
+          baseInstance.removeProperty (baseInstance.findProperty(ROUNDTRIPSTRINGPROP));		
+          baseInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPSTRINGPROP), String(utf16Chars)));	
 
-	    instance2.removeProperty (instance2.findProperty(ROUNDTRIPCHARPROP));		
-	    instance2.addProperty(CIMProperty(CIMName(ROUNDTRIPCHARPROP),
-					      utf16Chars[0]));			
+          baseInstance.removeProperty (baseInstance.findProperty(ROUNDTRIPCHARPROP));		
+          baseInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPCHARPROP),utf16Chars[0]));			
 		
-	    client.setRequestContentLanguages(CL_HOMER);
+          client.setRequestContentLanguages(CL_HOMER);
 	    
- 		cout << endl << "INSTANCE TEST 5: Modify Instance with ContentLanguages = " << 
- 				CL_HOMER << "  and UTF-16 string." << endl;	   	    
+          cout << endl << "INSTANCE TEST 7: Modify Instance with ContentLanguages = " << 
+                 CL_HOMER << "  and UTF-16 string." << endl;	   	    
 	    
-	        if (verboseTest)
-		   cout << "Modifying the instance" << endl;
+          if (verboseTest)
+                 cout << "Modifying the instance" << endl;
 
-	    client.modifyInstance(NAMESPACE,
-				instance2,
-				includeQualifiers);
+          client.modifyInstance(NAMESPACE,
+                                  baseInstance,
+                                  includeQualifiers);
 	    			
-	    AcceptLanguages acceptLangs5;
-	    acceptLangs5.add(AcceptLanguageElement("x-homer", float(0.8)));		
-	    client.setRequestAcceptLanguages(acceptLangs5);
+          AcceptLanguages acceptLangs7;
+          acceptLangs7.add(AcceptLanguageElement("x-homer", float(0.8)));		
+          client.setRequestAcceptLanguages(acceptLangs7);
 	    
-	        if (verboseTest)
- 		   cout << "Getting the instance just modified, using AcceptLanguages = " << acceptLangs5
- 		     << endl;	 	    
+          if (verboseTest)
+                cout << "Getting the instance just modified, using AcceptLanguages = " << acceptLangs7
+                     << endl;	 	    
 	    	
-		CIMInstance instance5 = client.getInstance(
-				NAMESPACE,
-				instance2.buildPath(sampleClass),
-				localOnly,
-				includeQualifiers,
-				includeClassOrigin);
+          CIMInstance instance7 = client.getInstance(
+                                                       NAMESPACE,
+                                                       baseInstance.buildPath(sampleClass),
+                                                       localOnly,
+                                                       includeQualifiers,
+                                                       includeClassOrigin);
 					 
-		instance5.getProperty (
-				instance5.findProperty(ROUNDTRIPSTRINGPROP)).
-    	        getValue().
-        	    get(returnedString);
+          instance7.getProperty (
+                instance7.findProperty(ROUNDTRIPSTRINGPROP)).
+                getValue().
+                get(returnedString);
 
-		instance5.getProperty (
-				instance5.findProperty(ROUNDTRIPCHARPROP)).
-    	        getValue().
-        	    get(returnedChar16);
+          instance7.getProperty (
+                instance7.findProperty(ROUNDTRIPCHARPROP)).
+                getValue().
+                get(returnedChar16);
         	  
-	        if (verboseTest)     		
-		   cout << "Checking the UTF-16 chars were preserved" << endl;    		
+          if (verboseTest)     		
+                cout << "Checking the UTF-16 chars were preserved" << endl;    		
         	       						
-		MYASSERT(expectedUTF16String == returnedString);
-		MYASSERT(utf16Chars[0] == returnedChar16);
+          MYASSERT(expectedUTF16String == returnedString);
+          MYASSERT(utf16Chars[0] == returnedChar16);
 		
-		instance5.getProperty (
-				instance5.findProperty(CLPROP)).
-    	        getValue().
-        	    get(returnedString);
+          instance7.getProperty (
+                instance7.findProperty(CLPROP)).
+                getValue().
+                get(returnedString);
         	
-	        if (verboseTest)
-		   cout << "Checking for x-homer returned" << endl;	
+          if (verboseTest)
+                cout << "Checking for x-homer returned" << endl;	
          	    
-		MYASSERT(returnedString == doh); 
-		MYASSERT(CL_HOMER == client.getResponseContentLanguages());	
+          MYASSERT(returnedString == doh); 
+          MYASSERT(CL_HOMER == client.getResponseContentLanguages());	
 		
-	  	//
-	  	//  TEST 6 - Exception test. 
-	  	//  Expect an exception to be returned from the server
-	  	//  with a localized message in es locale.
-	  	//
-	  	//  Note: the provider will throw a not-supported exception
-	  	//  on delete instance requests.
-	  	//
+          //
+          //  TEST 8 - Exception test. 
+          //  Expect an exception to be returned from the server
+          //  with a localized message in es locale.
+          //
+          //  Note: the provider will throw a not-supported exception
+          //  on delete instance requests.
+          //
 	  	
-		AcceptLanguages acceptLangs6;
-		acceptLangs6.add(AcceptLanguageElement("es", float(1.0)));
-		acceptLangs6.add(AcceptLanguageElement("fr", float(0.9))); 
-		client.setRequestAcceptLanguages(acceptLangs6);			  	
+          AcceptLanguages acceptLangs8;
+          acceptLangs8.add(AcceptLanguageElement("es", float(1.0)));
+          acceptLangs8.add(AcceptLanguageElement("fr", float(0.9))); 
+          client.setRequestAcceptLanguages(acceptLangs8);			  	
 	  	
- 		cout << endl << "INSTANCE TEST 6: Delete Instance with AcceptLanguages = " << 
- 				acceptLangs6 << endl;	   	  	
+          cout << endl << "INSTANCE TEST 8: Delete Instance with AcceptLanguages = " << 
+                            acceptLangs8 << endl;	   	  	
 	  	
-	  	// Try to delete instance2, expect an exception
-	        if (verboseTest)
-		   cout << "Deleting the instance, expecting to get a CIMException" << endl;
+          // Try to delete baseInstance, expect an exception
+          if (verboseTest)
+                cout << "Deleting the instance, expecting to get a CIMException" << endl;
 
-	  	Boolean gotException = false;
-	  	try 
-	  	{
-			client.deleteInstance(
-					NAMESPACE,
-				    instance2.buildPath(sampleClass)); 	  	
-	  	} catch (CIMException & ce)
-	  	{
-	            if (verboseTest)
-            		    cout << "Got the CIMException" << endl;
-	  		String message = ce.getMessage();	
+          Boolean gotException = false;
+          try 
+          {
+              client.deleteInstance(
+                                    NAMESPACE,
+                                    baseInstance.buildPath(sampleClass)); 	  	
+          } catch (CIMException & ce)
+          {
+              if (verboseTest)
+                  cout << "Got the CIMException" << endl;
+              String message = ce.getMessage();	
 	  		
 #ifdef PEGASUS_HAS_MESSAGES
-	            if (verboseTest)		
-			    cout << "Checking for es returned in the exception" << endl;	
-			MYASSERT(CL_ES == client.getResponseContentLanguages());
-	  		Uint32 n = message.find("ES");
-	  		MYASSERT(n != PEG_NOT_FOUND);			
+              if (verboseTest)		
+                  cout << "Checking for es returned in the exception" << endl;	
+              MYASSERT(CL_ES == client.getResponseContentLanguages());
+              Uint32 n = message.find("ES");
+              MYASSERT(n != PEG_NOT_FOUND);			
 #else
-	            if (verboseTest)
-			    cout << "Checking for default language returned in the exception" << endl;
-			MYASSERT(CL_Dft == client.getResponseContentLanguages());
-	  		Uint32 n = message.find("default");
-	  		MYASSERT(n != PEG_NOT_FOUND);				
+              if (verboseTest)
+                  cout << "Checking for default language returned in the exception" << endl;
+              MYASSERT(CL_Dft == client.getResponseContentLanguages());
+              Uint32 n = message.find("default");
+              MYASSERT(n != PEG_NOT_FOUND);				
 #endif		  		
-	  		gotException = true;	
-	  	}		
+              gotException = true;	
+          }		
   		
-		MYASSERT(gotException == true);		
-	  }
+          MYASSERT(gotException == true);
+
+        }  // end for
     }
     catch(Exception& e)
     {

@@ -13,7 +13,7 @@ class Sample_InstanceProviderClass : Sample_ProviderClass
 	string Message;
 };
 
-// globalization test class
+// globalization test class for localization and UTF testing
 [Version ("2.2.0")]
 class Sample_LocalizedProviderClass : Sample_ProviderClass
 {
@@ -31,6 +31,14 @@ class Sample_LocalizedProviderClass : Sample_ProviderClass
 
 	string UTFMethod( [IN] string inStr, [IN] char16 inChar16,
                          [OUT] string outStr, [OUT] char16 outChar16);
+};
+
+// globalization test class for aggregation tests
+[Version ("2.2.0")]
+class Sample_LocalizedProviderSubClass : Sample_LocalizedProviderClass
+{
+	[read, write]
+	string TestString;
 };
 
 [Version ("2.2.0")]

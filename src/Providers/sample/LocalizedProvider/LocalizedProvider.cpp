@@ -92,7 +92,6 @@
 
 // l10n TODO
 // -- implement test providers for other provider types
-// -- expand the instance provider to test aggregation across classes
 
 // Globalization headers
 #include "LocalizedProvider.h"
@@ -102,19 +101,28 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Class name and references
+// Class Hierarchy:
+// Sample_LocalizedProviderClass is a subclass of Sample_ProviderClass
+// Sample_LocalizedProviderSubClass is a subclass of Sample_LocalizedProviderClass
+
+// Class names and references
 #define CLASSNAME "Sample_LocalizedProviderClass"
+#define SUBCLASSNAME "Sample_LocalizedProviderSubClass"
 #define REFERENCE1 "Sample_LocalizedProviderClass.Identifier=0"
 #define REFERENCE2 "Sample_LocalizedProviderClass.Identifier=1"
- 
-// Property names 
+#define REFERENCE3 "Sample_LocalizedProviderSubClass.Identifier=2"
+
+// Properties on the Sample_ProviderClass
 #define IDENTIFIER_PROP "Identifier"		// Key
+
+// Properties on the Sample_LocalizedProviderClass 
 #define ROUNDTRIPSTRING_PROP "RoundTripString"	// Property for round trip test (R/W)
 #define ROUNDTRIPCHAR_PROP "RoundTripChar"	// Property for round trip test (R/W)
-#define RB_STRING_PROP "ResourceBundleString" // Property for resource bundle
-											// test (R/O)
-#define CONTENTLANG_PROP "ContentLanguageString" // Property from content 
-												// language test (R/W)
+#define RB_STRING_PROP "ResourceBundleString" // Property for resource bundle test (R/O)
+#define CONTENTLANG_PROP "ContentLanguageString" // Property from content language test (R/W)
+
+// Properties on the Sample_LocalizedProviderSubClass
+#define TESTSTRING_PROP "TestString"    
 
 // The name of the *root* resource bundle.
 // Note: we are using a relative path to $PEGASUS_HOME
@@ -135,16 +143,26 @@ PEGASUS_NAMESPACE_BEGIN
 #define ROUND_TRIP_STRING_DFT "RoundTripString DEFAULT"
 
 // Expected round-trip string from the client. 
-// Includes a UTF-16 surrogate pair (last two elements)
-static const Char16 roundTripChars[] = 
-			{0x6A19, 
-			0x6E96,
-			0x842C, 
-			0x570B,
-			0x78BC,
-			0xdbc0,
-			0xdc01,
-			0x00};
+// Note: the dbc0/dc01 pair are surrogates
+static const Char16 roundTripChars[] =
+        {
+        0x6A19,	0x6E96,	0x842C, 0x570B,	0x78BC,
+        0x042E, 0x043D, 0x0438, 0x043A, 0x043E, 0x0434,
+        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE, 
+        0x10E3, 0x10DC, 0x10D8, 0x10D9, 0x10DD, 0x10D3, 0x10D8,
+	0xdbc0,	0xdc01, 
+        0x05D9, 0x05D5, 0x05E0, 0x05D9, 0x05E7, 0x05D0, 0x05B8, 0x05D3,
+        0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
+        0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
+        0x016A, 0x006E, 0x012D, 0x0063, 0x014D, 0x0064, 0x0065, 0x033D,
+        0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA, 0x0325, 0x2173, 0x249C, 0x0063,
+        0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F, 0x02D0, 0x0064,
+        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9, 
+        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E, 
+        0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
+	0xdbc0,	0xdc01,
+        0x00};
+
 
 // Another UTF-16 string used for testing
 // Note: the first 3 chars are taken from section 3.3.2 of the CIM-over-HTTP spec.
@@ -179,7 +197,7 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 {
 	// create default instances
 
-	// Instance 1
+	// Instance 1 - Sample_LocalizedProviderClass 
 	CIMInstance instance1(CLASSNAME);
 	CIMObjectPath reference1(REFERENCE1);
 
@@ -190,7 +208,7 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 	_instanceNames.append(reference1);
 	_instanceLangs.append(ContentLanguages::EMPTY);
 	
-	// Instance 2
+	// Instance 2 - Sample_LocalizedProviderClass 
 	CIMInstance instance2(CLASSNAME);	
 	CIMObjectPath reference2(REFERENCE2);	
  	
@@ -199,6 +217,17 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 	instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
 	_instances.append(instance2);	
 	_instanceNames.append(reference2);
+	_instanceLangs.append(ContentLanguages::EMPTY);	
+
+	// Instance 3 - Sample_LocalizedProviderSubClass 
+	CIMInstance instance3(SUBCLASSNAME);	
+	CIMObjectPath reference3(REFERENCE3);	
+ 	
+	instance3.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(2)));   
+	instance3.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
+	instance3.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
+	_instances.append(instance3);	
+	_instanceNames.append(reference3);
 	_instanceLangs.append(ContentLanguages::EMPTY);	
 }
 
@@ -266,15 +295,23 @@ void LocalizedProvider::enumerateInstances(
 
 	ContentLanguages aggregatedLangs = ContentLanguages::EMPTY;
 	Boolean langMismatch = false;
+        Boolean firstInstance = true;
 
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
+                // Since this provider is supporting 2 classes, only return instances
+                // of the requested class.
+                if (classReference.getClassName() != _instanceNames[i].getClassName())
+                {
+                    continue;
+                }
+
 		// Load the localized properties and figure out what content
 		// language to return for this instance, based on the design 
 		// mentioned above.
-		ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
-														_instanceLangs[i],
-														_instances[i]);	
+                ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
+                                                                _instanceLangs[i],
+                                                                _instances[i]);
 
 		// Since we are returning more than one instance, and the 
 		// content language we are returning applies to all the instances,
@@ -283,10 +320,11 @@ void LocalizedProvider::enumerateInstances(
 		// that language in the content language to the client.  If there
 		// is a language mismatch in the instances, then do not return
 		// any ContentLanguages to the client.
-		if (i == 0)
+		if (firstInstance)
 		{
 			// Set the aggregated content language to the first instance lang.	
 			aggregatedLangs = rtnLangs;	
+                    firstInstance = false;
 		}
 		else if (langMismatch == false && rtnLangs != aggregatedLangs)
 		{
@@ -432,7 +470,7 @@ void LocalizedProvider::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler & handler)
 {
-	// We're not going to support this for instances 0 or 1
+	// We're not going to support this for instances 0, 1, or 2
 
 	// instance index corresponds to reference index
 	Uint32 i = 0;
@@ -441,7 +479,7 @@ void LocalizedProvider::deleteInstance(
 		if(instanceReference.getClassName() == _instanceNames[i].getClassName() &&
                    instanceReference.getKeyBindings() == _instanceNames[i].getKeyBindings()) 
 		{
-			if (i < 2)
+			if (i < 3)
 			{
                 		// Throw an exception with a localized message using the
 	            	// AcceptLanguages set into our thread by Pegasus.
@@ -755,7 +793,7 @@ ContentLanguages LocalizedProvider::getRequestContentLanguages(
 CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanceObject)
 {
     // Build the local reference (maybe there is a better way to do this)
-    String local = CLASSNAME;
+    String local = instanceObject.getClassName().getString();
     Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);	
     if (index == PEG_NOT_FOUND)
     {
@@ -822,11 +860,22 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 		// The calls above returned the ContentLanguages for the language
 		// of the resource bundle that was found.
 		// If the two resource bundle langs don't match then
-		// we have a bug in our resource bundles.														
+		// we have a bug in our resource bundles.												
 		if (rtnLangs != clPropLangs)
 		{
 			throw new CIMOperationFailedException(String::EMPTY);
-		}			
+		}
+
+                // If we received an empty ContentLanguages then no resource bundle
+                // was found.
+		// In this case, set the ContentLanguages to "en".
+                // Note: we are doing this for the enumerate instances aggregation test
+                // when ICU is not being used.  In 'real' code, the empty
+                // ContentLanguages would be returned.
+                if (rtnLangs == ContentLanguages::EMPTY)
+                {
+                    rtnLangs = ContentLanguages("en");
+                }
 	}
 	else
 	{

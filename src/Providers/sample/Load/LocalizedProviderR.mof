@@ -31,3 +31,16 @@ instance of PG_ProviderCapabilities
    SupportedProperties = NULL;
    SupportedMethods = NULL;
 };
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "SampleLocalizedProviderModule";
+   ProviderName = "SampleLocalizedProvider";
+   CapabilityID = "2";
+   ClassName = "Sample_LocalizedProviderSubClass";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 2 };   //Instance
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};
+

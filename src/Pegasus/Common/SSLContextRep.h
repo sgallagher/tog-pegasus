@@ -69,8 +69,9 @@ class PEGASUS_COMMON_LINKAGE SSLContextRep
 public:
 
     /** Constructor for a SSLContextRep object.
-    @param certPath  certificate file path
-    @param certKeyPath  server certificate and key file path
+    @param trustPath  trust store file path
+    @param certPath  server certificate file path
+    @param keyPath  server key file path
     @param verifyCert  function pointer to a certificate verification
     call back function.
     @param randomFile  file path of a random file that is used as a seed
@@ -79,8 +80,9 @@ public:
     @exception SSLException  exception indicating failure to create a context.
     */
     SSLContextRep(
-        const String& certPath,
-        const String& certKeyPath = String::EMPTY,
+        const String& trustPath,
+        const String& certPath = String::EMPTY,
+        const String& keyPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY);
 
@@ -108,8 +110,9 @@ private:
     void _randomInit(const String& randomFile);
     Boolean _verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath);
 
+    CString _trustPath;
     CString _certPath;
-    CString _certKeyPath;
+    CString _keyPath;
     String _randomFile;
     SSL_CTX * _sslContext;
 

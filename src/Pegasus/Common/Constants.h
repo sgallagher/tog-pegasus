@@ -212,6 +212,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 
 #define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
 #define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
+#define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
 #define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
 // ATTN: Relocate this relative to PEGASUS_HOME
 #define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
@@ -222,6 +223,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
+#  undef PEGASUS_SSLSERVER_RANDOMFILE
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/wbem/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
@@ -231,6 +234,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/cache/pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/cache/pegasus/ssl.rnd"
+#  undef PEGASUS_SSLSERVER_RANDOMFILE
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/cache/pegasus/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/cache/pegasus/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH

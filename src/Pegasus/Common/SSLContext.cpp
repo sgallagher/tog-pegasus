@@ -41,9 +41,25 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <time.h>
 
 #include "SSLContext.h"
 #include "SSLContextRep.h"
+
+typedef struct Timestamp 
+{
+    char year[4];
+    char month[2];
+    char day[2];
+    char hour[2];
+    char minutes[2];
+    char seconds[2];
+    char dot;
+    char microSeconds[6];
+    char plusOrMinus;
+    char utcOffset[3];
+    char padding[3];
+} Timestamp_t;
 
 PEGASUS_USING_STD;
 
@@ -70,72 +86,186 @@ Mutex SSLContextRep::_countRepMutex;
 // Initialise _count for SSLContextRep objects.
 int SSLContextRep::_countRep = 0;
 
-static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
+
+//
+// Convert ASN1_UTCTIME to CIMDateTime
+//
+CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
+{
+    struct tm time;
+    int offset;
+    Timestamp_t timeStamp;
+    char tempString[80];
+    char plusOrMinus = '+';
+
+    memset(&time, '\0', sizeof(time));
+
+#define g2(p) ( ( (p)[0] - '0' ) * 10 + (p)[1] - '0' )
+
+    time.tm_year = g2(utcTime->data);
+
+    if(time.tm_year < 50)
+    {
+        time.tm_year += 100;
+    }
+    time.tm_mon = g2(utcTime->data + 2) - 1;
+    time.tm_mday = g2(utcTime->data + 4);
+    time.tm_hour = g2(utcTime->data + 6);
+    time.tm_min = g2(utcTime->data + 8);
+    time.tm_sec = g2(utcTime->data + 10);
+
+    if(utcTime->data[12] == 'Z')
+    {
+        offset = 0;
+    }
+    else
+    {
+        offset = g2(utcTime->data + 13) * 60 + g2(utcTime->data + 15);
+        if(utcTime->data[12] == '-')
+        {
+            plusOrMinus = '-';
+        }
+    }
+#undef g2
+
+    int year = 1900;
+    memset((void *)&timeStamp, 0, sizeof(Timestamp_t));
+
+    // Format the date.
+    sprintf((char *) &timeStamp,"%04d%02d%02d%02d%02d%02d.%06d%04d",
+            year + time.tm_year,
+            time.tm_mon + 1,  
+            time.tm_mday,
+            time.tm_hour,
+            time.tm_min,
+            time.tm_sec,
+            0,
+            offset);
+
+    timeStamp.plusOrMinus = plusOrMinus;
+
+    CIMDateTime dateTime;
+
+    dateTime.clear();
+    strcpy(tempString, (char *)&timeStamp);
+    dateTime.set(tempString);
+
+    return (dateTime);
+}
+
+//
+// Callback function that is called by the OpenSSL library. This function
+// extracts X509 certficate information and pass that on to client application
+// callback function.
+//
+int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 {
     PEG_METHOD_ENTER(TRC_SSL, "prepareForCallback()");
 
     char   buf[256];
-    X509   *err_cert;
-    int    err; 
-    int    depth;
-    String subjectName;
-    String issuerName;
-    int    verify_depth = 0;
-    int    verify_error = X509_V_OK;
+    X509   *currentCert;
+    int    verifyError = X509_V_OK;
 
-    err_cert = X509_STORE_CTX_get_current_cert(ctx);
-    err = X509_STORE_CTX_get_error(ctx);
+    //
+    // get the current certificate
+    //
+    currentCert = X509_STORE_CTX_get_current_cert(ctx);
 
-    depth = X509_STORE_CTX_get_error_depth(ctx);
+    //
+    // get the default verification error code
+    //
+    int errorCode = X509_STORE_CTX_get_error(ctx);
+
+    //
+    // get the depth of certificate chain
+    //
+    int depth = X509_STORE_CTX_get_error_depth(ctx);
 
     //FUTURE: Not sure what to do with these...?
     //ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
     //mydata = SSL_get_ex_data(ssl, mydata_index);
 
-    X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
-    subjectName = String(buf);
+    //
+    // get the version on the certificate
+    //
+    long version = X509_get_version(currentCert);
 
-    if (verify_depth >= depth)
-    {
-        preverifyOk = 1;
-        verify_error = X509_V_OK;
-    }
-    else
-    {
-        preverifyOk = 0;
-        verify_error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-        X509_STORE_CTX_set_error(ctx, verify_error);
-    }
+    //
+    // get the serial number of the certificate
+    //
+    long serialNumber = ASN1_INTEGER_get(X509_get_serialNumber(currentCert));
 
-    if (!preverifyOk)
+    //
+    // get the validity of the certificate
+    //
+    CIMDateTime notBefore = getDateTime(X509_get_notBefore(currentCert));
+
+    CIMDateTime notAfter = getDateTime(X509_get_notAfter(currentCert));
+
+    //
+    // get the subject name on the certificate
+    //
+    X509_NAME_oneline(X509_get_subject_name(currentCert), buf, 256);
+    String subjectName = String(buf);
+
+    //
+    // get the default verification error string 
+    //
+    String errorStr = String(X509_verify_cert_error_string(errorCode));
+
+    //
+    // log the error string if the default verification was failed
+    //
+    if (!preVerifyOk)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-            "---> SSL: verify error: " + String(X509_verify_cert_error_string(err)));
+            "---> SSL: certificate default verification error: " + errorStr);
     }
 
-    if (!preverifyOk && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT))
+    //
+    // get the issuer name on the certificate
+    //
+    if (!preVerifyOk && (errorCode == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT))
     {
         X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), buf, 256);
-        issuerName = String(buf);
     }
     else
     {
-        X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
-        issuerName = String(buf);
+        X509_NAME_oneline(X509_get_issuer_name(currentCert), buf, 256);
     }
+    String issuerName = String(buf);
 
     //
-    // Call the verify_certificate() callback
+    // Call the verify_certificate() application callback
     //
-    SSLCertificateInfo certInfo(subjectName, issuerName, depth, err, preverifyOk);
+    SSLCertificateInfo certInfo(subjectName, issuerName, version, serialNumber,
+        notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
 
     if (verify_certificate(certInfo))
     {
-        preverifyOk = 1;
+        verifyError = X509_V_OK;
+        preVerifyOk = 1;
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+            "--> SSL: verify_certificate() returned X509_V_OK");
+    }
+    else
+    {
+        verifyError = certInfo.getErrorCode();
+        preVerifyOk = 0;
+        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+            "--> SSL: verify_certificate() returned error %d", verifyError);
     }
 
+    //
+    // Reset the error. It is logically not required to reset the error code, but
+    // openSSL code does not take just the return value on a failed certificate
+    // verification.
+    //
+    X509_STORE_CTX_set_error(ctx, verifyError);
+
     PEG_METHOD_EXIT();
-    return(preverifyOk);
+
+    return(preVerifyOk);
 }
 
 //
@@ -204,16 +334,19 @@ void SSLContextRep::free_ssl()
 // For the OSs that don't have /dev/random device file,
 // must enable PEGASUS_SSL_RANDOMFILE flag.
 //
-SSLContextRep::SSLContextRep(const String& certPath,
-                       const String& certKeyPath,
+SSLContextRep::SSLContextRep(const String& trustPath,
+                       const String& certPath,
+                       const String& keyPath,
                        SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
+    _trustPath = trustPath.getCString();
+
     _certPath = certPath.getCString();
 
-    _certKeyPath = certKeyPath.getCString();
+    _keyPath = keyPath.getCString();
 
     verify_certificate = verifyCert;
 
@@ -269,8 +402,9 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
+    _trustPath = sslContextRep._trustPath;
     _certPath = sslContextRep._certPath;
-    _certKeyPath = sslContextRep._certKeyPath;
+    _keyPath = sslContextRep._keyPath;
     // ATTN: verify_certificate is set implicitly in global variable
     _randomFile = sslContextRep._randomFile;
 
@@ -407,6 +541,13 @@ void SSLContextRep::_randomInit(const String& randomFile)
                 throw( SSLException("Not enough seed data in random seed file."));
             }
         }
+        else
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                "seed file - " + randomFile + " does not exist.");
+            PEG_METHOD_EXIT();
+            throw( SSLException("Seed file '" + randomFile + "' does not exist."));
+        }
 
         if ( RAND_status() == 0 )
         {
@@ -476,7 +617,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     if (verify_certificate != NULL)
     {
         SSL_CTX_set_verify(sslContext, 
-            SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
+             SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
     }
     else
     {
@@ -487,13 +628,13 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     // Check if there is CA certificate file specified. If specified,
     // load the certificates from the file in to the CA trust store.
     //
-    if (strncmp(_certPath, "", 1) != 0)
+    if (strncmp(_trustPath, "", 1) != 0)
     {
         //
         // load certificates in to trust store
         //
 
-        if ((!SSL_CTX_load_verify_locations(sslContext, _certPath, NULL)) ||
+        if ((!SSL_CTX_load_verify_locations(sslContext, _trustPath, NULL)) ||
             (!SSL_CTX_set_default_verify_paths(sslContext)))
         {
             PEG_METHOD_EXIT();
@@ -502,30 +643,53 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     }
 
     //
-    // Check if there is a certificate key file (file containing server 
-    // certificate and private key) specified. If specified, validate the 
-    // certificate and the private key, and load them.
+    // Check if there is a certificate file (file containing server 
+    // certificate) specified. If specified, validate and load the 
+    // certificate.
     //
-    if (strncmp(_certKeyPath, "", 1) != 0)
+    if (strncmp(_certPath, "", 1) != 0)
     {
         //
         // load the specified server certificates
         //
 
         if (SSL_CTX_use_certificate_file(sslContext,
-            _certKeyPath, SSL_FILETYPE_PEM) <=0)
+            _certPath, SSL_FILETYPE_PEM) <=0)
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-                "---> SSL: no certificate found in " + String(_certKeyPath));
+                "---> SSL: no certificate found in " + String(_certPath));
             PEG_METHOD_EXIT();
             throw( SSLException("Could not get server certificate."));
         }
+        //
+        // If there is no key file (file containing server
+        // private key) specified, then try loading the key from
+        // the certificate file.
+        //
+        if (strncmp(_keyPath, "", 1) == 0)
+        {
+            //
+            // load the private key and check for validity
+            //
+            if (!_verifyPrivateKey(sslContext, _certPath))
+            {
+                PEG_METHOD_EXIT();
+                throw( SSLException("Could not get private key."));
+            }
+        }
+    }
 
+    //
+    // Check if there is a key file (file containing server 
+    // private key) specified. If specified, validate and 
+    // load the key.
+    //
+    if (strncmp(_keyPath, "", 1) != 0)
+    {
         //
         // load given private key and check for validity
         //
-
-        if (!_verifyPrivateKey(sslContext, _certKeyPath))
+        if (!_verifyPrivateKey(sslContext, _keyPath))
         {
             PEG_METHOD_EXIT();
             throw( SSLException("Could not get private key."));
@@ -536,14 +700,14 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     return sslContext;
 }
 
-Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath)
+Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const char *keyPath)
 {
     PEG_METHOD_ENTER(TRC_SSL, "_verifyPrivateKey()");
 
-    if (SSL_CTX_use_PrivateKey_file(ctx, keyFilePath, SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey_file(ctx, keyPath, SSL_FILETYPE_PEM) <= 0)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-            "---> SSL: no private key found in " + String(keyFilePath));
+            "---> SSL: no private key found in " + String(keyPath));
         PEG_METHOD_EXIT();
         return false;
     }
@@ -570,8 +734,9 @@ SSL_CTX * SSLContextRep::getContext() const
 // these definitions are used if ssl is not available
 //
 
-SSLContextRep::SSLContextRep(const String& certPath,
-                       const String& certKeyPath,
+SSLContextRep::SSLContextRep(const String& trustPath,
+                       const String& certPath,
+                       const String& keyPath,
                        SSLCertificateVerifyFunction* verifyCert,
                        const String& randomFile) {}
 
@@ -582,7 +747,7 @@ SSLContextRep::~SSLContextRep() {}
 SSL_CTX * SSLContextRep::_makeSSLContext() { return 0; }
 
 Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx,
-                                         const char *keyFilePath) { return false; }
+                                         const char *keyPath) { return false; }
 
 SSL_CTX * SSLContextRep::getContext() const { return 0; }
 
@@ -600,11 +765,11 @@ void SSLContextRep::free_ssl() {}
 
 
 SSLContext::SSLContext(
-    const String& certPath,
+    const String& trustPath,
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-    _rep = new SSLContextRep(certPath, String::EMPTY, verifyCert, randomFile);
+    _rep = new SSLContextRep(trustPath, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
 }
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -614,9 +779,8 @@ SSLContext::SSLContext(
     const String& randomFile,
     Boolean isCIMClient)
 {
-    _rep = new SSLContextRep(certPath, String::EMPTY, verifyCert, randomFile);
+    _rep = new SSLContextRep(certPath, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
 }
-#endif
 
 SSLContext::SSLContext(
     const String& certPath,
@@ -624,7 +788,18 @@ SSLContext::SSLContext(
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-    _rep = new SSLContextRep(certPath, certKeyPath, verifyCert, randomFile);
+    _rep = new SSLContextRep(certPath, certKeyPath, String::EMPTY, verifyCert, randomFile);
+}
+#endif
+
+SSLContext::SSLContext(
+    const String& trustPath,
+    const String& certPath,
+    const String& keyPath,
+    SSLCertificateVerifyFunction* verifyCert,
+    const String& randomFile)
+{
+    _rep = new SSLContextRep(trustPath, certPath, keyPath, verifyCert, randomFile);
 }
 
 SSLContext::SSLContext(const SSLContext& sslContext)
@@ -648,15 +823,58 @@ SSLContext::~SSLContext()
 // SSLCertificateInfo
 //
 ///////////////////////////////////////////////////////////////////////////////
+//
+// Certificate validation result codes.
+//
+const int    SSLCertificateInfo::V_OK                                       = 0;
+
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_GET_ISSUER_CERT            = 2;
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_GET_CRL                    = 3;
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE     = 4;
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE      = 5;
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY   = 6;
+const int    SSLCertificateInfo::V_ERR_CERT_SIGNATURE_FAILURE               = 7;
+const int    SSLCertificateInfo::V_ERR_CRL_SIGNATURE_FAILURE                = 8;
+const int    SSLCertificateInfo::V_ERR_CERT_NOT_YET_VALID                   = 9;
+const int    SSLCertificateInfo::V_ERR_CERT_HAS_EXPIRED                     = 10;
+const int    SSLCertificateInfo::V_ERR_CRL_NOT_YET_VALID                    = 11;
+const int    SSLCertificateInfo::V_ERR_CRL_HAS_EXPIRED                      = 12;
+const int    SSLCertificateInfo::V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD       = 13;
+const int    SSLCertificateInfo::V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD        = 14;
+const int    SSLCertificateInfo::V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD       = 15;
+const int    SSLCertificateInfo::V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD       = 16;
+const int    SSLCertificateInfo::V_ERR_OUT_OF_MEM                           = 17;
+const int    SSLCertificateInfo::V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT          = 18;
+const int    SSLCertificateInfo::V_ERR_SELF_SIGNED_CERT_IN_CHAIN            = 19;
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY    = 20;
+const int    SSLCertificateInfo::V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE      = 21;
+const int    SSLCertificateInfo::V_ERR_CERT_CHAIN_TOO_LONG                  = 22;
+const int    SSLCertificateInfo::V_ERR_CERT_REVOKED                         = 23;
+const int    SSLCertificateInfo::V_ERR_INVALID_CA                           = 24;
+const int    SSLCertificateInfo::V_ERR_PATH_LENGTH_EXCEEDED                 = 25;
+const int    SSLCertificateInfo::V_ERR_INVALID_PURPOSE                      = 26;
+const int    SSLCertificateInfo::V_ERR_CERT_UNTRUSTED                       = 27;
+const int    SSLCertificateInfo::V_ERR_CERT_REJECTED                        = 28;
+const int    SSLCertificateInfo::V_ERR_SUBJECT_ISSUER_MISMATCH              = 29;
+const int    SSLCertificateInfo::V_ERR_AKID_SKID_MISMATCH                   = 30;
+const int    SSLCertificateInfo::V_ERR_AKID_ISSUER_SERIAL_MISMATCH          = 31;
+const int    SSLCertificateInfo::V_ERR_KEYUSAGE_NO_CERTSIGN                 = 32;
+
+const int    SSLCertificateInfo::V_ERR_APPLICATION_VERIFICATION             = 50;
 
 class SSLCertificateInfoRep
 {
 public:
-    String subjectName;
-    String issuerName;
-    int    errorDepth;
-    int    errorCode;
-    int    respCode;
+    String    subjectName;
+    String    issuerName;
+    Uint32    depth;
+    Uint32    errorCode;
+    Uint32    respCode;
+    String    errorString;
+    Uint32    versionNumber;
+    long      serialNumber;
+    CIMDateTime    notBefore;
+    CIMDateTime    notAfter;
 };
 
 
@@ -670,8 +888,38 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep = new SSLCertificateInfoRep();
     _rep->subjectName = subjectName;
     _rep->issuerName = issuerName;
-    _rep->errorDepth = errorDepth;
+    _rep->versionNumber = 0;
+    _rep->serialNumber = 0;
+    _rep->notBefore = CIMDateTime(String::EMPTY);
+    _rep->notAfter = CIMDateTime(String::EMPTY);
+    _rep->depth = errorDepth;
     _rep->errorCode = errorCode;
+    _rep->errorString = String::EMPTY;
+    _rep->respCode = respCode;
+}
+
+SSLCertificateInfo::SSLCertificateInfo(
+    const String subjectName,
+    const String issuerName,
+    const Uint32 versionNumber,
+    const long serialNumber,
+    const CIMDateTime notBefore,
+    const CIMDateTime notAfter,
+    const Uint32 depth,
+    const Uint32 errorCode,
+    const String errorString,
+    const Uint32 respCode)
+{
+    _rep = new SSLCertificateInfoRep();
+    _rep->subjectName = subjectName;
+    _rep->issuerName = issuerName;
+    _rep->versionNumber = versionNumber;
+    _rep->serialNumber = serialNumber;
+    _rep->notBefore = notBefore;
+    _rep->notAfter = notAfter;
+    _rep->depth = depth;
+    _rep->errorCode = errorCode;
+    _rep->errorString = errorString;
     _rep->respCode = respCode;
 }
 
@@ -681,8 +929,13 @@ SSLCertificateInfo::SSLCertificateInfo(
     _rep = new SSLCertificateInfoRep();
     _rep->subjectName = certificateInfo._rep->subjectName;
     _rep->issuerName = certificateInfo._rep->issuerName;
-    _rep->errorDepth = certificateInfo._rep->errorDepth;
+    _rep->versionNumber = certificateInfo._rep->versionNumber;
+    _rep->serialNumber = certificateInfo._rep->serialNumber;
+    _rep->notBefore = certificateInfo._rep->notBefore;
+    _rep->notAfter = certificateInfo._rep->notAfter;
+    _rep->depth = certificateInfo._rep->depth;
     _rep->errorCode = certificateInfo._rep->errorCode;
+    _rep->errorString = certificateInfo._rep->errorString;
     _rep->respCode = certificateInfo._rep->respCode;
 }
 
@@ -706,17 +959,47 @@ String SSLCertificateInfo::getIssuerName() const
     return (_rep->issuerName);
 }
 
-int SSLCertificateInfo::getErrorDepth() const
+Uint32 SSLCertificateInfo::getVersionNumber() const
 {
-    return (_rep->errorDepth);
+    return (_rep->versionNumber);
 }
 
-int SSLCertificateInfo::getErrorCode() const
+long SSLCertificateInfo::getSerialNumber() const
+{
+    return (_rep->serialNumber);
+}
+
+CIMDateTime SSLCertificateInfo::getNotBefore() const
+{
+    return (_rep->notBefore);
+}
+
+CIMDateTime SSLCertificateInfo::getNotAfter() const 
+{
+    return (_rep->notAfter);
+}
+
+Uint32 SSLCertificateInfo::getErrorDepth() const
+{
+    return (_rep->depth);
+}
+
+Uint32 SSLCertificateInfo::getErrorCode()  const
 {
     return (_rep->errorCode);
 }
 
-int SSLCertificateInfo::getResponseCode() const
+void SSLCertificateInfo::setErrorCode(const int errorCode)
+{
+    _rep->errorCode = errorCode;
+}
+
+String SSLCertificateInfo::getErrorString() const
+{
+    return (_rep->errorString);
+}
+
+Uint32 SSLCertificateInfo::getResponseCode()  const
 {
     return (_rep->respCode);
 }

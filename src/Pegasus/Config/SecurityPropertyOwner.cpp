@@ -58,6 +58,7 @@ static struct ConfigPropertyRow properties[] =
     {"httpAuthType", "Basic", 0, 0, 0},
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
     {"sslCertificateFilePath", "server.pem", 0, 0, 0}, 
+    {"sslKeyFilePath", "file.pem", 0, 0, 0}, 
     {"enableNamespaceAuthorization", "false", 0, 0, 0},
     {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0}
 };
@@ -74,6 +75,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _httpAuthType = new ConfigProperty();
     _passwordFilePath = new ConfigProperty();
     _certificateFilePath = new ConfigProperty();
+    _keyFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
 }
 
@@ -86,6 +88,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _httpAuthType;
     delete _passwordFilePath;
     delete _certificateFilePath;
+    delete _keyFilePath;
     delete _enableRemotePrivilegedUserAccess;
 }
 
@@ -186,6 +189,27 @@ void SecurityPropertyOwner::initialize()
             }
         } 
         else if (String::equalNoCase(
+			    properties[i].propertyName, 
+			    "sslkeyFilePath"))
+        {  
+            _keyFilePath->propertyName = properties[i].propertyName;
+            _keyFilePath->defaultValue = properties[i].defaultValue;
+            _keyFilePath->plannedValue = properties[i].defaultValue;
+            _keyFilePath->dynamic = properties[i].dynamic;
+            _keyFilePath->domain = properties[i].domain;
+            _keyFilePath->domainSize = properties[i].domainSize;
+
+            // 
+            // Initialize SSL cert file path to $PEGASUS_HOME/file.pem
+            //
+	    if ( _keyFilePath->currentValue == String::EMPTY )
+	    {
+                _keyFilePath->currentValue.append(ConfigManager::getPegasusHome());
+                _keyFilePath->currentValue.append("/");
+                _keyFilePath->currentValue.append(_keyFilePath->defaultValue);
+            }
+        } 
+        else if (String::equalNoCase(
             properties[i].propertyName, "enableRemotePrivilegedUserAccess"))
         {
             _enableRemotePrivilegedUserAccess->propertyName = properties[i].propertyName;
@@ -226,6 +250,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equalNoCase(_certificateFilePath->propertyName, name))
     {  
         return _certificateFilePath;
+    }
+    else if (String::equalNoCase(_keyFilePath->propertyName, name))
+    {  
+        return _keyFilePath;
     }
     else if (String::equalNoCase(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
@@ -462,7 +490,8 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             }
         }
     }
-    else if (String::equalNoCase(_certificateFilePath->propertyName, name))
+    else if (String::equalNoCase(_certificateFilePath->propertyName, name) ||
+             String::equalNoCase(_keyFilePath->propertyName, name))
     {  
 	String fileName(value);
 

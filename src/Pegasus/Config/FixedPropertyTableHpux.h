@@ -56,6 +56,7 @@
     {"tempLocalAuthDir",    "/var/opt/wbem/localauth"},
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
     {"sslCertificateFilePath", "/var/opt/wbem/server.pem"},
+    {"sslKeyFilePath",      "/var/opt/wbem/file.pem"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/opt/wbem/providers/lib"},
 #endif

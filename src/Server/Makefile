@@ -40,14 +40,20 @@ poststarttests:
 install:
 	$(RM) $(PEGASUS_HOME)/cimserver_planned.conf
 	$(RM) $(PEGASUS_HOME)/cimserver_current.conf
+	$(RM) $(PEGASUS_HOME)/cert.pem
+	$(RM) $(PEGASUS_HOME)/file.pem
 	$(RM) $(PEGASUS_HOME)/server.pem
 	$(RM) $(PEGASUS_HOME)/client.pem
+	$(RM) $(PEGASUS_HOME)/cimserver.rnd
 	$(RM) $(PEGASUS_HOME)/ssl.rnd
 	$(RM) $(PEGASUS_HOME)/ssl.cnf
 	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
 	$(COPY) cimserver_current.conf $(PEGASUS_HOME)
+	$(COPY) cert.pem $(PEGASUS_HOME)
+	$(COPY) file.pem $(PEGASUS_HOME)
 	$(COPY) server.pem $(PEGASUS_HOME)
 	$(COPY) client.pem $(PEGASUS_HOME)
+	$(COPY) cimserver.rnd    $(PEGASUS_HOME)
 	$(COPY) ssl.rnd    $(PEGASUS_HOME)
 	$(COPY) ssl.cnf    $(PEGASUS_HOME)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

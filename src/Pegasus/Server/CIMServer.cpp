@@ -472,15 +472,24 @@ Uint32 CIMServer::getOutstandingRequestCount()
 SSLContext* CIMServer::_getSSLContext()
 {
     static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath"; 
+    static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath"; 
+  
 
     if (_sslcontext == 0)
     {
         //
-        // Get the CertificateFilePath property from the Config Manager.
+        // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath;
         certPath = ConfigManager::getInstance()->getCurrentValue(
                                PROPERTY_NAME__SSLCERT_FILEPATH);
+
+        //
+        // Get the sslKeyFilePath property from the Config Manager.
+        //
+        String keyPath;
+        keyPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLKEY_FILEPATH);
 
         String randFile = String::EMPTY;
 
@@ -489,10 +498,10 @@ SSLContext* CIMServer::_getSSLContext()
         // the server side, but it is easier to use a consistent interface
         // on the client and server than to optimize out the random file on
         // the server side.
-        randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-        _sslcontext = new SSLContext(String::EMPTY, certPath, 0, randFile);
+        _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
     }
 
     return _sslcontext;

@@ -49,6 +49,7 @@
     {"tempLocalAuthDir",    "/var/cache/pegasus/localauth"},
     {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
     {"sslCertificateFilePath", "/var/cache/pegasus/server.pem"},
+    {"sslKeyFilePath",      "/var/cache/pegasus/file.pem"},
     {"repositoryDir",       "/var/cache/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
 #endif

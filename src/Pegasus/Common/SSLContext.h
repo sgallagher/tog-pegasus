@@ -31,17 +31,20 @@
 #ifndef Pegasus_SSLContext_h
 #define Pegasus_SSLContext_h
 
+#include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Linkage.h>
 
+typedef struct x509_store_ctx_st X509_STORE_CTX;
 
 PEGASUS_NAMESPACE_BEGIN
 
 class SSLCertificateInfoRep;
 class SSLContextRep;
 class SSLSocket;
+class CIMServer;
 
 
 /** This class provides the interface that a client gets as argument
@@ -50,12 +53,58 @@ class SSLSocket;
 class PEGASUS_COMMON_LINKAGE SSLCertificateInfo
 {
 public:
+
+    //
+    // Certificate validation result codes.
+    //
+    static const int    V_OK;
+
+    static const int    V_ERR_UNABLE_TO_GET_ISSUER_CERT;
+    static const int    V_ERR_UNABLE_TO_GET_CRL;
+    static const int    V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE;
+    static const int    V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE;
+    static const int    V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY;
+    static const int    V_ERR_CERT_SIGNATURE_FAILURE;
+    static const int    V_ERR_CRL_SIGNATURE_FAILURE;
+    static const int    V_ERR_CERT_NOT_YET_VALID;
+    static const int    V_ERR_CERT_HAS_EXPIRED;
+    static const int    V_ERR_CRL_NOT_YET_VALID;
+    static const int    V_ERR_CRL_HAS_EXPIRED;
+    static const int    V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD;
+    static const int    V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD;
+    static const int    V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD;
+    static const int    V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD;
+    static const int    V_ERR_OUT_OF_MEM;
+    static const int    V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT;
+    static const int    V_ERR_SELF_SIGNED_CERT_IN_CHAIN;
+    static const int    V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY;
+    static const int    V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE;
+    static const int    V_ERR_CERT_CHAIN_TOO_LONG;
+    static const int    V_ERR_CERT_REVOKED;
+    static const int    V_ERR_INVALID_CA;
+    static const int    V_ERR_PATH_LENGTH_EXCEEDED;
+    static const int    V_ERR_INVALID_PURPOSE;
+    static const int    V_ERR_CERT_UNTRUSTED;
+    static const int    V_ERR_CERT_REJECTED;
+    static const int    V_ERR_SUBJECT_ISSUER_MISMATCH;
+    static const int    V_ERR_AKID_SKID_MISMATCH;
+    static const int    V_ERR_AKID_ISSUER_SERIAL_MISMATCH;
+    static const int    V_ERR_KEYUSAGE_NO_CERTSIGN;
+
+    static const int    V_ERR_APPLICATION_VERIFICATION;
+
+
     /** Constructor for a SSLCertificateInfo object.
-    @param subjectName subject name of the certificate
-    @param issuerName  issuer name of the certificate
-    @param errorDepth  depth of the certificate chain
+    Note: Do not use this constructor, instead use the private constructor.
+    The constructor is not for client applications use, it is intended to be
+    used only by the CIMServer.
+    @param subjectName subject name of the certificate.
+    @param issuerName  issuer name of the certificate.
+    @param errorDepth  depth of the certificate chain.
     @param errorCode   error code from the default verification of the
-    certificates by the Open SSL library.
+    certificate by the OpenSSL library.
+    @param respCode   result code from the default verification of the
+    certificate by the OpenSSL library.
     */
     SSLCertificateInfo(
         const String subjectName,
@@ -71,41 +120,104 @@ public:
 
     ~SSLCertificateInfo();
 
-    /** Gets the subject name of the certificate
+    /** Gets the subject name of the certificate.
     @return a string containing the subject name.
     */
     String getSubjectName() const;
 
-    /** Gets the issuer name of the certificate
+    /** Gets the issuer name of the certificate.
     @return a string containing the issuer name.
     */
     String getIssuerName() const;
 
-    /** Gets the depth of the certificate chain
+    /** Gets the notAfter date from the validity period of 
+    the certificate.
+    @return a CIMDateTime containing the notAfter date.
+    */
+    CIMDateTime getNotAfter() const;
+
+    /** Gets the notBefore date from the validity period of 
+    the certificate.
+    @return a CIMDateTime containing the notBefore date.
+    */
+    CIMDateTime getNotBefore() const;
+
+    /** Gets the version (version number) from the certificate.
+    @return a int containing the version.
+    */
+    Uint32 getVersionNumber() const;
+
+    /** Gets the serialNumber value from the certificate.
+    @return a long integer containing the serial number.
+    */
+    long getSerialNumber() const;
+
+    /** Gets the depth of the certificate chain.
     @return an int containing the depth of the certificate chain
     */
-    int getErrorDepth() const;
+    Uint32 getErrorDepth() const;
 
-    /** Gets the preverify error code
-    @return an int containing the preverification error code 
+    /** Gets the pre-verify error code.
+    @return an int containing the pre-verify error code 
     */
-    int getErrorCode() const;
+    Uint32 getErrorCode() const;
 
-    /** Gets the preverify response code
-    @return an int containing the preverify response code 
+    /** Sets the error code.
+    @param errorCode error code to be set
     */
-    int getResponseCode() const;
+    void setErrorCode(const int errorCode);
 
-    /** Sets the response code
+    /** Gets the pre-verify error string.
+    @return a string containing the pre-verify error string
+    */
+    String getErrorString() const;
+
+    /** Gets the pre-verify response code.
+    @return an int containing the pre-verify response code 
+    */
+    Uint32 getResponseCode() const;
+
+    /** Sets the response code.
+    Note: Do not use this function, the value set using this function 
+    is ignored.
     @param respCode response code to be set.
     */
     void setResponseCode(const int respCode);
 
 private:
 
+    /** Constructor for a SSLCertificateInfo object.
+    @param subjectName subject name of the certificate.
+    @param issuerName  issuer name of the certificate.
+    @param version version number value from the certificate.
+    @param serailNumber serial number value from the certificate.
+    @param notAfter notAfter date from the validity period of the certificate.
+    @param notBefore notBefore date from the validity period of the certificate.
+    @param depth  depth of the certificate chain.
+    @param errorCode   error code from the default verification of the
+    certificate by the OpenSSL library.
+    @param errorString error message from the default verification of the
+    certificate by the Open SSL library.
+    @param respCode   result code from the default verification of the
+    certificate by the OpenSSL library.
+    */
+    SSLCertificateInfo(
+        const String subjectName,
+        const String issuerName,
+        const Uint32 versionNumber,
+        const long   serialNumber,
+        const CIMDateTime notBefore,
+        const CIMDateTime notAfter,
+        const Uint32 depth,
+        const Uint32 errorCode,
+        const String errorString,
+        const Uint32 respCode);
+
     SSLCertificateInfo();
 
     SSLCertificateInfoRep* _rep;
+
+    friend int prepareForCallback(int, X509_STORE_CTX*);
 };
 
 
@@ -123,7 +235,7 @@ class PEGASUS_COMMON_LINKAGE SSLContext
 public:
 
     /** Constructor for a SSLContext object.
-    @param certPath  certificate file path
+    @param trustPath file path of the trust store
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -133,7 +245,7 @@ public:
     @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
-        const String& certPath,
+        const String& trustPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY);
 
@@ -153,8 +265,9 @@ private:
 
     /** Constructor for a SSLContext object. This constructor is intended
     to be used by the CIMServer only.
-    @param certPath  certificate file path
-    @param certKeyPath  certificate key file path
+    @param trustPath file path of the trust store.
+    @param certPath  file path of the server certificate.
+    @param KeyPath  file path of the private key. 
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -164,8 +277,9 @@ private:
     @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
+        const String& trustPath,
         const String& certPath,
-        const String& certKeyPath,
+        const String& keyPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 

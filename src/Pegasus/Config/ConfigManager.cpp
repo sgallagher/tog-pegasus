@@ -139,6 +139,7 @@ static struct OwnerEntry _properties[] =
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},

@@ -178,10 +178,10 @@ void test01()
     assert(cinstance3.identical(cinstance1));
 
     assert(cinstance1.getClassName() == "MyClass");
-    assert(cinstance1.isClassName("MyClass"));
-    assert(cinstance1.isClassName("MYCLASS"));
-    assert(cinstance1.isClassName("myclass"));
-    assert(!cinstance1.isClassName("blob"));
+    assert(cinstance1.equalClassName("MyClass"));
+    assert(cinstance1.equalClassName("MYCLASS"));
+    assert(cinstance1.equalClassName("myclass"));
+    assert(!cinstance1.equalClassName("blob"));
 
 
 

@@ -57,7 +57,7 @@ public:
 	return _reference.getClassName();
     }
 
-    const Boolean isClassName(const String& classname) const
+    const Boolean equalClassName(const String& classname) const
     {
 	return (String::equalNoCase(classname, _reference.getClassName()));
     }

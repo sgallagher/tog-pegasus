@@ -61,7 +61,7 @@ void test01()
 	    .addParameter(CIMParameter("port", CIMType::UINT32)));
 
     // Test the method count function
-    assert(class1.isClassName("myclass"));
+    assert(class1.equalClassName("myclass"));
     assert(class1.getSuperClassName() == "YourClass");
 
     assert(class1.getMethodCount() ==1);
@@ -199,7 +199,7 @@ void test01()
 
     CIMClass c2("MyClass");
 
-    assert(c2.isClassName("myclass"));
+    assert(c2.equalClassName("myclass"));
 
 
     // Error uninitialized handle
@@ -297,10 +297,10 @@ void test01()
     assert(!c4.existsProperty("count"));
 
     assert(c4.getClassName() == "MyClass");
-    assert(c4.isClassName("MyClass"));
-    assert(c4.isClassName("MYCLASS"));
-    assert(c4.isClassName("myclass"));
-    assert(!c4.isClassName("blob"));
+    assert(c4.equalClassName("MyClass"));
+    assert(c4.equalClassName("MYCLASS"));
+    assert(c4.equalClassName("myclass"));
+    assert(!c4.equalClassName("blob"));
 
 
     assert(c4.getSuperClassName() == "YourClass");

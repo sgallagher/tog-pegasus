@@ -103,6 +103,10 @@ void test01()
 	r1.setHost(hostName);
 	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
+	assert(r1.equalClassName("TENNISPLAYER"));
+	assert(!r1.equalClassName("blob"));
+
+
 	String newHostName = r1.getHost();
 	//cout << "HostName = " << newHostName << endl;
 

@@ -648,6 +648,11 @@ void CIMReference::setNameSpace(const String& nameSpace)
    _nameSpace = nameSpace;
 }
 
+const Boolean CIMReference::equalClassName(const String& classname) const
+{
+	return (String::equalNoCase(classname, CIMReference::getClassName()));
+}
+
 void CIMReference::setClassName(const String& className)
 {
     if (!CIMName::legal(className))

@@ -491,11 +491,20 @@ public:
     */
     void setNameSpace(const String& nameSpace);
 
-    /** Accessor. */
+    /** Accessor for className attribute.
+	@return String containing the classname.
+     */
     const String& getClassName() const
     {
 	return _className;
     }
+
+    /** equalClassName - Tests the classname component against the
+	String provided.  Note that classnames are case independent.
+	@classname - String for name to test
+	@return Boolean true if equal (noCase).
+    */
+    const Boolean equalClassName(const String& classname) const;
 
     /** Sets the classname component of the CIMReference object to the input
         parameter.
@@ -506,7 +515,7 @@ public:
 	   [A-Z-a-z_][A-Za-z_0-9]*
         </PRE>
     */
-    void setClassName(const String& className);
+    void setClassName(const String& className) throw(IllegalName);
 
     /** getKeyBindings - Returns an Array of keybindings from the
         CIMReference representing all of the key/value pairs defined in the

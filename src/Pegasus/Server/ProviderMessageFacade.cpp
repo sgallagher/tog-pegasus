@@ -256,13 +256,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	    propertyList,
 	    handler);
 
-	// save returned instance
-
-	// ATTN: can be removed once CIMNamedInstance is removed
-	for(Uint32 i = 0, n = handler.getObjects().size(); i < n; i++)
-	{
-	    cimInstances.append (handler.getObjects ()[i]);
-	}
+	// save returned instances
+        cimInstances = handler.getObjects();
     }
     catch(CIMException & e)
     {

@@ -150,18 +150,8 @@ public:
 
     virtual void complete(const OperationContext & context)
     {
-        Array<CIMInstance> cimInstances;
-
-        // ATTN: can be removed once CIMNamedInstance is removed
-        for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
-        {
-            CIMInstance cimInstance(getObjects()[i]);
-
-            cimInstances.append (cimInstance);
-        }
-
         static_cast<CIMEnumerateInstancesResponseMessage *>(
-            getResponse())->cimNamedInstances = cimInstances;
+            getResponse())->cimNamedInstances = getObjects();
     }
 
 };
@@ -302,7 +292,7 @@ public:
     {
         Array<CIMObjectWithPath> cimObjects;
 
-        // ATTN: can be removed once CIMNamedInstance is removed
+        // ATTN: can be removed once CIMObjectWithPath is removed
         for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
         {
             CIMObject cimObject(getObjects()[i]);

@@ -708,14 +708,10 @@ void CIMObjectPath::set(const String& objectName)  throw(IllformedObjectName)
 
     // Convert to a C String first:
 
-    char* p = objectName.allocateCString(1);
+    char* p = objectName.allocateCString();
     ArrayDestroyer<char> destroyer(p);
     Boolean gotHost;
     Boolean gotNamespace;
-
-    // null terminate the C String
-    // ATTN-RK-P3-20020301: Is the +1 correct?
-    p[objectName.size() + 1]= '\0';
 
     gotHost = _parseHostElement(objectName, p, _rep->_host);
     gotNamespace = _parseNamespaceElement(objectName, p, _rep->_nameSpace);

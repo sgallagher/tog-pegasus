@@ -48,6 +48,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+   Provider module status
+*/
+static const Uint16 _MODULE_OK        = 2;
+
+static const Uint16 _MODULE_STOPPED   = 10;
+
 static ProviderManager providerManager;
 
 static struct timeval await = { 0, 40};
@@ -2105,7 +2112,6 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-//ATTN-YZ-P1-20020424: Need to be implemented
 void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMDisableModuleRequestMessage * request =
@@ -2116,10 +2122,52 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 
     Array<Uint16> operationalStatus;
 
+    // get provider module name
+    String moduleName;
+    CIMInstance mInstance = request->providerModule;
+    Uint32 pos = mInstance.findProperty("Name");
+    if (pos == PEG_NOT_FOUND)
+    {
+        throw CIMException(CIM_ERR_FAILED, "Provider module name not found");
+    }
+    mInstance.getProperty(pos).getValue().get(moduleName);
+
+    // set module status to be Stopped
+    operationalStatus.append(_MODULE_STOPPED);
+
+    if (_providerRegistrationManager->setProviderModuleStatus
+        (moduleName, operationalStatus) == false)
+    {
+        throw CIMException(CIM_ERR_FAILED, "set module status failed.");
+    }
+
+    Array<CIMInstance> _pInstances = request->providers;
+
+    for (Uint32 i=0, n= _pInstances.size(); i<n; i++)
+    {
+        // get the provider file name and logical name
+        Pair<String, String> pair = _getProviderRegPair(_pInstances[i], mInstance);
+
+        Provider provider(pair.second, pair.first);
+
+        // if the provider is loaded, terminate the provider
+        if (providerManager.isProviderLoaded(pair.second, provider))
+        {
+            provider.terminateProvider();
+        }
+
+        // if all the providers are terminated, unload the library
+        if (i == n-1)
+        {
+            // unload the library
+            provider.unloadModule();
+        }
+    }
+
     CIMDisableModuleResponseMessage * response =
 	new CIMDisableModuleResponseMessage(
 	request->messageId,
-	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+ 	CIMException(),	
 	request->queueIds.copyAndPop(),
 	operationalStatus);
 
@@ -2138,7 +2186,6 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-//ATTN-YZ-P1-20020424: Need to be implemented
 void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMEnableModuleRequestMessage * request =
@@ -2150,10 +2197,19 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
 
     Array<Uint16> operationalStatus;
 
+    // set module status to be OK
+    operationalStatus.append(_MODULE_OK);
+
+    if (_providerRegistrationManager->setProviderModuleStatus
+        (request->moduleName, operationalStatus) == false)
+    {
+        throw CIMException(CIM_ERR_FAILED, "set module status failed.");
+    }
+
     CIMEnableModuleResponseMessage * response =
 	new CIMEnableModuleResponseMessage(
 	request->messageId,
-	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	operationalStatus);
 

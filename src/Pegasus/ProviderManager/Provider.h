@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,9 @@ public:
 
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate(void);
+    virtual void terminateProvider(void);
 
+    void unloadModule(void);
     String getName(void) const;
 
 protected:

@@ -24,6 +24,7 @@
 //
 // Modified By:
 //              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,6 +108,16 @@ void ProviderModule::unload(void)
 	_provider = 0;
     }
 
+    if(_library != 0)
+    {
+	System::unloadDynamicLibrary(_library);
+
+	_library = 0;
+    }
+}
+
+void ProviderModule::unloadModule(void)
+{
     if(_library != 0)
     {
 	System::unloadDynamicLibrary(_library);

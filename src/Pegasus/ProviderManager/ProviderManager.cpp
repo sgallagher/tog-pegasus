@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,117 +95,22 @@ Provider ProviderManager::getProvider(
     return(getProvider(fileName, providerName));
 }
 
-void ProviderManager::addProviderToTable(const String & providerName, Boolean BlockFlag)
+Boolean ProviderManager::isProviderLoaded(
+    const String & providerName,
+    Provider & _provider)
 {
-    /*
-    ProviderBlockedEntry providerInfo(providerName, BlockFlag);
-
-    // add providerInfo to provider block table
-    _providerBT.append(providerInfo);
-    */
-}
-
-void ProviderManager::removeProviderFromTable(const String & providerName)
-{
-    /*
-    for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
-    {
-	if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
-	{
-	    _providerBT.remove(i);
-	}
-    }
-    */
-}
-
-Uint32 ProviderManager::blockProvider(const String & providerName)
-{
-    /*
-    for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
-    {
-	if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
-	{
-	    _providerBT[i].setProviderBlockFlag(true);
-	    return(0);
-	}
-    }
-    */
-
-    return(1);
-}
-
-Uint32 ProviderManager::unblockProvider(const String & providerName)
-{
-    /*
-    for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
-    {
-	if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
-	{
-	    _providerBT[i].setProviderBlockFlag(false);
-	    return(0);
-	}
-    }
-    */
-
-    return(1);
-}
-
-Boolean ProviderManager::isProviderBlocked(const String & providerName)
-{
-    /*
-    for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
-    {
-	if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
-	{
-	    return(_providerBT[i].getProviderBlockFlag());
-	}
-    }
-    */
-
-    return(false);
-}
-
-void ProviderManager::createProviderBlockTable(Array<CIMNamedInstance> & namedinstances)
-{
-    /*
-    String providerName;
-    Boolean blockFlag;
-    CIMInstance instance;
-
-    for(Uint32 i = 0, n = namedinstances.size(); i < n; i++)
-    {
-	instance = namedinstances[i].getInstance();
-	providerName = instance.getProperty(
-	    instance.findProperty("Name")).getValue().toString();
-	instance.getProperty(instance.findProperty("blocked")).
-	    getValue().get(blockFlag);
-	
-	addProviderToTable(providerName, blockFlag);
-    }
-    */
-}
-
-Uint32 ProviderManager::stopProvider(const String & providerName)
-{
-    /*
-    // check list for requested provider. If found, terminate the
-    // provider and unload library
+    // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-	if(String::equalNoCase(providerName, _providers[i].getProviderName()))
+	if(String::equalNoCase(providerName, _providers[i].getName()))
 	{
-	    // Terminate the provider, unload its library, and remove its entry
-	    _providers[i].getProvider()->terminate();
-	    // ATTN: Only unload if this is the last provider loaded from this library
-	    _providers[i].unload();
+	    _provider = _providers[i];
 	    _providers.remove(i);
-	    return(0);
+	    return(true);
 	}
     }
 
-    // if provider is not loaded, just return
-    */
-    return(0);
+    return(false);
 }
 
 void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)

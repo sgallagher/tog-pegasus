@@ -322,7 +322,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
 // only support to change property of Namespaces, property of 
 // SupportedProperties, and property of SupportedMethods
 void ProviderRegistrationProvider::modifyInstance(
-        const OperationContext & context,
+        const OperationContext & _context,
         const CIMReference & instanceReference,
         const CIMInstance & instanceObject,
         const Uint32 flags,
@@ -539,7 +539,7 @@ void ProviderRegistrationProvider::deleteInstance(
     {
        cout << " caught exception in ProviderRegistrationProvider" << endl;
        cout << " rethrowing " << endl;
-       
+
         throw (e);
     }
 
@@ -603,6 +603,33 @@ void ProviderRegistrationProvider::invokeMethod(
 	    }
 	}
 
+	CIMInstance mInstance;
+	CIMInstance instance;
+	Array<CIMInstance> instances;
+	String _moduleName;
+
+	// get module instance
+	mInstance = _providerRegistrationManager->getInstance(objectReference);
+
+	// get all provider instances which have same module name as moduleName
+	CIMReference providerRef(objectReference.getHost(),
+				 objectReference.getNameSpace(),
+				 PEGASUS_CLASSNAME_PROVIDER,
+				 objectReference.getKeyBindings());
+	Array<CIMNamedInstance> namedInstances;
+	namedInstances = _providerRegistrationManager->enumerateInstances(providerRef);
+	for(Uint32 i = 0, n=namedInstances.size(); i < n; i++)
+	{
+	    instance = namedInstances[i].getInstance();
+	    instance.getProperty(instance.findProperty
+	    (_PROPERTY_PROVIDERMODULENAME)).getValue().get(_moduleName);	
+	    if (String::equalNoCase(_moduleName, moduleName))
+	    {
+		instances.append(instance);
+	    }
+ 
+	}
+
         // 
         // get provider manager service
         //
@@ -612,7 +639,8 @@ void ProviderRegistrationProvider::invokeMethod(
 	CIMDisableModuleRequestMessage * disable_req = 
 	    new CIMDisableModuleRequestMessage(
 		XmlWriter::getNextMessageId (),
-		moduleName,
+		mInstance,
+		instances,
 		QueueIdStack(_service->getQueueId()));
 
   	Array<Uint16> _opStatus = 
@@ -742,6 +770,8 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
             disable_req,
             _queueId);
 
+// ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
+/*
     if( false  == _controller->ClientSendAsync(*_client_handle,
                                                0,
                                                _queueId,
@@ -779,7 +809,31 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
     delete asyncReply;
     delete response;
     delete cb_data;
+*/
 
+// ATTN-YZ-P2-05032002: Temporarily use ClientSendWait, until asyn_callback fixed
+
+    AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
+							  _queueId,
+							  asyncRequest);
+    CIMEnableModuleResponseMessage * response =
+	reinterpret_cast<CIMEnableModuleResponseMessage *>(
+             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+	CIMException e = response->cimException;
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
+	throw (e);
+    }
+
+    Array<Uint16> operationalStatus = response->operationalStatus; 
+
+    delete asyncRequest;
+    delete asyncReply;
+    delete response;
+    
     return(operationalStatus);
 }
 
@@ -800,6 +854,8 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
             enable_req,
             _queueId);
 
+// ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
+/*
     if( false  == _controller->ClientSendAsync(*_client_handle,
                                                0,
                                                _queueId,
@@ -835,6 +891,30 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
     delete asyncReply;
     delete response;
     delete cb_data;
+*/
+
+// ATTN-YZ-P2-05032002: Temporarily use ClientSendWait, until asyn_callback fixed
+
+    AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
+							  _queueId,
+							  asyncRequest);
+    CIMEnableModuleResponseMessage * response =
+	reinterpret_cast<CIMEnableModuleResponseMessage *>(
+             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+	CIMException e = response->cimException;
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
+	throw (e);
+    }
+
+    Array<Uint16> operationalStatus = response->operationalStatus; 
+
+    delete asyncRequest;
+    delete asyncReply;
+    delete response;
     
     return(operationalStatus);
 }

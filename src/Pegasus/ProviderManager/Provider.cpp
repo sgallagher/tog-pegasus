@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +75,29 @@ void Provider::terminate(void)
     pegasus_yield();
 
     _module.unload();
+}
+
+void Provider::terminateProvider(void)
+{
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
+
+    ProviderFacade::terminate();
+
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
+
+    if(_provider != 0)
+    {
+        delete _provider;
+
+        _provider = 0;
+    }
+}
+
+void Provider::unloadModule(void)
+{
+    _module.unloadModule();
 }
 
 PEGASUS_NAMESPACE_END

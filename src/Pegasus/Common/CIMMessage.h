@@ -1741,7 +1741,8 @@ class CIMDisableModuleRequestMessage : public CIMRequestMessage
 
     CIMDisableModuleRequestMessage(
         const String& messageId_,
-        const String& moduleName_,
+	const CIMInstance& providerModule_,
+	const Array<CIMInstance>& providers_,
         QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
@@ -1750,7 +1751,8 @@ class CIMDisableModuleRequestMessage : public CIMRequestMessage
             CIM_DISABLE_MODULE_REQUEST_MESSAGE,
 	    messageId_,
 	    queueIds_),
-        moduleName(moduleName_),
+	providerModule(providerModule_),
+	providers(providers_),
 	authType(authType_),
 	userName(userName_)
     {
@@ -1761,13 +1763,15 @@ class CIMDisableModuleRequestMessage : public CIMRequestMessage
       {
 	 if(this != &msg)
 	 {
-            moduleName = msg.moduleName;
+            providerModule = msg.providerModule;
+	    providers = msg.providers;
             authType = msg.authType;
             userName = msg.userName;
 	 }
       }
 
-    String moduleName;
+    CIMInstance providerModule;
+    Array<CIMInstance> providers;
     String authType;
     String userName;
 };

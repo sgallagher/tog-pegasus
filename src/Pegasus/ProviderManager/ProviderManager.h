@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,14 +49,7 @@ public:
 
 public:
     Provider getProvider(const String & fileName, const String & providerName);
-
-    void addProviderToTable(const String & providerName, Boolean BlockFlag);
-    void removeProviderFromTable(const String & providerName);
-    Uint32 blockProvider(const String & providerName);
-    Uint32 unblockProvider(const String & providerName);
-    Uint32 stopProvider(const String & providerName);
-    Boolean isProviderBlocked(const String & providerName);
-    void createProviderBlockTable(Array<CIMNamedInstance> & instances);
+    Boolean isProviderLoaded(const String & providerName, Provider & _provider);
 
     void shutdownAllProviders(const String & providerName, const String & className);
 

@@ -19,7 +19,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By:
 //
@@ -515,7 +515,7 @@ getoopt::isSet(const String &s) const {
   unsigned int cnt = 0;
   for (unsigned int i = 0; i < _args.size(); i++) {
     const Optarg &o = _args[i];
-    if (o.optarg() == s) {
+    if (o.getopt() == s) {
       cnt++;
     }
   }

@@ -19,7 +19,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By:
 //

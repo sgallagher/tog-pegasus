@@ -275,7 +275,7 @@ struct RegTableHash
     }
 };
 
-typedef HashTable<String,  struct reg_table_record *, RegTableEqual, RegTableHash > routing_table;
+typedef HashTable<String,  reg_table_record *, RegTableEqual, RegTableHash > routing_table;
 
 typedef HashTable<Uint32, routing_table *, EqualFunc<Uint32>, HashFunc<Uint32> > type_table;
 

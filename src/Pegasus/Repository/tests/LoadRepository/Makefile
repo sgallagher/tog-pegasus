@@ -13,7 +13,7 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(RMDIRHIER) $(REPOSITORY_ROOT)/repository
-	LoadRepository $(REPOSITORY_ROOT) $(ROOT)/doc/CIM_Schema24.xml
+	LoadRepository $(REPOSITORY_ROOT) $(ROOT)/doc/CIM_Schema25.xml
 
 local_clean_target:
 	$(RMDIRHIER) $(REPOSITORY_ROOT)/repository

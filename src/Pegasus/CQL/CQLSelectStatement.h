@@ -1,5 +1,5 @@
-#ifndef CQLSELECTSTATEMENT_H_HEADER_INCLUDED_BEE5C36E
-#define CQLSELECTSTATEMENT_H_HEADER_INCLUDED_BEE5C36E
+#ifndef Pegasus_CQLSelectStatement_h
+#define Pegasus_CQLSelectStatement_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/SelectStatement.h>
@@ -24,7 +24,6 @@ Notes on CQLSelectStatement class:
 
 
    */
-//##ModelId=40D98176032C
 class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 {
   public:
@@ -34,7 +33,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
                  the query itself, 
                  and the name of the CIM namespace.
        */
-    //##ModelId=40D9CF6C0307
     CQLSelectStatement(
         /**  The query language is needed so the
               base class can retrieve the query language.
@@ -53,7 +51,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
           base SelectStatement class.
     
        */
-    //##ModelId=40D9CF4B01C0
     Boolean evaluate(
         /**  The CIM instance that will be evaluated.
                The CIMInstance object is not modified by this method.
@@ -63,7 +60,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /**  Implements the executeQuery method from the
           base SelectStatement class.
        */
-    //##ModelId=40D9CF5000C3
     Array<CIMInstance> executeQuery(
         /** Input parameter that is an array of CIM Instance objects on which
              to execute the query.
@@ -73,7 +69,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /**  Implements the applyProjection method from the
           base SelectStatement class.
        */
-    //##ModelId=40D9CF5403CC
     CIMInstance applyProjection(
         /**  Input the CIMInstance object in which to apply the
               projection.
@@ -83,19 +78,16 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /**  Implements the validatedClass method from the
           base SelectStatement class.
        */
-    //##ModelId=410513ED03D0
     void validateClass(const CIMObjectPath& inClassName) throw(Exception);
 
     /**  Implements the validatedProperties method from the
           base SelectStatement class.
        */
-    //##ModelId=40D9CF5E0054
     void validateProperties() throw(Exception);
 
     /** Returns an array of CIMObjectPath objects that are the 
           class paths from the select statement in the FROM list.
      */
-    //##ModelId=40F43FE503C2
     Array<CIMObjectPath> const getClassPathList();
 
     /** Returns the required properties from the combined SELECT and WHERE
@@ -104,7 +96,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
          If all the properties for the input classname are required, a null
          CIMPropertyList is returned.
        */
-    //##ModelId=410512AC0316
     CIMPropertyList getPropertyList(
         /**  The input parameter className is one of the
               classes from the FROM list.
@@ -116,7 +107,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
          Appends a CQLIdentifier to an array of CIMObjectPaths from the FROM
     statement.
         */
-    //##ModelId=40E01E7B01EE
     void appendClassPath(
         /**  
            */
@@ -125,7 +115,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /** Sets a predicate into this object. This method should only
             be called by Bison.
         */
-    //##ModelId=40E0398E0346
     void setPredicate(
         // CQLOperation is an enum similar to the WQLOperation enum in CVS:
         // enum CQLOperation
@@ -154,7 +143,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     
         TODO:  think about exceptions such as duplicate key.
      */
-    //##ModelId=40E03D3A03CC
     void insertClassPathAlias(
         /**  The CQLIdentifier object that contains the class path.
            */
@@ -167,7 +155,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     should
             not call this method; it should only be called by the Bison.
         */
-    //##ModelId=40F428D000A4
     void appendSelectIdentifier(const CQLChainedIdentifier& x);
 
     /** Appends a CQL Identifier to the where CQL identifier list. The user
@@ -205,7 +192,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         //
     
         */
-    //##ModelId=40F42CDC02EF
     Array<CQLIdentifier> _selectIdentifiers;
 
     /** 
@@ -217,15 +203,13 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
        TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
        NOT IMPLEMENTED IN PEGASUS V2.5
        */
-    //##ModelId=40F42CE1006B
     Array<CQLIdentifier> _whereIdentifiers;
 
   private:
-    //##ModelId=40F4427703B4
     CQLPredicate _predicate;
 
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* CQLSELECTSTATEMENT_H_HEADER_INCLUDED_BEE5C36E */
+#endif 

@@ -263,12 +263,12 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
     try
     {
         //
-        // construct CIMReference 
+        // construct CIMObjectPath 
         //
         String referenceStr = "//";
         referenceStr.append(hostStr);
         referenceStr.append("/root/cimv2:PG_ShutdownService");
-        CIMReference reference(referenceStr);
+        CIMObjectPath reference(referenceStr);
 
         //
         // issue the invokeMethod request on the shutdown method

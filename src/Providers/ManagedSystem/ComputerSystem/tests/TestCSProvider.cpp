@@ -146,7 +146,7 @@ void errorExit(CIMClientException& e)
 
 int testClass(const String& className)
 {
-  Array<CIMReference> refs;
+  Array<CIMObjectPath> refs;
 
   // =======================================================================
   // enumerateInstanceNames
@@ -179,7 +179,7 @@ int testClass(const String& className)
 
   // pick the middle instance of the bunch
   int i = (refs.size()-1) >> 1;  // This is a shift right, not streamio!
-  CIMReference ref = refs[i];
+  CIMObjectPath ref = refs[i];
   CIMInstance inst;
   cout << "+++++ getInstance #" << i << endl;
   try
@@ -225,7 +225,7 @@ int testClass(const String& className)
   // createInstance
   // =======================================================================
 
-  CIMReference ref2;
+  CIMObjectPath ref2;
   cout << "+++++ createInstance" << endl;
   status = 0;
   try

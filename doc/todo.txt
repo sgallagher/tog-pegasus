@@ -21,6 +21,13 @@ Urgent
 Topical To-Do List
 ==================
 
+    - 	Sun uses string message-ids. Pegasus uses integer.
+	Sun uses 2000.5.12.... format. Changed Pegasus to
+	use string message-ids. DONE.
+
+    -   Some clients send '\n\n' to terminate HTTP headers.
+	We were only accepted '\r\n\r\n'. DONE.
+
     -	Provide way of printing out command line options help from cimserver.
 
     - 	GetInstances() and GetClasses() need to use iterators on

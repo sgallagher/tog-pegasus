@@ -4,7 +4,7 @@ DIR = Providers/sample/CMPI/FilesAndDirectories
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DSIMULATED
+LOCAL_DEFINES = -DSIMULATED -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 LIBRARY = FilesAndDirectories
 	

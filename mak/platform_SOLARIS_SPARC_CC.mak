@@ -6,6 +6,20 @@ ARCHITECTURE = sparc
 
 COMPILER = CC
 
+CXX = CC
+
+SH = sh
+
+YACC = yacc
+
+COPY = cp
+
+MOVE = mv
+
+LIB_SUFFIX = .so
+
+PEGASUS_SUPPORTS_DYNLIB = yes
+
 SYS_INCLUDES = 
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_POSIX_PTHREAD_SEMANTICS
@@ -42,20 +56,12 @@ else
 SYS_LIBS += -lrt
 endif
 
+ifdef PEGASUS_HAS_SSL
+	ifdef PEGASUS_USE_SSL_SHAREDLIB
+		EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+	else
+		$(error Static linking of OpenSSL is not currently supported on this platform.)
+	endif
+endif
+
 SYS_LIBS += $(EXTRA_LIBRARIES)
-
-CXX = CC
-
-SH = sh
-
-YACC = yacc
-
-COPY = cp
-
-MOVE = mv
-
-LIB_SUFFIX = .so
-
-PEGASUS_SUPPORTS_DYNLIB = yes
-
-

@@ -204,6 +204,16 @@ ProviderManagerService::ProviderManagerService(
        new ProviderManagerContainer("CMPIProviderManager", "CMPI", "CMPI"));
     #endif
     #endif
+
+    #if defined(ENABLE_JMPI_PROVIDER_MANAGER)
+    #if defined(PEGASUS_OS_OS400)
+    _providerManagers.append(
+       new ProviderManagerContainer("QSYS/QYCMJMPIPM", "JMPI", "JMPI"));
+    #else
+    _providerManagers.append(
+       new ProviderManagerContainer("JMPIProviderManager", "JMPI", "JMPI"));
+    #endif
+    #endif
     // END TEMP SECTION
 }
 

@@ -275,13 +275,16 @@ Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func)const
       return false;
     }
 
-  for(Uint32 i = 0; i < _parms.size(); ++i)
-    {
-      if(_parms[i] != func._parms[i])
-	{
-	  return false;
-	}
-    }
+  // If we need to ensure that all predicates are the same
+  // for this operator then the CQLPredicate class will need
+  // to support operator==.
+  //for(Uint32 i = 0; i < _parms.size(); ++i)
+  //  {
+  //    if(!(_parms[i] == func._parms[i]))
+  //	{
+  //	  return false;
+  //	}
+  //  }
 
   return true;
 }

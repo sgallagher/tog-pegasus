@@ -122,7 +122,7 @@ Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, S
     _useSSL = useSSL;
     _sslContext = sslContext;
 
-    if (_useSSL && (_sslContext = NULL))
+    if (_useSSL && (_sslContext == NULL))
     {
         throw Exception(MessageLoaderParms("DynListener.ListenerService.INVALID_SSL_CONFIGURATION",
                                            "Invalid SSL configuration: No SSLContext was specified."));

@@ -111,8 +111,6 @@ public:
     */
     void filter(String& pattern)
     {
-      if (!String::equalNoCase(pattern, "*"))
-      {
 	// Filter the list in accordance with the pattern
 	//cout << "Filter Start " << _classNameList.size() << endl;
 	Array<String> tmp;
@@ -131,7 +129,6 @@ public:
       }
 	//cout << "Filter finished " << _classNameList.size() << endl;
 
-    }
     /* getIndex - Get the current index in the list.  This is used with
         next and start functions to get entries in the list one by one.
     */

@@ -137,8 +137,17 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifierRep::parse");
 		  range = range.subString(1,range.size()-2);  // remove left and right bracket
 		  while(index != PEG_NOT_FOUND){
 			if((index = range.find(',')) != PEG_NOT_FOUND){
-				_indices.append(SubRange(range.subString(0,index)));
-				range = range.subString(index+1);
+				// Basic query error
+                        	MessageLoaderParms parms(String("CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES"),
+                                                 String("The identifier contains one or more commas which is not allowed in CQL Basic query: $0"),
+                                                 identifier);
+                        	throw CQLIdentifierParseException(parms);
+				// 
+				// For basic query the following lines are disabled
+				// An exception is thrown if we have ',' in the array range
+				//
+				//_indices.append(SubRange(range.subString(0,index)));
+				//range = range.subString(index+1);
 			}else{
 				_indices.append(SubRange(range));
 			}

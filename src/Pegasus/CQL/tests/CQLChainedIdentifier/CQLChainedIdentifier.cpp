@@ -87,14 +87,19 @@ void drive_CQLIdentifier(){
 	assert(symbolicConstantID.isSymbolicConstant());
 	assert(symbolicConstantID.getSymbolicConstantName() == "OK");
 
+   try{
 	CQLIdentifier rangeID("SCOPE::Name[5,6,7]");
+	// Basic query check
+	assert(false);
 	assert(rangeID.getName() == "Name");
-	assert(rangeID.isArray());
-	Array<SubRange> subRanges = rangeID.getSubRanges();
-   assert(subRanges[0] == String("5"));
-   assert(subRanges[1] == String("6"));
-   assert(subRanges[2] == String("7"));
-	assert(rangeID.getScope() == "SCOPE");
+        assert(rangeID.isArray());
+        Array<SubRange> subRanges = rangeID.getSubRanges();
+   	assert(subRanges[0] == String("5"));
+   	assert(subRanges[1] == String("6"));
+   	assert(subRanges[2] == String("7"));
+        assert(rangeID.getScope() == "SCOPE");
+   }catch(CQLIdentifierParseException& e){
+   }
 
    try 
    {
@@ -209,7 +214,8 @@ void drive_CQLChainedIdentifier()
   }
 
   // Good case with all the bells and whistles, except wildcard
-  CQLChainedIdentifier _CI("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].SCOPE3::PROP#'ok'");
+  //CQLChainedIdentifier _CI("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].SCOPE3::PROP#'ok'");
+  CQLChainedIdentifier _CI("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[3].SCOPE3::PROP#'ok'");
 
   Array<CQLIdentifier> _arr = _CI.getSubIdentifiers();
   assert(_arr.size() == 4);
@@ -233,11 +239,11 @@ void drive_CQLChainedIdentifier()
   assert(!_arr[2].isSymbolicConstant());
   assert(_arr[2].isArray());
   Array<SubRange> ranges = _arr[2].getSubRanges();
-  assert(ranges.size() == 4);
-  assert(ranges[0] == String("1"));
-  assert(ranges[1] == String("3"));
-  assert(ranges[2] == String("5"));
-  assert(ranges[3] == String("7"));
+  assert(ranges.size() == 1);
+  //assert(ranges[0] == String("1"));
+  assert(ranges[0] == String("3"));
+  //assert(ranges[2] == String("5"));
+  //assert(ranges[3] == String("7"));
   assert(!_arr[2].isWildcard());
 
   assert(_arr[3].getName() == "PROP");
@@ -249,7 +255,7 @@ void drive_CQLChainedIdentifier()
   assert(!_arr[3].isWildcard());
 
   // Good case with all the bells and whistles, and wildcard
-  CQLChainedIdentifier _CI1("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].*");
+  CQLChainedIdentifier _CI1("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[7].*");
 
   _arr = _CI1.getSubIdentifiers();
   assert(_arr.size() == 4);
@@ -258,6 +264,17 @@ void drive_CQLChainedIdentifier()
   assert(!_arr[3].isSymbolicConstant());
   assert(!_arr[3].isArray());
   assert(_arr[3].isWildcard());
+
+  try{
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[..3].SCOPE3::PROP#'ok'");
+	assert(false);
+  }catch(QueryParseException& e){
+  }
+  try{
+        CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3..].SCOPE3::PROP#'ok'");
+        assert(false);
+  }catch(QueryParseException& e){
+  }
 }
 
 int main( int argc, char *argv[] ){

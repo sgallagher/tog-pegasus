@@ -94,6 +94,8 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
 {
    return;
    
+#if !defined(PEGASUS_OS_VMS) // Bugzilla 3090
+
 #ifdef MESSAGEQUEUESERVICE_DEBUG
 	//l10n
    MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
@@ -140,6 +142,7 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
       }
       
    }
+#endif // PEGASUS_OS_VMS
 }
 
 

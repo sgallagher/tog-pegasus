@@ -51,6 +51,25 @@ int main(int argc, char** argv)
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments from the command
     // line.
+    //****** Show the args diagnostic display
+    
+    // The following is a temporary hack to get around the fact that I cannot input the
+    // double quote character from the commandline, either with or without the escape
+    // character.  I simply replace all @ characters with the " charcter
+    for (Uint32 i = 0; i < argc; i++)
+    {
+        char *p;
+        while ((p = strchr(argv[i], '@')) != NULL)
+        {
+            *p = '\"';
+        }
+    }
+    if (strcmp(argv[1],"displayargs") == 0)
+    {
+        cout << "argc = " << argc << endl;
+        for (Uint32 i = 0; i < argc; i++)
+            cout << "argv[" << i << "] = " << argv[i] << endl;
+    }
 
     OptionManager om;
 
@@ -92,13 +111,6 @@ int main(int argc, char** argv)
 
     CheckCommonOptionValues(om, argv, opts);
     
-    /****** Show the args diagnostic display
-    cout << "argc = " << argc << endl;
-    for (Uint32 i = 0; i < argc; i++)
-    {
-        cout << "argv[" << i << "] = " << argv[i] << endl;
-    }
-    */
     // if there is still an arg1, assume it is the command name.
     if (argc > 1)
     {
@@ -141,7 +153,7 @@ int main(int argc, char** argv)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
               ". Trying to connect to " << opts.location << endl;
-        return 0;
+        exit(1);
     }                                                       ;
 
     try
@@ -151,24 +163,15 @@ int main(int argc, char** argv)
         if (opts.verboseTest)
             cout << "TEST Command = " << opts.cimCmd << endl;
         
-        // Find the command
-        for( ; i <= NUM_COMMANDS; i++ ) 
+        // Find the command or the short cut name
+             for( ; i < NUM_COMMANDS; i++ ) 
         {
             if ((opts.cimCmd == CommandTable[i].CommandName) || 
                 (opts.cimCmd == CommandTable[i].ShortCut))
-
+                // Break if found
                 break;
         }
-        // or exit with error
-        if ( i > NUM_COMMANDS)
-        {
-            cout << "Invalid Command - " << argv[1] 
-                << " Command name must be first parameter or --c parameter."
-                << " \n  ex. cli enumerateclasses\n" 
-                << "Enter " << argv[0] << " -h for help."
-                << endl;
-            exit(1);
-        }
+        // or exit with error through default of case logic
         
         switch(CommandTable[i].ID_Command)
             {
@@ -398,6 +401,7 @@ int main(int argc, char** argv)
                     }
                     invokeMethod(client, opts);
                 }
+                break;
                 
             //case ID_Unknown :
             default:
@@ -405,6 +409,7 @@ int main(int argc, char** argv)
                     << " \n  ex. cli enumerateclasses\n" 
                     << "Enter " << argv[0] << " -h for help."
                     << endl;
+                exit(1);
                 break;
         }
     }

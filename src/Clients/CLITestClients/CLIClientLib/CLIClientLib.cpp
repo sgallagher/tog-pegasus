@@ -828,10 +828,6 @@ void GetOptions(
         {"Password", "unknown", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
         
-        // We don't need this one. Force command to first param since always used
-        {"cimCmd", "unknown", false, Option::STRING, 0, 0, "-c",
-                                        "specifies CIM Command to use" },
-        
         {"className", "", false, Option::STRING, 0, 0, "c",
                                         "ClassName to use" },
 
@@ -971,11 +967,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             cout << "Namespace = " << opts.nameSpace << endl;
     }
 
-    if(om.lookupValue("cimCmd", opts.cimCmd))
-    {
-       if (verboseTest)
-           cout << "CIM command = " << opts.cimCmd << endl;
-    }
     if(om.lookupValue("className", opts.className))
     {
        if (verboseTest)
@@ -1008,7 +999,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
            exit(1);
        }
     }
-    cout <<"KSTEST resultClass Option = " << opts.resultClassName << endl;
     
     opts.deepInheritance = om.isTrue("deepInheritance");
     if (om.isTrue("deepInheritance")  & verboseTest)
@@ -1094,7 +1084,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         if (verboseTest)
             cout << "Role = " << opts.role << endl;
     }
-   //REVIEW add the assoc class, etc stuff.
     
     return 0;
 }

@@ -234,7 +234,7 @@ public:
 		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enableIndication(
-	    	const OperationContext & context,
+		const OperationContext & context,
 		const String & nameSpace,
 		const Array<String> & classNames,
 		const String & providerName,

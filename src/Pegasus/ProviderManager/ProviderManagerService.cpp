@@ -42,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-	static ProviderManager providerManager;
+static ProviderManager providerManager;
 
 SafeMessageQueue::SafeMessageQueue(void)	
 {
@@ -499,16 +499,51 @@ void ProviderManagerService::handleOperation(void)
 	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
 		_threadPool.allocate_and_awaken((void *)this, handleModifyInstanceRequest);
 
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
 		break;
 	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
 		_threadPool.allocate_and_awaken((void *)this, handleDeleteInstanceRequest);
 
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
 		break;
 	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleExecuteQueryRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
 	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleAssociatorsRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
 	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleAssociatorNamesRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
 	case CIM_REFERENCES_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleReferencesRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
+		break;
 	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+		_threadPool.allocate_and_awaken((void *)this, handleReferenceNamesRequest);
+
+		// wait for specialized method to initialize
+		_threadSemaphore.wait();
+
 		break;
 	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
 		_threadPool.allocate_and_awaken((void *)this, handleGetPropertyRequest);
@@ -523,11 +558,6 @@ void ProviderManagerService::handleOperation(void)
 		// wait for specialized method to initialize
 		_threadSemaphore.wait();
 
-		break;
-	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
 		break;
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
 		_threadPool.allocate_and_awaken((void *)this, handleInvokeMethodRequest);
@@ -562,7 +592,7 @@ void ProviderManagerService::handleOperation(void)
 	}
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInstanceRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInstanceRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -673,7 +703,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumerateInstancesRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumerateInstancesRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -781,7 +811,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumerateInstanceNamesRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumerateInstanceNamesRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -878,7 +908,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateInstanceRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateInstanceRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -991,7 +1021,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateI
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyInstanceRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyInstanceRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1091,7 +1121,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteInstanceRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteInstanceRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1182,7 +1212,246 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteI
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetPropertyRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleAssociatorsRequest(void * arg) throw()
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMAssociatorsRequestMessage * request =
+		(const CIMAssociatorsRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+
+	Array<CIMObjectWithPath> cimObjects;
+	
+	CIMAssociatorsResponseMessage * response =
+		new CIMAssociatorsResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop(),
+		cimObjects);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleExecuteQueryRequest(void * arg) throw()
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMExecQueryRequestMessage * request =
+		(const CIMExecQueryRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+	
+	Array<CIMInstance> cimInstances;
+
+	CIMExecQueryResponseMessage * response =
+		new CIMExecQueryResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop(),
+		cimInstances);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleAssociatorNamesRequest(void * arg) throw()
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMAssociatorNamesRequestMessage * request =
+		(const CIMAssociatorNamesRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+	
+	Array<CIMReference> cimReferences;
+
+	CIMAssociatorNamesResponseMessage * response =
+		new CIMAssociatorNamesResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop(),
+		cimReferences);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleReferencesRequest(void * arg) throw()
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMReferencesRequestMessage * request =
+		(const CIMReferencesRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+	
+	Array<CIMObjectWithPath> cimObjects;
+	
+	CIMReferencesResponseMessage * response =
+		new CIMReferencesResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop(),
+		cimObjects);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleReferenceNamesRequest(void * arg) throw()
+{
+	// get the service from argument
+	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+
+	PEGASUS_ASSERT(service != 0);
+
+	// get message from service queue
+	const CIMReferenceNamesRequestMessage * request =
+		(const CIMReferenceNamesRequestMessage *)service->messageQueue.dequeue();
+
+	PEGASUS_ASSERT(request != 0);
+
+	// notify the service that the request has been accepted
+	service->_threadSemaphore.signal();
+	
+	Array<CIMReference> cimReferences;
+	
+	CIMReferenceNamesResponseMessage * response =
+		new CIMReferenceNamesResponseMessage(
+		request->messageId,
+		CIM_ERR_FAILED,
+		"not implemented",
+		request->queueIds.copyAndPop(),
+		cimReferences);
+
+	// preserve message key
+	response->setKey(request->getKey());
+
+	// call the message queue service method to see if this is an async envelope
+	if(service->_enqueueResponse((Message *)request, (Message *)response))
+	{
+		return(0);
+	}
+
+	/*
+	// lookup the message queue
+	MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+	PEGASUS_ASSERT(queue != 0);
+
+	// enqueue the response
+	queue->enqueue(response);
+	*/
+
+	return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetPropertyRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1231,7 +1500,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetProp
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleSetPropertyRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleSetPropertyRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1277,7 +1546,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleSetProp
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeMethodRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeMethodRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1388,7 +1657,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeM
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableIndicationRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableIndicationRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1494,7 +1763,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyIndicationRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyIndicationRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
@@ -1539,7 +1808,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 	return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDisableIndicationRequest(void * arg)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDisableIndicationRequest(void * arg) throw()
 {
 	// get the service from argument
 	ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);

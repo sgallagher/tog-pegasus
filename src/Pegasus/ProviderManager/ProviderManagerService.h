@@ -86,21 +86,28 @@ protected:
 protected:	
 	void handleOperation(void);
 
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetInstanceRequest(void *);
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstancesRequest(void *);
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstanceNamesRequest(void *);
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCreateInstanceRequest(void *);
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyInstanceRequest(void *);
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDeleteInstanceRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetInstanceRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstancesRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstanceNamesRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCreateInstanceRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyInstanceRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDeleteInstanceRequest(void *) throw();
 	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetPropertyRequest(void *);
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleSetPropertyRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleExecuteQueryRequest(void *) throw();
 	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleInvokeMethodRequest(void *);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleAssociatorsRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleAssociatorNamesRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleReferencesRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleReferenceNamesRequest(void *) throw();
+	
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetPropertyRequest(void *) throw();
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleSetPropertyRequest(void *) throw();
+	
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleInvokeMethodRequest(void *) throw();
 
-  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnableIndicationRequest(void *);
-  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyIndicationRequest(void *);
-  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDisableIndicationRequest(void *);
+  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnableIndicationRequest(void *) throw();
+  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyIndicationRequest(void *) throw();
+  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDisableIndicationRequest(void *) throw();
 
 protected:
 	ThreadPool _threadPool;

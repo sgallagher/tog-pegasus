@@ -55,7 +55,6 @@ CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
 # include <netdb.h>
 # include <arpa/inet.h>
 # include <unistd.h>
-# include <strings.h>
 #endif
 
 PEGASUS_USING_STD;

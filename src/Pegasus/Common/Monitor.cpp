@@ -212,16 +212,21 @@ Boolean Monitor::run(Uint32 milliseconds)
         }
         _stopConnections = 0;
     }
+
+    Uint32 _idleEntries = 0;
     
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
        if(_entries[indx]._status.value() == _MonitorEntry::IDLE)
        {
+	  _idleEntries++;
 	  FD_SET(_entries[indx].socket, &fdread);
        }
     }
-    
+   
+    _entry_mut.unlock(); 
     int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
+   _entry_mut.lock(pegasus_thread_self());
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     if(events == SOCKET_ERROR)
@@ -240,6 +245,9 @@ Boolean Monitor::run(Uint32 milliseconds)
     }
     else if (events)
     {
+       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "Monitor::run select event received events = %d, monitoring %d idle entries", 
+	   events, _idleEntries);
        for( int indx = 0; indx < (int)_entries.size(); indx++)
        {
 	  if(FD_ISSET(_entries[indx].socket, &fdread))
@@ -261,9 +269,14 @@ Boolean Monitor::run(Uint32 milliseconds)
 	     {
 		if(_entries[indx]._type == Monitor::CONNECTION)
 		{
+                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                     "_entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
 		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
 		   if(static_cast<HTTPConnection *>(q)->_dying.value() > 0 )
 		   {
+                      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                          "Monitor::run processing dying value > 0 for indx = %d, connection being closed.",
+                          indx);
 		      _entries[indx]._status = _MonitorEntry::DYING;
 		      MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
 		      Message* message= new CloseConnectionMessage(_entries[indx].socket);
@@ -277,6 +290,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 		}
 		else
 		{
+                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                     "Non-connection entry, indx = %d, has been received.", indx);
 		   int events = 0;
 		   events |= SocketMessage::READ;
 		   Message *msg = new SocketMessage(_entries[indx].socket, events);
@@ -366,10 +381,22 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
-
-   dst->run(1);
+   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "Monitor::_dispatch: entering run() for index  = %d", 
+          dst->_entry_index);
+   try
+   {
+      dst->run(1);
+   }
+   catch (...)
+   {
+      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "Monitor::_dispatch: exception received");
+   }
+   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
+   
    dst->_monitor->_entry_mut.lock(pegasus_thread_self());
-
    // It shouldn't be necessary to set status = _MonitorEntry::IDLE
    // if the connection is being closed.  However, the current logic
    // in Monitor::run requires this value to be set for the close

@@ -128,6 +128,14 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & nam
 //
 //********************************************************************
 
+
+    String _getIPAddress()
+    {
+        String IPAddress = "192.168.1.120";
+        return
+    }
+    String IPAddress = _getIPAddress();
+
 String arrayToString(const Array<String>& s)
 {
 String output;    
@@ -301,10 +309,7 @@ void SLPProvider::populateData(void)
                                              CIMName(SlpTemplateClassName),
                                              keyBindings);
 
-    //instance1.addProperty(CIMProperty("service_id", String(strUUID)));   // key
-    //LONG_ATTRIBUTE_STRING.append("(service_id=").append(strUUID).append("),");
-
-    populateTemplateField(instance1, serviceIDAttribute, strUUID);
+   populateTemplateField(instance1, serviceIDAttribute, strUUID);
     
     CDEBUG("populateData. getting objmgr and comm from " << _interopNamespace.getString());
     Array<CIMInstance> instances_ObjMgr = _ch.enumerateInstances(
@@ -336,78 +341,32 @@ void SLPProvider::populateData(void)
             // ATTN: Rewrite this to find the property.  More logical
             if (n1.equal("Name"))
             {
-                //instance1.addProperty(CIMProperty("template_url_syntax",v1.toString()));
-                //LONG_ATTRIBUTE_STRING.append("(template_url_syntax=").append(v1.toString()).append("),");
                 populateTemplateField(instance1, serviceUrlSyntax,v1.toString());
             }
             else if (n1.equal("ElementName"))
             {
-                //instance1.addProperty(CIMProperty("service_hi_name",v1.toString()));
-                //LONG_ATTRIBUTE_STRING.append("(service_hi_name=").append(v1.toString()).append("),");
                 populateTemplateField(instance1, serviceHiName,v1.toString());
             }
             else if (n1.equal("Description"))
             {
-              //instance1.addProperty(CIMProperty("service_hi_description",v1.toString()));
-              //LONG_ATTRIBUTE_STRING= LONG_ATTRIBUTE_STRING + "(service_hi_description=" + v1.toString() + "),";
               populateTemplateField(instance1, serviceHiDescription,v1.toString());
             }
         }
     }
 
      // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
-     
-    String IPAddress = "192.168.1.120";
-    /*
-    FILE *vf;
-     char str1[20];
-     Uint32 len,pos=0;
-     const char hosts_file[] = "/etc/hosts";
-     char buffer[MAXPATHLEN];
-     Uint32 tempvar;
-     
-     vf = fopen(hosts_file, "r");
-     if (vf)
-     {
-        while (fgets(buffer, MAXPATHLEN, vf) != NULL)
-          { }
-     }
-     fclose(vf); 
-     for(tempvar =0;tempvar<strlen(buffer);tempvar++)
-     {
-	if(buffer[tempvar] != '\t')
-	{
-		str1[tempvar] = buffer[tempvar];
-	}
-        else
-           break;
-    }
-    str1[tempvar] = '\0';
-    strcat(str1,":5988");
-    */
     IPAddress.append(":5988");
     
-    //instance1.addProperty(CIMProperty("service_location_tcp",String(str1)));    
-    //LONG_ATTRIBUTE_STRING.append("(service_location_tcp=").append(String(str1)).append("),");
     populateTemplateField(instance1, serviceLocationTCP,IPAddress);
 
     // Default properties for PG_SLPWBEMClass
-    //instance1.addProperty(CIMProperty("template_type",String("wbem")));
-    //LONG_ATTRIBUTE_STRING.append("(template_type=").append(String("wbem")).append("),");
-    
     populateTemplateField(instance1, templateType, String("wbem"));
     
-    //instance1.addProperty(CIMProperty("template_version",String("1.0")));
-    //LONG_ATTRIBUTE_STRING.append("(template_version=").append(String("1.0")).append("),");
     populateTemplateField(instance1, templateVersionAttribute, String(templateVersion));
     
-    //instance1.addProperty(CIMProperty("template_description",String("This template describes the attributes used for advertising CIM Servers.")));
-    //LONG_ATTRIBUTE_STRING.append("(template_description=").append(String("This template describes the attributes used for advertising CIM Servers.")).append("),");
     populateTemplateField(instance1, templateDescriptionAttribute,String(templateDescription));
     
     // InterOp Schema
-    //instance1.addProperty(CIMProperty("CIM_InteropSchemaNamespace", String("/root/PG_Interop")));
-    //LONG_ATTRIBUTE_STRING.append("(CIM_InteropSchemaNamespace=").append(String("/root/PG_Interop")).append("),");
     populateTemplateField(instance1, CIM_InteropSchemaNamespaceAttribute, CIM_InteropSchemaNamespace);
 
     //Getting values from CIM_ObjectManagerCommunicationMechanism Class .......
@@ -435,26 +394,17 @@ void SLPProvider::populateData(void)
             if (n1.equal(otherCommunicationMechanismAttribute))
             {
         
-                /* From the mof file, CIM_ObjectManagerCommunicationMechanism.CommunicationMechanism
-                    ValueMap {"0", "1", "2"}, 
-                    Values {"Unknown", "Other", "CIM-XML"}  */
-                   //instance1.addProperty(CIMProperty("CommunicationMechanism",v1.toString()));
-                   //LONG_ATTRIBUTE_STRING.append("(CommunicationMechanism=").append(v1.toString()).append("),");
                 populateTemplateField(instance1, communicationMechanismAttribute,v1.toString());
                 
                 if (String::equalNoCase(v1.toString(),"1"))
                 {
                      index = i1.findProperty(CIMName(otherCommunicationMechanismDescriptionAttribute));
                      CIMProperty temppr = i1.getProperty(index);
-                     //instance1.addProperty(CIMProperty("OtherCommunicationMechanismDescription",(temppr.getValue()).toString()));
-                     //LONG_ATTRIBUTE_STRING.append("(OtherCommunicationMechanismDescription=").append(v1.toString()).append("),");
                      populateTemplateField(instance1, otherCommunicationMechanismDescriptionAttribute,(temppr.getValue()).toString());
                 }
             }
             else if (n1.equal("Version"))
             {  
-              //instance1.addProperty(CIMProperty("ProtocolVersion",v1.toString()));
-              //LONG_ATTRIBUTE_STRING.append("(ProtocolVersion=").append(v1.toString()).append("),");
               populateTemplateField(instance1, String("ProtocolVersion"),v1.toString());
             }
             else if (n1.equal("FunctionalProfileDescriptions"))
@@ -473,11 +423,8 @@ void SLPProvider::populateData(void)
                 }
             }
 
-
             else if (n1.equal(multipleOperationsSupportedAttribute))
             {  
-            //instance1.addProperty(CIMProperty("MultipleOperationsSupported",v1.toString()));
-            //LONG_ATTRIBUTE_STRING.append("(MultipleOperationsSupported=").append(v1.toString()).append("),");
             populateTemplateField(instance1, multipleOperationsSupportedAttribute,v1.toString());
             }
             
@@ -487,8 +434,6 @@ void SLPProvider::populateData(void)
             v1.get(authenticationDescriptions);
             String authList = arrayToString(authenticationDescriptions);
 
-            //instance1.addProperty(CIMProperty("AuthenticationMechanismsSupported",v1.toString())); 
-            //LONG_ATTRIBUTE_STRING.append("(AuthenticationMechanismsSupported=").append(v1.toString()).append("),");
             populateTemplateField(instance1, authenticationMechanismsSupportedAttribute,authList);
             /***************
             Array<Uint16> arr;
@@ -517,34 +462,6 @@ void SLPProvider::populateData(void)
     
        }
     }
-
-
-  // Getting property values from CIM_Namespace class
-  /*
-    for (Uint32 i = 0; i < instanceNames_Namespace.size(); i++)
-          {
-             CIMInstance i1 = _ch.getInstance(OperationContext(),mynamespace, instanceNames_Namespace[i],
-				                          false,false,false,CIMPropertyList());
-             Uint32 NumProperties;
-             NumProperties = i1.getPropertyCount();
-             for(Uint32 i=0;i<NumProperties;i++)
-             {
-                 CIMProperty p1=i1.getProperty(i);
-                 CIMValue v1=p1.getValue();
-                 CIMName n1=p1.getName();
-                 if (n1.equal("Name"))
-                 {
-                   instance1.addProperty(CIMProperty("Namespace",v1.toString()));
-                   LONG_ATTRIBUTE_STRING.append("(Namespace=").append(v1.toString()).append("),");
-                 }
-		        else if (n1.equal("ClassInfo"))
-                 {
-                   instance1.addProperty(CIMProperty("classinfo",v1.toString()));
-                   LONG_ATTRIBUTE_STRING.append("(classinfo=").append(v1.toString()).append("),");
-                 }
-             }
-        }
-    */
     
     // fill in the classname information (namespace and classinfo).
     String classInfoList;
@@ -552,15 +469,18 @@ void SLPProvider::populateData(void)
 
     nameSpaceList =  getNameSpaceInfo( CIMNamespaceName(mynamespace), classInfoList);
     CDEBUG("Return from getNameSpaceInfo");
-    //for(Uint32 i=0;i < nameSpaceList.size();i++)
-    //{
-    //instance1.addProperty(CIMProperty("Namespace", nameSpaceList[i].toString()));
-    //LONG_ATTRIBUTE_STRING.append("(Namespace=").append(nameSpaceList[i].toString()).append("),");
-    //instance1.addProperty(CIMProperty("classinfo",classInfoList[i]));
-    //LONG_ATTRIBUTE_STRING.append("(classinfo=").append(classInfoList[i]).append("),");
     populateTemplateField(instance1, namespaceAttribute, nameSpaceList);
     populateTemplateField(instance1, classinfoAttribute, classInfoList);
-    //}
+    
+
+    // populate the RegisteredProfiles Supported attribute.
+    String registeredProfilesSupportedAttribute = "RegisteredProfilesSupported";
+    String registeredProfilesList = 
+"SNIA:Array:Cluster:Access Points:Disk Drive:Location:LUN Mapping \
+and Masking:Pool Manipulation Capabilities and Settings:Extent Mapping:LUN Creation:Software";
+
+    populateTemplateField(instance1,registeredProfilesSupportedAttribute,
+        registeredProfilesList);
 
     //Create the WBEMSLPTemplate instance from all the data gathered above
 

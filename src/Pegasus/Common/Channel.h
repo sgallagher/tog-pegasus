@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
     (derived classes of Channel) are hidden from the user (not visible through 
     public header files).
 */
-class PEGASUS_COMMON_LINKAGE Channel
+class PEGASUS_COMMON_LINKAGE Channel : public SelectorHandler
 {
 public:
 
@@ -110,6 +110,15 @@ public:
 	routines block or not.
     */
     virtual void disableBlocking() = 0;
+
+    /** Returns true if the last error was a would block error:
+    */
+    virtual Boolean wouldBlock() const = 0;
+
+    /** This method is first define in SelectorHandler and must be
+	overriden by the derived class.
+    */
+    virtual Boolean handle(Sint32 desc, Uint32 reasons) = 0;
 };
 
 /** The user of the channel module derives from the ChannelHandler class
@@ -169,8 +178,7 @@ public:
 
     /** Called when the remote peer calls the Channel::write() method on
 	the corresponding chanel.
-	@return The method returns false to close the
-	connection.
+	@return The method returns false to close the connection.
     */
     virtual Boolean handleInput(Channel* channel) = 0;
 
@@ -244,7 +252,7 @@ public:
 	factory = new DefaultChannelHandlerFactory<MyChannelHandler>;
     <pre>
 */
-class ChannelHandlerFactory
+class PEGASUS_COMMON_LINKAGE ChannelHandlerFactory
 {
 public:
 
@@ -322,7 +330,7 @@ public:
 	channel->write(MESSAGE, sizeof(MESSAGE));
     </pre>
 */
-class PEGASUS_COMMON_LINKAGE ChannelConnector : public SelectorHandler
+class PEGASUS_COMMON_LINKAGE ChannelConnector
 {
 public:
 
@@ -344,7 +352,7 @@ public:
 	@param address - specifies the address to connect to.
 	@return - Pointer to the new created channel.
     */
-    virtual Channel* connect(const char* addresss) = 0;
+    virtual Channel* connect(const char* address) = 0;
 
     /** Disconnects from the server and destroys the channel argument. This
 	method may be explicitly by the user or may be called implicitly when
@@ -352,7 +360,7 @@ public:
     */
     virtual void disconnect(Channel* channel) = 0;
 
-private:
+protected:
 
     ChannelHandlerFactory* _factory;
 };
@@ -396,7 +404,7 @@ private:
 	acceptor->bind("8888");
     </pre>
 */
-class PEGASUS_COMMON_LINKAGE ChannelAcceptor : public SelectorHandler
+class PEGASUS_COMMON_LINKAGE ChannelAcceptor
 {
 public:
 
@@ -419,7 +427,7 @@ public:
     */
     virtual void accept(Channel* channel) = 0;
 
-private:
+protected:
 
     ChannelHandlerFactory* _factory;
 };

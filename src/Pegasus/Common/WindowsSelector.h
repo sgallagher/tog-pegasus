@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsSelector.h,v $
+// Revision 1.3  2001/04/08 08:28:20  mike
+// Added more windows channel implementation code.
+//
 // Revision 1.2  2001/04/08 05:06:06  mike
 // New Files for Channel Implementation
 //
@@ -56,7 +59,7 @@ public:
     virtual Boolean select(Uint32 milliseconds);
 
     virtual Boolean addHandler(
-	Uint32 desc, 
+	Sint32 desc, 
 	Uint32 reasons,
 	SelectorHandler* handler);
 
@@ -64,11 +67,11 @@ public:
 
 private:
 
-    Uint32 _findEntry(Uint32 desc) const;
+    Uint32 _findEntry(Sint32 desc) const;
 
     struct Entry
     {
-	Uint32 desc;
+	Sint32 desc;
 	SelectorHandler* handler;
     };
 

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.h,v $
+// Revision 1.3  2001/04/08 08:28:20  mike
+// Added more windows channel implementation code.
+//
 // Revision 1.2  2001/04/08 05:06:06  mike
 // New Files for Channel Implementation
 //
@@ -52,7 +55,7 @@ public:
     virtual Boolean select(Uint32 milliseconds) = 0;
 
     virtual Boolean addHandler(
-	Uint32 desc, 
+	Sint32 desc, 
 	Uint32 reasons,
 	SelectorHandler* handler) = 0;
 
@@ -69,7 +72,7 @@ public:
 
     virtual ~SelectorHandler();
 
-    virtual Boolean handle(Uint32 desc, Uint32 reasons) = 0;
+    virtual Boolean handle(Sint32 desc, Uint32 reasons) = 0;
 };
 
 PEGASUS_NAMESPACE_END

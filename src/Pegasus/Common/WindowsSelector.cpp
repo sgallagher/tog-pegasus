@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsSelector.cpp,v $
+// Revision 1.3  2001/04/08 08:28:20  mike
+// Added more windows channel implementation code.
+//
 // Revision 1.2  2001/04/08 05:06:06  mike
 // New Files for Channel Implementation
 //
@@ -52,6 +55,35 @@ static inline int select_wrapper(
     const struct timeval* tv)
 {
     return select(FD_SETSIZE, rd_fd_set, wr_fd_set, ex_fd_set, tv);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Routines for starting and stoping WinSock:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static Uint32 _wsaCount = 0;
+
+static void _WSAInc()
+{
+    if (_wsaCount == 0)
+    {
+	WSADATA tmp;
+
+	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
+	    WSACleanup();
+    }
+
+    _wsaCount++;
+}
+
+static void _WSADec()
+{
+    _wsaCount--;
+
+    if (_wsaCount == 0)
+	WSACleanup();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +130,13 @@ WindowsSelector::~WindowsSelector()
 
 Boolean WindowsSelector::select(Uint32 milliseconds)
 {
+    // Windows select() has a strange little bug. It returns immediately if 
+    // there are no descriptors in the set even if the timeout is non-zero. 
+    // To work around this, we call Sleep() for now:
+
+    if (_entries.getSize() == 0)
+	Sleep(milliseconds);
+
     // Check for events on the selected file descriptors. Only do this if
     // there were no undispatched events from last time.
 
@@ -133,7 +172,7 @@ Boolean WindowsSelector::select(Uint32 milliseconds)
 
     for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
     {
-	Uint32 desc = _entries[i].desc;
+	Sint32 desc = _entries[i].desc;
 	Uint32 reasons = 0;
 
 	if (FD_ISSET(desc, &_rep->active_rd_fd_set))
@@ -153,13 +192,13 @@ Boolean WindowsSelector::select(Uint32 milliseconds)
 		removeHandler(handler);
 
 	    if (reasons & WRITE)
-		FD_CLR(desc, &_rep->wr_fd_set);
+		FD_CLR(desc, &_rep->active_wr_fd_set);
 
 	    if (reasons & EXCEPTION)
-		FD_CLR(desc, &_rep->ex_fd_set);
+		FD_CLR(desc, &_rep->active_ex_fd_set);
 
 	    if (reasons & READ)
-		FD_CLR(desc, &_rep->rd_fd_set);
+		FD_CLR(desc, &_rep->active_rd_fd_set);
 
 	    count--;
 	    return true;
@@ -170,7 +209,7 @@ Boolean WindowsSelector::select(Uint32 milliseconds)
 }
 
 Boolean WindowsSelector::addHandler(
-    Uint32 desc,
+    Sint32 desc,
     Uint32 reasons,
     SelectorHandler* handler)
 {
@@ -210,11 +249,12 @@ Boolean WindowsSelector::removeHandler(SelectorHandler* handler)
     {
 	if (_entries[i].handler == handler)
 	{
-	    Uint32 desc = _entries[i].desc;
+	    Sint32 desc = _entries[i].desc;
 	    FD_CLR(desc, &_rep->rd_fd_set);
 	    FD_CLR(desc, &_rep->wr_fd_set);
 	    FD_CLR(desc, &_rep->ex_fd_set);
 	    _entries.remove(i);
+	    delete handler;
 	    return true;
 	}
     }
@@ -224,7 +264,7 @@ Boolean WindowsSelector::removeHandler(SelectorHandler* handler)
     return false;
 }
 
-Uint32 WindowsSelector::_findEntry(Uint32 desc) const
+Uint32 WindowsSelector::_findEntry(Sint32 desc) const
 {
     for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
     {

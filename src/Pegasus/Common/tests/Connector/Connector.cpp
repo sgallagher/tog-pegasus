@@ -31,9 +31,68 @@
 using namespace Pegasus;
 using namespace std;
 
+class MyChannelHandler : public ChannelHandler
+{
+public:
+
+    MyChannelHandler()
+    {
+	cout << "MyChannelHandler::MyChannelHandler()" << endl;
+    }
+
+    virtual ~MyChannelHandler()
+    {
+	cout << "MyChannelHandler::~MyChannelHandler()" << endl;
+    }
+
+    virtual Boolean handleOpen(Channel* channel)
+    {
+	cout << "MyChannelHandler::handleOpen()" << endl;
+	return true;
+    }
+
+    virtual Boolean handleInput(Channel* channel)
+    {
+	cout << "MyChannelHandler::handleInput()" << endl;
+
+	char buffer[1024];
+
+	for (;;)
+	{
+	    Sint32 size = channel->read(buffer, sizeof(buffer));
+
+	    if (size == 0)
+		return false;
+
+#if 0
+	    for (Uint32 i = 0; i < size; i++)
+		cout << buffer[i];
+#endif
+	}
+
+	return true;
+    }
+
+    virtual Boolean handleOutput(Channel* channel)
+    {
+	cout << "MyChannelHandler::handleOutput()" << endl;
+	return true;
+    }
+
+    virtual void handleClose(Channel* channel)
+    {
+	cout << "MyChannelHandler::handleClose()" << endl;
+    }
+};
+
 int main()
 {
-    WindowsChannelConnector connector(0);
+    ChannelHandlerFactory* factory 
+	= new DefaultChannelHandlerFactory<MyChannelHandler>;
+
+    Selector* selector = Selector::create();
+
+    WindowsChannelConnector connector(factory, selector);
 
     Channel* channel = connector.connect("www.bmc.com:80");
     assert(channel);
@@ -43,8 +102,15 @@ int main()
     char MESSAGE[] = "GET / HTTP/1.0\r\n\r\n";
 
     Sint32 size = channel->writeN(MESSAGE, strlen(MESSAGE));
+    assert(size == strlen(MESSAGE));
 
-    cout << "size=" << size << endl;
+    while (true)
+    {
+	cout << "Loop..." << endl;
+	selector->select(5000);
+    }
+
+#if 0
 
     char buffer[17];
 
@@ -59,6 +125,7 @@ int main()
 	if (size <= 0)
 	    break;
     }
+#endif
 
     return 0;
 }

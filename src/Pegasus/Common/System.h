@@ -98,7 +98,7 @@ public:
 
     /** getCurrentASCIITime Gets time/date in a fixed format. The format is
         YY MM DD-HH:MM:SS
-	@return Returns String with the ASCII time date.
+        @return Returns String with the ASCII time date.
     */
     static String getCurrentASCIITime();
 
@@ -129,8 +129,8 @@ public:
     static Boolean copyFile(const char* fromPath, const char* toPath);
 
     /** Unix issue:<br><br><b>RTLD_<bah></b> issue. Currently Pegasus uses RTLD_NOW during
-	loading of the library if supported by OS.  Previous to 2.2, Pegasus used RTLD_GLOBAL on Linux
-	- that behaviour is now deprecated.
+        loading of the library if supported by OS.  Previous to 2.2, Pegasus used RTLD_GLOBAL on Linux
+        - that behaviour is now deprecated.
     */
     static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
 
@@ -139,13 +139,12 @@ public:
     static String dynamicLoadError(void);
 
     static DynamicSymbolHandle loadDynamicSymbol(
-	DynamicLibraryHandle libraryHandle,
-	const char* symbolName);
+        DynamicLibraryHandle libraryHandle,
+        const char* symbolName);
 
     static String getHostName();
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
-    static String getHostIP(const String &hostName);
 
     static Uint32 _acquireIP(const char* hostname);
 

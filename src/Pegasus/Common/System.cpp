@@ -28,10 +28,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//					added nsk platform support
-//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//					replaced instances of "| ios::binary" with
-//					PEGASUS_OR_IOS_BINARY
+//                                      added nsk platform support
+//                              Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//                                      replaced instances of "| ios::binary" with
+//                                      PEGASUS_OR_IOS_BINARY
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
 //
@@ -85,8 +85,8 @@ Boolean System::copyFile(const char* fromPath, const char* toPath)
 
     while (is.get(c))
     {
-	if (!os.put(c))
-	    return false;
+        if (!os.put(c))
+            return false;
     }
 
     return true;
@@ -159,45 +159,22 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
   return dirname;
 }
 
-String System::getHostIP(const String &hostName)
-{
-    struct hostent * phostent;
-    struct in_addr   inaddr;
-    String ipAddress = String::EMPTY;
-
-    if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
-    {
-        ::memcpy( &inaddr, phostent->h_addr,4);
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        char * gottenIPAdress = NULL;
-        gottenIPAdress = ::inet_ntoa( inaddr );
-        __etoa(gottenIPAdress);
-        if (gottenIPAdress != NULL)
-        {
-            ipAddress.assign(gottenIPAdress);
-        }
-#else
-        ipAddress = ::inet_ntoa( inaddr );
-#endif
-    }
-    return ipAddress;
-}
 
 // ------------------------------------------------------------------------
 // Convert a hostname into a a single host unique integer representation
 // ------------------------------------------------------------------------
 Uint32 System::_acquireIP(const char* hostname)
 {
-	Uint32 ip = 0xFFFFFFFF;
-	if (!hostname) return 0xFFFFFFFF;
+        Uint32 ip = 0xFFFFFFFF;
+        if (!hostname) return 0xFFFFFFFF;
 
 #ifdef PEGASUS_OS_OS400
-	char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
-	if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
-		strcpy(ebcdicHost, hostname);
-	else
-		return 0xFFFFFFFF;
-	AtoE(ebcdicHost);
+        char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
+        if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
+                strcpy(ebcdicHost, hostname);
+        else
+                return 0xFFFFFFFF;
+        AtoE(ebcdicHost);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,86 +190,86 @@ Uint32 System::_acquireIP(const char* hostname)
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_OS_OS400
-	Uint32 tmp_addr = inet_addr(ebcdicHost);
+        Uint32 tmp_addr = inet_addr(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-	Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
+        Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
 #else
-	Uint32 tmp_addr = inet_addr((char *) hostname);
+        Uint32 tmp_addr = inet_addr((char *) hostname);
 #endif
 
-	struct hostent *entry;
+        struct hostent *entry;
 
 // Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
 //       A better solution would be to use inet_aton() or equivalent, as
 //       inet_addr() is now considered "obsolete".
 
     if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
-	{
+        {
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 #define HOSTENT_BUFF_SIZE        8192
-		char      buf[HOSTENT_BUFF_SIZE];
-		int       h_errorp;
-		struct    hostent hp;
+                char      buf[HOSTENT_BUFF_SIZE];
+                int       h_errorp;
+                struct    hostent hp;
 
-		entry = gethostbyname_r((char *)hostname, &hp, buf,
-								HOSTENT_BUFF_SIZE, &h_errorp);
+                entry = gethostbyname_r((char *)hostname, &hp, buf,
+                                                                HOSTENT_BUFF_SIZE, &h_errorp);
 #elif defined(PEGASUS_OS_OS400)
-		entry = gethostbyname(ebcdicHost);
+                entry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-		char hostName[ PEGASUS_MAXHOSTNAMELEN ];
-		if (String::equalNoCase("localhost",String(hostname)))
-		{
-			gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
-			entry = gethostbyname(hostName);
-		} else
-		{
-			entry = gethostbyname((char *)hostname);
-		}
+                char hostName[ PEGASUS_MAXHOSTNAMELEN ];
+                if (String::equalNoCase("localhost",String(hostname)))
+                {
+                        gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
+                        entry = gethostbyname(hostName);
+                } else
+                {
+                        entry = gethostbyname((char *)hostname);
+                }
 #else
-		entry = gethostbyname((char *)hostname);
+                entry = gethostbyname((char *)hostname);
 #endif
-		if (!entry)
-		{
-			return 0xFFFFFFFF;
-		}
-		unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+                if (!entry)
+                {
+                        return 0xFFFFFFFF;
+                }
+                unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
-		ip_part1 = entry->h_addr[0];
-		ip_part2 = entry->h_addr[1];
-		ip_part3 = entry->h_addr[2];
-		ip_part4 = entry->h_addr[3];
-		ip = ip_part1;
-		ip = (ip << 8) + ip_part2;
-		ip = (ip << 8) + ip_part3;
-		ip = (ip << 8) + ip_part4;
-	}
+                ip_part1 = entry->h_addr[0];
+                ip_part2 = entry->h_addr[1];
+                ip_part3 = entry->h_addr[2];
+                ip_part4 = entry->h_addr[3];
+                ip = ip_part1;
+                ip = (ip << 8) + ip_part2;
+                ip = (ip << 8) + ip_part3;
+                ip = (ip << 8) + ip_part4;
+        }
     else    // else hostname *is* a dotted-decimal IP address
-	{
-		// resolve hostaddr to a real host entry
-		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
-		entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+        {
+                // resolve hostaddr to a real host entry
+                // casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
+                entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 
-		if (entry == 0)
-		{
-			// error, couldn't resolve the ip
-			return 0xFFFFFFFF;
-		} else
-		{
+                if (entry == 0)
+                {
+                        // error, couldn't resolve the ip
+                        return 0xFFFFFFFF;
+                } else
+                {
 
-			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+                        unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
-			ip_part1 = entry->h_addr[0];
-			ip_part2 = entry->h_addr[1];
-			ip_part3 = entry->h_addr[2];
-			ip_part4 = entry->h_addr[3];
-			ip = ip_part1;
-			ip = (ip << 8) + ip_part2;
-			ip = (ip << 8) + ip_part3;
-			ip = (ip << 8) + ip_part4;
-		}
-	}
+                        ip_part1 = entry->h_addr[0];
+                        ip_part2 = entry->h_addr[1];
+                        ip_part3 = entry->h_addr[2];
+                        ip_part4 = entry->h_addr[3];
+                        ip = ip_part1;
+                        ip = (ip << 8) + ip_part2;
+                        ip = (ip << 8) + ip_part3;
+                        ip = (ip << 8) + ip_part4;
+                }
+        }
 
-	return ip;
+        return ip;
 }
 
 // System ID constants for Logger::put and Logger::trace

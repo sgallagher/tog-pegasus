@@ -1,3 +1,4 @@
+
 //%2004////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -236,7 +237,7 @@ CIMName namePropertyName = "name";
 // NOTE: The name of the provider must be correct to be loadable.
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-	const int MAXPATHLEN=2000;
+        const int MAXPATHLEN=2000;
 #endif
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
@@ -940,16 +941,11 @@ Boolean SLPProvider::issueSLPRegistrations()
     Boolean getByAssociator = false;
     CDEBUG("issueSLPRegistrations. Get object manager from namespace= " 
                 << PEGASUS_NAMESPACENAME_INTEROP.getString());
-    Array<CIMInstance> instancesObjMgr;
-    try {
-            instancesObjMgr = _cimomHandle.enumerateInstances(
+    Array<CIMInstance> instancesObjMgr = _cimomHandle.enumerateInstances(
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerClassName),
                                              false, false, false,false, CIMPropertyList());
-    } catch(Exception& e) {
-        CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):=" << e.getMessage());
-    }
     // Try to get the objmgrcommmech via the association first
     CDEBUG("Registration found Obj Mgr. No Instance = " << instancesObjMgr.size());
     /*
@@ -1175,7 +1171,7 @@ void SLPProvider::enumerateInstanceNames(
     }
     // complete processing the request
     handler.complete();
-	                                                                                 	
+                                                                                                 
     PEG_METHOD_EXIT();
 }
  
@@ -1219,11 +1215,11 @@ void SLPProvider::deleteInstance(
    update - causes the existing registration to be updated with new information
 */
 void SLPProvider::invokeMethod(
-	const OperationContext & context,
-	const CIMObjectPath & objectReference,
-	const CIMName & methodName,
-	const Array<CIMParamValue> & inParameters,
-	MethodResultResponseHandler & handler)
+        const OperationContext & context,
+        const CIMObjectPath & objectReference,
+        const CIMName & methodName,
+        const Array<CIMParamValue> & inParameters,
+        MethodResultResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::invokeMethod()");

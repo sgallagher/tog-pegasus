@@ -47,54 +47,54 @@ Boolean initFlag = false;
 
 class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 {
-	public:
+        public:
         SLPProvider(void);
-	    ~SLPProvider(void);
-		          
-	    void initialize(CIMOMHandle & cimom);
-	    void terminate(void);
+            ~SLPProvider(void);
+                          
+            void initialize(CIMOMHandle & cimom);
+            void terminate(void);
 
-	    void getInstance(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       const Boolean includeQualifiers,
-	       const Boolean includeClassOrigin,
-	       const CIMPropertyList & propertyList,
-	       InstanceResponseHandler & handler);
-
-	    void enumerateInstances(
-	       const OperationContext & context,
+            void getInstance(
+               const OperationContext & context,
                const CIMObjectPath & ref,
                const Boolean includeQualifiers,
-	       const Boolean includeClassOrigin,
-	       const CIMPropertyList & propertyList,
-	       InstanceResponseHandler & handler);
+               const Boolean includeClassOrigin,
+               const CIMPropertyList & propertyList,
+               InstanceResponseHandler & handler);
 
-	    void enumerateInstanceNames(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       ObjectPathResponseHandler & handler);
-
-	    void modifyInstance(
+            void enumerateInstances(
                const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       const CIMInstance & obj,
-	       const Boolean includeQualifiers,
-	       const CIMPropertyList & propertyList,
-	       ResponseHandler & handler);
+               const CIMObjectPath & ref,
+               const Boolean includeQualifiers,
+               const Boolean includeClassOrigin,
+               const CIMPropertyList & propertyList,
+               InstanceResponseHandler & handler);
 
-	    void createInstance(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       const CIMInstance & obj,
-	       ObjectPathResponseHandler & handler);
+            void enumerateInstanceNames(
+               const OperationContext & context,
+               const CIMObjectPath & ref,
+               ObjectPathResponseHandler & handler);
 
-	    void deleteInstance(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       ResponseHandler & handler);
+            void modifyInstance(
+               const OperationContext & context,
+               const CIMObjectPath & ref,
+               const CIMInstance & obj,
+               const Boolean includeQualifiers,
+               const CIMPropertyList & propertyList,
+               ResponseHandler & handler);
 
-	    //Boolean tryterminate(void);
+            void createInstance(
+               const OperationContext & context,
+               const CIMObjectPath & ref,
+               const CIMInstance & obj,
+               ObjectPathResponseHandler & handler);
+
+            void deleteInstance(
+               const OperationContext & context,
+               const CIMObjectPath & ref,
+               ResponseHandler & handler);
+
+            //Boolean tryterminate(void);
 
         virtual void invokeMethod(
             const OperationContext & context,
@@ -102,9 +102,9 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const CIMName & methodName,
             const Array<CIMParamValue> & inParameters,
             MethodResultResponseHandler & handler);
-	
-	protected:
-        CIMInstance _buildInstanceSkeleton(const CIMName& className);
+        
+        protected:
+        CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className);
 
         void deregisterSLP();
 
@@ -122,7 +122,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const String& value,
             const String& instancePropertyName = String::EMPTY);
 
-        void populateTemplateField(CIMInstance& instance, 
+        void SLPProvider::populateTemplateField(CIMInstance& instance, 
             const String& attributeFieldName,
             const Array<String>& value,
             const String& instancePropertyName);

@@ -291,17 +291,21 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
     it is not.
 */
 String _getHostAddress(String hostName)
-{  
-  String ipAddress;
+{
+  // set default address
+  String ipAddress("127.0.0.1");
   
   if (hostName == String::EMPTY)
-    	hostName = System::getHostName();
+        hostName = System::getHostName();
 
-  if ((ipAddress = System::getHostIP(hostName)) == String::EMPTY)
-  {
-      // set default address if everything else failed
-      ipAddress = String("127.0.0.1");
-  }
+  struct hostent * phostent;
+  struct in_addr   inaddr;
+  
+  if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
+    {
+     ::memcpy( &inaddr, phostent->h_addr,4);
+      ipAddress = ::inet_ntoa( inaddr );
+    }
   return ipAddress;
 }
 
@@ -1111,10 +1115,10 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
     //
     // ATTN: KS Get the correct values for these entities from repository interface.
     CDEBUG("_buildPGNS Instance get namespace attributes for namespace= " << nameSpace.getString()); 
-	CIMRepository::NameSpaceAttributes attributes;
+        CIMRepository::NameSpaceAttributes attributes;
     _repository->getNameSpaceAttributes(nameSpace.getString(), attributes);
     String parent="";
-	String name = "";
+        String name = "";
     Boolean shareable=false;
     Boolean updatesAllowed=true;
     for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start(); i; i++) 
@@ -1123,15 +1127,15 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
        String value = i.value();
        CDEBUG("Show Attributes. key= " << key << " value= " << value);
        if (String::equalNoCase(key,"shareable"))
-	   {
+           {
           if (String::equalNoCase(value,"true"))
               shareable=true;
-	   }
+           }
        else if (String::equalNoCase(key,"updatesAllowed")) 
-	   {
+           {
           if (String::equalNoCase(value,"false"))
               updatesAllowed=false;
-	   }
+           }
        // Test to be sure we are returning proper namespace name
        else if (String::equalNoCase(key,"name"))
        {
@@ -1144,12 +1148,12 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
                    nameSpace.getString()+ value + " in " + String(thisProvider));
           }
 
-		  name = value;
+                  name = value;
        }
        else if (String::equalNoCase(key,"parent"))
-	   {
+           {
           parent=value;
-	   }
+           }
        else 
        {
           PEG_METHOD_EXIT();
@@ -1161,7 +1165,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
     _setPropertyValue(instance, PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, updatesAllowed);
     _setPropertyValue(instance, PG_NAMESPACE_PROPERTY_ISSHAREABLE, shareable);
     _setPropertyValue(instance, PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, parent);
-	_setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
+        _setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
 
     PEG_METHOD_EXIT();
     return(instance);
@@ -1457,7 +1461,7 @@ CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
 */
 Boolean _isNamespace(
             Array<CIMNamespaceName>& namespaceNames,
-	        CIMNamespaceName& namespaceName)
+                CIMNamespaceName& namespaceName)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_isNamespace");
@@ -1524,10 +1528,10 @@ String _getKeyValue(const CIMInstance& instance, const CIMName& keyName)
 //                createInstance
 //***************************************************************************
 void InteropProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
     const CIMInstance& myInstance,
-	ObjectPathResponseHandler & handler)
+        ObjectPathResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::createInstance()");
         
@@ -1649,9 +1653,9 @@ void InteropProvider::createInstance(
 //                deleteInstance
 //***************************************************************************
 void InteropProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceName,
-	ResponseHandler & handler)
+        const OperationContext & context,
+        const CIMObjectPath & instanceName,
+        ResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::deleteInstance");
 
@@ -1702,16 +1706,16 @@ void InteropProvider::deleteInstance(
             CDEBUG("Delete namespace = " << deleteNamespaceName );
         }
 
-	    // ATTN: KS Why THis??? 
+            // ATTN: KS Why THis??? 
         if (deleteNamespaceName.equal (ROOTNS))
        {
            throw CIMNotSupportedException("root namespace cannot be deleted.");
        }
 
-	   _repository->deleteNameSpace(deleteNamespaceName);
+           _repository->deleteNameSpace(deleteNamespaceName);
 
-	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-	       "Namespace = " + deleteNamespaceName.getString() + 
+           PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+               "Namespace = " + deleteNamespaceName.getString() + 
                " successfully deleted.");
 
        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -1998,11 +2002,11 @@ void InteropProvider::modifyInstance(const OperationContext & context,
 //                enumerateInstanceNames
 //***************************************************************************
 void InteropProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler)
     {
-    	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
                 "InteropProvider::enumerateInstanceNames()");
 
         // operation namespace needed internally to get class.
@@ -2095,49 +2099,49 @@ void InteropProvider::enumerateInstanceNames(
 //**************************************************************
 
 void InteropProvider::associators(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & associationClass,
-	const CIMName & resultClass,
-	const String & role,
-	const String & resultRole,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	ObjectResponseHandler & handler)
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & associationClass,
+        const CIMName & resultClass,
+        const String & role,
+        const String & resultRole,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        ObjectResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
-	throw CIMNotSupportedException("AssociationProvider::associators");
+        throw CIMNotSupportedException("AssociationProvider::associators");
 }
 
 void InteropProvider::associatorNames(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & associationClass,
-	const CIMName & resultClass,
-	const String & role,
-	const String & resultRole,
-	ObjectPathResponseHandler & handler)
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & associationClass,
+        const CIMName & resultClass,
+        const String & role,
+        const String & resultRole,
+        ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
-	throw CIMNotSupportedException("AssociationProvider::associatorNames");
+        throw CIMNotSupportedException("AssociationProvider::associatorNames");
 }
 
 void InteropProvider::references(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & resultClass,
-	const String & role,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	ObjectResponseHandler & handler)
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & resultClass,
+        const String & role,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        ObjectResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::references()");
-	throw CIMNotSupportedException("AssociationProvider::references");
+        throw CIMNotSupportedException("AssociationProvider::references");
 }
 
 void _filterAssocInstances(Array<CIMInstance>& instances,
@@ -2150,11 +2154,11 @@ void _filterAssocInstances(Array<CIMInstance>& instances,
 }
 
 void InteropProvider::referenceNames(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & resultClass,
-	const String & role,
-	ObjectPathResponseHandler & handler)
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & resultClass,
+        const String & role,
+        ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::referenceNames()");

@@ -27,9 +27,6 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#define _XOPEN_SOURCE_EXTENDED 1
-#endif
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -40,13 +37,18 @@ String Guid::getGuid(const String &prefix)
   System::getCurrentTime(seconds, milliSeconds);
   CIMValue secondsValue(seconds);
   CIMValue milliSecondsValue(milliSeconds);
-  String ipAddress;
+  String ipAddress("127.0.0.1");
   String hostName(System::getHostName());
-  if ((ipAddress = System::getHostIP(hostName)) == String::EMPTY)
-  {
-      // set default address if everything else failed
-      ipAddress = String("127.0.0.1");
-  }
+
+  struct hostent * phostent;
+  struct in_addr   inaddr;
+  
+  if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
+    {
+      ::memcpy( &inaddr, phostent->h_addr,4);
+      ipAddress = ::inet_ntoa( inaddr );
+    }
+
   // change the dots to dashes
   for (Uint32 i=0; i<ipAddress.size(); i++)
     {

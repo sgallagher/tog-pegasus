@@ -39,11 +39,4 @@ extern "C" in_addr_t inet_addr_in_ebcdic(const char * ip_inptr);
 
 #define inet_addr inet_addr_in_ebcdic
 
-// this inline method is needed as zOS does not support an ASCII enabled version
-// of inet_addr() at the current time (29th Jan. 2004)
-
-extern "C" char* inet_ntoa_in_ebcdic(const struct in_addr &input);
-
-#define inet_ntoa inet_ntoa_in_ebcdic
-
 #endif

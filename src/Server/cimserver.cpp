@@ -1104,7 +1104,7 @@ MessageLoader::_useProcessLocale = false;
                         //"Listening on HTTP port $0.", portNumberHttp);
                         
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            				"src.Server.cimserver.LISTENING_ON_PORT"
+            				"src.Server.cimserver.LISTENING_ON_PORT",
                         	"Listening on $0 port $1.", "HTTP",portNumberHttp);
         }
         if (enableHttpsConnection)
@@ -1114,7 +1114,7 @@ MessageLoader::_useProcessLocale = false;
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTPS port $0.", portNumberHttps);
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            				"src.Server.cimserver.LISTENING_ON_PORT"
+            				"src.Server.cimserver.LISTENING_ON_PORT",
                         	"Listening on $0 port $1.", "HTTPS",portNumberHttps);
         }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -1123,7 +1123,7 @@ MessageLoader::_useProcessLocale = false;
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            				"src.Server.cimserver.LISTENING_ON_LOCAL"
+            				"src.Server.cimserver.LISTENING_ON_LOCAL",
                         	"Listening on local connection socket.");
 #endif
 

@@ -557,7 +557,7 @@ void CIMClientRep::connectLocal()
         try
         {
             _connectSSLContext =
-                new SSLContext(certpath, verifyServerCertificate, randFile, true);
+                new SSLContext(certpath, verifyServerCertificate, randFile);
         }
         catch (SSLException &se)
         {

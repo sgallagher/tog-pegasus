@@ -179,15 +179,9 @@ static int prepareForCallback(int preverifyOk, X509_STORE_CTX *ctx)
 // For the OSs that don't have /dev/random device file,
 // must enable PEGASUS_SSL_RANDOMFILE flag.
 //
-// CIM clients must specify a SSL random file and also
-// set isCIMClient to true. However, CIMserver does not
-// seem to care the Random seed and /dev/random. 
-//
-//
 SSLContextRep::SSLContextRep(const String& certPath,
                        SSLCertificateVerifyFunction* verifyCert,
-                       const String& randomFile,
-                       Boolean isCIMClient)
+                       const String& randomFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -204,46 +198,37 @@ SSLContextRep::SSLContextRep(const String& certPath,
 #ifdef PEGASUS_SSL_RANDOMFILE
     
     //
-    // We will only need SSL Random Seed for CIM Clients
-    // 
-    if (isCIMClient) 
+    // Initialise OpenSSL 0.9.5 random number generator.
+    //
+    if ( randomFile == String::EMPTY )
     {
-       long  seedNumber;
-       //
-       // Initialise OpenSSL 0.9.5 random number generator.
-       //
-       if ( randomFile != String::EMPTY )
-       {
-          int ret = RAND_load_file(randomFile.getCString(), -1);
-          if ( ret < 0 )
-          {
-            PEG_METHOD_EXIT();
-            throw( SSLException("RAND_load_file - failed"));
-          }
+        PEG_METHOD_EXIT();
+        throw( SSLException("Random seed file required"));
+    }
 
-          //
-          // Will do more seeding
-          //
-          srandom((unsigned int)time(NULL)); // Initialize
-          seedNumber = random();
-          RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
+    int ret = RAND_load_file(randomFile.getCString(), -1);
+    if ( ret < 0 )
+    {
+        PEG_METHOD_EXIT();
+        throw( SSLException("RAND_load_file - failed"));
+    }
 
-          int  seedRet = RAND_status();
-          if ( seedRet == 0 )
-          {
-              PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-                  "Not enough data , RAND_status = " + seedRet );
-              PEG_METHOD_EXIT();
-              throw( SSLException("RAND_seed - Not enough seed data "));
-          }
-       }
-       else
-       {
-           PEG_METHOD_EXIT();
-           throw( SSLException("Random seed file required"));
-       }
- 
-     }
+    //
+    // Will do more seeding
+    //
+    long seedNumber;
+    srandom((unsigned int)time(NULL)); // Initialize
+    seedNumber = random();
+    RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
+
+    int  seedRet = RAND_status();
+    if ( seedRet == 0 )
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
+            "Not enough data , RAND_status = " + seedRet );
+        PEG_METHOD_EXIT();
+        throw( SSLException("RAND_seed - Not enough seed data "));
+    }
 
 #endif // end of PEGASUS_SSL_RANDOMFILE
 
@@ -259,7 +244,6 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certPath = sslContextRep._certPath;
     // ATTN: verify_certificate is set implicitly in global variable
     _randomFile = sslContextRep._randomFile;
-    _isCIMClient = sslContextRep._isCIMClient;
     _sslContext = _makeSSLContext();
 
     PEG_METHOD_EXIT();
@@ -344,8 +328,7 @@ SSL_CTX * SSLContextRep::getContext() const
 
 SSLContextRep::SSLContextRep(const String& certPath,
                        SSLCertificateVerifyFunction* verifyCert,
-                       const String& randomFile,
-                       Boolean isCIMClient) {}
+                       const String& randomFile) {}
 
 SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 
@@ -367,11 +350,21 @@ SSL_CTX * SSLContextRep::getContext() const { return 0; }
 SSLContext::SSLContext(
     const String& certPath,
     SSLCertificateVerifyFunction* verifyCert,
+    const String& randomFile)
+{
+    _rep = new SSLContextRep(certPath, verifyCert, randomFile);
+}
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+SSLContext::SSLContext(
+    const String& certPath,
+    SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile,
     Boolean isCIMClient)
 {
-    _rep = new SSLContextRep(certPath, verifyCert, randomFile, isCIMClient);
+    _rep = new SSLContextRep(certPath, verifyCert, randomFile);
 }
+#endif
 
 SSLContext::SSLContext(const SSLContext& sslContext)
 {

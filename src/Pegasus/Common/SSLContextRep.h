@@ -54,16 +54,13 @@ public:
     call back function.
     @param randomFile  file path of a random file that is used as a seed
     for random number generation by OpenSSL.
-    @param isCIMClient  flag indicating that the context is created by
-    the client.
 
     @exception SSLException  exception indicating failure to create a context.
     */
     SSLContextRep(
         const String& certPath,
         SSLCertificateVerifyFunction* verifyCert = NULL,
-        const String& randomFile = String::EMPTY,
-        Boolean isCIMClient = false);
+        const String& randomFile = String::EMPTY);
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
@@ -77,7 +74,6 @@ private:
 
     CString _certPath;
     String _randomFile;
-    Boolean _isCIMClient;
     SSL_CTX * _sslContext;
 };
 

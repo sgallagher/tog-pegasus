@@ -282,8 +282,18 @@ CIMServer::CIMServer(
         certPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLCERT_FILEPATH);
 
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        // NOTE: It is technically not necessary to set up a random file on
+        // the server side, but it is easier to use a consistent interface
+        // on the client and server than to optimize out the random file on
+        // the server side.
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
+
         // ATTN-RK-20020905: Memory leak
-        sslcontext = new SSLContext(certPath, verifyClientCertificate);
+        sslcontext = new SSLContext(certPath, verifyClientCertificate, randFile);
     }
     else
         sslcontext = NULL;

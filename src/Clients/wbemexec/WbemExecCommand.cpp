@@ -265,7 +265,7 @@ WbemExecCommand::WbemExecCommand ()
                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
             SSLContext * sslcontext =
-                new SSLContext(certpath, verifyCertificate, randFile, true);
+                new SSLContext(certpath, verifyCertificate, randFile);
 
 	    client.connect(host, portNumber, sslcontext,  _userName, _password );
 	}

@@ -244,7 +244,7 @@ void WbemExecClient::connectLocal()
 #endif
 
         SSLContext * sslContext =
-            new SSLContext(certpath, verifyServerCertificate, randFile, true);
+            new SSLContext(certpath, verifyServerCertificate, randFile);
 
         _connect(host, portNumber, sslContext);
     }

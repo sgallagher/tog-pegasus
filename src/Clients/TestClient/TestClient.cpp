@@ -1138,7 +1138,7 @@ int main(int argc, char** argv)
                                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
                             SSLContext sslcontext(
-                                certpath, verifyCertificate, randFile, true);
+                                certpath, verifyCertificate, randFile);
 
                             cout << "connecting to " << connectionList[i] << " using SSL" << endl;
                             client.connect (host, portNumber, sslcontext, 

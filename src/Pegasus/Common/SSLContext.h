@@ -109,10 +109,8 @@ typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
     SSL context.
 
     For the OSs that don't have /dev/random device file,
-    must enable PEGASUS_SSL_RANDOMFILE flag.
-
-    CIM clients must specify a SSL random file and also
-    set isCIMClient to true. 
+    must enable PEGASUS_SSL_RANDOMFILE flag and pass
+    random file name to constructor.
 */
 class PEGASUS_COMMON_LINKAGE SSLContext
 {
@@ -125,16 +123,21 @@ public:
     requested for certificate verification.
     @param randomFile  file path of a random file that is used as a seed 
     for random number generation by OpenSSL.
-    @param isCIMClient  flag indicating that the context is created by
-    the client.
 
     @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
         const String& certPath,
         SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile = String::EMPTY);
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    SSLContext(
+        const String& certPath,
+        SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY,
-        Boolean isCIMClient = false);
+        Boolean isCIMClient);
+#endif
 
     SSLContext(const SSLContext& sslContext);
 

@@ -1,0 +1,107 @@
+Using root/SampleProvider as default namespace.
+=========Evaluate Query==============
+======================================0
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_ManagedElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================1
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_ManagedSystemElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================2
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_LogicalElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================3
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_EnabledLogicalElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================4
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_System
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================5
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_ComputerSystem
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================6
+-----Query: SELECT * FROM CIM_ComputerSystem AS CS  WHERE CS ISA CIM_Cluster
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+FALSE
+======================================7
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_ManagedElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================8
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_ManagedSystemElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================9
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_LogicalElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================10
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_EnabledLogicalElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================11
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_System
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================12
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_ComputerSystem
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================13
+-----Query: SELECT * FROM CIM_System  WHERE CIM_System ISA CIM_Cluster
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+FALSE
+======================================14
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_ManagedElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================15
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_ManagedSystemElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================16
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_LogicalElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================17
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_EnabledLogicalElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================18
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_ManagedElement
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================19
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_ComputerSystem
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+TRUE
+======================================20
+-----Query: SELECT * FROM CIM_ManagedElement  WHERE CIM_ManagedElement ISA CIM_Cluster
+
+-----Instance: //somesystem.somecountry.somecompany.com/:CIM_ComputerSystem.CreationClassName="",Name=""
+FALSE

@@ -1,17 +1,23 @@
 
 Broker:
 
-    + Rename classes.
+    + Rename classes (mike).
+    + Instance repository (mike).
+    + MOF Compiler (bob).
+    + Namespaces (karl).
+    + Documents (karl/mike).
+
+    ---------------------------------------
+
     + Associations
     + Property List
     + Service Configuration (config file and daemonization).
-    + MOF Compiler
     + Refine a freeze client and provider interfaces.
-    + Instance repository.
     + Interoperability testing.
     + Providers: __Namespace, TestProvider, Logging
     + Provider registration.
-    * Authentication module.
+    + Reorganize directories.
+    + Developer's guide.
 
     * Tcl client (sits atop C++ client).
     * Port to other platforms.
@@ -23,6 +29,7 @@ Broker:
     * Advanced associations.
     * User authentication.
     * Traffic security.
+    * Authentication module.
     - Embedded JVM.
     - Java provider framework.
     - Discovery (of CIMOMs).

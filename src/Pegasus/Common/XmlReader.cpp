@@ -397,6 +397,12 @@ CIMName XmlReader::getClassOriginAttribute(
     if (!entry.getAttributeValue("CLASSORIGIN", name))
 	return CIMName();
 
+    // KS 200209 This may be temp but we are adding test for form
+    // CLASSNAME = "" for Wbemservices interoperability.  Returns same
+    // as if attribute did not exist.
+    if (name.size() == 0)
+        return CIMName();
+    
     if (!CIMName::legal(name))
     {
 	char buffer[MESSAGE_SIZE];

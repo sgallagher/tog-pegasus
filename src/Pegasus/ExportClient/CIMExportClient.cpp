@@ -119,12 +119,12 @@ void CIMExportClient::_connect()
    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
       _httpConnection = _httpConnector->connect(_connectHost, 
                  _connectPortNumber, 
-                 _connectSSLContext,
+                 _connectSSLContext.get(),
                  _responseDecoder);
    #else
        _httpConnection2 = _httpConnector2->connect(_connectHost,
                  _connectPortNumber,
-                 _connectSSLContext,
+                 _connectSSLContext.get(),
                  _responseDecoder);
    #endif
    }
@@ -203,12 +203,6 @@ void CIMExportClient::_disconnect()
             _requestEncoder = 0;
         }
 
-        if (_connectSSLContext)
-        {
-            delete _connectSSLContext;
-            _connectSSLContext = 0;
-        }
-
         _connected = false;
     }
     PEG_METHOD_EXIT();
@@ -250,7 +244,7 @@ void CIMExportClient::connect(
     //
     _authenticator.clear();
 
-    _connectSSLContext = 0;
+    _connectSSLContext.reset(0);
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
@@ -287,7 +281,7 @@ void CIMExportClient::connect(
     //
     _authenticator.clear();
 
-    _connectSSLContext = new SSLContext(sslContext);
+    _connectSSLContext.reset(new SSLContext(sslContext));
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
@@ -297,8 +291,7 @@ void CIMExportClient::connect(
     }
     catch (Exception&)
     {
-        delete _connectSSLContext;
-        _connectSSLContext = 0;
+        _connectSSLContext.reset();
         PEG_METHOD_EXIT();
         throw;
     }
@@ -310,6 +303,7 @@ void CIMExportClient::disconnect()
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::disconnect()");
     _disconnect();
     _authenticator.clear();
+    _connectSSLContext.reset();
     PEG_METHOD_EXIT();
 }
 

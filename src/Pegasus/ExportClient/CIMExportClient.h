@@ -50,6 +50,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/ContentLanguages.h>  //l10n
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/ExportClient/Linkage.h>
 
@@ -191,7 +192,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       ClientAuthenticator _authenticator;
       String _connectHost;
       Uint32 _connectPortNumber;
-      SSLContext* _connectSSLContext;
+      AutoPtr<SSLContext> _connectSSLContext;
 };
 
 PEGASUS_NAMESPACE_END

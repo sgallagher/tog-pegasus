@@ -188,36 +188,38 @@ Boolean InheritanceTree::getSubClassNames(
     Boolean deepInheritance,
     Array<String>& subclassNames)
 {
-    // -- Case 1: className is empty:
+    // -- Case 1: className is empty: get all class names (if deepInheritance)
+    // -- or just root class names (if not deepInheritance).
 
     if (!className.getLength())
     {
-	if (deepInheritance)
+	for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
 	{
-	    // -- Case 1-A: deepInheritance requested, get all class names:
-
-	    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+	    if (deepInheritance)
 	    {
+		// Append all classes:
+
+		subclassNames.append(i.key());
+		return true;
+	    }
+	    else if (!i.value()->superClass)
+	    {
+		// Just append root classes:
+
 		subclassNames.append(i.key());
 		return true;
 	    }
 	}
-	else
-	{
-	    // -- Case 1-B: deepInheritance not requested, get names of roots:
-
-	    if (!i.value()->superClass)
-		subclassNames.append(i.key());
-	    return true;
-	}
     }
 
-    // -- Case 2: className non-empty:
+    // -- Case 2: className non-empty: get names of classes descendent from
+    // -- the given class.
 
     for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
     {
-
     }
+
+    return true;
 }
 
 void InheritanceTree::print(std::ostream& os) const

@@ -38,6 +38,23 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMInstance
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMInstance::CIMInstance(const CIMObject& x)
+{
+    if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
+	throw DynamicCastFailed();
+}
+
+CIMInstance::CIMInstance(const CIMObject& x, NoThrow&)
+{
+    _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
+}
+
 Boolean CIMInstance::identical(const CIMConstInstance& x) const
 {
     x._checkRep();
@@ -50,6 +67,34 @@ void CIMInstance::resolve(DeclContext* declContext, const String& nameSpace)
     _checkRep();
     CIMConstClass cimClass;
     _rep->resolve(declContext, nameSpace, cimClass);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMConstInstance
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMConstInstance::CIMConstInstance(const CIMObject& x)
+{
+    if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
+	throw DynamicCastFailed();
+}
+
+CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
+{
+    if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
+	throw DynamicCastFailed();
+}
+
+CIMConstInstance::CIMConstInstance(const CIMObject& x, NoThrow&)
+{
+    _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
+}
+
+CIMConstInstance::CIMConstInstance(const CIMConstObject& x, NoThrow&)
+{
+    _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
 }
 
 PEGASUS_NAMESPACE_END

@@ -119,6 +119,10 @@ typedef PEGASUS_SINT64 Sint64;
 #define PEGASUS_NOT_FOUND Uint32(-1)
 #define PEG_NOT_FOUND Uint32(-1)
 
+struct NoThrow { };
+
+#define PEGASUS_NO_THROW (*((NoThrow*)0))
+
 PEGASUS_NAMESPACE_END
 
 #define PEGASUS_TRACE \

@@ -32,10 +32,11 @@ CIMInstance.h File defines the Class used to create, instantiate, and modify
 CIM Instances
 
 */
-#ifndef Pegasus_InstanceDecl_h
-#define Pegasus_InstanceDecl_h
+#ifndef Pegasus_Instance_h
+#define Pegasus_Instance_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstanceRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -48,6 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstInstance;
 class CIMObject;
+class CIMConstObject;
 
 /** Class CIMInstance	- The CIMInstance class represents the instance of
     a CIM class in Pegasus. It is used manipulate instances and the
@@ -73,6 +75,10 @@ public:
     {
 	Inc(_rep = x._rep);
     }
+
+    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x);
+
+    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x, NoThrow&);
 
     /** Constructor. */
     CIMInstance& operator=(const CIMInstance& x)
@@ -149,13 +155,13 @@ public:
 	@return - Returns True if  the qualifier object exists or false
 	if the qualifier is not found.
     */
-    Uint32 existsQualifier(const String& name)
+    Boolean existsQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->existsQualifier(name);
     }
 
-    Uint32 existsQualifier(const String& name) const
+    Boolean existsQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->existsQualifier(name);
@@ -366,7 +372,7 @@ public:
     */
     CIMInstance clone() const
     {
-	return CIMInstance(_rep->clone());
+	return CIMInstance((CIMInstanceRep*)(_rep->clone()));
     }
 
     /** getInstnaceName - Get the instance name of this instance. The class
@@ -402,6 +408,7 @@ private:
     CIMInstanceRep* _rep;
     friend class CIMConstInstance;
     friend class CIMObject;
+    friend class CIMConstObject;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -428,6 +435,14 @@ public:
     {
 	Inc(_rep = x._rep);
     }
+
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x);
+
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x);
+
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x, NoThrow&);
+
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x, NoThrow&);
 
     CIMConstInstance& operator=(const CIMConstInstance& x)
     {
@@ -526,7 +541,7 @@ public:
 
     CIMInstance clone() const
     {
-	return CIMInstance(_rep->clone());
+	return CIMInstance((CIMInstanceRep*)(_rep->clone()));
     }
 
     CIMReference getInstanceName(const CIMConstClass& cimClass) const
@@ -545,6 +560,8 @@ private:
 
     CIMInstanceRep* _rep;
     friend class CIMInstance;
+    friend class CIMObject;
+    friend class CIMConstObject;
 };
 
 #define PEGASUS_ARRAY_T CIMInstance
@@ -553,5 +570,5 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_InstanceDecl_h */
+#endif /* Pegasus_Instance_h */
 

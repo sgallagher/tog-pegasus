@@ -118,6 +118,8 @@ const char IllegalTypeTag::MSG[] = "illegal type tag";
 
 const char TypeMismatch::MSG[] = "type mismatch";
 
+const char DynamicCastFailed::MSG[] = "dynamic cast failed";
+
 const char NoSuchFile::MSG[] = "no such file: ";
 
 const char FileNotReadable::MSG[] = "file not readable: ";

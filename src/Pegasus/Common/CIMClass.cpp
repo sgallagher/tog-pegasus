@@ -34,11 +34,56 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMClass
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMClass::CIMClass(const CIMObject& x)
+{
+    if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
+	throw DynamicCastFailed();
+}
+
+CIMClass::CIMClass(const CIMObject& x, NoThrow&)
+{
+    _rep = dynamic_cast<CIMClassRep*>(x._rep);
+}
+
 Boolean CIMClass::identical(const CIMConstClass& x) const
 {
     x._checkRep();
     _checkRep();
     return _rep->identical(x._rep);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMConstClass
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMConstClass::CIMConstClass(const CIMObject& x)
+{
+    if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
+	throw DynamicCastFailed();
+}
+
+CIMConstClass::CIMConstClass(const CIMConstObject& x)
+{
+    if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
+	throw DynamicCastFailed();
+}
+
+CIMConstClass::CIMConstClass(const CIMObject& x, NoThrow&)
+{
+    _rep = dynamic_cast<CIMClassRep*>(x._rep);
+}
+
+CIMConstClass::CIMConstClass(const CIMConstObject& x, NoThrow&)
+{
+    _rep = dynamic_cast<CIMClassRep*>(x._rep);
 }
 
 PEGASUS_NAMESPACE_END

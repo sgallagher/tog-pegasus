@@ -29,6 +29,7 @@ SOURCES = \
     CIMName.cpp \
     CIMNamedInstance.cpp \
     CIMObject.cpp \
+    CIMObjectRep.cpp \
     CIMOMHandle.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \
@@ -82,6 +83,7 @@ SOURCES = \
     System.cpp \
     TCPChannel.cpp \
     TimeValue.cpp \
+    TLS.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \
     Thread.cpp \
@@ -89,8 +91,6 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp
-
-SOURCES += TLS.cpp
 
 ##
 ## Took these out again. They broke the NT build.

@@ -37,12 +37,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClassRep::CIMClassRep(
     const String& className,
-    const String& superClassName)
-    : _className(className), _superClassName(superClassName), _resolved(false)
+    const String& superClassName) 
+    :
+    CIMObjectRep(className),
+    _superClassName(superClassName)
 {
-    if (!CIMName::legal(className))
-	throw IllegalName();
-
     if (superClassName.size() && !CIMName::legal(superClassName))
 	throw IllegalName();
 }
@@ -121,46 +120,6 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     _properties.append(x);
 }
 
-
-Uint32 CIMClassRep::findProperty(const String& name)
-{
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-    {
-	if (CIMName::equal(_properties[i].getName(), name))
-	    return i;
-    }
-
-    return PEG_NOT_FOUND;
-}
-
-Boolean CIMClassRep::existsProperty(const String& name)
-{
-    return (findProperty(name) != PEG_NOT_FOUND) ?
-		    true : false;
-}
-
-CIMProperty CIMClassRep::getProperty(Uint32 pos)
-{
-    if (pos >= _properties.size())
-	throw OutOfBounds();
-
-    return _properties[pos];
-}
-
-void CIMClassRep::removeProperty(Uint32 pos)
-{
-    if (pos >= _properties.size())
-	throw OutOfBounds();
-
-    _properties.remove(pos);
-}
-
-
-Uint32 CIMClassRep::getPropertyCount() const
-{
-    return _properties.size();
-}
-
 void CIMClassRep::addMethod(const CIMMethod& x)
 {
     if (!x)
@@ -189,9 +148,9 @@ Uint32 CIMClassRep::findMethod(const String& name)
 
 Boolean CIMClassRep::existsMethod(const String& name)
 {
-    return(findMethod(name) != PEG_NOT_FOUND) ?
-			true : false;
+    return(findMethod(name) == PEG_NOT_FOUND) ? false : true;
 }
+
 CIMMethod CIMClassRep::getMethod(Uint32 pos)
 {
     if (pos >= _methods.size())
@@ -204,7 +163,7 @@ Uint32 CIMClassRep::getMethodCount() const
 {
     return _methods.size();
 }
-//ATTN: Ks 18 May
+
 void CIMClassRep::removeMethod(Uint32 pos)
 {
     if (pos >= _methods.size())
@@ -515,57 +474,26 @@ CIMClassRep::CIMClassRep()
 }
 
 CIMClassRep::CIMClassRep(const CIMClassRep& x) :
-    Sharable(),
-    _className(x._className),
-    _superClassName(x._superClassName),
-    _resolved(x._resolved)
+    CIMObjectRep(x),
+    _superClassName(x._superClassName)
 {
-    x._qualifiers.cloneTo(_qualifiers);
-
-    _properties.reserve(x._properties.size());
-
-    for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
-	_properties.append(x._properties[i].clone());
-
     _methods.reserve(x._methods.size());
 
     for (Uint32 i = 0, n = x._methods.size(); i < n; i++)
 	_methods.append(x._methods[i].clone());
 }
 
-CIMClassRep& CIMClassRep::operator=(const CIMClassRep& x)
-{
-    return *this;
-}
-
 Boolean CIMClassRep::identical(const CIMClassRep* x) const
 {
-    if (_className != x->_className)
+    if (!CIMObjectRep::identical(x))
 	return false;
 
     if (_superClassName != x->_superClassName)
 	return false;
 
-    if (!_qualifiers.identical(x->_qualifiers))
-	return false;
-
-    // Compare properties:
-
-    {
-	const Array<CIMProperty>& tmp1 = _properties;
-	const Array<CIMProperty>& tmp2 = x->_properties;
-
-	if (tmp1.size() != tmp2.size())
-	    return false;
-
-	for (Uint32 i = 0, n = tmp1.size(); i < n; i++)
-	{
-	    if (!tmp1[i].identical(tmp2[i]))
-		return false;
-	}
-    }
-
-    // Compare methods:
+    //
+    // Check methods:
+    //
 
     {
 	const Array<CIMMethod>& tmp1 = _methods;

@@ -30,12 +30,14 @@
 #define Pegasus_CIMClass_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClassRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstClass;
 class CIMObject;
+class CIMConstObject;
 
 /** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM,
     a class object may be a class or an associator.  A CIM class must contain a
@@ -44,7 +46,6 @@ class CIMObject;
     instances, all of which support a common type (for example, a set of
     properties, methods, and associations).
 */
-
 class PEGASUS_COMMON_LINKAGE CIMClass
 {
 public:
@@ -73,7 +74,12 @@ public:
 	Inc(_rep = x._rep);
     }
 
-    /// Operator = Assigns the CIM Class constructor.
+    PEGASUS_EXPLICIT CIMClass(const CIMObject& x);
+
+    PEGASUS_EXPLICIT CIMClass(const CIMObject& x, NoThrow&);
+
+    /** Assignment operator.
+    */
     CIMClass& operator=(const CIMClass& x)
     {
 	if (x._rep != _rep)
@@ -511,7 +517,7 @@ public:
     /** Makes a deep copy (clone) of the given object. */
     CIMClass clone() const
     {
-	return CIMClass(_rep->clone());
+	return CIMClass((CIMClassRep*)(_rep->clone()));
     }
 
     /** Get names of all keys of this class. */
@@ -542,6 +548,7 @@ private:
     CIMClassRep* _rep;
     friend class CIMConstClass;
     friend class CIMObject;
+    friend class CIMConstObject;
 };
 
 #define PEGASUS_ARRAY_T CIMClass
@@ -569,6 +576,14 @@ public:
     {
 	Inc(_rep = x._rep);
     }
+
+    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x);
+
+    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x);
+
+    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x, NoThrow&);
+
+    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x, NoThrow&);
 
     CIMConstClass& operator=(const CIMConstClass& x)
     {
@@ -705,7 +720,7 @@ public:
 
     CIMClass clone() const
     {
-	return CIMClass(_rep->clone());
+	return CIMClass((CIMClassRep*)(_rep->clone()));
     }
 
     void getKeyNames(Array<String>& keyNames) const
@@ -733,6 +748,8 @@ private:
     friend class CIMClassRep;
     friend class CIMClass;
     friend class CIMInstanceRep;
+    friend class CIMObject;
+    friend class CIMConstObject;
 };
 
 PEGASUS_NAMESPACE_END

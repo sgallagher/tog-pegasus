@@ -338,6 +338,16 @@ public:
 };
 
 /// ATTN:
+class PEGASUS_COMMON_LINKAGE DynamicCastFailed : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    DynamicCastFailed() : Exception(MSG) { }
+};
+
+/// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
 {
 public:

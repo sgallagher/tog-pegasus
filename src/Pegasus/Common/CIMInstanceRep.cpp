@@ -34,74 +34,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMInstanceRep::CIMInstanceRep(const String& className)
-    : _className(className), _resolved(false)
+CIMInstanceRep::CIMInstanceRep(const String& className) : 
+    CIMObjectRep(className)
 {
-    if (!CIMName::legal(className))
-	throw IllegalName();
+
 }
 
 CIMInstanceRep::~CIMInstanceRep()
 {
 
 }
-
-void CIMInstanceRep::addProperty(const CIMProperty& x)
-{
-    if (!x)
-	throw UnitializedHandle();
-
-    // Reject duplicate property names:
-
-    if (findProperty(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists();
-
-    // Note: class origin is resolved later:
-
-    // Append property:
-
-    _properties.append(x);
-}
-
-Uint32 CIMInstanceRep::findProperty(const String& name)
-{
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-    {
-	if (CIMName::equal(_properties[i].getName(), name))
-	    return i;
-    }
-
-    return PEG_NOT_FOUND;
-}
-
-Boolean CIMInstanceRep::existsProperty(const String& name)
-{
-    return (findProperty(name) != PEG_NOT_FOUND) ?
-		    true : false;
-}
-
-CIMProperty CIMInstanceRep::getProperty(Uint32 pos)
-{
-    if (pos >= _properties.size())
-	throw OutOfBounds();
-
-    return _properties[pos];
-}
-
-void CIMInstanceRep::removeProperty(Uint32 pos)
-    {
-	if (pos >= _properties.size())
-	    throw OutOfBounds();
-
-	_properties.remove(pos);
-    }
-
-
-Uint32 CIMInstanceRep::getPropertyCount() const
-{
-    return _properties.size();
-}
-
 
 void CIMInstanceRep::resolve(
     DeclContext* context,
@@ -216,52 +158,9 @@ CIMInstanceRep::CIMInstanceRep()
 
 }
 
-CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) :
-    Sharable(),
-    _className(x._className),
-    _resolved(x._resolved)
+CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : CIMObjectRep(x)
 {
-    x._qualifiers.cloneTo(_qualifiers);
 
-    _properties.reserve(x._properties.size());
-
-    for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
-	_properties.append(x._properties[i].clone());
-}
-
-CIMInstanceRep& CIMInstanceRep::operator=(const CIMInstanceRep& x)
-{
-    return *this;
-}
-
-Boolean CIMInstanceRep::identical(const CIMInstanceRep* x) const
-{
-    if (_className != x->_className)
-	return false;
-
-    if (!_qualifiers.identical(x->_qualifiers))
-	return false;
-
-    // Compare properties:
-
-    {
-	const Array<CIMProperty>& tmp1 = _properties;
-	const Array<CIMProperty>& tmp2 = x->_properties;
-
-	if (tmp1.size() != tmp2.size())
-	    return false;
-
-	for (Uint32 i = 0, n = tmp1.size(); i < n; i++)
-	{
-	    if (!tmp1[i].identical(tmp2[i]))
-		return false;
-	}
-    }
-
-    if (_resolved != x->_resolved)
-	return false;
-
-    return true;
 }
 
 void CIMInstanceRep::toXml(Array<Sint8>& out) const

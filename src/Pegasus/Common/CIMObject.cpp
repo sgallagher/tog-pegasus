@@ -27,9 +27,9 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMObject.h"
+#include "CIMClass.h"
+#include "CIMInstance.h"
 #include "XmlWriter.h"
-
-PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -39,53 +39,97 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMClass CIMObject::getClass()
+CIMObject::CIMObject(const CIMClass& x)
 {
-    if (!isClass())
-	throw TypeMismatch();
-
-    return CIMClass((CIMClassRep*)_rep);
+    Inc(_rep = x._rep);
 }
 
-CIMConstClass CIMObject::getClass() const
+CIMObject::CIMObject(const CIMInstance& x)
 {
-    if (!isInstance())
-	throw TypeMismatch();
-
-    return CIMConstClass((CIMClassRep*)_rep);
+    Inc(_rep = x._rep);
 }
 
-CIMInstance CIMObject::getInstance()
+CIMObject& CIMObject::operator=(const CIMClass& x)
 {
-    if (!isInstance())
-	throw TypeMismatch();
-
-    return CIMInstance((CIMInstanceRep*)_rep);
-}
-
-CIMConstInstance CIMObject::getInstance() const
-{
-    if (!isInstance())
-	throw TypeMismatch();
-
-    return CIMConstInstance((CIMInstanceRep*)_rep);
-}
-
-void CIMObject::toXml(Array<Sint8>& out) const
-{
-    if (!_rep)
-	throw NullPointer();
-
-    if (isClass())
+    if (x._rep != _rep)
     {
-	CIMConstClass cimClass = getClass();
-	cimClass.toXml(out);
+	Dec(_rep);
+	Inc(_rep = x._rep);
     }
-    else
+    return *this;
+}
+
+CIMObject& CIMObject::operator=(const CIMInstance& x)
+{
+    if (x._rep != _rep)
     {
-	CIMConstInstance cimInstance = getInstance();
-	cimInstance.toXml(out);
+	Dec(_rep);
+	Inc(_rep = x._rep);
     }
+    return *this;
+}
+
+Boolean CIMObject::identical(const CIMConstObject& x) const
+{
+    x._checkRep();
+    _checkRep();
+    return _rep->identical(x._rep);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMConstObject
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMConstObject::CIMConstObject(const CIMClass& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMConstObject::CIMConstObject(const CIMInstance& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMConstObject& CIMConstObject::operator=(const CIMClass& x)
+{
+    if (x._rep != _rep)
+    {
+	Dec(_rep);
+	Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+CIMConstObject& CIMConstObject::operator=(const CIMInstance& x)
+{
+    if (x._rep != _rep)
+    {
+	Dec(_rep);
+	Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+CIMConstObject& CIMConstObject::operator=(const CIMConstClass& x)
+{
+    if (x._rep != _rep)
+    {
+	Dec(_rep);
+	Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+CIMConstObject& CIMConstObject::operator=(const CIMConstInstance& x)
+{
+    if (x._rep != _rep)
+    {
+	Dec(_rep);
+	Inc(_rep = x._rep);
+    }
+    return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,12 +179,6 @@ void CIMObjectWithPath::set(
     _reference = reference;
     _object = object;
 }
-
-//------------------------------------------------------------------------------
-//
-// <!ELEMENT VALUE.OBJECTWITHPATH ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
-//
-//------------------------------------------------------------------------------
 
 void CIMObjectWithPath::toXml(Array<Sint8>& out) const
 {

@@ -30,11 +30,7 @@
 #define Pegasus_CIMClassRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/CIMQualifierList.h>
-#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/CIMMethod.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -44,7 +40,7 @@ class CIMClass;
 class CIMConstClass;
 class CIMInstanceRep;
 
-class PEGASUS_COMMON_LINKAGE CIMClassRep : public Sharable
+class PEGASUS_COMMON_LINKAGE CIMClassRep : public CIMObjectRep
 {
 public:
 
@@ -52,81 +48,17 @@ public:
 	const String& className,
 	const String& superClassName);
 
-    ~CIMClassRep();
+    virtual ~CIMClassRep();
 
     Boolean isAssociation() const;
 
     Boolean isAbstract() const;
 
-    const String& getClassName() const { return _className; }
-
     const String& getSuperClassName() const { return _superClassName; }
 
     void setSuperClassName(const String& superClassName);
 
-    void addQualifier(const CIMQualifier& qualifier)
-    {
-	_qualifiers.add(qualifier);
-    }
-
-    Uint32 findQualifier(const String& name) const
-    {
-	return _qualifiers.find(name);
-    }
-
-    Boolean existsQualifier(const String& name) const
-    {
-	return ((_qualifiers.find(name) != PEG_NOT_FOUND) ? true : false);
-    }
-
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	return _qualifiers.getQualifier(pos);
-    }
-
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	return _qualifiers.getQualifier(pos);
-    }
-
-    Uint32 getQualifierCount() const
-    {
-	return _qualifiers.getCount();
-    }
-
-    void removeQualifier(Uint32 pos)
-    {
-    _qualifiers.removeQualifier(pos);
-    }
-
-    void addProperty(const CIMProperty& x);
-
-
-    Uint32 findProperty(const String& name);
-
-    Uint32 findProperty(const String& name) const
-    {
-	return ((CIMClassRep*)this)->findProperty(name);
-    }
-
-    Boolean existsProperty(const String& name);
-
-    Boolean existsProperty(const String& name) const
-    {
-	return ((CIMClassRep*)this)->existsProperty(name);
-    }
-
-    CIMProperty getProperty(Uint32 pos);
-
-    CIMConstProperty getProperty(Uint32 pos) const
-    {
-	return ((CIMClassRep*)this)->getProperty(pos);
-    }
-
-    void removeProperty(Uint32 pos);
-
-
-    Uint32 getPropertyCount() const;
+    virtual void addProperty(const CIMProperty& x);
 
     void addMethod(const CIMMethod& x);
 
@@ -144,7 +76,6 @@ public:
 	return ((CIMClassRep*)this)->existsMethod(name);
     }
 
-
     CIMMethod getMethod(Uint32 pos);
 
     CIMConstMethod getMethod(Uint32 pos) const
@@ -160,17 +91,17 @@ public:
 	DeclContext* context,
 	const String& nameSpace);
 
+    Boolean identical(const CIMClassRep* x) const;
+
     void toXml(Array<Sint8>& out) const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+    void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
     void toMof(Array<Sint8>& out) const;
 
-    void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+    void printMof(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
-    Boolean identical(const CIMClassRep* x) const;
-
-    CIMClassRep* clone() const
+    virtual CIMObjectRep* clone() const
     {
 	return new CIMClassRep(*this);
     }
@@ -185,14 +116,13 @@ private:
 
     CIMClassRep(const CIMClassRep& x);
 
-    CIMClassRep& operator=(const CIMClassRep& x);
+    CIMClassRep& operator=(const CIMClassRep& x)
+    {
+	return *this;
+    }
 
-    String _className;
     String _superClassName;
-    CIMQualifierList _qualifiers;
-    Array<CIMProperty> _properties;
     Array<CIMMethod> _methods;
-    Boolean _resolved;
 
     friend class CIMClass;
     friend class CIMInstanceRep;

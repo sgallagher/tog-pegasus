@@ -119,7 +119,7 @@ SOURCES = \
     XmlReader.cpp \
     XmlWriter.cpp \
     MofWriter.cpp \
-	CIMEmbeddedObject.cpp \
+    CIMEmbeddedObject.cpp \
     peg_authorization.cpp \
     CommonUTF.cpp
 

@@ -363,7 +363,8 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         if (interfaceType == "CMPI")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_CMPIPM, "CMPI", "CMPI", _indicationCallback);
+                LIBRARY_NAME_CMPIPM, "CMPI", "CMPI", _indicationCallback,
+                _subscriptionInitComplete);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
         }
@@ -373,7 +374,8 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         if (interfaceType == "JMPI")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_JMPIPM, "JMPI", "JMPI", _indicationCallback);
+                LIBRARY_NAME_JMPIPM, "JMPI", "JMPI", _indicationCallback,
+                _subscriptionInitComplete);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
         }

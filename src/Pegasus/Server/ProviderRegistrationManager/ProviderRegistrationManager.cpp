@@ -2050,16 +2050,21 @@ void ProviderRegistrationManager::_deleteInstance(
 		          String::equalNoCase(deletedProvider, provider) &&
 		          String::equalNoCase(deletedCapabilityID, capabilityID))
 		      {
-		    	if (instances.size()== 1)
-		    	{
-		            delete i.value();
-		            _registrationTable->table.remove(i.key());
-		    	}
-		    	else
-		    	{
-		            instances.remove(j);
-			    j = j - 1;
-		    	}
+                          //
+                          //  Remove old entry
+                          //
+                          delete i.value();
+                          String theKey = i.key();
+                          _registrationTable->table.remove(i.key());
+                          if (instances.size() > 1)
+                          {
+                              //
+                              //  Insert updated entry
+                              //
+                              instances.remove(j);
+                              _addInstancesToTable (theKey, instances);
+                              j = j - 1;
+                          }
 		      }
 		    }
 		}
@@ -2230,16 +2235,21 @@ void ProviderRegistrationManager::_deleteInstance(
 			  if (String::equalNoCase(deletedModuleName, _moduleName) &&
 			      String::equalNoCase(deletedProviderName, _providerName))
 		    	  {
-			    if (instances.size() == 1)
-			    {
-			        delete i.value();
-			        _registrationTable->table.remove(i.key());
-			    }
-			    else
-			    {
-			        instances.remove(j);
-				j = j - 1;
-			    }
+                              //
+                              //  Remove old entry
+                              //
+                              delete i.value();
+                              String theKey = i.key();
+                              _registrationTable->table.remove(i.key());
+                              if (instances.size() > 1)
+                              {
+                                  //
+                                  //  Insert updated entry
+                                  //
+                                  instances.remove(j);
+                                  _addInstancesToTable (theKey, instances);
+                                  j = j - 1;
+                              }
 		          }
 			}
 		    }
@@ -2425,16 +2435,21 @@ void ProviderRegistrationManager::_deleteInstance(
 			instances[j].getProperty(pos).getValue().get(_providerModuleName);
 			if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
 		    	{
-			    if (instances.size() == 1)
-			    {
-			        delete i.value();
-			        _registrationTable->table.remove(i.key());
-			    }
-			    else
-			    {
-			        instances.remove(j);
-				j = j - 1;
-			    }
+                            //
+                            //  Remove old entry
+                            //
+                            delete i.value();
+                            String theKey = i.key();
+                            _registrationTable->table.remove(i.key());
+                            if (instances.size() > 1)
+                            {
+                                //
+                                //  Insert updated entry
+                                //
+                                instances.remove(j);
+                                _addInstancesToTable (theKey, instances);
+                                j = j - 1;
+                            }
 		        }
 		      }
 		    }

@@ -31,6 +31,7 @@
 //
 // Modified By:	 Adriano Zanuz (adriano.zanuz@hp.com)
 //               Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//               Mateus Baur, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider.cpp: implementation of the WMIBaseProvider class.
@@ -447,16 +448,33 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 	sObjName = objectName.toString();			
 	sObjNameLower = sObjName;
 	sObjNameLower.toLower();
+		
+	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMIBaseProvider::getObjectName() - ObjectName: %s", 
+        sObjName.getCString()); 		
 
-	Tracer::trace("WMIBaseProvider", 400, TRC_WMIPROVIDER, Tracer::LEVEL3,
-		sObjName); 
-
-	// and remove the namespace stuff
-	//===================================
 	Uint32 pos;
 
-	//1. Remove the machine name and port if it exists
-	if ((sObjNameLower.subString(0, 2) == "//") || (sObjNameLower.subString(0, 2) == "\\\\"))
+	// 1. if Object name initiates with a hostname then remove it
+	if ((sObjName.subString(0, 4) != "root") && 
+        (sObjNameLower.subString(0, 2) != "//") && 
+        (sObjNameLower.subString(0, 2) != "\\\\"))
+	{
+		pos = sObjNameLower.find("root");
+
+		if (sObjNameLower.find("=") > pos) {
+				
+		    if (PEG_NOT_FOUND != pos)
+		    {
+			    sObjName.remove(0, pos);
+     			sObjNameLower.remove(0, pos);
+		    }
+        } 
+    }
+
+	//2. Remove the machine name and port if it exists
+	if ((sObjNameLower.subString(0, 2) == "//") || 
+        (sObjNameLower.subString(0, 2) == "\\\\"))
 	{			
 		pos = sObjNameLower.find("root");
 		
@@ -466,7 +484,7 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 			sObjNameLower.remove(0, pos);
 		}
 
-		//2. After ensuring that all stuff before root was removed,
+		//3. After ensuring that all stuff before root was removed,
 		//   get the class/instance name.
 		pos = sObjName.find(qString(Q_COLON));
 			
@@ -489,7 +507,7 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 		}
 	}
 
-	//3. Check if has =R".." for a reference instance and
+	//4. Check if has =R".." for a reference instance and
 	//	if so, remove the R
 	//Uint32 pos = sObjName.find(qString(Q_REF_KEY));
 	pos = sObjName.find(qString(Q_REF_KEY));
@@ -504,7 +522,10 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 		}
 	}
 
-	Tracer::trace("WMIBaseProvider", 420, TRC_WMIPROVIDER, Tracer::LEVEL3, sObjName); 
+	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMIBaseProvider::getObjectName() - ObjectName: %s", 
+        sObjName.getCString()); 		
+	
 	PEG_METHOD_EXIT();
 
 	return sObjName;

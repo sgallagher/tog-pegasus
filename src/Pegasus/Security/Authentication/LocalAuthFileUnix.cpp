@@ -30,54 +30,64 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <sys/stat.h>
+#include <fstream>
 #include <unistd.h>
 #include <pwd.h>
+#include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
 #include <sys/time.h>
+
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
+
 #include "LocalAuthFile.h"
+
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 //
-// A unique sequence number starts with  this.
+// Constant representing the random seed for srandom function
 //
-static Uint32 sequenceCount = 212;
+const Uint32 RANDOM_SEED     =  100;
 
 //
-// File path used to create random file
+// File path used to create temporary random file
 //
-const char filepath[]="/tmp/cimclient";
+const char TMP_FILE_PATH []  =  "/var/opt/wbem/tmp/cimclient";
+
+//
+// Constant representing the int buffer size
+//
+const Uint32 INT_BUFFER_SIZE = 64;
+
+//
+// A unique sequence number used in random file name creation.
+//
+static Uint32 sequenceCount  =  212;
 
 
-LocalAuthFile::LocalAuthFile(String userName)
+
+LocalAuthFile::LocalAuthFile(const String& userName)
+    : _userName(userName),
+      _challenge(String::EMPTY),
+      _filePathName(String::EMPTY)
 {
-    const char METHOD_NAME[] = "LocalAuthFile::LocalAuthFile()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::LocalAuthFile()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    srandom(RANDOM_SEED);
 
-    _user = userName.allocateCString();
-    _user[strlen(_user)] = 0;
-
-    _challenge = String::EMPTY;
-    _filePathName = String::EMPTY;
-
-    srandom(100);
-
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 LocalAuthFile::~LocalAuthFile() 
 { 
-    const char METHOD_NAME[] = "LocalAuthFile::~LocalAuthFile()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::~LocalAuthFile()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 //
@@ -86,65 +96,61 @@ LocalAuthFile::~LocalAuthFile()
 //
 String LocalAuthFile::create()
 {
-    const char METHOD_NAME[] = "LocalAuthFile::create()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    char* extension = 0;
-    ofstream outfs;
-    char* fileName = 0;
-    String filePath = String::EMPTY;
-
-    //
-    // File name will be /tmp/cimclient_user_nnn
-    //
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::create()");
 
     Uint32 secs, milliSecs;
+
     System::getCurrentTime(secs, milliSecs);
 
     //
     // extension size is username plus the sequence count
     //
-    extension = new char[strlen(_user) + 4];
     sequenceCount++;
-    sprintf(extension,"_%s_%d", _user, sequenceCount + milliSecs);
-    extension[strlen(extension)]=0;
 
-    fileName = strcpy(new char[strlen(filepath) + 
-                            strlen(extension) + 1], filepath);
-    strcat(fileName, extension);
+    char extension[INT_BUFFER_SIZE];
+    sprintf(extension,"%d", sequenceCount + milliSecs);
+    extension[strlen(extension)] = 0;
 
+    String filePath = String::EMPTY;
+
+    filePath.append(TMP_FILE_PATH);
+    filePath.append(_userName);
+    filePath.append(extension);
+
+    //
     // create a file name with the name of the user
-#if !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-    outfs.open(fileName, ios::in, S_IRUSR | S_IWUSR);
-#else
-    outfs.open(fileName, ios::in);
-#endif
-    if ( !outfs )
+    //
+    ArrayDestroyer<char> p(filePath.allocateCString());
+    ofstream outfs(p.getPointer());
+    if (!outfs)
     {
         // unable to create file
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-        return(filePath);
+        PEG_TRACE_STRING(
+            TRC_AUTHENTICATION, 4, "Failed to create file: " + filePath);
+        PEG_METHOD_EXIT();
+        return(_filePathName);
     }
+    outfs.clear();
 
     String randomToken = _generateRandomTokenString();
     outfs << randomToken;
-
     outfs.close();
-    _challenge.assign(randomToken);
 
-    //change owner
-    if (!_changeFileOwner(fileName))
+    _challenge = randomToken;
+
+    //
+    //change the file owner
+    //
+    if (!_changeFileOwner(filePath))
     {
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-        return(filePath);
+        PEG_METHOD_EXIT();
+        return(_filePathName);
     }
 
-    _filePathName.assign(fileName);
+    _filePathName = filePath;
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
-    // return the name of the file
     return(_filePathName);
 }
 
@@ -153,14 +159,21 @@ String LocalAuthFile::create()
 //
 Boolean LocalAuthFile::remove()
 {
-    const char METHOD_NAME[] = "LocalAuthFile::remove()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::remove()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    Boolean retVal = true;
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-
+    //
     // remove the file
-    return(System::removeFile(_filePathName.allocateCString()));
+    //
+    if (FileSystem::exists(_filePathName))
+    {
+        retVal = FileSystem::removeFile(_filePathName);
+    }
+
+    PEG_METHOD_EXIT();
+
+    return(retVal);
 }
 
 //
@@ -168,11 +181,9 @@ Boolean LocalAuthFile::remove()
 //
 String LocalAuthFile::getChallengeString()
 {
-    const char METHOD_NAME[] = "LocalAuthFile::getChallengeString()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::getChallengeString()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return(_challenge);
 }
@@ -180,78 +191,38 @@ String LocalAuthFile::getChallengeString()
 //
 // changes the file owner to one specified
 //
-Boolean LocalAuthFile::_changeFileOwner(char* fileName)
+Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
 {
-    const char METHOD_NAME[] = "LocalAuthFile::_changeFileOwner()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::_changeFileOwner()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    struct passwd*        userPasswd;
 
-    struct    passwd*        userPasswd;
-    struct    passwd        pwd;
-    struct    passwd*        result;
-    char    pwdBuffer[MAX_PWD_BUFFER_SIZE];
+    ArrayDestroyer<char> pUserName(_userName.allocateCString());
+    userPasswd = getpwnam(pUserName.getPointer());
 
-    Uint32    intUid;
-    Uint32    intGid;
-
-#ifdef  _REENTRANT
-    
-    //
-    // This requires -D_REENTRANT flag to makefile
-    //
-    if (getpwnam_r (_user, &pwd, pwdBuffer, MAX_PWD_BUFFER_SIZE, &result) == 0)
-    {
-        // ATTN: Log message
-        //printf ("Name = %s; uid = %d\n", pwd.pw_name, pwd.pw_uid);
-    }
-    else
-    {
-        // ATTN: Log getpwnam failed message
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-        return (false);
-    }
-     
-    intUid = pwd.pw_uid;
-    intGid = pwd.pw_gid;
-
-#else
-    userPasswd = getpwnam(_user);
     if ( userPasswd  == NULL)
     {
-        // ATTN: Log getpwnam failed message
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         return (false);
     }
     
-    intUid = userPasswd->pw_uid;
-    intGid = userPasswd->pw_gid;
+    ArrayDestroyer<char> pFileName(fileName.allocateCString());
 
-#endif
-     
-    //
-    //SYNTAX:
-    //int chown(const char *path, uid_t owner, gid_t group);
-    //
-    Uint32 ret = chown(fileName, intUid, intGid);
+    Uint32 ret = chown(pFileName.getPointer(), userPasswd->pw_uid, userPasswd->pw_gid);
     if ( ret == -1)
     {
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         return (false);
     }
    
-    //
-    //SYNTAX:
-    //  int chmod(const char *path, mode_t mode);
-    //   where S_IRUSR - read only by user
-    //
-    Uint32 retn = chmod(fileName, S_IRUSR);
-    if ( retn == -1)
+    ret = chmod(pFileName.getPointer(), S_IRUSR);
+    if ( ret == -1)
     {
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         return (false);
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return (true);
 }
@@ -261,24 +232,29 @@ Boolean LocalAuthFile::_changeFileOwner(char* fileName)
 //
 String LocalAuthFile::_generateRandomTokenString()
 {
-    const char METHOD_NAME[] = "LocalAuthFile::_generateRandomTokenString()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "LocalAuthFile::_generateRandomTokenString()");
 
     String randomToken = String::EMPTY;
-    char token[MAX_BUFFER_SIZE];
+
+    char token[INT_BUFFER_SIZE];
     Uint32 seconds, milliseconds;
 
     System::getCurrentTime(seconds, milliseconds);
 
+    //
     // generate a random token
+    //
     char randnum[] = { '0' + (random() % 10), '0' + (random() % 10), '\0' };
     long randomNum = atol(randnum);
 
-    sprintf (token,"%s%ld%d", _user, randomNum, seconds + milliseconds );
-    randomToken.assign(token);
+    sprintf (token,"%ld%d", randomNum, seconds + milliseconds );
+    token[strlen(token)] = 0;
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    randomToken.append(_userName);
+    randomToken.append(token);
+
+    PEG_METHOD_EXIT();
 
     return (randomToken);
 }

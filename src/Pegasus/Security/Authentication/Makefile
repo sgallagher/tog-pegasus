@@ -6,10 +6,11 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL
 
-LIBRARY = peglocalauth
+LIBRARY = pegauthentication
 
 LIBRARIES = \
     pegcommon \
+    peguser   \
     pegconfig
 
 PRE_DEPEND_INCLUDES = -I./depends
@@ -18,6 +19,7 @@ SOURCES = \
     LocalAuthFile.cpp \
     SecureLocalAuthenticator.cpp \
     LocalAuthenticationHandler.cpp \
+    SecureBasicAuthenticator.cpp \
     BasicAuthenticationHandler.cpp \
     AuthenticationManager.cpp
 

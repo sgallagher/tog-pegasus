@@ -23,83 +23,53 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "AuthenticationInfo.h"
+#ifndef Pegasus_BasicAuthenticator_h
+#define Pegasus_BasicAuthenticator_h
 
-PEGASUS_USING_STD;
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+
+#include "Linkage.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-
-AuthenticationInfo::AuthenticationInfo()
-    : 
-    _authStatus(NEW_REQUEST), 
-    _authUser(String::EMPTY),
-    _authChallenge(String::EMPTY), 
-    _authSecret(String::EMPTY),
-    _privileged(false), 
-    _authType(String::EMPTY)
-{ 
-
-}
-
-
-AuthenticationInfo::~AuthenticationInfo()
+/** This is an abstract class that the Basic authenticators will extend
+    and provide the implementation. An implementation can be seen in
+    SecureBasicAuthenticator.cpp
+*/
+class PEGASUS_SECURITY_LINKAGE BasicAuthenticator
 {
+public:
 
-}
+    /** constructor. */ 
+    BasicAuthenticator() { };
 
-//
-// Set the authentication status of the request
-//
-void   AuthenticationInfo::setAuthStatus(AuthStatus status)
-{
-    _authStatus = status;
-}
+    /** destructor. */ 
+    virtual ~BasicAuthenticator() { };
 
-//
-// Set the authenticated user name
-//
-void   AuthenticationInfo::setAuthenticatedUser(const String& userName)
-{
-    _authUser = userName;
-}
+    /** Verify the authentication of the requesting user.
+        @param userName String containing the user name
+        @param password String containing the user password
+        @return true on successful authentication, false otherwise
+    */
+    virtual Boolean authenticate(
+        const String& userName, 
+        const String& password) = 0;
 
-//
-// Set the authentication challenge
-//
-void   AuthenticationInfo::setAuthChallenge(const String& challenge)
-{
-    _authChallenge = challenge;
-}
+    /** Construct and return the HTTP Basic authentication challenge header
+        @return A string containing the authentication challenge header.
+    */
+    virtual String getAuthResponseHeader() = 0;
+};
 
-//
-// Set the authentication secret
-//
-void   AuthenticationInfo::setAuthSecret(const String& secret)
-{
-    _authSecret = secret;
-}
-
-//
-// Set the privileged flag
-//
-void   AuthenticationInfo::setPrivileged(Boolean privileged)
-{
-    _privileged = privileged;
-}
-
-//
-// Set the authentication type of the request
-//
-void   AuthenticationInfo::setAuthType(const String& authType)
-{
-    _authType = authType;
-}
 
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_BasicAuthenticator_h */

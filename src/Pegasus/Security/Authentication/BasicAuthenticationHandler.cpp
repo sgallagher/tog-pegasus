@@ -32,7 +32,11 @@
 
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Base64.h>
+
+#include "SecureBasicAuthenticator.h"
 #include "BasicAuthenticationHandler.h"
+
 
 PEGASUS_USING_STD;
 
@@ -41,40 +45,83 @@ PEGASUS_NAMESPACE_BEGIN
 
 BasicAuthenticationHandler::BasicAuthenticationHandler()
 {
-    const char METHOD_NAME[] = 
-        "BasicAuthenticationHandler::BasicAuthenticationHandler()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "BasicAuthenticationHandler::BasicAuthenticationHandler()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    _basicAuthenticator = (BasicAuthenticator*) new SecureBasicAuthenticator();
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-
-    // ATTN: Load the local authentication module here
+    PEG_METHOD_EXIT();
 }
 
 BasicAuthenticationHandler::~BasicAuthenticationHandler()
 {
-    const char METHOD_NAME[] = 
-        "BasicAuthenticationHandler::~BasicAuthenticationHandler()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "BasicAuthenticationHandler::~BasicAuthenticationHandler()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    if (_basicAuthenticator)
+    {
+        delete _basicAuthenticator;
+    }
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-
-    // ATTN: delete the local authentication module here
+    PEG_METHOD_EXIT();
 }
 
 Boolean BasicAuthenticationHandler::authenticate(    
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
-    const char METHOD_NAME[] = "BasicAuthenticationHandler::authenticate()";
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "BasicAuthenticationHandler::authenticate()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    Boolean authenticated = false;
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    //
+    // copy userPass string to Sint8 array for decoding
+    //
+    Array <Sint8>  userPassArray;
 
-    // ATTN: Add authentication code here
-    return (true);
+    Uint32 length = authHeader.size();
+
+    userPassArray.reserve( length );
+    userPassArray.clear();
+
+    for( Uint32 i = 0; i < length; i++ )
+    {
+        userPassArray.append( (Sint8)authHeader[i] );
+    }
+
+    //
+    // base64 decode the userPass array
+    //
+    Array <Uint8>  decodedArray;
+
+    decodedArray = Base64::decode( userPassArray );
+
+    String decodedStr = 
+        String( (const char*)decodedArray.getData(), decodedArray.size() );
+
+    Uint32 pos = decodedStr.find(':');
+
+    if (pos == PEG_NOT_FOUND)
+    {
+        return (authenticated);
+        PEG_METHOD_EXIT();
+    }
+
+    String userName = decodedStr.subString(0, pos);
+
+    String password = decodedStr.subString(pos + 1);
+
+    authenticated = _basicAuthenticator->authenticate(userName, password);
+
+    if (authenticated)
+    {
+        authInfo->setAuthenticatedUser(userName);
+    }
+
+    PEG_METHOD_EXIT();
+
+    return (authenticated);
 }
 
 String BasicAuthenticationHandler::getAuthResponseHeader(
@@ -82,38 +129,12 @@ String BasicAuthenticationHandler::getAuthResponseHeader(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
-    const char METHOD_NAME[] = 
-        "BasicAuthenticationHandler::getAuthResponseHeader()";
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "BasicAuthenticationHandler::getAuthResponseHeader()");
 
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    String respHeader = _basicAuthenticator->getAuthResponseHeader();
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-
-    //
-    // No Implementation required in BasicAuthenticationHandler
-    //
-    return (String(""));
-}
-
-String BasicAuthenticationHandler::getAuthResponseHeader(
-    const String&  realm,
-    AuthenticationInfo* authInfo)
-{
-    const char METHOD_NAME[] = 
-        "BasicAuthenticationHandler::getAuthResponseHeader()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    String respHeader = String::EMPTY;
-
-    // actual header "WWW-Authenticate: Basic \"" + realm + "\""
-    respHeader.assign("WWW-Authenticate: Basic \"");
-    respHeader.append(realm);
-    respHeader.append("\"");
-
-    // ATTN: call the appropriate authenticator to obtain the header information.
-
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return (respHeader);
 }

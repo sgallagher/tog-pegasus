@@ -66,7 +66,10 @@ UserManager::UserManager(CIMRepository* repository)
         _userFileHandler = new UserFileHandler();
 
         _authHandler = 0;
-        _authHandler = new AuthorizationHandler(repository);
+        if (repository)
+        {
+            _authHandler = new AuthorizationHandler(repository);
+        }
     }
     catch (Exception& e)
     {
@@ -97,9 +100,14 @@ UserManager::~UserManager()
     PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
     PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
 
-    delete _userFileHandler;
-
-    delete _authHandler;
+    if (_userFileHandler)
+    {
+        delete _userFileHandler;
+    }
+    if (_authHandler)
+    {
+        delete _authHandler;
+    }
 
     PEG_FUNC_EXIT(TRC_USER_MANAGER, METHOD_NAME);
     PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
@@ -116,7 +124,7 @@ UserManager* UserManager::getInstance(CIMRepository* repository)
     PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
     PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
 
-    if (!_instance && repository)
+    if (!_instance)
     {
         _instance = new UserManager(repository);
     }
@@ -250,6 +258,11 @@ Boolean UserManager::verifyCIMUser (const String& userName)
 	    return false;
         }
     }
+    catch (InvalidUser& iu)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	throw iu;
+    }
     catch (Exception& e)
     {
         PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
@@ -279,6 +292,11 @@ Boolean UserManager::verifyCIMUserPassword (
             PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
 	    return false;
         }
+    }
+    catch (InvalidUser& iu)
+    {
+        PEG_FUNC_EXIT( TRC_USER_MANAGER, METHOD_NAME );
+	throw iu;
     }
     catch (Exception& e)
     {

@@ -21,7 +21,7 @@ LIBRARIES = \
     pegexportserver \
     pegconfig \
     peguser \
-    peglocalauth \
+    pegauthentication \
     peghandlerservice \
     pegindicationservice \
     pegwql \

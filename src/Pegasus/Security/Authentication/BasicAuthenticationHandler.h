@@ -34,8 +34,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+
 #include "Authenticator.h"
+#include "BasicAuthenticator.h"
 #include "Linkage.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,32 +56,30 @@ public:
     /** Destructor  */
     ~BasicAuthenticationHandler();
     
-    /**
-    Authenticate the request
+    /** Verify the authentication of the user passed in the authorization header.
+        @param authHeader String containing the Authorization header
+        @param authInfo Reference to AuthenticationInfo object
+        @return true on successful authentication, false otherwise
     */
     Boolean authenticate(
         const String& authHeader, 
         AuthenticationInfo* authInfo);
     
-    /**
-    Construct and return the authentication response header
+    /** Construct and return the Basic authentication challenge header
+        @param authType An optional string containing the HTTP authentication type 
+        @param userName An optional string containing the user name 
+        (Parameters are not used to generate the Basic authentication challenge 
+         header, hence they are optional) 
+        @return A string containing the authentication challenge header.
     */
     String getAuthResponseHeader(
-        const String& authType, 
-        const String& userName, 
-        AuthenticationInfo* authInfo);    
-
-    /**
-    Construct and return the authentication response header
-    */
-    String getAuthResponseHeader(
-        const String& realm, 
-        AuthenticationInfo* authInfo);    
+        const String& authType = String::EMPTY,
+        const String& userName = String::EMPTY,
+        AuthenticationInfo* authInfo = 0);
 
 private:
 
-    //ATTN: Uncomment this when basic authentication is added
-    //BasicAuthenticator* _basicAuthenticator;
+    BasicAuthenticator* _basicAuthenticator;
 };
 
 PEGASUS_NAMESPACE_END

@@ -38,9 +38,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    Implements file based secure authentication mechanism. It extends the 
-    LocalAuthenticator and provides implementation.
+/** This class implements file based secure local authentication mechanism. 
+    It extends the LocalAuthenticator and provides implementation.
 */   
 class PEGASUS_SECURITY_LINKAGE SecureLocalAuthenticator : public LocalAuthenticator
 {
@@ -52,18 +51,25 @@ public:
     /** destructor. */ 
     ~SecureLocalAuthenticator();
 
-    /** authenticate. */ 
-    Boolean authenticate(
-        const String& userName, 
-        const String& password);
-
-    /** authenticate. */ 
+    /** Verify the authentication of the requesting user.
+        @param userName String containing the user name
+        @param secretReceived String containing the authentication secret
+        sent by the client.
+        @param secretKept String containing the authentication secret that
+        was sent to client as part of the challenge.
+        @return true on successful authentication, false otherwise
+    */
     Boolean authenticate(
         const String& userName, 
         const String& secretReceived, 
         const String& secretKept);
 
-    /** getAuthResponseHeader. */ 
+    /** Construct and return the Peagaus Local authentication challenge header
+        @param authType String containing the authentication type
+        @param userName String containing the user name
+        @param challenge String to store the authentication challenge secret
+        @return A string containing the authentication challenge header.
+    */
     String getAuthResponseHeader(
         const String& authType, 
         const String& userName, 

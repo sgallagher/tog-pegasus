@@ -2,4 +2,5 @@ ROOT=../../../../../..
 
 LIBRARIES= \
     pegcommon \
-    peglocalauth
+    pegconfig \
+    pegauthentication

@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+
 #include "Linkage.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -54,18 +55,25 @@ public:
     /** destructor. */ 
     virtual ~LocalAuthenticator() { };
 
-    /** authenticate. */ 
-    virtual Boolean authenticate(
-        const String& userName, 
-        const String& password) = 0;
-
-    /** authenticate. */ 
+    /** Verify the authentication of the requesting user.
+        @param userName String containing the user name
+        @param secretReceived String containing the authentication secret
+        sent by the client.
+        @param secretKept String containing the authentication secret that
+        was sent to client as part of the challenge.
+        @return true on successful authentication, false otherwise
+    */
     virtual Boolean authenticate(
         const String& userName, 
         const String& secretReceived, 
         const String& secretKept) = 0;
 
-    /** getAuthResponseHeader. */ 
+    /** Construct and return the Peagaus Local authentication challenge header
+        @param authType String containing the authentication type
+        @param userName String containing the user name
+        @param challenge String to store the authentication challenge secret
+        @return A string containing the authentication challenge header.
+    */
     virtual String getAuthResponseHeader(
         const String& authType, 
         const String& userName, 

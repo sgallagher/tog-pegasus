@@ -34,7 +34,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Security/Authentication/LocalAuthenticator.h>
+
+#include "LocalAuthenticator.h"
 #include "Authenticator.h"
 #include "Linkage.h"
 
@@ -42,8 +43,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /** 
-   Implements the AuthenticationHandler for Basic authentication. Extends
-   the Authenticator and provides the implementation.
+   This class implements the AuthenticationHandler for Pegasus Local authentication. 
+   It extends the Authenticator and provides the implementation.
 */
 
 class PEGASUS_SECURITY_LINKAGE LocalAuthenticationHandler : public Authenticator
@@ -56,27 +57,25 @@ public:
     /** Destructor  */
     ~LocalAuthenticationHandler();
     
-    /**
-    Authenticate the request
+    /** Verify the authentication of the user passed in the authorization header.
+        @param authHeader String containing the Authorization header
+        @param authInfo Reference to AuthenticationInfo object
+        @return true on successful authentication, false otherwise
     */
     Boolean authenticate(
         const String& authHeader, 
         AuthenticationInfo* authInfo);
     
-    /**
-    Construct and return the authentication response header
+    /** Construct and return the Pegasus Local authentication challenge header
+        @param authType String containing the HTTP authentication type
+        @param userName String containing the user name
+        @param authInfo Reference to AuthenticationInfo object
+        @return A string containing the authentication challenge header.
     */
     String getAuthResponseHeader(
-        const String& authHeader, 
-        AuthenticationInfo* authInfo);    
-
-    /**
-    Construct and return the authentication response header
-    */
-    String getAuthResponseHeader(
-        const String& authType, 
-        const String& userName, 
-        AuthenticationInfo* authInfo);    
+        const String& authType = String::EMPTY, 
+        const String& userName = String::EMPTY, 
+        AuthenticationInfo* authInfo = 0);    
 
 private:
 

@@ -33,54 +33,83 @@
 #define Pegasus_AuthenticationManager_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Security/Authentication/Authenticator.h>
+
+#include "Authenticator.h"
 #include "Linkage.h"
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
+/** This class implements the HTTP authentication and Pegasus Local 
+    authentication mecahnism. It provides methods to perform authentication
+    and to generate authentication challenge headers.
 */
 
 class PEGASUS_SECURITY_LINKAGE AuthenticationManager
 {
 public:
 
+    /**Constructor */
     AuthenticationManager();
 
+    /**Destructor */
     ~AuthenticationManager();
 
+    /** Authenticates the requests from HTTP connections.
+        @param authHeader String containing the Authorization header
+        @param authInfo Reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
+        @return true on successful authentication, false otherwise
+    */
     Boolean performHttpAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
+    /** Authenticates the requests from Local connections.
+        @param authHeader String containing the Authorization header
+        @param authInfo Reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
+        @return true on successful authentication, false otherwise
+    */
     Boolean performPegasusAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
+    /** Constructs the Pegasus Local authentication challenge header.
+        @param authHeader String containing the Authorization header
+        @param authInfo reference to AuthenticationInfo object that holds the
+        authentication information for the given connection.
+        @return String containing the authentication challenge
+    */
     String getPegasusAuthResponseHeader(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
+    /** Constructs the HTTP authentication challenge header.
+        @return String containing the authentication challenge
+    */
     String getHttpAuthResponseHeader();
 
 private:
 
-    String _realm;
-
-    void _parseAuthHeader(
+    Boolean _parseLocalAuthHeader(
         const String& authHeader, 
         String& authType, 
         String& userName, 
         String& cookie);
 
-    Authenticator* _localAuthHandler;
-
-    Authenticator* _httpAuthHandler;
+    Boolean _parseHttpAuthHeader(
+        const String& authHeader, 
+        String& authType, 
+        String& cookie);
 
     Authenticator* _getLocalAuthHandler();
 
     Authenticator* _getHttpAuthHandler();
+
+    Authenticator* _localAuthHandler;
+    Authenticator* _httpAuthHandler;
+    String         _httpAuthType;
 
 };
 

@@ -7,7 +7,7 @@ include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 
-PROGRAM = AuthenticationManager
+PROGRAM = TestAuthenticationManager
 
 SOURCES = AuthenticationManager.cpp
 

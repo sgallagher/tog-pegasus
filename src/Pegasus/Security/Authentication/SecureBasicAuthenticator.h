@@ -23,72 +23,57 @@
 //
 //==============================================================================
 //
-// Author: Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "LocalAuthFile.h"
+#ifndef Pegasus_SecureBasicAuthenticator_h
+#define Pegasus_SecureBasicAuthenticator_h
 
-PEGASUS_USING_STD;
+#include <Pegasus/Security/UserManager/UserManager.h>
+
+#include "BasicAuthenticator.h"
+#include "Linkage.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-
-LocalAuthFile::LocalAuthFile(const String& userName)
-    : _userName(userName),
-      _challenge(String::EMPTY),
-      _filePathName(String::EMPTY)
+/** This class provides Secure basic authentication implementation by extending
+    the BasicAuthenticator.
+*/
+class PEGASUS_SECURITY_LINKAGE SecureBasicAuthenticator : public BasicAuthenticator
 {
+public:
 
-}
+    /** constructor. */ 
+    SecureBasicAuthenticator();
 
-LocalAuthFile::~LocalAuthFile() 
-{ 
+    /** destructor. */ 
+    ~SecureBasicAuthenticator();
 
-}
+    /** Verify the authentication of the requesting user.
+        @param userName String containing the user name
+        @param password String containing the user password
+        @return true on successful authentication, false otherwise
+    */
+    Boolean authenticate(
+        const String& userName, 
+        const String& password);
 
-//
-// create a file and make a random token data entry to it.
-// send the file name back to caller
-//
-String LocalAuthFile::create()
-{
-    return (String::EMPTY);
-}
+    /** Construct and return the HTTP Basic authentication challenge header
+        @return A string containing the authentication challenge header.
+    */
+    String getAuthResponseHeader();
 
-//
-// remove the file that was created
-//
-Boolean LocalAuthFile::remove()
-{
-    return (true);
-}
+private:
 
-//
-// Get the string that was created as a challenge string
-//
-String LocalAuthFile::getChallengeString()
-{
-    return (_challenge);
-}
+    String        _realm;
+    UserManager*  _userManager;
+};
 
-//
-// changes the file owner to one specified
-//
-Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
-{
-    return (true);
-}
-
-//
-// Generate  random token string
-//
-String LocalAuthFile::_generateRandomTokenString()
-{
-    return (String::EMPTY);
-}
 
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_SecureBasicAuthenticator_h */

@@ -30,11 +30,14 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Security/UserManager/UserExceptions.h>
 
-#include "LocalAuthFile.h"
-#include "SecureLocalAuthenticator.h"
+#include "SecureBasicAuthenticator.h"
+
 
 PEGASUS_USING_STD;
 
@@ -42,65 +45,91 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-    Constant representing the pegasus authentication challenge header.
+    Constant representing the Basic authentication challenge header.
 */
-static const String PEGASUS_CHALLENGE_HEADER = "WWW-Authenticate: ";
+static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
+
 
 
 /* constructor. */
-SecureLocalAuthenticator::SecureLocalAuthenticator() 
+SecureBasicAuthenticator::SecureBasicAuthenticator() 
 { 
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "SecureLocalAuthenticator::SecureLocalAuthenticator()");
+        "SecureBasicAuthenticator::SecureBasicAuthenticator()");
+
+    //
+    // get the local system name
+    //
+    _realm.assign(System::getHostName());
+
+    //
+    // get the configured port number
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    String port = configManager->getCurrentValue("port");
+
+    //
+    // Create realm that will be used for Basic challenges
+    //
+    _realm.append(":");
+    _realm.append(port);
+
+    //
+    // Get a user manager instance handler
+    //
+    _userManager = UserManager::getInstance();
 
     PEG_METHOD_EXIT();
-
 }
 
 /* destructor. */
-SecureLocalAuthenticator::~SecureLocalAuthenticator() 
+SecureBasicAuthenticator::~SecureBasicAuthenticator() 
 { 
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "SecureLocalAuthenticator::~SecureLocalAuthenticator()");
+        "SecureBasicAuthenticator::~SecureBasicAuthenticator()");
 
     PEG_METHOD_EXIT();
-
 }
 
-//
-// Does local authentication
-//
-Boolean SecureLocalAuthenticator::authenticate
-(
-   const String& filePath, 
-   const String& secretReceived, 
-   const String& secretKept
-)
+Boolean SecureBasicAuthenticator::authenticate(
+    const String& userName, 
+    const String& password) 
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "SecureLocalAuthenticator::authenticate()");
+        "SecureBasicAuthenticator::authenticate()");
 
     Boolean authenticated = false;
 
-
-    if ((!String::equal(secretReceived, String::EMPTY)) &&
-        (!String::equal(secretKept, String::EMPTY)))
+    //
+    // Check if the user is a valid system user
+    //
+    ArrayDestroyer<char> un(userName.allocateCString());
+    if ( !System::isSystemUser( un.getPointer() ) )
     {
-        if (String::equal(secretKept, secretReceived))
+        PEG_METHOD_EXIT();
+        return (authenticated);
+    }
+
+    try
+    {
+        //
+        // Verify the CIM user password
+        //
+        if (_userManager->verifyCIMUserPassword( userName, password ))
         {
             authenticated = true;
         }
     }
-
-    //
-    // remove the auth file created for this user request
-    //
-    if (filePath.size())
+    catch (InvalidUser& iu)
     {
-        if (FileSystem::exists(filePath))
-        {
-            FileSystem::removeFile(filePath);
-        }
+        PEG_METHOD_EXIT();
+        return (authenticated);
+    }
+    catch (Exception& e)
+    {
+        PEG_METHOD_EXIT();
+        throw e;
     }
 
     PEG_METHOD_EXIT();
@@ -108,37 +137,20 @@ Boolean SecureLocalAuthenticator::authenticate
     return (authenticated);
 }
 
+
 //
 // Create authentication response header
 //
-String SecureLocalAuthenticator::getAuthResponseHeader(
-    const String& authType, 
-    const String& userName, 
-    String& challenge)
+String SecureBasicAuthenticator::getAuthResponseHeader()
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "SecureLocalAuthenticator::getAuthResponseHeader()");
-
-    String responseHeader = PEGASUS_CHALLENGE_HEADER;
-    responseHeader.append(authType);
-    responseHeader.append(" \"");
-
-    //
-    // create a file using user name and write a random number in it.
-    //
-    LocalAuthFile localAuthFile(userName);
-    String filePath  = localAuthFile.create();
-
-    //
-    // get the challenge string
-    //
-    String temp = localAuthFile.getChallengeString();
-    challenge = temp;
+        "SecureBasicAuthenticator::getAuthResponseHeader()");
 
     // 
-    // build response header with file path and challenge string.
+    // build response header using realm
     //
-    responseHeader.append(filePath);
+    String responseHeader = BASIC_CHALLENGE_HEADER;
+    responseHeader.append(_realm);
     responseHeader.append("\"");
 
     PEG_METHOD_EXIT();

@@ -33,29 +33,16 @@
 #ifndef Pegasus_LocalAuthFile_h
 #define Pegasus_LocalAuthFile_h
 
-#include <fstream>
-#include <stdlib.h>
-#include <stdio.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/String.h>
+
 #include "Linkage.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
- * Maximum buffer size 
- */
-#define MAX_BUFFER_SIZE 256
 
-/**
- * Maximum password buffer size. Used by getpwnam_r call.
- */
-#define MAX_PWD_BUFFER_SIZE 1024
-
-
-/**
-    This class provides the required functions to create, write and delete to a 
-    file on UNIX file system.
+/** This class provides the required functions to create, write and delete to a 
+    file on the file system.
 */
 
 class PEGASUS_SECURITY_LINKAGE LocalAuthFile
@@ -63,64 +50,38 @@ class PEGASUS_SECURITY_LINKAGE LocalAuthFile
 public:
 
     /** Constructor. */
-    LocalAuthFile(String userName);
+    LocalAuthFile(const String& userName);
 
       
     /** Destructor. */
     ~LocalAuthFile();
 
-    /**
-        Create a file and make a random token data entry to it. 
-     
-        @return   String    full path name of the file created if 
-                            the file created successfull, null otherwise. 
+    /** Creates a file and writes random token in to it.
+        @return a string containing the full path name of the file created if 
+        the file creation was successfull, null otherwise. 
     */
     String create();
     
-    /**
-        Removes the file created.
-     
-        @return   true      on successful removal of the file,
-                            false otherwise.
+    /** Removes the file created.
+        @return   true on successful removal of the file, false otherwise.
     */
     Boolean remove();
 
-    /**
-        Get the string that was created as a challenge string
+    /** Get the string that was created as a challenge string
     */
     String getChallengeString();
 
 private:
 
-    /**
-        Changes file owner to the current process owner and also set
-        file permissions to read-only by that user.
-     
-        @param    filename   name of the file      
-        @return   true on success, false on failure.
-     */
-     Boolean _changeFileOwner(char* fileName);
+    Boolean _changeFileOwner(const String& fileName);
 
-    /**
-        Generate random token string.
-     */
-     String _generateRandomTokenString();
+    String  _generateRandomTokenString();
 
-    /**
-        Used to store the user name
-     */
-    char*  _user;
+    String  _userName;
 
-    /**
-        Full path name of the file that is sent in the challenge.
-    */
-    String _filePathName;
+    String  _filePathName;
 
-    /**
-        Challenge string that is written to the file.
-    */
-    String _challenge;
-
+    String  _challenge;
 };
 
 PEGASUS_NAMESPACE_END

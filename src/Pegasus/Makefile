@@ -33,12 +33,12 @@ DIRS = \
     ExportServer/tests \
     Client/tests \
     Compiler/tests \
+    Security/Authentication/tests \
     Security/UserManager/tests \
     IndicationService/tests \
     Listener/tests \
     Consumer/tests
 
-#    Security/Authentication/tests
 #    Server/ProviderRegistrationManager/tests \
 
 include $(ROOT)/mak/recurse.mak

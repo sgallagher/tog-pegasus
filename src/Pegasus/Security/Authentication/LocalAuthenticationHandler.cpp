@@ -31,8 +31,10 @@
 
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Security/Authentication/SecureLocalAuthenticator.h>
+
+#include "SecureLocalAuthenticator.h"
 #include "LocalAuthenticationHandler.h"
+
 
 PEGASUS_USING_STD;
 
@@ -41,38 +43,30 @@ PEGASUS_NAMESPACE_BEGIN
 
 LocalAuthenticationHandler::LocalAuthenticationHandler()
 {
-    const char METHOD_NAME[] = 
-        "LocalAuthenticationHandler::LocalAuthenticationHandler()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    // ATTN: Load the local authentication module here
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+       "LocalAuthenticationHandler::LocalAuthenticationHandler()");
 
     _localAuthenticator = (LocalAuthenticator*) new SecureLocalAuthenticator();
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 LocalAuthenticationHandler::~LocalAuthenticationHandler()
 {
-    const char METHOD_NAME[] = 
-        "LocalAuthenticationHandler::~LocalAuthenticationHandler()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "LocalAuthenticationHandler::~LocalAuthenticationHandler()");
 
     delete _localAuthenticator;
+
+    PEG_METHOD_EXIT();
 }
 
 Boolean LocalAuthenticationHandler::authenticate(    
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
-    const char METHOD_NAME[] = 
-        "LocalAuthenticationHandler::authenticate()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "LocalAuthenticationHandler::authenticate()");
 
     Boolean authenticated   = false; 
 
@@ -81,7 +75,7 @@ Boolean LocalAuthenticationHandler::authenticate(
 
     if ( colon1 == PEG_NOT_FOUND )
     {
-        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+        PEG_METHOD_EXIT();
         return ( authenticated );
     }
 
@@ -115,26 +109,9 @@ Boolean LocalAuthenticationHandler::authenticate(
         authInfo->setAuthenticatedUser(userName);
     }
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return ( authenticated );
-}
-
-String LocalAuthenticationHandler::getAuthResponseHeader(
-    const String& authHeader,
-    AuthenticationInfo* authInfo)
-{
-    const char METHOD_NAME[] = 
-        "LocalAuthenticationHandler::getAuthResponseHeader()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
-
-    //
-    // No Implementation required in LocalAuthenticationHandler
-    //
-    return(String(""));
 }
 
 String LocalAuthenticationHandler::getAuthResponseHeader(
@@ -142,10 +119,8 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
-    const char METHOD_NAME[] = 
-        "LocalAuthenticationHandler::getAuthResponseHeader()";
-
-    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+        "LocalAuthenticationHandler::getAuthResponseHeader()");
 
     String challenge;
 
@@ -154,7 +129,7 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
 
     authInfo->setAuthChallenge(challenge);
 
-    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+    PEG_METHOD_EXIT();
 
     return(authResp);
 }

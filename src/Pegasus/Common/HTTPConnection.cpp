@@ -114,7 +114,7 @@ HTTPConnection::HTTPConnection(
 
    //Socket::disableBlocking(_socket);
    _socket->disableBlocking();
-   _authInfo = new AuthenticationInfo();
+   _authInfo = new AuthenticationInfo(true);
 
    PEG_METHOD_EXIT();
 }

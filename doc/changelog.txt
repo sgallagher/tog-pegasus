@@ -302,6 +302,11 @@ will be deleted.
 31. (Roger Kumpf - HP) 20 Mar 2002 - Added support for hexadecimal integers
     in XmlReader.cpp.
 
+32. (Nag Boranna - HP) 21 March 2002 - Implemented server side Basic 
+    Authentication handling code and cleaned up ATTN's in the authentication 
+    releated files. Implemented a new AuthenticationInfoRep class and modified 
+    the related files. Added more test cases to test the authentication classes.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

@@ -33,115 +33,237 @@
 #define Pegasus_AuthenticationInfo_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/AuthenticationInfoRep.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 /**
     This class keeps the authentication information of a connection 
-    persistent until the connection is destroyed.
+    persistent until the connection is destroyed. 
 
-    REVIEW: how is this information tied to the connection?
-
-    REVIEW: may not be general enough for implementing other authentication
-    schemes.
-
-    REVIEW: need explanation of how this class works.
+    The HTTPConnection object creates a AuthenticationInfo object on a new 
+    socket connection and includes this object reference in the HTTPMessage 
+    that gets passed to the Delegator and in turn to the AuthenticationManager.
+    The AuthenticationManager and the related authentication classes use the 
+    AuthenticationInfo to store and access the persistent authentication 
+    information for a connection.
 */
 class PEGASUS_COMMON_LINKAGE AuthenticationInfo
 {
 public:
 
-    enum AuthStatus { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
+    /** Constructor - Creates an uninitiated new AuthenticationInfo
+        object reprenting a AuthenticationInfo class. The class object 
+        created by this constructor can only be used in an operation such as the
+        copy constructor.  It cannot be used to do method calls like
+        setAuthStatus, getAuthType, etc. since it is unitiated.
 
-    /** Constructors  */
-    AuthenticationInfo();
+        Use one of the other constructors to create an initiated new 
+        AuthenticationInfo class object. Throws an exception 
+        "unitialized handle" if this unitialized handle is used for 
+        method calls.
+    */
+    AuthenticationInfo() : _rep(0)
+    {
+        PEG_METHOD_ENTER(
+            TRC_AUTHENTICATION, "AuthenticationInfo::AuthenticationInfo");
+
+
+        PEG_METHOD_EXIT();
+    }
+
+    /** Creates and instantiates a AuthenticationInfo from another 
+        AuthenticationInfo instance
+        @return pointer to the new AuthenticationInfo instance
+    */
+    AuthenticationInfo(const AuthenticationInfo& x)
+    {
+        PEG_METHOD_ENTER(
+            TRC_AUTHENTICATION, "AuthenticationInfo::AuthenticationInfo");
+
+        Inc(_rep = x._rep);
+
+        PEG_METHOD_EXIT();
+    }
+
+    /** Assignment operator */
+    AuthenticationInfo& operator=(const AuthenticationInfo& x)
+    {
+        PEG_METHOD_ENTER(
+            TRC_AUTHENTICATION, "AuthenticationInfo::AuthenticationInfo");
+
+        if (x._rep != _rep)
+        {
+            Dec(_rep);
+            Inc(_rep = x._rep);
+        }
+
+        PEG_METHOD_EXIT();
+        return *this;
+    }
+
+    /** Constructor - Instantiates a AuthenticationInfo object. 
+    @param flag - used only to distinguish from the default constructor.
+    */
+    AuthenticationInfo(Boolean flag)
+    {
+        PEG_METHOD_ENTER(
+            TRC_AUTHENTICATION, "AuthenticationInfo::AuthenticationInfo");
+
+        _rep = new AuthenticationInfoRep(flag);
+
+        PEG_METHOD_EXIT();
+    }
 
     /** Destructor  */
-    ~AuthenticationInfo();
+    ~AuthenticationInfo()
+    {
+        PEG_METHOD_ENTER(
+            TRC_AUTHENTICATION, "AuthenticationInfo::~AuthenticationInfo");
 
-    /**
-    Get the authentication status of the request
+        Dec(_rep);
+
+        PEG_METHOD_EXIT();
+    }
+
+    /** Get the authentication status of the request
+        @return the current authentication status
     */
-    AuthStatus getAuthStatus() const { return _authStatus; }
+    AuthenticationInfoRep::AuthStatus getAuthStatus() const 
+    { 
+        _checkRep();
+        return _rep->getAuthStatus(); 
+    }
 
-    /**
-    Set the authentication status of the request
+    /** Sets the authentication status of the request to the status
+        specified.
+        @param status - the new authentication status
     */
-    void   setAuthStatus(AuthStatus status);
+    void   setAuthStatus(AuthenticationInfoRep::AuthStatus status)
+    { 
+        _checkRep();
+        _rep->setAuthStatus(status); 
+    }
 
-    // REVIEW: comments which just parrot the name of the method are not
-    // useful and should be removed.
-
-    /**
-    Get the authenticated user name
+    /** Get the previously authenticated user name
+        @return the authenticated user name
     */
-    String getAuthenticatedUser() const { return _authUser; }
+    String getAuthenticatedUser() const 
+    { 
+        _checkRep();
+        return _rep->getAuthenticatedUser(); 
+    }
 
-    /**
-    Set the authenticated user name
+    /** Sets the authenticated user name
+        @param userName - string containing the authenticated user name
     */
-    void   setAuthenticatedUser(const String& userName);
+    void   setAuthenticatedUser(const String& userName)
+    { 
+        _checkRep();
+        _rep->setAuthenticatedUser(userName); 
+    }
 
-    /**
-    Get the authentication challenge
+    /** Get the authentication challenge that was sent to the client
+        @return string containing the authentication challenge
     */
-    String getAuthChallenge() const { return _authChallenge; }
+    String getAuthChallenge() const 
+    { 
+        _checkRep();
+        return _rep->getAuthChallenge();
+    }
 
-    /**
-    Set the authentication challenge
+    /** Sets the authentication challenge to the specified challenge
+        @param challenge - string containing the authentication challenge
     */
-    void   setAuthChallenge(const String& challenge);
+    void   setAuthChallenge(const String& challenge)
+    { 
+        _checkRep();
+        _rep->setAuthChallenge(challenge); 
+    }
 
-    /**
-    Get the authentication secret
+    /** Get the authentication secret that was sent to client
+        @return string containing the authentication secret
     */
-    String getAuthSecret() const { return _authSecret; }
+    String getAuthSecret() const 
+    { 
+        _checkRep();
+        return _rep->getAuthSecret();
+    }
 
-    /**
-    Set the authentication secret
+    /** Set the authentication secret to the specified secret
+        @param secret - string containing the authentication secret
     */
-    void   setAuthSecret(const String& secret);
+    void   setAuthSecret(const String& secret)
+    { 
+        _checkRep();
+        _rep->setAuthSecret(secret); 
+    }
 
-    /**
-    Set the privileged flag
+    /** Returns the connection type of the previous authenticated request 
+        @return true if the connection is privileged, false otherwise
     */
-    void   setPrivileged(Boolean privileged);
+    Boolean isPrivileged() const 
+    { 
+        _checkRep();
+        return _rep->isPrivileged();
+    }
 
-    /**
-    Is the request coming from a privileged user
+    /** Set the privileged flag to the specified value
+        @param privileged - boolean flag indicating the connection type
     */
-    Boolean isPrivileged() const { return _privileged; }
+    void   setPrivileged(Boolean privileged)
+    { 
+        _checkRep();
+        _rep->setPrivileged(privileged); 
+    }
 
-    /**
-    Is the request authenticated
+    /** Is the request authenticated
     */
-    Boolean isAuthenticated() const { return (_authStatus == AUTHENTICATED) ? true : false; }
+    /** Returns the authentication status of the current connection.
+        @return true if the connection was authenticated, false otherwise
+    */
+    Boolean isAuthenticated() const 
+    { 
+        _checkRep();
+        return _rep->isAuthenticated();
+    }
 
-    /**
-    Get the authentication type of the request
+    /** Set the authentication type to the specified type
+        @param string containing the authentication type
     */
-    String getAuthType() const { return _authType; }
+    void   setAuthType(const String& authType)
+    { 
+        _checkRep();
+        _rep->setAuthType(authType);
+    }
 
-    /**
-    Set the authentication type of the request
+    /** Get the authentication type of the connection
+        @return string containing the authentication type
     */
-    void   setAuthType(const String& authType);
+    String getAuthType() const 
+    { 
+        _checkRep();
+        return _rep->getAuthType();
+    }
 
 private:
 
-    AuthStatus _authStatus;
+    AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)
+    {
 
-    String  _authUser;
+    }
 
-    String  _authChallenge;
+    void _checkRep() const
+    {
+        if (!_rep)
+            ThrowUnitializedHandle();
+    }
 
-    String  _authSecret;
-
-    Boolean _privileged;
-
-    String  _authType;
+    AuthenticationInfoRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

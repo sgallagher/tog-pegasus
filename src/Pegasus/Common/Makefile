@@ -11,7 +11,7 @@ LIBRARY = pegcommon
 SOURCES = \
     Array.cpp \
     AsyncOpNode.cpp \
-    AuthenticationInfo.cpp \
+    AuthenticationInfoRep.cpp \
     Base64.cpp \
     CGIQueryString.cpp \
     Char16.cpp \

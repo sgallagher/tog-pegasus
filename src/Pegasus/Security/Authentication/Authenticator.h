@@ -36,15 +36,16 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
+#include <Pegasus/Common/AuthenticationInfoRep.h>
+
 #include "Linkage.h"
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    An authentication interface that the authentication handler will implement.
+/** This is an abstract class that the authentication handlers will extend and
+    provide the implementation.
 */
-
 class PEGASUS_SECURITY_LINKAGE Authenticator
 {
 public:
@@ -55,28 +56,25 @@ public:
     /** Destructor  */
     virtual ~Authenticator() { };
 
-    /**
-    Authenticate the request
+    /** Verify the authentication of the user passed in the HTTP authorization header.
+        @param authHeader String containing the Authorization header
+        @param authInfo Reference to AuthenticationInfo object
+        @return true on successful authentication, false otherwise
     */
     virtual Boolean authenticate(
         const String& authHeader, 
         AuthenticationInfo* authInfo) = 0;
 
-    /**
-    Construct and return the authentication response header
+    /** Construct and return the Basic authentication challenge header
+        @param authType String containing the authentication type
+        @param userName String containing the user name
+        @param authInfo Reference to AuthenticationInfo object
+        @return A string containing the authentication challenge header.
     */
     virtual String getAuthResponseHeader(
-        const String& authType,
-        const String& userName,
+        const String& authType = String::EMPTY,
+        const String& userName = String::EMPTY,
         AuthenticationInfo* authInfo = 0) = 0;
-
-    /**
-    Construct and return the authentication response header
-    */
-    virtual String getAuthResponseHeader(
-        const String& authHeader,
-        AuthenticationInfo* authInfo = 0) = 0;
-
 };
 
 PEGASUS_NAMESPACE_END

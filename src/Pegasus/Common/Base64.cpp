@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
     implementation and could be improved if it is required for
     production.  Today it is only for test programs.
 */
-inline Array<Sint8> Base64::encode(const Array<Uint8>& vby)
+Array<Sint8> Base64::encode(const Array<Uint8>& vby)
 {
     Array<Sint8> retArray;
     // If nothing in input string, return empty string
@@ -103,7 +103,7 @@ The algorithm goes thru each three bytes of data at a time. The first thing I do
 /*  The decode static method takes a base-64 stream and converts it 
     to an array of 8-bit values.
 */
-inline Array<Uint8> Base64::decode(const Array<Sint8> strInput)
+Array<Uint8> Base64::decode(const Array<Sint8> strInput)
 {
     //Strip any non-base64 characters from the input
     PEGASUS_STD(string) str;

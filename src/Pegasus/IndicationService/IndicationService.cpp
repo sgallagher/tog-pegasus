@@ -3105,7 +3105,7 @@ Boolean IndicationService::_canCreate (
         }
 
         //
-        //  Currently only two direct subclasses of Indication handler
+        //  Currently only three subclasses of Indication Listener Destination
         //  class are supported -- further subclassing is not currently
         //  supported
         //
@@ -3885,8 +3885,13 @@ Boolean IndicationService::_canDelete (
     //
     if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
         (superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
-        (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDFILTER))
-     || (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDHANDLER)))
+        (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
+        (instanceReference.getClassName().equal 
+            (PEGASUS_CLASSNAME_INDFILTER)) ||
+        (instanceReference.getClassName().equal 
+            (PEGASUS_CLASSNAME_LSTNRDST)) ||
+        (instanceReference.getClassName().equal 
+            (PEGASUS_CLASSNAME_INDHANDLER)))
     {
         if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
             (instanceReference.getClassName().equal
@@ -3894,7 +3899,8 @@ Boolean IndicationService::_canDelete (
         {
             propName = _PROPERTY_FILTER;
         }
-        else if (superClass.equal (PEGASUS_CLASSNAME_INDHANDLER))
+        else if ((superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
+                 (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)))
         {
             propName = _PROPERTY_HANDLER;
 

@@ -1130,7 +1130,7 @@ MessageLoader::_useProcessLocale = false;
 
 	time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
@@ -1207,7 +1207,7 @@ MessageLoader::_useProcessLocale = false;
             "$0 stopped.", PEGASUS_NAME);
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX)
         //
         // close the file created at startup time to indicate that the 
         // cimserver has terminated normally.

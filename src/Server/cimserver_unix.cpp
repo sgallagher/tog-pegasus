@@ -41,6 +41,13 @@
 #include <sys/ps.h>
 #endif
 #define MAX_WAIT_TIME 25
+#if defined(PEGASUS_OS_AIX)
+extern "C" {
+#include <procinfo.h>
+extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
+#define PROCSIZE sizeof(struct procsinfo)
+}
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -236,6 +243,96 @@ Boolean isProcRunning(pid_t pid)
 }
 #endif
 
+#if defined(PEGASUS_OS_AIX)
+
+/////////////////////////////////////////////////////////////////////////////
+// NAME           : processdata
+// FUNCTION       : it calls subroutine getprocs() to get information
+//                  about all processes.
+/////////////////////////////////////////////////////////////////////////////
+// ARGUMENTS:
+//              cnt: the number of the processes in the returned table
+// RETURN VALUES:
+//              when it successfully gets the process table entries,
+//              an array of procsinfo structures filled with process table
+//              entries are returned. Otherewise, a null pointer is
+//              returned.
+//  
+/////////////////////////////////////////////////////////////////////////////
+struct procsinfo *processdata(int *cnt)
+{
+        struct procsinfo *proctable=NULL, *rtnp=NULL;
+        int count=1048576, rtncnt, repeat=1, nextp=0;
+
+        *cnt=0;
+        while ( repeat && (rtncnt=getprocs(rtnp,PROCSIZE,0,0,&nextp, count))>0)
+        {
+                if (!rtnp)
+                {
+                        count=rtncnt;
+                        proctable=(struct procsinfo *) malloc((size_t) \
+                                        PROCSIZE*count);
+                        if (!proctable)
+                                return NULL;
+                        rtnp=proctable;
+                        nextp=0;
+                } else
+                {
+                        *cnt+=rtncnt;
+                        if (rtncnt>=count)
+                        {
+                                proctable=(struct procsinfo *) realloc(\
+                                        (void*)proctable, (size_t)\
+                                        (PROCSIZE*(*cnt+count)));
+                                if (!proctable)
+                                        return NULL;
+                                rtnp=proctable+(*cnt);
+                        } else
+                                repeat=0;
+                } // end of if(!rtnp)
+        } //end of while
+        return proctable;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// NAME           : aixcimsrvrunning
+// FUNCTION       : it figures out if the cimserver process is running
+//                  by checking the process table entries in the array
+//                  returned from processdata(). If the cimserver process is
+//                  running and its pid is the same as the pid in the file
+//                  CIMSERVER_START_FILE, it will return 0, otherwise it will
+//                  return -1.
+/////////////////////////////////////////////////////////////////////////////
+// ARGUMENTS:
+//              pid: the process identifier saved in the file
+//                   CIMSERVER_START_FILE
+// RETURN VALUES:
+//              0: successful
+//              -1: errors
+//  
+/////////////////////////////////////////////////////////////////////////////
+       
+int aixcimsrvrunning(pid_t pid)
+{
+        int i,count;
+        struct procsinfo *proctable;
+
+        proctable=processdata(&count);
+        if (proctable==NULL)
+                return -1;
+        for (i=0;i<count;i++)
+                if (!strcmp(proctable[i].pi_comm,"cimserver") && \
+                    proctable[i].pi_pid==pid)
+                {
+                        free(proctable);
+                        return 0;
+                }
+
+        free(proctable);
+        return -1;
+}
+#endif
+
 Boolean isCIMServerRunning(void)
 {
   FILE *pid_file;
@@ -294,6 +391,10 @@ Boolean isCIMServerRunning(void)
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     return isProcRunning(pid);
 #endif
+#if defined(PEGASUS_OS_AIX)
+    if (aixcimsrvrunning(pid)!=-1)
+        return true;
+#endif
   return false;
 }
 
@@ -345,6 +446,10 @@ int cimserver_kill(void)
   if (isProcRunning(pid)) {
       kill(pid, SIGKILL);
   }
+#endif
+#if defined(PEGASUS_OS_AIX)
+  if (!aixcimsrvrunning(pid))
+        kill(pid,SIGKILL);
 #endif
   // remove the file
   System::removeFile(CIMSERVER_START_FILE);

@@ -505,6 +505,12 @@ void String::toUpper(const char * strLocale)
     UniStr.append((UChar)'\0');   
 
     assign((Char16*)UniStr.getBuffer());
+#else
+    for (Char16* p = &_rep->c16a[0]; *p; p++)
+    {
+	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
+	    *p = toupper(*p);
+    }
 #endif
 }
 

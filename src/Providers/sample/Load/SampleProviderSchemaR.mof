@@ -1,2 +1,3 @@
 #pragma include ("InstanceProviderR.mof")
 #pragma include ("MethodProviderR.mof")
+#pragma include ("IndicationProviderR.mof")

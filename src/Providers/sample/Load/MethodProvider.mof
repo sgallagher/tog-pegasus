@@ -1,5 +1,0 @@
-[provider("SampleMethodProvider")]
-class Sample_MethodProviderClass : Sample_ProviderClass
-{
-	string SayHello();
-};

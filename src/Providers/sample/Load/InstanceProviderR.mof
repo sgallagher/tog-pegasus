@@ -1,43 +1,30 @@
 #pragma locale ("en_US")
 
-// physical provider
 instance of PG_ProviderModule
 {
     Description = "The Sample Pegasus Instance Provider Module that implements Sample_InstanceProviderClass";
     Caption = "Sample Pegasus Instance Provider Module";
-    Name = "SampleInstanceProvider (MODULE)";
+    Name = "SampleInstanceProviderModule";
     Vendor = "Pegasus";
     InterfaceType = "PG_DefaultC++";
     InterfaceVersion = "2.0.0";
     Location = "SampleInstanceProvider";
 };
 
-// logical provider
 instance of PG_Provider
 {
-    ProviderModuleName = "SampleInstanceProvider (MODULE)";
-    Name = "SampleInstanceProvider (PROVIDER)";
+    ProviderModuleName = "SampleInstanceProviderModule";
+    Name = "SampleInstanceProvider";
 };
 
-// logical provider capabilities
 instance of PG_ProviderCapabilities
 {
-    ProviderModuleName = "SampleInstanceProvider (MODULE)";
-    ProviderName = "SampleInstanceProvider (PROVIDER)";
+    ProviderModuleName = "SampleInstanceProviderModule";
+    ProviderName = "SampleInstanceProvider";
     CapabilityID = "SampleInstanceProvider";
     ClassName = "Sample_InstanceProviderClass";
     Namespaces[] = { "root/SampleProvider" };
     ProviderType[] = { 2 };
-    //SupportedProperties = {};
-    //SupportedMethods = {};
+    SupportedProperties[] = NULL;
+    SupportedMethods[] = NULL;
 };
-
-// association of module and provider
-//instance of PG_ProviderModuleElements
-//{
-//};
-
-// association of provider and capabilities
-//instance of PG_ProviderCapababilitiesElements
-//{
-//};

@@ -1,3 +1,27 @@
-#pragma include ("SampleProvider.mof")
-#pragma include ("MethodProvider.mof")
+[abstract]
+class Sample_ProviderClass
+{
+	[key,
+	read]
+	Uint8 Identifier;
+};
 
+class Sample_InstanceProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};
+
+class Sample_MethodProviderClass : Sample_ProviderClass
+{
+	string SayHello();
+};
+
+class Sample_IndicationProviderClass : CIM_Indication
+{
+	[read]
+	string Message;
+	
+	[read]
+	datetime TimeStamp;
+};

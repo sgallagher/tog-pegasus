@@ -1,4 +1,4 @@
-# Makefile builds a Sample Provider Namepspace 
+# Makefile builds a Sample Provider Namepspace
 # ATTN: Today this makefile is implementation dependent.
 #       It assumes that the repository is a set of directories
 #       that can be removed by removing the directories.
@@ -25,6 +25,8 @@ repository:
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmofl -I$(CIM_MOF_PATH) -n$(SAMPLEPROVIDERNS) $(CIM_MOF_PATH)/CIM_Events$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ echo +++++ Registering SampleProvider schema Providers  ...

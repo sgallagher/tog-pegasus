@@ -12,9 +12,5 @@ tests:
 	$(RM) X.idx
 	$(RM) X.instances
 	Inst
-
-#	$(RM) X.idx
-#	$(RM) X.instances
-
-poststarttests:
-
+	$(RM) X.idx
+	$(RM) X.instances

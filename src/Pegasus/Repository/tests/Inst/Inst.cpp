@@ -107,7 +107,7 @@ void _Test01()
 	Array<CIMReference> instanceNames;
 
 	Boolean flag = InstanceIndexFile::enumerateEntries(
-	    PATH, freeFlags, indices, sizes, instanceNames);
+	    PATH, freeFlags, indices, sizes, instanceNames, true);
 
 	assert(flag);
 
@@ -134,17 +134,18 @@ void _Test02()
     //
 
     Array<Sint8> data;
+    Uint32 index;
 
     data.append("AAAAAAAA", 8);
-    InstanceDataFile::appendInstance(PATH, data);
+    InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
 
     data.append("BBBBBBBB", 8);
-    InstanceDataFile::appendInstance(PATH, data);
+    InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
 
     data.append("CCCCCCCC", 8);
-    InstanceDataFile::appendInstance(PATH, data);
+    InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
 
     //
@@ -179,7 +180,7 @@ void _Test02()
     assert(InstanceDataFile::beginTransaction(PATH));
 
     data.append("ZZZZZZZZ", 8);
-    InstanceDataFile::appendInstance(PATH, data);
+    InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
 
     assert(InstanceDataFile::rollbackTransaction(PATH));
@@ -191,15 +192,19 @@ void _Test02()
     assert(InstanceDataFile::beginTransaction(PATH));
 
     data.append("DDDDDDDD", 8);
-    InstanceDataFile::appendInstance(PATH, data);
+    InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
+
+    assert(InstanceDataFile::commitTransaction(PATH));
+
+    //
+    // Verify the result:
+    //
 
     InstanceDataFile::loadAllInstances(PATH, data);
     assert(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD", 32) == 0);
     assert(data.size() == 4 * 8);
     data.clear();
-
-    assert(InstanceDataFile::commitTransaction(PATH));
 
     //
     // Now attempt to compact:

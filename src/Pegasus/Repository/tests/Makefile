@@ -3,6 +3,10 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
+    Inst \
+    Repository \
+    Repository2
+
 #    AssocTable \
 #    ClassDeclRep \
 #    QualifierDeclRep \

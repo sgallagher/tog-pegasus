@@ -19,6 +19,7 @@ SOURCES = \
    CQLYACC.cpp \
    CQLLEX.cpp \
    CQLChainedIdentifier.cpp \
+   CQLChainedIdentifierRep.cpp \
    CQLIdentifier.cpp \
    CQLIdentifierRep.cpp \
    SubRange.cpp \

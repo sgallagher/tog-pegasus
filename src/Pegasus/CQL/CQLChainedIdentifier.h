@@ -7,7 +7,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 PEGASUS_NAMESPACE_BEGIN 
-class CQLScope;
+class PEGASUS_CQL_LINKAGE CQLScope;
+class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep;
+
 /**  
 CQLChainedIdentifier class is used for parsing (not resolving)
 the identifier portion of a CQL select statement.  
@@ -31,7 +33,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 {
   public:
 
-    CQLChainedIdentifier(){}
+    CQLChainedIdentifier():_rep(0){}
     /**  constructor 
           Parses the string into the various components of a CQL identifier.
           Throws parsing errors.
@@ -42,7 +44,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
  
     CQLChainedIdentifier(const CQLChainedIdentifier& cid);
 
-    ~CQLChainedIdentifier(){}
+    ~CQLChainedIdentifier();
 
     /**  The getSubIdentifiers method
     returns the array of subIdentifiers from a CQL SELECT
@@ -76,11 +78,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 
     void parse(String & string);
 
-    /**  The _subIdentifiers member variable is an array of Strings that are the
-    parts of the CQL identifier that were delimited by the dots (.) except
-          for the final part which is the _property member variable.
-      */
-    Array<CQLIdentifier> _subIdentifiers;
+    CQLChainedIdentifierRep* _rep;
 
 };
 

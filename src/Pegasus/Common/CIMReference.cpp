@@ -727,7 +727,9 @@ void CIMReference::instanceNameToXml(Array<Sint8>& out) const
 	    out << KeyBinding::typeToString(_keyBindings[i].getType());
 	    out << "\">";
 
-	    out << _keyBindings[i].getValue();
+	    // fixed the special character problem - Markus
+
+            XmlWriter::appendSpecial(out, _keyBindings[i].getValue());
 	    out << "</KEYVALUE>\n";
         }
 

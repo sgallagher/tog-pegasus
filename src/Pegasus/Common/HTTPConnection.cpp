@@ -149,18 +149,18 @@ void HTTPConnection::handleEnqueue(Message *message)
    
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:38 2002 mdd >>
-    static Mutex handleEnqueue_mut = Mutex();
-    Boolean LockAcquired = false;
+//    static Mutex handleEnqueue_mut = Mutex();
+//    Boolean LockAcquired = false;
 // #endif
 
 
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:30:48 2002 mdd >>
-   if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
-   {
-      handleEnqueue_mut.lock(pegasus_thread_self());
-      LockAcquired = true;
-   }
+//   if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
+//   {
+//      handleEnqueue_mut.lock(pegasus_thread_self());
+//      LockAcquired = true;
+//   }
 // #endif
 
    switch (message->getType())
@@ -246,10 +246,10 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 // #ifdef ENABLETIMEOUTWORKAROUNDHACK
 // << Wed Mar  6 12:31:03 2002 mdd >>
-    if (LockAcquired)
-   {
-      handleEnqueue_mut.unlock();
-   }
+//    if (LockAcquired)
+//    {
+//       handleEnqueue_mut.unlock();
+//    }
 // #endif
    PEG_METHOD_EXIT();
 }
@@ -412,7 +412,6 @@ void HTTPConnection::_handleReadEvent()
         _requestCount++;
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "_requestCount = %d", _requestCount.value());
-	
 	message->dest = _outputMessageQueue->getQueueId();
 //	SendForget(message);
 	
@@ -451,8 +450,8 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
       return false;
    
    fd_set fdread, fdwrite;
-      
    struct timeval tv = { 0, 0 };
+   
    FD_ZERO(&fdread);
    FD_ZERO(&fdwrite);
    FD_SET(getSocket(), &fdread);
@@ -476,7 +475,6 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
       }
       Message *msg = new SocketMessage(getSocket(), events);
       handleEnqueue(msg);
-      
       return true;
    }
    return false;

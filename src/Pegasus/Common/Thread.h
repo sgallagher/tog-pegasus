@@ -34,8 +34,6 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/DQueue.h>
 
-// REVIEW: Spend time getting to know this.
-
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE cleanup_handler
@@ -297,7 +295,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void empty_tsd(void) throw(IPCException)
       {
          thread_data* tsd;
-         while (tsd = _tsd.remove_first())
+         while (0 != (tsd = _tsd.remove_first()))
          {
             delete tsd;
          }

@@ -681,6 +681,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 					  void *callback_parm) 
    throw(Permission, IPCException)
 {
+   printf("verifying handle %p\n", &handle);
    
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
@@ -691,8 +692,11 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
       message->op->put_request(message);
    }
 
+
    callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), 
 					     callback_parm);
+   
+   printf("obtained callback handle %p\n", cb);
    
    message->setRouting(msg_handle);
    message->resp = getQueueId();
@@ -967,12 +971,16 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 {
    if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC)) 
       throw Permission(pegasus_thread_self());
+   printf("ClientSendAsync ( to service )\n");
+   
    pegasus_module *temp = new pegasus_module(this, 
 					     String(PEGASUS_MODULENAME_TEMP),
 					     this, 
 					     0, 
 					     async_callback, 
 					     0);
+   printf("received temporary module handle %p \n", temp);
+   
    return ModuleSendAsync( *temp, 
 			   msg_handle, 
 			   destination_q, 

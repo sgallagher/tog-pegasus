@@ -126,16 +126,12 @@ Monitor::~Monitor()
 
 Boolean Monitor::run(Uint32 milliseconds)
 {
-
-
    // register the monitor as a module to gain access to the cimserver's thread pool 
    // <<< Wed May 15 09:52:16 2002 mdd >>>
-   while(_module_handle == NULL)
+   while( _module_handle == NULL)
    {
-      
       try 
       {
-	 
 	 _controller = &(ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE, 
 							   PEGASUS_MODULENAME_MONITOR,
 							   (void *)this, 
@@ -143,15 +139,18 @@ Boolean Monitor::run(Uint32 milliseconds)
 							   0,
 							   0,
 							   &_module_handle));
-	 break;
 	 
       }
-      catch( ... )
+      catch(IncompatibleTypes &)
       {
-	 ;
+	 ModuleController* controlService =
+	    new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
+      }
+      catch( AlreadyExists & )
+      {
+	 break;
       }
    }
-   
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
@@ -217,7 +216,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 	   {
 	      
 	      MessageQueue *q = MessageQueue::lookup(_entries[i].queueId);
-	      if(q && static_cast<HTTPConnection *>(q)->is_dying())
+	      if(q && static_cast<HTTPConnection *>(q)->is_dying() && 
+		 (0 == static_cast<HTTPConnection *>(q)->refcount.value()))
 	      {
 		 static_cast<HTTPConnection *>(q)->lock_connection();
 		 static_cast<HTTPConnection *>(q)->unlock_connection();
@@ -273,18 +273,21 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    
 	    if(_entries[i]._type == Monitor::CONNECTION)
 	    {
-               static_cast<HTTPConnection *>(queue)->refcount++;
-	       if( false == static_cast<HTTPConnection *>(queue)->is_dying())
-		  _controller->async_thread_exec(*_module_handle, _dispatch, (void *)queue);
-               else
-                  static_cast<HTTPConnection *>(queue)->refcount--;
+	       if( 0 == static_cast<HTTPConnection *>(queue)->refcount.value())
+	       {
+		  static_cast<HTTPConnection *>(queue)->refcount++;
+		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
+		     _controller->async_thread_exec(*_module_handle, _dispatch, (void *)queue);
+		  else
+		     static_cast<HTTPConnection *>(queue)->refcount--;
+	       }
 	    }
 	    else 
 	    {
 	       Message* message = new SocketMessage(socket, events);
 	       queue->enqueue(message);
 	    }
- 	    count--;
+	    count--;
 	    return true;
 	}
     }
@@ -326,9 +329,7 @@ Boolean Monitor::solicitSocketMessages(
     _entries.append(entry);
     
     // Success!
-    // ATTN-RK-P2-20020521: Why do we need this?
-    ModuleController* controlService =
-        new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
+
     PEG_METHOD_EXIT();
     return true;
 }
@@ -377,12 +378,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
       dst->refcount--;
       return 0;
    }
-   dst->lock_connection();
    if( false == dst->is_dying())
+   {
       dst->run(1);
+   }
    dst->refcount--;
-   dst->unlock_connection();
-
    return 0;
 }
 

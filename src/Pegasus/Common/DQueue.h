@@ -530,9 +530,6 @@ template<class L> Boolean DQueue<L>::exists(const L *key) throw(IPCException)
    return(ret);
 }
 
-//////
-
-
 template<class L> void AsyncDQueue<L>::_insert_prep(void) throw(IPCException)
 {
    if(_disallow->value() > 0)
@@ -1073,9 +1070,6 @@ template<class L> L *AsyncDQueue<L>::reference(const L *key) throw(IPCException)
 }
 
 template<class L> Uint32 AsyncDQueue<L>::count(void) { return _actual_count->value() ; }
-
-
-
 
 
 PEGASUS_NAMESPACE_END

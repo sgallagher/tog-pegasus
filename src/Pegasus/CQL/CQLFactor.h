@@ -60,7 +60,7 @@ class PEGASUS_CQL_LINKAGE CQLFactor
     CQLFactor(CQLFunction& inCQLFunc);
     CQLFactor(const CQLFactor& inCQLFact);
 
-    ~CQLFactor(){}
+    ~CQLFactor();
 
     /** 
            The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.

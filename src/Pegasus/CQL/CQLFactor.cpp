@@ -31,6 +31,12 @@ CQLFactor::CQLFactor(CQLFunction& inCQLFunc)
 	_rep = new CQLFactorRep(inCQLFunc);
 }
 
+CQLFactor::~CQLFactor(){
+	if(_rep){
+		delete _rep;
+	}
+}
+
 CQLValue CQLFactor::getValue()
 {
    	return _rep->getValue();

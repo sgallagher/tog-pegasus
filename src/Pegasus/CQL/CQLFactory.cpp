@@ -131,14 +131,8 @@ CQLValue CQLFactory::getValue(CQLPredicate* obj){
 	}
 	return CQLValue();
 }
-
+/*
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){
-	/* 
-	   We cast inObject based on inObjectType, traverse the tree until
- 	   we find the targetType and return that.  inObjectType must be higher in 
-	   the inheritance heirarchy than targetType.
-	*/
-	
 	switch(inObjectType){
 		case Predicate:
 			return getObject(((CQLPredicate*)inObject),targetType);
@@ -225,5 +219,5 @@ void* CQLFactory::getObject(CQLPredicate* obj, FactoryType target){
         }
 }
 
-
+*/
 PEGASUS_NAMESPACE_END

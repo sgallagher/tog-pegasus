@@ -283,7 +283,6 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     	{
             PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                    "providerName = " + providerName + ". Provider name not found.");
-            PEG_METHOD_EXIT();
        	    providerName = String::EMPTY;
     	}
         PEG_METHOD_EXIT();
@@ -1160,14 +1159,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregat
     
     	for (Uint32 j = 0; j < fromResponse->instanceNames.size(); j++)
     	{
-    	    // Duplicate test goes here. 
-            // If the from response already contains the name, do not put it.
-            /* ATTN: KS 28 May 2002 - Temporarily disable the duplicate delete code.
-            if (!Contains( toResponse->instanceNames, fromResponse->instanceNames[j]))
-            {
-                toResponse->instanceNames.append(fromResponse->instanceNames[j]);
-            }
-            */
+    	    // Duplicate test goes here if we decide to eliminate dups in the future. 
             toResponse->instanceNames.append(fromResponse->instanceNames[j]);
     	}
     	poA->deleteResponse(i);
@@ -1307,6 +1299,33 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     // to the first entry
         CDEBUG("Aggregator. Calls appropriate aggration function");
         // Call the appropriate function for merging responses
+        switch( poA->getRequestType())
+        {
+            case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE :
+                    handleEnumerateInstanceNamesResponseAggregation(poA);
+                    break;
+            case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE :
+                    handleEnumerateInstancesResponseAggregation(poA);
+                    break;
+            case CIM_ASSOCIATORS_REQUEST_MESSAGE :
+                    handleAssociatorsResponseAggregation(poA);
+                    break;
+            case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE :
+                    handleAssociatorNamesResponseAggregation(poA);
+                    break;
+            case CIM_REFERENCES_REQUEST_MESSAGE :
+                    handleReferencesResponseAggregation(poA);
+                    break;
+            case CIM_REFERENCE_NAMES_REQUEST_MESSAGE :
+                    handleReferenceNamesResponseAggregation(poA);
+                    break;
+            default :
+                    PEGASUS_ASSERT(0);
+                    break;
+                /// This needs exception rtn attachment.
+        }
+
+        /*****************************
         if (poA->getRequestType() == CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE)
         {
             handleEnumerateInstanceNamesResponseAggregation(poA);
@@ -1332,6 +1351,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
             handleReferenceNamesResponseAggregation(poA);
         }
         /// ATTN: KS: need trap if not found.
+        *//////////////////////
 
     }
 

@@ -10,6 +10,12 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #define MAXOPTYPES 50
+class CQLPredicate;
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T CQLPredicate
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
 
     enum BooleanOpType { AND, OR } ;
 /** 
@@ -128,7 +134,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     
    BooleanOpType _booleanOpType;
 
-   //Array<CQLPredicate> _predicates;
+   Array<CQLPredicate> _predicates;
    CQLSimplePredicate _simplePredicate;
    BooleanOpType _operators[MAXOPTYPES];
 
@@ -142,13 +148,6 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
 };
 
- 
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T CQLPredicate
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-#endif
-
 PEGASUS_NAMESPACE_END
 
-#endif /* CQLPREDICATE_H_HEADER_INCLUDED_BEE59A50 */
+#endif 

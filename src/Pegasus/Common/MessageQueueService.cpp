@@ -310,9 +310,10 @@ Boolean MessageQueueService::_enqueueResponse(
 			     0);
       return true;
    }
+   return false;
    
    // ensure that the destination queue is in response->dest
-   return SendForget(response);
+   //   return SendForget(response);
    
 }
 

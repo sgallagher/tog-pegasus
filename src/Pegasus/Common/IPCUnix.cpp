@@ -893,10 +893,9 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
    // We will pop it off to release the mutex when leaving the critical section.
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
    native_cleanup_pop(1);
-#else
+#endif
    // Release mutex to leave critical section.
    pthread_mutex_unlock (&_semaphore.mutex);
-#endif
 }
 
 void Semaphore::try_wait(void) throw(WaitFailed)
@@ -907,8 +906,49 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
-// not implemented
-//      throw(WaitFailed(_semaphore.owner));
+   // Acquire mutex to enter critical section.
+   pthread_mutex_lock (&_semaphore.mutex);
+
+   // Push cleanup function onto cleanup stack
+   // The mutex will unlock if the thread is killed early
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+   native_cleanup_push(&semaphore_cleanup, &_semaphore);
+#endif
+
+   // Keep track of the number of waiters so that <sema_post> works correctly.
+   _semaphore.waiters++;
+
+   struct timeval now = {0,0};
+   struct timespec waittime = {0,0};
+   int retcode = 0;
+   gettimeofday(&now, NULL);
+   waittime.tv_sec = now.tv_sec;
+   waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);  // microseconds
+   waittime.tv_sec += (waittime.tv_nsec / 1000000);  // roll overflow into
+   waittime.tv_nsec = (waittime.tv_nsec % 1000000);  // the "seconds" part
+   waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
+
+   // We are in a sense also sending a signal - as in the Semaphore is released
+   // after the time has elapsed.
+   int old_count =_count;
+
+   retcode = pthread_cond_timedwait(&_semaphore.cond, &_semaphore.mutex, &waittime) ;
+
+   if (_count != old_count)
+		_count=old_count;
+
+   // Decrement the waiters count.
+   _semaphore.waiters--;
+
+    // Since we push an unlock onto the cleanup stack
+   // We will pop it off to release the mutex when leaving the critical section.
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+   native_cleanup_pop(1);
+   // Release mutex to leave critical section.
+#endif
+
+   pthread_mutex_unlock (&_semaphore.mutex);
+
 }
 
 // increment the count of the semaphore

@@ -84,11 +84,12 @@ void InstanceProvider::getInstance(
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		CIMNamespaceName(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+	CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
 	// begin processing the request
 	handler.processing();
@@ -158,11 +159,12 @@ void InstanceProvider::modifyInstance(
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		CIMNamespaceName(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+	CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 	
 	// begin processing the request
 	handler.processing();
@@ -174,11 +176,12 @@ void InstanceProvider::modifyInstance(
 		{
             CIMInstance cimInstance = instanceObject.clone();
 
-            CIMObjectPath instanceName(
-                String(),
-                CIMNamespaceName(),
-                instanceReference.getClassName(),
-                instanceReference.getKeyBindings());
+            CIMObjectPath instanceName =
+                CIMObjectPath(
+                    String(),
+                    CIMNamespaceName(),
+                    instanceReference.getClassName(),
+                    instanceReference.getKeyBindings());
 
             cimInstance.setPath(instanceName);
 
@@ -220,11 +223,12 @@ void InstanceProvider::createInstance(
     Array<CIMKeyBinding> keys;
     keys.append(CIMKeyBinding("Identifier", idValue));
 
-    CIMObjectPath instanceName(
-        String(),
-        CIMNamespaceName(),
-        instanceObject.getClassName(),
-        keys);
+    CIMObjectPath instanceName =
+        CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            instanceObject.getClassName(),
+            keys);
 
     cimInstance.setPath(instanceName);
 
@@ -257,11 +261,12 @@ void InstanceProvider::deleteInstance(
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		CIMNamespaceName(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+	CIMObjectPath localReference =
+        CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 	
 	// begin processing the request
 	handler.processing();

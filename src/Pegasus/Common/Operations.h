@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.4  2001/01/28 10:48:22  karl
+// Doc++ Documentation
+//
 // Revision 1.3  2001/01/15 04:31:44  mike
 // worked on resolve scheme
 //
@@ -77,197 +80,200 @@ public:
 	    }
 
 
-	/** The <TT>GetClass</TT> method returns a single CIM Class from the target
-	Namespace where the ClassName input parameter defines the name of the
-	class to be retrieved.
+    /** The <TT>GetClass</TT> method returns a single CIM Class from the
+    target Namespace where the ClassName input parameter defines the name of
+    the class to be retrieved.
 
-	@param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    @param NameSpace The NameSpace parameter is a string that defines the
+    target namespace \Ref{NAMESPACE}
 
-	@param ClassName The ClassName input parameter defines the name of the Class
-	to be retrieved.
+    @param ClassName The ClassName input parameter defines the name of the
+    Class to be retrieved.
 
-	@param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
-	specifies that only CIM Elements (properties, methods and qualifiers)
-	overriden within the definition of the Class are returned.  If false, all
-	elements are returned.  This parameter therefore effects a CIM Server-side
-	mechanism to filter certain elements of the returned object based on whether
-	or not they have been propagated from the parent Class (as defined by the
-	PROPAGATED attribute).
+    @param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
+    specifies that only CIM Elements (properties, methods and qualifiers)
+    overriden within the definition of the Class are returned.  If false,
+    all elements are returned.  This parameter therefore effects a CIM
+    Server-side mechanism to filter certain elements of the returned object
+    based on whether or not they have been propagated from the parent Class
+    (as defined by the PROPAGATED attribute).
 
-	@param IncludeQualifiers If the <TT>IncludeQualifiers</TT> input parameter
-	is true, this specifies that all Qualifiers for that Class (including
-	Qualifiers on the Class and on any returned Properties, Methods or Method
-	Parameters) MUST be included as <QUALIFIER> elements in the response.  If
-	false no <QUALIFIER> elements are present in the returned Class.
+    @param IncludeQualifiers If the <TT>IncludeQualifiers</TT> input
+    parameter is true, this specifies that all Qualifiers for that Class
+    (including Qualifiers on the Class and on any returned Properties,
+    Methods or Method Parameters) MUST be included as <QUALIFIER> elements
+    in the response.  If false no <QUALIFIER> elements are present in the
+    returned Class.
 
-	@param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input parameter
-	is true, this specifies that the CLASSORIGIN attribute MUST be present on
-	all appropriate elements in the returned Class. If false, no CLASSORIGIN
-	attributes are present in the returned Class.
+    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
+    parameter is true, this specifies that the CLASSORIGIN attribute MUST be
+    present on all appropriate elements in the returned Class. If false, no
+    CLASSORIGIN attributes are present in the returned Class.
 
-	@param PropertyList If the <TT>PropertyList</TT> input parameter is not
-	NULL, the members of the array define one or more Property names.  The
-	returned Class MUST NOT include elements for any Properties missing from
-	this list. Note that if LocalOnly is specified as true this acts as an
-	additional filter on the set of Properties returned (for example, if
-	Property A is included in the PropertyList but LocalOnly is set to true and
-	A is not local to the requested Class, then it will not be included in the
-	response). If the PropertyList input parameter is an empty array this
-	signifies that no Properties are included in the response. If the
-	PropertyList input parameter is NULL this specifies that all Properties
-	(subject to the conditions expressed by the other parameters) are included
-	in the response.
+    @param PropertyList If the <TT>PropertyList</TT> input parameter is not
+    NULL, the members of the array define one or more Property names.  The
+    returned Class MUST NOT include elements for any Properties missing from
+    this list. Note that if LocalOnly is specified as true this acts as an
+    additional filter on the set of Properties returned (for example, if
+    Property A is included in the PropertyList but LocalOnly is set to true
+    and A is not local to the requested Class, then it will not be included
+    in the response). If the PropertyList input parameter is an empty array
+    this signifies that no Properties are included in the response. If the
+    PropertyList input parameter is NULL this specifies that all Properties
+    (subject to the conditions expressed by the other parameters) are
+    included in the response.
 
-	If the <TT>PropertyList</TT> contains duplicate elements, the Server MUST
-	ignore the duplicates but otherwise process the request normally. If the
-	PropertyList contains elements which are invalid Property names for the
-	target Class, the Server MUST ignore such entries but otherwise process the
-	request normally.
+    If the <TT>PropertyList</TT> contains duplicate elements, the Server
+    MUST ignore the duplicates but otherwise process the request normally.
+    If the PropertyList contains elements which are invalid Property names
+    for the target Class, the Server MUST ignore such entries but otherwise
+    process the request normally.
 
-	@return If successful, the return value is a single CIM Class.
+    @return If successful, the return value is a single CIM Class.
 
-	If unsuccessful, one of the following status codes MUST be returned by
-	this method, where the first applicable error in the list (starting with
-	the first element of the list, and working down) is the error returned.
-	Any additional method-specific interpretation of the error in is given
-	in parentheses.
-	<UL>
-		<LI>CIM_ERR_ACCESS_DENIED
-		<LI>CIM_ERR_INVALID_NAMESPACE
-		<LI>CIM_ERR_INVALID_PARAMETER (including missing,
-		duplicate,unrecognized or otherwise
-			incorrect parameters)
-		<LI>CIM_ERR_NOT_FOUND (the request CIM Class does not exist in the
-		specified
-			namespace)
-		<LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
-	</UL>
-	*/
+    If unsuccessful, one of the following status codes MUST be returned by
+    this method, where the first applicable error in the list (starting with
+    the first element of the list, and working down) is the error returned.
+    Any additional method-specific interpretation of the error in is given
+    in parentheses.
+    <UL>
+	    <LI>CIM_ERR_ACCESS_DENIED
+	    <LI>CIM_ERR_INVALID_NAMESPACE
+	    <LI>CIM_ERR_INVALID_PARAMETER (including missing,
+	    duplicate,unrecognized or otherwise
+		    incorrect parameters)
+	    <LI>CIM_ERR_NOT_FOUND (the request CIM Class does not exist in
+	    the
+	    specified
+		    namespace)
+	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+    </UL>
+    */
 
-	virtual ClassDecl getClass(
-		const String& nameSpace,
-		const String& className,
-		Boolean localOnly = true,
-		Boolean includeQualifiers = true,
-		Boolean includeClassOrigin = false,
-		const Array<String>& propertyList = _getStringArray()) = 0;
+    virtual ClassDecl getClass(
+	    const String& nameSpace,
+	    const String& className,
+	    Boolean localOnly = true,
+	    Boolean includeQualifiers = true,
+	    Boolean includeClassOrigin = false,
+	    const Array<String>& propertyList = _getStringArray()) = 0;
 
-	/** The <<TT>GetInstance</TT> method returns a single CIM Instance from
-	the target Namespace based on the InstanceName parameter provided.
+    /** The <<TT>GetInstance</TT> method returns a single CIM Instance from
+    the target Namespace based on the InstanceName parameter provided.
 
-	@param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    @param NameSpace The NameSpace parameter is a string that defines the
+    target namespace \Ref{NAMESPACE}
 
-	@param InstanceName The InstanceName input parameter defines the name of the
-	Instance to be retrieved.
+    @param InstanceName The InstanceName input parameter defines the name of
+    the Instance to be retrieved.
 
-	@param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
-	specifies that
-	 only elements (properties and qualifiers) overriden within the
-	 definition of the Instance are returned.  If false, all elements are
-	 returned.  This parameter therefore effects a CIM Server-side mechanism
-	 to filter certain elements of the returned object based on whether or
-	 not they have been propagated from the parent Class (as defined by the
-	 PROPAGATED attribute).
+    @param LocalOnly If the <TT>LocalOnly</TT> input parameter is true, this
+    specifies that only elements (properties and qualifiers) overriden
+    within the definition of the Instance are returned.  If false, all
+    elements are returned.  This parameter therefore effects a CIM
+    Server-side mechanism to filter certain elements of the returned object
+    based on whether or not they have been propagated from the parent Class
+    (as defined by the PROPAGATED attribute).
 
-	 @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input parameter
-	 is true, this
-	 specifies that all Qualifiers for that Instance (including Qualifiers
-	 on the Instance and on any returned Properties) MUST be included as
-	 <QUALIFIER> elements in the response.  If false no <QUALIFIER> elements
-	 are present in the returned Instance.
+    @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
+    parameter is true, this specifies that all Qualifiers for that Instance
+    (including Qualifiers on the Instance and on any returned Properties)
+    MUST be included as <QUALIFIER> elements in the response.  If false no
+    <QUALIFIER> elements are present in the returned Instance.
 
-	 @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
-	 parameter is true, this
-	 specifies that the CLASSORIGIN attribute MUST be present on all
-	 appropriate elements in the returned Instance. If false, no CLASSORIGIN
-	 attributes are present in the returned instance.
+    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
+    parameter is true, this specifies that the CLASSORIGIN attribute MUST
+    be present on all appropriate elements in the returned Instance. If
+    false, no CLASSORIGIN attributes are present in the returned instance.
 
-	 @param PropertyList If the <TT>PropertyList</TT> input parameter is not
-	 NULL, the members
-	 of the array define one or more Property names.  The returned Instance
-	 MUST NOT include elements for any Properties missing from this list.
-	 Note that if LocalOnly is specified as true this acts as an additional
-	 filter on the set of Properties returned (for example, if Property A is
-	 included in the PropertyList but LocalOnly is set to true and A is not
-	 local to the requested Instance, then it will not be included in the
-	 response). If the PropertyList input parameter is an empty array this
-	 signifies that no Properties are included in the response. If the
-	 PropertyList input parameter is NULL this specifies that all Properties
-	 (subject to the conditions expressed by the other parameters) are
-	 included in the response.
+    @param PropertyList If the <TT>PropertyList</TT> input parameter is not
+    NULL, the members of the array define one or more Property names.  The
+    returned Instance MUST NOT include elements for any Properties missing
+    from this list. Note that if LocalOnly is specified as true this acts
+    as an additional filter on the set of Properties returned (for example,
+    if Property A is included in the PropertyList but LocalOnly is set to
+    true and A is not local to the requested Instance, then it will not be
+    included in the response). If the PropertyList input parameter is an
+    empty array this signifies that no Properties are included in the
+    response. If the PropertyList input parameter is NULL this specifies
+    that all Properties (subject to the conditions expressed by the other
+    parameters) are included in the response.
 
-	 If the <TT>PropertyList</TT> contains duplicate elements, the Server
-	 MUST ignore the duplicates but otherwise process the request normally.
-	 If the PropertyList contains elements which are invalid Property names
-	 for the target Instance, the Server MUST ignore such entries but
-	 otherwise process the request normally.
+    If the <TT>PropertyList</TT> contains duplicate elements, the Server
+    MUST ignore the duplicates but otherwise process the request normally.
+    If the PropertyList contains elements which are invalid Property names
+    for the target Instance, the Server MUST ignore such entries but
+    otherwise process the request normally.
 
-	 @return If successful, the return value is a single CIM Instance.
+    @return If successful, the return value is a single CIM Instance.
 
-	 If unsuccessful, one of the following status codes MUST be returned by
-	 this method, where the first applicable error in the list (starting
-	 with the first element of the list, and working down) is the error
-	 returned. Any additional method-specific interpretation of the error in
-	 is given in parentheses.
+    If unsuccessful, one of the following status codes MUST be returned by
+    this method, where the first applicable error in the list (starting
+    with the first element of the list, and working down) is the error
+    returned. Any additional method-specific interpretation of the error in
+    is given in parentheses.
 
-	<UL>
-		<LI>CIM_ERR_ACCESS_DENIED
-		<LI>CIM_ERR_INVALID_NAMESPACE
-		<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
-			unrecognized or otherwise incorrect parameters)
-		<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
-			specified namespace)
-		<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
-		CIM Instance does not exist in the specified namespace)
-		<LI>CIM_ERR_FAILED (some other unspecified error occurred)
-		</LI>
-	</UL>
-	*/
-	virtual InstanceDecl getInstance(
-		const String& nameSpace,
-		const Reference& instanceName,
-		Boolean localOnly = true,
-	   	Boolean includeQualifiers = false,
-		Boolean includeClassOrigin = false,
-		const Array<String>& propertyList = _getStringArray()) = 0;
-
-
-
-	/** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
-	target Namespace.
-
-	@param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
-
-	@param ClassName The ClassName input parameter defines the name of the Class
-	to be deleted.
-
-	@return If successful, the specified Class (including any subclasses and any
-	instances) MUST have been removed by the CIM Server.  The operation MUST
-	fail if any one of these objects cannot be deleted.
-
-	If unsuccessful, one of the following status codes MUST be returned by this
-	method, where the first applicable error in the list (starting with the
-	first element of the list, and working down) is the error returned. Any
-	additional method-specific interpretation of the error in is given in
-	parentheses.
-	<UL>
-		<LI>CIM_ERR_ACCESS_DENIED
-		<LI>CIM_ERR_NOT_SUPPORTED
-		<LI>CIM_ERR_INVALID_NAMESPACE
-		<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
-			unrecognized or otherwise incorrect parameters)
-		<LI>CIM_ERR_NOT_FOUND (the CIM Class to be deleted does not exist)
-		<LI>CIM_ERR_CLASS_HAS_CHILDREN (the CIM Class has one or more subclasses
-			which cannot be deleted)
-		<LI>CIM_ERR_CLASS_HAS_INSTANCES (the CIM Class has one or more instances
-			which cannot be deleted)
-		<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+    <UL>
+	<LI>CIM_ERR_ACCESS_DENIED
+	<LI>CIM_ERR_INVALID_NAMESPACE
+	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+	    unrecognized or otherwise incorrect parameters)
+	<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
+	    specified namespace)
+	<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the
+	requested
+	CIM Instance does not exist in the specified namespace)
+	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
 	</LI>
-	</UL>
-	*/
+    </UL>
+    */
+    virtual InstanceDecl getInstance(
+	    const String& nameSpace,
+	    const Reference& instanceName,
+	    Boolean localOnly = true,
+	    Boolean includeQualifiers = false,
+	    Boolean includeClassOrigin = false,
+	    const Array<String>& propertyList = _getStringArray()) = 0;
+
+
+
+    /** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
+    target Namespace.
+
+    @param NameSpace The NameSpace parameter is a string that defines the
+    target
+    namespace \Ref{NAMESPACE}
+
+    @param ClassName The ClassName input parameter defines the name of the
+    Class
+    to be deleted.
+
+    @return If successful, the specified Class (including any subclasses and any
+    instances) MUST have been removed by the CIM Server.  The operation MUST
+    fail if any one of these objects cannot be deleted.
+
+    If unsuccessful, one of the following status codes MUST be returned by this
+    method, where the first applicable error in the list (starting with the
+    first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.
+    <UL>
+	<LI>CIM_ERR_ACCESS_DENIED
+	<LI>CIM_ERR_NOT_SUPPORTED
+	<LI>CIM_ERR_INVALID_NAMESPACE
+	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+	    unrecognized or otherwise incorrect parameters)
+	<LI>CIM_ERR_NOT_FOUND (the CIM Class to be deleted does not
+	exist)
+	<LI>CIM_ERR_CLASS_HAS_CHILDREN (the CIM Class has one or more
+	subclasses
+	    which cannot be deleted)
+	<LI>CIM_ERR_CLASS_HAS_INSTANCES (the CIM Class has one or more
+	instances
+	    which cannot be deleted)
+	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+    </UL>
+    */
     virtual void deleteClass(
         const String& nameSpace,
         const String& className) = 0;
@@ -281,8 +287,8 @@ public:
     @param InstanceName The InstanceName input parameter defines the name (model
     path) of the Instance to be deleted.
 
-	@return If successful, the specified Instance MUST have been removed by the
-	CIM Server.
+    @return If successful, the specified Instance MUST have been removed by the
+    CIM Server.
 
     If unsuccessful, one of the following status codes MUST be returned by this
     method, where the first applicable error in the list (starting with the
@@ -352,9 +358,9 @@ public:
     </UL>
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
-	@parm NewClass The NewClass input parameter defines the new Class.
+    @parm NewClass The NewClass input parameter defines the new Class.
 
     @return If successful, the specified Class MUST have been created by the CIM
     Server.
@@ -416,11 +422,11 @@ public:
     </UL>
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
-	@param newInstance The NewInstance input parameter defines the new Instance.
-	The proposed definition MUST be a correct Instance definition for the
-	underlying CIM Class according to the CIM specification.
+    @param newInstance The <TT>newInstance</TT> input parameter defines the new
+    Instance. The proposed definition MUST be a correct Instance definition for
+    the underlying CIM Class according to the CIM specification.
 
     @return If successful, the return value defines the object path of the new
     CIM Instance relative to the target Namespace (i.e. the Model Path as
@@ -516,9 +522,9 @@ public:
        </LI></UL>
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
-	@param ModifiedClass The <TT>ModifiedClass</TT>
+    @param ModifiedClass The <TT>ModifiedClass</TT>
     input parameter defines the set of changes (which MUST be&nbsp;correct
     amendments to the CIM Class as defined by the CIM Specification) to be made
     to the current class definition.
@@ -530,14 +536,11 @@ public:
     The request to modify the Class MUST fail if the Server cannot update any
     existing Subclasses or Instances of that Class in a consistent manner.
 
-    @return
-
-    If unsuccessful, one of the following status codes&nbsp;MUST be returned by
-    this method,
-	where the first applicable error in the list (starting with the first
-	element of the list,
-	and working down) is&nbsp;the error returned. Any additional method-specific
-	interpretation of the error in is given in parentheses.
+    @return If unsuccessful, one of the following status codes&nbsp;MUST be
+    returned by this method, where the first applicable error in the list
+    (starting with the first element of the list, and working down) is&nbsp;the
+    error returned. Any additional method-specific interpretation of the error
+    in is given in parentheses.
 
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
@@ -568,13 +571,13 @@ public:
     Instance in the target Namespace.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param ModifiedInstance The <TT>ModifiedInstance</TT> input parameter
-    identifies the name of the
-    Instance to be modified, and defines the set of changes (which MUST
-    be&nbsp;correct amendments to the&nbsp;Instance as defined by the CIM
-    Specification) to be made to the current&nbsp;Instance definition.&nbsp;
+    identifies the name of the Instance to be modified, and defines the set of
+    changes (which MUST be&nbsp;correct amendments to the&nbsp;Instance as
+    defined by the CIM Specification) to be made to the current&nbsp;Instance
+    definition.&nbsp;
 
     In processing the&nbsp;modifcation of the Instance, the following rules MUST
     be conformed to by the CIM Server:
@@ -656,19 +659,19 @@ public:
     a CIM Class in the target Namespace.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param className The <TT>ClassName</TT> input parameter defines the Class
     that is the basis for the enumeration.&nbsp;
 
     @param DeepInheritance If the <TT>DeepInheritance</TT> input
-    parameter&nbsp;is
-    <TT>true</TT>,&nbsp;this specifies that all subclasses of the specified
-    Class should be returned (if the <TT>ClassName</TT> input parameter is
-    absent, this implies that all Classes in the target Namespace should be
-    returned).&nbsp; If <TT>false</TT>, only immediate child subclasses&nbsp;are
-    returned (if the <TT>ClassName</TTT> input parameter is NULL, this implies
-    that all base Classes in the target Namespace should be returned).
+    parameter&nbsp;is <TT>true</TT>,&nbsp;this specifies that all subclasses of
+    the specified Class should be returned (if the <TT>ClassName</TT> input
+    parameter is absent, this implies that all Classes in the target Namespace
+    should be returned).&nbsp; If <TT>false</TT>, only immediate child
+    subclasses&nbsp;are returned (if the <TT>ClassName</TTT> input parameter is
+    NULL, this implies that all base Classes in the target Namespace should be
+    returned).
 
     @param LocalOnly If the <TT>LocalOnly</TT> input parameter&nbsp;is
     <TT>true</TT>, it specifies that, for each returned Class, only elements
@@ -730,7 +733,7 @@ public:
     target namespace \Ref{NAMESPACE}
 
     @param className The <TT>ClassName</TT> input parameter defines the Class
-	    that is the basis for the enumeration.&nbsp;
+    that is the basis for the enumeration.&nbsp;
 
     @param DeepInheritance If the DeepInheritance input parameter is true, this
     specifies that the names of all subclasses of the specified Class should be
@@ -766,76 +769,78 @@ public:
     Boolean deepInheritance = false) = 0;
 
 
-	/** The <TT>enumerateInstances</TT> method enumerates instances of a CIM
-	Class in the target Namespace.
+    /** The <TT>enumerateInstances</TT> method enumerates instances of a CIM
+    Class in the target Namespace.
 
-	@param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    @param NameSpace The NameSpace parameter is a string that defines the
+    target namespace \Ref{NAMESPACE}
 
-	@param ClassName The <TT>ClassName</TT> input parameter defines the Class
-	that is the basis for the enumeration.&nbsp;&nbsp;&nbsp; </P>
+    @param ClassName The <TT>ClassName</TT> input parameter defines the
+    Class that is the basis for the enumeration.&nbsp;&nbsp;&nbsp; </P>
 
-	@param LocalOnly If the <TT>LocalOnly</TT> input parameter&nbsp;is
-	<TT>true</TT>,&nbsp;this specifies that, for each returned Instance, only
-	elements (properties and qualifiers) overriden within&nbsp;the definition of
-	that&nbsp;Instance are included.&nbsp; If <TT>false</TT>, all elements are
-	returned.&nbsp; This parameter therefore effects a CIM Server-side mechanism
-	to filter certain elements of the returned object based on whether or not
-	they have been propagated from the parent Class&nbsp;(as defined by the
-	<TT>PROPAGATED</TT> attribute).
+    @param LocalOnly If the <TT>LocalOnly</TT> input parameter&nbsp;is
+    <TT>true</TT>,&nbsp;this specifies that, for each returned Instance,
+    only elements (properties and qualifiers) overriden within&nbsp;the
+    definition of that&nbsp;Instance are included.&nbsp; If <TT>false</TT>,
+    all elements are returned.&nbsp; This parameter therefore effects a CIM
+    Server-side mechanism to filter certain elements of the returned object
+    based on whether or not they have been propagated from the parent
+    Class&nbsp;(as defined by the <TT>PROPAGATED</TT> attribute).
 
-	@param DeepInheritance If the <TT>DeepInheritance</TT> input
-	parameter&nbsp;is <TT>true</TT>,&nbsp;this specifies that, for each returned
-	Instance of the Class, all properties of the Instance MUST be&nbsp;present
-	(subject to constraints imposed by the other parameters), including any
-	which were added by subclassing the specified Class.&nbsp;If <TT>false</TT>,
-	each returned&nbsp;Instance includes only properties defined for
-	the&nbsp;specified Class.
+    @param DeepInheritance If the <TT>DeepInheritance</TT> input
+    parameter&nbsp;is <TT>true</TT>,&nbsp;this specifies that, for each
+    returned Instance of the Class, all properties of the Instance MUST
+    be&nbsp;present (subject to constraints imposed by the other
+    parameters), including any which were added by subclassing the specified
+    Class.&nbsp;If <TT>false</TT>, each returned&nbsp;Instance includes only
+    properties defined for the&nbsp;specified Class.
 
-	@param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input parameter is
-	<TT>true</TT>, this specifies that all Qualifiers
-	for&nbsp;each&nbsp;Instance (including Qualifiers on the&nbsp;Instance and
-	on any returned Properties) MUST be included as <TT>&lt;QUALIFIER&gt;</TT>
-	elements in the response.&nbsp; If false no
-	<TT>&lt;QUALIFIER&gt;</TT>&nbsp;elements are present in&nbsp;each returned
-	Instance.
+    @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
+    parameter is <TT>true</TT>, this specifies that all Qualifiers
+    for&nbsp;each&nbsp;Instance (including Qualifiers on the&nbsp;Instance
+    and on any returned Properties) MUST be included as
+    <TT>&lt;QUALIFIER&gt;</TT> elements in the response.&nbsp; If false no
+    <TT>&lt;QUALIFIER&gt;</TT>&nbsp;elements are present in&nbsp;each
+    returned Instance.
 
-	@param IncludeClassOrigin If the <TT>IncludeClassOrigin</TTT> input
-	parameter is <TT>true</TT>, this specifies that the <TT>CLASSORIGIN</TTT>
-	attribute MUST be present on all appropriate elements in&nbsp;each returned
-	Instance. If false, no <TT>CLASSORIGIN</TTT> attributes are present
-	in&nbsp;each returned Instance.
+    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TTT> input
+    parameter is <TT>true</TT>, this specifies that the
+    <TT>CLASSORIGIN</TTT> attribute MUST be present on all appropriate
+    elements in&nbsp;each returned Instance. If false, no
+    <TT>CLASSORIGIN</TTT> attributes are present in&nbsp;each returned
+    Instance.
 
-	@param PropertyList If the <TT>PropertyList</TT> input parameter is not
-	<TT>NULL</TT>, the members of the array define one or more Property
-	names.&nbsp;&nbsp;Each returned&nbsp;Instance MUST NOT include elements for
-	any Properties&nbsp;missing from this list.&nbsp; Note that if
-	<TT>LocalOnly</TT> is specified as <TT>true</TT> (or
-	<TT>DeepInheritance</TT> is specified as <TT>false</TT>) this acts as an
-	additional filter on the&nbsp;set of Properties returned (for example,
-	if&nbsp;Property <TT>A</TT> is included&nbsp;in the <TT>PropertyList</TT>
-	but <TT>LocalOnly</TT> is set to true and <TT>A</TT> is not local to a
-	returned&nbsp;Instance, then it will not be included in that Instance). If
-	the <TT>PropertyList</TT> input parameter is an empty array this signifies
-	that no Properties are included in each returned Instance.&nbsp;If the
-	<TT>PropertyList</TT> input parameter is NULL this specifies that all
-	Properties (subject to the conditions expressed by the other parameters) are
-	included in each&nbsp;returned Instance.
+    @param PropertyList If the <TT>PropertyList</TT> input parameter is not
+    <TT>NULL</TT>, the members of the array define one or more Property
+    names.&nbsp;&nbsp;Each returned&nbsp;Instance MUST NOT include elements
+    for any Properties&nbsp;missing from this list.&nbsp; Note that if
+    <TT>LocalOnly</TT> is specified as <TT>true</TT> (or
+    <TT>DeepInheritance</TT> is specified as <TT>false</TT>) this acts as an
+    additional filter on the&nbsp;set of Properties returned (for example,
+    if&nbsp;Property <TT>A</TT> is included&nbsp;in the
+    <TT>PropertyList</TT> but <TT>LocalOnly</TT> is set to true and
+    <TT>A</TT> is not local to a returned&nbsp;Instance, then it will not be
+    included in that Instance). If the <TT>PropertyList</TT> input parameter
+    is an empty array this signifies that no Properties are included in each
+    returned Instance.&nbsp;If the <TT>PropertyList</TT> input parameter is
+    NULL this specifies that all Properties (subject to the conditions
+    expressed by the other parameters) are included in each&nbsp;returned
+    Instance.
 
-	If&nbsp;the&nbsp;<TT>PropertyList</TT>&nbsp;contains duplicate elements, the
-	Server MUST ignore the duplicates but otherwise process the request
-	normally.&nbsp; If the <TT>PropertyList</TT> contains elements which are
-	invalid Property names for any&nbsp;target Instance, the Server MUST ignore
-	such entries but otherwise process the request normally.
+    If&nbsp;the&nbsp;<TT>PropertyList</TT>&nbsp;contains duplicate elements,
+    the Server MUST ignore the duplicates but otherwise process the request
+    normally.&nbsp; If the <TT>PropertyList</TT> contains elements which are
+    invalid Property names for any&nbsp;target Instance, the Server MUST
+    ignore such entries but otherwise process the request normally.
 
-	@return If successful, the method returns zero or more&nbsp;named Instances
-	that meet the required criteria.
+    @return If successful, the method returns zero or more&nbsp;named
+    Instances that meet the required criteria.
 
-	If unsuccessful, one of the following status codes&nbsp;MUST be returned by
-	this method, where the first applicable error in the list (starting with the
-	first element of the list, and working down) is&nbsp;the error returned. Any
-	additional method-specific interpretation of the error in is given in
-	parentheses.
+    If unsuccessful, one of the following status codes&nbsp;MUST be returned
+    by this method, where the first applicable error in the list (starting
+    with the first element of the list, and working down) is&nbsp;the error
+    returned. Any additional method-specific interpretation of the error in
+    is given in parentheses.
 
 	<UL>
 	  <LI>CIM_ERR_ACCESS_DENIED
@@ -896,20 +901,13 @@ public:
     /** The <TT>execQuery</TT> is used to execute a query against the target
     Namespace.
 
-	The Query input parameter defines the query to be executed.
-
-    Neither the Query language nor the format of the Query are defined by this
-    specification. It is anticipated that Query languages will be submitted to
-    the DMTF as separate proposals.
-
-    A mechanism whereby CIM Servers can declare which query languages they
-    support (if any) is defined in Determining CIM Server Capabilities.
-
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param QueryLanguage The QueryLanguage input parameter defines the query
     language in which the Query parameter is expressed.
+
+    @param The Query input parameter defines the query to be executed.
 
     @return If successful, the method returns zero or more CIM Classes or
     Instances that correspond to the results set of the query.
@@ -1111,7 +1109,7 @@ public:
     objects that refer to a particular target CIM Object (Class or Instance).
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param ObjectName The ObjectName input parameter defines the target CIM
     Object whose referring Objects are to be returned. This is either a Class
@@ -1190,7 +1188,45 @@ public:
  	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList= _getStringArray()) = 0;
     /**
-    TBD - documentation on referenceNames
+    The <TT>referenceNames</TT> operation is used to enumerate the association
+    objects that refer to a particular target CIM Object (Class or Instance).
+
+    @param NameSpace The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}
+
+    @param The ObjectName input parameter defines the target CIM Object whose
+    referring object names are to be returned. It may be either a Class name or
+    an Instance name (model path).
+
+    @param The ResultClass input parameter, if not NULL, MUST be a valid CIM
+    Class name. It acts as a filter on the returned set of Object Names by
+    mandating that each returned Object Name MUST identify an Instance of this
+    Class (or one of its subclasses), or this Class (or one of its subclasses).
+
+    @param The role input parameter, if not NULL, MUST be a valid Property name.
+    It acts as a filter on the returned set of Object Names by mandating that
+    each returned Object Name MUST identify an Object that refers to the target
+    Instance via a Property whose name matches the value of this parameter.
+
+    @return If successful, the method returns the names of zero or more full CIM
+    Class paths or Instance paths of Objects meeting the requested criteria.
+    Since it is possible for CIM Objects from different hosts or namespaces to
+    be associated, each returned path is an absolute path that includes host and
+    namespace information.
+
+    If unsuccessful, one of the following status codes MUST be returned by this
+    method, where the first applicable error in the list (starting with the
+    first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.
+    <UL>
+     	<LI>CIM_ERR_ACCESS_DENIED
+     	<LI>CIM_ERR_NOT_SUPPORTED
+     	<LI>CIM_ERR_INVALID_NAMESPACE
+     	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+     	unrecognized or otherwise incorrect parameters)
+     	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+     </UL>
     */
     virtual Array<Reference> referenceNames(
     const String& nameSpace,
@@ -1198,7 +1234,39 @@ public:
     const String& resultClass = String::EMPTY,
     const String& role = String::EMPTY) = 0;
     /**
-    TBD Documentation on getProperty
+    This operation is used to retrieve a single property value from a CIM
+    Instance in the target Namespace.
+
+    @param NameSpace The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}
+
+    @param The InstanceName input parameter specifies the name of the Instance
+    (model path) from which the Property value is requested.\\Ref{INSTANCENAME}
+
+    @param The PropertyName input parameter specifies the name of the Property
+    whose value is to be returned.
+
+    @return If successful, the return value specifies the value of the requested
+    Property. If the value is NULL then no element is returned.
+
+    If unsuccessful, one of the following status codes MUST be returned by this
+    method, where the first applicable error in the list (starting with the
+    first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.
+    <UL>
+	<LI>CIM_ERR_ACCESS_DENIED
+	<LI>CIM_ERR_INVALID_NAMESPACE
+	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+	unrecognized or otherwise incorrect parameters)
+	<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified
+	namespace)
+	<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM
+	Instance does not exist in the specified namespace)
+	<LI><LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
+	requested Property does not)
+	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+    </UL>
     */
     virtual Value getProperty(
     const String& nameSpace,
@@ -1209,7 +1277,7 @@ public:
     Instance in the target Namespace.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param InstanceName The InstanceName input parameter specifies the name of
     the Instance (model
@@ -1228,7 +1296,6 @@ public:
     the first element of the list, and working down) is the error returned. Any
     additional method-specific interpretation of the error in is given in
     parentheses.
-
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_INVALID_NAMESPACE
@@ -1256,7 +1323,7 @@ public:
     declaration from the target Namespace.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param QualifierName The QualifierName input parameter identifies the
     Qualifier whose declaration to be retrieved.
@@ -1297,7 +1364,7 @@ public:
     exists it is overwritten.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @param Qualifier Declaration The QualifierDeclaration input parameter
     defines the Qualifier Declaration to be added to the Namespace. @return If
@@ -1389,10 +1456,10 @@ public:
 		const String& nameSpace) = 0;
 
 
-	/**
-	TBD Documentation on the Invoke method
+    /**
+    TBD Documentation on the Invoke method
 
-	*/
+    */
 
     virtual Value invokeMethod(
 		const String& nameSpace,
@@ -1406,6 +1473,10 @@ PEGASUS_NAMESPACE_END
 
 
 #endif /* Pegasus_Operations_h */
+
+
+
+
 
 
 

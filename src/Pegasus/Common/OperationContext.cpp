@@ -113,27 +113,6 @@ const OperationContext::Container & OperationContext::get(
     //throw Exception("object not found");
 }
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-const OperationContext::Container & OperationContext::get(const Uint32 key) const
-{
-    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
-    {
-        if(key == _rep->containers[i]->getKey())
-        {
-            Container * p = _rep->containers[i];
-
-            return(*p);
-        }
-    }
-
-	//l10n
-	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
-							 "object not found");
-    throw Exception(parms);
-    //throw Exception("object not found");
-}
-#endif
-
 void OperationContext::set(const OperationContext::Container & container)
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
@@ -195,48 +174,15 @@ void OperationContext::remove(const String& containerName)
     //throw Exception("object not found");
 }
  
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-void OperationContext::remove(const Uint32 key)
-{
-    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
-    {
-        if(key == _rep->containers[i]->getKey())
-        {
-            delete _rep->containers[i];
-            _rep->containers.remove(i);
-
-            return;
-        }
-    }
-
-	//l10n
-	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
-							 "object not found");
-    throw Exception(parms);
-    //throw Exception("object not found");
-}
-#endif
 
 //
 // OperationContext::Container
 //
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-OperationContext::Container::Container(const Uint32 key) : _key(key)
-{
-}
-#endif
-
 OperationContext::Container::~Container(void)
 {
 }
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-const Uint32 & OperationContext::Container::getKey(void) const
-{
-    return(_key);
-}
-#endif
 
 //
 // IdentityContainer
@@ -251,9 +197,6 @@ public:
 const String IdentityContainer::NAME = "IdentityContainer";
 
 IdentityContainer::IdentityContainer(const OperationContext::Container & container)
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    : OperationContext::Container(container.getKey())
-#endif
 {
     const IdentityContainer * p = dynamic_cast<const IdentityContainer *>(&container);
 
@@ -273,9 +216,6 @@ IdentityContainer::IdentityContainer(const IdentityContainer & container)
 }
 
 IdentityContainer::IdentityContainer(const String & userName)
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    : OperationContext::Container(CONTEXT_IDENTITY)
-#endif
 {
     _rep = new IdentityContainerRep();
     _rep->userName = userName;

@@ -296,14 +296,6 @@ public:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY);
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    SSLContext(
-        const String& certPath,
-        SSLCertificateVerifyFunction* verifyCert,
-        const String& randomFile,
-        Boolean isCIMClient);
-#endif
-
     SSLContext(const SSLContext& sslContext);
 
     ~SSLContext();
@@ -383,14 +375,6 @@ private:
         SSLCertificateVerifyFunction* verifyCert,
         Boolean trustStoreAutoUpdate,
 		String trustStoreUserName,
-        const String& randomFile);
-#endif
-
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    SSLContext(
-        const String& certPath,
-        const String& certKeyPath,
-        SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 #endif
 

@@ -42,11 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 // This class should be moved to the OperationContext module when localization
 // support is added to Pegasus and this class definition is firm.
 class PEGASUS_COMMON_LINKAGE LocaleContainer
-    :
-#ifndef PEGASUS_USE_DEPRECATED_INTERFACES // include if NOT using deprecated API
-      virtual
-#endif
-              public OperationContext::Container
+    : virtual public OperationContext::Container
 {
 public:
     static const String NAME;
@@ -67,11 +63,7 @@ protected:
 };
 
 class PEGASUS_COMMON_LINKAGE ProviderIdContainer
-    :
-#ifndef PEGASUS_USE_DEPRECATED_INTERFACES // include if NOT using deprecated API
-      virtual
-#endif
-              public OperationContext::Container
+    : virtual public OperationContext::Container
 {
 public:
     static const String NAME;

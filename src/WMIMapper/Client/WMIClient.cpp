@@ -130,61 +130,6 @@ void CIMClient::connect(
     _rep->connect(host, portNumber, sslContext, userName, password);
 }
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-void CIMClient::connect(
-    const String& address,
-    const String& userName,
-    const String& password
-)
-{
-    Uint32 index = address.find (':');
-    String host = address.subString (0, index);
-    Uint32 portNumber = 0;
-    if (index != PEG_NOT_FOUND)
-    {
-        String portStr = address.subString (index + 1, address.size ());
-        sscanf (portStr.getCString (), "%u", &portNumber);
-    }
-    else
-        throw InvalidLocatorException (address);
-
-    // See the comment in the constructor for why we need to get the 
-    // current timeout, delete and create a new _rep object here:
-    Uint32 timeout = _rep->getTimeout();
-    delete _rep;
-    _rep = new CIMClientRep(timeout);
-
-    _rep->connect (host, portNumber, userName, password);
-}
-
-void CIMClient::connect(
-    const String& address,
-    const SSLContext& sslContext,
-    const String& userName,
-    const String& password
-)
-{
-	Uint32 index = address.find (':');
-    String host = address.subString (0, index);
-    Uint32 portNumber = 0;
-    if (index != PEG_NOT_FOUND)
-    {
-        String portStr = address.subString (index + 1, address.size ());
-        sscanf (portStr.getCString (), "%u", &portNumber);
-    }
-    else
-        throw InvalidLocatorException (address);
-
-    // See the comment in the constructor for why we need to get the 
-    // current timeout, delete and create a new _rep object here:
-    Uint32 timeout = _rep->getTimeout();
-    delete _rep;
-    _rep = new CIMClientRep(timeout);
-
-    _rep->connect (host, portNumber, sslContext, userName, password);
-}
-#endif
-
 void CIMClient::connectLocal()
 {
     // See the comment in the constructor for why we need to get the 

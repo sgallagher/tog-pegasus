@@ -555,14 +555,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
     const String& str1,
     const String& str2);
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-/** Compares two strings but ignores any case differences.
-    @param s1 REVIEWERS: Insert description here.
-    @param s2 REVIEWERS: Insert description here.
-*/
-PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
-#endif
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */

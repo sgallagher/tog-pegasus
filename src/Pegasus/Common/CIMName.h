@@ -113,10 +113,6 @@ public:
 	*/
     CIMName& operator=(const String& name);
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    CIMName& operator=(const char* name);
-#endif
-
     /** Extracts the String value of the CIMName
 	    from the CIMName object.
 	    @return String containing the name.
@@ -126,10 +122,6 @@ public:
 	    </pre>
 	*/
     const String& getString() const;
-
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    operator String() const;
-#endif
 
     /**	Tests the CIMName for NULL attribute.
 	    @return true if Null or false if not Null.
@@ -261,10 +253,6 @@ public:
 	*/
     CIMNamespaceName& operator=(const String& name);
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    CIMNamespaceName& operator=(const char* name);
-#endif
-
     /** Extracts the String value of the CIMNamespaceName
 	    from the object.
 	    @return String containing the name.
@@ -274,10 +262,6 @@ public:
 	    </pre>
 	*/
     const String& getString() const;
-
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    operator String() const;
-#endif
 
     /**	Tests the CIMNamespaceName for NULL attribute. Returns
 	    true if Null.  New objects without parameter and objects

@@ -140,11 +140,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-typedef CIMKeyBinding KeyBinding;
-typedef Array<CIMKeyBinding> KeyBindingArray;
-#endif
-
 class XmlWriter;
 
 /** The CIMObjectPath class represents the value of a reference. A reference
@@ -544,12 +539,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMObjectPath& x,
     const CIMObjectPath& y);
-
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os,
-    const CIMObjectPath& x);
-#endif
 
 #define PEGASUS_ARRAY_T CIMObjectPath
 # include <Pegasus/Common/ArrayInter.h>

@@ -1088,34 +1088,6 @@ SSLContext::SSLContext(
 #endif
 }
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-SSLContext::SSLContext(
-    const String& certPath,
-    SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile,
-    Boolean isCIMClient)
-{
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    _rep = new SSLContextRep(certPath, String::EMPTY, String::EMPTY,  verifyCert, false, String::EMPTY, randomFile);
-#else
-    _rep = new SSLContextRep(certPath, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
-#endif
-}
-
-SSLContext::SSLContext(
-    const String& certPath,
-    const String& certKeyPath,
-    SSLCertificateVerifyFunction* verifyCert,
-    const String& randomFile)
-{
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    _rep = new SSLContextRep(certPath, certKeyPath, String::EMPTY, verifyCert, false, String::EMPTY, randomFile);
-#else
-    _rep = new SSLContextRep(certPath, certKeyPath, String::EMPTY, verifyCert, randomFile);
-#endif
-}
-#endif
-
 SSLContext::SSLContext(
     const String& trustStore,
     const String& certPath,

@@ -188,63 +188,6 @@ public:
         const String& password
     );
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    /** connect - Creates an HTTP connection with the server
-        defined by the URL in address.
-        @param address - Specifies the server as a String that the client connects to.  
-        @param userName - String that defines the name of the user that 
-        the client is connecting as.
-        @param password - String containing the password of the user the client is connecting as.
-        @exception AlreadyConnectedException
-            If a connection between the client and the CIM server is already established.
-        @exception InvalidLocatorException
-            If the specified address is improperly formed.
-        @exception CannotCreateSocketException
-            If a socket cannot be created.
-        @exception CannotConnectException
-            If the socket connection fails.
-        @exception CIMClientConnectionException
-            If any other failure occurs.
-        <PRE>
-            CIMClient client;
-            client.connect("localhost:5988");
-        </PRE>
-    */
-    void connect(
-        const String& address,
-        const String& userName = String::EMPTY,
-        const String& password = String::EMPTY
-    );
-
-    /** connect - Creates an HTTP connection with the server defined by the URL in address.
-        @param address - Specifies the server as a String that the client connects to.  
-        @param sslContext - The SSL context to use for this connection.
-        @param userName - String that defines the name of the user that 
-        the client is connecting as.
-        @param password - String containing the password of the user
-        the client is connecting as.
-        @exception AlreadyConnectedException
-            If a connection between the client and CIM server is already established.
-        @exception InvalidLocatorException
-            If the specified address is improperly formed.
-        @exception CannotCreateSocketException
-            If a socket cannot be created.
-        @exception CannotConnectException
-            If the socket connection fails.
-        @exception CIMClientConnectionException
-            If any other failure occurs.
-        <PRE>
-            TBD
-        </PRE>
-    */
-    void connect(
-        const String& address,
-        const SSLContext& sslContext,
-        const String& userName = String::EMPTY,
-        const String& password = String::EMPTY
-    );
-#endif
-
     /** Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
         running on the local system in the default location.  The

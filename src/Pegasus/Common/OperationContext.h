@@ -45,36 +45,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-static const Uint32 CONTEXT_EMPTY =                     0;
-static const Uint32 CONTEXT_IDENTITY =                  1;
-static const Uint32 CONTEXT_AUTHENICATION =             2;
-static const Uint32 CONTEXT_AUTHORIZATION =             3;
-static const Uint32 CONTEXT_OTHER_SECURITY =            4;
-static const Uint32 CONTEXT_LOCALE =                    5;
-static const Uint32 CONTEXT_OPTIONS =                   6;
-static const Uint32 CONTEXT_VENDOR =                    7;
-static const Uint32 CONTEXT_UID_PRESENT =               8;
-static const Uint32 CONTEXT_UINT32_PRESENT =            9;
-static const Uint32 CONTEXT_OTHER =                     10;
-static const Uint32 CONTEXT_COPY_MEMORY =               11;
-static const Uint32 CONTEXT_DELETE_MEMORY =             12;
-static const Uint32 CONTEXT_POINTER =                   13;
-static const Uint32 CONTEXT_PROVIDERID =                14;
-
-static const Uint32 OPERATION_NONE =                    0x00000000;
-static const Uint32 OPERATION_LOCAL_ONLY =              0x00000001;
-static const Uint32 OPERATION_INCLUDE_QUALIFIERS =      0x00000002;
-static const Uint32 OPERATION_INCLUDE_CLASS_ORIGIN =    0x00000004;
-static const Uint32 OPERATION_DEEP_INHERITANCE =        0x00000008;
-static const Uint32 OPERATION_PARTIAL_INSTANCE =        0x00000010;
-static const Uint32 OPERATION_REMOTE_ONLY =             0x00000020;
-static const Uint32 OPERATION_DELIVER =                 0x00000040;
-static const Uint32 OPERATION_RESERVE =                 0x00000080;
-static const Uint32 OPERATION_PROCESSING =              0x00000100;
-static const Uint32 OPERATION_COMPLETE =                0x00000200;
-#endif  // PEGASUS_USE_DEPRECATED_INTERFACES
-
 class OperationContextRep;
 
 /**
@@ -112,9 +82,6 @@ public:
     class PEGASUS_COMMON_LINKAGE Container
     {
     public:
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-        Container(const Uint32 key = CONTEXT_EMPTY);
-#endif
 
         /** Destructs Container.
         */
@@ -124,10 +91,6 @@ public:
         need to be described, if any?
         */
         virtual String getName(void) const = 0;
-
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-        const Uint32 & getKey(void) const;
-#endif
 
         /** Makes a copy of the Container object. Caller is responsible 
             for deleting dynamically allocated memory by calling 
@@ -140,11 +103,6 @@ public:
             the clone() method.
         */
         virtual void destroy(void) = 0;
-
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    protected:
-        Uint32 _key;
-#endif
     };
 
 public:
@@ -176,10 +134,6 @@ public:
     
     const Container & get(const String& containerName) const;
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    const Container & get(const Uint32 key) const;
-#endif
-
     /** REVIEWERS:Insert description here. What parameters need descriptions?
     @param container Specifies the name of the container.
     */
@@ -196,10 +150,6 @@ public:
     */
     void remove(const String& containerName);
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    void remove(const Uint32 key);
-#endif
-
 protected:
     OperationContextRep* _rep;
 
@@ -210,11 +160,7 @@ class IdentityContainerRep;
 
 /// Insert description here. 
 class PEGASUS_COMMON_LINKAGE IdentityContainer
-    :
-#ifndef PEGASUS_USE_DEPRECATED_INTERFACES // include if NOT using deprecated API
-      virtual
-#endif
-              public OperationContext::Container
+    : virtual public OperationContext::Container
 {
 public:
     /** REVIEWERS: Insert description here. What parameters need descriptions?

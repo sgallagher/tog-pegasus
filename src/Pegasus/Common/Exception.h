@@ -156,10 +156,6 @@ public:
 
 };
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-typedef TypeMismatchException InvalidTypeException;
-#endif
-
 ///
 class PEGASUS_COMMON_LINKAGE DynamicCastFailedException : public Exception
 {

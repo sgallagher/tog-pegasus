@@ -244,12 +244,6 @@ public:
 
 };
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-typedef CIMProvider CIMBaseProvider;
-#endif
-
-
-
 PEGASUS_NAMESPACE_END
 
 #endif

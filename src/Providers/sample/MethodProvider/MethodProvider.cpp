@@ -69,7 +69,26 @@ void MethodProvider::invokeMethod(
 	{
 		if(String::equalNoCase(methodName, "SayHello"))
 		{
-			handler.deliver(CIMValue("Hello"));
+		  String outString = "Hello";
+		  if( inParameters.size() > 0 )
+		    {
+		      String replyName = String::EMPTY;
+
+		      CIMValue paramVal = inParameters[0].getValue();
+		      paramVal.get( replyName );
+		      if( replyName != String::EMPTY )
+			{
+			  outString +=  ", " + replyName + "!";
+			}
+		      outParameters.append( CIMParamValue( "Place", CIMValue( 
+						     "From Neverland" ) ) );
+		      handler.deliver( CIMValue( outString ) );
+		     
+		    }
+		  else
+		    {
+			handler.deliver(CIMValue( outString ));
+		    }
 		}
 	}
 	

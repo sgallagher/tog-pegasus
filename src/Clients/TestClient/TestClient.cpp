@@ -569,7 +569,9 @@ static void TestInvokeMethod( CIMClient& client,
   const String NAMESPACE  = "root/SampleProvider";
   const String classname  = "Sample_MethodProviderClass";
   const String methodName = "SayHello";
-  const String GOODREPLY  = "Hello";
+  const String OUTSTRING = "Yoda";
+  const String GOODREPLY = "Hello, " + OUTSTRING + "!";
+  const String GOODPARAM = "From Neverland";
   const CIMReference instanceName = 
                             "Sample_MethodProviderClass.Identifier=1";
 
@@ -579,6 +581,7 @@ static void TestInvokeMethod( CIMClient& client,
       Array<CIMParamValue> outParams;
 	
       Uint32 testRepeat = 10;
+      inParams.append( CIMParamValue(  "Name", CIMValue( OUTSTRING ) ) );
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
         {
 	  CIMValue retValue = client.invokeMethod(
@@ -590,8 +593,29 @@ static void TestInvokeMethod( CIMClient& client,
 	  if( retValue.toString() != GOODREPLY )
 	    {
 	      PEGASUS_STD(cerr) << "Error: bad reply \"" <<
-		retValue.toString() << PEGASUS_STD(endl);
+		retValue.toString() << "\"" << PEGASUS_STD(endl);
 	      return;
+	    }
+	  else
+	    {
+	      if( outParams.size() > 0 )
+		{
+		  String outReply = String::EMPTY;
+		  CIMValue paramVal = outParams[0].getValue();
+		  paramVal.get( outReply );
+		  if( outReply != GOODPARAM )
+		    {
+		      PEGASUS_STD(cerr) << "Error: bad output parameter: \"" <<
+			outReply << "\"" << PEGASUS_STD(endl);
+		      return;
+		    }
+		}
+	      else
+		{
+		  PEGASUS_STD(cerr) << "Error: output parameter missing. Reply: \"" <<
+		    retValue.toString() << "\"" << PEGASUS_STD(endl);
+		  return;
+		}
 	    }
 	  if (verboseTest)
             {

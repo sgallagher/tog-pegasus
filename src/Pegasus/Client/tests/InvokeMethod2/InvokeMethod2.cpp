@@ -35,7 +35,10 @@ PEGASUS_USING_STD;
 const String NAMESPACE = "root/SampleProvider";
 const String classname = "Sample_MethodProviderClass";
 const String methodName = "SayHello";
-const String GOODREPLY = "Hello";
+const String OUTSTRING = "Yoda";
+const String GOODREPLY = "Hello, " + OUTSTRING + "!";
+const String GOODPARAM = "From Neverland";
+
 
 int main(int argc, char** argv)
 {
@@ -49,6 +52,7 @@ int main(int argc, char** argv)
 
 	CIMClient client;
 	client.connectLocal();
+	inParams.append( CIMParamValue(  "Name", CIMValue( OUTSTRING ) ) );
 	CIMValue retValue = client.invokeMethod(
 	    NAMESPACE, 
 	    instanceName, 
@@ -59,15 +63,35 @@ int main(int argc, char** argv)
 	if( retValue.toString() != GOODREPLY )
 	  {
 	    PEGASUS_STD(cerr) << "Error: bad reply \"" <<
-	      retValue.toString() << PEGASUS_STD(endl);
+	      retValue.toString() << "\""  << PEGASUS_STD(endl);
 	    exit( 1 );
 	  }
 	else
 	  {
-	    PEGASUS_STD(cout) << "+++++ InvokeMethod2 passed all tests" << 
-	      PEGASUS_STD(endl);
-    
-	    return 0;
+	    if( outParams.size() > 0 )
+	      {
+		String outReply = String::EMPTY;
+		CIMValue paramVal = outParams[0].getValue();
+		paramVal.get( outReply );
+		if( outReply == GOODPARAM )
+		  {
+		    PEGASUS_STD(cout) << "+++++ InvokeMethod2 passed all tests" << 
+		      PEGASUS_STD(endl);
+		    return 0;
+		  }
+		else
+		  {
+		    PEGASUS_STD(cerr) << "Error: bad output parameter: \"" <<
+		      outReply << "\"" << PEGASUS_STD(endl);
+		    exit( 1 );
+		  }
+	      }
+	    else
+	      {
+		PEGASUS_STD(cerr) << "Error: output parameter missing. Reply: \"" <<
+		  retValue.toString() << "\"" << PEGASUS_STD(endl);
+		exit( 1 );
+	      }
 	  }
    }
     catch(CIMClientException& e)

@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	    return 0;
 	  }
    }
-    catch(Exception& e)
+    catch(CIMClientException& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);

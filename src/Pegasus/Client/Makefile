@@ -18,7 +18,8 @@ SOURCES = \
     CIMClient.cpp \
     CIMOperationRequestEncoder.cpp \
     CIMOperationResponseDecoder.cpp \
-    ClientAuthenticator.cpp
+    ClientAuthenticator.cpp \
+    CIMClientException.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

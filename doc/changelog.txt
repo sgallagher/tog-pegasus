@@ -111,6 +111,27 @@ TAG: Version_1_09.
 18. (Yi Zhou - HP) 15 Apr 2002 - Implemented sending message of provider
    registration notification to subscription service.
 
+19. (Roger Kumpf - HP) 16 Apr 2002 - Defined an exception hierarchy for
+    CIMClient API users.  All exceptions thrown by CIMClient are now
+    subclasses of CIMClientException.  The CIMClient methods are defined
+    as throwing CIMClientException, which will allow the actual exceptions
+    thrown to change without changing the method signatures.  It also makes
+    it more clear to the client application which exceptions need to be
+    handled.
+
+    A new message type, ClientExceptionMessage has been defined as well.
+    This message is used to communicate client exceptions from the CIM
+    operation response decoder to the CIMClient.  Previously, several
+    classes of exceptions were being dropped in the decoder.  New
+    CIMClientException subclasses have been defined to model these
+    exceptions.  These changes allow decoding exceptions to be passed
+    back to the client application.  Examples are unparsable HTTP
+    responses, malformed XML, and mismatched CIM responses (message ID,
+    message type).
+
+    The CIM clients that are linked into the Pegasus build have been
+    updated to catch CIMClientException instead of CIMException.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

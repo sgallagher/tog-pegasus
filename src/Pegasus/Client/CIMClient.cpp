@@ -83,7 +83,8 @@ void CIMClient::handleEnqueue()
 
 void CIMClient::_connect(
     const String& address,
-    SSLContext* sslContext)
+    SSLContext* sslContext
+) throw(CIMClientException)
 {
     //
     // Create response decoder:
@@ -100,10 +101,25 @@ void CIMClient::_connect(
                                                   sslContext,
                                                   _responseDecoder);
     }
-    catch (Exception& e)
+    catch (CannotCreateSocket& e)
     {
-	delete _responseDecoder;
-	throw e;
+        delete _responseDecoder;
+        throw CIMClientCannotCreateSocketException(e.getMessage());
+    }
+    catch (CannotConnect& e)
+    {
+        delete _responseDecoder;
+        throw CIMClientCannotConnectException(e.getMessage());
+    }
+    catch (InvalidLocator& e)
+    {
+        delete _responseDecoder;
+        throw CIMClientInvalidLocatorException(e.getMessage());
+    }
+    catch (UnexpectedFailure& e)
+    {
+        delete _responseDecoder;
+        throw CIMClientConnectionException(e.getMessage());
     }
     
     //
@@ -121,19 +137,21 @@ void CIMClient::connect(
     const String& address,
     SSLContext* sslContext,
     const String& userName,
-    const String& password)
+    const String& password
+) throw(CIMClientException)
 {
     //
     // If already connected, bail out!
     //
     if (_connected)
-	throw AlreadyConnected();
+	throw CIMClientAlreadyConnectedException();
 
     //
     // If the address is empty, reject it
     //
     if (address == String::EMPTY)
-	throw InvalidLocator(address);
+	throw CIMClientInvalidLocatorException(
+            InvalidLocator(address).getMessage());
 
     //
     // Set authentication information
@@ -154,13 +172,13 @@ void CIMClient::connect(
 }
 
 
-void CIMClient::connectLocal(SSLContext* sslContext)
+void CIMClient::connectLocal(SSLContext* sslContext) throw(CIMClientException)
 {
     //
     // If already connected, bail out!
     //
     if (_connected)
-	throw AlreadyConnected();
+	throw CIMClientAlreadyConnectedException();
 
     String address;
 
@@ -203,16 +221,9 @@ void CIMClient::disconnect()
         }
 
         //
-        // Attempt to close the connection
+        // Close the connection
         //
-        try
-        {
-            _httpConnector->disconnect(_httpConnection);
-        }
-        catch (Exception& e)
-        {
-            throw e;
-        }
+        _httpConnector->disconnect(_httpConnection);
 
         //
         // destroy request encoder
@@ -236,7 +247,8 @@ CIMClass CIMClient::getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMGetClassRequestMessage(
 	String::EMPTY,
@@ -264,7 +276,8 @@ CIMInstance CIMClient::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMGetInstanceRequestMessage(
 	String::EMPTY,
@@ -288,7 +301,8 @@ CIMInstance CIMClient::getInstance(
 
 void CIMClient::deleteClass(
     const String& nameSpace,
-    const String& className)
+    const String& className
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMDeleteClassRequestMessage(
 	String::EMPTY,
@@ -306,7 +320,8 @@ void CIMClient::deleteClass(
 
 void CIMClient::deleteInstance(
     const String& nameSpace,
-    const CIMReference& instanceName)
+    const CIMReference& instanceName
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMDeleteInstanceRequestMessage(
 	String::EMPTY,
@@ -324,7 +339,8 @@ void CIMClient::deleteInstance(
 
 void CIMClient::createClass(
     const String& nameSpace,
-    const CIMClass& newClass)
+    const CIMClass& newClass
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMCreateClassRequestMessage(
 	String::EMPTY,
@@ -342,7 +358,8 @@ void CIMClient::createClass(
 
 CIMReference CIMClient::createInstance(
     const String& nameSpace,
-    const CIMInstance& newInstance)
+    const CIMInstance& newInstance
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMCreateInstanceRequestMessage(
 	String::EMPTY,
@@ -362,7 +379,8 @@ CIMReference CIMClient::createInstance(
 
 void CIMClient::modifyClass(
     const String& nameSpace,
-    const CIMClass& modifiedClass)
+    const CIMClass& modifiedClass
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMModifyClassRequestMessage(
 	String::EMPTY,
@@ -382,7 +400,8 @@ void CIMClient::modifyInstance(
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMModifyInstanceRequestMessage(
 	String::EMPTY,
@@ -406,7 +425,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    Boolean includeClassOrigin
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMEnumerateClassesRequestMessage(
 	String::EMPTY,
@@ -431,7 +451,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
 Array<String> CIMClient::enumerateClassNames(
     const String& nameSpace,
     const String& className,
-    Boolean deepInheritance)
+    Boolean deepInheritance
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMEnumerateClassNamesRequestMessage(
 	String::EMPTY,
@@ -457,7 +478,8 @@ Array<CIMNamedInstance> CIMClient::enumerateInstances(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMEnumerateInstancesRequestMessage(
 	String::EMPTY,
@@ -482,7 +504,8 @@ Array<CIMNamedInstance> CIMClient::enumerateInstances(
 
 Array<CIMReference> CIMClient::enumerateInstanceNames(
     const String& nameSpace,
-    const String& className)
+    const String& className
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMEnumerateInstanceNamesRequestMessage(
 	String::EMPTY,
@@ -503,7 +526,8 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
 Array<CIMObjectWithPath> CIMClient::execQuery(
     const String& nameSpace,
     const String& queryLanguage,
-    const String& query)
+    const String& query
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMExecQueryRequestMessage(
 	String::EMPTY,
@@ -531,7 +555,8 @@ Array<CIMObjectWithPath> CIMClient::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMAssociatorsRequestMessage(
 	String::EMPTY,
@@ -562,7 +587,8 @@ Array<CIMReference> CIMClient::associatorNames(
     const String& assocClass,
     const String& resultClass,
     const String& role,
-    const String& resultRole)
+    const String& resultRole
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMAssociatorNamesRequestMessage(
 	String::EMPTY,
@@ -591,7 +617,8 @@ Array<CIMObjectWithPath> CIMClient::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMReferencesRequestMessage(
 	String::EMPTY,
@@ -618,7 +645,8 @@ Array<CIMReference> CIMClient::referenceNames(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
-    const String& role)
+    const String& role
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMReferenceNamesRequestMessage(
 	String::EMPTY,
@@ -641,7 +669,8 @@ Array<CIMReference> CIMClient::referenceNames(
 CIMValue CIMClient::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
-    const String& propertyName)
+    const String& propertyName
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMGetPropertyRequestMessage(
 	String::EMPTY,
@@ -664,7 +693,8 @@ void CIMClient::setProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName,
-    const CIMValue& newValue)
+    const CIMValue& newValue
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMSetPropertyRequestMessage(
 	String::EMPTY,
@@ -684,7 +714,8 @@ void CIMClient::setProperty(
 
 CIMQualifierDecl CIMClient::getQualifier(
     const String& nameSpace,
-    const String& qualifierName)
+    const String& qualifierName
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMGetQualifierRequestMessage(
 	String::EMPTY,
@@ -704,7 +735,8 @@ CIMQualifierDecl CIMClient::getQualifier(
 
 void CIMClient::setQualifier(
     const String& nameSpace,
-    const CIMQualifierDecl& qualifierDeclaration)
+    const CIMQualifierDecl& qualifierDeclaration
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMSetQualifierRequestMessage(
 	String::EMPTY,
@@ -722,7 +754,8 @@ void CIMClient::setQualifier(
 
 void CIMClient::deleteQualifier(
     const String& nameSpace,
-    const String& qualifierName)
+    const String& qualifierName
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMDeleteQualifierRequestMessage(
 	String::EMPTY,
@@ -739,7 +772,8 @@ void CIMClient::deleteQualifier(
 }
 
 Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
-    const String& nameSpace)
+    const String& nameSpace
+) throw(CIMClientException)
 {
     CIMRequestMessage* request = new CIMEnumerateQualifiersRequestMessage(
 	String::EMPTY,
@@ -761,7 +795,8 @@ CIMValue CIMClient::invokeMethod(
     const CIMReference& instanceName,
     const String& methodName,
     const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters)
+    Array<CIMParamValue>& outParameters
+) throw(CIMClientException)
 {
     // ATTN-RK-P2-20020301: Does it make sense to have a nameSpace parameter
     // when the namespace should already be included in the instanceName?
@@ -790,12 +825,13 @@ CIMValue CIMClient::invokeMethod(
 
 Message* CIMClient::_doRequest(
     CIMRequestMessage * request,
-    const Uint32 expectedResponseMessageType)
+    const Uint32 expectedResponseMessageType
+) throw(CIMClientException)
 {
     if (!_connected)
     {
         delete request;
-	throw NotConnected();
+	throw CIMClientNotConnectedException();
     }
     
     String messageId = XmlWriter::getNextMessageId();
@@ -803,6 +839,7 @@ Message* CIMClient::_doRequest(
 
     _authenticator.clearRequest();
 
+    // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
 
     _requestEncoder->enqueue(request);
@@ -830,25 +867,30 @@ Message* CIMClient::_doRequest(
             // Shouldn't be any more messages in our queue
             PEGASUS_ASSERT(getCount() == 0);
 
-            if (response->getType() == HTTP_ERROR_MESSAGE)
+            if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {
-                HTTPErrorMessage * httpErrorMessage = (HTTPErrorMessage*)response;
-                HTTPError httpError(httpErrorMessage->httpStatusCode,
-                                    httpErrorMessage->cimError,
-                                    httpErrorMessage->pegasusError);
+                CIMClientException clientException(
+                    ((ClientExceptionMessage*)response)->clientException);
                 delete response;
-                throw httpError;
+                throw clientException;
             }
             else if (response->getType() == expectedResponseMessageType)
             {
                 CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
                 if (cimResponse->messageId != messageId)
                 {
-                    // ATTN-RK-P2-20020412: Error response!
+                    CIMClientResponseException responseException(
+                        String("Mismatched response message ID:  Got \"") +
+                        cimResponse->messageId + "\", expected \"" +
+                        messageId + "\".");
+                    delete response;
+	            throw responseException;
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
-                    CIMException cimException = cimResponse->cimException;
+                    CIMClientCIMException cimException(
+                        cimResponse->cimException.getCode(),
+                        cimResponse->cimException.getMessage());
                     delete response;
 	            throw cimException;
                 }
@@ -856,7 +898,10 @@ Message* CIMClient::_doRequest(
             }
             else
             {
-                // ATTN-RK-P2-20020412: Error response!
+                CIMClientResponseException responseException(
+                    "Mismatched response message type.");
+                delete response;
+	        throw responseException;
             }
 	}
 
@@ -867,7 +912,7 @@ Message* CIMClient::_doRequest(
     // Throw timed out exception:
     //
 
-    throw TimedOut();
+    throw CIMClientTimeoutException();
 }
 
 String CIMClient::_getLocalHostName()

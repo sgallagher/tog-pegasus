@@ -343,9 +343,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
-    HTTPConnection* connection = httpConnection;	
-
-    Sint32 socket = connection->getSocket();
+    Sint32 socket = httpConnection->getSocket();
 
     // Unsolicit SocketMessages:
 
@@ -353,7 +351,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 
     // Destroy the connection (causing it to close):
 
-    delete connection;
+    delete httpConnection;
 }
 
 PEGASUS_NAMESPACE_END

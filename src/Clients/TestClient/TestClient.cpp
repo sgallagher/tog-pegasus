@@ -113,7 +113,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     
 		 // ATTN Convert this to a test.
 		 //tmpInstanceNames.append(instanceNames[i].toString());
-    catch(Exception& e)
+    catch(CIMClientException& e)
     {
 		 cout << "Error NameSpace Enumeration:" << endl;
 		 cout << e.getMessage() << endl;
@@ -141,7 +141,7 @@ static void TestEnumerateClassNames (CIMClient& client, Boolean activeTest,
     
 		 cout << classNames.size() << " ClassNames" << endl;
     }
-    catch(Exception& e)
+    catch(CIMClientException& e)
     {
 		 cout << "Error NameSpace Enumeration:" << endl;
 		 cout << e.getMessage() << endl;
@@ -370,7 +370,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     {
 		 client.deleteClass(globalNamespace, className);
     }
-    catch (Exception&)
+    catch (CIMClientException&)
     {
 		 // Ignore delete class!
     }
@@ -519,7 +519,7 @@ static void TestMethodOperations( CIMClient& client, Boolean
         cout << "Executed " << testRepeat << " methods" << endl;
     }
 
-    catch(Exception& e)
+    catch(CIMClientException& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);
@@ -576,7 +576,7 @@ static void TestInvokeMethod( CIMClient& client,
         }
       cout << "Executed " << testRepeat << " methods" << endl;
     }
-  catch(Exception& e)
+  catch(CIMClientException& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	return;
@@ -632,7 +632,7 @@ static void TestEnumerateInstances( CIMClient& client,
 	}
       cout << "Enumerate instances " << testRepeat << " times" << endl;
     }
-  catch(Exception& e)
+  catch(CIMClientException& e)
     {
       PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
       return;
@@ -745,7 +745,7 @@ int main(int argc, char** argv)
     {
 		 GetOptions(om, argc, argv, pegasusHome);
     }
-    catch (Exception& e)
+    catch (CIMClientException& e)
     {
 		 cerr << argv[0] << ": " << e.getMessage() << endl;
 		 exit(1);
@@ -974,7 +974,7 @@ int main(int argc, char** argv)
 
 			  client.disconnect();
 		  }
-		  catch(Exception& e)
+		  catch(CIMClientException& e)
 		  {
 			   PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
 			     PEGASUS_STD(endl);

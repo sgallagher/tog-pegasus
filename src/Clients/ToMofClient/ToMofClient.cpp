@@ -1,6 +1,4 @@
-
 //%////////////////////////////////////////////////////////////////////////////
-//
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -280,7 +278,7 @@ int main(int argc, char** argv)
             cout << endl;
         }
         	}
-	 catch(Exception& e)
+	 catch(CIMClientException& e)
 	{
 	    ErrorExit(e.getMessage());
 	}
@@ -310,7 +308,7 @@ int main(int argc, char** argv)
 	    //cimClass.printMof(); 
 	    cout << endl;
 	}
-	 catch(Exception& e)
+	 catch(CIMClientException& e)
 	{
 	    ErrorExit(e.getMessage());
 	}
@@ -346,7 +344,7 @@ int main(int argc, char** argv)
 
 	    }
 	}
-	catch(Exception& e)
+	catch(CIMClientException& e)
 	{
 	     cout << "Error Class Enumeration:" << endl;
 	     cout << e.getMessage() << endl;

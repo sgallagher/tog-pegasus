@@ -86,7 +86,7 @@ void CIMOperationResponseDecoder::handleEnqueue()
 	}
 
 	default:
-	    // ATTN: send this to the orphan queue!
+            PEGASUS_ASSERT(0);
 	    break;
     }
 
@@ -136,9 +136,11 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
     catch(InvalidAuthHeader& e)
     {
-        // ATTN-NB-P2-20020304: This error is discarded like the other errors
-        // in this method. Implement an error handling code for all these errors.
+        CIMClientMalformedHTTPException malformedHTTPException(e.getMessage());
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
 
+        _outputQueue->enqueue(response);
         return;
     }
 
@@ -149,7 +151,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Uint32 statusCode;
     String reasonPhrase;
     HTTPMessage::parseStatusLine(startLine, httpVersion, statusCode, reasonPhrase);
-    if (statusCode != 200) // ATTN: Use constants
+    if (statusCode != HTTP_STATUSCODE_OK)
     {
         String cimError;
         String pegasusError;
@@ -157,8 +159,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         HTTPMessage::lookupHeader(headers, "CIMError", cimError);
         HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
 
-        HTTPErrorMessage * response =
-            new HTTPErrorMessage(statusCode, cimError, pegasusError);
+        CIMClientHTTPError httpError(statusCode, cimError, pegasusError);
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(httpError);
 
         _outputQueue->enqueue(response);
         return;
@@ -173,8 +176,13 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     if (!HTTPMessage::lookupHeader(
 	headers, "*CIMOperation", cimOperation, true))
     {
-	// ATTN: error discarded at this time!
-	return;
+        CIMClientMalformedHTTPException malformedHTTPException(
+            "Missing CIMOperation HTTP header");
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
     }
 
     //
@@ -196,8 +204,14 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     if (!String::equalNoCase(cimOperation, "MethodResponse"))
     {
-	// ATTN: error discarded at this time!
-	return;
+        CIMClientMalformedHTTPException malformedHTTPException(
+            String("Received CIMOperation HTTP header value \"") +
+                cimOperation + "\", expected \"MethodResponse\"");
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
     }
 
     _handleMethodResponse(content);
@@ -232,6 +246,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
         const char* cimVersion = 0;
         const char* dtdVersion = 0;
 
+        // ATTN-RK-P3-20020416: Need to validate these versions?
 	XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
 	//
@@ -247,9 +262,14 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 
         if (!String::equalNoCase(protocolVersion, "1.0"))
 	{
-	    // ATTN: protocol version being ignored at present!
+            CIMClientResponseException responseException(
+                String("Received unsupported protocol version \"") +
+                    protocolVersion + "\", expected \"1.0\"");
+            ClientExceptionMessage * response =
+                new ClientExceptionMessage(responseException);
 
-	    return;
+            _outputQueue->enqueue(response);
+            return;
 	}
 
 	//
@@ -355,12 +375,28 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	XmlReader::expectEndTag(parser, "MESSAGE");
 	XmlReader::expectEndTag(parser, "CIM");
     }
+    catch (XmlException& x)
+    {
+        if (response)
+        {
+            delete response;
+        }
+
+        response = new ClientExceptionMessage(
+            CIMClientXmlException(x.getMessage()));
+    }
     catch (Exception& x)
     {
-	// ATTN: ignore the exception for now!
+        // Shouldn't ever get exceptions other than XmlExceptions.
+        PEGASUS_ASSERT(0);
 
-	cout << x.getMessage() << endl;
-	return;
+        if (response)
+        {
+            delete response;
+        }
+
+        response = new ClientExceptionMessage(
+            CIMClientException(x.getMessage()));
     }
 
     _outputQueue->enqueue(response);

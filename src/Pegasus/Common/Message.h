@@ -61,6 +61,7 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 type_control;
       static Uint32 type_service;
       static Uint32 type_broadcast;
+      static Uint32 type_client_exception;
 
       static Uint32 ha_no_delete;
       static Uint32 ha_request;
@@ -319,6 +320,10 @@ enum MessageType
 
     HTTP_MESSAGE,
     HTTP_ERROR_MESSAGE,
+
+    // Exception messages to be passed to a CIM client application:
+
+    CLIENT_EXCEPTION_MESSAGE,
 
     NUMBER_OF_MESSAGES
 };

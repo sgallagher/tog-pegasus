@@ -187,8 +187,6 @@ const char CannotConnect::MSG[] = "Cannot connect to: ";
 
 const char UnexpectedFailure::MSG[] = "Unexpected failure";
 
-const char FailedToConnect::MSG[] = "failed to connect";
-
 const char AlreadyConnected::MSG[] = "already connected";
 
 const char NotConnected::MSG[] = "not connected";

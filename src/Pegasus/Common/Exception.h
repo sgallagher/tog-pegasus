@@ -708,15 +708,6 @@ public:
     UnexpectedFailure() : Exception(MSG) { }
 };
 
-class PEGASUS_COMMON_LINKAGE FailedToConnect : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    FailedToConnect() : Exception(MSG) { }
-};
-
 class PEGASUS_COMMON_LINKAGE AlreadyConnected: public Exception
 {
 public:

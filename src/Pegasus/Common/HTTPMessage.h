@@ -43,6 +43,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define HTTP_STATUSCODE_OK 200
+#define HTTP_REASONPHRASE_OK "OK"
+
 typedef Pair<String, String> HTTPHeader;
 
 /** This message is sent from a connection to its output queue when
@@ -88,8 +91,8 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 String& reasonPhrase);
 };
 
-/** This message is sent from the response decoder back to the client to turn
-    it into an Exception.
+/**
+    This message contains information about an HTTP error response.
 */
 class PEGASUS_COMMON_LINKAGE HTTPErrorMessage : public Message
 {

@@ -38,11 +38,30 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
+#include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class XmlParser;
+
+/**
+    This message is sent from the response decoder to the CIMClient, indicating
+    an error in issuing a CIM request.
+*/
+class ClientExceptionMessage : public Message
+{
+public:
+    ClientExceptionMessage(const CIMClientException& clientException_)
+        :
+        Message(CLIENT_EXCEPTION_MESSAGE),
+        clientException(clientException_)
+    {
+    }
+
+    CIMClientException clientException;
+};
+
 
 /** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.

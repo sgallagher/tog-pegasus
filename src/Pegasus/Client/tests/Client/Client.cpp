@@ -168,14 +168,10 @@ static void TestInstanceOperations(CIMClient& client)
         {
            client.deleteInstance(NAMESPACE, instanceNames[i]);
         }
-// ATTN DE P1 30 March 2002 There may be a case-sensitivity problem with 
-//      the Repository's use of class names to create file names.
-//      Changing "myclass" to "MyClass" works-around the problem of 
-//      running Client application multiple times.
 
-	client.deleteClass(NAMESPACE, "MyClass");
+	client.deleteClass(NAMESPACE, "myclass");
     }
-    catch (Exception&)
+    catch (CIMClientException&)
     {
 	// Ignore delete class!
     }
@@ -399,7 +395,7 @@ int main(int argc, char** argv)
 	TestAssociatorClassNames(client);
 	TestReferenceClassNames(client);
     }
-    catch(Exception& e)
+    catch(CIMClientException& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);

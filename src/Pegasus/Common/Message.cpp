@@ -49,6 +49,7 @@ Uint32 message_mask::type_cimom =             0x00000100;
 Uint32 message_mask::type_control =           0x00000200;
 Uint32 message_mask::type_service =           0x00000400;
 Uint32 message_mask::type_broadcast =         0x00000800;
+Uint32 message_mask::type_client_exception =  0x00001000;
 
 Uint32 message_mask::ha_no_delete =           0x00100000;
 Uint32 message_mask::ha_request =             0x00200000;
@@ -145,7 +146,8 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "SOCKET_MESSAGE",
     "CLOSE_CONNECTION_MESSAGE",
     "HTTP_MESSAGE",
-    "HTTP_ERROR_MESSAGE"
+    "HTTP_ERROR_MESSAGE",
+    "CLIENT_EXCEPTION_MESSAGE"
 };
 
 const char* MessageTypeToString(Uint32 messageType)

@@ -9,4 +9,5 @@ SOURCES = Inst.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(COPY) X.in X.idx
 	Inst

@@ -71,7 +71,9 @@
 // Exclude rarely-used stuff from Windows headers
 // Note: this is also an easy way to avoid the often introduced 
 // winsock.h/winsock2.h mixing compiler error problems.
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 
 // Suppress this warning: "identifier was truncated to '255' characters in the
 // debug information":

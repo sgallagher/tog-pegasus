@@ -2,10 +2,11 @@
 <head>
 <script>
 	window.focus();
-	function setHost(f){
+	function setHost(){
+                document.hostparameters.hostaddress.value = document.hostparameters.hostip.value + ":" + document.hostparameters.portnum.value;
 		top.hostip = document.hostparameters.hostip.value;
 		top.portnum = document.hostparameters.portnum.value;
-		top.hostAddress = document.hostparameters.hostip.value + ":" + document.hostparameters.portnum.value
+		top.hostAddress = document.hostparameters.hostip.value + ":" + document.hostparameters.portnum.value;
 		top.debug = document.hostparameters.debug.value;
 		top.ClassName = "";
 	}
@@ -41,7 +42,7 @@
     for CGI CLient
 
  	<p><INPUT TYPE="submit" VALUE="Submit Request" onClick="setHost();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <INPUT TYPE="reset" VALUE="Reset">
+    <INPUT TYPE="reset" VALUE="Reset Form">
     </form>
  	<p>Today, CIM and WBEM do not have any discovery tools.&nbsp; You must
     specifically setup the URL and Port number of the WBEM Services Broker you

@@ -12,8 +12,9 @@ PROGRAM = TestL10N
 SOURCES = l10n.cpp
 
 include $(ROOT)/mak/program.mak
-include $(ROOT)/mak/recurse.mak
 
 tests:
 	$(PROGRAM)
+
+poststarttests:
 

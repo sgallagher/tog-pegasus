@@ -84,6 +84,11 @@ poststarttests_ignoreerror:
 	@$(ECHO) "Unset the planned values:" >> $(RESULTFILE)
 	@cimconfig -u traceComponents -p >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "Testing all LONG options." >> $(RESULTFILE)
+	@cimconfig --help >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@cimconfig --version >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
 
 clean:
 

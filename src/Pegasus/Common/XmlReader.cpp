@@ -1021,10 +1021,8 @@ CIMValue XmlReader::stringToValue(
 
 	    if (!stringToUnsignedInteger(valueString, x))
 	    {
-            char message[128];
-            sprintf(message, "Illegal unsigned integer value - %s", valueString);
-    		throw XmlSemanticError(
-    		    lineNumber, message);
+		throw XmlSemanticError(
+		    lineNumber, "Invalid unsigned integer value");
 	    }
 
 	    switch (type)

@@ -45,7 +45,7 @@ class StringRep;
 
 /** The CString class provides access to an 8-bit String representation.
 */
-class CString
+class PEGASUS_COMMON_LINKAGE CString
 {
 public:
 

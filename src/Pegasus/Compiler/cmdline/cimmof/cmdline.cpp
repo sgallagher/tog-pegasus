@@ -279,9 +279,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	    // ATTN: P3 BB Mar 2001  No way to close the trace stream
 	    // or to delete the ostream object.  It's OK for now because
 	    // the program terminates when we're done with the stream.
-	    char* tmp = s.allocateCString();
-	    ofstream *tracefile = new ofstream(tmp);
-	    delete [] tmp;
+	    ofstream *tracefile = new ofstream(s.getCString());
 	    if (tracefile && *tracefile)
 	      cmdlinedata.set_traceos(*tracefile);
 	  }

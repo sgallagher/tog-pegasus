@@ -1,0 +1,64 @@
+/*
+	$Log: Examples.dxx,v $
+	Revision 1.1  2001/01/24 14:18:48  karl
+	import Dev Doc Files
+	
+	$Author: karl $
+*/
+/** @name Examples of C++ Client calls
+
+<PRE><CODE>
+Example of Class Declaration
+
+#include <Pegasus/ClassDecl.h>
+#include <Pegasus/Name.h>
+
+using namespace Pegasus;
+
+void test01()
+{
+    ClassDecl class1("MyClass", "YourClass");
+
+    class1
+	.addQualifier(Qualifier("association", true))
+	.addQualifier(Qualifier("q1", Uint32(55)))
+	.addQualifier(Qualifier("q2", "Hello"))
+	.addProperty(Property("message", "Hello"))
+	.addProperty(Property("count", Uint32(77)))
+	.addProperty(
+	    Property("ref1", Reference("MyClass.key1=\"fred\""), "MyClass"))
+	.addMethod(Method("isActive", Type::BOOLEAN)
+	    .addParameter(Parameter("hostname", Type::STRING))
+	    .addParameter(Parameter("port", Type::UINT32)));
+
+    // class1.print();
+
+    OutBuffer out;
+    out << class1;
+
+    InBuffer in(out.getData());
+    ClassDecl tmp;
+    in >> tmp;
+
+    assert(class1.identical(tmp));
+}
+
+int main()
+{
+    try
+    {
+	test01();
+    }
+    catch (Exception& e)
+    {
+	cout << "Exception: " << e.getMessage() << endl;
+    }
+
+    cout << "+++++ passed all tests" << endl;
+
+    return 0;
+}
+
+</CODE/>
+</PRE>
+*/

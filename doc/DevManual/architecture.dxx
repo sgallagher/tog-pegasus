@@ -1,0 +1,38 @@
+/*
+$Log: architecture.dxx,v $
+Revision 1.1  2001/01/24 14:18:49  karl
+import Dev Doc Files
+
+*/
+/** @name Architecture
+
+
+TBD
+
+This section defines the overall architecture of the prototype
+
+
+*/
+
+//@{
+/** @name Manageability Services Broker (MSB).
+ATTN: define this component in more detail
+
+*/
+
+/** @name PEgasus Providers.
+ATTN: Define in more detail
+
+*/
+
+/** @name Extension Services
+ATTN: Document this as an architectural component
+*/
+
+
+/** @name Pegasus Clients.
+ATTN: define in more detail
+
+*/
+
+//@}

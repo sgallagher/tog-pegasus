@@ -1,0 +1,86 @@
+/* PegasusDoc.dxx - Top Level file for Developer Documentation.
+This file defines the document strucuture and provides the introduction
+	$Log: PegasusDoc.dxx,v $
+	Revision 1.1  2001/01/24 14:18:48  karl
+	import Dev Doc Files
+	
+	
+	$Author: karl $
+*/
+/** @name Pegasus
+
+<STRONG>Welcome to PEGASUS</STRONG>
+
+This is a working document that is the  temporary user and developers manual for the Pegasus CIM Server implementation which is being created by the OpenGroup Enterprise Management Program Group.
+
+This manual serves as both a manual for operation of the prototype version of Pegasus
+and a manual for developing components to attach to Pegasus.
+
+It includes information on the installation and operation of the broker and additional
+components.
+
+In addition, it includes the current definition of the programming interfaces that
+Pegasus allows.  As these interfaces are stabilized they will be moved from this
+document to an Open Group specificaton.
+
+Finally, this manual includes a number of defintions of additional code that is
+available to interface with Pegasus as providers, consumers, and services.
+
+This is not an internals manual for Pegasus.  The Internals for Pegasus developers is 
+defined in a separate manual that is also available from The Open Group 
+(\URL{http://www.opengroup.org}.
+
+This version of the Pegasus User Manual was created at \today
+
+@memo An open-source implementation of the DMTF CIM Server by The Open Group
+
+*/
+/* Change list to mvoe this into repository
+    Datetime - Done
+*/
+//@{
+    //@Include: overview.dxx
+    //@Include: credits.dxx
+    //@Include: Architecture.dxx
+    //@Include: Components.dxx
+    //@Include: Utilization.dxx 
+    //@Include: Interfaces.dxx
+       //@{
+	    //@Include: ClientInterfaces.dxx   
+		//@{    
+		    //@Include: ..\..\src\Pegasus\Common\operations.h
+		  
+		    //@Include: data.dxx
+			//@{ 
+			    //@Include: ..\..\src\Pegasus\Common\Array.h
+			    //@Include: ..\..\src\Pegasus\Common\ClassDecl.h
+			    //@Include: ..\..\src\Pegasus\Common\DateTime.h
+			    //@Include: ..\..\src\Pegasus\Common\QualifierDecl.h
+			    //@Include: ..\..\src\Pegasus\Common\String.h
+			    //@Include: ..\..\src\Pegasus\Common\Type.h
+			    //@Include: ..\..\src\Pegasus\Common\InstanceDecl.h
+			    //@Include: ..\..\src\Pegasus\Common\Value.h
+			    //@Include: ..\..\src\Pegasus\Common\Property.h
+			    //@Include: ..\..\src\Pegasus\Common\Scope.h
+			    //@Include: ..\..\src\Pegasus\Common\Reference.h
+			    //@Include: ..\..\src\Pegasus\Common\QualifierNames.h
+			    //@Include: ..\..\src\Pegasus\Common\Qualifier.h
+			    //@Include: ..\..\src\Pegasus\Common\Name.h
+			    //@Include: ..\..\src\Pegasus\Common\Method.h
+			    //@Include: ..\..\src\Pegasus\Common\Flavor.h
+			    //@Include: ..\..\src\Pegasus\Common\Char16.h
+			//@}
+		//@}
+    	   //@Include: ProviderInterfaces.dxx
+    	 
+    	   //@Include: ServiceInterfaces.dxx
+       //@}
+
+    //@Include: FAQ.dxx
+    //@Include: references.dxx
+    //@Include: definitions.dxx
+    //@Include: Examples.dxx
+//@}
+
+
+

@@ -1,0 +1,82 @@
+/*
+	$Log: Utilization.dxx,v $
+	Revision 1.1  2001/01/24 14:18:49  karl
+	import Dev Doc Files
+	
+	$Author: karl $
+*/
+/** @name Utilization
+
+This section of the Pegasus working manual defines usage of the Pegasus CIM Server and 
+Provider implementations and thier associated tools.
+
+*/
+
+//@{
+	/** @name Pegasus Availability
+	Pegasus is available today in source code from the Open Group.
+
+	Go to \URL{http://www.opengroup.org/management} to acquire a copy of the current
+	code
+
+	This code is freely available and is available  under the license defined below
+	
+	<CODE>
+	
+	
+	 Copyright (c) 2000 The Open Group, ...
+	
+	 Permission is hereby granted, free of charge, to any person obtaining a
+	 copy of this software and associated documentation files (the "Software"),
+	 to deal in the Software without restriction, including without limitation
+	 the rights to use, copy, modify, merge, publish, distribute, sublicense,
+	 and/or sell copies of the Software, and to permit persons to whom the
+	 Software is furnished to do so, subject to the following conditions:
+	
+	 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+	 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+	 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+	 DEALINGS IN THE SOFTWARE.
+	
+	
+	</CODE>
+	
+	The intention of this licensing is to make Pegasus as widely available as possible
+	without restrictions or limitations.
+	*/
+	
+	/** @name Pegasus Installation
+	
+	The Installation for Pegasus is currently defined in the readme file in the Pegasus
+	root directory
+	
+	*/
+	
+	/** @name Operation of Pegasus
+
+	Starting the broker
+
+	ATTN: Under Construction
+	*/
+
+	/** @name Pegasus CIM Clients
+
+	Connecting a client
+
+	ATTN: Under Construction
+	*/
+
+	/** @name Pegasus Providers
+	ATTN: Under Construction
+
+	*/
+	
+	/** @name Connecting a Service extension
+	ATTN: Under construction
+	*/
+
+//@}
+

@@ -1,0 +1,26 @@
+/*
+	$Log: definitions.dxx,v $
+	Revision 1.1  2001/01/24 14:18:49  karl
+	import Dev Doc Files
+	
+	$Author: karl $
+*/
+/** @name Definition of Terms
+This sections provides standard definitions of terms and concepts used in the specification
+of the Pegasus Managability Services Broker and its implementation.
+
+<B>Namespace</B>\Label{NAMESPACE} - TBD definition of Namespace
+
+<B>CIMOM</B> \Label{CIMOM} = TBD Definition of Namespace
+*/
+//@{
+
+/** @name NAMESPACE. 
+Defintion of thamespace.
+*/
+
+
+//@}
+
+
+

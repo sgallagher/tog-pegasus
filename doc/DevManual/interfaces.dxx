@@ -1,0 +1,21 @@
+/*
+	$Log: interfaces.dxx,v $
+	Revision 1.1  2001/01/24 14:18:49  karl
+	import Dev Doc Files
+	
+	$Author: karl $
+*/
+/** @name Pegasus MSB Interfaces
+The Pegasus MSB interfaces with 3 different entities:
+
+<UL> <LI> Providers
+     <LI> Services
+     <LI  Clients which may be either connectors or application consumers
+</UL>
+
+Further, it includes both the APIs and the definitions of CIM data that are
+required by the broker.
+
+Pegasus has effectivly implemented the same operations and data defintions across all of these interfaces with minor differences because of the special characteristics of each interface.
+*/
+

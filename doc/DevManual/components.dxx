@@ -1,0 +1,85 @@
+/*
+	$Log: components.dxx,v $
+	Revision 1.1  2001/01/24 14:18:49  karl
+	import Dev Doc Files
+	
+	$Author: karl $
+*/
+/** @name Pegasus Components
+The major components of Pegasus are:
+
+Pegasus Server - WBEM/CIM CIM_Server with interfaces for providers and Clients
+
+Pegasus Repository - Today Pegasus provides a defined class repository interface and a simple
+file based class repository. Future will include the object repository
+
+Pegasus Client SDK - Tools for building Pegasus clients based on the Pegasus C++ interfaces
+and using the WBEM HTTP/XML protocols or directly interfacing with Pegasus
+
+Pegasus Test Clients - Simple test clients being developed as part of the Pegasus development
+process
+
+Pegasus HTML Test Client - To aid some testing we created a test client for Pegasus that uses
+a WEB server (ex. Apache) with a set of CGI modules and HTML to allow the entry of Pegasus
+operations from a WEB browser as forms and the recept of the response as WEB pages. This has
+proven useful as a test tool and can be used for a wide variety of demonstrations.
+
+Pegasus Providers - Future (Version 1.0)
+
+Pegasus Service Extensions -  Future (version 1.0)
+
+Pegasus MOF Compiler - Future (Version 0.9)
+
+
+ATTN: Define the files that make up these components and their structure.
+
+
+<EM>The Pegasus Directory Structure</EM>
+
+
+Pegasus is distributed as a complete directory structure that should be installed either
+from one of the snapshots or from CVS.
+
+This structure is generally as follows:
+
+<PRE>
+Pegasus                         - Root directory
+    bin
+    build                   Destination for all intermediate files from build
+        bin                 Destination for executable and DLL modules from Pegasus build
+        lib
+        obj
+    cgi-bin                 Source and make for the Pegasus WEB Based Test client software
+    doc                     Miscelaneous Pegasus Documents. Includes the DMTF XML for CIM 2.4
+    html                    HTML files for the Browser test client.
+    mak                     General make files (used by the root make and other makes)
+    Repository		    This Directory containes the created repository
+    src                     All Pegasus Source Files
+        ACEExamples         Test directrory with examples of the use of ACE (developers)
+        Pegasus
+            CGI             CGI files for the WEB test client
+                CGIClient
+            Client          Pegasus Client SDK and Test client using the SDK
+                depends
+                tests
+            Common          Pegasus Common Functions (C++ source and headers
+                tests       Test programs for the common functions
+            Protocol        Pegasus Client HTTP/XML Protocol Modules
+                depends
+            Repository      Pegasus Repository Interfaces and Simple Repository
+                tests       Tests for Repository Functions
+            Server          Pegasus Server Modules
+                depends
+                tests
+
+        Utils
+    manual                  Pegasus User/developer manual source modules
+        HTML                Output from the Pegasus Manual compilartion.
+</PRE>
+
+In the near future we will add directories for:
+
+    Service Extensions
+    Providers
+
+*/

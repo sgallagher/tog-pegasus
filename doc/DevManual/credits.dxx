@@ -1,0 +1,22 @@
+/*
+	$Log: credits.dxx,v $
+	Revision 1.1  2001/01/24 14:18:49  karl
+	import Dev Doc Files
+	
+	$Author: karl $
+*/
+/** @name Credits
+
+Credit for work on the Pegasus implementation goes to the following companies and personnel
+
+
+Michael Brasher - BMC
+Bob Blair - BMC
+Mike Reynolds - BMC
+Heather Kreger - IBM
+Martin Kirk - Management Forum Program Manager, The Open Group
+Karl Schopmeyer - Formerly Tivoli Systems and now The Open Group
+
+ATTN: Expand this to include emails and references to work.
+
+*/

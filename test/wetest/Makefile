@@ -17,12 +17,12 @@ LOADDIRS = \
 include $(ROOT)/mak/recurse.mak
 
 repository: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(LOADDIRS), $(MAKESH) $(MAKE) -SC $(i) repository $(NL) )
+	@ $(foreach i, $(LOADDIRS), $(MAKESH) $(MAKE) "-SC" $(i) repository $(NL) )
 
 repositoryServer: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(LOADDIRS), $(MAKESH) $(MAKE) -SC $(i) repositoryServer $(NL) )
+	@ $(foreach i, $(LOADDIRS), $(MAKESH) $(MAKE) "-SC" $(i) repositoryServer $(NL) )
 
 removerepository: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(LOADDIRS), $(MAKESH) $(MAKE) -SC $(i) removerepository $(NL) )
+	@ $(foreach i, $(LOADDIRS), $(MAKESH) $(MAKE) "-SC" $(i) removerepository $(NL) )
 
 #DO NOT DELETE THIS LINE

@@ -944,8 +944,7 @@ class unix_socket_rep : public bsd_socket_rep
       // used to allow the accept method to work
       unix_socket_rep(int sock);
 
-      virtual int socket(void);
-      
+      virtual int socket(int, int, int, void* );
       virtual int close(void);
       virtual int enableBlocking(void);
       virtual int disableBlocking(void);
@@ -992,16 +991,16 @@ unix_socket_rep::~unix_socket_rep(void)
    close();
 }
 
-int unix_socket_rep::socket(void)
+int unix_socket_rep::socket(int a, int b, int c, void* d)
 {
-   _socket = ::socket(AF_LOCAL, SOCK_STREAM, 0);
+   _socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
    return _socket;
 }
 
 
 int unix_socket_rep::close(void)
 {
-   int ccode =::close(_socket);
+   int ccode = Socket::close2(_socket);
    return ccode;
 }
 

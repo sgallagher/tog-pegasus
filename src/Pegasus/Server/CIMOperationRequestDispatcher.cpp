@@ -2277,17 +2277,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    {
        subClassNames = _getSubClassNames(request->nameSpace,className);
    }
-   catch(CIMException& exception)
+   catch(CIMException& cimException)
    {
        // Return exception response if exception from getSubClasses
-       cimException = exception;
-       Array<CIMObjectPath> instanceNames;
-       CIMEnumerateInstanceNamesResponseMessage* response =
-       new CIMEnumerateInstanceNamesResponseMessage(
-	     request->messageId,
-	     cimException,
-	     request->queueIds.copyAndPop(),
-	     instanceNames);
+       CIMEnumerateInstancesResponseMessage* response =
+          new CIMEnumerateInstancesResponseMessage(
+             request->messageId,
+             cimException,
+             request->queueIds.copyAndPop(),
+             Array<CIMNamedInstance>());
        _enqueueResponse(request, response);
        PEG_METHOD_EXIT();
        return;

@@ -2,8 +2,6 @@ ROOT = $(PEGASUS_ROOT)
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-LOCAL_DEFINES = -DUSE_CONNECTLOCAL
-
 DIR = Providers/ManagedSystem/NTPService/testclient
 
 include $(ROOT)/mak/config.mak

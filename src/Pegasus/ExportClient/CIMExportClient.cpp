@@ -1,7 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,88 +20,41 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/XmlParser.h>
+#include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/TCPChannel.h>
-#include <Pegasus/Common/Selector.h>
 #include <Pegasus/Common/TimeValue.h>
-#include <Pegasus/Protocol/Handler.h>
+#include <Pegasus/Common/Exception.h>
+#include "CIMExportRequestEncoder.h"
+#include "CIMExportResponseDecoder.h"
 #include "CIMExportClient.h"
+
+#include <iostream>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct GetClassResult
-{
-    CIMStatusCode code;
-    CIMClass cimClass;
-};
-
-struct CreateInstanceResult
-{
-    CIMStatusCode code;
-};
-
-class ExportClientHandler : public Handler
-{
-public:
-
-    ExportClientHandler(Selector* selector)
-	: _getClassResult(0), _blocked(false), _selector(selector)
-    {
-
-    }
-    
-    union
-    {
-	GetClassResult* _getClassResult;
-	CreateInstanceResult* _createInstanceResult;
-    };
-
-    Boolean waitForResponse(Uint32 timeOutMilliseconds);
-    
-private:
-    Boolean _blocked;
-    Selector* _selector;
-};
-
-
-class ExportClientHandlerFactory : public ChannelHandlerFactory
-{
-public:
-
-    ExportClientHandlerFactory(Selector* selector) : _selector(selector) { }
-
-    virtual ~ExportClientHandlerFactory() { }
-
-    virtual ChannelHandler* create() 
-    { 
-	return new ExportClientHandler(_selector); 
-    }
-
-private:
-
-    Selector* _selector;
-};
-
-
 CIMExportClient::CIMExportClient(
-    Selector* selector,
+    Monitor* monitor,
+    HTTPConnector* httpConnector,
     Uint32 timeOutMilliseconds)
-    : _channel(0), _timeOutMilliseconds(timeOutMilliseconds)
+    : 
+    _connected(false),
+    _monitor(monitor), 
+    _httpConnector(httpConnector),
+    _timeOutMilliseconds(timeOutMilliseconds),
+    _requestEncoder(0),
+    _responseDecoder(0)
 {
-    _selector = selector;
+    
 }
 
 CIMExportClient::~CIMExportClient()
@@ -110,70 +62,125 @@ CIMExportClient::~CIMExportClient()
     
 }
 
-void CIMExportClient::deliverIndication(
-    const char* address, 
-    CIMInstance& indicationInstance, 
-    String nameSpace)
+void CIMExportClient::handleEnqueue()
 {
-    if (_channel)
+
+}
+
+const char* CIMExportClient::getQueueName() const
+{
+    return "CIMExportClient";
+}
+
+void CIMExportClient::connect(const String& address)
+{
+    // If already connected, bail out!
+    
+    if (_connected)
 	throw AlreadyConnected();
+    
+    // Create response decoder:
+    
+    _responseDecoder = new CIMExportResponseDecoder(this);
+    
+    // Attempt to establish a connection:
+    
+    HTTPConnection* httpConnection;
+    
+    try
+    {
+	httpConnection = _httpConnector->connect(address, _responseDecoder);
+    }
+    catch (Exception& e)
+    {
+	delete _responseDecoder;
+	throw e;
+    }
+    
+    // Create request encoder:
+    
+    _requestEncoder = new CIMExportRequestEncoder(httpConnection);
+    
+    _connected = true;
+}
 
-    ChannelHandlerFactory* factory = new ExportClientHandlerFactory(_selector);
-
-    TCPChannelConnector* connector
-	= new TCPChannelConnector(factory, _selector);
-
-    // ATTN-A: need connection timeout here:
-
-    _channel = connector->connect(address);
-
-    if (!_channel)
-	throw FailedToConnect();
-
+CIMClass CIMExportClient::getClass(
+    const String& nameSpace,
+    const String& className,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
+{
     String messageId = XmlWriter::getNextMessageId();
+    
+    // encode request
+    Message* request = new CIMGetClassRequestMessage(
+	messageId,
+	nameSpace,
+	className,
+	localOnly,
+	includeQualifiers,
+	includeClassOrigin,
+	propertyList,
+	QueueIdStack());
+    
+    _requestEncoder->enqueue(request);
+    
+    Message* message = _waitForResponse(
+        CIM_GET_CLASS_RESPONSE_MESSAGE, messageId);
 
-    Array<Sint8> params;
-
-    XmlWriter::appendInstanceParameter(
-	params, "NewIndication", indicationInstance);
-	
-    Array<Sint8> message = XmlWriter::formatSimpleIndicationReqMessage(
-	_getHostName(), nameSpace, "ExportIndication", messageId, params);
-
-    _channel->writeN(message.getData(), message.size());
-
-    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
-	throw TimedOut();
-
-    CreateInstanceResult* result = _getHandler()->_createInstanceResult;
-    CIMStatusCode code = result->code;
-    delete result;
-    _getHandler()->_createInstanceResult = 0;
-
-    if (code != CIM_ERR_SUCCESS)
-	throw CIMException(code);
+    CIMGetClassResponseMessage* response = 
+        (CIMGetClassResponseMessage*)message;
+    
+    Destroyer<CIMGetClassResponseMessage> destroyer(response);
+    
+    _checkError(response);
+    
+    return(response->cimClass);
 }
 
-ExportClientHandler* CIMExportClient::_getHandler()
+Message* CIMExportClient::_waitForResponse(
+    const Uint32 messageType,
+    const String& messageId,
+    const Uint32 timeOutMilliseconds)
 {
-    return (ExportClientHandler*)_channel->getChannelHandler();
-}
-
-Boolean ExportClientHandler::waitForResponse(Uint32 timeOutMilliseconds)
-{
-    _blocked = true;
+    if (!_connected)
+	throw NotConnected();
+    
     long rem = long(timeOutMilliseconds);
 
-    while (_blocked)
+    for (;;)
     {
+	//
+	// Wait until the timeout expires or an event occurs:
+	//
+
 	TimeValue start = TimeValue::getCurrentTime();
-
-	TimeValue tv;
-	tv.fromMilliseconds(rem);
-
-	_selector->select(tv.toMilliseconds());
-
+	_monitor->run(rem);
 	TimeValue stop = TimeValue::getCurrentTime();
+
+	//
+	// Check to see if incoming queue has a message of the appropriate
+	// type with the given message id:
+	//
+
+	Message* message = findByType(messageType);
+
+	if (message)
+	{
+	    CIMResponseMessage* responseMessage = (CIMResponseMessage*)message;
+
+	    if (responseMessage->messageId == messageId)
+	    {
+		remove(responseMessage);
+		return responseMessage;
+	    }
+	}
+
+	// 
+	// Terminate loop if timed out:
+	//
 
 	long diff = stop.toMilliseconds() - start.toMilliseconds();
 
@@ -183,9 +190,20 @@ Boolean ExportClientHandler::waitForResponse(Uint32 timeOutMilliseconds)
 	rem -= diff;
     }
 
-    Boolean gotResponse = !_blocked;
-    _blocked = false;
-    return gotResponse;
+    //
+    // Throw timed out exception:
+    //
+
+    throw TimedOut();
+}
+
+void CIMExportClient::_checkError(const CIMResponseMessage* responseMessage)
+{
+    if (responseMessage && (responseMessage->errorCode != CIM_ERR_SUCCESS))
+    {
+	throw CIMException(responseMessage->errorCode, 
+	    __FILE__, __LINE__, responseMessage->errorDescription);
+    }
 }
 
 PEGASUS_NAMESPACE_END

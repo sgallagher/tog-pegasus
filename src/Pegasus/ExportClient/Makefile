@@ -1,28 +1,24 @@
 ROOT = ../../..
-DIR = Pegasus/Client
+DIR = Pegasus/ExportClient
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_EXPORTCLIENT_INTERNAL
+LOCAL_DEFINES = -DPEGASUS_EXPORT_CLIENT_INTERNAL
 
 LIBRARY = pegexportclient
 
 LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegrepository$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) 
+    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
-DYNAMIC_LIBRARIES = \
-    -lpegcommon \
-    -lpegrepository \
-    -lpegprotocol
+DYNAMIC_LIBRARIES = -lpegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-    ExportClientException.cpp \
-    CIMExportClient.cpp 
+    CIMExportClient.cpp \
+    CIMExportRequestEncoder.cpp \
+    CIMExportResponseDecoder.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -1,7 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,66 +20,96 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ExportClient_h
-#define Pegasus_ExportClient_h
+#ifndef Pegasus_Client_h
+#define Pegasus_Client_h
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/ExportClient/ExportClientException.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/ExportClient/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ExportClientHandler;
-class Selector;
-class Channel;
+class Monitor;
+class CIMExportResponseDecoder;
+class CIMExportRequestEncoder;
 
-class PEGASUS_EXPORTCLIENT_LINKAGE CIMExportClient
+/** This class provides the interface that a client uses to communicate
+    with a CIMOM.
+*/
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 {
 public:
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
+    ///
     CIMExportClient(
-	Selector* selector,
+	Monitor* monitor,
+	HTTPConnector* httpConnector,
 	Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
+    ///
     ~CIMExportClient();
 
+    ///
+    virtual void handleEnqueue();
+
+    /** Returns the queue name. */
+    virtual const char* getQueueName() const;
+
+    ///
     Uint32 getTimeOut() const
     {
 	return _timeOutMilliseconds;
     }
 
+    ///
     void setTimeOut(Uint32 timeOutMilliseconds)
     {
 	_timeOutMilliseconds = timeOutMilliseconds;
     }
 
-    void deliverIndication(
-	const char* address, 
-	CIMInstance& indicationInstance, 
-	String nameSpace);
+    ///
+    void connect(const String& address);
+
+    ///
+    virtual CIMClass getClass(
+	const String& nameSpace,
+	const String& className,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = true,
+	Boolean includeClassOrigin = false,
+	const Array<String>& propertyList = EmptyStringArray());
 
 private:
 
-    ExportClientHandler* _getHandler();
+    Message* _waitForResponse(
+	const Uint32 messageType,
+	const String& messageId,
+	const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
-    void _sendMessage(const Array<Sint8>& message);
+    void _checkError(const CIMResponseMessage* responseMessage);
 
-    const char* _getHostName() const { return "localhost"; }
-
-    Selector* _selector;
-    Channel* _channel;
+    Monitor* _monitor;
+    HTTPConnector* _httpConnector;
     Uint32 _timeOutMilliseconds;
+    Boolean _connected;
+    CIMExportResponseDecoder* _responseDecoder;
+    CIMExportRequestEncoder* _requestEncoder;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ExportClient_h */
+#endif /* Pegasus_Client_h */

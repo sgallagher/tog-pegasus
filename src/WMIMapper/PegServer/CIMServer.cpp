@@ -37,6 +37,7 @@
 //		   Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
 //		   Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //         Dan Gorey, IBM  (djgorey@us.ibm.com)
+//         Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -478,8 +479,6 @@ void CIMServer::runForever()
 					MessageQueueService::_check_idle_flag = 1;
 					MessageQueueService::_polling_sem.signal();
 					//ProviderManagerService::getProviderManager()->unload_idle_providers();
-					_monitor->kill_idle_threads();
-					
 				}
 				catch(...)
 				{

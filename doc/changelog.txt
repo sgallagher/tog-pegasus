@@ -68,6 +68,10 @@ repository implementation.
     interface to CIMServer.This is for the PEGASUS CIM Server to coexist with
     a web server. See doc/Servlet for more information.
 
+20. (Yi Zhou - HP) 20 Sep 2001 - Added tracing in files
+    CIMOperationRequestDecoder.cpp and CIMOperationResponseEncoder.cpp so XML 
+    input and output can be written in a trace file.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

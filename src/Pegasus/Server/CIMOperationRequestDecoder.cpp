@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 #include "CIMOperationRequestDecoder.h"
 
 PEGASUS_USING_STD;
@@ -145,6 +146,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Sint8* content;
     Uint32 contentLength;
 
+    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+				  "handleHTTPMessage()");
+
     httpMessage->parse(startLine, headers, content, contentLength);
 
     // Parse the request line:
@@ -152,6 +156,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String methodName;
     String requestUri;
     String httpVersion;
+
+    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
+		      httpMessage->message.getData());
 
     HTTPMessage::parseRequestLine(
         startLine, methodName, requestUri, httpVersion);
@@ -186,6 +193,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 	handleMethodCall(queueId, content);
     }
+   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+				 "handleHTTPMessage()");
 }
 
 

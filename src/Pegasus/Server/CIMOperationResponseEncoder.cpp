@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +34,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 #include "CIMOperationResponseEncoder.h"
 
 PEGASUS_USING_STD;
@@ -54,13 +55,19 @@ void CIMOperationResponseEncoder::sendResponse(
     Uint32 queueId, 
     Array<Sint8>& message)
 {
+    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::sendResponse()");
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
     if (queue)
     {
 	HTTPMessage* httpMessage = new HTTPMessage(message);
 	queue->enqueue(httpMessage);
+
+	Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
+		      httpMessage->message.getData());
+
     }
+    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::sendResponse()");
 }
 
 void CIMOperationResponseEncoder::sendError(

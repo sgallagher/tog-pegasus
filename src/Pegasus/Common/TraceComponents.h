@@ -23,7 +23,7 @@
 //
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +79,7 @@ static char const* TRACE_COMPONENT_LIST[] =
     "XmlParser",
     "XmlWriter",
     "XmlReader",
+    "XmlIO",
     "Http",
     "CimData",
     "ProvManager",
@@ -109,6 +110,7 @@ enum TRACE_COMPONENT_ID
     TRC_XML_PARSER,
     TRC_XML_WRITER,
     TRC_XML_READER,
+    TRC_XML_IO,
     TRC_HTTP,
     TRC_CIM_DATA,
     TRC_PROV_MANAGER,

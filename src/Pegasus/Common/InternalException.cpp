@@ -60,58 +60,74 @@ AssertionFailureException::AssertionFailureException(
 const char NullPointer::MSG[] = "null pointer";
 const char NullPointer::KEY[] = "Common.InternalException.NULL_POINTER";
 
+//l10n 
 const char UndeclaredQualifier::MSG[] = "undeclared qualifier: $0";
 const char UndeclaredQualifier::KEY[] = "Common.InternalException.UNDECLARED_QUALIFIER";
 
-const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";
+//l10n 
+const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: $0 scope=$1";
 const char BadQualifierScope::KEY[] = "Common.InternalException.BAD_QUALIFIER_SCOPE";
 
-const char BadQualifierOverride::MSG[] = "qualifier not overridable: ";
+//l10n 
+const char BadQualifierOverride::MSG[] = "qualifier not overridable: $0";
 const char BadQualifierOverride::KEY[] = "Common.InternalException.BAD_QUALIFIER_OVERRIDE"; 
 
-const char BadQualifierType::MSG[] = "CIMType of qualifier different than its declaration: ";
+//l10n 
+const char BadQualifierType::MSG[] = "CIMType of qualifier different than its declaration: $0";
 const char BadQualifierType::KEY[] = "Common.InternalException.BAD_QUALIFIER_TYPE";
 
-const char ClassAlreadyResolved::MSG[] = "attempt to resolve a class that is already resolved: ";
+const char ClassAlreadyResolved::MSG[] = "attempt to resolve a class that is already resolved: $0";
 const char ClassAlreadyResolved::KEY[] = "Common.InternalException.CLASS_ALREADY_RESOLVED";
 
-const char ClassNotResolved::MSG[] = "class is not yet resolved: ";
+//l10n 
+const char ClassNotResolved::MSG[] = "class is not yet resolved: $0";
 const char ClassNotResolved::KEY[] = "Common.InternalException.CLASS_NOT_RESOLVED";
 
 const char InstanceAlreadyResolved::MSG[] = "attempted to resolve a instance that is already resolved";
 const char InstanceAlreadyResolved::KEY[] = "Common.InternalException.INSTANCE_ALREADY_RESOLVED"; 
 
-const char InstantiatedAbstractClass::MSG[] = "attempted to instantiate an abstract class ";
+//l10n 
+const char InstantiatedAbstractClass::MSG[] = "attempted to instantiate an abstract class $0";
 const char InstantiatedAbstractClass::KEY[] = "Common.InternalException.INSTANTIATED_ABSTRACT_CLASS"; 
 
-const char NoSuchProperty::MSG[] = "no such property: ";
+//l10n 
+const char NoSuchProperty::MSG[] = "no such property: $0";
 const char NoSuchProperty::KEY[] = "Common.InternalException.NO_SUCH_PROPERTY";
 
-const char NoSuchFile::MSG[] = "no such file: ";
+//l10n 
+const char NoSuchFile::MSG[] = "no such file: $0";
 const char NoSuchFile::KEY[] = "Common.InternalException.NO_SUCH_FILE";
 
-const char FileNotReadable::MSG[] = "file not readable: ";
+//l10n 
+const char FileNotReadable::MSG[] = "file not readable: $0";
 const char FileNotReadable::KEY[] = "Common.InternalException.FILE_NOT_READABLE";
 
-const char CannotRemoveDirectory::MSG[] = "cannot remove directory: ";
+//l10n 
+const char CannotRemoveDirectory::MSG[] = "cannot remove directory: $0";
 const char CannotRemoveDirectory::KEY[] = "Common.InternalException.CANNOT_REMOVE_DIRECTORY";  
 
-const char CannotRemoveFile::MSG[] = "cannot remove file: ";
+//l10n 
+const char CannotRemoveFile::MSG[] = "cannot remove file: $0";
 const char CannotRemoveFile::KEY[] = "Common.InternalException.CANNOT_REMOVE_FILE"; 
 
-const char CannotRenameFile::MSG[] = "cannot rename file: ";
+//l10n 
+const char CannotRenameFile::MSG[] = "cannot rename file: $0";
 const char CannotRenameFile::KEY[] = "Common.InternalException.CANNOT_RENAME_FILE";
 
-const char NoSuchDirectory::MSG[] = "no such directory: ";
+//l10n 
+const char NoSuchDirectory::MSG[] = "no such directory: $0";
 const char NoSuchDirectory::KEY[] = "Common.InternalException.NO_SUCH_DIRECTORY";  
 
-const char CannotCreateDirectory::MSG[] = "cannot create directory: ";
+//l10n 
+const char CannotCreateDirectory::MSG[] = "cannot create directory: $0";
 const char CannotCreateDirectory::KEY[] = "Common.InternalException.CANNOT_CREATE_DIRECTORY";
 
-const char CannotOpenFile::MSG[] = "cannot open file: ";
+//l10n 
+const char CannotOpenFile::MSG[] = "cannot open file: $0";
 const char CannotOpenFile::KEY[] = "Common.InternalException.CANNOT_OPEN_FILE";
 
-const char NotImplemented::MSG[] = "not implemented: ";
+//l10n 
+const char NotImplemented::MSG[] = "not implemented: $0";
 const char NotImplemented::KEY[] = "Common.InternalException.NOT_IMPLEMENTED"; 
 
 const char StackUnderflow::MSG[] = "stack underflow";
@@ -129,31 +145,37 @@ const char BadFormat::KEY[] = "Common.InternalException.BAD_FORMAT";
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
 const char BadlyFormedCGIQueryString::KEY[] = "Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING"; 
 
-const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: ";
+//l10n 
+const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: $0";
 const char DynamicLoadFailed::KEY[] = "Common.InternalException.DYNAMIC_LOAD_FAILED";
 
-const char DynamicLookupFailed::MSG[] = "lookup of symbol in dynamic library failed: ";
+//l10n 
+const char DynamicLookupFailed::MSG[] = "lookup of symbol in dynamic library failed: $0";
 const char DynamicLookupFailed::KEY[] = "Common.InternalException.DYNAMIC_LOOKUP_FAILED";
 
-const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
+//l10n 
+const char CannotOpenDirectory::MSG[] = "cannot open directory: $0";
 const char CannotOpenDirectory::KEY[] = "Common.InternalException.CANNOT_OPEN_DIRECTORY"; 
 
-const char ParseError::MSG[] = "parse error: ";
+//l10n 
+const char ParseError::MSG[] = "parse error: $0";
 const char ParseError::KEY[] = "Common.InternalException.PARSE_ERROR";
 
-const char MissingNullTerminator::MSG[] = "missing null terminator: ";
+//l10n 
+const char MissingNullTerminator::MSG[] = "missing null terminator: $0";
 const char MissingNullTerminator::KEY[] = "Common.InternalException.MISSING_NULL_TERMINATOR";
 
 //l10n
-const char MalformedLanguageHeader::MSG[] = "malformed language header: ";
+const char MalformedLanguageHeader::MSG[] = "malformed language header: $0";
 const char MalformedLanguageHeader::KEY[] = "Common.InternalException.MALFORMED_LANGUAGE_HEADER";
 
-const char InvalidAcceptLanguageHeader::MSG[] = "invalid acceptlanguage header: ";
+//l10n 
+const char InvalidAcceptLanguageHeader::MSG[] = "invalid acceptlanguage header: $0";
 const char InvalidAcceptLanguageHeader::KEY[] = "Common.InternalException.INVALID_ACCEPTLANGUAGE_HEADER";
 
-const char InvalidContentLanguageHeader::MSG[] = "invalid contentlanguage header: ";
+//l10n 
+const char InvalidContentLanguageHeader::MSG[] = "invalid contentlanguage header: $0";
 const char InvalidContentLanguageHeader::KEY[] = "Common.InternalException.INVALID_CONTENTLANGUAGE_HEADER";
-//l10n
 
 const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 const char InvalidAuthHeader::KEY[] = "Common.InternalException.INVALID_AUTH_HEADER"; 

@@ -61,7 +61,11 @@ Boolean InstanceDataFile::_openFile(
        PEG_METHOD_EXIT();
        return true;
     }
+#if defined(__GNUC__) && GCC_VERSION >= 30200
+    fs.open(path.getCString(), PEGASUS_STD(ios_base::openmode)(mode));
+#else
     fs.open(path.getCString(), mode);
+#endif
     PEG_METHOD_EXIT();
     return !!fs;
 }

@@ -129,6 +129,7 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
         //
         _cimserver->stopClientConnection();
 
+System::sleep(3);
         //
         // get shutdown timeout values
         //
@@ -166,6 +167,13 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
             "Error occured during CIMServer shutdown: $0.", 
             e.getMessage());
     }
+
+    catch(...)
+    {
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            "Unexpected error occured during CIMServer shutdown. ");
+    }
+
 
     //
     // All done
@@ -218,14 +226,14 @@ void ShutdownService::_initTimeoutValues(Uint32 timeout)
 void ShutdownService::_shutdownCIMServer()
 {
     //
-    // Shutdown the Cimom services
-    //
-    _shutdownCimomServices();
-
-    //
     // Shutdown the providers
     //
     _shutdownProviders();
+
+    //
+    // Shutdown the Cimom services
+    //
+    _shutdownCimomServices();
 
     //
     // Tell CIMServer to shutdown completely.
@@ -312,7 +320,8 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
                                                         _queueId,
                                                         stopRequest);
 
-    delete stopRequest;
+    // JYU
+    //delete stopRequest;
 
 // ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
 /*

@@ -47,7 +47,7 @@
 //
 // To shutdown pegasus, use the -s option:
 // 
-// cimserver -s [-T timeout_value]
+// cimserver -s [-t timeout_value]
 //
 // To run pegasus as an NT service, there are FOUR  different possibilities:
 //
@@ -131,7 +131,7 @@ static const char OPTION_SHUTDOWN    = 's';
 
 static const char OPTION_FORCE       = 'f';
 
-static const char OPTION_TIMEOUT     = 'T';
+static const char OPTION_TIMEOUT     = 't';
 
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
@@ -139,7 +139,7 @@ static const char OPTION_BINDVERBOSE = 'X';
 
 static const String NAMESPACE = "root/PG_Internal";
 static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
-static const String PROPERTY_TIMEOUT = "operationTimeout";
+static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 static const String CIMSERVERSTART_FILE = "/etc/wbem/cimserver_start.conf";
 
 ConfigManager*    configManager;
@@ -201,18 +201,16 @@ void PrintHelp(const char* arg0)
     usage.append ("    -v          - displays pegasus version number\n");
     usage.append ("    -h          - prints this help message\n");
     usage.append ("    -D [home]   - sets pegasus home directory\n");
-    usage.append ("    -t          - turns tracing on\n");
-    usage.append ("    -t          - turns on trace of client IO to console\n");
-    usage.append ("    -l          - turns on trace of client IO to trace file\n");
     usage.append ("    -d          - runs pegasus as a daemon\n");
-    usage.append ("    -s [-T timeout] \n");
+    usage.append ("    -s [-t timeout] \n");
     usage.append ("                - shuts down pegasus\n");
+#if !defined(PEGASUS_OS_HPUX)
     usage.append ("    -cleanlogs  - clears the log files at startup\n");
     usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
     usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
     usage.append ("    -slp        - registers pegasus as a service with SLP\n\n");
     usage.append ("    -SSL        - uses SSL\n\n");
-
+#endif
     usage.append ("  configProperty=value\n");
     usage.append ("    port=nnnn            - sets port number to listen on\n");
     usage.append ("    logdir=/pegasus/logs - directory for log files\n");
@@ -235,10 +233,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
     //
     String hostStr = System::getHostName();
 
-    // Put server shutdown message to the logger
-    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-        "Shutdown $0.", PEGASUS_NAME);
-
     //
     // open connection to CIMOM 
     //
@@ -247,20 +241,30 @@ void shutdownCIMOM(Uint32 timeoutValue)
         client.connectLocal();
 
         //
-        // set client timeout to 10 seconds more than the shutdown timeout
+        // set client timeout to 2 seconds more than the shutdown timeout
         // so that the command client does not timeout before the cimserver 
         // terminates
         //
-        client.setTimeOut( (timeoutValue + 10)*1000 );
+        Uint32 clientTimeout;
+        if (timeoutValue == 0)
+        {
+            String configTimeout = 
+                configManager->getCurrentValue("shutdownTimeout");
+           ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
+            clientTimeout = 
+                ((strtol(timeoutCString.getPointer(), (char **)0,10))+2)*1000;
+        }
+        else
+        {
+            clientTimeout = (timeoutValue + 2)*1000;
+        }
+
+        client.setTimeOut(clientTimeout);
     }
     catch(CIMClientException& e)
     {
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-            "Failed to connect to $0 $1.", PEGASUS_NAME, e.getMessage());
-
         PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
-        //PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         exit(0);
     }
 
@@ -295,11 +299,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
             "shutdown",
             inParams,
             outParams);
-
-        // Put server shutdown message to the logger
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-            "$0 terminated.", PEGASUS_NAME);
-
     }
     catch(CIMClientCIMException& e)
     {
@@ -310,27 +309,19 @@ void shutdownCIMOM(Uint32 timeoutValue)
     catch(CIMClientException& e)
     {
         //
-        // This may mean the cimserver has been terminated and returns the 
-        // "Empty HTTP response message" HTTP error response.  To be sure,
-        // we need to check if cimserver is indeed terminated.
+        // This may mean the CIM Server has been terminated and returns a 
+        // "Empty HTTP response message" HTTP error response.  To be sure
+        // CIM Server gets shutdown, if CIM Server is still running at 
+        // this time, we will kill the cimserver process.
         //
-#ifdef PEGASUS_OS_TYPE_UNIX
+
+#if defined(PEGASUS_OS_HPUX)
+
+        // give cimom some time to finish up
         System::sleep(1);
-        int ret = system("ps -ef | grep cimserver | grep -v grep | grep -v cimserverd >/dev/null");
-        if (ret == 0) 
-        {
-            // cimserver has been terminated
-            // Put server shutdown message to the logger
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "$0 terminated.", PEGASUS_NAME);
-        }
-        else
-        {
-            // cimserver is still running
-            PEGASUS_STD(cerr) << "Failed to shutdown server: ";
-            PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
-            exit(1);
-        }
+
+        // add code to kill cimom if it is still running
+
 #endif
     }
     catch(Exception& e)
@@ -350,7 +341,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
 int main(int argc, char** argv)
 {
     String pegasusHome  = String::EMPTY;
-    Boolean pegasusIOTrace = false;
     Boolean pegasusIOLog = false;
     String httpPort = String::EMPTY;
     String httpsPort = String::EMPTY;
@@ -637,7 +627,7 @@ int main(int argc, char** argv)
 
             shutdownCIMOM(timeoutValue);
 
-            cout << "Pegasus CIM Server terminated." << endl;
+            cout << "Pegasus CIM Server stopped." << endl;
             exit(0);
         }
 
@@ -648,16 +638,6 @@ int main(int argc, char** argv)
         httpPort = configManager->getCurrentValue("httpPort");
 
         httpsPort = configManager->getCurrentValue("httpsPort");
-
-        //
-        // Check the trace options and set global variable
-        //
-
-        if (String::equal(configManager->getCurrentValue("trace"), "true"))
-        {
-            pegasusIOTrace = true;
-            cout << "Trace Set" << endl;
-        }
 
         // Leave this in until people get familiar with the logs.
         cout << "Logs Directory = " << logsDirectory << endl;
@@ -719,8 +699,7 @@ int main(int argc, char** argv)
     cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	 " on port " << address << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
-    cout <<"Started..."
-	 << (pegasusIOTrace ? " Tracing to Display ": " ") 
+    cout <<"Starting..."
          << (pegasusIOLog ? " Tracing to Log ": " ")
 	 << (useSLP ? " SLP reg. " : " No SLP ")
          << (useSSL ? " Use SSL " : " No SSL ")
@@ -733,13 +712,12 @@ int main(int argc, char** argv)
           exit(-1);
     }
 
-    // Put server start message to the logger
+    // Put server starting message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Start $0 $1 port $2 $3 $4 $5",
+	"Starting $0 version $1 on port $2 $3 $4 $5",
 		PEGASUS_NAME, 
 		PEGASUS_VERSION,
 		address,
-		(pegasusIOTrace ? " Tracing": " "),
 		(useSLP ? " SLP on " : " SLP off "),
                 (useSSL ? " Use SSL " : " No SSL "));
 
@@ -785,15 +763,21 @@ int main(int argc, char** argv)
             // failed to create the file, write an entry to the log file
             // and proceed
             //
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	        "Failed to open the $0 file needed by cimserverd.", 
-                CIMSERVERSTART_FILE);
+            //Logger::put(Logger::STANDARD_LOG, "CIMServer", 
+            //    Logger::INFORMATION,
+            //    "Failed to open the $0 file needed by cimserverd.", 
+            //    CIMSERVERSTART_FILE);
         }
         else
         {
             fs.close();
         }
 #endif
+	cout << "Started. " << endl;
+
+        // Put server started message to the logger
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            "$0 started.", PEGASUS_NAME);
 
         //
         // Loop to call CIMServer's runForever() method until CIMServer
@@ -824,8 +808,9 @@ int main(int argc, char** argv)
         //
         // normal termination
 	//
-	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "Normal Termination");
+        // Put server shutdown message to the logger
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            "$0 stopped.", PEGASUS_NAME);
 
 #if defined(PEGASUS_OS_HPUX)
         //
@@ -838,9 +823,10 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
 	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "Abnormal Termination $0", e.getMessage());
+	    "$0 Abnormal Termination.", e.getMessage());
 	
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        return 1;
     }
 
     return 0;

@@ -199,7 +199,7 @@ extern "C" {
      #if defined(CMPI_VER_85)
      CMPIString* (*getMessage)
                  (CMPIBroker* mb, const char *msgId, const char *defMsg, CMPIStatus* rc, unsigned int count, ...);
-     #endif // CMPI_VER_85	 
+     #endif // CMPI_VER_85	
 
      #if defined(CMPI_VER_90)
      CMPIArray *(*getKeyList)
@@ -1118,7 +1118,7 @@ extern "C" {
      CMPIStatus (*setHostAndNameSpaceFromObjectPath)
               (CMPIObjectPath* op,
                CMPIObjectPath* src);
-	       
+	
 
 
 		// optional qualifier support
@@ -1175,7 +1175,7 @@ extern "C" {
                const char *pName,
                const char *qName,
                CMPIStatus *rc);
-	       
+	
    #if defined(CMPI_VER_86)
       /** Generates a well formed string representation of this ObjectPath
 	 @param op ObjectPath this pointer.
@@ -2371,7 +2371,7 @@ extern "C" {
       */
      CMPIStatus (*invokeMethod)
              (CMPIMethodMI* mi, CMPIContext* ctx, CMPIResult* rslt,
-              CMPIObjectPath* op, char *method, CMPIArgs* in, CMPIArgs* out);
+              CMPIObjectPath* op, const char *method, CMPIArgs* in, CMPIArgs* out);
    };
 
 

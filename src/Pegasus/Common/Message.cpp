@@ -238,8 +238,10 @@ static CIMOperationType Message::convertMessageTypetoCIMOpType(const Uint32 type
     CIMOperationType cT;
 
 
-    in_type = type%40;      /* groups request/response message by type ie. getClassRequestMessage 
-                                (type = 1) gives the same result as getClassResponseMessage (type = 41)
+    /* groups request/response message by type ie. getClassRequestMessage 
+    ** (type = 1) gives the same result as getClassResponseMessage (type = 41)
+    */
+    in_type = type%40;      
 
     if (in_type < 3) {
         enum_type = in_type;

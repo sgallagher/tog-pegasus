@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cctype>
 #include "ClientConnection.h"
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>

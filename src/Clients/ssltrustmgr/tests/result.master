@@ -1,0 +1,67 @@
+Connect with an untrusted certificate -- should get a 401
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Add the self-signed certificate to the truststore
+Certificate added successfully.
+
+Try to connect, this should be succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Attempt to add the same certificate, this should get a duplication error
+Failed to add certificate.
+Specified certificate already exist.
+CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "PG_SSLCertificate.IssuerName="/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=JohnDoeSelfSigned/emailAddress=TestCertificate",SerialNumber="0",TruststoreType=2"
+
+Delete the self-signed certificate from the truststore
+Certificate removed successfully.
+
+Try to connect, this should fail and get 401'ed
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Attempt to delete the certificate we just deleted, this should get a DNE error
+Failed to remove certificate.
+Specified certificate does not exist.
+CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
+
+Add the CA certificate to the truststore
+Certificate added successfully.
+
+Try to connect with the 1st certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 2nd certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Add the CA CRL to the truststore
+CRL added successfully.
+
+Attempt to add the same CA CRL again, this should work since you can overwrite CRLs (a warning is sent to the systemlog)
+CRL added successfully.
+
+Try to connect with the 1st certificate, this should fail with a connection failure
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Remove the CA CRL certificate
+CRL removed successfully.
+
+Remove the CA CRL that we just removed, this should get a DNE error
+Failed to remove CRL.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "File does not exist dec26b41.r0."
+
+Remove the CA certificate from the truststore to clean everything up, this should succeed
+Certificate removed successfully.
+

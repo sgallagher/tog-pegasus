@@ -15,28 +15,35 @@ href="./CompilerExtensionstoSupportProviderRegistration_files/filelist.xml">
   <o:Author>Karl</o:Author>
   <o:Template>Pegasus Project Working Paper.dot</o:Template>
   <o:LastAuthor>Karl</o:LastAuthor>
-  <o:Revision>8</o:Revision>
-  <o:TotalTime>141</o:TotalTime>
+  <o:Revision>12</o:Revision>
+  <o:TotalTime>237</o:TotalTime>
   <o:LastPrinted>2002-02-22T16:51:00Z</o:LastPrinted>
   <o:Created>2002-02-22T16:20:00Z</o:Created>
-  <o:LastSaved>2002-02-22T16:54:00Z</o:LastSaved>
+  <o:LastSaved>2002-02-25T09:49:00Z</o:LastSaved>
   <o:Pages>3</o:Pages>
-  <o:Words>1283</o:Words>
-  <o:Characters>7316</o:Characters>
+  <o:Words>1225</o:Words>
+  <o:Characters>6986</o:Characters>
   <o:Company>Inova</o:Company>
-  <o:Lines>60</o:Lines>
-  <o:Paragraphs>14</o:Paragraphs>
-  <o:CharactersWithSpaces>8984</o:CharactersWithSpaces>
+  <o:Lines>58</o:Lines>
+  <o:Paragraphs>13</o:Paragraphs>
+  <o:CharactersWithSpaces>8579</o:CharactersWithSpaces>
   <o:Version>9.4402</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <w:WordDocument>
   <w:Zoom>75</w:Zoom>
-  <w:AttachedTemplate HRef="Pegasus Project Working Paper.dot"></w:AttachedTemplate>
  </w:WordDocument>
 </xml><![endif]-->
 <style>
 <!--
+ /* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
  /* Style Definitions */
 p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{mso-style-parent:"";
@@ -87,6 +94,8 @@ p.PaperTitle, li.PaperTitle, div.PaperTitle
 	mso-fareast-font-family:"Times New Roman";
 	font-weight:bold;
 	mso-bidi-font-weight:normal;}
+span.msoins0
+	{mso-style-name:msoins;}
 @page Section1
 	{size:8.5in 11.0in;
 	margin:1.0in 1.25in 1.0in 1.25in;
@@ -100,25 +109,125 @@ div.Section1
 	{mso-list-id:8916730;
 	mso-list-type:hybrid;
 	mso-list-template-ids:1862858776 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
 @list l1
-	{mso-list-id:813445812;
+	{mso-list-id:640815420;
 	mso-list-type:hybrid;
-	mso-list-template-ids:1400267148 67698703 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
-@list l2
-	{mso-list-id:836923935;
-	mso-list-type:hybrid;
-	mso-list-template-ids:-1555669326 67698689 1935563580 1644480232 1693206816 -962706662 -934745516 528001178 -1798818850 764575260;}
-@list l2:level1
+	mso-list-template-ids:1400267148 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
 	mso-level-tab-stop:.5in;
 	mso-level-number-position:left;
 	text-indent:-.25in;
 	font-family:Symbol;}
-@list l3
-	{mso-list-id:1391613595;
+@list l1:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:813445812;
 	mso-list-type:hybrid;
-	mso-list-template-ids:-2027158932 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+	mso-list-template-ids:1400267148 67698703 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l2:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:836923935;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1555669326 67698689 1935563580 1644480232 1693206816 -962706662 -934745516 528001178 -1798818850 764575260;}
 @list l3:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
@@ -126,10 +235,42 @@ div.Section1
 	mso-level-number-position:left;
 	text-indent:-.25in;
 	font-family:Symbol;}
+@list l3:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
 @list l4
-	{mso-list-id:1412967939;
+	{mso-list-id:1391613595;
 	mso-list-type:hybrid;
-	mso-list-template-ids:-1458692366 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+	mso-list-template-ids:-2027158932 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
 @list l4:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
@@ -137,10 +278,42 @@ div.Section1
 	mso-level-number-position:left;
 	text-indent:-.25in;
 	font-family:Symbol;}
+@list l4:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
 @list l5
-	{mso-list-id:1654481399;
+	{mso-list-id:1412967939;
 	mso-list-type:hybrid;
-	mso-list-template-ids:-2096598596 67698689 1440661024 -2121751836 1891401522 746083054 -538574160 -1957930924 -343529822 -1785850398;}
+	mso-list-template-ids:-1458692366 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
 @list l5:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
@@ -148,10 +321,42 @@ div.Section1
 	mso-level-number-position:left;
 	text-indent:-.25in;
 	font-family:Symbol;}
+@list l5:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
 @list l6
-	{mso-list-id:1689333165;
+	{mso-list-id:1654481399;
 	mso-list-type:hybrid;
-	mso-list-template-ids:-263048826 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+	mso-list-template-ids:-2096598596 67698689 1440661024 -2121751836 1891401522 746083054 -538574160 -1957930924 -343529822 -1785850398;}
 @list l6:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
@@ -159,11 +364,137 @@ div.Section1
 	mso-level-number-position:left;
 	text-indent:-.25in;
 	font-family:Symbol;}
+@list l6:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
 @list l7
+	{mso-list-id:1673799025;
+	mso-list-type:hybrid;
+	mso-list-template-ids:856563404 -307996552 1963615168 1196833982 -1636148288 1854842104 1863724268 -941354360 1898628098 906033136;}
+@list l7:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8
+	{mso-list-id:1689333165;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-263048826 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l8:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l8:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9
 	{mso-list-id:1721858141;
 	mso-list-type:hybrid;
 	mso-list-template-ids:-2000788846 67698689 1643545156 -559619832 -2132085430 -550596614 379464750 879668152 1047431978 1261200574;}
-@list l7:level1
+@list l9:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l9:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10
+	{mso-list-id:1723407135;
+	mso-list-type:hybrid;
+	mso-list-template-ids:976127812 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l10:level1
 	{mso-level-number-format:bullet;
 	mso-level-text:\F0B7;
 	mso-level-tab-stop:.5in;
@@ -277,7 +608,7 @@ AM</span><o:p></o:p></span></p>
 
 <h1>Introduction</h1>
 
-<p class=MsoNormal>This document defines a set of extensions to the Pegasus Cim
+<p class=MsoNormal>This document defines a set of extensions to the Pegasus CIM
 Compiler to help with the process of registering providers using MOF and the
 compiler as the registration tool.<span style="mso-spacerun: yes">  </span>The
 additional functions are felt to be requirements to create an environment in
@@ -295,7 +626,7 @@ registration.<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>We
 have to assume that provider registration can be done at any time, not simply
-at build of a new system and must be done when the cimom is running.<span
+at build of a new system and must be done when the CIMOn is running.<span
 style="mso-spacerun: yes">  </span>Further, it is intended that this be done by
 inputting MOF to the system.<o:p></o:p></span></p>
 
@@ -308,42 +639,36 @@ is running.<o:p></o:p></span></p>
 extensions revolve around:<o:p></o:p></span></p>
 
 <ul style='margin-top:0in' type=disc>
- <li class=MsoNormal style='mso-list:l3 level1 lfo3;tab-stops:list .5in'><span
+ <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>The
      providers not necessarily knowing what is in the CIMOM when they create
      their registration MOF.<o:p></o:p></span></li>
- <li class=MsoNormal style='mso-list:l3 level1 lfo3;tab-stops:list .5in'><span
+ <li class=MsoNormal style='mso-list:l4 level1 lfo3;tab-stops:list .5in'><span
      style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Controlling
      input to reduce the possibility that providers can input incorrect
      versions of MOF.<o:p></o:p></span></li>
 </ul>
 
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>This
-set of extensions goes handin-hand with a set of changes that were just
-approved by the DMTF:<o:p></o:p></span></p>
-
 <ul style='margin-top:0in' type=disc>
- <li class=MsoNormal style='mso-list:l4 level1 lfo6;tab-stops:list .5in'><span
+ <li class=MsoNormal style='mso-list:l5 level1 lfo6;tab-stops:list .5in'><span
      style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Mandatory
-     use of the Version Qualifier in the future, starting with the CIM 2.6
-     Final release scheduled for March 2002.<span style="mso-spacerun: yes"> 
-     </span>All classes in the CIM schema must have this qualifier which
-     defines the last CIM Schema version in which the class itself was modified
-     (ex. Version (2.6.0).<o:p></o:p></span></li>
+     use of the Version Qualifier.<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo6;tab-stops:list .5in'><span
+     style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>The use
+     of the Experimental Qualifier that identifies all classes that are
+     considered experimental and not released.<span style="mso-spacerun: yes"> 
+     </span>Generally we should never see the experimental qualifier on any
+     classes in a released version of the CIM MOF and should see it only on
+     classes that change or are added for a preliminary release.<span
+     style="mso-spacerun: yes">  </span>All of these classes must be either
+     moved to release or removed from the Schema to allow a schema to move to
+     release status within the DMTF. <o:p></o:p></span></li>
 </ul>
 
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>The
-use of the Experimental Qualifier that identifies all classes that are
-considered experimental and not released.<span style="mso-spacerun: yes"> 
-</span>Generally we should Never see the experimental qualifier on any classes
-in a released version of the CIM MOF and should see it only on classes that
-change or are added for a preliminary release.<span style="mso-spacerun: yes"> 
-</span>All of these classes must be either moved to release or removed from the
-Schema to allow a schema to move to release status within the DMTF.<span
-style="mso-spacerun: yes">  </span></span><span style='mso-bidi-font-size:10.0pt;
-font-family:Arial;mso-bidi-font-family:"Courier New"'>The String representing
-the version MUST be in the form of:&nbsp; </span><span style='font-family:Arial;
-mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></p>
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>The Version qualifier paramater is a single
+string representing the version which <span style="mso-spacerun:
+yes"> </span>MUST be in the form of:&nbsp; <o:p></o:p></span></p>
 
 <h2><span style='font-family:Arial;mso-bidi-font-family:"Courier New"'><span
 style="mso-spacerun: yes">   </span>M + &quot;.&quot; + N + &quot;.&quot; + U<o:p></o:p></span></h2>
@@ -359,20 +684,18 @@ class was changed.</span><span style='font-size:10.0pt;font-family:Arial;
 mso-bidi-font-family:"Courier New"'>&nbsp;</span><span style='font-family:Arial;
 mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></p>
 
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>More
-information about these changes will be available from the DMTF when CIM
-version 2.6 final is released.</span></p>
-
 <h1>The Definition of Provider Guidelines</h1>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
-<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:"Courier New"'>The
-following guidelines for providers and provider writers help to understand
-these requirements:<o:p></o:p></span></p>
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>The following guidelines for providers and
+provider writers help to understand these requirements:<o:p></o:p></span></p>
 
-<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:"Courier New"'>&nbsp;</span><br>
-<span style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>&nbsp;</span><span style='font-family:Arial;
+mso-bidi-font-family:"Times New Roman"'><br>
+</span><span style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
 "Courier New"'>1.) Provider Developer's SHOULD include the definition of all
 required superclasses in the MOF.</span><span style='font-family:Arial;
 mso-bidi-font-family:"Times New Roman"'><br>
@@ -389,21 +712,20 @@ Arial;mso-bidi-font-family:"Times New Roman"'><br>
 accurate definition of the specified version of the class.</span><span
 style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><br>
 </span><span style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
-"Courier New"'>5.) Provider Developer's SHOULD assume that DMTF qualifiers
-(version 2.6) are already defined in the namespace.<o:p></o:p></span></p>
+"Courier New"'>5.) Provider Developer's SHOULD assume that the DMTF qualifiers
+defined in CIM version 2.6 are already defined in the namespace.<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
 mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
 <p class=MsoBodyText><span style='font-size:12.0pt;mso-bidi-font-size:10.0pt;
 font-family:Arial;mso-bidi-font-family:"Courier New"'>This MOF Update Utility
-is a very simple tool that supports a majority of the provider installation
-senarios.&nbsp; It handles&nbsp;the straight-forward upgrade
-cases.&nbsp;&nbsp;Situations that require more&nbsp;sophisticated Schema
-manipulation&nbsp; will require developers to write a
-customize&nbsp;CIM&nbsp;Client application to perform the necessary checks and
-schema modifications.&nbsp; E.g., a customized application could be developed
-to perform a MAJOR version upgrade.<o:p></o:p></span></p>
+is a very simple tool that supports a majority of the provider installation scenarios.&nbsp;
+It handles&nbsp;the straight-forward upgrade cases.&nbsp;&nbsp;Situations that
+require more&nbsp;sophisticated Schema manipulation&nbsp; will require
+developers to write a customize&nbsp;CIM&nbsp;Client application to perform the
+necessary checks and schema modifications.&nbsp; E.g., a customized application
+could be developed to perform a MAJOR version upgrade.<o:p></o:p></span></p>
 
 <h1><span style='font-size:12.0pt;mso-bidi-font-size:16.0pt'>MOF Enhancements
 to Support Provider Registration<o:p></o:p></span></h1>
@@ -420,7 +742,7 @@ changes<o:p></o:p></span></p>
      style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Extend
      the compiler to allow class replacement. Thus, the compiler would be able
      to replace classes as well as install classes under circumstances defined
-     in this document<o:p></o:p></span></li>
+     in this document.<o:p></o:p></span></li>
  <li class=MsoNormal style='mso-list:l0 level1 lfo9;tab-stops:list .5in'><span
      style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Extend
      the compiler to allow use through the client interface.<span
@@ -435,28 +757,65 @@ changes<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Epecific
+<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Specific
 option additions<o:p></o:p></span></p>
 
 <ol style='margin-top:0in' start=1 type=1>
- <li class=MsoNormal style='mso-list:l1 level1 lfo12;tab-stops:list .5in'><span
+ <li class=MsoNormal style='mso-list:l2 level1 lfo12;tab-stops:list .5in'><span
      style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
      "Courier New"'>Add a new parameter to the cimmof command line,
      --experimental, to control handling of the experimental classes and
      qualifiers.<o:p></o:p></span></li>
- <li class=MsoNormal style='mso-list:l1 level1 lfo12;tab-stops:list .5in'><span
-     style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
-     "Courier New"'>Add a new parameter to the cimmof command line,
-     --version=X.X.X, to allow easy migration of existing MOF files to use
-     versioning.</span><span style='mso-bidi-font-size:10.0pt;font-family:"Courier New"'>&nbsp;
-     <o:p></o:p></span></li>
 </ol>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='mso-bidi-font-size:
+10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<h1>Class Replacement Rules and the –experimental Option</h1>
 
 <p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
-<h1><span style='mso-bidi-font-size:10.0pt;font-family:"Courier New"'>--Experimental
-Option</span><span style='font-size:12.0pt;mso-bidi-font-size:10.0pt;
-font-family:"Courier New"'><o:p></o:p></span></h1>
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>The compiler must be capable not only of
+installing new classes into the repository but of replacing them under selected
+circumstances.<span style="mso-spacerun: yes">  </span>In part these
+circumstances are controlled by the CIMOM itself because the modify class or
+the delete class and add class functions will be used to replace classes and
+there is a set of rules imposed by the CIMOM on the ability to either modify
+classes or to delete existing classes.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>These rules apply primarily to:<o:p></o:p></span></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l10 level1 lfo25;tab-stops:list .5in'><span
+     style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
+     "Courier New"'>Deletion of classes when there are either subclasses or
+     instances of a class in existence.<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l10 level1 lfo25;tab-stops:list .5in'><span
+     style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:
+     "Courier New"'>Modification of qualifiers or properties of a class to
+     maintain validity of any subclasses or instances.<o:p></o:p></span></li>
+</ul>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>In addition, there will be a general
+requirement that in certain cases, the rejection of a single class if it is not
+installable is not enough, the entire MOF must be rejected to assure that the
+repository is maintained valid. This is defined specifically in the following
+paragraphs<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>However, some specific rules that were
+defined specifically:<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>NOTE:
 References to the Minor version defined below also apply to the update
@@ -465,66 +824,46 @@ parameter in the Version qualifier.<o:p></o:p></span></p>
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>The
---experimental parameter on the command line must be set to allow the CIMMOF to
-replace an EXPERIMENTAL class definition with either an EXPERIMENTAL or
-RELEASED class definition (in short to be replaced) if the modification is not
-a MINOR version&nbsp; or REVISION update to the class.&nbsp; If the --
-experimental parameter is not defined and any class in a MOF definition is
-experimental, the&nbsp;entire MOF must be rejected (with no changes to the
-repository) unless that new class definition represents a MINOR version update
-or REVISION update as defined by the VERSION qualifier.<o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>This
-option was originally defined as follows hopefully the definitions above and
-below match):<o:p></o:p></span></p>
+--experimental option is a new CIM compiler command line option to help control
+the replacement of classes. In general, setting this option removes certain
+limitations on the replacement of classes in conjunction with the experimental
+and version qualifiers on the classes themselves.<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
-mso-bidi-font-family:"Courier New"'>A MOF will be rejected if ...</span><span
-style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'> <o:p></o:p></span></p>
+mso-bidi-font-family:"Courier New"'>A complete MOF input must be rejected if:</span><span
+style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></p>
 
 <ul type=disc>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l5 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     mso-list:l6 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
      10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>It would
-     require replacing a class definition with a MAJOR version update. <o:p></o:p></span></li>
+     require replacing a class definition with either a MAJOR version update or
+     with an earlier MAJOR version number. <o:p></o:p></span></li>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l5 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     mso-list:l6 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
      10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>If the
      --experimental parameter IS NOT specified and it would require replacing
      an EXPERIMENTAL class definition with either an updated EXPERIMENTAL class
      definition or RELEASED class definition.<span style="mso-spacerun: yes"> 
      </span>The justification is that replacing an EXPERIMENTAL with a RELEASED
-     or EXPERIMENTAL class could break other classes ... We wanted to make this
-     action explicit<o:p></o:p></span></li>
+     or EXPERIMENTAL class could break other classes. It is important that this
+     action be explicit.<o:p></o:p></span></li>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l5 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     mso-list:l6 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
      10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>It would
      require replacing a RELEASED class definition with an EXPERIMENTAL class
      definition. <o:p></o:p></span></li>
- <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l5 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
-     10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>It would
-     require replacing a class with an earlier MAJOR version number. <o:p></o:p></span></li>
- <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l5 level1 lfo15;tab-stops:list .5in'><span style='mso-bidi-font-size:
-     10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>If the
-     --version parameter IS NOT specified and a class definition does not
-     contain a VERSION qualifier.</span><span style='font-family:Arial;
-     mso-bidi-font-family:"Times New Roman"'> <o:p></o:p></span></li>
 </ul>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
-mso-bidi-font-family:"Courier New"'>A class definition within a MOF will be
-ignored if ...</span><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>
-<o:p></o:p></span></p>
+mso-bidi-font-family:"Courier New"'>A class definition within a MOF must be
+ignored if:</span><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></p>
 
 <ul type=disc>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l2 level1 lfo18;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     mso-list:l3 level1 lfo18;tab-stops:list .5in'><span style='mso-bidi-font-size:
      10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>It would
      result in replacing a class definition with one with an earlier MINOR
      version number. </span><span style='font-family:Arial;mso-bidi-font-family:
@@ -538,17 +877,30 @@ replaced if ...</span><span style='font-family:Arial;mso-bidi-font-family:"Times
 
 <ul type=disc>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l7 level1 lfo21;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     mso-list:l9 level1 lfo21;tab-stops:list .5in'><span style='mso-bidi-font-size:
      10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>It represents
-     an MINOR version update. <o:p></o:p></span></li>
+     an MINOR version update. <span style='color:red'>&lt;&lt;DENISE. This has
+     been in from first note from you but it is in conflict with everything
+     else&gt;&gt;</span> <o:p></o:p></span></li>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
-     mso-list:l7 level1 lfo21;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     mso-list:l9 level1 lfo21;tab-stops:list .5in'><span style='mso-bidi-font-size:
      10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>If the
      --experimental parameter IS specified and it would require replacing an
      EXPERIMENTAL class definition with either an updated EXPERIMENTAL class
      definition or RELEASED class definition. </span><span style='font-family:
      Arial;mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></li>
 </ul>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>A qualifier declaration within a MOF must
+be ignored if:</span><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+     mso-list:l7 level1 lfo26;tab-stops:list .5in'><span style='mso-bidi-font-size:
+     10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>It would
+     result in replacing an existing qualifier declaration.</span><o:p></o:p></li>
+</ol>
 
 <p class=MsoNormal><b><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>NOTE:</span></b><span
 style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'> Note the use
@@ -557,48 +909,79 @@ requirement is to reject the entire MOF file under certain circumstances.<o:p></
 
 <p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>This
 means that somehow the compiler must predetermine if there are any reasons for
-rejecting the MOF BEFORE it puts any classes into the repository</span>.<span
+rejecting the MOF BEFORE it puts any classes into the repository.<span
 style="mso-spacerun: yes">  </span>While this implies a multiplass compiler, we
 hope that there is some way this can be creatively accomplished without major
 changes to the compiler (ex. creating a super process that would simply call
-the compiler with different options for the check phase).</p>
-
-<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+the compiler with different options for the check phase).<o:p></o:p></span></p>
 
 <h1>--Version Option</h1>
 
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Variations
-of his option can be use for two things:<o:p></o:p></span></p>
+<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>The
+–Version option is a proposal, but not an absolute requirement.<span
+style="mso-spacerun: yes">  </span>However, the version qualifier is now understood
+to be important information to maintaining the validity of a CIM repository.</span><span
+style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>
+There is at least one good reason to provide this as a compiler test (probably
+in addition to having an internal test) – It would be logical to insure that no
+mof in a mof file was installed if there were classes without the version qualifier.</span><span
+style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><span
+style="mso-spacerun: yes"> </span>Therefore, it appears that there should be
+ways to:<o:p></o:p></span></p>
 
 <ul style='margin-top:0in' type=disc>
- <li class=MsoNormal style='mso-list:l6 level1 lfo24;tab-stops:list .5in'><span
-     style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Force the
-     version qualifier to be put on each class.<o:p></o:p></span></li>
- <li class=MsoNormal style='mso-list:l6 level1 lfo24;tab-stops:list .5in'><span
-     style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Test and
-     insure that the version qualifier is on each class and reject the input if
-     there is any class without the qualifier.<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo27;tab-stops:list .5in'><span
+     style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Limit the
+     entry of new classes to the repository that do not have the version
+     qualifier<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo27;tab-stops:list .5in'><span
+     style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Assure
+     that the version qualifier has the correct version format on classes being
+     created or modified<o:p></o:p></span></li>
+ <li class=MsoNormal style='mso-list:l1 level1 lfo27;tab-stops:list .5in'><span
+     style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>Apply the
+     qualifier in mass to a set of classes imported via the compiler.<o:p></o:p></span></li>
 </ul>
 
-<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>If
-the options is present with the (x.x.x) </span><span style='mso-bidi-font-size:
-10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>the cimmof will
-add the Version(&quot;X.X.X&quot;) qualifier to any class that does not have
-one.<o:p></o:p></span></p>
+<p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial;
+mso-bidi-font-family:"Times New Roman"'>.<o:p></o:p></span></p>
 
-<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
-mso-bidi-font-family:"Courier New"'>If the option is present without the
-(x.y.z) it could force the compiler to reject mof that did not have the version
-qualifier defined for classes.<o:p></o:p></span></p>
+<p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'>If
+the option is present with the string value (x.x.x) </span><span
+style='mso-bidi-font-size:10.0pt;font-family:Arial;mso-bidi-font-family:"Courier New"'>the
+CIM compiler would add the Version(&quot;X.X.X&quot;) qualifier to any class
+that does not have this qualifier and is being added to the repository or
+modified.<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
 mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
-mso-bidi-font-family:"Courier New"'>There is at least one good reason to
-provide this as a compiler test (probably in addition to having an internal
-test) – It would be logical to insure that no mof in a mof file was installed
-if there were classes without the version qualifier.<o:p></o:p></span></p>
+mso-bidi-font-family:"Courier New"'>If the option is present without the <span
+style="mso-spacerun: yes"> </span>string value(x.y.z) it could allow <span
+style="mso-spacerun: yes"> </span>the compiler to accept MOF that did not have
+the version qualifier defined for classes. <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>If the –version option (or an equivalent
+pragma (see below) is not defined, the MOF will be rejected if any class does
+not have the version qualifier.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>If the qualifier is defined for any class, <span
+style="mso-spacerun: yes"> </span>the CIM compiler (or in reality the CIMOM
+itself) will confirm that the version string is of the form &lt;integer&gt; “.”
+&lt;integer&gt; “.” integer<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
 mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
@@ -619,8 +1002,18 @@ mso-bidi-font-family:"Courier New"'>Since starting with version 2.6 (march
 2002) all DMTF schemas will have the Version qualifier, the demand for this
 option has been reduced.<span style="mso-spacerun: yes">  </span>The
 originators would be willing to discuss options or possible deletion of this
-requirement if it was a severe schedule burden.</span><span style='font-family:
-Arial;mso-bidi-font-family:"Times New Roman"'><br>
+requirement if it was a severe schedule burden.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bidi-font-size:10.0pt;font-family:Arial;
+mso-bidi-font-family:"Courier New"'>NOTE: The version option and/or pragma is a
+proposed extension but is not absolutely required for Pegasus version 2.0.<span
+style="mso-spacerun: yes">  </span>If it is possible to do this extension or
+part of the extensio within the timeframe of version 2.0, we will do it.<span
+style="mso-spacerun: yes">  </span>If not, it will be considered in the future.</span><span
+style='font-family:Arial;mso-bidi-font-family:"Times New Roman"'><br>
 <br style='mso-special-character:line-break'>
 <![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
 <![endif]><o:p></o:p></span></p>

@@ -144,7 +144,7 @@ Monitor::~Monitor()
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
-    if(_async == false)
+    if(_async == true)
        delete _thread_pool;
 }
 

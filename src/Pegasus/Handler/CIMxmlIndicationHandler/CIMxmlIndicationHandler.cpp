@@ -115,7 +115,6 @@ public:
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
             static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
-            static String PROPERTY_NAME__SSLTRUST_FILEPATH  = "sslTrustFilePath";
 
             //
             // Get the sslCertificateFilePath property from the Config Manager.
@@ -133,12 +132,7 @@ public:
             keyPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLKEY_FILEPATH);
 
-            //
-            // Get the sslKeyFilePath property from the Config Manager.
-            //
             String trustPath = String::EMPTY;
-            trustPath = configManager->getCurrentValue(
-                               PROPERTY_NAME__SSLTRUST_FILEPATH);
 
             String randFile = String::EMPTY;
 

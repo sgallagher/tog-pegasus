@@ -7,7 +7,6 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=06
 06-CIMOperation: MethodCall
 06-CIMMethod: EnumerateClassNames
 06-CIMObject: root/cimv2
-PegasusAuthorization: Local "root"
 
 <?xml version="1.0" ?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">

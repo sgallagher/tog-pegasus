@@ -74,7 +74,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     className = ref.getClassName();
     if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
         !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
-        throw NotSupported("OperatingSystemProvider Does not support class " + className);
+        throw NotSupported("OperatingSystemProvider does not support class " + className);
 
     //-- make sure we're the right instance
     int keyCount;
@@ -84,7 +84,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     keys = ref.getKeyBindings();
 
     if ((unsigned int)keys.size() != (unsigned int)keyCount)
-        throw InvalidParameter("Wrong number of  keys");
+        throw InvalidParameter("Wrong number of keys");
 
     // doesn't seem as though this code will handle duplicate keys,
     // but it appears as though the CIMOM strips those out for us.
@@ -93,12 +93,14 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 
     if (!os.getCSName(csName))
     {
-        throw OperationFailure("Can't determine name of computer system");
+        throw OperationFailure("OperatingSystemProvider "
+                       "Can't determine name of computer system");
     }
 
     if (!os.getName(name))
     {
-        throw OperationFailure("Can't determine name of Operating System");
+        throw OperationFailure("OperatingSystemProvider "
+                       "Can't determine name of Operating System");
     }
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
@@ -129,7 +131,8 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
          }
          else
          {
-              throw InvalidParameter("Unrecognized key");
+              throw InvalidParameter("OperatingSystemProvider"
+                             " unrecognized key " + keyName);
          }
      }
 
@@ -179,7 +182,8 @@ OperatingSystemProvider::enumerateInstances(
     }
     else
     {
-        throw NotSupported("OperatingSystemProvider does not support class " + className);
+        throw NotSupported("OperatingSystemProvider "
+                "does not support class " + className);
     }
     return;
 }
@@ -199,7 +203,8 @@ OperatingSystemProvider::enumerateInstanceNames(
     className = ref.getClassName();
     if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
-        throw NotSupported("OperatingSystemProvider does not support class " + className);
+        throw NotSupported("OperatingSystemProvider "
+                       "does not support class " + className);
     }
 
     handler.processing();
@@ -221,7 +226,8 @@ OperatingSystemProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw NotSupported("OperatingSystemProvider does not support modifyInstance");
+    throw NotSupported("OperatingSystemProvider "
+                       "does not support modifyInstance");
 }
 
 void
@@ -231,7 +237,8 @@ OperatingSystemProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMReference>& handler )
 {
-    throw NotSupported("OperatingSystemProvider does not support createInstance");
+    throw NotSupported("OperatingSystemProvider "
+                       "does not support createInstance");
 }
 
 void
@@ -240,7 +247,8 @@ OperatingSystemProvider::deleteInstance(
 			  	const CIMReference& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw NotSupported("OperatingSystemProvider does not support deleteInstance");
+    throw NotSupported("OperatingSystemProvider "
+                       "does not support deleteInstance");
 }
 
 void OperatingSystemProvider::initialize(CIMOMHandle& handle)
@@ -437,12 +445,14 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
 
     if (!os.getCSName(csName))
     {
-        throw OperationFailure("Can't determine name of computer system");
+        throw OperationFailure("OperatingSystemProvider "
+                  "can't determine name of computer system");
     }
 
     if (!os.getName(name))
     {
-        throw OperationFailure("Can't determine name of operating system");
+        throw OperationFailure("OperatingSystemProvider "
+                  "can't determine name of Operating System");
     }
 
     keys.append(KeyBinding("CSCreationClassName",
@@ -465,7 +475,8 @@ void OperatingSystemProvider::invokeMethod(
 				Array<CIMParamValue>& outParameters,
 				ResponseHandler<CIMValue>& handler)
 {
-    throw NotSupported("OperatingSystemProvider does not support invokeMethod");
+    throw NotSupported("OperatingSystemProvider "
+                       "does not support invokeMethod");
 }
 
 PEGASUS_NAMESPACE_END

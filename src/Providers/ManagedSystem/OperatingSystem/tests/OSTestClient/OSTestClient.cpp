@@ -78,8 +78,7 @@ OSTestClient::~OSTestClient(void)
 void OSTestClient::errorExit(const String& message)
 {
     cerr << "Error: " << message << endl;
-    cerr << "Recompile with verboseTest true for details" <<endl;
-// ATTN-SLC-1-May-02: Make verboseTest an option on test execution
+    cerr << "Re-run with verbose for details (OSTestClient verbose)" <<endl;
     exit(1);
 }
 
@@ -661,8 +660,15 @@ int main(int argc, char** argv)
     Boolean    enumInstNames = true;
     Boolean    getInst = true;  
 
-//ATTN-SLC-P3-3-May-02: have OSTestClient take verbose as option
-    Boolean    verboseTest = false;  // need to set based on input
+    Boolean    verboseTest = false;
+
+    // check if have a "verbose" on the command line
+    if (argv[1] != 0)
+    {
+       const char *arg = argv[1];
+       String arg1;
+           verboseTest = true;
+    }
 
     // need to first connect to the CIMOM
     // use null string for user and password, port 5988

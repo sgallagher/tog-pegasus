@@ -573,7 +573,7 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
 }
 
 /**
-   getTotalVirutalMemorySize method for HP-UX implementation of HP-UX
+   getTotalVirtualMemorySize method for HP-UX implementation of HP-UX
 
    Gets information from swapinfo -q command (techically not swap
    space, it's paging).  Same as the information returned for
@@ -595,7 +595,7 @@ Boolean OSTestClient::goodTotalVirtualMemorySize(const Uint64 &totalvmem,
 }
 
 /**
-   goodFreeVirutalMemorySize method for HP-UX implementation of HP-UX
+   goodFreeVirtualMemorySize method for HP-UX implementation of HP-UX
 
    Gets information from swapinfo -at command (the Free column)
   */  
@@ -628,11 +628,11 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
    if (verbose)
       cout<<" Should be close to " << swapFree << endl;
 
-   Uint64 delta = freevmem - Uint64(swapFree);
-   if (delta < 0)  // want absolute value
-   {
-      delta = delta * -1;
-   }
+   Sint64 raw_delta = freevmem - Uint64(swapFree);
+   Uint64 delta = labs(raw_delta);
+
+   if (verbose)
+      printf (" Delta should be within 2048, is %lld\n", delta); 
 
    // arbitrary choice of valid delta
    return (delta < 2048 );   
@@ -659,15 +659,14 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
    if (verbose)
       cout<<" Should be close to "  << psd.psd_free << endl;
 
-   Sint32 delta = (freepmem - psd.psd_free);
+   Sint32 raw_delta = (freepmem - psd.psd_free);
+   Uint32 delta = abs(raw_delta);
 
-   if (delta < 0)  // want absolute value
-   {
-      delta = delta * -1;
-   }
+   if (verbose)
+      cout<<" Delta should be within 2048, is " << delta << endl;
 
    // arbitrary choice of valid delta
-   return ( delta <= 1024 );
+   return ( delta <= 2048 );
 }
 
 /**
@@ -744,13 +743,14 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    Uint32             maxdsiz;
    Uint32             maxssiz;
    Uint32             maxtsiz;
-   Uint32             maxdsiz_64bit;
-   Uint32             maxssiz_64bit;
-   Uint32             maxtsiz_64bit;
+   Uint64             maxdsiz_64bit;
+   Uint64             maxssiz_64bit;
+   Uint64             maxtsiz_64bit;
    long               ret;    
 
    if (verbose)
-      cout<<"Checking MaxProcessMemSize " <<Uint32(maxpmem)<< endl;
+      printf("Checking maxProcessMemorySize = 0x%llx = %lld\n",
+             maxpmem, maxpmem);
    
    Uint64 maxProcessMemorySize = 0;
 
@@ -764,7 +764,7 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    if (ret == 32)
    {   // we're 32 bit
        // Use a pipe to invoke kmtune (since don't have gettune on all OSs)
-       if ((mtuneInfo = popen("kmtune -q maxdsiz -q maxssiz "
+       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz -q maxssiz "
                               "-q maxtsiz 2>/dev/null", "r")) != NULL)
        {
            // Now extract the three values and sum them
@@ -778,7 +778,8 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
            (void)pclose (mtuneInfo);
            maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
            if (verbose)
-              cout<< " Should be "<<Uint32(maxProcessMemorySize)<<endl;
+              printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
+                     maxProcessMemorySize);
        } // end if popen worked
        else 
        {
@@ -795,18 +796,22 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
            // Now extract the three values and sum them
            while (fgets(mline, 80, mtuneInfo))
            {
-              sscanf(mline, "maxdsiz %x", &maxdsiz_64bit);
-              sscanf(mline, "maxssiz %x", &maxssiz_64bit);
-              sscanf(mline, "maxtsiz %x", &maxtsiz_64bit);
+              sscanf(mline, "maxdsiz_64bit %llx", &maxdsiz_64bit);
+              sscanf(mline, "maxssiz_64bit %llx", &maxssiz_64bit);
+              sscanf(mline, "maxtsiz_64bit %llx", &maxtsiz_64bit);
            }  // end while 
 
            (void)pclose (mtuneInfo);
            maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
                                   + maxtsiz_64bit);
            if (verbose)
-              cout<< " Should be "<<Uint32(maxProcessMemorySize)<<endl;
+              printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
+                     maxProcessMemorySize);
        } // end if popen worked
-       return false;
+       else 
+       {
+          return false;
+       }
    }  // end else for 64 bit
 
    return (maxpmem == maxProcessMemorySize);

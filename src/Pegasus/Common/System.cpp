@@ -31,6 +31,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include <Pegasus/Common/Config.h>           
+#endif                                       
+
+
 #include <fstream>
 #include "System.h"
 

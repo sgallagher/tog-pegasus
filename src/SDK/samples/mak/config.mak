@@ -4,8 +4,10 @@ VALID_PLATFORMS = \
     WIN32_IX86_MSVC \
     LINUX_IX86_GNU \
     LINUX_PPC_GNU \
+    LINUX_PPC64_GNU \
     LINUX_IA64_GNU \
     LINUX_ZSERIES_GNU \
+    LINUX_ZSERIES64_GNU \
     AIX_RS_IBMCXX \
     HPUX_PARISC_ACC \
     HPUX_IA64_ACC \
@@ -35,11 +37,19 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
   include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
 endif
 
+ifeq ($(PEGASUS_PLATFORM),LINUX_PPC64_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
 ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
   include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES64_GNU)
   include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
 endif
 

@@ -213,7 +213,8 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
         if (p != NULL)
         {
             if ((strcmp (p, HTTP_METHOD_MPOST) == 0) || 
-                (strcmp (p, HTTP_METHOD_POST) == 0))
+                (strcmp (p, HTTP_METHOD_POST) == 0) ||
+                (strcmp (p, HTTP_METHOD_BOGUS) == 0))
             {
 	      //
 	      //  This is a special request used for testing.

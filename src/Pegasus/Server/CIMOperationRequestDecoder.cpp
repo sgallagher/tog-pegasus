@@ -403,11 +403,28 @@ void CIMOperationRequestDecoder::handleMethodCall(
          return;
       }
    }
+   catch (XmlException&)
+   {
+      sendBadRequestError(queueId, "request-not-well-formed");
+      PEG_METHOD_EXIT();
+      return;
+   }
+   catch (XmlValidationError&)
+   {
+      sendBadRequestError(queueId, "request-not-valid");
+      PEG_METHOD_EXIT();
+      return;
+   }
+   catch (XmlSemanticError&)
+   {
+      sendBadRequestError(queueId, "request-not-valid");
+      PEG_METHOD_EXIT();
+      return;
+   }
    catch (Exception&)
    {
-      // ATTN: no error can be sent back to the client yet since
-      // errors require a message-id (which was in the process of
-      // being obtained above).
+      // ATTN-RK-P3-20020403: What should be returned here?
+      // Maybe "500 Internal Server Error"?
       PEG_METHOD_EXIT();
       return;
    }

@@ -373,6 +373,22 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 			return;
 		}
    }
+   // comment out the error rejection code if the content-type header does
+   //    not exist
+#ifdef PEGASUS_REJECT_ON_MISSING_CONTENTTYPE_HEADER
+   else
+   {
+		CIMClientMalformedHTTPException* malformedHTTPException = new
+			CIMClientMalformedHTTPException
+				("Missing Content-Type HTTP header; ");
+		ClientExceptionMessage * response =
+			new ClientExceptionMessage(malformedHTTPException);
+		
+		_outputQueue->enqueue(response);
+		return;
+    
+   }
+#endif
    
     //
     // Zero-terminate the message:

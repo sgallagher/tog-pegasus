@@ -74,6 +74,8 @@ Boolean DynamicLibrary::unload(void)
     OS400_UnloadDynamicLibrary(_handle);
     #endif
 
+    _handle = 0;
+
     return(isLoaded());
 }
 

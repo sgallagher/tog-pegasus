@@ -72,6 +72,7 @@ sources.
 %global PEGASUS_CONFIG_DIR /etc/opt/tog-pegasus
 %global PEGASUS_REPOSITORY_DIR /var/opt/tog-pegasus/repository
 %global PEGASUS_PREV_REPOSITORY_DIR /var/opt/tog-pegasus/prev_repository
+%global PEGASUS_SBIN_DIR /opt/tog-pegasus/sbin
 
 %global PEGASUS_RPM_ROOT $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
@@ -296,6 +297,9 @@ fi
 
 %postun
 if [ $1 -eq 0 ]; then
+   [ -f %PEGASUS_PEM_DIR/key-2048.pem ] && rm %PEGASUS_PEM_DIR/key-2048.pem;
+   [ -f %PEGASUS_PEM_DIR/cert-2048.pem ] && rm %PEGASUS_PEM_DIR/cert-2048.pem;
+   [ -f %PEGASUS_PEM_DIR/truststore-2048.pem ] && rm %PEGASUS_PEM_DIR/truststore-2048.pem;
    export LC_ALL=C
 fi
 
@@ -533,128 +537,128 @@ fi
 /opt/tog-pegasus/providers/lib/libProcessProvider.so
 
 %files sdk
-%defattr(0444,root,root)
+%defattr(444,root,root)
 
 # SDK Include Files
 #
-%dir /opt/tog-pegasus/include
-%dir /opt/tog-pegasus/include/Pegasus
-%dir /opt/tog-pegasus/include/Pegasus/Client
-%dir /opt/tog-pegasus/include/Pegasus/Common
-%dir /opt/tog-pegasus/include/Pegasus/Consumer
-%dir /opt/tog-pegasus/include/Pegasus/Provider
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClientException.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClient.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Client/Linkage.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Array.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/ArrayInter.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Char16.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMClass.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMDateTime.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMFlavor.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMIndication.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMInstance.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMMethod.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMName.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMObject.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMObjectPath.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMParameter.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMParamValue.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMProperty.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMPropertyList.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMQualifierDecl.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMQualifier.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMScope.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMStatusCode.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMType.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMValue.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Config.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Exception.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Linkage.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/OperationContext.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/ResponseHandler.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/SSLContext.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/String.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Platform_LINUX_IX86_GNU.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Consumer/CIMIndicationConsumer.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Consumer/Linkage.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMAssociationProvider.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMIndicationConsumerProvider.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMIndicationProvider.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMInstanceProvider.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMMethodProvider.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMOMHandle.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMProvider.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/Linkage.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Provider/ProviderException.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/AcceptLanguages.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/MessageLoader.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/ContentLanguages.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElementContainer.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/AcceptLanguageElement.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/Formatter.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/ContentLanguageElement.h
-%attr(-,root,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElement.h
+%dir %attr(755,root,root) /opt/tog-pegasus/include
+%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus
+%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Client
+%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Common
+%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Consumer
+%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Provider
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClientException.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClient.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/Linkage.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Array.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/ArrayInter.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Char16.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMClass.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMDateTime.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMFlavor.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMIndication.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMInstance.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMMethod.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMName.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMObject.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMObjectPath.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMParameter.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMParamValue.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMProperty.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMPropertyList.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMQualifierDecl.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMQualifier.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMScope.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMStatusCode.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMType.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMValue.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Config.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Exception.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Linkage.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/OperationContext.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/ResponseHandler.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/SSLContext.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/String.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Platform_LINUX_IX86_GNU.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Consumer/CIMIndicationConsumer.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Consumer/Linkage.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMAssociationProvider.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMIndicationConsumerProvider.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMIndicationProvider.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMInstanceProvider.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMMethodProvider.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMOMHandle.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/CIMProvider.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/Linkage.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Provider/ProviderException.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/AcceptLanguages.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/MessageLoader.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/ContentLanguages.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElementContainer.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/AcceptLanguageElement.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Formatter.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/ContentLanguageElement.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElement.h
 
 # SDK Sample Files
 #
-%dir /opt/tog-pegasus/samples
-%dir /opt/tog-pegasus/samples/Clients
-%dir /opt/tog-pegasus/samples/Clients/DefaultC++
-%dir /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances
-%dir /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod
-%dir /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications
-%dir /opt/tog-pegasus/samples/Providers
-%dir /opt/tog-pegasus/samples/Providers/DefaultC++
-%dir /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider
-%dir /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider
-%dir /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
-%dir /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
-%dir /opt/tog-pegasus/samples/Providers/Load
-%dir /opt/tog-pegasus/samples/mak
-%attr(-,root,root) /opt/tog-pegasus/samples/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/mak/LINUX_IX86_GNU.mak
-%attr(-,root,root) /opt/tog-pegasus/samples/mak/config.mak
-%attr(-,root,root) /opt/tog-pegasus/samples/mak/program.mak
-%attr(-,root,root) /opt/tog-pegasus/samples/mak/recurse.mak
-%attr(-,root,root) /opt/tog-pegasus/samples/mak/library.mak
-%attr(-,root,root) /opt/tog-pegasus/samples/mak/common.mak
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/EnumInstances.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Load/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Load/SampleProviderSchema.mof
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Load/IndicationProviderR.mof
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProvider.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProvider.h
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProviderMain.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/Makefile
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Load/InstanceProviderR.mof
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Load/MethodProviderR.mof
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/Load/SimpleDisplayConsumerR.mof
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.h
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/MethodProvider.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/MethodProvider.h
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/InvokeMethod.xml
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.cpp
-%attr(-,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.h
+%dir %attr(755,root,root) /opt/tog-pegasus/samples
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/Load
+%dir %attr(755,root,root) /opt/tog-pegasus/samples/mak
+%attr(444,root,root) /opt/tog-pegasus/samples/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/LINUX_IX86_GNU.mak
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/config.mak
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/program.mak
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/recurse.mak
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/library.mak
+%attr(444,root,root) /opt/tog-pegasus/samples/mak/common.mak
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/EnumInstances.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Load/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Load/SampleProviderSchema.mof
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Load/IndicationProviderR.mof
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProvider.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProvider.h
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProviderMain.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/Makefile
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Load/InstanceProviderR.mof
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Load/MethodProviderR.mof
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/Load/SimpleDisplayConsumerR.mof
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.h
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/MethodProvider.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/MethodProvider.h
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/InvokeMethod.xml
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.cpp
+%attr(444,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.h
 
 # SDK Documentation
 #

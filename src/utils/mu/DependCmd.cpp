@@ -288,7 +288,7 @@ void ProcessFile(
     FILE* fp,
     const vector<string>& includePath,
     size_t nesting,
-    set<string, equal_to<string> >& cache)
+    set<string, less<string> >& cache)
 {
     PrintDependency(objectFileName, fileName);
 
@@ -318,7 +318,7 @@ void ProcessFile(
 	    // ATTN: danger! not distinguising between angle brack delimited
 	    // and quote delimited paths!
 	    
-	    set<string, equal_to<string> >::const_iterator pos 
+	    set<string, less<string> >::const_iterator pos 
 		= cache.find(path);
 
 	    if (pos != cache.end())
@@ -411,7 +411,7 @@ int DependCmdMain(int argc, char** argv)
 	objectFileName.append(start, dot - start);
 	objectFileName += OBJ_EXT;
 
-	set<string, equal_to<string> > cache;
+	set<string, less<string> > cache;
 
 	ProcessFile(objectFileName, fileName, fp, includePath, 0, cache);
     }

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.10  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.9  2001/04/11 07:03:02  mike
 // Port to Unix
 //
@@ -424,6 +427,24 @@ String ToLower(const String& str)
     }
 
     return tmp;
+}
+
+int CompareIgnoreCase(const char* s1, const char* s2)
+{
+    while (*s1 && *s2)
+    {
+	int r = tolower(*s1++) - tolower(*s2++);
+
+	if (r)
+	    return r;
+    }
+
+    if (*s2)
+	return -1;
+    else if (*s1)
+	return 1;
+
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

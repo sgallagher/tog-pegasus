@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.cpp,v $
+// Revision 1.5  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.4  2001/04/11 05:05:15  mike
 // porting
 //
@@ -43,5 +46,21 @@
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
+
+Uint32 Selector::_findEntry(Sint32 desc) const
+{
+    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
+    {
+	if (_entries[i].desc == desc)
+	    return i;
+    }
+
+    return Uint32(-1);
+}
+
+SelectorHandler::~SelectorHandler()
+{
+
+}
 
 PEGASUS_NAMESPACE_END

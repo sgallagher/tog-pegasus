@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.14  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.13  2001/04/08 21:57:13  karl
 // dir hier tested
 //
@@ -59,41 +62,20 @@
 //
 //END_HISTORY
 
+#include <iostream>
 #include <Pegasus/Common/Config.h>
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <io.h>
-# include <direct.h>
-#else
-# include <unistd.h>
-# include <dirent.h>
-#endif
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <cstdio>
+#include <Pegasus/Common/System.h>
 #include "Destroyer.h"
 #include "FileSystem.h"
+#include "System.h"
 #include "Dir.h"
-// For debugging
-#include <iostream>
 
 using namespace std;
 
-// ATTN-B: porting!
-
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-static const int ACCESS_EXISTS = 0;
-static const int ACCESS_WRITE = 2;
-static const int ACCESS_READ = 4;
-static const int ACCESS_READ_AND_WRITE = 6;
-#endif
+// Clone the path as a C String but discard trailing slash if any:
 
-/** Clone the path as a C String but discard 
-    trailing slash if any:
-*/
 static char* _clonePath(const String& path)
 {
     char* p = path.allocateCString();
@@ -112,30 +94,18 @@ static char* _clonePath(const String& path)
 Boolean FileSystem::exists(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return _access(p.getPointer(), ACCESS_EXISTS) == 0;
-#else
-    return access(p.getPointer(), F_OK) == 0;
-#endif
+    return System::exists(p.getPointer());
 }
 
 Boolean FileSystem::getCurrentDirectory(String& path)
 {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    char* tmp = _getcwd(NULL, 0);
+    path.clear();
+    char tmp[4096];
 
-    if (!tmp)
+    if (!System::getCurrentDirectory(tmp, sizeof(tmp) - 1))
 	return false;
 
     path.append(tmp);
-    delete [] tmp;
-#else
-    char tmp[4096];
-
-    getcwd(tmp, sizeof(tmp));
-    path.append(tmp);
-#endif
     return true;
 }
 
@@ -154,6 +124,7 @@ Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 	*slash = '\0';
 	fileName = slash + 1;
 	dirPath = p;
+
 	if (*fileName == '\0')
 	    return false;
     }
@@ -165,11 +136,7 @@ Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 
     for (Dir dir(dirPath); dir.more(); dir.next())
     {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-	if (stricmp(fileName, dir.getName()) == 0)
-#else
-	if (strcasecmp(fileName, dir.getName()) == 0)
-#endif
+	if (CompareIgnoreCase(fileName, dir.getName()) == 0)
 	{
 	    if (strcmp(dirPath, ".") == 0)
 		realPath = dir.getName();
@@ -189,92 +156,43 @@ Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 Boolean FileSystem::canRead(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return _access(p.getPointer(), ACCESS_READ) == 0;
-#else
-    return access(p.getPointer(), R_OK) == 0;
-#endif
+    return System::canRead(p.getPointer());
 }
 
 Boolean FileSystem::canWrite(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return _access(p.getPointer(), ACCESS_WRITE) == 0;
-#else
-    return access(p.getPointer(), W_OK) == 0;
-#endif
+    return System::canWrite(p.getPointer());
 }
-
-#if 0
-// ATTN: not implemented for NT. But not used by Pegasus.
-Boolean FileSystem::canExecute(const String& path)
-{
-    ArrayDestroyer<char> p(_clonePath(path));
-    return access(p.getPointer(), X_OK) == 0;
-}
-#endif
 
 Boolean FileSystem::isDirectory(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-
-    struct stat st;
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-
-    if (stat(p.getPointer(), &st) != 0)
-	return false;
-
-    Boolean result = (st.st_mode & _S_IFDIR) != 0;
-    return result;
-
-#else
-
-    if (stat(p.getPointer(), &st) != 0)
-	return false;
-
-    Boolean result = S_ISDIR(st.st_mode);
-    return result;
-
-#endif
+    return System::isDirectory(p.getPointer());
 }
 
 Boolean FileSystem::changeDirectory(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-    return chdir(p.getPointer()) == 0;
+    return System::changeDirectory(p.getPointer());
 }
 
 Boolean FileSystem::makeDirectory(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return _mkdir(p.getPointer()) == 0;
-#else
-    return mkdir(p.getPointer(), 0777) == 0;
-#endif
+    return System::makeDirectory(p.getPointer());
 }
 
 Boolean FileSystem::getFileSize(const String& path, Uint32& size)
 {
-    struct stat st;
-
     ArrayDestroyer<char> p(_clonePath(path));
-
-    if (stat(p.getPointer(), &st) != 0)
-	return false;
-
-    size = st.st_size;
-    return true;
+    return System::getFileSize(p.getPointer(), size);
 }
 
 Boolean FileSystem::removeDirectory(const String& path)
 {
     ArrayDestroyer<char> p(_clonePath(path));
-    return rmdir(p.getPointer()) == 0;	
+    return System::removeDirectory(p.getPointer());
 }
 
 Boolean FileSystem::removeDirectoryHier(const String& path)
@@ -282,10 +200,12 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     Array<String> fileList;
 
     // Get contents of current directory
+
     if (!FileSystem::getDirectoryContents(path,fileList))
 	return false;
 
     // for files-in-directory, delete or recall removedir
+
     for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
     {   
 	String newPath = path;	 // extend path	to subdir
@@ -392,16 +312,18 @@ Boolean FileSystem::compare(
     fclose(fp2);
     return true;
 }
-/*  Get the file list in the directory into the
-    array of strings provided
-    @return The function should return false under these circumstances:
 
-
-    1. The directory does not exist.
-    2. The file exists but is not a directory.
-    3. The directory is inaccessible.
-
-*/
+//
+//  Get the file list in the directory into the
+//  array of strings provided
+//  @return The function should return false under these circumstances:
+//
+//
+//  1. The directory does not exist.
+//  2. The file exists but is not a directory.
+//  3. The directory is inaccessible.
+//
+//
 Boolean FileSystem::getDirectoryContents(
     const String& path,
     Array<String>& paths)
@@ -411,13 +333,16 @@ Boolean FileSystem::getDirectoryContents(
 	return false;
     
     paths.clear();
+
     try
     { 
 	for (Dir dir(path); dir.more(); dir.next())
 	{
 	    String name = dir.getName();
+
 	    if (String::equal(name, ".") || String::equal(name, ".."))
 		continue;
+
 	    paths.append(name);
 	}
 	return true;
@@ -437,15 +362,7 @@ Boolean FileSystem::renameFile(
 {
     ArrayDestroyer<char> p(oldFileName.allocateCString());
     ArrayDestroyer<char> q(newFileName.allocateCString());
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return rename(p.getPointer(), q.getPointer()) == 0;
-#else
-    if (link(p.getPointer(), q.getPointer()) != 0)
-	return false;
-
-    return unlink(p.getPointer()) == 0;
-#endif
+    return System::renameFile(p.getPointer(), q.getPointer());
 }
 
 PEGASUS_NAMESPACE_END

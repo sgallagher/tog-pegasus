@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: System.h,v $
+// Revision 1.2  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.1  2001/04/11 00:23:44  mike
 // new files
 //
@@ -48,6 +51,28 @@ public:
     static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
 
     static void sleep(Uint32 seconds);
+
+    static Boolean exists(const char* path);
+
+    static Boolean canRead(const char* path);
+
+    static Boolean canWrite(const char* path);
+
+    static Boolean getCurrentDirectory(char* path, Uint32 size);
+
+    static Boolean isDirectory(const char* path);
+
+    static Boolean changeDirectory(const char* path);
+
+    static Boolean makeDirectory(const char* path);
+
+    static Boolean getFileSize(const char* path, Uint32& size);
+
+    static Boolean removeDirectory(const char* path);
+
+    static Boolean removeFile(const char* path);
+
+    static Boolean renameFile(const char* oldPath, const char* newPath);
 };
 
 PEGASUS_NAMESPACE_END

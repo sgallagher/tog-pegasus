@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: SelectorWindows.cpp,v $
+// Revision 1.3  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.2  2001/04/11 07:03:02  mike
 // Port to Unix
 //
@@ -54,9 +57,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 using namespace std;
 
-// This wrapper routine is needed to allow the select() WINSOCK routine to be 
-// called from the Selector::select() method. Using the global namespace
-// qualifier failed since WINSOCK select() is not in the global namespace.
+////////////////////////////////////////////////////////////////////////////////
+//
+// Local routines:
+//
+////////////////////////////////////////////////////////////////////////////////
 
 static inline int select_wrapper(
     int nfds,
@@ -279,22 +284,6 @@ Boolean Selector::removeHandler(SelectorHandler* handler)
     // Not found:
 
     return false;
-}
-
-Uint32 Selector::_findEntry(Sint32 desc) const
-{
-    for (Uint32 i = 0, n = _entries.getSize(); i < n; i++)
-    {
-	if (_entries[i].desc == desc)
-	    return i;
-    }
-
-    return Uint32(-1);
-}
-
-SelectorHandler::~SelectorHandler()
-{
-
 }
 
 PEGASUS_NAMESPACE_END

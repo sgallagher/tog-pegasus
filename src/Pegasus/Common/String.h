@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.15  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.14  2001/04/10 23:01:52  mike
 // Added new TimeValue class and regression tests for it.
 // Modified Stopwatch class to use TimeValue class.
@@ -228,18 +231,18 @@ public:
 	Boolean noThrow = false) const;
 
     /** Returns the Ith character of the String object.
-    @exception - Throws exception "OutofBounds" if the index
-    is outside the length of the string
-    <pre>
-	String t1 = "abc;
-	Char16 c = t1[1];	// character b
-    </pre>
+	@exception - Throws exception "OutofBounds" if the index
+	is outside the length of the string.
+	<pre>
+	    String t1 = "abc;
+	    Char16 c = t1[1];	// character b
+	</pre>
     */
     Char16& operator[](Uint32 i);
 
     /** Returns the Ith character of the String (const version).
-    @exception - Throws exception "OutofBounds" if the index
-    is outside the length of the string
+	@exception - Throws exception "OutofBounds" if the index
+	is outside the length of the string.
     
     */
     const Char16 operator[](Uint32 i) const;
@@ -266,13 +269,13 @@ public:
     }
 
     /** Overload operator += appends the parameter String to this String.
-    @parm String to append.
-    @return This String
-    <pre>
-    String test = "abc";
-    test += "def";
-    assert(test == "abcdef");
-    </pre>
+	@parm String to append.
+	@return This String
+	<pre>
+	String test = "abc";
+	test += "def";
+	assert(test == "abcdef");
+	</pre>
     */
     String& operator+=(const String& x)
     {
@@ -288,11 +291,11 @@ public:
     }
 
     /** Append the character given by c to this string.
-    <pre>
-	String t1 = "abc";
-	t1 += 'd'
-	assert(t1 == "abcd");
-    </pre>
+	<pre>
+	    String t1 = "abc";
+	    t1 += 'd'
+	    assert(t1 == "abcd");
+	</pre>
     */
     String& operator+=(char c)
     {
@@ -483,6 +486,7 @@ inline String operator+(const String& x, const String& y)
 {
     return String(x).append(y);
 }
+
 /** overload operator < - Compares String obects.
     <pre>
 	String t1 = "def";
@@ -494,19 +498,22 @@ inline Boolean operator<(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) < 0;
 }
-/**  overload operator <= compares String objects.
+
+/** overload operator <= compares String objects.
 
 */
 inline Boolean operator<=(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) <= 0;
 }
+
 /** Overload operator > compares String objects
 */
 inline Boolean operator>(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) > 0;
 }
+
 /** overload operator >= - Compares String objects
 */
 inline Boolean operator>=(const String& x, const String& y)
@@ -518,6 +525,10 @@ inline Boolean operator>=(const String& x, const String& y)
     to lower case.
 */
 PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
+
+/** Compare two strings but ignore any case differences.
+*/
+PEGASUS_COMMON_LINKAGE int CompareIgnoreCase(const char* s1, const char* s2);
 
 
 PEGASUS_NAMESPACE_END

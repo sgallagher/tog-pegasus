@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: DirUnix.cpp,v $
+// Revision 1.2  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.1  2001/04/11 00:34:03  mike
 // more porting
 //
@@ -69,7 +72,7 @@ struct DirRep
 
 Dir::Dir(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
     _rep = new DirRep;
     _rep->dir = opendir(p.getPointer());
 

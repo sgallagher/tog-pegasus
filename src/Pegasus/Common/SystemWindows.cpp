@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: SystemWindows.cpp,v $
+// Revision 1.2  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.1  2001/04/11 00:23:44  mike
 // new files
 //
@@ -36,6 +39,15 @@ PEGASUS_NAMESPACE_BEGIN
 #include <windows.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
+#include <io.h>
+#include <direct.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#define ACCESS_EXISTS 0
+#define ACCESS_WRITE 2
+#define ACCESS_READ 4
+#define ACCESS_READ_AND_WRITE 6
 
 void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
 {
@@ -50,6 +62,72 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
 void System::sleep(Uint32 seconds)
 {
     Sleep(seconds * 1000);
+}
+
+Boolean System::exists(const char* path)
+{
+    return _access(path, ACCESS_EXISTS) == 0;
+}
+
+Boolean System::canRead(const char* path)
+{
+    return _access(path, ACCESS_READ) == 0;
+}
+
+Boolean System::canWrite(const char* path)
+{
+    return _access(path, ACCESS_WRITE) == 0;
+}
+
+Boolean System::getCurrentDirectory(char* path, Uint32 size)
+{
+    return GetCurrentDirectory(size, path) != 0;
+}
+
+Boolean System::isDirectory(const char* path)
+{
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+	return false;
+
+    return (st.st_mode & _S_IFDIR) != 0;
+}
+
+Boolean System::changeDirectory(const char* path)
+{
+    return chdir(path) == 0;
+}
+
+Boolean System::makeDirectory(const char* path)
+{
+    return _mkdir(path) == 0;
+}
+
+Boolean System::getFileSize(const char* path, Uint32& size)
+{
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+	return false;
+
+    size = st.st_size;
+    return true;
+}
+
+Boolean System::removeDirectory(const char* path)
+{
+    return rmdir(path) == 0;	
+}
+
+Boolean System::removeFile(const char* path)
+{
+    return unlink(path) == 0;	
+}
+
+Boolean System::renameFile(const char* oldPath, const char* newPath)
+{
+    return rename(oldPath, newPath) == 0;
 }
 
 PEGASUS_NAMESPACE_END

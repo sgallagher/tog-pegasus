@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.14  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.13  2001/03/04 21:41:44  bob
 // Commented out forward declaration of "const Class String": it caused compiler
 // errors.
@@ -99,13 +102,11 @@ struct ArrayRep
 	does). That way, arrays of characters can be used for alignement
 	sensitive data.
     */
-
     union
     {
 	Uint32 ref;
 	Uint64 alignment;
     };
-
 
     // Obtains a pointer to the first element in the array.
     T* data() { return (T*)(this + 1); }
@@ -305,8 +306,8 @@ public:
     }
 
     /** Returns the element at the index given by the pos argument.
-    @return A reference to the elementdefined by index so that it may be
-    modified.
+	@return A reference to the elementdefined by index so that it may be
+	modified.
     */
     T& operator[](Uint32 pos);
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: DirWindows.cpp,v $
+// Revision 1.2  2001/04/11 19:53:22  mike
+// More porting
+//
 // Revision 1.1  2001/04/11 00:34:03  mike
 // more porting
 //
@@ -52,7 +55,7 @@ struct DirRep
 
 Dir::Dir(const String& path)
 {
-    Destroyer<char> p(strcat(path.allocateCString(2), "/*"));
+    ArrayDestroyer<char> p(strcat(path.allocateCString(2), "/*"));
     _rep = new DirRep;
     _rep->file = _findfirst(p.getPointer(), &_rep->findData);
 

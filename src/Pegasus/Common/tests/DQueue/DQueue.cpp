@@ -276,7 +276,7 @@ int main(int argc, char **argv)
    {
       pegasus_sleep(1000);
 
-      cout << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
+      cout << "total requests: " << requests.value() << " total replies: " << replies.value() << endl;
    }
 
    rw.incoming->shutdown_queue();

@@ -40,7 +40,7 @@ void * pegasus_alloc(size_t size)
 
 void pegasus_free(void * dead) 
 {
-   return internal_allocator.vs_free(dead); 
+   internal_allocator.vs_free(dead); 
 }
 
 void * operator new(size_t size)
@@ -51,7 +51,7 @@ void * operator new(size_t size)
 
 void operator delete(void *dead)
 {
-   return internal_allocator.vs_free(dead); 
+   internal_allocator.vs_free(dead); 
 }
 
 

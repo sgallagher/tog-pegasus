@@ -103,18 +103,8 @@ namespace
 
 PEGASUS_NAMESPACE_BEGIN
 
-void * pegasus_alloc(size_t );
-void pegasus_free(void *);
-
-
-// #define GUARD_SIZE 0x10
-// #define MAX_PATH_LEN 0xff
-// #define MAX_LINE_LEN 0x14
-// #define PRE_ALLOCATE 0x00
-// #define STEP_ALLOCATE 0x01
-// #define AVAILABLE 0x00
-// #define NORMAL 0x01
-// #define ARRAY 0x02
+void * PEGASUS_SUBALLOC_LINKAGE pegasus_alloc(size_t );
+void PEGASUS_SUBALLOC_LINKAGE pegasus_free(void *);
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 

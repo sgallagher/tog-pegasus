@@ -57,15 +57,20 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         */
         String refClassName = "TST_PersonDynamic";
         String tst_PersonClassName = "TST_Person";
-        CIMClass c1 ( CIMName(refClassName), CIMName(tst_PersonClassName));
-	/* CIMProperty prop1 = CIMProperty (CIMName ("Name"), String());
+
+        //CIMClass class1(CIMName(refClassName), CIMName(tst_PersonClassName));
+        CIMClass class1(CIMName(refClassName), CIMName("TST_Person"));
+        /*
+	    CIMProperty prop1 = CIMProperty (CIMName ("Name"), String());
         prop1.addQualifier (CIMQualifier (CIMName ("Key"), true));
-        c1.addProperty(prop1);*/
-	c1.addProperty(CIMProperty (CIMName ("Name"), String()
-	      .addQualifier( CIMQualifier (CIMName ("Key"), true))
-		      ) );
-	// c1.addProperty(prop1);*/
-        _referencedClass = c1;
+        class1.addProperty(prop1);
+        */
+        class1
+            .addProperty(CIMProperty (CIMName ("Name"), String())
+                .addQualifier(CIMQualifier ( CIMName ("Key"), true)));
+        //
+	    //class1.addProperty(prop1);
+        _referencedClass = class1;
 
 		XmlWriter::printClassElement(_referencedClass);
 		MofWriter::printClassElement(_referencedClass);

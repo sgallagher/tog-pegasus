@@ -174,6 +174,7 @@ void ConfigFileHandler::copyPlannedFileOverCurrentFile()
     if (_plannedFileExist)
     {
         _currentConfFile->replace(_plannedConfFile->getFileName());
+        _currentFileExist = true;
     }
     else if (_currentFileExist)
     {

@@ -49,10 +49,13 @@ typedef struct {
     Thread * th;
     Condition * cond_start;
     MT_MessageQueue * mq;
+    AtomicInt * aiPtr;
 } parmdef;
 
 void * fibonacci(void * parm);
 void * deq(void * parm);
+
+static AtomicInt ai;
 
 static parmdef * setparm()
 {
@@ -63,6 +66,7 @@ static parmdef * setparm()
     parm->th = NULL;
     parm->cond_start = new Condition();
     parm->mq = NULL;
+    parm->aiPtr = &ai;
     return parm;
 };
     
@@ -72,6 +76,7 @@ Boolean die = false;
 int main()
 {
     void * retval;
+    int ai2,ai3;
 
     Uint32 rn,rn2;
 
@@ -128,6 +133,9 @@ int main()
 	sched_yield();
 //        sleep(1);
         cout << "+++++ passed test round " << i << endl; 
+
+        ai2=ai.value();ai++;ai3=ai.value()-1;
+        if (ai2 != ai3) cout << "thr 0: someone touched ai" << endl;
     }
 
     // Cancel the enqueueing tasks
@@ -190,6 +198,7 @@ int main()
 void * fibonacci(void * parm)
 {
   Thread* my_thread  = (Thread *)parm;
+  int ai2,ai3;
   
     parmdef * Parm = (parmdef *)my_thread->get_parm();
     int first = Parm->first;
@@ -210,6 +219,9 @@ void * fibonacci(void * parm)
 
     while (die == false)
     {
+        ai2=ai.value();ai++;ai3=ai.value()-1;
+        if (ai2 != ai3) cout << "thr fib: someone touched ai" << endl;
+
         for (int i=0; i < count; i++)
         {
             zw = first + second;
@@ -231,6 +243,7 @@ void * fibonacci(void * parm)
 void * deq(void * parm)
 {
   Thread* my_thread  = (Thread *)parm;
+  int ai2,ai3;
   
     parmdef * Parm = (parmdef *)my_thread->get_parm();
     Uint32 type, key;
@@ -251,6 +264,9 @@ void * deq(void * parm)
 
     while (type != MY_CANCEL_TYPE)
     {
+        ai2=ai.value();ai--;ai3=ai.value()+1;
+        if (ai2 != ai3) cout << "thr deq: someone touched ai" << endl;
+
         message = mq->dequeue();
         if (!message) break;
 

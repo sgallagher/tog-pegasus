@@ -296,9 +296,9 @@ Boolean ProviderAgent::_readAndProcessRequest()
     if (request->getType() == CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE)
     {
         // Process the request in this thread
-        CIMInitializeProviderAgentRequestMessage* ipaRequest =
-            dynamic_cast<CIMInitializeProviderAgentRequestMessage*>(request);
-        PEGASUS_ASSERT(ipaRequest != 0);
+        AutoPtr<CIMInitializeProviderAgentRequestMessage> ipaRequest(
+            dynamic_cast<CIMInitializeProviderAgentRequestMessage*>(request));
+        PEGASUS_ASSERT(ipaRequest.get() != 0);
 
         ConfigManager* configManager = ConfigManager::getInstance();
         configManager->setPegasusHome(ipaRequest->pegasusHome);
@@ -329,9 +329,9 @@ Boolean ProviderAgent::_readAndProcessRequest()
     else if (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
     {
         // Process the request in this thread
-        CIMNotifyConfigChangeRequestMessage* notifyRequest =
-            dynamic_cast<CIMNotifyConfigChangeRequestMessage*>(request);
-        PEGASUS_ASSERT(notifyRequest != 0);
+        AutoPtr<CIMNotifyConfigChangeRequestMessage> notifyRequest(
+            dynamic_cast<CIMNotifyConfigChangeRequestMessage*>(request));
+        PEGASUS_ASSERT(notifyRequest.get() != 0);
 
         //
         // Update the ConfigManager with the new property value
@@ -361,21 +361,21 @@ Boolean ProviderAgent::_readAndProcessRequest()
                 CIM_ERR_FAILED, e.getMessage());
         }
 
-        CIMResponseMessage* response = notifyRequest->buildResponse();
+        AutoPtr<CIMResponseMessage> response(notifyRequest->buildResponse());
         response->cimException = responseException;
 
         // Return response to CIM Server
-        _writeResponse(response);
+        _writeResponse(response.get());
     }
     else if ((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) ||
              (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE))
     {
         // Process the request in this thread
-        Message* response = _processRequest(request);
-        _writeResponse(response);
+        AutoPtr<Message> response(_processRequest(request));
+        _writeResponse(response.get());
 
         CIMResponseMessage * respMsg =
-            dynamic_cast<CIMResponseMessage*>(response);
+            dynamic_cast<CIMResponseMessage*>(response.get());
 
         // If StopAllProviders, terminate the agent process.
         // If DisableModule not successful, leave agent process running.
@@ -385,6 +385,8 @@ Boolean ProviderAgent::_readAndProcessRequest()
             // Operation is successful. End the agent process.
             _terminating = true;
         }
+
+        delete request;
     }
     else
     {
@@ -497,13 +499,13 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
 
     // Get the ProviderAgent and request message from the argument
     ProviderAgent* agent = agentRequest->agent;
-    CIMRequestMessage* request = agentRequest->request;
+    AutoPtr<CIMRequestMessage> request(agentRequest->request);
 
     // Process the request
-    Message* response = agent->_processRequest(request);
+    AutoPtr<Message> response(agent->_processRequest(request.get()));
 
     // Write the response
-    agent->_writeResponse(response);
+    agent->_writeResponse(response.get());
 
     PEG_METHOD_EXIT();
     return(PEGASUS_THREAD_RETURN(0));

@@ -787,13 +787,21 @@ void ConfigManager::_initPropertyTable()
     {
         const char* fixedValue;
 
+        _properties[i].propertyOwner->initialize();
+
         if (!_propertyTable->fixedValueTable.lookup(
                 _properties[i].propertyName, fixedValue))
         {
-            _properties[i].propertyOwner->initialize();
-
             _propertyTable->ownerTable.insert(_properties[i].propertyName,
                 _properties[i].propertyOwner);
+        }
+        else
+        {
+            //
+            // Set the value for the fixed properties
+            //
+            _properties[i].propertyOwner->initCurrentValue(
+                _properties[i].propertyName, fixedValue);
         }
     }
 }

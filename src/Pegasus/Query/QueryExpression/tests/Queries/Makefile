@@ -18,9 +18,9 @@ QueryExpression.query.res: QueryExpression.query
 	@ $(RM) $(TMP_DIR)/QueryExpression.query.res
 	@ $(ECHO) +++ QueryExpression.query passed successfully +++
 
-tests: QueryExpression.query.res 
+tests:
                                                                                 
-poststarttests:
+poststarttests: QueryExpression.query.res 
 
 clean:
 	$(RM) QueryExpression.query.res

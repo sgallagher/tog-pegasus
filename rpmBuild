@@ -1,4 +1,9 @@
 #!/bin/sh
+if test `whoami` != 'root'; then
+  echo "You have to be root to build the pegasus rpm"
+  exit
+fi
+#
 if test "$PEGASUS_PLATFORM" != LINUX_IX86_GNU; then
   echo "Please set PEGASUS_PLATFORM to LINUX_IX86_GNU"
   echo "either using export PEGASUS_PLATFORM=LINUX_IX86_GNU for ksh and bash"

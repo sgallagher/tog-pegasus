@@ -24,6 +24,8 @@ RMDIRHIER = mu rmdirhier
 
 MKDIRHIER = mu mkdirhier
 
+COPY = mu copy
+
 CXX = cl -nologo
 
 EXE_OUT = -Fe

@@ -11,11 +11,22 @@ createSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) CreateFilter03.xml
 	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription03.xml
 
+createSubscriptionSSL:
+	@wbemexec $(WBEMEXECOPTIONS) CreateFilter01.xml
+	@wbemexec $(WBEMEXECOPTIONS) CreateHandlerSSL01.xml
+	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription01.xml
+	@wbemexec $(WBEMEXECOPTIONS) CreateFilter02.xml
+	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription02.xml
+	@wbemexec $(WBEMEXECOPTIONS) CreateFilter03.xml
+	@wbemexec $(WBEMEXECOPTIONS) CreateSubscription03.xml
+
 disableSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) ModifySubscription01.xml
 
 enableSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) ModifySubscription02.xml
+
+deleteSubscriptionSSL: deleteSubscription
 
 deleteSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription01.xml

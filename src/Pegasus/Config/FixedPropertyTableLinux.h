@@ -50,6 +50,7 @@
     {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
     {"sslCertificateFilePath", "/var/cache/pegasus/server.pem"},
     {"sslKeyFilePath",      "/var/cache/pegasus/file.pem"},
+    {"sslTrustFilePath",      "/var/cache/pegasus/client.pem"},
     {"repositoryDir",       "/var/cache/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
 #endif

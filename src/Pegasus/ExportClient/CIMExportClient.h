@@ -45,6 +45,7 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/ContentLanguages.h>  //l10n
+#include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/ExportClient/Linkage.h>
 
@@ -110,6 +111,26 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
           const String& host, 
           const Uint32 portNumber);
 
+      /** Creates an HTTP connection with a Listener defined by
+          the host and portNumber.
+          @param host String defining the hostname of the listener.
+          @param portNumber Uint32 defining the port number of the listener.
+          @param sslContext SSL context to use for this connection.
+          @exception AlreadyConnectedException
+              If a connection has already been established.
+          @exception InvalidLocatorException
+              If the specified address is improperly formed.
+          @exception CannotCreateSocketException
+              If a socket cannot be created.
+          @exception CannotConnectException
+              If the socket connection fails.
+      */
+      void connect(
+          const String& host,
+          const Uint32 portNumber,
+          const SSLContext& sslContext);
+
+
       /** Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
         expected to use this method to close the open connection before
@@ -153,6 +174,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       ClientAuthenticator _authenticator;
       String _connectHost;
       Uint32 _connectPortNumber;
+      SSLContext* _connectSSLContext;
 };
 
 PEGASUS_NAMESPACE_END

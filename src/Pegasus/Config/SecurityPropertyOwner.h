@@ -220,6 +220,8 @@ private:
     struct ConfigProperty*      _certificateFilePath;
 
     struct ConfigProperty*      _keyFilePath;
+
+    struct ConfigProperty*      _trustFilePath;
 };
 
 PEGASUS_NAMESPACE_END

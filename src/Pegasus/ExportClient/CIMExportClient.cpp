@@ -85,6 +85,7 @@ void CIMExportClient::_connect()
    {
       _httpConnection = _httpConnector->connect(_connectHost, 
 					       _connectPortNumber, 
+                                               _connectSSLContext,
         				       _responseDecoder);
    }
    catch (CannotCreateSocketException& e)
@@ -143,10 +144,52 @@ void CIMExportClient::connect(
     _authenticator.clearRequest(true);
     _authenticator.setAuthType(ClientAuthenticator::NONE);
 
+    _connectSSLContext = 0;
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
     _connect();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber,
+    const SSLContext& sslContext)
+{
+   // If already connected, bail out!
+
+   if (_connected)
+      throw AlreadyConnectedException();
+
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clearRequest(true);
+    _authenticator.setAuthType(ClientAuthenticator::NONE);
+
+    _connectSSLContext = new SSLContext(sslContext);
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    try
+    {
+        _connect();
+    }
+    catch (Exception&)
+    {
+        delete _connectSSLContext;
+        _connectSSLContext = 0;
+        throw;
+    }
 }
 
 void CIMExportClient::disconnect()
@@ -180,6 +223,12 @@ void CIMExportClient::disconnect()
         }
 
         _authenticator.clearRequest(true);
+
+        if (_connectSSLContext)
+        {
+            delete _connectSSLContext;
+            _connectSSLContext = 0;
+        }
 
         _connected = false;
     }

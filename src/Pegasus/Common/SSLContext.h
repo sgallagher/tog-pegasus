@@ -45,6 +45,7 @@ class SSLCertificateInfoRep;
 class SSLContextRep;
 class SSLSocket;
 class CIMServer;
+class CIMxmlIndicationHandler;
 
 
 /** This class provides the interface that a client gets as argument
@@ -298,6 +299,8 @@ private:
     friend class SSLSocket;
 
     friend class CIMServer;
+
+    friend class CIMxmlIndicationHandler;
 };
 
 PEGASUS_NAMESPACE_END

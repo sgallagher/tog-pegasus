@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,7 @@
 #include <Pegasus/ExportClient/CIMExportClient.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/SSLContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,6 +46,14 @@ PEGASUS_USING_STD;
 #define DDD(X) // X
 
 DDD(static const char* _CIMXMLINDICATIONHANDLER = "CIMxmlIndicationHandler::";)
+
+static Boolean verifyListenerCertificate(SSLCertificateInfo &certInfo)
+{
+    // ATTN: Add code to handle listener certificate verification.
+    //
+    return true;
+}
+
 
 class PEGASUS_HANDLER_LINKAGE CIMxmlIndicationHandler: public CIMHandler
 {
@@ -96,25 +106,99 @@ public:
 	
 	try
         {
-		// Bug #349. Changing allocation from heap to stack since
-                // we don't use the monitor, httpConnector later on.
-	    Monitor monitor;
-	    HTTPConnector httpConnector (&monitor);
-	    CIMExportClient exportclient (&monitor, &httpConnector);
+            static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
+            static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
+            static String PROPERTY_NAME__SSLTRUST_FILEPATH  = "sslTrustFilePath";
+
+            //
+            // Get the sslCertificateFilePath property from the Config Manager.
+            //
+            String certPath;
+            certPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLCERT_FILEPATH);
+
+            //
+            // Get the sslKeyFilePath property from the Config Manager.
+            //
+            String keyPath;
+            keyPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLKEY_FILEPATH);
+
+            //
+            // Get the sslKeyFilePath property from the Config Manager.
+            //
+            String trustPath = String::EMPTY;
+            trustPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLTRUST_FILEPATH);
+
+            String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+            // NOTE: It is technically not necessary to set up a random file on
+            // the server side, but it is easier to use a consistent interface
+            // on the client and server than to optimize out the random file on
+            // the server side.
+            randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
+#endif
+
+            SSLContext sslcontext(trustPath, certPath, keyPath, verifyListenerCertificate, randFile);
+
+	    Monitor* monitor = new Monitor;
+	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+	    CIMExportClient exportclient(monitor, httpConnector);
             Uint32 colon = dest.find (":");
-            Uint32 slash = dest.find ("/");
+            Uint32 doubleSlash = dest.find ("//");
             Uint32 portNumber = 0;
+            Boolean useHttps = false;
+            String destStr = dest;
+
+            //
+            // If the URL has https (https://hostname:port/...) then use SSL 
+            // for Indication delivery. If it has http (http://hostname:port/...)
+            // or none (hostname:port/...) then do not use SSL.
+            //
+            if ((colon != PEG_NOT_FOUND) && (doubleSlash != PEG_NOT_FOUND))
+            {
+                String httpStr = dest.subString(0, colon); 
+                if (String::equalNoCase(httpStr, "https"))
+                {
+                    useHttps = true;
+                }
+                destStr = dest.subString(doubleSlash + 2, PEG_NOT_FOUND);
+            }
+
+            colon = destStr.find (":");
+            Uint32 slash = destStr.find ("/");
+
             if ((colon != PEG_NOT_FOUND) && (slash != PEG_NOT_FOUND))
             {
-                String portStr = dest.subString (colon + 1, slash);
+                String portStr = destStr.subString (colon + 1, slash);
                 sscanf (portStr.getCString (), "%u", &portNumber);
             }
-            exportclient.connect (dest.subString (0, colon), portNumber);
+
+            if (useHttps)
+            {
+#ifdef PEGASUS_HAS_SSL
+                exportclient.connect (destStr.subString (0, colon), 
+                    portNumber, sslcontext);
+#else
+                PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: "
+                    << "Cannot do https connection." << PEGASUS_STD(endl);
+#endif
+            }
+            else
+            {
+                exportclient.connect (destStr.subString (0, colon), portNumber);
+            }
+
 	    exportclient.exportIndication(
-                dest.subString(dest.find("/")), indicationInstance);
+                destStr.subString(destStr.find("/")), indicationInstance);
 	}
 	catch(Exception& e)
         {
+            //ATTN: Catch specific exceptions and log the error message 
+            // as Indication delivery failed.
+
             PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: " << e.getMessage() 
 	    << PEGASUS_STD(endl);
         }

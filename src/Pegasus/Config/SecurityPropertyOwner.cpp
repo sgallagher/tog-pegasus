@@ -59,6 +59,7 @@ static struct ConfigPropertyRow properties[] =
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
     {"sslCertificateFilePath", "server.pem", 0, 0, 0}, 
     {"sslKeyFilePath", "file.pem", 0, 0, 0}, 
+    {"sslTrustFilePath", "client.pem", 0, 0, 0}, 
     {"enableNamespaceAuthorization", "false", 0, 0, 0},
     {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0}
 };
@@ -76,6 +77,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _passwordFilePath = new ConfigProperty();
     _certificateFilePath = new ConfigProperty();
     _keyFilePath = new ConfigProperty();
+    _trustFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
 }
 
@@ -89,6 +91,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _passwordFilePath;
     delete _certificateFilePath;
     delete _keyFilePath;
+    delete _trustFilePath;
     delete _enableRemotePrivilegedUserAccess;
 }
 
@@ -190,7 +193,7 @@ void SecurityPropertyOwner::initialize()
         } 
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
-			    "sslkeyFilePath"))
+			    "sslKeyFilePath"))
         {  
             _keyFilePath->propertyName = properties[i].propertyName;
             _keyFilePath->defaultValue = properties[i].defaultValue;
@@ -200,13 +203,34 @@ void SecurityPropertyOwner::initialize()
             _keyFilePath->domainSize = properties[i].domainSize;
 
             // 
-            // Initialize SSL cert file path to $PEGASUS_HOME/file.pem
+            // Initialize SSL key file path to $PEGASUS_HOME/file.pem
             //
 	    if ( _keyFilePath->currentValue == String::EMPTY )
 	    {
                 _keyFilePath->currentValue.append(ConfigManager::getPegasusHome());
                 _keyFilePath->currentValue.append("/");
                 _keyFilePath->currentValue.append(_keyFilePath->defaultValue);
+            }
+        } 
+        else if (String::equalNoCase(
+			    properties[i].propertyName, 
+			    "sslTrustFilePath"))
+        {  
+            _trustFilePath->propertyName = properties[i].propertyName;
+            _trustFilePath->defaultValue = properties[i].defaultValue;
+            _trustFilePath->plannedValue = properties[i].defaultValue;
+            _trustFilePath->dynamic = properties[i].dynamic;
+            _trustFilePath->domain = properties[i].domain;
+            _trustFilePath->domainSize = properties[i].domainSize;
+
+            // 
+            // Initialize SSL trust file path to $PEGASUS_HOME/trust.pem
+            //
+	    if ( _trustFilePath->currentValue == String::EMPTY )
+	    {
+                _trustFilePath->currentValue.append(ConfigManager::getPegasusHome());
+                _trustFilePath->currentValue.append("/");
+                _trustFilePath->currentValue.append(_trustFilePath->defaultValue);
             }
         } 
         else if (String::equalNoCase(
@@ -254,6 +278,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equalNoCase(_keyFilePath->propertyName, name))
     {  
         return _keyFilePath;
+    }
+    else if (String::equalNoCase(_trustFilePath->propertyName, name))
+    {  
+        return _trustFilePath;
     }
     else if (String::equalNoCase(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
@@ -491,7 +519,8 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         }
     }
     else if (String::equalNoCase(_certificateFilePath->propertyName, name) ||
-             String::equalNoCase(_keyFilePath->propertyName, name))
+             String::equalNoCase(_keyFilePath->propertyName, name) ||
+             String::equalNoCase(_trustFilePath->propertyName, name))
     {  
 	String fileName(value);
 

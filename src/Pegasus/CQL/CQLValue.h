@@ -40,6 +40,7 @@
 
 #include <Pegasus/CQL/Linkage.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
     enum NumericType { Hex, Binary,  Decimal, Real};

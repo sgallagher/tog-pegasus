@@ -12,6 +12,7 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
+
 #define PEGASUS_ARRAY_T CQLValue
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T

@@ -36,7 +36,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include "Linkage.h"
+#include <Pegasus/ControlProviders/NamespaceProvider/Linkage.h>
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>

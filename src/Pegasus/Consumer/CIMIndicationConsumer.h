@@ -34,7 +34,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/OperationContext.h>
 
-#include "Linkage.h"
+#include <Pegasus/Consumer/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

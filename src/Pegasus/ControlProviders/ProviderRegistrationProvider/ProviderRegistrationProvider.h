@@ -28,7 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include "Linkage.h"
+#include <Pegasus/ControlProviders/ProviderRegistrationProvider/Linkage.h>
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>

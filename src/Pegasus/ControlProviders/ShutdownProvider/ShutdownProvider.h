@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include "Linkage.h"
+#include <Pegasus/ControlProviders/ShutdownProvider/Linkage.h>
 
 #include <Pegasus/Provider/CIMMethodProvider.h>
 //#include <Pegasus/Server/ShutdownService.h>

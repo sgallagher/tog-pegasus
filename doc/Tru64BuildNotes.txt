@@ -12,7 +12,8 @@ Notes on building for TRU64:
     "make").
 
 3.  Make an install mu (only necessary to get proper source dependencies
-    working).
+    working). Just change to peagsus/src/utils/mu and type "make". Then
+    install it (put mu executable on your path someplace).
 
 4.  Install flex and bison (you can also change the makefiles to use lex
     and yacc).

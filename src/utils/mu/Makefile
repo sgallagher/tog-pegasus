@@ -9,7 +9,15 @@
 #
 ################################################################################
 
+OS=unix
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+OS=windows
+endif
+
+ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
 OS=tru64
+endif
 
 # Set Parameters for OS type
 ifeq ($(OS),compaq_oss)

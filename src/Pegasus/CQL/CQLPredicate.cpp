@@ -6,30 +6,64 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-//##ModelId=40FD61E30034
-CQLPredicate::CQLPredicate(const CQLExpression& inExpression, ExpressionOpType inOperator)
+CQLPredicate::CQLPredicate(CQLSimplePredicate inSimplePredicate, Boolean inVerted)
 {
 }
 
-//##ModelId=40FD6290025E
-CQLPredicate::CQLPredicate(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator)
+CQLPredicate::CQLPredicate(CQLPredicate inPredicate, Boolean inInverted)
 {
 }
 
-//##ModelId=40FD725B025F
-CQLPredicate::CQLPredicate(CQLPredicate inPredicate, Boolean inInvert)
-{
-}
-
-//##ModelId=40FC365903BF
 Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
    return false;
 }
 
-//##ModelId=40FD6FF202ED
+Boolean CQLPredicate::isTerminal(){
+	return _terminal;
+}
+Boolean CQLPredicate::getInverted(){
+	return _invert;
+}
+
+Boolean CQLPredicate::setInverted(){
+	_invert = true;
+}
+
 void CQLPredicate::appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator)
 {
 }
 
+void CQLPredicate::appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator){
+
+}
+
+Array<CQLPredicate> CQLPredicate::getPredicates(){
+//	return _predicates;
+}
+
+CQLSimplePredicate CQLPredicate::getSimplePredicate(){
+	return _simplePredicate;
+}
+/*
+BooleanOpType[] CQLPredicate::getOperators(){
+	return operators;
+}
+
+Array<CQLScope> CQLPredicate::getScopes(){
+
+}
+
+void CQLPredicate::applyScopes(Array<CQLScope> & inScopes){
+
+}
+*/
+
+Boolean CQLPredicate::isSimple(){
+
+}
+
+String CQLPredicate::toString(){
+
+}
 PEGASUS_NAMESPACE_END

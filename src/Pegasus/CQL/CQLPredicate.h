@@ -1,23 +1,16 @@
-#ifndef CQLPREDICATE_H_HEADER_INCLUDED_BEE59A50
-#define CQLPREDICATE_H_HEADER_INCLUDED_BEE59A50
-
+#ifndef Pegasus_CQLPredicate_h
+#define Pegasus_CQLPredicate_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLExpression.h>
-
-
+#include <Pegasus/CQL/CQLSimplePredicate.h>
+//#include <Pegasus/CQL/CQLScope.h>
 #include <Pegasus/CQL/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define MAXOPTYPES 50
 
-
-// enum { <, >, =, <=, >=, <>, IS NULL, IS NOT NULL, ISA, LIKE }
-    //##ModelId=40FC35A1023A
-    enum  ExpressionOpType { LT, GT, EQ, LTE, GTE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE };
-// enum { AND, OR }
-    //##ModelId=40FD705600B3
     enum BooleanOpType { AND, OR } ;
 /** 
    This object is populated by Bison.
@@ -61,19 +54,14 @@ variable is set to TRUE
     and then returned to the caller.
 
    */
-//##ModelId=40FC35A10230
 class PEGASUS_CQL_LINKAGE CQLPredicate
 {
   public:
-   CQLPredicate(){}
-    //##ModelId=40FD61E30034
-    CQLPredicate(const CQLExpression& inExpression, ExpressionOpType inOperator);
+    CQLPredicate(){}
+    
+    CQLPredicate(CQLSimplePredicate inSimplePredicate, Boolean inVerted);
 
-    //##ModelId=40FD6290025E
-    CQLPredicate(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator);
-
-    //##ModelId=40FD725B025F
-    CQLPredicate(CQLPredicate inPredicate, Boolean inInvert);
+    CQLPredicate(CQLPredicate inPredicate, Boolean inVerted);
 
    ~CQLPredicate(){}
     /**  
@@ -106,64 +94,50 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
         and then returned to the caller.
     
       */
-    //##ModelId=40FC365903BF
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
+
+    Boolean isTerminal();
+
+    Boolean getInverted();
+
+    Boolean setInverted();
 
     /** Appends a predicate to the predicate array. This method should only
             be called by Bison.
         */
-    //##ModelId=40FD6FF202ED
-    void appendPredicate(
-        // CQLOperation is an enum similar to the WQLOperation enum in CVS:
-        // enum CQLOperation
-        // {
-        //     <,
-        //     >,
-        //     =,
-        //    >=,
-        //    <=,
-        //     +,
-        //     -,
-        //     *,
-        //     /,
-        //     CQL_IS_NULL,
-        //     CQL_IS_NOT_NULL,
-        //     CQL_IS_A,
-        //     CQL_LIKE
-        // };
-        CQLPredicate inPredicate, BooleanOpType inBooleanOperator);
+    void appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator);
+
+    void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
+  
+    Array<CQLPredicate> getPredicates();
+  
+    CQLSimplePredicate getSimplePredicate();
+
+    //BooleanOpType[] getOperators();
+
+    //Array<CQLScope> getScopes();
+
+    //void applyScopes(Array<CQLScope> & inScopes)
+
+    Boolean isSimple();
+
+    String toString();
 
   private:
     
-   ExpressionOpType _expressionOpType;
     
    BooleanOpType _booleanOpType;
-    //##ModelId=40FC35F801B0
-    CQLExpression* _leftSide;
 
-    //##ModelId=40FC36270224
-    CQLExpression* _rightSide;
+   //Array<CQLPredicate> _predicates;
+   CQLSimplePredicate _simplePredicate;
+   BooleanOpType _operators[MAXOPTYPES];
 
-    /** 
-    TODO:  document this array.   Still need to think about the DNF and how to
-    correlate operations and predicates.
-       */
-    //##ModelId=40FD6E330153
-    //Array<CQLPredicate> _predicates;
-
-    /**  If set to TRUE, then the CQLPredicate will be "NOT"d after it is
-    evaluated.
-          If set to FALSE, then the CQLPredicate will not be "NOT"d after it is
-    evaluated.
-      */
-    //##ModelId=40FD70AA02BA
     Boolean _invert;
 
     /**  If set to TRUE, then the CQLPredicate contains no other CQLPredicates.
           If set to FALSE, then the CQLPredicate only contains other CQLPredicates
     that need tobe evaluated.
       */
-    //##ModelId=40FD715D0190
     Boolean _terminal;
 
 };

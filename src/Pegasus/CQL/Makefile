@@ -26,6 +26,7 @@ SOURCES = \
    RepositoryQueryContext.cpp \
    CQLParser.cpp \
    CQLParserState.cpp \
+   CQLSimplePredicate.cpp \
    CQLPredicate.cpp \
    CQLTerm.cpp \
    CQLFunction.cpp \

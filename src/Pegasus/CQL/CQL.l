@@ -17,6 +17,7 @@ POSITIVE_DECIMAL_DIGIT [1-9]
 DECIMAL_DIGIT [0-9]
 BLANK [ \t]
 IDENT_CHAR [A-Za-z_\x80-\xFF]
+PROP_CHAR [A-Za-z0-9_\[\]\-\#\,\']
 
 A [Aa]
 B [Bb]
@@ -150,12 +151,6 @@ Z [Zz]
     return SATISFIES;
 }
 
-{S}{C}{O}{P}{I}{N}{G}{T}{Y}{P}{E} {
-                                                                                                                                                             
-    printf("LEX: %s [SCOPINGTYPE] ", yytext);
-    return SCOPINGTYPE;
-}
-
 {T}{R}{U}{E} {
 
     printf("LEX: %s [TRUE] ", yytext);
@@ -192,8 +187,14 @@ Z [Zz]
     return OR;
 }
 
-\.{IDENT_CHAR}*\:\:{IDENT_CHAR}*[.]? {
-    printf("LEX: %s [SCOPED_PROPERTY] ", yytext);
+{IDENT_CHAR}*\:\:{PROP_CHAR}*[.]? {
+    size_t n = strlen(yytext);
+    if(CQL_lval.strValue)
+        delete [] CQL_lval.strValue;
+    CQL_lval.strValue = new char[n+1];
+    memcpy(CQL_lval.strValue, yytext, n);
+    CQL_lval.strValue[n] = '\0';
+    printf("LEX: %s [SCOPED_PROPERTY] ", CQL_lval.strValue);
     return SCOPED_PROPERTY;
 }
 

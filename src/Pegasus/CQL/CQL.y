@@ -6,10 +6,15 @@
 #include <stdio.h>
 
 #define yyparse CQL_parse
+#define CQLPREDICATE 0
+#define CQLVALUE 1
+#define CQLIDENTIFIER 2
+#define CQLFUNCTION 3
 
 int yylex();
 int yyerror(char * err){printf("%s\n", err); return 1;}
 extern char * yytext;
+int chain_state;
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
@@ -24,11 +29,13 @@ PEGASUS_NAMESPACE_END
    String * _string;
    CQLValue * _value;
    CQLSelectStatement * _ss;
-   CQLIdentifier * _id;
-   CQLChainedIdentifier * _cid;
+   CQLIdentifier * _identifier;
+   CQLChainedIdentifier * _chainedIdentifier;
    CQLTerm * _term;
    CQLFactor * _factor;
    CQLPredicate * _predicate;
+   CQLExpression * _expression;
+   void * _node;
 }
 
 /* terminals */
@@ -51,7 +58,6 @@ PEGASUS_NAMESPACE_END
 %token <strValue> DOT 
 %token <strValue> LBRKT 
 %token <strValue> RBRKT 
-%token <strValue> SCOPE
 %token <strValue> UNDERSCORE
 %token <strValue> COMMA 
 %token <strValue> CONCAT 
@@ -71,7 +77,7 @@ PEGASUS_NAMESPACE_END
 %token <strValue> ISA 
 %token <strValue> LIKE 
 %token <strValue> NOT AND OR 
-%token <strValue> SCOPINGTYPE 
+%token <strValue> SCOPE 
 %token <strValue> ANY EVERY IN SATISFIES 
 %token <strValue> STAR 
 %token <strValue> DOTDOT 
@@ -89,26 +95,27 @@ PEGASUS_NAMESPACE_END
 
 
 /* grammar - non terminals */
-%type <strValue> identifier
+%type <_identifier> identifier
 %type <strValue> class_name
 %type <strValue> class_path
-%type <strValue> property_scope
-%type <strValue> literal_string
-%type <strValue> binary_value
-%type <strValue> hex_value
-%type <strValue> decimal_value
-%type <strValue> real_value
-%type <strValue> literal
+%type <_identifier> property_scope
+%type <strValue> scoped_property
+%type <_string> literal_string
+%type <_value> binary_value
+%type <_value> hex_value
+%type <_value> decimal_value
+%type <_value> real_value
+%type <_value> literal
 %type <strValue> array_index
 %type <strValue> array_index_list
-%type <strValue> chain
-%type <strValue> concat
-%type <strValue> factor
-%type <strValue> term
-%type <strValue> arith
-%type <strValue> value_symbol
-%type <strValue> arith_or_value_symbol
-%type <strValue> comp_op
+%type <_node> chain
+%type <_value> concat
+%type <_factor> factor
+%type <_term> term
+%type <_expression> arith
+%type <_value> value_symbol
+%type <_expression> arith_or_value_symbol
+%type <_predicate> comp_op
 %type <strValue> comp
 %type <strValue> optional_not
 %type <strValue> expr_factor
@@ -131,13 +138,15 @@ PEGASUS_NAMESPACE_END
 %%
 identifier : IDENTIFIER 
              { 
-                 printf("BISON::identifier\n"); 
+                 printf("BISON::identifier\n");
+                 $$ = new CQLIdentifier(String(CQL_lval.strValue));
              }
 ;
 
 class_name : identifier  
-             { 
-                 printf("BISON::class_namei = %s\n", $1); 
+             {
+                 String tmp = $1->getName().getString(); 
+                 printf("BISON::class_name = %s\n", (const char *)tmp.getCString()); 
              }
 ;
 
@@ -147,17 +156,24 @@ class_path : class_name
              }
 ;
 
-property_scope : class_path SCOPE 
+property_scope : class_path SCOPE
              { 
                  printf("BISON::property_scope = %s\n",$1); 
+                 /*$$ = new CQLIdentifier(String(CQL_lval.strValue));*/
              }
 ;
+
+scoped_property : SCOPED_PROPERTY
+                  {
+			printf("BISON::scoped_property = %s\n",$1);
+                  }
+;   
 
 literal_string : STRING_LITERAL 
              { 
                  printf("BISON::literal_string-> %s\n",CQL_lval.strValue); 
 		 if(isUTF8Str(CQL_lval.strValue)){
-		     CQLValue _value(String(CQL_lval.strValue));
+		     $$ = new String(CQL_lval.strValue);
 		 }else{
 		     printf("BISON::literal_string-> BAD UTF\n");
 		 }
@@ -167,54 +183,55 @@ literal_string : STRING_LITERAL
 binary_value : BINARY 
 	       { 
                    printf("BISON::binary_value-> %s\n",CQL_lval.strValue); 
-                   CQLValue _value(CQL_lval.strValue, Binary); 
+                   $$ = new CQLValue(CQL_lval.strValue, Binary); 
                }
              | NEGATIVE_BINARY 
                { 
                    printf("BISON::binary_value-> %s\n",CQL_lval.strValue); 
-                   CQLValue _value(CQL_lval.strValue, Binary, false); 
+                   $$ = new CQLValue(CQL_lval.strValue, Binary, false); 
                }
 ;
 
 hex_value : HEXADECIMAL 
             { 
                 printf("BISON::hex_value-> %s\n",CQL_lval.strValue); 
-                CQLValue _value(CQL_lval.strValue, Hex);
+                $$ = new CQLValue(CQL_lval.strValue, Hex);
             }
           | NEGATIVE_HEXADECIMAL 
             { 
                 printf("BISON::hex_value-> %s\n",CQL_lval.strValue); 
-                CQLValue _value(CQL_lval.strValue, Hex, false);
+                $$ = new CQLValue(CQL_lval.strValue, Hex, false);
             }
 ;
 
 decimal_value : INTEGER 
                 { 
                     printf("BISON::decimal_value-> %s\n",CQL_lval.strValue); 
-                    CQLValue _value(CQL_lval.strValue, Decimal); 
+                    $$ = new CQLValue(CQL_lval.strValue, Decimal); 
                 }
               | NEGATIVE_INTEGER 
                 { 
                     printf("BISON::decimal_value-> %s\n",CQL_lval.strValue); 
-                    CQLValue _value(CQL_lval.strValue, Decimal, false);
+                    $$ = new CQLValue(CQL_lval.strValue, Decimal, false);
                 }
 ;
 
 real_value : REAL 
              { 
                  printf("BISON::real_value-> %s\n",CQL_lval.strValue); 
-                 CQLValue _value(CQL_lval.strValue, Real);
+                 $$ = new CQLValue(CQL_lval.strValue, Real);
              }
            | NEGATIVE_REAL 
              { 
                  printf("BISON::real_value-> %s\n",CQL_lval.strValue); 
-                 CQLValue _value(CQL_lval.strValue, Real, false);
+                 $$ = new CQLValue(CQL_lval.strValue, Real, false);
              }
 ;
 
 literal : literal_string 
           {
               printf("BISON::literal->literal_string\n");
+              $$ = new CQLValue(*$1);
           }
         | decimal_value
           {
@@ -235,10 +252,12 @@ literal : literal_string
         | TRUE
           {
               printf("BISON::literal->TRUE\n");
+              $$ = new CQLValue(Boolean(true));
           }
         | FALSE
           {
               printf("BISON::literal->FALSE\n");
+              $$ = new CQLValue(Boolean(false));
           }
 ;
 
@@ -257,38 +276,58 @@ array_index_list : array_index
 chain : literal
         {
             printf("BISON::chain->literal\n");
+            chain_state = CQLVALUE;
         }
       | LPAR expr RPAR
         {
             printf("BISON::chain-> ( expr )\n");
+            chain_state = CQLPREDICATE;
         }
       | identifier
         {
             printf("BISON::chain->identifier\n");
+           chain_state = CQLIDENTIFIER;
         }
       | identifier HASH literal_string
         {
             printf("BISON::chain->identifier#literal_string\n");
+            String tmp = $1->getName().getString();
+            tmp.append("#").append(*$3);
+            $$ = new CQLIdentifier(tmp);
         }
       | identifier LPAR arg_list RPAR
         {
             printf("BISON::chain-> identifier( arg_list )\n");
+            chain_state = CQLFUNCTION;
         }
-      | chain DOT property_scope identifier
+      | chain DOT scoped_property
         {
-            printf("BISON::chain->chain.property_scope identifier\n");
-        }
-      | chain DOT property_scope identifier HASH literal_string
-        {
-            printf("BISON::chain->chain.property_scope identifier#literal_string\n");
+	    printf("BISON::chain-> chain DOT scoped_property\n");
+	    if(chain_state == CQLIDENTIFIER){
+                $$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
+                String tmpstr($3);
+                CQLIdentifier tmpid(tmpstr);
+                ((CQLChainedIdentifier*)$$)->append(tmpid);
+            }
         }
       | chain DOT identifier
         {
             printf("BISON::chain->chain.identifier\n");
+            if(chain_state == CQLIDENTIFIER){
+		$$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
+		((CQLChainedIdentifier*)$$)->append(*$3);
+            }
         }
       | chain DOT identifier HASH literal_string
         {
             printf("BISON::chain->chain.identifier#literal_string\n");
+            if(chain_state == CQLIDENTIFIER){
+                $$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
+                String tmp($3->getName().getString());
+		tmp.append("#").append(*$5);
+                CQLIdentifier tmpid(tmp);
+                ((CQLChainedIdentifier*)$$)->append(tmpid);
+            }
         }
       | chain LBRKT array_index_list RBRKT
         {

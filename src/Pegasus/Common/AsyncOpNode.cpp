@@ -36,7 +36,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define snprintf _snprintf
 #endif
 
-AsyncOpNode * AsyncOpNode::_headOfFreeList;
+#ifdef PEGASUS_ASYNCOPNODE_MEMORY_OPTIMIZATION
+AsyncOpNode * AsyncOpNode::_headOfFreeList = 0;
 const int AsyncOpNode::BLOCK_SIZE = 200;
 Mutex AsyncOpNode::_alloc_mut;
 
@@ -81,6 +82,7 @@ void AsyncOpNode::operator delete(void *dead, size_t size)
    _headOfFreeList = node;
    _alloc_mut.unlock();
 }
+#endif // PEGASUS_ASYNCOPNODE_MEMORY_OPTIMIZATION
 
 
 AsyncOpNode::AsyncOpNode(void)

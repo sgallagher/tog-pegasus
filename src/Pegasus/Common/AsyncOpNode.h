@@ -81,6 +81,10 @@ class Thread;
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
 
+#ifdef PEGASUS_ASYNCOPNODE_MEMORY_OPTIMIZATION
+// Note: These memory operators cause memory corruption errors because they
+// are not compatible with the "::operator delete()" function used in
+// internal_dq::empty_list()
     public:
       static void * operator new(size_t );
       static void operator delete( void *, size_t);
@@ -88,6 +92,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       static AsyncOpNode * _headOfFreeList;
       static const int BLOCK_SIZE;
       static Mutex _alloc_mut;
+#endif
    public:
 
       AsyncOpNode(void);

@@ -128,14 +128,6 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & nam
 //
 //********************************************************************
 
-
-    String _getIPAddress()
-    {
-        String IPAddress = "192.168.1.120";
-        return
-    }
-    String IPAddress = _getIPAddress();
-
 String arrayToString(const Array<String>& s)
 {
 String output;    
@@ -355,6 +347,9 @@ void SLPProvider::populateData(void)
     }
 
      // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
+     
+    String IPAddress = getHostAddress(getHostName());
+ 
     IPAddress.append(":5988");
     
     populateTemplateField(instance1, serviceLocationTCP,IPAddress);
@@ -687,5 +682,36 @@ void SLPProvider::terminate(void)
     delete this;
 }
 
+String SLPProvider::getHostAddress(String hostName)
+{
+  String ipAddress("127.0.0.1");
+  
+  if (hostName == String::EMPTY)
+    {
+    	hostName = getHostName();
+  	}
+
+  struct hostent * phostent;
+  struct in_addr   inaddr;
+  
+  if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
+    {
+      ::memcpy( &inaddr, phostent->h_addr,4);
+      ipAddress = ::inet_ntoa( inaddr );
+    }
+  return ipAddress;
+} 
+
+String SLPProvider::getHostName()
+{
+  static char hostname[64];
+
+  if (!*hostname)
+    {
+      ::gethostname(hostname, sizeof(hostname));
+		}
+
+  return hostname;
+}
 
 PEGASUS_NAMESPACE_END

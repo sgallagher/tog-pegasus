@@ -109,6 +109,8 @@ class SLPProvider: public CIMInstanceProvider
 
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
         void populateTemplateField(CIMInstance& instance, const String& fieldName, const String& value);
+        String getHostAddress(String hostName);
+        String getHostName();
    };
 
 PEGASUS_NAMESPACE_END

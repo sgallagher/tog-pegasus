@@ -133,8 +133,6 @@ public:
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
             static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
-            static String PROPERTY_NAME__ENABLE_HTTPS_CONNECTION = "enableHttpsConnection";
-            static String PROPERTY_NAME__ENABLE_HTTP_CONNECTION = "enableHttpConnection";
 
             //
             // Get the sslCertificateFilePath property from the Config Manager.
@@ -160,14 +158,6 @@ public:
             randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-            //
-            // Get the enableHttpsConnection and enableHttpConnection properties
-            //
-            String enableHttps = configManager->getCurrentValue(
-                                    PROPERTY_NAME__ENABLE_HTTPS_CONNECTION);
-            String enableHttp = configManager->getCurrentValue(
-                                    PROPERTY_NAME__ENABLE_HTTP_CONNECTION);
-
             #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
             Monitor monitor;
             HTTPConnector httpConnector( &monitor);
@@ -192,13 +182,11 @@ public:
             if (colon != PEG_NOT_FOUND) 
             {
                 String httpStr = dest.subString(0, colon); 
-                if (String::equalNoCase(httpStr, "https") &&
-					String::equalNoCase(enableHttps, "true"))
+                if (String::equalNoCase(httpStr, "https"))
                 {
                     useHttps = true;
                 }
-                else if (String::equalNoCase(httpStr, "http") &&
-					String::equalNoCase(enableHttp, "true"))
+                else if (String::equalNoCase(httpStr, "http"))
                 {
                     useHttps = false;
                 }

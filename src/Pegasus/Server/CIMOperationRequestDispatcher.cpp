@@ -2479,10 +2479,15 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     	    new CIMGetInstanceRequestMessage(*request);
 
 		if(providerIdContainer!=NULL) 
+		{
 			requestCopy->operationContext.insert(*providerIdContainer); 
+			delete providerIdContainer;
+			providerIdContainer = NULL;
+		}
 
     	_forwardRequestToProviderManager(className, serviceName,
             controlProviderName, requestCopy);
+
     	PEG_METHOD_EXIT();
     	return;
     }
@@ -2650,7 +2655,11 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     	    new CIMDeleteInstanceRequestMessage(*request);
 
 		if(providerIdContainer!=NULL) 
-	        requestCopy->operationContext.insert(*providerIdContainer);
+		{
+			requestCopy->operationContext.insert(*providerIdContainer); 
+			delete providerIdContainer;
+			providerIdContainer = NULL;
+		}
 
     	_forwardRequestToProviderManager(className, serviceName, controlProviderName,
     	    requestCopy);
@@ -2817,7 +2826,11 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
     	    new CIMCreateInstanceRequestMessage(*request);
 
 		if(providerIdContainer!=NULL) 
-	      requestCopy->operationContext.insert(*providerIdContainer); 
+		{
+			requestCopy->operationContext.insert(*providerIdContainer); 
+			delete providerIdContainer;
+			providerIdContainer = NULL;
+		}
 
     	_forwardRequestToProviderManager(className, serviceName, controlProviderName,
     	    requestCopy);
@@ -2986,7 +2999,11 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     	    new CIMModifyInstanceRequestMessage(*request);
 
 		if(providerIdContainer!=NULL) 
-	        requestCopy->operationContext.insert(*providerIdContainer); 
+		{
+			requestCopy->operationContext.insert(*providerIdContainer); 
+			delete providerIdContainer;
+			providerIdContainer = NULL;
+		}
 
     	_forwardRequestToProviderManager(className, serviceName, controlProviderName,
     	    requestCopy);
@@ -4880,8 +4897,12 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       CIMGetPropertyRequestMessage* requestCopy =
           new CIMGetPropertyRequestMessage(*request);
 
-  	   if(providerIdContainer!=NULL) 
-	      requestCopy->operationContext.insert(*providerIdContainer); 
+  	   	if(providerIdContainer!=NULL) 
+		{
+			requestCopy->operationContext.insert(*providerIdContainer); 
+			delete providerIdContainer;
+			providerIdContainer = NULL;
+		}
 
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
@@ -5009,8 +5030,12 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       CIMSetPropertyRequestMessage* requestCopy =
           new CIMSetPropertyRequestMessage(*request);
 
-  	   if(providerIdContainer!=NULL)
+  	   if(providerIdContainer!=NULL) 
+	   {
 			requestCopy->operationContext.insert(*providerIdContainer); 
+			delete providerIdContainer;
+			providerIdContainer = NULL;
+	   }
 
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
@@ -5752,8 +5777,12 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       CIMInvokeMethodRequestMessage* requestCopy =
           new CIMInvokeMethodRequestMessage(*request);
 
-      if(providerIdContainer!=NULL)
-	  	  requestCopy->operationContext.insert(*providerIdContainer); 
+      if(providerIdContainer!=NULL) 
+	  {
+	 	requestCopy->operationContext.insert(*providerIdContainer); 
+		delete providerIdContainer;
+		providerIdContainer = NULL;
+	  }
 
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);

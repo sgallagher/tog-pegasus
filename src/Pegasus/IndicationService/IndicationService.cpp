@@ -5167,7 +5167,7 @@ void IndicationService::_sendCreateRequests
             new CIMCreateSubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-        requestCopy->operationContext.insert(*new ProviderIdContainer (indicationProviders [i].providerModule,
+        requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 			                                                           indicationProviders [i].provider)); 
 
         AsyncOpNode * op = this->get_op (); 
@@ -5294,7 +5294,7 @@ void IndicationService::_sendModifyRequests
             new CIMModifySubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(*new ProviderIdContainer (indicationProviders [i].providerModule,
+		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 																	   indicationProviders [i].provider));
 		AsyncOpNode * op = this->get_op ();
 
@@ -5430,7 +5430,7 @@ void IndicationService::_sendDeleteRequests
             new CIMDeleteSubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(*new ProviderIdContainer (indicationProviders [i].providerModule,
+		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 																		indicationProviders [i].provider)); 
 
         AsyncOpNode * op = this->get_op ();
@@ -6440,7 +6440,7 @@ void IndicationService::_sendEnable (
             new CIMEnableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(* new ProviderIdContainer(enableProviders [i].providerModule,
+		requestCopy->operationContext.insert(ProviderIdContainer(enableProviders [i].providerModule,
 																	   enableProviders [i].provider));
         AsyncOpNode* op = this->get_op (); 
 
@@ -6564,7 +6564,7 @@ void IndicationService::_sendDisable (
             new CIMDisableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(*new ProviderIdContainer(disableProviders [i].providerModule,
+		requestCopy->operationContext.insert(ProviderIdContainer(disableProviders [i].providerModule,
 																	 disableProviders [i].provider)); 
 
         AsyncOpNode* op = this->get_op (); 

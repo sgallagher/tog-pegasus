@@ -43,7 +43,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Common/AsyncResponseHandler.h>
+#include <Pegasus/Provider2/AsyncResponseHandler.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Server/ProviderManager.h>
 

@@ -39,6 +39,27 @@ void MessageQueueService::handleEnqueue(void)
    
 }
 
+Message *MessageQueueService::openEnvelope(const Message *msg)
+{
+   Uint32 mask = msg->getMask();
+   if( mask & message_mask::ha_async )
+   {
+      AsyncOpNode *op;
+      
+      if( mask & message_mask::ha_request)
+      {
+	 op = (static_cast<AsyncRequest *>(const_cast<Message *>(msg)))->op;
+	 return const_cast<Message *>(op->get_request());
+      }
+      else if (mask & message_mask::ha_reply)
+      {
+	 op = (static_cast<AsyncReply *>(const_cast<Message *>(msg)))->op;
+	 return const_cast<Message *>(op->get_response()) ;
+      }
+   }
+   return 0;
+}
+
 
 Boolean MessageQueueService::register_service(String name, Uint32 capabilities, Uint32 mask)
 {
@@ -84,16 +105,25 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 Boolean MessageQueueService::SendMessage(Message *msg, Uint32 dst_queue)
 {
    
+   AsyncOpNode *op = _get_op();
+   if(op == 0 )
+      throw NullPointer();
+   
+   op->put_request(msg);
+   
    ServiceAsyncOpStart *envelope = 
       new ServiceAsyncOpStart(Message::getNextKey(),
 			      QueueIdStack(_queueId, _queueId),
-			      0,
+			      op,
 			      dst_queue, 
 			      get_next_xid());
    
    Boolean accepted = _meta_dispatcher->accept_async(static_cast<Message *>(envelope));
    if (accepted == false)
+   {
       delete msg;
+      _cache_op(op);
+   }
    return accepted;
 }
 

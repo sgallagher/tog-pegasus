@@ -264,9 +264,6 @@ void cimom::handleEnqueue(void)
     if (!msg)
        return;
 
-    //----- PREPROCESSING -----//
-    // at a gross level, look at the message and decide if it is for the cimom or
-    // for another module
     Uint32 mask = msg->getMask();
     AsyncOpNode *op = 0;
     Uint32 dest_q_id = 0;

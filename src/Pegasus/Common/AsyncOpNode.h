@@ -62,7 +62,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_TIMEOUT           0x00000080
 #define ASYNC_OPSTATE_CANCELLED         0x00000100
 #define ASYNC_OPSTATE_PAUSED            0x00000200
-#define ASYNC_OPSTATE_SUSPENDED         0x00000400
+#define ASYNC_OPSTATE_SUSPENDED         0x00000400o
 #define ASYNC_OPSTATE_RESUMED           0x00000800
 #define ASYNC_OPSTATE_ORPHANED          0x00001000
 #define ASYNC_OPSTATE_ACCEPTED          0x00002000
@@ -94,7 +94,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       
       Uint32 read_state(void) ;
       void write_state(Uint32) ;
-
+      
       Uint32 read_flags(void);
       void write_flags(Uint32);
       

@@ -51,10 +51,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 	 : Base(name, true, queueID),
 	   _capabilities(capabilities),
 	   _mask(mask),
-	   _pending(true, 100),
-	   _completed(true, 100),
-	   _pending_thread(_pending_proc, this, false),
-	   _completed_thread(_completed_proc, this, false),
+	   _recycle(true),
 	   _die(0)
       {
 	 _default_op_timeout.tv_sec = 30;
@@ -66,6 +63,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       virtual void handleEnqueue();
       virtual Boolean accept_async(Message *message) throw(IPCException);
+      virtual Message *openEnvelope(const Message *msg);
       
       
    protected:
@@ -80,17 +78,40 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Uint32 _mask;
       
    private: 
+
+      DQueue<AsyncOpNode> _recycle;
+      AsyncOpNode *_get_op(void);
+      void _cache_op(AsyncOpNode *op);
       cimom *_meta_dispatcher;
       struct timeval _default_op_timeout;
-      AsyncDQueue<AsyncOpNode> _pending;
-      AsyncDQueue<AsyncOpNode> _completed;
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _pending_proc(void *);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
-      Thread _pending_thread;
-      Thread _completed_thread;
       AtomicInt _die;
       static AtomicInt _xid;
 };
+
+
+
+inline AsyncOpNode *MessageQueueService::_get_op(void)
+{
+   AsyncOpNode *ret = _recycle.remove_first();
+   if(ret == 0 )
+   {
+      ret = new AsyncOpNode();
+   }
+   return ret;
+}
+
+inline void MessageQueueService::_cache_op(AsyncOpNode *op)
+{
+   if(op != 0 )
+   {
+      unlocked_dq<AsyncOpNode> recycle(true);
+      op->_reset(&recycle);
+      while(recycle.count())
+	 _recycle.insert_last(recycle.remove_first());
+   }
+   
+}
+
 
 inline Uint32 MessageQueueService::get_next_xid(void)
 {

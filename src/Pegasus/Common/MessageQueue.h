@@ -114,9 +114,13 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  Note: accept_async() MUST NEVER call handleEnqueue(). Synchronous
 	  MessageQueues (those not having a worker thread) must always return 
 	  false.
+
+	  accept_async determines whether or not it will accept the message
+	  by calling messageOK(const Message *) (below), which is a virtual 
+	  function that may be overriden by a derived class.
       */
     
-      virtual Boolean accept_async(Message *message) throw(IPCException);
+      Boolean accept_async(Message *message) throw(IPCException);
     
       /** Dequeues a message (removes it from the front of the queue).
 	  @return pointer to message or zero if queue is empty.
@@ -209,7 +213,13 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  to handle the message by returning false **/
 
       virtual Boolean messageOK(const Message *msg) { return true ;}
+      
 
+      /** Overridden by MessageQueueService and derived classes to handle
+	  asynchronous messages. 
+      */
+      virtual Message *openEnvelope(const Message *msg) { return 0 ; }
+      
       /** Lookup a message queue from a queue id. Note this is an O(1) operation.
        */
       static MessageQueue* lookup(Uint32 queueId) throw(IPCException);

@@ -212,6 +212,11 @@ Boolean MessageQueue::accept_async(Message *message) throw(IPCException)
       throw NullPointer();
    if(_async == false)
       return false;
+
+
+   if (false == messageOK(message))
+      return false;
+   
    
    if (getenv("PEGASUS_TRACE"))
    {

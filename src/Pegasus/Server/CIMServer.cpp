@@ -81,8 +81,11 @@ class ConfigProviderCallback
             _cfp = cfp;
         }
 
-        static Message * receive_message(Message * message)
+        static Message * receive_message(Message * message, void *instance)
         {
+
+	   ProviderMessageFacade *my_instance = 
+	      reinterpret_cast<ProviderMessageFacade *>(instance);
             return _cfp->handleRequestMessage(message);
         }
 

@@ -92,10 +92,10 @@ error:
 	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
 
 buildmu:
-	$(MAKE) --directory=pegasus/src/utils/mu -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 	$(MKDIR) $(BIN_DIR)
 	$(COPYMU)
-	
+
 cleanbuild: removeall recheckout buildmu all $(TESTS) 
 
 recheckout: removeall checkout
@@ -105,21 +105,21 @@ removeall:
 
 checkout:
 	$(CVS) checkout pegasus
-	
+
 rebuild: clean buildmu all tests
 
 build: all tests
 
 all: buildmu
-	$(MAKE) --directory=pegasus -f Makefile depend
-	$(MAKE) --directory=pegasus -f Makefile all
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile all
 
 doc:
-	$(MAKE) --directory=pegasus/doc/ProviderSpec -f Makefile
-	$(MAKE) --directory=pegasus/doc/DevManual -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
 
 clean:
-	$(MAKE) --directory=pegasus -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
 
 repositoryServer: 
 	$(CIMSERVER_STOP_SERVICE)
@@ -127,27 +127,27 @@ repositoryServer:
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP)
-	$(MAKE) --directory=pegasus -f Makefile repositoryServer
-	$(MAKE) --directory=pegasus -f Makefile testrepositoryServer
-		
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
+
 prestarttests: 
 	$(CIMSERVER_STOP_SERVICE)
 	$(SLEEP)
-	$(MAKE) --directory=pegasus -f Makefile repository
-	$(MAKE) --directory=pegasus -f Makefile testrepository
-	$(MAKE) --directory=pegasus -f Makefile tests
-	$(MAKE) --directory=pegasus/src/Server -f Makefile install
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install
 
 poststarttests:
-	$(MAKE) --directory=pegasus/test/wetest -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP)
-	$(MAKE) --directory=pegasus -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 
 tests: $(TESTS)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 	$(CIMSERVER_STOP_SERVICE)
-	$(MAKE) --directory=src/Server -f Makefile uninstall
+	$(MAKE) --directory=$(PEGASUS_ROOT)src/Server -f Makefile uninstall
 endif
 	@ echo Finished Tests
 

@@ -105,9 +105,9 @@ public:
     */
     CIMClient();
 
-    /** Destructor for a CIM Client object.   
-    */   
-    ~CIMClient(); 
+    /** Destructor for a CIM Client object.
+    */
+    ~CIMClient();
 
     /** gets the current timeout value in milliseconds for the CIMClient object.
 	*/
@@ -1041,8 +1041,8 @@ public:
 
     Only elements (properties, methods and qualifiers) defined or
     overridden within the class are included in the response. Propagated
-    properties are not included because their values are based on another class
-    information. If not specified, all elements of the class definition are
+    properties are not included because their values are based on another class
+    information. If not specified, all elements of the class definition are
     returned.  Note: When instances are returned, the InstanceName must include
     all keys, including propagated keys. Therefore, these attributes are
     included in the name part of the method response, but not in the value

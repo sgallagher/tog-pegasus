@@ -30,6 +30,7 @@ Synopsis
 [ -t <i>timeout</i> ]
 [ -u <i>username</i> ] [ -w <i>password</i> ]
 [ -d <i>debugoption</i> ]
+[ -s ]
 [ <i>inputfilepath</i> ] </code>
 </p>
 
@@ -66,6 +67,8 @@ The <code><b>-u</b></code> and <code><b>-w</b></code>
 options allow the user to specify a username and password to use for 
 authentication of the user and authorization of the operation.
 By default, stdin is used as the input, if no input file is specified.
+The <code><b>-s</b></code> option enables the SSL protocol between wbemexec and
+a CIM server.
 The <code><b>-d</b></code> option may be used to specify that debug information be included in the output.
 </p>
 
@@ -80,9 +83,10 @@ Options
     <code>-h <i>hostname</i></code>
   <dd>
     Use the specified host.  A CIM Server must be running on the 
-    specified host. If this option is not specified, wbemexec will
-    connect to the local host and authenticate itself. If a host is specified
-    and no password has been specified, the user will prompted for a password.
+    specified host. If this option and the portnumber option are not specified,
+    wbemexec will connect to the local host and authenticate itself. If a host
+    is specified and no password has been specified, the user will be prompted for
+    a password.
   <dt>
     <code>-p <i>portnumber</i></code>
   <dd>
@@ -118,6 +122,10 @@ authorization.
     Authorize the operation using the specified password. If the password is
 not specified and the remote host requests authentication, the user will be
 prompted for a password.
+  <dt>
+    <code>-s </code>
+  <dd>
+    Enable the use of the SSL protocol between wbemexec and the CIM server.
   <dt>
     <code>-d <i>debugoption</i></code>
   <dd>

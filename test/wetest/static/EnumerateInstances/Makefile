@@ -3,7 +3,7 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = EnumerateInstances51000 EnumerateInstances51003
+XMLSCRIPTS = EnumerateInstances51003
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 XMLSCRIPTS += \

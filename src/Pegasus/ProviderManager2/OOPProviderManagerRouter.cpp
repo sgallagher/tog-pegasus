@@ -108,11 +108,14 @@ class ProviderAgentContainer
 public:
     ProviderAgentContainer(
         const String & moduleName,
+        const String & userName,
         PEGASUS_INDICATION_CALLBACK indicationCallback);
 
     ~ProviderAgentContainer();
 
     Boolean isInitialized();
+
+    String getModuleName() const;
 
     CIMResponseMessage* processMessage(CIMRequestMessage* request);
     void unloadIdleProviders();
@@ -185,6 +188,11 @@ private:
     String _moduleName;
 
     /**
+        The user context in which this Provider Agent operates.
+     */
+    String _userName;
+
+    /**
         Callback function to which all generated indications are sent for
         processing.
      */
@@ -225,12 +233,36 @@ private:
         the last provider module instance sent.
      */
     CIMInstance _providerModuleCache;
+
+    /**
+        The number of Provider Agent processes that are currently initialized
+        (active).
+    */
+    static Uint32 _numProviderProcesses;
+
+    /**
+        The _numProviderProcessesMutex must be locked whenever reading or
+        updating the _numProviderProcesses count.
+    */
+    static Mutex _numProviderProcessesMutex;
+
+    /**
+        The maximum number of Provider Agent processes that may be initialized
+        (active) at one time.
+    */
+    static Uint32 _maxProviderProcesses;
 };
+
+Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
+Mutex ProviderAgentContainer::_numProviderProcessesMutex;
+Uint32 ProviderAgentContainer::_maxProviderProcesses = PEG_NOT_FOUND;
 
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,
+    const String & userName,
     PEGASUS_INDICATION_CALLBACK indicationCallback)
     : _moduleName(moduleName),
+      _userName(userName),
       _indicationCallback(indicationCallback),
       _isInitialized(false)
 {
@@ -365,6 +397,23 @@ void ProviderAgentContainer::_startAgentProcess()
             pipeToAgent->exportReadHandle(readHandle);
             pipeFromAgent->exportWriteHandle(writeHandle);
 
+            // Set the user context of the Provider Agent process
+            if (_userName != System::getEffectiveUserName())
+            {
+                if (!System::changeUserContext(_userName.getCString()))
+                {
+                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "System::changeUserContext() failed.  userName = %s.",
+                        _userName.getCString());
+                    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
+                        Logger::WARNING,
+                        "ProviderManager.OOPProviderManagerRouter."
+                            "USER_CONTEXT_CHANGE_FAILED",
+                        "Unable to change user context to \"$0\".", _userName);
+                    _exit(1);
+                }
+            }
+
             execl(agentCommandPathCString, agentCommandPathCString,
                 readHandle, writeHandle,
                 (const char*)_moduleName.getCString(), (char*)0);
@@ -474,6 +523,33 @@ void ProviderAgentContainer::_initialize()
         return;
     }
 
+    if (_maxProviderProcesses == PEG_NOT_FOUND)
+    {
+        String maxProviderProcesses = ConfigManager::getInstance()->getCurrentValue("maxProviderProcesses");
+        CString maxProviderProcessesString = maxProviderProcesses.getCString();
+        char* end = 0;
+        _maxProviderProcesses = strtol(maxProviderProcessesString, &end, 10);
+    }
+
+    {
+        AutoMutex lock(_numProviderProcessesMutex);
+        if ((_maxProviderProcesses != 0) &&
+            (_numProviderProcesses >= _maxProviderProcesses))
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "ProviderManager.OOPProviderManagerRouter."
+                        "MAX_PROVIDER_PROCESSES_REACHED",
+                    "The maximum number of cimprovagt processes has been "
+                        "reached."));
+        }
+        else
+        {
+            _numProviderProcesses++;
+        }
+    }
+
     try
     {
         _startAgentProcess();
@@ -494,6 +570,12 @@ void ProviderAgentContainer::_initialize()
         _isInitialized = false;
         _pipeToAgent.reset();
         _pipeFromAgent.reset();
+
+        {
+            AutoMutex lock(_numProviderProcessesMutex);
+            _numProviderProcesses--;
+        }
+
         PEG_METHOD_EXIT();
         throw;
     }
@@ -528,6 +610,11 @@ void ProviderAgentContainer::_uninitialize()
 
         _providerModuleCache = CIMInstance();
 
+        {
+            AutoMutex lock(_numProviderProcessesMutex);
+            _numProviderProcesses--;
+        }
+
         _isInitialized = false;
 
         //
@@ -559,6 +646,11 @@ void ProviderAgentContainer::_uninitialize()
     }
 
     PEG_METHOD_EXIT();
+}
+
+String ProviderAgentContainer::getModuleName() const
+{
+    return _moduleName;
 }
 
 CIMResponseMessage* ProviderAgentContainer::processMessage(
@@ -1020,27 +1112,65 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
             response.reset(request->buildResponse());
         }
     }
-    else
+    else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
     {
+        // Fan out the request to all Provider Agent processes for this module
+
         // Retrieve the provider module name
         String moduleName;
         CIMValue nameValue = providerModule.getProperty(
             providerModule.findProperty("Name")).getValue();
         nameValue.get(moduleName);
 
-        // Look up the Provider Agent for this module
-        ProviderAgentContainer * pa = _lookupProviderAgent(moduleName);
-        PEGASUS_ASSERT(pa != 0);
+        // Look up the Provider Agents for this module
+        Array<ProviderAgentContainer*> paArray =
+            _lookupProviderAgents(moduleName);
 
-        // Determine whether the Provider Agent has been initialized
-        Boolean paInitialized = pa->isInitialized();
-
-        if ((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) &&
-            !paInitialized)
+        for (Uint32 i=0; i<paArray.size(); i++)
         {
             //
             // Do not start up an agent process just to disable the module
             //
+            if (paArray[i]->isInitialized())
+            {
+                //
+                // Forward the request to the provider agent
+                //
+                response.reset(paArray[i]->processMessage(request));
+
+                // Note: Do not uninitialize the ProviderAgentContainer here
+                // when a disable module operation is successful.  Just let the
+                // selecting thread notice when the agent connection is closed.
+
+                // Determine the success of the disable module operation
+                CIMDisableModuleResponseMessage* dmResponse =
+                    dynamic_cast<CIMDisableModuleResponseMessage*>(
+                        response.get());
+                PEGASUS_ASSERT(dmResponse != 0);
+
+                Boolean isStopped = false;
+                for (Uint32 i=0; i < dmResponse->operationalStatus.size(); i++)
+                {
+                    if (dmResponse->operationalStatus[i] ==
+                        CIM_MSE_OPSTATUS_VALUE_STOPPED)
+                    {
+                        isStopped = true;
+                        break;
+                    }
+                }
+
+                // If the operation is unsuccessful, stop and return the error
+                if ((dmResponse->cimException.getCode() != CIM_ERR_SUCCESS) ||
+                    !isStopped)
+                {
+                    break;
+                }
+            }
+        }
+
+        // Use a default response if no Provider Agents were called
+        if (!response.get())
+        {
             response.reset(request->buildResponse());
 
             CIMDisableModuleResponseMessage* dmResponse =
@@ -1051,12 +1181,62 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
             operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
             dmResponse->operationalStatus = operationalStatus;
         }
-        else if ((request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE) &&
-                 !paInitialized)
+    }
+    else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
+    {
+        // Fan out the request to all Provider Agent processes for this module
+
+        // Retrieve the provider module name
+        String moduleName;
+        CIMValue nameValue = providerModule.getProperty(
+            providerModule.findProperty("Name")).getValue();
+        nameValue.get(moduleName);
+
+        // Look up the Provider Agents for this module
+        Array<ProviderAgentContainer*> paArray =
+            _lookupProviderAgents(moduleName);
+
+        for (Uint32 i=0; i<paArray.size(); i++)
         {
             //
             // Do not start up an agent process just to enable the module
             //
+            if (paArray[i]->isInitialized())
+            {
+                //
+                // Forward the request to the provider agent
+                //
+                response.reset(paArray[i]->processMessage(request));
+
+                // Determine the success of the enable module operation
+                CIMEnableModuleResponseMessage* emResponse =
+                    dynamic_cast<CIMEnableModuleResponseMessage*>(
+                        response.get());
+                PEGASUS_ASSERT(emResponse != 0);
+
+                Boolean isOk = false;
+                for (Uint32 i=0; i < emResponse->operationalStatus.size(); i++)
+                {
+                    if (emResponse->operationalStatus[i] ==
+                        CIM_MSE_OPSTATUS_VALUE_OK)
+                    {
+                        isOk = true;
+                        break;
+                    }
+                }
+
+                // If the operation is unsuccessful, stop and return the error
+                if ((emResponse->cimException.getCode() != CIM_ERR_SUCCESS) ||
+                    !isOk)
+                {
+                    break;
+                }
+            }
+        }
+
+        // Use a default response if no Provider Agents were called
+        if (!response.get())
+        {
             response.reset(request->buildResponse());
 
             CIMEnableModuleResponseMessage* emResponse =
@@ -1067,17 +1247,84 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
             operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
             emResponse->operationalStatus = operationalStatus;
         }
-        else
-        {
-            //
-            // Forward the request to the provider agent
-            //
-            response.reset(pa->processMessage(request));
+    }
+    else
+    {
+        // Retrieve the provider module name
+        String moduleName;
+        CIMValue nameValue = providerModule.getProperty(
+            providerModule.findProperty("Name")).getValue();
+        nameValue.get(moduleName);
 
-            // Note: Do not uninitialize the ProviderAgentContainer here when
-            // a disable module operation is successful.)  Just let the
-            // selecting thread notice when the agent connection is closed.
+        // Retrieve the provider user context configuration
+        Uint16 userContext = 0;
+        Uint32 pos = providerModule.findProperty(
+            PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+        if (pos != PEG_NOT_FOUND)
+        {
+            providerModule.getProperty(pos).getValue().get(userContext);
         }
+
+        if (userContext == 0)
+        {
+            userContext = PG_PROVMODULE_USERCTXT_PRIVILEGED;
+        }
+
+        String userName;
+
+        if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
+        {
+            try
+            {
+                // User Name is in the OperationContext
+                IdentityContainer ic = (IdentityContainer)
+                    request->operationContext.get(IdentityContainer::NAME);
+                userName = ic.getUserName();
+            }
+            catch (Exception& e)
+            {
+                // If no IdentityContainer is present, default to the CIM
+                // Server's user context
+            }
+
+            // If authentication is disabled, use the CIM Server's user context
+            if (!userName.size())
+            {
+                userName = System::getEffectiveUserName();
+            }
+        }
+        else if (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)
+        {
+            // Retrieve the provider module name
+            providerModule.getProperty(providerModule.findProperty(
+                PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER)).getValue().
+                get(userName);
+        }
+        else if (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER)
+        {
+            userName = System::getEffectiveUserName();
+        }
+        else    // Privileged User
+        {
+            PEGASUS_ASSERT(userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED);
+            userName = System::getPrivilegedUserName();
+        }
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Module name = " + moduleName);
+        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "User context = %hd.", userContext);
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "User name = " + userName);
+
+        // Look up the Provider Agent for this module and user
+        ProviderAgentContainer* pa = _lookupProviderAgent(moduleName, userName);
+        PEGASUS_ASSERT(pa != 0);
+
+        //
+        // Forward the request to the provider agent
+        //
+        response.reset(pa->processMessage(request));
     }
 
     response->syncAttributes(request);
@@ -1087,17 +1334,36 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
 }
 
 ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
-    const String& moduleName)
+    const String& moduleName,
+    const String& userName)
 {
     ProviderAgentContainer* pa = 0;
+    String key = moduleName + ":" + userName;
 
     AutoMutex lock(_providerAgentTableMutex);
-    if (!_providerAgentTable.lookup(moduleName, pa))
+    if (!_providerAgentTable.lookup(key, pa))
     {
-        pa = new ProviderAgentContainer(moduleName, _indicationCallback);
-        _providerAgentTable.insert(moduleName, pa);
+        pa = new ProviderAgentContainer(
+            moduleName, userName, _indicationCallback);
+        _providerAgentTable.insert(key, pa);
     }
     return pa;
+}
+
+Array<ProviderAgentContainer*> OOPProviderManagerRouter::_lookupProviderAgents(
+    const String& moduleName)
+{
+    Array<ProviderAgentContainer*> paArray;
+
+    AutoMutex lock(_providerAgentTableMutex);
+    for (ProviderAgentTable::Iterator i = _providerAgentTable.start(); i; i++)
+    {
+        if (i.value()->getModuleName() == moduleName)
+        {
+            paArray.append(i.value());
+        }
+    }
+    return paArray;
 }
 
 CIMResponseMessage* OOPProviderManagerRouter::_forwardRequestToAllAgents(

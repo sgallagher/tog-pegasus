@@ -62,45 +62,34 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_PPM_LINKAGE ProviderManagerService : public MessageQueueService
 {
-   friend class CMPIProviderManager;
 public:
-    static ProviderManagerService* providerManagerService;
+    ProviderManagerService(
+        ProviderRegistrationManager* providerRegistrationManager,
+        CIMRepository* repository);
 
-    ProviderManagerService(void);
-    ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager,
-                           CIMRepository * repository);
+    virtual ~ProviderManagerService();
 
-
-    virtual ~ProviderManagerService(void);
-
-    // temp
     void unloadIdleProviders();
 
     static void indicationCallback(CIMProcessIndicationRequestMessage* request);
-    static void handleCimResponse(CIMRequestMessage &request,
-																	CIMResponseMessage &response);
-
-protected:
-    virtual Boolean messageOK(const Message * message);
-    virtual void handleEnqueue(void);
-    virtual void handleEnqueue(Message * message);
-
-    virtual void _handle_async_request(AsyncRequest * request);
-
-    CIMRepository* _repository;
+    static void handleCimResponse(
+        CIMRequestMessage& request, CIMResponseMessage& response);
 
 private:
-    //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();
+    ProviderManagerService();
 
-    //void handleStartService() thorw();
-    //void handleStopService() thorw();
-    //void handlePauseService() thorw();
-    //void handleResumeService() thorw();
+    virtual Boolean messageOK(const Message* message);
+    virtual void handleEnqueue();
+    virtual void handleEnqueue(Message* message);
+
+    virtual void _handle_async_request(AsyncRequest* request);
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(
-        void * arg) ;
+        void* arg) ;
 
-    void handleCimRequest(AsyncOpNode *op, Message* message);
+    void handleCimRequest(AsyncOpNode* op, Message* message);
+
+    Message* _processMessage(CIMRequestMessage* request);
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
@@ -110,10 +99,15 @@ private:
         Uint16 fromStatus,
         Uint16 toStatus);
 
+    static ProviderManagerService* providerManagerService;
+
+    CIMRepository* _repository;
+
     SafeQueue<AsyncOpNode *> _incomingQueue;
     SafeQueue<AsyncOpNode *> _outgoingQueue;
 
-    ProviderManagerRouter* _providerManagerRouter;
+    ProviderManagerRouter* _basicProviderManagerRouter;
+    ProviderManagerRouter* _oopProviderManagerRouter;
 
     ProviderRegistrationManager* _providerRegistrationManager;
 

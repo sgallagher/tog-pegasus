@@ -287,6 +287,14 @@ ifdef PEGASUS_OVERRIDE_PRODUCT_ID
     DEFINES += -DPEGASUS_OVERRIDE_PRODUCT_ID
 endif
 
+#
+# PEP 197
+# Allow the Provider User Context feature to be disabled.
+#
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+    DEFINES += -DPEGASUS_DISABLE_PROV_USERCTXT
+#endif
+
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  

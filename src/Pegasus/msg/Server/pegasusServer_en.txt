@@ -3909,6 +3909,20 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_CONNECTION_LOST:string {"PGS13602:  Lost connection with cimprovagt \"{0}\"."}
 
+        /**
+        * @note  PGS13603
+        * @version 2.5
+        *    Substitution {0} is the name of a system user (a string)
+        */
+        ProviderManager.OOPProviderManagerRouter.USER_CONTEXT_CHANGE_FAILED:string {"PGS13603:  Unable to change user context to \"{0}\"."}
+
+        /**
+        * @note  PGS13604
+        * @version 2.5
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.OOPProviderManagerRouter.MAX_PROVIDER_PROCESSES_REACHED:string {"PGS13604:  The maximum number of cimprovagt processes has been reached."}
+
 
 	// ==========================================================
         // Messages for ProviderManager.ProviderAgent.cimprovagt

@@ -79,10 +79,20 @@ private:
 
     /**
         Return a pointer to the ProviderAgentContainer for the specified
-        moduleFileName.  If no ProviderAgentContainer exists for this
-        moduleFileName, one is created in an uninitialized state.
+        moduleName and userName.  If no ProviderAgentContainer exists for
+        this moduleName/userName pair, one is created in an uninitialized
+        state.
      */
-    ProviderAgentContainer* _lookupProviderAgent(const String& moduleFileName);
+    ProviderAgentContainer* _lookupProviderAgent(
+        const String& moduleName,
+        const String& userName);
+
+    /**
+        Return an array of pointers to ProviderAgentContainers for the
+        specified moduleName.
+     */
+    Array<ProviderAgentContainer*> _lookupProviderAgents(
+        const String& moduleName);
 
     /**
         Send the specified CIMRequestMessage to all initialized Provider

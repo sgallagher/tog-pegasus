@@ -97,24 +97,42 @@ ProviderManagerService::ProviderManagerService(
 
     _unloadIdleProvidersBusy = 0;
 
-    // Determine whether Out-of-Process Provider support is enabled
+    _basicProviderManagerRouter = 0;
+    _oopProviderManagerRouter = 0;
+
+    // Determine which ProviderManagerRouter(s) to use
+
     ConfigManager* configManager = ConfigManager::getInstance();
-    if (String::equal(
-        configManager->getCurrentValue("forceProviderProcesses"), "true"))
+    Boolean forceProviderProcesses = String::equal(
+        configManager->getCurrentValue("forceProviderProcesses"), "true");
+
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+    if (forceProviderProcesses)
     {
-        _providerManagerRouter =
+        _oopProviderManagerRouter =
             new OOPProviderManagerRouter(indicationCallback);
     }
     else
     {
-        _providerManagerRouter =
+        _basicProviderManagerRouter =
             new BasicProviderManagerRouter(indicationCallback);
     }
+#else
+    _oopProviderManagerRouter =
+        new OOPProviderManagerRouter(indicationCallback);
+
+    if (!forceProviderProcesses)
+    {
+        _basicProviderManagerRouter =
+            new BasicProviderManagerRouter(indicationCallback);
+    }
+#endif
 }
 
 ProviderManagerService::~ProviderManagerService(void)
 {
-    delete _providerManagerRouter;
+    delete _basicProviderManagerRouter;
+    delete _oopProviderManagerRouter;
     providerManagerService=NULL;
 }
 
@@ -391,7 +409,7 @@ void ProviderManagerService::handleCimRequest(
             //
             // Forward the request to the appropriate ProviderManagerRouter
             //
-            response = _providerManagerRouter->processMessage(request);
+            response = _processMessage(request);
         }
     }
     else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
@@ -405,7 +423,7 @@ void ProviderManagerService::handleCimRequest(
         try
         {
             // Forward the request to the ProviderManager
-            response = _providerManagerRouter->processMessage(request);
+            response = _processMessage(request);
 
             // If successful, update provider module status to OK
             // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
@@ -459,7 +477,7 @@ void ProviderManagerService::handleCimRequest(
             }
 
             // Forward the request to the ProviderManager
-            response = _providerManagerRouter->processMessage(request);
+            response = _processMessage(request);
 
             // Update provider module status based on success or failure
             if (updateModuleStatus)
@@ -508,7 +526,7 @@ void ProviderManagerService::handleCimRequest(
     }
     else
     {
-        response = _providerManagerRouter->processMessage(request);
+        response = _processMessage(request);
     }
 
     AsyncLegacyOperationResult * async_result =
@@ -582,6 +600,88 @@ ProviderManagerService::handleCimResponse(CIMRequestMessage &request,
 		response.cimException = PEGASUS_CIM_EXCEPTION(code, message);
 }
 
+Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
+{
+    Message* response = 0;
+
+    if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+        (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
+    {
+        if (_basicProviderManagerRouter)
+        {
+            response = _basicProviderManagerRouter->processMessage(request);
+        }
+
+        if (_oopProviderManagerRouter)
+        {
+            // Note: These responses do not contain interesting data, so just
+            // use the last one.
+            if (response)
+            {
+                delete response;
+            }
+
+            response = _oopProviderManagerRouter->processMessage(request);
+        }
+    }
+    else
+    {
+        CIMInstance providerModule;
+
+        if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
+        {
+            CIMEnableModuleRequestMessage* emReq =
+                dynamic_cast<CIMEnableModuleRequestMessage*>(request);
+            providerModule = emReq->providerModule;
+        }
+        else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+        {
+            CIMDisableModuleRequestMessage* dmReq =
+                dynamic_cast<CIMDisableModuleRequestMessage*>(request);
+            providerModule = dmReq->providerModule;
+        }
+        else
+        {
+            ProviderIdContainer pidc =
+                request->operationContext.get(ProviderIdContainer::NAME);
+            providerModule = pidc.getModule();
+        }
+
+        Uint16 userContext = 0;
+        Uint32 pos = providerModule.findProperty(
+            PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+        if (pos != PEG_NOT_FOUND)
+        {
+            providerModule.getProperty(pos).getValue().get(userContext);
+        }
+
+        // Forward the request to the appropriate ProviderManagerRouter, based
+        // on the CIM Server configuration and the UserContext setting.
+
+        ConfigManager* configManager = ConfigManager::getInstance();
+        Boolean forceProviderProcesses = String::equal(
+            configManager->getCurrentValue("forceProviderProcesses"), "true");
+
+        if (forceProviderProcesses
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT
+            || (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
+            || (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)
+            || ((userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) &&
+                !System::isPrivilegedUser(System::getEffectiveUserName()))
+#endif
+           )
+        {
+            response = _oopProviderManagerRouter->processMessage(request);
+        }
+        else
+        {
+            response = _basicProviderManagerRouter->processMessage(request);
+        }
+    }
+
+    return response;
+}
+
 void ProviderManagerService::unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -616,15 +716,34 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
         ProviderManagerService* myself =
             reinterpret_cast<ProviderManagerService*>(arg);
 
-        try
+        if (myself->_basicProviderManagerRouter)
         {
-            myself->_providerManagerRouter->unloadIdleProviders();
+            try
+            {
+                myself->_basicProviderManagerRouter->unloadIdleProviders();
+            }
+            catch (...)
+            {
+                // Ignore errors
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                    "Unexpected exception from "
+                        "BasicProviderManagerRouter::_unloadIdleProviders");
+            }
         }
-        catch (...)
+
+        if (myself->_oopProviderManagerRouter)
         {
-            // Ignore errors
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Unexpected exception in _unloadIdleProvidersHandler");
+            try
+            {
+                myself->_oopProviderManagerRouter->unloadIdleProviders();
+            }
+            catch (...)
+            {
+                // Ignore errors
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                    "Unexpected exception from "
+                        "OOPProviderManagerRouter::_unloadIdleProviders");
+            }
         }
 
         myself->_unloadIdleProvidersBusy--;

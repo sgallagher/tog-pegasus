@@ -31,6 +31,7 @@
 //               Mike Day (mdday@us.ibm.com)
 //               Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
+//               Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,7 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
+#include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -303,6 +305,10 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
 #else
    response->dest = (Uint32)parm;
 #endif
+
+// statisticals
+   STAT_COPYDISPATCHER
+//
    service->SendForget(response);
    delete asyncRequest;
    delete asyncReply;
@@ -609,6 +615,8 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetClassRequest");
 
+   STAT_PROVIDERSTART
+
    // ATTN: Need code here to expand partial class!
 
    CIMException cimException;
@@ -642,11 +650,15 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
    _repository->read_unlock();
 
+   STAT_PROVIDEREND
+
    CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
       request->messageId,
       cimException,
       request->queueIds.copyAndPop(),
       cimClass);
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
    PEG_METHOD_EXIT();
@@ -707,6 +719,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       CIMException cimException;
       CIMInstance cimInstance;
 
+      STAT_PROVIDERSTART
+
       _repository->read_lock();
 
       try
@@ -735,12 +749,16 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMGetInstanceResponseMessage* response =
          new CIMGetInstanceResponseMessage(
             request->messageId,
             cimException,
             request->queueIds.copyAndPop(),
             cimInstance);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -753,6 +771,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             request->queueIds.copyAndPop(),
             CIMInstance());
 
+      STAT_COPYDISPATCHER
+
       _enqueueResponse(request, response);
    }
    PEG_METHOD_EXIT();
@@ -763,6 +783,8 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleDeleteClassRequest");
+
+   STAT_PROVIDERSTART
 
    CIMException cimException;
 
@@ -791,11 +813,15 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
    _repository->write_unlock();
 
+   STAT_PROVIDEREND
+
    CIMDeleteClassResponseMessage* response =
       new CIMDeleteClassResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop());
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -854,6 +880,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    {
       CIMException cimException;
 
+      STAT_PROVIDERSTART
+
       _repository->write_lock();
 
       try
@@ -878,11 +906,15 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
       _repository->write_unlock();
 
+      STAT_PROVIDEREND
+
       CIMDeleteInstanceResponseMessage* response =
          new CIMDeleteInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop());
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -893,6 +925,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -907,6 +941,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
       "CIMOperationRequestDispatcher::handleCreateClassRequest");
 
    CIMException cimException;
+
+   STAT_PROVIDERSTART
 
    _repository->write_lock();
 
@@ -933,11 +969,15 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
    _repository->write_unlock();
 
+   STAT_PROVIDERSTART
+
    CIMCreateClassResponseMessage* response =
       new CIMCreateClassResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop());
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -1017,6 +1057,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->queueIds.copyAndPop(),
 	    CIMReference());
 
+      STAT_COPYDISPATCHER
+
       _enqueueResponse(request, response);
       PEG_METHOD_EXIT();
       return;
@@ -1042,6 +1084,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       CIMException cimException;
       CIMReference instanceName;
 
+      STAT_PROVIDERSTART
+
       _repository->write_lock();
 
       try
@@ -1066,12 +1110,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
       _repository->write_unlock();
 
+      STAT_PROVIDEREND
+
       CIMCreateInstanceResponseMessage* response =
          new CIMCreateInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    instanceName);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1083,6 +1131,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             CIMReference());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1097,6 +1147,8 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
       "CIMOperationRequestDispatcher::handleModifyClassRequest");
 
    CIMException cimException;
+
+   STAT_PROVIDERSTART
 
    _repository->write_lock();
 
@@ -1123,11 +1175,15 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
    _repository->write_unlock();
 
+   STAT_PROVIDEREND
+
    CIMModifyClassResponseMessage* response =
       new CIMModifyClassResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop());
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -1190,6 +1246,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       // translate and forward request to repository
       CIMException cimException;
 
+      STAT_PROVIDERSTART
+
       _repository->write_lock();
 
       try
@@ -1215,11 +1273,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
       _repository->write_unlock();
 
+      STAT_PROVIDEREND
+
       CIMModifyInstanceResponseMessage* response =
          new CIMModifyInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop());
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1230,6 +1292,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	    request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
 	    request->queueIds.copyAndPop());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1244,6 +1308,9 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
       "CIMOperationRequestDispatcher::handleEnumerateClassesRequest");
 
    CIMException cimException;
+
+   STAT_PROVIDERSTART
+
    Array<CIMClass> cimClasses;
 
    _repository->read_lock();
@@ -1275,12 +1342,16 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
    _repository->read_unlock();
 
+   STAT_PROVIDEREND
+
    CIMEnumerateClassesResponseMessage* response =
       new CIMEnumerateClassesResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop(),
 	 cimClasses);
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -1294,6 +1365,9 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
       "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest");
 
    CIMException cimException;
+
+   STAT_PROVIDERSTART
+
    Array<String> classNames;
 
    _repository->read_lock();
@@ -1322,12 +1396,16 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
    _repository->read_unlock();
 
+   STAT_PROVIDEREND
+
    CIMEnumerateClassNamesResponseMessage* response =
       new CIMEnumerateClassNamesResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop(),
 	 classNames);
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -1385,6 +1463,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+
       Array<CIMNamedInstance> cimNamedInstances;
 
       _repository->read_lock();
@@ -1416,12 +1497,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMEnumerateInstancesResponseMessage* response =
          new CIMEnumerateInstancesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimNamedInstances);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1433,6 +1518,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMNamedInstance>());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1491,6 +1578,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+
       Array<CIMReference> instanceNames;
 
       _repository->read_lock();
@@ -1517,12 +1607,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    instanceNames);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1534,6 +1628,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMReference>());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1570,6 +1666,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+
       Array<CIMObjectWithPath> cimObjects;
 
       _repository->read_lock();
@@ -1603,12 +1702,16 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMAssociatorsResponseMessage* response =
          new CIMAssociatorsResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1620,6 +1723,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMObjectWithPath>());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1654,6 +1759,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+
       Array<CIMReference> objectNames;
 
       _repository->read_lock();
@@ -1684,12 +1792,16 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMAssociatorNamesResponseMessage* response =
          new CIMAssociatorNamesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    objectNames);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1701,6 +1813,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMReference>());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1734,6 +1848,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+
       Array<CIMObjectWithPath> cimObjects;
 
       _repository->read_lock();
@@ -1765,12 +1882,16 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMReferencesResponseMessage* response =
          new CIMReferencesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1782,6 +1903,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMObjectWithPath>());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1815,6 +1938,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+
       Array<CIMReference> objectNames;
 
       _repository->read_lock();
@@ -1843,12 +1969,16 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
       _repository->read_unlock();
 
+      STAT_PROVIDEREND
+
       CIMReferenceNamesResponseMessage* response =
          new CIMReferenceNamesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    objectNames);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1860,6 +1990,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMReference>());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1892,6 +2024,9 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
+
+      STAT_PROVIDERSTART
+	
       CIMValue value;
 
       _repository->read_lock();
@@ -1918,6 +2053,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       }
 
       _repository->read_unlock();
+
+      STAT_PROVIDEREND
 	
       CIMGetPropertyResponseMessage* response =
          new CIMGetPropertyResponseMessage(
@@ -1925,6 +2062,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    value);
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -1936,6 +2075,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             CIMValue());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -1976,6 +2117,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
                cimException,
                request->queueIds.copyAndPop());
 
+         STAT_COPYDISPATCHER
+
          _enqueueResponse(request, response);
 
          PEG_METHOD_EXIT();
@@ -2004,6 +2147,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    {
       CIMException cimException;
 
+      STAT_PROVIDERSTART
+
       _repository->write_lock();
 
       try
@@ -2030,11 +2175,15 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       _repository->write_unlock();
 
+      STAT_PROVIDEREND
+
       CIMSetPropertyResponseMessage* response =
          new CIMSetPropertyResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop());
+
+      STAT_COPYDISPATCHER_REP
 
       _enqueueResponse(request, response);
    }
@@ -2045,6 +2194,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop());
+
+      STAT_COPYDISPATCHER
 
       _enqueueResponse(request, response);
    }
@@ -2057,6 +2208,8 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetQualifierRequest");
+
+   STAT_PROVIDERSTART
 
    CIMException cimException;
    CIMQualifierDecl cimQualifierDecl;
@@ -2085,12 +2238,16 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
    _repository->read_unlock();
 
+   STAT_PROVIDEREND
+
    CIMGetQualifierResponseMessage* response =
       new CIMGetQualifierResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop(),
 	 cimQualifierDecl);
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -2102,6 +2259,8 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleSetQualifierRequest");
+
+   STAT_PROVIDERSTART
 
    CIMException cimException;
 
@@ -2129,11 +2288,15 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
    _repository->write_unlock();
 
+   STAT_PROVIDEREND
+
    CIMSetQualifierResponseMessage* response =
       new CIMSetQualifierResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop());
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -2145,6 +2308,8 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleDeleteQualifierRequest");
+
+   STAT_PROVIDERSTART
 
    CIMException cimException;
 
@@ -2173,11 +2338,15 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
    _repository->write_unlock();
 
+   STAT_PROVIDEREND
+
    CIMDeleteQualifierResponseMessage* response =
       new CIMDeleteQualifierResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop());
+
+   STAT_COPYDISPATCHER_REP
 
    _enqueueResponse(request, response);
 
@@ -2191,6 +2360,9 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
       "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest");
 
    CIMException cimException;
+
+   STAT_PROVIDERSTART
+
    Array<CIMQualifierDecl> qualifierDeclarations;
 
    _repository->read_lock();
@@ -2217,6 +2389,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
    _repository->read_unlock();
 
+   STAT_PROVIDEREND
+
    CIMEnumerateQualifiersResponseMessage* response =
       new CIMEnumerateQualifiersResponseMessage(
 	 request->messageId,
@@ -2225,6 +2399,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	 qualifierDeclarations);
 
    _enqueueResponse(request, response);
+
+   STAT_COPYDISPATCHER_REP
 
    PEG_METHOD_EXIT();
 }
@@ -2245,6 +2421,8 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 	 cimException,
 	 request->queueIds.copyAndPop(),
 	 cimObjects);
+
+   STAT_COPYDISPATCHER
 
    _enqueueResponse(request, response);
 
@@ -2289,6 +2467,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
                CIMValue(),
                Array<CIMParamValue>(),
                request->methodName);
+
+         STAT_COPYDISPATCHER
 
          _enqueueResponse(request, response);
 
@@ -2353,6 +2533,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	 retValue,
 	 outParameters,
 	 request->methodName);
+
+   STAT_COPYDISPATCHER
 
    _enqueueResponse(request, response);
 

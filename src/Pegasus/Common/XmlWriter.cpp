@@ -29,6 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cstdlib>
 #include <cstdio>
 #include "Constants.h"
@@ -39,6 +40,7 @@
 #include "XmlWriter.h"
 #include "XmlParser.h"
 #include "Tracer.h"
+#include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -462,6 +464,7 @@ void XmlWriter::appendMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
+    STAT_SERVERTIME
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Ext:\r\n";

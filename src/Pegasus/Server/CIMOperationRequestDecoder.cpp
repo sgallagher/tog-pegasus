@@ -30,6 +30,7 @@
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company 
 //              (sushma_fernandes@hp.com)
+//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 #include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/StatisticalData.h>
 #include "CIMOperationRequestDecoder.h"
 
 PEGASUS_USING_STD;
@@ -312,7 +314,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // If it is a method call, then dispatch it to be handled:
 
-   handleMethodCall(queueId, content, cimProtocolVersion, cimMethod,
+   handleMethodCall(queueId, content, contentLength, 
+                    cimProtocolVersion, cimMethod,
                     cimObject, authType, userName);
     
    PEG_METHOD_EXIT();
@@ -322,6 +325,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMOperationRequestDecoder::handleMethodCall(
    Uint32 queueId,
    Sint8* content,
+   Uint32 contentLength,    // used for statistics only
    const String& cimProtocolVersionInHeader,
    const String& cimMethodInHeader,
    const String& cimObjectInHeader,
@@ -904,6 +908,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
       return;
    }
 
+   STAT_BYTESREAD
+
    _outputQueue->enqueue(request);
    PEG_METHOD_EXIT();
 }
@@ -918,6 +924,8 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::decodeCreateClassRequest()");
+
+   STAT_GETSTARTTIME
 
    CIMClass newClass;
    Boolean duplicateParameter = false;
@@ -960,6 +968,8 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    PEG_METHOD_EXIT();
    return(request);
 }
@@ -974,6 +984,8 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::decodeGetClassRequest()");
+
+   STAT_GETSTARTTIME
 
    String className;
    Boolean localOnly = true;
@@ -1058,6 +1070,8 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    PEG_METHOD_EXIT();
    return(request);
 }
@@ -1070,6 +1084,8 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+  
    CIMClass modifiedClass;
    Boolean duplicateParameter = false;
    Boolean gotClass = false;
@@ -1109,6 +1125,8 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1120,6 +1138,8 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String className;
    Boolean deepInheritance = false;
    Boolean duplicateParameter = false;
@@ -1163,6 +1183,8 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1174,6 +1196,8 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String className;
    Boolean deepInheritance = false;
    Boolean localOnly = true;
@@ -1244,6 +1268,8 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1255,6 +1281,8 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String className;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
@@ -1293,6 +1321,8 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1304,6 +1334,8 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMInstance newInstance;
    Boolean duplicateParameter = false;
    Boolean gotInstance = false;
@@ -1343,6 +1375,8 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1354,6 +1388,8 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference instanceName;
    Boolean localOnly = true;
    Boolean includeQualifiers = false;
@@ -1434,6 +1470,8 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1445,6 +1483,8 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMNamedInstance modifiedInstance;
    Boolean includeQualifiers = true;
    CIMPropertyList propertyList;
@@ -1508,6 +1548,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
 
    return(request);
 }
@@ -1520,6 +1561,8 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String className;
    Boolean deepInheritance = false;
    Boolean localOnly = true;
@@ -1610,6 +1653,8 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1621,6 +1666,8 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String className;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
@@ -1660,6 +1707,8 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1671,6 +1720,8 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference instanceName;
    Boolean duplicateParameter = false;
    Boolean gotInstanceName = false;
@@ -1709,6 +1760,8 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1720,6 +1773,8 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMQualifierDecl qualifierDeclaration;
    Boolean duplicateParameter = false;
    Boolean gotQualifierDeclaration = false;
@@ -1759,6 +1814,8 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1770,6 +1827,8 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
@@ -1809,6 +1868,8 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1820,6 +1881,8 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
       // No IPARAMVALUEs are defined for this operation
@@ -1834,6 +1897,8 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1845,6 +1910,8 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
@@ -1884,6 +1951,8 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1895,6 +1964,8 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference objectName;
    String resultClass;
    String role;
@@ -1952,6 +2023,8 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -1963,6 +2036,8 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference objectName;
    String resultClass;
    String role;
@@ -2053,6 +2128,8 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -2064,6 +2141,8 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference objectName;
    String assocClass;
    String resultClass;
@@ -2139,6 +2218,8 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -2150,6 +2231,8 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference objectName;
    String assocClass;
    String resultClass;
@@ -2258,6 +2341,8 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -2269,6 +2354,8 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference instanceName;
    String propertyName;
    Boolean duplicateParameter = false;
@@ -2316,6 +2403,8 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -2327,6 +2416,8 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMReference instanceName;
    String propertyName;
    CIMValue propertyValue;
@@ -2386,6 +2477,8 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       authType,
       userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -2397,6 +2490,8 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    String queryLanguage;
    String query;
    Boolean duplicateParameter = false;
@@ -2445,6 +2540,8 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
+
    return(request);
 }
 
@@ -2457,6 +2554,8 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
    const String& authType,
    const String& userName)
 {
+   STAT_GETSTARTTIME
+
    CIMParamValue paramValue;
    Array<CIMParamValue> inParameters;
     
@@ -2476,6 +2575,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 	 authType,
 	 userName);
 
+   STAT_SERVERSTART
 
    return(request);
 }

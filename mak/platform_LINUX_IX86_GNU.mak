@@ -16,7 +16,7 @@ else
 FLAGS = -O2 -W -Wall -Wno-unused
 endif
 
-FLAGS += -DPEGASUS_HAS_SSL
+FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_HAS_PERFINST
 SYS_LIBS = -ldl -lpthread -lcrypt -lssl
 #SYS_LIBS = -ldl -lpthread -lcrypt
 

@@ -159,6 +159,8 @@ TAG: Version_1_09.
     PegasusVersion.h to each product component. This was done
     to support component level version tracking.
 
+26. (MM) 22 Apr 2002 - Performance Measurement Implementation
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

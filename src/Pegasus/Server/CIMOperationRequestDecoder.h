@@ -87,6 +87,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
       void handleMethodCall(
 	 Uint32 queueId,
 	 Sint8* content,
+         Uint32 contentLength,
 	 const String& cimProtocolVersionInHeader,
 	 const String& cimMethodInHeader,
 	 const String& cimObjectInHeader,

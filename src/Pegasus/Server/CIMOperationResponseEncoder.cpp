@@ -26,6 +26,7 @@
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/StatisticalData.h>
 #include "CIMOperationResponseEncoder.h"
 
 #ifdef PEGASUS_CCOVER
@@ -328,6 +330,8 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "CreateClass");
       PEG_METHOD_EXIT();
       return;
@@ -337,6 +341,8 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "CreateClass", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
 
@@ -351,6 +357,8 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "GetClass");
       PEG_METHOD_EXIT();
       return;
@@ -361,6 +369,8 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetClass", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
 
@@ -375,6 +385,8 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "ModifyClass");
       PEG_METHOD_EXIT();
       return;
@@ -384,6 +396,8 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "ModifyClass", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
 
@@ -398,6 +412,8 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "EnumerateClassNames");
       PEG_METHOD_EXIT();
       return;
@@ -410,6 +426,8 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateClassNames", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
 
@@ -424,6 +442,8 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "EnumerateClasses");
       PEG_METHOD_EXIT();
       return;
@@ -437,6 +457,8 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateClasses", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -449,6 +471,8 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "DeleteClass");
       PEG_METHOD_EXIT();
       return;
@@ -458,6 +482,8 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "DeleteClass", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -471,6 +497,8 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "CreateInstance");
       PEG_METHOD_EXIT();
       return;
@@ -482,6 +510,8 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "CreateInstance", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -495,6 +525,8 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "GetInstance");
       PEG_METHOD_EXIT();
       return;
@@ -505,6 +537,8 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetInstance", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -518,6 +552,8 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "ModifyInstance");
       PEG_METHOD_EXIT();
       return;
@@ -527,6 +563,8 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "ModifyInstance", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -540,6 +578,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "EnumerateInstances");
       PEG_METHOD_EXIT();
       return;
@@ -553,6 +593,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateInstances", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -565,6 +607,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "EnumerateInstanceNames");
       PEG_METHOD_EXIT();
       return;
@@ -578,6 +622,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateInstanceNames", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -590,6 +636,8 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "DeleteInstance");
       PEG_METHOD_EXIT();
       return;
@@ -599,6 +647,8 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "DeleteInstance", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -612,6 +662,8 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "GetProperty");
       PEG_METHOD_EXIT();
       return;
@@ -626,6 +678,8 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetProperty", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -638,6 +692,8 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "SetProperty");
       PEG_METHOD_EXIT();
       return;
@@ -647,6 +703,8 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "SetProperty", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -660,6 +718,8 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "SetQualifier");
       PEG_METHOD_EXIT();
       return;
@@ -669,6 +729,8 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "SetQualifier", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -682,6 +744,8 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "GetQualifier");
       PEG_METHOD_EXIT();
       return;
@@ -692,6 +756,8 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetQualifier", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -705,6 +771,8 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "EnumerateQualifiers");
       PEG_METHOD_EXIT();
       return;
@@ -718,6 +786,8 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateQualifiers", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -730,6 +800,8 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "DeleteQualifier");
       PEG_METHOD_EXIT();
       return;
@@ -739,6 +811,8 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "DeleteQualifier", response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
@@ -752,6 +826,8 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "ReferenceNames");
       PEG_METHOD_EXIT();
       return;
@@ -769,6 +845,8 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "ReferenceNames", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -781,6 +859,8 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "References");
       PEG_METHOD_EXIT();
       return;
@@ -794,6 +874,8 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "References", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -806,6 +888,8 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "AssociatorNames");
       PEG_METHOD_EXIT();
       return;
@@ -823,6 +907,8 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "AssociatorNames", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -835,6 +921,8 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "Associators");
       PEG_METHOD_EXIT();
       return;
@@ -848,6 +936,8 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "Associators", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -860,6 +950,8 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendIMethodError(response, "ExecQuery");
       PEG_METHOD_EXIT();
       return;
@@ -873,6 +965,8 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "ExecQuery", response->messageId, body);
 
+   STAT_SERVEREND
+
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();
 }
@@ -885,6 +979,8 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
+      STAT_SERVEREND_ERROR
+
       sendMethodError(response, response->methodName);
       PEG_METHOD_EXIT();
       return;
@@ -907,6 +1003,8 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
       _CString(response->methodName), response->messageId, body);
+
+   STAT_SERVEREND
 
    sendResponse(response->queueIds.top(), message);
    PEG_METHOD_EXIT();

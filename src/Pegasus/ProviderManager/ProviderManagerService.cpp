@@ -34,6 +34,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/StatisticalData.h>
 
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
@@ -540,6 +541,8 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 
 	CIMPropertyList propertyList(request->propertyList);
 
+        STAT_GETSTARTTIME
+
 	// forward request
 	provider.getInstance(
 	    context,
@@ -547,6 +550,8 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 	    flags,
 	    propertyList,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {
@@ -621,12 +626,16 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
 
 	CIMPropertyList propertyList(request->propertyList);
 
+        STAT_GETSTARTTIME
+
 	provider.enumerateInstances(
 	    context,
 	    objectPath,
 	    flags,
 	    propertyList,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {
@@ -694,10 +703,14 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message *
 	    0,
 	    0);
 
+        STAT_GETSTARTTIME
+
 	provider.enumerateInstanceNames(
 	    context,
 	    objectPath,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {
@@ -766,11 +779,16 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
 	    0);
 
 	// forward request
+
+        STAT_GETSTARTTIME
+
 	provider.createInstance(
 	    context,
 	    objectPath,
 	    request->newInstance,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {
@@ -847,6 +865,8 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 	CIMPropertyList propertyList(request->propertyList);
 
 	// forward request
+        STAT_GETSTARTTIME
+
 	provider.modifyInstance(
 	    context,
 	    objectPath,
@@ -854,6 +874,8 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 	    flags,
 	    propertyList,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {
@@ -921,10 +943,14 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
 	    0);
 
 	// forward request
+        STAT_GETSTARTTIME
+
 	provider.deleteInstance(
 	    context,
 	    objectPath,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {
@@ -1059,6 +1085,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
             flags = flags | ~OperationFlag::LOCAL_ONLY |
                             ~OperationFlag::DEEP_INHERITANCE;
 
+        STAT_GETSTARTTIME
+
             provider.associatorNames(
                 context,
                 objectPath,
@@ -1067,6 +1095,9 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
                 request->role,
                 request->resultRole,
                 handler);
+
+         STAT_PMS_PROVIDEREND
+
         } // end for loop
 
     }
@@ -1158,6 +1189,8 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
  
             //SimpleResponseHandler<CIMReference> handler;
 
+        STAT_GETSTARTTIME
+
             provider.references(
                 context,
                 objectPath,
@@ -1166,6 +1199,9 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
                 flags,
                 request->propertyList.getPropertyNameArray(),
                 handler);
+
+         STAT_PMS_PROVIDEREND
+
         } // end for loop
 
     }
@@ -1254,12 +1290,17 @@ void ProviderManagerService::handleReferenceNamesRequest(const Message * message
 
             //CIMPropertyList propertyList(request->propertyList);
  
+        STAT_GETSTARTTIME
+
             provider.referenceNames(
                 context,
                 objectPath,
                 request->resultClass,
                 request->role,
                 handler);
+
+         STAT_PMS_PROVIDEREND
+
         } // end for loop
 
     }
@@ -1389,6 +1430,8 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 	Array<CIMParamValue> outParameters;
 
 	// forward request
+        STAT_GETSTARTTIME
+
 	provider.invokeMethod(
 	    context,
 	    instanceReference,
@@ -1396,6 +1439,8 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 	    request->inParameters,
 	    outParameters,
 	    handler);
+
+        STAT_PMS_PROVIDEREND
     }
     catch(CIMException & e)
     {

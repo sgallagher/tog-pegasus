@@ -84,7 +84,7 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
     PEG_METHOD_EXIT();
 }
 
-void HTTPAuthenticatorDelegator::enqueue(Message* message) throw(IPCException)
+void HTTPAuthenticatorDelegator::enqueue(Message* message)
 {
     handleEnqueue(message);
 }

@@ -53,6 +53,20 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// ATTN-RK-20020730: Temporary hack to fix Windows build
+Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
+{
+    Uint32 n = a.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        if (a[i].equal(x))
+            return true;
+    }
+
+    return false;
+}
+
 Mutex IndicationService::_mutex;
 
 IndicationService::IndicationService (
@@ -2824,7 +2838,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                                  k < propertyList.size () && match; 
                                  k++)
                             {
-                                if (!Contains 
+                                if (!ContainsCIMName
                                     (supportedProperties.getPropertyNameArray(),
                                     propertyList[k]))
                                 {
@@ -3134,7 +3148,7 @@ Boolean IndicationService::_inPropertyList (
             //
             for (Uint8 i = 0; i < requiredProperties.size (); i++)
             {
-                if (!Contains (supportedProperties.getPropertyNameArray (), 
+                if (!ContainsCIMName (supportedProperties.getPropertyNameArray (), 
                     requiredProperties[i]))
                 {
                     return false;
@@ -3548,7 +3562,7 @@ CIMPropertyList IndicationService::_getPropertyList
         for (Uint32 i = 0; i < selectCount; i++)
         {
             propertyName = selectStatement.getSelectPropertyName (i);
-            if (!Contains (propertyList, propertyName))
+            if (!ContainsCIMName (propertyList, propertyName))
             {
                 propertyList.append (propertyName);
             }
@@ -3566,7 +3580,7 @@ CIMPropertyList IndicationService::_getPropertyList
             for (Uint32 j = 0; j < whereCount; j++)
             {
                 propertyName = selectStatement.getWherePropertyName (j);
-                if (!Contains (propertyList, propertyName))
+                if (!ContainsCIMName (propertyList, propertyName))
                 {
                     propertyList.append (propertyName);
                 }
@@ -3611,7 +3625,7 @@ CIMPropertyList IndicationService::_checkPropertyList
     for (Uint32 i = 0; 
          i < indicationClass.getPropertyCount () && allProperties; i++)
     {
-        if (!Contains (propertyList, 
+        if (!ContainsCIMName (propertyList, 
             indicationClass.getProperty (i).getName ()))
         {
             allProperties = false;

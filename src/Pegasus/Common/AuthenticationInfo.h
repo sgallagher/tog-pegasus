@@ -37,7 +37,7 @@
 #include <Pegasus/Common/Linkage.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include "CIMKerberosSecurityAssociation.h"
+#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

@@ -48,7 +48,7 @@
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/XmlWriter.h>
-#include "CIMKerberosSecurityAssociation.h"
+#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
 #endif
 
 

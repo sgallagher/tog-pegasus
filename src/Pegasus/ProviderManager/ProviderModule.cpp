@@ -1,6 +1,6 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////-*-c++-*-///////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +26,7 @@
 // Modified By:
 //      Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//     Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,18 +38,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderModule::ProviderModule(const String & fileName,
-                               const Uint32 & refCount)
-    : _fileName(fileName), _providerName(String::EMPTY),
-      _refCount(refCount), _interfaceName(String::EMPTY),
-      _library(0), _provider(0)
+
+ProviderModule::ProviderModule(const String & fileName)
+   : _fileName(fileName), 
+     _ref_count(0),
+     _library(0)
 {
+    _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
 }
 
 ProviderModule::ProviderModule(const String & fileName,
                                const String & providerName)
-    : _fileName(fileName), _providerName(providerName),
-      _library(0), _provider(0)
+    : _fileName(fileName), 
+      _library(0), 
+      _providerName(providerName),
+      _provider(0)
 {
 }
 
@@ -56,10 +60,13 @@ ProviderModule::ProviderModule(const String & fileName,
                                const String & providerName,
                                const String & interfaceName,
 			       const Uint32 & refCount)
-    : _fileName(fileName), _providerName(providerName),
+    : _fileName(fileName), 
+      _library(0), 
+      _providerName(providerName),
       _interfaceName(interfaceName),
-      _refCount(refCount),
-      _library(0), _provider(0)
+      _provider(0),
+      _refCount(refCount)
+
 {
     // currently without interface registration
     _interfaceFilename = String::EMPTY;
@@ -89,21 +96,25 @@ ProviderModule::ProviderModule(const String & fileName,
 
 ProviderModule::ProviderModule(const ProviderModule & pm)
     : _fileName(pm._fileName),
+      _library(pm._library),
       _providerName(pm._providerName),
       _interfaceName(pm._interfaceName),
       _interfaceFilename(pm._interfaceFilename),
-      _library(pm._library),
       _provider(pm._provider),
       _refCount(pm._refCount)
 {
 }
 
+
 ProviderModule::~ProviderModule(void)
-{
+{ 
+
 }
 
-void ProviderModule::load(void)
+CIMProvider *ProviderModule::load(const String & providerName)
 {
+
+
     // get the interface adapter library first
     _adapter = 0;
     if (_interfaceFilename.size() > 0)
@@ -121,21 +132,30 @@ void ProviderModule::load(void)
                 errorString);
         }
 
-        return;
+        return _provider;
     }
 
+
+   CIMProvider *provider = 0;
+
+
     // dynamically load the provider library
-    _library = System::loadDynamicLibrary(_fileName.getCString());
 
     if(_library == 0)
     {
+       _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
+    }
+    
+    if(_library == 0)
+    {
+
         // ATTN: does unload() need to be called?
 
         String errorString = "Cannot load library, error: " + System::dynamicLoadError();
-        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
     }
 
-    // find library entry point
+    // find libray entry point
     CIMProvider * (*createProvider)(const String &) = 0;
 
     createProvider = (CIMProvider * (*)(const String &))System::loadDynamicSymbol(
@@ -143,77 +163,50 @@ void ProviderModule::load(void)
 
     if(createProvider == 0)
     {
-        unload();
-
         String errorString = "entry point not found.";
-        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
     }
 
     // invoke the provider entry point
-    CIMProvider * provider = createProvider(_providerName);
-
-    if(provider == 0)
-    {
-        unload();
-
-        String errorString = "entry point returned null.";
-        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
-    }
+    provider = createProvider(providerName);
+    
 
     // test for the appropriate interface
     if(dynamic_cast<CIMProvider *>(provider) == 0)
     {
-        unload();
-
-        String errorString = "provider is not a CIMProvider.";
-        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+           String errorString = "provider is not a CIMProvider.";
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
     }
-
-    // save provider handle
-    _provider = provider;
-
-    return;
-}
-
-void ProviderModule::unload(void)
-{
-    if(_adapter != 0)
-    {
-        delete _adapter;
-
-        _adapter = 0;
-    }
-
-    /*
-    // ATTN: cannot determine if provider is stack or heap based allocated.
-    // the provider should delete, if necessary, during CIMProvider::terminate()
-
-    if(_provider != 0)
-    {
-	delete _provider;
-        delete _provider;
-
-	_provider = 0;
-        _provider = 0;
-    }
-    */
-
-    if(_library != 0)
-    {
-	System::unloadDynamicLibrary(_library);
-
-	_library = 0;
-    }
+    _ref_count++;
+    return provider;
 }
 
 void ProviderModule::unloadModule(void)
 {
-    if(_library != 0)
-    {
-        System::unloadDynamicLibrary(_library);
+  _ref_count--;
+   if( _ref_count.value() > 0)
+      return;
+   _ref_count = 0;
+   if(_library != 0)
+     {
+       System::unloadDynamicLibrary(_library);
+       _library = 0;
+     }
+}
 
-        _library = 0;
-    }
+Boolean ProviderModule::operator == (const void *key) const 
+{
+   String *prov = reinterpret_cast<String *>(const_cast<void *>(key));
+   if(String::equalNoCase(_fileName, *prov))
+      return true;
+   return false;
+}
+
+Boolean ProviderModule::operator == (const ProviderModule &pm) const
+{
+   if(String::equalNoCase(_fileName, pm._fileName))
+      return true;
+   return false;
 }
 
 PEGASUS_NAMESPACE_END

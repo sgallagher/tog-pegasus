@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,6 +25,7 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +33,7 @@
 #define Pegasus_ProviderFacade_h
 
 #include <Pegasus/Common/Config.h>
-
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMClassProvider.h>
@@ -45,6 +46,7 @@
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
 
 // The ProviderModule class wraps a provider pointer extracted from a provider
 // module to ensure it is complete and well behaved. So, regardless of the
@@ -249,21 +251,18 @@ public:
     virtual void handleIndication(
         const OperationContext & context,
         const CIMInstance & indication,
-        ResponseHandler & handler)
-    {
-    }
-
+        IndicationResponseHandler & handler);
+    
     virtual void handleIndication(
         const OperationContext & context,
         const String & url,
-        const CIMInstance& indicationInstance)
-    {
-    }
-
+        const CIMInstance& indicationInstance);
+    
 protected:
     CIMProvider * _provider;
-
+    AtomicInt _current_operations;
 };
+
 
 PEGASUS_NAMESPACE_END
 

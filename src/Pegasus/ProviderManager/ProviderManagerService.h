@@ -1,6 +1,6 @@
 //%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,6 +30,7 @@
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,6 +52,7 @@
 #include <Pegasus/Common/Constants.h>
 PEGASUS_NAMESPACE_BEGIN
 
+
 typedef HashTable<String, 
 		  EnableIndicationsResponseHandler *,
 		  EqualFunc<String>, 
@@ -63,6 +65,8 @@ class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 public:
     ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
     virtual ~ProviderManagerService(void);
+    static ProviderManager *getProviderManager(void);
+    
     
 protected:
     virtual Boolean messageOK(const Message * message);
@@ -72,7 +76,9 @@ protected:
     virtual void _handle_async_request(AsyncRequest * request);
 
 protected:
-
+    virtual Triad<String, String, String> 
+      _lookupConsumerProvider(const CIMObjectPath & objectPath);
+ 
     virtual Triad<String, String, String>
         _lookupProviderForClass(const CIMObjectPath & objectPath);
 
@@ -131,7 +137,9 @@ protected:
     void handleDisableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleStopAllProvidersRequest(AsyncOpNode *op, const Message *message) throw();
-
+    void handleConsumeIndicationRequest(AsyncOpNode *op, 
+					const Message *message) throw();
+    
 
     /**
         Inserts an entry into the enabled indication providers table.
@@ -175,6 +183,7 @@ protected:
     IndicationResponseTable _responseTable;
     
 };
+
 
 PEGASUS_NAMESPACE_END
 

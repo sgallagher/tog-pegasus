@@ -1,6 +1,6 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%/////////////////////-*-c++-*-///////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
+
+#include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/ProviderManager/ProviderAdapter.h>
@@ -46,71 +49,90 @@ PEGASUS_NAMESPACE_BEGIN
 // "physical" portion of a provider.
 class PEGASUS_SERVER_LINKAGE ProviderModule
 {
-public:
-    ProviderModule(const String & fileName, const Uint32 & refCount);
-    ProviderModule(const String & fileName, const String & providerName);
-    ProviderModule(const String & fileName, const String & providerName,
-                   const String & interfaceName, const Uint32 & refCount);
-    ProviderModule(const ProviderModule & pm);
-    virtual ~ProviderModule(void);
+   public:
+      ProviderModule(const String & fileName);
+      virtual ~ProviderModule(void);
 
-    const String & getFileName(void) const;
-    const String & getProviderName(void) const;
-    const Uint32 & getRefCount(void) const;
+      const String & getFileName(void) const;
 
-    const String & getInterfaceName(void) const;
-    ProviderAdapter * getAdapter(void) const;
+      CIMProvider *load(const String & providerName);
+      void unloadModule(void);
 
-    void load(void);
-    void unload(void);
-    void unloadModule(void);
+      Boolean operator == (const void *key) const;
+      Boolean operator == (const ProviderModule & pmod) const;
 
-    virtual CIMProvider * getProvider(void) const;
+   protected:
+      String _fileName;
+      AtomicInt _ref_count;
+      DynamicLibraryHandle _library;
 
-protected:
-    String _fileName;
-    String _providerName;
 
-    String _interfaceName;
-    String _interfaceFilename; // for later use with interface registration
-    ProviderAdapter * _adapter;
+      friend class ProviderManager;
+      friend class Provider;
 
-    DynamicLibraryHandle _library;
-    CIMProvider * _provider;
+   private:
+// refCount is deprecated << Wed Apr  9 12:03:13 2003 mdd >>
+// reference counting is done automatically by provider manager
+      ProviderModule(const String & fileName, const Uint32 & refCount);
+// providerName is deprecated because a provider module may have more than
+// one provider loaded. << Wed Apr  9 12:04:05 2003 mdd >>
+      ProviderModule(const String & fileName, const String & providerName);
+      ProviderModule(const String & fileName, const String & providerName,
+		     const String & interfaceName, const Uint32 & refCount);
+// do not use !! not safe !! << Wed Apr  9 12:07:02 2003 mdd >>
+      ProviderModule(const ProviderModule & pm);
 
-    Uint32 _refCount;
+      const String & getProviderName(void) const;
+      const String & ProviderModule::getInterfaceName(void) const ;
+      
+      const Uint32 & getRefCount(void) const;
+      ProviderAdapter * getAdapter(void) const;
+      virtual CIMProvider * getProvider(void) const;
+
+
+
+      String _providerName;
+
+      String _interfaceName;
+      String _interfaceFilename; // for later use with interface registration
+      ProviderAdapter * _adapter;
+
+      CIMProvider * _provider;
+
+      Uint32 _refCount;
 
 };
 
+inline const String & ProviderModule::getFileName(void) const
+{
+   return(_fileName);
+}
+
 inline const String & ProviderModule::getInterfaceName(void) const
 {
-    return _interfaceName;
+   return _interfaceName;
 }
 
 inline ProviderAdapter * ProviderModule::getAdapter(void) const
 {
-    return _adapter;
-}
-
-inline const String & ProviderModule::getFileName(void) const
-{
-    return(_fileName);
+   return _adapter;
 }
 
 inline const String & ProviderModule::getProviderName(void) const
 {
-    return(_providerName);
+   return(_providerName);
 }
 
 inline CIMProvider * ProviderModule::getProvider(void) const
 {
-    return(_provider);
+   return(_provider);
 }
 
 inline const Uint32 & ProviderModule::getRefCount(void) const
 {
-    return(_refCount);
+   return(_refCount);
 }
+
 
 PEGASUS_NAMESPACE_END
 

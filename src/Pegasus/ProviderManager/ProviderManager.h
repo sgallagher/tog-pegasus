@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,40 +35,79 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager/Lockable.h>
 #include <Pegasus/ProviderManager/Provider.h>
+#include <Pegasus/ProviderManager/ProviderModule.h>
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+
 class PEGASUS_SERVER_LINKAGE ProviderManager
 {
+  
 public:
     ProviderManager(void);
     virtual ~ProviderManager(void);
 
 public:
     Provider getProvider(const String & fileName, const String & providerName,
-                         const String & interfaceName = String::EMPTY);
+                         const String & interfaceName = String::EMPTY) ;
 
-    void loadProvider(const String & fileName, const String & providerName,
-                         const String & interfaceName = String::EMPTY);
-    void unloadProvider(const String & fileName, const String & providerName);
+    void unloadProvider(const String & fileName, const String & providerName) ;
 
-    void shutdownAllProviders(void);
+    void shutdownAllProviders(void) ;
 
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
+    
+    void unload_idle_providers(void) ;
 private:
-    //Provider _loadProvider(const String & fileName, const String & providerName,
-    //                     const String & interfaceName = String::EMPTY);
+    enum CTRL 
+      {
+	INSERT_PROVIDER,
+	INSERT_MODULE,
+	REMOVE_PROVIDER, 
+	REMOVE_MODULE,
+	LOOKUP_PROVIDER, 
+	LOOKUP_MODULE, 
+	GET_PROVIDER, 
+	UNLOAD_PROVIDER, 
+	UNLOAD_ALL_PROVIDERS, 
+	UNLOAD_IDLE_PROVIDERS, 
+	UNLOAD_IDLE_MODULES
+      };
+        
+    typedef HashTable<String, Provider *, 
+      EqualFunc<String>,  HashFunc<String> > ProviderTable;
+    
+    typedef HashTable<String, ProviderModule *,
+      EqualFunc<String>, HashFunc<String> > ModuleTable;
 
+
+    typedef struct 
+    {
+      const String *providerName;
+      const String *fileName;
+      const String *interfaceName;
+    } CTRL_STRINGS;
+
+    friend class ProviderManagerService;
+    
+    ProviderTable _providers;
+    ModuleTable _modules;
+    Uint32 _idle_timeout;
+
+    Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
+    AtomicInt _unload_idle_flag;
+    
+    Mutex _mut;
+    
 protected:
-    Mutex _mutex;
-    Array<Provider*> _providers;
-    Array<ProviderModule*> _modules;
-
-    void _getRefCount(const String & fileName, Uint32 & refCount);
-    void _updateRefCount(const String & fileName, const Uint32 & refCount);
+    
 };
 
 PEGASUS_NAMESPACE_END

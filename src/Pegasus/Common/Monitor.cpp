@@ -66,7 +66,7 @@ static AtomicInt _connections = 0;
 
 
 static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {15, 0};
+static struct timeval destroy_time = {300, 0};
 static struct timeval deadlock_time = {0, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ Monitor::Monitor(Boolean async)
     {
        _thread_pool = new ThreadPool(0, 
 				     "Monitor", 
-				     1, 
+				     0, 
 				     0,
 				     create_time, 
 				     destroy_time, 
@@ -157,12 +157,11 @@ int Monitor::kill_idle_threads()
    gettimeofday(&now, NULL);
    int dead_threads = 0;
    
-   if( now.tv_sec - last.tv_sec > 300 )
+   if( now.tv_sec - last.tv_sec > 120 )
    {
       gettimeofday(&last, NULL);
       try 
       {
-	 
 	 dead_threads =  _thread_pool->kill_dead_threads();
       }
       catch(IPCException& )

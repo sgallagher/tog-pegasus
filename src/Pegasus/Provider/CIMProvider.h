@@ -226,6 +226,37 @@ public:
 typedef CIMProvider CIMBaseProvider;
 #endif
 
+class PEGASUS_PROVIDER_LINKAGE CIMDummyProvider : virtual public CIMProvider
+{
+   public:
+      typedef CIMProvider Base;
+      
+      CIMDummyProvider()
+	 : Base()
+      {
+      }
+
+      ~CIMDummyProvider(void)
+      {
+      }
+
+      void initialize(CIMOMHandle & cimom)
+      {
+	 _cimom = cimom;
+      }
+      void terminate(void) 
+	{
+	  delete this;
+	}
+      
+
+   protected:
+      CIMOMHandle _cimom;
+      
+      
+};
+
+
 PEGASUS_NAMESPACE_END
 
 #endif

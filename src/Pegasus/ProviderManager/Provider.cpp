@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,60 +34,46 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Provider::Provider(const String & name, const String & path)
-    : ProviderFacade(0), _status(UNKNOWN), _module(path, name)
+
+// set current operations to 1 to prevent an unload
+// until the provider has had a chance to initialize
+Provider::Provider(const String & name,
+		   ProviderModule *module, 
+		   CIMProvider *pr)
+   : Base(pr), _module(module), _cimom_handle(0), _name(name)
 {
+   _current_operations = 1;
 }
 
-Provider::Provider(const String & name, const String & path,
-                   const String & interfaceName, const Uint32 & refCount)
-    : ProviderFacade(0), _status(UNKNOWN), 
-      _module(path, name ,interfaceName, refCount)
-{
-    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
-    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
-    //PEG_METHOD_EXIT();
-}
-
-
-Provider::Provider(const Provider & p)
-    : ProviderFacade(p._module.getProvider()), _status(UNKNOWN),
-      _module(p._module)
-{
-}
 
 Provider::~Provider(void)
 {
+   
 }
+
 
 Provider::Status Provider::getStatus(void) const
 {
     return(_status);
 }
 
-ProviderModule Provider::getModule(void) const
+ProviderModule *Provider::getModule(void) const
 {
     return(_module);
 }
 
 String Provider::getName(void) const
 {
-    return(_module.getProviderName());
+    return(_name);
 }
 
 void Provider::initialize(CIMOMHandle & cimom)
 {
+   
     _status = INITIALIZING;
 
     try
     {
-	// yield before a potentially lengthy operation.
-	pegasus_yield();
-
-	_module.load();
-
-	ProviderFacade::_provider = _module.getProvider();
-
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
 
@@ -95,37 +82,107 @@ void Provider::initialize(CIMOMHandle & cimom)
     catch(...)
     {
 	_status = UNKNOWN;
-
+	_module->unloadModule();
 	throw;
     }
 
     _status = INITIALIZED;
+    _current_operations = 0;
 }
 
 void Provider::terminate(void)
 {
-    _status = TERMINATING;
 
+   if(false == unload_ok())
+   {
+      throw ObjectBusyException("Provider cannot unload");
+   }
+   
+    _status = TERMINATING;
+    
     try
     {
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
-
+       try 
+       {
 	ProviderFacade::terminate();
-
+       }
+       catch(...)
+       {
+	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			       "Exception caught in ProviderFacade::Terminate for " + 
+			       _name);
+       }
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
 
-     //   _module.unloadModule();
+	_module->unloadModule();
     }
     catch(...)
     {
 	_status = UNKNOWN;
-
+   
 	throw;
     }
 
     _status = TERMINATED;
+
+}
+
+Boolean Provider::operator == (const void *key) const 
+{
+   if( (void *)this == key)
+      return true;
+   return false;
+}
+
+Boolean Provider::operator == (const Provider &prov) const
+{
+   if(String::equalNoCase(_name, prov._name))
+      return true;
+   return false;
+}
+
+void Provider::get_idle_timer(struct timeval *t)
+{
+   if(t && _cimom_handle)
+      _cimom_handle->get_idle_timer(t);
+}
+
+void Provider::update_idle_timer(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->update_idle_timer();
+}
+
+Boolean Provider::pending_operation(void)
+{
+   if(_cimom_handle)
+      return _cimom_handle->pending_operation();
+   return false;
+}
+
+
+Boolean Provider::unload_ok(void)
+{
+   if(_cimom_handle)
+      return _cimom_handle->unload_ok();
+   return true;
+}
+
+//   force provider manager to keep in memory
+void Provider::protect(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->protect();
+}
+
+// allow provider manager to unload when idle 
+void Provider::unprotect(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->unprotect();
 }
 
 PEGASUS_NAMESPACE_END

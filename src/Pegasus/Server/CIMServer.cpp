@@ -75,7 +75,7 @@
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
-
+#include <Pegasus/ProviderManager/ProviderManager.h>
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -346,7 +346,7 @@ void CIMServer::runForever()
 	    {
  	       MessageQueueService::_check_idle_flag = 1;
  	       MessageQueueService::_polling_sem.signal();
-// 	       ProviderManagerService::getProviderManager()->unload_idle_providers();
+ 	       ProviderManagerService::getProviderManager()->unload_idle_providers();
  	       _monitor->kill_idle_threads();
 	    }
 	    catch(...)

@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +50,33 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+
+// auto variable to protect provider during operations
+
+class pm_service_op_lock 
+{
+   private:
+      pm_service_op_lock(void);
+      
+   public:
+      pm_service_op_lock(Provider *provider)
+	 : _provider(provider)
+      {
+	 _provider->protect();
+      }
+      
+      ~pm_service_op_lock(void)
+      {
+	 _provider->unprotect();
+      }
+      
+      Provider *_provider;
+      
+};
+
+
+
 //
 // Provider module status
 //
@@ -58,7 +86,12 @@ static const Uint16 _MODULE_STOPPED  = 10;
 
 
 // provider manager
-static ProviderManager providerManager;
+
+ProviderManager providerManager;
+ProviderManager * ProviderManagerService::getProviderManager(void)
+{
+   return &providerManager;
+}
 
 ProviderManagerService::ProviderManagerService(
     ProviderRegistrationManager * providerRegistrationManager)
@@ -167,7 +200,7 @@ Triad<String, String, String> _getProviderRegPair(
     fileName = location + String(".dll");
     #elif defined(PEGASUS_OS_HPUX)
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName.append(String("/lib") + location + String(".1"));
+    fileName.append(String("/lib") + location + String(".0"));
     #elif defined(PEGASUS_OS_OS400)
     fileName = location;
     #else
@@ -310,6 +343,28 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
     PEG_METHOD_EXIT();
 
     return(triad);
+}
+
+Triad<String, String, String> ProviderManagerService::_lookupConsumerProvider(
+   const CIMObjectPath & objectPath)
+{
+   CIMInstance pInstance;
+   CIMInstance pmInstance;
+
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupConsumerProvider");
+
+   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		    "Provider registration not found.");
+   
+   PEG_METHOD_EXIT();
+   
+   throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+   Triad<String, String, String> triad;
+   triad = _getProviderRegPair(pInstance, pmInstance);
+   
+   PEG_METHOD_EXIT();
+   
+   return(triad);
 }
 
 Triad<String, String, String> ProviderManagerService::_lookupProviderForClass(
@@ -462,6 +517,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleService
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOperation(void * arg) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimOperation");
     // get the service from argument
     ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
@@ -469,6 +525,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if(service->_incomingQueue.size() == 0)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"ProviderManagerService::handleCimOperation() called with no op node in queue" );
         // thread started with no message in queue.
         return(PEGASUS_THREAD_RETURN(1));
     }
@@ -482,7 +540,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
 
         PEGASUS_ASSERT(queue != 0);
-
         // no request in op node
         return(PEGASUS_THREAD_RETURN(1));
     }
@@ -597,6 +654,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
                 service->handleStopAllProvidersRequest(op, legacy);
 
                 break;
+	    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
+	       service->handleConsumeIndicationRequest(op, legacy);
+	       break;
+
             default:
                 // unsupported messages are ignored
                 break;
@@ -607,12 +668,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     {
         // reply with a NAK
     }
-
+    PEG_METHOD_EXIT();
     return(0);
 }
 
 void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Message *message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleGetInstanceRequest");
     CIMGetInstanceRequestMessage * request =
         dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -631,11 +693,6 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     GetInstanceResponseHandler handler(request, response);
@@ -667,7 +724,12 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 
         STAT_GETSTARTTIME;
 
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.getInstance: " + 
+			 provider.getName());
+	
         // forward request
+	pm_service_op_lock op_lock(&provider);
         provider.getInstance(
             context,
             objectPath,
@@ -675,19 +737,25 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
             request->includeClassOrigin,
             propertyList,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
+       
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -699,10 +767,13 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleEnumerateInstanceRequest");
     CIMEnumerateInstancesRequestMessage * request =
         dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
 
@@ -721,11 +792,6 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     EnumerateInstancesResponseHandler handler(request, response);
@@ -756,6 +822,10 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 
         STAT_GETSTARTTIME;
 
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.enumerateInstances: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.enumerateInstances(
             context,
             objectPath,
@@ -763,19 +833,24 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
             request->includeClassOrigin,
             propertyList,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -787,10 +862,12 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleEnumerateInstanceNamesRequest");
     CIMEnumerateInstanceNamesRequestMessage * request =
         dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
 
@@ -809,11 +886,6 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     EnumerateInstanceNamesResponseHandler handler(request, response);
@@ -842,24 +914,32 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         context.insert(IdentityContainer(request->userName));
 
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.enumerateInstanceNames: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.enumerateInstanceNames(
             context,
             objectPath,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -871,13 +951,15 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCreateInstanceRequest");
     CIMCreateInstanceRequestMessage * request =
         dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
-
+ 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
@@ -894,11 +976,6 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     CreateInstanceResponseHandler handler(request, response);
@@ -929,25 +1006,33 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         // forward request
 
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.createInstance: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.createInstance(
             context,
             objectPath,
             request->newInstance,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -959,10 +1044,12 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleModifyInstanceRequest");
     CIMModifyInstanceRequestMessage * request =
         dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -980,11 +1067,6 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ModifyInstanceResponseHandler handler(request, response);
@@ -1016,7 +1098,10 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 
         // forward request
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.modifyInstance: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.modifyInstance(
             context,
             objectPath,
@@ -1024,20 +1109,25 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
             request->includeQualifiers,
             propertyList,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
+       handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
     AsyncLegacyOperationResult *async_result =
@@ -1048,10 +1138,12 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDeleteInstanceRequest");
     CIMDeleteInstanceRequestMessage * request =
         dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -1070,11 +1162,6 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     DeleteInstanceResponseHandler handler(request, response);
@@ -1103,24 +1190,33 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 
         // forward request
         STAT_GETSTARTTIME;
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.deleteInstance: " +
+			 provider.getName());
 
+	pm_service_op_lock op_lock(&provider);
         provider.deleteInstance(
             context,
             objectPath,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1132,10 +1228,12 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleExecuteQueryRequest");
     CIMExecQueryRequestMessage * request =
         dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
 
@@ -1157,11 +1255,6 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -1170,12 +1263,14 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    CIMAssociatorsRequestMessage * request =
-        dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleAssociatorsRequest");
+   CIMAssociatorsRequestMessage * request =
+      dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
 
@@ -1195,11 +1290,6 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -1208,10 +1298,13 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
+
 }
 
 void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleAssociatorNamesRequest");
     CIMAssociatorNamesRequestMessage * request =
         dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
 
@@ -1232,11 +1325,6 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     AssociatorNamesResponseHandler handler(request, response);
@@ -1276,8 +1364,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-            STAT_GETSTARTTIME;
-
+	    pm_service_op_lock op_lock(&provider);
             provider.associatorNames(
                 context,
                 objectPath,
@@ -1301,6 +1388,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1312,11 +1401,13 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    CIMReferencesRequestMessage * request =
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleReferencesRequest");
+   CIMReferencesRequestMessage * request =
         dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
@@ -1336,12 +1427,6 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     // create a handler for this request
     ReferencesResponseHandler handler(request, response);
 
@@ -1381,7 +1466,10 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             context.insert(IdentityContainer(request->userName));
 
             STAT_GETSTARTTIME;
-
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			     "Calling provider.references: " + 
+			     provider.getName());
+	    pm_service_op_lock op_lock(&provider);
             provider.references(
                 context,
                 objectPath,
@@ -1391,21 +1479,26 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
                 request->includeClassOrigin,
                 request->propertyList.getPropertyNameArray(),
                 handler);
-
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1417,10 +1510,12 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleReferenceNamesRequest");
     CIMReferenceNamesRequestMessage * request =
         dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
 
@@ -1439,11 +1534,6 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ReferenceNamesResponseHandler handler(request, response);
@@ -1484,7 +1574,10 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             context.insert(IdentityContainer(request->userName));
 
             STAT_GETSTARTTIME;
-
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			     "Calling provider.referenceNames: " + 
+			     provider.getName());
+	pm_service_op_lock op_lock(&provider);
             provider.referenceNames(
                 context,
                 objectPath,
@@ -1498,14 +1591,20 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1517,10 +1616,12 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleGetPropertyRequest");
     CIMGetPropertyRequestMessage * request =
         dynamic_cast<CIMGetPropertyRequestMessage *>(const_cast<Message *>(message));
 
@@ -1542,11 +1643,6 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     GetPropertyResponseHandler handler(request, response);
 
@@ -1576,8 +1672,12 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
         CIMName propertyName = request->propertyName;
 
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.getProperty: " + 
+			 provider.getName());
+	
         // forward request
+	pm_service_op_lock op_lock(&provider);
         provider.getProperty(
             context,
             objectPath,
@@ -1588,14 +1688,20 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1607,10 +1713,12 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleSetPropertyRequest");
     CIMSetPropertyRequestMessage * request =
         dynamic_cast<CIMSetPropertyRequestMessage *>(const_cast<Message *>(message));
 
@@ -1622,18 +1730,13 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        CIMException(),
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
         request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     SetPropertyResponseHandler handler(request, response);
 
@@ -1665,26 +1768,36 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 
         STAT_GETSTARTTIME;
 
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.setProperty: " + 
+			 provider.getName());
+	
         // forward request
+	pm_service_op_lock op_lock(&provider);
         provider.setProperty(
             context,
             objectPath,
             propertyName,
             propertyValue,
             handler);
-
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1696,12 +1809,12 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderManagerService::handleInvokeMethodRequest");
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleInvokeMethodRequest");
 
     CIMInvokeMethodRequestMessage * request =
         dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
@@ -1724,11 +1837,6 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 
     // propagate message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     InvokeMethodResponseHandler handler(request, response);
@@ -1761,9 +1869,13 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
         // ATTN: propagate namespace
         instanceReference.setNameSpace(request->nameSpace);
 
+
         // forward request
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.invokeMethod: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.invokeMethod(
             context,
             instanceReference,
@@ -1775,14 +1887,20 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1800,6 +1918,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 
 void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCreateSubscriptionRequest");
     CIMCreateSubscriptionRequestMessage * request =
         dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
@@ -1818,11 +1937,6 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -1830,20 +1944,15 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
 	    _getProviderRegPair(request->provider, request->providerModule);
-
+	
 	// get cached or load new provider module
-	Provider provider =
-            providerManager.getProvider(triad.first, triad.second, triad.third);
-
+	   
+	Provider provider = providerManager.getProvider(triad.first, triad.second, triad.third);
 
 	// convert arguments
 	OperationContext context;
 
 	context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
 	
 	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -1858,28 +1967,39 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 
 	    classNames.append(className);
 	}
-
+	
 	CIMPropertyList propertyList = request->propertyList;
 	
 	Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-	
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.createSubscription: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
 	provider.createSubscription(
 	    context,
 	    subscriptionName,
 	    classNames,
 	    propertyList,
 	    repeatNotificationPolicy);
+	
+	
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -1891,10 +2011,12 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleModifySubscriptionRequest");
     CIMModifySubscriptionRequestMessage * request =
         dynamic_cast<CIMModifySubscriptionRequestMessage *>(const_cast<Message *>(message));
 
@@ -1913,11 +2035,6 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -1934,10 +2051,6 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
-        context.insert(SubscriptionFilterConditionContainer
-            (request->condition, request->queryLanguage));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1956,7 +2069,10 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         CIMPropertyList propertyList = request->propertyList;
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.modifySubscription: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.modifySubscription(
             context,
             subscriptionName,
@@ -1966,14 +2082,20 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -1985,11 +2107,13 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    CIMDeleteSubscriptionRequestMessage * request =
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDeleteSubscriptionRequest");
+   CIMDeleteSubscriptionRequestMessage * request =
         dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
@@ -2007,11 +2131,6 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -2028,8 +2147,6 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         OperationContext context;
 
         context.insert(IdentityContainer(request->userName));
-        context.insert(SubscriptionInstanceContainer
-            (request->subscriptionInstance));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -2044,7 +2161,10 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 
             classNames.append(className);
         }
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.deleteSubscription: " + 
+			 provider.getName());
+	pm_service_op_lock op_lock(&provider);
         provider.deleteSubscription(
             context,
             subscriptionName,
@@ -2052,14 +2172,20 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -2071,10 +2197,12 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService:: handleEnableIndicationsRequest");
     CIMEnableIndicationsRequestMessage * request =
         dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
 
@@ -2088,15 +2216,16 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
         CIMException(),
         request->queueIds.copyAndPop());
 
+    CIMEnableIndicationsResponseMessage * responseforhandler =
+        new CIMEnableIndicationsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
     response->setKey(request->getKey());
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     response->dest = request->queueIds.top();
 
@@ -2114,23 +2243,36 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
        Provider provider =
 	  providerManager.getProvider(triad.first, triad.second, triad.third);
 
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Calling provider.enableIndications: " + 
+			provider.getName());
+       provider._cimom_handle->protect();
        provider.enableIndications(*handler);
 
 
        // if no exception, store the handler so it is persistent for as 
        // long as the provider has indications enabled. 
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Storing indication handler for " + provider.getName());
+       
        _insertEntry(provider, handler);
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
        response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
     }
        
@@ -2142,10 +2284,12 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDisableIndicationsRequest");
     CIMDisableIndicationsRequestMessage * request =
         dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));
 
@@ -2164,11 +2308,6 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -2180,21 +2319,35 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 	// get cached or load new provider module
 	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.disableIndications: " + 
+			 provider.getName());
+	
         provider.disableIndications();
+	provider._cimom_handle->unprotect();
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Removing and Destroying indication handler for " + 
+			 provider.getName());
+	
 	delete _removeEntry(_generateKey(provider));
     }
 
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
        response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -2206,10 +2359,12 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDisableModuleRequest");
     CIMDisableModuleRequestMessage * request =
         dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
 
@@ -2298,11 +2453,6 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -2311,10 +2461,12 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleEnableModuleRequest");
     CIMEnableModuleRequestMessage * request =
         dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
 
@@ -2375,11 +2527,6 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -2388,11 +2535,13 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, const
     Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleStopAllProvidersRequest");
     CIMStopAllProvidersRequestMessage * request =
         dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
 
@@ -2416,11 +2565,6 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
     // preserve message key
     response->setKey(request->getKey());
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
        new AsyncLegacyOperationResult(
           async->getKey(),
@@ -2429,6 +2573,85 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
           response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
+}
+
+void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op, 
+				    const Message *message) throw()
+{
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handlConsumeIndicationRequest");
+
+   CIMConsumeIndicationRequestMessage *request = 
+      dynamic_cast<CIMConsumeIndicationRequestMessage *>(const_cast<Message *>(message));
+   
+   AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+   
+   PEGASUS_ASSERT(request != 0 && async != 0);
+   Uint32 type = 3;
+   
+   CIMResponseMessage * response = 
+      new CIMResponseMessage(
+	 CIM_CONSUME_INDICATION_RESPONSE_MESSAGE,
+	 request->messageId,
+	 CIMException(), 
+	 request->queueIds.copyAndPop());
+   
+   PEGASUS_ASSERT(response != 0);
+   
+   response->setKey(request->getKey());
+
+
+   try
+   {
+      // get the provider file name and logical name
+      Triad<String, String, String> triad =
+	 _getProviderRegPair(request->consumer_provider, request->consumer_module);
+      
+      // get cached or load new provider module
+      Provider provider =
+	 providerManager.getProvider(triad.first, triad.second, triad.third);
+
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Calling provider.: " + 
+		       provider.getName());
+       
+      OperationContext context;
+      CIMInstance indication_copy = request->indicationInstance;
+      SimpleIndicationResponseHandler handler;
+      provider.handleIndication(context, 
+				indication_copy,
+				handler);
+
+   }
+   catch(CIMException & e)
+   {
+      
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Exception: " + e.getMessage());
+      response->cimException = CIMException(e);
+   }
+   catch(Exception & e)
+   {
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Exception: " + e.getMessage());
+      response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Exception: Unknown");
+      response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+   }
+
+   AsyncLegacyOperationResult *async_result = 
+      new AsyncLegacyOperationResult(
+	 async->getKey(), 
+	 async->getRouting(), 
+	 op, 
+	 response);
+
+   _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);   
+   PEG_METHOD_EXIT();
 }
 
 
@@ -2473,13 +2696,14 @@ String ProviderManagerService::_generateKey (
     //  Append provider key values to key
     //
     String providerName = provider.getName();
-    String providerFileName = provider.getModule().getFileName();
+    String providerFileName = provider.getModule()->getFileName();
     tableKey.append (providerName);
     tableKey.append (providerFileName);
 
     PEG_METHOD_EXIT ();
     return tableKey;
 }
+
 
 
 PEGASUS_NAMESPACE_END

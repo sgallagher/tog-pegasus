@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,16 +32,37 @@
 #define Pegasus_Provider_h
 
 #include <Pegasus/Common/Config.h>
-
+#include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/ProviderManager/ProviderModule.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+// temporary to make it easier to merge code, will change 
+// prior to declaring merge complete
+
+class ObjectBusyException : Exception
+{
+   public:
+      ObjectBusyException(void) 
+      {
+      }
+      ObjectBusyException(const char *msg)
+      {
+      }
+      
+      ~ObjectBusyException(void)
+      {
+      }
+};
+
+
 // The Provider class represents the logical provider extracted from a
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
+
 class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 {
 public:
@@ -54,13 +75,12 @@ public:
     };
 
 public:
-    Provider(void);
-    Provider(const String & name, const String & path);
-
-    Provider(const String & name, const String & path,
-             const String & interfaceName, const Uint32 & refCount);
-    Provider(const Provider & p);
-
+    typedef ProviderFacade Base;
+    
+    Provider(const String & name,
+	     ProviderModule *module,
+	     CIMProvider *pr);
+    
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
@@ -69,12 +89,31 @@ public:
     Status getStatus(void) const;
     String getName(void) const;
 
-    ProviderModule getModule(void) const;
+    ProviderModule *getModule(void) const;
+    
+      // << Mon Oct 14 15:42:24 2002 mdd >> for use with DQueue template
+      // to allow conversion from using Array<> 
+      Boolean operator == (const void *key) const;
+      Boolean operator == (const Provider & prov) const;
 
-protected:
-    Status _status;
-    ProviderModule _module;
+      virtual void get_idle_timer(struct timeval *);
+      virtual void update_idle_timer(void);
+      virtual Boolean pending_operation(void);
+      virtual Boolean unload_ok(void);
 
+//   force provider manager to keep in memory
+      virtual void protect(void);
+// allow provider manager to unload when idle 
+      virtual void unprotect(void);
+
+   protected:
+      Status _status;
+      ProviderModule *_module;
+   private:
+      friend class ProviderManager;
+      friend class ProviderManagerService;
+      CIMOMHandle *_cimom_handle;
+      String _name;
 };
 
 PEGASUS_NAMESPACE_END

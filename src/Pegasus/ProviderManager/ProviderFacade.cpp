@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,6 +28,7 @@
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company 
 //                  (sushma_fernandes@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,24 @@
 #include <Pegasus/Common/Destroyer.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class op_counter
+{
+   public:
+      op_counter(AtomicInt *counter)
+	 : _counter(counter)
+      {
+	 (*_counter)++;
+      }
+      ~op_counter(void)
+      {
+	 (*_counter)--;
+      }
+   private:
+      op_counter(void);
+      AtomicInt *_counter;
+};
+
 
 template<class T>
 inline T * getInterface(CIMProvider * provider)
@@ -78,72 +97,19 @@ void ProviderFacade::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
-
-    // forward request
-    provider->getInstance(
-        context,
-        instanceReference,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        handler);
-
-    // ATTN: how persistent should the facade be? that is, should the provider attempt
-    // to resolve client requests when a provider does not explicity support an
-    // operation? If so, how does a provider NOT support an operation? Is it valid for
-    // a provider to NOT support individual gets or enumeratation of instances and/or
-    // instance names? What is the minimum instance provider?
-    //
-    // Is it valid to assume providers support a particular operation by implementing it.
-
-    /*
-    // attempt CIMInstanceProvider::getInstance()
-    try
-    {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider != 0)
-    {
-    // forward request
-    provider->getInstance(context, instanceReference, includeQualifiers,
-                          includeClassOrigin, propertyList, handler);
-
-    return;
-    }
-    }
-    catch(...)
-    {
-    }
-
-    // attempt CIMInstanceProvider::enumerateInstances()
-    try
-    {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider != 0)
-    {
-    // forward request
-    provider->enumerateInstances(context, instanceReference, includeQualifiers,
-                                 includeClassOrigin, propertyList, handler);
-
-    return;
-    }
-    }
-    catch(...)
-    {
-    }
-
-    // attempt CIMInstanceProvider::enumerateInstanceNames()
-    try
-    {
-    }
-    catch(...)
-    {
-    }
-    */
+   op_counter ops(&_current_operations);
+   
+   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+   
+   // forward request
+   provider->getInstance(
+      context,
+      instanceReference,
+      includeQualifiers,
+      includeClassOrigin,
+      propertyList,
+      handler);
+   
 }
 
 void ProviderFacade::enumerateInstances(
@@ -154,7 +120,8 @@ void ProviderFacade::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+   op_counter ops(&_current_operations);
+   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->enumerateInstances(
@@ -173,14 +140,15 @@ void ProviderFacade::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
-
-    // forward request
-    provider->enumerateInstanceNames(
-        context,
-        classReference,
-        handler);
-
+   op_counter ops(&_current_operations);
+   CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
+   
+   // forward request
+   provider->enumerateInstanceNames(
+      context,
+      classReference,
+      handler);
+   
     // try enumerateInstances if not supported
 }
 
@@ -192,6 +160,7 @@ void ProviderFacade::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
@@ -210,6 +179,7 @@ void ProviderFacade::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
@@ -225,6 +195,7 @@ void ProviderFacade::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
@@ -243,6 +214,7 @@ void ProviderFacade::getClass(
     const CIMPropertyList & propertyList,
     ClassResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
 }
 
@@ -255,6 +227,7 @@ void ProviderFacade::enumerateClasses(
     const Boolean includeClassOrigin,
     ClassResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClasses");
 }
 
@@ -264,6 +237,7 @@ void ProviderFacade::enumerateClassNames(
     const Boolean deepInheritance,
     ObjectPathResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClassNames");
 }
 
@@ -273,6 +247,7 @@ void ProviderFacade::modifyClass(
     const CIMClass & classObject,
     ResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::modifyClass");
 }
 
@@ -282,6 +257,7 @@ void ProviderFacade::createClass(
     const CIMClass & classObject,
     ResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::createClass");
 }
 
@@ -290,6 +266,7 @@ void ProviderFacade::deleteClass(
     const CIMObjectPath & classReference,
     ResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::deleteClass");
 }
 
@@ -305,6 +282,7 @@ void ProviderFacade::associators(
     const CIMPropertyList & propertyList,
     ObjectResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
@@ -330,6 +308,7 @@ void ProviderFacade::associatorNames(
     const String & resultRole,
     ObjectPathResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
@@ -353,7 +332,8 @@ void ProviderFacade::references(
     const CIMPropertyList & propertyList,
     ObjectResponseHandler & handler)
 {
-    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
+   op_counter ops(&_current_operations);
+   CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
     provider->references(
@@ -374,6 +354,7 @@ void ProviderFacade::referenceNames(
     const String & role,
     ObjectPathResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
@@ -391,6 +372,7 @@ void ProviderFacade::getProperty(
     const CIMName & propertyName,
     ValueResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     // NOTE: CIMPropertyProvider interface not supported yet
     /*
     CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
@@ -450,6 +432,7 @@ void ProviderFacade::setProperty(
     const CIMValue & newValue,
     ResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     // NOTE: CIMPropertyProvider interface not supported yet
     /*
     CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
@@ -474,7 +457,7 @@ void ProviderFacade::setProperty(
 
     propertyList.append(propertyName);
 
-    SimpleResponseHandler instanceHandler;
+    SimpleInstanceResponseHandler instanceHandler;
 
     modifyInstance(
         context,
@@ -494,15 +477,16 @@ void ProviderFacade::invokeMethod(
     const Array<CIMParamValue> & inParameters,
     MethodResultResponseHandler & handler)
 {
-    CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider);
-
-    // forward request
-    provider->invokeMethod(
-        context,
-        objectReference,
-        methodName,
-        inParameters,
-        handler);
+   op_counter ops(&_current_operations);
+   CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider);
+   
+   // forward request
+   provider->invokeMethod(
+      context,
+      objectReference,
+      methodName,
+      inParameters,
+      handler);
 }
 
 void ProviderFacade::executeQuery(
@@ -512,11 +496,14 @@ void ProviderFacade::executeQuery(
     const String & query,
     ObjectResponseHandler & handler)
 {
+   op_counter ops(&_current_operations);
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
 }
 
 void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 {
+   _current_operations++;
+   
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -529,6 +516,7 @@ void ProviderFacade::disableIndications(void)
 
     // forward request
     provider->disableIndications();
+    _current_operations--;
 }
 
 void ProviderFacade::createSubscription(
@@ -538,6 +526,7 @@ void ProviderFacade::createSubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
+   op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -556,6 +545,7 @@ void ProviderFacade::modifySubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
+   op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -572,6 +562,7 @@ void ProviderFacade::deleteSubscription(
     const CIMObjectPath & subscriptionName,
     const Array<CIMObjectPath> & classNames)
 {
+   op_counter ops(&_current_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -579,6 +570,30 @@ void ProviderFacade::deleteSubscription(
         context,
         subscriptionName,
         classNames);
+}
+
+  // CIMIndicationConsumer interface
+void ProviderFacade::handleIndication(
+   const OperationContext & context,
+   const CIMInstance & indication,
+   IndicationResponseHandler & handler)
+{
+   
+   op_counter ops(&_current_operations);
+   CIMIndicationConsumer * provider = getInterface<CIMIndicationConsumer>(_provider);
+   // handler should be unused
+   provider->handleIndication(
+      context, 
+      indication, 
+      handler);
+}
+
+ void ProviderFacade::handleIndication(
+    const OperationContext & context,
+    const String & url,
+    const CIMInstance& indicationInstance)
+{
+
 }
 
 PEGASUS_NAMESPACE_END

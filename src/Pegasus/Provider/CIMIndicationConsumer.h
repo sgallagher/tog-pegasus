@@ -58,12 +58,12 @@ public:
     @param handler asynchronusly processes the results of this operation.
 
     @exception NotSupported
-    @exception InvalidParameter
+    @exception InvalidParameter 
     */
     virtual void handleIndication(
 	const OperationContext & context,
 	const CIMInstance & indication,
-	ResponseHandler & handler) = 0;
+	IndicationResponseHandler  & handler) = 0;
 
     // ATTN: The following method is only for testing purposes.
     virtual void handleIndication(

@@ -942,6 +942,33 @@ public:
     Array<CIMObjectPath> subscriptionInstanceNames;
 };
 
+class CIMConsumeIndicationRequestMessage : public CIMRequestMessage
+{
+   public:
+      CIMConsumeIndicationRequestMessage(
+	 const String & messageId_, 
+	 const CIMNamespaceName & nameSpace_,     // ns of the origin of the indication 
+	 const CIMInstance & indicationInstance_, 
+	 const CIMInstance & consumer_provider_, 
+	 const CIMInstance & consumer_module_,
+	 QueueIdStack queueIds_)
+	 : CIMRequestMessage(
+	    CIM_CONSUME_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	   nameSpace(nameSpace_), 
+	   indicationInstance(indicationInstance_),
+	   consumer_provider(consumer_provider_), 
+	   consumer_module(consumer_module_)
+      {
+      }
+
+      CIMNamespaceName nameSpace;
+      CIMInstance indicationInstance;
+      CIMInstance consumer_provider;
+      CIMInstance consumer_module;
+};
+
+
+
 class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
 {
 public:

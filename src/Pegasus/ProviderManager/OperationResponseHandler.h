@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%//////////////////////////-*-c++-*-//////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -48,6 +48,9 @@
 #include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+
 
 class PEGASUS_SERVER_LINKAGE OperationResponseHandler
 {
@@ -343,6 +346,7 @@ public:
     }
 
 };
+
 
 class EnableIndicationsResponseHandler : public OperationResponseHandler, public SimpleIndicationResponseHandler
 {

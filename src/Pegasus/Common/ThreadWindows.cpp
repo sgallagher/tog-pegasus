@@ -69,7 +69,7 @@ Thread::~Thread()
    }
    CloseHandle(_handle.thid);
    }
-   catch(..)
+   catch(...)
    {
    }
    

@@ -168,7 +168,7 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
         // Determine if the first identifier's name is in the FROM list.
 	String classContext = firstId.getName().getString();
 	CQLIdentifier matchedId = inContext.findClass(classContext);
-	if (matchedId.getName().getString().size() != 0)
+	if (matchedId.getName().getString().size() == 0)
 	{
 	  // Could not find the firstId in the FROM list.
 	  // Assume the firstId is a property on the FROM class,

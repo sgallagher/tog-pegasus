@@ -90,7 +90,8 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       :
       Base(PEGASUS_QUEUENAME_OPREQDISPATCHER),
       _repository(repository),
-      _providerRegistrationManager(providerRegistrationManager)
+      _providerRegistrationManager(providerRegistrationManager),
+      _normalizer(*repository)
 {
 
    PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -258,7 +259,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-     
+
      _routing_table.insert_record(PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -267,7 +268,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-	 
+	
      _routing_table.insert_record(PEGASUS_CLASSNAME_PROTOCOLADAPTER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -276,7 +277,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-	 
+	
      _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACEINMANAGER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -516,7 +517,7 @@ Boolean _containsPropertyArray(const Array<CIMName>& pl, const CIMName& pn)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
            "CIMOperationRequestDispatcher::_containsPropertyArray");
-    
+
     for (Uint32 i = 0; i < pl.size() ; i++)
     {
         // if name found in propertyList return true
@@ -621,20 +622,20 @@ Boolean _mergePropertyLists(const CIMClass cl, const Boolean localOnly,
            "CIMOperationRequestDispatcher::_mergePropertyLists");
 
     Boolean listIsNull = pl.isNull();
-    
+
     // if property list is  !NULL but empty, we send empty propertylist
-    // with NO properties independent of localOnly. 
+    // with NO properties independent of localOnly.
     //
     if (!listIsNull && (pl.size() == 0))
     {
         PEG_METHOD_EXIT();
         return(false);
     }
-   
+
    // ATTN: Spec says property must be in this class. Do we need additional
    // test to assure that properties in list are in this class.  Or is this
-   // covered below? 
-   // If list null and !localOnly, request is for all properties.  Do not 
+   // covered below?
+   // If list null and !localOnly, request is for all properties.  Do not
    // create a new list.
    if (listIsNull && !localOnly)
    {
@@ -642,8 +643,8 @@ Boolean _mergePropertyLists(const CIMClass cl, const Boolean localOnly,
        return(false);
    }
 
-   // ATTN: Optimization: There is another option where there are NO nonlocal 
-   // properties and localOnly not important. Set flag to determine 
+   // ATTN: Optimization: There is another option where there are NO nonlocal
+   // properties and localOnly not important. Set flag to determine
    // !localOnly property count.
 
    for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
@@ -700,7 +701,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
    {
        String serviceName = String::EMPTY;
        String controlProviderName = String::EMPTY;
-	   ProviderIdContainer *container=NULL; 
+	   ProviderIdContainer *container=NULL;
 
        ProviderInfo pi(classNames[i]);
 
@@ -713,10 +714,10 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
            pi._serviceName = serviceName;
            pi._controlProviderName = controlProviderName;
            pi._hasProvider = true;
-		   if(container!=NULL)   
-				pi._providerIdContainer = container; 
+		   if(container!=NULL)
+				pi._providerIdContainer = container;
 		   else
-		        pi._providerIdContainer = NULL; 
+		        pi._providerIdContainer = NULL;
            providerCount++;
            CDEBUG("FoundProvider for class = " << classNames[i].getString());
            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
@@ -730,7 +731,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
        {
            pi._serviceName = String::EMPTY;
            pi._controlProviderName = String::EMPTY;
-		   pi._providerIdContainer = NULL;      
+		   pi._providerIdContainer = NULL;
            pi._hasProvider = false;
            CDEBUG("No provider for class = " << classNames[i].getString());
        }
@@ -783,8 +784,8 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance, false,has_no_query))
     {
     	
-		ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstance,pInstance); 
-        (*container) = providercontainer ; 
+		ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+        (*container) = providercontainer ;
 		// get the provder name
     	Uint32 pos = pInstance.findProperty(CIMName ("Name"));
 
@@ -903,8 +904,8 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     if (_providerRegistrationManager->lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))
     {
-    	ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstance,pInstance);  
-        (*providerIdContainer) = providercontainer ; 
+    	ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+        (*providerIdContainer) = providercontainer ;
 		// get the provder name
     	Uint32 pos = pInstance.findProperty(CIMName ("Name"));
 
@@ -1039,10 +1040,10 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
         String serviceName = String::EMPTY;
         String controlProviderName = String::EMPTY;
         ProviderInfo pi(classNames[i]);
-		ProviderIdContainer *container=NULL; 
+		ProviderIdContainer *container=NULL;
 
         // We use the returned classname for the association classname
-        // under the assumption that the registration is for the 
+        // under the assumption that the registration is for the
         // association class, not the target class
         if(_lookupNewAssociationProvider(nameSpace, classNames[i],
             serviceName, controlProviderName,&container))
@@ -1051,10 +1052,10 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
             pi._serviceName = serviceName;
             pi._controlProviderName = controlProviderName;
             pi._hasProvider = true;
-		    if(container!=NULL)   
-				pi._providerIdContainer = container; 
+		    if(container!=NULL)
+				pi._providerIdContainer = container;
 		    else
-		        pi._providerIdContainer = NULL; 
+		        pi._providerIdContainer = NULL;
             providerCount++;
             CDEBUG("Found Association Provider for class = " << classNames[i].getString());
 
@@ -1071,7 +1072,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
         else
         {
             pi._hasProvider = false;
-            pi._providerIdContainer = NULL;   
+            pi._providerIdContainer = NULL;
         }
         providerInfoList.append(pi);
     }
@@ -1207,14 +1208,14 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
         for(Uint32 i=0,n=pInstances.size(); i<n; i++)
         {
-		//At present only one provider per class or per association is supported and the same provider is stored in  
+		//At present only one provider per class or per association is supported and the same provider is stored in
 		// the providerIdContainer. So the array will actually have only one itme. And hence with the same element
 		// providerIdContainer will be created.When we start supporting multiple providers per class or assoc,
 		//we need to change the code to make providerIdContainer accordingly.
 		 if (i==0)
 		 {
-			ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i]); 
-            (*providerIdContainer) = providercontainer ; 
+			ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i]);
+            (*providerIdContainer) = providercontainer ;
 		 }
             // get the provider name
             Uint32 pos = pInstances[i].findProperty(CIMName ("Name"));
@@ -1323,7 +1324,7 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
 
     CIMResponseMessage *response;
 
-    Uint32 msgType =  asyncReply->getType();
+    Uint32 msgType = asyncReply->getType();
 
     if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
     {
@@ -1755,7 +1756,7 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
         // for each response, move the objects to the first response
     	for (Uint32 j = 0; j < fromResponse->cimObjects.size(); j++)
     	{
-    	    
+    	
             // Test for existence of Namespace and host and if not
             // in the path component, add them.
     	    CIMObjectPath p = fromResponse->cimObjects[j].getPath();
@@ -1790,7 +1791,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
         "CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation");
     CIMReferenceNamesResponseMessage * toResponse =
 	(CIMReferenceNamesResponseMessage *) poA->getResponse(0);
-    
+
     // Work backward and delete each response off the end of the array
     // adding it to the toResponse, which is really the first response.
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -1871,13 +1872,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
 
     CIMEnumerateInstancesResponseMessage * toResponse =
-	(CIMEnumerateInstancesResponseMessage *) poA->getResponse(0);
+        (CIMEnumerateInstancesResponseMessage *)poA->getResponse(0);
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::EnumerateInstances Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
+        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Name Space: $0 Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
         poA->numberResponses());
+
+    CIMEnumerateInstancesRequestMessage * request =
+        (CIMEnumerateInstancesRequestMessage *)poA->getRequest();
+
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Local Only: $0 Include Qualifiers: $1 Inlcude Class Origin: $2",
+        (request->localOnly == true ? "true" : "false"),
+        (request->includeQualifiers == true ? "true" : "false"),
+        (request->includeClassOrigin == true ? "true" : "false"));
 
     // Work backward and delete each response off the end of the array
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
@@ -1887,10 +1897,37 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
 
     	for (Uint32 j = 0; j < fromResponse->cimNamedInstances.size(); j++)
     	{
-    	    toResponse->cimNamedInstances.append(fromResponse->cimNamedInstances[j]);
+            try
+            {
+                CIMInstance cimInstance = fromResponse->cimNamedInstances[j];
+
+                /*
+                CIMInstance cimInstance =
+                    _normalizer.normalizeInstance(
+                        fromResponse->cimNamedInstances[j],
+                        request->localOnly,
+                        request->includeQualifiers,
+                        request->includeClassOrigin,
+                        request->propertyList);
+                */
+
+                //toResponse->cimNamedInstances.append(fromResponse->cimNamedInstances[j]);
+                toResponse->cimNamedInstances.append(cimInstance);
+            }
+            catch(...)
+            {
+                // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
+                // A way to report this error to the provider would be ideal, but what can be done at this point?
+
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0",
+                    fromResponse->cimNamedInstances[j].getPath().toString());
+            }
     	}
-    	poA->deleteResponse(i);
+
+        poA->deleteResponse(i);
     }
+
     PEG_METHOD_EXIT();
 }
 
@@ -1901,81 +1938,6 @@ void CIMOperationRequestDispatcher::handleExecQueryResponseAggregation(
     QuerySupportRouter::routeHandleExecQueryResponseAggregation(
        this,poA);
 }
-
-/*
-static void checkDefaultQuery(CIMResponseMessage* msg,
-           WQLSelectStatement* query)
-{
-   CIMEnumerateInstancesResponseMessage *enr=(CIMEnumerateInstancesResponseMessage*)msg;
-
-   for (int i=enr->cimNamedInstances.size()-1; i>=0; i--) {
-      WQLInstancePropertySource ips(enr->cimNamedInstances[i]);
-      try {
-         if (query->evaluateWhereClause(&ips)) {
-	    query->applyProjection(enr->cimNamedInstances[i]);
-         }
-         else enr->cimNamedInstances.remove(i);
-      }
-      catch (...) {
-         enr->cimNamedInstances.remove(i);
-      }
-   }
-}
-
-void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
-                           OperationAggregate* poA)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::handleExecQueryResponse");
-
-    CIMExecQueryResponseMessage * toResponse =
-	(CIMExecQueryResponseMessage *) poA->getResponse(0);
-
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::ExecQuery Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
-        poA->_nameSpace.getString(),
-        poA->_className.getString(),
-        poA->numberResponses());
-
-    if (poA->getResponse(0)->getType()==CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE) {
-       checkDefaultQuery(poA->getResponse(0),
-       ((WQLQueryExpressionRep*)poA->_query)->stmt);
-    }
-
-    // Work backward and delete each response off the end of the array
-    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--) {
-        if (poA->getResponse(i)->getType()==CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE) {
-           checkDefaultQuery(poA->getResponse(i),
-	      ((WQLQueryExpressionRep*)poA->_query)->stmt);
-   	   CIMEnumerateInstancesResponseMessage *fromResponse =
-    	       (CIMEnumerateInstancesResponseMessage *)poA->getResponse(i);
-    	   for (Uint32 j = 0, m = fromResponse->cimNamedInstances.size(); j<m; j++) {
-	      CIMObject co=CIMObject(fromResponse->cimNamedInstances[j]);
-	      CIMObjectPath op=co.getPath();
-	      op.setNameSpace(poA->_nameSpace);
-	      op.setHost(System::getHostName());
-	      co.setPath(op);
-    	      toResponse->cimObjects.append(co);
-    	   }
-	}
-	else {
-   	   CIMExecQueryResponseMessage *fromResponse =
-    	       (CIMExecQueryResponseMessage *)poA->getResponse(i);
-    	   for (Uint32 j = 0, m = fromResponse->cimObjects.size(); j<m; j++) {
-	      CIMObject co=fromResponse->cimObjects[j];
-	      CIMObjectPath op=co.getPath();
-	      op.setNameSpace(poA->_nameSpace);
-	      op.setHost(System::getHostName());
-	      co.setPath(op);
-    	      toResponse->cimObjects.append(co);
-    	   }
-	}
-    	poA->deleteResponse(i);
-    }
-    delete poA->_query;
-    PEG_METHOD_EXIT();
-}
-*/
 
 /* handleOperationResponseAggregation - handles all of the general functions of
    aggregation including:
@@ -2110,7 +2072,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         // same, then use that language as the language of the aggregated response.
         // Otherwise, don't set any language in the aggregated response.
 
-	// Get the language of the first response  
+	// Get the language of the first response
 		ContentLanguages firstLang = ((ContentLanguageListContainer)(poA->getResponse(0))->operationContext.get
 										(ContentLanguageListContainer::NAME)).getLanguages();
 
@@ -2126,7 +2088,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 	    for(Uint32 j = 1; j < poA->numberResponses(); j++)
        	    {
     	        CIMResponseMessage* response = poA->getResponse(j);
-    	    
+    	
 				if (((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).
 					getLanguages()!=firstLang)
 				{
@@ -2134,17 +2096,17 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
                    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                         Formatter::format("Aggregation Processor Lang Mismatch.  Mismatching lang is: $0"
                                           , (((ContentLanguageListContainer)response->operationContext.get
-										    (ContentLanguageListContainer::NAME)).getLanguages()).toString())); 
-                   langMismatch = true;                                     
-                   break;				    
+										    (ContentLanguageListContainer::NAME)).getLanguages()).toString()));
+                   langMismatch = true;
+                   break;				
                 }
             }
         }
         else
-        {   
+        {
              // The first lang is empty.  That guarantees a mismatch.
              langMismatch = true;
-        }    
+        }
         // l10n -end
 
         switch( poA->getRequestType())
@@ -2181,7 +2143,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 // << Fri Sep 26 12:29:43 2003 mdd >>
     // Send the remaining response and delete the aggregator.
     response = poA->removeResponse(0);
-    
+
     response->dest = poA->_dest;
     // l10n
     // If all the langs didn't match, then send no language in the aggregated response.
@@ -2194,8 +2156,8 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 
 
 //<< Fri Sep 26 12:19:34 2003 mdd >>
-// poA still contains pointers to the messages, does deleting cause memory corruption? 
-// 
+// poA still contains pointers to the messages, does deleting cause memory corruption?
+//
     delete poA;
 
     PEG_METHOD_EXIT();
@@ -2257,13 +2219,13 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 	if (req->thread_changed())
         {
 			Thread::setLanguages(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
-							(AcceptLanguageListContainer::NAME)).getLanguages())); 
+							(AcceptLanguageListContainer::NAME)).getLanguages()));
 	    }
-   } 
+   }
    else
    {
 	Thread::clearLanguages();
-   }     
+   }
 
    switch(request->getType())
    {
@@ -2446,6 +2408,18 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 		  "CIMOperationRequestDispatcher::handleGetClassRequest - Name Space: $0  Class name: $1",
 		  request->nameSpace.getString(),
 		  request->className.getString());
+
+      /*
+      // normalize class. currently, the repository does not properly normalize. this code can be removed
+      // once it does.
+      cimClass =
+          _normalizer.normalizeClass(
+              cimClass,
+              request->localOnly,
+              request->includeQualifiers,
+              request->includeClassOrigin,
+              request->propertyList);
+       */
    }
    catch(CIMException& exception)
    {
@@ -2491,7 +2465,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    CIMName className = request->instanceName.getClassName();
 
    CIMException checkClassException;
+
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -2515,7 +2491,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
    // ATTN: KS String providerName = String::EMPTY;
-   ProviderIdContainer *providerIdContainer =NULL ; 
+   ProviderIdContainer *providerIdContainer =NULL ;
 
    if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
 	    controlProviderName,&providerIdContainer))
@@ -2523,9 +2499,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     	CIMGetInstanceRequestMessage* requestCopy =
     	    new CIMGetInstanceRequestMessage(*request);
 
-		if(providerIdContainer!=NULL) 
+		if(providerIdContainer!=NULL)
 		{
-			requestCopy->operationContext.insert(*providerIdContainer); 
+			requestCopy->operationContext.insert(*providerIdContainer);
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 		}
@@ -2554,6 +2530,18 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     	    request->includeQualifiers,
     	    request->includeClassOrigin,
     	    request->propertyList);
+
+         /*
+         // normalize instance. currently, the repository does not properly normalize. this code can be removed
+         // once it does.
+         cimInstance =
+             _normalizer.normalizeInstance(
+                 cimInstance,
+                 request->localOnly,
+                 request->includeQualifiers,
+                 request->includeClassOrigin,
+                 request->propertyList);
+        */
       }
       catch(CIMException& exception)
       {
@@ -2691,7 +2679,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
-   ProviderIdContainer *providerIdContainer=NULL ; 
+   ProviderIdContainer *providerIdContainer=NULL ;
 
    if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
 	    controlProviderName,&providerIdContainer))
@@ -2699,9 +2687,9 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     	CIMDeleteInstanceRequestMessage* requestCopy =
     	    new CIMDeleteInstanceRequestMessage(*request);
 
-		if(providerIdContainer!=NULL) 
+		if(providerIdContainer!=NULL)
 		{
-			requestCopy->operationContext.insert(*providerIdContainer); 
+			requestCopy->operationContext.insert(*providerIdContainer);
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 		}
@@ -2870,9 +2858,9 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
     	CIMCreateInstanceRequestMessage* requestCopy =
     	    new CIMCreateInstanceRequestMessage(*request);
 
-		if(providerIdContainer!=NULL) 
+		if(providerIdContainer!=NULL)
 		{
-			requestCopy->operationContext.insert(*providerIdContainer); 
+			requestCopy->operationContext.insert(*providerIdContainer);
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 		}
@@ -2896,7 +2884,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->nameSpace,
 	    request->newInstance,
 	   ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
-					getLanguages()); 
+					getLanguages());
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleCreateInstanceRequest - Name Space: $0  Instance name: $1",
 		     request->nameSpace.getString(),
@@ -2967,7 +2955,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
         request->nameSpace,
         request->modifiedClass,
 		((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
-					getLanguages()); 
+					getLanguages());
    }
    catch(CIMException& exception)
    {
@@ -3036,7 +3024,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    }
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
-   ProviderIdContainer *providerIdContainer=NULL ; 
+   ProviderIdContainer *providerIdContainer=NULL ;
 
    if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
 	    controlProviderName,&providerIdContainer))
@@ -3044,9 +3032,9 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     	CIMModifyInstanceRequestMessage* requestCopy =
     	    new CIMModifyInstanceRequestMessage(*request);
 
-		if(providerIdContainer!=NULL) 
+		if(providerIdContainer!=NULL)
 		{
-			requestCopy->operationContext.insert(*providerIdContainer); 
+			requestCopy->operationContext.insert(*providerIdContainer);
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 		}
@@ -3071,7 +3059,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     	    request->modifiedInstance,
     	    request->includeQualifiers,request->propertyList,
 	       ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
-					getLanguages()); 
+					getLanguages());
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleModifiedInstanceRequest - Name Space: $0  Instance name: $1",
 		     request->nameSpace.getString(),
@@ -3314,22 +3302,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     // Create a propertyList that represents the combination
     // of the propertyList and the localOnly attribute.
-    rtn = _mergePropertyLists(cimClass, 
+    rtn = _mergePropertyLists(cimClass,
                               request->localOnly,
-                              request->propertyList, 
+                              request->propertyList,
                               localPropertyListArray);
-   
+
     CDEBUG("EnumerateInstances Built property list size = " <<
         localPropertyListArray.size());
     for (Uint32 i = 0; i < localPropertyListArray.size() ; i++)
     {
         CDEBUG("P= " << localPropertyListArray[i].getString());
     }
-   
+
     CDEBUG("CIMOP ei propertyList1= " <<
         _showPropertyList(request->propertyList));
-    
-    // if new propertyList built, reset it into the 
+
+    // if new propertyList built, reset it into the
     // request propertylist.
     if (rtn)
     {
@@ -3338,13 +3326,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     }
     CDEBUG("CIMOP ei propertyList2= " <<
         _showPropertyList(request->propertyList));
-   
+
     //
     // Get names of descendent classes:
     //
     CIMException cimException;
     Array<ProviderInfo> providerInfos;
-    
+
     Uint32 providerCount;
 
     // Get list of providers.
@@ -3364,7 +3352,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 cimException,
                 request->queueIds.copyAndPop(),
                 Array<CIMInstance>());
- 
+
         _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
@@ -3396,7 +3384,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         CIMEnumerateInstancesResponseMessage* response =
             new CIMEnumerateInstancesResponseMessage(request->messageId,
-                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, 
+                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms("Server.CIMOperationRequestDispatcher."
                         "ENUM_REQ_TOO_BROAD", "Enumerate request too Broad")),
                 request->queueIds.copyAndPop(),
@@ -3466,7 +3454,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         if (providerInfos[i]._hasProvider)
         {
             STAT_PROVIDERSTART
-            
+
             PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                 Formatter::format(
                     "EnumerateInstances Req. class $0 to svc \"$1\" for "
@@ -3475,13 +3463,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     providerInfos[i]._serviceName,
                     providerInfos[i]._controlProviderName,
                     i, numClasses, poA->_aggregationSN));
-            
+
             CIMEnumerateInstancesRequestMessage* requestCopy =
                 new CIMEnumerateInstancesRequestMessage(*request);
-            
+
             requestCopy->className = providerInfos[i]._className;
 
-            if (providerInfos[i]._providerIdContainer != NULL) 
+            if (providerInfos[i]._providerIdContainer != NULL)
                 requestCopy->operationContext.insert(*(providerInfos[i]._providerIdContainer));
 
             CIMException checkClassException;
@@ -3497,7 +3485,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                         checkClassException,
                         request->queueIds.copyAndPop(),
                         Array<CIMInstance>());
-                
+
                     Boolean isDoneAggregation = poA->appendResponse(response);
                     if (isDoneAggregation)
                     {
@@ -3697,7 +3685,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
         CIMEnumerateInstanceNamesResponseMessage* response =
             new CIMEnumerateInstanceNamesResponseMessage(request->messageId,
-                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, 
+                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms("Server.CIMOperationRequestDispatcher."
                         "ENUM_REQ_TOO_BROAD", "Enumerate request too Broad")),
                 request->queueIds.copyAndPop(),
@@ -3780,8 +3768,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
             requestCopy->className = providerInfos[i]._className;
 
-			if((providerInfos[i]._providerIdContainer)!=NULL) 
-				requestCopy->operationContext.insert(*(providerInfos[i]._providerIdContainer)); 
+			if((providerInfos[i]._providerIdContainer)!=NULL)
+				requestCopy->operationContext.insert(*(providerInfos[i]._providerIdContainer));
 
             _forwardRequestForAggregation(providerInfos[i]._serviceName,
                 providerInfos[i]._controlProviderName, requestCopy, poA);
@@ -4110,8 +4098,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 // to this class.
                 requestCopy->assocClass = providerInfo[i]._className;
 
-			    if((providerInfo[i]._providerIdContainer)!=NULL)  
-				    requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer)); 
+			    if((providerInfo[i]._providerIdContainer)!=NULL)
+				    requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
@@ -4374,8 +4362,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 // to this class.
                 requestCopy->assocClass = providerInfo[i]._className;
 
-			    if((providerInfo[i]._providerIdContainer)!=NULL) 
-				    requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer)); 
+			    if((providerInfo[i]._providerIdContainer)!=NULL)
+				    requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
@@ -4640,8 +4628,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 // to this class.
                 requestCopy->resultClass = providerInfo[i]._className;
 
-			   if((providerInfo[i]._providerIdContainer)!=NULL) 
-				   requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer)); 
+			   if((providerInfo[i]._providerIdContainer)!=NULL)
+				   requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
@@ -4901,7 +4889,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 requestCopy->resultClass = providerInfo[i]._className;
 
 			if((providerInfo[i]._providerIdContainer)!=NULL)
-				requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer)); 
+				requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
@@ -4943,9 +4931,9 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       CIMGetPropertyRequestMessage* requestCopy =
           new CIMGetPropertyRequestMessage(*request);
 
-  	   	if(providerIdContainer!=NULL) 
+  	   	if(providerIdContainer!=NULL)
 		{
-			requestCopy->operationContext.insert(*providerIdContainer); 
+			requestCopy->operationContext.insert(*providerIdContainer);
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 		}
@@ -5076,9 +5064,9 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       CIMSetPropertyRequestMessage* requestCopy =
           new CIMSetPropertyRequestMessage(*request);
 
-  	   if(providerIdContainer!=NULL) 
+  	   if(providerIdContainer!=NULL)
 	   {
-			requestCopy->operationContext.insert(*providerIdContainer); 
+			requestCopy->operationContext.insert(*providerIdContainer);
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 	   }
@@ -5103,7 +5091,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	    request->propertyName,
 	    request->newValue,
 	   ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
-					getLanguages()); 
+					getLanguages());
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleSetPropertyRequest - Name Space: $0  Instance Name: $1  Property Name: $2  New Value: $3",
 		     request->nameSpace.getString(),
@@ -5229,7 +5217,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 	 request->nameSpace,
 	 request->qualifierDeclaration,
 	 ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
-					getLanguages()); 
+					getLanguages());
  Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		  "CIMOperationRequestDispatcher::handleSetQualifierRequest - Name Space: $0  Qualifier Name: $1",
 		  request->nameSpace.getString(),
@@ -5388,12 +5376,12 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleExecQueryRequest");
-   
+
    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false) {
 	   	SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
 	      cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
-         sub_cntr.getQueryLanguage()); 
+         sub_cntr.getQueryLanguage());
       exception=true;
    }
 
@@ -5589,7 +5577,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 	   request->queueIds.copyAndPop(),
 	    Array<CIMObject>(),
 	   ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
-					getLanguages()); 
+					getLanguages());
     if (_repository->isDefaultInstanceProvider())
         poA->setTotalIssued(numClasses+1);
     else poA->setTotalIssued(providerCount+1);
@@ -5625,8 +5613,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 			((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
 					getLanguages(),
 			((AcceptLanguageListContainer)request->operationContext.get(AcceptLanguageListContainer::NAME)).
-					getLanguages()); 
-		     
+					getLanguages());
+		
                 _forwardRequestForAggregation(providerInfos[i]._serviceName,
                       providerInfos[i]._controlProviderName, enumReq, poA);
 	    }
@@ -5829,9 +5817,9 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       CIMInvokeMethodRequestMessage* requestCopy =
           new CIMInvokeMethodRequestMessage(*request);
 
-      if(providerIdContainer!=NULL) 
+      if(providerIdContainer!=NULL)
 	  {
-	 	requestCopy->operationContext.insert(*providerIdContainer); 
+	 	requestCopy->operationContext.insert(*providerIdContainer);
 		delete providerIdContainer;
 		providerIdContainer = NULL;
 	  }
@@ -5844,7 +5832,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    }
 
    // l10n
-   
+
    CIMException cimException =
      PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.CIMOperationRequestDispatcher.PROVIDER_NOT_AVAILABLE","Provider not available"));
 
@@ -5922,7 +5910,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 
          PEG_METHOD_EXIT();
 
-	 // l10n 
+	 // l10n
 
 	 // throw PEGASUS_CIM_EXCEPTION(
 	 // CIM_ERR_INVALID_PARAMETER,

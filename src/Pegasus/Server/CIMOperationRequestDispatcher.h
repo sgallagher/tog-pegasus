@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,7 +34,7 @@
 //		        Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //      		Adrian Schuur (schuur@de.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
-//
+//              Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,8 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/OperationContextInternal.h>  
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/ObjectNormalizer.h>
 
 #include <Pegasus/Server/CIMServer.h>
 
@@ -71,7 +72,7 @@ public:
     {
     }
     ProviderInfo(CIMName& className)
-            : _className(className), 
+            : _className(className),
 	      _hasNoQuery(true),
               _magicNumber(54321)
     {
@@ -96,7 +97,7 @@ public:
     }
     void setServiceName(String& serviceName)
     {
-        _serviceName = serviceName; 
+        _serviceName = serviceName;
     }
     String getServiceName()
     {
@@ -107,7 +108,7 @@ String _serviceName;
 CIMName _className;
 Boolean _hasProvider,_hasNoQuery;
 CIMNamespaceName _nameSpace;
-ProviderIdContainer *_providerIdContainer;  
+ProviderIdContainer *_providerIdContainer;
 
 private:
 Uint32 _magicNumber;
@@ -127,7 +128,7 @@ public:
         @param msgRequestType
         @param messageId
         @param dest
-        
+
         NOTE: This is the version we will generally use
     */
 
@@ -169,10 +170,10 @@ public:
     // Tests validity by checking the magic number we put into the
     // packet.
     Boolean valid() {return(_magicNumber == 12345)? true: false; }
-    
+
     // Returns count of total responses collected into this aggregation
     Uint32 totalIssued() { return _totalIssued; }
-    
+
     // increment the count of requests issued
     void incIssued() { _totalIssued++;}
 
@@ -191,12 +192,17 @@ public:
     }
 
 
-    Uint32 numberResponses() { 
+    Uint32 numberResponses() {
       //      _appendResponseMutex.lock(pegasus_thread_self());
-      Uint32 size =  _responseList.size(); 
+      Uint32 size =  _responseList.size();
       //      _appendResponseMutex.unlock();
       return size;
-      
+
+    }
+
+    CIMRequestMessage* getRequest(void)
+    {
+        return(_request);
     }
 
     CIMResponseMessage* getResponse(const Uint32& pos)
@@ -206,13 +212,13 @@ public:
       tmp = _responseList[pos];
       _appendResponseMutex.unlock();
       return tmp;
-      
+
     }
 
     // << Fri Sep 26 12:28:53 2003 mdd >>
 
     // allow dispatcher to remove the response so it doesn't become
-    // destroyed when the poA is destroyed. 
+    // destroyed when the poA is destroyed.
 
     CIMResponseMessage* removeResponse(const Uint32& pos)
       {
@@ -225,7 +231,7 @@ public:
 	return tmp;
 	
       }
-    
+
 
     void deleteResponse(const Uint32&pos)
     {
@@ -236,7 +242,7 @@ public:
     }
 
     Uint32 getRequestType(){ return _msgRequestType;}
-    
+
     String _messageId;
     Uint32 _msgRequestType;
     Uint32 _dest;
@@ -349,40 +355,39 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void handleInvokeMethodRequest(
     	 CIMInvokeMethodRequestMessage* request);
 
-      static void _forwardForAggregationCallback(AsyncOpNode *, 
-					   MessageQueue *, 
+      static void _forwardForAggregationCallback(AsyncOpNode *,
+					   MessageQueue *,
 					   void *);
-      static void _forwardRequestCallback(AsyncOpNode *, 
-					   MessageQueue *, 
+      static void _forwardRequestCallback(AsyncOpNode *,
+					   MessageQueue *,
 					   void *);
-      
+
       // Response Handler functions
-      
+
       void handleOperationResponseAggregation(OperationAggregate* poA);
 
-      static void handleReferencesResponseAggregation(OperationAggregate* poA);
+      void handleReferencesResponseAggregation(OperationAggregate* poA);
 
-      static void handleReferenceNamesResponseAggregation(OperationAggregate* poA);
+      void handleReferenceNamesResponseAggregation(OperationAggregate* poA);
 
-      static void handleAssociatorsResponseAggregation(OperationAggregate* poA);
+      void handleAssociatorsResponseAggregation(OperationAggregate* poA);
 
-      static void handleAssociatorNamesResponseAggregation(OperationAggregate* poA);
-      
-      static void handleEnumerateInstancesResponseAggregation(OperationAggregate* poA);
+      void handleAssociatorNamesResponseAggregation(OperationAggregate* poA);
 
-      static void handleEnumerateInstanceNamesResponseAggregation(OperationAggregate* poA);
+      void handleEnumerateInstancesResponseAggregation(OperationAggregate* poA);
 
-   //   static
+      void handleEnumerateInstanceNamesResponseAggregation(OperationAggregate* poA);
+
       void handleExecQueryResponseAggregation(OperationAggregate* poA);
 
    protected:
 
 	/** _getSubClassNames - Gets the names of all subclasses of the defined
-	    class (including the class) and returns it in an array of strings. Uses 
+	    class (including the class) and returns it in an array of strings. Uses
 	    a similar function in the repository class to get the names.
 	    @param namespace
 	    @param className
-	    @return Array of strings with class names.  Note that there should be 
+	    @return Array of strings with class names.  Note that there should be
 	    at least one classname in the array (the input name)
 	    Note that there is a special exception to this function, the __namespace
 	    class which does not have any representation in the class repository.
@@ -391,13 +396,13 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
     Array<CIMName> _getSubClassNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className) throw(CIMException);
-    
+
     Boolean _lookupInternalProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         String& service,
         String& provider);
-    
+
 /*    Boolean _lookupNewQueryProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -406,11 +411,11 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 	Boolean* notQueryProvider); */
 
     Boolean _lookupNewInstanceProvider(
-        const CIMNamespaceName& nameSpace, 
+        const CIMNamespaceName& nameSpace,
         const CIMName& className,
         String& serviceName,
         String& controlProviderName,
-		ProviderIdContainer **container,    
+		ProviderIdContainer **container,
         Boolean *has_no_query = NULL);
 
 /*    String _lookupQueryProvider(
@@ -421,42 +426,42 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
     String _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-		ProviderIdContainer **container,    
+		ProviderIdContainer **container,
         Boolean *has_no_query = NULL);
 
 /*   Array<ProviderInfo> _lookupAllQueryProviders(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Uint32& providerCount)  throw(CIMException); */
-    
+
     Array<ProviderInfo> _lookupAllInstanceProviders(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Uint32& providerCount,
         Boolean is_query = false)  throw(CIMException);
-    
+
     Array<ProviderInfo> _lookupAllAssociationProviders(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass,
         const String& role,
         Uint32& providerCount);
-    
+
     Boolean _lookupNewAssociationProvider(
-        const CIMNamespaceName& nameSpace, 
+        const CIMNamespaceName& nameSpace,
         const CIMName& assocClass,
         String& serviceName,
         String& controlProviderName,
-		ProviderIdContainer **container); 
-    
+		ProviderIdContainer **container);
+
     Array<String> _lookupAssociationProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& assocClass,
-		ProviderIdContainer **container); 
+		ProviderIdContainer **container);
 
       String _lookupMethodProvider(const CIMNamespaceName& nameSpace,
     	const CIMName& className, const CIMName& methodName,
-		ProviderIdContainer **providerIdContainer); 
+		ProviderIdContainer **providerIdContainer);
 
       void _forwardRequestToService(
         const String& serviceName,
@@ -483,7 +488,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 
       void _enqueueResponse(
           CIMRequestMessage* request, CIMResponseMessage* response);
-      
+
       CIMValue _convertValueType(const CIMValue& value, CIMType type);
 
       void _fixInvokeMethodParameterTypes(CIMInvokeMethodRequestMessage* request);
@@ -493,7 +498,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void _checkExistenceOfClass(const CIMNamespaceName& nameSpace,
 		                          const CIMName& className,
 		                          CIMException& cimException);
-	  
+	
 	  CIMClass _getClass(const CIMNamespaceName& nameSpace,
 		                 const CIMName& className,
 		                 CIMException& cimException);
@@ -524,29 +529,12 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void applyQueryToEnumeration(CIMResponseMessage* msg,
          QueryExpressionRep* query);
 */
+      ObjectNormalizer _normalizer;
+
    private:
       static void _handle_enqueue_callback(AsyncOpNode *, MessageQueue *, void *);
 
 };
-
-/*
-class WQLOperationRequestDispatcher : public CIMOperationRequestDispatcher {
-   friend class Nobody;
-   private:
-      WQLOperationRequestDispatcher(CIMRepository* repository,
-         ProviderRegistrationManager* providerRegistrationManager)
-         : CIMOperationRequestDispatcher(repository,providerRegistrationManager) {}
-
-      virtual ~WQLOperationRequestDispatcher() {}
-
-   public:
-      void handleQueryRequest(
-    	 CIMExecQueryRequestMessage* request);
-
-      void handleQueryResponseAggregation(
-         OperationAggregate* poA);
-};
-*/
 
 PEGASUS_NAMESPACE_END
 

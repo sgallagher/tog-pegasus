@@ -143,7 +143,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os,
     return os;
 }
 
-inline void _appendChar(Array<Sint8>& out, const Char16& c)
+static inline void _appendChar(Array<Sint8>& out, const Char16& c)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
     // character into the array.
@@ -168,7 +168,7 @@ inline void _appendChar(Array<Sint8>& out, const Char16& c)
     out.append((Sint8 *)str,trailingBytesForUTF8[Uint32(str[0])]+1);
 }
 
-inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
+static inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
 {
     if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
     {
@@ -230,7 +230,7 @@ inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
     }
 }
 
-inline void _appendSpecialChar(Array<Sint8>& out, char c)
+static inline void _appendSpecialChar(Array<Sint8>& out, char c)
 {
     if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
     {
@@ -461,7 +461,7 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 //   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
 //
 
-inline void _encodeURIChar(String& outString, Sint8 char8)
+static inline void _encodeURIChar(String& outString, Sint8 char8)
 {
     Uint8 c = (Uint8)char8;
     
@@ -765,77 +765,77 @@ void XmlWriter::appendLocalObjectPathElement(
 //
 //------------------------------------------------------------------------------
 
-inline void _appendValue(Array<Sint8>& out, Boolean x)
+static inline void _appendValue(Array<Sint8>& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint8 x)
+static inline void _appendValue(Array<Sint8>& out, Uint8 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint8 x)
+static inline void _appendValue(Array<Sint8>& out, Sint8 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint16 x)
+static inline void _appendValue(Array<Sint8>& out, Uint16 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint16 x)
+static inline void _appendValue(Array<Sint8>& out, Sint16 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint32 x)
+static inline void _appendValue(Array<Sint8>& out, Uint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint32 x)
+static inline void _appendValue(Array<Sint8>& out, Sint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint64 x)
+static inline void _appendValue(Array<Sint8>& out, Uint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint64 x)
+static inline void _appendValue(Array<Sint8>& out, Sint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Real32 x)
+static inline void _appendValue(Array<Sint8>& out, Real32 x)
 {
     XmlWriter::append(out, Real64(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Real64 x)
+static inline void _appendValue(Array<Sint8>& out, Real64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, const Char16& x)
+static inline void _appendValue(Array<Sint8>& out, const Char16& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, const String& x)
+static inline void _appendValue(Array<Sint8>& out, const String& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
+static inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.toString();  //ATTN: append() method?
 }
 
-inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
+static inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }

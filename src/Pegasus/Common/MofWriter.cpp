@@ -62,62 +62,62 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //------------------------------------------------------------------------------
 
-inline void _appendValue(Array<Sint8>& out, Boolean x)
+static inline void _appendValue(Array<Sint8>& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint8 x)
+static inline void _appendValue(Array<Sint8>& out, Uint8 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint8 x)
+static inline void _appendValue(Array<Sint8>& out, Sint8 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint16 x)
+static inline void _appendValue(Array<Sint8>& out, Uint16 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint16 x)
+static inline void _appendValue(Array<Sint8>& out, Sint16 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint32 x)
+static inline void _appendValue(Array<Sint8>& out, Uint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint32 x)
+static inline void _appendValue(Array<Sint8>& out, Sint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Uint64 x)
+static inline void _appendValue(Array<Sint8>& out, Uint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Sint64 x)
+static inline void _appendValue(Array<Sint8>& out, Sint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Real32 x)
+static inline void _appendValue(Array<Sint8>& out, Real32 x)
 {
     XmlWriter::append(out, Real64(x));
 }
 
-inline void _appendValue(Array<Sint8>& out, Real64 x)
+static inline void _appendValue(Array<Sint8>& out, Real64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Char16 x)
+static inline void _appendValue(Array<Sint8>& out, Char16 x)
 {
     XmlWriter::appendSpecial(out, x);
 }
@@ -137,7 +137,7 @@ inline void _appendValue(Array<Sint8>& out, Char16 x)
 */
 /* ATTN:KS - We need to account for characters greater than x'7f
 */
-inline void _appendValue(Array<Sint8>& out, const String& x)
+static inline void _appendValue(Array<Sint8>& out, const String& x)
 {
     out << "\"";
     for (Uint32 i = 0; i < x.size(); i++)
@@ -184,12 +184,12 @@ inline void _appendValue(Array<Sint8>& out, const String& x)
     out << "\"";
 }
 
-inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
+static inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.toString();  //ATTN: append() method?
 }
 
-inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
+static inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }

@@ -902,7 +902,7 @@ Boolean XmlReader::stringToReal(const char* stringValue, Real64& x)
     return true;
 }
 
-inline Uint8 _hexCharToNumeric(const char c)
+static inline Uint8 _hexCharToNumeric(const char c)
 {
     Uint8 n;
 

@@ -32,8 +32,12 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Sharable.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/OperationContext.h>
+
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMIndication.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,8 +52,45 @@ public:
 
     virtual void complete() = 0;
 
-    virtual void deliver(const T & object) = 0;
-    virtual void deliver(const Array<T> & objects) = 0;
+    virtual void deliver(const CIMClass & object)
+    {
+    }
+
+    virtual void deliver(const Array<CIMClass> & objects)
+    {
+    }
+
+    virtual void deliver(const CIMInstance & object)
+    {
+    }
+
+    virtual void deliver(const Array<CIMInstance> & objects)
+    {
+    }
+
+    virtual void deliver(const CIMIndication & object)
+    {
+    }
+
+    virtual void deliver(const Array<CIMIndication> & objects)
+    {
+    }
+
+    virtual void deliver(const CIMValue & object)
+    {
+    }
+
+    virtual void deliver(const Array<CIMValue> & objects)
+    {
+    }
+
+    virtual void deliver(const CIMObjectPath & object)
+    {
+    }
+
+    virtual void deliver(const Array<CIMObjectPath> & objects)
+    {
+    }
 
 };
 

@@ -36,11 +36,9 @@
 
 #include "CIMOperationRequestDispatcher.h"
 
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
-	PEGASUS_USING_STD;
+PEGASUS_USING_STD;
 
 #define DDD(X) // X
 
@@ -391,7 +389,7 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 
 const char* CIMOperationRequestDispatcher::getQueueName() const
 {
-	return("CIMOperationRequestDispatcher");
+	return(_name);
 }
 
 void CIMOperationRequestDispatcher::handleGetClassRequest(

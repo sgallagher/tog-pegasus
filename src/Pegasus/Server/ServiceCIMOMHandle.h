@@ -30,7 +30,7 @@
 #define Pegasus_ServiceCIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Common/MessageQueue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -40,7 +40,9 @@ class CIMRepository;
 class ProviderManagerQueue;
 class ConfigurationManagerQueue;
 
-class PEGASUS_SERVER_LINKAGE ServiceCIMOMHandle : public CIMOMHandle
+// ATTN: the ServiceCIMOMHandle does not derive from CIMOMHandle
+// because it can go directly to a component.
+class PEGASUS_SERVER_LINKAGE ServiceCIMOMHandle
 {
 public:
 	/** */

@@ -64,8 +64,6 @@ ServiceCIMOMHandle& ServiceCIMOMHandle::operator=(const ServiceCIMOMHandle& hand
         return(*this);
     }
 
-    CIMOMHandle::operator=(handle);
-
     _server = handle._server;
     _repository = handle._repository;
 	_providerManager = handle._providerManager;

@@ -125,12 +125,15 @@ typedef struct {
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------
 
+/* Gerarda - commented out the following code */
+/*
 #define PEGASUS_READWRITE_NATIVE = 1
 
 typedef struct {
      pthread_rwlock_t rwlock;
      PEGASUS_THREAD_TYPE owner;
 } PEGASUS_RWLOCK_HANDLE;
+*/
 
 
 inline void pegasus_yield(void)
@@ -152,6 +155,23 @@ inline void enable_cancel(void)
 
 inline void pegasus_sleep(int msec)
 {
+   /* Gerarda - redid the sleep routine */ 
+   int loop;
+   int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
+
+   if (microsecs < 1000000)
+       usleep(microsecs);
+   else
+   {
+       loop = microsecs / 1000000;
+       for(int i = 0; i < loop; i++)
+	   usleep(1000000);
+       if ((loop*1000000) < microsecs)
+	   usleep(microsecs - (loop*1000000));
+   }
+
+   /* Turns out the following code does not induce sleep on OS400 */ 
+   /*
    struct timespec wait;
    pthread_mutex_t sleep_mut = PTHREAD_MUTEX_INITIALIZER;
    pthread_cond_t sleep_cond;
@@ -163,6 +183,7 @@ inline void pegasus_sleep(int msec)
    pthread_cond_timedwait(&sleep_cond,&sleep_mut,&wait);
    pthread_mutex_unlock(&sleep_mut);
    pthread_cond_destroy(&sleep_cond);
+   */
 }
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)

@@ -2764,7 +2764,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         }
     }
 	}
-	catch (CIMException exception) {
+	catch (CIMException& exception) {
 		if(exception.getCode() == CIM_ERR_INVALID_CLASS) {
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, exception.getMessage());
 		}

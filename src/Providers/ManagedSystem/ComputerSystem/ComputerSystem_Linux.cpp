@@ -44,6 +44,7 @@
 #include <netdb.h>
 #include <sys/param.h>     // for MAXHOSTNAMELEN
 #include <string.h>        // for strcmp
+#include <errno.h>         // for errno
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

@@ -29,6 +29,7 @@
 //
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/ExportClient/Linkage.h>
@@ -102,9 +104,9 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
 	 XmlParser& parser, const String& messageId);
 
-      MessageQueue*        _outputQueue;
-      MessageQueue*        _encoderQueue;
-      ClientAuthenticator* _authenticator;
+      AutoPtr<MessageQueue>        _outputQueue; //PEP101
+      AutoPtr<MessageQueue>        _encoderQueue; //PEP101
+      AutoPtr<ClientAuthenticator> _authenticator; //PEP101
 };
 
 PEGASUS_NAMESPACE_END

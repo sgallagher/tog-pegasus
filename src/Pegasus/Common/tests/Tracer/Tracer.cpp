@@ -28,14 +28,15 @@
 // Modified By: Jenny Yu (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
 #include <cstring>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -68,20 +69,18 @@ Uint32 compare(const char* fileName, const char* compareStr)
     Uint32 retCode=0;
     fstream file;
     Uint32 size=strlen(compareStr);
-    char* readStr= new char[size+EOF_CHAR+1];
+    AutoArrayPtr<char> readStr(new char[size+EOF_CHAR+1]);
 
     file.open(fileName,fstream::in);
     if (!file.good())
     {
-        delete []readStr;
-	return 1;
+      return 1;
     }
     file.seekg((Sint32) -(size+EOF_CHAR),fstream::end);
-    memset(readStr, 0, (size+EOF_CHAR+1)*sizeof(char));
-    file.read(readStr,size+EOF_CHAR);
-    readStr[size]='\0';
-    retCode=strcmp(compareStr,readStr);
-    delete []readStr;
+    memset(readStr.get(), 0, (size+EOF_CHAR+1)*sizeof(char));
+    file.read(readStr.get(),size+EOF_CHAR);
+    (readStr.get())[size]='\0';
+    retCode=strcmp(compareStr,readStr.get());
     file.close();
     return retCode;
 }

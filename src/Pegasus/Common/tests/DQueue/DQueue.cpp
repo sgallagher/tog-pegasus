@@ -27,16 +27,17 @@
 //
 // Modified By:
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #if defined(PEGASUS_REMOVE_TRACE)   
 #undef PEGASUS_REMOVE_TRACE 
 #endif 
 #include <Pegasus/suballoc/suballoc.h>
-#include <Pegasus/Common/Destroyer.h>  
 #include <Pegasus/Common/DQueue.h>  
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h> 
+#include <Pegasus/Common/AutoPtr.h> 
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -110,12 +111,12 @@ const int NUMBER_SERVERS =  1;
  
 FAKE_MESSAGE *get_next_msg(void *key)
 {
-   FAKE_MESSAGE *msg = 0;
+   AutoPtr<FAKE_MESSAGE> msg;
 
    msg_mutex.lock(pegasus_thread_self());
    if(requests.value() < NUMBER_MSGS)
    {
-      msg = PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0);
+      msg.reset(PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0));
 
 /*****
       check for corrupted memory 
@@ -133,7 +134,7 @@ FAKE_MESSAGE *get_next_msg(void *key)
       requests++;
    }
    msg_mutex.unlock(); 
-   return msg;  
+   return msg.release();  
 }
  
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
@@ -142,12 +143,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
    read_write * my_qs = (read_write *)my_handle->get_parm();
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
 
-   Thread *receiver = new Thread(client_receiving_thread, my_qs, false);
+   AutoPtr<Thread> receiver(new Thread(client_receiving_thread, my_qs, false));
    receiver->run();
    FAKE_MESSAGE *msg = 0;
    while( 1 )
    {
-      msg = get_next_msg((void *)receiver);
+      msg = get_next_msg((void *)receiver.get());
       if(msg == 0)
 	 break;
       try
@@ -274,7 +275,7 @@ int main(int argc, char **argv)
    Tracer::setTraceFile (traceFile.getCString()); 
    Tracer::setTraceComponents("Memory");  
    Tracer::setTraceLevel(Tracer::LEVEL4); 
-   dq_handle = new peg_suballocator::SUBALLOC_HANDLE();
+   AutoPtr<dq_handle>(new peg_suballocator::SUBALLOC_HANDLE());
 
    read_write rw =
       { 
@@ -285,7 +286,7 @@ int main(int argc, char **argv)
    Thread *client_sender[20];
    Thread *server[10];
    int i;
-   FAKE_MESSAGE *test = PEGASUS_ARRAY_NEW(FAKE_MESSAGE, 10, dq_handle);
+   FAKE_MESSAGE *test = PEGASUS_ARRAY_NEW(FAKE_MESSAGE, 10, dq_handle.get());
    PEGASUS_ARRAY_DELETE(test);
    
    
@@ -310,7 +311,7 @@ int main(int argc, char **argv)
    rw.outgoing->shutdown_queue();
 
    PEGASUS_STOP_LEAK_CHECK();
-   PEGASUS_CHECK_FOR_LEAKS(dq_handle);
+   PEGASUS_CHECK_FOR_LEAKS(dq_handle.get());
 
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {

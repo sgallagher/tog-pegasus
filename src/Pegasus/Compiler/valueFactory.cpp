@@ -29,6 +29,7 @@
 //                  Correct Null processing and correct calls to nextcsv - Mar 4 2002
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,7 @@
 //
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "valueFactory.h"
 #include "objname.h"
 #include "cimmofParser.h"  /* unfortunately.  Now that valueFactory needs
@@ -46,7 +48,6 @@
 #include <cstring>
 #include <cstdlib>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Destroyer.h>
 
 #define local_min(a,b) ( a < b ? a : b )
 #define local_max(a,b) ( a > b ? a : b )
@@ -227,10 +228,9 @@ CIMValue *
 build_reference_value(const String &rep)
 {
   objectName oname(rep);
-  CIMObjectPath *ref = cimmofParser::Instance()->newReference(oname);
-  CIMValue* v = new CIMValue(*ref);
-  delete ref;
-  return v;
+  AutoPtr<CIMObjectPath> ref(cimmofParser::Instance()->newReference(oname));
+  AutoPtr<CIMValue> v(new CIMValue(*ref.get()));
+  return v.release();
 }
 
 // ------------------------------------------------------------------

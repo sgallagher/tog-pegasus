@@ -25,7 +25,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By:  Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,6 @@
 #include <fstream>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include "ConfigExceptions.h"

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/DeclContext.h>
 #include "CIMRepository.h"
+#include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
 #include "AssocTable.h"
 
@@ -108,80 +109,6 @@ void _SaveObject(const String& path, const Object& object)
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// RepositoryDeclContext
-//
-//	This context is used by the resolve() methods to lookup dependent
-//	objects during resolution.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class RepositoryDeclContext : public DeclContext
-{
-public:
-
-    RepositoryDeclContext(CIMRepository* repository);
-
-    virtual ~RepositoryDeclContext();
-
-    virtual CIMQualifierDecl lookupQualifierDecl(
-	const String& nameSpace, 
-	const String& qualifierName) const;
-
-    virtual CIMClass lookupClass(
-	const String& nameSpace, 
-	const String& className) const;
-
-private:
-
-    CIMRepository* _repository;
-};
-
-RepositoryDeclContext::RepositoryDeclContext(CIMRepository* repository) 
-    : _repository(repository)
-{
-
-}
-
-RepositoryDeclContext::~RepositoryDeclContext()
-{
-
-}
-
-CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
-    const String& nameSpace,
-    const String& qualifierName) const
-{
-    // Ignore the exception since this routine is only supposed report
-    // whether it can be found:
-
-    try
-    {
-	return _repository->getQualifier(nameSpace, qualifierName);
-    }
-    catch (Exception&)
-    {
-	return CIMQualifierDecl();
-    }
-}
-
-CIMClass RepositoryDeclContext::lookupClass(
-    const String& nameSpace,
-    const String& className) const
-{
-    // Ignore the exception since this routine is only supposed report
-    // whether it can be found:
-
-    try
-    {
-	return _repository->getClass(nameSpace, className, false, true, true);
-    }
-    catch (Exception&)
-    {
-	return CIMClass();
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

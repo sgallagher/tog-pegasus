@@ -108,6 +108,7 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
 {
    public:
       AsyncMessage(Uint32 type, 
+		   Uint32 destination,
 		   Uint32 key, 
 		   Uint32 routing,
 		   Uint32 mask,
@@ -158,7 +159,6 @@ class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage
 
       }
             
-      Uint32 dest;
       Uint32 resp;
       Boolean block;
 };
@@ -184,7 +184,6 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
       }
             
       Uint32 result;
-      Uint32 dest;
       Boolean block;
 };
 

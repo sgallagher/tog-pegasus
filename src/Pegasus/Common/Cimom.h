@@ -100,6 +100,8 @@ class PEGASUS_COMMON_LINKAGE message_module
       friend class cimom;
 };
 
+class MessageQueueService;
+
 
 class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 {
@@ -133,8 +135,8 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
             
    protected:
       Uint32 get_module_q(const String & name);
-      void _make_response(AsyncRequest *req, Uint32 code);
-      void _completeAsyncResponse(AsyncRequest *request, 
+      static void _make_response(Message *req, Uint32 code);
+      static void _completeAsyncResponse(AsyncRequest *request, 
 				  AsyncReply *reply, 
 				  Uint32 state, 
 				  Uint32 flag);
@@ -162,6 +164,9 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       
       static AtomicInt _xid;
       
+      friend class MessageQueueService;
+      
+
 //       CIMOperationRequestDispatcher *_cim_dispatcher;
 //       CIMOperationResponseEncoder *_cim_encoder;
 //       CIMOperationRequestDecoder *_cim_decoder;

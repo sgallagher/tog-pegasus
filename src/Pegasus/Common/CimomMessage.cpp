@@ -86,11 +86,12 @@ const Uint32 async_messages::ENUMERATE_SERVICE_RESULT = 0x00000010;
 
 
 AsyncMessage::AsyncMessage(Uint32 type, 
+			   Uint32 destination,
 			   Uint32 key, 
 			   Uint32 routing,
 			   Uint32 mask,
 			   AsyncOpNode *operation)
-   : Message(type, key, routing, mask | message_mask::ha_async),
+   : Message(type, destination, key, routing, mask | message_mask::ha_async),
      op(operation),
      _myself(0), 
      _service(0)
@@ -106,8 +107,7 @@ AsyncRequest::AsyncRequest(Uint32 type,
 			   Uint32 destination,
 			   Uint32 response,
 			   Boolean blocking) 
-   : AsyncMessage(type, key, routing, mask | message_mask::ha_request, operation),
-     dest(destination),
+   : AsyncMessage(type, destination, key, routing, mask | message_mask::ha_request, operation),
      resp(response),
      block(blocking) 
 {  
@@ -123,9 +123,8 @@ AsyncReply::AsyncReply(Uint32 type,
 		       Uint32 result_code,
 		       Uint32 destination,
 		       Boolean blocking) 
-   : AsyncMessage(type, key, routing, mask | message_mask::ha_reply, operation),
+   : AsyncMessage(type, destination, key, routing, mask | message_mask::ha_reply, operation),
      result(result_code),
-     dest(destination),
      block(blocking) 
 {  
    if( op != 0 )

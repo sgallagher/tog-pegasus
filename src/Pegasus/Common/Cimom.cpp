@@ -180,10 +180,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 	 Uint32 capabilities = 0;
 	 Uint32 code = 0;
 	 
+
+//      ATTN: optimization
+//      <<< Sun Feb 17 18:26:39 2002 mdd >>>
+//      once the opnode is enqueued on the cimom's list, the cimom owns it
+//      and no one is allowed to write to it but the cimom. 
+//      services are only allowed to read status bits	 
+//      this can eliminate the need for the lock/unlock
+//      unles reading/writing status bits
+
 	 op->lock();
-	 AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
-	 PEGASUS_ASSERT(request && (request->getMask() & message_mask::ha_async));
+	 Message *request = op->_request.next(0);
 	 Uint32 dest = request->dest;
+	 Uint32 mask = request->getMask();
 	 code = request->getType();
 	 op->unlock();
       
@@ -191,14 +200,24 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 	 if(dest == CIMOM_Q_ID )
 	 {
+	    PEGASUS_ASSERT(mask & message_mask::ha_async);
 	    dispatcher->_handle_cimom_op(op, myself, dispatcher);
 	    accepted = true;
 	 }
 	 else
 	 {
-	 
+	    
 	    MessageQueueService *svce = 0;
 	
+//          ATTN: optimization
+//          <<< Sun Feb 17 18:29:26 2002 mdd >>>
+//          this lock/loop/unlock is really just a safety check to ensure 
+//          the service is registered with the meta dispatcher. 
+//          if speed is an issue we can remove this lookup
+//          because we have converted to MessageQueueService from 
+//          MessageQueue, and because we register in the constructore, 
+//          the safety check is unecessary
+
 	    message_module *temp = 0;
 	    dispatcher->_modules.lock();
 	    temp = dispatcher->_modules.next(temp);
@@ -214,30 +233,31 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 	    }
 	    dispatcher->_modules.unlock();
 	    
-
-	    
 	    if(svce != 0)
 	    {
 
 	       if( capabilities & module_capabilities::paused ||
 		   capabilities & module_capabilities::stopped )
 	       {
-
 		  // the target is stopped or paused
 		  // unless the message is a start or resume
-                  // just respond from here.  
-
-		  if (code != async_messages::CIMSERVICE_START  &&
-		      code != async_messages::CIMSERVICE_RESUME )
-		  {
-		     if ( capabilities & module_capabilities::paused )
-		        dispatcher->_make_response(request, async_results::CIM_PAUSED);
-		     else 
-			dispatcher->_make_response(request, async_results::CIM_STOPPED);
-		     accepted = true;
-		  }
+		  // just handle it from here.  
+		  if( ! (mask & message_mask::ha_async ) )
+		     delete op;
 		  else 
-		     accepted = svce->accept_async(op);
+		  {
+		     if (code != async_messages::CIMSERVICE_START  &&
+			 code != async_messages::CIMSERVICE_RESUME )
+		     {
+			if ( capabilities & module_capabilities::paused )
+			   dispatcher->_make_response(request, async_results::CIM_PAUSED);
+			else 
+			   dispatcher->_make_response(request, async_results::CIM_STOPPED);
+			accepted = true;
+		     }
+		     else // deliver the start or resume message 
+			accepted = svce->accept_async(op);
+		  }
 	       }
 	       else 
 		  accepted = svce->accept_async(op);
@@ -245,18 +265,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 	    if ( accepted == false )
 	    {
 	       // make a NAK and flag completed 
-	       AsyncReply *reply = new AsyncReply(async_messages::REPLY, 
-						  request->getKey(),
-						  request->getRouting(),
-						  0, 
-						  request->op,
-						  async_results::CIM_NAK, 
-						  request->resp, 
-						  request->block);
-	       dispatcher->_completeAsyncResponse(request, 
-						  reply, 
-						  ASYNC_OPSTATE_COMPLETE, 
-						  0); 
+	       dispatcher->_make_response(request, async_results::CIM_NAK);
 	    }
 	 }
       }
@@ -302,22 +311,45 @@ cimom::~cimom(void)
    _modules.empty_list();
    
    return;
-
 }
 
 
-void cimom::_make_response(AsyncRequest *req, Uint32 code)
+void cimom::_make_response(Message *req, Uint32 code)
 {
-   AsyncReply *reply = 
-      new AsyncReply(async_messages::REPLY,
-		     req->getKey(),
-		     req->getRouting(),
-		     0,
-		     req->op, 
-		     code, 
-		     req->resp,
-		     false);
-   _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+   
+   if ( ! (req->getMask() & message_mask::ha_async) )
+   {
+      // legacy message, just delete
+
+      delete req;
+      return;
+   }
+   
+   if( (static_cast<AsyncRequest *>(req))->op->_flags & ASYNC_OPFLAGS_FIRE_AND_FORGET )
+   {
+      // destructor empties request list 
+      delete (static_cast<AsyncRequest *>(req))->op;
+      return;
+   }
+
+   AsyncReply *reply = 0 ;
+   if ( ! ((static_cast<AsyncRequest *>(req))->op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS) )
+   {
+      // sender does not want a reply message, just the 
+      // _completion_code field in the AsyncOpNode. 
+      reply = new AsyncReply(async_messages::REPLY,
+			     req->getKey(),
+			     req->getRouting(),
+			     0,
+			     (static_cast<AsyncRequest *>(req))->op, 
+			     code, 
+			     (static_cast<AsyncRequest *>(req))->resp,
+			     false);
+   }
+   else 
+      (static_cast<AsyncRequest *>(req))->op->_completion_code = code;
+
+   _completeAsyncResponse(static_cast<AsyncRequest *>(req), reply, ASYNC_OPSTATE_COMPLETE, 0 );
 }
 
 void cimom::_completeAsyncResponse(AsyncRequest *request,
@@ -325,19 +357,17 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 				   Uint32 state,
 				   Uint32 flag)
 {
-   PEGASUS_ASSERT(request != 0  && reply != 0 );
+   PEGASUS_ASSERT(request != 0);
 
    AsyncOpNode *op = request->op;
    op->lock();
    op->_state |= state ;
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
-   if ( false == op->_response.exists(reinterpret_cast<void *>(reply)) )
+   if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
       op->_response.insert_last(reply);
    op->unlock();
    op->_client_sem.signal();
-
-   
 }
 
 

@@ -40,6 +40,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 // ATTN usage of flags and state is inconsistent
 // << Wed Jan 16 17:41:57 2002 mdd >>
+// resolved mdd 
+
 
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
 #define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010
@@ -53,6 +55,9 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPFLAGS_MULTIPLE          0x00000010
 #define ASYNC_OPFLAGS_TOTAL             0x00000020
 #define ASYNC_OPFLAGS_META_DISPATCHER   0x00000040
+#define ASYNC_OPFLAGS_FIRE_AND_FORGET   0x00000080
+#define ASYNC_OPFLAGS_SIMPLE_STATUS     0x00000100
+#define ASYNC_OPFLAGS_CALLBACK          0x00000200
 
 #define ASYNC_OPSTATE_UNKNOWN           0x00000000
 #define ASYNC_OPSTATE_OFFERED           0x00000001
@@ -119,8 +124,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Mutex _mut;
       unlocked_dq<Message> _request;
       unlocked_dq<Message> _response; 
-//      Message *_request;
-//      Message *_response;
       
       OperationContext _operation_list;
       Uint32 _state;
@@ -129,7 +132,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Uint32 _total_ops;
       Uint32 _completed_ops;
       Uint32 _user_data;
-      
+      Uint32 _completion_code;
+            
       struct timeval _start;
       struct timeval _lifetime;
       struct timeval _updated;

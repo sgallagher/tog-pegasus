@@ -184,11 +184,20 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
    {
       operation->lock();
       Message *rq = operation->_request.next(0);
-      operation->unlock();
-      
       PEGASUS_ASSERT(rq != 0 );
-      PEGASUS_ASSERT(rq->getMask() & message_mask::ha_async );
-      PEGASUS_ASSERT(rq->getMask() & message_mask::ha_request);
+
+      // divert legacy messages to handleEnqueue
+      if ( ! (rq->getMask() & message_mask::ha_async) )
+      {
+	 rq = operation->_request.remove_first() ;
+	 operation->unlock();
+	 // delete the op node 
+	 delete operation;
+	 handleEnqueue(rq);
+	 return;
+      }
+
+      operation->unlock();
       static_cast<AsyncMessage *>(rq)->_myself = thread;
       static_cast<AsyncMessage *>(rq)->_service = queue;
       _handle_async_request(static_cast<AsyncRequest *>(rq));
@@ -231,45 +240,38 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
 Boolean MessageQueueService::_enqueueResponse(
    Message* request, 
    Message* response)
+   
 {
    if(request->_async != 0 )
    {
       Uint32 mask = request->_async->getMask();
-      if ( mask & message_mask::ha_async)
-      {
-	 if ( mask & message_mask::ha_request)
-	 {
-	    AsyncOpNode *op = (static_cast<AsyncRequest *>(request->_async)->op);
-	    
-	    AsyncLegacyOperationResult *async_result = 
-	       new AsyncLegacyOperationResult( 
-		  (static_cast<AsyncRequest *>(request->_async))->getKey(),
-		  (static_cast<AsyncRequest *>(request->_async))->getRouting(),
-		  op,
-		  response);
-	    _completeAsyncResponse(static_cast<AsyncRequest *>(request->_async),
-				   async_result,
-				   ASYNC_OPSTATE_COMPLETE, 
-				   0);
-	    return true;
-	 }
-      }
+      PEGASUS_ASSERT(mask & (message_mask::ha_async | message_mask::ha_request ));
+      
+      AsyncRequest *async = static_cast<AsyncRequest *>(request->_async);
+      AsyncOpNode *op = async->op;
+      request->_async = 0;
+      
+      AsyncLegacyOperationResult *async_result = 
+	 new AsyncLegacyOperationResult( 
+	    async->getKey(),
+	    async->getRouting(),
+	    op,
+	    response);
+      _completeAsyncResponse(async,
+			     async_result,
+			     ASYNC_OPSTATE_COMPLETE, 
+			     0);
+      return true;
    }
-   return false;
+   
+   // ensure that the destination queue is in response->dest
+   return SendForget(response);
+   
 }
 
-void MessageQueueService::_make_response(AsyncRequest *req, Uint32 code)
+void MessageQueueService::_make_response(Message *req, Uint32 code)
 {
-   AsyncReply *reply = 
-      new AsyncReply(async_messages::REPLY,
-		     req->getKey(),
-		     req->getRouting(),
-		     0,
-		     req->op, 
-		     code, 
-		     req->resp,
-		     false);
-   _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+   return cimom::_make_response(req, code);
 }
 
 
@@ -278,20 +280,7 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
 						Uint32 state, 
 						Uint32 flag)
 {
-   PEGASUS_ASSERT(request != 0  && reply != 0 );
-   
-   AsyncOpNode *op = request->op;
-   op->lock();
-   op->_state |= state ;
-   op->_flags |= flag;
-   gettimeofday(&(op->_updated), NULL);
-   if ( false == op->_response.exists(reinterpret_cast<void *>(reply)) )
-      op->_response.insert_last(reply);
-   op->unlock();
-
-   op->_client_sem.signal();
-
-   
+   return cimom::_completeAsyncResponse(request, reply, state, flag);
 }
 
 
@@ -317,25 +306,23 @@ Boolean MessageQueueService::messageOK(const Message *msg)
 {
    if (_incoming_queue_shutdown.value() > 0 )
       return false;
+   return true;
    
-   if ( msg != 0 )
-   {
-      Uint32 mask = msg->getMask();
-      if ( mask & message_mask::ha_async)
-	 if ( mask & message_mask::ha_request)
-	    return true;
-   }
-   return false;
+}
+
+
+void MessageQueueService::handleEnqueue(Message *msg)
+{
+   if ( msg )
+      delete msg;
+   
 }
 
 
 void MessageQueueService::handleEnqueue(void)
 {
    Message *msg = dequeue();
-   if( msg )
-   {
-      delete msg;
-   }
+   handleEnqueue(msg);
 }
 
 void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
@@ -499,6 +486,37 @@ void MessageQueueService::return_op(AsyncOpNode *op)
    delete op;
 }
 
+
+Boolean MessageQueueService::SendAsync(AsyncRequest *request, 
+				       void (*callback)(AsyncOpNode *, 
+							MessageQueueService *, 
+							void *))
+{
+   
+   return true;
+}
+
+
+Boolean MessageQueueService::SendForget(Message *msg)
+{
+
+   AsyncOpNode *op = 0;
+
+   if (msg->getMask() & message_mask::ha_async)
+   {
+      op = (static_cast<AsyncMessage *>(msg))->op ;
+   }
+   if( op == 0 )
+      op = get_op();
+   
+   op->_request.insert_first(msg);
+   op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   op->_flags &= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   op->put_response(0);
+   
+   // now see if the meta dispatcher will take it
+   return  _meta_dispatcher->route_async(op);
+}
 
 
 AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)

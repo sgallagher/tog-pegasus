@@ -79,6 +79,7 @@ class PEGASUS_COMMON_LINKAGE message_mask
       }
 };
 
+class cimom;
 class MessageQueue;
 class MessageQueueService;
 class AsyncLegacyOperationStart;
@@ -100,10 +101,11 @@ class PEGASUS_COMMON_LINKAGE Message
    public:
 
       Message(
-	 Uint32 type, 
+	 Uint32 type,
+	 Uint32 destination = 0,
 	 Uint32 key = getNextKey(), 
 	 Uint32 routing_code = 0,
-	 Uint32 mask = message_mask::type_legacy) 
+	 Uint32 mask = message_mask::type_legacy ) 
 	 : 
 	 _type(type), 
 	 _key(key), 
@@ -111,7 +113,8 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _mask(mask),
 	 _next(0), 
 	 _prev(0),
-	 _async(0)
+	 _async(0),
+	 dest(destination)
       { 
 
       }
@@ -171,10 +174,13 @@ class PEGASUS_COMMON_LINKAGE Message
       Message* _prev;
    protected:
       Message *_async;
+      Uint32 dest;
+      
    private:
       MessageQueue* _owner;
       static Uint32 _nextKey;
       static Mutex _mut;
+      friend class cimom;
       friend class MessageQueue;
       friend class MessageQueueService;
       friend class AsyncLegacyOperationStart;

@@ -124,6 +124,9 @@ public:
     <p>Implementation Note:  This method is concrete to preserve 
     binary compatibility with previous releases of the CIMServer</p> 
     */
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
     void setContext(const OperationContext & context);
 #endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 

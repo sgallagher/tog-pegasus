@@ -660,7 +660,7 @@ Semaphore::Semaphore(const Semaphore & sem)
 {
     pthread_mutex_init (&_semaphore.mutex,NULL);
     pthread_cond_init (&_semaphore.cond,NULL);
-    Uint initial = sem.count();
+    Uint32 initial =  sem._count; //sem.count();
     if (initial > SEM_VALUE_MAX)
          _count = SEM_VALUE_MAX - 1;
     else
@@ -683,6 +683,7 @@ Semaphore::~Semaphore()
 }
 
 // cleanup function 
+extern "C"
 static void semaphore_cleanup(void *arg)
 {
    //cast back to proper type and unlock mutex
@@ -700,7 +701,7 @@ void Semaphore::wait(void)
    // Push cleanup function onto cleanup stack
    // The mutex will unlock if the thread is killed early
    //pthread_cleanup_push(semaphore_cleanup, &_semaphore);
-   native_cleanup_push(semaphore_cleanup, &_semaphore);
+   native_cleanup_push(&semaphore_cleanup, &_semaphore);
 
    // Keep track of the number of waiters so that <sema_post> works correctly.
    _semaphore.waiters++;
@@ -753,7 +754,7 @@ void Semaphore::signal()
 }
 
 // return the count of the semaphore
-int Semaphore::count() 
+int Semaphore::count()
 {
    return _count;
 }

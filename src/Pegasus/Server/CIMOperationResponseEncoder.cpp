@@ -720,8 +720,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
           CIMName ("EnumerateInstances"), response->messageId, 
           response->getHttpMethod(),
           	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-          body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+          body, response->totServerTime,
+		  response->isFirst(), response->isComplete());
 
    
    }
@@ -786,8 +786,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
       CIMName ("EnumerateInstanceNames"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+      body, response->totServerTime,
+	  response->isFirst(), response->isComplete());
 
    STAT_BYTESSENT
 
@@ -1054,8 +1054,8 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
       CIMName ("ReferenceNames"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+      body, response->totServerTime,
+	  response->isFirst(), response->isComplete());
 
    STAT_BYTESSENT
 
@@ -1089,8 +1089,8 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
       CIMName ("References"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+      body, response->totServerTime,
+	  response->isFirst(), response->isComplete());
 
    STAT_BYTESSENT
 
@@ -1128,8 +1128,8 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
       CIMName ("AssociatorNames"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+      body, response->totServerTime, 
+	  response->isFirst(), response->isComplete());
 
    STAT_BYTESSENT
 
@@ -1163,8 +1163,8 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
       CIMName ("Associators"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+      body, response->totServerTime,
+	  response->isFirst(), response->isComplete());
 
    STAT_BYTESSENT
 
@@ -1243,8 +1243,8 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
        response->methodName, response->messageId, 
        response->getHttpMethod(), 
        	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
-       body, response->isFirst(), response->isComplete(),
-	  response->totServerTime);
+       body, response->totServerTime,
+	   response->isFirst(), response->isComplete());
 
    STAT_BYTESSENT
 

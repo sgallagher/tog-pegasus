@@ -13,7 +13,9 @@ the DMTF.
 Fusion event.  THis included a) extended the test for end of HTTP header from
 CR/LF/CR/LF to also allow LF/LF.  Not strictly legal but widely used. b).
 Extended the HTTP message ID to allow for non-numeric message IDs.
-4.
+4. Broke out RepositoryDeclContext class from Repository/CIMRepository.cpp
+and created RepositoryDeclContext.{cpp,h}.  This is the first step in
+revamping the compiler to work independently of the repository (grb).
 
 
 ---------------------------------------------------------------

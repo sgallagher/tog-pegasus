@@ -48,18 +48,18 @@ int main(int argc, char** argv)
 
 	// Create and populate a declaration context:
 
-	SimpleDeclContext* context = new SimpleDeclContext;
+	SimpleDeclContext context;
 
-	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("abstract", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("abstract", 
 	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("description", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("description", 
 	    String(), CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("q1", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("q1", 
 	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE | CIMFlavor::TOSUBCLASS));
 
-	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("q2", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("q2", 
 	    false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS));
 
 	// ATTN: KS P1 29 Mar 2002 - Add Tests for Null Value
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 	assert(!qualifiers1.exists("QualifierDoesNotExist"));
 
 	qualifiers1.resolve(
-	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers0, true);
+	    &context, NAMESPACE, CIMScope::CLASS, false, qualifiers0, true);
 
 	// Qualifiers after the resolve.  Should have resolved against the
 	// declarations.
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 
 	// Resolve the qualifiers against the previous list qualifiers1
 	qualifiers2.resolve(
-	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1, true);
+	    &context, NAMESPACE, CIMScope::CLASS, false, qualifiers1, true);
 
 	if(verbose)
 	    qualifiers2.print();

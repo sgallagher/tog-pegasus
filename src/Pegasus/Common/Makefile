@@ -129,25 +129,7 @@ SOURCES = \
     peg_authorization.cpp \
     CommonUTF.cpp
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
+ifeq ($(OS),linux)
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif

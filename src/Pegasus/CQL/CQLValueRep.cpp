@@ -212,7 +212,7 @@ CQLValueRep::CQLValueRep(const CIMObject& inObject)
   : _isResolved(true),
     _valueType(CQLValue::CIMObject_type)
 {
-  /_theValue.set((CIMObject)inObject);
+  _theValue.set((CIMObject)inObject);
 }
 
 CQLValueRep::CQLValueRep(const CIMObjectPath& inObjPath)

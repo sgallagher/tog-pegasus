@@ -328,9 +328,10 @@ void test03()
 }
 
 
-Boolean _propertyIdentical(CIMName& propertyName, CIMInstance& instance1,
+Boolean _propertyIdentical(const char * propertyName, CIMInstance& instance1,
                    CIMInstance& instance2)
 {
+    CIMName pn(propertyName);  
     Uint32 pos = instance1.findProperty(propertyName);
     CIMConstProperty p1 = instance1.getProperty(pos);
     pos = instance2.findProperty(propertyName);
@@ -512,7 +513,7 @@ void test04()
     	}
         assert(filterInstance.getPropertyCount() == 1);
         assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        //assert(_propertyIdentical("ratio", filterInstance, tstInstance));
+        assert(_propertyIdentical("ratio", filterInstance, tstInstance));
         assert(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -534,7 +535,7 @@ void test04()
     	}
         assert(filterInstance.getPropertyCount() == 1);
         assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
-        //assert(_propertyIdentical(CIMName("message"), filterInstance, tstInstance));
+        assert(_propertyIdentical("message", filterInstance, tstInstance));
         assert(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -592,9 +593,9 @@ void test04()
         assert(filterInstance.getPropertyCount() == 2);
         assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
         assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
-        //assert(_propertyIdentical(CIMName("message"), filterInstance, tstInstance));
+        assert(_propertyIdentical("message", filterInstance, tstInstance));
         assert(filterInstance.findProperty("count") != PEG_NOT_FOUND);
-        //assert(_propertyIdentical(CIMName("count"), filterInstance, tstInstance));
+        assert(_propertyIdentical("count", filterInstance, tstInstance));
         assert(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }

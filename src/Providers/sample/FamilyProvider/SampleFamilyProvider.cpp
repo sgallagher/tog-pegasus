@@ -57,8 +57,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         */
         String refClassName = "TST_PersonDynamic";
         CIMClass c1( CIMName (refClassName), CIMName("TST_Person"));
-        CIMProperty prop1;
-        prop1 = CIMProperty (CIMName ("Name"), String());
+        CIMProperty prop1 = CIMProperty (CIMName ("Name"), String());
         prop1.addQualifier (CIMQualifier (CIMName ("Key"), true));
         c1.addProperty(prop1);
         _referencedClass = c1;

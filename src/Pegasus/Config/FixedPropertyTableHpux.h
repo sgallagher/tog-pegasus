@@ -47,6 +47,7 @@
     {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
+    {"enableBinaryRepository", "false"},
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
@@ -60,6 +61,7 @@
     {"exportSSLTrustStore",   "/etc/opt/hp/sslshare/indication_trust.pem"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/opt/wbem/providers/lib"},
+    {"messageDir",         "/opt/wbem/share/locale/ICU_Messages"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

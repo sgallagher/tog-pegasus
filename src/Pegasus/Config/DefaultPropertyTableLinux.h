@@ -40,7 +40,7 @@
     {"enableHttpConnection", "false", 0, 0, 0, 1},
     {"enableHttpsConnection", "true", 0, 0, 0, 1},
     {"home", "", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
+    {"daemon", "true", 0, 0, 0, 0},
     {"install", "false", 0, 0, 0, 1},
     {"remove", "false", 0, 0, 0, 1},
     {"slp", "false", 0, 0, 0, 1},

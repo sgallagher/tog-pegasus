@@ -89,7 +89,7 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", 0, 0, 0, 1},
 #endif
-#ifdef PEGASUS_VENDOR_HP
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableSubscriptionsForNonprivilegedUsers", "false", 0, 0, 0, 1},
 # else

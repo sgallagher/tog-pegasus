@@ -52,7 +52,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+#if defined(PEGASUS_OS_LINUX)
+# ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"repositoryIsDefaultInstanceProvider", "false", 0, 0, 0, 0},
+# else
     {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1},
+# endif
+#else
+    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1},
+#endif
     {"enableBinaryRepository", "false", 0, 0, 0, 1}  // PEP 164
 };
 

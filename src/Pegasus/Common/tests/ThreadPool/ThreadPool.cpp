@@ -63,11 +63,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 #endif
    pegasus_sleep(sleep_interval);
    function_count++;
-   if( ! (function_count.value() % 100) )
+   if( ! (function_count.value() % 10) )
    {
       while(1)
       { 
-	 pegasus_yield();
+	 pegasus_sleep(1);
       }
    }
    

@@ -134,7 +134,15 @@ void ProviderManager::loadProvider(
     CIMOMHandleInternal _cimom(service);
 
     // initialize provider
-    provider->initialize(_cimom);
+    try
+    {
+        provider->initialize(_cimom);
+    }
+    catch (Exception &)
+    {
+        delete provider;
+        throw;
+    }
 
     // if module is already in the array, remove the old module, add the new module in 
     if (refCount > 1)

@@ -106,7 +106,7 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
-   _repository=ProviderManagerService::getRepository();
+//   _repository=ProviderManagerService::getRepository();
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)

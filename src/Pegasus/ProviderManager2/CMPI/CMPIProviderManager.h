@@ -37,7 +37,7 @@
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Repository/CIMRepository.h>
+//#include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
@@ -96,7 +96,7 @@ protected:
     CMPILocalProviderManager providerManager;
 
     Mode mode;
-    CIMRepository *_repository;
+//    CIMRepository *_repository;
 
     Message * handleUnsupportedRequest(const Message * message);
 

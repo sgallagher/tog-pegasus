@@ -7721,7 +7721,6 @@ void IndicationService::_sendDisable (
 WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
     CIMInstance& indicationInstance)
 {
-    Boolean booleanValue;
     WQLSimplePropertySource source;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -7734,8 +7733,19 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
         CIMType type = property.getType();
         CIMName propertyName = property.getName();
 
-        switch (type)
+        if (propertyValue.isNull())
         {
+            source.addValue(propertyName.getString(), WQLOperand());
+        }
+        else if (propertyValue.isArray())
+        {
+            // ATTN: How are arrays handled in WQL?  Ignore them for now.
+            // (See Bugzilla 1060)
+        }
+        else
+        {
+            switch (type)
+            {
             case CIMTYPE_UINT8:
                 Uint8 propertyValueUint8;
                 propertyValue.get(propertyValueUint8);
@@ -7783,7 +7793,7 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
                 propertyValue.get(propertyValueSint32);
                 source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueSint32, WQL_INTEGER_VALUE_TAG));
-                break;                break;
+                break;
 
             case CIMTYPE_SINT64:
                 Sint64 propertyValueSint64;
@@ -7807,22 +7817,20 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
                 break;
 
             case CIMTYPE_BOOLEAN :
+                Boolean booleanValue;
                 property.getValue().get(booleanValue);
                 source.addValue(propertyName.getString(),
                     WQLOperand(booleanValue, WQL_BOOLEAN_VALUE_TAG));
                 break;
 
             case CIMTYPE_CHAR16:
+            case CIMTYPE_DATETIME :
             case CIMTYPE_STRING :
                 source.addValue(propertyName.getString(),
                     WQLOperand(property.getValue().toString(),
                     WQL_STRING_VALUE_TAG));
                 break;
-
-            case CIMTYPE_DATETIME :
-                source.addValue (propertyName.getString(),
-                    WQLOperand ());
-                break;
+            }
         }
     }
 

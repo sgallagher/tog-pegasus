@@ -22,7 +22,7 @@
 //==============================================================================
 /* PegasusDoc.dxx - Top Level file for Pegasus Provider Specification.
 This file defines the document strucuture and provides the introduction
-	$Author: mike $
+	$Author: karl $
 */
 /* WARNING: do not change the following Name.  It is 
    used in the TOC definition.
@@ -92,7 +92,8 @@ This version of the Pegasus Provider Interface Specification was created at \tod
              	//@Include: ..\..\src\Pegasus\Common\StopWatch.h 
          	//@Include: ..\..\src\Pegasus\Common\TimeValue.h
          	//@Include: ..\..\src\Pegasus\Common\CIMPredicate.h
-         	
+          	//@Include: ..\..\src\Pegasus\Common\OperationContext.h
+        	
         	//@{
 		//@Include: Exceptions.dxx  
         	//@Include: ..\..\src\Pegasus\Common\Exception.h
@@ -116,6 +117,11 @@ This version of the Pegasus Provider Interface Specification was created at \tod
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMQueryProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\OperationContext.h
 		    //@Include: ..\..\src\Pegasus\Provider2\OperationFlag.h
+		    //@Include: ..\..\src\Pegasus\Provider2\ResponseHandler.h
+		    //@Include: ..\..\src\Pegasus\Provider2\SimpleResponseHandler.h
+		    //@Include: ..\..\src\Pegasus\Provider2\CIMBaseProviderFacade.h
+		    //@Include: ..\..\src\Pegasus\Provider2\CIMBaseProviderHandle.h
+		    
 		//@}
 		
 	   //@Include: ProviderAsyncResponses.dxx

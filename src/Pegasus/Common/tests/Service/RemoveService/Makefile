@@ -4,7 +4,7 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = RemoveService
+PROGRAM = TestRemoveService
 
 SOURCES = RemoveService.cpp
 

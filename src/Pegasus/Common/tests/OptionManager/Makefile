@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/OptionManager
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = OptionManager
+PROGRAM = TestOptionManager
 SOURCES = OptionManager.cpp
 
 include $(ROOT)/mak/program.mak

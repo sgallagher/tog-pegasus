@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Stopwatch
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Stopwatch
+PROGRAM = TestStopwatch
 SOURCES = Stopwatch.cpp
 
 include $(ROOT)/mak/program.mak

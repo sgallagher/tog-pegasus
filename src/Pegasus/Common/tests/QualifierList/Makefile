@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/QualifierList
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = QualifierList
+PROGRAM = TestQualifierList
 SOURCES = QualifierList.cpp
 
 include $(ROOT)/mak/program.mak

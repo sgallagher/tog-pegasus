@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Compare
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Compare
+PROGRAM = TestCompare
 SOURCES = Compare.cpp
 
 include $(ROOT)/mak/program.mak

@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Resolve
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Resolve
+PROGRAM = TestResolve
 SOURCES = Resolve.cpp
 
 include $(ROOT)/mak/program.mak

@@ -1,10 +1,10 @@
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/DateTimeTest
+DIR = Pegasus/Common/tests/DateTime
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = DateTimeTest
-SOURCES = DateTimeTest.cpp
+PROGRAM = TestDateTime
+SOURCES = DateTime.cpp
 
 include $(ROOT)/mak/program.mak
 

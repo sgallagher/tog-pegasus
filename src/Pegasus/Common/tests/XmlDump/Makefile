@@ -3,7 +3,8 @@ DIR = Pegasus/Common/tests/XmlDump
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = XmlDump
+PROGRAM = TestXmlDump
+
 SOURCES = XmlDump.cpp
 
 include $(ROOT)/mak/program.mak

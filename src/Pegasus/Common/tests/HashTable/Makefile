@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/HashTable
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = HashTable
+PROGRAM = TestHashTable
 SOURCES = HashTable.cpp
 
 include $(ROOT)/mak/program.mak

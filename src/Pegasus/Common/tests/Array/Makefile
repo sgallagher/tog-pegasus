@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Array
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Array
+PROGRAM = TestArray
 
 SOURCES = Array.cpp Str.cpp Int.cpp
 

@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/StrToInstName
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = StrToInstName
+PROGRAM = TestStrToInstName
 SOURCES = StrToInstName.cpp
 
 include $(ROOT)/mak/program.mak

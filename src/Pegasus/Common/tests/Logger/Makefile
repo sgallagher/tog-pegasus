@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Logger
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Logger
+PROGRAM = TestLogger
 SOURCES = Logger.cpp
 
 include $(ROOT)/mak/program.mak

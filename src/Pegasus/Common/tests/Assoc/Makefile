@@ -1,10 +1,10 @@
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/AssocTest
+DIR = Pegasus/Common/tests/Assoc
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = AssocTest
-SOURCES = AssocTest.cpp
+PROGRAM = TestAssoc
+SOURCES = Assoc.cpp
 
 include $(ROOT)/mak/program.mak
 

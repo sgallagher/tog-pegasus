@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Reference
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Reference
+PROGRAM = TestReference
 SOURCES = Reference.cpp
 
 include $(ROOT)/mak/program.mak

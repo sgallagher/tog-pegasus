@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/TimeValue
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = TimeValue
+PROGRAM = TestTimeValue
 SOURCES = TimeValue.cpp
 
 include $(ROOT)/mak/program.mak

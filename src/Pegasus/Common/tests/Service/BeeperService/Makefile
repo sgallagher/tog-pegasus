@@ -5,7 +5,7 @@ LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = BeeperService
+PROGRAM = TestBeeperService
 
 SOURCES = BeeperService.cpp
 

@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/DynLoad
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = DynLoad
+PROGRAM = TestDynLoad
 SOURCES = DynLoad.cpp
 
 include $(ROOT)/mak/program.mak

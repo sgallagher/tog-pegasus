@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/CGIQueryString
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = CGIQueryString
+PROGRAM = TestCGIQueryString
 SOURCES = CGIQueryString.cpp
 
 include $(ROOT)/mak/program.mak

@@ -3,7 +3,7 @@ DIR = Pegasus/Common/tests/Value
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = Value
+PROGRAM = TestValue
 
 SOURCES = Value.cpp
 

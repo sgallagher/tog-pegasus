@@ -4,7 +4,7 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = InstallService
+PROGRAM = TestInstallService
 
 SOURCES = InstallService.cpp
 

@@ -68,6 +68,7 @@
 //
 // TODO:
 //
+//      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is work.
 //	Handle <!DOCTYPE...> sections which are complicated (containing
 //        rules rather than references to files).
 //

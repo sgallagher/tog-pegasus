@@ -796,6 +796,8 @@ void XmlWriter::appendReturnValueElement(
     }
 
     out << ">\n";
+
+    // Add value. If no value is Null, do not put <VALUE> tags on
     value.toXml(out, false);
     out << "</RETURNVALUE>\n";
 }
@@ -1023,6 +1025,7 @@ void XmlWriter::appendPropertyListIParameter(
     Array<Sint8>& out,
     const CIMPropertyList& propertyList)
 {
+    // ATTN: P3 KS 4 Mar 2002 - As check shouldn't we check for null property list
     _appendIParamValueElementBegin(out, "PropertyList");
 
     out << "<VALUE.ARRAY>\n";

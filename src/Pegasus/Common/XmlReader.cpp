@@ -768,6 +768,11 @@ Boolean XmlReader::stringToUnsignedInteger(
 // ATTN-C: note that integers are truncated without warning. What should be 
 // done in this case? In C they are truncated without warning by design.
 //
+// Return: CIMValue. If the string input is zero length creates a CIMValue
+//         with value defined by the type.  Else the value is inserted.
+//         
+//         Note that this does not set the CIMValue Null if the string is empty.
+//
 //------------------------------------------------------------------------------
 
 CIMValue XmlReader::stringToValue(
@@ -777,13 +782,10 @@ CIMValue XmlReader::stringToValue(
 {
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
 
+    // If strlen == 0, set to default value for type
+
     if (strlen(valueString)==0) 
     {
-        // This needs to reflect the Null result. KSTESTNULL
-        // ATTN: review the other code for this characteristic
-        // In all cases, XML with an empty entry is NULL <VALUE></VALUE>
-        return CIMValue(type, false);
-        /* KS 27 Feb 2002 Droped this code in favor of inserting the Null version
         switch (type) 
 	{
 	    case CIMType::BOOLEAN: return CIMValue(false);
@@ -800,9 +802,9 @@ CIMValue XmlReader::stringToValue(
 	    case CIMType::REAL32: return CIMValue(Real32(0));
 	    case CIMType::REAL64: return CIMValue(Real64(0));
         }
-        */
     }
 
+    // Create value per type
     switch (type)
     {
 	case CIMType::BOOLEAN:
@@ -925,6 +927,8 @@ CIMValue XmlReader::stringToValue(
 //
 //     <!ELEMENT VALUE (#PCDATA)>
 //
+// Return: false if no value element.
+//
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::getValueElement(
@@ -932,7 +936,7 @@ Boolean XmlReader::getValueElement(
     CIMType type, 
     CIMValue& value)
 {
-    // Get VALUE start tag:
+    // Get VALUE start tag: Return false if no VALUE start Tag
 
     XmlEntry entry;
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
@@ -1140,6 +1144,8 @@ CIMValue XmlReader::stringArrayToValue(
 //
 //     <!ELEMENT VALUE.ARRAY (VALUE*)>
 //
+//  Return: Boolean. Returns false if there is no VALUE.ARRAY start element
+//
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::getValueArrayElement(
@@ -1147,6 +1153,7 @@ Boolean XmlReader::getValueArrayElement(
     CIMType type, 
     CIMValue& value)
 {
+    // Clears any values from the Array. Assumes this is array CIMValue
     value.clear();
 
     // Get VALUE.ARRAY open tag:
@@ -1154,12 +1161,13 @@ Boolean XmlReader::getValueArrayElement(
     XmlEntry entry;
     Array<const char*> stringArray;
 
+    // If no VALUE.ARRAY start tag, return false
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
 	return false;
 
     //ATTN: P1 KS KSTESTNULL - Need to relook at this one.
-    //if (entry.type == XmlEntry::EMPTY_TAG)
-    //    return true;
+    if (entry.type == XmlEntry::EMPTY_TAG)
+        return true;
 
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
@@ -1225,7 +1233,8 @@ Uint32 XmlReader::getFlavor(
     Boolean translatable = getCimBooleanAttribute(
 	lineNumber, entry, tagName, "TRANSLATABLE", false, false);
 
-    Uint32 flavor = 0;
+    // ATTN: KS P1 5 Mar 2002 Should this not be CIMFlavor::DEFAULTS??
+    Uint32 flavor = CIMFlavor::DEFAULTS;
 
     if (overridable)
 	flavor |= CIMFlavor::OVERRIDABLE;
@@ -1350,6 +1359,10 @@ Boolean XmlReader::getQualifierElement(
 
     // Get VALUE or VALUE.ARRAY element:
 
+    // ATTN: KS P1 4 March 2002 - Requires either value or array element or
+    // generates exception.  Correct for spec but means no NULL values on qualifier
+    // values. Alternative is to set NULL value and continue
+
     CIMValue value;
 
     if (!getValueElement(parser, type, value) &&
@@ -1433,7 +1446,8 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
     CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
 
-    // Create property:
+    // Create property: Sets type and !isarray
+    // ATTN: KS P1 change to use the correct constructor
 
     CIMValue value;
     value.setNullValue(type, false);
@@ -1446,7 +1460,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
 	getQualifierElements(parser, property);
 
-	// Get value:
+	// Get value:  Insert value if getValueElement exists (returns True)
 
 	if (getValueElement(parser, type, value))
 	    property.setValue(value);
@@ -1545,6 +1559,9 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Create property:
 
+    // ATTN: KS P1 4 March 2002 Change to use correct constructor.
+    // ATTN: KS P3 4 March 2002.  Why create extra value. Use same one.
+
     CIMValue nullValue;
     nullValue.setNullValue(type, true, arraySize);
     property = CIMProperty(
@@ -1558,6 +1575,8 @@ Boolean XmlReader::getPropertyArrayElement(
 
 	// Get value:
 
+        // ATTN: KS P1 4 March 2002. Does not set array type into value.
+        // ATTN: Thus, if it returns false, the CIMValue is nothing.
 	CIMValue value;
 
 	if (getValueArrayElement(parser, type, value))

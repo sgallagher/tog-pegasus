@@ -43,7 +43,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 
-#include <Pegasus/Provider/ResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -106,16 +106,6 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual void getClassAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        ResponseHandler<CIMClass> & handler);
-
     virtual Array<CIMClass> enumerateClasses(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
@@ -125,61 +115,26 @@ public:
         Boolean includeQualifiers,
         Boolean includeClassOrigin);
 
-    virtual void enumerateClassesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        ResponseHandler<CIMClass> & handler);
-
     virtual Array<CIMName> enumerateClassNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance);
 
-    virtual void enumerateClassNamesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance,
-        ResponseHandler<CIMObjectPath> & handler);
-
     virtual void createClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass);
-
-    virtual void createClassAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMClass& newClass,
-        ResponseHandler<void> & handler);
 
     virtual void modifyClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass);
 
-    virtual void modifyClassAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass,
-        ResponseHandler<void> & handler);
-
     virtual void deleteClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
-
-    virtual void deleteClassAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        ResponseHandler<void> & handler);
 
     virtual CIMInstance getInstance(
         const OperationContext & context,
@@ -189,16 +144,6 @@ public:
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
-
-    virtual void getInstanceAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        ResponseHandler<CIMInstance> & handler);
 
     virtual Array<CIMInstance> enumerateInstances(
         const OperationContext & context,
@@ -210,38 +155,15 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual void enumerateInstancesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        ResponseHandler<CIMInstance> & handler);
-
     virtual Array<CIMObjectPath> enumerateInstanceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    virtual void enumerateInstanceNamesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        ResponseHandler<CIMObjectPath> & handler);
-
     virtual CIMObjectPath createInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance);
-
-    virtual void createInstanceAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& newInstance,
-        ResponseHandler<void> & handler);
 
     virtual void modifyInstance(
         const OperationContext & context,
@@ -250,37 +172,16 @@ public:
         Boolean includeQualifiers,
         const CIMPropertyList& propertyList);
 
-    virtual void modifyInstanceAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& modifiedInstance,
-        Boolean includeQualifiers,
-        const CIMPropertyList& propertyList,
-        ResponseHandler<void> & handler);
-
     virtual void deleteInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
-
-    virtual void deleteInstanceAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        ResponseHandler<void> & handler);
 
     virtual Array<CIMInstance> execQuery(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query);
-
-    virtual void execQueryAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const String& queryLanguage,
-        const String& query,
-        ResponseHandler<CIMObject> & handler);
 
     virtual Array<CIMObject> associators(
         const OperationContext & context,
@@ -294,19 +195,6 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual void associatorsAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
-        const String& role,
-        const String& resultRole,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        ResponseHandler<CIMObject> & handler);
-
     virtual Array<CIMObjectPath> associatorNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
@@ -315,16 +203,6 @@ public:
         const CIMName& resultClass,
         const String& role,
         const String& resultRole);
-
-    virtual void associatorNamesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
-        const String& role,
-        const String& resultRole,
-        ResponseHandler<CIMObjectPath> & handler);
 
     virtual Array<CIMObject> references(
         const OperationContext & context,
@@ -336,31 +214,12 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual void referencesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass,
-        const String& role,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        ResponseHandler<CIMObject> & handler);
-
     virtual Array<CIMObjectPath> referenceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass,
         const String& role);
-
-    virtual void referenceNamesAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass,
-        const String& role,
-        ResponseHandler<CIMObjectPath> & handler);
 
     // property operations
     virtual CIMValue getProperty(
@@ -369,27 +228,12 @@ public:
         const CIMObjectPath& instanceName,
         const CIMName& propertyName);
 
-    virtual void getPropertyAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        const CIMName& propertyName,
-        ResponseHandler<CIMValue> & handler);
-
     virtual void setProperty(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
         const CIMValue& newValue);
-
-    virtual void setPropertyAsync(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        const CIMName& propertyName,
-        const CIMValue& newValue,
-        ResponseHandler<CIMValue> & handler);
 
     /*
     virtual CIMValue invokeMethod(
@@ -399,15 +243,6 @@ public:
     const CIMName& methodName,
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters);
-
-    virtual void invokeMethodAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters,
-    ResponseHandler<CIMValue> & handler);
     */
 
 protected:

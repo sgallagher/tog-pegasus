@@ -163,19 +163,6 @@ CIMClass CIMOMHandle::getClass(
     return(cimClass);
 }
 
-void CIMOMHandle::getClassAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    ResponseHandler<CIMClass> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 Array<CIMClass> CIMOMHandle::enumerateClasses(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -206,19 +193,6 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     return(cimClasses);
 }
 
-void CIMOMHandle::enumerateClassesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean deepInheritance,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    ResponseHandler<CIMClass> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 Array<CIMName> CIMOMHandle::enumerateClassNames(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -243,16 +217,6 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
     return(classNames);
 }
 
-void CIMOMHandle::enumerateClassNamesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean deepInheritance,
-    ResponseHandler<CIMObjectPath> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 void CIMOMHandle::createClass(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -271,15 +235,6 @@ void CIMOMHandle::createClass(
         QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
-}
-
-void CIMOMHandle::createClassAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass,
-    ResponseHandler<void> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::modifyClass(
@@ -302,15 +257,6 @@ void CIMOMHandle::modifyClass(
     return;
 }
 
-void CIMOMHandle::modifyClassAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass,
-    ResponseHandler<void> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 void CIMOMHandle::deleteClass(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -330,15 +276,6 @@ void CIMOMHandle::deleteClass(
         QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
-}
-
-void CIMOMHandle::deleteClassAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    ResponseHandler<void> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 CIMInstance CIMOMHandle::getInstance(
@@ -416,19 +353,6 @@ CIMInstance CIMOMHandle::getInstance(
     //delete op;
 
     return(cimInstance);
-}
-
-void CIMOMHandle::getInstanceAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    ResponseHandler<CIMInstance> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
@@ -518,20 +442,6 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     return(cimInstances);
 }
 
-void CIMOMHandle::enumerateInstancesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean deepInheritance,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    ResponseHandler<CIMInstance> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -598,15 +508,6 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     return(cimReferences);
 }
 
-void CIMOMHandle::enumerateInstanceNamesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    ResponseHandler<CIMObjectPath> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 CIMObjectPath CIMOMHandle::createInstance(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -627,15 +528,6 @@ CIMObjectPath CIMOMHandle::createInstance(
     CIMObjectPath cimReference;
 
     return(cimReference);
-}
-
-void CIMOMHandle::createInstanceAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance,
-    ResponseHandler<void> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::modifyInstance(
@@ -662,17 +554,6 @@ void CIMOMHandle::modifyInstance(
     return;
 }
 
-void CIMOMHandle::modifyInstanceAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& modifiedInstance,
-    Boolean includeQualifiers,
-    const CIMPropertyList& propertyList,
-    ResponseHandler<void> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 void CIMOMHandle::deleteInstance(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -691,15 +572,6 @@ void CIMOMHandle::deleteInstance(
         QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
-}
-
-void CIMOMHandle::deleteInstanceAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    ResponseHandler<void> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMInstance> CIMOMHandle::execQuery(
@@ -724,16 +596,6 @@ Array<CIMInstance> CIMOMHandle::execQuery(
     Array<CIMInstance> cimInstances;
 
     return(cimInstances);
-}
-
-void CIMOMHandle::execQueryAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const String& queryLanguage,
-    const String& query,
-    ResponseHandler<CIMObject> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObject> CIMOMHandle::associators(
@@ -772,22 +634,6 @@ Array<CIMObject> CIMOMHandle::associators(
     return(cimObjects);
 }
 
-void CIMOMHandle::associatorsAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& assocClass,
-    const CIMName& resultClass,
-    const String& role,
-    const String& resultRole,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    ResponseHandler<CIMObject> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 Array<CIMObjectPath> CIMOMHandle::associatorNames(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -816,19 +662,6 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
     Array<CIMObjectPath> cimObjectPaths;
 
     return(cimObjectPaths);
-}
-
-void CIMOMHandle::associatorNamesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& assocClass,
-    const CIMName& resultClass,
-    const String& role,
-    const String& resultRole,
-    ResponseHandler<CIMObjectPath> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 Array<CIMObject> CIMOMHandle::references(
@@ -863,20 +696,6 @@ Array<CIMObject> CIMOMHandle::references(
     return(cimObjects);
 }
 
-void CIMOMHandle::referencesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& resultClass,
-    const String& role,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    ResponseHandler<CIMObject> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 Array<CIMObjectPath> CIMOMHandle::referenceNames(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -903,17 +722,6 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
     return(cimObjectPaths);
 }
 
-void CIMOMHandle::referenceNamesAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& resultClass,
-    const String& role,
-    ResponseHandler<CIMObjectPath> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 CIMValue CIMOMHandle::getProperty(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -936,16 +744,6 @@ CIMValue CIMOMHandle::getProperty(
     CIMValue cimValue;
 
     return(cimValue);
-}
-
-void CIMOMHandle::getPropertyAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& propertyName,
-    ResponseHandler<CIMValue> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 
 void CIMOMHandle::setProperty(
@@ -972,17 +770,6 @@ void CIMOMHandle::setProperty(
     return;
 }
 
-void CIMOMHandle::setPropertyAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& propertyName,
-    const CIMValue& newValue,
-    ResponseHandler<CIMValue> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-}
-
 /*
 CIMValue CIMOMHandle::invokeMethod(
     const OperationContext & context,
@@ -1006,18 +793,6 @@ CIMValue CIMOMHandle::invokeMethod(
         QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return(response->retValue);
-}
-
-void CIMOMHandle::invokeMethodAsync(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters,
-    ResponseHandler<CIMValue> & handler)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 }
 */
 

@@ -21,9 +21,8 @@ DIRS = \
 	GetQualifier\
 	SetQualifier\
 	DeleteQualifier\
-	References
-#ATTN: add Subscription back in
-#Subscription
+	References \
+	Subscription
 
 
 include $(ROOT)/mak/recurse.mak

@@ -17,7 +17,6 @@ XMLSCRIPTS = \
     EnumerateSubscriptions01 \
     CreateModule03 CreateProvider03 \
     CreateCapability03 \
-    ModifyCapability01 \
     ModifyFilter01 \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \

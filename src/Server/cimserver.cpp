@@ -422,7 +422,7 @@ int main(int argc, char** argv)
                 }
 #if defined(PEGASUS_OS_HPUX)
                 //
-                // Check to see if user asked for the version (-v option):
+                // Check to see if user asked for the version (-X option):
                 //
                 if (*option == OPTION_BINDVERBOSE)
                 {

@@ -320,7 +320,7 @@ void UserAuthProvider::deleteInstance(
     CIMValue                userName ;
     String                  userNameStr;
     String                  namespaceStr;
-    Array<KeyBinding>       kbArray;
+    Array<CIMKeyBinding>       kbArray;
 
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::deleteInstance");
 
@@ -690,8 +690,8 @@ void UserAuthProvider::enumerateInstanceNames(
 
     Array<CIMObjectPath> instanceRefs;
     Array<String>       userNames;
-    Array<KeyBinding>   keyBindings;
-    KeyBinding          kb;
+    Array<CIMKeyBinding>   keyBindings;
+    CIMKeyBinding          kb;
     String            hostName;
 
     //
@@ -738,8 +738,8 @@ void UserAuthProvider::enumerateInstanceNames(
 
             for (Uint32 i = 0; i < size; i++)
             {
-                keyBindings.append(KeyBinding(PROPERTY_NAME_USERNAME, userNames[i],
-                   KeyBinding::STRING));
+                keyBindings.append(CIMKeyBinding(PROPERTY_NAME_USERNAME, userNames[i],
+                   CIMKeyBinding::STRING));
 
                 //
                 // Convert instance names to References
@@ -840,7 +840,7 @@ void UserAuthProvider::invokeMethod(
     String            userName;
     String            password;
     String            newPassword;
-    Array<KeyBinding>     kbArray;
+    Array<CIMKeyBinding>     kbArray;
 
     // Begin processing the request
     handler.processing();

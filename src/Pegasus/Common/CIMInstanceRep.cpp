@@ -268,7 +268,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
     // Get type and value for each key (building up key bindings):
     //--------------------------------------------------------------------------
 
-    KeyBindingArray keyBindings;
+    Array<CIMKeyBinding> keyBindings;
 
     for (Uint32 i = 0, n = keyNames.size(); i < n; i++)
     {
@@ -290,12 +290,12 @@ CIMObjectPath CIMInstanceRep::buildPath(
 	    CIMType type = value.getType();
 	    String valueStr;
 
-	    KeyBinding::Type kbType = KeyBinding::STRING;
+	    CIMKeyBinding::Type kbType = CIMKeyBinding::STRING;
 
 	    switch (type)
 	    {
 		case CIMTYPE_BOOLEAN:
-		    kbType = KeyBinding::BOOLEAN;
+		    kbType = CIMKeyBinding::BOOLEAN;
 		    valueStr = value.toString();
 		    break;
 
@@ -308,18 +308,18 @@ CIMObjectPath CIMInstanceRep::buildPath(
 		case CIMTYPE_UINT64:
 		case CIMTYPE_SINT64:
 		case CIMTYPE_CHAR16:
-		    kbType = KeyBinding::NUMERIC;
+		    kbType = CIMKeyBinding::NUMERIC;
 		    valueStr = value.toString();
 		    break;
 
 		case CIMTYPE_STRING:
 		case CIMTYPE_DATETIME:
-		    kbType = KeyBinding::STRING;
+		    kbType = CIMKeyBinding::STRING;
 		    valueStr = value.toString();
 		    break;
 
 		case CIMTYPE_REFERENCE:
-		    kbType = KeyBinding::REFERENCE;
+		    kbType = CIMKeyBinding::REFERENCE;
 		    valueStr = value.toString();
 		    break;
 
@@ -328,7 +328,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
 		    PEGASUS_ASSERT(false);
 	    }
 
-	    keyBindings.append(KeyBinding(keyName, valueStr, kbType));
+	    keyBindings.append(CIMKeyBinding(keyName, valueStr, kbType));
 	}
     }
 
@@ -364,7 +364,7 @@ String CIMInstanceRep::toString() const
 
     // Append each key-value pair:
 
-    //const Array<KeyBinding>& keyBindings = getKeyBindings();
+    //const Array<CIMKeyBinding>& keyBindings = getKeyBindings();
     CIMConstProperty prop;
 
     for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
@@ -379,15 +379,15 @@ String CIMInstanceRep::toString() const
 
         //CIMValue type = prop.getType();
 
-        //if (type == KeyBinding::REFERENCE)
+        //if (type == CIMKeyBinding::REFERENCE)
         //    objectName.append('R');
 
-        //if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+        //if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
         //    objectName.append('"');
 
         //objectName.append(value);
 
-        //if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+        //if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
         //    objectName.append('"');
 
         if (i + 1 != n)

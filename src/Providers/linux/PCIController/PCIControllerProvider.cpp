@@ -56,7 +56,7 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
 					InstanceResponseHandler& handler)
 {
    PCIControllerData *dptr1, *dptr2;
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    String uniqueKeyID;
  
@@ -195,13 +195,13 @@ LinuxPCIControllerProvider::fill_reference(String const& nameSpace,
 					   String const& className, 
 					   PCIControllerData const* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
 
-   keys.append(KeyBinding("CreationClassName", "PCIController",
-			  KeyBinding::STRING));
-   keys.append(KeyBinding("DeviceID", ptr->GetLogicalDeviceID(),
-			  KeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", "PCIController",
+			  CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("DeviceID", ptr->GetLogicalDeviceID(),
+			  CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);

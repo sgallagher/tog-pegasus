@@ -150,10 +150,10 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
     }
 
     // create CIMObjectPath
-    Array<KeyBinding> keys;
-    KeyBinding kb1("ProviderModuleName", "providersModule1", KeyBinding::STRING);
-    KeyBinding kb2("ProviderName", "PG_ProviderInstance1", KeyBinding::STRING);
-    KeyBinding kb3("CapabilityID", "capability1", KeyBinding::STRING);
+    Array<CIMKeyBinding> keys;
+    CIMKeyBinding kb1("ProviderModuleName", "providersModule1", CIMKeyBinding::STRING);
+    CIMKeyBinding kb2("ProviderName", "PG_ProviderInstance1", CIMKeyBinding::STRING);
+    CIMKeyBinding kb3("CapabilityID", "capability1", CIMKeyBinding::STRING);
  
     keys.append(kb1);
     keys.append(kb2);

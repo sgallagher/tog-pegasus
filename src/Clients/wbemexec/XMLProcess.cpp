@@ -134,8 +134,8 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     String                       methodName;
     Array<Sint8>                 encoded;
     Array <Sint8>                objPath;
-    Array <KeyBinding>           keyBindings;
-    KeyBinding::Type             type;
+    Array<CIMKeyBinding>         keyBindings;
+    CIMKeyBinding::Type          type;
     Boolean                      multireq              = false;
     Uint32                       i                     = 0;
     static Uint32                BUFFERSIZE            = 1024;
@@ -314,13 +314,13 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                         }
                         objPath << keyBindings [i].getName () << KEYVALUE_EQUAL;
                         type = keyBindings [i].getType ();
-                        if (type == KeyBinding::STRING)
+                        if (type == CIMKeyBinding::STRING)
                         {
                             objPath << KEYVALUE_STRING_DELIMITER;
                         }
                         objPath << _escapeSpecialCharacters 
                                    (keyBindings [i].getValue ());
-                        if (type == KeyBinding::STRING)
+                        if (type == CIMKeyBinding::STRING)
                         {
                             objPath << KEYVALUE_STRING_DELIMITER;
                         }

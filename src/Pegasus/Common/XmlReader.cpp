@@ -1943,7 +1943,7 @@ Boolean XmlReader::getClassNameElement(
 //
 //------------------------------------------------------------------------------
 
-KeyBinding::Type XmlReader::getValueTypeAttribute(
+CIMKeyBinding::Type XmlReader::getValueTypeAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* elementName)
@@ -1951,14 +1951,14 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
     String tmp;
 
     if (!entry.getAttributeValue("VALUETYPE", tmp))
-	return KeyBinding::STRING;
+	return CIMKeyBinding::STRING;
 
     if (String::equal(tmp, "string"))
-	return KeyBinding::STRING;
+	return CIMKeyBinding::STRING;
     else if (String::equal(tmp, "boolean"))
-	return KeyBinding::BOOLEAN;
+	return CIMKeyBinding::BOOLEAN;
     else if (String::equal(tmp, "numeric"))
-	return KeyBinding::NUMERIC;
+	return CIMKeyBinding::NUMERIC;
 
     char buffer[MESSAGE_SIZE];
 
@@ -1968,7 +1968,7 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
 	elementName);
 
     throw XmlSemanticError(lineNumber, buffer);
-    return KeyBinding::BOOLEAN;
+    return CIMKeyBinding::BOOLEAN;
 }
 
 //------------------------------------------------------------------------------
@@ -1983,7 +1983,7 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
 
 Boolean XmlReader::getKeyValueElement(
     XmlParser& parser,
-    KeyBinding::Type& type,
+    CIMKeyBinding::Type& type,
     String& value)
 {
     XmlEntry entry;
@@ -2027,7 +2027,7 @@ Boolean XmlReader::getKeyBindingElement(
     XmlParser& parser,
     String& name,
     String& value,
-    KeyBinding::Type& type)
+    CIMKeyBinding::Type& type)
 {
     XmlEntry entry;
 
@@ -2046,7 +2046,7 @@ Boolean XmlReader::getKeyBindingElement(
                       "Expected KEYVALUE or VALUE.REFERENCE element");
         }
 
-        type = KeyBinding::REFERENCE;
+        type = CIMKeyBinding::REFERENCE;
         value = reference.toString();
     }
 
@@ -2070,7 +2070,7 @@ Boolean XmlReader::getKeyBindingElement(
 Boolean XmlReader::getInstanceNameElement(
     XmlParser& parser,
     String& className,
-    Array<KeyBinding>& keyBindings)
+    Array<CIMKeyBinding>& keyBindings)
 {
     className.clear();
     keyBindings.clear();
@@ -2090,26 +2090,26 @@ Boolean XmlReader::getInstanceNameElement(
     }
 
     String name;
-    KeyBinding::Type type;
+    CIMKeyBinding::Type type;
     String value;
     CIMObjectPath reference;
 
     if (getKeyValueElement(parser, type, value))
     {
         // Use empty key name because none was specified
-        keyBindings.append(KeyBinding(name, value, type));
+        keyBindings.append(CIMKeyBinding(name, value, type));
     }
     else if (getValueReferenceElement(parser, reference))
     {
         // Use empty key name because none was specified
-        type = KeyBinding::REFERENCE;
+        type = CIMKeyBinding::REFERENCE;
         value = reference.toString();
-        keyBindings.append(KeyBinding(name, value, type));
+        keyBindings.append(CIMKeyBinding(name, value, type));
     }
     else
     {
 	while (getKeyBindingElement(parser, name, value, type))
-	    keyBindings.append(KeyBinding(name, value, type));
+	    keyBindings.append(CIMKeyBinding(name, value, type));
     }
 
     expectEndTag(parser, "INSTANCENAME");
@@ -2122,7 +2122,7 @@ Boolean XmlReader::getInstanceNameElement(
     CIMObjectPath& instanceName)
 {
     String className;
-    Array<KeyBinding> keyBindings;
+    Array<CIMKeyBinding> keyBindings;
 
     if (!XmlReader::getInstanceNameElement(parser, className, keyBindings))
 	return false;
@@ -2158,7 +2158,7 @@ Boolean XmlReader::getInstancePathElement(
     }
 
     String className;
-    Array<KeyBinding> keyBindings;
+    Array<CIMKeyBinding> keyBindings;
 
     if (!getInstanceNameElement(parser, className, keyBindings))
     {
@@ -2198,7 +2198,7 @@ Boolean XmlReader::getLocalInstancePathElement(
     }
 
     String className;
-    Array<KeyBinding> keyBindings;
+    Array<CIMKeyBinding> keyBindings;
 
     if (!getInstanceNameElement(parser, className, keyBindings))
     {
@@ -2354,7 +2354,7 @@ Boolean XmlReader::getValueReferenceElement(
     {
 	parser.putBack(entry);
 	String className;
-	Array<KeyBinding> keyBindings;
+	Array<CIMKeyBinding> keyBindings;
 	getInstanceNameElement(parser, className, keyBindings);
 	reference.set(String(), CIMNamespaceName(), className, keyBindings);
     }

@@ -4608,7 +4608,7 @@ String IndicationService::_generateKey (
     CIMObjectPath filterRef;
     filterVal.get (filterRef);
 
-    Array <KeyBinding> filterKeyBindings = filterRef.getKeyBindings ();
+    Array <CIMKeyBinding> filterKeyBindings = filterRef.getKeyBindings ();
     for (Uint8 i = 0; i < filterKeyBindings.size (); i++)
     {
         tableKey.append (filterKeyBindings [i].getValue ());
@@ -4624,7 +4624,7 @@ String IndicationService::_generateKey (
     CIMObjectPath handlerRef;
     handlerVal.get (handlerRef);
 
-    Array <KeyBinding> HandlerKeyBindings = handlerRef.getKeyBindings ();
+    Array <CIMKeyBinding> HandlerKeyBindings = handlerRef.getKeyBindings ();
     for (Uint8 i = 0; i < HandlerKeyBindings.size (); i++)
     {
         tableKey.append (HandlerKeyBindings [i].getValue ());

@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 // REVIEW: Where are these classes used?
    
-extern void PEGASUS_COMMON_LINKAGE _BubbleSort(Array<KeyBinding>& x);
+extern void PEGASUS_COMMON_LINKAGE _BubbleSort(Array<CIMKeyBinding>& x);
 enum LogicalOperator { AND, NOT, OR };
 enum ExpressionOperator { EQUAL, NE, GT, GTE, LT, LTE, PRESENT };
 
@@ -65,11 +65,11 @@ inline Boolean operator==(const Predicate& x, const Predicate& y)
 }
 
 /**
-   Determines if a Predicate object and a KeyBinding object both
+   Determines if a Predicate object and a CIMKeyBinding object both
    refer to the same property name. This is as close as we can get
-   to identity for a Predicate with the context of a KeyBinding. 
+   to identity for a Predicate with the context of a CIMKeyBinding. 
 */
-inline Boolean operator==(const Predicate& p, const KeyBinding& k)
+inline Boolean operator==(const Predicate& p, const CIMKeyBinding& k)
 {
    return
       CIMName::equal(p.getName(), k.getName());
@@ -118,7 +118,7 @@ contained by a CIMObjectPath object.)
 
 */
 
-class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
+class  PEGASUS_COMMON_LINKAGE Predicate: public CIMKeyBinding
 {
    public:
    
@@ -128,10 +128,10 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
       */
       Predicate(const Predicate& x) ;
       /** 
-	  Create a predicate by copying an existing KeyBinding, then adding
+	  Create a predicate by copying an existing CIMKeyBinding, then adding
 	  an expression operator and a truth value. 
       */
-      Predicate(const KeyBinding& x, 
+      Predicate(const CIMKeyBinding& x, 
 		ExpressionOperator op, 
 		Boolean truth );
 
@@ -156,7 +156,7 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 
 	 <pre>
 	 <code>
-	 KeyBinding kb = KeyBinding("bytes_per_second", "4501", NUMERIC);
+	 CIMKeyBinding kb = CIMKeyBinding("bytes_per_second", "4501", NUMERIC);
 	 Predicate pr = Predicate("bytes_per_second", "3000", NUMERIC, GT );
 
 	 pr.evaluate(kb);
@@ -169,7 +169,7 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 
 	 <pre>
 	 <code>
-	 (KeyBinding.value Predicate.Operator Predicate.Value)
+	 (CIMKeyBinding.value Predicate.Operator Predicate.Value)
 	 
 	 or, 
 
@@ -177,12 +177,12 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 	 </code>
 	 </pre>
 
-	 @param key provides a complete KeyBinding object, which contains the actual 
+	 @param key provides a complete CIMKeyBinding object, which contains the actual 
 	 CIM property value that will be used by the Predicate to construct and 
 	 evaluate the expression. 
 
       */
-      Boolean evaluate(const KeyBinding& key);
+      Boolean evaluate(const CIMKeyBinding& key);
 
 
       /**
@@ -220,7 +220,7 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
       ExpressionOperator _op;
       Boolean _truth_value;
       friend Boolean operator==(const Predicate& x, const Predicate& y);
-      friend Boolean operator==(const Predicate& p, const KeyBinding& k);
+      friend Boolean operator==(const Predicate& p, const CIMKeyBinding& k);
       friend class PredicateReference;
       
 } ;
@@ -240,7 +240,7 @@ typedef Array<Predicate> PredicateArray;
    container for CIM instances and expressions that refer to CIM instances.
 
    Or, put differently, a PredicateReference provides a context within which
-   Predicates and KeyBindings (see documentation for those classes) may be
+   Predicates and CIMKeyBindings (see documentation for those classes) may be
    evaluated as logical expressions. 
 
    The PredicateReference class also has properties to enable timing and hysterises
@@ -276,7 +276,7 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMObjectPath
         //
         //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
         //
-	 const KeyBindingArray& keyBindings = KeyBindingArray (),
+	 const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding> (),
 	 const PredicateArray& predicates = getPredicateArray(),
 	 Boolean truth = true,
 	 LogicalOperator lop = AND );
@@ -308,7 +308,7 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMObjectPath
         //
         //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
         //
-	 const KeyBindingArray& keyBindings = KeyBindingArray (),
+	 const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding> (),
 	 const PredicateArray& predicates = getPredicateArray(),
 	 Boolean truth = true,
 	 LogicalOperator lop = AND);
@@ -446,16 +446,16 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMObjectPath
 	 Evaluates a PredicateReference, setting and returning the object's truth value.
 	 
 	 For each Predicate object contained by this PredicateReference, this method
-	 evaluates that Predicate against each KeyBinding contained by this PredicateReference. 
+	 evaluates that Predicate against each CIMKeyBinding contained by this PredicateReference. 
 	 The result is either true or false. 
       */
       Boolean evaluate(void);
 
       /**
-	 Returns true if the PredicateReference contains KeyBindings, false otherwise. 
+	 Returns true if the PredicateReference contains CIMKeyBindings, false otherwise. 
 
 	 A PredicateReference always evaluates to false if it is not bound (i.e., if it 
-	 does not contain any KeyBindings. Note that a KeyBinding represents an actual 
+	 does not contain any CIMKeyBindings. Note that a CIMKeyBinding represents an actual 
 	 CIM property value. 
       */
       Boolean isBound(void) 

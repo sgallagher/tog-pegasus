@@ -62,7 +62,7 @@ void LinuxDiskDriveProvider::getInstance(const OperationContext& context,
 {
    DiskDriveData diskdriveData;
    MediaAccessDeviceInformation *curDiskDrive;
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    String nameString;
 
@@ -191,9 +191,9 @@ LinuxDiskDriveProvider::fill_reference(const String& nameSpace,
       				       const String& className, 
 				       const MediaAccessDeviceInformation* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("Name", ptr->getName(), KeyBinding::STRING));
+   keys.append(CIMKeyBinding("Name", ptr->getName(), CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, className, keys);
 }

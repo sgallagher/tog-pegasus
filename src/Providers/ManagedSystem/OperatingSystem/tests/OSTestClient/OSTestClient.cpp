@@ -103,7 +103,7 @@ void OSTestClient::_validateKeys(CIMObjectPath &cimRef,
 {
    // don't have a try here - want it to be caught by caller
 
-   Array<KeyBinding> keyBindings = cimRef.getKeyBindings();
+   Array<CIMKeyBinding> keyBindings = cimRef.getKeyBindings();
 
    if (verboseTest)
       cout << "Retrieved " << keyBindings.size() << " keys" <<endl;

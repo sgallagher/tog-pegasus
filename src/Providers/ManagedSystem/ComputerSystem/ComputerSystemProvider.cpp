@@ -89,7 +89,7 @@ void ComputerSystemProvider::getInstance(
     String className = ref.getClassName();
     _checkClass(className);
 
-    Array<KeyBinding> keys = ref.getKeyBindings();
+    Array<CIMKeyBinding> keys = ref.getKeyBindings();
 
     //-- make sure we're the right instance
     unsigned int keyCount = NUMKEYS_COMPUTER_SYSTEM;
@@ -171,14 +171,14 @@ void ComputerSystemProvider::enumerateInstanceNames(
     // Deliver instance only if request was for leaf class
     if (String::equalNoCase(className,CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
-      KeyBindingArray keys;
+      Array<CIMKeyBinding> keys;
 
-      keys.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
+      keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
                              CLASS_EXTENDED_COMPUTER_SYSTEM,
-                             KeyBinding::STRING));
-      keys.append(KeyBinding(PROPERTY_NAME,
+                             CIMKeyBinding::STRING));
+      keys.append(CIMKeyBinding(PROPERTY_NAME,
                              _cs.getHostName(),
-                             KeyBinding::STRING));
+                             CIMKeyBinding::STRING));
 
       handler.deliver(CIMObjectPath(_cs.getHostName(),
                                    ref.getNameSpace(),

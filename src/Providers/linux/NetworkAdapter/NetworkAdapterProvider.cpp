@@ -65,7 +65,7 @@ LinuxNetworkAdapterProvider::getInstance(const OperationContext& context,
 					 const CIMPropertyList& propertyList,
 					 InstanceResponseHandler& handler)
 {
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    NetworkAdapterData* located_interface;
    String unique_name;
@@ -241,13 +241,13 @@ LinuxNetworkAdapterProvider::fill_reference(const String& nameSpace,
 					    const String& className, 
 					    NetworkAdapterData const* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("CreationClassName", className, KeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", className, CIMKeyBinding::STRING));
 
    // LogicalDevice keys
-   keys.append(KeyBinding("Name", ptr->GetName(),
-                          KeyBinding::STRING));
+   keys.append(CIMKeyBinding("Name", ptr->GetName(),
+                          CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);

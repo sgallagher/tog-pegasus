@@ -61,7 +61,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 				     const CIMPropertyList& propertyList,
 				     InstanceResponseHandler &handler)
 {
-    Array<KeyBinding> keys;
+    Array<CIMKeyBinding> keys;
     CIMInstance instance;
     OperatingSystem os;
     String className;
@@ -454,7 +454,7 @@ CIMObjectPath
 OperatingSystemProvider::_fill_reference(const String &nameSpace,
 				         const String &className)
 {
-    Array<KeyBinding> keys;
+    Array<CIMKeyBinding> keys;
     OperatingSystem os;
     String csName;
     String name;
@@ -471,13 +471,13 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
                   "can't determine name of Operating System");
     }
 
-    keys.append(KeyBinding("CSCreationClassName",
+    keys.append(CIMKeyBinding("CSCreationClassName",
  	                   CSCREATIONCLASSNAME,
-			   KeyBinding::STRING));
-    keys.append(KeyBinding("CSName", csName, KeyBinding::STRING));
-    keys.append(KeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS,
-        KeyBinding::STRING));
-    keys.append(KeyBinding("Name", name, KeyBinding::STRING));
+			   CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CSName", csName, CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS,
+        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("Name", name, CIMKeyBinding::STRING));
 
     return CIMObjectPath(csName, nameSpace, className, keys);
 }

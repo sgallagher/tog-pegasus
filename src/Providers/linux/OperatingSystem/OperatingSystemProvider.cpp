@@ -70,7 +70,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 				     const CIMPropertyList& propertyList,
 				     InstanceResponseHandler &handler)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
    CIMInstance instance;
 
    DEBUG("losp-> starting up getInstance");
@@ -280,14 +280,14 @@ CIMObjectPath
 OperatingSystemProvider::_fill_reference(const String &nameSpace,
 				         const String &className)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("CSCreationClassName", 
+   keys.append(CIMKeyBinding("CSCreationClassName", 
 	                  "CIM_UnitaryComputerSystem",
-			  KeyBinding::STRING));
-   keys.append(KeyBinding("CSName", _hostName(), KeyBinding::STRING));
-   keys.append(KeyBinding("CreationClassName", className, KeyBinding::STRING));
-   keys.append(KeyBinding("Name", _osName(), KeyBinding::STRING));
+			  CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("CSName", _hostName(), CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", className, CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("Name", _osName(), CIMKeyBinding::STRING));
 
    return CIMObjectPath(_hostName(), nameSpace, className, keys);
 }

@@ -298,7 +298,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
 {	
   // cout << "ProcessProvider::getInstance(" << instanceName << ")" << endl;
 
-  KeyBinding kb;
+  CIMKeyBinding kb;
   String className = instanceName.getClassName();
   String nameSpace = instanceName.getNameSpace();
   String handle;
@@ -310,7 +310,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
   _checkClass(className);
 
   // Extract the key values
-  Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+  Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
 
   // Leave immediately if wrong number of keys
   if ( kbArray.size() != NUMKEYS_UNIX_PROCESS )
@@ -496,34 +496,34 @@ void ProcessProvider::terminate()
 // PARAMETERS        : className, Process
 // ================================================================================
 
-Array<KeyBinding> ProcessProvider::_constructKeyBindings(const Process& _p)
+Array<CIMKeyBinding> ProcessProvider::_constructKeyBindings(const Process& _p)
 {
-  Array<KeyBinding> keyBindings;
+  Array<CIMKeyBinding> keyBindings;
 
   // Construct the key bindings
-  keyBindings.append(KeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
 	    	                CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 		
-  keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_CS_NAME,
                                 _getCSName(),
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
 		                CLASS_CIM_OPERATING_SYSTEM,
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 		
-  keyBindings.append(KeyBinding(PROPERTY_OS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_OS_NAME,
                                 _getOSName(),
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
 		                CLASS_UNIX_PROCESS,
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(KeyBinding(PROPERTY_HANDLE,
+  keyBindings.append(CIMKeyBinding(PROPERTY_HANDLE,
                                 _p.getHandle(),
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
   return keyBindings;
 }
@@ -602,7 +602,7 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
   // trusting that this was done correctly
 
   // Get the keys
-  Array<KeyBinding> key = inst.getPath().getKeyBindings();
+  Array<CIMKeyBinding> key = inst.getPath().getKeyBindings();
   // loop through keys, inserting them as properties
   // luckily, all keys for this class are strings, so no
   // need to check key type

@@ -354,12 +354,12 @@ void XmlWriter::appendInstanceNameElement(
 {
     out << "<INSTANCENAME CLASSNAME=\"" << instanceName.getClassName() << "\">\n";
 
-    Array<KeyBinding> keyBindings = instanceName.getKeyBindings();
+    Array<CIMKeyBinding> keyBindings = instanceName.getKeyBindings();
     for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
     {
         out << "<KEYBINDING NAME=\"" << keyBindings[i].getName() << "\">\n";
 
-        if (keyBindings[i].getType() == KeyBinding::REFERENCE)
+        if (keyBindings[i].getType() == CIMKeyBinding::REFERENCE)
         {
             CIMObjectPath ref = keyBindings[i].getValue();
             appendValueReferenceElement(out, ref, true);
@@ -930,7 +930,7 @@ void XmlWriter::appendValueReferenceElement(
     //  key bindings
     //
 
-    KeyBindingArray kbs = reference.getKeyBindings();
+    Array<CIMKeyBinding> kbs = reference.getKeyBindings();
 
     if (kbs.size())
     {
@@ -2627,20 +2627,20 @@ String XmlWriter::getNextMessageId()
 // XmlWriter::keyBindingTypeToString
 //
 //------------------------------------------------------------------------------
-const char* XmlWriter::keyBindingTypeToString (KeyBinding::Type type)
+const char* XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
 {
     switch (type)
     {
-        case KeyBinding::BOOLEAN:
+        case CIMKeyBinding::BOOLEAN:
             return "boolean";
 
-        case KeyBinding::STRING:
+        case CIMKeyBinding::STRING:
             return "string";
 
-        case KeyBinding::NUMERIC:
+        case CIMKeyBinding::NUMERIC:
             return "numeric";
 
-        case KeyBinding::REFERENCE:
+        case CIMKeyBinding::REFERENCE:
         default:
             PEGASUS_ASSERT(false);
     }

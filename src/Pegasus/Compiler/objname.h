@@ -51,11 +51,11 @@
 // The host may have two components:  a host name and a port.
 //       host -- hostname:1234
 //
-// The modelPath has two components as well:  className and KeyBindings.
+// The modelPath has two components as well:  className and CIMKeyBindings.
 
 // In the example,
 //       className -- myobj
-//       KeyBindings -- first="top", last="cat"
+//       CIMKeyBindings -- first="top", last="cat"
 //
 // This class allows you to convert among various forms of the object name:
 //     -- the String (as above)
@@ -99,20 +99,20 @@ class PEGASUS_COMPILER_LINKAGE modelPath {
   String _Stringrep;
   String _className;
   String _keyString;
-  KeyBindingArray _KeyBindings;
+  Array<CIMKeyBinding> _KeyBindings;
   void modelPathRepToComponents(const String &rep);
   const String &modelPathComponentsToRep();
  public:
   modelPath(const String &Stringrep);
   modelPath(const String &classname, const String &keyString);
-  modelPath(const String &classname, const KeyBindingArray&bindings);
+  modelPath(const String &classname, const Array<CIMKeyBinding>&bindings);
   ~modelPath();
-  static KeyBinding::Type KeyBindingTypeOf(const String &s);
+  static CIMKeyBinding::Type KeyBindingTypeOf(const String &s);
   const String &Stringrep() { return modelPathComponentsToRep(); }
   const String &className() { return _className; }
   const String &keyString() { return KeyBindingsToKeyString(); }
   const String &KeyBindingsToKeyString();
-  const Array<KeyBinding>& KeyBindings() { return _KeyBindings; }
+  const Array<CIMKeyBinding>& KeyBindings() { return _KeyBindings; }
 };
 
 class PEGASUS_COMPILER_LINKAGE objectName {
@@ -123,7 +123,7 @@ class PEGASUS_COMPILER_LINKAGE objectName {
   modelPath *_modelPath;
   CIMObjectPath *_reference;
   CIMInstance *_instance;
-  Array<KeyBinding> _empty;
+  Array<CIMKeyBinding> _empty;
 
  public:
   objectName();
@@ -155,7 +155,7 @@ class PEGASUS_COMPILER_LINKAGE objectName {
     return _modelPath ? _modelPath->className() : String::EMPTY; }
   const String &keyString() {
     return _modelPath ? _modelPath->keyString() : String::EMPTY; }
-  const Array<KeyBinding> &KeyBindings() const {
+  const Array<CIMKeyBinding> &KeyBindings() const {
     return _modelPath ? _modelPath->KeyBindings() : _empty; }
   const CIMInstance *instance() { return _instance; }
 };

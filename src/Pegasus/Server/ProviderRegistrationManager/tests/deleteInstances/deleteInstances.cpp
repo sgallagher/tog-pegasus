@@ -44,12 +44,12 @@ const String CLASSNAME3 = "PG_ProviderCapabilities";
 
 void TestDeleteInstances(ProviderRegistrationManager prmanager)
 {
-   KeyBinding kb1("ProviderModuleName", "providersModule1", KeyBinding::STRING);
-   KeyBinding kb2("ProviderName", "PG_ProviderInstance1", KeyBinding::STRING);
-   KeyBinding kb3("CapabilityID", "capability1", KeyBinding::STRING);
-   KeyBinding kbp1("ProviderModuleName", "providersModule1", KeyBinding::STRING);
-   KeyBinding kbp2("Name", "PG_ProviderInstance1", KeyBinding::STRING);
-   KeyBinding kbm1("Name", "providersModule1", KeyBinding::STRING);
+   CIMKeyBinding kb1("ProviderModuleName", "providersModule1", CIMKeyBinding::STRING);
+   CIMKeyBinding kb2("ProviderName", "PG_ProviderInstance1", CIMKeyBinding::STRING);
+   CIMKeyBinding kb3("CapabilityID", "capability1", CIMKeyBinding::STRING);
+   CIMKeyBinding kbp1("ProviderModuleName", "providersModule1", CIMKeyBinding::STRING);
+   CIMKeyBinding kbp2("Name", "PG_ProviderInstance1", CIMKeyBinding::STRING);
+   CIMKeyBinding kbm1("Name", "providersModule1", CIMKeyBinding::STRING);
 
    CIMObjectPath instanceName;
 
@@ -58,9 +58,9 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
     for (Uint32 i=1; i<=3; i++)
     {
       CIMObjectPath instanceName2;
-      Array<KeyBinding> keys2;
-      Array<KeyBinding> keysm;
-      Array<KeyBinding> keys;
+      Array<CIMKeyBinding> keys2;
+      Array<CIMKeyBinding> keysm;
+      Array<CIMKeyBinding> keys;
 
       //
       // create Provider module instances

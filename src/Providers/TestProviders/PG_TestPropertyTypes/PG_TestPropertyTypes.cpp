@@ -147,7 +147,7 @@ void PG_TestPropertyTypes::getInstance(
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the InstanceId key is valid
-	Array<KeyBinding> keys = instanceReference.getKeyBindings();
+	Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
 	Uint32 i;
 	for (i=0; i<keys.size() && keys[i].getName() != "InstanceId"; i++);
 
@@ -338,13 +338,13 @@ void PG_TestPropertyTypes::createInstance(
 //	}
 
         // create the CIMObjectPath to return
-        KeyBinding kb1(instanceObject.getProperty(propIndex).getName(),
+        CIMKeyBinding kb1(instanceObject.getProperty(propIndex).getName(),
                        instanceObject.getProperty(propIndex).getValue().toString(),
-                       KeyBinding::NUMERIC);
-        KeyBinding kb2("CreationClassName", "PG_TestPropertyTypes",
-                       KeyBinding::STRING);
+                       CIMKeyBinding::NUMERIC);
+        CIMKeyBinding kb2("CreationClassName", "PG_TestPropertyTypes",
+                       CIMKeyBinding::STRING);
         CIMObjectPath returnReference(instanceReference);
-	Array<KeyBinding> keys;
+	Array<CIMKeyBinding> keys;
         keys.append(kb1);
         keys.append(kb2);
         returnReference.setKeyBindings(keys);

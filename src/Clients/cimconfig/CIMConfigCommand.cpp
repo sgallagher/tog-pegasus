@@ -1050,12 +1050,12 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
 
     try
     {
-        Array<KeyBinding> kbArray;
-        KeyBinding        kb;
+        Array<CIMKeyBinding> kbArray;
+        CIMKeyBinding        kb;
 
         kb.setName(PROPERTY_NAME);
         kb.setValue(propName);
-        kb.setType(KeyBinding::STRING);
+        kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
 
@@ -1107,12 +1107,12 @@ void CIMConfigCommand::_updatePropertyInCIMServer
 
     try
     {
-        Array<KeyBinding> kbArray;
-        KeyBinding        kb;
+        Array<CIMKeyBinding> kbArray;
+        CIMKeyBinding        kb;
 
         kb.setName(PROPERTY_NAME);
         kb.setValue(propName);
-        kb.setType(KeyBinding::STRING);
+        kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
 
@@ -1232,7 +1232,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             //
             for (Uint32 i = 0; i < instanceNames.size(); i++)
             {
-                Array<KeyBinding> kbArray = instanceNames[i].getKeyBindings();
+                Array<CIMKeyBinding> kbArray = instanceNames[i].getKeyBindings();
   
                 if (kbArray.size() > 0)
                 {

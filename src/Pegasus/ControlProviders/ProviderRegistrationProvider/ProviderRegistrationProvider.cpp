@@ -693,7 +693,7 @@ void ProviderRegistrationProvider::invokeMethod(
     Boolean moduleFound = false;
 
     // get module name from reference
-    Array<KeyBinding> keys = objectReference.getKeyBindings();
+    Array<CIMKeyBinding> keys = objectReference.getKeyBindings();
 
     for(Uint32 i=0; i<keys.size() ; i++)
     {

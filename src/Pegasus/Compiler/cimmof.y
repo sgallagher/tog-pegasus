@@ -74,7 +74,7 @@ extern void cimmof_yy_less(int n);
   CIMInstance *g_currentInstance = 0;
   String g_currentAlias = String::EMPTY;
   CIMName g_referenceClassName = CIMName();
-  KeyBindingArray g_KeyBindingArray; // it gets created empty
+  Array<CIMKeyBinding> g_KeyBindingArray; // it gets created empty
   TYPED_INITIALIZER_VALUE g_typedInitializerValue; 
 
 /* ------------------------------------------------------------------- */
@@ -126,7 +126,7 @@ cimmof_error(const char *msg) {
   CIMInstance *   instance;
   CIMObjectPath *  reference;
   modelPath *     modelpath;
-  KeyBinding *    keybinding;
+  CIMKeyBinding *    keybinding;
   TYPED_INITIALIZER_VALUE * typedinitializer;
 }
 
@@ -543,7 +543,7 @@ keyValuePairList: keyValuePair { $$ = 0; }
 
 keyValuePair: keyValuePairName TOK_EQUAL initializer 
               {
-		KeyBinding *kb = new KeyBinding(*$1, *$3,
+		CIMKeyBinding *kb = new CIMKeyBinding(*$1, *$3,
                                modelPath::KeyBindingTypeOf(*$3));
 		g_KeyBindingArray.append(*kb);
 		delete kb;

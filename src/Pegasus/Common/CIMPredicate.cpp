@@ -175,16 +175,16 @@ static Boolean evaluate_bool(String ref, ExpressionOperator op, String pred)
    return false;
 }
 
-Predicate::Predicate(void) : KeyBinding() { }
+Predicate::Predicate(void) : CIMKeyBinding() { }
 
 Predicate::Predicate(const Predicate& x) 
-   : KeyBinding(x), _op(x._op), _truth_value(x._truth_value) { }
+   : CIMKeyBinding(x), _op(x._op), _truth_value(x._truth_value) { }
 
-Predicate::Predicate(const KeyBinding& x, ExpressionOperator op = EQUAL, Boolean truth = true)
+Predicate::Predicate(const CIMKeyBinding& x, ExpressionOperator op = EQUAL, Boolean truth = true)
 {
    if(this != &x)
    {
-      KeyBinding::operator=(x);
+      CIMKeyBinding::operator=(x);
       _op = op;
       _truth_value = truth;
    }
@@ -196,7 +196,7 @@ Predicate::Predicate(const String& name,
 		     Type type,
 		     ExpressionOperator op = EQUAL,
 		     Boolean truth = true) 
-   : KeyBinding(name, value, type), _op(op), _truth_value(truth) { }
+   : CIMKeyBinding(name, value, type), _op(op), _truth_value(truth) { }
 
 Predicate::~Predicate() { }
 
@@ -204,14 +204,14 @@ Predicate& Predicate::operator=(const Predicate& x)
 {
    if(this != &x)
    {
-      KeyBinding::operator=(x);
+      CIMKeyBinding::operator=(x);
       _op = x._op;
       _truth_value = x._truth_value;
    }
    return *this;
 }
 
-Boolean  Predicate::evaluate(const KeyBinding& key)
+Boolean  Predicate::evaluate(const CIMKeyBinding& key)
 {
    _truth_value = false;
    if(true == CIMName::equal(this->getName() , key.getName()))
@@ -275,7 +275,7 @@ PredicateReference::PredicateReference(
 	 const String& host,
 	 const String& nameSpace,
 	 const String& className,
-	 const KeyBindingArray& keyBindings,
+	 const Array<CIMKeyBinding>& keyBindings,
 	 const PredicateArray& predicates,
 	 Boolean truth ,
 	 LogicalOperator lop )
@@ -326,7 +326,7 @@ void PredicateReference::set(
    const String& host,
    const String& nameSpace,
    const String& className,
-   const KeyBindingArray& keyBindings,
+   const Array<CIMKeyBinding>& keyBindings,
    const PredicateArray& predicates,
    Boolean truth ,
    LogicalOperator lop )
@@ -365,7 +365,7 @@ Boolean PredicateReference::evaluate(void)
 {
    _truth_value = false;
    
-   const Array<KeyBinding>& keys = CIMObjectPath::getKeyBindings();
+   const Array<CIMKeyBinding>& keys = CIMObjectPath::getKeyBindings();
    int x = _predicates.size();
    int y = keys.size();
    int i, j;
@@ -375,7 +375,7 @@ Boolean PredicateReference::evaluate(void)
       Predicate& pred = _predicates[i];
       for ( j = 0; j < y; j++ ) 
       {
-	 const KeyBinding& key = keys[i];
+	 const CIMKeyBinding& key = keys[i];
 	 if(pred == key)
 	 {
 	    if(true == pred.evaluate(key))

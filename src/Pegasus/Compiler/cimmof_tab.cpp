@@ -154,7 +154,7 @@ extern void cimmof_yy_less(int n);
   CIMInstance *g_currentInstance = 0;
   String g_currentAlias = String::EMPTY;
   CIMName g_referenceClassName = CIMName();
-  KeyBindingArray g_KeyBindingArray; // it gets created empty
+  Array<CIMKeyBinding> g_KeyBindingArray; // it gets created empty
   TYPED_INITIALIZER_VALUE g_typedInitializerValue; 
 
 /* ------------------------------------------------------------------- */
@@ -206,7 +206,7 @@ typedef union {
   CIMInstance *   instance;
   CIMObjectPath *  reference;
   modelPath *     modelpath;
-  KeyBinding *    keybinding;
+  CIMKeyBinding *    keybinding;
   TYPED_INITIALIZER_VALUE * typedinitializer;
 } YYSTYPE;
 #include <stdio.h>
@@ -1527,7 +1527,7 @@ case 84:
 case 85:
 #line 545 "cimmof.y"
 {
-		KeyBinding *kb = new KeyBinding(*yyvsp[-2].strval, *yyvsp[0].strval,
+		CIMKeyBinding *kb = new CIMKeyBinding(*yyvsp[-2].strval, *yyvsp[0].strval,
                                modelPath::KeyBindingTypeOf(*yyvsp[0].strval));
 		g_KeyBindingArray.append(*kb);
 		delete kb;

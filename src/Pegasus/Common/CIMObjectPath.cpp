@@ -44,7 +44,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T KeyBinding
+#define PEGASUS_ARRAY_T CIMKeyBinding
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
@@ -100,7 +100,7 @@ static String _escapeSpecialCharacters(const String& str)
     return result;
 }
 
-static void _BubbleSort(Array<KeyBinding>& x)
+static void _BubbleSort(Array<CIMKeyBinding>& x)
 {
     Uint32 n = x.size();
 
@@ -113,7 +113,7 @@ static void _BubbleSort(Array<KeyBinding>& x)
         {
             if (String::compareNoCase(x[j].getName(), x[j+1].getName()) > 0)
             {
-                KeyBinding t = x[j];
+                CIMKeyBinding t = x[j];
                 x[j] = x[j+1];
                 x[j+1] = t;
             }
@@ -123,35 +123,35 @@ static void _BubbleSort(Array<KeyBinding>& x)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// KeyBinding
+// CIMKeyBinding
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class KeyBindingRep
+class CIMKeyBindingRep
 {
 public:
-    KeyBindingRep()
+    CIMKeyBindingRep()
     {
     }
 
-    KeyBindingRep(const KeyBindingRep& x)
+    CIMKeyBindingRep(const CIMKeyBindingRep& x)
         : _name(x._name), _value(x._value), _type(x._type)
     {
     }
 
-    KeyBindingRep(
+    CIMKeyBindingRep(
         const CIMName& name,
         const String& value,
-        KeyBinding::Type type)
+        CIMKeyBinding::Type type)
         : _name(name), _value(value), _type(type)
     {
     }
 
-    ~KeyBindingRep()
+    ~CIMKeyBindingRep()
     {
     }
 
-    KeyBindingRep& operator=(const KeyBindingRep& x)
+    CIMKeyBindingRep& operator=(const CIMKeyBindingRep& x)
     {
         if (&x != this)
         {
@@ -164,67 +164,67 @@ public:
 
     CIMName _name;
     String _value;
-    KeyBinding::Type _type;
+    CIMKeyBinding::Type _type;
 };
 
 
-KeyBinding::KeyBinding()
+CIMKeyBinding::CIMKeyBinding()
 {
-    _rep = new KeyBindingRep();
+    _rep = new CIMKeyBindingRep();
 }
 
-KeyBinding::KeyBinding(const KeyBinding& x)
+CIMKeyBinding::CIMKeyBinding(const CIMKeyBinding& x)
 {
-    _rep = new KeyBindingRep(*x._rep);
+    _rep = new CIMKeyBindingRep(*x._rep);
 }
 
-KeyBinding::KeyBinding(const CIMName& name, const String& value, Type type)
+CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type)
 {
-    _rep = new KeyBindingRep(name, value, type);
+    _rep = new CIMKeyBindingRep(name, value, type);
 }
 
-KeyBinding::~KeyBinding()
+CIMKeyBinding::~CIMKeyBinding()
 {
     delete _rep;
 }
 
-KeyBinding& KeyBinding::operator=(const KeyBinding& x)
+CIMKeyBinding& CIMKeyBinding::operator=(const CIMKeyBinding& x)
 {
     *_rep = *x._rep;
     return *this;
 }
 
-const CIMName& KeyBinding::getName() const
+const CIMName& CIMKeyBinding::getName() const
 {
     return _rep->_name;
 }
 
-void KeyBinding::setName(const CIMName& name)
+void CIMKeyBinding::setName(const CIMName& name)
 {
     _rep->_name = name;
 }
 
-const String& KeyBinding::getValue() const
+const String& CIMKeyBinding::getValue() const
 {
     return _rep->_value;
 }
 
-void KeyBinding::setValue(const String& value)
+void CIMKeyBinding::setValue(const String& value)
 {
     _rep->_value = value;
 }
 
-KeyBinding::Type KeyBinding::getType() const
+CIMKeyBinding::Type CIMKeyBinding::getType() const
 {
     return _rep->_type;
 }
 
-void KeyBinding::setType(KeyBinding::Type type)
+void CIMKeyBinding::setType(CIMKeyBinding::Type type)
 {
     _rep->_type = type;
 }
 
-Boolean operator==(const KeyBinding& x, const KeyBinding& y)
+Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 {
     return
         x.getName().equal(y.getName()) &&
@@ -256,7 +256,7 @@ public:
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const Array<KeyBinding>& keyBindings)
+        const Array<CIMKeyBinding>& keyBindings)
         : _host(host), _nameSpace(nameSpace),
         _className(className), _keyBindings(keyBindings)
     {
@@ -285,7 +285,7 @@ public:
 
     CIMNamespaceName _nameSpace;
     CIMName _className;
-    Array<KeyBinding> _keyBindings;
+    Array<CIMKeyBinding> _keyBindings;
 };
 
 
@@ -312,7 +312,7 @@ CIMObjectPath::CIMObjectPath(
     const String& host,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    const Array<KeyBinding>& keyBindings)
+    const Array<CIMKeyBinding>& keyBindings)
 {
     // Test the objectName out to see if we get an exception
     CIMObjectPath tmpRef;
@@ -344,7 +344,7 @@ void CIMObjectPath::set(
     const String& host,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    const Array<KeyBinding>& keyBindings)
+    const Array<CIMKeyBinding>& keyBindings)
 {
    setHost(host);
    setNameSpace(nameSpace);
@@ -495,9 +495,9 @@ Boolean CIMObjectPath::_parseNamespaceElement(
     with the 'R' notation.
 
     The toString() method inserts the 'R' to provide symmetry.  A
-    new KeyBinding type (REFERENCE) has been defined to denote
+    new CIMKeyBinding type (REFERENCE) has been defined to denote
     keys in a CIMObjectPath that are of reference type.  This
-    KeyBinding type must be used appropriately for
+    CIMKeyBinding type must be used appropriately for
     CIMObjectPath::toString() to behave correctly.
 
     A result of this change is that instances names in the
@@ -513,7 +513,7 @@ Boolean CIMObjectPath::_parseNamespaceElement(
 void CIMObjectPath::_parseKeyBindingPairs(
     const String& objectName,
     char*& p,
-    Array<KeyBinding>& keyBindings)  
+    Array<CIMKeyBinding>& keyBindings)  
 {
     // Get the key-value pairs:
 
@@ -537,13 +537,13 @@ void CIMObjectPath::_parseKeyBindingPairs(
 
         String valueString;
         p = equalsign + 1;
-        KeyBinding::Type type;
+        CIMKeyBinding::Type type;
 
         if (*p == 'R')
         {
             p++;
 
-            type = KeyBinding::REFERENCE;
+            type = CIMKeyBinding::REFERENCE;
 
             if (*p++ != '"')
                 throw MalformedObjectNameException(objectName);
@@ -565,7 +565,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
         {
             p++;
 
-            type = KeyBinding::STRING;
+            type = CIMKeyBinding::STRING;
 
             while (*p && *p != '"')
             {
@@ -582,7 +582,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
         }
         else if (toupper(*p) == 'T' || toupper(*p) == 'F')
         {
-            type = KeyBinding::BOOLEAN;
+            type = CIMKeyBinding::BOOLEAN;
 
             char* r = p;
             Uint32 n = 0;
@@ -604,7 +604,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
         }
         else
         {
-            type = KeyBinding::NUMERIC;
+            type = CIMKeyBinding::NUMERIC;
 
             char* r = p;
             Uint32 n = 0;
@@ -637,7 +637,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
             p = p + n;
         }
 
-        keyBindings.append(KeyBinding(keyString, valueString, type));
+        keyBindings.append(CIMKeyBinding(keyString, valueString, type));
 
         if (*p)
         {
@@ -745,12 +745,12 @@ void CIMObjectPath::setClassName(const CIMName& className)
     _rep->_className = className;
 }
 
-const Array<KeyBinding>& CIMObjectPath::getKeyBindings() const
+const Array<CIMKeyBinding>& CIMObjectPath::getKeyBindings() const
 {
     return _rep->_keyBindings;
 }
 
-void CIMObjectPath::setKeyBindings(const Array<KeyBinding>& keyBindings)
+void CIMObjectPath::setKeyBindings(const Array<CIMKeyBinding>& keyBindings)
 {
     _rep->_keyBindings = keyBindings;
     _BubbleSort(_rep->_keyBindings);
@@ -793,7 +793,7 @@ String CIMObjectPath::toString() const
 
         // Append each key-value pair:
 
-        const Array<KeyBinding>& keyBindings = getKeyBindings();
+        const Array<CIMKeyBinding>& keyBindings = getKeyBindings();
 
         for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
         {
@@ -803,17 +803,17 @@ String CIMObjectPath::toString() const
             const String& value = _escapeSpecialCharacters(
                 keyBindings[i].getValue());
 
-            KeyBinding::Type type = keyBindings[i].getType();
+            CIMKeyBinding::Type type = keyBindings[i].getType();
         
-            if (type == KeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::REFERENCE)
                 objectName.append('R');
 
-            if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
             objectName.append(value);
 
-            if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
             if (i + 1 != n)

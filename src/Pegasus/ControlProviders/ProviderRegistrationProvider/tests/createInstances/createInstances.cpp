@@ -149,8 +149,8 @@ void TestCreateInstances(CIMClient& client)
         throw (e);
     }
 
-    KeyBinding kb1("Name", "providersModule1", KeyBinding::STRING);
-    Array<KeyBinding> keys;
+    CIMKeyBinding kb1("Name", "providersModule1", CIMKeyBinding::STRING);
+    Array<CIMKeyBinding> keys;
     keys.append(kb1);
 
     instanceName.setKeyBindings(keys);

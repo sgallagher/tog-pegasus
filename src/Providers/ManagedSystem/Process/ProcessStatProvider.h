@@ -102,7 +102,7 @@ private:
 
   CIMOMHandle _cimomHandle;
 
-  Array<KeyBinding> _constructKeyBindings(const Process&);
+  Array<CIMKeyBinding> _constructKeyBindings(const Process&);
 
   CIMInstance _constructInstance(const String&, const String&, const Process&);
 

@@ -400,10 +400,10 @@ public:
 
     static String getNextMessageId();
 
-    /** Converts the given KeyBinding type to one of the following:
+    /** Converts the given CIMKeyBinding type to one of the following:
         "boolean", "string", or "numeric"
     */
-    static const char* keyBindingTypeToString (KeyBinding::Type type);
+    static const char* keyBindingTypeToString (CIMKeyBinding::Type type);
 
 private:
 

@@ -63,7 +63,7 @@ LinuxProcessorProvider::getInstance(const OperationContext& context,
 {
    ProcessorData processorData;
    ProcessorInformation* curProcessor;
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    String roleString;
  
@@ -194,14 +194,14 @@ LinuxProcessorProvider::fill_reference(const String& nameSpace,
       				       const String& className,
 				       const ProcessorInformation* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("Role", ptr->getRole(),
-                          KeyBinding::STRING));
-   keys.append(KeyBinding("Manufacturer", ptr->getManufacturerString(),
-			  KeyBinding::STRING));
-   keys.append(KeyBinding("Name", ptr->getDeviceString(),
-                          KeyBinding::STRING));
+   keys.append(CIMKeyBinding("Role", ptr->getRole(),
+                          CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("Manufacturer", ptr->getManufacturerString(),
+			  CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("Name", ptr->getDeviceString(),
+                          CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);

@@ -760,7 +760,7 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
 	    String className;
-	    Array<KeyBinding> keyBindings;
+	    Array<CIMKeyBinding> keyBindings;
 
 	    while (XmlReader::getInstanceNameElement(
 	        parser, className, keyBindings))

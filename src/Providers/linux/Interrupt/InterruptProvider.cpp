@@ -61,7 +61,7 @@ void LinuxInterruptProvider::getInstance(const OperationContext& context,
 {
    InterruptData interruptData;
    InterruptData *curInterrupt;
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    String nameString;
  
@@ -186,11 +186,11 @@ LinuxInterruptProvider::fill_reference(const String& nameSpace,
       				       const String& className,
 				       const InterruptData* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("IRQNumber", 
+   keys.append(CIMKeyBinding("IRQNumber", 
 	    	          ptr->getIRQNumber(),
-                          KeyBinding::STRING));
+                          CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, className, keys);
 }

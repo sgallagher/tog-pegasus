@@ -127,7 +127,7 @@ modelPath::modelPath(const String &rep, const String &keyString) {
   modelPathRepToComponents(str);
 }
 
-modelPath::modelPath(const String &rep, const KeyBindingArray &kba) {
+modelPath::modelPath(const String &rep, const Array<CIMKeyBinding> &kba) {
   _className = rep;
   _KeyBindings = kba;
 }
@@ -135,13 +135,13 @@ modelPath::modelPath(const String &rep, const KeyBindingArray &kba) {
 modelPath::~modelPath() {
 }
 
-KeyBinding::Type
+CIMKeyBinding::Type
 modelPath::KeyBindingTypeOf(const String &s)
 {
   Char16 c = s[0];
-  if (DIGIT(c)) return KeyBinding::NUMERIC;
-  if (c == '\"') return KeyBinding::STRING;
-  return KeyBinding::BOOLEAN;
+  if (DIGIT(c)) return CIMKeyBinding::NUMERIC;
+  if (c == '\"') return CIMKeyBinding::STRING;
+  return CIMKeyBinding::BOOLEAN;
 }
 
  
@@ -159,9 +159,9 @@ modelPath::modelPathComponentsToRep() {
 
 void
 modelPath::modelPathRepToComponents(const String &rep) {
-  KeyBinding kb;
+  CIMKeyBinding kb;
   String keyname;
-  KeyBinding::Type kbtype = KeyBinding::STRING;
+  CIMKeyBinding::Type kbtype = CIMKeyBinding::STRING;
   String keyvalue;
   Uint32 n = rep.size();
   enum _states{BEGIN, INCLASS, KEYBEGIN, INKEYNAME, KEYVALBEGIN,
@@ -205,15 +205,15 @@ modelPath::modelPathRepToComponents(const String &rep) {
       if (!WHITESPACE(c)) {
 	keyvalue.clear();
 	if (c == '"') {
-	  kbtype = KeyBinding::STRING;
+	  kbtype = CIMKeyBinding::STRING;
 	  state = INSTRINGKEYVAL;
 	} else {
 	  if (DIGIT(c)) {
-	    kbtype = KeyBinding::NUMERIC;
+	    kbtype = CIMKeyBinding::NUMERIC;
 	    keyvalue.append(c);
 	    state = INNUMERICKEYVAL;
 	  } else {
-	    kbtype = KeyBinding::BOOLEAN;
+	    kbtype = CIMKeyBinding::BOOLEAN;
 	    keyvalue.append(c);
 	    state = INBOOLEANKEYVAL;
 	  }
@@ -270,16 +270,16 @@ modelPath::KeyBindingsToKeyString()
   String stringrep;
   Uint32 numkeys = _KeyBindings.size();
   for (Uint32 i = 0; i < numkeys; i++) {
-    const KeyBinding &kb = _KeyBindings[i];
+    const CIMKeyBinding &kb = _KeyBindings[i];
     const String &keyname = kb.getName();
-    KeyBinding::Type keytype = kb.getType();
+    CIMKeyBinding::Type keytype = kb.getType();
     const String &keyvalue = kb.getValue();
     if (i)
       stringrep.append(",");
     stringrep.append(keyname + "=" +
-                     (keytype == KeyBinding::STRING ? "\"" : "") +
+                     (keytype == CIMKeyBinding::STRING ? "\"" : "") +
 		     keyvalue + 
-		     (keytype == KeyBinding::STRING ? "\"" : ""));
+		     (keytype == CIMKeyBinding::STRING ? "\"" : ""));
   }
   _keyString = stringrep;
   return _keyString;

@@ -198,7 +198,7 @@ int testClass(const String& className)
 
   // ------------------ do getInstance() with bad key ----------------------
   
-  Array<KeyBinding> kb = ref.getKeyBindings();
+  Array<CIMKeyBinding> kb = ref.getKeyBindings();
   // mess up first key name
   kb[0].setName("foobar");
   ref.setKeyBindings(kb);

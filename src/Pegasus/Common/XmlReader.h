@@ -239,26 +239,26 @@ public:
 	String& className,
 	Boolean required = false);
 
-    static KeyBinding::Type getValueTypeAttribute(
+    static CIMKeyBinding::Type getValueTypeAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* elementName);
 
     static Boolean getKeyValueElement(
 	XmlParser& parser,
-	KeyBinding::Type& type,
+	CIMKeyBinding::Type& type,
 	String& value);
 
     static Boolean getKeyBindingElement(
 	XmlParser& parser,
 	String& name,
 	String& value,
-	KeyBinding::Type& type);
+	CIMKeyBinding::Type& type);
 
     static Boolean getInstanceNameElement(
 	XmlParser& parser,
 	String& className,
-	Array<KeyBinding>& keyBindings);
+	Array<CIMKeyBinding>& keyBindings);
 
     static Boolean getInstanceNameElement(
 	XmlParser& parser,

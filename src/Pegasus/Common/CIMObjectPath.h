@@ -44,39 +44,39 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMObjectPath;
-class KeyBindingRep;
+class CIMKeyBindingRep;
 class CIMObjectPathRep;
 
-/** The KeyBinding class associates a key name, value, and type.
+/** The CIMKeyBinding class associates a key name, value, and type.
     It is used by the reference class to represent key bindings.
     See the CIMObjectPath class to see how they are used.
 */
-class PEGASUS_COMMON_LINKAGE KeyBinding
+class PEGASUS_COMMON_LINKAGE CIMKeyBinding
 {
 public:
 
     enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
 
     /** Default constructor */
-    KeyBinding();
+    CIMKeyBinding();
 
     /** Copy constructor */
-    KeyBinding(const KeyBinding& x);
+    CIMKeyBinding(const CIMKeyBinding& x);
 
-    /** Construct a KeyBinding with a name, value, and type
+    /** Construct a CIMKeyBinding with a name, value, and type
         @param name CIMName name for the key for this binding object.
         @param value String value for this key.
         @param type
         <pre>
         </pre>
     */
-    KeyBinding(const CIMName& name, const String& value, Type type);
+    CIMKeyBinding(const CIMName& name, const String& value, Type type);
 
     /** Destructor */
-    ~KeyBinding();
+    ~CIMKeyBinding();
 
     /** Assignment operator */
-    KeyBinding& operator=(const KeyBinding& x);
+    CIMKeyBinding& operator=(const CIMKeyBinding& x);
 
     /** Accessor
     */
@@ -99,20 +99,23 @@ public:
 
 private:
 
-    KeyBindingRep* _rep;
+    CIMKeyBindingRep* _rep;
 
     friend class CIMObjectPath;
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(
-    const KeyBinding& x,
-    const KeyBinding& y);
+    const CIMKeyBinding& x,
+    const CIMKeyBinding& y);
 
-#define PEGASUS_ARRAY_T KeyBinding
+#define PEGASUS_ARRAY_T CIMKeyBinding
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-typedef Array<KeyBinding> KeyBindingArray;
+#ifdef PEGASUS_LEGACY_API
+typedef CIMKeyBinding KeyBinding;
+typedef Array<CIMKeyBinding> KeyBindingArray;
+#endif
 
 class XmlWriter;
 
@@ -212,7 +215,7 @@ class XmlWriter;
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const KeyBindingArray& keyBindings);
+        const Array<CIMKeyBinding>& keyBindings);
     </pre>
 
     Following our example, the above object name may be used to initialize
@@ -239,21 +242,21 @@ class XmlWriter;
     Note that the host and nameSpace argument may be empty since object names
     need not necessarily include a namespace path according to the standard.
 
-    The key bindings must be built up by appending KeyBinding objects
-    to a KeyBindingArray like this:
+    The key bindings must be built up by appending CIMKeyBinding objects
+    to an Array of CIMKeyBindings like this:
 
     <pre>
-    KeyBindingArray keyBindings;
-    keyBindings.append(KeyBinding("first", "Patrick", KeyBinding::STRING));
-    keyBindings.append(KeyBinding("last", "Rafter", KeyBinding::STRING));
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding("first", "Patrick", CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("last", "Rafter", CIMKeyBinding::STRING));
     </pre>
 
     The only key values that are supported are:
 
     <ul>
-    <li>KeyBinding::BOOLEAN</li>
-    <li>KeyBinding::STRING</li>
-    <li>KeyBinding::NUMERIC</li>
+    <li>CIMKeyBinding::BOOLEAN</li>
+    <li>CIMKeyBinding::STRING</li>
+    <li>CIMKeyBinding::NUMERIC</li>
     </ul>
 
     This limitation is imposed by the "XML Mapping Specification v2.0.0"
@@ -365,7 +368,7 @@ public:
         @param host Name of host (e.g., "nemesis-5988").
         @param nameSpace Namespace (e.g., "root/cimv2").
         @param className Name of a class (e.g., "MyClass").
-        @param keyBindings An array of KeyBinding objects.
+        @param keyBindings An array of CIMKeyBinding objects.
         @return Returns the constructed CIMObjectPath
     */
     CIMObjectPath(
@@ -375,7 +378,7 @@ public:
         //
         //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
         //
-        const KeyBindingArray& keyBindings = KeyBindingArray ());
+        const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
     /** Destructor */
     ~CIMObjectPath();
@@ -401,7 +404,7 @@ public:
         //
         //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
         //
-        const KeyBindingArray& keyBindings = KeyBindingArray ());
+        const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
     /** Set the reference from an object name . */
       void set(const String& objectName);
@@ -453,16 +456,16 @@ public:
     /** getKeyBindings - Returns an Array of keybindings from the
         CIMObjectPath representing all of the key/value pairs defined in the
         ObjectPath.
-        @return Array of KeyBinding objects from the CIMObjectPath.
+        @return Array of CIMKeyBinding objects from the CIMObjectPath.
     */
-    const Array<KeyBinding>& getKeyBindings() const;
+    const Array<CIMKeyBinding>& getKeyBindings() const;
 
     /** setKeyBindings - Sets the key/value pairs in the CIMObjectPath
         from an array of keybindings defined by the input parameter
         @param keyBindings Array of keybindings to set into the CIMObjectPath
         object.
     */
-    void setKeyBindings(const Array<KeyBinding>& keyBindings);
+    void setKeyBindings(const Array<CIMKeyBinding>& keyBindings);
 
     //  ATTN: The form of the below string definition needs cleaning.
 
@@ -515,7 +518,7 @@ private:
     void _parseKeyBindingPairs(
         const String& objectName,
         char*& p,
-        Array<KeyBinding>& keyBindings);
+        Array<CIMKeyBinding>& keyBindings);
 
     /** Stringizes object into canonical form (in which all keys are sorted
         into ascending order and classnames and keynames are shifted to

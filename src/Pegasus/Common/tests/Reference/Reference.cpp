@@ -91,7 +91,7 @@ void test01()
 	assert(r1 != r3);
         String            keyValue;
 
-        Array<KeyBinding> kbArray;
+        Array<CIMKeyBinding> kbArray;
 	{
 	    Boolean found = false;
 	    kbArray = r3.getKeyBindings();

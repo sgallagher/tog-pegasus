@@ -63,7 +63,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
 				  const CIMPropertyList& propertyList,
 				  InstanceResponseHandler& handler)
 {
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    const struct route_data* located_route;
    String in_addr, in_mask, in_hop, in_type;
@@ -215,18 +215,18 @@ LinuxIPRouteProvider::fill_reference(const String& nameSpace,
 				     const String& className, 
 				     struct route_data const* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("CreationClassName", className, KeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", className, CIMKeyBinding::STRING));
 
-   keys.append(KeyBinding("IPDestinationAddress", ptr->IPDestinationAddress,
-                          KeyBinding::STRING));
-   keys.append(KeyBinding("IPDestinationMask", ptr->IPDestinationMask,
-                          KeyBinding::STRING));
-   keys.append(KeyBinding("NextHop", ptr->NextHop,
-                          KeyBinding::STRING));
-   keys.append(KeyBinding("AddressType", ptr->AddressType,
-                          KeyBinding::NUMERIC));
+   keys.append(CIMKeyBinding("IPDestinationAddress", ptr->IPDestinationAddress,
+                          CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("IPDestinationMask", ptr->IPDestinationMask,
+                          CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("NextHop", ptr->NextHop,
+                          CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("AddressType", ptr->AddressType,
+                          CIMKeyBinding::NUMERIC));
 
    return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);

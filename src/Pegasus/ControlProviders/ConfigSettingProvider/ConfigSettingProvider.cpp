@@ -91,7 +91,7 @@ void ConfigSettingProvider::getInstance(
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::getInstance()");
 
         Array<String>     propertyInfo;
-        KeyBinding        kb;
+        CIMKeyBinding        kb;
         String            keyName;
         String            keyValue;
 
@@ -108,7 +108,7 @@ void ConfigSettingProvider::getInstance(
         //
         // validate key bindings
         //
-        Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+        Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
         if ( (kbArray.size() != 1) ||
              (!String::equalNoCase(kbArray[0].getName(), PROPERTY_NAME)) )
         {
@@ -211,7 +211,7 @@ void ConfigSettingProvider::modifyInstance(
         //
         // validate key bindings
         //
-        Array<KeyBinding> kbArray = instanceReference.getKeyBindings();
+        Array<CIMKeyBinding> kbArray = instanceReference.getKeyBindings();
         if ( (kbArray.size() != 1) ||
              (!String::equalNoCase(kbArray[0].getName(), PROPERTY_NAME)) )
         {
@@ -405,9 +405,9 @@ void ConfigSettingProvider::enumerateInstances(
 
                 _configManager->getPropertyInfo(propertyNames[i], propertyInfo);
 
-                Array<KeyBinding> keyBindings;
-                keyBindings.append(KeyBinding(PROPERTY_NAME, propertyInfo[0],
-                    KeyBinding::STRING));
+                Array<CIMKeyBinding> keyBindings;
+                keyBindings.append(CIMKeyBinding(PROPERTY_NAME, propertyInfo[0],
+                    CIMKeyBinding::STRING));
                 CIMObjectPath instanceName(ref.getHost(), ref.getNameSpace(),
                     PG_CONFIG_SETTING, keyBindings);
 
@@ -447,8 +447,8 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
         Array<CIMObjectPath> instanceRefs;
         Array<String>       propertyNames;
-        Array<KeyBinding>   keyBindings;
-        KeyBinding          kb;
+        Array<CIMKeyBinding>   keyBindings;
+        CIMKeyBinding          kb;
         String              hostName;
 
         hostName.assign(System::getHostName());
@@ -473,8 +473,8 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
             for (Uint32 i = 0; i < size; i++)
             {
-                keyBindings.append(KeyBinding(PROPERTY_NAME, propertyNames[i],
-                    KeyBinding::STRING));
+                keyBindings.append(CIMKeyBinding(PROPERTY_NAME, propertyNames[i],
+                    CIMKeyBinding::STRING));
 
                 //
                 // Convert instance names to References

@@ -983,21 +983,21 @@ void CIMAuthCommand::_ModifyAuthorization
 {
     try
     {
-        Array<KeyBinding>      kbArray;
-        KeyBinding             kb;
+        Array<CIMKeyBinding>      kbArray;
+        CIMKeyBinding             kb;
 
 	//
 	// Build the input params
 	//
         kb.setName(PROPERTY_NAME_USERNAME);
         kb.setValue(_userName);
-        kb.setType(KeyBinding::STRING);
+        kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
 
         kb.setName(PROPERTY_NAME_NAMESPACE);
         kb.setValue(_namespace);
-        kb.setType(KeyBinding::STRING);
+        kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
 
@@ -1037,8 +1037,8 @@ void CIMAuthCommand::_RemoveAuthorization
 {
     try
     {
-        Array<KeyBinding> kbArray;
-        KeyBinding        kb;
+        Array<CIMKeyBinding> kbArray;
+        CIMKeyBinding        kb;
 
 	//
         // If namespace is specified
@@ -1050,13 +1050,13 @@ void CIMAuthCommand::_RemoveAuthorization
 	    //
             kb.setName(PROPERTY_NAME_USERNAME);
             kb.setValue(_userName);
-            kb.setType(KeyBinding::STRING);
+            kb.setType(CIMKeyBinding::STRING);
 
             kbArray.append(kb);
 
             kb.setName(PROPERTY_NAME_NAMESPACE);
             kb.setValue(_namespace);
-            kb.setType(KeyBinding::STRING);
+            kb.setType(CIMKeyBinding::STRING);
 
             kbArray.append(kb);
 

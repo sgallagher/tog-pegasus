@@ -61,7 +61,7 @@ LinuxIOPortProvider::getInstance(const OperationContext& context,
 				 const CIMPropertyList& propertyList,
 				 InstanceResponseHandler& handler)
 {
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
    String in_addr;
    IOPortInformation* located_port;
@@ -243,12 +243,12 @@ LinuxIOPortProvider::fill_reference(const String& nameSpace,
 				    const String& className, 
 				    struct IOPortInformation const* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("CreationClassName", className,
-                          KeyBinding::STRING));
-   keys.append(KeyBinding("StartingAddress", ptr->getStartingAddress(),
-                          KeyBinding::STRING));
+   keys.append(CIMKeyBinding("CreationClassName", className,
+                          CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("StartingAddress", ptr->getStartingAddress(),
+                          CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);

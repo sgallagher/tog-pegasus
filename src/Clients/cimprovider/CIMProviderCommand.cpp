@@ -967,9 +967,9 @@ void CIMProviderCommand::_deleteProvider
 	    providerRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    providerRef.setClassName(PEGASUS_CLASSNAME_PROVIDER);
 
-	    KeyBinding kb1(_PROPERTY_PROVIDERMODULENAME, _moduleName, KeyBinding::STRING);
-	    KeyBinding kb2(_PROPERTY_PROVIDER_NAME, _providerName, KeyBinding::STRING);
-	    Array<KeyBinding> keys;
+	    CIMKeyBinding kb1(_PROPERTY_PROVIDERMODULENAME, _moduleName, CIMKeyBinding::STRING);
+	    CIMKeyBinding kb2(_PROPERTY_PROVIDER_NAME, _providerName, CIMKeyBinding::STRING);
+	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 	    keys.append(kb2);
 	    providerRef.setKeyBindings(keys);
@@ -992,8 +992,8 @@ void CIMProviderCommand::_deleteProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    KeyBinding kb1("Name", _moduleName, KeyBinding::STRING);
-	    Array<KeyBinding> keys;
+	    CIMKeyBinding kb1("Name", _moduleName, CIMKeyBinding::STRING);
+	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
 	    moduleRef.setKeyBindings(keys);
@@ -1042,8 +1042,8 @@ void CIMProviderCommand::_StartProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    KeyBinding kb1("Name", _moduleName, KeyBinding::STRING);
-	    Array<KeyBinding> keys;
+	    CIMKeyBinding kb1("Name", _moduleName, CIMKeyBinding::STRING);
+	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
 	    moduleRef.setKeyBindings(keys);
@@ -1114,8 +1114,8 @@ void CIMProviderCommand::_StopProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    KeyBinding kb1("Name", _moduleName, KeyBinding::STRING);
-	    Array<KeyBinding> keys;
+	    CIMKeyBinding kb1("Name", _moduleName, CIMKeyBinding::STRING);
+	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
 	    moduleRef.setKeyBindings(keys);

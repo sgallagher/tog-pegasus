@@ -63,7 +63,7 @@ DebianSoftwareElementProvider::getInstance(
 			  	InstanceResponseHandler& handler )
 {
    Uint32 i;
-   Array<KeyBinding> keys = ref.getKeyBindings();
+   Array<CIMKeyBinding> keys = ref.getKeyBindings();
    PackageInformation* package;
    CIMInstance instance;
    String packageDatabaseDirectory;
@@ -267,29 +267,29 @@ DebianSoftwareElementProvider::fill_reference(const String& nameSpace,
 					      const PackageInformation* ptr)
 {
    /* Build a reference to a package.  */
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("Name", ptr->GetName(),
-			  KeyBinding::STRING));
-   keys.append(KeyBinding("Version", ptr->GetVersion(),
-			  KeyBinding::STRING));
+   keys.append(CIMKeyBinding("Name", ptr->GetName(),
+			  CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("Version", ptr->GetVersion(),
+			  CIMKeyBinding::STRING));
    String junk;
    junk = "ldsep-> fill_ref to " + ptr->GetName();
    junk.append(", version " + ptr->GetVersion());
    DEBUG(junk);
-   keys.append(KeyBinding("SoftwareElementState", 
+   keys.append(CIMKeyBinding("SoftwareElementState", 
 	                  ptr->GetSoftwareElementState(),
-			  KeyBinding::STRING));
-   keys.append(KeyBinding("SoftwareElementID", 
+			  CIMKeyBinding::STRING));
+   keys.append(CIMKeyBinding("SoftwareElementID", 
 	                  ptr->GetSoftwareElementID(),
-			  KeyBinding::STRING));
+			  CIMKeyBinding::STRING));
 
    String value;
    char buf[256];
    memset(buf, 0, 256);
    sprintf(buf, "%d", ptr->GetTargetOperatingSystem());
    value = buf;
-   keys.append(KeyBinding("TargetOperatingSystem", value, KeyBinding::NUMERIC));
+   keys.append(CIMKeyBinding("TargetOperatingSystem", value, CIMKeyBinding::NUMERIC));
 
    return CIMObjectPath(System::getHostName(), nameSpace,
 		       className, keys);

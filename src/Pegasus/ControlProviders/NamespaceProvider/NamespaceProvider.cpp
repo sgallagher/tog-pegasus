@@ -188,7 +188,7 @@ void _getKeyValue (
 
 {
 
-       Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+       Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
        if ((kbArray.size() == 1) &&
                 (kbArray[0].getName() == NAMESPACE_PROPERTYNAME))
        {
@@ -308,10 +308,10 @@ void NamespaceProvider::createInstance(
 
        // return key (i.e., CIMObjectPath) for newly created namespace
 
-       Array<KeyBinding> keyBindings;
-       keyBindings.append(KeyBinding(NAMESPACE_PROPERTYNAME,
+       Array<CIMKeyBinding> keyBindings;
+       keyBindings.append(CIMKeyBinding(NAMESPACE_PROPERTYNAME,
 	         isRelativeName?childNamespaceName:parentNamespaceName,
-                                     KeyBinding::STRING));
+                                     CIMKeyBinding::STRING));
        CIMObjectPath newInstanceReference (String::EMPTY, parentNamespaceName,
                                      NAMESPACE_CLASSNAME, keyBindings);
        handler.deliver(newInstanceReference);
@@ -637,7 +637,7 @@ void NamespaceProvider::enumerateInstanceNames(
        try
        {
 	   Array<String> namespaceNames = _repository->enumerateNameSpaces();
-	   Array<KeyBinding> keyBindings;
+	   Array<CIMKeyBinding> keyBindings;
 
 	  // Build the instances. For now simply build the __Namespace instances
 	  // Note that for the moment, the only property is name.
@@ -646,10 +646,10 @@ void NamespaceProvider::enumerateInstanceNames(
               if (_isChild(parentNamespaceName, namespaceNames[i]))
               {
 		  keyBindings.clear();
-                  keyBindings.append(KeyBinding(NAMESPACE_PROPERTYNAME,
+                  keyBindings.append(CIMKeyBinding(NAMESPACE_PROPERTYNAME,
 		          namespaceNames[i].subString(parentNamespaceName.size()+1,
 			     namespaceNames[i].size()-parentNamespaceName.size()-1),
-                             KeyBinding::STRING));
+                             CIMKeyBinding::STRING));
                   CIMObjectPath ref(String::EMPTY, parentNamespaceName,
 				  NAMESPACE_CLASSNAME, keyBindings);
                   instanceRefs.append(ref);

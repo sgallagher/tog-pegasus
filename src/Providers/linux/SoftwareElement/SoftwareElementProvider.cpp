@@ -47,10 +47,10 @@ SoftwareElementProvider::fill_reference(const String& nameSpace,
       				        const String& className, 
 					const PackageInformation* ptr)
 {
-   Array<KeyBinding> keys;
+   Array<CIMKeyBinding> keys;
 
-   keys.append(KeyBinding("Name", ptr->GetName(),
-			  KeyBinding::STRING));
+   keys.append(CIMKeyBinding("Name", ptr->GetName(),
+			  CIMKeyBinding::STRING));
 
    return CIMObjectPath(System::getHostName(), nameSpace, 
 		       className, keys);

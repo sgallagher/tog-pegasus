@@ -1112,8 +1112,8 @@ void CIMUserCommand::_ModifyUser
 {
     try
     {
-        Array<KeyBinding>      kbArray;
-        KeyBinding             kb;
+        Array<CIMKeyBinding>      kbArray;
+        CIMKeyBinding             kb;
 	Array<CIMParamValue>   inParams;
 	Array<CIMParamValue>   outParams;
 
@@ -1127,7 +1127,7 @@ void CIMUserCommand::_ModifyUser
 
         kb.setName("Username");
         kb.setValue(_userName);
-        kb.setType(KeyBinding::STRING);
+        kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
 
@@ -1171,12 +1171,12 @@ void CIMUserCommand::_RemoveUser
 {
     try
     {
-        Array<KeyBinding> kbArray;
-        KeyBinding        kb;
+        Array<CIMKeyBinding> kbArray;
+        CIMKeyBinding        kb;
 
         kb.setName(PROPERTY_NAME_USER_NAME);
         kb.setValue(_userName);
-        kb.setType(KeyBinding::STRING);
+        kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
 
@@ -1227,7 +1227,7 @@ void CIMUserCommand::_ListUsers
             //
             for (Uint32 i = 0; i < instanceNames.size(); i++)
             {
-                Array<KeyBinding> kbArray = instanceNames[i].getKeyBindings();
+                Array<CIMKeyBinding> kbArray = instanceNames[i].getKeyBindings();
 
                 if (kbArray.size() > 0)
                 {

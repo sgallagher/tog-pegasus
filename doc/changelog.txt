@@ -1,8 +1,12 @@
 CHANGE LOG FOR PEGASUS
 
+Version 1.1.1 - 3 August 2001 -  Development Branch (Work in Progress)
+		current working dev branch of build
 
 ---------------------------------------------------------------------------
-Version 1.1 - July 2001 Development branch (Work in Progress)
+Version 1.1 - July 2001 Development branch
+              Tagged as version_1_01 on 3 August 2001 (sorry should have been
+              1.1
 
 1. (Nitin Upasani - HP) Implementation of handleIndication() to deliver
    indication by defining IndicationDispatcher, HandlerTable, CIMHandler
@@ -46,11 +50,14 @@ Version 1.1 - July 2001 Development branch (Work in Progress)
    functions generate CIM MOF output for the objects.
 
 7. (Bapu Patil - HP)  Implementation of Local Channel Authentication. Local
-   Authentication provides security mechanism to authenticates CIM clients that
-   connect to CIM Server on the same system without having to specify a password. 
-   Please refer to "doc/LocalCIMSecurity.pdf" for more information on design.  
-   This component only works on unix and it's not linked in with the main build. 
-   When authentication framework is defined this component may need to be 
+   Authentication provides security mechanism to authenticates CIM clients
+   that
+   connect to CIM Server on the same system without having to specify a
+   password.
+   Please refer to "doc/LocalCIMSecurity.pdf" for more information on design.
+   This component only works on unix and it's not linked in with the main
+   build.
+   When authentication framework is defined this component may need to be
    modified to integrate with the framework.
 
 8. (Sushma Fernandes - HP) Removed the ltoa() function call from Tracer.cpp.
@@ -294,6 +301,7 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 
 

@@ -155,6 +155,13 @@ void System::openlog(const String ident)
     return;
 }
 
+// Changes file permissions on the given file.
+Boolean System::changeFilePermissions(const char* path, mode_t mode)
+{
+    // ATTN: File permissions are not currently defined in Nsk
+    return true;
+}
+
 void System::syslog(Uint32 severity, const char *data)
 {
     return;

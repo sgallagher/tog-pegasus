@@ -303,6 +303,14 @@ public:
     */
     static String extractFilePath(const String& path);
 
+    /** Changes file permissions on the given file.
+	@param path path of the file.
+	@param mode the bit-wise inclusive OR of the values for the
+        desired permissions.
+	@return true on success, false on error and errno is set appropriately.
+    */
+    static Boolean changeFilePermissions(const String& path, mode_t mode);
+
 private:
 
     FileSystem() { }

@@ -39,6 +39,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Logger.h>
+#include <sys/stat.h>
 
 //
 // Protocal Type
@@ -221,6 +222,14 @@ public:
 
     // Is absolute path?
     static Boolean is_absolute_path(const char *path);
+
+    /** Changes file permissions on the given file.
+        @param path path of the file.
+        @param mode the bit-wise inclusive OR of the values for the desired 
+        permissions.
+        @return true on success, false on error and errno is set appropriately.
+    */
+    static Boolean changeFilePermissions(const char* path, mode_t mode);
 
 #if defined(PEGASUS_OS_HPUX)
     static Boolean bindVerbose;

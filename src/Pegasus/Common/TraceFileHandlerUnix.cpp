@@ -75,6 +75,17 @@ void TraceFileHandler::handleMessage(
                 "Failed to open File $0",_fileName);
             return; 
         } 	
+
+        //
+        // Set permissions on the trace file to 0400
+        //
+        if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
+        {
+            Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+               "Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS",
+               "Failed to set permissions on file $0",_fileName);
+                return;
+        }
     }
     retCode = fcntl(fileno(_fileHandle), F_SETLKW, &lock);
 

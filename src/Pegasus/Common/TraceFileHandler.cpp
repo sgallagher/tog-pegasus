@@ -117,6 +117,18 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
         _fileName = new char [strlen(fileName)+1];
         strcpy (_fileName,fileName);
     }
+
+    //
+    // Set permissions on the trace file to 0400
+    //
+    if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
+    {
+        Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+           "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",
+           "Failed to set permissions on file $0", _fileName);
+            return 1;
+    }
+
     return 0;
 }
 

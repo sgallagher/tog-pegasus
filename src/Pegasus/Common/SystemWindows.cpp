@@ -48,7 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <io.h>
 #include <conio.h>
 #include <direct.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <windows.h>
 #include <process.h>
@@ -397,6 +396,13 @@ Boolean System::is_absolute_path(const char *path)
     if (*p == '/') *p = '\\';
   
   return (strcasecmp(_fullpath( full, path_slash, _MAX_PATH ), path_slash) == 0) ? true : false;
+}
+
+// Changes file permissions on the given file.
+Boolean System::changeFilePermissions(const char* path, mode_t mode)
+{
+    // ATTN: File permissions are not currently defined in Windows
+    return true;
 }
 
 void System::openlog(const String ident)

@@ -816,6 +816,23 @@ Boolean System::is_absolute_path(const char *path)
   return false;
 }
 
+// Changes file permissions on the given file.
+Boolean System::changeFilePermissions(const char* path, mode_t mode)
+{
+    Sint32 ret = 0;
+
+    const char * tmp = path;
+
+#if defined(PEGASUS_OS_OS400)
+    // ATTN: Update this code to handle UTF8 when path contains UTF8
+    AtoE((char *)tmp);
+#endif
+
+    ret = ::chmod(tmp, mode);
+
+    return ( ret != -1 );
+}
+
 void System::openlog(const String ident)
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)

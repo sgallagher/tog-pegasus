@@ -398,6 +398,20 @@ String FileSystem::extractFilePath(const String& path)
   return newpath;
 }
 
+// Changes file permissions on the given file.
+Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
+{
+#if defined(PEGASUS_OS_OS400)
+    // ATTN: If getCString() is modified to return UTF8, then handle the 
+    //       EBCDIC coversion in SystemUnix.cpp
+    CString tempPath = path.getCString();
+#else
+    CString tempPath = path.getCStringUTF8();
+#endif
+
+    return System::changeFilePermissions(tempPath, mode);
+}
+
 
 Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 {

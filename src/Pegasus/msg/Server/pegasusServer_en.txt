@@ -2014,6 +2014,18 @@ en:table {
         */
         Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE:string {"PGS09405: File handle is not valid for file {0}."}
 
+        /**
+        * @note  PGS09406:
+        *    Substitution {0} is the name of the file (a string)
+        */
+        Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS:string {"PGS09406: Failed to set permissions on file {0}."}
+
+        /**
+        * @note  PGS09407:
+        *    Substitution {0} is the name of the file (a string)
+        */
+        Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS:string {"PGS09407:  Failed to set permissions on file {0}."}
+
 
         // ==========================================================
         // Messages for XmlReader

@@ -12,7 +12,7 @@ SOURCES = lookupInstanceProvider.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(MAKE) -f../load/Makefile localrep
-	$(PROGRAM)
+	@$(MAKE) -f../load/Makefile localrep
+	@$(PROGRAM)
 
 poststarttests:

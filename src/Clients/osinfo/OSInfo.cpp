@@ -80,7 +80,7 @@ OSInfo::~OSInfo(void)
 */
 void OSInfo::errorExit(const String& message)
 {
-    cerr << "os info error: " << message << endl;
+    cerr << "osinfo error: " << message << endl;
     exit(1);
 }
 

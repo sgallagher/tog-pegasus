@@ -222,9 +222,6 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     if (srvpgm == NULL || strlen(srvpgm) == 0)
        return 0;
 
-/* capture any type of error and if any occurs, return not found */
-#pragma exception_handler(error,0,0,_C2_MH_ESCAPE,_CTLA_HANDLE_NO_MSG)
-
     /*----------------------------------------------------------------*/
     /* Resolve to the service program                                 */
     /*----------------------------------------------------------------*/
@@ -260,10 +257,6 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
    
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(hdl);
-
-#pragma disable_handler
- error:
-    return(0);
 
 #else
     PEG_METHOD_EXIT();
@@ -342,7 +335,6 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     int exportType;
     void * procAddress = NULL;
 
-#pragma exception_handler(error,0,0,_C2_MH_ESCAPE,_CTLA_HANDLE_NO_MSG)
     QleGetExp((int *)&libraryHandle,
 	     0,
 	     0,
@@ -362,10 +354,6 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     }
 
     return DynamicSymbolHandle(procAddress);
-
-#pragma disable_handler
- error:
-      return 0;
 
 #else
 

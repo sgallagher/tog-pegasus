@@ -33,7 +33,6 @@
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/MT_MessageQueue.h>
 
 #define D(X) /* empty */
 
@@ -48,7 +47,7 @@ typedef struct {
     int count;
     Thread * th;
     Condition * cond_start;
-    MT_MessageQueue * mq;
+    MessageQueue * mq;
     AtomicInt * aiPtr;
 } parmdef;
 
@@ -80,7 +79,7 @@ int main()
 
     Uint32 rn,rn2;
 
-    MT_MessageQueue * mq = new MT_MessageQueue();
+    MessageQueue * mq = new MessageQueue("testQueue", true);
 
     parmdef * parm[4];
 
@@ -198,7 +197,7 @@ void * fibonacci(void * parm)
     int second = Parm->second;
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
-    MT_MessageQueue * mq = Parm->mq;
+    MessageQueue * mq = Parm->mq;
     
     //cout << "fibonacci: " << pthread_self() << endl;
 
@@ -245,7 +244,7 @@ void * deq(void * parm)
     int second = Parm->second;
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
-    MT_MessageQueue * mq = Parm->mq;
+    MessageQueue * mq = Parm->mq;
     
     //cout << "deq: " << pthread_self() << endl;
 

@@ -43,7 +43,11 @@
 # error "Unsupported platform"
 #endif
 
+#include <iostream>
+
 PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_USING_STD;
 
 DynamicLibrary::DynamicLibrary(void) : _handle(0)
 {
@@ -51,6 +55,8 @@ DynamicLibrary::DynamicLibrary(void) : _handle(0)
 
 DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
 {
+    cout << "DynamicLibrary::DynamicLibrary(const DynamicLibrary &)" << endl;
+
     _fileName = library._fileName;
 
     // load the module again, if necessary. this effectively increments the
@@ -63,10 +69,13 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
 
 DynamicLibrary::DynamicLibrary(const String & fileName) : _fileName(fileName), _handle(0)
 {
+    cout << "DynamicLibrary::DynamicLibrary(const String &)" << endl;
 }
 
 DynamicLibrary::~DynamicLibrary(void)
 {
+    cout << "DynamicLibrary::~DynamicLibrary()" << endl;
+
     // unload the module, if necessary. this ensures 1) the module is released in the
     // event the caller did not explicity unload it, and 2) the operating system's
     // reference count is accurate.
@@ -78,6 +87,8 @@ DynamicLibrary::~DynamicLibrary(void)
 
 DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
 {
+    cout << "DynamicLibrary::operator=(const DynamicLibrary &)" << endl;
+
     if(this == &library)
     {
         return(*this);

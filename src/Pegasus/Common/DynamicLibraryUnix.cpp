@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,19 +31,19 @@
 
 #include "DynamicLibrary.h"
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
 #include <dlfcn.h>
-#elif defined(PEGASUS_OS_SOLARIS)
-#include <dlfcn.h>
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-#include <dlfcn.h>
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#elif defined(PEGASUS_OS_OS400)
 #include <fcntl.h>
 #include <unistd.cleinc>
 #include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
 #endif
 
+#include <iostream>
+
 PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_USING_STD;
 
 Boolean DynamicLibrary::load(void)
 {
@@ -52,15 +52,15 @@ Boolean DynamicLibrary::load(void)
 
     CString cstr = _fileName.getCString();
 
-    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
-    _handle = dlopen(cstr, RTLD_NOW);
-    #elif defined(PEGASUS_OS_TRU64)
+    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
     _handle = dlopen(cstr, RTLD_NOW);
     #elif defined(PEGASUS_OS_ZOS)
     _handle = dllload(cstr);
     #elif defined(PEGASUS_OS_OS400)
     _handle = OS400_LoadDynamicLibrary((const char *)cstr);
     #endif
+
+    cout << "DynamicLibrary::load() -> dlopen():"<< _handle << endl;
 
     return(isLoaded());
 }
@@ -70,8 +70,12 @@ Boolean DynamicLibrary::unload(void)
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
 
-    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
+    cout << "DynamicLibrary::unload() -> dlclose():"<< _handle << endl;
+
+    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
     dlclose(_handle);
+    #elif defined(PEGASUS_OS_ZOS)
+    // do nothing
     #elif defined(PEGASUS_OS_OS400)
     OS400_UnloadDynamicLibrary(_handle);
     #endif
@@ -94,7 +98,7 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
     {
         CString cstr = symbolName.getCString();
 
-        #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
+        #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
         func = (LIBRARY_SYMBOL)::dlsym(_handle, (const char *)cstr);
         #elif defined(PEGASUS_OS_ZOS)
         func = (LIBRARY_SYMBOL) dllqueryfn(_handle, (const char *)cstr);

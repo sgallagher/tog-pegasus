@@ -24,6 +24,7 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,24 +36,14 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Common/TLS.h>
+//#include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-// ATTN: Put these in a central location
-//
-// Wbem service name
-#define WBEM_HTTP_SERVICE_NAME          "wbem-http"
-
-#define WBEM_HTTPS_SERVICE_NAME         "wbem-https"
-
-//
-// Wbem default local port number
-//
-static const Uint32 WBEM_DEFAULT_PORT =  5988;
 
 static const char CERTIFICATE[] = "server.pem";
 

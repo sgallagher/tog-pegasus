@@ -1,7 +1,7 @@
 include $(ROOT)/mak/test.mak
 
 HOSTNAME =
-PORT = -p 5988
+PORT =
 HTTPMETHOD = -m M-POST
 HTTPVERSION = -v 1.1
 USER = -u guest

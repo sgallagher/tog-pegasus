@@ -47,7 +47,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/SSLContext.h>
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
@@ -157,7 +157,7 @@ WbemExecCommand::WbemExecCommand ()
 
     _hostName            = String ();
     _hostNameSet         = false;
-    _portNumber          = WBEM_DEFAULT_PORT;
+    _portNumber          = WBEM_DEFAULT_HTTP_PORT;
     _portNumberSet       = false;
 
     char buffer[32];
@@ -443,8 +443,16 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
     if( !_portNumberSet )
     {
-        _portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
-    				          WBEM_DEFAULT_PORT );
+        if( _useSSL )
+        {
+            _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
+    				          WBEM_DEFAULT_HTTPS_PORT );
+        }
+        else
+        {
+            _portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
+    				          WBEM_DEFAULT_HTTP_PORT );
+        }
         char buffer[32];
         sprintf( buffer, "%lu", (unsigned long) _portNumber );
         _portNumberStr = buffer;

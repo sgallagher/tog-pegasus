@@ -24,6 +24,7 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -191,7 +192,7 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
         char port[32];
         sprintf(port, "%u", portNum);
 
@@ -211,7 +212,7 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
         char port[32];
         sprintf(port, "%u", portNum);
 

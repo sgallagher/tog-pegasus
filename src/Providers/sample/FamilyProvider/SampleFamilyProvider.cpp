@@ -809,7 +809,6 @@ void SampleFamilyProvider::enumerateInstances(
         (const char *) _showBool(includeClassOrigin).getCString(),
         (const char *) _showPropertyList(propertyList).getCString());
 
-    cout << "Trace called" << endl;
     CIMNamespaceName nameSpace = classReference.getNameSpace();
     //CIMName myClassName = classReference.getClassName();
 

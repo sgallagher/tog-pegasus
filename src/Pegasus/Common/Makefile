@@ -99,6 +99,10 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 SOURCES += Signal.cpp
 endif
 
+ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+SOURCES += Signal.cpp
+endif
+
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak

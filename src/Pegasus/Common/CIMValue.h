@@ -60,8 +60,10 @@ public:
     */
     CIMValue();
 
-    /** Constructor with only the Type. This constructor creates a NULL CIMValue
-        object with the array indicator set as shown and with the
+    /** Constructor that creates a NULL CIMValue object with the type and
+        array indicator set as specified.
+        @exception TypeMismatchException If the given type is not valid for a
+        CIMValue object.
     */
     CIMValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
@@ -399,8 +401,6 @@ public:
             used for output purposes.  To get an actual String value, use
             get(String &).
         @return - String output for CIMValue.
-        @exception - Throws CIMValueInvalidTypeException if the CIMValue
-            has an invalid type. Normally this is a Pegasus internal error.
         <PRE>
         Example:
             String test;

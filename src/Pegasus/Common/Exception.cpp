@@ -96,11 +96,6 @@ TypeMismatchException::TypeMismatchException()
 {
 }
 
-InvalidTypeException::InvalidTypeException()
-    : Exception("invalid CIM type")
-{
-}
-
 DynamicCastFailedException::DynamicCastFailedException()
     : Exception("dynamic cast failed")
 {

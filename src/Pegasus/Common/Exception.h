@@ -115,12 +115,9 @@ public:
     TypeMismatchException();
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE InvalidTypeException : public Exception
-{
-public:
-    InvalidTypeException();
-};
+#ifndef PEGASUS_REMOVE_DEPRECATED
+typedef TypeMismatchException InvalidTypeException;
+#endif
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE DynamicCastFailedException : public Exception

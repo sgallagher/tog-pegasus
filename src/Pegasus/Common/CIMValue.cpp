@@ -787,7 +787,7 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
                 break;
 
             default:
-                throw InvalidTypeException();
+                throw TypeMismatchException();
         }
     }
     else
@@ -855,7 +855,7 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
                 break;
 
             default:
-                throw InvalidTypeException();
+                throw TypeMismatchException();
         }
     }
 

@@ -124,6 +124,8 @@ void CIMClassRep::removeProperty(Uint32 pos)
 {
     if (pos >= _properties.size())
 	throw OutOfBounds();
+
+    _properties.remove(pos);
 }
 
 Uint32 CIMClassRep::findProperty(const String& name)

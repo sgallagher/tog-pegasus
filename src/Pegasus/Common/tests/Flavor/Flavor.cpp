@@ -40,6 +40,9 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static char * verbose;
+static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
+    CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
+    CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
 
 void test01 ()
 {
@@ -85,7 +88,7 @@ void test01 ()
     }
     assert (f3.toString () == "DISABLEOVERRIDE");
 
-    CIMFlavor f4 = CIMFlavor (CIMFlavor::ALL);
+    CIMFlavor f4 = CIMFlavor (CIMFLAVOR_ALL);
 
     if (verbose)
     {
@@ -226,7 +229,7 @@ void test01 ()
     }
     assert (f10.toString () == "DISABLEOVERRIDE RESTRICTED");
 
-    f2.addFlavor (CIMFlavor::ALL);
+    f2.addFlavor (CIMFLAVOR_ALL);
 
     if (verbose)
     {
@@ -244,16 +247,16 @@ void test01 ()
         (CIMFlavor::TRANSLATABLE + CIMFlavor::DISABLEOVERRIDE));
     assert (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE)));
     assert (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE + CIMFlavor::TOINSTANCE)));
-    assert (!(f0.hasFlavor (CIMFlavor::ALL)));
+    assert (!(f0.hasFlavor (CIMFLAVOR_ALL)));
 
     assert (f7.hasFlavor (CIMFlavor::TOSUBCLASS));
     assert (f7.hasFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE));
     assert (!(f7.hasFlavor (CIMFlavor::RESTRICTED)));
     assert (!(f7.hasFlavor 
         (CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE)));
-    assert (!(f7.hasFlavor (CIMFlavor::ALL)));
+    assert (!(f7.hasFlavor (CIMFLAVOR_ALL)));
 
-    assert (f4.hasFlavor (CIMFlavor::ALL));
+    assert (f4.hasFlavor (CIMFLAVOR_ALL));
     assert (f4.hasFlavor (CIMFlavor::OVERRIDABLE));
     assert (f4.hasFlavor (CIMFlavor::OVERRIDABLE + CIMFlavor::TOSUBCLASS));
 
@@ -269,7 +272,7 @@ void test01 ()
     //
     //  Test removeFlavor (Uint32) 
     //
-    f6.removeFlavor (CIMFlavor::ALL);
+    f6.removeFlavor (CIMFLAVOR_ALL);
     if (verbose)
     {
 	PEGASUS_STD (cout) << "\n----------------------\n";
@@ -311,7 +314,7 @@ void test01 ()
     }
     assert (f2.toString () == "OVERRIDABLE TOSUBCLASS TRANSLATABLE");
 
-    f2.removeFlavor (CIMFlavor::ALL);
+    f2.removeFlavor (CIMFLAVOR_ALL);
     if (verbose)
     {
 	PEGASUS_STD (cout) << "\n----------------------\n";

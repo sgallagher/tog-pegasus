@@ -40,6 +40,10 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
+    CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
+    CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
+
 /* This program tests the CIMQualifier class and the CIMConstQualifier class
  including the functions in the classes:
  
@@ -91,7 +95,7 @@ int main(int argc, char** argv)
 	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
 
 
-	q2.unsetFlavor(CIMFlavor::ALL);
+	q2.unsetFlavor(CIMFLAVOR_ALL);
 	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
 	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
@@ -112,7 +116,7 @@ int main(int argc, char** argv)
             false);
 	assert(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-	q2.setFlavor(CIMFlavor::ALL);
+	q2.setFlavor(CIMFLAVOR_ALL);
 	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
 	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 	assert(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
@@ -123,7 +127,7 @@ int main(int argc, char** argv)
 
 
 	// ATTN: KS P1 24 March 2002Add test for resolveFlavor here
-	q2.unsetFlavor(CIMFlavor::ALL);
+	q2.unsetFlavor(CIMFLAVOR_ALL);
 
 	q2.setFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 

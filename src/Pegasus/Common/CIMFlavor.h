@@ -185,15 +185,6 @@ public:
      */
     static const CIMFlavor TOSUBELEMENTS;
 
-    /** 
-        Indicates the set of all possible flavor values: OVERRIDABLE, 
-        TOSUBCLASS, TOINSTANCE, TRANSLATABLE, DISABLEOVERRIDE, RESTRICTED
-        Note that some of these possible values are mutually exclusive, and 
-        thus CIMFlavor:ALL does not represent a valid qualifier flavor object
-        It may be used, for example, to clear the flavor settings
-     */
-    static const CIMFlavor ALL;
-
 private:
 
     /**

@@ -100,16 +100,19 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 
 Thread::~Thread()
 {
-   empty_tsd();
-   if( (! _is_detached) && (_handle.thid != 0))
-   {
+    empty_tsd();
+    if (!_is_detached)
+    {
+        if (_handle.thid != 0)
+        {
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        pthread_join(_handle.thid,NULL);
+            pthread_join(_handle.thid,NULL);
 #else
-	pthread_join(*(pthread_t *)&_handle.thid,NULL);
+            pthread_join(*(pthread_t *)&_handle.thid,NULL);
 #endif
-	pthread_attr_destroy(&_handle.thatt);
-   }
+        }
+        pthread_attr_destroy(&_handle.thatt);
+    }
 }
 
 

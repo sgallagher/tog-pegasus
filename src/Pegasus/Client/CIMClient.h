@@ -250,6 +250,11 @@ public:
      * CIM exceptions, that were returned on the last response..
     */    	
 	ContentLanguages getResponseContentLanguages() const;
+	
+	/**
+	 * 
+	 */
+	void setRequestDefaultLanguages();
 // l10n end	
 
 

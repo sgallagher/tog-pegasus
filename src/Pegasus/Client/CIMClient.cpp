@@ -100,6 +100,7 @@ public:
 	ContentLanguages getResponseContentLanguages() const;
 	void setRequestAcceptLanguages(AcceptLanguages& langs);
 	void setRequestContentLanguages(ContentLanguages& langs);
+	void setRequestDefaultLanguages();
 // l10n end	
 
     void connect(
@@ -665,6 +666,10 @@ void CIMClientRep::setRequestAcceptLanguages(AcceptLanguages& langs)
 void CIMClientRep::setRequestContentLanguages(ContentLanguages& langs)
 {
 	requestContentLanguages = langs;
+}
+
+void CIMClientRep::setRequestDefaultLanguages(){
+	requestAcceptLanguages = AcceptLanguages::getDefaultAcceptLanguages();
 }
 
 // l10n end	
@@ -1519,6 +1524,10 @@ ContentLanguages CIMClient::getRequestContentLanguages() const
 ContentLanguages CIMClient::getResponseContentLanguages() const
 {
 		return _rep->getResponseContentLanguages();
+}
+
+void CIMClient::setRequestDefaultLanguages(){
+	_rep->setRequestDefaultLanguages();
 }
 // l10n end	
 

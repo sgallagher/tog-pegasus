@@ -63,14 +63,17 @@ extern "C" {
       for (unsigned int i=0; i<=dta->value.uint32; i++) {
          nDta[i]=dta[i];
          if (dta->type & CMPI_ENC && dta[i].state==CMPI_goodValue) {
-            nDta[i].value.string=
-            ((CMPIString*)dta[i].value.string)->ft->clone((CMPIString*)dta[i].value.string,&rrc);
-      if (rrc.rc) {
-               arrayRelease(nArray);
-         if (rc) *rc=rrc;
-         return NULL;
-      }
-         }
+	   if ((dta[i].type & CMPI_string) && (dta[i].value.string))
+	     {
+	       nDta[i].value.string=
+		 ((CMPIString*)dta[i].value.string)->ft->clone((CMPIString*)dta[i].value.string,&rrc);
+	       if (rrc.rc) {
+		 arrayRelease(nArray);
+		 if (rc) *rc=rrc;
+		 return NULL;
+	       }
+	     }
+	 }
       }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return nArray;

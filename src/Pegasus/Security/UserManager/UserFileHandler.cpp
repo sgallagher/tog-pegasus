@@ -115,8 +115,8 @@ UserFileHandler::UserFileHandler()
     // Get the PasswordFilePath property from the Config Manager.
     //
     String passwdFile;
-    passwdFile = configManager->getCurrentValue(
-                       _PROPERTY_NAME_PASSWORD_FILEPATH);
+    passwdFile = ConfigManager::getHomedPath(
+        configManager->getCurrentValue(_PROPERTY_NAME_PASSWORD_FILEPATH));
 
     //
     // Construct a PasswordFile object.

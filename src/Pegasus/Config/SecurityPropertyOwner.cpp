@@ -179,21 +179,12 @@ void SecurityPropertyOwner::initialize()
         {
             _passwordFilePath->propertyName = properties[i].propertyName;
             _passwordFilePath->defaultValue = properties[i].defaultValue;
+            _passwordFilePath->currentValue = properties[i].defaultValue;
             _passwordFilePath->plannedValue = properties[i].defaultValue;
             _passwordFilePath->dynamic = properties[i].dynamic;
             _passwordFilePath->domain = properties[i].domain;
             _passwordFilePath->domainSize = properties[i].domainSize;
             _passwordFilePath->externallyVisible = properties[i].externallyVisible;
-
-            // 
-            // Initialize passsword file path to $PEGASUS_HOME/cimserver.passwd
-            //
-	    if ( _passwordFilePath->currentValue == String::EMPTY )
-	    {
-                _passwordFilePath->currentValue.append(ConfigManager::getPegasusHome());
-                _passwordFilePath->currentValue.append("/");
-                _passwordFilePath->currentValue.append(_passwordFilePath->defaultValue);
-            }
         }
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
@@ -201,21 +192,12 @@ void SecurityPropertyOwner::initialize()
         {  
             _certificateFilePath->propertyName = properties[i].propertyName;
             _certificateFilePath->defaultValue = properties[i].defaultValue;
+            _certificateFilePath->currentValue = properties[i].defaultValue;
             _certificateFilePath->plannedValue = properties[i].defaultValue;
             _certificateFilePath->dynamic = properties[i].dynamic;
             _certificateFilePath->domain = properties[i].domain;
             _certificateFilePath->domainSize = properties[i].domainSize;
             _certificateFilePath->externallyVisible = properties[i].externallyVisible;
-
-            // 
-            // Initialize SSL cert file path to $PEGASUS_HOME/server.pem
-            //
-	    if ( _certificateFilePath->currentValue == String::EMPTY )
-	    {
-                _certificateFilePath->currentValue.append(ConfigManager::getPegasusHome());
-                _certificateFilePath->currentValue.append("/");
-                _certificateFilePath->currentValue.append(_certificateFilePath->defaultValue);
-            }
         } 
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
@@ -223,21 +205,12 @@ void SecurityPropertyOwner::initialize()
         {  
             _keyFilePath->propertyName = properties[i].propertyName;
             _keyFilePath->defaultValue = properties[i].defaultValue;
+            _keyFilePath->currentValue = properties[i].defaultValue;
             _keyFilePath->plannedValue = properties[i].defaultValue;
             _keyFilePath->dynamic = properties[i].dynamic;
             _keyFilePath->domain = properties[i].domain;
             _keyFilePath->domainSize = properties[i].domainSize;
             _keyFilePath->externallyVisible = properties[i].externallyVisible;
-
-            // 
-            // Initialize SSL key file path to $PEGASUS_HOME/file.pem
-            //
-	    if ( _keyFilePath->currentValue == String::EMPTY )
-	    {
-                _keyFilePath->currentValue.append(ConfigManager::getPegasusHome());
-                _keyFilePath->currentValue.append("/");
-                _keyFilePath->currentValue.append(_keyFilePath->defaultValue);
-            }
         } 
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
@@ -618,7 +591,7 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         //
         // Check if the file path is empty
         //
-        if (fileName == String::EMPTY || fileName== "")
+        if (fileName == String::EMPTY)
         {
             return false;
         }
@@ -698,7 +671,7 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         //
         // Check if the file path is empty
         //
-        if (fileName == String::EMPTY || fileName== "")
+        if (fileName == String::EMPTY)
         {
             return false;
         }
@@ -732,7 +705,7 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     else if (String::equalNoCase(_trustStore->propertyName, name) ||
              String::equalNoCase(_exportSSLTrustStore->propertyName, name))
     {
-	    String fileName(value);
+	String fileName(value);
 
         //
         // Allow the exportSSLTrustStore file path to be empty

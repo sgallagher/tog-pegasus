@@ -931,15 +931,15 @@ SSLContext* CIMServer::_getExportSSLContext()
         // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath = String::EMPTY;
-        certPath = ConfigManager::getInstance()->getCurrentValue(
-                                      PROPERTY_NAME__SSLCERT_FILEPATH);
+        certPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLCERT_FILEPATH));
 
         //
         // Get the sslKeyFilePath property from the Config Manager.
         //
         String keyPath = String::EMPTY;
-        keyPath = ConfigManager::getInstance()->getCurrentValue(
-                                      PROPERTY_NAME__SSLKEY_FILEPATH);
+        keyPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLKEY_FILEPATH));
 
         String randFile = String::EMPTY;
 

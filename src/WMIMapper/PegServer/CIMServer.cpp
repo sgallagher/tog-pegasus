@@ -669,15 +669,18 @@ SSLContext* CIMServer::_getSSLContext()
         // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath;
-        certPath = ConfigManager::getInstance()->getCurrentValue(
-                               PROPERTY_NAME__SSLCERT_FILEPATH);
+        certPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLCERT_FILEPATH));
+
 
         //
         // Get the sslKeyFilePath property from the Config Manager.
         //
         String keyPath;
-        keyPath = ConfigManager::getInstance()->getCurrentValue(
-                               PROPERTY_NAME__SSLKEY_FILEPATH);
+        keyPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLKEY_FILEPATH));
 
         String randFile = String::EMPTY;
 
@@ -708,9 +711,20 @@ SSLContext* CIMServer::_getExportSSLContext()
         //
         // Get the exportSSLTrustStore property from the Config Manager.
         //
-        String trustPath = String::EMPTY;
-        trustPath = ConfigManager::getInstance()->getCurrentValue(
-                                      PROPERTY_NAME__EXPORT_SSLTRUST_STORE);
+        String trustStore = ConfigManager::getInstance()->getCurrentValue(
+            PROPERTY_NAME__EXPORT_SSLTRUST_STORE);
+
+        if (trustStore == String::EMPTY)
+        {
+            MessageLoaderParms parms("Server.CIMServer.EXPORT_TRUST_EMPTY",
+                "The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started.");
+
+            PEG_METHOD_EXIT();
+            throw Exception(parms);
+        }
+
+        String trustPath = ConfigManager::getHomedPath(trustStore);
+
         PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
             "Using the export trust store : " + trustPath);
 
@@ -718,15 +732,17 @@ SSLContext* CIMServer::_getExportSSLContext()
         // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath = String::EMPTY;
-        certPath = ConfigManager::getInstance()->getCurrentValue(
-                                      PROPERTY_NAME__SSLCERT_FILEPATH);
+        certPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__SSLCERT_FILEPATH));
 
         //
         // Get the sslKeyFilePath property from the Config Manager.
         //
         String keyPath = String::EMPTY;
-        keyPath = ConfigManager::getInstance()->getCurrentValue(
-                                      PROPERTY_NAME__SSLKEY_FILEPATH);
+        keyPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(
+                                      PROPERTY_NAME__SSLKEY_FILEPATH));
 
         String randFile = String::EMPTY;
 

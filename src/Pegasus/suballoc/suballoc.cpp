@@ -31,7 +31,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <new.h>
 PEGASUS_NAMESPACE_BEGIN
-#define PEGASUS_DEBUG_MEMORY
+//#define PEGASUS_DEBUG_MEMORY
 peg_suballocator *peg_suballocator::_suballoc_instance = 0;
 
 PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)

@@ -1,6 +1,8 @@
 JAVAROOT = ../../../../..
 ROOT = ../../../../../../../../..
 
+include $(ROOT)/mak/commands.mak
+
 .SUFFIXES: .java .class .jar
 
 .java.class:
@@ -16,8 +18,8 @@ PFXCLASSES=$(addprefix -C ../../../../.. org/pegasus/jmpi/tests/ProcessIndicatio
 all: $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar $(CLASSES)
 
 clean:
-	-rm *.class
-	-rm $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar
+	$(RM) *.class
+	$(RM) $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar
 
 $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar: $(CLASSES)
 	jar -cf $@ $(PFXCLASSES)

@@ -121,7 +121,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
                     tmval->tm_hour,
                     tmval->tm_min,
                     tmval->tm_sec,
-                    tv.tv_usec,
+                    0L,
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
     defined(PEGASUS_OS_LINUX) || \
     defined(PEGASUS_OS_HPUX)

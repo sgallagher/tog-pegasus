@@ -29,7 +29,8 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,10 +46,10 @@ class sa_reg_params
       sa_reg_params(const char*, const char*, const char*, const char*, unsigned short);
       ~sa_reg_params(void);
       
-      int8* url;
-      int8* attrs;
-      int8* type;
-      int8* scopes;
+      char* url;
+      char* attrs;
+      char* type;
+      char* scopes;
       Uint32 lifetime;
       Uint32 expire;
       
@@ -185,7 +186,7 @@ void slp_service_agent::_init(void)
    if(_lib_handle)
    {
       _create_client = 
-	 (slp_client * (*)(const int8*, const int8*,  uint16, const int8*, const int8*, BOOL, BOOL))
+	 (slp_client * (*)(const char*, const char*,  uint16, const char*, const char*, BOOL, BOOL))
 	 System::loadDynamicSymbol(_lib_handle, "create_slp_client");
 
       _destroy_client = 
@@ -193,11 +194,11 @@ void slp_service_agent::_init(void)
 	 System::loadDynamicSymbol(_lib_handle, "destroy_slp_client");
       
       _find_das = 
-	 (int (*)(struct slp_client *, const int8 *,  const int8 *))
+	 (int (*)(struct slp_client *, const char *,  const char *))
 	 System::loadDynamicSymbol(_lib_handle, "find_das");
 
       _test_reg = 
-	 (uint32 (*)(int8*, int8*, int8*, int8*))
+	 (uint32 (*)(char*, char*, char*, char*))
 	 System::loadDynamicSymbol(_lib_handle, "test_srv_reg");
 
       _initialized = 1;
@@ -311,10 +312,10 @@ Uint32 slp_service_agent::test_registration(const char *url,
    if(scopes == 0)
       return 4;
    
-   int8* _type = strdup(type);
-   int8* _url = strdup(url);
-   int8* _attrs = strdup(attrs);
-   int8* _scopes = strdup(scopes);
+   char* _type = strdup(type);
+   char* _url = strdup(url);
+   char* _attrs = strdup(attrs);
+   char* _scopes = strdup(scopes);
 
    Uint32 ccode = _test_reg(_type, _url, _attrs, _scopes);
 

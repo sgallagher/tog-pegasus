@@ -60,12 +60,12 @@
 #define SLP_LIB_IMPORT 1
 #include "../slp_client/slp_client.h"
 
-static int8 *url, *scopes, *tags, *addr, *_interface;
+static char *url, *scopes, *tags, *addr, *_interface;
 static int16 port = 427, converge ;
 static BOOL dir_agent = FALSE;
 static BOOL test = FALSE;
 static BOOL parsable = FALSE;
-static int8 fs='\t', rs='\n';
+static char fs='\t', rs='\n';
 
 void free_globals(void)
 {
@@ -104,7 +104,7 @@ void usage(void)
 BOOL get_options(int argc, char *argv[])
 {
   int i;
-  int8 *bptr;
+  char *bptr;
   
   for(i = 1; i < argc; i++){
     if((*argv[i] == '-') && (*(argv[i] + 1) == '-')) {

@@ -29,7 +29,8 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Softare Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,24 +142,24 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 
       struct slp_client* _rep;
 
-      slp_client * (*_create_client )(const int8 *,
-				      const int8 *, 
+      slp_client * (*_create_client )(const char *,
+				      const char *, 
 				      uint16,
-				      const int8 *, 
-				      const int8 *, 
+				      const char *, 
+				      const char *, 
 				      BOOL, 
 				      BOOL);
       void (*_destroy_client)(struct slp_client *);
       
       
       int (*_find_das)(struct slp_client *client, 
-		       const int8 *predicate, 
-		       const int8 *scopes);
+		       const char *predicate, 
+		       const char *scopes);
 
-      uint32 (*_test_reg)(int8 *, 
-			  int8 *, 
-			  int8 *, 
-			  int8 *);
+      uint32 (*_test_reg)(char *, 
+			  char *, 
+			  char *, 
+			  char *);
       
       DynamicLibraryHandle _lib_handle;
       String _lib_fileName;

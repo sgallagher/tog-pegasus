@@ -9,19 +9,19 @@
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="InstanceName">
           <INSTANCENAME CLASSNAME="PG_OperatingSystem">
-            <KEYBINDING NAME="CSCreationClassName">
-              <KEYVALUE VALUETYPE="string">
-               CIM_ComputerSystem
-              </KEYVALUE>
-            </KEYBINDING>
             <KEYBINDING NAME="CSName">
               <KEYVALUE VALUETYPE="string">
-              denali.cup.hp.com
+               rushmore.cup.hp.com
               </KEYVALUE>
             </KEYBINDING>
             <KEYBINDING NAME="CreationClassName">
               <KEYVALUE VALUETYPE="string">
                CIM_OperatingSystem
+              </KEYVALUE>
+            </KEYBINDING>
+            <KEYBINDING NAME="CSCreationClassName">
+              <KEYVALUE VALUETYPE="string">
+               CIM_UnitaryComputerSystem
               </KEYVALUE>
             </KEYBINDING>
             <KEYBINDING NAME="Name">

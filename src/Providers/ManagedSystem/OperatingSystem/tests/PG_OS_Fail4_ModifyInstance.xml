@@ -12,7 +12,7 @@
 	    <INSTANCENAME CLASSNAME="PG_OperatingSystem">
             <KEYBINDING NAME="CSCreationClassName">
               <KEYVALUE VALUETYPE="string">
-               CIM_ComputerSystem
+               CIM_UnitaryComputerSystem
               </KEYVALUE>
             </KEYBINDING>
             <KEYBINDING NAME="CSName">

@@ -14,7 +14,7 @@
 	   <VALUE> PG_TestPropertyTypes </VALUE>
 	   </QUALIFIER>
 	   <PROPERTY NAME="CSCreationClassName" TYPE="string" >
-	    <VALUE>CIM_ComputerSystem</VALUE>
+	    <VALUE>CIM_UnitaryComputerSystem</VALUE>
 	   </PROPERTY>
 	   <PROPERTY NAME="CSName" TYPE="string">
 	    <VALUE>foo.bar.com</VALUE>

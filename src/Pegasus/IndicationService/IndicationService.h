@@ -276,6 +276,25 @@ private:
         CIMInstance & instance,
         const String & nameSpace);
 
+    /**
+        Validates the specified required property in the instance.
+        If the property does not exist, or has a null value, an exceptiuon is 
+        thrown, using the specified message.
+
+        This function is called by the _canCreate function, and is used to 
+        validate the  Filter and Handler properties in Subscription instances,
+        the Name, CreationClassName, Query and Query Language properties in 
+        Filter instances, the Name, CreationClassName, and Destination 
+        properties in CIMXML Handler instances, and the Name, CreationClassName,
+        Trap Destination, and SNMP Version properties in SNMP Mapper instances.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+        @param   message               message to be used in exception
+
+        @throw   CIM_ERR_INVALID_PARAMETER  if required property is missing or 
+                                            null
+     */
     void _checkRequiredProperty (
         CIMInstance & instance,
         const String & propertyName,
@@ -318,6 +337,23 @@ private:
         const Uint16 otherValue,
         const Array <Uint16> & validValues);
 
+    /**
+        Validates the specified property in the instance.
+        If the property does not exist, it is added with the default value.
+        If the property exists, but its value is NULL, its value is set to
+        the default value.
+        This function is called by the _canCreate function, and is used to 
+        validate the System Name and System Creation Class Name properties in
+        Filter and Handler instances, and the Source Namespace property in 
+        Filter instances.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+        @param   defaultValue          default value for property
+
+        @return  the value of the property
+
+     */
     String _checkPropertyWithDefault (
         CIMInstance & instance,
         const String & propertyName,
@@ -655,12 +691,34 @@ private:
     /**
         Deletes specified subscription 
 
-        @param   nameSpace             the name space
         @param   subscription          the subscription reference
      */
     void _deleteExpiredSubscription (
-        const String & nameSpace,
-        const CIMReference & subscription);
+        CIMReference & subscription);
+
+    /**
+        Gets the Subscription Time Remaining property
+
+        Calculates time remaining from Subscription Start Time, Subscription 
+        Duration, and current date time.  If the subscription has a non-null
+        Duration, the Time Remaining is set, and True is returned.  If the 
+        subscription does not have a non-null Duration, it has no expiration 
+        date, and the time remaining is unlimited.  In this case, the Time 
+        Remaining is not set and False is returned.
+      
+        NOTE: It is assumed that the instance passed to this function is a
+        Subscription instance, and that the Start Time property exists and 
+        has a value
+
+        @param   instance              Input the subscription instance
+        @param   timeRemaining         Output the time remaining (seconds)
+
+        @return  True if the subscription has a non-null Duration
+                 False otherwise
+     */
+    Boolean _getTimeRemaining (
+        const CIMInstance & instance,
+        Uint64 & timeRemaining) const;
 
     /**
         Sets the Subscription Time Remaining property

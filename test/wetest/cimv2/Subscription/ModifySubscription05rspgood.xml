@@ -3,7 +3,6 @@
 <MESSAGE ID="120005" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyInstance">
-<ERROR CODE="6" DESCRIPTION="CIMRepository.cpp(293): CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;CIM_IndicationSubscription.Filter=R&quot;CIM_IndicationFilter.CreationClassName=\&quot;CIM_IndicationFilter\&quot;,Name=\&quot;Filter00\&quot;,SystemCreationClassName=\&quot;CIM_UnitaryComputerSystem\&quot;,SystemName=\&quot;server001.acme.com\&quot;&quot;,Handler=R&quot;CIM_IndicationHandlerCIMXML.CreationClassName=\&quot;CIM_IndicationHandlerCIMXML\&quot;,Name=\&quot;Handler01\&quot;,SystemCreationClassName=\&quot;CIM_UnitaryComputerSystem\&quot;,SystemName=\&quot;server001.acme.com\&quot;&quot;&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

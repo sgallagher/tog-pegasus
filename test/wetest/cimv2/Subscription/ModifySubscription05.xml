@@ -9,18 +9,18 @@
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ModifiedInstance">
           <VALUE.NAMEDINSTANCE>
-            <INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+            <INSTANCENAME CLASSNAME="PG_IndicationSubscription">
               <KEYBINDING NAME="Filter">
                 <VALUE.REFERENCE>
-                  <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+                  <INSTANCENAME CLASSNAME="PG_IndicationFilter">
                     <KEYBINDING NAME="CreationClassName">
                       <KEYVALUE VALUETYPE="string">
-                      CIM_IndicationFilter
+                      PG_IndicationFilter
                       </KEYVALUE>
                     </KEYBINDING>
                     <KEYBINDING NAME="Name">
                       <KEYVALUE VALUETYPE="string">
-                      Filter00
+                      Filter01
                       </KEYVALUE>
                     </KEYBINDING>
                     <KEYBINDING NAME="SystemCreationClassName">
@@ -38,15 +38,15 @@
               </KEYBINDING>
               <KEYBINDING NAME="Handler">
                 <VALUE.REFERENCE>
-                  <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+                  <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
                     <KEYBINDING NAME="CreationClassName">
                       <KEYVALUE VALUETYPE="string">
-                      CIM_IndicationHandlerCIMXML
+                      PG_IndicationHandlerCIMXML
                       </KEYVALUE>
                     </KEYBINDING>
                     <KEYBINDING NAME="Name">
                       <KEYVALUE VALUETYPE="string">
-                      Handler01
+                      Handler02
                       </KEYVALUE>
                     </KEYBINDING>
                     <KEYBINDING NAME="SystemCreationClassName">
@@ -63,9 +63,9 @@
                 </VALUE.REFERENCE>
               </KEYBINDING>
             </INSTANCENAME>
-            <INSTANCE CLASSNAME="CIM_IndicationSubscription">
+            <INSTANCE CLASSNAME="PG_IndicationSubscription">
               <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
-                <VALUE> 4 </VALUE>
+                <VALUE> 2 </VALUE>
               </PROPERTY>
             </INSTANCE>
           </VALUE.NAMEDINSTANCE>

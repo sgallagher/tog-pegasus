@@ -66,6 +66,9 @@
             <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
               <VALUE> 2 </VALUE>
             </PROPERTY>
+            <PROPERTY NAME="SubscriptionDuration" TYPE="uint64"> 
+              <VALUE> 1 </VALUE>
+            </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>
       </IMETHODCALL>

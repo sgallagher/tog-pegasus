@@ -273,13 +273,10 @@ void IndicationService::_initialize (void)
         //
         //  Check for expired subscription
         //
-        if ((activeSubscriptions [i].getInstance ().existsProperty 
-               (_PROPERTY_DURATION)) &&
-            (_isExpired (activeSubscriptions [i].getInstance ())))
+        if (_isExpired (activeSubscriptions [i].getInstance ()))
         {
             _deleteExpiredSubscription 
-                (activeSubscriptions [i].getInstanceName ().getNameSpace (),
-                activeSubscriptions [i].getInstanceName ());
+                (activeSubscriptions [i].getInstanceName ());
                 
             continue;
         }
@@ -520,10 +517,9 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     
                 //
                 //  Set Time of Last State Change to current date time
-                //  ATTN: need method to get current date time in CIMDateTime 
-                //  format
                 //
-                CIMDateTime currentDateTime = CIMDateTime ();
+                CIMDateTime currentDateTime = 
+                    CIMDateTime::getCurrentDateTime ();
                 if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
                 {
                     instance.addProperty 
@@ -722,10 +718,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         if (request->instanceName.getClassName () == 
             PEGASUS_CLASSNAME_INDSUBSCRIPTION)
         {
-            if (instance.existsProperty (_PROPERTY_DURATION))
-            {
-                _setTimeRemaining (instance);
-            }
+            _setTimeRemaining (instance);
         }
     }
     catch (CIMException& exception)
@@ -801,11 +794,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             //
             if (request->className == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
             {
-                if (enumInstances [i].getInstance ().existsProperty 
-                    (_PROPERTY_DURATION))
-                {
-                    _setTimeRemaining (enumInstances [i].getInstance ());
-                }
+                _setTimeRemaining (enumInstances [i].getInstance ());
             }
         }
     }
@@ -944,14 +933,13 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
             //
             //  Check for expired subscription
             //
-            if ((instance.existsProperty (_PROPERTY_DURATION)) &&
-                (_isExpired (instance)))
+            if (_isExpired (instance))
             {
                 //
                 //  Delete the subscription instance
                 //
-                _deleteExpiredSubscription (request->nameSpace,
-                    instanceReference);
+                instanceReference.setNameSpace (request->nameSpace);
+                _deleteExpiredSubscription (instanceReference);
     
                 String exceptionStr = _MSG_EXPIRED;
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -962,6 +950,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
             //  _canModify, above, already checked that propertyList is not 
             //  null, and that numProperties is 0 or 1
             //
+            CIMInstance modifiedInstance = 
+                request->modifiedInstance.getInstance ();
+            CIMPropertyList propertyList = request->propertyList;
             if (request->propertyList.getNumProperties () > 0)
             {
                 //
@@ -987,15 +978,27 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //
                 //  If Subscription State has changed,
                 //  Set Time of Last State Change to current date time
-                //  ATTN: need method to get current date time in CIMDateTime 
-                //  format
                 //
-                CIMDateTime currentDateTime = CIMDateTime ();
+                CIMDateTime currentDateTime = 
+                    CIMDateTime::getCurrentDateTime ();
                 if (newState != currentState)
                 {
-                    CIMProperty lastChange = instance.getProperty
-                        (instance.findProperty (_PROPERTY_LASTCHANGE));
-                    lastChange.setValue (CIMValue (currentDateTime));
+                    if (modifiedInstance.existsProperty (_PROPERTY_LASTCHANGE))
+                    {
+                        CIMProperty lastChange = modifiedInstance.getProperty
+                            (modifiedInstance.findProperty 
+                            (_PROPERTY_LASTCHANGE));
+                        lastChange.setValue (CIMValue (currentDateTime));
+                    }
+                    else
+                    {
+                        modifiedInstance.addProperty (CIMProperty 
+                            (_PROPERTY_LASTCHANGE, CIMValue (currentDateTime)));
+                    }
+                    Array <String> properties = 
+                        propertyList.getPropertyNameArray ();
+                    properties.append (_PROPERTY_LASTCHANGE);
+                    propertyList.set (properties);
                 }
 
                 //
@@ -1015,18 +1018,41 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     CIMValue startTimeValue = instance.getProperty
                         (instance.findProperty 
                         (_PROPERTY_STARTTIME)).getValue ();
+                    Boolean setStart = false;
                     if (startTimeValue.isNull ())
                     {
-                        startTimeProperty.setValue (CIMValue (currentDateTime));
+                        setStart = true;
                     }
                     else
                     {
                         startTimeValue.get (startTime);
                         if (startTime.isNull ())
                         {
-                            startTimeProperty.setValue 
-                                (CIMValue (currentDateTime));
+                            setStart = true;
                         }
+                    }
+
+                    if (setStart)
+                    {
+                        if (modifiedInstance.existsProperty 
+                            (_PROPERTY_STARTTIME))
+                        {
+                            CIMProperty startTime = modifiedInstance.getProperty
+                                (modifiedInstance.findProperty
+                                (_PROPERTY_STARTTIME));
+                            startTime.setValue (CIMValue (currentDateTime));
+                        }
+                        else
+                        {
+                            modifiedInstance.addProperty (CIMProperty 
+                                (_PROPERTY_STARTTIME,
+                                CIMValue (currentDateTime)));
+                        }
+
+                        Array <String> properties = 
+                            propertyList.getPropertyNameArray ();
+                        properties.append (_PROPERTY_STARTTIME);
+                        propertyList.set (properties);
                     }
                 }
 
@@ -1071,13 +1097,12 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //  Modify the instance in the repository
                 //
                 _repository->write_lock ();
-    
+
                 try
                 {
                     _repository->modifyInstance (request->nameSpace,
-                        CIMNamedInstance (instanceReference, 
-                        request->modifiedInstance.getInstance ()), 
-                        request->includeQualifiers, request->propertyList);
+                        CIMNamedInstance (instanceReference, modifiedInstance), 
+                        request->includeQualifiers, propertyList);
                 }
                 catch (CIMException & exception)
                 {
@@ -1391,13 +1416,10 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             //
             //  Check for expired subscription
             //
-            if ((matchedSubscriptions [i].getInstance ().existsProperty
-                   (_PROPERTY_DURATION)) &&
-                (_isExpired (matchedSubscriptions [i].getInstance ())))
+            if (_isExpired (matchedSubscriptions [i].getInstance ()))
             {
                 _deleteExpiredSubscription
-                    (matchedSubscriptions [i].getInstanceName ().getNameSpace(),
-                     matchedSubscriptions [i].getInstanceName ());
+                    (matchedSubscriptions [i].getInstanceName ());
     
                 continue;
             }
@@ -1863,11 +1885,9 @@ void IndicationService::_disableSubscription (
 
     //
     //  Set Time of Last State Change to current date time
-    //  ATTN: need method to get current date time in CIMDateTime 
-    //  format
     //
     CIMInstance instance = subscription.getInstance ();
-    CIMDateTime currentDateTime = CIMDateTime ();
+    CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
     if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
     {
         instance.addProperty 
@@ -2309,7 +2329,7 @@ void IndicationService::_checkPropertyWithOther (
             theValue.get (result);
 
             //
-            //  ATTN:  Validate the value
+            //  Validate the value
             //
             if (!Contains (validValues, result))
             {
@@ -3870,77 +3890,45 @@ void IndicationService::_deleteReferencingSubscriptions (
 Boolean IndicationService::_isExpired (
     const CIMInstance & instance) const
 {
-    const char METHOD_NAME [] = 
-        "IndicationService::_isExpired";
+    const char METHOD_NAME [] = "IndicationService::_isExpired";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
-    //
-    //  Calculate time remaining from subscription
-    //  start time, subscription duration, and current date time
-    //
+    Boolean isExpired = true;
+    Uint64 timeRemaining = 0;
 
     //
-    //  NOTE: It is assumed that the instance passed to this method is a 
-    //  subscription instance, and that the Subscription Duration and 
-    //  Start Time properties exist
+    //  Get time remaining, if subscription has a duration
     //
-
-    //
-    //  Get Subscription Start Time
-    //
-    CIMValue startTimeValue;
-    CIMDateTime startTime;
-    startTimeValue = instance.getProperty 
-        (instance.findProperty (_PROPERTY_STARTTIME)).getValue ();
-    startTimeValue.get (startTime);
-
-    //
-    //  Get Subscription Duration
-    //
-    CIMValue durationValue;
-    Uint64 duration;
-    durationValue = instance.getProperty 
-        (instance.findProperty (_PROPERTY_DURATION)).getValue ();
-    if (durationValue.isNull ())
+    if (_getTimeRemaining (instance, timeRemaining))
     {
-        //
-        //  If there is no duration value set, the subscription has no 
-        //  expiration date
-        //
-        return false;
+        if (timeRemaining > 0)
+        {
+            isExpired = false;
+        }
     }
     else
     {
-        durationValue.get (duration);
+        //
+        //  If there is no duration, the subscription has no expiration date
+        //
+        isExpired = false;
     }
 
-    //
-    //  Get current date time, and determine if subscription has expired
-    //  ATTN: need method to calculate difference of two CIMDateTime values
-    //
-    CIMDateTime currentDateTime = CIMDateTime ();
-
-    if (duration /* - (currentDateTime - startTime) */ > 0)
-    {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        return false;
-    }
-    else
-    {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        return true;
-    }
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return isExpired;
 }
 
 void IndicationService::_deleteExpiredSubscription (
-    const String & nameSpace,
-    const CIMReference & subscription)
+    CIMReference & subscription)
 {
     const char METHOD_NAME [] = 
         "IndicationService::_deleteExpiredSubscription";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    String nameSpace = subscription.getNameSpace ();
+    subscription.setNameSpace ("");
 
     //
     //  Delete the subscription instance
@@ -3956,6 +3944,7 @@ void IndicationService::_deleteExpiredSubscription (
         //
         //  ATTN: Log a message??
         //
+        //cout << "Exception: " << exception.getMessage () << endl;
     }
 
     _repository->write_unlock ();
@@ -3963,13 +3952,17 @@ void IndicationService::_deleteExpiredSubscription (
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
-void IndicationService::_setTimeRemaining (
-    CIMInstance & instance)
+Boolean IndicationService::_getTimeRemaining (
+    const CIMInstance & instance,
+    Uint64 & timeRemaining) const
 {
     const char METHOD_NAME [] = 
-        "IndicationService::_setTimeRemaining";
+        "IndicationService::_getTimeRemaining";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    Boolean hasDuration = true;
+    timeRemaining = 0;
 
     //
     //  Calculate time remaining from subscription
@@ -3978,8 +3971,8 @@ void IndicationService::_setTimeRemaining (
 
     //
     //  NOTE: It is assumed that the instance passed to this method is a 
-    //  subscription instance, and that the Subscription Duration and 
-    //  Start Time properties exist
+    //  subscription instance, and that the Start Time property exists
+    //  and has a value
     //
 
     //
@@ -3994,32 +3987,67 @@ void IndicationService::_setTimeRemaining (
     //
     //  Get Subscription Duration
     //
-    CIMValue durationValue;
-    Uint64 duration;
-    durationValue = instance.getProperty 
-        (instance.findProperty (_PROPERTY_DURATION)).getValue ();
-    durationValue.get (duration);
-
-    //
-    //  Get current date time, and calculate Subscription Time Remaining
-    //  ATTN: need method to calculate difference of two CIMDateTime values
-    //
-    CIMDateTime currentDateTime = CIMDateTime ();
-    Uint64 timeRemaining = duration /* - (currentDateTime - startTime) */ ;
-
-    //
-    //  Add or set the value of the property with the calculated value
-    //
-    if (!instance.existsProperty (_PROPERTY_TIMEREMAINING))
+    if (instance.existsProperty (_PROPERTY_DURATION))
     {
-        instance.addProperty (CIMProperty 
-            (_PROPERTY_TIMEREMAINING, timeRemaining));
+        CIMValue durationValue;
+        durationValue = instance.getProperty 
+            (instance.findProperty (_PROPERTY_DURATION)).getValue ();
+        if (durationValue.isNull ())
+        {
+            hasDuration = false;
+        }
+        else
+        {
+            Uint64 duration;
+            durationValue.get (duration);
+
+            //
+            //  Get current date time, and calculate Subscription Time Remaining
+            //
+            CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+            Real64 difference = CIMDateTime::getDifference
+                (startTime, currentDateTime);
+            PEGASUS_ASSERT (difference >= 0);
+            if (((Sint64) duration - difference) >= 0)
+            {
+                timeRemaining = (Sint64) duration - difference;
+            }
+        }
     }
-    else 
+    else
     {
-        CIMProperty remaining = instance.getProperty 
-            (instance.findProperty (_PROPERTY_TIMEREMAINING));
-        remaining.setValue (CIMValue (timeRemaining));
+        hasDuration = false;
+    }
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return hasDuration;
+}
+
+void IndicationService::_setTimeRemaining (
+    CIMInstance & instance)
+{
+    const char METHOD_NAME [] = 
+        "IndicationService::_setTimeRemaining";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    Uint64 timeRemaining = 0;
+    if (_getTimeRemaining (instance, timeRemaining))
+    {
+        //
+        //  Add or set the value of the property with the calculated value
+        //
+        if (!instance.existsProperty (_PROPERTY_TIMEREMAINING))
+        {
+            instance.addProperty (CIMProperty 
+                (_PROPERTY_TIMEREMAINING, timeRemaining));
+        }
+        else 
+        {
+            CIMProperty remaining = instance.getProperty 
+                (instance.findProperty (_PROPERTY_TIMEREMAINING));
+            remaining.setValue (CIMValue (timeRemaining));
+        }
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -4256,7 +4284,7 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
    //
    //  ATTN: This is temporary... because requests are not accepted yet
    //
-   service->_insertEntry(*(epl->cni), epl->pcl->provider, epl->pcl->classList);
+   //service->_insertEntry(*(epl->cni), epl->pcl->provider, epl->pcl->classList);
 //   service->_insertEntry (subscription, indicationProviders [i].provider,
 //			  indicationProviders [i].classList);
    delete epl;
@@ -4381,8 +4409,6 @@ void IndicationService::_sendModifyRequestsCallBack(AsyncOpNode *op,
    //  If received, need to find Provider Manager Service queue ID
    //  again
    //
-   
-   
    
    //
    //  ATTN-CAKG-P2-20020326: Do we need to look at the response?

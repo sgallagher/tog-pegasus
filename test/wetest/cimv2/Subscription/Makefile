@@ -17,7 +17,7 @@ XMLSCRIPTS = \
     ModifyFilter01 \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \
-    ModifySubscription03 ModifySubscription04 \
+    ModifySubscription03 ModifySubscription04 ModifySubscription05 \
     DeleteFilter07 DeleteHandler04 \
     DeleteSubscription01 DeleteSubscription02 DeleteSubscription03 \
     DeleteSubscription04 DeleteSubscription05 DeleteSubscription06 \

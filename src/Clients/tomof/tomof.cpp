@@ -699,7 +699,7 @@ int main(int argc, char** argv)
                         instanceNames = clRepository.enumerateInstanceNames(nameSpace,
                                                                             className);
                         for(Uint32 j = 0; j < instanceNames.size(); j++)
-                            cout << "Instance " << instanceNames[i];
+                            cout << "Instance " << instanceNames[i].toString();
                     }
                 }
                 else    // Process complete instances

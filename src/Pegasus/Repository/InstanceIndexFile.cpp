@@ -597,7 +597,7 @@ Boolean InstanceIndexFile::_appendEntry(
     sprintf(buffer, "%08X", targetHashCode);
 
     fs << "0 " << buffer << ' ' << indexIn << ' ' << sizeIn << ' ';
-    fs << instanceName << endl;
+    fs << instanceName.toString() << endl;
 
     PEG_METHOD_EXIT();
     return !!fs;

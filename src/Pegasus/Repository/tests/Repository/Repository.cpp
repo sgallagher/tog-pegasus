@@ -204,7 +204,7 @@ void test03()
 
     for (Uint32 i = 0; i < names.size(); i++)
     {
-	cout << "names[i]=[" << names[i] << "]" << endl;
+	cout << "names[i]=[" << names[i].toString() << "]" << endl;
     }
 }
 

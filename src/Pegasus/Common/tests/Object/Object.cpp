@@ -320,11 +320,11 @@ void test04()
 
     if (verbose)
     {
-        cout << "Class object path from getPath: " << cpath << endl;
-        cout << "Class object path from getPath after setPath: " << cpath2 
-             << endl;
+        cout << "Class object path from getPath: " << cpath.toString() << endl;
+        cout << "Class object path from getPath after setPath: "
+             << cpath2.toString() << endl;
         cout << "Class object path from getPath after second setPath: " 
-             << cpath3 << endl;
+             << cpath3.toString() << endl;
     }
 
 
@@ -341,11 +341,11 @@ void test04()
 
     if (verbose)
     {
-        cout << "Class object path from getPath: " << ocpath << endl;
-        cout << "Class object path from getPath after setPath: " << ocpath2 
-             << endl;
+        cout << "Class object path from getPath: " << ocpath.toString() << endl;
+        cout << "Class object path from getPath after setPath: "
+             << ocpath2.toString() << endl;
         cout << "Class object path from getPath after second setPath: " 
-             << ocpath3 << endl;
+             << ocpath3.toString() << endl;
     }
 
 
@@ -363,10 +363,12 @@ void test04()
 
     if (verbose)
     {
-        cout << "Instance object path from buildPath: " << path << endl;
-        cout << "Instance object path from getPath: " << path2 << endl;
-        cout << "Instance object path from getPath after setPath: " << path3 
-             << endl;
+        cout << "Instance object path from buildPath: "
+             << path.toString() << endl;
+        cout << "Instance object path from getPath: "
+             << path2.toString() << endl;
+        cout << "Instance object path from getPath after setPath: "
+             << path3.toString() << endl;
     }
 
 
@@ -385,10 +387,12 @@ void test04()
 
     if (verbose)
     {
-        cout << "Instance object path from buildPath: " << opath << endl;
-        cout << "Instance object path from getPath: " << opath1 << endl;
-        cout << "Instance object path from getPath after setPath: " << opath2 
-             << endl;
+        cout << "Instance object path from buildPath: "
+             << opath.toString() << endl;
+        cout << "Instance object path from getPath: "
+             << opath1.toString() << endl;
+        cout << "Instance object path from getPath after setPath: "
+             << opath2.toString() << endl;
     }
 }
 

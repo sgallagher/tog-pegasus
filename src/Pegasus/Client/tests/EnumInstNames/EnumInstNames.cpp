@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	    client.enumerateInstanceNames(NAMESPACE, CIMName ("Process"));
 
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
-	    cout << instanceNames[i] << endl;
+	    cout << instanceNames[i].toString() << endl;
     }
     catch(Exception& e)
     {

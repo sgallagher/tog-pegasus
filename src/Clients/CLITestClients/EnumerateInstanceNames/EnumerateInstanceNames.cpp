@@ -225,7 +225,7 @@ int main(int argc, char** argv)
 
         //simply output the list one per line for the moment.
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
-	    cout << instanceNames[i] << endl;
+	    cout << instanceNames[i].toString() << endl;
     }
 	catch(Exception& e)
 	{

@@ -236,7 +236,7 @@ static void TestAssociators(CIMClient& client)
     {
 	CIMObject current = result[i];
 	CIMObjectPath ref = current.getPath ();
-	cout << "[" << ref << "]" << endl;
+	cout << "[" << ref.toString() << "]" << endl;
     }
 
     cout << endl;
@@ -255,7 +255,7 @@ static void TestAssociatorNames(CIMClient& client)
 	"child");
 
     for (Uint32 i = 0; i < result.size(); i++)
-	cout << "[" << result[i] << "]" << endl;
+	cout << "[" << result[i].toString() << "]" << endl;
 
     cout << endl;
 }
@@ -273,7 +273,7 @@ static void TestAssociatorClassNames(CIMClient& client)
 	"child");
 
     for (Uint32 i = 0; i < result.size(); i++)
-	cout << "[" << result[i] << "]" << endl;
+	cout << "[" << result[i].toString() << "]" << endl;
 
     cout << endl;
 }
@@ -289,7 +289,7 @@ static void TestReferenceNames(CIMClient& client)
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)
-	cout << "[" << result[i] << "]" << endl;
+	cout << "[" << result[i].toString() << "]" << endl;
 
     cout << endl;
 }
@@ -308,7 +308,7 @@ static void TestReferences(CIMClient& client)
     {
 	CIMObject current = result[i];
 	CIMObjectPath ref = current.getPath ();
-	cout << "[" << ref << "]" << endl;
+	cout << "[" << ref.toString() << "]" << endl;
     }
 
     cout << endl;
@@ -325,7 +325,7 @@ static void TestReferenceClassNames(CIMClient& client)
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)
-	cout << "[" << result[i] << "]" << endl;
+	cout << "[" << result[i].toString() << "]" << endl;
 
     cout << endl;
 }

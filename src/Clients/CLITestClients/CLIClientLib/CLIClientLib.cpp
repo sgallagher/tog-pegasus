@@ -128,7 +128,7 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
     {
         //simply output the list one per line for the moment.
         for (Uint32 i = 0; i < instanceNames.size(); i++)
-                    cout << instanceNames[i] << endl;
+                    cout << instanceNames[i].toString() << endl;
     }
     return 0;
 }        
@@ -332,7 +332,7 @@ int getProperty(CIMClient& client, Options& opts)
     {
         cout << "getProperty "
             << "Namespace = " << opts.nameSpace
-            << ", Instance = " << opts.instanceName
+            << ", Instance = " << opts.instanceName.toString()
             << ", propertyName = " << opts.propertyName
             << endl;
     }
@@ -353,7 +353,7 @@ int setProperty(CIMClient& client, Options& opts)
     {
         cout << "setProperty "
             << "Namespace = " << opts.nameSpace
-            << ", Instance = " << opts.instanceName
+            << ", Instance = " << opts.instanceName.toString()
             << ", propertyName = " << opts.propertyName
             // KS The new value goes here
             << endl;

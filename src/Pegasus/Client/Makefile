@@ -41,9 +41,10 @@ endif
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
-ifdef PEGASUS_ENABLE_SLP
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS = $(PEGASUS_HOME)/lib/slp_client.lib ws2_32.lib advapi32.lib
+SYS_LIBS = ws2_32.lib advapi32.lib
+ifdef PEGASUS_ENABLE_SLP
+SYS_LIBS += $(PEGASUS_HOME)/lib/slp_client.lib
 endif
 endif
 

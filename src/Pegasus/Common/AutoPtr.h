@@ -150,13 +150,6 @@ public:
          return(*this);
     }
 
-   	//template<class Y> AutoPtr &operator=(AutoPtr<Y> &a) throw()
-     template<class Y> AutoPtr<X> &operator=(AutoPtr<Y> &a) throw()  
-     {
-          reset(a.release());
-          return(*this);
-     }
-
      // This method can be used to get the pointer to heap object encapsulated
      // in 'this' AutoPtr object
      // Example:   AutoPtr<classA> objA;
@@ -262,12 +255,6 @@ public:
      inline AutoArrayPtr<X> &operator=(AutoArrayPtrRef<X> &a) throw()
      {
          reset((a.get()).release());
-         return(*this);
-     }
-
-     template<class Y> AutoArrayPtr &operator=(AutoArrayPtr<Y> &a) throw()
-     {
-         reset(a.release());
          return(*this);
      }
 

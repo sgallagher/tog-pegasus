@@ -199,25 +199,25 @@ public:
 
 };
 
-class ModifyInstanceResponseHandler : public ResponseHandler<void>
+class ModifyInstanceResponseHandler : public OperationResponseHandler<void>
 {
 public:
     ModifyInstanceResponseHandler(
         CIMModifyInstanceRequestMessage * request,
         CIMModifyInstanceResponseMessage * response)
-    : ResponseHandler<void>(request, response)
+    : OperationResponseHandler<void>(request, response)
     {
     }
 
 };
 
-class DeleteInstanceResponseHandler : public ResponseHandler<void>
+class DeleteInstanceResponseHandler : public OperationResponseHandler<void>
 {
 public:
     DeleteInstanceResponseHandler(
         CIMDeleteInstanceRequestMessage * request,
         CIMDeleteInstanceResponseMessage * response)
-    : ResponseHandler<void>(request, response)
+    : OperationResponseHandler<void>(request, response)
     {
     }
 

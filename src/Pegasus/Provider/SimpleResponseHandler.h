@@ -110,6 +110,12 @@ public:
 
 };
 
+template<>
+inline SimpleResponseHandler<void>::SimpleResponseHandler(void)
+    : ResponseHandler<void>()
+{
+}
+
 PEGASUS_NAMESPACE_END
 
 #endif

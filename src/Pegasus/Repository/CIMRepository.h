@@ -30,6 +30,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company 
 //                  (carolann_graves@hp.com)
+//              Adrian Schuur (schuur@de.ibm.com) - PEP 129
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,8 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Repository/Linkage.h>
+
+#include <Pegasus/Common/ObjectStreamer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -569,6 +572,7 @@ private:
 
 protected:
 
+    ObjectStreamer *streamer;
     ReadWriteSem _lock;
 
     friend class compilerDeclContext;

@@ -1,0 +1,51 @@
+/%2003////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Adrian Schuur (schuur@de.ibm.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+
+Binary Repository support - PEP 164
+
+Binary Reposiory support has been added, see PEP 164 for a detailed description.
+
+Currently, Configuration support is not implemented yet. Activating Binary Repository
+support is done by adding the follwing runtime environment variables:
+
+        export PEGASUS_BINARY_REPOSITORY=1
+
+Optionally, you can supress Description qualifiers by setting
+
+        export PEGASUS_REMOVE_DESCRIPTIONS=1
+
+NOTICE that these are Pegasus runtime environment settings. They need to be set before starting
+cimserver and cimmofl.
+
+You can export and unset these variables withou rebuiding the repository, this version of Pegasus
+repository support understands repositories containing mixtures of Binary and XML objects.
+

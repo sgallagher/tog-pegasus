@@ -33,6 +33,7 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383
 //              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
+//              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -44,8 +45,7 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/XmlWriter.h>
+
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/System.h>
@@ -53,6 +53,10 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/CommonUTF.h>
+
+#include <Pegasus/Common/XmlStreamer.h>
+#include <Pegasus/Common/BinaryStreamer.h>
+#include <Pegasus/Common/AutoStreamer.h>
 
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
@@ -94,6 +98,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 _MAX_FREE_COUNT = 16;
+static int binaryMode = 0;
 
 //
 //  The following _xx functions are local to the repository implementation
@@ -364,7 +369,8 @@ void _filterInstance(CIMInstance& cimInstance,
 template<class Object>
 void _LoadObject(
     const String& path,
-    Object& object)
+    Object& object,
+    ObjectStreamer *streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_LoadObject");
 
@@ -388,9 +394,11 @@ void _LoadObject(
     FileSystem::loadFileToMemory(data, realPath);
     data.append('\0');
 
-    XmlParser parser((char*)data.getData());
+    streamer->decode(data, 0, object);
 
-    XmlReader::getObject(parser, object);
+    //XmlParser parser((char*)data.getData());
+
+    //XmlReader::getObject(parser, object);
 
     PEG_METHOD_EXIT();
 }
@@ -404,7 +412,8 @@ void _LoadObject(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void _SaveObject(const String& path, Array<Sint8>& objectXml)
+void _SaveObject(const String& path, Array<Sint8>& objectXml,
+    ObjectStreamer *streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
 
@@ -417,8 +426,9 @@ void _SaveObject(const String& path, Array<Sint8>& objectXml)
     }
 
 #ifdef INDENT_XML_FILES
-    objectXml.append('\0');
-    XmlWriter::indentedPrint(os, objectXml.getData(), 2);
+    streamer->indentedOut(os, objectXml, 2);
+//   objectXml.append('\0');
+//   XmlWriter::indentedPrint(os, objectXml.getData(), 2);
 #else
     os.write((char*)objectXml.getData(), objectXml.size());
 #endif
@@ -445,6 +455,18 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
      _lock(), _resolveInstance(true)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
+
+    if (!binaryMode) {
+       if (getenv("PEGASUS_BINARY_REPOSITORY")) binaryMode=1;
+       else binaryMode=-1;
+    }
+
+    if (binaryMode>0) {
+       streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
+       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    }
+
+    else streamer=new XmlStreamer();
 
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
@@ -512,7 +534,7 @@ CIMClass CIMRepository::_getClass(
 
     try
     {
-        _LoadObject(classFilePath, cimClass);
+        _LoadObject(classFilePath, cimClass, streamer);
     }
     catch (Exception& e)
     {
@@ -1090,8 +1112,9 @@ void CIMRepository::_createClass(
     // -- Create the class file:
 
     Array<Sint8> classXml;
-    XmlWriter::appendClassElement(classXml, cimClass);
-    _SaveObject(classFilePath, classXml);
+    streamer->encode(classXml, cimClass);
+    //XmlWriter::appendClassElement(classXml, cimClass);
+    _SaveObject(classFilePath, classXml,streamer);
 
     PEG_METHOD_EXIT();
 }
@@ -1359,7 +1382,8 @@ CIMObjectPath CIMRepository::_createInstance(
 
     {
         Array<Sint8> data;
-        XmlWriter::appendInstanceElement(data, cimInstance);
+        streamer->encode(data, cimInstance);
+        // XmlWriter::appendInstanceElement(data, cimInstance);
         size = data.size();
 
         if (!InstanceDataFile::appendInstance(dataFilePath, data, index))
@@ -1505,8 +1529,9 @@ void CIMRepository::_modifyClass(
     //
 
     Array<Sint8> classXml;
-    XmlWriter::appendClassElement(classXml, cimClass);
-    _SaveObject(classFilePath, classXml);
+    streamer->encode(classXml, cimClass);
+    //XmlWriter::appendClassElement(classXml, cimClass);
+    _SaveObject(classFilePath, classXml,streamer);
 
     if (cimClass.isAssociation()) {
       // Remove from Association
@@ -1859,7 +1884,8 @@ void CIMRepository::modifyInstance(
 
     {
         Array<Sint8> out;
-        XmlWriter::appendInstanceElement(out, cimInstance);
+        streamer->encode(out, cimInstance);
+        //XmlWriter::appendInstanceElement(out, cimInstance);
 
         newSize = out.size();
 
@@ -2059,9 +2085,12 @@ Boolean CIMRepository::_loadAllInstances(
         {
             if (!freeFlags[i])
             {
-                XmlParser parser(&(buffer[indices[i]]));
+                Uint32 pos=(&(buffer[indices[i]]))-buffer;
+                streamer->decode(data, pos, tmpInstance);
 
-                XmlReader::getObject(parser, tmpInstance);
+//                XmlParser parser(&(buffer[indices[i]]));
+//
+//                XmlReader::getObject(parser, tmpInstance);
 
                 Resolver::resolveInstance (tmpInstance, _context, nameSpace,
                         true);
@@ -2874,7 +2903,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 
     try
     {
-        _LoadObject(qualifierFilePath, qualifierDecl);
+        _LoadObject(qualifierFilePath, qualifierDecl, streamer);
     }
     catch (CannotOpenFile&)
     {
@@ -2930,8 +2959,9 @@ void CIMRepository::_setQualifier(
     // -- Save qualifier:
 
     Array<Sint8> qualifierDeclXml;
-    XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
-    _SaveObject(qualifierFilePath, qualifierDeclXml);
+    streamer->encode(qualifierDeclXml, qualifierDecl);
+    //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
+    _SaveObject(qualifierFilePath, qualifierDeclXml,streamer);
 
     PEG_METHOD_EXIT();
 }
@@ -3130,8 +3160,9 @@ Boolean CIMRepository::_loadInstance(
     // Convert XML into an actual object:
     //
 
-    XmlParser parser((char*)data.getData());
-    XmlReader::getObject(parser, object);
+    streamer->decode(data, 0, object);
+    //XmlParser parser((char*)data.getData());
+    //XmlReader::getObject(parser, object);
 
     PEG_METHOD_EXIT();
     return true;

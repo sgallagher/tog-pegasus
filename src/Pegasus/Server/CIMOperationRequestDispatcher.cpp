@@ -470,6 +470,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		
 		SimpleResponseHandler<CIMInstance> handler;
 
+	    request->instanceName.setNameSpace(request->nameSpace);
+
 	    facade.getInstance(
 		OperationContext(),
 		request->instanceName,
@@ -584,6 +586,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	
 	    SimpleResponseHandler<CIMInstance> handler;
 		
+	    request->instanceName.setNameSpace(request->nameSpace);
+
 		facade.deleteInstance(
 		OperationContext(),
 		request->instanceName,
@@ -1087,7 +1091,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
 	    facade.enumerateInstances(
 		OperationContext(),
-		request->className,
+		CIMReference(String::EMPTY, request->nameSpace,
+                             request->className),
 		OperationFlag::convert(request->localOnly, request->includeQualifiers, request->includeClassOrigin, request->deepInheritance),
 		request->propertyList.getPropertyNameArray(),
 		handler);
@@ -1165,7 +1170,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 	    facade.enumerateInstanceNames(
 		OperationContext(),
-		request->className,
+		CIMReference(String::EMPTY, request->nameSpace,
+                             request->className),
 		handler);
 
 		instanceNames = handler._objects;
@@ -1571,6 +1577,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 		CIMBaseProviderFacade facade(provider);
 
 	    SimpleResponseHandler<CIMValue> handler;
+
+	    request->instanceName.setNameSpace(request->nameSpace);
 		
 		facade.getProperty(
 		OperationContext(),
@@ -1649,6 +1657,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 		CIMBaseProviderFacade facade(provider);
 
 		SimpleResponseHandler<CIMValue> handler;
+
+	    request->instanceName.setNameSpace(request->nameSpace);
 
 	    facade.setProperty(
 		OperationContext(),
@@ -1854,6 +1864,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 		CIMBaseProviderFacade facade(provider);
 
 		SimpleResponseHandler<CIMValue> handler;
+
+        request->instanceName.setNameSpace(request->nameSpace);
 
     	facade.invokeMethod(
 		OperationContext(),

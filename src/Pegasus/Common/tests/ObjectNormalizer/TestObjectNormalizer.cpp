@@ -34,10 +34,10 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "LocalRepository.h"
-#include "Clock.h"
 
 #include <Pegasus/Common/ObjectNormalizer.h>
 
+#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 static char * verbose = 0;
 
 static LocalRepository * repository = 0;
-static Clock _clock;
+static Stopwatch _stopwatch;
 
 #define PRINT(x) if(verbose) cout << x << endl;
 
@@ -126,7 +126,7 @@ void Test002a(void)
 {
     PRINT("Test002a");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -150,22 +150,22 @@ void Test002a(void)
 
     try
     {
-        _clock.start();
+        _stopwatch.start();
 
         CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         throw Exception("Failed to detect a null class object path.");
     }
     catch(CIMException & e)
     {
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT("expected CIMException: " << e.getMessage());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // class object path (incorrect class name)
@@ -173,7 +173,7 @@ void Test002b(void)
 {
     PRINT("Test002b");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -199,22 +199,22 @@ void Test002b(void)
 
     try
     {
-        _clock.start();
+        _stopwatch.start();
 
         CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         throw Exception("Failed to detect class object path with incorrect class name.");
     }
     catch(CIMException & e)
     {
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT("expected CIMException: " << e.getMessage());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.")
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.")
 }
 
 // instance object path (incorrect class name)
@@ -222,7 +222,7 @@ void Test002c(void)
 {
     PRINT("Test002c");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -250,22 +250,22 @@ void Test002c(void)
 
     try
     {
-        _clock.start();
+        _stopwatch.start();
 
         CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         throw Exception("Failed to detect instance object path with incorrect class name.");
     }
     catch(CIMException & e)
     {
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT("expected CIMException: " << e.getMessage());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // instance object path (no key properties in instance, no keys in object path)
@@ -273,7 +273,7 @@ void Test002d(void)
 {
     PRINT("Test002d");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -301,22 +301,22 @@ void Test002d(void)
 
     try
     {
-        _clock.start();
+        _stopwatch.start();
 
         CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         throw Exception("Failed to detect instance object path with no key properties and no keys.");
     }
     catch(CIMException & e)
     {
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT("expected CIMException: " << e.getMessage());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 //
@@ -328,7 +328,7 @@ void Test003a(void)
 {
     PRINT("Test003a");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -352,18 +352,18 @@ void Test003a(void)
 
     cimObjectPath.setClassName(cimClass.getClassName());
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     if(verbose)
     {
         cout << normalizedObjectPath.toString() << endl;
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // class object path (with erroneous and extra information)
@@ -371,7 +371,7 @@ void Test003b(void)
 {
     PRINT("Test003b");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -403,15 +403,15 @@ void Test003b(void)
 
     cimObjectPath.setKeyBindings(keys);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     PRINT(normalizedObjectPath.toString());
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // instance object path (normal)
@@ -419,7 +419,7 @@ void Test003c(void)
 {
     PRINT("Test003c");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -452,15 +452,15 @@ void Test003c(void)
 
     cimObjectPath.setKeyBindings(keys);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     PRINT(normalizedObjectPath.toString());
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // instance object path (with missing information--use default values)
@@ -468,7 +468,7 @@ void Test003d(void)
 {
     PRINT("Test003d");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -501,15 +501,15 @@ void Test003d(void)
 
     cimObjectPath.setKeyBindings(keys);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     PRINT(normalizedObjectPath.toString());
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // instance object path (with erroneous and extra information)
@@ -517,7 +517,7 @@ void Test003e(void)
 {
     PRINT("Test003e");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -554,15 +554,15 @@ void Test003e(void)
 
     cimObjectPath.setKeyBindings(keys);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     PRINT(normalizedObjectPath.toString());
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 //
@@ -574,7 +574,7 @@ void Test004a(void)
 {
     PRINT("Test004a");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
@@ -602,22 +602,22 @@ void Test004a(void)
 
     try
     {
-        _clock.start();
+        _stopwatch.start();
 
         CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         throw Exception("Failed to dected instance with no properties and no object path.");
     }
     catch(CIMException & e)
     {
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT("expected CIMException: " << e.getMessage());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // instance object with incorrect property type
@@ -625,7 +625,7 @@ void Test004b(void)
 {
     PRINT("Test004b");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
@@ -659,22 +659,22 @@ void Test004b(void)
 
     try
     {
-        _clock.start();
+        _stopwatch.start();
 
         CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         throw Exception("Failed to detect incorrect property type.");
     }
     catch(CIMException & e)
     {
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT("expected CIMException: " << e.getMessage());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 //
@@ -686,7 +686,7 @@ void Test005a(void)
 {
     PRINT("Test005a");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
@@ -715,11 +715,11 @@ void Test005a(void)
 
     // no object path specified
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     if(verbose)
     {
@@ -728,7 +728,7 @@ void Test005a(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // instance with object path but no properties
@@ -736,7 +736,7 @@ void Test005b(void)
 {
     PRINT("Test005b");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
@@ -779,11 +779,11 @@ void Test005b(void)
 
     cimInstance.setPath(cimObjectPath);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     if(verbose)
     {
@@ -792,7 +792,7 @@ void Test005b(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 /*
@@ -803,7 +803,7 @@ void Test005c(void)
 {
     PRINT("Test005c");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
@@ -846,11 +846,11 @@ void Test005c(void)
 
     cimInstance.setPath(cimObjectPath);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     if(verbose)
     {
@@ -859,7 +859,7 @@ void Test005c(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 */
 
@@ -868,7 +868,7 @@ void Test005d(void)
 {
     PRINT("Test005d");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
@@ -911,11 +911,11 @@ void Test005d(void)
 
     cimInstance.setPath(cimObjectPath);
 
-    _clock.start();
+    _stopwatch.start();
 
     CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-    _clock.stop();
+    _stopwatch.stop();
 
     if(verbose)
     {
@@ -924,7 +924,7 @@ void Test005d(void)
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 //
@@ -934,7 +934,7 @@ void Test100a(void)
 {
     PRINT("Test100a");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -969,16 +969,16 @@ void Test100a(void)
 
         cimObjectPath.setKeyBindings(keys);
 
-        _clock.start();
+        _stopwatch.start();
 
         CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         PRINT(normalizedObjectPath.toString());
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 // large instance set with object paths set and without qualifiers
@@ -986,7 +986,7 @@ void Test101a(void)
 {
     PRINT("Test101a");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -1029,11 +1029,11 @@ void Test101a(void)
 
         cimObjectPath.setKeyBindings(keys);
 
-        _clock.start();
+        _stopwatch.start();
 
         CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         if(verbose)
         {
@@ -1043,7 +1043,7 @@ void Test101a(void)
         }
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.")
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.")
 }
 
 // large instance set without object paths and without qualifiers
@@ -1051,7 +1051,7 @@ void Test101b(void)
 {
     PRINT("Test101b");
 
-    _clock.reset();
+    _stopwatch.reset();
 
     Boolean localOnly = false;
     Boolean includeQualifiers = false;
@@ -1083,11 +1083,11 @@ void Test101b(void)
 
         // no object path specified (obtained via instance)
 
-        _clock.start();
+        _stopwatch.start();
 
         CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
-        _clock.stop();
+        _stopwatch.stop();
 
         if(verbose)
         {
@@ -1097,7 +1097,7 @@ void Test101b(void)
         }
     }
 
-    PRINT("*** " << _clock.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 int main(int argc, char** argv)

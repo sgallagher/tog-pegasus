@@ -1504,13 +1504,7 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
     genericValue.get(repeatNotificationPolicy);
 
     XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
-    genericValue.get(condition);
-
-    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
     genericValue.get(query);
-
-    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
-    genericValue.get(queryLanguage);
 
     CIMCreateSubscriptionRequestMessage* message =
         new CIMCreateSubscriptionRequestMessage(
@@ -1520,9 +1514,7 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
             classNames,
             propertyList,
             repeatNotificationPolicy,
-            condition,
             query,
-            queryLanguage,
             QueueIdStack(),        // queueIds
             authType,
             userName);
@@ -1571,13 +1563,7 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
     genericValue.get(repeatNotificationPolicy);
 
     XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
-    genericValue.get(condition);
-
-    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
     genericValue.get(query);
-
-    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
-    genericValue.get(queryLanguage);
 
     CIMModifySubscriptionRequestMessage* message =
         new CIMModifySubscriptionRequestMessage(
@@ -1587,9 +1573,7 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
             classNames,
             propertyList,
             repeatNotificationPolicy,
-            condition,
             query,
-            queryLanguage,
             QueueIdStack(),        // queueIds
             authType,
             userName);

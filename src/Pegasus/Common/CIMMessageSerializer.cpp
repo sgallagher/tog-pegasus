@@ -1106,10 +1106,11 @@ void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
     // Encode message->repeatNotificationPolicy as an integer
     XmlWriter::appendValueElement(out, message->repeatNotificationPolicy);
 
-    XmlWriter::appendValueElement(out, message->condition);
+	SubscriptionFilterConditionContainer sub_cntr =  message->operationContext.get(SubscriptionFilterConditionContainer::NAME);
+	XmlWriter::appendValueElement(out, sub_cntr. getFilterCondition()); 
     XmlWriter::appendValueElement(out, message->query);
-    XmlWriter::appendValueElement(out, message->queryLanguage);
-}
+    XmlWriter::appendValueElement(out, sub_cntr.getQueryLanguage()); 
+   }
 
 //
 // _serializeCIMModifySubscriptionRequestMessage

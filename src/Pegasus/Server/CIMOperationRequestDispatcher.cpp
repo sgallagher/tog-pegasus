@@ -5387,9 +5387,10 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
       "CIMOperationRequestDispatcher::handleExecQueryRequest");
    
    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false) {
-      cimException =
+	   	SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
+	      cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
-         request->queryLanguage);
+         sub_cntr.getQueryLanguage()); 
       exception=true;
    }
 

@@ -956,7 +956,9 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
-        const CString queryLan=request->queryLanguage.getCString();
+		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
+										(SubscriptionFilterConditionContainer::NAME);
+        const CString queryLan=(sub_cntr.getQueryLanguage()).getCString(); 
         const CString query=request->query.getCString();
 
         CMPIFlags flgs=0;
@@ -1632,9 +1634,13 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(*context);
-        CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
+        
+		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
+								(SubscriptionFilterConditionContainer::NAME);
+
+		CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
         request->query,
-        request->queryLanguage);
+        sub_cntr.getQueryLanguage());
         srec->eSelx=eSelx;
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 

@@ -5180,7 +5180,7 @@ void IndicationService::_sendCreateRequests
         //  Create the create subscription request
         //
 // l10n       
-        CIMCreateSubscriptionRequestMessage * request =
+       CIMCreateSubscriptionRequestMessage * request =
             new CIMCreateSubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
@@ -5188,9 +5188,7 @@ void IndicationService::_sendCreateRequests
                 indicationProviders [i].classList, 
                 propertyList,
                 repeatNotificationPolicy,
-                condition,
                 query,
-                queryLanguage,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName,
@@ -5323,9 +5321,7 @@ void IndicationService::_sendModifyRequests
                 indicationProviders [i].classList, 
                 propertyList,
                 repeatNotificationPolicy,
-                condition,
                 query,
-                queryLanguage,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName,

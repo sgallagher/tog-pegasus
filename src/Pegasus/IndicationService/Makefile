@@ -20,6 +20,8 @@ LIBRARIES = \
 
 SOURCES = \
     IndicationOperationAggregate.cpp \
+    SubscriptionRepository.cpp \
+    SubscriptionTable.cpp \
     IndicationService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

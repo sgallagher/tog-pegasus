@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Value.h,v $
+// Revision 1.3  2001/01/30 08:00:43  karl
+// DOC++ Documentation update for header files
+//
 // Revision 1.2  2001/01/29 08:03:12  karl
 // DOC++ Documentation
 //
@@ -67,100 +70,107 @@ has a type field indicating the type of that value.
 class PEGASUS_COMMON_LINKAGE Value
 {
 public:
-
+    ///	Constructor
     Value();
-
+    ///	Constructor
     Value(Boolean x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Uint8 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Sint8 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Uint16 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Sint16 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Uint32 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Sint32 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Uint64 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Sint64 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Real32 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(Real64 x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Char16& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const String& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const char* x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const DateTime& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Reference& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Boolean>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Uint8>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Sint8>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Uint16>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Sint16>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Uint32>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Sint32>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Uint64>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Sint64>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Real32>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Real64>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<Char16>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<String>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Array<DateTime>& x) { _init(); set(x); }
-
+    ///	Constructor
     Value(const Value& x);
-
+    ///	Destrustructor
     ~Value();
-
+    /// Operator =
     Value& operator=(const Value& x) 
     { 
 	assign(x); return *this; 
     }
-
+    /// Method assign
     void assign(const Value& x);
-
+    /// Method clear
     void clear();
-
+    /** Method typeCompatible - Compares the types of
+    two values.
+    @return TRUE if ATTN
+    */
     Boolean typeCompatible(const Value& x) const
     {
 	return _type == x._type && _isArray == x._isArray;
     }
-
+    /** Method isArray - Determines if the value is an array
+    @return TRUE if the value is an array
+    */
     Boolean isArray() const { return _isArray; }
-
+    /** Method getArraySize
+    @return The number of entries in the array
+    */
     Uint32 getArraySize() const;
 
     Type getType() const 
     { 
 	return Type(_type); 
     }
-	/// method setNullvalue - ATTN:
+    /// method setNullvalue - ATTN:
     void setNullValue(Type type, Boolean isArray, Uint32 arraySize = 0);
-	/// method set - ATTN:
+    /// method set - ATTN:
     void set(Boolean x);
-
+    /// Method Set
     void set(Uint8 x);
 
     void set(Sint8 x);
@@ -218,7 +228,7 @@ public:
     void set(const Array<String>& x);
 
     void set(const Array<DateTime>& x);
-
+    /// Method get - ATTN
     void get(Boolean& x) const;
 
     void get(Uint8& x) const;
@@ -276,11 +286,11 @@ public:
     void get(Array<String>& x) const;
 
     void get(Array<DateTime>& x) const; 
-
+    /// Method toXML  - ATTN
     void toXml(Array<Sint8>& out) const;
-
+    /// Method print - ATTN
     void print() const;
-
+    /// Method toString	- ATTN
     String toString() const;
 
 private:

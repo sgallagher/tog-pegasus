@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.h,v $
+// Revision 1.8  2001/01/30 08:00:43  karl
+// DOC++ Documentation update for header files
+//
 // Revision 1.7  2001/01/29 02:23:44  mike
 // Added support for GetInstance operation
 //
@@ -261,10 +264,10 @@ public:
 	Reference& reference);
 
     /**	 Method referenceToInstanceName
-	Converts a reference to an instance name of the form:
-	<PRE>
+    Converts a reference to an instance name of the form:
+    <PRE>
     "ClassName.key1=value1,...keyN=valueN"
-	</PRE>
+    </PRE>
     */
     static void referenceToInstanceName(
 	const Reference& reference,

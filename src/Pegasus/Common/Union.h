@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Union.h,v $
-// Revision 1.1  2001/01/14 19:53:16  mike
-// Initial revision
+// Revision 1.2  2001/01/30 08:00:43  karl
+// DOC++ Documentation update for header files
+//
+// Revision 1.1.1.1  2001/01/14 19:53:16  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -51,7 +54,12 @@
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+/** union Union
+    This union is used to represent the values of properties, qualifiers,
+    method return values, and method arguments. All of the types
+    defined in Type.h are represented by a Union. The 
+    Union is used as the the basis for the Value implementation.
+*/
 union Union
 {
     Uint8 _booleanValue;

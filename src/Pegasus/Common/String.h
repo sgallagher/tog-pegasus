@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.5  2001/01/30 08:00:43  karl
+// DOC++ Documentation update for header files
+//
 // Revision 1.4  2001/01/28 07:05:18  mike
 // added instance name/reference converters
 //
@@ -96,14 +99,14 @@ public:
     /** Create a CIM String
     */
     String(const char* x);
-
+    /// Method
     String(const char* x, Uint32 n);
 
     ~String() { }
-    /** method ATTN:
+    /** Operator ATTN:
     */
     String& operator=(const String& x) { _rep = x._rep; return *this; }
-
+    /// Operator
     String& operator=(const Char16* x) { assign(x); return *this; }
     /** method assign - ATTN:
     */
@@ -124,17 +127,17 @@ public:
     */
     void clear() { _rep.clear(); _rep.append('\0'); }
 
-    /** 
+    /**
 	Method reserve - ATTN:
     */
     void reserve(Uint32 capacity) { _rep.reserve(capacity + 1); }
 
-    /** 
+    /**
 	Method getLength - ATTN:
     */
     Uint32 getLength() const { return _rep.getSize() - 1; }
 
-    /** 
+    /**
 	Method getData - ATT
     */
     const Char16* getData() const { return _rep.getData(); }

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Name.h,v $
+// Revision 1.4  2001/01/30 08:00:43  karl
+// DOC++ Documentation update for header files
+//
 // Revision 1.3  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -70,6 +73,7 @@ public:
 
     /** Method legal - Determine if the name string input is legal as
     defnined in the Name class definition
+    ATT: Define what is legal
     @param - String to test
     @return Returns true if the given name is legal. Throws
     NullPointer exception if name argument is null.

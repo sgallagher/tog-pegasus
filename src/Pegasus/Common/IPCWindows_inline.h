@@ -172,30 +172,32 @@ inline void AtomicInt::operator--(int) { InterlockedDecrement(&_rep); }
 
 inline Uint32 AtomicInt::operator+(const AtomicInt& val) 
 {
-   InterlockedExchangeAdd(&_rep, val._rep);
-   return _rep;
+   //InterlockedExchangeAdd(&_rep, val._rep);
+   return (_rep + val._rep);
 }
 
 inline Uint32 AtomicInt::operator+(Uint32 val) 
 {  
-   InterlockedExchangeAdd(&_rep, val);
-   return _rep;
+   //InterlockedExchangeAdd(&_rep, val);
+   return (_rep + val);
 }
 
 inline Uint32 AtomicInt::operator-(const AtomicInt& val) 
 { 
-   LONG temp_operand, temp_result;
-   temp_operand = InterlockedExchangeAdd((long *)&(val._rep), 0);
-   temp_result = InterlockedExchangeAdd(&_rep, 0);
-   return(temp_result - temp_operand);
+   //LONG temp_operand, temp_result;
+   //temp_operand = InterlockedExchangeAdd((long *)&(val._rep), 0);
+   //temp_result = InterlockedExchangeAdd(&_rep, 0);
+   //return(temp_result - temp_operand);
+   return (_rep - val._rep);
 }
 
 inline Uint32 AtomicInt::operator-(Uint32 val) 
 {  
-   LONG temp_operand, temp_result;
-   temp_operand = InterlockedExchangeAdd( (long *)&val, 0);
-   temp_result = InterlockedExchangeAdd(&_rep, 0);
-   return(temp_result - temp_operand);
+   //LONG temp_operand, temp_result;
+   //temp_operand = InterlockedExchangeAdd( (long *)&val, 0);
+   //temp_result = InterlockedExchangeAdd(&_rep, 0);
+   //return(temp_result - temp_operand);
+   return (_rep - val);
 }
 
 inline AtomicInt& AtomicInt::operator+=(const AtomicInt& val) 

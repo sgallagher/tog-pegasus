@@ -642,16 +642,6 @@ CIMOMHandle::CIMOMHandle(const CIMOMHandle & h)
    
 }
 
-CIMOMHandle::CIMOMHandle(const CIMOMHandle* h)
-{
-      if(this != h)
-   {
-      Inc(this->_rep = h->_rep);
-   }
-   
-}
-
-
 CIMOMHandle::~CIMOMHandle(void)
 {
    Dec(_rep);
@@ -666,7 +656,6 @@ CIMOMHandle & CIMOMHandle::operator =(const CIMOMHandle & handle)
    }
    return *this;
 }
-
 
 
 CIMClass CIMOMHandle::getClass(

@@ -614,9 +614,7 @@ Provider* ProviderManager::_initProvider(
 
             try
             {
-		CIMOMHandle _ch(cimomHandle);
-
-                provider->initialize(_ch);
+                provider->initialize(*(provider->_cimom_handle));
                 undoModuleLoad = false;
             }
             catch(...)

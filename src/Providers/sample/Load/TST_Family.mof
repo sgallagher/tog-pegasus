@@ -34,7 +34,7 @@
     [Version("1.0.0"), Description (" Top Level Class that defines "
         "a person. We will use this in static assoociation "
         "relationship ")]
-class TST_Person: CIM_ManagedElement
+class TST_Person
 {
     [key]
     string name;

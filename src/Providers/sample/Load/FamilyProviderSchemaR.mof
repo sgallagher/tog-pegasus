@@ -9,7 +9,7 @@ instance of PG_ProviderModule
     Name = "SampleFamilyProviderModule";
     Vendor = "Pegasus";
     Version = "2.0.0";
-    InterfaceType = "PG_DefaultC++";
+    InterfaceType = "C++Default";
     InterfaceVersion = "2.0.0";
     Location = "SampleFamilyProvider";
 };
@@ -23,6 +23,9 @@ instance of PG_Provider
 // PG_Provider.ProviderModuleName
 // 3 is Association.
 
+// Note that in this case, the same provider is registered
+// a provider for association and for instances.  HOWEVER, remember
+
 instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleFamilyProviderModule";
@@ -30,7 +33,7 @@ instance of PG_ProviderCapabilities
     CapabilityID = "SampleFamilyProviderPersonDynamic";
     ClassName = "TST_PersonDynamic";
     Namespaces = { "root/SampleProvider" };
-    ProviderType = { 2, 3 };
+    ProviderType = { 2};
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };
@@ -39,6 +42,10 @@ instance of PG_ProviderCapabilities
 // Class. Note that this is instance Provider only.
 // Note that there a problem here in that we should only register the
 // leaf class so should probably be the Labled one.
+// Note that we are registering the association class for the instances
+// Not the PersonDynamic Class.  This is because we will look up
+// the providers based on the association class, not on the
+// end point class.
 instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleFamilyProviderModule";
@@ -46,7 +53,7 @@ instance of PG_ProviderCapabilities
     CapabilityID = "SampleFamilyProviderLineageDynamic";
     ClassName = "TST_LineageDynamic";
     Namespaces = { "root/SampleProvider" };
-    ProviderType = { 2 };
+    ProviderType = { 2, 3 };
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };

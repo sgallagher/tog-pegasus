@@ -700,7 +700,6 @@ private:
     BufferTooSmall(void);
 };
 
-#if 0
 class PEGASUS_COMMON_LINKAGE ParseError : public Exception
 {
 public:
@@ -709,7 +708,6 @@ public:
 
     ParseError(const String& message) : Exception(MSG + message) { }
 };
-#endif
 
 class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
 {

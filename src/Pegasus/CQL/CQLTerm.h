@@ -47,11 +47,11 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLTermRep;
 class PEGASUS_CQL_LINKAGE QueryContext;
-/** enum of multiply, divide and concatenation operators
-    
-       The enum is private, but the definition is public.
-      */
-    enum FactorOpType { mult, divide, concat };
+
+/** 
+    enum of multiply, divide and concatenation operators.
+*/
+enum FactorOpType { mult, divide, concat };
 
 #ifndef PEGASUS_ARRAY_T
 #define PEGASUS_ARRAY_T FactorOpType
@@ -59,66 +59,164 @@ class PEGASUS_CQL_LINKAGE QueryContext;
 #undef PEGASUS_ARRAY_T
 #endif
 
-/** The CQLTerm class encapsulates each CQL term in a CQL expression.  
-
-This class contains an array of CQLFactor objects and an array of CQLOperator
-objects.
-  */
-// 
 /**
-  The CQLTerm class encapsulates a generic CQL term to make it 
-   easier to break into pieces (factors) and process the term.  
+    The CQLTerm class encapsulates a generic CQL term to make it 
+    easier to break into pieces (factors) and process the term.  
+    A CQL term is made up of factors and operators. 
+    There must be exactly one more factor than there are operators.
+*/
 
-   A CQL term is made up of factors and operators. 
-   For example,  'A * B' is a CQLTerm, where 'A' and 'B' are factors, and '*'
-is an operator on a factor.
-
-   There must be exactly one more factor than there are operators.
-  */
 class PEGASUS_CQL_LINKAGE CQLTerm
 {
-  public:
-   CQLTerm();
-    /** constructor takes one CQLFactor object.
-      */
-    CQLTerm(const CQLFactor& theFactor);
-    CQLTerm(const CQLTerm& inTerm);
+ public:
 
-    ~CQLTerm();
+  /** 
+      Contructs CQLTermRep default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      @experimental
+  */
+  CQLTerm();
 
-    /**  the getValue method evaluates the CQL term and returns the value.
-          Any property that need to be resolved into a value is taken from the
-    CIMInstance.
-      */
-    CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+  /** 
+      Contructs CQLTermRep from a CQLFactor object.
+      
+      @param  - theFactor is a CQLFactor object.
+      @return - None.
+      @throw  - None.
+      @experimental
+  */
+  CQLTerm(const CQLFactor& theFactor);
 
-    /** The appendOperation is used by Bison.
-          It is invoked 0 or more times for the CQLTerm, and
-          when invoked will always pass in an integer that is the Factor operation
-          type and a CQLFactor object.
-      */
-    void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
+  /** 
+      Contructs CQLTermRep from a CQLTermRep object. (copy-constructor)
+      
+      @param  - rep is a CQLTermRep object.
+      @return - None.
+      @throw  - None.
+      @experimental
+  */
+  CQLTerm(const CQLTerm& inTerm);
 
-   String toString()const;
+  /** 
+      Destroyes CQLTermRep object.
+     
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      @experimental
+  */  
+  ~CQLTerm();
+  
+  /** the resolveValue method evaluates the CQL Term and returns the value.
+      Any property that need to be resolved into a value is taken from the
+      CIMInstance.
+      
+      @param  - CI - The CIMInstance used for the evaluate.
+      @param  - QueryCtx - Reference to the Querycontext object.
+      @return - CQLValue - The value of the object being resolved.
+      @throw  - CQLRuntimeException 
+      @experimental
+  */
+  CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+  
+  /** The function is used by Bison.
+      It is invoked 0 or more times for the CQLTerm, and
+      when invoked will always pass in an integer that is the Factor operation
+      type and a CQLFactor object.
+     
+      @param  - inFactorOpType - next operation to be performed.
+      @param  - inFactor - next CQLFactor to be operated on.
+      @return - None.
+      @throw  - None.
+      @experimental
+  */
+  void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
 
-   Boolean isSimple()const;
+  /** 
+      Converts the contents of the object to a String.
+      
+      @param  - None.
+      @return - A string version of the object.
+      @throw  - None.
+      @experimental
+  */  
+  String toString()const;
 
-   Boolean isSimpleValue()const;
+  /** 
+      Returns true if the object is simple.  Simple is defined as only having
+      a one CQLFactor object. The CQLFactor object could be complex.
+      
+      @param  - None.
+      @return - true or false
+      @throw  - None.
+      @experimental
+  */
+  Boolean isSimple()const;
 
-   Array<CQLFactor> getFactors()const;
+  /** 
+      Returns true if the value within the object is Simple.  In this case
+      the object only has one CQLFactor object.  This CQLFactor object in 
+      not a complex object.
+      
+      @param  - None.
+      @return - true or false
+      @throw  - None.
+      @experimental
+  */
+  Boolean isSimpleValue()const;
 
-   Array<FactorOpType> getOperators()const;
+  /** 
+      Will return an array of CQLFactors.
+      
+      @param  - None.
+      @return - An array of CQLFactor
+      @throw  - None.
+      @experimental
+  */
+  Array<CQLFactor> getFactors()const;
 
-   void applyContext(QueryContext& inContext,
-                     CQLChainedIdentifier& inCid); 
+  /** 
+      Will return an array of Operations.
+      
+      @param  - None.
+      @return - an array of FactorOpType
+      @throw  - None.
+      @experimental
+  */  
+  Array<FactorOpType> getOperators()const;
 
-   CQLTerm& operator=(const CQLTerm& rhs);
+  /** 
+      Calling applyContext function for every internal object.  This
+      will fully qualify the Chained Identifiers within all the CQLValue objects.
+      
+      @param  - inContext - Query Context used to access the repository.
+      @param  - inCid - Chained Identifier used for standalone symbolic constants.
+      @return - None.
+      @throw  - None.
+      @experimental
+  */  
+  void applyContext(QueryContext& inContext,
+		    CQLChainedIdentifier& inCid); 
 
-   friend class CQLFactory;
+  /** 
+      Assignment operator.
+      
+      @param  - rhs - a CQLTerm to be assined.
+      @return - a reference of a CQLTerm.
+      @throw  - None.
+      @experimental
+  */ 
+  CQLTerm& operator=(const CQLTerm& rhs);
 
-  private:
-    
-   CQLTermRep *_rep;
+  
+  friend class CQLFactory;
+  
+ private:
+  
+  CQLTermRep *_rep;
 };
 
 #ifndef PEGASUS_ARRAY_T

@@ -36,6 +36,9 @@
 #include <Pegasus/CQL/CQLTermRep.h>
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/CQL/QueryContext.h>
+#include <Pegasus/CQL/QueryException.h>
+#include <Pegasus/Common/Tracer.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 CQLTermRep::CQLTermRep(){}
@@ -45,9 +48,9 @@ CQLTermRep::CQLTermRep(const CQLFactor& theFactor)
    _Factors.append(theFactor);
 }
 
-CQLTermRep::CQLTermRep(const CQLTermRep* rep){
-	_Factors = rep->_Factors;
-	_FactorOperators = rep->_FactorOperators;
+CQLTermRep::CQLTermRep(const CQLTermRep& rep){
+	_Factors = rep._Factors;
+	_FactorOperators = rep._FactorOperators;
 }
 
 CQLTermRep::~CQLTermRep(){
@@ -55,6 +58,7 @@ CQLTermRep::~CQLTermRep(){
 
 CQLValue CQLTermRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep:resolveValue()");
    CQLValue returnVal = _Factors[0].resolveValue(CI,QueryCtx);
 
    for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
@@ -76,9 +80,13 @@ CQLValue CQLTermRep::resolveValue(const CIMInstance& CI, const QueryContext& Que
             break;
        
          default:
-            throw(1);
+	   MessageLoaderParms mload(String("CQL.CQLTermRep.OPERATION_NOT_SUPPORTED"),
+				    String("Operation is not supported."));
+	   throw CQLSyntaxErrorException(mload);
       }
    }
+
+   PEG_METHOD_EXIT();
    return returnVal;
 }
 

@@ -8,14 +8,7 @@ ifdef PEGASUS_HAS_SSL
 endif
 
 ifdef PEGASUS_ENABLE_SLP
-  FLAGS += -DOPENSLP_SLP_CLIENT_INTERFACE_WRAPPER
-ifndef OPENSLP_HOME
-  ERROR = openslp_home_undefined
-openslp_home_undefined:
-	@ echo OPENSLP_HOME environment variable undefined
-	@ exit 1
-endif
-  SYS_INCLUDES += -I$(OPENSLP_HOME)/libslp
+  FLAGS += -DPEGASUS_SLP_CLIENT_INTERFACE_WRAPPER
 endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
@@ -48,10 +41,9 @@ endif
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
-
 ifdef PEGASUS_ENABLE_SLP
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS += $(OPENSLP_HOME)/win32/libslp/Release/openslp.lib
+SYS_LIBS = $(PEGASUS_HOME)/lib/slp_client.lib ws2_32.lib advapi32.lib
 endif
 endif
 

@@ -40,6 +40,8 @@ class Sample_LocalizedProviderClass : Sample_ProviderClass
                          [OUT] string outStr, [OUT] char16 outChar16);
 
 	uint16 generateIndication();
+
+	uint8 getConsumerStatus();
 };
 
 // globalization test class for aggregation tests

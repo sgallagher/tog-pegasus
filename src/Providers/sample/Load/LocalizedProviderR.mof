@@ -56,3 +56,11 @@ instance of PG_ProviderCapabilities
    SupportedMethods = NULL;
 };
 
+instance of PG_ConsumerCapabilities
+{
+    ProviderModuleName = "SampleLocalizedProviderModule";
+    ProviderName = "SampleLocalizedProvider";
+    CapabilityID = "1";
+    ProviderType = { 6 };  // Consumer
+    Destinations = {"/localizedprovider"};
+};

@@ -40,7 +40,7 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 //#include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
-//#include <Pegasus/Provider/CIMIndicationConsumer.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ContentLanguages.h>
@@ -48,13 +48,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class LocalizedProvider :
-    public CIMInstanceProvider,
+      public CIMInstanceProvider,
 //    public CIMAssociationProvider,
 //    public CIMPropertyProvider,
       public CIMMethodProvider,
 //    public CIMQueryProvider,
-      public CIMIndicationProvider
-//    public CIMIndicationConsumer
+      public CIMIndicationProvider,
+      public CIMIndicationConsumerProvider
 {
 public:
     LocalizedProvider();
@@ -204,13 +204,9 @@ public:
         const CIMObjectPath & subscriptionName,
         const Array<CIMObjectPath> & classNames);
 
-/*
-    // CIMIndicationConsumer interface
-    virtual void handleIndication(
-        const OperationContext & context,
-        const CIMInstance & indication,
-        IndicationResponseHandler & handler);
-*/        
+    virtual void consumeIndication(const OperationContext& context,
+				   const String & url, 
+				   const CIMInstance& indicationInstance);
 
 private:
     Array<CIMObjectPath> _instanceNames;

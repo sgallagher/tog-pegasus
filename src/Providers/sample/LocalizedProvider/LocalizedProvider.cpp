@@ -38,6 +38,7 @@
 // Method
 // Indication (just the simple case of an indication with a unicode property and
 // a language tag)
+// IndicationConsumer
 
 // Testcases:
 //
@@ -210,6 +211,9 @@ CIMOMHandle _cimom;
 static IndicationResponseHandler * _handler = 0; 
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
+
+// Vars for the indication consumer provider
+static Uint8 consumerStatus = 1;
 
 // Indicates whether PEGASUS_USE_DEFAULT_MESSAGES env var is set
 const char * env = NULL;
@@ -830,6 +834,9 @@ void LocalizedProvider::invokeMethod(
             // Return UTF-16 chars in the return string
             handler.deliver( CIMValue( hangugoString ) );
         }
+	//
+	// Methods called by the indication tests
+	//
 	else if (methodName.equal ("generateIndication"))
 	{
 	  // This method is used to generate an indication so that the
@@ -837,6 +844,12 @@ void LocalizedProvider::invokeMethod(
 	  _generateIndication();
 
 	  handler.deliver(CIMValue((Uint16)1));
+	}
+	else if (methodName.equal ("getConsumerStatus"))
+	{
+	  // This method is used to get the status of the
+	  // indication consumer provider
+	  handler.deliver(CIMValue(consumerStatus));
 	}
         else
         {
@@ -906,16 +919,61 @@ void LocalizedProvider::deleteSubscription(
   // This can get complicated (see PEP 58)
 }
 
-/*
-// CIMIndicationConsumer interface
-void LocalizedProvider::handleIndication(
-        const OperationContext & context,
-        const CIMInstance & indication,
-        IndicationResponseHandler & handler)
-{
 
+// CIMIndicationConsumerProvider interface
+void LocalizedProvider::consumeIndication(const OperationContext& context,
+					const String & url, 
+					const CIMInstance& indication)
+{
+  // Verify that the utf-16 string and character values got here
+  Uint8 pos = indication.findProperty("UnicodeStr");
+  if (pos == PEG_NOT_FOUND)
+  {
+    consumerStatus = 2;
+    return;
+  }
+
+  CIMValue val = indication.getProperty(pos).getValue();
+  String utf16;
+  val.get(utf16);
+  if (utf16 != String(roundTripChars))
+  {
+    consumerStatus = 3;
+    return;
+  }
+
+  pos = indication.findProperty("UnicodeChar");
+  if (pos == PEG_NOT_FOUND)
+  {
+    consumerStatus = 4;
+    return;
+  }
+    
+  val = indication.getProperty(pos).getValue();
+  Char16 char16;
+  val.get(char16);
+  if (char16 != roundTripChars[0])
+  {
+    consumerStatus = 5;
+    return;
+  }
+ 
+  // Verify that the Content-Language of the indication here
+  ContentLanguages expectedCL("x-world");
+
+  ContentLanguageListContainer cntr = 
+    context.get(ContentLanguageListContainer::NAME);
+  ContentLanguages cl = cntr.getLanguages();
+  if (cl != expectedCL)
+  {
+    consumerStatus = 6;
+    return;
+  }
+  
+  // Set the consumer status to success
+  consumerStatus = 0;
 }
-*/
+
 
 void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
 					      const CIMInstance& instanceObject)
@@ -1304,6 +1362,10 @@ void LocalizedProvider::_generateIndication()
 {
   if (_enabled)
     {
+      // Reset the consumer status to indication-not-received
+      consumerStatus = 1;
+
+      // Create the indication
       CIMInstance indicationInstance (CIMName("LocalizedProvider_TestIndication"));
 
       CIMObjectPath path ;

@@ -33,6 +33,7 @@
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -219,7 +220,7 @@ HTTPConnection::HTTPConnection(
 
    //Socket::disableBlocking(_socket);
    _socket->disableBlocking();
-   _authInfo = new AuthenticationInfo(true);
+   _authInfo.reset(new AuthenticationInfo(true));
 
    // Add SSL verification information to the authentication information
    if (_socket->isSecure()) 
@@ -252,8 +253,6 @@ HTTPConnection::~HTTPConnection()
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
 
     _socket->close();
-    //delete _socket;
-    delete _authInfo;
 
    PEG_METHOD_EXIT();
 }
@@ -1589,7 +1588,7 @@ void HTTPConnection::_handleReadEvent()
 	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {
 	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
-        message->authInfo = _authInfo;
+        message->authInfo = _authInfo.get();
 
         //
         // increment request count 
@@ -1705,7 +1704,7 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::HTTPConnection2");
 
-   _authInfo = new AuthenticationInfo(true);
+   _authInfo.reset(new AuthenticationInfo(true));
 
    // add SSL verification information to the authentication information
    if (_socket.is_secure() && _socket.isPeerVerificationEnabled() && _socket.isCertificateVerified()) 
@@ -1728,8 +1727,6 @@ HTTPConnection2::~HTTPConnection2()
    {
    }
    
-    delete _authInfo;
-
    PEG_METHOD_EXIT();
 }
 
@@ -2035,7 +2032,7 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
            entry->set_state(IDLE);
 	   delete entry;
 	   HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
-	   message->authInfo = _authInfo;
+	   message->authInfo = _authInfo.get();
 	   
 	   //
 	   // increment request count 

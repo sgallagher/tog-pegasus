@@ -29,6 +29,7 @@
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +171,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       Sint32 _contentOffset; 
       Sint32 _contentLength;
       Array<Sint8> _incomingBuffer;
-      AuthenticationInfo* _authInfo;
+      AutoPtr<AuthenticationInfo> _authInfo;
       static AtomicInt _requestCount;
 
       // _connectionRequestCount contains the number of
@@ -272,7 +273,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
       Sint32 _contentOffset; 
       Sint32 _contentLength;
       Array<Sint8> _incomingBuffer;
-      AuthenticationInfo* _authInfo;
+      AutoPtr<AuthenticationInfo> _authInfo;
       AtomicInt _closed;
       Mutex _reentry;
 

@@ -70,7 +70,6 @@ int MessageQueueService::kill_idle_threads(void)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
-   
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
    while ( _stop_polling.value()  == 0 ) 
    {
@@ -117,6 +116,7 @@ MessageQueueService::MessageQueueService(const char *name,
      _callback_thread(_callback_proc, this, false)
 
 { 
+
    _capabilities = (capabilities | module_capabilities::async);
    
    _default_op_timeout.tv_sec = 30;

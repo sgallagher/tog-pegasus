@@ -406,7 +406,7 @@ void HTTPAcceptor::_acceptConnection()
    // Solicit events on this new connection's socket:
    int index;
    
-   if (! (index = _monitor->solicitSocketMessages(
+   if (-1 ==  (index = _monitor->solicitSocketMessages(
 	  socket,
 	  SocketMessage::READ | SocketMessage::EXCEPTION,
 	  connection->getQueueId(), Monitor::CONNECTION)) )

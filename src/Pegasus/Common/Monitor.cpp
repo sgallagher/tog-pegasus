@@ -184,7 +184,6 @@ Boolean Monitor::run(Uint32 milliseconds)
 	  FD_SET(_entries[indx].socket, &fdread);
        }
     }
-    _entries_mut.unlock();
     
     int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 
@@ -201,7 +200,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 	     MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
 	     if(q == 0)
 	     {
-		unsolicitSocketMessages(indx);
+		_entries[indx]._status = _MonitorEntry::EMPTY;
+		_entries_mut.unlock();
 		return true;
 	     }
 	     
@@ -211,31 +211,33 @@ Boolean Monitor::run(Uint32 milliseconds)
 		if(static_cast<HTTPConnection *>(q)->_dying.value() > 0 )
 		{
 		   _entries[indx]._status = _MonitorEntry::DYING;
+
 		   MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
 		   Message* message= new CloseConnectionMessage(_entries[indx].socket);
 		   message->dest = o.getQueueId();
+		   _entries_mut.unlock();
 		   o.enqueue(message);
 		   return true;
 		}
-		
 		_entries[indx]._status = _MonitorEntry::BUSY;
+		_entries_mut.unlock();
 		_thread_pool->allocate_and_awaken((void *)q, _dispatch);
+		_entries_mut.lock(pegasus_thread_self());
 	     }
 	     else
 	     {
 		int events = 0;
-		
 		events |= SocketMessage::READ;
 		Message *msg = new SocketMessage(_entries[indx].socket, events);
-		_entries[indx]._status = _MonitorEntry::BUSY;
+		_entries_mut.unlock();
 		q->enqueue(msg);
-		_entries[indx]._status = _MonitorEntry::IDLE;
 		return true;
 	     }
 	     handled_events = true;
 	  }
        }
     }
+    _entries_mut.unlock();
     return(handled_events);
 }
 
@@ -260,7 +262,7 @@ int  Monitor::solicitSocketMessages(
    {
       if(_entries[index]._status == _MonitorEntry::EMPTY)
       {
-	 _entries[index] = entry;
+	 _entries[index].operator =(entry);
 	 found = true;
 	 break;
       }
@@ -270,8 +272,9 @@ int  Monitor::solicitSocketMessages(
       _entries.append(entry);
       index = _entries.size() - 1;
    }
-   _entries_mut.unlock();
    _connections++;
+   _entries_mut.unlock();
+
    PEG_METHOD_EXIT();
    return index;
 }
@@ -282,14 +285,19 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 
     _entries_mut.lock(pegasus_thread_self());
     
+    Boolean found = false;
+    
     for(int index = 0; index < (int)_entries.size(); index++)
     {
        if(_entries[index].socket == socket)
        {
+	  found = true;
+	  _connections--;
 	  _entries[index]._status = _MonitorEntry::EMPTY;
        }
     }
     _entries_mut.unlock();
+    PEGASUS_ASSERT(found == true);
     
     PEG_METHOD_EXIT();
 }
@@ -299,11 +307,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
-   
    dst->run(1);
-   if( dst->_monitor->_entries.size() > dst->_entry_index )
-      dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
-   
    return 0;
 }
 

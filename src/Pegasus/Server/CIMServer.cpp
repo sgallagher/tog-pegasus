@@ -107,7 +107,6 @@ CIMServer::CIMServer(
     static String PROPERTY_NAME__SSLCERT_FILEPATH = 
                                 "sslCertificateFilePath"; 
 
-
     String repositoryRootPath = String::EMPTY;
 
     // -- Save the monitor or create a new one:

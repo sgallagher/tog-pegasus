@@ -490,7 +490,15 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	 {
 	    events |= SocketMessage::READ;
 	    Message *msg = new SocketMessage(getSocket(), events);
-	    handleEnqueue(msg);
+	    try 
+	    {
+	       handleEnqueue(msg);
+	    }
+	    catch(...)
+	    {
+	       _monitor->_entries[_entry_index]._status = _MonitorEntry::IDLE;
+	       return true;
+	    }
 	    handled_events = true;
 	 }
 	 else 
@@ -499,7 +507,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
       else
 	 break;
    } while(events != 0 && _dying.value() == 0);
-      
+   _monitor->_entries[_entry_index]._status = _MonitorEntry::IDLE;
    return handled_events;
 }
 

@@ -29,6 +29,7 @@
 //               Amit Arora (amita@in.ibm.com) for Bug#1170
 //				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
 //				 Seema Gupta (gseema@in.ibm.com) for PEP135
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1204,6 +1205,13 @@ Message* CIMClientRep::_doRequest(
                 if (responseException)
                 {
                     throw *responseException;
+                }
+
+								CIMException* cimException =
+                    dynamic_cast<CIMException*>(clientException);
+                if (cimException)
+                {
+                    throw *cimException;
                 }
 
                 throw *clientException;

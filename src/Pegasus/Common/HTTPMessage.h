@@ -27,6 +27,7 @@
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,10 +59,11 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
   
       typedef Message Base;
       
-      HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0);
+      HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0,
+									const CIMException *cimException_ = 0);
 
       HTTPMessage(HTTPMessage & msg);
-    
+
       Array<Sint8> message;
       Uint32 queueId;
       AuthenticationInfo* authInfo;
@@ -69,6 +71,7 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
       ContentLanguages contentLanguages;
       Boolean acceptLanguagesDecoded;
       Boolean contentLanguagesDecoded;
+			CIMException cimException;
 
       void parse(
 	 String& startLine,
@@ -76,6 +79,11 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 Uint32& contentLength) const;
 
       void printAll(PEGASUS_STD(ostream)& os) const;
+
+		  static void lookupHeaderPrefix(
+    Array<HTTPHeader>& headers,
+    const String& fieldName,
+    String& prefix);
 
       static Boolean lookupHeader(
 	 Array<HTTPHeader>& headers,

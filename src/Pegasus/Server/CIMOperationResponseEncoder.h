@@ -30,6 +30,7 @@
 //                (carolann_graves@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,14 +59,15 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       ~CIMOperationResponseEncoder();
 
-      void sendResponse(Uint32 queueId, Array<Sint8>& message);
+      void sendResponse(Uint32 queueId, Array<Sint8>& message, Boolean isLast = true, Uint32 messageIndex = 0, const CIMException* cimException = 0);
 
       void sendMethodError(
 	 Uint32 queueId, 
          HttpMethod httpMethod,
 	 const String& messageId,
 	 const CIMName& methodName,
-	 const CIMException& cimException);
+	 const CIMException& cimException,
+	 Uint32 messageIndex);
 
       void sendMethodError(
 	 CIMResponseMessage* response,
@@ -76,7 +78,8 @@ class CIMOperationResponseEncoder : public MessageQueueService
          HttpMethod httpMethod,
 	 const String& messageId,
 	 const String& methodName,
-	 const CIMException& cimException);
+	 const CIMException& cimException,
+	 Uint32 messageIndex);
 
       void sendIMethodError(
 	 CIMResponseMessage* response,

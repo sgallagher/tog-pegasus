@@ -28,6 +28,7 @@
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,7 @@
 #define Pegasus_HTTPConnection_h
 
 #include <iostream>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Pair.h>
@@ -82,8 +84,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       /** Constructor. */
       HTTPConnection(
 	 Monitor* monitor,
-	 //Sint32 socket, 
-	 AutoPtr<MP_Socket>& socket, 
+   AutoPtr<MP_Socket>& socket,
 	 MessageQueue * ownerMessageQueue,
 	 MessageQueue * outputMessageQueue,
          Boolean exportConnection);
@@ -147,15 +148,21 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       void _clearIncoming();
 
-      void _getContentLengthAndContentOffset();
+      void _getContentLengthAndContentOffset() throw (Exception);
 
       void _closeConnection();
 
       void _handleReadEvent();
 
+			Boolean _handleWriteEvent(Message &message);
+
+      void _handleReadEventFailure(String &httpStatusWithDetail,
+                                   String cimError = String());
+      void _handleReadEventTransferEncoding() throw (Exception);
+			Boolean _isClient();
+
       Monitor* _monitor;
 
-      //Sint32 _socket;
       AutoPtr<MP_Socket> _socket;
       MessageQueue* _ownerMessageQueue;
       MessageQueue* _outputMessageQueue;
@@ -192,6 +199,21 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       int _entry_index;
       
+			// When used by the client, it is an offset (from start of http message)
+			// representing last NON completely parsed chunk of a transfer encoding.
+			// When used by the server, it is the message index that comes down
+			// from the providers/repository representing each message chunk
+      Uint32 _transferEncodingChunkOffset;
+
+			// list of transfer encoding values from sender
+      Array<String> _transferEncodingValues;
+
+			// list of TE values from client
+      Array<String> _transferEncodingTEValues;
+
+			// 2 digit prefix on http header if mpost was used
+			String _mpostPrefix;
+
       friend class Monitor;
       friend class HTTPAcceptor;
       friend class HTTPConnector;
@@ -253,8 +275,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
       AuthenticationInfo* _authInfo;
       AtomicInt _closed;
       Mutex _reentry;
-      
-      
+
       static AtomicInt _requestCount;
       
       friend class monitor_2;

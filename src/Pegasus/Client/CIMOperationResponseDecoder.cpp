@@ -35,6 +35,7 @@
 //                  (sushma_fernandes@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -243,13 +244,13 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         String cimError;
         String pegasusError;
 
-        HTTPMessage::lookupHeader(headers, "CIMError", cimError);
+        HTTPMessage::lookupHeader(headers, "CIMError", cimError, true);
         HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
         try
         {
             pegasusError = XmlReader::decodeURICharacters(pegasusError);
         }
-        catch (ParseError& e)
+        catch (ParseError&)
         {
             // Ignore this exception.  We're more interested in having the
             // message in encoded form than knowing that the format is invalid.
@@ -264,6 +265,41 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
+
+		// look for any cim status codes. The HTTPConnection level would have
+		// added them here.
+
+		String cimStatusCodeValue;
+		Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode", 
+																							cimStatusCodeValue, true);
+		CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
+
+		if (found == true && 
+				(cimStatusCodeNumber = (CIMStatusCode)
+				 atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
+		{
+			String cimStatusCodeDescription;
+			found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription", 
+																				cimStatusCodeDescription, true);
+			if (found == true && cimStatusCodeDescription.size() > 0)
+			{
+				try
+				{
+					cimStatusCodeDescription = 
+						XmlReader::decodeURICharacters(cimStatusCodeDescription);
+				}
+				catch (ParseError&)
+        {
+				}
+			} // if there is a description with the code
+			
+			CIMException* cimStatusException =
+				new CIMException(cimStatusCodeNumber,cimStatusCodeDescription);
+			ClientExceptionMessage * response =
+				new ClientExceptionMessage(cimStatusException);
+			_outputQueue->enqueue(response);
+			return;
+		}
 
     //
     // Search for "CIMOperation" header:
@@ -307,7 +343,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 			contentLanguages = ContentLanguages(contentLanguageHeader);      
 	    }   	
    }			
-   catch (Exception &e)
+   catch (Exception &)
    {
 
      // l10n
@@ -656,8 +692,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(response);
 	if (cimmsg != NULL)
 	{
-		cimmsg->contentLanguages = contentLanguages;	
-		cimmsg->operationContext.set(ContentLanguageListContainer(contentLanguages)); 
+		cimmsg->contentLanguages = contentLanguages;			
+		cimmsg->operationContext.set(ContentLanguageListContainer(contentLanguages));
 	}
 	else
 	{

@@ -32,6 +32,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //				Willis White (whiwill@us.ibm.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +135,9 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _next(0),
 	 _prev(0),
 	 _async(0),
-	 dest(destination)
+	 dest(destination),
+	 _isComplete(true), 
+	 _index(0)
       {
 
       }
@@ -150,7 +153,9 @@ class PEGASUS_COMMON_LINKAGE Message
 	    _last_thread_id = msg._last_thread_id;
 	    _next = _prev = _async = 0;
 	    dest = msg.dest;
-            _httpMethod = msg._httpMethod;
+			_httpMethod = msg._httpMethod;
+			_index = msg._index;
+			_isComplete = msg._isComplete;
 	    
 	 }
 	 return *this;
@@ -291,6 +296,26 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _routing_code = req->_routing_code;
       }
       
+			// set the message index indicating what piece (or sequence) this is
+			// message indexes start at zero
+			void setIndex(Uint32 index) { _index = index; }
+
+			// increment the message index
+			void incrementIndex() { _index++; }
+
+			// set the complete flag indicating if this message piece is the 
+			// last or not
+			void setComplete(Boolean isComplete) 
+				{ _isComplete = isComplete ? true:false; }
+
+			// get the message index (or sequence number)
+			Uint32 getIndex() const { return _index; }
+
+			// is this the first piece of the message ?
+			Boolean isFirst() const { return _index == 0 ? true : false; }
+
+			// is this message complete? (i.e the last in a one or more sequence)
+			Boolean isComplete() const { return _isComplete; }
 
    private:
       Uint32 _type;
@@ -321,6 +346,8 @@ class PEGASUS_COMMON_LINKAGE Message
       Uint32 dest;
    private:
       MessageQueue* _owner;
+      Boolean _isComplete;
+      Uint32 _index;
       static Uint32 _nextKey;
       static Mutex _mut;
 

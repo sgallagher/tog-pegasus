@@ -31,6 +31,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +63,20 @@
 #include "CommonUTF.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+// This is a shortcut macro for outputing content length. This
+// pads the output number to the max characters representing a Uint32 number
+// so that it can be overwritten easily with a transfer encoding line later
+// on in HTTPConnection if required. This is strictly for performance since
+// messages can be very large. This overwriting shortcut allows us to NOT have
+// to repackage a large message later.
+
+#define OUTPUT_CONTENTLENGTH                                  \
+{                                                            \
+	char contentLengthP[11];                                   \
+  sprintf(contentLengthP,"%.10u", contentLength);            \
+  out << "content-length: " << contentLengthP << "\r\n";     \
+}
 
 Array<Sint8>& operator<<(Array<Sint8>& out, const char* x)
 {
@@ -1700,8 +1715,8 @@ void XmlWriter::appendMethodCallHeader(
         out << "POST /cimom HTTP/1.1\r\n";
     }
     out << "HOST: " << host << "\r\n";
-    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
-    out << "Content-Length: " << contentLength << "\r\n";
+		out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
+		OUTPUT_CONTENTLENGTH;
     if (acceptLanguages.size() > 0)
     {
     	out << "Accept-Language: " << acceptLanguages << "\r\n";
@@ -1710,6 +1725,17 @@ void XmlWriter::appendMethodCallHeader(
     {
     	out << "Content-Language: " << contentLanguages << "\r\n";
     }        
+
+		// backdoor environment variable to turn OFF client requesting transfer 
+		// encoding. The default is on. to turn off, set this variable to zero.
+		// This should be removed when stable. This should only be turned off in
+		// a debugging/testing environment.
+
+		static const char *clientTransferEncodingOff = 
+			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+			out << "TE: chunked, trailers" << "\r\n";
+
     if (httpMethod == HTTP_METHOD_M_POST)
     {
         out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
@@ -1731,6 +1757,7 @@ void XmlWriter::appendMethodCallHeader(
     {
         out << authenticationHeader << "\r\n";
     }
+
     out << "\r\n";
 }
 
@@ -1754,7 +1781,8 @@ void XmlWriter::appendMethodResponseHeader(
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
     STAT_SERVERTIME
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
-    out << "Content-Length: " << contentLength << "\r\n";
+		OUTPUT_CONTENTLENGTH;
+
     if (contentLanguages.size() > 0)
     {
     	out << "Content-Language: " << contentLanguages << "\r\n";
@@ -1876,7 +1904,8 @@ void XmlWriter::appendOKResponseHeader(
     // is usually intended to have content.  But, for Kerberos this
     // may not always be the case so we need to indicate that there
     // is no content
-    out << "Content-Length: 0" << "\r\n";
+		Uint32 contentLength = 0;
+		OUTPUT_CONTENTLENGTH;
     out << content << "\r\n";
     out << "\r\n";
 
@@ -2480,26 +2509,35 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
-    const Array<Sint8>& body)
+    const Array<Sint8>& body,
+		Boolean isFirst,
+		Boolean isLast)
 {
-    Array<Sint8> out;
-    Array<Sint8> tmp;
+	Array<Sint8> out;
 
-    _appendMessageElementBegin(out, messageId);
-    _appendSimpleRspElementBegin(out);
-    _appendMethodResponseElementBegin(out, methodName);
-    out << body;
-    _appendMethodResponseElementEnd(out);
-    _appendSimpleRspElementEnd(out);
-    _appendMessageElementEnd(out);
-
-    appendMethodResponseHeader(tmp, 
-    	httpMethod, 
-    	httpContentLanguages,
-    	out.size());
-    tmp << out;
-
-    return tmp;
+	if (isFirst == true)
+	{
+		// NOTE: temporarily put zero for content length. the http code
+		// will later decide to fill in the length or remove it altogether
+		appendMethodResponseHeader(out, httpMethod, httpContentLanguages, 0);
+		_appendMessageElementBegin(out, messageId);
+		_appendSimpleRspElementBegin(out);
+		_appendMethodResponseElementBegin(out, methodName);
+	}
+	
+	if (body.size() != 0)
+	{
+		out << body;
+	}
+	
+	if (isLast == true)
+	{
+		_appendMethodResponseElementEnd(out);
+		_appendSimpleRspElementEnd(out);
+		_appendMessageElementEnd(out);
+	}
+	
+	return out;
 }
 
 //------------------------------------------------------------------------------
@@ -2590,31 +2628,39 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,    
-    const Array<Sint8>& body)
+    const Array<Sint8>& body,
+		Boolean isFirst,
+		Boolean isLast)
 {
     Array<Sint8> out;
-    Array<Sint8> tmp;
 
-    _appendMessageElementBegin(out, messageId);
-    _appendSimpleRspElementBegin(out);
-    _appendIMethodResponseElementBegin(out, iMethodName);
+		if (isFirst == true)
+		{
+			// NOTE: temporarily put zero for content length. the http code
+			// will later decide to fill in the length or remove it altogether
+			appendMethodResponseHeader(out, httpMethod, httpContentLanguages, 0);
+			_appendMessageElementBegin(out, messageId);
+			_appendSimpleRspElementBegin(out);
+			_appendIMethodResponseElementBegin(out, iMethodName);
+			if (body.size() != 0)
+				_appendIReturnValueElementBegin(out);
+		}
+
     if (body.size() != 0)
     {
-        _appendIReturnValueElementBegin(out);
-        out << body;
-        _appendIReturnValueElementEnd(out);
+			out << body;
     }
-    _appendIMethodResponseElementEnd(out);
-    _appendSimpleRspElementEnd(out);
-    _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp,
-	   	 httpMethod,
-	   	 httpContentLanguages,
-    	 out.size());
-    tmp << out;
+		if (isLast == true)
+		{
+			if (body.size() != 0)
+				_appendIReturnValueElementEnd(out);
+			_appendIMethodResponseElementEnd(out);
+			_appendSimpleRspElementEnd(out);
+			_appendMessageElementEnd(out);
+		}
 
-    return tmp;
+    return out;
 }
 
 //------------------------------------------------------------------------------
@@ -2679,15 +2725,16 @@ void XmlWriter::appendEMethodRequestHeader(
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        out << "M-POST " << requestUri << " HTTP/1.1\r\n";
+      out << "M-POST " << requestUri << " HTTP/1.1\r\n";
     }
     else
     {
-        out << "POST " << requestUri << " HTTP/1.1\r\n";
+      out << "POST " << requestUri << " HTTP/1.1\r\n";
     }
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
-    out << "Content-Length: " << contentLength << "\r\n";
+		OUTPUT_CONTENTLENGTH;
+
     if (acceptLanguages.size() > 0)
     {
     	out << "Accept-Language: " << acceptLanguages << "\r\n";
@@ -2696,6 +2743,17 @@ void XmlWriter::appendEMethodRequestHeader(
     {
     	out << "Content-Language: " << contentLanguages << "\r\n";
     }         
+
+		// backdoor environment variable to turn OFF client requesting transfer 
+		// encoding. The default is on. to turn off, set this variable to zero.
+		// This should be removed when stable. This should only be turned off in
+		// a debugging/testing environment.
+
+		static const char *clientTransferEncodingOff = 
+			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+			out << "TE: chunked, trailers" << "\r\n";
+
     if (httpMethod == HTTP_METHOD_M_POST)
     {
         out << "Man: http://www.hp.com; ns=";
@@ -2713,6 +2771,7 @@ void XmlWriter::appendEMethodRequestHeader(
     {
         out << authenticationHeader << "\r\n";
     }
+
     out << "\r\n";
 }
 
@@ -2734,7 +2793,8 @@ void XmlWriter::appendEMethodResponseHeader(
 
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
-    out << "Content-Length: " << contentLength << "\r\n";
+		OUTPUT_CONTENTLENGTH;
+
     if (contentLanguages.size() > 0)
     {
     	out << "Content-Language: " << contentLanguages << "\r\n";
@@ -3180,4 +3240,5 @@ const char* XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
 }
 
 PEGASUS_NAMESPACE_END
+
 

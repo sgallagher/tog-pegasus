@@ -31,6 +31,7 @@
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -366,7 +367,9 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguages & httpContentLanguages,          
-	const Array<Sint8>& body);
+	const Array<Sint8>& body,
+	Boolean isFirst = true,
+	Boolean isLast = true);
 
     static Array<Sint8> formatSimpleMethodErrorRspMessage(
 	const CIMName& methodName,
@@ -390,7 +393,9 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguages & httpContentLanguages,  
-	const Array<Sint8>& body);
+	const Array<Sint8>& body,
+	Boolean isFirst = true,
+	Boolean isLast = true);
 
     static Array<Sint8> formatSimpleIMethodErrorRspMessage(
 	const CIMName& iMethodName,

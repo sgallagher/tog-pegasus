@@ -27,6 +27,7 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +89,7 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
 HTTPMessage::HTTPMessage(
     const Array<Sint8>& message_, 
-    Uint32 queueId_)
+    Uint32 queueId_, const CIMException *cimException_)
     :
     Message(HTTP_MESSAGE), 
     message(message_), 
@@ -96,6 +97,8 @@ HTTPMessage::HTTPMessage(
     acceptLanguagesDecoded(false),
     contentLanguagesDecoded(false)
 {
+	if (cimException_)
+		cimException = *cimException_;
 }
 
 
@@ -111,6 +114,7 @@ HTTPMessage::HTTPMessage(HTTPMessage & msg)
       contentLanguages = msg.contentLanguages;
       acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
       contentLanguagesDecoded = msg.contentLanguagesDecoded;
+			cimException = msg.cimException;
    }
 }
 
@@ -257,6 +261,48 @@ void HTTPMessage::printAll(ostream& os) const
     }
 
     os << endl;
+}
+
+/*
+ * Find the header prefix (i.e 2-digit number in front of cim keyword) if any.
+ * If a fieldName is given it will use that, otherwise the FIRST field 
+ * starting with the standard keyword will be used. Given field names that do 
+ * not start with the standard keyword will never match.
+ * if there is a keyword match, the prefix will be populated, else set to empty
+ */
+
+void HTTPMessage::lookupHeaderPrefix(
+    Array<HTTPHeader>& headers,
+    const String& fieldName,
+    String& prefix)
+{
+	static const char keyword[] = "CIM";
+	prefix.clear();
+
+	for (Uint32 i = 0, n = headers.size(); i < n; i++)
+	{
+		const String &h = headers[i].first;
+
+		if (h.size() >= 3 && isdigit(char(h[0])) && isdigit(char(h[1])) &&
+				h[2] == Char16('-'))
+		{
+			String fieldNameCurrent = h.subString(3);
+
+			// ONLY fields starting with keyword can have prefixed according to spec
+			if (String::equalNoCase(fieldNameCurrent, keyword) == false)
+				continue;
+
+			prefix = h.subString(0,3);
+
+			// no field name given, just return the first prefix encountered
+			if (fieldName.size() == 0)
+				break;
+
+			if (String::equalNoCase(fieldNameCurrent, fieldName) == false)
+				prefix.clear();
+			else break;				
+		}
+	}
 }
 
 Boolean HTTPMessage::lookupHeader(

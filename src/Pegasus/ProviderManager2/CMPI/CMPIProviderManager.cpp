@@ -47,6 +47,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Server/CIMServer.h>
@@ -1962,12 +1963,6 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 
     return(response);
 }
-//
-// Provider module status
-//
-static const Uint16 _MODULE_OK       = 2;
-static const Uint16 _MODULE_STOPPING = 9;
-static const Uint16 _MODULE_STOPPED  = 10;
 
 Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
 {
@@ -1992,7 +1987,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     Array<Uint16> operationalStatus;
     // Assume success.
-    operationalStatus.append(_MODULE_STOPPED);
+    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
 
     //
     // Unload providers
@@ -2041,7 +2036,7 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
-    operationalStatus.append(_MODULE_OK);
+    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
 
     CIMEnableModuleResponseMessage * response =
         new CIMEnableModuleResponseMessage(

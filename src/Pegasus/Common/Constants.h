@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -338,6 +339,11 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 
 // Constant defines the maximum timeout to disable a provider
 #define PROVIDER_DISABLE_TIMEOUT 15
+
+// Constants defining the operational status of a CIM_ManagedSystemElement
+#define CIM_MSE_OPSTATUS_VALUE_OK 2
+#define CIM_MSE_OPSTATUS_VALUE_STOPPING 9
+#define CIM_MSE_OPSTATUS_VALUE_STOPPED 10
 
 PEGASUS_NAMESPACE_END
 

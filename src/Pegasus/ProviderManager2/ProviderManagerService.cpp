@@ -46,16 +46,13 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-static const Uint16 _MODULE_OK       = 2;
-static const Uint16 _MODULE_STOPPING = 9;
-static const Uint16 _MODULE_STOPPED  = 10;
 
 CIMRepository* ProviderManagerService::_repository=NULL;
 
@@ -340,8 +337,8 @@ void ProviderManagerService::handleCimRequest(
 
         for(Uint32 i = 0; i < operationalStatus.size(); i++)
         {
-            if ((operationalStatus[i] == _MODULE_STOPPED) ||
-                (operationalStatus[i] == _MODULE_STOPPING))
+            if ((operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED) ||
+                (operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING))
             {
                 moduleDisabled = true;
                 break;
@@ -389,7 +386,8 @@ void ProviderManagerService::handleCimRequest(
             if (emResp->cimException.getCode() == CIM_ERR_SUCCESS)
             {
                 _updateProviderModuleStatus(
-                    providerModule, _MODULE_STOPPED, _MODULE_OK);
+                    providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPED, 
+                    CIM_MSE_OPSTATUS_VALUE_OK);
             }
         }
         catch (Exception& e)
@@ -428,7 +426,8 @@ void ProviderManagerService::handleCimRequest(
             if (updateModuleStatus)
             {
                 _updateProviderModuleStatus(
-                    providerModule, _MODULE_OK, _MODULE_STOPPING);
+                    providerModule, CIM_MSE_OPSTATUS_VALUE_OK, 
+                    CIM_MSE_OPSTATUS_VALUE_STOPPING);
             }
 
             // Forward the request to the ProviderManager
@@ -443,7 +442,8 @@ void ProviderManagerService::handleCimRequest(
                 {
                     // Disable operation failed.  Module not stopped.
                     _updateProviderModuleStatus(
-                        providerModule, _MODULE_STOPPING, _MODULE_OK);
+                        providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPING, 
+                        CIM_MSE_OPSTATUS_VALUE_OK);
                 }
                 else
                 {
@@ -451,7 +451,7 @@ void ProviderManagerService::handleCimRequest(
                     // depending on whether there are outstanding requests.
                     // Use last operationalStatus entry.
                     _updateProviderModuleStatus(
-                        providerModule, _MODULE_STOPPING,
+                        providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPING,
                         dmResp->operationalStatus[
                             dmResp->operationalStatus.size()-1]);
                 }

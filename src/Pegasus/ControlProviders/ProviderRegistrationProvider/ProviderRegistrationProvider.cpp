@@ -43,6 +43,7 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,11 +51,6 @@ PEGASUS_NAMESPACE_BEGIN
    The name of the CapabilityID property for provider capabilities class
 */
 static const CIMName _PROPERTY_CAPABILITYID  = CIMName ("CapabilityID");
-
-/**
-   Module status
-*/
-static const Uint16 _MODULE_OK        = 2;
 
 /**
    stopping provider method
@@ -65,13 +61,6 @@ static const CIMName _STOP_PROVIDER     = CIMName ("Stop");
    starting provider method
 */
 static const CIMName _START_PROVIDER   = CIMName ("Start");
-
-/**
-   Provider status
-*/
-static const Uint16 _MODULE_STOPPING   = 9;
-
-static const Uint16 _MODULE_STOPPED   = 10;
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)	
@@ -520,7 +509,7 @@ void ProviderRegistrationProvider::createInstance(
             PEG_NOT_FOUND)
 	{
 	    Array<Uint16> _operationalStatus;
-	    _operationalStatus.append(_MODULE_OK);
+	    _operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
 	    instance.addProperty (CIMProperty
 		(_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
 	}
@@ -1271,8 +1260,8 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already disabled
-	    if (_OperationalStatus[i] == _MODULE_STOPPED ||
-		_OperationalStatus[i] == _MODULE_STOPPING)
+	    if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED ||
+		_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
 	    {
 		return (1);
 	    }
@@ -1402,7 +1391,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	        for (Uint32 i = 0; i<_opStatus.size(); i++)
 	        {
 		    // module was disabled successfully
-	            if (_opStatus[i] == _MODULE_STOPPED)
+	            if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED)
 	            {
 			if (indProvider)
 			{
@@ -1415,7 +1404,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 
 		    // module is not disabled since there are pending
                     // requests for the providers in the module
-                    if (_opStatus[i] == _MODULE_OK)
+                    if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
                     {
                         return (-2);
                     }
@@ -1455,14 +1444,14 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already enabled
-	    if (_OperationalStatus[i] == _MODULE_OK)
+	    if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
 	    {
 		return (1);
 	    }
 
 	    // retValue equals 2 if module is stopping
 	    // at this stage, module can not be started
-	    if (_OperationalStatus[i] == _MODULE_STOPPING)
+	    if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
 	    {
                 return (2);
 	    }
@@ -1495,7 +1484,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 	    for (Uint32 i = 0; i<_opStatus.size(); i++)
 	    {
 		// module is enabled successfully
-	        if (_opStatus[i] == _MODULE_OK)
+	        if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
 	        {
 		    enabled = true;
 	        }

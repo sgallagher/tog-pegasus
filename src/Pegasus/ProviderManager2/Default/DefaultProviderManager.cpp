@@ -45,6 +45,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Common/QueryExpression.h>
 #include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
@@ -76,14 +77,6 @@ public:
 
     Provider * _provider;
 };
-
-//
-// Provider module status
-//
-static const Uint16 _MODULE_OK       = 2;
-static const Uint16 _MODULE_STOPPING = 9;
-static const Uint16 _MODULE_STOPPED  = 10;
-
 
 //
 // Default Provider Manager
@@ -2478,7 +2471,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             {
                 // disable failed since there are pending requests,
                 // stop trying to disable other providers in this module.
-                operationalStatus.append(_MODULE_OK);
+                operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
                 break;
             }
             else if (ret_value == 1)  // Success
@@ -2533,13 +2526,13 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         // Status is set to OK if a provider was busy
         if (operationalStatus.size() == 0)
         {
-            operationalStatus.append(_MODULE_STOPPED);
+            operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
         }
     }
     else
     {
         // If exception occurs, module is not stopped
-        operationalStatus.append(_MODULE_OK);
+        operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -2570,7 +2563,7 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
-    operationalStatus.append(_MODULE_OK);
+    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
 
     CIMEnableModuleResponseMessage * response =
         new CIMEnableModuleResponseMessage(

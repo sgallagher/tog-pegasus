@@ -3,7 +3,6 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIRS = \
 	InstanceProvider \
 	MethodProvider \
-	PropertyProvider \
-	QueryProvider
+	IndicationProvider
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

@@ -2009,6 +2009,14 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                     reinterpret_cast<CIMHandleIndicationResponseMessage *>
                     ((static_cast<AsyncLegacyOperationResult *>
                     (async_reply))->get_result());
+
+                if (handler_response->cimException.getCode () != CIM_ERR_SUCCESS)
+                {
+                    PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "Sending Indication and HandlerService returns "
+                        "CIMException: " + handler_response->cimException.getMessage());
+                }
+
                 delete handler_response;
 
                 //

@@ -145,8 +145,8 @@ Boolean CQLIdentifierRep::operator==(const CQLIdentifierRep &rhs)const{
 	
 	if(_isWildcard && rhs.isWildcard()) return true;
 	if(getName() == rhs.getName()){
-	   if(getScope() == rhs.getScope()){
-		if(getSymbolicConstantName() == rhs.getSymbolicConstantName()){
+	   if(String::equalNoCase(getScope(), rhs.getScope())){
+		if(String::equalNoCase(getSymbolicConstantName(), rhs.getSymbolicConstantName())){
 			// compare _indices arrays
 			Uint32 size = rhs.getSubRanges().size();
 			if(_indices.size() == size){

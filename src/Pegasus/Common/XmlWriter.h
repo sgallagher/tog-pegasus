@@ -72,7 +72,7 @@ public:
 
     static void append(Array<Sint8>& out, char x)
     {
-	append(out, Char16(x));
+      out.append(x);
     }
 
     static void append(Array<Sint8>& out, Boolean x);

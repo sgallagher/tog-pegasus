@@ -398,7 +398,7 @@ void XmlWriter::append(Array<Sint8>& out, Real64 x)
 void XmlWriter::append(Array<Sint8>& out, const char* str)
 {
     while (*str)
-	_xmlWritter_appendChar(out, *str++);
+      XmlWriter::append(out, *str++);
 }
 
 void XmlWriter::append(Array<Sint8>& out, const String& str)
@@ -463,8 +463,6 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 	}
     }
 }
-
-// chuck start
 
 // See http://www.ietf.org/rfc/rfc2396.txt section 2
 // Reserved characters = ';' '/' '?' ':' '@' '&' '=' '+' '$' ','
@@ -574,6 +572,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
     out << "<LOCALNAMESPACEPATH>\n";
 
     char* nameSpaceCopy = strdup(nameSpace.getString().getCString());
+
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX)

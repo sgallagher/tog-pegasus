@@ -37,6 +37,11 @@ PEGASUS_NAMESPACE_BEGIN
 class OperationFailure : public CIMException
 {
 public:
+    OperationFailure(const String & message) : CIMException(CIM_ERR_FAILED, message)
+    {
+    }
+
+protected:
     OperationFailure(const CIMStatusCode code, const String & message) : CIMException(code, message)
     {
     }

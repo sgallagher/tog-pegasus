@@ -93,14 +93,12 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 
     if (!os.getCSName(csName))
     {
-        throw OperationFailure(0,   // could try and get errno
-                               "Can't determine name of computer system");
+        throw OperationFailure("Can't determine name of computer system");
     }
 
     if (!os.getName(name))
     {
-        throw OperationFailure(0,  // could try and get errno
-                              "Can't determine name of Operating System");
+        throw OperationFailure("Can't determine name of Operating System");
     }
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
@@ -439,14 +437,12 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
 
     if (!os.getCSName(csName))
     {
-        throw OperationFailure(0,   // could try and get errno
-                               "Can't determine name of computer system");
+        throw OperationFailure("Can't determine name of computer system");
     }
 
     if (!os.getName(name))
     {
-        throw OperationFailure(0,   // could try and get errno
-                               "Can't determine name of operating system");
+        throw OperationFailure("Can't determine name of operating system");
     }
 
     keys.append(KeyBinding("CSCreationClassName",

@@ -96,43 +96,56 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
     Timestamp_t timeStamp;
     char tempString[80];
     char plusOrMinus = '+';
+    unsigned char* utcTimeData = utcTime->data;
 
     memset(&time, '\0', sizeof(time));
 
 #define g2(p) ( ( (p)[0] - '0' ) * 10 + (p)[1] - '0' )
 
-    time.tm_year = g2(utcTime->data);
-
-    if(time.tm_year < 50)
+    if (utcTime->type == V_ASN1_GENERALIZEDTIME)
     {
-        time.tm_year += 100;
+        time.tm_year = g2(utcTimeData) * 100;
+        utcTimeData += 2;  // Remaining data is equivalent to ASN1_UTCTIME type
+        time.tm_year += g2(utcTimeData);
     }
-    time.tm_mon = g2(utcTime->data + 2) - 1;
-    time.tm_mday = g2(utcTime->data + 4);
-    time.tm_hour = g2(utcTime->data + 6);
-    time.tm_min = g2(utcTime->data + 8);
-    time.tm_sec = g2(utcTime->data + 10);
+    else
+    {
+        time.tm_year = g2(utcTimeData);
+        if (time.tm_year < 50)
+        {
+            time.tm_year += 2000;
+        }
+        else
+        {
+            time.tm_year += 1900;
+        }
+    }
 
-    if(utcTime->data[12] == 'Z')
+    time.tm_mon = g2(utcTimeData + 2) - 1;
+    time.tm_mday = g2(utcTimeData + 4);
+    time.tm_hour = g2(utcTimeData + 6);
+    time.tm_min = g2(utcTimeData + 8);
+    time.tm_sec = g2(utcTimeData + 10);
+
+    if (utcTimeData[12] == 'Z')
     {
         offset = 0;
     }
     else
     {
-        offset = g2(utcTime->data + 13) * 60 + g2(utcTime->data + 15);
-        if(utcTime->data[12] == '-')
+        offset = g2(utcTimeData + 13) * 60 + g2(utcTimeData + 15);
+        if (utcTimeData[12] == '-')
         {
             plusOrMinus = '-';
         }
     }
 #undef g2
 
-    int year = 1900;
     memset((void *)&timeStamp, 0, sizeof(Timestamp_t));
 
     // Format the date.
     sprintf((char *) &timeStamp,"%04d%02d%02d%02d%02d%02d.%06d%04d",
-            year + time.tm_year,
+            time.tm_year,
             time.tm_mon + 1,  
             time.tm_mday,
             time.tm_hour,

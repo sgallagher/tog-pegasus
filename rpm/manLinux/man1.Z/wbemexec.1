@@ -1,14 +1,14 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/wbemexec.1,v 1.2 2003/03/13 17:25:16 kumpf Exp $
-.TA w \" lowercase initial letter of .TH name
-.TH wbemexec 1
-.ds )H Hewlett-Packard Company
-.SH NAME
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/wbemexec.1,v 1.3 2004/11/23 11:36:42 alagaraja Exp $
+.\" .TA w \" lowercase initial letter of .TH name
+.TH "wbemexec" "1" "" "" ""
+.SH "NAME"
 wbemexec \- submit a CIM operation request to a CIM Server 
-.SH SYNOPSIS
-
-\fBwbemexec\fP [ \fB-h\fP hostname ] [ \fB-p\fP portnumber ] [ \fB-v\fP httpversion ] [ \fB-m\fP httpmethod ] [ \fB-t\fP timeout ] [ \fB-u\fP username ] [ \fB-w\fP password ] [ \fB-s\fP ] [ inputfilepath ]
-
-.SH DESCRIPTION
+.SH "SYNOPSIS"
+\fBwbemexec\fP [ \fB\-h\fP hostname ] [ \fB\-p\fP portnumber ] [ \fB\-v\fP httpversion ]
+         [ \fB\-m\fP httpmethod ] [ \fB\-t\fP timeout ] [ \fB\-u\fP username ]
+         [ \fB\-w\fP password ] [ \fB\-s\fP ] [ \fB\-\-help\fP ] [ \fB\-\-version\fP ]
+         < inputfilepath >
+.SH "DESCRIPTION"
 The 
 .B wbemexec 
 command provides a command line interface to a CIM Server.
@@ -24,58 +24,66 @@ and result in an error message from
 .B wbemexec.
 Other invalid XML requests (e.g. invalid CIMVERSION attribute value
 or missing XML version), are detected by the CIM Server, 
-and result in an HTTP response, containing a non-Success status code,
+and result in an HTTP response, containing a non\-Success status code,
 such as 501 (Not Implemented) or 400 (Bad Request).
-.PP
+.PP 
 By default, the request is sent as an HTTP/1.1 request,
-using the HTTP M-POST method, and 
+using the HTTP M\-POST method, and 
 .B wbemexec 
 waits 20000 milliseconds (20 seconds),
 then times out if a response hasn't been received.  
 Input is read from stdin, if no input file is specified.
-.PP
+.PP 
 By default,
 the operation is executed on the local host.
 .B wbemexec
 first attempts to connect to the CIM Server on the default port for the
-wbem-http service, 
+wbem\-http service, 
 and if that fails, another attempt is made on the default port for the
-wbem-https service.
+wbem\-https service.
 .SS Options
 .B wbemexec
 recognizes the following options:
 .RS
 .TP 15
-\fB-h\fP hostname
+\fB\-h\fP hostname
 Connect to the CIM Server on the specified host.
 If this option is not specified, 
 .B wbemexec 
 connects to the local host.
-.TP
-\fB-p\fP portnumber
+.TP 
+.B \-\-help
+Display command usage information.
+.TP 
+\fB\-m\fP httpmethod
+Use the specified HTTP method 
+for the request.  The method must be "POST" or "M\-POST".  
+.TP 
+\fB\-p\fP portnumber
 Connect to the CIM Server on the specified port number.  
 If this option is not specified, 
 .B wbemexec
-connects to the default port for the wbem-http service, or if the 
-.B -s
-option is specified, to the default port for the wbem-https service.
-.TP
-\fB-v\fP httpversion
-Use the specified HTTP version 
-for the request.  The version must be "1.0" or "1.1".  The 1.0 version may not be specified if the M-POST method is specified.
-.TP
-\fB-m\fP httpmethod
-Use the specified HTTP method 
-for the request.  The method must be "POST" or "M-POST".  
-.TP
-\fB-t\fP timeout
+connects to the default port for the wbem\-http service, or if the 
+.B \-s
+option is specified, to the default port for the wbem\-https service.
+.TP 
+.B \-s
+Enable the use of the SSL protocol between 
+.C wbemexec 
+and the CIM server.
+The 
+.B \-s
+option should be specified if the CIM Server 
+on the specified hostname/portnumber expects clients to connect using HTTPS.
+.TP 
+\fB\-t\fP timeout
 Wait the specified number of milliseconds on sending a request, before timing out if no response has been received.  The 
 .I timeout 
 value must be an integer value greater than 0.
-.TP
-\fB-u\fP username
+.TP 
+\fB\-u\fP username
 Connect as the specified 
-.IR username . 
+.I R username . 
 If 
 .I username 
 is not specified, the current logged in user is used for authentication.
@@ -84,10 +92,17 @@ This option is ignored if neither
 nor 
 .I portnumber 
 is specified.
-.TP
-\fB-w\fP password
+.TP 
+\fB\-v\fP httpversion
+Use the specified HTTP version 
+for the request.  The version must be "1.0" or "1.1".  The 1.0 version may not be specified if the M\-POST method is specified.
+.TP 
+\fB\-\-version\fP 
+Display CIM Server version.
+.TP 
+\fB\-w\fP password
 Authenticate the connection using the specified 
-.IR password .
+.I R password .
 If the 
 .I password 
 is not specified and the remote host requests authentication, the user is
@@ -97,17 +112,8 @@ This option is ignored if neither
 nor 
 .I portnumber 
 is specified.
-.TP
-.B -s
-Enable the use of the SSL protocol between 
-.C wbemexec 
-and the CIM server.
-The 
-.B -s
-option should be specified if the CIM Server 
-on the specified hostname/portnumber expects clients to connect using HTTPS.
 (See
-.B "cimconfig (1M)"
+.B "cimconfig (1)"
 for information on configuring the CIM Server.)
 This option is ignored if neither
 .I hostname 
@@ -117,39 +123,44 @@ is specified.
 .PD
 .RE
 
-.SH EXIT STATUS
-.PP
+.SH "EXIT STATUS"
+.PP 
 When an error occurs, an explanatory error message is written to stderr and an
 appropriate value is returned.  The following exit values are returned:
 .RS
-.TP
+.TP 
 .B 0
 Success
 .PD 0
-.TP
+.TP 
 .B 1
 Error
 .PD
 .RE
-.SH EXAMPLES
-.PP
+.SH "USAGE NOTE"
+.PP 
+The 
+.B wbemexec 
+command requires that the CIM Server is running.
+.SH "EXAMPLES"
+.PP 
 Submit an XML request contained in the file cimrequest.xml to the CIM Server 
 running on the local host on the default port:
-.IP
+.IP 
 .B wbemexec cimrequest.xml
-.PP
+.PP 
 Submit an XML request contained in the file cimrequest.xml to the CIM Server 
 running on the host hpserver on port 49152, using the 
 .I username 
 guest and 
 .I password 
 guest for authentication:
-.IP
-.B wbemexec -h hpserver -p 49152 -u guest -w guest cimrequest.xml
-.PP
-.SH SEE ALSO
-.PP
-cimserver(1M), cimconfig(1M).
-.SH STANDARDS CONFORMANCE
-.PP
+.IP 
+.B wbemexec \-h hpserver \-p 49152 \-u guest \-w guest cimrequest.xml
+.PP 
+.SH "SEE ALSO"
+.PP 
+cimserver(1), cimconfig(1).
+.SH "STANDARDS CONFORMANCE"
+.PP 
 \fBwbemexec\fP: CIM Operations over HTTP 1.0, Representation of CIM in XML 2.0 

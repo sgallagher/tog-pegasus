@@ -953,7 +953,7 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager(
     instance.setPath(instancePath);
     CDEBUG("CIMObjectMgr path = " << instancePath.toString());
     // Save this instance for other requests
-    instanceOfCIMObjectManager = instance;
+    instanceOfCIMObjectManager = instance.clone();
     instance.filter(includeQualifiers, includeClassOrigin, propertyList);
     PEG_METHOD_EXIT();
     return(instance);

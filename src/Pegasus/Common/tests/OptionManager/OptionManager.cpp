@@ -46,7 +46,10 @@ void test01(int& argc, char** argv)
     // Check for missing required option:
     om.checkRequiredOptions();
 
+    // Test for the valueEquals test
     assert(om.valueEquals("trace","true"));
+
+    // Test correct value for optional not installed
     assert(om.valueEquals("falsetest","false"));
 }
 

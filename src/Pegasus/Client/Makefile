@@ -37,8 +37,6 @@ SOURCES = \
     CIMClientException.cpp
 
 SOURCES_SLP = \
-    Attribute.cpp \
-    CIMServerDescription.cpp \
     CIMServerDiscovery.cpp
 
 ifdef PEGASUS_ENABLE_SLP

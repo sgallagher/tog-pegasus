@@ -584,6 +584,9 @@ Boolean XmlReader::getCimBooleanAttribute(
 
 Boolean XmlReader::stringToReal(const char* stringValue, Real64& x)
 {
+    //
+    // Check the string against the DMTF-defined grammar
+    //
     const char* p = stringValue;
 
     if (!*p)
@@ -640,8 +643,17 @@ Boolean XmlReader::stringToReal(const char* stringValue, Real64& x)
     if (*p)
 	return false;
 
+    //
+    // Do the conversion
+    //
     char* end;
+    errno = 0;
     x = strtod(stringValue, &end);
+    if (*end || (errno == ERANGE))
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -1078,9 +1090,8 @@ CIMValue XmlReader::stringToValue(
 	    Real64 x;
 
 	    if (!stringToReal(valueString, x))
-		throw XmlSemanticError(lineNumber, "Bad real value");
+		throw XmlSemanticError(lineNumber, "Bad real number value");
 
-	    // ATTN-RK-P3-20010319: This value gets truncated.
 	    return CIMValue(Real32(x));
 	}
 
@@ -1089,7 +1100,7 @@ CIMValue XmlReader::stringToValue(
 	    Real64 x;
 
 	    if (!stringToReal(valueString, x))
-		throw XmlSemanticError(lineNumber, "Bad real value");
+		throw XmlSemanticError(lineNumber, "Bad real number value");
 
 	    return CIMValue(x);
 	}

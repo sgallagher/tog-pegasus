@@ -79,7 +79,7 @@ String ScopeToString(Uint32 scope)
 */
 String ScopeToMofString(Uint32 scope)
 {
-    String tmp = (scope & CIMScope::ANY) ? "any" : ScopeToString(scope);
+    String tmp = ((scope & CIMScope::ANY) == CIMScope::ANY) ? "any" : ScopeToString(scope);
 
     tmp.toLower();
     return tmp;

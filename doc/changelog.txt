@@ -32,6 +32,7 @@ createClass to protect caller's object.
 9. CV added CIMQueryProvider and CIMAssociationProvider to the Provider2 directory. These
 interfaces allow very smart providers to perform advances operations. CIMProviderStub has
 been updated to support the new interfaces. Needs testing.
+10. Added rpm packaging support and shell script based build process. MM
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 

@@ -33,6 +33,7 @@
 //                   (carolann_graves@hp.com)
 //               Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //               Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//		 Karl Schopmeyer (k.schopmeyer@opengrouporg)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +171,14 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     PEG_METHOD_EXIT();
     return false;
 }
-
+/* _lookupInstanceProvider - Looks up the instance provider for the
+    classname and namespace.
+    Returns the name of the provider.
+    ANNT KS: P0 8 May 2002QUESTION: Why are we getting the name of the provider.  
+    We should
+    be satisfied with the existance and not need the name.
+    Shouldn't we be able to change this to a binary return???
+*/
 String CIMOperationRequestDispatcher::_lookupInstanceProvider(
    const String& nameSpace,
    const String& className)
@@ -181,7 +189,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "CIMOperationRequestDispatcher::_lookupInstanceProvider");
-
+    //cout << "KSTEST lookupInstanceProvider" << endl;
     if (_providerRegistrationManager->lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance, false))
     {
@@ -212,6 +220,58 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
         PEG_METHOD_EXIT();
    	return(String::EMPTY);
     }
+}
+
+/* _lookupNewInstanceProvider - Looks up the internal and/or instance provider
+    for the defined namespace and class and returns the serviceName and
+    control provider name if a provider is found
+    @return true if an service, control provider, or instance provider is found
+    for the defined class and namespace.
+    This should be combined with the lookupInstanceProvider code eventually but
+    the goal now was to simplify the handlers.
+    By the way, the name is stupid.
+*/
+Boolean CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
+				 const String& nameSpace,
+                                 const String& className,
+				 String& serviceName,
+				 String& controlProviderName)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+                     "CIMOperationRequestDispatcher::_lookupNewInstanceProvider");
+   //cout << "KSTEST lookupnewinstanceprovider "
+   //    << " namespace " << nameSpace
+   //    << " class " << className << endl;
+   Boolean hasProvider = false;
+   String providerName = String::EMPTY;
+
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider(nameSpace, className, serviceName,
+           controlProviderName))
+       hasProvider = true;
+   else
+   {
+       // get provider for class
+       providerName = _lookupInstanceProvider(nameSpace, className);
+   }
+
+   if(providerName != String::EMPTY)
+   {
+       
+       serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
+       hasProvider = true;
+   }
+   PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+       "Lookup Provider = "
+	+ serviceName + " provider " + providerName + " found."
+        + " return= " + (hasProvider? "true" : "false"));
+
+   PEG_METHOD_EXIT();
+   //cout << "KSTEST lookupnewinstanceprovider return " 
+   //    << (hasProvider? "true" : "false") << endl;
+
+   return hasProvider;
+
 }
 
 String CIMOperationRequestDispatcher::_lookupMethodProvider(
@@ -319,6 +379,16 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
 							      MessageQueue *q,
 							      void *parm)
 {
+    
+    /* MIKEDAY From there and the same callback for services we will want to
+       get back to a defined postprocessor that is specific for each messagetype
+       This should provide the request and the aggregate of responses if possible
+       back to this so that the postprocessor can process the conclusion.
+       Note that somehow we need to separate out the responses so that we
+       understand if we have gotton a good or error response back for each request.
+       See the note on postprocessor attached to enumerateinstancenames
+       for more info on that.
+     */
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardToServiceCallBack");
 
@@ -362,8 +432,6 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
    PEG_METHOD_EXIT();
 }
 
-
-
 void CIMOperationRequestDispatcher::_forwardRequestToService(
     const String& serviceName,
     CIMRequestMessage* request,
@@ -402,7 +470,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
       PEG_METHOD_EXIT();
 }
 /* Return from Control Provider - Provides the return from Control providers
-    (See _forwardRequestToControlProvider) and forwards teh response.
+    (See _forwardRequestToControlProvider) and forwards the response.
 */
 void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
 							     MessageQueue *q,
@@ -410,7 +478,7 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardToModuleCallBack");
-
+   //cout << "KSTEST provider callback" << endl;
    CIMOperationRequestDispatcher *service =
       static_cast<CIMOperationRequestDispatcher *>(q);
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
@@ -455,6 +523,7 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
 /* Send a OperationsRequest message to a Control provider - Forwards the message
    defined in request to the Control Provider defined in controlProviderName.
    This is an internal function.
+   Sets the callback to _forwardToModuleCallBack
 */
 void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
     const String& serviceName,
@@ -765,50 +834,67 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    PEG_METHOD_EXIT();
 }
 
+
 void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    CIMGetInstanceRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetInstanceRequest");
 
-   // ATTN: MB 2001 P3 - Need code here to expand partial instance!
+   // ATTN: Need code here to expand partial instance!
 
    // get the class name
    String className = request->instanceName.getClassName();
+   //String NameSpace = request->nameSpace;
    CIMResponseMessage * response;
-
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
-   Boolean isInternalProvider =false;
    String providerName = String::EMPTY;
-
-   // Check for class provided by an internal provider
-   if (isInternalProvider = _lookupInternalProvider(request->nameSpace, 
-					    className, serviceName,
-					    controlProviderName))
-   {
-       isInternalProvider = true;
-   }
-   else
-   {
-	// or by an instnace provider
-       if ((providerName = _lookupInstanceProvider(request->nameSpace, className)) !=
-					    String::EMPTY)
-	    serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
-   }
-
-   if((providerName != String::EMPTY) || isInternalProvider)
-   {
+// Temp to save old code until we confirm everything runs 7 May ks ATTN P0
+#define NEWTEST
+#ifdef NEWTEST
+   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
+	    controlProviderName))
+    {
 	CIMGetInstanceRequestMessage* requestCopy =
 	    new CIMGetInstanceRequestMessage(*request);
 
 	_forwardRequest(className, serviceName, controlProviderName,
-	   requestCopy, response);
-
+	    requestCopy, response);
 	PEG_METHOD_EXIT();
 	return;
+    }
+#else
+
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
+       hasProvider = true;
+   else
+   {
+       // get provider for class
+       providerName = _lookupInstanceProvider(request->nameSpace, className);
    }
-   // not internal provider and no found provider, go to default
+
+   if(providerName != String::EMPTY)
+   {
+       serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
+       hasProvider = true;
+   }
+   if(hasProvider)
+   {
+      CIMGetInstanceRequestMessage* requestCopy =
+          new CIMGetInstanceRequestMessage(*request);
+
+           _forwardRequest(className, serviceName, controlProviderName,
+               requestCopy, response);
+
+      PEG_METHOD_EXIT();
+      return;
+   }
+#endif
+
+   // not internal or found provider, go to default
    if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -1499,6 +1585,48 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
 
+#ifdef NEWTEST
+   if(_lookupNewInstanceProvider(request->nameSpace, className, serviceName,
+	    controlProviderName))
+    {
+       CIMEnumerateInstancesRequestMessage* requestCopy =
+	  new CIMEnumerateInstancesRequestMessage(*request);
+
+	_forwardRequest(className, serviceName, controlProviderName,
+	    requestCopy, response);
+	PEG_METHOD_EXIT();
+	return;
+    }
+#else
+
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
+       hasProvider = true;
+   else
+   {
+       // get provider for class
+       providerName = _lookupInstanceProvider(request->nameSpace, className);
+   }
+
+   if(providerName != String::EMPTY)
+   {
+       serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
+       hasProvider = true;
+   }
+   if(hasProvider)
+   {
+      CIMGetInstanceRequestMessage* requestCopy =
+          new CIMGetInstanceRequestMessage(*request);
+
+           _forwardRequest(className, serviceName, controlProviderName,
+               requestCopy, response);
+
+      PEG_METHOD_EXIT();
+      return;
+   }
+#endif
+#if NEVER
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
            controlProviderName))
@@ -1527,6 +1655,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       PEG_METHOD_EXIT();
       return;
    }
+#endif
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -1593,7 +1722,66 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
    PEG_METHOD_EXIT();
 }
+/* _getSubClassNames - Gets the names of all subclasses of the defined
+    class (including the class) and returns it in an array of strings. Uses a similar
+    function in the repository class to get the names.
+    @param namespace
+    @param className
+    @return Array of strings with class names.  Note that there should be at least
+    one classname in the array (the input name)
+    Note that there is a special exception to this function, the __namespace class
+    which does not have any representation in the class repository.
+    @exception CIMException(CIM_ERR_INVALID_CLASS)
+*/
+Array<String> CIMOperationRequestDispatcher::_getSubClassNames(
+		    String& nameSpace,
+		    String& className) throw(CIMException)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+       "CIMOperationRequestDispatcher::_getSubClassNames");
+    Array<String> subClassNames;
+    //
+    // Get names of descendent classes:
+    //
+    if(!String::equalNoCase(className, PEGASUS_CLASSNAME___NAMESPACE))
+    {
+	try
+	{
+	    // Get the complete list of subclass names
+	    _repository->getSubClassNames(nameSpace,
+			 className, true, subClassNames);
+	}
+	catch(CIMException& e)
+	{
+	    // Gets exception back from the getSubClasses if class does not exist
+	    PEG_METHOD_EXIT();
+	    throw e;
+	}
+    }
+    subClassNames.prepend(className);
+    return subClassNames;
+}
 
+/*
+    MIKEDAY postprocessor for enumerateinstance	names would go here.
+    This would:
+    1. determine if we got back any valid responses. If not, error return. Invalid
+    is if we got only one response back and it was bad or if all of them were bad.
+    2. aggregate the CIMReferences from the individual good responses into
+    a combined response. Then delete the individuals and send the good one. We will
+    also probably have to do a duplicate check on CIMreferences and delete duplicates but that is 
+    an internal problem	for me.
+    There will be post processors like this for enumerateinstancenames and enumerateinstances.
+    The enumerateinstances will have to futher work on the properties, etc
+*/
+/*
+void CIMOperationRequestDispatcher::postProcessEnumerateInstanceNamesResponse(
+   CIMEnumerateInstanceNamesRequestMessage* request
+   Array<CIMResponseMessage> responses)
+{
+    //note that the above is not complete as a call but a start.
+}
+*/
 void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    CIMEnumerateInstanceNamesRequestMessage* request)
 {
@@ -1602,48 +1790,160 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    // get the class name
    String className = request->className;
    CIMResponseMessage * response;
-
-   String serviceName = String::EMPTY;
-   String controlProviderName = String::EMPTY;
-
-   // Check for class provided by an internal provider
-   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
-           controlProviderName))
+   //
+   // Get names of descendent classes:
+   //
+   Array<String> subClassNames;
+   CIMException cimException;
+   try
    {
-       CIMEnumerateInstanceNamesRequestMessage* requestCopy =
-         new CIMEnumerateInstanceNamesRequestMessage(*request);
-
-          _forwardRequest(className, serviceName, controlProviderName,
-              requestCopy, response);
-
-      PEG_METHOD_EXIT();
-      return;
+       subClassNames = _getSubClassNames(request->nameSpace,className);
    }
+   catch(CIMException& exception)
+   {
+       // Return exception response if exception from getSubClasses
+       cimException = exception;
+       Array<CIMReference> instanceNames;
+       CIMEnumerateInstanceNamesResponseMessage* response =
+       new CIMEnumerateInstanceNamesResponseMessage(
+	     request->messageId,
+	     cimException,
+	     request->queueIds.copyAndPop(),
+	     instanceNames);
+       _enqueueResponse(request, response);
+       PEG_METHOD_EXIT();
+       return;
+   }
+
+   STAT_PROVIDERSTART
     
-   // check the class name for an "external provider"
-   String providerName = _lookupInstanceProvider(request->nameSpace, className);
+   //This is the code to loop through and process all subClasses found.
+   Array<String> serviceNames;
+   Array<String> controlProviderNames;
+   Array<String> subClassNameList;
 
-   if(providerName.size() != 0)
+   for(Uint32 i = 0; i < subClassNames.size(); i++)
    {
-      CIMEnumerateInstanceNamesRequestMessage* requestCopy =
-          new CIMEnumerateInstanceNamesRequestMessage(*request);
+       //cout << "KSTEST class loop for Class= " << subClassNames[i] << endl;
+       String serviceName = String::EMPTY;
+       String controlProviderName = String::EMPTY;
+    
+       // Lookup any instance providers and add to send list
+       if(_lookupNewInstanceProvider(request->nameSpace, subClassNames[i],
+	    serviceName, controlProviderName))
+	{
+	   // Append the returned values to the list to send.
+	   subClassNameList.append(subClassNames[i]); 
+	   serviceNames.append(serviceName);
+	   controlProviderNames.append(controlProviderName);
 
-      _forwardRequestToService(
-          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+	   //cout << "KSTEST class list Output. Class=" << subClassNames[i] 
+	   //    << " servicename= " << serviceName
+	   //    << "controlProviderName= " << controlProviderName 
+	   //    << " i = " << i << endl; 
+	     
+	}
+       // Issue here whether we should get from the repository everything or just 
+       // this class.  We will probably go to the repository for each class and
+       // repository is set up to switch to that
+       /* For the moment, drop this code and put it after we have decided
+          whether we can get ANYTHING from the services and control providers.
+       else if (_repository->isDefaultInstanceProvider())
+	{
+	   //Here we 
+	   
+	   CIMException cimException;
+	   STAT_PROVIDERSTART
+	   Array<CIMReference> instanceNames;
+	   //cout << "KSTEST enuminstnames default "<< endl;
+	   _repository->read_lock();
+	   try
+	   {
+	      instanceNames = _repository->enumerateInstanceNames(
+		 request->nameSpace,
+		 request->className);
+	   }
+	   catch(CIMException& exception)
+	   {
+	      cimException = exception;
+	   }
+	   catch(Exception& exception)
+	   {
+	      cimException =
+		 PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+	   }
+	   catch(...)
+	   {
+	      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+	   }
+	   _repository->read_unlock();
 
-      PEG_METHOD_EXIT();
-      return;
+	   STAT_PROVIDEREND
+
+	   CIMEnumerateInstanceNamesResponseMessage* response =
+	      new CIMEnumerateInstanceNamesResponseMessage(
+		 request->messageId,
+		 cimException,
+		 request->queueIds.copyAndPop(),
+		 instanceNames);
+
+	   STAT_COPYDISPATCHER_REP
+
+	   //MIKEDAY here we want to be able to get this response (actually these
+	   //responses off to the common list so I get them back to the post processor
+	   //with everything else.
+	   //
+	   _enqueueResponse(request, response);
+	}
+	End of the loop to get things from the default.*/
    }
+
+   // Loop and send to all existing providers in sendlist
+   Uint32 ps = serviceNames.size();
+   if(ps > 0)
+   {
+       for(Uint32 i = 0; i < ps; i++ )
+       {
+	   CIMEnumerateInstanceNamesRequestMessage* requestCopy =
+	     new CIMEnumerateInstanceNamesRequestMessage(*request);
+
+	   CIMResponseMessage * localresponse;
+
+	   // Here we want to add two variables, the count and the last indicator
+	   Boolean lastIndicator = (i == (ps - 1))? true : false;
+	   //cout << "KSTEST send to ctl providers " << subClassNameList[i]
+ 	   //     << " count " << i+1 << " Last Indicator " << lastIndicator 
+	   //     << "serviceName= " << serviceNames[i] << " CtrlPrvdr= " 
+	   //     << controlProviderNames[i] << endl;
+
+	   // Following is temp bypass until we get aggregate working.  Sends only first
+	   if(i == 0)
+	   {
+	       /* MIKEDAY Here is where we issue the individual requests to everything
+	       except the repository.  We need to add the ability to:
+	       1. a counter -- i+1	- This is only for ordering.
+	       2. a lastindicator (false except for the last send. Actually I do not really need
+	       this stuff in this form any more sine I have a count of the actual number 
+	       of requests that I will issue so could do a total count instead of the
+	       last indicator.
+	       */
+	       //cout << "KSTEST really send to ctl providers " << subClassNameList[i]
+	       //    << " count " << i << " Last Indicator " << lastIndicator << endl;
+	      _forwardRequest(subClassNameList[i], serviceNames[i],
+		   controlProviderNames[i],
+		requestCopy, localresponse);
+	   }
+       }
+       PEG_METHOD_EXIT();
+       return;
+   }
+   /*******************8 Come here if there is nothing to send.
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
-
       STAT_PROVIDERSTART
-
       Array<CIMReference> instanceNames;
-
       _repository->read_lock();
-
       try
       {
          instanceNames = _repository->enumerateInstanceNames(
@@ -1663,8 +1963,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->read_unlock();
+            _repository->read_unlock();
 
       STAT_PROVIDEREND
 
@@ -1677,11 +1976,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       STAT_COPYDISPATCHER_REP
 
+      // MIKEDAY Here is where we issue the individual requests to everything
+      //except the repository.  We need to add the ability to:
+      //1. a counter -- i+1	- This is only for ordering.
+      //2. a lastindicator (false except for the last send. Actually I do not really need
+      //this stuff in this form any more sine I have a count of the actual number 
+      //of requests that I will issue so could do a total count instead of the
+      // last indicator.
+
       _enqueueResponse(request, response);
    }
+   *********************************************/
    else // No provider is registered and the repository isn't the default
    {
-      CIMEnumerateInstanceNamesResponseMessage* response =
+       //cout << "KSTEST nothing registered" << endl;
+
+       CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),

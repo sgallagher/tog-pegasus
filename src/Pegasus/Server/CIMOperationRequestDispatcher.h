@@ -153,7 +153,22 @@ public:
       
    protected:
 
-      Boolean _lookupInternalProvider(
+	/** _getSubClassNames - Gets the names of all subclasses of the defined
+	    class (including the class) and returns it in an array of strings. Uses 
+	    a similar function in the repository class to get the names.
+	    @param namespace
+	    @param className
+	    @return Array of strings with class names.  Note that there should be 
+	    at least one classname in the array (the input name)
+	    Note that there is a special exception to this function, the __namespace
+	    class which does not have any representation in the class repository.
+	    @exception CIMException(CIM_ERR_INVALID_CLASS)
+	*/
+       Array<String> CIMOperationRequestDispatcher::_getSubClassNames(
+	    String& nameSpace,
+	    String& className) throw(CIMException);
+       
+       Boolean _lookupInternalProvider(
         const String& nameSpace,
         const String& className,
         String& service,
@@ -161,6 +176,12 @@ public:
 
       String _lookupInstanceProvider(
 	const String& nameSpace, const String& className);
+
+      Boolean _lookupNewInstanceProvider(
+	const String& nameSpace, 
+	const String& className,
+	String& serviceName,
+	String& controlProviderName);
 
       Array<String> _lookupAssociationProvider(
 	const String& nameSpace, const String& className,

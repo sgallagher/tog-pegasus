@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.8  2001/04/14 07:52:22  mike
+// more docs
+//
 // Revision 1.7  2001/04/14 07:46:47  mike
 // new
 //
@@ -205,7 +208,7 @@ public:
     /** Registers an option. The OptionManager is responsible for disposing
 	of the option; the caller must not delete this object.
 
-	@param option - option to be registerd.
+	@param option option to be registerd.
 	@exception NullPointer exception if option argument is null.
 	@exception DuplicateOption if option already defined.
     */
@@ -230,8 +233,8 @@ public:
 	must have the form -option. If they are present, then they are
 	taken to be true.
 
-	&param argc - number of argument on the command line.
-	&param argv - list of command line arguments.
+	&param argc number of argument on the command line.
+	&param argv list of command line arguments.
 	&exception InvalidOptionValue if validation fails.
 	&exception MissingCommandLineOptionArgument
     */
@@ -253,7 +256,7 @@ public:
 	Option::isValid(). Valid option values are set by calling 
 	Option::setValue().
 
-	&param fileName - name of file to be merged.
+	&param fileName name of file to be merged.
 	&exception NoSuchFile if file cannot be opened.
 	&exception BadConfigFileOption
     */
@@ -325,24 +328,24 @@ public:
 
     /** Constructor.
 
-	@param optionName - the name of this option.
+	@param optionName the name of this option.
 
-	@param defaultValue - the default value of this option.
+	@param defaultValue the default value of this option.
 
-	@param required - whether the value of this option is required.
+	@param required whether the value of this option is required.
 
-	@param type - type of the value. This is used to validate the value.
+	@param type type of the value. This is used to validate the value.
 
-	@param domain - list of legal value for this option. If this list
+	@param domain list of legal value for this option. If this list
 	    is empty, then no domain is enforced.
 
-	@param environmentVariableName - name of the corresponding environment
+	@param environmentVariableName name of the corresponding environment
 	    variable (which may be different from the option name).
 
-	@param configFileOptionName - name of the corresponding variable
+	@param configFileOptionName name of the corresponding variable
 	    in the config file (which may be different from the option name).
 
-	@param commandLineOptionName - name of the corresponding command line
+	@param commandLineOptionName name of the corresponding command line
 	    option (which may be different from the option name).
     */
     Option(

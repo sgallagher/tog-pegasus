@@ -230,20 +230,24 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     Array<CIMInstance> pmInstances;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForAssocClass");
-
+    cout << "KSTEST _LookupProviderForAssocClass " << assocClassName.getString() << endl;
+    
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "nameSpace = " + objectPath.getNameSpace().getString() + 
-        "; className = " + objectPath.getClassName().getString());
+        "; className = " + assocClassName.getString());
+    // KS Modification"; className = " + objectPath.getClassName().getString());
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupAssociationProvider(
-        objectPath.getNameSpace(), objectPath.getClassName(),
+        objectPath.getNameSpace(), assocClassName.getString(),
+        // KS Modification objectPath.getNameSpace(), objectPath.getClassName(),
         assocClassName, resultClassName,
         pInstances, pmInstances) == false)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Provider registration not found for " + objectPath.getNameSpace().getString() +
-            " className " + objectPath.getClassName().getString());
+            " className " + assocClassName.getString());
+        //" className " + objectPath.getClassName().getString());
 
         PEG_METHOD_EXIT();
 
@@ -1397,11 +1401,9 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
            Array<String> third;
 
            _lookupProviderForAssocClass(objectPath,
-            //                       request->associationClass,
-            //                       request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
-                                        first, second, third);
+                                 request->assocClass,
+                                 request->resultClass,
+                                 first, second, third);
 
            for(Uint32 i=0,n=first.size(); i<n; i++)
            {
@@ -1520,10 +1522,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         Array<String> third;
 
         _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
+                                     request->assocClass,
+                                     request->resultClass,
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1632,10 +1632,11 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         Array<String> second;
         Array<String> third;
 
+        // Get the assoc Provider based on the result class input.
+        // The function result class is nulled
         _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
+        //                           request->associationClass,
+                                     request->resultClass,
                                      CIMName(),
                                      first, second, third);
 
@@ -1751,12 +1752,13 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         Array<String> second;
         Array<String> third;
 
+        // Get provider based on resultClass which we put into the
+        // associationClass position for this call.
         _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
-                                     first, second, third);
+         //                            request->associationClass,
+                                       request->resultClass,
+                                       CIMName(),
+                                       first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {

@@ -13,3 +13,12 @@ added these defintions to httpd.conf:
     Options ExecCGI
     allow from all
     </Directory>
+
+To use the CGI interface, type "make" in this directory. Next run the
+Server like this: 
+
+    C:\> Server <pegasus-build-directory>
+
+Then go to your browser and type in this URL:
+
+    http://<yourhost>/pegasus

@@ -1,9 +1,5 @@
 [provider("SampleMethodProvider")]
-class Sample_MethodProviderClass
+class Sample_MethodProviderClass : Sample_ProviderClass
 {
-	[key,
-	read]
-	Uint8 Identifier;
-	
 	string SayHello();
 };

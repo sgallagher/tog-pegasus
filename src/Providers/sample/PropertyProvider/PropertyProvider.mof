@@ -1,9 +1,5 @@
-class Sample_PropertyProviderClass
+class Sample_PropertyProviderClass : Sample_ProviderClass
 {
-	[key,
-	read]
-	Uint8 Identifier;
-	
 	[read, write,
 	provider("SamplePropertyProvider")]
 	string Message;

@@ -1,10 +1,5 @@
-[provider("SampleInstanceProvider")]
-class Sample_DummyInstance
+[provider("SampleAssociationProvider")]
+class Sample_AssociationProviderClass
 {
-   [key,
-	read]
-   Uint8 Identifier;
-	
-	[read, write]
-	string Message;
+	// not implemented yet
 };

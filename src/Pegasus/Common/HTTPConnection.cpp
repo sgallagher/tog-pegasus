@@ -402,8 +402,12 @@ Boolean _IsBodylessMessage(const char* line)
         "HTTP/1.0 400",
         "HTTP/1.1 401",
         "HTTP/1.0 401",
+        "HTTP/1.1 500",
+        "HTTP/1.0 500",
         "HTTP/1.1 501",
-        "HTTP/1.0 501"
+        "HTTP/1.0 501",
+        "HTTP/1.1 503",
+        "HTTP/1.0 503"
     };
 
     const Uint32 METHOD_NAMES_SIZE = sizeof(METHOD_NAMES) / sizeof(char*);

@@ -939,6 +939,27 @@ void CIMOperationRequestDecoder::handleMethodCall(
             PEG_METHOD_EXIT();
             return;
          }
+         catch (XmlException&)
+         {
+            // XmlExceptions are handled below
+            throw;
+         }
+         catch (Exception& e)
+         {
+            // Caught an unexpected exception from decoding.  Since we must
+            // have had a problem reconstructing a CIM object, we'll treat it
+            // as an invalid parameter
+            sendIMethodError(
+               queueId, 
+               httpMethod,
+               messageId,
+               cimMethodName,
+               PEGASUS_CIM_EXCEPTION(
+                  CIM_ERR_INVALID_PARAMETER, e.getMessage()));
+
+            PEG_METHOD_EXIT();
+            return;
+         }
 
 	 // Expect </IMETHODCALL>
 
@@ -1138,6 +1159,27 @@ void CIMOperationRequestDecoder::handleMethodCall(
                messageId,
                cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                e);
+
+            PEG_METHOD_EXIT();
+            return;
+         }
+         catch (XmlException&)
+         {
+            // XmlExceptions are handled below
+            throw;
+         }
+         catch (Exception& e)
+         {
+            // Caught an unexpected exception from decoding.  Since we must
+            // have had a problem reconstructing a CIM object, we'll treat it
+            // as an invalid parameter
+            sendMethodError(
+               queueId, 
+               httpMethod,
+               messageId,
+               cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
+               PEGASUS_CIM_EXCEPTION(
+                  CIM_ERR_INVALID_PARAMETER, e.getMessage()));
 
             PEG_METHOD_EXIT();
             return;

@@ -292,6 +292,36 @@ int main()
 	    assert(nameSpace == "a/b/c");
 	}
     }
+    // Test the string match functions
+    {
+        String abc = "abc";
+        assert(String::match(abc, "abc"));
+        assert(String::match(abc, "???"));
+        assert(String::match(abc, "*"));
+        assert(String::match(abc, "?bc"));
+        assert(String::match(abc, "?b?"));
+        assert(String::match(abc, "??c"));
+        assert(String::match(abc, "*bc"));
+        assert(String::match(abc, "a*c"));
+        assert(String::match(abc, "ab*"));
+        assert(String::match(abc, "a*"));
+        assert(String::match(abc, "[axx]bc"));
+        assert(!String::match(abc, "def"));
+        assert(!String::match(abc, "[de]bc"));
+        assert(String::match(abc, "a[a-c]c"));
+        assert(!String::match(abc, "a[d-x]c"));
+        assert(String::match("*test", "\\*test"));
+
+        assert(String::match("abcdef123", "*[0-9]"));
+
+        assert(String::match("This is a test", "*is*"));
+        assert(String::match("Hello", "Hello"));
+        assert(String::matchNoCase("HELLO", "hello"));
+        assert(String::match("This is a test", "This is *"));
+        assert(String::match("This is a test", "* is a test"));
+        assert(!String::match("Hello", "Goodbye"));
+
+    }
 
 
     cout << "+++++ passed all tests" << endl;

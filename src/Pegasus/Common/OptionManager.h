@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:	Karl Schopmyer
+// Modified By:	Karl Schopmyer(k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -142,6 +142,11 @@ typedef Option* OptionPtr;
 	String value;
 	om.lookupValue("port", value);
     </pre>
+    
+    Boolean Options can easily be tested as follows:
+    <pre>
+    
+    </pre>
 
     <h4>Command Line Options</h4>
 
@@ -237,9 +242,10 @@ public:
 
 	@param option option to be registerd.
 	@exception NullPointer exception if option argument is null.
-	@exception OptionManagerDuplicateOption if option already defined.
+	@exception OMDuplicateOption if option already defined.
     */
-    void registerOption(Option* option);
+    void registerOption(Option* option); 
+    //        throw(NullPointer, OMDuplicateOption);
 
     /** Provides a simple way to register several options at once using
 	a declartive style table. This may also be done programmitically
@@ -262,10 +268,12 @@ public:
 
 	&param argc number of argument on the command line.
 	&param argv list of command line arguments.
+        &param abortOnErr - Optional Boolean that if true causes exception if there is
+        a parameter found that is not in the table. Defaults to true
 	&exception InvalidOptionValue if validation fails.
-	&exception OptionManagerMissingCommandLineOptionArgument
+	&exception OMMissingCommandLineOptionArgument
     */
-    void mergeCommandLine(int& argc, char**& argv);
+    void mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr=true);
 
     /** Merge option values from a file. Searches file for registered options
 	whose names are given by the options which have been registered.
@@ -282,7 +290,7 @@ public:
     /** After merging, this method is called to check for required options
 	that were not merged (specified).
 
-	&exception OptionManagerMissingRequiredRequiredOption
+	&exception OMMissingRequiredRequiredOption
     */
     void checkRequiredOptions() const;
 
@@ -319,6 +327,12 @@ public:
     */
     Boolean valueEquals(const String& name, const String& value) const;
 
+    /** isTrue - determines if a Boolean Option is true or false. Note
+        that this function simply tests the value for "true" string.
+        @param name - the name of the opeiton
+        @return - Returns true if the option value is true.
+    */
+    Boolean isTrue(const String& name) const;
 
     /** Print all the options. */
     void print() const;
@@ -587,61 +601,71 @@ struct OptionRow
 */
  
 /** Exception class */
-class OptionManagerMissingCommandLineOptionArgument : public Exception
+class OMMissingCommandLineOptionArgument : public Exception
 {
 public:
 
-    OptionManagerMissingCommandLineOptionArgument(const String& optionName)
+    OMMissingCommandLineOptionArgument(const String& optionName)
 	: Exception("Missing command line option argument: " + optionName) { }
 };
 
 /** Exception class */
-class OptionManagerInvalidOptionValue : public Exception
+class OMInvalidOptionValue : public Exception
 {
 public:
 
-    OptionManagerInvalidOptionValue(const String& name, const String& value)
+    OMInvalidOptionValue(const String& name, const String& value)
 	: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
 };
 
 /** Exception class */
-class OptionManagerDuplicateOption : public Exception
+class OMDuplicateOption : public Exception
 {
 public:
 
-    OptionManagerDuplicateOption(const String& name)
+    OMDuplicateOption(const String& name)
 	: Exception("Duplicate option: " + name) { }
 };
 
 /** Exception class */
-class OptionManagerConfigFileSyntaxError : public Exception
+class OMConfigFileSyntaxError : public Exception
 {
 public:
 
-    OptionManagerConfigFileSyntaxError(const String& file, Uint32 line)
+    OMConfigFileSyntaxError(const String& file, Uint32 line)
 	: Exception(_formatMessage(file, line)) { }
 
     static String _formatMessage(const String& file, Uint32 line);
 };
 
 /** Exception class */
-class OptionManagerUnrecognizedConfigFileOption : public Exception
+class OMUnrecognizedConfigFileOption : public Exception
 {
 public:
 
-    OptionManagerUnrecognizedConfigFileOption(const String& name)
+    OMUnrecognizedConfigFileOption(const String& name)
 	: Exception("Unrecognized config file option: " + name) { }
 };
 
 /** Exception class */
-class OptionManagerMissingRequiredOptionValue : public Exception
+class OMMissingRequiredOptionValue : public Exception
 {
 public:
 
-    OptionManagerMissingRequiredOptionValue(const String& name)
+    OMMissingRequiredOptionValue(const String& name)
 	: Exception("Missing required option value: " + name) { }
 };
 
+/** Exception class */
+class OMMBadCmdLineOption : public Exception
+{
+public:
+
+    OMMBadCmdLineOption(const String& name)
+	: Exception("Parameter not Valid: " + name) { }
+};
+
+
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_OptionManager_h */
+#endif /* Pegasus_OM_h */

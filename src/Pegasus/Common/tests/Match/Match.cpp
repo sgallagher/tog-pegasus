@@ -26,6 +26,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
+/* NOTE: KS March 2002THis test can be removed in the future.  It is all captured in the
+    String tests
+*/
 #include <cassert>
 #include <Pegasus/Common/String.h>
 

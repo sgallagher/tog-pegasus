@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -430,6 +430,22 @@ public:
 
     /** Return true if the str parameter matches the pattern. C-Shell style
 	glob matching is used.
+        @param str String to be matched against the pattern
+        @param pattern Pattern to use in the match
+        @return Boolean true if str matches pattern
+        The pattern definition is as follows:
+        <pre>
+        *             Matches any number of any characters
+        ?             Match exactly one character
+        [chars]       Match any character in chars
+        [chara-charb] Match any character in the range between chara and charb
+        </pre>
+        The literal characters *, ?, [, ] can be included in a string by
+        escaping them with backslash "\".  Ranges of characters can be concatenated.
+        <pre>
+        Boolean result = String::match("This is a test", "*is*");
+        Boolean works =  String::match("abcdef123", "*[0-9]");
+        </pre>
     */
     static Boolean match(const String& str, const String& pattern);
 

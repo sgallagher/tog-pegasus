@@ -22,7 +22,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
+//                  June 2001 - Extend help and print to include help description
+//                  Feb 2002 - ad IsTrue
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// TODO: expand varaibles in the configuration file. For example:
+// TODO: expand variables in the configuration file. For example:
 //
 //     provider_dir = "${home}/providers"
 //
@@ -84,18 +86,21 @@ OptionManager::~OptionManager()
 	delete _options[i];
 }
 
-void OptionManager::registerOption(Option* option)
+void OptionManager::registerOption(Option* option) 
+        //throw(NullPointer, OMDuplicateOption)
 {
     if (!option)
 	throw NullPointer();
 
     if (lookupOption(option->getOptionName()))
-	throw OptionManagerDuplicateOption(option->getOptionName());
+	throw OMDuplicateOption(option->getOptionName());
 
     _options.append(option);
 }
 
+
 void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
+    throw (NullPointer)
 {
     for (Uint32 i = 0; i < numOptions; i++)
     {
@@ -162,7 +167,7 @@ void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
     }
 }
 
-void OptionManager::mergeCommandLine(int& argc, char**& argv)
+void OptionManager::mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr)
 {
     for (int i = 0; i < argc; )
     {
@@ -178,8 +183,15 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 
 	    if (!option)
 	    {
-		i++;
-		continue;
+		if (abortOnErr)
+                {
+                    throw OMMBadCmdLineOption(arg);    
+                }
+                else
+                {
+                    i++;
+    		    continue;
+                }
 	    }
 
 	    // Get the option argument if any:
@@ -189,7 +201,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 	    if (option->getType() != Option::BOOLEAN)
 	    {
 		if (i + 1 == argc)
-		    throw OptionManagerMissingCommandLineOptionArgument(arg);
+		    throw OMMissingCommandLineOptionArgument(arg);
 
 		optionArgument = argv[i + 1];
 	    }
@@ -197,7 +209,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 	    // Validate the value:
 
 	    if (!option->isValid(optionArgument))
-		throw OptionManagerInvalidOptionValue(arg, optionArgument);
+		throw OMInvalidOptionValue(arg, optionArgument);
 
 	    // Set the value:
 
@@ -260,7 +272,7 @@ void OptionManager::mergeFile(const String& fileName)
 	String ident;
 
 	if (!(isalpha(*p) || *p == '_'))
-	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
+	    throw OMConfigFileSyntaxError(fileName, lineNumber);
 
 	ident += *p++;
 
@@ -275,7 +287,7 @@ void OptionManager::mergeFile(const String& fileName)
 	// Expect an equal sign:
 
 	if (*p != '=')
-	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
+	    throw OMConfigFileSyntaxError(fileName, lineNumber);
 	p++;
 
 	// Skip whitespace after equal sign:
@@ -286,7 +298,7 @@ void OptionManager::mergeFile(const String& fileName)
 	// Expect open quote:
 
 	if (*p != '"')
-	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
+	    throw OMConfigFileSyntaxError(fileName, lineNumber);
 	p++;
 
 	// Get the value:
@@ -322,7 +334,7 @@ void OptionManager::mergeFile(const String& fileName)
 			break;
 
 		    case '\0':
-			throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
+			throw OMConfigFileSyntaxError(fileName, lineNumber);
 
 		    default:
 			value += *p;
@@ -337,7 +349,7 @@ void OptionManager::mergeFile(const String& fileName)
 	// Expect close quote:
 
 	if (*p != '"')
-	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
+	    throw OMConfigFileSyntaxError(fileName, lineNumber);
 	p++;
 
 	// Skip whitespace through end of line:
@@ -346,17 +358,17 @@ void OptionManager::mergeFile(const String& fileName)
 	    p++;
 
 	if (*p)
-	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
+	    throw OMConfigFileSyntaxError(fileName, lineNumber);
 
 	// Now that we have the identifier and value, merge it:
 
 	Option* option = (Option*)lookupOption(ident);
 
 	if (!option)
-	    throw OptionManagerUnrecognizedConfigFileOption(ident);
+	    throw OMUnrecognizedConfigFileOption(ident);
 
 	if (!option->isValid(value))
-	    throw OptionManagerInvalidOptionValue(ident, value);
+	    throw OMInvalidOptionValue(ident, value);
 
 	option->setValue(value);
     }
@@ -369,7 +381,7 @@ void OptionManager::checkRequiredOptions() const
 	const Option* option = _options[i];
 
 	if (option->getRequired() && !option->isResolved())
-	    throw OptionManagerMissingRequiredOptionValue(option->getOptionName());
+	    throw OMMissingRequiredOptionValue(option->getOptionName());
     }
 }
 
@@ -400,11 +412,12 @@ Boolean OptionManager::valueEquals(const String& name, const String& value)
 {
     String optionString;
 
-    if (lookupValue(name, optionString) && optionString == value)
-	return true;
-    else
-	return false;
+    return (lookupValue(name, optionString) && optionString == value) ? true : false;
+}
 
+Boolean OptionManager::isTrue(const String& name) const
+{
+    return valueEquals(name, "true") ? true: false;
 }
 /*  Buried this one for the moment to think about it.
 Uint32 OptionManager::isStringInOptionMask(const String& option, 
@@ -452,7 +465,7 @@ void OptionManager::printOptionsHelp() const
 	cout << option->getCommandLineOptionName() << "  ";
 	cout << option->getOptionName() << " ";
 	cout << option->getOptionHelpMessage();
-        cout << " Default(" << option->getDefaultValue() << ")\n";
+        cout << ". Default(" << option->getDefaultValue() << ")\n";
     }
     cout << endl;
 
@@ -491,7 +504,7 @@ Option::Option(
     _resolved(false)
 {
     if (!isValid(_value))
-	throw OptionManagerInvalidOptionValue(_optionName, _value);
+	throw OMInvalidOptionValue(_optionName, _value);
 }
 
 Option::Option(const Option& x) 
@@ -602,7 +615,7 @@ Boolean Option::isValid(const String& value) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-String OptionManagerConfigFileSyntaxError::_formatMessage(
+String OMConfigFileSyntaxError::_formatMessage(
     const String& file, Uint32 line)
 {
     char buffer[32];

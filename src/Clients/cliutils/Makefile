@@ -14,7 +14,6 @@ LIBRARIES = \
     pegclient \
     pegrepository \
     pegconfig \
-    suballoc \
     pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends

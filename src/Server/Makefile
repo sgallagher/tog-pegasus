@@ -5,10 +5,10 @@ include $(ROOT)/mak/config.mak
 LIBRARIES = \
     pegclient \
     pegserver \
-    certificateprovider \
+    CertificateProvider \
     peguser \
     pegprm \
-    CimomStatDataProvider \
+    CIMOMStatDataProvider \
     InteropProvider \
     NamespaceProvider \
     pegindicationservice \

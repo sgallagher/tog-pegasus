@@ -2,7 +2,7 @@
 LIBRARIES = \
     peglistener \
     pegCLIClientLib \
-    pegExportServer \
+    pegexportserver \
     pegclient \
     pegrepository \
     pegconfig \

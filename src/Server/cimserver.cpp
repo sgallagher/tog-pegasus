@@ -216,20 +216,28 @@ void PrintHelp(const char* arg0)
     usage.append (COMMAND_NAME);
     usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
     usage.append ("  options\n");
-    usage.append ("    -v          - displays CIM Server version number\n");
-    usage.append ("    -h          - prints this help message\n");
-    usage.append ("    -s          - shuts down CIM Server\n");
+    usage.append ("    -v              - displays CIM Server version number\n");
+    usage.append ("    -h              - prints this help message\n");
+    usage.append ("    -s              - shuts down CIM Server\n");
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-    usage.append ("    -D [home]   - sets pegasus home directory\n");
+    usage.append ("    -D [home]       - sets pegasus home directory\n");
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
-    usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
-    usage.append ("    -start    - starts pegasus as a Windows NT Service\n");
-    usage.append ("    -stop     - stops pegasus as a Windows NT Service\n");
+    usage.append ("    -install [name] - installs pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("    -remove [name]  - removes pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("    -start [name]   - starts pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("    -stop [name]    - stops pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n\n");
 #endif
     usage.append ("  configProperty=value\n");
-    usage.append ("                - sets CIM Server configuration property\n");
+    usage.append ("                    - sets CIM Server configuration property\n");
 
     cout << endl;
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
@@ -552,7 +560,13 @@ int main(int argc, char** argv)
                   //
                   // Install as a NT service
                   //
-                  if(cimserver_install_nt_service())
+                  char *opt_arg = NULL;
+                  if (i+1 < argc)
+                  {
+                    opt_arg = argv[i+1];
+                    
+                  }
+                  if(cimserver_install_nt_service(opt_arg))
                   {
                       cout << "\nPegasus installed as NT Service";
                       exit(0);
@@ -567,7 +581,12 @@ int main(int argc, char** argv)
                   //
                   // Remove Pegasus as an NT service
                   //
-                  if(cimserver_remove_nt_service())
+                  char *opt_arg = NULL;
+                  if (i+1 < argc)
+                  {
+                    opt_arg = argv[i+1];                    
+                  }
+                  if(cimserver_remove_nt_service(opt_arg))
                   {
                       cout << "\nPegasus removed as NT Service";
                       exit(0);
@@ -583,7 +602,12 @@ int main(int argc, char** argv)
                   //
                   // Start as a NT service
                   //
-                  if(cimserver_start_nt_service())
+                  char *opt_arg = NULL;
+                  if (i+1 < argc)
+                  {
+                    opt_arg = argv[i+1];                    
+                  }
+                  if(cimserver_start_nt_service(opt_arg))
                   {
                       cout << "\nPegasus started as NT Service";
                       exit(0);
@@ -598,7 +622,12 @@ int main(int argc, char** argv)
                   //
                   // Stop as a NT service
                   //
-                  if(cimserver_stop_nt_service())
+                  char *opt_arg = NULL;
+                  if (i+1 < argc)
+                  {
+                    opt_arg = argv[i+1];                    
+                  }
+                  if(cimserver_stop_nt_service(opt_arg))
                   {
                       cout << "\nPegasus stopped as NT Service";
                       exit(0);

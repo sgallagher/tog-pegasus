@@ -54,7 +54,7 @@ PEGASUS_USING_STD;
 CIMServer *server_windows;
 static Service pegasus_service(PEGASUS_SERVICE_NAME);
 static HANDLE pegasus_service_event;
-static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\cimserver");
+static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
 static LPCSTR g_cimservice_home = TEXT("home");
 
 //-------------------------------------------------------------------------
@@ -265,13 +265,25 @@ Boolean isCIMServerRunning(void)
 //-------------------------------------------------------------------------
 // INSTALL
 //-------------------------------------------------------------------------
-bool cimserver_install_nt_service(void)
+bool cimserver_install_nt_service(char *service_name)
 {
   Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
-  char filename[_MAX_PATH];
+  char filename[_MAX_PATH] = {0};
+  char displayname[_MAX_PATH] = {0};
+
+  // If service name is specified, override default
+  if (service_name == NULL)
+    {
+      strcpy(displayname, PEGASUS_DISPLAY_NAME);
+    }
+  else
+    {
+      pegasus_service.SetServiceName(service_name);
+      sprintf(displayname, "%s - %s", PEGASUS_DISPLAY_NAME, service_name);
+    }
 
   GetModuleFileName(NULL, filename, sizeof(filename));
-  status = pegasus_service.Install(PEGASUS_DISPLAY_NAME, PEGASUS_DESCRIPTION, filename);
+  status = pegasus_service.Install(displayname, PEGASUS_DESCRIPTION, filename);
 
   // Upon success, set home in registry
   if (status == Service::SERVICE_RETURN_SUCCESS)
@@ -291,9 +303,15 @@ bool cimserver_install_nt_service(void)
 //-------------------------------------------------------------------------
 // REMOVE
 //-------------------------------------------------------------------------
-bool cimserver_remove_nt_service(void) 
+bool cimserver_remove_nt_service(char *service_name) 
 {
   Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+
+  // If service name is specified, override default
+  if (service_name != NULL)
+    {
+      pegasus_service.SetServiceName(service_name);
+    }
 
   status = pegasus_service.Remove();
 
@@ -303,9 +321,15 @@ bool cimserver_remove_nt_service(void)
 //-------------------------------------------------------------------------
 // START
 //-------------------------------------------------------------------------
-bool cimserver_start_nt_service(void) 
+bool cimserver_start_nt_service(char *service_name) 
 {
   Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+
+  // If service name is specified, override default
+  if (service_name != NULL)
+    {
+      pegasus_service.SetServiceName(service_name);
+    }
 
   status = pegasus_service.Start(5);
 
@@ -315,9 +339,15 @@ bool cimserver_start_nt_service(void)
 //-------------------------------------------------------------------------
 // STOP
 //-------------------------------------------------------------------------
-bool cimserver_stop_nt_service(void) 
+bool cimserver_stop_nt_service(char *service_name) 
 {
   Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+
+  // If service name is specified, override default
+  if (service_name != NULL)
+    {
+      pegasus_service.SetServiceName(service_name);
+    }
 
   status = pegasus_service.Stop(5);
 
@@ -331,9 +361,12 @@ static bool _getRegInfo(const char *lpchKeyword, char *lpchRetValue)
 {
   HKEY   hKey;
   DWORD  dw                   = _MAX_PATH;
+  char   subKey[_MAX_PATH]    = {0};
+  
+  sprintf(subKey, g_cimservice_key, pegasus_service.GetServiceName());
 
   if ((RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                    g_cimservice_key, 
+                    subKey, 
                     0,
                     KEY_READ, 
                     &hKey)) != ERROR_SUCCESS)
@@ -362,12 +395,15 @@ static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue)
   HKEY   hKey;
   DWORD  dw                   = _MAX_PATH;
   char   home_key[_MAX_PATH]  = {0};
+  char   subKey[_MAX_PATH]    = {0};
 
   if (lpchKeyword == NULL || lpchValue == NULL)
     return false;
 
- if ((RegCreateKeyEx (HKEY_LOCAL_MACHINE,
-                      g_cimservice_key,
+  sprintf(subKey, g_cimservice_key, pegasus_service.GetServiceName());
+
+  if ((RegCreateKeyEx (HKEY_LOCAL_MACHINE,
+                      subKey,
                       0,
                       NULL,
                       0,

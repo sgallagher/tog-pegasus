@@ -103,6 +103,14 @@ public:
   static ReturnCode Run(SERVICE_MAIN_T service_main, DWORD flags = 0);
   ReturnCode GetState(State *state);
   static bool LogEvent(WORD event_type, DWORD event_id, const char *string);
+  static void SetServiceName(char *service_name)
+    {
+      g_service_name = service_name;
+    }
+  static char *GetServiceName(void)
+    {
+      return g_service_name;
+    }
 
 private:
   static int                    g_argc;

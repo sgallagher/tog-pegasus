@@ -1,4 +1,4 @@
-localizedProvider_en:table {
+en:table {
 
 }
       

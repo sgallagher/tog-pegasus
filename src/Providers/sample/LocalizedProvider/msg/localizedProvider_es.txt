@@ -1,4 +1,4 @@
-localizedProvider_es:table {
+es:table {
 	ResourceBundleString:string {"ResourceBundleString ES"}
 	ContentLanguageString:string {"ContentLanguageString ES"}
 	NotSupportedError:string {"LocalizedProvider: Operation Not Supported ES"}

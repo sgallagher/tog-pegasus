@@ -54,7 +54,7 @@
         */
 
 
-pegasusServer_en:table {
+en:table {
 
         // ==========================================================
         // Messages for CIMStatusCode

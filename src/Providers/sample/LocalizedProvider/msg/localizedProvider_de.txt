@@ -1,4 +1,4 @@
-localizedProvider_de:table {
+de:table {
 	ResourceBundleString:string {"ResourceBundleString DE"}
 	ContentLanguageString:string {"ContentLanguageString DE"}
 	NotSupportedError:string {"LocalizedProvider: Operation Not Supported DE"}

@@ -47,7 +47,6 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
 
-
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
 #  error "FD_SETSIZE was not set to 1024 prior to the last inclusion \
@@ -73,6 +72,14 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Define a platform-neutral socket length type
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+typedef size_t PEGASUS_SOCKLEN_T;
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_OS_LINUX) || (defined(PEGASUS_OS_SOLARIS) && !defined(SUNOS_5_6))
+typedef socklen_t PEGASUS_SOCKLEN_T;
+#else
+typedef int PEGASUS_SOCKLEN_T;
+#endif
 
 static AtomicInt _connections = 0;
 
@@ -239,7 +246,7 @@ void Monitor::initializeTickler(){
     _tickle_server_addr.sin_family = PF_INET;
     _tickle_server_addr.sin_port = 0;
 
-    PEGASUS_SOCKLEN_SIZE _addr_size = sizeof(_tickle_server_addr);
+    PEGASUS_SOCKLEN_T _addr_size = sizeof(_tickle_server_addr);
 
     // bind server side to socket
     if((::bind(_tickle_server_socket,
@@ -353,7 +360,7 @@ void Monitor::initializeTickler(){
 
     /* set up the slave connection */
     memset(&_tickle_peer_addr, 0, sizeof(_tickle_peer_addr));
-    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(_tickle_peer_addr);
+    PEGASUS_SOCKLEN_T peer_size = sizeof(_tickle_peer_addr);
     pegasus_sleep(1);
 
     // this call may fail, we will try a max of 20 times to establish this peer connection

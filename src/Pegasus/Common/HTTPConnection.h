@@ -52,7 +52,6 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
-#include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ContentLanguages.h>

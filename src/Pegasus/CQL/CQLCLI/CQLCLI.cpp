@@ -301,12 +301,71 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
   return true;
 }
 
+Boolean _normalize(Array<CQLSelectStatement>& _statements, 
+                   Array<CIMInstance>& _instances,
+                   String testOption)
+{
+  if(testOption == String::EMPTY || testOption == "5")
+  {
+    cout << "=========Normalize Results==============" << endl;
+
+    for(Uint32 i = 0; i < _statements.size(); i++)
+    {
+      cout << "======================================" << endl;
+
+      try
+      {
+        cout << "-----Statement before normalize" << endl;
+        _statements[i].applyContext();
+        cout << _statements[i].toString() << endl;
+
+        _statements[i].normalizeToDOC();
+        cout << "-----Statement after normalize" << endl;
+        cout << _statements[i].toString() << endl;
+
+        cout << "-----Traversing the predicates" << endl;
+        CQLPredicate topPred = _statements[i].getPredicate();
+        if (topPred.isSimple())
+        {
+          cout << "-----Top predicate is simple: " << topPred.toString() << endl;
+        }
+        else
+        {
+          cout << "-----Top predicate is not simple: " << topPred.toString() << endl;
+
+          Array<CQLPredicate> secondLevelPreds = topPred.getPredicates();
+          for (Uint32 n = 0; n < secondLevelPreds.size(); n++)
+          {
+            if (secondLevelPreds[n].isSimple())
+            {
+              cout << "-----2nd level predicate is simple: "
+                   << secondLevelPreds[n].toString() << endl;
+            }
+            else
+            {
+              cout << "-----ERROR - 2nd level predicate is NOT simple!: " 
+                   << secondLevelPreds[n].toString() << endl;
+            }
+          }
+        }
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+    }
+  }
+
+  return true;                                                                                        
+}
+
 void help(const char* command){
 	cout << command << " queryFile [option]" << endl;
 	cout << " options:" << endl;
 	cout << " -test: ";
-	cout << "1 = evaluate" << endl << "        2 = apply projection" << endl << "        3 = get property list" << endl;
+	cout << "1 = evaluate" << endl 
+             << "        2 = apply projection" << endl 
+             << "        3 = get property list" << endl;
 	cout << "        4 = validate properties" << endl;
+	cout << "        5 = normalize to DOC" << endl;
 	cout << " -className class" << endl;
 	cout << " -nameSpace namespace (Example: root/SampleProvider)" << endl << endl;
 }
@@ -423,6 +482,7 @@ int main(int argc, char ** argv)
 			_validateProperties(_statements,_instances, testOption);
 			_getPropertyList(_statements,_instances, _ns, testOption);
 			_evaluate(_statements,_instances, testOption);
+			_normalize(_statements,_instances, testOption);
 		}
 		catch(Exception e){ 
 			cout << e.getMessage() << endl; 

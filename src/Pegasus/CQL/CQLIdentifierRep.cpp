@@ -47,11 +47,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-Char16 STAR = '*';
-Char16 HASH = '#';
-Char16 RBRKT = ']';
-Char16 LBRKT = '[';
-const char SCOPE[] = "::";
+Char16 CQLIdentifierRep::STAR = '*';
+Char16 CQLIdentifierRep::HASH = '#';
+Char16 CQLIdentifierRep::RBRKT = ']';
+Char16 CQLIdentifierRep::LBRKT = '[';
+const char CQLIdentifierRep::SCOPE[] = "::";
 
 CQLIdentifierRep::CQLIdentifierRep(): 
   QueryIdentifierRep()

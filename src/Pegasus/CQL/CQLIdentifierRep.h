@@ -93,6 +93,12 @@ class PEGASUS_CQL_LINKAGE CQLIdentifierRep: public QueryIdentifierRep
 
   private:
     void parse(String indentifier);
+
+    static Char16 STAR;
+    static Char16 HASH;
+    static Char16 RBRKT;
+    static Char16 LBRKT;
+    static const char SCOPE[];
 };
 
 PEGASUS_NAMESPACE_END

@@ -30,11 +30,11 @@
 //		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //     Mike Day, IBM (mdday@us.ibm.com)
 //     Adrian Schuur, IBM (schuur@de.ibm.com)
+//     Amit K Arora (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "ProviderModule.h"
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n

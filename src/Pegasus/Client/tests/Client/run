@@ -1,2 +1,0 @@
-#!/bin/csh
-Client |& tee o

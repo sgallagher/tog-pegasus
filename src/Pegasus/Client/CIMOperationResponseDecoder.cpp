@@ -206,6 +206,12 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 		response = _decodeCreateInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
 		response = _decodeEnumerateInstanceNamesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstances"))
+		response = _decodeEnumerateInstancesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "GetProperty"))
+		response = _decodeGetPropertyResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "SetProperty"))
+		response = _decodeSetPropertyResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "DeleteQualifier"))
 		response = _decodeDeleteQualifierResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "GetQualifier"))
@@ -648,6 +654,46 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
     }
 }
 
+CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateInstancesResponse(
+    XmlParser& parser, const String& messageId)
+{
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	return(new CIMEnumerateInstancesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMInstance>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMInstance> instances;
+	CIMInstance tmp;
+
+	while (XmlReader::getInstanceElement(parser, tmp))
+	    instances.append(tmp);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	return(new CIMEnumerateInstancesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    instances));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+}
+
 CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
@@ -668,6 +714,82 @@ CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInst
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	return(new CIMDeleteInstanceResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+}
+
+CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyResponse(
+    XmlParser& parser, const String& messageId)
+{
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	return(new CIMGetPropertyResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    CIMValue()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMValue cimValue;
+
+	if (!XmlReader::getPropertyValue(parser, cimValue))
+	{
+            // ATTN: Don't know what type of CIMValue to expect
+	    throw XmlValidationError(
+		parser.getLine(),
+                "expected VALUE, VALUE.ARRAY, or VALUE.REFERENCE element");
+	}
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	return(new CIMGetPropertyResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    cimValue));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+}
+
+CIMSetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeSetPropertyResponse(
+    XmlParser& parser, const String& messageId)
+{
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	return(new CIMSetPropertyResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	return(new CIMSetPropertyResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),

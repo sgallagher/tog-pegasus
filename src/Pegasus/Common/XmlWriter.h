@@ -176,6 +176,15 @@ public:
 	Array<Sint8>& out,
 	const String& propertyName);
 
+    static Array<Sint8>& appendPropertyValueParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const CIMValue& value);
+
+    static Array<Sint8>& appendPropertyListParameter(
+	Array<Sint8>& out,
+	const Array<String>& propertyList);
+
     static Array<Sint8>& appendObjectNameParameter(
 	Array<Sint8>& out,
 	const char* name,

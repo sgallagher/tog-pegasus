@@ -1230,8 +1230,31 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
     const String& messageId,
     const String& nameSpace)
 {
-    // ATTN: implement this!
-    PEGASUS_ASSERT(0);
+    CIMReference instanceName;
+    String propertyName;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "InstanceName") == 0)
+	    XmlReader::getInstanceNameElement(parser, instanceName);
+	else if (CompareNoCase(name, "PropertyName") == 0)
+	    XmlReader::getStringValueElement(parser, propertyName, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMGetPropertyRequestMessage* request = new CIMGetPropertyRequestMessage(
+	messageId,
+	nameSpace,
+	instanceName,
+	propertyName,
+	QueueIdStack(queueId, _returnQueueId));
+
+    return(request);
 }
 
 CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyRequest(
@@ -1240,8 +1263,35 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
     const String& messageId,
     const String& nameSpace)
 {
-    // ATTN: implement this!
-    PEGASUS_ASSERT(0);
+    CIMReference instanceName;
+    String propertyName;
+    CIMValue propertyValue;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "InstanceName") == 0)
+	    XmlReader::getInstanceNameElement(parser, instanceName);
+	else if (CompareNoCase(name, "PropertyName") == 0)
+	    XmlReader::getStringValueElement(parser, propertyName, true);
+	else if (CompareNoCase(name, "PropertyValue") == 0)
+	    XmlReader::getPropertyValue(parser, propertyValue);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    CIMSetPropertyRequestMessage* request = new CIMSetPropertyRequestMessage(
+	messageId,
+	nameSpace,
+	instanceName,
+	propertyName,
+	propertyValue,
+	QueueIdStack(queueId, _returnQueueId));
+
+    return(request);
 }
 
 CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodRequest(

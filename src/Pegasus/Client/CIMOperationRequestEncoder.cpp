@@ -108,7 +108,8 @@ void CIMOperationRequestEncoder::handleEnqueue()
 	    break;
 
 	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	    // ATTN: implement this!
+	    _encodeEnumerateInstancesRequest(
+		(CIMEnumerateInstancesRequestMessage*)message);
 	    break;
 
 	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
@@ -160,12 +161,12 @@ void CIMOperationRequestEncoder::handleEnqueue()
 	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
 	    break;
 
-	// ATTN: implement this!
 	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	    _encodeGetPropertyRequest((CIMGetPropertyRequestMessage*)message);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	    _encodeSetPropertyRequest((CIMSetPropertyRequestMessage*)message);
 	    break;
 
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
@@ -213,6 +214,11 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(
 	_hostName, message->nameSpace, "GetClass", message->messageId, params);
+
+    // ATTN: Need to distinguish between null and empty propertyList
+    if (message->propertyList.size() != 0)
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
@@ -330,6 +336,11 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
 	message->nameSpace, "GetInstance", message->messageId, params);
 
+    // ATTN: Need to distinguish between null and empty propertyList
+    if (message->propertyList.size() != 0)
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
+
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
@@ -361,6 +372,39 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
+void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
+    CIMEnumerateInstancesRequestMessage* message)
+{
+    Array<Sint8> params;
+
+    XmlWriter::appendClassNameParameter(
+        params, "ClassName", message->className);
+	
+    if (message->localOnly != true)
+	XmlWriter::appendBooleanParameter(params, "LocalOnly", false);
+
+    if (message->deepInheritance != true)
+	XmlWriter::appendBooleanParameter(params, "DeepInheritance", false);
+
+    if (message->includeQualifiers != false)
+	XmlWriter::appendBooleanParameter(
+	    params, "IncludeQualifiers", true);
+
+    if (message->includeClassOrigin != false)
+	XmlWriter::appendBooleanParameter(
+	    params, "IncludeClassOrigin", true);
+
+    // ATTN: Need to distinguish between null and empty propertyList
+    if (message->propertyList.size() != 0)
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
+
+    Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+	message->nameSpace, "EnumerateClasses", message->messageId, params);
+
+    _outputQueue->enqueue(new HTTPMessage(buffer));
+}
+
 void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
     CIMDeleteInstanceRequestMessage* message)
 {
@@ -371,6 +415,44 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
 	message->nameSpace, "DeleteInstance", message->messageId, params);
+
+    _outputQueue->enqueue(new HTTPMessage(buffer));
+}
+
+void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
+    CIMGetPropertyRequestMessage* message)
+{
+    Array<Sint8> params;
+
+    XmlWriter::appendInstanceNameParameter(
+	params, "InstanceName", message->instanceName);
+	
+    XmlWriter::appendPropertyNameParameter(
+	params, message->propertyName);
+
+    Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+	message->nameSpace, "GetProperty", message->messageId, params);
+
+    _outputQueue->enqueue(new HTTPMessage(buffer));
+}
+
+void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
+    CIMSetPropertyRequestMessage* message)
+{
+    Array<Sint8> params;
+
+    XmlWriter::appendInstanceNameParameter(
+	params, "InstanceName", message->instanceName);
+	
+    XmlWriter::appendPropertyNameParameter(
+	params, message->propertyName);
+
+    if (!message->newValue.isNull())
+        XmlWriter::appendPropertyValueParameter(
+	    params, "NewValue", message->newValue);
+
+    Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+	message->nameSpace, "SetProperty", message->messageId, params);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
@@ -469,6 +551,11 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
     if (message->includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
 
+    // ATTN: Need to distinguish between null and empty propertyList
+    if (message->propertyList.size() != 0)
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
+
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
 	message->nameSpace, "References", message->messageId, params);
 
@@ -526,6 +613,11 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 
     if (message->includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
+
+    // ATTN: Need to distinguish between null and empty propertyList
+    if (message->propertyList.size() != 0)
+	XmlWriter::appendPropertyListParameter(
+	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
 	message->nameSpace, "Associators", message->messageId, params);

@@ -208,12 +208,14 @@ void CIMOperationResponseEncoder::handleEnqueue()
 		(CIMReferenceNamesResponseMessage*)message);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+	    encodeGetPropertyResponse(
+		(CIMGetPropertyResponseMessage*)message);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+	    encodeSetPropertyResponse(
+		(CIMSetPropertyResponseMessage*)message);
 	    break;
 
 	case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
@@ -466,6 +468,41 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteInstance", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
+}
+
+void CIMOperationResponseEncoder::encodeGetPropertyResponse(
+    CIMGetPropertyResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "GetProperty");
+	return;
+    }
+
+    Array<Sint8> body;
+    response->value.toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetProperty", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
+}
+
+void CIMOperationResponseEncoder::encodeSetPropertyResponse(
+    CIMSetPropertyResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "SetProperty");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"SetProperty", response->messageId, body);
 
     sendResponse(response->queueIds.top(), message);
 }

@@ -99,6 +99,12 @@ public:
     void encodeDeleteInstanceResponse(
 	CIMDeleteInstanceResponseMessage* response);
 
+    void encodeGetPropertyResponse(
+	CIMGetPropertyResponseMessage* response);
+
+    void encodeSetPropertyResponse(
+	CIMSetPropertyResponseMessage* response);
+
     void encodeSetQualifierResponse(
 	CIMSetQualifierResponseMessage* response);
 

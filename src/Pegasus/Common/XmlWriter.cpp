@@ -553,7 +553,44 @@ Array<Sint8>& XmlWriter::appendPropertyNameParameter(
 
 //------------------------------------------------------------------------------
 //
-// appendClassParameter()
+// appendPropertyValueParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendPropertyValueParameter(
+    Array<Sint8>& out,
+    const char* parameterName,
+    const CIMValue& value)
+{
+    Array<Sint8> tmp;
+    value.toXml(tmp);
+    return formatIParamValueElement(out, parameterName, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendPropertyListParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendPropertyListParameter(
+    Array<Sint8>& out,
+    const Array<String>& propertyList)
+{
+    Array<Sint8> tmp;
+
+    tmp << "<VALUE.ARRAY>\n";
+    for (int i=0; i<propertyList.size();i++)
+    {
+        tmp << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
+    }
+    tmp << "</VALUE.ARRAY>\n";
+    return formatIParamValueElement(out, "PropertyList", tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendQualifierDeclarationParameter()
 //
 //------------------------------------------------------------------------------
 

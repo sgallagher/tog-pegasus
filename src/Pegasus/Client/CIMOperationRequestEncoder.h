@@ -97,6 +97,12 @@ private:
     void _encodeDeleteInstanceRequest(
 	CIMDeleteInstanceRequestMessage* message);
 
+    void _encodeGetPropertyRequest(
+	CIMGetPropertyRequestMessage* message);
+
+    void _encodeSetPropertyRequest(
+	CIMSetPropertyRequestMessage* message);
+
     void _encodeSetQualifierRequest(
 	CIMSetQualifierRequestMessage* message);
 

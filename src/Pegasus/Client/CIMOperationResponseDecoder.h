@@ -106,6 +106,12 @@ private:
     CIMDeleteInstanceResponseMessage* _decodeDeleteInstanceResponse(
 	XmlParser& parser, const String& messageId);
 
+    CIMGetPropertyResponseMessage* _decodeGetPropertyResponse(
+	XmlParser& parser, const String& messageId);
+
+    CIMSetPropertyResponseMessage* _decodeSetPropertyResponse(
+	XmlParser& parser, const String& messageId);
+
     CIMSetQualifierResponseMessage* _decodeSetQualifierResponse(
 	XmlParser& parser, const String& messageId);
 

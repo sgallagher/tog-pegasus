@@ -671,6 +671,7 @@ Semaphore::Semaphore(const Semaphore & sem)
 
 Semaphore::~Semaphore()
 {
+#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
    pthread_mutex_lock(&_semaphore.mutex);
    while( EBUSY == pthread_cond_destroy(&_semaphore.cond))
    {
@@ -680,6 +681,24 @@ Semaphore::~Semaphore()
    }
    pthread_mutex_unlock(&_semaphore.mutex);
    pthread_mutex_destroy(&_semaphore.mutex);
+#else
+   int val;
+   val = pthread_mutex_destroy(&_semaphore.mutex);
+   if (val != 0)
+      pthread_cond_destroy(&_semaphore.cond);
+   else 
+      val = pthread_cond_destroy(&_semaphore.cond);
+
+   while( EBUSY == val )
+   {
+      pegasus_yield();
+      val = pthread_mutex_destroy(&_semaphore.mutex);
+      if (val != 0) 
+         pthread_cond_destroy(&_semaphore.cond);
+      else 
+         val = pthread_cond_destroy(&_semaphore.cond);
+   }
+#endif
 }
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)

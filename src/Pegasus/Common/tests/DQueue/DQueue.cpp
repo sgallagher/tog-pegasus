@@ -26,13 +26,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #define PEGASUS_DEBUG_MEMORY 1
-#if defined(PEGASUS_REMOVE_TRACE)
+#if defined(PEGASUS_REMOVE_TRACE) 
 #undef PEGASUS_REMOVE_TRACE
 #endif
 #include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Tracer.h> 
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -75,7 +75,6 @@ class FAKE_MESSAGE
       {
 	 return ( this->operator==((const void *)msg._key));
       } 
-
    private:
 
       Thread * _key; 
@@ -98,7 +97,10 @@ AtomicInt replies;
 AtomicInt requests;
 Mutex msg_mutex;
 
-const Uint32 NUMBER_MSGS = 100;
+
+peg_suballocator::SUBALLOC_HANDLE * dq_handle;
+
+const Uint32 NUMBER_MSGS = 1000;
 const int NUMBER_CLIENTS = 2 ;
 const int NUMBER_SERVERS =  1; 
  
@@ -109,7 +111,7 @@ FAKE_MESSAGE *get_next_msg(void *key)
    msg_mutex.lock(pegasus_thread_self());
    if(requests.value() < NUMBER_MSGS)
    {
-      msg = PEGASUS_NEW(FAKE_MESSAGE) FAKE_MESSAGE(key, 0);
+      msg = PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0);
       requests++;
    }
    msg_mutex.unlock(); 
@@ -122,7 +124,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
    read_write * my_qs = (read_write *)my_handle->get_parm();
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
 
-   Thread *receiver = new Thread(client_receiving_thread, my_qs, false);
+   Thread *receiver = PEGASUS_NEW(Thread, dq_handle) Thread(client_receiving_thread, my_qs, false);
    receiver->run();
    FAKE_MESSAGE *msg = 0;
    while( 1 )
@@ -228,9 +230,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 
       if(msg != 0 )
       {
-	 PEGASUS_DELETE(msg);
-	 PEGASUS_DELETE(msg);
-	  
+//	 PEGASUS_DELETE(msg);
 	 replies++; 
       }
       pegasus_yield();
@@ -243,42 +243,41 @@ PEGASUS_NAMESPACE_END
 
 int main(int argc, char **argv)
 {
-   peg_suballocator::SUBALLOC_HANDLE *heap_handle = new peg_suballocator::SUBALLOC_HANDLE("DQueue_test");
+    PEGASUS_START_LEAK_CHECK();
    
    Tracer::setTraceFile("dq_memory_trace"); 
    Tracer::setTraceComponents("Memory");  
    Tracer::setTraceLevel(Tracer::LEVEL4); 
-   
+   dq_handle = new peg_suballocator::SUBALLOC_HANDLE();
+
    read_write rw =
       { 
-	 new AsyncDQueue<FAKE_MESSAGE>(true, 100),
+	 new AsyncDQueue<FAKE_MESSAGE>(true, 100), 
 	 new AsyncDQueue<FAKE_MESSAGE>(true, 100)
       };
 
    Thread *client_sender[20];
    Thread *server[10];
    int i;
-
-   Sint8 * exp = PEGASUS_ARRAY_NEW(Sint8, 100 );
-   PEGASUS_ARRAY_DELETE(exp);
+   FAKE_MESSAGE *test = PEGASUS_ARRAY_NEW(FAKE_MESSAGE, 10, dq_handle);
+   PEGASUS_ARRAY_DELETE(test);
    
-
+   
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {
-      client_sender[i] = new Thread(client_sending_thread, &rw, false );
+      client_sender[i] = PEGASUS_NEW(Thread, dq_handle) Thread(client_sending_thread, &rw, false );
       client_sender[i]->run();
    }
 
    for( i = 0; i < NUMBER_SERVERS; i++)
    {
-      server[i] = new Thread(server_thread, &rw, false);
+      server[i] = PEGASUS_NEW(Thread, dq_handle) Thread(server_thread, &rw, false);
       server[i]->run();
    }
 
    while( requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS )
    {
       pegasus_sleep(1000);
-//      cout << "total requests: " << requests.value() << " total replies: " << replies.value() << endl;
    }
 
    rw.incoming->shutdown_queue();
@@ -302,6 +301,8 @@ int main(int argc, char **argv)
    delete rw.incoming;
    delete rw.outgoing;
 
-
+   PEGASUS_STOP_LEAK_CHECK();
+   PEGASUS_CHECK_FOR_LEAKS(dq_handle);
+   
    return 0;
 }

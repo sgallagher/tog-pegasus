@@ -31,12 +31,21 @@
 #include <new.h>
 PEGASUS_NAMESPACE_BEGIN
 
-peg_suballocator internal_allocator(true);
+peg_suballocator *peg_suballocator::_suballoc_instance = 0;
+
+PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
+{
+   if(peg_suballocator::_suballoc_instance == 0)
+   {
+      peg_suballocator::_suballoc_instance = new((void *)malloc(sizeof(peg_suballocator))) peg_suballocator(true);
+   }
+   return peg_suballocator::_suballoc_instance;
+}
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 {
-   return internal_allocator.vs_malloc(size, 
- 				       &(internal_allocator.get_handle())) ;
+   return peg_suballocator::get_instance()->vs_malloc(size, 
+ 				       &(peg_suballocator::get_instance()->get_handle())) ;
 }
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
@@ -46,8 +55,8 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size,
 					      Sint8 *file,
 					      Uint32 line)
 {
-   return internal_allocator.vs_malloc(size, 
- 				       ((handle == NULL) ? &(internal_allocator.get_handle()) : handle),
+   return peg_suballocator::get_instance()->vs_malloc(size, 
+ 				       ((handle == NULL) ? &(peg_suballocator::get_instance()->get_handle()) : handle),
 				       type, 
 				       classname, 
 				       file,  
@@ -64,8 +73,8 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead,
    if ( dead == 0 )
       return;
    
-   internal_allocator.vs_free(dead,  				       
-			      ((handle == NULL) ? &(internal_allocator.get_handle()) : handle),
+   peg_suballocator::get_instance()->vs_free(dead,  				       
+			      ((handle == NULL) ? &(peg_suballocator::get_instance()->get_handle()) : handle),
 			      type, 
 			      classname, 
 			      file, 
@@ -75,7 +84,7 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead,
 
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 {
-   internal_allocator.vs_free(dead);
+   peg_suballocator::get_instance()->vs_free(dead);
 }
 
 PEGASUS_NAMESPACE_END
@@ -91,8 +100,8 @@ void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
    
    while(1)
    {
-      p = internal_allocator.vs_malloc(size, 
-				       &(internal_allocator.get_handle()),
+      p = peg_suballocator::get_instance()->vs_malloc(size, 
+				       &(peg_suballocator::get_instance()->get_handle()),
 				       NORMAL, 
 				       "BUILTIN NEW", 
 				       __FILE__, __LINE__) ;
@@ -112,8 +121,8 @@ void operator delete(void *dead, size_t size) throw()
 {
    if( dead == 0 )
       return;
-   internal_allocator.vs_free(dead,  
-			      &(internal_allocator.get_handle()), 
+   peg_suballocator::get_instance()->vs_free(dead,  
+			      &(peg_suballocator::get_instance()->get_handle()), 
 			      NORMAL, 
 			      "internal", 
 			      __FILE__, 
@@ -129,9 +138,11 @@ void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
    
    while(1)
    {
-      p = internal_allocator.vs_malloc(size, 
-				       &(internal_allocator.get_handle()), 
-				       ARRAY) ;
+      p = peg_suballocator::get_instance()->vs_malloc(size, 
+				       &(peg_suballocator::get_instance()->get_handle()), 
+				       ARRAY, 
+				       "BUILTIN ARRAY NEW", 
+				       __FILE__, __LINE__) ;
       if( p )
 	 return p;
       new_handler global = set_new_handler(0);
@@ -147,8 +158,8 @@ void operator delete [] (void *dead) throw()
 {
    if( dead == 0 )
       return;
-   internal_allocator.vs_free(dead, 
-			      &(internal_allocator.get_handle()), 
+   peg_suballocator::get_instance()->vs_free(dead, 
+			      &(peg_suballocator::get_instance()->get_handle()), 
 			      ARRAY, 
 			      "internal",
 			      __FILE__, 
@@ -191,21 +202,22 @@ const Sint32 peg_suballocator::nodeSizes[3][16] =
 
 const Uint32 peg_suballocator::preAlloc[3][16] = 
 {
-   {	2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	
+   {20, 20, 20, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10 },
    {	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
    {	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };	
 
 const Uint32 peg_suballocator::step[3][16] = 
 {
-   {2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+   {20, 20, 20, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10 },
+   {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 },
    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
 peg_suballocator::peg_suballocator(void)
    : debug_mode(true), 
-     abort_on_error(true), 
+     abort_on_error(false), 
+     check_for_leaks(false),
      internal_handle("internal_suballoc_log")
      
 { 
@@ -215,8 +227,13 @@ peg_suballocator::peg_suballocator(void)
 }
 
 peg_suballocator::peg_suballocator(Boolean mode)
-   : debug_mode(mode), internal_handle("internal_suballoc_log")
-{
+   : debug_mode(mode), 
+     abort_on_error(false), 
+     check_for_leaks(false),
+     internal_handle("internal_suballoc_log")
+     
+{ 
+   sprintf(internal_handle.classname, "internal");
    InitializeSubAllocator();
    return;
 }
@@ -251,13 +268,9 @@ Boolean peg_suballocator::InitializeSubAllocator(void)
    Boolean ccode;
    Sint32 waitCode;
    
-   WAIT_MUTEX(&init_mutex);
    if(initialized)
-   {
-      RELEASE_MUTEX(&init_mutex);
       return true;
-   }
-
+   
    if(CREATE_MUTEX(&globalSemHandle))
       return(false);
    
@@ -301,8 +314,6 @@ Boolean peg_suballocator::InitializeSubAllocator(void)
 	    temp->flags |= (IS_HEAD_NODE );
 	    memcpy(temp->guardPre, guard, GUARD_SIZE);
 	    if (preAlloc[o][i])
-	       // we don't need to own the listhead semaphore because we
-	       // are initializing
 	       ccode = _Allocate(o, i, PRE_ALLOCATE);
 	    if (ccode == false)
 	    {
@@ -332,7 +343,6 @@ Boolean peg_suballocator::InitializeSubAllocator(void)
    initialized = 1;
    // release global concurrency semaphore here
    RELEASE_MUTEX(&globalSemHandle);
-   RELEASE_MUTEX(&init_mutex);
    return(true);
 }	
 
@@ -361,23 +371,26 @@ Boolean peg_suballocator::InitializeSubAllocator(void)
  ***************************************************************/
 Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
 {
+
+
    // no semaphores - this internal routine must only be
    // called by threads owning the list head indicated by index
    SUBALLOC_NODE *temp, *temp2;
    Sint32 i;
    Sint8 *g;
+
    temp = nodeListHeads[vector][index];
    if (code == PRE_ALLOCATE) // this is a preallocation
       i = preAlloc[vector][index];
    else
       i = step[vector][index]; // this is a step allocation
+
+   size_t chunk_size = (i * (sizeof(SUBALLOC_NODE) + GUARD_SIZE + nodeSizes[vector][index]));
+   temp2 = (SUBALLOC_NODE *)malloc(chunk_size);
+   if(temp2 == NULL)
+      return false;
    for ( ; i > 0; i--)
    {
-      size_t chunk_size = sizeof(SUBALLOC_NODE) + GUARD_SIZE + nodeSizes[vector][index];
-      temp2 = (SUBALLOC_NODE *)malloc(chunk_size);
-      
-      if (temp2 == NULL)
-	 return(false);
       temp2->flags |= AVAIL;
       temp2->concurrencyHandle = &internal_handle;
       memcpy(temp2->guardPre, guard, GUARD_SIZE);
@@ -386,6 +399,7 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
       g+= nodeSizes[vector][index];
       memcpy(g, guard, GUARD_SIZE);
       INSERT(temp2, temp);
+      temp2 = (SUBALLOC_NODE *)(g + GUARD_SIZE);
    }
    return(true);
 }	
@@ -407,24 +421,22 @@ void peg_suballocator::DeInitSubAllocator(void *handle)
 {
    Sint32 i, o, waitCode;
    assert(handle != 0);
-   _UnfreedNodes(handle); 
+//   _UnfreedNodes(handle); 
    if( handle != (void *) &internal_handle)
       free((void *)handle);
-
-   WAIT_MUTEX(&init_mutex);
+   
    init_count--;
    if (! init_count)
    {
       initialized = 0;
       WAIT_MUTEX(&globalSemHandle, 1000, &waitCode);
-      for (o = 0; o < 3; o++)
+       for (o = 0; o < 3; o++)
       {
 	 for (i = 0; i < 16; i++)
 	 {
 	    WAIT_MUTEX(&(semHandles[o][i]), 1000, &waitCode);
 	    CLOSE_MUTEX(&(semHandles[o][i]));
 	    _DeAllocate(o, i);
-	    CLOSE_MUTEX(&(semHandles[o][i]));
 	    free(nodeListHeads[o][i]);
 	    nodeListHeads[o][i] = NULL;
 	 }
@@ -432,7 +444,6 @@ void peg_suballocator::DeInitSubAllocator(void *handle)
       CLOSE_MUTEX(&(globalSemHandle));
       initialized = 0;
    }
-   RELEASE_MUTEX(&init_mutex);
    
    return;
 }	
@@ -516,6 +527,9 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::GetNode(Sint32 vector, Sint32
    // we can just grab the first node and go
    temp = (nodeListHeads[vector][index])->next;
    temp->flags &= ~(AVAIL);
+   if( check_for_leaks == true )
+      temp->flags |= CHECK_LEAK;
+   
    // release semHandles[vector][index];
    RELEASE_MUTEX(&(semHandles[vector][index]));
    return(temp);
@@ -557,6 +571,8 @@ peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
       if (temp->flags & AVAIL)
       {
 	 temp->flags &= ~(AVAIL);
+	 if( check_for_leaks == true )
+	    temp->flags |= CHECK_LEAK;
 	 g = (Sint8 *)temp;
 	 g += sizeof(SUBALLOC_NODE);
 	 g = (Sint8 *)malloc( size + GUARD_SIZE );
@@ -615,7 +631,6 @@ void peg_suballocator::PutNode(Sint32 vector, Sint32 index, SUBALLOC_NODE *node)
    // to the front of the list
    assert(node != NULL);
    // gain ownership of semHandles[index];
-   assert((! IS_EMPTY(nodeListHeads[vector][index])));
    // delete insert the node at the front of the list - 
    // this will make it faster to get the node
    _DELETE(node);
@@ -902,7 +917,6 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
    SUBALLOC_HANDLE *h = (SUBALLOC_HANDLE *)handle;
 
    WAIT_MUTEX(&(globalSemHandle), 1000, &waitCode);
-
    for (y = 0; y < 3; y++ )
    {
       for (i = 0; i < 16; i++)
@@ -914,18 +928,23 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	 {
 	    if (!(temp->flags & AVAIL) && temp->concurrencyHandle == (void *)handle)
 	    {
-		  h = (SUBALLOC_HANDLE *)temp->concurrencyHandle;
-// 		  fprintf(dumpFile, "\nLeaked  memory: class: %s, source file: %s, source line: %s, handle class: %s", 
-//  			  temp->classname, temp->file, temp->line, 
-// 			  h->classname);
-	       ccode = true;
-	       temp->flags |= AVAIL;
-	       if ((temp->allocSize >> 16))
+	       if( temp->flags & CHECK_LEAK)
 	       {
-		  Sint8 *g = (Sint8 *)temp;
-		  g += sizeof(SUBALLOC_NODE);
-		  free(g);
-		  g = NULL;
+		  h = (SUBALLOC_HANDLE *)temp->concurrencyHandle;
+		  RELEASE_MUTEX(&(semHandles[y][i]));
+		  Tracer::trace(__FILE__, __LINE__, TRC_MEMORY, Tracer::LEVEL2, 
+				"Memory Leak: %d bytes class %s allocated memory in source file %s at " \
+				"line %s", temp->allocSize, temp->classname, temp->file, temp->line);
+		  WAIT_MUTEX(&(semHandles[y][i]), 1000, &waitCode);
+		  ccode = true;
+// 		  temp->flags |= AVAIL;
+// 		  if ((temp->allocSize >> 16))
+// 		  {
+// 		     Sint8 *g = (Sint8 *)temp;
+// 		     g += sizeof(SUBALLOC_NODE);
+// 		     free(g);
+// 		     g = NULL;
+// 		  }
 	       }
 	    }
 	    temp = temp->next;	
@@ -972,6 +991,24 @@ Boolean peg_suballocator::_CheckGuard(SUBALLOC_NODE *node)
    return(false);
 }
 
+Uint32 peg_suballocator::CheckMemory(void *m)
+{
+   return _CheckNode(m);
+}
+
+Uint32 peg_suballocator::_CheckNode(void *m)
+{
+   assert(m != NULL);
+   SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
+   temp--;
+   
+   if(temp->flags & AVAIL)
+      return ALREADY_DELETED;
+   if(false == _CheckGuard(temp))
+      return OVERWRITE;
+   return 0;
+}
+
 peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m, 
 							      int type,  
 							      Sint8 *file, 
@@ -991,33 +1028,40 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
       if( abort_on_error)
 	 abort(); 
    }
-      if( type == ARRAY )
+   if( type == ARRAY )
+   {
+      if( false == IS_ARRAY(temp))
       {
-	 if( false == IS_ARRAY(temp))
-	 {
-// 	    fprintf(dumpFile, "\nArray delete called on non-array memory\n\tAllocation data: %s %s %s\n\t",
-// 		    temp->classname, temp->file, temp->line);
-	    temp->flags |= CHECK_FAILED;
-	    if( abort_on_error)
-	       abort();
-	 }
-      }
-      else if( true == IS_ARRAY(temp))
-      {
-// 	 fprintf(dumpFile, "\nNormal delete called on Array memory\n\tAllocation data: %s %s %s\n\t",
-// 		 temp->classname, temp->file, temp->line);
+	 Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,
+		       "Array delete called with non-array object at " \
+		       "source file %s line number %d. Object was originally allocated " \
+		       " by class %s in source file %s at line number %s",
+		       file, line, temp->classname, temp->file, temp->line);
 	 temp->flags |= CHECK_FAILED;
 	 if( abort_on_error)
 	    abort();
       }
-      if(false == _CheckGuard(temp))
-      {
-// 	 fprintf(dumpFile, "\nMemory overwritten\n\tAllocation data: %s %s %s\n\t",
-// 		 temp->classname, temp->file, temp->line);
-	 temp->flags |= CHECK_FAILED;
-	 if( abort_on_error)
-	    abort();
-      }
+   }
+   else if( true == IS_ARRAY(temp))
+   {
+      Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,
+		    "Normal delete called with array object at " \
+		    "source file %s line number %d. Object was originally allocated " \
+		    " by class %s in source file %s at line number %s",
+		    file, line, temp->classname, temp->file, temp->line);
+      temp->flags |= CHECK_FAILED;
+      if( abort_on_error)
+	 abort();
+   }
+   if(false == _CheckGuard(temp))
+   {
+      Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,
+		    "Memory overwritten. Allocated by %s in source file %s at line number %s",
+		    temp->classname, temp->file, temp->line);
+      temp->flags |= CHECK_FAILED;
+      if( abort_on_error)
+	 abort();
+   }
    return temp;
 }
 

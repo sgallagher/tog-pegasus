@@ -101,10 +101,13 @@ namespace
    static const int AVAILABLE = 0x00;
    static const int NORMAL = 0x00;
    static const int ARRAY = 0x01;
-   static const unsigned int IS_HEAD_NODE = 0x00000001;
-   static const unsigned int AVAIL =        0x00000002;
-   static const unsigned int ARRAY_NODE =   0x00000004;
-   static const unsigned int CHECK_FAILED = 0x00000008;
+   static const unsigned int IS_HEAD_NODE =    0x00000001;
+   static const unsigned int AVAIL =           0x00000002;
+   static const unsigned int ARRAY_NODE =      0x00000004;
+   static const unsigned int CHECK_FAILED =    0x00000008;
+   static const unsigned int ALREADY_DELETED = 0x00000010;
+   static const unsigned int OVERWRITE =       0x00000020;
+   static const unsigned int CHECK_LEAK =      0x00000040;
 }
 
 PEGASUS_NAMESPACE_BEGIN
@@ -127,6 +130,9 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead,
 					   Uint32 line);
 
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
+PEGASUS_SUBALLOC_LINKAGE void _LEAK_CHECK_ON(void);
+PEGASUS_SUBALLOC_LINKAGE void _LEAK_CHECK_OFF(void);
+
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
@@ -190,15 +196,21 @@ class peg_suballoc;
 
 
 #if defined(PEGASUS_DEBUG_MEMORY)
-#define PEGASUS_NEW(a) new((pegasus_alloc(sizeof(a), ((void *)0), NORMAL, (#a), __FILE__, __LINE__)))
-#define PEGASUS_ARRAY_NEW(a, i) new(pegasus_alloc(sizeof(a) * (i), NULL, ARRAY, (#a), __FILE__, __LINE__)) (a)
+#define PEGASUS_NEW(a, h) new((pegasus_alloc(sizeof(a), ((void *)h), NORMAL, (#a), __FILE__, __LINE__)))
+#define PEGASUS_ARRAY_NEW(a, i, h) new(pegasus_alloc(sizeof(a) * (i), ((void *)(h)), ARRAY, (#a), __FILE__, __LINE__)) (a)
 #define PEGASUS_DELETE(a) pegasus_free((a), NULL, NORMAL, (#a), __FILE__, __LINE__)
 #define PEGASUS_ARRAY_DELETE(a) pegasus_free(a, NULL, ARRAY, (#a), __FILE__, __LINE__)
+#define PEGASUS_CHECK_FOR_LEAKS(h) peg_suballocator::get_instance()->_UnfreedNodes((h))
+#define PEGASUS_START_LEAK_CHECK() peg_suballocator::get_instance()->set_leak_mode(true)
+#define PEGASUS_STOP_LEAK_CHECK() peg_suballocator::get_instance()->set_leak_mode(false)
 #else
-#define PEGASUS_NEW(a) new
-#define PEGASUS_ARRAY_NEW(a, i) new (a)[(i)] 
-#define PEGASUS_DELETE(a) ::operator delete((a))
-#define PEGASUS_ARRAY_DELETE(a) ::operator delete [] ((a))
+#define PEGASUS_NEW(a, h) new
+#define PEGASUS_ARRAY_NEW(a, i, h) new (a)[(i)] 
+#define PEGASUS_DELETE(a) delete((a))
+#define PEGASUS_ARRAY_DELETE(a) delete [] ((a))
+#define PEGASUS_CHECK_FOR_LEAKS(h) 
+#define PEGASUS_START_LEAK_CHECK()
+#define PEGASUS_STOP_LEAK_CHECK()
 #endif 
 
 
@@ -243,6 +255,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       PEGASUS_MUTEX_T init_mutex;
       Boolean debug_mode;
       Boolean abort_on_error;
+      Boolean check_for_leaks;
   
    public:
       static int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
@@ -274,7 +287,10 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       static const Uint8 delete_pattern;
       
       static Boolean _CheckGuard(SUBALLOC_NODE *);
-
+      static Uint32  CheckMemory(void *);
+      
+      static Uint32 _CheckNode(void *m);
+      SUBALLOC_NODE *_CheckNode(void *m, int type, Sint8 *file, Uint32 line);
 
    public:
 
@@ -312,20 +328,27 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       void vs_free(void *m, void *handle, int type, Sint8 *classname, Sint8 *f, Uint32 l);
       Boolean _UnfreedNodes(void *handle);
       void DeInitSubAllocator(void *handle);
-      SUBALLOC_NODE *_CheckNode(void *m, int type, Sint8 *file, Uint32 line);
+
       
       Boolean get_mode(void) 
       {
 	 return debug_mode;
       }
       
+      void set_leak_mode(Boolean mode)
+      {
+	 check_for_leaks = mode;
+      }
+      
+      static peg_suballocator *get_instance(void);
       SUBALLOC_HANDLE & get_handle(void)
       {
 	 return internal_handle;
       }
-
    private:
       _suballocHandle internal_handle;
+      static peg_suballocator *_suballoc_instance;
+      
 };
 
 inline Boolean peg_suballocator::IS_ARRAY(SUBALLOC_NODE *x)

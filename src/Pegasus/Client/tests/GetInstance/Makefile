@@ -1,11 +1,11 @@
-ROOT = ../../../../..
+ROOT = $(PEGASUS_ROOT)
 DIR = Pegasus/Client/tests/GetInstance
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = GetInstance
+PROGRAM = TestGetInstance
 
 SOURCES = GetInstance.cpp
 

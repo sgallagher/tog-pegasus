@@ -74,7 +74,9 @@ public:
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
+		// BUG 546 - Default for localOnly is true.
         Boolean localOnly = true,
+		// Bug xxx - Default for inlcludeQualifers is true
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
@@ -484,6 +486,13 @@ private:
     Boolean _renameTempInstanceAndIndexFiles(
         const String& indexFilePath,
         const String& instanceFilePath);
+
+	/** Check to see if the specified property is in the property list
+	    @param prop the specified property
+	    @param propertyList the property list
+	    @return true	if the property is in the list otherwise false.
+	*/
+	Boolean _containsProperty(CIMProperty& prop, const CIMPropertyList& propertyList);
 
     String _repositoryRoot;
     NameSpaceManager _nameSpaceManager;

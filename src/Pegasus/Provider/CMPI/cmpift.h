@@ -232,7 +232,7 @@ extern "C" {
      int brokerVersion;
      /** CIMOM name
      */
-     char *brokerName;
+     const char *brokerName;
 
      /** This function prepares the CMPI run time system to accept
          a thread that will be using CMPI services. The returned

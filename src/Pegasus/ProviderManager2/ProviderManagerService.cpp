@@ -249,8 +249,9 @@ ProviderManagerService::handleCimOperation(void * arg) throw()
 
             if (msg != 0)
             {
-                AcceptLanguages* langs =
-                    new AcceptLanguages(msg->acceptLanguages);
+		        AcceptLanguages* langs =
+                    new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
+											(AcceptLanguageListContainer::NAME)).getLanguages());
                 Thread::setLanguages(langs);
             }
             else
@@ -305,7 +306,8 @@ void ProviderManagerService::handleCimRequest(
             dynamic_cast<CIMIndicationRequestMessage*>(request);
         if (indRequest != 0)
         {
-            providerModule = indRequest->providerModule;
+   			ProviderIdContainer pidc = indRequest->operationContext.get(ProviderIdContainer::NAME); 
+			providerModule = pidc.getModule(); 
         }
         else if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
         {
@@ -696,8 +698,9 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         // Provider information is already in the message
         const CIMIndicationRequestMessage* request =
             dynamic_cast<const CIMIndicationRequestMessage*>(message);
-        providerModule = request->providerModule;
-        provider = request->provider;
+		ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);											
+        providerModule = pidc.getModule();
+        provider = pidc.getProvider(); 
         break;
     }
 

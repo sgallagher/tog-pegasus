@@ -748,7 +748,25 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	       break;
 
             default:
-                // unsupported messages are ignored
+                // unsupported messages are not processed
+                CIMRequestMessage * request = 
+                    dynamic_cast<CIMRequestMessage *>
+                    (const_cast<Message *>(legacy));
+                AsyncRequest * async = static_cast<AsyncRequest *>
+                                       (op->_request.next(0));
+                PEGASUS_ASSERT(request != 0 && async != 0);
+                CIMResponseMessage * response = request->buildResponse();
+                PEGASUS_ASSERT(response != 0);
+                
+
+                AsyncLegacyOperationResult *async_result =
+                    new AsyncLegacyOperationResult(
+                    async->getKey(),
+                    async->getRouting(),
+                    op,
+                    response);
+
+                service->_complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
                 break;
             }
         }

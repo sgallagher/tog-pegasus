@@ -1,6 +1,8 @@
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
 
 DIR = Pegasus/ProviderManager2/CMPI
+
+include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
@@ -17,9 +19,5 @@ LIBRARIES = \
 SOURCES = \
 	CMPIProviderManagerMain.cpp \
 	CMPIProviderManager.cpp
-
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
-SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(PEGASUS_ROOT)/mak/library.mak

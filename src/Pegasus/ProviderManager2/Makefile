@@ -1,6 +1,8 @@
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
 
 DIR = Pegasus/ProviderManager
+
+include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
@@ -24,8 +26,4 @@ SOURCES = \
 	MutexLock.cpp \
 	Lockable.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
-SYS_LIBS = ws2_32.lib advapi32.lib
-
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(ROOT)/mak/library.mak

@@ -1,6 +1,8 @@
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
 
 DIR = Pegasus/ProviderManager2/Default
+
+include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
@@ -23,9 +25,5 @@ SOURCES = \
 	ProviderModule.cpp \
 	OperationResponseHandler.cpp \
 	SimpleResponseHandler.cpp
-
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
-SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(PEGASUS_ROOT)/mak/library.mak

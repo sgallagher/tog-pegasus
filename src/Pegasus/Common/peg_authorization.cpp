@@ -108,11 +108,6 @@ pegasus_identity *pegasus_basic_identity::create_id(void) const
    return(new pegasus_basic_identity(*this));
 }
 
-Boolean pegasus_basic_identity::get_auth_bit(Uint32 index, Uint32 bit) const 
-{
-   return true;
-}
-
 pegasus_internal_identity::pegasus_internal_identity(Uint32 cred)
    :_id(peg_identity_types::INTERNAL), _credential(cred)
 {
@@ -159,7 +154,7 @@ String pegasus_internal_identity::get_id_string(void) const
 
 String pegasus_internal_identity::get_cred_string(void) const
 {
-   return get_id_string();
+   return get_id_string(); 
 
 }
 

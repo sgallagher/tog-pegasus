@@ -96,7 +96,8 @@ class PEGASUS_COMMON_LINKAGE pegasus_basic_identity : public pegasus_identity
       virtual Uint32 get_credential_type(void) const ;
       virtual Boolean authenticate(void) ;
       virtual pegasus_identity *create_id(void) const;
-      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const;
+      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const { return true ;  }
+      
    private:
       pegasus_basic_identity(void);
 
@@ -111,7 +112,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : public pegasus_identity
       typedef pegasus_identity Base;
       pegasus_internal_identity(Uint32 identity);
       pegasus_internal_identity(const pegasus_internal_identity & id);
-      virtual ~pegasus_internal_identity(void);
+      virtual ~pegasus_internal_identity(void) {};
 
       pegasus_internal_identity & operator= ( const pegasus_internal_identity & id);
       Boolean operator== (const pegasus_internal_identity & id) const ;
@@ -121,7 +122,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : public pegasus_identity
       virtual Uint32 get_credential_type(void) const;
       virtual Boolean authenticate(void);
       virtual pegasus_identity *create_id(void) const;
-      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const;
+      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const { return true ;  }
    private:
       pegasus_internal_identity(void);
       Uint32 _id;

@@ -38,6 +38,7 @@
 //#include <Pegasus/CQL/CQLExpression.h>
 //#include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLFactory.h>
+#include <Pegasus/Common/XmlReader.h>
 PEGASUS_NAMESPACE_BEGIN
 /*
 CQLFunctionRep::CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms)
@@ -281,17 +282,65 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
 
 CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-   return CQLValue(Uint64(0));
+  if(_parms.size() > 1)
+    {
+      throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
+    }
+
+  CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
+
+  if(cqlVal.getValueType() != CQLValue::String_type)
+    {
+      throw(Exception(String("CQLFunctionRep::stringToUint -- not a String")));
+    }
+
+  Uint64 x;
+
+  XmlReader::stringToUnsignedInteger(cqlVal.getString().getCString(),x);
+    
+  return CQLValue(x);
 }
 
 CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-   return CQLValue(Uint64(0));
+  if(_parms.size() > 1)
+    {
+      throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
+    }
+
+  CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
+
+  if(cqlVal.getValueType() != CQLValue::String_type)
+    {
+      throw(Exception(String("CQLFunctionRep::stringToUint -- not a String")));
+    }
+
+  Sint64 x;
+
+  XmlReader::stringToSignedInteger(cqlVal.getString().getCString(),x);
+    
+  return CQLValue(x);
 }
 
 CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-   return CQLValue(Uint64(0));
+  if(_parms.size() > 1)
+    {
+      throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
+    }
+
+  CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
+
+  if(cqlVal.getValueType() != CQLValue::String_type)
+    {
+      throw(Exception(String("CQLFunctionRep::stringToUint -- not a String")));
+    }
+
+  Real64 x;
+
+  XmlReader::stringToReal(cqlVal.getString().getCString(),x);
+    
+   return CQLValue(x);
 }
 
 CQLValue CQLFunctionRep::stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx)

@@ -30,6 +30,18 @@ class CQL_TestPropertyTypes:CQL_TestElement
        "a string property of CQL_TestPropertyTypes")]
    string PropertyString;
 
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyStringUint;
+
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyStringSint;
+
+      [Maxlen (256), Description (
+       "a string property of CQL_TestPropertyTypes")]
+   string PropertyStringReal;
+
       [Description ("A string array"),
        ArrayType ( "Indexed" ) ]
    string PropertyStringArray[];

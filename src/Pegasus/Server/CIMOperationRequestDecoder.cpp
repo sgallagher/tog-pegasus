@@ -979,7 +979,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     "400 Bad Request" (and MUST include a CIMError header in the
          //     response with a value of header-mismatch), subject to the
          //     considerations specified in Errors.
-         if (!String::equalNoCase(cimMethodName, cimMethodInHeader))
+
+         // Extrinic methods can have UTF-8!
+         String cimMethodNameUTF16(cimMethodName, STRING_FLAG_UTF8);
+         if (cimMethodNameUTF16 != cimMethodInHeader)
          {
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             if (cimMethodInHeader == String::EMPTY)
@@ -1001,7 +1004,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                                  //cimMethodName + "\".");
                MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD",
    								 "CIMMethod value \"$0\" does not match CIM request method \"$1\".",
-   								 cimMethodInHeader,
+   								 ( const char *)cimMethodInHeader.getCStringUTF8(),
    								 cimMethodName);
    				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
    						MessageLoader::getMessage(parms));
@@ -1156,7 +1159,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                parser, 
                messageId, 
                reference, 
-               cimMethodName,
+               cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                authType,
                userName);
          }
@@ -1166,7 +1169,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                queueId, 
                httpMethod,
                messageId,
-               cimMethodName,
+               cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                e);
 
             PEG_METHOD_EXIT();

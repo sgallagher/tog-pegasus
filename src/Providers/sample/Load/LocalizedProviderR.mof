@@ -22,12 +22,12 @@ instance of PG_Provider
 
 instance of PG_ProviderCapabilities
 {
-    ProviderModuleName = "SampleLocalizedProviderModule";
-    ProviderName = "SampleLocalizedProvider";
-    CapabilityID = "SampleLocalizedProvider";
-    ClassName = "Sample_LocalizedProviderClass";
-    Namespaces = { "root/SampleProvider" };
-    ProviderType = { 2 };
-    SupportedProperties = NULL;
-    SupportedMethods = NULL;
+   ProviderModuleName = "SampleLocalizedProviderModule";
+   ProviderName = "SampleLocalizedProvider";
+   CapabilityID = "1";
+   ClassName = "Sample_LocalizedProviderClass";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 2, 5 };   //Instance, Method
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
 };

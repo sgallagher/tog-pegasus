@@ -30,6 +30,11 @@
 // This is a sample provider that test globalization support, including unicode
 // support and localized message loads.
 
+// Provider Types Tested:
+//
+// Instance
+// Method
+
 // Testcases:
 //
 // 1) Round Trip Test: Verifies that a string and char16 containing Unicode
@@ -164,7 +169,7 @@ LocalizedProvider::~LocalizedProvider(void)
 void LocalizedProvider::initialize(CIMOMHandle & cimom)
 {
 	// create default instances
-	
+
 	// Instance 1
 	CIMInstance instance1(CLASSNAME);
 	CIMObjectPath reference1(REFERENCE1);
@@ -185,7 +190,7 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 	instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
 	_instances.append(instance2);	
 	_instanceNames.append(reference2);
-	_instanceLangs.append(ContentLanguages::EMPTY);		
+	_instanceLangs.append(ContentLanguages::EMPTY);	
 }
 
 void LocalizedProvider::terminate(void)
@@ -528,7 +533,6 @@ void LocalizedProvider::setProperty(
 }
 */
 
-/*
 void LocalizedProvider::invokeMethod(
     const OperationContext & context,
     const CIMObjectPath & objectReference,
@@ -536,9 +540,81 @@ void LocalizedProvider::invokeMethod(
     const Array<CIMParamValue> & inParameters,
     MethodResultResponseHandler & handler)
 {
+    handler.processing();
+ 
+    String utf16String(roundTripChars);
+    String expectedString(roundTripChars);
+    Char16 expectedChar16 = roundTripChars[1];
 
+    String outString(roundTripChars);
+    Char16 outChar16 = roundTripChars[2];
+
+    if (objectReference.getClassName().equal (CLASSNAME))
+    {	
+	if (methodName.equal ("UTFMethod"))
+	{
+            // The method was called to test UTF-16 support for input
+            // parameters, output parameters, and return value.
+	    if( inParameters.size() == 2 )
+            {
+                String inString;
+                Char16 inChar16;
+
+                // Verify that we got the expected UTF-16 chars
+                // in the input parameters
+	        CIMValue paramVal = inParameters[0].getValue();
+                paramVal.get( inString );
+ 	        if( inString != expectedString )
+		{
+	            throw CIMInvalidParameterException(roundTripErrorParms);
+		}
+
+	        paramVal = inParameters[1].getValue();
+                paramVal.get( inChar16 );
+ 	        if( inChar16 != expectedChar16 )
+		{
+	            throw CIMInvalidParameterException(roundTripErrorParms);
+		}
+
+                // Return the UTF-16 chars in the output parameters
+                handler.deliverParamValue(
+                          CIMParamValue( "outStr",
+                                         CIMValue(outString) ) );
+
+                handler.deliverParamValue(
+                          CIMParamValue( "outChar16",
+                                         CIMValue(outChar16) ) );
+
+                // Return UTF-16 chars in the return string
+                handler.deliver( CIMValue( outString ) );
+	    }
+            else
+            {
+                throw CIMException(CIM_ERR_FAILED);
+            }
+	}
+        else if (methodName.equal (utf16String))
+        {
+            // The method was called that has UTF-16 chars in
+            // in the method name.  The purpose of this test
+            // is to verify the URI encoding/decoding of UTF-8
+            // in the CIMMethod HTTP header.
+
+            // Return UTF-16 chars in the return string
+            handler.deliver( CIMValue( outString ) );
+        }
+        else
+        {
+            throw CIMMethodNotFoundException(methodName);
+        }
+   }
+   else
+   {
+       throw CIMObjectNotFoundException(objectReference.getClassName());
+   }
+	
+   handler.complete();
 }
-*/
 
 /*
 void LocalizedProvider::executeQuery(

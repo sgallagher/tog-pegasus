@@ -28,6 +28,9 @@ class Sample_LocalizedProviderClass : Sample_ProviderClass
 
 	[read, write]
 	string ContentLanguageString;
+
+	string UTFMethod( [IN] string inStr, [IN] char16 inChar16,
+                         [OUT] string outStr, [OUT] char16 outChar16);
 };
 
 [Version ("2.2.0")]

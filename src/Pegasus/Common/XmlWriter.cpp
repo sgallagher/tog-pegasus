@@ -450,6 +450,8 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
     }
 }
 
+// chuck start
+
 // See http://www.ietf.org/rfc/rfc2396.txt section 2
 // Reserved characters = ';' '/' '?' ':' '@' '&' '=' '+' '$' ','
 // Excluded characters:
@@ -458,60 +460,33 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 //   Delimiters = '<' '>' '#' '%' '"'
 //   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
 //
-// Also see the "CIM Operations over HTTP" spec, section 3.3.2 and
-// 3.3.3, for the treatment of non US-ASCII chars
-inline void _encodeURIChar(String& outString, Char16 char16)
+
+inline void _encodeURIChar(String& outString, Sint8 char8)
 {
-    // We need to convert the Char16 to UTF8 then append the UTF8
-    // character into the array.
-    // NOTE: The UTF8 character could be several bytes long.
-    // WARNING: This function will put in replacement character for
-    // all characters that have surogate pairs.
-    Uint8 str[6];
-    memset(str,0x00,sizeof(str));
-    Uint8* charIN = (Uint8 *)&char16;
-
-    const Uint16 *strsrc = (Uint16 *)charIN;
-    Uint16 *endsrc = (Uint16 *)&charIN[1];
-
-    Uint8 *strtgt = (Uint8 *)str;
-    Uint8 *endtgt = (Uint8 *)&str[5];
-
-    UTF16toUTF8(&strsrc,
-		endsrc, 
-		&strtgt,
-		endtgt);
-
-    // Loop through the UTF8 bytes for the character,
-    // escaping as needed. 
-    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
-    for (Uint32 i = 0; i < number1; i++)
-    {
-        Uint8 c = str[i];
+    Uint8 c = (Uint8)char8;
     
 #ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
-        if ( ((c <= 0x20) && (c >= 0x00)) ||    // Control characters + space char
-             ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
-             (c == 0x2b) ||                     // '+'
-             (c == 0x2c) ||                     // ','
-             (c == 0x2f) ||                     // '/'
-             ( (c >= 0x3a) && (c <= 0x40) ) ||  // ':' ';' '<' '=' '>' '?' '@'
-             ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
-             (c == 0x60) ||                     // '`'
-             ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
-//           (c == 0x7f) )                      // Control character
-	     (c >= 0x7f) )                      // Control character or non US-ASCII (UTF-8)
-        {
-            char hexencoding[4];
+    if ( ((c <= 0x20) && (c >= 0x00)) ||    // Control characters + space char
+         ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
+         (c == 0x2b) ||                     // '+'
+         (c == 0x2c) ||                     // ','
+         (c == 0x2f) ||                     // '/'
+         ( (c >= 0x3a) && (c <= 0x40) ) ||  // ':' ';' '<' '=' '>' '?' '@'
+         ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
+         (c == 0x60) ||                     // '`'
+         ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
+//       (c == 0x7f) )                      // Control character
+         (c >= 0x7f) )                      // Control character or non US-ASCII (UTF-8)
+    {
+        char hexencoding[4];
 
-            sprintf(hexencoding, "%%%X%X", c/16, c%16);
-            outString.append(hexencoding);
-        }
-        else
+        sprintf(hexencoding, "%%%X%X", c/16, c%16);
+        outString.append(hexencoding);
+    }
+    else
 #endif
-        {
-            outString.append((Uint16)c);
-        }
+    {
+        outString.append((Uint16)c);
     }
 }
 
@@ -521,7 +496,7 @@ String XmlWriter::encodeURICharacters(Array<Sint8> uriString)
 
     for (Uint32 i=0; i<uriString.size(); i++)
     {
-        _encodeURIChar(encodedString, Char16(uriString[i]));
+        _encodeURIChar(encodedString, uriString[i]);
     }
 
     return encodedString;
@@ -531,9 +506,40 @@ String XmlWriter::encodeURICharacters(String uriString)
 {
     String encodedString;
 
+/* i18n remove - did not handle surrogate pairs
     for (Uint32 i=0; i<uriString.size(); i++)
     {
         _encodeURIChar(encodedString, uriString[i]);
+    }
+*/
+
+    // See the "CIM Operations over HTTP" spec, section 3.3.2 and
+    // 3.3.3, for the treatment of non US-ASCII (UTF-8) chars
+
+    // First, convert to UTF-8 (include handling of surrogate pairs)
+    Array<Sint8> utf8;
+    for (Uint32 i = 0; i < uriString.size(); i++)
+    {
+        Uint16 c = uriString[i];
+
+	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+	{
+	    Char16 highSurrogate = uriString[i];
+	    Char16 lowSurrogate = uriString[++i];
+	    
+	    _appendSurrogatePair(utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
+	}
+        else
+        {
+            _appendChar(utf8, uriString[i]);     
+        }
+    }
+
+    // Second, escape the non HTTP-safe chars
+    for (Uint32 i=0; i<utf8.size(); i++)
+    {
+        _encodeURIChar(encodedString, utf8[i]);
     }
 
     return encodedString;

@@ -35,7 +35,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 //#include <Pegasus/Provider/CIMAssociationProvider.h>
 //#include <Pegasus/Provider/CIMPropertyProvider.h>
-//#include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 //#include <Pegasus/Provider/CIMQueryProvider.h>
 //#include <Pegasus/Provider/CIMIndicationProvider.h>
 //#include <Pegasus/Provider/CIMIndicationConsumer.h>
@@ -46,10 +46,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class LocalizedProvider :
-    public CIMInstanceProvider
+    public CIMInstanceProvider,
 //    public CIMAssociationProvider,
 //    public CIMPropertyProvider,
-//    public CIMMethodProvider
+      public CIMMethodProvider
 //    public CIMQueryProvider,
 //    public CIMIndicationProvider,
 //    public CIMIndicationConsumer
@@ -156,6 +156,7 @@ public:
         const CIMName & propertyName,
         const CIMValue & newValue,
         ResponseHandler & handler);
+*/
 
     // CIMMethodProviderFacade
     virtual void invokeMethod(
@@ -164,7 +165,7 @@ public:
         const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler);
-*/        
+   
 
     // CIMQueryProvider interface
 /*    

@@ -99,7 +99,6 @@ INCLUDEFILES += \
    Pegasus/Common/LanguageElementContainer.h \
    Pegasus/Common/AcceptLanguageElement.h \
    Pegasus/Common/Formatter.h \
-   Pegasus/Common/ContentLanguage.h \
    Pegasus/Common/ContentLanguageElement.h \
    Pegasus/Common/LanguageParser.h \
    Pegasus/Common/LanguageElement.h  
@@ -223,10 +222,10 @@ buildSDK:
              PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_INCLUDES="-I $(INCLUDE_DESTPATH)" \
              CIM_MOF_PATH=$(PEGASUS_ROOT)/Schemas/CIM27 SAMPLES_DIR=$(SAMPLE_DESTPATH)/samples
 
-deregProviders:
+deregisterproviders:
 	@$(MAKE) --directory=$(SAMPLE_DESTPATH)/samples/Providers/Load -f Makefile deregisterproviders
 
-regProviders:
+registerproviders:
 	@$(MAKE) --directory=$(SAMPLE_DESTPATH)/samples/Providers/Load -f Makefile registerproviders
 
 testSDK:

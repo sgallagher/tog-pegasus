@@ -299,6 +299,9 @@ will be deleted.
     exception is now thrown when the given string can not be parsed into
     an integer of the specified size.
 
+31. (Roger Kumpf - HP) 20 Mar 2002 - Added support for hexadecimal integers
+    in XmlReader.cpp.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

@@ -645,13 +645,28 @@ Boolean XmlReader::stringToReal(const char* stringValue, Real64& x)
     return true;
 }
 
+inline Uint8 _hexCharToNumeric(const char c)
+{
+    Uint8 n;
+
+    if (isdigit(c))
+        n = (c - '0');
+    else if (isupper(c))
+        n = (c - 'A' + 10);
+    else // if (islower(c))
+        n = (c - 'a' + 10);
+
+    return n;
+}
+
 //------------------------------------------------------------------------------
 //
 // stringToSignedInteger
 //
 //	[ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      [ "+" | "-" ] ( "0x" | "0X" ) 1*hexDigit
 //
-// ATTN-B: handle conversion from hexadecimal.
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::stringToSignedInteger(
@@ -661,7 +676,7 @@ Boolean XmlReader::stringToSignedInteger(
     x = 0;
     const char* p = stringValue;
 
-    if (!*p)
+    if (!p || !*p)
 	return false;
 
     // Skip optional sign:
@@ -671,55 +686,115 @@ Boolean XmlReader::stringToSignedInteger(
     if (negative || *p == '+')
 	p++;
 
-    // If the next thing is a zero, then it must be the last:
-
     if (*p == '0')
-	return p[1] == '\0';
+    {
+        if ( (p[1] == 'x') || (p[1] == 'X') )
+        {
+            // Convert a hexadecimal string
+
+            // Skip over the "0x"
+            p+=2;
+
+            // At least one hexadecimal digit is required
+            if (!isxdigit(*p))
+                return false;
+
+            // Find the first non-zero digit so we have something to negate
+            while (*p == '0')
+                p++;
+
+            // If all the digits are zero, the result is zero
+            if (!*p)
+                return true;
+
+            // Build the Sint64 as a negative number, regardless of the
+            // eventual sign (negative numbers can be bigger than positive ones)
+            x = -Sint64(_hexCharToNumeric(*p++));
+
+            // Add on each digit, checking for overflow errors
+            while (isxdigit(*p))
+            {
+                // Make sure we won't overflow when we multiply by 16
+                if (x < PEGASUS_LLONG_MIN/16)
+                {
+                    return false;
+                }
+                x = x << 4;
+
+                // Make sure we don't overflow when we add the next digit
+                Sint64 newDigit = Sint64(_hexCharToNumeric(*p++));
+                if (PEGASUS_LLONG_MIN - x > -newDigit)
+                {
+                    return false;
+                }
+                x = x - newDigit;
+            }
+
+            // If we found a non-hexadecimal digit, report an error
+            if (*p)
+                return false;
+
+            // Return the integer to positive, if necessary, checking for an
+            // overflow error
+            if (!negative)
+            {
+                if (x == PEGASUS_LLONG_MIN)
+                {
+                    return false;
+                }
+                x = -x;
+            }
+            return true;
+        }
+        else
+        {
+            // A decimal string that starts with '0' must be exactly "0".
+	    return p[1] == '\0';
+        }
+    }
 
     // Expect a positive decimal digit:
 
-    const char* first = p;
+    // At least one decimal digit is required
+    if (!isdigit(*p))
+        return false;
 
-    if (!isdigit(*p) || *p == '0')
-	return false;
+    // Build the Sint64 as a negative number, regardless of the
+    // eventual sign (negative numbers can be bigger than positive ones)
+    x = -(*p++ - '0');
 
-    p++;
-
-    // Expect zero or more digits:
-
+    // Add on each digit, checking for overflow errors
     while (isdigit(*p))
-	p++;
-
-    if (*p)
-	return false;
-
-    const char* last = p;
-
-    // Build the Sint64 as a negative number, regardless of the eventual sign
-    x = -(*first++ - '0');
-
-    while (first != last)
     {
+        // Make sure we won't overflow when we multiply by 10
         if (x < PEGASUS_LLONG_MIN/10)
         {
             return false;
         }
         x = 10 * x;
-        Sint64 newDigit = (*first++ - '0');
+
+        // Make sure we won't overflow when we add the next digit
+        Sint64 newDigit = (*p++ - '0');
         if (PEGASUS_LLONG_MIN - x > -newDigit)
         {
             return false;
         }
-	x = x - newDigit;
+        x = x - newDigit;
     }
 
+    // If we found a non-decimal digit, report an error
+    if (*p)
+	return false;
+
+    // Return the integer to positive, if necessary, checking for an
+    // overflow error
     if (!negative)
     {
         if (x == PEGASUS_LLONG_MIN)
         {
             return false;
         }
-	x = -x;
+        x = -x;
     }
     return true;
 }
@@ -729,8 +804,9 @@ Boolean XmlReader::stringToSignedInteger(
 // stringToUnsignedInteger
 //
 //	( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      ( "0x" | "0X" ) 1*hexDigit
 //
-// ATTN-B: handle conversion from hexadecimal.
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::stringToUnsignedInteger(
@@ -740,47 +816,78 @@ Boolean XmlReader::stringToUnsignedInteger(
     x = 0;
     const char* p = stringValue;
 
-    if (!*p)
+    if (!p || !*p)
 	return false;
 
-    // If the first digit is a zero, then it must be the last:
-
     if (*p == '0')
-	return p[1] == '\0';
+    {
+        if ( (p[1] == 'x') || (p[1] == 'X') )
+        {
+            // Convert a hexadecimal string
+
+            // Skip over the "0x"
+            p+=2;
+
+            // At least one hexadecimal digit is required
+            if (!*p)
+                return false;
+
+            // Add on each digit, checking for overflow errors
+            while (isxdigit(*p))
+            {
+                // Make sure we won't overflow when we multiply by 16
+                if (x > PEGASUS_ULLONG_MAX/16)
+                {
+                    return false;
+                }
+                x = x << 4;
+
+                // We can't overflow when we add the next digit
+                Uint64 newDigit = Uint64(_hexCharToNumeric(*p++));
+                if (PEGASUS_ULLONG_MAX - x < newDigit)
+                {
+                    return false;
+                }
+                x = x + newDigit;
+            }
+
+            // If we found a non-hexadecimal digit, report an error
+            if (*p)
+                return false;
+
+            return true;
+        }
+        else
+        {
+            // A decimal string that starts with '0' must be exactly "0".
+	    return p[1] == '\0';
+        }
+    }
 
     // Expect a positive decimal digit:
 
-    const char* first = p;
-
-    if (!isdigit(*p) || *p == '0')
-	return false;
-
-    p++;
-
-    // Expect zero or more digits:
-
+    // Add on each digit, checking for overflow errors
     while (isdigit(*p))
-	p++;
-
-    if (*p)
-	return false;
-
-    const char* last = p;
-
-    while (first != last)
     {
+        // Make sure we won't overflow when we multiply by 10
         if (x > PEGASUS_ULLONG_MAX/10)
         {
             return false;
         }
         x = 10 * x;
-        Uint64 newDigit = (*first++ - '0');
+
+        // Make sure we won't overflow when we add the next digit
+        Uint64 newDigit = (*p++ - '0');
         if (PEGASUS_ULLONG_MAX - x < newDigit)
         {
             return false;
         }
-	x = x + newDigit;
+        x = x + newDigit;
     }
+
+    // If we found a non-decimal digit, report an error
+    if (*p)
+	return false;
 
     return true;
 }

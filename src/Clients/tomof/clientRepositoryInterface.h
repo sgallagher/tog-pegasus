@@ -50,8 +50,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
-// #include <Clients/tomof/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -103,7 +104,19 @@ class clientRepositoryInterface
       const String& className,
       const Boolean deepInheritance);
 
-// Enumerate Instances
+  virtual Array<CIMReference> enumerateInstanceNames(
+	  const String& nameSpace,
+	  const String& className);
+
+  virtual Array<CIMNamedInstance> enumerateInstances(
+	const String& nameSpace,
+	const String& className,
+	Boolean deepInheritance = true,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList());
+
 };
 
 PEGASUS_NAMESPACE_END

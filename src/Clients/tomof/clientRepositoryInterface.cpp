@@ -153,5 +153,38 @@ Array<String> clientRepositoryInterface::enumerateClassNames(
 	throw OutOfBounds();
 };
 
+Array<CIMReference> clientRepositoryInterface::enumerateInstanceNames(
+	const String& nameSpace,
+	const String& className)
+{
+    if (_repository)
+       return _repository->enumerateInstanceNames(nameSpace, className);
+
+    if (_client)
+       return _client->enumerateInstanceNames(nameSpace, className);
+	throw OutOfBounds();
+};
+
+Array<CIMNamedInstance> clientRepositoryInterface::enumerateInstances(
+	const String& nameSpace,
+	const String& className,
+	Boolean deepInheritance,
+	Boolean localOnly,
+	Boolean includeQualifiers,
+	Boolean includeClassOrigin,
+	const CIMPropertyList& propertyList)
+	
+{
+    if (_repository)
+       return _repository->enumerateInstances(nameSpace, className,
+			deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+
+    if (_client)
+       return _client->enumerateInstances(nameSpace, className,
+		   deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+	throw OutOfBounds();
+};
+
+
 PEGASUS_NAMESPACE_END
 

@@ -741,7 +741,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "JMPIProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->modifiedInstance.getPath().getClassName().getString());
@@ -832,7 +832,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     JNIEnv *env=NULL;
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "JMPIProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString());
@@ -1210,7 +1210,7 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
+            "JMPIProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->objectName.getClassName().getString());
@@ -1644,7 +1644,7 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
 
 Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleCreateSubscriptionRequest");
 
     HandlerIntroInd(CreateSubscription,message,request,response,
                  handler);

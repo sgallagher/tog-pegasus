@@ -84,7 +84,7 @@ const char* Handler::getFieldValue(const char* fieldName) const
     {
 	const char* line = &message[_lines[i]];
 
-	if (strncmp(line, fieldName, fieldNameLength) == 0 &&
+	if (strncasecmp(line, fieldName, fieldNameLength) == 0 &&
 	    line[fieldNameLength] == ':')
 	{
 	    const char* p = line + fieldNameLength + 1;

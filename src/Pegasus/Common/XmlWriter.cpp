@@ -764,11 +764,12 @@ Array<Sint8> XmlWriter::formatSimpleReqMessage(
 
 Array<Sint8> XmlWriter::formatSimpleRspMessage(
     const char* iMethodName,
+    const Uint32 messageId,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMethodResponseHeader(
         XmlWriter::formatMessageElement(
-	    XmlWriter::getNextMessageId(),
+	    messageId,
             XmlWriter::formatSimpleRspElement(
                 XmlWriter::formatIMethodResponseElement(
                     iMethodName,

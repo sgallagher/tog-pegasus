@@ -187,6 +187,7 @@ public:
 
     static Array<Sint8> formatSimpleRspMessage(
 	const char* iMethodName,
+        const Uint32 messageId,
 	const Array<Sint8>& body);
 
     static Uint32 getNextMessageId();

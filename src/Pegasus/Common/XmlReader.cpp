@@ -99,7 +99,8 @@ void XmlReader::expectEndTag(XmlParser& parser, const char* tagName)
 	strcmp(entry.text, tagName) != 0)
     {
 	char message[MESSAGE_SIZE];
-	sprintf(message, "Expected close of %s element", tagName);
+	sprintf(message, "Expected close of %s element, got %s instead",
+              tagName,entry.text);
 	throw XmlValidationError(parser.getLine(), message);
     }
 }
@@ -774,13 +775,33 @@ CIMValue XmlReader::stringToValue(
 {
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
 
+//SNIA
+    if (strlen(valueString)==0) {
+        switch (type) {
+            case CIMType::BOOLEAN: return CIMValue(false);
+           case CIMType::STRING: return CIMValue(valueString);
+           case CIMType::CHAR16: return CIMValue(Char16('\0'));
+           case CIMType::UINT8: return CIMValue(Uint8(0));
+           case CIMType::UINT16: return CIMValue(Uint16(0));
+           case CIMType::UINT32: return CIMValue(Uint32(0));
+           case CIMType::UINT64: return CIMValue(Uint64(0));
+            case CIMType::SINT8: return CIMValue(Sint8(0));
+            case CIMType::SINT16: return CIMValue(Sint16(0));
+            case CIMType::SINT32: return CIMValue(Sint32(0));
+            case CIMType::SINT64: return CIMValue(Sint64(0));
+           case CIMType::REAL32: return CIMValue(Real32(0));
+           case CIMType::REAL64: return CIMValue(Real64(0));
+        }
+    }
+// end of SNIA
+
     switch (type)
     {
 	case CIMType::BOOLEAN:
 	{
-	    if (strcmp(valueString, "TRUE") == 0)
+	    if (strcasecmp(valueString, "TRUE") == 0)
 		return CIMValue(true);
-	    else if (strcmp(valueString, "FALSE") == 0)
+	    else if (strcasecmp(valueString, "FALSE") == 0)
 		return CIMValue(false);
 	    else
 		throw XmlSemanticError(

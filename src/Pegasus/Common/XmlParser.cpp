@@ -262,7 +262,7 @@ XmlValidationError::XmlValidationError(
 XmlSemanticError::XmlSemanticError(
     Uint32 lineNumber,
     const String& message)
-    : XmlException(XmlException::VALIDATION_ERROR, lineNumber, message)
+    : XmlException(XmlException::SEMANTIC_ERROR, lineNumber, message)
 {
 
 }

@@ -59,8 +59,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// REVIEW: need general walkthrough to understand this source.
-
+int timeval_subtract (struct timeval *result, 
+		      struct timeval *x, 
+		      struct timeval *y);
 
 //%///////////////// ----- IPC related functions ------- //////////////////////
 // ----- NOTE - these functions are PRIMITIVES that MUST be implemented

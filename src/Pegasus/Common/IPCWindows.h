@@ -203,7 +203,7 @@ inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void)
 
 inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {
-  _endthread(rc);
+  _endthreadex(rc);
 }
 
 inline void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms)

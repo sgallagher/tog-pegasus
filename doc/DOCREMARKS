@@ -56,3 +56,7 @@ February 4, 2001 - Mike Brasher - Remarks about documentation
 
     10.	Need to talk about ClassDecl.h. Some clarification is needed about
 	the way the handles work.
+
+    11. Saying that ClassDecl is a "template" for creating instances may
+	be taken to refer to C++ templates.
+

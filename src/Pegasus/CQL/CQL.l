@@ -1,3 +1,4 @@
+/*
 //%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -26,6 +27,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+*/
 /* 
    This file describes the language tokens possible for CQL. When a token is matched,
 	the token postion is updated in the CQL_globalParserState, copying from the lex buffer

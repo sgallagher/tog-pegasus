@@ -68,7 +68,7 @@ options allow the user to specify a username and password to use for
 authentication of the user and authorization of the operation.
 By default, stdin is used as the input, if no input file is specified.
 The <code><b>-s</b></code> option enables the SSL protocol between wbemexec and
-a CIM server.
+the CIM server.
 The <code><b>-d</b></code> option may be used to specify that debug information be included in the output.
 </p>
 
@@ -83,10 +83,8 @@ Options
     <code>-h <i>hostname</i></code>
   <dd>
     Use the specified host.  A CIM Server must be running on the 
-    specified host. If this option and the portnumber option are not specified,
-    wbemexec will connect to the local host and authenticate itself. If a host
-    is specified and no password has been specified, the user will be prompted for
-    a password.
+    specified host. If this option is not specified, wbemexec will connect to
+    the local host and authenticate itself.
   <dt>
     <code>-p <i>portnumber</i></code>
   <dd>

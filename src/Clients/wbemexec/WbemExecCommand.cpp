@@ -225,7 +225,7 @@ WbemExecCommand::WbemExecCommand ()
     //
     //  Construct host address
     //
-    if ((!_hostNameSet) && (!_portNumberSet))
+    if( !_hostNameSet )
       {
         connectToLocal = true;
       }

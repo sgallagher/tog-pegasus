@@ -201,6 +201,7 @@ private:
     Boolean _checkNeedToResend(HTTPMessage* httpMessage);
 
     String _getLocalHostName();
+    String _promptForPassword();
 
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
@@ -208,6 +209,12 @@ private:
     Uint32 _timeOutMilliseconds;
     Boolean _connected;
     ClientAuthenticator _authenticator;
+    Boolean _isRemote;
+
+    /**
+        The password to be used for authorization of the operation.
+     */
+    String _password;
 };
 
 PEGASUS_NAMESPACE_END

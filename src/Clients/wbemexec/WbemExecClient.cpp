@@ -64,12 +64,22 @@ PEGASUS_NAMESPACE_BEGIN
 //
 static const Uint32 WBEM_DEFAULT_PORT =  5988;
 
+static const char PASSWORD_PROMPT []  =
+                     "Please enter your password: ";
+
+static const char PASSWORD_BLANK []  = 
+                     "Password cannot be blank. Please re-enter your password.";
+
+static const Uint32 MAX_PW_RETRIES =  3;
+
 WbemExecClient::WbemExecClient(Uint32 timeOutMilliseconds)
     : 
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
     _httpConnection(0),
     _timeOutMilliseconds(timeOutMilliseconds),
-    _connected(false)
+    _connected(false),
+    _password( String::EMPTY ) ,
+    _isRemote( false )
 {
     //
     // Create Monitor and HTTPConnector
@@ -112,6 +122,7 @@ void WbemExecClient::_connect(
     //}
     
     _connected = true;
+    _isRemote  = true;
 }
 
 void WbemExecClient::connect(
@@ -148,9 +159,11 @@ void WbemExecClient::connect(
     if (password.size())
     {
         _authenticator.setPassword(password);
+	_password = password;
     }
 
     _connect(address, sslContext);
+    _isRemote  = true;
 }
 
 
@@ -189,6 +202,7 @@ void WbemExecClient::connectLocal(SSLContext* sslContext)
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
     _connect(address, sslContext);
+    _isRemote = false;
 }
 
 void WbemExecClient::disconnect()
@@ -204,6 +218,44 @@ void WbemExecClient::disconnect()
 
         _connected = false;
     }
+}
+
+/**
+  
+    Prompt for password.
+  
+    @return  String value of the user entered password
+
+ */
+String WbemExecClient::_promptForPassword()
+{
+  //
+  // Password is not set, prompt for the old password once
+  //
+  String pw = String::EMPTY;
+  Uint32 retries = 1;
+  do
+    {
+      pw = System::getPassword( PASSWORD_PROMPT );
+      
+      if ( pw == String::EMPTY || pw == "" )
+	{
+	  if( retries < MAX_PW_RETRIES )
+	    {
+	      retries++;
+
+	    }
+	  else
+	    {
+	      break;
+	    }
+	  cerr << PASSWORD_BLANK << endl;
+	  pw = String::EMPTY;
+	  continue;
+	}
+    }
+  while ( pw == String::EMPTY );
+  return( pw );
 }
 
 
@@ -222,6 +274,7 @@ Array<Sint8> WbemExecClient::issueRequest(
     _authenticator.setRequestMessage(httpRequest);
 
     Boolean finished = false;
+    Boolean challenge = false;
     HTTPMessage* httpResponse;
     do
     {
@@ -236,6 +289,19 @@ Array<Sint8> WbemExecClient::issueRequest(
         finished = !_checkNeedToResend(httpResponse);
         if (!finished)
         {
+            if (!challenge)
+            {
+                challenge = true;
+		if( ( _password == String::EMPTY ) && _isRemote )
+		  {
+		    _password = _promptForPassword();
+		    _authenticator.setPassword( _password );
+		  }
+            }
+            else
+            {
+                break;
+            }
             delete httpResponse;
         }
     } while (!finished);

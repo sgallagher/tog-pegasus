@@ -51,15 +51,13 @@ public:
 
     enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    SocketMessage(Events events_, Uint32 socket_) :
-	Message(SOCKET_MESSAGE), 
-	events(events_), socket(socket_) 
+    SocketMessage(Uint32 socket_, Events events_) :
+	Message(SOCKET_MESSAGE), socket(socket_) events(events_)
     {
     }
 
-    Uint32 events;
-
     Uint32 socket;
+    Uint32 events;
 };
 
 /** This class monitors system-level events and notifies its clients of these

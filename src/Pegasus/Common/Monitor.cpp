@@ -189,6 +189,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    if (!queue)
 		unsolicitSocketMessages(_entries[i].queueId);
 
+	    Message* message = new SocketMessage(socket, events);
+	    queue->enqueue(message);
+
 	    if (events & SocketMessage::WRITE)
 	    {
 		FD_CLR(socket, &_rep->active_wr_fd_set);

@@ -137,7 +137,7 @@ public:
     /*Changes the CIMDateTimeRep data member data[] .
     @param value - value to be inserted into data[]
     @param index - position in data[] to start inserting the value
-    @param size - size of the value paramiter (number of charicters
+    @param size - size of the value paramiter (number of characters
     */
     void set_data(const String & value, Uint32 index, Uint32 size);
 
@@ -152,27 +152,27 @@ public:
     void set_month(const String & mon);
     void set_year(const String & ye);
 
-    void copy(CIMDateTimeRep * cTR);
+    void copy(const CIMDateTimeRep * cTR);
 
  };
 
 
 /* this method  copies the all the information from one CIMDateTimeRep to another
 */
-void CIMDateTimeRep::copy(CIMDateTimeRep * cTR)
-    {
-        //cout << "Start of Rep::copy" << endl;
-        microSec = cTR->microSec;
-        seconds = cTR->seconds;
-        minutes = cTR->minutes;
-        hours = cTR->hours;
-        days = cTR->days;
-        month = cTR->month;
-        year = cTR->year;
-        utcOffSet = cTR->utcOffSet;
-        memcpy(data, cTR->data, sizeof(data));
-        //cout << "end of Rep::copy" << endl <<endl;
-    }
+void CIMDateTimeRep::copy(const CIMDateTimeRep * cTR)
+{
+    //cout << "Start of Rep::copy" << endl;
+    microSec = cTR->microSec;
+    seconds = cTR->seconds;
+    minutes = cTR->minutes;
+    hours = cTR->hours;
+    days = cTR->days;
+    month = cTR->month;
+    year = cTR->year;
+    utcOffSet = cTR->utcOffSet;
+    memcpy(data, cTR->data, sizeof(data));
+    //cout << "end of Rep::copy" << endl <<endl;
+}
 
 /* set_microSec checks the format of the string that will be
 used as the micro seconds value. If the format is correct it sets the
@@ -263,10 +263,10 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
         return false;
     }
 
-    char ch_one = (char) uOffSet[0];
+    Char16 ch_one = uOffSet[0];
     if (ch_one != ':' && ch_one != '+' && ch_one != '-') {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-        "The UTC off set must begin with a ':' or '+' or '-'. The first charicter of UTC off set is %c", ch_one);
+        "The UTC off set must begin with a ':' or '+' or '-'. The value of the first character of UTC offset is %u", ch_one);
         return false;
     }
 

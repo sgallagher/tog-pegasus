@@ -5,7 +5,7 @@ ifeq ($(COMPILER),xlc)
 endif
 
 ifeq ($(COMPILER),acc)
-  LINK_COMMAND = aCC -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
+  LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
   ifeq ($(HPUX_IA64_VERSION), yes)
     LINK_COMMAND += +DD64 -mt
   endif

@@ -6,12 +6,18 @@ OS = hpux
 
 ARCHITECTURE = parisc
 
+ifdef ACC_COMPILER_COMMAND
+   CXX = $(ACC_COMPILER_COMMAND)
+else
+   CXX = aCC
+endif
+
 COMPILER = acc
 
 PLATFORM_VERSION_SUPPORTED = yes
 
 ifeq ($(HPUX_IA64_VERSION), yes)
-  SYS_INCLUDES = 
+  SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
 else
   SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
 endif
@@ -102,10 +108,8 @@ endif
 ifdef PEGASUS_HAS_SSL
  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
- SYS_LIBS += -L$(OPENSSL_HOME)/lib -lcrypto -lssl
+ SYS_LIBS += -L$(OPENSSL_HOME)/lib -lssl -lcrypto 
 endif
-
-CXX = aCC
 
 SH = sh
 

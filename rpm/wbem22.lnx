@@ -62,7 +62,7 @@ if [ "$isUnited" ] || [ "$isSUSE" ]; then
   case "$1" in
     start)
 	echo -n "Starting up Pegasus CIMOM daemon  "
-	startproc /usr/sbin/cimserver -D /etc/pegasus 
+	startproc /usr/sbin/cimserver 
 	rc_status -v
 	;;
     stop)
@@ -97,7 +97,7 @@ else
    case "$1" in
      start)
 	echo -n $"Starting up Pegasus CIMOM daemon: "
-	daemon cimserver -D /etc/pegasus
+	daemon cimserver 
 	RETVAL=$?
 	echo
 	;;

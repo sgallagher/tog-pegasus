@@ -116,6 +116,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
     // TRAP OID: getting trapOid
     char* _trapOid = trapOid.allocateCString();
+    _trapOid[strlen(_trapOid)-1] = '\0';
     OID *sendtrapOid = MakeOIDFromDot(_trapOid);
 
     // Destination : converting destination into Transport
@@ -246,13 +247,11 @@ void snmpDeliverTrap_emanate::deliverTrap(
     }
 
     char* _vbOid;
-    char* _vbType;
     char* _vbValue;
     
     for(Uint32 i = 0; i < vbOids.size(); i++)
     {
 	_vbOid = vbOids[i].allocateCString();
-	_vbType = vbTypes[i].allocateCString();
 	_vbValue = vbValues[i].allocateCString();
 
 	if ((object = MakeOIDFromDot(_vbOid)) == NULL)
@@ -261,7 +260,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
             return;
         } 
 
-        if (strcmp(_vbType,"OctetString") == 0)
+        if (vbTypes[i] == String("OctetString"))
         {
             newValue = CloneOctetString(MakeOctetStringFromText(_vbValue));
             if (newValue == NULL)
@@ -280,8 +279,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
         }
         else
         {
-            newValue = CloneOctetString(MakeOctetString(
-		(unsigned char *) _vbValue, strlen(_vbValue)));
+            int vbvalue = atoi(_vbValue);
+            void* value = &vbvalue;
 
             if (newValue == NULL)
             {
@@ -291,7 +290,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
             if ((vb2 = MakeVarBindWithValue(object, 
 		(OID *) NULL, 
 		INTEGER_TYPE, 
-		newValue)) == NULL)
+		value)) == NULL)
             {
                 cout << "Invalid Integer Value: " << vbValues[i] << endl;
                 return;
@@ -311,30 +310,14 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	FreeOID(object);
     }
 
-    delete [] _vbType;
     delete [] _vbValue;
     delete [] _vbOid;
     
     vb3->next_var = NULL;
 
     // Now sending the trap
-    if (trapType == String("SNMPGeneric"))
+    if (trapType == String("SNMPv1"))
     {
-        cout << genTrap << endl;
-        cout << specTrap << endl;
-        PrintVarBindList(vb);
-        //PrintOID(enterpriseOid);
-        cout << _trapOid << endl;
-        cout << "Sending SNMP generic trap : " << trapOid << endl;
-
-	do_trap(genTrap, specTrap, vb, enterpriseOid, _trapOid);
-        
-	FreeVarBindList(vb);
-        FreeVarBindList(vb2);
-    }
-    else if (trapType == String("SNMPv1"))
-    {
-	cout << "Sending SNMPv1 Trap : " << trapOid << endl;
         SendNotificationToDestSMIv1Params(
             1,					// notifyType - TRAP
             genTrap,				// genTrap
@@ -350,15 +333,11 @@ void snmpDeliverTrap_emanate::deliverTrap(
             SR_SECURITY_MODEL_V1,		// securityModel
             &global_ti,				// Transport Info
             0);					// cfg_chk
-
-        FreeVarBindList(vb);
-        FreeVarBindList(vb2);
     }
     else if (trapType == String("SNMPv2"))
     {
-        cout << "Sending SNMPv2 Trap : " << trapOid << endl;
         SendNotificationToDestSMIv2Params(
-            2,					// notifyType - NOTIFICATION
+            1,					// notifyType - NOTIFICATION
             sendtrapOid,			// snmpTrapOID
             agent_addr,				// agent_addr
             vb,					// vb
@@ -379,6 +358,10 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	delete [] _trapOid;
         exit(2);
     }
+
+    FreeVarBindList(vb);
+    FreeVarBindList(vb2);
+    FreeVarBindList(vb3);
 
     delete [] _trapOid;
 }

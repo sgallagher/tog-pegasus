@@ -113,6 +113,7 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 			    propVALUEs.append(propValue);
                             
 			    mapstr2 = mapstr1.subString(mapstr1.find("|")+2);
+                            mapstr2 = mapstr2.subString(0, mapstr2.size()-1);
 			    propTYPEs.append(mapstr2);
                         }
 		    }

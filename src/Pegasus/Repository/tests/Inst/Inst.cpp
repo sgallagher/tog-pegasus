@@ -200,6 +200,33 @@ void _Test02()
     data.clear();
 
     assert(InstanceDataFile::commitTransaction(PATH));
+
+    //
+    // Now attempt to compact:
+    //
+
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+
+    freeFlags.append(0);
+    indices.append(0);
+    sizes.append(8);
+
+    freeFlags.append(0);
+    indices.append(16);
+    sizes.append(8);
+
+    assert(InstanceDataFile::compact(PATH, freeFlags, indices, sizes));
+
+    //
+    // Verify the result:
+    //
+
+    InstanceDataFile::loadAllInstances(PATH, data);
+    assert(memcmp(data.getData(), "AAAAAAAACCCCCCCC", 16) == 0);
+    assert(data.size() == 2 * 8);
+    data.clear();
 }
 
 int main(int argc, char** argv)

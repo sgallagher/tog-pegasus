@@ -308,7 +308,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       }
    }
    else
-      throw(Permission(pthread_self()));
+      throw(Permission(pegasus_thread_self()));
    if (timeout != 0 )
       throw(TimeOut(_rwlock.owner));
    else if (errorcode == EDEADLK)
@@ -549,7 +549,7 @@ Semaphore::Semaphore(Uint32 initial)
    if(initial > SEM_VALUE_MAX)
       initial = SEM_VALUE_MAX - 1;
    sem_init(&_semaphore.sem,0,initial);
-   _semaphore.owner = pthread_self();
+   _semaphore.owner = pegasus_thread_self();
 
 }
 

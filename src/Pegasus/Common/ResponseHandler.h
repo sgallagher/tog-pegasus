@@ -186,6 +186,11 @@ public:
 //
 // ObjectResponseHandler
 //
+// NOTE: This class definition should not be considered complete until
+// association provider and/or query provider support has been completed
+// in Pegasus, as those are the only APIs that use this response handler
+// type.  Implementation of support for those provider types may reveal
+// a need for API changes in this class.
 class PEGASUS_COMMON_LINKAGE ObjectResponseHandler : virtual public ResponseHandler
 {
 public:

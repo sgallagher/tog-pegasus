@@ -457,6 +457,9 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
     dlclose(libraryHandle);
 #endif
 
+#ifdef PEGASUS_OS_ZOS
+	dllfree(reinterpret_cast<dllhandle *> (libraryHandle));
+#endif
 }
 
 String System::dynamicLoadError() {

@@ -79,7 +79,7 @@ Boolean DynamicLibrary::unload(void)
     #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
     dlclose(_handle);
     #elif defined(PEGASUS_OS_ZOS)
-    // do nothing
+    dllfree(_handle);
     #elif defined(PEGASUS_OS_OS400)
     OS400_UnloadDynamicLibrary(_handle);
     #endif

@@ -208,59 +208,20 @@ CIMClass CIMRepository::getClass(
     return cimClass;
 }
 
-#if 0
-{
-    // Get path of index file:
-
-    String indexPath;
-
-    _MakeInstanceIndexPath(
-	_repositoryRoot, nameSpace, instanceName.getClassName(), indexPath);
-
-    // Lookup the index of the instance:
-
-    Uint32 index;
-
-    if (!InstanceIndexFile::lookup(indexPath, instanceName, index))
-	throw CIMException(CIMException::FAILED);
-
-    // Form the path to the instance file:
-
-    String path;
-
-    _MakeInstancePath(
-	_repositoryRoot, nameSpace, instanceName.getClassName(), index, path);
-
-    CIMInstance cimInstance;
-    _LoadObject(path, cimInstance);
-    return cimInstance;
-}
-#endif
-
-CIMInstance CIMRepository::getInstance(
+static Boolean _GetInstanceIndex(
+    NameSpaceManager& nameSpaceManager,
     const String& nameSpace,
     const CIMReference& instanceName,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+    String& instanceFileBase,
+    String& className,
+    Uint32& index)
 {
     // -- Get all descendent classes of this class:
 
-    String className = instanceName.getClassName();
+    className = instanceName.getClassName();
     Array<String> classNames;
-    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
-
-    // -- Remove class name from instance name (we have to try different class
-    // -- names:
-
-    String remInstanceName = instanceName.toString();
-    Uint32 dot = remInstanceName.find('.');
-
-    if (dot == Uint32(-1))
-	PEGASUS_CIM_EXCEPTION(FAILED, "Bad instance name: " + remInstanceName);
-    remInstanceName.remove(0, dot);
 
     // -- Search each qualifying instance file for the instance:
 
@@ -271,30 +232,51 @@ CIMInstance CIMRepository::getInstance(
 
 	// -- Get common base (of instance file and index file):
 
-	String instanceFileBase = _nameSpaceManager.getInstanceFileBase(
-	    nameSpace, tmpInstanceName.getClassName());
+	instanceFileBase = 
+	    nameSpaceManager.getInstanceFileBase(nameSpace, classNames[i]);
 
 	// -- Lookup index of instance:
 
-	Uint32 index;
 	String indexFilePath = instanceFileBase + ".idx";
     
-	if (!InstanceIndexFile::lookup(indexFilePath, tmpInstanceName, index))
-	    continue;
-
-	// -- Load the instance:
-
-	char extension[32];
-	sprintf(extension, ".%d", index);
-	String instanceFilePath = instanceFileBase + extension;
-	CIMInstance cimInstance;
-	_LoadObject(instanceFilePath, cimInstance);
-
-	return cimInstance;
+	if (InstanceIndexFile::lookup(indexFilePath, tmpInstanceName, index))
+	{
+	    className = classNames[i];
+	    return true;
+	}
     }
 
-    throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getInstance()");
-    return CIMInstance();
+    return false;
+}
+
+CIMInstance CIMRepository::getInstance(
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
+{
+    // -- Get the index for this instances:
+
+    String instanceFileBase;
+    String className;
+    Uint32 index;
+
+    if (!_GetInstanceIndex(_nameSpaceManager,
+	nameSpace, instanceName, instanceFileBase, className, index))
+    {
+	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getInstance()");
+    }
+
+    // Load the instance file:
+
+    char extension[32];
+    sprintf(extension, ".%d", index);
+    String instanceFilePath = instanceFileBase + extension;
+    CIMInstance cimInstance;
+    _LoadObject(instanceFilePath, cimInstance);
+    return cimInstance;
 }
 
 void CIMRepository::deleteClass(
@@ -339,6 +321,19 @@ void CIMRepository::createInstance(
 
     CIMConstClass cimClass;
     newInstance.resolve(_context, nameSpace, cimClass);
+    CIMReference instanceName = newInstance.getInstanceName(cimClass);
+
+    // -- Be sure instance does not already exist:
+
+    String dummyInstanceFileBase;
+    String className;
+    Uint32 dummyIndex;
+
+    if (_GetInstanceIndex(_nameSpaceManager,
+	nameSpace, instanceName, dummyInstanceFileBase, className, dummyIndex))
+    {
+	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, instanceName.toString());
+    }
 
     // -- Get common base (of instance file and index file):
 
@@ -348,7 +343,6 @@ void CIMRepository::createInstance(
     // -- Make index file entry:
 
     String indexFilePath = instanceFileBase + ".idx";
-    CIMReference instanceName = newInstance.getInstanceName(cimClass);
     Uint32 index;
 
     if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))

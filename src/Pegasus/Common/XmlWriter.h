@@ -39,6 +39,7 @@
 //		   Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
+//              Vijay Eli, vijayeli@in.ibm.com, fix for #2571
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,8 +112,8 @@ public:
 
     static void appendSpecial(Array<char>& out, const String& str);
 
-    static String encodeURICharacters(Array<char> uriString);
-    static String encodeURICharacters(String uriString);
+    static String encodeURICharacters(const Array<char>& uriString);
+    static String encodeURICharacters(const String& uriString);
 
     static void appendLocalNameSpacePathElement(
 	Array<char>& out, 

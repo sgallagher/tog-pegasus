@@ -41,6 +41,7 @@
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, vijayeli@in.ibm.com, fix for #2571
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -525,7 +526,7 @@ inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
     }
 }
 
-String XmlWriter::encodeURICharacters(Array<char> uriString)
+String XmlWriter::encodeURICharacters(const Array<char>& uriString)
 {
     String encodedString;
 
@@ -537,7 +538,7 @@ String XmlWriter::encodeURICharacters(Array<char> uriString)
     return encodedString;
 }
 
-String XmlWriter::encodeURICharacters(String uriString)
+String XmlWriter::encodeURICharacters(const String& uriString)
 {
     String encodedString;
 

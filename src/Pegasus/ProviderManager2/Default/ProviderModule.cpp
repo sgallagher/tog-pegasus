@@ -197,14 +197,13 @@ CIMProvider *ProviderModule::load(const String & providerName)
 
 void ProviderModule::unloadModule(void)
 {
-    _ref_count--;
-    if(_ref_count.value() > 0)
-        return;
-    _ref_count = 0;
-    if(_library != 0)
+    if (_ref_count.DecAndTestIfZero())
     {
-        System::unloadDynamicLibrary(_library);
-        _library = 0;
+        if(_library != 0)
+        {
+            System::unloadDynamicLibrary(_library);
+            _library = 0;
+        }
     }
 }
 

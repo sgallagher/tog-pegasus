@@ -1068,10 +1068,17 @@ CIMValue XmlReader::stringToValue(
 
 	    try
 	    {
-		tmp.set(valueString);
+            // KS 20021002 - Exception if no datatime value. Test for
+            // zero length and leave the NULL value in the variable
+            // Bugzilla 137  Adds the following if line.
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+            if (strlen(valueString) != 0)
+#endif
+             tmp.set(valueString);
 	    }
 	    catch (InvalidDateTimeFormatException&)
 	    {
+        cout << "KSTESTSNIA Invalid date time" << strlen(valueString) << "xx" << valueString << endl;
 		throw XmlSemanticError(lineNumber, "Invalid datetime value");
 	    }
 

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include <Pegasus/ProviderManager/Provider.h>
@@ -125,8 +126,11 @@ Triad<String, String, String> _getProviderRegPair(
             "OperationalStatus not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     //
@@ -143,8 +147,11 @@ Triad<String, String, String> _getProviderRegPair(
                 "Provider blocked.");
 
             PEG_METHOD_EXIT();
-
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+			//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+            			"ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+            			"provider blocked."));
         }
     }
 
@@ -157,8 +164,11 @@ Triad<String, String, String> _getProviderRegPair(
             "Provider name not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     pInstance.getProperty(pos).getValue().get(providerName);
@@ -175,8 +185,11 @@ Triad<String, String, String> _getProviderRegPair(
             "Provider location not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     pmInstance.getProperty(pos).getValue().get(location);
@@ -246,8 +259,11 @@ void ProviderManagerService::_lookupProviderForAssocClass(
             " className " + objectPath.getClassName().getString());
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     for(Uint32 i=0,n=pInstances.size(); i<n; i++)
@@ -344,8 +360,11 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
             "Provider registration not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     Triad<String, String, String> triad;
@@ -369,8 +388,11 @@ Triad<String, String, String> ProviderManagerService::_lookupConsumerProvider(
 		    "Provider registration not found.");
    
    PEG_METHOD_EXIT();
-   
-   throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+   //l10n
+   //throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+   throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
    Triad<String, String, String> triad;
    triad = _getProviderRegPair(pInstance, pmInstance);
    
@@ -400,8 +422,11 @@ Triad<String, String, String> ProviderManagerService::_lookupProviderForClass(
             "Provider registration not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     Triad<String, String, String> triad;
@@ -567,6 +592,22 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         if(legacy != 0)
         {
             Destroyer<Message> xmessage(legacy);
+
+	    // Set the client's requested language into this service thread.
+	    // This will allow functions in this service to return messages
+	    // in the correct language.
+// l10n    
+ 	    CIMMessage * msg = dynamic_cast<CIMMessage *>(legacy);
+	    if (msg != NULL)
+ 	    {
+			AcceptLanguages *langs = 
+   					new AcceptLanguages(msg->acceptLanguages);	
+			Thread::setLanguages(langs);   		
+	    }
+	    else
+	    {
+			Thread::clearLanguages();
+	    }		           
 
             // pass the request message to a handler method based on message type
             switch(legacy->getType())
@@ -746,6 +787,11 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         CIMPropertyList propertyList(request->propertyList);
 
         STAT_GETSTARTTIME;
@@ -770,13 +816,13 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
        
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -855,6 +901,11 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         CIMPropertyList propertyList(request->propertyList);
 
         STAT_GETSTARTTIME;
@@ -876,13 +927,13 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -961,6 +1012,11 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.enumerateInstanceNames: " + 
@@ -976,13 +1032,13 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1063,6 +1119,11 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         // forward request
 
         STAT_GETSTARTTIME;
@@ -1081,13 +1142,13 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1166,6 +1227,11 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         CIMPropertyList propertyList(request->propertyList);
 
         // forward request
@@ -1187,13 +1253,13 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1272,6 +1338,11 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+	// add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+	context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         // forward request
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -1289,13 +1360,13 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1327,10 +1398,19 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
 
     Array<CIMObject> cimObjects;
 
+//l10n
+    //CIMExecQueryResponseMessage * response =
+        //new CIMExecQueryResponseMessage(
+        //request->messageId,
+        //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        //request->queueIds.copyAndPop(),
+        //cimObjects);
     CIMExecQueryResponseMessage * response =
         new CIMExecQueryResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.NOT_IMPLEMENTED",
+        					"not implemented")),
         request->queueIds.copyAndPop(),
         cimObjects);
 
@@ -1338,6 +1418,11 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
 
     // preserve message key
     response->synch_response(request);
+
+
+// l10n
+// ATTN: when this is implemented, need to add the language containers to the 
+// OperationContext.  See how the other requests do it.
 
     //
     //  Set HTTP method in response from request
@@ -1424,6 +1509,11 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
                // add the user name to the context
                context.insert(IdentityContainer(request->userName));
 
+//l10n
+               // add the langs to the context
+	       context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+    	       context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+
                // ATTN KS STAT_GETSTARTTIME;
                pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1447,13 +1537,13 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
        {
            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
                 "Exception: " + e.getMessage());
-           handler.setStatus(e.getCode(), e.getMessage());
+           handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
        }
        catch(Exception & e)
        {
            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
                 "Exception: " + e.getMessage());
-           handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+           handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
        }
        catch(...)
        {
@@ -1548,6 +1638,11 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
+//l10n
+            // add the langs to the context
+            context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+            context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+
 	    pm_service_op_lock op_lock(&ph.GetProvider());
             ph.GetProvider().associatorNames(
                 context,
@@ -1564,11 +1659,11 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
     }
     catch(CIMException & e)
     {
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1662,6 +1757,11 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
+//l10n
+            // add the langs to the context
+            context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+            context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+
             STAT_GETSTARTTIME;
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Calling provider.references: " + 
@@ -1684,13 +1784,13 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1782,6 +1882,11 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
+//l10n
+            // add the langs to the context
+            context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+            context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+
             STAT_GETSTARTTIME;
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Calling provider.referenceNames: " + 
@@ -1802,13 +1907,13 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1890,6 +1995,11 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     	// add the user name to the context
     	context.insert(IdentityContainer(request->userName));
 
+//l10n
+        // add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+
         CIMName propertyName = request->propertyName;
 
         STAT_GETSTARTTIME;
@@ -1911,13 +2021,13 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -1948,11 +2058,20 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(request != 0 && async != 0);
 
     // create response message
-    CIMSetPropertyResponseMessage * response =
+    //l10n
+    //CIMSetPropertyResponseMessage * response =
+        //new CIMSetPropertyResponseMessage(
+        //request->messageId,
+        //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        //request->queueIds.copyAndPop());
+	CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.NOT_IMPLEMENTED",
+        					"not implemented")),
         request->queueIds.copyAndPop());
+
 
     PEGASUS_ASSERT(response != 0);
 
@@ -1996,6 +2115,11 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     	// add the user name to the context
     	context.insert(IdentityContainer(request->userName));
 
+//l10n
+        // add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
     	CIMName propertyName = request->propertyName;
     	CIMValue propertyValue = request->newValue;
 
@@ -2019,13 +2143,13 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -2109,6 +2233,11 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
+//l10n
+        // add the langs to the context
+	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));	 
+
         CIMObjectPath instanceReference(request->instanceName);
 
         // ATTN: propagate namespace
@@ -2134,13 +2263,13 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -2209,6 +2338,15 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
             (request->subscriptionInstance));
         context.insert(SubscriptionFilterConditionContainer
             (request->condition, request->queryLanguage));
+
+// l10n
+        context.insert(SubscriptionLanguageListContainer
+	    (request->acceptLanguages));
+	    
+//l10n
+	// add the langs to the context
+        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));	 
 	
 	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
@@ -2250,13 +2388,13 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -2325,6 +2463,15 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         context.insert(SubscriptionFilterConditionContainer
             (request->condition, request->queryLanguage));
 
+// l10n
+        context.insert(SubscriptionLanguageListContainer
+	    (request->acceptLanguages));    
+
+//l10n
+	// add the langs to the context
+        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));	
+
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
         Array<CIMObjectPath> classNames;
@@ -2363,13 +2510,13 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -2435,6 +2582,15 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         context.insert(SubscriptionInstanceContainer
             (request->subscriptionInstance));
 
+// l10n
+        context.insert(SubscriptionLanguageListContainer
+	    (request->acceptLanguages));
+		    
+//l10n
+	// add the langs to the context
+        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));
+
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
         Array<CIMObjectPath> classNames;
@@ -2467,13 +2623,13 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(e.getCode(), e.getMessage());
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(Exception & e)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
     }
     catch(...)
     {
@@ -2566,13 +2722,21 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-       response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+			//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.INTERNAL_ERROR",
+       											"Internal Error"));
     }
     catch(...)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: Unknown");
-       response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+		//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+       											"Unknown Error"));
     }
        
     AsyncLegacyOperationResult *async_result =
@@ -2647,13 +2811,21 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-       response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+			//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.INTERNAL_ERROR",
+       											"Internal Error"));
     }
     catch(...)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: Unknown");
-       response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+			//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+       											"Unknown Error"));
     }
 
     AsyncLegacyOperationResult *async_result =
@@ -2729,7 +2901,11 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         if(_providerRegistrationManager->setProviderModuleStatus
             (moduleName, operationalStatus) == false)
         {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+        	//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
         }
     }
 
@@ -2760,8 +2936,12 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         if(_providerRegistrationManager->setProviderModuleStatus
             (moduleName, operationalStatus) == false)
         {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"set module status failed.");
+        	//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		//"set module status failed.");
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
         }
     }
 
@@ -2841,7 +3021,11 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     if(_providerRegistrationManager->setProviderModuleStatus
         (moduleName, operationalStatus) == false)
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+    	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
     }
 
     CIMEnableModuleResponseMessage * response =
@@ -2961,6 +3145,15 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
 		       ph.GetProvider().getName());
        
       OperationContext context;
+
+//l10n
+// ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This
+// does not appear to be hooked-up.  When it is added, need to
+// make sure that Content-Language is set in the consume msg.
+// NOTE: A-L is not needed to be set in the consume msg.
+      // add the langs to the context
+      context.insert(ContentLanguageListContainer(request->contentLanguages));	  
+
       CIMInstance indication_copy = request->indicationInstance;
       SimpleIndicationResponseHandler handler;
       ph.GetProvider().handleIndication(context, 
@@ -2979,13 +3172,22 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
    {
       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 		       "Exception: " + e.getMessage());
-      response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+		       //l10n
+      //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+      response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+      			"ProviderManager.ProviderManagerService.INTERNAL_ERROR",
+      			"Internal Error"));
+      
    }
    catch(...)
    {
       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 		       "Exception: Unknown");
-      response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+		       //l10n
+      //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+      response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+      			"ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+      			"Unknown Error"));
    }
 
    AsyncLegacyOperationResult *async_result = 

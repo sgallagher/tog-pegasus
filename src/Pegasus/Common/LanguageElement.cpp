@@ -49,9 +49,9 @@ const LanguageElement LanguageElement::EMPTY = LanguageElement();
 LanguageElement LanguageElement::EMPTY_REF = LanguageElement();
  
 LanguageElement::LanguageElement(){
-	language = String::EMPTY;
-	country = String::EMPTY;
-	variant = String::EMPTY;
+	language = String();
+	country = String();
+	variant = String();
 }
 
 LanguageElement::LanguageElement(String language, 
@@ -116,11 +116,11 @@ String LanguageElement::toString() const{
 	return buildLanguageTag();
 }
 
-Boolean LanguageElement::operator==(LanguageElement rhs){
+Boolean LanguageElement::operator==(const LanguageElement rhs)const{
 	return String::equalNoCase(getLanguageTag(), rhs.getLanguageTag());		
 }
 
-Boolean LanguageElement::operator!=(LanguageElement rhs){
+Boolean LanguageElement::operator!=(const LanguageElement rhs)const{
 	return (!String::equalNoCase(getLanguageTag(),rhs.getLanguageTag()));
 }
 

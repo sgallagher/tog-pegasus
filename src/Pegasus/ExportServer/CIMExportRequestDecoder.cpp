@@ -311,6 +311,42 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       }
    }
 
+// l10n start
+   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;;
+   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
+   try 
+   { 
+		// Get and validate the Accept-Language header, if set 	   	  
+		String acceptLanguageHeader;		
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Accept-Language", 
+		      acceptLanguageHeader,
+	    	  false) == true)
+	    {
+			acceptLanguages = AcceptLanguages(acceptLanguageHeader);
+	    }
+
+		// Get and validate the Content-Language header, if set 	
+		String contentLanguageHeader;
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Content-Language", 
+		      contentLanguageHeader,
+	    	  false) == true)
+	    {						
+			contentLanguages = ContentLanguages(contentLanguageHeader);      
+	    }
+   }			
+   catch (Exception &e)
+   {
+		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
+					"request-not-valid",
+                    e.getMessage());		         	
+       	return;
+   }        
+// l10n end   
+
    // Zero-terminate the message:
 
    httpMessage->message.append('\0');
@@ -324,8 +360,10 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // If it is a method call, then dispatch it to be handled:
 
+// l10n
    handleMethodRequest(queueId, httpMethod, content, requestUri, 
-                       cimProtocolVersion, cimExportMethod, userName);
+                       cimProtocolVersion, cimExportMethod, userName,
+                       acceptLanguages, contentLanguages);
 }
 
 
@@ -336,8 +374,16 @@ void CIMExportRequestDecoder::handleMethodRequest(
    const String& requestUri,
    const String& cimProtocolVersionInHeader,
    const String& cimExportMethodInHeader,
-   const String& userName)
+   const String& userName,
+	const AcceptLanguages& httpAcceptLanguages, // l10n
+	const ContentLanguages& httpContentLanguages)	 
 {
+// l10n
+	// Set the Accept-Language into the thread for this service.
+	// This will allow all code in this thread to get
+	// the languages for the messages returned to the client.
+	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));	
+
    //
    // If CIM Listener is shutting down, return error response
    //
@@ -575,6 +621,25 @@ void CIMExportRequestDecoder::handleMethodRequest(
       sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR);
       return;
    }
+
+//l10n start
+// l10n TODO - might want to move A-L and C-L to Message
+// to make this more maintainable
+	// Add the language headers to the request.
+	// Note: Since the text of an export error response will be ignored
+	// by the export client, ignore Accept-Language in the export request.
+	// This will cause any export error response message to be sent in the
+	// default language.
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+	if (cimmsg != NULL)
+	{
+		cimmsg->contentLanguages = httpContentLanguages;			
+	}
+	else
+	{
+		;	// l10n TODO - error back to client here	
+	}
+// l10n end	
 
    _outputQueue->enqueue(request);
 }

@@ -239,8 +239,9 @@ inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void)
    return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
 }
 
+
 // l10n start
-typedef PEGASUS_THREAD_KEY_TYPE DWORD;
+typedef DWORD PEGASUS_THREAD_KEY_TYPE;
 
 inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
 {
@@ -271,6 +272,7 @@ inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
 	return 1;
 } 
 // l10n end
+
 
 inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {

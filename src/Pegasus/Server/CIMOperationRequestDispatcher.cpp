@@ -41,6 +41,7 @@
 #include "CIMOperationRequestDispatcher.h"
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
@@ -1306,21 +1307,24 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Work backward and delete each response off the end of the array
+    // Aggregate the multiple responses into one response.  This moves the
+    // individual objects from response 1 ... n to the first response
+    // working backward and deleting each response off the end of the array
     //CDEBUG("AssociatorNames aggregating responses. Count =  " << poA->numberResponses());
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMAssociatorNamesResponseMessage *fromResponse =
     	    (CIMAssociatorNamesResponseMessage *)poA->getResponse(i);
+        // For this response, move the objects to the zeroth response.
         //CDEBUG("AssociatorNames aggregation from " << i << "contains " << fromResponse->objectNames.size());
     	for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
     	{
             // Insert path information if it is not already installed
-            if (fromResponse->objectNames[i].getHost().size() == 0)
-                fromResponse->objectNames[i].setHost(cimAggregationLocalHost);
+            if (fromResponse->objectNames[j].getHost().size() == 0)
+                fromResponse->objectNames[j].setHost(cimAggregationLocalHost);
 
-            if (fromResponse->objectNames[i].getNameSpace().isNull())
-                fromResponse->objectNames[i].setNameSpace(poA->_nameSpace);
+            if (fromResponse->objectNames[j].getNameSpace().isNull())
+                fromResponse->objectNames[j].setNameSpace(poA->_nameSpace);
 
             toResponse->objectNames.append(fromResponse->objectNames[j]);
     	}
@@ -1398,14 +1402,19 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Work backward and delete each response off the end of the array
+    // Work backward copying the names to the first response
+    // and delete each response off the end of the array
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMReferencesResponseMessage *fromResponse =
     	    (CIMReferencesResponseMessage *)poA->getResponse(i);
 
+        // for each response, move the objects to the first response
     	for (Uint32 j = 0; j < fromResponse->cimObjects.size(); j++)
     	{
+    	    
+            // Test for existence of Namespace and host and if not
+            // in the path component, add them.
     	    CIMObjectPath p = fromResponse->cimObjects[j].getPath();
             Boolean isChanged = false;
             if (p.getHost().size() ==0)
@@ -1438,31 +1447,32 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
         "CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation");
     CIMReferenceNamesResponseMessage * toResponse =
 	(CIMReferenceNamesResponseMessage *) poA->getResponse(0);
+    
     // Work backward and delete each response off the end of the array
     // adding it to the toResponse, which is really the first response.
-    CDEBUG("handleRefNameResponse " << poA->_nameSpace.getString() << " "
-        <<  poA->_className.getString() << " " << poA->numberResponses());
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "CIMOperationRequestDispatcher::Referencenames Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
         poA->numberResponses());
 
-
+    // Aggregate all names into the first response, deleting the others.
+    // Work backwards for efficiency.
+    // For responses 1 ... n, move the names to the zeroth response
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMReferenceNamesResponseMessage *fromResponse =
     	    (CIMReferenceNamesResponseMessage *)poA->getResponse(i);
 
-        // Move each object name
+        // Move each object name to the zeroth response.
         for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
     	{
             // Insert path information if it is not already in
-            if (fromResponse->objectNames[i].getHost().size() == 0)
-                fromResponse->objectNames[i].setHost(cimAggregationLocalHost);
+            if (fromResponse->objectNames[j].getHost().size() == 0)
+                fromResponse->objectNames[j].setHost(cimAggregationLocalHost);
 
-            if (fromResponse->objectNames[i].getNameSpace().isNull())
-                fromResponse->objectNames[i].setNameSpace(poA->_nameSpace);
+            if (fromResponse->objectNames[j].getNameSpace().isNull())
+                fromResponse->objectNames[j].setNameSpace(poA->_nameSpace);
 
             toResponse->objectNames.append(fromResponse->objectNames[j]);
     	}
@@ -1505,12 +1515,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregat
 }
 
 /* The function aggregates individual EnumerateInstance Responses into a single response
-   for return to the client. It simply aggregates the responses into the
+   for return to the client. It aggregates the responses into the
    first response (0).
    ATTN: KS 28 May 2002 - At this time we do not do the following:
    1. eliminate duplicates.
-   2. Order so we eliminate duplicates from top down
-   3. prune the properties if localOnly or deepInheritance are set.
+   2. prune the properties if localOnly or deepInheritance are set.
    This function does not send any responses.
 */
 void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(OperationAggregate* poA)
@@ -1546,8 +1555,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
    aggregation including:
    1. checking for good responses and eliminating any error responses
    2. issuing an error if all responses are bad.
-   3. calling the proper function for merging
-   4. Issuing the single merged response.
+   3. determining the language for the aggregated response  l10n
+   4. calling the proper function for merging
+   5. Issuing the single merged response.
 */
 void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    OperationAggregate* poA)
@@ -1644,11 +1654,53 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
            }
        }
    }
+
+    // Used to determine if all the languages in the responses match
+    Boolean langMismatch = false;   // l10n
+
    // Merge the responses into a single CIMEnumerateInstanceNamesResponse
     // If more than one response, go to proper aggregation function
     if(poA->numberResponses() > 1)
     {
     // Multiple responses. Merge them by appending the response components to the first entry
+	// l10n start
+    	// Aggregate the content langs.  If the language of all the responses are the
+        // same, then use that language as the language of the aggregated response.
+        // Otherwise, don't set any language in the aggregated response.
+
+	// Get the language of the first response  
+    	ContentLanguages firstLang = poA->getResponse(0)->contentLanguages;
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                Formatter::format("Aggregation Processor First Lang = $0"
+                                  , firstLang.toString()));    	
+  	
+	// Loop through the rest of the langs, checking for a mismatch
+        // to the lang of the first response
+	if (firstLang.size() > 0)
+	{
+	    // The first language is set.  Scan the rest of the langs.
+	    for(Uint32 j = 1; j < poA->numberResponses(); j++)
+       	    {
+    	        CIMResponseMessage* response = poA->getResponse(j);
+    	    
+    	        if (response->contentLanguages != firstLang)
+    	        {
+	           // Found a mismatch.  Set the flag and end the loop	
+                   PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                        Formatter::format("Aggregation Processor Lang Mismatch.  Mismatching lang is: $0"
+                                          , response->contentLanguages.toString()));
+	           langMismatch = true;                                     
+                   break;				    
+                }
+            }
+        }
+        else
+        {   
+             // The first lang is empty.  That guarantees a mismatch.
+             langMismatch = true;
+        }    
+        // l10n -end
+
         switch( poA->getRequestType())
         {
             case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE :
@@ -1679,6 +1731,12 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     // Send the remaining response and delete the aggregator.
     response = poA->getResponse(0);
     response->dest = poA->_dest;
+    // l10n
+    // If all the langs didn't match, then send no language in the aggregated response.
+    if (langMismatch == true)
+    {
+    	response->contentLanguages.clear(); 
+    }
     SendForget(response);
     delete poA;
 
@@ -1730,6 +1788,20 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
    "CIMOperationRequestDispatcher::handleEnqueue - Case: $0",
 	       request->getType());
+
+// l10n
+   // Set the client's requested language into this service thread.
+   // This will allow functions in this service to return messages
+   // in the correct language.
+   CIMMessage * req = dynamic_cast<CIMMessage *>(request);
+   if (req != NULL)
+   {
+	   Thread::setLanguages(new AcceptLanguages(req->acceptLanguages));   		
+   } 
+   else
+   {
+	Thread::clearLanguages();
+   }     
 
    switch(request->getType())
    {

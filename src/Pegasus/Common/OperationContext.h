@@ -1,31 +1,32 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Mike Day (mdday@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,974 +36,386 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
-#include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/AcceptLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
+static const Uint32 CONTEXT_EMPTY =                     0;
+static const Uint32 CONTEXT_IDENTITY =                  1;
+static const Uint32 CONTEXT_AUTHENICATION =             2;
+static const Uint32 CONTEXT_AUTHORIZATION =             3;
+static const Uint32 CONTEXT_OTHER_SECURITY =            4;
+static const Uint32 CONTEXT_LOCALE =                    5;
+static const Uint32 CONTEXT_OPTIONS =                   6;
+static const Uint32 CONTEXT_VENDOR =                    7;
+static const Uint32 CONTEXT_UID_PRESENT =               8;
+static const Uint32 CONTEXT_UINT32_PRESENT =            9;
+static const Uint32 CONTEXT_OTHER =                     10;
+static const Uint32 CONTEXT_COPY_MEMORY =               11;
+static const Uint32 CONTEXT_DELETE_MEMORY =             12;
+static const Uint32 CONTEXT_POINTER =                   13;
+static const Uint32 CONTEXT_PROVIDERID =                14;
+
+static const Uint32 OPERATION_NONE =                    0x00000000;
+static const Uint32 OPERATION_LOCAL_ONLY =              0x00000001;
+static const Uint32 OPERATION_INCLUDE_QUALIFIERS =      0x00000002;
+static const Uint32 OPERATION_INCLUDE_CLASS_ORIGIN =    0x00000004;
+static const Uint32 OPERATION_DEEP_INHERITANCE =        0x00000008;
+static const Uint32 OPERATION_PARTIAL_INSTANCE =        0x00000010;
+static const Uint32 OPERATION_REMOTE_ONLY =             0x00000020;
+static const Uint32 OPERATION_DELIVER =                 0x00000040;
+static const Uint32 OPERATION_RESERVE =                 0x00000080;
+static const Uint32 OPERATION_PROCESSING =              0x00000100;
+static const Uint32 OPERATION_COMPLETE =                0x00000200;
+#endif  // !PEGASUS_REMOVE_DEPRECATED
+
 class OperationContextRep;
 
 /**
-    An OperationContext object holds information about the context of an
-    operation, using various Container classes.  The Container subclasses
-    define the set of information that may be available in the
-    OperationContext.
+Context information from client.
+
+<p>The <tt>OperationContext</tt> class carries information about
+the context in which the client program issued the request.
+Currently, the identity of the user is the only supported
+information. Providers must use this to determine whether
+the requested operation should be permitted on behalf of
+the issuing user.
+
+For example, providers can get the user name information from the
+IdentityContext in an OperationContext as shown below:
+
+    <PRE>
+    IdentityContainer container(context.get(IdentityContainer::NAME));
+    String userName = container.getUserName();
+    </PRE>
+</p>
 */
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
 public:
-
     /**
-        A Container subclass object holds a piece of context information
-        for an operation.
+        An element of client context information.
+    
+        <p>The <tt>Container</tt> object carries the information that
+        the provider may access. A container name determines which
+        container is being referenced. Currently, only the container
+        carrying the user identity of the client is available.</p>
     */
     class PEGASUS_COMMON_LINKAGE Container
     {
     public:
+#ifndef PEGASUS_REMOVE_DEPRECATED
+        Container(const Uint32 key = CONTEXT_EMPTY);
+#endif
 
-        /**
-            Destructs the Container.
-        */
-        virtual ~Container();
+        ///
+        virtual ~Container(void);
 
-        /**
-            Returns the unique name for a Container type.
-            @return The String name of the Container type.
-        */
-        virtual String getName() const = 0;
+        ///
+        virtual String getName(void) const = 0;
 
-        /**
-            Makes a copy of the Container object.  The caller is responsible
-            for cleaning up the copy by calling destroy() method.
-            @return A pointer to the new Container object.
-        */
-        virtual Container* clone() const = 0;
+#ifndef PEGASUS_REMOVE_DEPRECATED
+        const Uint32 & getKey(void) const;
+#endif
 
-        /**
-            Cleans up a Container object that was created by the clone()
-            method.
+        /** Makes a copy of the Container object. Caller is responsible 
+            for deleting dynamically allocated memory by calling 
+            destroy() method.
         */
-        virtual void destroy() = 0;
+        virtual Container * clone(void) const = 0;
+
+        /** Cleans up the object, including dynamically allocated memory.
+            This should only be used to clean up memory allocated using 
+            the clone() method.
+        */
+        virtual void destroy(void) = 0;
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    protected:
+        Uint32 _key;
+#endif
     };
 
-    /**
-        Constructs an empty OperationContext object.
-    */
-    OperationContext();
+public:
+    ///
+    OperationContext(void);
 
-    /**
-        Constructs a copy of an OperationContext object.  The newly
-        constructed OperationContext object is independent from the source
-        object.
-        @param context The OperationContext object to copy.
-    */
-    OperationContext(const OperationContext& context);
+    ///
+    OperationContext(const OperationContext & context);
 
-    /**
-        Destructs the OperationContext.
-    */
-    virtual ~OperationContext();
+    ///
+    virtual ~OperationContext(void);
 
-    /**
-        Assigns the value of the specified OperationContext object to this
-        OperationContext.  As a result, this OperationContext object will
-        contain the same set of Containers as in the specified object.
-        @param context The OperationContext object to copy.
-    */
-    OperationContext& operator=(const OperationContext& context);
+    ///
+    OperationContext & operator=(const OperationContext & context);
 
-    /**
-        Removes all the Containers from the OperationContext.
-    */
-    void clear();
+    /// Removes all containers in the current object.
+    void clear(void);
 
-    /**
-        Retrieves the specified Container object from the OperationContext.
-        @param containerName The name of the Container type to retrieve.
-        @return A reference to the specified Container object.
-        @exception Exception if the OperationContext does not contain the
-        specified Container type.
-    */
-    const Container& get(const String& containerName) const;
+    ///
+    const Container & get(const String& containerName) const;
 
-    /**
-        Tests if the specified Container object is in the OperationContext.
-        @param containerName The name of the Container type to retrieve.
-        @return "true" if the container is present in the OperationContext,
-        "false" if it is not present.
-    */
-    Boolean contains(const String& containerName) const;
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    const Container & get(const Uint32 key) const;
+#endif
 
-    /**
-        Replaces an OperationContext Container with the specified Container
-        object of the same type.
-        @param container The Container to set in the OperationContext.
-        @exception Exception if the OperationContext does not contain the
-        specified Container type.
-    */
-    void set(const Container& container);
+    ///
+    void set(const Container & container);
 
-    /**
-        Inserts a Container into the OperationContext.
-        @param container The Container to insert into the OperationContext.
-        @exception Exception if the OperationContext already contains a
-        Container of this type.
-    */
-    void insert(const Container& container);
+    ///
+    void insert(const Container & container);
 
-    /**
-        Removes a Container from the OperationContext.
-        @param containerName The name of the Container type to remove from
-        the OperationContext.
-        @exception Exception if the OperationContext does not contain the
-        specified Container type.
-    */
+    ///
     void remove(const String& containerName);
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    void remove(const Uint32 key);
+#endif
+
 protected:
-    /**
-        An internal representation of the OperationContext attributes.
-    */
     OperationContextRep* _rep;
+
 };
 
 
 class IdentityContainerRep;
 
-/**
-    An IdentityContainer object holds the identity of a user associated with
-    an operation.  For example, a provider must use this Container to
-    determine whether to perform an operation on the behalf of the requesting
-    user.
-*/
+///
 class PEGASUS_COMMON_LINKAGE IdentityContainer
-    : virtual public OperationContext::Container
+    :
+#ifdef PEGASUS_REMOVE_DEPRECATED  // include if NOT using deprecated API
+      virtual
+#endif
+              public OperationContext::Container
 {
 public:
-    /**
-        The unique name for this container type.
-    */
     static const String NAME;
 
-    /**
-        Constructs an IdentityContainer object from the specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not an IdentityContainer object.
-    */
-    IdentityContainer(const OperationContext::Container& container);
-
-    /**
-        Constructs a copy of the specified IdentityContainer.
-        @param container The IdentityContainer object to copy.
-    */
-    IdentityContainer(const IdentityContainer& container);
-
-    /**
-        Constructs an IdentityContainer with a specified user name.
-        @param userName A String user name for this identity.
-    */
-    IdentityContainer(const String& userName);
-
-    /**
-        Destructs the IdentityContainer.
-    */
-    virtual ~IdentityContainer();
-
-    /**
-        Assigns the value of the specified IdentityContainer object to this
-        object.
-        @param container The IdentityContainer object to copy.
-    */
-    IdentityContainer& operator=(const IdentityContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this IdentityContainer object.  The caller is
-        responsible for cleaning up the copy by calling destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up an IdentityContainer object that was created by the
-        clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the user name from the IdentityContainer object.
-        @return A String containing the user name identity.
-    */
-    String getUserName() const;
+    ///
+    IdentityContainer(const OperationContext::Container & container);
+    ///
+    IdentityContainer(const IdentityContainer & container);
+    ///
+    IdentityContainer(const String & userName);
+    ///
+    virtual ~IdentityContainer(void);
+    ///
+    IdentityContainer & operator=(const IdentityContainer & container);
+    ///
+    virtual String getName(void) const;
+    ///
+    virtual OperationContext::Container * clone(void) const;
+    ///
+    virtual void destroy(void);
+    ///
+    String getUserName(void) const;
 
 protected:
-    /**
-        An internal representation of the IdentityContainer attributes.
-    */
     IdentityContainerRep* _rep;
 
-private:
-    IdentityContainer();    // Unimplemented
 };
 
 
 class SubscriptionInstanceContainerRep;
 
-/**
-    A SubscriptionInstanceContainer object holds a CIMInstance associated
-    with an indication subscription.
-*/
 class PEGASUS_COMMON_LINKAGE SubscriptionInstanceContainer
     : virtual public OperationContext::Container
 {
 public:
-    /**
-        The unique name for this container type.
-    */
     static const String NAME;
 
-    /**
-        Constructs a SubscriptionInstanceContainer object from the
-        specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not a SubscriptionInstanceContainer object.
-    */
-    SubscriptionInstanceContainer(
-        const OperationContext::Container& container);
+    SubscriptionInstanceContainer
+        (const OperationContext::Container & container);
+    SubscriptionInstanceContainer
+        (const SubscriptionInstanceContainer & container);
+    SubscriptionInstanceContainer(const CIMInstance & subscriptionInstance);
+    virtual ~SubscriptionInstanceContainer(void);
 
-    /**
-        Constructs a copy of the specified SubscriptionInstanceContainer.
-        @param container The SubscriptionInstanceContainer object to copy.
-    */
-    SubscriptionInstanceContainer(
-        const SubscriptionInstanceContainer& container);
+    SubscriptionInstanceContainer & operator=
+        (const SubscriptionInstanceContainer & container);
 
-    /**
-        Constructs a SubscriptionInstanceContainer with the specified
-        subscription instance.
-        @param subscriptionInstance The subscription instance to be held by
-        this Container.
-    */
-    SubscriptionInstanceContainer(const CIMInstance& subscriptionInstance);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    /**
-        Destructs the SubscriptionInstanceContainer.
-    */
-    virtual ~SubscriptionInstanceContainer();
-
-    /**
-        Assigns the value of the specified SubscriptionInstanceContainer
-        object to this object.
-        @param container The SubscriptionInstanceContainer object to copy.
-    */
-    SubscriptionInstanceContainer& operator=(
-        const SubscriptionInstanceContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this SubscriptionInstanceContainer object.  The
-        caller is responsible for cleaning up the copy by calling destroy()
-        method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up a SubscriptionInstanceContainer object that was created
-        by the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the subscription instance from the SubscriptionInstanceContainer.
-        @return A CIMInstance representing a subscription.
-    */
-    CIMInstance getInstance() const;
+    CIMInstance getInstance(void) const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionInstanceContainer
-        attributes.
-    */
     SubscriptionInstanceContainerRep* _rep;
 
-private:
-    SubscriptionInstanceContainer();    // Unimplemented
 };
-
 
 class SubscriptionFilterConditionContainerRep;
 
-/**
-    A SubscriptionFilterConditionContainer object holds the filter condition
-    and query language associated with an indication subscription.  The
-    filter condition is equivalent to only the "WHERE" clause of a filter
-    query.
-*/
 class PEGASUS_COMMON_LINKAGE SubscriptionFilterConditionContainer
     : virtual public OperationContext::Container
 {
 public:
-    /**
-        The unique name for this container type.
-    */
     static const String NAME;
 
-    /**
-        Constructs a SubscriptionFilterConditionContainer object from the
-        specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not a SubscriptionFilterConditionContainer object.
-    */
-    SubscriptionFilterConditionContainer(
-        const OperationContext::Container& container);
+    SubscriptionFilterConditionContainer
+        (const OperationContext::Container & container);
+    SubscriptionFilterConditionContainer
+        (const SubscriptionFilterConditionContainer & container);
+    SubscriptionFilterConditionContainer
+        (const String & filterCondition, 
+        const String & queryLanguage);
+    virtual ~SubscriptionFilterConditionContainer(void);
 
-    /**
-        Constructs a copy of the specified
-        SubscriptionFilterConditionContainer.
-        @param container The SubscriptionFilterConditionContainer object
-        to copy.
-    */
-    SubscriptionFilterConditionContainer(
-        const SubscriptionFilterConditionContainer& container);
+    SubscriptionFilterConditionContainer & operator=
+        (const SubscriptionFilterConditionContainer & container);
 
-    /**
-        Constructs a SubscriptionFilterConditionContainer with the specified
-        filter condition and query language.
-        @param filterCondition The query condition String associated with an
-        indication subscription filter.
-        @param queryLanguage The query language String associated with an
-        indication subscription filter.
-    */
-    SubscriptionFilterConditionContainer(
-        const String& filterCondition,
-        const String& queryLanguage);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    /**
-        Destructs the SubscriptionFilterConditionContainer.
-    */
-    virtual ~SubscriptionFilterConditionContainer();
-
-    /**
-        Assigns the value of the specified SubscriptionFilterConditionContainer
-        object to this object.
-        @param container The SubscriptionFilterConditionContainer object to
-        copy.
-    */
-    SubscriptionFilterConditionContainer& operator=(
-        const SubscriptionFilterConditionContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this SubscriptionFilterConditionContainer object.
-        The caller is responsible for cleaning up the copy by calling
-        destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up a SubscriptionFilterConditionContainer object that was
-        created by the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the filter query condition from the
-        SubscriptionFilterConditionContainer.  Note that the filter query
-        condition is equivalent to only the "WHERE" clause of a filter query.
-        @return The query condition String associated with an indication
-        subscription filter.
-    */
-    String getFilterCondition() const;
-
-    /**
-        Gets the query language from the SubscriptionFilterConditionContainer.
-        @return The query language String associated with an indication
-        subscription filter.
-    */
-    String getQueryLanguage() const;
+    String getFilterCondition(void) const;
+    String getQueryLanguage(void) const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionFilterConditionContainer
-        attributes.
-    */
     SubscriptionFilterConditionContainerRep* _rep;
 
-private:
-    SubscriptionFilterConditionContainer();    // Unimplemented
 };
-
-
-class SubscriptionFilterQueryContainerRep;
-
-/**
-    A SubscriptionFilterQueryContainer object holds the query filter
-    and query language associated with an indication subscription, as well
-    as the source namespace of the filter.  The query filter contains the
-    whole query string ("SELECT" statement) from the subscription filter
-    instance.  (This differs from the filter condition string in
-    SubscriptionFilterConditionContainer, which only contains the "WHERE"
-    clause of the filter.)
-*/
-class PEGASUS_COMMON_LINKAGE SubscriptionFilterQueryContainer
-    : virtual public OperationContext::Container
-{
-public:
-    /**
-        The unique name for this container type.
-    */
-    static const String NAME;
-
-    /**
-        Constructs a SubscriptionFilterQueryContainer object from the
-        specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not a SubscriptionFilterQueryContainer object.
-    */
-    SubscriptionFilterQueryContainer(
-        const OperationContext::Container& container);
-
-    /**
-        Constructs a copy of the specified SubscriptionFilterQueryContainer.
-        @param container The SubscriptionFilterQueryContainer object to copy.
-    */
-    SubscriptionFilterQueryContainer(
-        const SubscriptionFilterQueryContainer& container);
-
-    /**
-        Constructs a SubscriptionFilterQueryContainer with the specified
-        filter query, query language, and source namespace.
-        @param filterQuery The filter query String associated with an
-        indication subscription filter.
-        @param queryLanguage The query language String associated with an
-        indication subscription filter.
-        @param sourceNameSpace The CIMNamespaceName of the source namespace
-        associated with an indication subscription filter.
-    */
-    SubscriptionFilterQueryContainer(
-       const String& filterQuery,
-       const String& queryLanguage,
-       const CIMNamespaceName& sourceNameSpace);
-
-    /**
-        Destructs the SubscriptionFilterQueryContainer.
-    */
-    virtual ~SubscriptionFilterQueryContainer();
-
-    /**
-        Assigns the value of the specified SubscriptionFilterQueryContainer
-        object to this object.
-        @param container The SubscriptionFilterQueryContainer object to copy.
-    */
-    SubscriptionFilterQueryContainer& operator=(
-        const SubscriptionFilterQueryContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this SubscriptionFilterQueryContainer object.
-        The caller is responsible for cleaning up the copy by calling
-        destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up a SubscriptionFilterQueryContainer object that was
-        created by the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the filter query from the SubscriptionFilterQueryContainer.
-        @return The query String associated with an indication subscription
-        filter.
-    */
-    String getFilterQuery() const;
-
-    /**
-        Gets the filter query language from the
-        SubscriptionFilterQueryContainer.
-        @return The query language String associated with an indication
-        subscription filter.
-    */
-    String getQueryLanguage() const;
-
-    /**
-        Gets the source namespace from the SubscriptionFilterQueryContainer.
-        @return The source namespace associated with an indication
-        subscription filter.
-    */
-    CIMNamespaceName getSourceNameSpace() const;
-
-protected:
-    /**
-        An internal representation of the SubscriptionFilterQueryContainer
-        attributes.
-    */
-    SubscriptionFilterQueryContainerRep* _rep;
-
-private:
-    SubscriptionFilterQueryContainer();    // Unimplemented
-};
-
 
 class SubscriptionInstanceNamesContainerRep;
 
-/**
-    A SubscriptionInstanceNamesContainer object holds a list of subscription
-    instance names.  This can be used to limit the set of subscriptions that
-    are considered targets for an indication when it is generated, which is
-    necessary for a provider to generate localized indications or to
-    implement a subscription's repeat notification policy.
-*/
 class PEGASUS_COMMON_LINKAGE SubscriptionInstanceNamesContainer
     : virtual public OperationContext::Container
 {
 public:
-
-    /**
-        The unique name for this container type.
-    */
     static const String NAME;
 
-    /**
-        Constructs a SubscriptionInstanceNamesContainer object from the
-        specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not a SubscriptionInstanceNamesContainer object.
-    */
-    SubscriptionInstanceNamesContainer(
-        const OperationContext::Container& container);
+    SubscriptionInstanceNamesContainer
+        (const OperationContext::Container & container);
+    SubscriptionInstanceNamesContainer
+        (const SubscriptionInstanceNamesContainer & container);
+    SubscriptionInstanceNamesContainer
+        (const Array<CIMObjectPath> & subscriptionInstanceNames);
+    virtual ~SubscriptionInstanceNamesContainer(void);
 
-    /**
-        Constructs a copy of the specified SubscriptionInstanceNamesContainer.
-        @param container The SubscriptionInstanceNamesContainer object to copy.
-    */
-    SubscriptionInstanceNamesContainer(
-        const SubscriptionInstanceNamesContainer& container);
+    SubscriptionInstanceNamesContainer & operator=
+        (const SubscriptionInstanceNamesContainer & container);
 
-    /**
-        Constructs a SubscriptionInstanceNamesContainer with the specified
-        list of subscription instance names.
-        @param subscriptionInstanceNames A CIMObjectPath Array with the names
-        of indication subscription instances.
-    */
-    SubscriptionInstanceNamesContainer(
-        const Array<CIMObjectPath>& subscriptionInstanceNames);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    /**
-        Destructs the SubscriptionInstanceNamesContainer.
-    */
-    virtual ~SubscriptionInstanceNamesContainer();
-
-    /**
-        Assigns the value of the specified SubscriptionInstanceNamesContainer
-        object to this object.
-        @param container The SubscriptionInstanceNamesContainer object to copy.
-    */
-    SubscriptionInstanceNamesContainer& operator=(
-        const SubscriptionInstanceNamesContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this SubscriptionInstanceNamesContainer object.
-        The caller is responsible for cleaning up the copy by calling
-        destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up a SubscriptionInstanceNamesContainer object that was
-        created by the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the list of subscription instance names from the
-        SubscriptionInstanceNamesContainer.
-        @return A CIMObjectPath Array of indication subscription instance
-        names.
-    */
-    Array<CIMObjectPath> getInstanceNames() const;
+    Array<CIMObjectPath> getInstanceNames(void) const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionInstanceNamesContainer
-        attributes.
-    */
     SubscriptionInstanceNamesContainerRep* _rep;
 
-private:
-    SubscriptionInstanceNamesContainer();    // Unimplemented
 };
 
 
-/**
-    A TimeoutContainer object holds an operation timeout value, in
-    milliseconds.
-*/
-class PEGASUS_COMMON_LINKAGE TimeoutContainer
-    : virtual public OperationContext::Container
+class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext::Container
 {
-public:
-
-    /**
-        The unique name for this container type.
-    */
-    static const String NAME;
-
-    /**
-        Constructs a TimeoutContainer object from the specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not a TimeoutContainer object.
-    */
-    TimeoutContainer(const OperationContext::Container& container);
-
-    /**
-        Constructs a TimeoutContainer with the specified timeout value.
-        @param timeout An integer timeout value (in milliseconds).
-    */
-    TimeoutContainer(Uint32 timeout);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this TimeoutContainer object.  The caller is
-        responsible for cleaning up the copy by calling destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up a TimeoutContainer object that was created by the clone()
-        method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the timeout value from the TimeoutContainer.
-        @return An integer timeout value (in milliseconds).
-    */
-    Uint32 getTimeOut() const;
-
-protected:
-    /**
-        An internal representation of the TimeoutContainer timeout value.
-    */
-    Uint32 _value;
-
-private:
-    TimeoutContainer();
+   public:
+      static const String NAME;
+      
+      TimeoutContainer(const OperationContext::Container & container);
+      TimeoutContainer(Uint32 timeout);
+      virtual String getName(void) const;
+      virtual OperationContext::Container * clone(void) const;
+      virtual void destroy(void);
+      
+      Uint32 getTimeOut(void) const;
+   protected:
+      Uint32 _value;
+   private:
+      TimeoutContainer(void);
 };
 
+
+// l10n
+/////////////////////////////////////////////////////////////////////////////
+// Containers used for globalization
+/////////////////////////////////////////////////////////////////////////////
 
 class AcceptLanguageListContainerRep;
 
-/**
-    An AcceptLanguageListContainer object holds a list of languages that
-    are acceptable in the response for a given operation.
-*/
 class PEGASUS_COMMON_LINKAGE AcceptLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
-    /**
-        The unique name for this container type.
-    */
     static const String NAME;
 
-    /**
-        Constructs an AcceptLanguageListContainer object from the
-        specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not an AcceptLanguageListContainer object.
-    */
-    AcceptLanguageListContainer(
-        const OperationContext::Container& container);
+    AcceptLanguageListContainer
+        (const OperationContext::Container & container);
+    AcceptLanguageListContainer
+        (const AcceptLanguageListContainer & container);
+    AcceptLanguageListContainer(const AcceptLanguages & languages);
+    virtual ~AcceptLanguageListContainer(void);
 
-    /**
-        Constructs a copy of the specified AcceptLanguageListContainer.
-        @param container The AcceptLanguageListContainer object to copy.
-    */
-    AcceptLanguageListContainer(
-        const AcceptLanguageListContainer& container);
+    AcceptLanguageListContainer & operator=
+        (const AcceptLanguageListContainer & container);
 
-    /**
-        Constructs an AcceptLanguageListContainer with the specified
-        accept language list.
-        @param languages An AcceptLanguageList with the response languages
-        that are acceptable in this context.
-    */
-    AcceptLanguageListContainer(const AcceptLanguageList& languages);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    /**
-        Destructs the AcceptLanguageListContainer.
-    */
-    virtual ~AcceptLanguageListContainer();
-
-    /**
-        Assigns the value of the specified AcceptLanguageListContainer
-        object to this object.
-        @param container The AcceptLanguageListContainer object to copy.
-    */
-    AcceptLanguageListContainer& operator=(
-        const AcceptLanguageListContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this AcceptLanguageListContainer object.  The caller
-        is responsible for cleaning up the copy by calling destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up an AcceptLanguageListContainer object that was created by
-        the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the list of acceptable response languages from the
-        AcceptLanguageListContainer.
-        @return An AcceptLanguageList with the response languages that are
-        acceptable in this context.
-    */
-    AcceptLanguageList getLanguages() const;
+    AcceptLanguages getLanguages(void) const;
 
 protected:
-    /**
-        An internal representation of the AcceptLanguageListContainer
-        attributes.
-    */
-    AcceptLanguageListContainerRep* _rep;
+   AcceptLanguageListContainerRep* _rep;
 
-private:
-    AcceptLanguageListContainer();    // Unimplemented
 };
 
 
+class PEGASUS_COMMON_LINKAGE SubscriptionLanguageListContainer
+    : virtual public AcceptLanguageListContainer
+{
+public:
+    static const String NAME;
+    
+    SubscriptionLanguageListContainer
+        (const OperationContext::Container & container)
+        : AcceptLanguageListContainer(container)
+        {};
+    SubscriptionLanguageListContainer
+        (const SubscriptionLanguageListContainer & container)
+        : AcceptLanguageListContainer(container)
+        {};
+    SubscriptionLanguageListContainer(const AcceptLanguages & languages)
+        : AcceptLanguageListContainer(languages)
+        {};
+    virtual ~SubscriptionLanguageListContainer(void) {};        
+
+    virtual String getName(void) const;
+};    
+
 class ContentLanguageListContainerRep;
 
-/**
-    A ContentLanguageListContainer object holds a list of languages that
-    are contained in the associated data.
-*/
 class PEGASUS_COMMON_LINKAGE ContentLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
-
-    /**
-        The unique name for this container type.
-    */
     static const String NAME;
 
-    /**
-        Constructs a ContentLanguageListContainer object from the
-        specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not a ContentLanguageListContainer object.
-    */
-    ContentLanguageListContainer(
-        const OperationContext::Container& container);
+    ContentLanguageListContainer
+        (const OperationContext::Container & container);
+    ContentLanguageListContainer
+        (const ContentLanguageListContainer & container);
+    ContentLanguageListContainer(const ContentLanguages & languages);
+    virtual ~ContentLanguageListContainer(void);
 
-    /**
-        Constructs a copy of the specified ContentLanguageListContainer.
-        @param container The ContentLanguageListContainer object to copy.
-    */
-    ContentLanguageListContainer(
-        const ContentLanguageListContainer& container);
+    ContentLanguageListContainer & operator=
+        (const ContentLanguageListContainer & container);
 
-    /**
-        Constructs a ContentLanguageListContainer with the specified
-        content language list.
-        @param languages A ContentLanguageList with the languages that are
-        contained in the associated data.
-    */
-    ContentLanguageListContainer(const ContentLanguageList& languages);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    /**
-        Destructs the ContentLanguageListContainer.
-    */
-    virtual ~ContentLanguageListContainer();
-
-    /**
-        Assigns the value of the specified ContentLanguageListContainer
-        object to this object.
-        @param container The ContentLanguageListContainer object to copy.
-    */
-    ContentLanguageListContainer& operator=(
-        const ContentLanguageListContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this ContentLanguageListContainer object.  The caller
-        is responsible for cleaning up the copy by calling destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up a ContentLanguageListContainer object that was created
-        by the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the list of content languages from the
-        ContentLanguageListContainer.
-        @return A ContentLanguageList with the languages that are contained
-        in the associated data.
-    */
-    ContentLanguageList getLanguages() const;
+    ContentLanguages getLanguages(void) const;
 
 protected:
-    /**
-        An internal representation of the ContentLanguageListContainer
-        attributes.
-    */
-    ContentLanguageListContainerRep* _rep;
+   ContentLanguageListContainerRep* _rep;
 
-private:
-    ContentLanguageListContainer();    // Unimplemented
 };
 
-
-class SnmpTrapOidContainerRep;
-
-/**
-    An SnmpTrapOidContainer object holds an SNMP trap OID that corresponds
-    to the associated data.
-*/
-class PEGASUS_COMMON_LINKAGE SnmpTrapOidContainer
-    : virtual public OperationContext::Container
-{
-public:
-
-    /**
-        The unique name for this container type.
-    */
-    static const String NAME;
-
-    /**
-        Constructs an SnmpTrapOidContainer object from the specified Container.
-        @param container The Container object to copy.
-        @exception DynamicCastFailedException If the specified Container
-        object is not an SnmpTrapOidContainer object.
-    */
-    SnmpTrapOidContainer(const OperationContext::Container& container);
-
-    /**
-        Constructs a copy of the specified SnmpTrapOidContainer.
-        @param container The SnmpTrapOidContainer object to copy.
-    */
-    SnmpTrapOidContainer(const SnmpTrapOidContainer& container);
-
-    /**
-        Constructs an SnmpTrapOidContainer with the specified SNMP trap OID.
-        @param snmpTrapOid A String containing an SNMP trap OID.
-    */
-    SnmpTrapOidContainer(const String& snmpTrapOid);
-
-    /**
-        Destructs the SnmpTrapOidContainer.
-    */
-    virtual ~SnmpTrapOidContainer();
-
-    /**
-        Assigns the value of the specified SnmpTrapOidContainer
-        object to this object.
-        @param container The SnmpTrapOidContainer object to copy.
-    */
-    SnmpTrapOidContainer& operator=(const SnmpTrapOidContainer& container);
-
-    /**
-        Returns the unique name for this Container type.
-        @return The String name of the Container type.
-    */
-    virtual String getName() const;
-
-    /**
-        Makes a copy of this SnmpTrapOidContainer object.  The caller is
-        responsible for cleaning up the copy by calling destroy() method.
-        @return A pointer to the new Container object.
-    */
-    virtual OperationContext::Container* clone() const;
-
-    /**
-        Cleans up an SnmpTrapOidContainer object that was created
-        by the clone() method.
-    */
-    virtual void destroy();
-
-    /**
-        Gets the SNMP trap OID from the SnmpTrapOidContainer.
-        @return A String with the SNMP trap OID corresponding to the
-        associated data.
-    */
-    String getSnmpTrapOid() const;
-
-protected:
-    /**
-        An internal representation of the SnmpTrapOidContainer attributes.
-    */
-    SnmpTrapOidContainerRep* _rep;
-
-private:
-    SnmpTrapOidContainer();    // Unimplemented
-};
 
 
 PEGASUS_NAMESPACE_END

@@ -43,10 +43,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 	ContentLanguages::ContentLanguages(String hdr): LanguageElementContainer(){
 		PEG_METHOD_ENTER(TRC_L10N, "ContentLanguages::ContentLanguages(String)");
-		Array<String> values;
-		LanguageParser lp;
-		lp.parseHdr(values,hdr);
-		buildLanguageElements(values);
+		if(hdr.size() > 0){
+			Array<String> values;
+			LanguageParser lp;
+			lp.parseHdr(values,hdr);
+			buildLanguageElements(values);
+                }  
 		PEG_METHOD_EXIT();
 	}
 

@@ -54,6 +54,7 @@ public:
 
       /** ATTN:
       */
+      virtual void deliver(const Array<object_type> & objects) = 0;
       virtual void deliver(const OperationContext & context, const Array<object_type> & objects) = 0;
 
       /** ATTN:

@@ -49,8 +49,9 @@ MT_MessageQueue::MT_MessageQueue()
     _mqueue = new MessageQueue();
 
     // the message queue MAY only be changed, if both locks held !
-    _full = new Condition();
-    _empty= new Condition();
+    _sharedMutex = new Mutex();
+    _full = new Condition(*_sharedMutex);
+    _empty= new Condition(*_sharedMutex);
 
     _lowWaterMark = PEGASUS_DEFAULT_LOWWATERMARK;
     _highWaterMark = PEGASUS_DEFAULT_HIGHWATERMARK;
@@ -67,6 +68,7 @@ MT_MessageQueue::~MT_MessageQueue()
     // has to be rewritten to use the lockable QueueTable
     delete _full;
     delete _empty;
+    delete _sharedMutex;
     delete _mqueue;
 
     _MT_queueTable_lock.unlock();
@@ -79,47 +81,23 @@ void MT_MessageQueue::enqueue(Message* message)
     if (!message)
 	throw NullPointer();
 
-    while (true) 
-    {
-        _full->lock_object(pegasus_thread_self());
+    _full->lock_object(pegasus_thread_self());
  
-        while(_mqueue->getCount() >= _highWaterMark) 
-	  {
-	  try
-	    {
-	      _full->unlocked_timed_wait(500, pegasus_thread_self());
-	    }
-	  catch(TimeOut& to)
-	    {
-	      ;
-	    }
-	  }
-
-        if (_preferReader)
+    while(_mqueue->getCount() >= _highWaterMark) 
+    {
+        try
         {
-            // if you cannot get the 2nd mutex,
-            // just release all locks and try again
-	  try 
-	    { 
-	      _empty->lock_object(pegasus_thread_self()) ;
-	    }
-	  catch ( AlreadyLocked& al ) 
-	    { 
-	      _full->unlock_object(); 
-	      break;
-	    }
+            _writers++;
+            _full->unlocked_timed_wait(500, pegasus_thread_self());
+            _writers--;
         }
-        else {
-            _empty->lock_object(pegasus_thread_self());
-            break;
-        }
-    } /* end while */
+        catch(TimeOut& to) { ; }
+    }
 
     _mqueue->enqueue(message);
 
-    _empty->unlocked_signal(pegasus_thread_self());
-
-    _empty->unlock_object();
+    if (_readers > 0)
+        _empty->unlocked_signal(pegasus_thread_self());
 
     _full->unlock_object();
 
@@ -130,49 +108,25 @@ Message* MT_MessageQueue::dequeue()
 {
     Message * message; 
 
-    while (true) 
+    _empty->lock_object(pegasus_thread_self());
+ 
+    while (_mqueue->getCount() <= _lowWaterMark) 
     {
-        _empty->lock_object(pegasus_thread_self());
-
-        while (_mqueue->getCount() <= _lowWaterMark) 
-	  {
-	    try 
-	      {
-		_empty->unlocked_timed_wait(500, pegasus_thread_self());
-	      }
-	    catch(TimeOut& to)
-	      {
-		;
-	      }
-	  }
-
-        if (!_preferReader)
+        try
         {
-            // if you cannot get the 2nd mutex,
-            // just release all locks and try again
-	  try 
-	    {
-	      _full->try_lock_object(pegasus_thread_self());
-	      break;
-	    }
-	  catch (AlreadyLocked& al)
-	    {
-	      _empty->unlock_object();
-	    }
+            _readers++;
+            _empty->unlocked_timed_wait(500, pegasus_thread_self());
+            _readers--;
         }
-        else {
-            _full->lock_object(pegasus_thread_self());
-            break;
-        }
-    } /* end while */
+        catch(TimeOut& to) { ; }
+    }
 
     message = _mqueue->dequeue();
 
-    _full->unlocked_signal(pegasus_thread_self());
+    if (_writers > 0)
+        _full->unlocked_signal(pegasus_thread_self());
 
     _empty->unlock_object();
-
-    _full->unlock_object();
 
     return message;
 }
@@ -202,12 +156,12 @@ Message* MT_MessageQueue::find(Uint32 type, Uint32 key)
 
 void MT_MessageQueue::lock()
 {
+    _full->lock_object(pegasus_thread_self());
 }
 
 void MT_MessageQueue::unlock()
 {
     _full->unlock_object();
-    _empty->unlock_object();
 }
 
 MessageQueue* MT_MessageQueue::lookup(Uint32 queueId)

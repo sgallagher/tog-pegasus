@@ -19,3 +19,15 @@ SELECT * FROM CQL_TestPropertyTypes WHERE NOT(PropertyString = 'a' OR PropertySi
 # Requires DeMorgan and distribution of AND 
 SELECT * FROM CQL_TestPropertyTypes WHERE NOT(PropertyString = 'a' AND PropertySint8 = -1) AND PropertyUint8 = 3 
 SELECT * FROM CQL_TestPropertyTypes WHERE (PropertyUint64 = 5 OR NOT(PropertyString = 'a' AND PropertySint8 = -1)) AND PropertyUint8 = 3      
+# (A v B) ^ C ---> (A ^ B) v (B ^ C)
+select * from class where ((class.propA = 'normalize') OR (class.propB = 'this')) AND (class.propC = 'you')
+# A ^ (B v C) ---> (A ^ B) v (A ^ C)
+select * from class where (class.propA = 'normalize') AND ((class.propB = 'this') OR (class.propC = 'you'))
+# !(A v B) ---> !A ^ !B
+select * from class where NOT ((class.propA = 'normalize') OR (class.propB = 'this'))
+# !(A ^ B) ---> !A v !B
+select * from class where NOT ((class.propA = 'normalize') AND (class.propB = 'this'))
+# (A OR B AND ( D OR E )) AND C ---> (A AND C) OR (B AND D AND C) OR (B AND E AND C)
+select * from x where (x.A = '1' OR x.B = '2' AND ( x.D = '3' OR x.E = '4' )) AND (x.C = '5')
+# (A OR B AND NOT( D OR E )) AND C ---> (A AND C) OR (B AND NOT(D) AND NOT(C)) OR (B AND E AND C)
+select * from x where (x.A = '1' OR x.B = '2' AND NOT( x.D = '3' OR x.E = '4' )) AND (x.C = '5')

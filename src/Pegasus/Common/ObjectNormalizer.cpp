@@ -328,7 +328,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
                     throw CIMException(CIM_ERR_FAILED, message);
                 }
 
-                key = CIMKeyBinding(referenceKeys[i].getName(), cimKeys[j].getValue());
+                key = CIMKeyBinding(referenceKeys[i].getName(), cimKeys[j].getValue(), referenceKeys[i].getType());
 
                 break;
             }

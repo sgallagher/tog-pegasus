@@ -22,3 +22,5 @@ Checking that it still works after the new directory mod
 Fixed one more bug
 
 
+checking CVS upgrade
+

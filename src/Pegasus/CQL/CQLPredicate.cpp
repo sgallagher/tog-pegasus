@@ -1,5 +1,7 @@
 #include "CQLPredicate.h"
+#include "CQLPredicateRep.h"
 #include <Pegasus/CQL/CQLFactory.h>
+#include <Pegasus/CQL/QueryContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -14,52 +16,54 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted)
 {
-	_simplePredicate = inSimplePredicate;
-	_invert = inVerted;
+	_rep = new CQLPredicateRep(inSimplePredicate,inVerted);
 }
 
 CQLPredicate::CQLPredicate(const CQLPredicate& inPredicate, Boolean inInverted)
 {
-	_predicates.append(inPredicate);
-	_invert = inInverted;
+	_rep = new CQLPredicateRep(inPredicate,inInverted);
+}
+
+CQLPredicate::~CQLPredicate(){
+	if(_rep)
+		delete _rep;
 }
 
 Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
-   return false;
+   return _rep->evaluate(CI,QueryCtx);
 }
 
 Boolean CQLPredicate::isTerminal(){
-	return _terminal;
+	return _rep->isTerminal();
 }
 Boolean CQLPredicate::getInverted(){
-	return _invert;
+	return _rep->getInverted();
 }
 
 void CQLPredicate::setInverted(){
-	_invert = true;
+	_rep->setInverted();
 }
 
 void CQLPredicate::appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator)
 {
-	_predicates.append(inPredicate);
-	_operators.append(inBooleanOperator);
+	_rep->appendPredicate(inPredicate,inBooleanOperator);
 }
 
 void CQLPredicate::appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator){
-
+	_rep->appendPredicate(inSimplePredicate,inBooleanOperator);
 }
 
 Array<CQLPredicate> CQLPredicate::getPredicates(){
-	return _predicates;
+	return _rep->getPredicates();
 }
 
 CQLSimplePredicate CQLPredicate::getSimplePredicate(){
-	return _simplePredicate;
+	return _rep->getSimplePredicate();
 }
 
 Array<BooleanOpType> CQLPredicate::getOperators(){
-	return _operators;
+	return _rep->getOperators();
 }
 Array<CQLScope> CQLPredicate::getScopes(){
 
@@ -69,25 +73,11 @@ void CQLPredicate::applyScopes(Array<CQLScope> & inScopes){
 
 
 Boolean CQLPredicate::isSimple(){
-	return (_predicates.size() == 1);
+	return _rep->isSimple();
 }
 
 String CQLPredicate::toString(){
-	if(_terminal)
-		return _simplePredicate.toString();
-	if(isSimple())
-		return _predicates[0].toString();
-	String s;
-	for(Uint32 i = 0; i < _predicates.size(); i++){
-		s.append(_predicates[i].toString());
-		if(i <= _operators.size()){
-			switch(_operators[i]){
-				case AND: s.append(" AND ");
-				case OR: s.append(" OR ");
-			}
-		}
-	}
-	return s;
+	return _rep->toString();
 }
 
 PEGASUS_NAMESPACE_END

@@ -9,14 +9,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define MAXOPTYPES 50
-class CQLPredicate;
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T CQLPredicate
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-#endif
-
     enum BooleanOpType { AND, OR } ;
 
 #ifndef PEGASUS_ARRAY_T
@@ -25,7 +17,9 @@ class CQLPredicate;
 #undef PEGASUS_ARRAY_T
 #endif
 
+class PEGASUS_CQL_LINKAGE CQLPredicateRep;
 class PEGASUS_CQL_LINKAGE CQLFactory;
+class PEGASUS_CQL_LINKAGE QueryContext;
 
 /** 
    This object is populated by Bison.
@@ -72,13 +66,15 @@ variable is set to TRUE
 class PEGASUS_CQL_LINKAGE CQLPredicate
 {
   public:
-    CQLPredicate(){}
+    CQLPredicate():_rep(0){}
     
     CQLPredicate(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
 
     CQLPredicate(const CQLPredicate & inPredicate, Boolean inVerted = false);
 
-   ~CQLPredicate(){}
+//   CQLPredicate(const CQLPredicate& inPredicate);
+
+   ~CQLPredicate();
     /**  
       CQLExpressions: 
           For an expression, CQLExpression::getValue is called and will return a
@@ -140,22 +136,15 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     friend class CQLFactory;
   private:
     
-    
-   BooleanOpType _booleanOpType;
-
-   Array<CQLPredicate> _predicates;
-   CQLSimplePredicate _simplePredicate;
-   Array<BooleanOpType> _operators;
-
-    Boolean _invert;
-
-    /**  If set to TRUE, then the CQLPredicate contains no other CQLPredicates.
-          If set to FALSE, then the CQLPredicate only contains other CQLPredicates
-    that need tobe evaluated.
-      */
-    Boolean _terminal;
+	CQLPredicateRep* _rep;    
 
 };
+
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T CQLPredicate
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
 
 PEGASUS_NAMESPACE_END
 

@@ -105,12 +105,18 @@ class SLPProvider: public CIMInstanceProvider
         String slpTemplateInstance;
         CIMNamespaceName _interopNamespace;
 
-        void populateData(const String &protocol, const bool & start_listener = false);
+        void populateRegistrationData(const String &protocol,
+                                        const CIMInstance& instance_ObjMgr,
+                                        const CIMInstance& instance_ObjMgrComm);
         void issueSLPRegistrations();
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
-        void populateTemplateField(CIMInstance& instance, const String& fieldName, const String& value);
+        void populateTemplateField(CIMInstance& instance, 
+            const String& instanceFieldName,
+            const String& regFieldName,
+            const String& value);
         String getHostAddress(String hostName);
         String getHostName();
+        String getRegisteredProfileList();
    };
 
 PEGASUS_NAMESPACE_END

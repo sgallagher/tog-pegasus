@@ -24,43 +24,12 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Chip Vincent (cvincent@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMIndication.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-CIMIndication::CIMIndication(void) : CIMInstance()
-{
-}
-
-CIMIndication::CIMIndication(const CIMInstance & x) : CIMInstance(x)
-{
-}
-
-CIMIndication::CIMIndication(const CIMIndication & x) : CIMInstance(x)
-{
-}
-
-CIMIndication::~CIMIndication(void)
-{
-}
-
-CIMIndication & CIMIndication::operator=(const CIMIndication & x)
-{
-    CIMInstance::operator=(x);
-
-    return(*this);
-}
-
-CIMIndication CIMIndication::clone() const
-{
-    return CIMIndication(CIMInstance::clone());
-}
-
-#define PEGASUS_ARRAY_T CIMIndication
-# include "ArrayImpl.h"
-#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

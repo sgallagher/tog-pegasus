@@ -85,7 +85,7 @@ public:
     CIMInstance& operator=(const CIMInstance& x);
 
     /** Destructor. */
-    virtual ~CIMInstance();
+    ~CIMInstance();
 
     /**	getClassName - 	Returns the class name of the instance
 	@return CIMName with the class name.

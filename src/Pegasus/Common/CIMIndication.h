@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Chip Vincent (cvincent@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,28 +43,9 @@ PEGASUS_NAMESPACE_BEGIN
 // ATTN: This class is necessary to distinguish between instances and
 // indications, which are logical different things
 
-class PEGASUS_COMMON_LINKAGE CIMIndication : public CIMInstance
-{
-public:
-    CIMIndication(void);
-
-    CIMIndication(const CIMInstance & x);
-
-    CIMIndication(const CIMIndication & x);
-
-    virtual ~CIMIndication(void);
-
-    CIMIndication & operator=(const CIMIndication & x);
-
-    CIMIndication clone() const;
-
-protected:
-
-};
-
-#define PEGASUS_ARRAY_T CIMIndication
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
+// NOTE: This class definition is incomplete.  Definition of this class
+// will be completed along with the implementation of indications support.
+typedef CIMInstance CIMIndication;
 
 PEGASUS_NAMESPACE_END
 

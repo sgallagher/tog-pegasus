@@ -25,6 +25,7 @@
 //       : Denise Eckstein (denise_eckstein@hp.com)
 //
 // Modified By:  Susan Campbell, Hewlett-Packard Company <scampbell@hp.com>
+//               k. v. le <ikhanh@us.ibm.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "OperatingSystem.h"

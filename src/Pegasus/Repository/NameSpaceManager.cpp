@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +36,6 @@
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include "CIMRepository.h"
 #include "NameSpaceManager.h"
 
 PEGASUS_USING_STD;
@@ -49,6 +49,49 @@ static char _QUALIFIERS_DIR[] = "qualifiers";
 static char _CLASSES_SUFFIX[] = "/classes";
 static char _INSTANCES_SUFFIX[] = "/instances";
 static char _QUALIFIERS_SUFFIX[] = "/qualifiers";
+static char _ASSOCIATIONS_SUFFIX[] = "/associations";
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _namespaceNameToDirName()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static String _namespaceNameToDirName(const CIMNamespaceName& namespaceName)
+{
+    String dirName = namespaceName.getString();
+
+    for (Uint32 i=0; i<dirName.size(); i++)
+    {
+        if (dirName[i] == '/')
+        {
+            dirName[i] = '#';
+        }
+    }
+
+    return dirName;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _dirNameToNamespaceName()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static String _dirNameToNamespaceName(const String& dirName)
+{
+    String namespaceName = dirName;
+
+    for (Uint32 i=0; i<namespaceName.size(); i++)
+    {
+        if (namespaceName[i] == '#')
+        {
+            namespaceName[i] = '/';
+        }
+    }
+
+    return namespaceName;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -340,7 +383,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 
 	if (_IsNameSpaceDir(nameSpacePath))
 	{
-	    String nameSpaceName = dirNameToNamespaceName(dirName);
+	    String nameSpaceName = _dirNameToNamespaceName(dirName);
 
 	    NameSpace* nameSpace = 0;
 	
@@ -388,7 +431,7 @@ void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName)
 
     // Attempt to create all the namespace diretories:
 
-    String nameSpaceDirName = namespaceNameToDirName(nameSpaceName);
+    String nameSpaceDirName = _namespaceNameToDirName(nameSpaceName);
     String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
 
     _CreateNameSpaceDirectories(nameSpacePath);
@@ -430,7 +473,7 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
 
     // Form namespace path:
 
-    String nameSpaceDirName = namespaceNameToDirName
+    String nameSpaceDirName = _namespaceNameToDirName
         (nameSpace->getNameSpaceName());
     String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
 
@@ -763,6 +806,56 @@ String NameSpaceManager::getQualifiersRoot(const CIMNamespaceName& nameSpaceName
 
     PEG_METHOD_EXIT();
     return nameSpace->getNameSpacePath() + _QUALIFIERS_SUFFIX;
+}
+
+String NameSpaceManager::getAssocClassPath(
+    const CIMNamespaceName& nameSpaceName) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getAssocClassPath()");
+
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    String assocClassPath = nameSpace->getNameSpacePath() +
+        _CLASSES_SUFFIX + _ASSOCIATIONS_SUFFIX;
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        String("Association class path = ") + assocClassPath);
+
+    PEG_METHOD_EXIT();
+    return assocClassPath;
+}
+
+String NameSpaceManager::getAssocInstPath(
+    const CIMNamespaceName& nameSpaceName) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getAssocInstPath()");
+
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    String assocInstPath = nameSpace->getNameSpacePath() +
+        _INSTANCES_SUFFIX + _ASSOCIATIONS_SUFFIX;
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        String("Association instance path = ") + assocInstPath);
+
+    PEG_METHOD_EXIT();
+    return assocInstPath;
 }
 
 PEGASUS_NAMESPACE_END

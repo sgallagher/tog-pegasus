@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -112,6 +113,16 @@ public:
 	@param nameSpaceName name of the namespace.
     */
     String getQualifiersRoot(const CIMNamespaceName& nameSpaceName) const;
+
+    /** Get path to the file containing association classes:
+	@param nameSpaceName name of the namespace.
+    */
+    String getAssocClassPath(const CIMNamespaceName& nameSpaceName) const;
+
+    /** Get path to the file containing association instances:
+	@param nameSpaceName name of the namespace.
+    */
+    String getAssocInstPath(const CIMNamespaceName& nameSpaceName) const;
 
     /** Deletes the class file for the given class.
 	@param nameSpaceName name of namespace.

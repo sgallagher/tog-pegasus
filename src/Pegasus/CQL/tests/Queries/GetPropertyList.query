@@ -1,10 +1,8 @@
 # Tests the following APIs on CQLSelectStatement
 # getClassPathList
-# validateClass
 # getPropertyList, getSelectPropertyList, getWherePropertyList
 #
-# Tests for getClassPathList and validateClass
-# ATTN - not testing for class name passed into validateClass not existing
+# Tests for getClassPathList 
 SELECT * FROM CQL_TestElement
 SELECT * FROM CIM_NonExistent
 SELECT * FROM CQL_TestPropertyTypes
@@ -50,6 +48,9 @@ SELECT * FROM CQL_TestElement WHERE CQL_TestElement::InstanceID = 3
 # Base class, all FROM props by name, scope is sub-class of FROM 
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND CQL_TestPropertyTypesMissing::MissingProperty = 5
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND CQL_TestPropertyTypes::propertySint64 = -1
+#
+# Special test for ISA
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement
 
 
 

@@ -1,0 +1,17 @@
+# Testcase for evaluate of WHERE clause with embedded objects.
+# ONLY USE THIS FILE for evaluate testcases.
+#
+# Testing resolve on embedded objects
+#
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 3
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass
+
+
+
+
+
+
+

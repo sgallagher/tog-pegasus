@@ -43,7 +43,7 @@ static CMPIStatus resultReturnData(CMPIResult* eRes, CMPIValue* data, CMPIType t
    CIMValue v=value2CIMValue(data,type,&rc);
    if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
       MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
-      if (((CMPI_Result*)eRes)->flags & RESULT_set==0) {
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
       }
@@ -51,7 +51,7 @@ static CMPIStatus resultReturnData(CMPIResult* eRes, CMPIValue* data, CMPIType t
    }
    else {
       ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
-      if (((CMPI_Result*)eRes)->flags & RESULT_set==0) {
+      if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
       }
@@ -266,8 +266,8 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ResponseHandler& handler,
 
 CMPI_ResultOnStack::~CMPI_ResultOnStack() {
 //      cout<<"--- ~CMPI_ResultOnStack()"<<endl;
-      if (flags & RESULT_set==0)  ((ResponseHandler*)hdl)->processing();
-      if (flags & RESULT_done==0) ((ResponseHandler*)hdl)->complete();
+      if ((flags & RESULT_set)==0)  ((ResponseHandler*)hdl)->processing();
+      if ((flags & RESULT_done)==0) ((ResponseHandler*)hdl)->complete();
   }
 
 PEGASUS_NAMESPACE_END

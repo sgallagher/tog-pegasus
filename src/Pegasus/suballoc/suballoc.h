@@ -30,10 +30,6 @@
 #define PEGASUS_SUBALLOC_INCLUDE 1
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/internal_dq.h>
-#include <Pegasus/Common/IPC.h>
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <windows.h>
@@ -335,7 +331,7 @@ inline Boolean peg_suballocator::IS_ONLY(SUBALLOC_NODE *head, SUBALLOC_NODE *nod
 
 inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 {
-   if((*mut = CreateMutex(NULL, false, NULL))) return 0;
+   if((*mut = ::CreateMutex(NULL, false, NULL))) return 0;
    return -1;
 }
 
@@ -354,7 +350,7 @@ inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
 
 inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
 {
-   ReleaseMutex(*mut);
+   ::ReleaseMutex(*mut);
    return;
 }
 

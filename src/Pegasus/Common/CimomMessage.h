@@ -363,8 +363,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
       Message *get_action(void);
       
    private:
-      friend MessageQueueService;
-      friend cimom;
+      friend class MessageQueueService;
+      friend class cimom;
       Message *_act;
 };
 

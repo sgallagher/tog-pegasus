@@ -2186,6 +2186,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
             ph.GetProvider().getName());
 
         pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().protect();
 
         ph.GetProvider().enableIndications(*handler);
 
@@ -2604,7 +2605,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 
             if (ret_value == 0)
             {
-                // disable failed since there are pending requests, 
+                // disable failed since there are pending requests,
                 // update module status from Stopping to OK if 
                 // disableProviderOnly is not true
                 if (!disableProviderOnly)
@@ -2950,6 +2951,11 @@ ProviderName DefaultProviderManager::_resolveProviderName(String & destinationPa
     temp.setPhysicalName(physicalName);
 
     return(temp);
+}
+
+void DefaultProviderManager::unload_idle_providers()
+{
+   providerManager.unload_idle_providers();
 }
 
 PEGASUS_NAMESPACE_END

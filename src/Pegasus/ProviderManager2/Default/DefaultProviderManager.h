@@ -116,6 +116,8 @@ protected:
     ProviderName _resolveProviderName(const ProviderName & providerName);
     ProviderName _resolveProviderName(String & destinationPath);
 
+    void unload_idle_providers();
+
 protected:
     IndicationResponseTable _responseTable;
 

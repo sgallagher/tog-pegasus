@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -248,7 +249,7 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
             quantum++;
             LocalProviderManager *myself = reinterpret_cast<LocalProviderManager *>(parm);
             Provider * provider;
-           
+
             if(myself->_providers.size())
             {
                 try
@@ -297,7 +298,6 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
                                 "ProviderManager::_provider_crtl -  Unload idle provider $0",
                                 provider->getName());
 
-                            /*
                             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "Trying to Terminate Provider " + provider->getName());
                             try
@@ -323,12 +323,12 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
                                 i = myself->_providers.start();
                                 continue;
                             }
-                            */
+
                             PEGASUS_ASSERT(provider->_module!=0);
                             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "unloading Provider module" + provider->getName());
                             provider->_module->unloadModule();
-                            
+
                                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Destroying Provider's CIMOM Handle: " +
                                     provider->getName());
@@ -404,7 +404,7 @@ void LocalProviderManager::shutdownAllProviders(void)
 }
 
 
-// << Tue Jul 29 16:51:25 2003 mdd >> change to run every 300 seconds
+// << Tue Jul 29 16:51:25 2003 mdd >> change to run every IDLE_LIMIT seconds
 void LocalProviderManager::unload_idle_providers(void)
 {
     static struct timeval first = {0,0}, now, last = {0,0};
@@ -412,7 +412,7 @@ void LocalProviderManager::unload_idle_providers(void)
     if(first.tv_sec == 0)
         gettimeofday(&first, NULL);
     gettimeofday(&now, NULL);
-    if(((now.tv_sec - first.tv_sec) > 300 ) && ( (now.tv_sec - last.tv_sec) > 300))
+    if(((now.tv_sec - first.tv_sec) > IDLE_LIMIT ) && ( (now.tv_sec - last.tv_sec) > IDLE_LIMIT))
     {
         gettimeofday(&last, NULL);
         if(_unload_idle_flag.value() == 1)

@@ -70,6 +70,7 @@ public:
 
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate(void);
+    virtual Boolean tryTerminate(void);
 
     Status getStatus(void);
     String getName(void) const;

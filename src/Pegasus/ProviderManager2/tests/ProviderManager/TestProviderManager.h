@@ -45,7 +45,7 @@ class PEGASUS_PPM_LINKAGE TestProviderManager : public ProviderManager
 public:
     TestProviderManager(void);
     virtual ~TestProviderManager(void);
-
+    virtual void unload_idle_providers() {}
     virtual Message * processMessage(Message * request) throw();
 
 };

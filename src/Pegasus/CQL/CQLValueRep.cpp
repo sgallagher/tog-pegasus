@@ -556,7 +556,6 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
 	}
       return false;
     }
-  PEG_METHOD_EXIT();
 }
   
 Boolean CQLValueRep::operator!=(const CQLValueRep& x)

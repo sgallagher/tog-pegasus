@@ -1,4 +1,10 @@
 
+    -	Propagate message key for all messages pertaining to a particular 
+	request.
+
+    -	Run Purify on all sources (port to Sun first).
+
+    -	Rework Pegasus to use asynchronous I/O.
 
     -	Finalize export client/server:
 
@@ -233,8 +239,6 @@
     -	Shrink object sizes.
 
     -	Use lighter I/O system (than C++ streams).
-
-    -	Run Purify on all sources (port to Sun first).
 
     -	Optimize clear method on arrays (to not release memory).
 

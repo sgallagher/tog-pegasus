@@ -155,7 +155,7 @@ void AsyncOpNode::print_to_buffer(Sint8 **buf)
    
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
    char work_buf[512];
-   snprintf(work_buf, 4096, "AsyncOpNode %p\n" \
+   snprintf(work_buf, sizeof(work_buf), "AsyncOpNode %p\n" \
 	    "\trq %d; rp %d; state %d; flags %d; op_dst q %p\n" \
 	    "\tcallback node %p; callback rp q %p; callback ptr %p\n" \
 	    "\tcallback parm %p; callback handle %p; callback notify %p\n" \
@@ -174,7 +174,7 @@ String AsyncOpNode::print_to_string(void)
 {
    char work_buf[512];
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-   snprintf(work_buf, 4096, "AsyncOpNode %p\n" \
+   snprintf(work_buf, sizeof(work_buf), "AsyncOpNode %p\n" \
 	    "\trq %d; rp %d; state %d; flags %d; op_dst q %p\n" \
 	    "\tcallback node %p; callback rp q %p; callback ptr %p\n" \
 	    "\tcallback parm %p; callback handle %p; callback notify %p\n" \

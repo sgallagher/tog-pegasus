@@ -821,7 +821,7 @@ void System::openlog(const String ident)
     // ATTN: Hard-code the "cimserver" identifier until the infrastructure
     // is set up to pass this as the "ident" string.
     //::openlog(ident.getCString(), LOG_PID|LOG_CONS, LOG_DAEMON);
-    ::openlog("cimserver", LOG_PID|LOG_CONS, LOG_DAEMON);
+    ::openlog("cimserver", LOG_PID, LOG_DAEMON);
 
 #endif
 

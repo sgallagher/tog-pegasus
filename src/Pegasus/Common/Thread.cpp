@@ -575,8 +575,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	    if( blocking_sem != 0 )
 	       blocking_sem->signal();
       
-	    pool->_running.remove((void *)myself);
-	    pool->_pool.insert_first(myself);
+	    // If we are not on _running then ~ThreadPool has removed
+	    // us and now "owns" our pointer.
+	    if( pool->_running.remove((void *)myself) != 0 )
+	        pool->_pool.insert_first(myself);
 	 }
 	 else
 	 {

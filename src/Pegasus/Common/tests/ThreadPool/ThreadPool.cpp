@@ -96,7 +96,7 @@ void TestThreadPool2()
    int done = 0;
 	while( done < 10000 )
 	{
-		printf( "Steve Hills ThreadPool crash test, iteration:  %d\n", ++done );
+		printf( "ThreadPool crash test, iteration:  %d\n", ++done );
 		TestThreadPool();
 		
 	}
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 { 
    
    TestThreadPool2();
-   PEGASUS_STD(cout) << "Steve Hills test finished, executing normal ThreadPool test" << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << "test finished, executing normal ThreadPool test" << PEGASUS_STD(endl);
    
 #if defined(PEGASUS_DEBUG)
    Tracer::setTraceComponents("All");

@@ -109,6 +109,8 @@ class guardian;
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t);
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, const Sint8 *classname, Sint8 *file, int line );
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *, int, Sint8 *, Sint8 *, int);
+
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -171,14 +173,14 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 class peg_suballoc;
 
-#define PEGASUS_MEMCHECK(a) pegasus_alloc(1, (a), __FILE__, __LINE__)
+
+#if defined(PEGASUS_DEBUG_MEMORY)
+#define PEGASUS_MEMCHECK(a) pegasus_alloc(1, (#a), __FILE__, __LINE__)
 
 typedef class PEGASUS_SUBALLOC_LINKAGE guardian
 {
    private:
       guardian(void);
-      void *_ptr;
-      
    public:
       guardian(void *ptr)
 	 :_ptr(ptr)
@@ -186,9 +188,35 @@ typedef class PEGASUS_SUBALLOC_LINKAGE guardian
       }
       virtual ~guardian(void)
       {
-	 delete _ptr;
+	 if(_ptr != 0)
+	    pegasus_free(_ptr);
       }
+      void *_ptr;
 } PEGASUS_CHECKED_OBJECT ;
+
+#else 
+
+typedef class PEGASUS_SUBALLOC_LINKAGE guardian
+{
+   private:
+      guardian(void);
+      
+   public:
+      guardian(void *p)
+      {
+      }
+      
+      virtual ~guardian(void)
+      {
+      }
+      
+} PEGASUS_CHECKED_OBJECT;
+
+#define PEGASUS_MEMCHECK(a) NULL
+#endif 
+
+#define PEGASUS_CHECK_PARAM void *guard
+#define PEGASUS_CHECK_INIT guardian(guard)
 
 
 class PEGASUS_SUBALLOC_LINKAGE peg_suballocator 
@@ -308,7 +336,8 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       void *vs_calloc(size_t num, size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
       void *vs_realloc(void *pblock, size_t newsize, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
       Sint8 * vs_strdup(const Sint8 *string, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
-      void vs_free(void *m, int type = NORMAL);
+      void vs_free(void *m);
+      void vs_free(void *m, int type, Sint8 *classname, Sint8 *f, Sint32 l);
       Boolean _UnfreedNodes(void *handle);
       void DeInitSubAllocator(void *handle);
       static void _CheckNode(void *m);

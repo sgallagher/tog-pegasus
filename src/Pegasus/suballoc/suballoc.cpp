@@ -51,12 +51,13 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size,
 				       line) ;
 }
 
-PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead) 
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead, int type, Sint8 *classname, Sint8 * file, int line) 
 {
-   internal_allocator.vs_free(dead); 
+   internal_allocator.vs_free(dead, type, classname, file, line); 
 }
 
-void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
+PEGASUS_NAMESPACE_END
+void * operator new(size_t size) throw()
 {
    
    if( size == 0 )
@@ -65,8 +66,8 @@ void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
    
    while(1)
    {
-      p = internal_allocator.vs_malloc(size, 
-				       &(internal_allocator.get_handle()),
+      p = Pegasus::internal_allocator.vs_malloc(size, 
+				       &(Pegasus::internal_allocator.get_handle()),
 				       NORMAL, 
 				       "BUILTIN NEW", 
 				       __FILE__, __LINE__) ;
@@ -82,15 +83,16 @@ void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
 }
 
 
-void operator delete(void *dead) throw()
+void operator delete(void *dead, size_t size) throw()
 {
    if( dead == 0 )
       return;
-   internal_allocator.vs_free(dead);
+   
+   Pegasus::internal_allocator.vs_free(dead);
    return;
 }
 
-void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
+void * operator new [] (size_t size) throw()
 {
 
    if( size == 0 )
@@ -99,8 +101,8 @@ void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
    
    while(1)
    {
-      p = internal_allocator.vs_malloc(size, 
-				       &(internal_allocator.get_handle()), 
+      p = Pegasus::internal_allocator.vs_malloc(size, 
+				       &(Pegasus::internal_allocator.get_handle()), 
 				       ARRAY) ;
       if( p )
 	 return p;
@@ -117,10 +119,11 @@ void operator delete [] (void *dead) throw()
 {
    if( dead == 0 )
       return;
-   internal_allocator.vs_free(dead, ARRAY);
+   Pegasus::internal_allocator.vs_free(dead, ARRAY, NULL, NULL, 0);
    return;
 }
 
+PEGASUS_NAMESPACE_BEGIN
 
 // <<< Sun May  5 22:25:14 2002 mdd >>> 
 // to do: 
@@ -794,7 +797,40 @@ void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, 
  *  RETURNS:
  *
  ***************************************************************/
-void peg_suballocator::vs_free(void *m, int type )
+
+void peg_suballocator::vs_free(void *m)
+{
+      // we don't need to grab any semaphores - 
+   // called routines will do that for us
+   SUBALLOC_NODE *temp;
+   Sint8 *g;
+   assert(m != NULL);
+   g = (Sint8 *)m;
+   g -= GUARD_SIZE;	
+   temp = *(SUBALLOC_NODE **)(g - sizeof(SUBALLOC_NODE **));
+   // check all the guard pages
+   // we don't need to own semaphores because we will not be
+   // walking the list 
+   assert(_CheckGuard(temp));
+
+   if (! (temp->allocSize >> 8))
+   {
+      PutNode(0, (temp->allocSize >> 4), temp);
+   }
+   else if (! (temp->allocSize >> 12))
+   {
+      PutNode(1, (temp->allocSize >> 8), temp);
+   }
+   else if (! (temp->allocSize >> 16))
+   {
+      PutNode(2, (temp->allocSize >> 12), temp);
+   }
+   else
+      PutHugeNode(temp);
+   return;
+}
+
+void peg_suballocator::vs_free(void *m, int type , Sint8 *classname, Sint8* file, int line)
 {
    // we don't need to grab any semaphores - 
    // called routines will do that for us
@@ -915,7 +951,7 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	    {
 	       if (dumpFile != NULL)
 	       {
-		  fprintf(dumpFile, "\nfreeing memory: %s, %s, %s", 
+		  fprintf(dumpFile, "\nLeaked  memory: %s, %s, %s", 
 			  temp->classname, temp->file, temp->line);
 	       }
 	       ccode = true;

@@ -598,6 +598,8 @@ fi
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/Formatter.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/ContentLanguageElement.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElement.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/ClientOpPerformanceDataHandler.h
+%attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Common/CIMOperationType.h
 
 # SDK Sample Files
 #

@@ -85,9 +85,7 @@ INCLUDE_FILES = \
    Pegasus/Provider/CIMOMHandle.h \
    Pegasus/Provider/CIMProvider.h \
    Pegasus/Provider/Linkage.h \
-   Pegasus/Provider/ProviderException.h 
-
-INCLUDE_FILES += \
+   Pegasus/Provider/ProviderException.h \
    Pegasus/Common/AcceptLanguages.h \
    Pegasus/Common/MessageLoader.h \
    Pegasus/Common/ContentLanguages.h \
@@ -96,6 +94,10 @@ INCLUDE_FILES += \
    Pegasus/Common/Formatter.h \
    Pegasus/Common/ContentLanguageElement.h \
    Pegasus/Common/LanguageElement.h  
+
+INCLUDE_FILES += \
+   Pegasus/Client/ClientOpPerformanceDataHandler.h \
+   Pegasus/Common/CIMOperationType.h
 
 SAMPLES_DIRS = \
    Clients \

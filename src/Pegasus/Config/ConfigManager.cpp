@@ -141,6 +141,9 @@ static struct OwnerEntry _properties[] =
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslTrustFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    {"kerberosServiceName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#endif
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},

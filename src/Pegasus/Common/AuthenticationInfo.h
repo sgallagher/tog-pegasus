@@ -254,12 +254,22 @@ public:
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     /** Get the CIM Security Association 
-        @return the CIM Security Association
+        @return a pointer to the CIM Security Association
     */
     CIMKerberosSecurityAssociation* getSecurityAssociation() const 
     { 
         _checkRep();
         return _rep->getSecurityAssociation(); 
+    }
+
+    /** Set the CIM Security Association 
+        The pointer will only be set once. If it is already set it will
+        not reset it.
+    */
+    void setSecurityAssociation()
+    { 
+        _checkRep();
+        return _rep->setSecurityAssociation(); 
     }
 #endif
 

@@ -49,7 +49,7 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    _securityAssoc = new CIMKerberosSecurityAssociation;
+    _securityAssoc = NULL;
 #endif
 
     PEG_METHOD_EXIT();
@@ -131,5 +131,21 @@ void   AuthenticationInfoRep::setAuthType(const String& authType)
 
     PEG_METHOD_EXIT();
 }
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+void   AuthenticationInfoRep::setSecurityAssociation()
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setSecurityAssociation");
+
+    if ( !_securityAssoc )
+    {
+        _securityAssoc = new CIMKerberosSecurityAssociation;
+    }
+
+    PEG_METHOD_EXIT();
+}
+#endif
+
 
 PEGASUS_NAMESPACE_END

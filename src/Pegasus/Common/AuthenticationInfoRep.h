@@ -107,7 +107,9 @@ public:
     CIMKerberosSecurityAssociation* getSecurityAssociation() const 
     { 
         return _securityAssoc;
-    } 
+    }
+ 
+    void setSecurityAssociation();
 #endif
 
 private:

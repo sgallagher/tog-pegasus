@@ -460,6 +460,10 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
                 delete handler;	// cleanup
                 handler = 0;
             }
+            // TODO::KERBEROS localization
+            // L10N TODO
+            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
+                "CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
             PEGASUS_ASSERT(0);	// end the server because Kerberos could not
 						// initialized.  will this really end the server?
         }

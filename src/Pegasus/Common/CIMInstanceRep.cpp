@@ -90,7 +90,8 @@ Uint32 CIMInstanceRep::getPropertyCount() const
 
 void CIMInstanceRep::resolve(
     DeclContext* context, 
-    const String& nameSpace)
+    const String& nameSpace,
+    CIMConstClass& cimClassOut)
 {
 #if 0
     if (_resolved)
@@ -109,6 +110,8 @@ void CIMInstanceRep::resolve(
 
     if (!cimClass)
 	throw NoSuchClass(_className);
+
+    cimClassOut = cimClass;
 
 #if 0
     if (!cimClass._rep->_resolved)

@@ -446,7 +446,7 @@ void Array<T>::grow(Uint32 size, const T& x)
     Uint32 n = size;
 
     while (n--)
-	new(p) T(x);
+	new(p++) T(x);
 
     _rep->size += size;
 }

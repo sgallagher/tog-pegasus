@@ -26,7 +26,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cctype>
-#include <cstdio>  // for sprintf on linux
+#include <cstdio>
 #include <fstream>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -559,9 +559,7 @@ CIMInstance CIMRepository::getInstance(
 
     // ATTN-A: Need to put instance name in standard form:
 
-    String hashKey = instanceName.makeHashKey();
-
-    if (!InstanceIndexFile::lookup(indexPath, hashKey, index))
+    if (!InstanceIndexFile::lookup(indexPath, instanceName, index))
 	throw CIMException(CIMException::FAILED);
 
     // Form the path to the instance file:
@@ -637,43 +635,36 @@ void CIMRepository::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
 {
-    // Lookup the class and resolve the instance:
+    // Resolve the instance first:
 
-    CIMClass cimClass = getClass(nameSpace, newInstance.getClassName());
+    CIMConstClass cimClass;
+    newInstance.resolve(_context, nameSpace, cimClass);
 
-    // ATTN-B: the class is looked up twice here!
+    // Get the path to the index file:
 
-    newInstance.resolve(_context, nameSpace);
-
-    // Get the instance name from the new instance:
-    // ATTN-1: Why is this necessary?
-
-    CIMReference instanceName = newInstance.getInstanceName(cimClass);
-
-    String hashKey = instanceName.makeHashKey();
-
-    // Get the instance-name and create an entry
-
-    String indexPath;
+    String indexFilePath;
 
     _MakeInstanceIndexPath(
-	_root, nameSpace, newInstance.getClassName(), indexPath);
+	_root, nameSpace, newInstance.getClassName(), indexFilePath);
 
+    // Insert a new entry for this instance into the index file:
+
+    CIMReference instanceName = newInstance.getInstanceName(cimClass);
     Uint32 index;
 
-    if (!InstanceIndexFile::insert(indexPath, hashKey, index))
+    if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))
 	throw CIMException(CIMException::FAILED);
 
-    // Save the instance to file:
+    // Determine the path of the file to hold the new instance:
 
-    String path;
+    String instanceFilePath;
 
     _MakeInstancePath(
-	_root, nameSpace, newInstance.getClassName(), index, path);
+	_root, nameSpace, newInstance.getClassName(), index, instanceFilePath);
 
-    newInstance.resolve(_context, nameSpace);
+    // Save the instance in the instance file:
 
-    _SaveObject(path, newInstance);
+    _SaveObject(instanceFilePath, newInstance);
 }
 
 void CIMRepository::modifyClass(
@@ -1065,11 +1056,12 @@ void CIMRepository::deleteNameSpace(const String& nameSpace)
 
     // Only delete Namespaces if there are no Classes in the Namespace
     // At least in this version we do not test the qualifiers, etc.
-    //ATTN: TODO. We need to create an abstraction here so that we
+    // ATTN: TODO. We need to create an abstraction here so that we
     // can do things on the basis of namespaces/classes and get to 
     // the directory implementation only at the last minute.
     // Actually, if we simply to getClassNames and delete if none
     // returned, that solves the problem of the test.
+
     String classesDir = path;
     classesDir.append("/classes");
 

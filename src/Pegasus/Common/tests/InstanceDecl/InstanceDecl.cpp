@@ -95,9 +95,9 @@ void test02()
     CIMReference instanceName 
 	= cimInstance.getInstanceName(CIMConstClass(cimClass));
 
-    const char EXPECT[] = "myclass.age=101,first=\"John\",last=\"Smith\"";
+    CIMReference tmp("myclass.age=101,first=\"John\",last=\"Smith\"");
 
-    assert(String::equal(instanceName.makeHashKey(), EXPECT));
+    assert(tmp.makeHashCode() == instanceName.makeHashCode());
 }
 
 int main()

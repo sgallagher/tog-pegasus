@@ -291,10 +291,15 @@ public:
     /**	resolve - ATTN:
     
     */
-    void resolve(DeclContext* declContext, const String& nameSpace)
+    void resolve(DeclContext* declContext, const String& nameSpace);
+
+    void resolve(
+	DeclContext* declContext, 
+	const String& nameSpace,
+	CIMConstClass& cimClassOut)
     {
 	_checkRep();
-	_rep->resolve(declContext, nameSpace);
+	_rep->resolve(declContext, nameSpace, cimClassOut);
     }
 
     /**	toXml - Creates an XML transformation of the CIMInstance

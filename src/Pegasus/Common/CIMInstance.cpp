@@ -40,4 +40,11 @@ Boolean CIMInstance::identical(const CIMConstInstance& x) const
     return _rep->identical(x._rep);
 }
 
+void CIMInstance::resolve(DeclContext* declContext, const String& nameSpace)
+{
+    _checkRep();
+    CIMConstClass cimClass;
+    _rep->resolve(declContext, nameSpace, cimClass);
+}
+
 PEGASUS_NAMESPACE_END

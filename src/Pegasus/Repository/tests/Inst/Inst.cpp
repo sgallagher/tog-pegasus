@@ -34,21 +34,52 @@
 using namespace Pegasus;
 using namespace std;
 
+const char PATH[] = "X.idx";
+
+void _CreateIndexFile()
+{
+    Uint32 index;
+
+    Boolean result = InstanceIndexFile::insert(PATH, 
+	CIMReference("X.key1=1001,key2=\"Hello World 1\""), index);
+    assert(result);
+
+    result = InstanceIndexFile::insert(PATH, 
+	CIMReference("X.key1=1002,key2=\"Hello World 2\""), index);
+    assert(result);
+
+    result = InstanceIndexFile::insert(PATH, 
+	CIMReference("X.key1=1003,key2=\"Hello World 3\""), index);
+    assert(result);
+
+    result = InstanceIndexFile::insert(PATH, 
+	CIMReference("X.key1=1004,key2=\"Hello World 4\""), index);
+    assert(result);
+
+    result = InstanceIndexFile::insert(PATH, 
+	CIMReference("X.key1=1005,key2=\"Hello World 5\""), index);
+    assert(result);
+
+    result = InstanceIndexFile::remove(PATH, 
+	CIMReference("X.key2=\"Hello World 3\",key1=1003"));
+    assert(result);
+}
+
 int main(int argc, char** argv)
 {
     try
     {
-	const char PATH[] = "X.idx";
-	const char INSTANCE_NAME[] = "X.key=1666";
+	_CreateIndexFile();
+
+	CIMReference ref = "X.key1=1666,key2=\"Hello World N\"";
 
 	Uint32 i;
 	Uint32 j;
 	
-	assert(InstanceIndexFile::insert(PATH, INSTANCE_NAME, i));
-	assert(InstanceIndexFile::lookup(PATH, INSTANCE_NAME, j));
+	assert(InstanceIndexFile::insert(PATH, ref, i));
+	assert(InstanceIndexFile::lookup(PATH, ref, j));
 	assert(i == j);
-
-	assert(InstanceIndexFile::remove(PATH, INSTANCE_NAME));
+	// assert(InstanceIndexFile::remove(PATH, ref));
     }
 
     catch (Exception& e)

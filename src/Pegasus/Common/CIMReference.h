@@ -468,21 +468,12 @@ public:
     */
     void print(std::ostream& os = std::cout) const;
 
-    /** Generates a unique string that may be safely used as a hash key.
-	Note that the following object names are identical although they
-	have subtle differences in case:
-
-	<pre>
-	MyClass.z=true,y=1234,x=\"Hello World\";
-	myclass.X=\"Hello World\",Z=true,Y=1234;
-	</pre>
-
-	For example, the case of the class name is different; although, in
-	CIM these class names are identical. So this function generates
-	a string in which the class name and key names are all shifted to
-	lower case. And the properties are sorted in ascending order.
+    /** Generates hash code for the given reference. Two identical references
+	generate the same hash code (despite any subtle differences such as
+	the case of the classname and key names as well as the order of the
+	keys).
     */
-    String makeHashKey() const;
+    Uint32 makeHashCode() const;
 
 private:
 
@@ -514,7 +505,7 @@ inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
 
 inline std::ostream& operator<<(std::ostream& os, const CIMReference& x)
 {
-    return os << x.toString() << std::endl;
+    return os << x.toString();
 }
 
 PEGASUS_NAMESPACE_END

@@ -96,7 +96,10 @@ public:
 
     Uint32 getPropertyCount() const;
 
-    void resolve(DeclContext* declContext, const String& nameSpace);
+    void resolve(
+	DeclContext* declContext, 
+	const String& nameSpace,
+	CIMConstClass& cimClassOut);
 
     void toXml(Array<Sint8>& out) const;
 

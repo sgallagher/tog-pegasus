@@ -35,6 +35,14 @@ using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
+//------------------------------------------------------------------------------
+//
+// _GetLine()
+//
+// 	Gets the next line of the file:
+//
+//------------------------------------------------------------------------------
+
 static Boolean _GetLine(istream& is, Array<char>& x)
 {
     x.clear();
@@ -50,20 +58,52 @@ static Boolean _GetLine(istream& is, Array<char>& x)
     return is ? true : false;
 }
 
-static Boolean _GetNextLine(
+//------------------------------------------------------------------------------
+//
+// _GetNextRecord()
+//
+// 	Gets the next record in the index file.
+//
+//------------------------------------------------------------------------------
+
+static Boolean _GetNextRecord(
     istream& is, 
-    String& instanceNameOut,
-    Uint32& indexOut,
+    Array<char>& line,
+    Uint32& hashCode,
+    const char*& objectName,
+    Uint32& index,
     Boolean& error)
 {
     error = false;
-    Array<char> line;
+
+    // -- Get the next line:
 
     if (!_GetLine(is, line))
 	return false;
 
-    const char* instanceName = line.getData();
-    char* sep = strrchr(instanceName, ' ');
+    // -- Get the hash-code:
+
+    char* end = 0;
+    hashCode = strtoul(line.getData(), &end, 16);
+
+    if (!end)
+    {
+	error = true;
+	return false;
+    }
+
+    // -- Skip whitespace:
+
+    while (*end && isspace(*end))
+	end++;
+
+    if (!*end)
+	return false;
+
+    // -- Get instance name:
+
+    objectName = end;
+    char* sep = strrchr(objectName, ' ');
 
     if (!sep)
     {
@@ -72,10 +112,13 @@ static Boolean _GetNextLine(
     }
 
     *sep = '\0';
+
+    // -- Get index:
+
     const char* indexString = sep + 1;
 
-    char* end = 0;
-    long tmpIndex = strtol(indexString, &end, 10);
+    end = 0;
+    index = strtoul(indexString, &end, 10);
 
     if (!end || *end != '\0')
     {
@@ -83,20 +126,18 @@ static Boolean _GetNextLine(
 	return false;
     }
 
-    instanceNameOut = instanceName;
-    indexOut = tmpIndex;
     return true;
 }
 
 //------------------------------------------------------------------------------
 //
-// InstanceIndexFile::insert()
+// InstanceIndexFile::lookup()
 //
 //------------------------------------------------------------------------------
 
 Boolean InstanceIndexFile::lookup(
     const String& path, 
-    const String& instanceName,
+    const CIMReference& instanceName,
     Uint32& indexOut)
 {
     indexOut = Uint32(-1);
@@ -112,13 +153,17 @@ Boolean InstanceIndexFile::lookup(
 
     if (is)
     {
-	String tmpInstanceName;
+	Uint32 targetHashCode = instanceName.makeHashCode();
+	Array<char> line;
+	Uint32 hashCode;
+	const char* objectName;
 	Uint32 index;
 	Boolean error;
 
-	while (_GetNextLine(is, tmpInstanceName, index, error))
+	while (_GetNextRecord(is, line, hashCode, objectName, index, error))
 	{
-	    if (String::equal(instanceName, tmpInstanceName))
+	    if (hashCode == targetHashCode &&
+		CIMReference(objectName) == instanceName)
 	    {
 		indexOut = index;
 		return true;
@@ -127,7 +172,6 @@ Boolean InstanceIndexFile::lookup(
     }
 
     // Not found:
-
     return false;
 }
 
@@ -139,13 +183,9 @@ Boolean InstanceIndexFile::lookup(
 
 Boolean InstanceIndexFile::insert(
     const String& path, 
-    const String& instanceName,
+    const CIMReference& instanceName,
     Uint32& indexOut)
 {
-    // ATTN: keys are assumed to be in the same order in the instance names.
-    // Otherwise, the search will fail. The caller must sort the key order
-    // prior to calling this routine.
-
     //--------------------------------------------------------------------------
     // Search index file for next available index and check to see if the
     // instance name already occurs in the file.
@@ -154,25 +194,30 @@ Boolean InstanceIndexFile::insert(
     Uint32 newIndex = Uint32(-1);
     ArrayDestroyer<char> p(path.allocateCString());
     ifstream is(p.getPointer());
+    Uint32 targetHashCode = instanceName.makeHashCode();
 
     if (is)
     {
-	String tmpInstanceName;
+	Array<Uint8> used;
+
+	used.reserve(1024);
+	Array<char> line;
+	Uint32 hashCode;
+	const char* objectName;
 	Uint32 index;
 	Boolean error;
-	Array<Uint8> used;
-	used.reserve(1024);
 
-	while (_GetNextLine(is, tmpInstanceName, index, error))
+	while (_GetNextRecord(is, line, hashCode, objectName, index, error))
 	{
-	    if (String::equal(instanceName, tmpInstanceName))
+	    if (targetHashCode == hashCode &&
+		CIMReference(objectName) == instanceName)
 	    {
 		indexOut = Uint32(-1);
 		return false;
 	    }
 
 	    if (used.getSize() < index)
-		used.grow(index, false);
+		used.grow(index, '\0');
 
 	    used[index-1] = true;
 	}
@@ -198,6 +243,7 @@ Boolean InstanceIndexFile::insert(
 
 	if (newIndex == Uint32(-1))
 	    newIndex = used.getSize() + 1;
+
     }
     else
 	newIndex = 1;
@@ -209,7 +255,10 @@ Boolean InstanceIndexFile::insert(
     //--------------------------------------------------------------------------
 
     ofstream os(p.getPointer(), std::ios::app);
-    os << instanceName << ' ' << newIndex << endl;
+
+    char buffer[32];
+    sprintf(buffer, "%08X", targetHashCode);
+    os << buffer << ' ' << instanceName << ' ' << newIndex << endl;
 
     indexOut = newIndex;
     return true;
@@ -223,7 +272,7 @@ Boolean InstanceIndexFile::insert(
 
 Boolean InstanceIndexFile::remove(
     const String& path, 
-    const String& instanceName)
+    const CIMReference& instanceName)
 {
     // Open output file:
 
@@ -243,18 +292,29 @@ Boolean InstanceIndexFile::remove(
 	return false;
 
     // Copy all entries except the one specified:
-	
+
+    Uint32 targetHashCode = instanceName.makeHashCode();
+
     Boolean found = false;
-    String tmpInstanceName;
+    Array<char> line;
+    Uint32 hashCode;
+    const char* objectName;
     Uint32 index;
     Boolean error;
 
-    while (_GetNextLine(is, tmpInstanceName, index, error))
+    while (_GetNextRecord(is, line, hashCode, objectName, index, error))
     {
-	if (String::equal(instanceName, tmpInstanceName))
+	if (targetHashCode == hashCode &&
+	    CIMReference(objectName) == instanceName)
+	{
 	    found = true;
+	}
 	else
-	    os << tmpInstanceName << ' ' << index << '\n';
+	{
+	    char buffer[32];
+	    sprintf(buffer, "%08X", hashCode);
+	    os << buffer << ' ' << objectName << ' ' << index << '\n';
+	}
     }
 
     if (error)

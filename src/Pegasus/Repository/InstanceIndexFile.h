@@ -31,6 +31,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMReference.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -38,17 +39,17 @@ PEGASUS_NAMESPACE_BEGIN
     instance names to indexes. Lines of this file have the following form:
 
     <pre>
-	ClassName.key1=value1,...,keyN=valueN Index
+	<hash-code> ClassName.key1=value1,...,keyN=valueN Index
     </pre>
 
-    Where the instance name is a CIM style object path and the index is a 
-    positive integer (non-zero). Here's an example:
+    Where the hash-code is an eight digit hex number, the instance name is
+    a CIM style object name, and the index is a positive integer (non-zero). 
+    Here's an example:
 
     <pre>
-	Employee.ssn=444332222 1
-	Employee.ssn=555667777 3
+	A6B275A9 Employee.ssn=444332222 1
+	A6BA08BE Employee.ssn=555667777 3
     </pre>
-
 
     Each instance in Pegasus is represented as a disk file containing the
     CIM/XML encoding of the instance. The name of the file has this form:
@@ -63,9 +64,10 @@ PEGASUS_NAMESPACE_BEGIN
 	Employee.3
     </pre>
 
-    An instance can be obtained from an instance name by using the index file
-    to map the instance name to an index and then forming the file name from 
-    the class name and index.
+    An instance can be obtained from an instance name by searching all entries
+    in the index file with the same hash code (to account for hash clashes),
+    comparing the instance names, and then forming the name of the instance
+    file itself from the index.
 
     Methods are provided for managing the instance index file: adding,
     removing, and modifying instance names.
@@ -80,7 +82,7 @@ public:
     */
     static Boolean lookup(
 	const String& path, 
-	const String& instanceName,
+	const CIMReference& instanceName,
 	Uint32& index);
 
     /** Inserts a new entry into the instance file. The index parameter is
@@ -90,14 +92,14 @@ public:
     */
     static Boolean insert(
 	const String& path, 
-	const String& instanceName,
+	const CIMReference& instanceName,
 	Uint32& index);
 
     /** Remove the entry with the given instance name. Returns true on success.
     */
     static Boolean remove(
 	const String& path, 
-	const String& instanceName);
+	const CIMReference& instanceName);
 };
 
 PEGASUS_NAMESPACE_END

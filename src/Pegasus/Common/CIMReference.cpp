@@ -614,16 +614,26 @@ const char* KeyBinding::typeToString(Type type)
     return "unknown";
 }
 
-String CIMReference::makeHashKey() const
+static inline Uint32 _Hash(const String& str)
 {
-    CIMReference tmp = *this;
+    Uint32 h = 0;
 
-    tmp._className.toLower();
+    for (Uint32 i = 0, n = str.getLength(); i < n; i++)
+	h = 5 * h + str[i];
 
-    for (Uint32 i = 0, n = tmp._keyBindings.getSize(); i < n; i++)
-	tmp._keyBindings[i]._name.toLower();
+    return h;
+}
 
-    return tmp.toString();
+Uint32 CIMReference::makeHashCode() const
+{
+    CIMReference ref = *this;
+
+    ref._className.toLower();
+
+    for (Uint32 i = 0, n = ref._keyBindings.getSize(); i < n; i++)
+	ref._keyBindings[i]._name.toLower();
+
+    return _Hash(ref.toString());
 }
 
 PEGASUS_NAMESPACE_END

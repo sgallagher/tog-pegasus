@@ -18,8 +18,6 @@ void test01()
     CIMReference r = on1;
     assert(r.toString() != on1);
     assert(r.toString() == on2);
-
-    // cout << "HASH KEY: " << r.makeHashKey() << endl;
     }
 
     {
@@ -36,7 +34,7 @@ void test01()
 	CIMReference r1 = "X.a=123,b=true";
 	CIMReference r2 = "x.B=TRUE,A=123";
 	assert(r1 == r2);
-	assert(r1.makeHashKey() == r2.makeHashKey());
+	assert(r1.makeHashCode() == r2.makeHashCode());
     }
 }
 

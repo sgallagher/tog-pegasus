@@ -34,7 +34,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 const char PEGASUS_NAME[] = "Pegasus CIM Server - ";
-const char PEGASUS_VERSION[] = "1.07";
+const char PEGASUS_VERSION[] = "1.08";
 const char PEGAUS_STATUS[] = "Experimental" ;
 
 PEGASUS_NAMESPACE_END

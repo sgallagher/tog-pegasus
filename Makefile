@@ -45,3 +45,13 @@ registration:
 
 shutdownService:
 	@ $(MAKE) -SC src/Providers/generic/ShutdownProvider/load shutdownService
+
+# the collections of tests that we run with the server active.
+# For now, these are centralized and do not include startup
+# and shutdown of the server.
+
+activetests:
+	$(MAKE) --directory=pegasus/test -f Makefile clean
+	TestClient
+	Client
+	$(MAKE) --directory=test -f Makefile tests

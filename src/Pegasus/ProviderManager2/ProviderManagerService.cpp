@@ -27,7 +27,7 @@
 //                  (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
-//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//		        Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +43,66 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+inline Boolean _isSupportedRequestType(const Message * message)
+{
+    Boolean rc = false;
+
+    if(message == 0)
+    {
+        return(rc);
+    }
+
+    /*
+    // ATTN : need to determine valid request message types
+    // before enabling.
+
+    switch(message->getType())
+    {
+    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+    case CIM_REFERENCES_REQUEST_MESSAGE:
+    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
+    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+    case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
+        rc = true;
+
+        break;
+    default:
+        rc = false;
+
+        break;
+    }
+    */
+
+    rc = true;
+
+    return(rc);
+}
+
+inline Boolean _isSupportedResponseType(const Message * message)
+{
+    Boolean rc = false;
+
+    return(rc);
+}
+
 ProviderManagerService::ProviderManagerService(void)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
 {
@@ -51,6 +111,7 @@ ProviderManagerService::ProviderManagerService(void)
 ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
 {
+    #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
     try
     {
         ProviderManagerModule module("DefaultProviderManager");
@@ -70,7 +131,9 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
     catch(...)
     {
     }
+    #endif
 
+    #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
     try
     {
         ProviderManagerModule module("CMPIProviderManager");
@@ -90,6 +153,7 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
     catch(...)
     {
     }
+    #endif
 }
 
 ProviderManagerService::~ProviderManagerService(void)
@@ -100,36 +164,12 @@ Boolean ProviderManagerService::messageOK(const Message * message)
 {
     PEGASUS_ASSERT(message != 0);
 
-    /*
-    Boolean rc = false;
-
-    switch(message->getType())
+    if(_isSupportedRequestType(message))
     {
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-    case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-    rc = true;
-
-    break;
-    default:
-    rc = false;
-
-    break;
+        return(MessageQueueService::messageOK(message));
     }
 
-    return(rc);
-    */
-
-    return(MessageQueueService::messageOK(message));
+    return(false);
 }
 
 void ProviderManagerService::handleEnqueue(void)
@@ -142,12 +182,6 @@ void ProviderManagerService::handleEnqueue(void)
 void ProviderManagerService::handleEnqueue(Message * message)
 {
     PEGASUS_ASSERT(message != 0);
-
-    //*FIXME* Markus
-    // catch response messages that should never appear here
-
-    //    if (message->getType() == CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE)
-    //        abort(); // handle double provider callback !
 
     AsyncLegacyOperationStart * asyncRequest;
 
@@ -289,7 +323,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     Message * legacy = static_cast<AsyncLegacyOperationStart *>(request)->get_action();
 
-    if(legacy != 0)
+    if(_isSupportedRequestType(legacy))
     {
         Destroyer<Message> xmessage(legacy);
 
@@ -309,38 +343,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
             Thread::clearLanguages();
         }
 
-        // only pass valid message types to provider managers
-        switch(legacy->getType())
+        try
         {
-        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        case CIM_REFERENCES_REQUEST_MESSAGE:
-        case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-        case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-        case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
             service->handleCimRequest(op, legacy);
-            break;
-
-        default:
-            // unsupported messages are ignored
-            break;
+        }
+        catch(...)
+        {
+            // ATTN: log error
         }
     }
 

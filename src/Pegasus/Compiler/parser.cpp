@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: parser.cpp,v $
+// Revision 1.2  2001/03/04 22:18:00  bob
+// Cleanup, support for reference, message moving, start of instance support
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -37,9 +40,9 @@
 // virtual
 //
 
-#include <iostream>
 #include "parser.h"
-
+//#include <sstream>
+#include "parserExceptions.h"
 
 //---------------------------------------------------------------------
 // Take a YY_BUFFERSTATE off the stack of saved contexts
@@ -88,12 +91,17 @@ parser::wrap() {
   }
 }
 
+using namespace ParserExceptions;
+
 //----------------------------------------------------------------
 // Log where an error occured.  This is pretty lame, so it needs a
 // FIXME
 //----------------------------------------------------------------
 void
 parser::log_parse_error(char *token, char *errmsg) const {
-  cerr << _current_filename << ":" << _lineno << ": " << errmsg;
-  cerr << " before `" << token << "'" << endl;
+  char buf[40];
+  sprintf(buf, "%d", _lineno);
+  string s = _current_filename + ":" + buf + ": " + errmsg + " before `" 
+    + token + "'\n";
+  throw ParserLexException(s.c_str());
 }

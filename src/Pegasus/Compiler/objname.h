@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: objname.h,v $
+// Revision 1.2  2001/03/04 22:18:00  bob
+// Cleanup, support for reference, message moving, start of instance support
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -36,13 +39,12 @@
 //
 // Make an object reference available in its parts.
 //
-// An object name has 3 parts:  namespaceType, namespaceHandle and
-modelPath
+// An object name has 3 parts:  namespaceType, namespaceHandle and modelPath
 // For example, in the object name
 //       http://somehost:1234/a/b/c:myobj.first="top", last="cat"
 // the parts are
-//       namespace CIMType -- http:
-//       namespaceHandle -- /somehost/a/b/c
+//       namespaceType -- http:
+//       namespaceHandle -- /somehost:a/b/c
 //       modelPath -- myobj.first="top", last="cat"
 //
 // The namespaceHandle has two components:  host and path.
@@ -53,14 +55,13 @@ modelPath
 // The host may have two components:  a host name and a port.
 //       host -- hostname:1234
 //
-// The modelPath has two components as well:  className and keyBindings.
+// The modelPath has two components as well:  className and KeyBindings.
 
 // In the example,
 //       className -- myobj
-//       keyBindings -- first="top", last="cat"
+//       KeyBindings -- first="top", last="cat"
 //
-// This class allows you to convert among various forms of the object
-name:
+// This class allows you to convert among various forms of the object name:
 //     -- the string (as above)
 //     -- the decomposed pieces
 //     -- an instance object
@@ -68,20 +69,27 @@ name:
 //
 // This class uses components from pegasus/Common
 
+#ifndef _PEGASUS_COMPILER_OBJNAME_H_
+#define _PEGASUS_COMPILER_OBJNAME_H_
+
+
 #include <Pegasus/Common/CIMReference.h>
-#include <Pegasus/Common/Instance.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/String.h>
+
+PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMPILER_LINKAGE namespaceHandle {
  private:
   String _Stringrep;
   String _host;
   String _path;
-  void namespaceHandleRepToComponets(const String &rep);
+  void namespaceHandleRepToComponents(const String &rep);
   const String &namespaceHandleComponentsToRep();
  public:
   namespaceHandle(const String &Stringrep);
   namespaceHandle(const String &host, const String &path);
-  ~namespaceHandle();
+  ~namespaceHandle() {;}
   const String &Stringrep() { return _Stringrep == "" ? 
 				namespaceHandleComponentsToRep() : 
     _Stringrep; }
@@ -94,20 +102,20 @@ class PEGASUS_COMPILER_LINKAGE modelPath {
   String _Stringrep;
   String _className;
   String _keyString;
-  Array<KeyBinding> _keyBindings;
-  modelPathRepToComponents(const String &rep);
-  String &modelPathComponentsToRep();
+  KeyBindingArray _KeyBindings;
+  void modelPathRepToComponents(const String &rep);
+  const String &modelPathComponentsToRep();
  public:
   modelPath(const String &Stringrep);
   modelPath(const String &classname, const String &keyString);
-  // modelPath(const String &classname, const Array<KeyBinding>&bindings);
+  modelPath(const String &classname, const KeyBindingArray&bindings);
   ~modelPath();
-  const String &Stringrep() { return _Stringrep == "" ?
-				modelPathComponentsToRep() :
-    _Stringrep; }
+  static KeyBinding::CIMType KeyBindingTypeOf(const String &s);
+  const String &Stringrep() { return modelPathComponentsToRep(); }
   const String &className() { return _className; }
-  const String &keyString() { return _keyString; }
-  const Array<KeyBinding>& keyBindings() { return _keyBindings; }
+  const String &keyString() { return KeyBindingsToKeyString(); }
+  const String &KeyBindingsToKeyString();
+  const Array<KeyBinding>& KeyBindings() { return _KeyBindings; }
 };
 
 class PEGASUS_COMPILER_LINKAGE objectName {
@@ -117,7 +125,9 @@ class PEGASUS_COMPILER_LINKAGE objectName {
   namespaceHandle *_namespaceHandle;
   modelPath *_modelPath;
   CIMReference *_reference;
-  Instance *_instance;
+  CIMInstance *_instance;
+  Array<KeyBinding> _empty;
+
  public:
   objectName();
   objectName(const String &Stringrep);
@@ -128,28 +138,32 @@ class PEGASUS_COMPILER_LINKAGE objectName {
   objectName(const String &namespaceType, const String &host,
       const String &path, const String &classname,
       const String &keyString);
-  objectName(const Instance &instance);
+  objectName(const CIMInstance &instance);
   ~objectName();
-  objectName::set(const String &rep);
-  objectName::set(const String &namespaceType, const String &namespaceHandle,
-		  const String &modelPath);
+  void objectName::set(const String &rep);
+  void objectName::set(const String &namespaceType, 
+		       const String &namespaceHandle,
+		       const String &modelPath);
   const String &Stringrep() { return _Stringrep; }
   const String &namespaceType() { return _namespaceType; }
-  const String &namespaceHandle() const {
-    return _namespaceHandle ? _namespaceHandle->Stringrep() ? ""; }
-  const String &host() {
-    return _namespaceHandle ? _namespaceHandle->host() : ""; }
+  const String &handle() const {
+    return _namespaceHandle ? _namespaceHandle->Stringrep() : String::EMPTY; }
+  const String &host() const {
+    return _namespaceHandle ? _namespaceHandle->host() : String::EMPTY; }
   const String &path() {
-    return _namespaceHandle ? _namespaceHandle->path() : ""; }
+    return _namespaceHandle ? _namespaceHandle->path() : String::EMPTY; }
   const String &modelpath() {
-    return _modelPath ? _modelPath->Stringrep() : ""; }
-  const String &className() {
-    return _modelPath ? _modelPath->className() : ""; }
+    return _modelPath ? _modelPath->Stringrep() : String::EMPTY; }
+  const String &className() const {
+    return _modelPath ? _modelPath->className() : String::EMPTY; }
   const String &keyString() {
-    return _modelPath ? _modelPath->keyString() : ""; }
-  const Array<keyBinding> &keyBindings() {
-    return _modelPath ? _modelPath->keyBindings() :
-Array<keyBindings>(); }
-  const Instance *instance() { return _instance; }
+    return _modelPath ? _modelPath->keyString() : String::EMPTY; }
+  const Array<KeyBinding> &KeyBindings() const {
+    return _modelPath ? _modelPath->KeyBindings() : _empty; }
+  const CIMInstance *instance() { return _instance; }
 };
 
+PEGASUS_NAMESPACE_END
+
+
+#endif

@@ -43,7 +43,7 @@
 #include "valueFactory.h"
 #include "memobjs.h"
 #include "qualifierList.h"
-
+#include "objname.h"
 
 //extern cimmofParser g_cimmofParser;
 
@@ -63,27 +63,21 @@ extern void cimmof_yy_less(int n);
   Uint32 g_flavor = 0;
   Uint32 g_scope = 0;
   qualifierList g_qualifierList(10);  /* FIXME */
-  CIMMethod *g_currentMethod;
-  CIMClass *g_currentClass;
-  CIMInstance *g_currentInstance;
-  String g_currentAlias;
+  CIMMethod *g_currentMethod = 0;
+  CIMClass *g_currentClass = 0;
+  CIMInstance *g_currentInstance = 0;
+  String g_currentAlias = String::EMPTY;
+  String g_referenceClassName = String::EMPTY;
+  KeyBindingArray g_KeyBindingArray; // it gets created empty
 
 /* ------------------------------------------------------------------- */
-/* Pragmas, except for the Include pragma, are not well handled yet    */
+/* Pragmas, except for the Include pragma, are not handled yet    */
 /* I don't understand them, so it may be a while before they are       */ 
 /* ------------------------------------------------------------------- */
   struct pragma {
     String name;
     String value;
   };
-
-  //  struct pragma *
-  //newPragma(const char *name, const char *value) {
-  //  struct pragma *newprag = (struct pragma *)malloc(sizeof(struct pragma));
-  //  newprag->name = strdup(name);
-  //  newprag->value = strdup(value);
-  //  return newprag;
-  //}
 
 /* ---------------------------------------------------------------- */
 /* Use our general wrap manager to handle end-of-file               */
@@ -120,6 +114,9 @@ cimmof_error(char *msg) {
   CIMClass *      mofclass;
   CIMQualifierDecl *   mofqualifier;
   CIMInstance *   instance;
+  CIMReference *  reference;
+  modelPath *     modelpath;
+  KeyBinding *    keybinding;
 }
 
 %token TOK_LEFTCURLYBRACE
@@ -194,22 +191,25 @@ cimmof_error(char *msg) {
 %type <strval> TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
 %type <strval> TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
 %type <strval> stringValue stringValues defaultValue initializer constantValue
-%type <strval> arrayInitializer referenceInitializer constantValues 
+%type <strval> arrayInitializer constantValues 
 %type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE qualifierParameter
 %type <strval> superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
-%type <strval> namespaceHandle namespaceHandleRef modelPath
+%type <strval> namespaceHandle namespaceHandleRef
+%type <strval> referenceInitializer aliasInitializer objectHandle
 
+%type <modelpath> modelPath 
+%type <keybinding> keyValuePair
 %type <ival> flavor defaultFlavor array metaElements metaElement scope
-%type <ival> booleanValue
+%type <ival> booleanValue keyValuePairList
 %type <pragma> compilerDirectivePragma
 %type <datatype> dataType intDataType realDataType parameterType objectRef
 %type <value> qualifierValue
 %type <qualifier> qualifier
-%type <property> propertyBody propertyDeclaration
+%type <property> propertyBody propertyDeclaration referenceDeclaration
 %type <method> methodStart methodDeclaration
 %type <mofclass> classHead classDeclaration
 %type <mofqualifier> qualifierDeclaration
-%type <instance> instanceHead instanceDeclaration
+%type <instance> instanceHead instanceDeclaration 
 
 %%
 mofSpec: mofProductions
@@ -257,14 +257,11 @@ classFeatures: classFeature
              | classFeatures classFeature ;
 
 classFeature: propertyDeclaration  {
-  cimmofParser::Instance()->applyProperty(*g_currentClass, *$1); }
+  cimmofParser::Instance()->applyProperty(*g_currentClass, *$1); delete $1; } 
             | methodDeclaration {
   cimmofParser::Instance()->applyMethod(*g_currentClass, *$1); }
             | referenceDeclaration {
-	      // FIXME:  I still don't know what object this will be. 
-	      //g_currentClass->addReference(*$1);
-	      //delete $1; 
-	      } ; 
+  cimmofParser::Instance()->applyProperty(*g_currentClass, *$1); delete $1; }; 
 
 methodDeclaration: qualifierList methodStart methodBody methodEnd 
 {
@@ -306,20 +303,16 @@ propertyEnd: TOK_SEMICOLON ;
 referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
                       referencePath TOK_SEMICOLON 
 {
-  // I obviously understand NOTHING about references and will
-  // talk to Mike to fix this up.
-
-  //  CIMReference *r = new CIMReference($5);
-  //r->setClassName($4);
-  // FIXME:  Mike doesn't have qualifiers on References yet
-  //  g_qualifierList.apply(r);
-  //free($4);
-  //  free($5);
-  // FIXME:
-  // 3. Add the reference declaration to the class or instance
+  String s(*$2);
+  if (!String::equal(*$5, String::EMPTY))
+    s += "." + *$5;
+  CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, &s);
+  $$ = cimmofParser::Instance()->newProperty(*$4, *v, *$2);
+  g_qualifierList.apply($$);
   delete $2;
   delete $4;
   delete $5; 
+  delete v;
 } ;
 
 referencedObject: TOK_SIMPLE_IDENTIFIER { $$ = $1; } ;
@@ -337,9 +330,16 @@ parameters : parameter
 
 parameter: qualifierList parameterType parameterName array 
 { // FIXME:  Need to create default value including type?
-  CIMParameter *p  = cimmofParser::Instance()->newParameter(*$3, $2);
+  CIMParameter *p = 0;
+  cimmofParser *cp = cimmofParser::Instance();
+  if ($4 == -1) {
+    p = cp->newParameter(*$3, $2, false, 0, g_referenceClassName);
+  } else {
+    p = cp->newParameter(*$3, $2, true, $4, g_referenceClassName);
+  }
+  g_referenceClassName = String::EMPTY;
   g_qualifierList.apply(p);
-  cimmofParser::Instance()->applyParameter(*g_currentMethod, *p);
+  cp->applyParameter(*g_currentMethod, *p);
   delete p;
   delete $3;
 } ;
@@ -347,7 +347,8 @@ parameter: qualifierList parameterType parameterName array
 parameterType: dataType { $$ = $1; }
              | objectRef { $$ = CIMType::REFERENCE; } ;
 
-objectRef: className TOK_REF {  } ;
+objectRef: className TOK_REF {  
+                          g_referenceClassName = *$1; } ;
 
 parameterName: TOK_SIMPLE_IDENTIFIER ;
 
@@ -366,7 +367,7 @@ defaultValue: TOK_EQUAL initializer { $$ = $2; }
 
 initializer: constantValue { $$ = $1; }
            | arrayInitializer { $$ = $1; }
-           | referenceInitializer ;
+           | referenceInitializer { $$ = $1; } ;
 
 constantValues: constantValue { $$ = $1; }
               | constantValues TOK_COMMA constantValue 
@@ -410,7 +411,6 @@ stringValue: TOK_STRING_VALUE
    String s(oldrep), s1(String::EMPTY);
    // Handle quoted quote
    int len = s.getLength();
-   //cout << s << " (" << len << ")" << endl;
    if (s[len] == '\n') {
      // error: new line inside a string constant unless it is quoted
      if (s[len - 2] == '\\') {
@@ -425,7 +425,6 @@ stringValue: TOK_STRING_VALUE
        if (len > 3)
 	 s1 = s.subString(1, len-3);
        s1 += '\"';
-       //cout << "Ready for yyles(len-1)" << endl;
        cimmof_yy_less(len-1);
      } else { // This is the normal case:  real quotes on both end
        s1 = s.subString(1, len - 2) ;
@@ -438,13 +437,26 @@ arrayInitializer: TOK_LEFTCURLYBRACE constantValues TOK_RIGHTCURLYBRACE
        { $$ = $2; } ;
 
 referenceInitializer: objectHandle {}
-                    | aliasIdentifier {} ;
+                  | aliasInitializer {  } ;
 
 objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
 { 
-  // FIXME -- CIMReference Stuff
+  // The objectName string is decomposed for syntactical purposes 
+  // and reassembled here for later parsing in creation of an objname instance 
+  String *s = new String(*$2);
+  if (!String::equal(*s, String::EMPTY) && $3)
+    *s += ":";
+  if ($3) {
+    *s += $3->Stringrep();
+  }
+  $$ = s;
   delete $2;
   delete $3;
+}
+
+aliasInitializer : aliasIdentifier {
+  // convert somehow from alias to a CIM object name
+  delete $1;
 }
 
 namespaceHandleRef: namespaceHandle TOK_COLON
@@ -453,16 +465,20 @@ namespaceHandleRef: namespaceHandle TOK_COLON
 
 namespaceHandle: stringValue {};
 
-modelPath: className TOK_PERIOD keyValuePairList { 
-             // FIXME: References 
+modelPath: className TOK_PERIOD keyValuePairList {
+             modelPath *m = new modelPath(*$1, g_KeyBindingArray);
+             g_KeyBindingArray.clear(); 
              delete $1;} ;
 
-keyValuePairList: keyValuePair
-                | keyValuePairList TOK_COMMA keyValuePair ;
+keyValuePairList: keyValuePair { $$ = 0; }
+                | keyValuePairList TOK_COMMA keyValuePair { $$ = 0; } ;
 
 keyValuePair: keyValuePairName TOK_EQUAL initializer 
-              { 
-		// FIXME:  This is for references
+              {
+		KeyBinding *kb = new KeyBinding(*$1, *$3,
+                               modelPath::KeyBindingTypeOf(*$3));
+		g_KeyBindingArray.append(*kb);
+		delete kb;
 		delete $1;
 	        delete $3; } ;
 
@@ -501,19 +517,33 @@ valueInitializers: valueInitializer
 valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
                   initializer TOK_SEMICOLON 
 {
-  // FIXME:
+  cimmofParser *cp = cimmofParser::Instance();
+  // FIXME:  This still doesn't work because there is no way to update 
+  // a property.  It must be fixed in the Common code first.
   // What we have to do here is create a CIMProperty  and initialize it with
   // the value provided.  The name of the property is $2 and it belongs
   // to the class whose name is in g_currentInstance->getClassName().
-  // The steps are 
-  //   1. get the class from the repository; 
-  //   2. get the property;
-  //   3. create a new property from the old one; 
-  //   4. set the value to the new value; 
+  // The steps are
+  //   2. Get  property declaration's value object
+  const CIMProperty *oldprop = cp->PropertyFromInstance(*g_currentInstance,
+							*$2);
+  const CIMValue *oldv = cp->ValueFromProperty(*oldprop);
+  //const CIMValue *oldv = cp->PropertyValueFromInstance(*g_currentInstance, 
+  //					       *$2);
+  //   3. create the new Value object of the same type
+  CIMValue *v = valueFactory::createValue(oldv->getType(), $3, $5);
+  //   4. create a clone property with the new value
+  CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
   //   5. apply the qualifiers; 
+  g_qualifierList.apply(newprop);
   //   6. and apply the CIMProperty to g_currentInstance.
+  cp->applyProperty(*g_currentInstance, *newprop);
   delete $2;
   delete $5;
+  delete oldprop;
+  delete oldv;
+  delete v;
+  delete newprop;
 } ;
 
 compilerDirective: compilerDirectiveInclude

@@ -26,6 +26,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include "memobjs.h"
+#include "objname.h"
 #include <string>
 
 extern int cimmof_parse(); // the yacc parser entry point
@@ -38,11 +39,18 @@ class cimmofRepository;
 class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
  private:
   // This is meant to be a singleton, so we hide the constructor
-  // and the destrucot
+  // and the destructor
   static cimmofParser *_instance;
   cimmofParser();
   ~cimmofParser();
+  void elog(const String &msg) const; // handle logging of warnings
+  void wlog(const String &msg) const; // handle logging of warnings
+  void trace(const String &head, const String &tail) const;
+  //either throw us out or retry depending on user preference
+  void maybeThrowParseError(const String &msg) const;
+  void maybeThrowLexerError(const String &msg) const;
 
+  // Here are the members added by this specialization
   const mofCompilerOptions *_cmdline;
   string _includefile;  // temp storage for included file to be entered
   cimmofRepository *_repository; // the repository object to use
@@ -52,26 +60,31 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Provide a way for the singleton to be constructed, or a
   // pointer to be returned:
   static cimmofParser *Instance();
-  // Since this class became s singleton, we need to allow someone
-  // to provide us the compiler options information
+
+  //------------------------------------------------------------------
+  // Methods for manipulating the members added in this specialization
+  //------------------------------------------------------------------
+  // compiler options.  This may be set from command line data,
+  // or by an embedding application
   void setCompilerOptions(const mofCompilerOptions *co);
   const mofCompilerOptions *getCompilerOptions() const;
-  // if the command line options say we need one, establish a repository.
-  // The repository path is part of the compiler command line object
+  // for all, or nearly all, operations, a repository object is needed
   bool setRepository(void);
-  // Set a default root namespace path for the repository
-  void setDefaultNamespacePath(const String &path);
-  void setCurrentNamespacePath(const String &path); // current override
-  // If someone wants a pointer to the CIMRepository object, return it
   const cimmofRepository *getRepository() const;
+  // Set a default root namespace path to pass to  the repository
+  void setDefaultNamespacePath(const String &path); // default value
+  void setCurrentNamespacePath(const String &path); // current override
   const String &getDefaultNamespacePath() const;
   const String &getCurrentNamespacePath() const;
+  // Get the effective namespace path -- the override, if there is one.
   const String &getNamespacePath() const;
+  //------------------------------------------------------------------
+  // Methods that implement or override base class methods
+  //------------------------------------------------------------------
   // establish an input buffer given an input file stream
   int setInputBuffer(const FILE *f);
   // establish an input buffer given an existing context (YY_BUFFERSTATE)
   int setInputBuffer(void *buffstate);
-
   // Dig into an include file given its name
   int enterInlineInclude(const String &filename);
   // Dig into an include file given an input file stream
@@ -80,8 +93,15 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   int wrapCurrentBuffer();
   // Parse an input file
   int parse();
+  // Log a parser error
+  void log_parse_error(char *token, char *errmsg) const;
 
-  // Do various representation transformations
+  //------------------------------------------------------------------
+  // Do various representation transformations.
+  // These are in this class simply because there wasn't another
+  // conventient place for them.  They could just as well be static
+  // methods of some convenience class.
+  //------------------------------------------------------------------
   //    Octal character input to decimal character output
   char *oct_to_dec(const String &octrep) const;
   //    Hex character input to decimal character output
@@ -89,30 +109,61 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   //    Binary character input to decimal character output
   char *binary_to_dec(const String &binrep) const;
 
+  //------------------------------------------------------------------
+  // Handle the processing of CIM-specific constructs
+  //------------------------------------------------------------------
+  // This is called after a completed #pragma production is formed
   void processPragma(const String &pragmaName, const String &pragmaString);
-
+  // This is called when a completed class declaration production is formed
   int addClass(CIMClass *classdecl);
+  // This is called when a new class declaration heading is discovered
   CIMClass *newClassDecl(const String &name, const String &superclass);
-
+  // Called when a completed instanace declaration production is formed
   int addInstance(CIMInstance *instance);
+  // Called when a new qualifier declaration heading is discovered
   CIMQualifierDecl *newQualifierDecl(const String &name, const CIMValue *value,
 				  Uint32 scope, Uint32 flavor);
+  // Called when a completed qualifier declaration production is formed
   int addQualifier(CIMQualifierDecl *qualifier);
-
-  CIMQualifier *newQualifier(const String &name, const CIMValue &val, Uint32 flav);
-  CIMProperty *newProperty(const String &name, const CIMValue &val);
+  // Called when a new qualifier declaration heading is discovered
+  CIMQualifier *newQualifier(const String &name, const CIMValue &val,
+			     Uint32 flav);
+  // Called when a new property is discovered
+  CIMProperty *newProperty(const String &name, const CIMValue &val,
+			   const String &referencedObj = String::EMPTY);
+  // Called when a property production inside a class is complete
   int applyProperty(CIMClass &c, CIMProperty &p);
+  // Called when a property production inside an instance is complete
+  int applyProperty(CIMInstance &instance, CIMProperty &p);
+  // Called when a new method is discovered
   CIMMethod   *newMethod(const String &name, const CIMType type);
+  // Called when a method production inside a class is complete
   int applyMethod(CIMClass &c, CIMMethod &m);
-  CIMParameter *newParameter(const String &name, const CIMType type);
+  // Called when a method parameter is discovered
+  CIMParameter *newParameter(const String &name, const CIMType type,
+			     bool isArray=false, Uint32 array=0, 
+			     const String &objName=String::EMPTY);
+  // Called when a method parameter production is complete
   int applyParameter(CIMMethod &method, CIMParameter &parm);
-
-  CIMValue *QualifierValue(const String &qualifierName, const String &valstr); 
-
+  // Called when a qualifier value production is complete
+  CIMValue *QualifierValue(const String &qualifierName, const String &valstr);
+  // Called to retrieve the value object for an existing parameter
+  CIMProperty *PropertyFromInstance(const CIMInstance &instance,
+				    const String &propertyName) const;
+  CIMValue *ValueFromProperty(const CIMProperty &prop) const;
+  CIMValue *PropertyValueFromInstance(const CIMInstance &instance, 
+				      const String &propertyName) const; 
+  // Called when a class alias is found
   void addClassAlias(const String &alias, const CIMClass *cd, 
 		bool isInstance);
+  // Called when an instance alias is found
   void addInstanceAlias(const String &alias, const CIMInstance *cd, 
 		bool isInstance);
+  // Called when a reference declaration is found
+  CIMReference *newReference(const Pegasus::objectName &oname);
+  // Make a clone of a property object, inserting a new value object
+  CIMProperty *copyPropertyWithNewValue(const CIMProperty &p,
+					const CIMValue &v) const;
 };
 
 // Exceptions
@@ -120,7 +171,13 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
 class PEGASUS_COMPILER_LINKAGE ParseError : public Exception {
  public:
   static const char MSG[];
-  ParseError() : Exception(MSG) {}
+  ParseError(const String &msg) : Exception(MSG + msg) {}
+};
+
+class PEGASUS_COMPILER_LINKAGE LexerError : public Exception {
+ public:
+  static const char MSG[];
+  LexerError(const String &lexerr) : Exception(MSG + lexerr) {}
 };
 
 #endif

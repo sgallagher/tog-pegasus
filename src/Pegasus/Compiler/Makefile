@@ -24,9 +24,9 @@ LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-SOURCES = cimmof_lex_wrapper.cpp cimmofParser.cpp \
+SOURCES = cimmof_lex_wrapper.cpp cimmofParser.cpp cimmofMessages.cpp \
 	cimmofRepository.cpp cimmof_tab_wrapper.cpp parser.cpp \
-	qualifierList.cpp valueFactory.cpp
+	qualifierList.cpp valueFactory.cpp objname.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

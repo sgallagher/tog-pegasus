@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: mofCompilerOptions.h,v $
+// Revision 1.2  2001/03/04 22:18:00  bob
+// Cleanup, support for reference, message moving, start of instance support
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -56,6 +59,7 @@
 #include <Pegasus/Common/String.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 using namespace Pegasus;
@@ -68,12 +72,21 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   string                _namespacePath;
   bool         _syntax_only;
   bool         _suppress_warnings;
+  bool         _suppress_all_messages;
   bool         _trace;
+  std::ostream      *_traceos;
+  std::ostream      *_erroros;
+  std::ostream      *_warningos;
  public:
   mofCompilerOptions() : _repository(String::EMPTY), 
     _namespacePath(""),
     _syntax_only(false),
-    _suppress_warnings(false)
+    _suppress_warnings(false),
+    _suppress_all_messages(false),
+    _trace(false),
+    _traceos(0),
+    _erroros(0),
+    _warningos(0)
     {;}
 
   ~mofCompilerOptions() {;}
@@ -92,9 +105,22 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_suppress_warnings() { _suppress_warnings = true; }
   void reset_suppress_warnings() { _suppress_warnings = false; }
   bool suppress_warnings() const { return _suppress_warnings; }
+  void set_suppress_all_messages() { _suppress_all_messages = true; }
+  void reset_suppress_all_messages() { _suppress_all_messages = false; }
+  bool suppress_all_messages() const { return _suppress_all_messages; }
   void set_trace() { _trace = true; }
   void reset_trace() { _trace = false; }
   bool trace() const { return _trace; }
+  void set_traceos(std::ostream &os) { _traceos = &os; }
+  void reset_traceos() { _traceos = 0; }
+  std::ostream &traceos() const { return _traceos ? *_traceos : std::cout; }
+  void set_erroros(std::ostream &os) { _erroros = &os; }
+  void reset_erroros() { _erroros = 0; }
+  std::ostream &erroros() const { return _erroros ? *_erroros : std::cerr; }
+  void set_warningos(std::ostream &os) { _warningos = &os; }
+  void reset_warningos() { _warningos = 0; }
+  std::ostream &warningos() const {return _warningos ? *_warningos : \
+				                       std::cerr;}
   void set_namespacePath(const string &path) { _namespacePath \
 						 = path.c_str(); }
   const string &get_namespacePath() const  { return _namespacePath; }

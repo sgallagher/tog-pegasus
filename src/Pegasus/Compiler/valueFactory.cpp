@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: valueFactory.cpp,v $
+// Revision 1.2  2001/03/04 22:18:00  bob
+// Cleanup, support for reference, message moving, start of instance support
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -34,6 +37,10 @@
 
 
 #include "valueFactory.h"
+#include "objname.h"
+#include "cimmofParser.h"  /* unfortunately.  Now that valueFactory needs
+                              to know about cimmofParser, it might as well
+			      be rolled into it. */
 #include <cstring>
 #include <string>
 
@@ -58,7 +65,6 @@ valueFactory::Stoi(const String &val) {
     case '0': s += "0"; break;
     }
   }
-  //cout << "DEBUG: Stoi: In==" << val <<  ", Out==" << s << endl;
   return atol(s.c_str());
 }
 
@@ -163,6 +169,18 @@ nextcsv(const String &csv, int sep, const Uint32 start,
     idx++;
   }   // end while
   return idx;
+}
+
+//-------------------------------------------------------------------
+// This builds a reference value from a string via the objname class
+//-------------------------------------------------------------------
+static
+CIMValue *
+build_reference_value(const String &rep)
+{
+  objectName oname(rep);
+  CIMReference *ref = cimmofParser::Instance()->newReference(oname);
+  return new CIMValue(*ref);
 }
 
 // ------------------------------------------------------------------
@@ -313,8 +331,7 @@ valueFactory::createValue(CIMType::Tag type, int arrayDimension,
     case CIMType::BOOLEAN:  return new CIMValue((Boolean) (rep[0] == 'T'?1:0));
     case CIMType::STRING:   return new CIMValue(rep);
     case CIMType::DATETIME: return new CIMValue(StoDT(rep, dt));
-    //case CIMType::REFERENCE:return new CIMValue((CIMReference)rep.c_str());
-    case CIMType::REFERENCE:
+    case CIMType::REFERENCE: return build_reference_value(rep);
     case CIMType::NONE: return(new CIMValue((Uint32) 0));
     }
     return(new CIMValue((Uint32) 0));    // default

@@ -892,6 +892,10 @@ pegasusServer_en:table {
 
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS:string {"CIMPREGP_SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS: Superuser authority is required to unregister CIM providers."}
 
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider.  Provider is busy."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider module.  Provider is busy."}
+
 	/**
 	* @comment CIMPREGP_KEY_NOT_FOUND:
  	* @comment   Substitution {0} is the name of the CIM property (a string)

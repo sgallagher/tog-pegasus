@@ -835,8 +835,11 @@ void ProviderRegistrationProvider::deleteInstance(
              if (ret_value == -2)
              {
 //L10N TODO
-                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                     "disable the provider failed: Provider is busy.");
+                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                     //"disable the provider failed: Provider is busy.");
+                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+					"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY",
+                    "disable the provider failed: Provider is busy."));
              }
 	}
     	catch(CIMException&)
@@ -902,8 +905,11 @@ void ProviderRegistrationProvider::deleteInstance(
             if (ret_value == -2)
             {
 //L10N TODO
-                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                     "disable the provider module failed: Provider is busy.");
+                 //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                    // "disable the provider module failed: Provider is busy.");
+                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+						"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY",
+                     	"disable the provider module failed: Provider is busy."));
             }
 	}
     	catch(CIMException& e)

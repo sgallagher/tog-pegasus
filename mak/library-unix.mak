@@ -14,7 +14,7 @@ ifeq ($(COMPILER),acc)
     LINK_COMMAND += -g
   endif
   ifdef PEGASUS_CCOVER
-    FULL_LIBRARIES += $(CCOVER_LIB)/libcov-PIC.a
+    FULL_LIBRARIES += $(CCOVER_LIB)/libcov.a
   endif
   LINK_ARGUMENTS =
   LINK_OUT = -o

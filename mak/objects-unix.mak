@@ -9,9 +9,16 @@
 
 _TMP_O = $(PEGASUS_PLATFORM).o
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+$(OBJ_DIR)/%.o: %.cpp $(ERROR)
+	$(CXX) -c -o $@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+	@ $(TOUCH) $@
+	@ $(ECHO)
+else
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
 	$(CXX) -c -o $(_TMP_O) $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(COPY) $(_TMP_O) $@
 	@ $(RM) $(_TMP_O)
 	@ $(TOUCH) $@
 	@ $(ECHO)
+endif

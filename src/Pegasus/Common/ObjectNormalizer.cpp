@@ -37,7 +37,7 @@ static CIMQualifier _resolveQualifier(
     const CIMQualifier & referenceQualifier,
     const CIMQualifier & cimQualifier)
 {
-    std::cout << "_resolveQualifier(" << referenceQualifier.getName().getString() << ")" << std::endl;
+    PEGASUS_STD(cout) << "_resolveQualifier(" << referenceQualifier.getName().getString() << ")" << PEGASUS_STD(endl);
 
     CIMName qualifierName = referenceQualifier.getName();
     CIMValue qualifierValue = referenceQualifier.getValue();
@@ -65,11 +65,11 @@ static CIMProperty _resolveProperty(
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin)
 {
-    std::cout << "_resolveProperty(" << referenceProperty.getName().getString() << ")" << std::endl;
-    std::cout << "flags :";
-    std::cout << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    std::cout << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
-    std::cout << std::endl;
+    PEGASUS_STD(cout) << "_resolveProperty(" << referenceProperty.getName().getString() << ")" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "flags :";
+    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
+    PEGASUS_STD(cout) << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
+    PEGASUS_STD(cout) << PEGASUS_STD(endl);
 
     CIMName propertyName = referenceProperty.getName();
     CIMValue propertyValue = referenceProperty.getValue();
@@ -119,7 +119,7 @@ static CIMProperty _resolveProperty(
             // ATTN: convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceProperty.getQualifier(i).clone();
 
-            std::cout << "adding qualifier - " << referenceQualifier.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "adding qualifier - " << referenceQualifier.getName().getString() << PEGASUS_STD(endl);
 
             newProperty.addQualifier(referenceQualifier);
         }
@@ -143,13 +143,13 @@ static CIMProperty _resolveProperty(
             // ATTN: convert const qualifier to non const
             CIMQualifier cimQualifier = cimProperty.getQualifier(i).clone();
 
-            std::cout << "updating qualifier - " << cimQualifier.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "updating qualifier - " << cimQualifier.getName().getString() << PEGASUS_STD(endl);
 
             newProperty.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
         }
     }
 
-    std::cout << newProperty.getName().getString() << " class origin = " << newProperty.getClassOrigin().getString() << std::endl;
+    PEGASUS_STD(cout) << newProperty.getName().getString() << " class origin = " << newProperty.getClassOrigin().getString() << PEGASUS_STD(endl);
 
     return(newProperty);
 }
@@ -159,10 +159,10 @@ static CIMParameter _resolveParameter(
     const CIMParameter & cimParameter,
     const Boolean includeQualifiers)
 {
-    std::cout << "_resolveParameter(" << referenceParameter.getName().getString() << ")" << std::endl;
-    std::cout << "flags :";
-    std::cout << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    std::cout << std::endl;
+    PEGASUS_STD(cout) << "_resolveParameter(" << referenceParameter.getName().getString() << ")" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "flags :";
+    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
+    PEGASUS_STD(cout) << PEGASUS_STD(endl);
 
     CIMParameter newParameter;
 
@@ -175,11 +175,11 @@ static CIMMethod _resolveMethod(
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin)
 {
-    std::cout << "_resolveMethod(" << referenceMethod.getName().getString() << ")" << std::endl;
-    std::cout << "flags :";
-    std::cout << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    std::cout << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
-    std::cout << std::endl;
+    PEGASUS_STD(cout) << "_resolveMethod(" << referenceMethod.getName().getString() << ")" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "flags :";
+    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
+    PEGASUS_STD(cout) << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
+    PEGASUS_STD(cout) << PEGASUS_STD(endl);
 
     CIMMethod newMethod;
 
@@ -194,12 +194,12 @@ static CIMClass _resolveClass(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    std::cout << "_resolveClass(" << referenceClass.getClassName().getString() << " : " << referenceClass.getSuperClassName().getString() << ")" << std::endl;
-    std::cout << "flags :";
-    std::cout << " localOnly = " << (localOnly == true ? "true" : "false");
-    std::cout << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    std::cout << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
-    std::cout << std::endl;
+    PEGASUS_STD(cout) << "_resolveClass(" << referenceClass.getClassName().getString() << " : " << referenceClass.getSuperClassName().getString() << ")" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "flags :";
+    PEGASUS_STD(cout) << " localOnly = " << (localOnly == true ? "true" : "false");
+    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
+    PEGASUS_STD(cout) << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
+    PEGASUS_STD(cout) << PEGASUS_STD(endl);
 
     // get object path elements
     String hostName = referenceClass.getPath().getHost();
@@ -224,7 +224,7 @@ static CIMClass _resolveClass(
             // ATTN: convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceClass.getQualifier(i).clone();
 
-            std::cout << "adding qualifier - " << referenceQualifier.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "adding qualifier - " << referenceQualifier.getName().getString() << PEGASUS_STD(endl);
 
             newClass.addQualifier(referenceQualifier);
         }
@@ -248,7 +248,7 @@ static CIMClass _resolveClass(
             // ATTN: convert const qualifier to non const
             CIMQualifier cimQualifier = cimClass.getQualifier(i).clone();
 
-            std::cout << "updating qualifier - " << cimQualifier.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "updating qualifier - " << cimQualifier.getName().getString() << PEGASUS_STD(endl);
 
             newClass.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
         }
@@ -262,7 +262,7 @@ static CIMClass _resolveClass(
 
         if(localOnly && (!superClassName.isNull()) && (!referenceProperty.getPropagated()))
         {
-            std::cout << "adding property - " << referenceProperty.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "adding property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
 
             CIMProperty cimProperty = referenceClass.getProperty(i).clone();
 
@@ -270,7 +270,7 @@ static CIMClass _resolveClass(
         }
         else
         {
-            std::cout << "ignoring property - " << referenceProperty.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "ignoring property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
         }
     }
 
@@ -282,7 +282,7 @@ static CIMClass _resolveClass(
 
         if(localOnly && (!superClassName.isNull()) && (!referenceMethod.getPropagated()))
         {
-            std::cout << "adding method - " << referenceMethod.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "adding method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
 
             CIMMethod cimMethod = referenceClass.getMethod(i).clone();
 
@@ -290,7 +290,7 @@ static CIMClass _resolveClass(
         }
         else
         {
-            std::cout << "ignoring method - " << referenceMethod.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "ignoring method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
         }
     }
 
@@ -317,7 +317,7 @@ static CIMClass _resolveClass(
             // ATTN: convert const property to non const
             CIMProperty cimProperty = cimClass.getProperty(i).clone();
 
-            std::cout << "updating property - " << cimProperty.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "updating property - " << cimProperty.getName().getString() << PEGASUS_STD(endl);
 
             newClass.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
         }
@@ -354,11 +354,11 @@ static CIMInstance _resolveInstance(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    std::cout << "_resolveInstance()" << std::endl;
+    PEGASUS_STD(cout) << "_resolveInstance()" << PEGASUS_STD(endl);
 
-    std::cout << "localOnly = " << (localOnly == true ? "true" : "false") << std::endl;
-    std::cout << "includeQualifiers = " << (includeQualifiers == true ? "true" : "false") << std::endl;
-    std::cout << "includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false") << std::endl;
+    PEGASUS_STD(cout) << "localOnly = " << (localOnly == true ? "true" : "false") << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "includeQualifiers = " << (includeQualifiers == true ? "true" : "false") << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false") << PEGASUS_STD(endl);
 
     // get object path elements
     String hostName = referenceInstance.getPath().getHost();
@@ -378,7 +378,7 @@ static CIMInstance _resolveInstance(
             // ATTN: convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceInstance.getQualifier(i).clone();
 
-            std::cout << "adding qualifier - " << referenceQualifier.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "adding qualifier - " << referenceQualifier.getName().getString() << PEGASUS_STD(endl);
 
             newInstance.addQualifier(referenceQualifier);
         }
@@ -402,7 +402,7 @@ static CIMInstance _resolveInstance(
             // ATTN: convert const qualifier to non const
             CIMQualifier cimQualifier = cimInstance.getQualifier(i).clone();
 
-            std::cout << "updating qualifier - " << cimQualifier.getName().getString() << std::endl;
+            PEGASUS_STD(cout) << "updating qualifier - " << cimQualifier.getName().getString() << PEGASUS_STD(endl);
 
             newInstance.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
         }
@@ -415,7 +415,7 @@ static CIMInstance _resolveInstance(
         CIMProperty referenceProperty = referenceInstance.getProperty(i).clone();
         CIMProperty cimProperty = referenceInstance.getProperty(i).clone();
 
-        std::cout << "adding property - " << referenceProperty.getName().getString() << std::endl;
+        PEGASUS_STD(cout) << "adding property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
 
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
@@ -438,7 +438,7 @@ static CIMInstance _resolveInstance(
         // ATTN: convert const property to non const
         CIMProperty cimProperty = cimInstance.getProperty(i).clone();
 
-        std::cout << "updating property - " << cimProperty.getName().getString() << std::endl;
+        PEGASUS_STD(cout) << "updating property - " << cimProperty.getName().getString() << PEGASUS_STD(endl);
 
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
@@ -480,14 +480,14 @@ static CIMInstance _resolveIndication(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    std::cout << "_resolveIndication()" << std::endl;
+    PEGASUS_STD(cout) << "_resolveIndication()" << PEGASUS_STD(endl);
 
     CIMNamespaceName nameSpace = referenceIndication.getPath().getNameSpace();
     CIMName className = referenceIndication.getPath().getClassName();
 
-    std::cout << "localOnly = " << (localOnly == true ? "true" : "false") << std::endl;
-    std::cout << "includeQualifiers = " << (includeQualifiers == true ? "true" : "false") << std::endl;
-    std::cout << "includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false") << std::endl;
+    PEGASUS_STD(cout) << "localOnly = " << (localOnly == true ? "true" : "false") << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "includeQualifiers = " << (includeQualifiers == true ? "true" : "false") << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false") << PEGASUS_STD(endl);
 
     CIMIndication newIndication;
 
@@ -499,7 +499,7 @@ static CIMMethod _resolveMethod(
     const CIMMethod & cimMethod,
     const Uint32 flags)
 {
-    std::cout << "_resolveMethod()" << std::endl;
+    PEGASUS_STD(cout) << "_resolveMethod()" << PEGASUS_STD(endl);
 
     CIMMethod newMethod;
 
@@ -511,7 +511,7 @@ static CIMParameter _resolveParameter(
     const CIMParameter & cimParameter,
     const Uint32 flags)
 {
-    std::cout << "_resolveParameter()" << std::endl;
+    PEGASUS_STD(cout) << "_resolveParameter()" << PEGASUS_STD(endl);
 
     CIMParameter newParameter;
 
@@ -529,7 +529,7 @@ CIMClass ObjectNormalizer::normalizeClass(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    std::cout << "ObjectNormalizer::resolveClass()" << std::endl;
+    PEGASUS_STD(cout) << "ObjectNormalizer::resolveClass()" << PEGASUS_STD(endl);
 
     CIMNamespaceName nameSpace = cimClass.getPath().getNameSpace();
     CIMName className = cimClass.getPath().getClassName();
@@ -583,7 +583,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    std::cout << "ObjectNormalizer::resolveInstances()" << std::endl;
+    PEGASUS_STD(cout) << "ObjectNormalizer::resolveInstances()" << PEGASUS_STD(endl);
 
     // TODO: ensure array is not empty
     // TODO: ensure objects in the array are initialized

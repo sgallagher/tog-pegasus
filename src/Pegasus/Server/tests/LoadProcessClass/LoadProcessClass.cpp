@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.2  2001/01/29 02:58:31  mike
+// fixed makefile rule
+//
 // Revision 1.1  2001/01/29 02:18:56  mike
 // new files
 //
@@ -83,7 +86,7 @@ int main(int argc, char** argv)
 	exit(1);
     }
 
-    cout << "successful" << endl;
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

@@ -33,6 +33,9 @@ using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define DDD(X) X
+//#define DDD(X) //X
+
 // ATTN-A: manage lifetime of all these objects. Do a walkthrough!
 // ATTN-B: add methods for getting the remote hostname and port!
 
@@ -359,6 +362,8 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
     int n = sizeof(address);
     Sint32 slaveDesc = accept(_desc, (struct sockaddr*)&address, &n);
 
+    DDD(cout << "Accepting Connection " << slaveDesc << endl;)
+
     if (slaveDesc < 0)
 	return true;
 
@@ -376,7 +381,7 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 	slaveDesc, 
 	Selector::READ | Selector::EXCEPTION,
 	channel);
-
+    DDD(cout << "TCP Handle Open " << endl;)
     handler->handleOpen(channel);
 
     return true;

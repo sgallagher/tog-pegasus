@@ -9,8 +9,10 @@
       </tr>
     </table>
     <hr>
-  <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+  <form name="EnumerateNameSpaces" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
        <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateNameSpaces">
+       <input type="hidden" name="hostip" value="localhost">
+       <input type="hidden" name="portnum" value="8888">
        <p>
        <a name="TOP"></a>
        This request enumerates the namespaces defined in the repository. This is not a CIM intrinsic method but uses CIM enumerateInstance.

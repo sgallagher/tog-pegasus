@@ -2,15 +2,17 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="481" align="bottom"><h1>Enumerate Instance Names CIM Operation</h1><td width="2">
-	<td width="265" align="right">
-	    <img border=1 src="/pegasus/icons/OpenGroupLogo.gif" align="right">
+	<td width="50%" align="bottom"><h1>Enumerate Instance Names CIM Operation</h1><td>
+	<td width="50%" align="right">
+	    <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
 	</td>
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="EnumerateInstanceNames" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstanceNames">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       <p>
 
     <a name="TOP"></a>
@@ -24,21 +26,28 @@
       name of the Class
       for which instance names are to be retrieved.&nbsp; This must be a legal
       class in the repository
-      <p><b>LocalOnly</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If true only CIM Elements overridden within definition of class are
+      <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      If true only CIM Elements overridden within definition of class are
       returned.
-      <p><b>IncludeQualifiers</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If checked, show Qualifiers for class and returned Properties, Methods,
+      <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      If checked, show Qualifiers for class and returned Properties, Methods,
       and Method Parameters.
-      <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If checked (TRUE), CLASSORIGIN attribute will be returned for all
+      <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      If checked (TRUE), CLASSORIGIN attribute will be returned for all
       appropriate elements<p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
       NOTE: <b> NOT IMPLEMENTED </b>Null or array of property names to filter
       request. <a href="#PropertyList">See below</a>.
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
+   <script>
+   EnumerateInstanceNames.hostip.value = opener.top.hostip;
+   EnumerateInstanceNames.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
 
     <hr>
-    <h2>RETURN Results</h2>
+    <h2>RETURN</h2>
     If successful, the method returns zero or more&nbsp;named
     Instances that meet the required criteria.
 

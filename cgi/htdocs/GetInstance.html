@@ -2,18 +2,18 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="435" align="bottom"><h1>Get Instance CIM Operation</h1><td width="2">
-	<td width="317" align="right">
-      <p align="right">
+	<td width="50%" align="bottom"><h1>Get Instance CIM Operation</h1><td>
+	<td width="50%" align="right">
 	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif
-	  " align="right">
-      </p>
+	  ">
         </td>
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="GetInstance" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetInstance">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
 	  <P>The <TT>GetInstance</TT> method returns a single CIM Instance from the target
 	  Namespace based on the InstanceName parameter provided.
 
@@ -134,6 +134,13 @@
     S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:01:31 PM<!--webbot bot="Timestamp" i-CheckSum="50193" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
+      <p>
+	</form>
+   <script>
+   GetInstance.hostip.value = opener.top.hostip;
+   GetInstance.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
   </body>
 </html>
 

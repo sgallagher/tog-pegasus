@@ -1,4 +1,13 @@
 <html>
+<head>
+<script>
+window.focus();
+function setHost(f) {
+opener.top.hostip = hostparms.hostip.value;
+opener.top.portnum = hostparms.portnum.value;
+}
+</script>
+</head>
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
@@ -9,19 +18,19 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="hostparms" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient" >
       <INPUT TYPE="hidden" NAME="Operation" VALUE="DefineHostParameters">
- 	<p><b>Pegasus URL</b> <INPUT TYPE="text" NAME="HostURL" SIZE=30 Value=localhost>
+ 	<p><b>Pegasus URL</b> <INPUT TYPE="text" NAME="hostip" SIZE=30 Value="sierra-0.cup.tandem.com">
  	Enter the URL of the host with where Pegasus is running
  	<p><b>HostName</b>
- 	<p><b>Host Port</b> <INPUT TYPE="text" NAME="HostPort" SIZE=30 Value=8888>
+ 	<p><b>Host Port</b> <INPUT TYPE="text" NAME="portnum" SIZE=8 Value="8888" >
  	<p><b>User Name</b> <INPUT TYPE="text" NAME="UserName" SIZE=30>
  	<p><b>User Password</b> <INPUT TYPE="text" NAME="UserPassword" SIZE=30>
  	<p>Today, CIM and WBEM do not have any discovery tools.&nbsp; You must
     specifically setup the URL and Port number of the WBEM Services Broker you
     want to query.&nbsp; The defaults are provided for use in a test environment
     with the Pegasus Services Broker.
- 	<p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 	<p><INPUT TYPE="submit" VALUE="Submit Request" onClick="setHost();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <INPUT TYPE="reset" VALUE="Reset">
     </form>
   </body>

@@ -9,12 +9,10 @@
       </tr>
     </table>
     <hr>
-	   This demonstration of the Pegasus implementation is based on using&nbsp; 
-      <UL>
-      <LI>HTML  and HTML page forms as the user interface.&nbsp;
-      <LI>A WEB server to map the HTML input forms to a Pegasus CGI Client
-      </UL>
-      The WEB server contains a set of WEB pages representing
+    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="GetClass">This demonstration
+      of the the Pegasus architecture is based on using&nbsp; HTML as the user
+      interface.&nbsp; The WEB server contains a set of WEB pages representing
       the the CIM client requests. The WEB server then passes these to a program
       via CIG (CGIclient) that converts the parameters in these calls to Pegaus
       CIM Client calls which are passed to the Pegasus CIM server.
@@ -22,6 +20,7 @@
       and then converted to WEB pages for the user.<br>
       <br>
       &nbsp;&nbsp;&nbsp; </p>
+      	</form>
 
     <p><img border="0" src="DemoPic.GIF" width="720" height="540"></p>
 

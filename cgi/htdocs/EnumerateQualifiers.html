@@ -8,16 +8,14 @@
         </td>
       </tr>
     </table>
-    <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <hr></hr>
+    <form name="EnumerateQualifiers" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateQualifiers">
-      <p>
-The <TT>enumerateQualifiers</TT> operation is used to enumerate
-    CIMQualifier declarations from the target Namespace.&nbsp;
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
-      <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <INPUT TYPE="reset" VALUE="Reset">
-      <p>&nbsp;
+      <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">
+      <p><INPUT TYPE="reset" VALUE="Reset">
     </form>
     <hr>
     <h2>Return Results</h2>
@@ -63,5 +61,10 @@ The <TT>enumerateQualifiers</TT> operation is used to enumerate
     S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 02:57:40 PM<!--webbot bot="Timestamp" i-CheckSum="50226" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
+   <script>
+   EnumerateQualifiers.hostip.value = opener.top.hostip;
+   EnumerateQualifiers.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
   </body>
 </html>

@@ -9,8 +9,10 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="GetClass" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetClass">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       <p>The <TT>GetClass</TT> method returns a single CIM Class from the target Namespace
       where the ClassName input parameter defines the name of the class to be retrieved.
       <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
@@ -111,6 +113,13 @@
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
     S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 03:05:36 PM<!--webbot bot="Timestamp" i-CheckSum="50543" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
+      <p>
+	</form>
+   <script>
+   GetClass.hostip.value = opener.top.hostip;
+   GetClass.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
 
   </body>
 </html>

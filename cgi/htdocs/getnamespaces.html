@@ -9,12 +9,19 @@
       </tr>
     </table>
     <hr></hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="GetNameSpaces" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetNameSpaces">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       Gets a list of all of the existing namespaces on the defined host.
 
       <p><INPUT TYPE="submit" VALUE="Submit Request">
       <p><INPUT TYPE="reset" VALUE="Reset">
     </form>
+   <script>
+   GetNameSpaces.hostip.value = opener.top.hostip;
+   GetNameSpaces.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
   </body>
 </html>

@@ -9,9 +9,29 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
-      <INPUT TYPE="hidden" NAME="Operation" VALUE="GetClass">
+    <form name="CreateClass" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateClass">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
 
+      <p>The <TT>CreateClass</TT> method creates a single CIM Class for the target Namespace
+      where the ClassName input parameter defines the name of the class to be created.
+      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
+      Operations</a> for more information<p><b>ClassName</b> <INPUT TYPE="text" NAME="NewClass" SIZE=30>
+      Defines the name of the Class to be created. See <a href="EnumerateClassNames.html">Enumerate
+      Class Names</a> for a list of classes that already exist
+      <p><b>SuperClass</b> <INPUT TYPE="text" NAME="SuperClass" SIZE=30> Name of the class that the new class inherits from
+      <p><b>PropertyName1 </b> <INPUT TYPE="text" NAME="PropertyName1" SIZE=30 >
+      &nbsp;&nbsp;&nbsp;<b>PropertyValue1 </b> <INPUT TYPE="text" NAME="PropertyValue1" SIZE=30 >&nbsp; String
+      <p><b>PropertyName2 </b> <INPUT TYPE="text" NAME="PropertyName2" SIZE=30 >
+      &nbsp;&nbsp;&nbsp;<b>PropertyValue2 </b> <INPUT TYPE="text" NAME="PropertyValue2" SIZE=30 >&nbsp; String
+     <p><b>PropertyName3 </b> <INPUT TYPE="text" NAME="PropertyName3" SIZE=30 >
+      &nbsp;&nbsp;&nbsp;<b>PropertyValue3 </b> <INPUT TYPE="text" NAME="PropertyValue3" SIZE=30 >&nbsp; Integer
+      <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset Form">
+   
+    <p><p>
     The <TT>createClass</TT> method creates a single CIM Class in
     the target Namespace. The Class MUST NOT already exist. The NewClass input
     parameter defines the new Class.  The proposed definition MUST be a correct
@@ -87,7 +107,11 @@
 
     </PRE>
       	</form>
-
+   <script>
+   CreateClass.hostip.value = opener.top.hostip;
+   CreateClass.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
 	    </body>
 </html>
 

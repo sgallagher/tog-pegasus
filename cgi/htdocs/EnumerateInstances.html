@@ -9,8 +9,10 @@
        </tr>
      </table>
      <hr>
-     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+     <form name="EnumerateInstances" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
        <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstances">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888">
        <p>
 
      <a name="TOP"></a>
@@ -38,7 +40,11 @@
 	       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	       <INPUT TYPE="reset" VALUE="Reset">
 	     </form>
-
+   <script>
+   EnumerateInstances.hostip.value = opener.top.hostip;
+   EnumerateInstances.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
 	     <hr>
     <h2>RETURN</h2>
 

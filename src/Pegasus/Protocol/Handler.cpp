@@ -240,7 +240,11 @@ void Handler::logMessage(LogFileType logFileType, String& subsystem, Uint32
 }
 ************/
 
-
+/** Test for HTTP terminator characters.  The normal sequence is
+    /r/n/r/n as a sequence.
+    Note we extended this to test for two LF (/n/n) since a number of
+    browsers and other client tools use this.
+*/
 static char* _FindTerminator(const char* data, Uint32 size)
 {
     const char* p = data;
@@ -253,6 +257,16 @@ static char* _FindTerminator(const char* data, Uint32 size)
 	    Uint32 n = end - p;
 
 	    if (n >= 4 && p[1] == '\n' && p[2] == '\r' && p[3] == '\n')
+		return (char*)p;
+	}
+
+	// Test for two lf in series.  This is not what is specified in
+	// the standard but we found several clients use this termination
+	if (*p == '\n')
+	{
+	    Uint32 n = end - p;
+
+	    if (n >= 2 && p[1] == '\n')
 		return (char*)p;
 	}
 

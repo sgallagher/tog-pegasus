@@ -9,8 +9,10 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="EnumerateClassNames" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient" >
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateClassNames">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       <p>
     The <TT>enumerateClassNames</TT> operation is used to enumerate the
     names of subclasses of a CIM Class in the target Namespace.
@@ -26,9 +28,14 @@
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
+   <script>
+   EnumerateClassNames.hostip.value = opener.top.hostip;
+   EnumerateClassNames.portnum.value = opener.top.portnum;
+   window.focus();
+   </script> 
     <hr>
 
-    <h2>Request Return&nbsp;Results</h2>
+    <h2>Request Return&nbsp;</h2>
 
     <p> If successful, the method returns zero or more names of Classes that
     meet the requested criteria as a CIM Array.

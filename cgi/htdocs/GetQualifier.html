@@ -2,15 +2,17 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="403" align="bottom"><h1>GetQualifier CIM Operation</h1><td width="2">
-	<td width="345" align="right">
+	<td width="50%" align="bottom"><h1>GetQualifier CIM Operation</h1><td>
+	<td width="50%" align="right">
 	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
         </td>
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="GetQualifier" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetQualifier">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       <p>
     The <TT>getQualifier</TT> operation retrieves a single Qualifier
     declaration from the target Namespace.
@@ -23,6 +25,11 @@
       <p><INPUT TYPE="submit" VALUE="GetQualifier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
+   <script>
+   GetQualifier.hostip.value = opener.top.hostip;
+   GetQualifier.portnum.value = opener.top.portnum;
+   window.focus();
+   </script>
     <hr>
     <h2>Request Return</h2>
 

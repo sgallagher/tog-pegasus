@@ -41,8 +41,8 @@
 
 //debugging
 
-//#define DDD(X) X
-#define DDD(X) //X
+#define DDD(X) X
+//#define DDD(X) //X
 
 #include <iostream>
 
@@ -88,6 +88,7 @@ public:
     virtual Boolean handleOpen(Channel* channel)
     {
 	_channel = channel;
+	DDD(cout << "Handle Open" << endl;)
 	return Handler::handleOpen(channel);
     }
 
@@ -239,7 +240,7 @@ void ServerHandler::outputN (Array<Sint8>& message)
 int ServerHandler::handleMessage()
 {
     Handler::handleMessage();
-
+    DDD(cout << "HandleMessage " << endl;)
     const char* m = _message.getData();
 
     if (strncmp(m, _GET, _GET_LEN) == 0 && isspace(m[_GET_LEN]))

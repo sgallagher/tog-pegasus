@@ -2,29 +2,22 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="412" align="bottom"><h1>Get Property CIM Operation</h1><td width="2">
-	<td width="340" align="right">
-      <p align="right">
-	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif" align="right">
-      </p>
+	<td width="50%" align="bottom"><h1>GetClassProperty</h1><td>
+	<td width="50%" align="right">
+	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
         </td>
       </tr>
     </table>
-    <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <hr></hr>
+    <form name="GetProperty" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetProperty">
-      <p>The <tt>getProperty</tt>  CIM operation retrieves a single property value from a CIM Instance.
-      <p><a href="#NameSpace"><b>NameSpace</b></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      Target Namespace for the Operation
-      <p><b><a href="#InstanceName">InstanceName&nbsp;</a></b>&nbsp;&nbsp;&nbsp;&nbsp;
-      <INPUT TYPE="text" NAME="InstanceName" SIZE=30>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      Name of the Instance from which Property is requested
-      <p><b><a href="#PropertyName">PropertyName</a></b>&nbsp;&nbsp;&nbsp;&nbsp;
-      <INPUT TYPE="text" NAME="PropertyName" SIZE=30>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      Name of the CIM Property for which value is to be returned.
-      <p><INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <INPUT TYPE="reset" VALUE="Reset">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
+      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p>ClassName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
+      <p>PropertyName <INPUT TYPE="text" NAME="PropertyName" SIZE=30>
+      <p><INPUT TYPE="submit" VALUE="GetProperty">
+      <p><INPUT TYPE="reset" VALUE="Reset">
     </form>
     
     <hr>
@@ -89,5 +82,10 @@
     S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Thursday, March 29, 2001 02:32:59 PM<!--webbot bot="Timestamp" i-CheckSum="6845" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
+   <script>
+   GetProperty.hostip.value = opener.top.hostip;
+   GetProperty.portnum.value = opener.top.portnum;
+   window.focus();
+   </script>
   </body>
 </html>

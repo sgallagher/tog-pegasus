@@ -9,13 +9,20 @@
       </tr>
     </table>
     <hr></hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="GetPropertyDeclaration" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetPropertyDeclaration">
+      <input type="hidden" name="hostip" value="localhost">
+      <input type="hidden" name="portnum" value="8888"> 
       <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
       <p>ClassName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
       <p>PropertyName <INPUT TYPE="text" NAME="PropertyName" SIZE=30>
       <p><INPUT TYPE="submit" VALUE="Submit Request">
       <p><INPUT TYPE="reset" VALUE="Reset">
     </form>
+   <script>
+   GetPropertyDeclaration.hostip.value = opener.top.hostip;
+   GetPropertyDeclaration.portnum.value = opener.top.portnum;
+   window.focus();
+   </script>
   </body>
 </html>

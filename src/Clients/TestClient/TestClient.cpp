@@ -35,7 +35,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-const String NAMESPACE = "root/cimv20";
+const String NAMESPACE = "root/std/cimv2";
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -161,6 +161,8 @@ static void TestGetClass(CIMClient& client)
 static void TestClassOperations(CIMClient& client)
 {
     // CreateClass:
+
+    // NOTE: We should add test for CIM_ManagedElement first.
 
     CIMClass c1("SubClass", "CIM_ManagedElement");
     c1.addQualifier(CIMQualifier("abstract", Boolean(true)));
@@ -333,7 +335,7 @@ int main(int argc, char** argv)
 	TestNameSpaceOperations(client);
 	
 	testStatus("Test Qualifier Operations");
-	TestQualifierOperations(client);
+	//TestQualifierOperations(client);
 	testStatus("Test Class Operations");
 	TestClassOperations(client);
 	testStatus("Test Instance Operations");

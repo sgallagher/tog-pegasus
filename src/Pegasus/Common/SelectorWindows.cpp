@@ -35,6 +35,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 using namespace std;
 
+#define DDD(X) X
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:
@@ -168,7 +170,7 @@ Boolean Selector::select(Uint32 milliseconds)
     {
 	Sint32 desc = _entries[i].desc;
 	Uint32 reasons = 0;
-
+	DDD(cout << "Selector For Loop " << i << endl;)
 	if (FD_ISSET(desc, &_rep->active_rd_fd_set))
 	    reasons |= READ;
 
@@ -181,7 +183,7 @@ Boolean Selector::select(Uint32 milliseconds)
 	if (reasons)
 	{
 	    SelectorHandler* handler = _entries[i].handler;
-
+	    DDD(cout << "Reasons = " << reasons << endl;)
 	    if (!handler->handle(desc, reasons))
 		removeHandler(handler);
 

@@ -40,6 +40,8 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Destroyer.h>
 
+#include <Pegasus/Config/ConfigManager.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 // ATTN: this section is a temporary solution to populate the list of enabled

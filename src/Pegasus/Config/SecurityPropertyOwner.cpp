@@ -332,6 +332,14 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     {
 	String fileName(value);
 
+        //
+        // Check if the file path is empty
+        //
+        if (fileName == String::EMPTY || fileName== "")
+        {
+            return false;
+        }
+
 	//
         // Check if the file path is a directory
 	//

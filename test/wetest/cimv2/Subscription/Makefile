@@ -14,6 +14,7 @@ XMLSCRIPTS = \
     EnumerateFilters01 \
     EnumerateHandlers01 \
     EnumerateSubscriptions01 \
+    GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
     ModifyFilter01 \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \
@@ -49,7 +50,6 @@ XMLSCRIPTS = \
 #   EnumerateFilters01 EnumerateFilters02 \
 #   EnumerateHandlers01 EnumerateHandlers02 \
 #   EnumerateSubscriptions01 EnumerateSubscriptions02 \
-#   GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
 #   GetHandler01 GetHandler02 GetHandler03 \
 #   GetSubscription01 GetSubscription02 GetSubscription03 \
 #   GetSubscription04 GetSubscription05 GetSubscription06 \

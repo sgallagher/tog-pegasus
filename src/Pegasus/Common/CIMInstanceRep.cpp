@@ -23,6 +23,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company 
+//              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -106,10 +108,9 @@ void CIMInstanceRep::resolve(
     //----------------------------------------------------------------------
     // First iterate the properties of this instance and verify that
     // each one is defined in the class and then resolve each one.
-    // Also set the class origin.
     //----------------------------------------------------------------------
 
-    String classOrigin = cimClass.getClassName();
+    String className = cimClass.getClassName();
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
@@ -123,10 +124,10 @@ void CIMInstanceRep::resolve(
             //  Allow addition of Creator property to Indication Subscription,
             //  Filter and Handler instances
             //
-            if (!(((classOrigin == PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-                (classOrigin == PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-                (classOrigin == PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-                (classOrigin == PEGASUS_CLASSNAME_INDFILTER)) &&
+            if (!(((className == PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
+                (className == PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+                (className == PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+                (className == PEGASUS_CLASSNAME_INDFILTER)) &&
                 (property.getName () == PEGASUS_PROPERTYNAME_INDSUB_CREATOR)))
             {
 	        throw NoSuchProperty(property.getName());
@@ -137,7 +138,6 @@ void CIMInstanceRep::resolve(
 	    // resolve the property
 	    property.resolve (context, nameSpace, true, 
                 cimClass.getProperty (pos), propagateQualifiers);
-            property.setClassOrigin(classOrigin);
         }
     }
 

@@ -273,6 +273,10 @@ TAG: Version_1_09.
     removed the CertificateInfo files, so that the client SDK can only
     need to include SSLContext.h for the client apps to use.
 
+46. (Sushma Fernandes - HP) 17 May 2002 - Fixed the CIMInstanceRep::resolve
+    method to return the correct class origin. Fixed SecurityPropertyOwner to 
+    disallow passwordFilePath="". 
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

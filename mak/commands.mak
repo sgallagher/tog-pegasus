@@ -265,3 +265,34 @@ testCommands: CMDSFORCE
 	cimconfig -g traceLevel -c
 	cimconfig -g traceComponents -c
 	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop
+
+# The runTestSuite option starts the CIM Server
+# with a designated set of configuration options (i.e.,
+# CIMSERVER_CONFIG_OPTIONS) and then runs a specified
+# set of tests (i.e., TESTSUITE_CMDS). After the tests
+# have been executed, the CIM Server is stopped.
+#
+# To call runTestSuite, you simply (1) define the
+# configuration options, (2) define the set of
+# tests and (3) call commands.mak with the appropriate
+# parameters.  Note: when specifying the set of tests
+# @@ is used as a replacement for blank. E.g., the
+# following sequence can be used to enable the
+# HTTP connection, disable the HTTPS connection and
+# run an osinfo, TestClient, OSTestClient,
+# and InvokeMethod2 test.
+#
+#runTestSuiteTest_CONFIG_OPTIONS = enableHttpConnection=true enableHttpsConnection=false
+#runTestSuiteTest_TEST_CMDS = \
+#   osinfo@@-hlocalhost@@-p5988@@-uguest@@-wguest\
+#   TestClient@@-local \
+#   OSTestClient \
+#   $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/Client/tests/InvokeMethod2@@poststarttests
+#
+#runTestSuiteTest: CMDSFORCE
+#       $(MAKE) $(MAKEOPTIONS) runTestSuite CIMSERVER_CONFIG_OPTIONS="$(runTestSuiteTest_CONFIG_OPTIONS)" TESTSUITE_CMDS="$(runTestSuiteTest_TEST_CMDS)"
+
+runTestSuite: CMDSFORCE
+	$(CIMSERVER_START_SERVICE)
+	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i));)
+	$(CIMSERVER_STOP_SERVICE)

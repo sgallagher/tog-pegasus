@@ -1411,7 +1411,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 	  }
 	case CIMTYPE_REAL32:
 	  {
-	    Real64 _tmp;
+	    Real32 _tmp;
 	    cv.get(_tmp);
 	    _theValue = CIMValue((Real64)_tmp);
 	    _valueType = CQLValue::Real_type;

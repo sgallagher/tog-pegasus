@@ -99,5 +99,19 @@ void main(void)
         return;
     }
 
+    try
+    {
+        OperationContext scopeContext;
+
+        scopeContext = context;
+
+        scopeContext.remove(CONTEXT_IDENTITY);
+        scopeContext.remove(CONTEXT_LOCALE);
+        scopeContext.remove(CONTEXT_PROVIDERID);
+    }
+    catch(...)
+    {
+    }
+
     cout << "+++++ passed all tests." << endl;
 }

@@ -38,8 +38,8 @@ OperationContext::OperationContext(void)
 }
 
 OperationContext::OperationContext(const OperationContext & context)
-    : _containers(context._containers)
 {
+    *this = context;
 }
 
 OperationContext::~OperationContext(void)

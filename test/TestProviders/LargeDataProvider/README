@@ -1,0 +1,27 @@
+Large Data Sample Provider
+--------------------------
+The test programs present in this directory implement an instance provider 
+that exercise the messaging system by returning large amounts of data.
+
+The Base Class of the provider is LargeDataSampleClass, the class for which
+all the CIM operations are performed is SampleClass.
+
+Working
+-------
+There is a const macro NO_OF_INSTANCES which decides the number of instances 
+to be created. This can be modified for testing huge amount of data in any of 
+the 2 places. Either in the source file LargeDataProvider.cpp Or in the 
+Makefile by defining the NO_OF_INSTANCES locally as:
+LOCAL_DEFINES=-DNO_OF_INSTANCES=<number>
+If it is defined inside the Makefile, the value present in the cpp source is 
+overwritten.
+The creation of Instances is done when the enumerateInstances method of the
+provider is called.If a client requests for enumerateInstanceNames it will fail
+if enumerateInstances wouldn't have been executed.
+
+Scripts
+-------
+rebuild: After modifying the source for NO_OF_INSTANCES you need to execute 
+	this script in order to rebuild and register the provider. It also 
+	restarts the cimserver so that the new repository is also loaded when
+	we are performing operations on the Provider.

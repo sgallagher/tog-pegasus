@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Server/IndicationService/tests/CreateSubscriptions
+DIR = Pegasus/IndicationService/tests/CreateSubscriptions
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

@@ -31,6 +31,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Vijay Eli, vijayeli@in.ibm.com, for #3101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,6 +75,11 @@ int main(int argc, char** argv)
 
 	// class1.print();
 	// class2.print();
+
+        // Create some methods:
+        CIMMethod meth1(CIMName ("getHostName"), CIMTYPE_STRING);
+        CIMConstMethod meth2(CIMName ("test"), CIMTYPE_STRING);
+        Resolver::resolveMethod ( meth1, context, NAMESPACE, meth2);
 
 	delete context;
     }

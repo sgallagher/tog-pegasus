@@ -480,6 +480,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         // ATTN: periodically the request is null.
         cout << "ProviderManagerService::handleCimOperation() called with an op node and no message" << endl;
 
+        MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
+
+        PEGASUS_ASSERT(queue != 0);
+
+        cout << "Source queue = " << queue->getQueueName() << "(" << op->_source_queue << ")" << endl;
+
         // no request in op node
         return(PEGASUS_THREAD_RETURN(1));
     }

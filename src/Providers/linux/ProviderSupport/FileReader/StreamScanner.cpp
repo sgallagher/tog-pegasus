@@ -135,7 +135,7 @@ int StreamScanner::GetNextMatchingLine(String &line, int *index,
 	return -1;
       }
 
-      current_line += readbuffer;
+      current_line.append(readbuffer);
     } while (readbuffer[READBUFFER_LEN - 2] != 0 &&
 	     readbuffer[READBUFFER_LEN - 2] != '\n');
 
@@ -185,7 +185,7 @@ bool StreamScanner::TextMatchesRegex(char const *text, vector<regex_t> &rlist,
 	hold_a_match = "";
 	mptr = text + matchlist[i].rm_so;
 	for (j = 0; j < mlen && *mptr != 0; j++, mptr++)
-	  hold_a_match += *mptr;
+	  hold_a_match.append(*mptr);
 
 	matches.push_back(hold_a_match);
       }

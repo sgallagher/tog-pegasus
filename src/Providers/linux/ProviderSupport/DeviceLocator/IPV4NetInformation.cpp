@@ -179,16 +179,16 @@ String IPV4RouteInformation::print(void) const
     if (!DottedQuadAllZeroes(&mask))
       return "Unrecognized route.  default destination with non-default mask.";
 
-    retval += "Default route:  out on interface \"" + GetInterface() + "\"";
-    retval += " through the gateway machine at " + RenderDottedQuad(&gateway);
+    retval.append("Default route:  out on interface \"" + GetInterface() + "\"");
+    retval.append(" through the gateway machine at " + RenderDottedQuad(&gateway));
     return retval;
   }
 
-  retval += "Route to addresses " + RenderDottedQuad(&destination) + "/";
-  retval += RenderDottedQuad(&mask) + ":  out on interface \"";
-  retval += GetInterface() + "\"";
+  retval.append("Route to addresses " + RenderDottedQuad(&destination) + "/");
+  retval.append(RenderDottedQuad(&mask) + ":  out on interface \"");
+  retval.append(GetInterface() + "\"");
   if (!DottedQuadAllZeroes(&gateway))
-    retval += " through the gateway machine at " + RenderDottedQuad(&gateway);
+    retval.append(" through the gateway machine at " + RenderDottedQuad(&gateway));
 
   return retval;
 }
@@ -339,28 +339,28 @@ String IPV4IFInformation::print(void) const
 
   retval = "Interface \"" + GetInterface() + "\":  " + GetEncapsulation();
   if (GetHWAddr() != "")
-    retval += " on hardware address " + GetHWAddr();
-  retval += ".";
+    retval.append(" on hardware address " + GetHWAddr());
+  retval.append(".");
   if (address.is_valid()) {
-    retval += "  Configured on address " + GetAddress();
+    retval.append("  Configured on address " + GetAddress());
     if (bcast.is_valid()) {
-      retval += " with broadcast address " + GetBcast();
+      retval.append(" with broadcast address " + GetBcast());
     } else {
-      retval += " with no broadcast address ";
+      retval.append(" with no broadcast address ");
     }
-    retval += " and netmask " + GetNetmask() + ".";
+    retval.append(" and netmask " + GetNetmask() + ".");
   }
 
-  retval += "  MTU is ";
+  retval.append("  MTU is ");
   try {
     hold_int = GetMTU();
     sprintf(render_uint32, "%u.", hold_int);
-    holdvar += render_uint32;
+    holdvar.append(render_uint32);
   } 
   catch (AccessedInvalidData &e) {
     holdvar = "unset.";
   }
-  retval += holdvar;
+  retval.append(holdvar);
 
   holdvar = "";
   try {
@@ -370,7 +370,7 @@ String IPV4IFInformation::print(void) const
   }
   catch (AccessedInvalidData &e) {
   }
-  retval += holdvar;
+  retval.append(holdvar);
 
   holdvar = "";
   try {
@@ -380,7 +380,7 @@ String IPV4IFInformation::print(void) const
   }
   catch (AccessedInvalidData &e) {
   }
-  retval += holdvar;
+  retval.append(holdvar);
 
   return retval;
 }

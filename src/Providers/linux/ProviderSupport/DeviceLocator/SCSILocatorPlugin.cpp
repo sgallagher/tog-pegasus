@@ -185,11 +185,11 @@ DeviceInformation *SCSILocatorPlugin::getNextDevice(void){
       if (curDevice == NULL)
 	throw BadFormat();
 	
-      descriptionString+=matches[1];
-      descriptionString+=" ";
-      descriptionString+=matches[2];
-      descriptionString+=" ";
-      descriptionString+=matches[3];
+      descriptionString.append(matches[1]);
+      descriptionString.append(" ");
+      descriptionString.append(matches[2]);
+      descriptionString.append(" ");
+      descriptionString.append(matches[3]);
       curDevice->setDescription(descriptionString);
       break;
     case MATCH_SCSI_TYPE:

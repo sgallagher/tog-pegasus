@@ -155,8 +155,7 @@ PackageInformation * DebianPackageManagerData::GetPackage(const String &inName, 
 	DebianPackageInformation * curPackage;
 
 	String junk;
-	junk = "dpmd-> look for package " + inName;
-	junk += ", version " + inVersion;
+	junk = "dpmd-> look for package " + inName + ", version " + inVersion;
 	DEBUG(junk);
 	curPackage=(DebianPackageInformation *)GetFirstPackage();
 	while(curPackage&&curPackage->isValid()){
@@ -168,7 +167,7 @@ PackageInformation * DebianPackageManagerData::GetPackage(const String &inName, 
 			return curPackage;
 		}
 		junk = "dpmd-> not package " + curPackage->GetName();
-		junk += ", version " + curPackage->GetVersion();
+		junk.append(", version " + curPackage->GetVersion());
 		DEBUG(junk);
 		delete curPackage;
 		curPackage=(DebianPackageInformation *)GetNextPackage();

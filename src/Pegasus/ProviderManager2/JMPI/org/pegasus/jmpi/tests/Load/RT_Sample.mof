@@ -1,7 +1,13 @@
 [Indication]
-class JMPI_RT_SampleIndication : CIM_Indication
+class JMPI_RT_SampleIndication1 : CIM_Indication
 {
     string MethodName;
     [Static] uint32 SendTestIndication();
 };
 
+[Indication]
+class JMPI_RT_SampleIndication2 : CIM_Indication
+{
+    string MethodName;
+    [Static] uint32 SendTestIndication();
+};

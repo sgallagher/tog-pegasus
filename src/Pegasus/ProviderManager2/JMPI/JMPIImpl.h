@@ -45,6 +45,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/HashTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -82,6 +83,7 @@ class JMPIjvm {
    static int trace;
    static JavaVM *jvm;
    static JvmVector jv;
+
    JMPIjvm();
   ~JMPIjvm();
 
@@ -94,9 +96,16 @@ class JMPIjvm {
    static jobjectArray NewPlatformStringArray(JNIEnv *env,char **strv, int strc);
    static int cacheIDs(JNIEnv *env);
    static int destroyJVM();
+
  private:
    static jclass getGlobalClassRef(JNIEnv *env, const char* name);
    static int initJVM();
+
+   typedef HashTable<String,jclass,EqualFunc<String>,HashFunc<String> >  ClassTable;
+   typedef HashTable<String,jobject,EqualFunc<String>,HashFunc<String> > ObjectTable;
+
+   static ClassTable  _classTable;
+   static ObjectTable _objectTable;
 };
 
 class _nameSpace {
@@ -230,4 +239,3 @@ typedef void (*JvmDetach)();
 PEGASUS_NAMESPACE_END
 
 #endif
-

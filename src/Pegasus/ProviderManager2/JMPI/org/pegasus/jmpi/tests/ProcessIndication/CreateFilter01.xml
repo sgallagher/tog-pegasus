@@ -10,19 +10,19 @@
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="CIM_IndicationFilter">
             <PROPERTY NAME="SystemCreationClassName" TYPE="string">
-              <VALUE></VALUE>
+              <VALUE>CIM_ComputerSystem</VALUE>
             </PROPERTY>
             <PROPERTY NAME="SystemName" TYPE="string">
-              <VALUE></VALUE>
+              <VALUE>hamzy3.austin.ibm.com</VALUE>
             </PROPERTY>
             <PROPERTY NAME="CreationClassName" TYPE="string"> 
-              <VALUE></VALUE>
+              <VALUE>CIM_IndicationFilter</VALUE>
             </PROPERTY>
             <PROPERTY NAME="Name" TYPE="string"> 
-              <VALUE>Pegasus_RT_TestFilter01</VALUE>
+              <VALUE>JMPI_RT_TestFilter01</VALUE>
             </PROPERTY>
             <PROPERTY NAME="Query" TYPE="string"> 
-              <VALUE>SELECT * FROM JMPI_RT_SampleIndication</VALUE>
+              <VALUE>SELECT * FROM JMPI_RT_SampleIndication1</VALUE>
             </PROPERTY>
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 
               <VALUE>WQL</VALUE>

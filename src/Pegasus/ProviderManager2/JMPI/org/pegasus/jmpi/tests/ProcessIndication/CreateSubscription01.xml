@@ -15,19 +15,22 @@
                 <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
+                      CIM_ComputerSystem
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="SystemName">
                     <KEYVALUE VALUETYPE="string">
+                      hamzy3.austin.ibm.com
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
+                      CIM_IndicationFilter
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">
                     <KEYVALUE VALUETYPE="string">
-                    Pegasus_RT_TestFilter01
+                      JMPI_RT_TestFilter01
                     </KEYVALUE>
                   </KEYBINDING>
                 </INSTANCENAME>
@@ -39,19 +42,22 @@
                 <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
+                      CIM_ComputerSystem
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="SystemName">
                     <KEYVALUE VALUETYPE="string">
+                      hamzy3.austin.ibm.com
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
+                      CIM_IndicationHandlerCIMXML
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">
                     <KEYVALUE VALUETYPE="string">
-                    Pegasus_RT_TestHandler01
+                      JMPI_RT_TestHandler01
                     </KEYVALUE>
                   </KEYBINDING>
                 </INSTANCENAME>

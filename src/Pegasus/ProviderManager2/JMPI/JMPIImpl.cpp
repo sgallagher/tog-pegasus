@@ -70,6 +70,9 @@ int JMPIjvm::trace=0;
 
 #define DDD(x) if (JMPIjvm::trace) x;
 
+JMPIjvm::ClassTable  JMPIjvm::_classTable;
+JMPIjvm::ObjectTable JMPIjvm::_objectTable;
+
 typedef struct {
   int clsIndex;
   const char * methodName;
@@ -226,7 +229,7 @@ int JMPIjvm::cacheIDs(JNIEnv *env) {
       {
          DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Error could not get method id for "<<classNames[instanceMethodNames[j].clsIndex]<<": "<<instanceMethodNames[j].methodName<<PEGASUS_STD(endl));
          return 0;
-   }
+      }
    }
 
    for (unsigned k=0; k<(sizeof(staticMethodNames)/sizeof(METHOD_STRUCT)); k++) {
@@ -387,10 +390,13 @@ void JMPIjvm::detachThread() {
 jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
      const char *cn, jclass *cls)
 {
-   static jobject gProv=NULL;
-   static jclass scls=NULL;
+   jobject gProv=NULL;
+   jclass scls=NULL;
 
    DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": jar = "<<jar<<", cln = "<<cln<<", cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+
+   _objectTable.lookup(cln,gProv);
+   _classTable.lookup(cln,scls);
    DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
    if (gProv) {
@@ -421,7 +427,13 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
 
       return NULL;
    }
-	*cls=scls;
+   *cls=scls;
+
+   if (scls)
+   {
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      _classTable.insert(cln,scls);
+   }
 
    jmethodID id=env->GetMethodID(*cls,"<init>","()V");
    jobject lProv=env->NewObject(*cls,id);
@@ -430,15 +442,26 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
       DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl));
       return NULL;
    }
+
+   if (gProv)
+   {
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      _objectTable.insert(cln,gProv);
+   }
+
    return gProv;
 }
 
 jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 {
-   static jobject gProv=NULL;
-   static jclass scls=NULL;
+   String cln = cn;
+   jobject gProv=NULL;
+   jclass scls=NULL;
 
    DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+
+   _objectTable.lookup(cln,gProv);
+   _classTable.lookup(cln,scls);
    DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
    if (gProv) {
@@ -453,7 +476,13 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
       return NULL;
    }
-	*cls=scls;
+   *cls=scls;
+
+   if (scls)
+   {
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      _classTable.insert(cln,scls);
+   }
 
    jmethodID id=env->GetMethodID(*cls,"<init>","()V");
    jobject lProv=env->NewObject(*cls,id);
@@ -462,6 +491,13 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
       DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl));
       return NULL;
    }
+
+   if (gProv)
+   {
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      _objectTable.insert(cln,gProv);
+   }
+
    return gProv;
 }
 
@@ -496,7 +532,7 @@ void JMPIjvm::checkException(JNIEnv *env)
             DDD(PEGASUS_STD(cerr)<<"--- throwing Pegasus exception: "<<code<<" "<<id<<" ("<<msg<<")"<<PEGASUS_STD(endl));
 
             throw CIMException((CIMStatusCode)code,id+" ("+msg+")");
-	 }
+         }
       }
       else {
          env->ExceptionDescribe();
@@ -917,7 +953,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1invokeMethod
 
       for (int i=0,m=out.size(); i<m; i++) {
          const CIMParamValue & parm=out[i];
-	 const CIMValue v=parm.getValue();
+         const CIMValue v=parm.getValue();
          CIMProperty *p=new CIMProperty(parm.getParameterName(),v,v.getArraySize());
          jobject prop=jEnv->NewObject(classRefs[15],instanceMethodIDs[14],(jint)p);
          jEnv->CallVoidMethod(jOut,instanceMethodIDs[15],prop);
@@ -954,8 +990,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1invokeMethod24
 
       for (int i=0,m=out.size(),o=jEnv->GetArrayLength(jOut); i<m && i<o; i++) {
          const CIMParamValue & parm=out[i];
-	 jEnv->SetObjectArrayElement(jOut,i,
-	    jEnv->NewObject(classRefs[29],instanceMethodIDs[40],(jint)&parm));
+         jEnv->SetObjectArrayElement(jOut,i,
+            jEnv->NewObject(classRefs[29],instanceMethodIDs[40],(jint)&parm));
       }
       return (jint)val;
    }
@@ -1018,8 +1054,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIM__1associators
 
    try {
       Array<CIMObject> enm=ch->associators(ctx,
-         cop->getNameSpace(),*cop,assocClass,resultClass,role,resultRole,
-	 (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
+                                           cop->getNameSpace(),*cop,assocClass,resultClass,role,resultRole,
+                                           (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
       Array<CIMInstance> *enmInst=new Array<CIMInstance>();
       for (int i=0,m=enm.size(); i<m; i++) {
          enmInst->append(CIMInstance(enm[i]));
@@ -1071,8 +1107,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1references
 
    try {
       Array<CIMObject> enm=ch->references(ctx,
-         cop->getNameSpace(),*cop,assocClass,role,
-	 (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
+                                          cop->getNameSpace(),*cop,assocClass,role,
+                                          (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
       Array<CIMInstance> *enmInst=new Array<CIMInstance>();
       for (int i=0,m=enm.size(); i<m; i++) {
          enmInst->append(CIMInstance(enm[i]));
@@ -1133,8 +1169,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1newInstance
       for (int i=0,m=cls->getQualifierCount(); i<m; i++) {
          try {
             ci->addQualifier(cls->getQualifier(i).clone());
-	 }
-	 catch (Exception e) {}
+         }
+         catch (Exception e) {}
       }
       for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
          CIMProperty cp= cls->getProperty(i);
@@ -1142,9 +1178,9 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1newInstance
          for (int j=0, s=cp.getQualifierCount(); j<s; j++) {
             try {
                ci->getProperty(i).addQualifier(cp.getQualifier(j));
-	    }
-	    catch (Exception e) {}
-	 }
+            }
+            catch (Exception e) {}
+         }
       }
       return (jint)ci;
    }
@@ -2697,7 +2733,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
          throwCIMException(jEnv,"+++ Object not yet supported");
          break;
       default:
-      	throwCIMException(jEnv,"+++ unsupported type: ");
+         throwCIMException(jEnv,"+++ unsupported type: ");
       }
    }
 
@@ -3339,7 +3375,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1invokeMethod
 
       for (int i=0,m=out.size(); i<m; i++) {
          const CIMParamValue & parm=out[i];
-	 const CIMValue v=parm.getValue();
+         const CIMValue v=parm.getValue();
          CIMProperty *p=new CIMProperty(parm.getParameterName(),v,v.getArraySize());
          jobject prop=jEnv->NewObject(classRefs[15],instanceMethodIDs[14],(jint)p);
          jEnv->CallVoidMethod(jOut,instanceMethodIDs[15],prop);
@@ -3376,8 +3412,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1invokeMethod24
 
       for (int i=0,m=out.size(),o=jEnv->GetArrayLength(jOut); i<m && i<o; i++) {
          const CIMParamValue & parm=out[i];
-	 jEnv->SetObjectArrayElement(jOut,i,
-	    jEnv->NewObject(classRefs[29],instanceMethodIDs[40],(jint)&parm));
+         jEnv->SetObjectArrayElement(jOut,i,
+            jEnv->NewObject(classRefs[29],instanceMethodIDs[40],(jint)&parm));
       }
       return (jint)val;
    }
@@ -3476,7 +3512,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1associators
       checkNs(cop,jNs);
       Array<CIMObject> enm=cCc->associators(
          cop->getNameSpace(),*cop,assocClass,resultClass,role,resultRole,
-	 (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
+         (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
       Array<CIMInstance> *enmInst=new Array<CIMInstance>();
       for (int i=0,m=enm.size(); i<m; i++) {
          enmInst->append(CIMInstance(enm[i]));
@@ -3529,7 +3565,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1references
       checkNs(cop,jNs);
       Array<CIMObject> enm=cCc->references(
          cop->getNameSpace(),*cop,assocClass,role,
-	 (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
+         (Boolean)includeQualifiers,(Boolean)includeClassOrigin,pl);
       Array<CIMInstance> *enmInst=new Array<CIMInstance>();
       for (int i=0,m=enm.size(); i<m; i++) {
          enmInst->append(CIMInstance(enm[i]));
@@ -3592,11 +3628,11 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMClient__1enumerateNameSpaces
       for (int i=0,s=enm.size(); i<s; i++) {
          CIMObjectPath &cop=enm[i];
          const Array<CIMKeyBinding>& kb=cop.getKeyBindings();
-	 const String &n=kb[0].getValue();
+         const String &n=kb[0].getValue();
          if (!deep && n.find('/')!=PEG_NOT_FOUND)
             continue;
-	 String x=ns+"/"+n;
-	 jstring str=jEnv->NewStringUTF(x.getCString());
+         String x=ns+"/"+n;
+         jstring str=jEnv->NewStringUTF(x.getCString());
          jEnv->CallVoidMethod(jVec,instanceMethodIDs[15],str);
       }
    }

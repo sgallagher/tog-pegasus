@@ -2,6 +2,7 @@ JAVAROOT = ../../../../..
 ROOT = ../../../../../../../../..
 
 include $(ROOT)/mak/config.mak
+#include $(ROOT)/mak/program.mak
 
 .SUFFIXES: .java .class .jar
 
@@ -10,17 +11,30 @@ include $(ROOT)/mak/config.mak
 
 PACKAGEDIR = org/pegasus/jmpi/tests/ProcessIndication
 
-CLASSES = \
-   JMPI_RT_SampleProvider.class
+CLASSES1 = \
+   JMPI_RT_SampleProvider1.class
+JAR1 = \
+   $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider1.jar
 
-PFXCLASSES=$(addprefix -C ../../../../.. org/pegasus/jmpi/tests/ProcessIndication/,$(CLASSES))
+CLASSES2 = \
+   JMPI_RT_SampleProvider2.class
+JAR2 = \
+   $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider2.jar
 
-all: $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar $(CLASSES)
+PROGRAM = TestJMPIIndicationSubscription
+
+SOURCES = TestJMPIIndicationSubscription.cpp
+
+FILES_TO_CLEAN = $(CLASSES1) $(JAR1) \
+                 $(CLASSES2) $(JAR2)
+
+all: $(CLASSES1) $(JAR1) $(CLASSES2) $(JAR2)
+
+$(JAR1): $(CLASSES1)
+	jar -cf $@ $(addprefix -C ../../../../.. org/pegasus/jmpi/tests/ProcessIndication/,$^)
+
+$(JAR2): $(CLASSES2)
+	jar -cf $@ $(addprefix -C ../../../../.. org/pegasus/jmpi/tests/ProcessIndication/,$^)
 
 clean:
-	$(RM) *.class
-	$(RM) $(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar
-
-$(PEGASUS_HOME)/lib/JMPI_RT_SampleProvider.jar: $(CLASSES)
-	jar -cf $@ $(PFXCLASSES)
-
+	$(RM) $(FILES_TO_CLEAN)

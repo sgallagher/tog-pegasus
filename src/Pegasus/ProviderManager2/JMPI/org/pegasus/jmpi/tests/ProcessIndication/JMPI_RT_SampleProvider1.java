@@ -1,13 +1,9 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -43,7 +39,7 @@ import java.util.*;
 
 
 
-public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
+public class JMPI_RT_SampleProvider1 implements MethodProvider, EventProvider
 {
    CIMOMHandle ch;
    int nextUID = 0;
@@ -59,9 +55,9 @@ public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
 
       if (enabled==0) return;
 
-      System.err.println("+++ generateIndication()");
+      System.err.println("JMPI_RT_SampleProvider1::generateIndication(): enter");
 
-      cop=new CIMObjectPath("JMPI_RT_SampleIndication","test/static");
+      cop=new CIMObjectPath("JMPI_RT_SampleIndication1","test/static");
       cls=ch.getClass(cop,false);
       inst=cls.newInstance();
 
@@ -77,16 +73,12 @@ public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
       ar.addElement(new String("test"));
       inst.setProperty("CorrelatedIndications",new CIMValue(ar));
 
-//      CMAddContextEntry(ctx,"SnmpTrapOidContainer","1.3.6.1.4.1.900.2.3.9002.9600",CMPI_chars);
-
       ch.deliverEvent("test/static",inst);
 
-      System.err.println("+++ generateIndication() done");
+      System.err.println("JMPI_RT_SampleProvider1::generateIndication(): exit");
    }
 
-
-
-   public JMPI_RT_SampleProvider() {
+   public JMPI_RT_SampleProvider1() {
    }
 
    public void cleanup()
@@ -98,25 +90,21 @@ public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
      this.ch=ch;
    }
 
-
-
-
    public CIMValue invokeMethod(CIMObjectPath op,
                                String method,
                                Vector in,
                                Vector out)
                         throws CIMException {
 
-      System.err.println("+++ testProvInvokeMethod()");
+      System.err.println("JMPI_RT_SampleProvider1::invokeMethod(): enter, method = " + method);
+
       if (enabled==0)
-         System.err.println("+++ PROVIDER NOT ENABLED");
-      else generateIndication(method);
-      return new CIMValue("hello");
+         System.err.println("JMPI_RT_SampleProvider1::invokeMethod(): PROVIDER NOT ENABLED");
+      else
+         generateIndication(method);
+
+      return new CIMValue("hello1");
    }
-
-
-
-
 
    public void authorizeFilter(SelectExp filter,
                                 String eventType,
@@ -132,26 +120,25 @@ public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
        return false;
    }
 
-
    public void activateFilter(SelectExp filter,
                                String eventType,
                                CIMObjectPath classPath,
                                boolean firstActivation)
                         throws CIMException {
-      System.err.println("+++ testProvActivateFilter()");
-      enabled++;
-      System.err.println("--- enabled: "+enabled);
-   }
+      System.err.println("JMPI_RT_SampleProvider1::activateFilter(): enter");
 
+      enabled++;
+      System.err.println("JMPI_RT_SampleProvider1::activateFilter(): enabled = "+enabled);
+   }
 
    public void deActivateFilter(SelectExp filter,
                                  String eventType,
                                  CIMObjectPath classPath,
                                  boolean lastActivation)
                         throws CIMException {
-      System.err.println("+++ testProvDeActivateFilter()");
-      enabled=0;
-      System.err.println("--- enabled: "+enabled);
-   }
+      System.err.println("JMPI_RT_SampleProvider1::deActivateFilter(): enter");
 
+      enabled=0;
+      System.err.println("JMPI_RT_SampleProvider1::deActivateFilter(): enabled = "+enabled);
+   }
 }

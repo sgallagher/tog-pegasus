@@ -34,6 +34,7 @@
 #define Pegasus_Common_RepositoryBase_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
@@ -195,11 +196,17 @@ public:
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
         const CIMNamespaceName& nameSpace) = 0;
 
-    virtual void createNameSpace(const CIMNamespaceName& nameSpace) = 0;
+    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc> NameSpaceAttributes;
+
+    virtual void createNameSpace(const CIMNamespaceName& nameSpace,
+	 const NameSpaceAttributes &attributes=NameSpaceAttributes()) = 0;
 
     virtual Array<CIMNamespaceName> enumerateNameSpaces() const = 0;
 
     virtual void deleteNameSpace(const CIMNamespaceName& nameSpace) = 0;
+
+    virtual Boolean getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
+        NameSpaceAttributes &attributes)=0;
 
     virtual void getSubClassNames(
         const CIMNamespaceName& nameSpaceName,

@@ -53,7 +53,7 @@ int main(int argc, char** argv)
         Array<CIMInstance> ia;
         try
         {
-          ia = client.enumerateInstances(NAMESPACE,CIMName("CIM_WBEMSLPTemplate"));
+          ia = client.enumerateInstances(NAMESPACE,CIMName("PEG_WBEMSLPTemplate"));
         }
         catch (Exception& e)
         {

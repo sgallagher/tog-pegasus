@@ -102,9 +102,15 @@ class SLPProvider: public CIMInstanceProvider
 	    slp_service_agent slp_agent;
 	    CIMOMHandle _ch;
 	    int i;
+        String slpTemplateInstance;
+        String interopNamespace;
 
-            void populateData(void);
+        void populateData(void);
+
+        Array<CIMName> getNameSpaceInfo(const CIMNamespaceName& nameSpace, Array<String>& classInfo );
 			   
+
+        void populateTemplateField(CIMInstance& instance, const String& fieldName, const String& value);
    };
 
 PEGASUS_NAMESPACE_END

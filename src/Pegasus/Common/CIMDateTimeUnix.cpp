@@ -69,13 +69,23 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     struct 		timeval   tv;
     struct 		timezone  tz;
     struct tm* 		tmval;
-
+#if defined PEGASUS_OS_SOLARIS
+    struct tm		local_tm;
+    time_t		utc_offset;
+#endif
     // Get the system date and time
     mSysTime = time(NULL);
 
     // Get the localtime
+#if defined PEGASUS_OS_SOLARIS
+    tmval = localtime_r(&mSysTime, &local_tm);
+    gettimeofday(&tv,NULL);
+    utc_offset = (tmval->tm_isdst > 0 && daylight) ? altzone : timezone ;
+    utc_offset /= 60;	// CIM only uses minutes, not seconds.
+#else
     tmval = localtime(&mSysTime);
     gettimeofday(&tv,&tz);
+#endif
 
     // Initialize the year 
     year = 1900;
@@ -89,6 +99,15 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
                     tmval->tm_min,
                     tmval->tm_sec,
                     0,
+#if defined PEGASUS_OS_SOLARIS
+		    abs((int)utc_offset));
+
+    // Set UTC sign
+    if(utc_offset > 0)
+    {
+	dateTime.plusOrMinus = '-';
+    }
+#else
                     abs(tz.tz_minuteswest)); // take care of the sign later on
 
     // Set the UTC Sign
@@ -100,7 +119,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     {
         dateTime.plusOrMinus = '+';
     }
-
+#endif
     currentDateTime.clear();
     strcpy(mTmpString, (char *)&dateTime);
     currentDateTime.set(mTmpString);

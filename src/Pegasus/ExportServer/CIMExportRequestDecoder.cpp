@@ -165,6 +165,14 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    String userName;
 
+   // Bug #351:
+   if ( httpMessage->message.size() == 0 ) 
+   {
+	// The message is empty; just drop it. The connection has
+	// probably closed.
+	return;
+   }
+   // </bug>
    if ( httpMessage->authInfo->isAuthenticated() )
    {
       userName = httpMessage->authInfo->getAuthenticatedUser();
@@ -200,14 +208,31 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    }
 
    // Unsupported methods are caught in the HTTPAuthenticatorDelegator
-   PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
-
+   //<Bug #351>
+   //PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
+   if( methodName != "M-POST" && methodName != "POST" )
+    {
+       sendHttpError(
+          queueId,
+          HTTP_STATUS_NOTIMPLEMENTED,
+          "Only POST and M-POST are implemented" );
+       return;
+   }
+   //</bug>
    //
-   //  Mismatch of method and version is caught in HTTPAuthenticatorDelegator
+   // Not true: "Mismatch of method and version is caught in HTTPAuthenticatorDelegator", bug #351 fixes this:
    //
-   PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) &&
-                     (httpVersion == "HTTP/1.0")));
-
+   //PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) &&
+   //                  (httpVersion == "HTTP/1.0")));
+   if( (httpMethod == HTTP_METHOD_M_POST) &&
+        (httpVersion == "HTTP/1.0") )
+   {
+       sendHttpError(queueId,
+		HTTP_STATUS_BADREQUEST,
+		"M-POST method is not valid with version 1.0" );
+       return;
+   }
+   //</bug>
    // Process M-POST and POST messages:
 
    String cimExport;
@@ -222,8 +247,16 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       headers, "CIMExport", cimExport, true);
    // If the CIMExport header was missing, the HTTPAuthenticatorDelegator
    // would not have passed the message to us.
-   PEGASUS_ASSERT(exportHeaderFound);
 
+   // <bug #351>
+   // PEGASUS_ASSERT(exportHeaderFound);
+   if (!exportHeaderFound) 
+   {
+	sendHttpError(queueId,
+                    HTTP_STATUS_BADREQUEST,
+                    "Export header not found");
+   }
+   // </bug>
    if (!String::equalNoCase(cimExport, "MethodRequest"))
    {
       // The Specification for CIM Operations over HTTP reads:
@@ -343,14 +376,14 @@ void CIMExportRequestDecoder::handleMethodRequest(
    const String& cimExportMethodInHeader,
    const String& userName,
 	const AcceptLanguages& httpAcceptLanguages, // l10n
-	const ContentLanguages& httpContentLanguages)	    
+	const ContentLanguages& httpContentLanguages)	 
 {
 // l10n
 	// Set the Accept-Language into the thread for this service.
 	// This will allow all code in this thread to get
 	// the languages for the messages returned to the client.
-	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));		
-	
+	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));	
+
    //
    // If CIM Listener is shutting down, return error response
    //
@@ -588,7 +621,6 @@ void CIMExportRequestDecoder::handleMethodRequest(
       sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR);
       return;
    }
-
 
 //l10n start
 // l10n TODO - might want to move A-L and C-L to Message

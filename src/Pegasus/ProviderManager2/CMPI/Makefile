@@ -14,7 +14,10 @@ LIBRARIES = \
     pegcommon \
 	pegprovider \
 	pegprovidermanager \
-	pegprm
+	pegprm \
+        pegrepository \
+        pegconfig \
+        pegwql
 
 SOURCES = \
 	CMPIProviderManagerMain.cpp \

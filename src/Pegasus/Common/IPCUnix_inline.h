@@ -87,7 +87,7 @@
 # define native_cleanup_push(func, arg) \
     { \
        int _oldtype_; \
-       _oldtype_ = pthread_setintrtype(PTHREAD_INTR_CONTROLLED); \
+       _oldtype_ = pthread_setintrtype(PTHREAD_INTR_ASYNCHRONOUS); \
        pthread_cleanup_push((func), arg);
 # define native_cleanup_pop(execute) \
        pthread_cleanup_pop(execute); \

@@ -67,7 +67,11 @@ void language_delete(void * data)
 
 Boolean Thread::_signals_blocked = false;
 // l10n
+#ifndef PEGASUS_OS_ZOS
 PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key = -1;
+#else
+PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
+#endif
 Boolean Thread::_key_initialized = false;
 Boolean Thread::_key_error = false;
 

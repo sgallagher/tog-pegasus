@@ -1350,6 +1350,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
       cout<<"??? What Happend ???"<<endl;
       abort();
    }
+   return String::EMPTY;
 }
 
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()

@@ -135,16 +135,25 @@ inline void enable_cancel(void)
 
 inline void pegasus_sleep(int msec)
 {
-   struct timespec wait;
-   pthread_mutex_t sleep_mut = PTHREAD_MUTEX_INITIALIZER;
-   pthread_cond_t sleep_cond;
-   pthread_cond_init (&sleep_cond, NULL);
-   pthread_mutex_lock(&sleep_mut);
-   wait.tv_sec = msec / 1000;
-   wait.tv_nsec = (msec % 1000) * 1000000;
-   pthread_cond_timedwait(&sleep_cond,&sleep_mut,&wait);
-   pthread_mutex_unlock(&sleep_mut);
-   pthread_cond_destroy(&sleep_cond);
+	int seconds;
+	int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
+
+	if (microsecs < 1000000)
+	{
+		usleep(microsecs/2);
+        pthread_testintr();
+		usleep(microsecs/2);
+
+	}
+	else
+	{
+		// sleep for loop seconds
+		seconds = microsecs / 1000000;
+		sleep(seconds);
+		// Usleep the remaining time
+		if ((seconds*1000000) < microsecs)
+		usleep(microsecs - (seconds*1000000));
+	}
 }
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)

@@ -106,7 +106,7 @@ inline void Thread::join(void)
 inline void Thread::thread_init(void)
 {
   pthread_setintr(PTHREAD_INTR_ENABLE);
-  pthread_setintrtype(PTHREAD_INTR_CONTROLLED);
+  pthread_setintrtype(PTHREAD_INTR_ASYNCHRONOUS);
   _cancel_enabled = true;
 }
 

@@ -78,4 +78,5 @@
 
 #define PEGASUS_HAS_SIGNALS
 
+#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

@@ -64,6 +64,10 @@
 #  include "OS400ConvertChar.h"
 #endif
 
+#ifdef PEGASUS_OS_ZOS
+#  include <resolv.h>  // MAXHOSTNAMELEN
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -104,6 +108,15 @@ static Boolean _MakeAddress(
 	  							HOSTENT_BUFF_SIZE, &h_errorp);
 #elif defined(PEGASUS_OS_OS400)
       entry = gethostbyname(ebcdicHost);
+#elif defined(PEGASUS_OS_ZOS)
+	  char hostName[ MAXHOSTNAMELEN + 1 ];
+	  if (String::equalNoCase("localhost",String(hostname)))
+	  {
+		  gethostname( hostName, sizeof( hostName ) );
+		  entry = gethostbyname(hostName);
+	  } else {
+		  entry = gethostbyname((char *)hostname);
+	  }
 #else
       entry = gethostbyname((char *)hostname);
 #endif

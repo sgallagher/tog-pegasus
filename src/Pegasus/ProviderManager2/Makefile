@@ -12,7 +12,8 @@ LIBRARY = pegprovidermanager
 
 LIBRARIES = \
     pegcommon \
-	pegprm
+	pegprm \
+        pegconfig
 
 SOURCES = \
 	ProviderManagerService.cpp \

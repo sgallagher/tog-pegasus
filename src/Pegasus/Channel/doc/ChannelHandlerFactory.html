@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+   <TITLE>class  ChannelHandlerFactory</TITLE>
+   <META NAME="GENERATOR" CONTENT="DOC++ 3.4.7">
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+
+<H2>class  <A HREF="#DOC.DOCU">ChannelHandlerFactory</A></H2></H2><BLOCKQUOTE>The ChannelHandlerFactory class must be derived from and implemented by the user.</BLOCKQUOTE>
+<HR>
+
+<H2>Inheritance:</H2>
+<APPLET CODE="ClassGraph.class" WIDTH=600 HEIGHT=65>
+<param name=classes value="CChannelHandlerFactory,MChannelHandlerFactory.html,CDefaultChannelHandlerFactory,MDefaultChannelHandlerFactory.html">
+<param name=before value="M,M^_">
+<param name=after value="M,M">
+<param name=indent value="0,0">
+<param name=arrowdir value="down">
+</APPLET>
+
+<A NAME="DOC.DOCU"></A>
+<HR>
+<H2>Documentation</H2>
+<BLOCKQUOTE>The ChannelHandlerFactory class must be derived from and implemented
+by the user. The ChannelConnector and ChannelAcceptor use the
+ChannelHandlerFactory to create instances of ChannelHandler when
+connections are initate (by the client) and when they are accepted 
+(by the server). Implementations of this class may be used to pass
+constructor arguments to the ChannelHandler implementation. Here is
+an example of a ChannelHandlerFactory which passes an integer value
+to the constructor of the ChannelHandler's constructor.
+
+<P><PRE>
+	class MyChannelHandler : public ChannelHandler
+	{
+	public:
+
+<P>	    MyChannelHandler(int someValue);
+
+<P>	    virtual ~MyChannelHandler();
+
+<P>	    virtual Boolean handleOpen(Channel* channel);
+
+<P>	    virtual Boolean handleInput(Channel* channel);
+
+<P>	    virtual void handleClose(Channel* channel);
+
+<P>	private:
+	    int _someValue;
+	};
+
+<P>	class MyChannelHandlerFactory : public ChannelHandlerFactory
+	{
+	public:
+
+<P>	    MyChannelHandlerFactory(int someValue) : _someValue(someValue) 
+	    {
+
+<P>	    }
+
+<P>	    virtual ~MyChannelHandlerFactory();
+
+<P>	    virtual ChannelHandler* create()
+	    {
+		return new MyChannelHandler(_someValue);
+	    }
+
+<P>	private:
+	    int _someValue;
+	};
+    </PRE>
+
+<P>If the ChannelHandler implementation has no constructor arguments
+(and uses a simple default constructor), then it is not necessary to
+implement a ChannelHandlerFactory. Instead, it is possible to use
+the DefaultChannelHandlerFactory<> template defined later. Here is
+an example:
+
+<P><PRE>
+	ChannelHandlerFactory* factory;
+	factory = new DefaultChannelHandlerFactory<MyChannelHandler>;
+    <pre></BLOCKQUOTE>
+<HR>
+<DL><DT><B>Direct child classes:
+</B><DD><A HREF="DefaultChannelHandlerFactory.html">DefaultChannelHandlerFactory</A><BR>
+</DL>
+
+<DL><DT><DD></DL><P><P><I><A HREF="index.html">Alphabetic index</A></I> <I><A HREF="HIER.html">HTML hierarchy of classes</A> or <A HREF="HIERjava.html">Java</A></I></P><HR>
+<BR>
+This page was generated with the help of <A HREF="http://www.linuxsupportline.com/~doc++">DOC++</A>.
+</BODY>
+</HTML>

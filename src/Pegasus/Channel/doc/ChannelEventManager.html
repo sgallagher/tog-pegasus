@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+   <TITLE>class  ChannelEventManager</TITLE>
+   <META NAME="GENERATOR" CONTENT="DOC++ 3.4.7">
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+
+<H2>class  <A HREF="#DOC.DOCU">ChannelEventManager</A></H2></H2><BLOCKQUOTE>The ChannelEventManager class manages input and output events for the channel implementations.</BLOCKQUOTE>
+<HR>
+
+<DL>
+<P><DL>
+<DT><H3>Public Methods</H3><DD><DT>
+<IMG ALT="[more]" BORDER=0 SRC=icon1.gif>void <B><A HREF="#DOC.7.1">run</A></B>(Uint32 milliseconds = INIFINITE)
+<DD><I>Waits for an event for a certain number of milliseconds and then returns.</I>
+</DL></P>
+
+</DL>
+
+<A NAME="DOC.DOCU"></A>
+<HR>
+<H2>Documentation</H2>
+<BLOCKQUOTE>The ChannelEventManager class manages input and output events for the
+channel implementations. The implementations register with it so that
+they be notified of activity on their channels. For example, a TCP 
+implementation needs to be notified when sockets become read enabled or
+write enabled. This is the least clearly defined part of the system and
+will be subject to some rework.</BLOCKQUOTE>
+<DL>
+
+<A NAME="run"></A>
+<A NAME="DOC.7.1"></A>
+<DT><IMG ALT="o" BORDER=0 SRC=icon2.gif><TT><B>void run(Uint32 milliseconds = INIFINITE)</B></TT>
+<DD>Waits for an event for a certain number of milliseconds and then
+returns. If an event occurs, then the event is dispatched. If the 
+milliseconds argument is equal to zero, then events are checked for 
+and dispatched and the routine immediately returns. If milliseconds 
+is equal to INIFINITE then, the routine never returns but continues 
+waiting for and dispatching events. If milliseconds is neither 0 nor 
+INIFINITE, then the routine waits for the number of milliseconds
+specified.
+<DL><DT><DD></DL><P></DL>
+
+<HR><DL><DT><B>This class has no child classes.</B></DL>
+
+<DL><DT><DD></DL><P><P><I><A HREF="index.html">Alphabetic index</A></I> <I><A HREF="HIER.html">HTML hierarchy of classes</A> or <A HREF="HIERjava.html">Java</A></I></P><HR>
+<BR>
+This page was generated with the help of <A HREF="http://www.linuxsupportline.com/~doc++">DOC++</A>.
+</BODY>
+</HTML>

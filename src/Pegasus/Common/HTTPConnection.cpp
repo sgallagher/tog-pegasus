@@ -215,35 +215,39 @@ void HTTPConnection::handleEnqueue(Message *message)
 	     Uint32 contentLength = 0;
 	     httpMessage->parse(startLine, headers, contentLength);
 
+	     Uint32 rc;  // return code for the wrap
+	     Array<Sint8> final_buffer;
+	     final_buffer.clear();
+	     Array<Sint8> header_buffer;
+	     header_buffer.clear();
+	     Array<Sint8> authenticate_header;
+	     authenticate_header;
+	     Array<Sint8> inUnwrappedMessage;
+	     inUnwrappedMessage.clear();
+	     Array<Sint8> outWrappedMessage;
+	     outWrappedMessage.clear();
+	     int ss_size = 2;  // size of separater "\n\r"
+
+	     // Build the WWW_Authenticate record with token.
+	     authenticate_header << KERBEROS_CHALLENGE_HEADER;
+	     authenticate_header.appendArray(sa->getServerToken());
+
+	     // Extract the unwrapped headers (do not include last separater pair)
+	     for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength-ss_size); i++)
+	     {
+		 header_buffer.append(httpMessage->message[i]);
+	     }
+
+	     // Extract the unwrapped content
+	     for (Uint32 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+	     {
+		 inUnwrappedMessage.append(httpMessage->message[i]);
+	     }
+
 	     // only wrap_message when there is content to wrap
 	     if (contentLength)
 	     {
-		 Uint32 rc;  // return code for the wrap
-		 Array<Sint8> final_buffer;
-		 final_buffer.clear();
-		 Array<Sint8> header_buffer;
-		 header_buffer.clear();
-		 Array<Sint8> authenticate_header;
-		 authenticate_header;
-		 Array<Sint8> inUnwrappedMessage;
-		 inUnwrappedMessage.clear();
-		 Array<Sint8> outWrappedMessage;
-		 outWrappedMessage.clear();
-		 int ss_size = 2;  // size of separater "\n\r"
-
-	         // Extract the unwrapped headers (do not include last separater pair)
-		 for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength-ss_size); i++)
-		 {
-		     header_buffer.append(httpMessage->message[i]);
-		 }
-
-	         // Extract the unwrapped content
-		 for (Uint32 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
-		 {
-		     inUnwrappedMessage.append(httpMessage->message[i]);
-		 }
-
-		 sa->wrap_message(inUnwrappedMessage,  // Ascii
+		 rc = sa->wrap_message(inUnwrappedMessage,  // Ascii
 				  outWrappedMessage);
 
 		 if (rc) 
@@ -262,48 +266,54 @@ void HTTPConnection::handleEnqueue(Message *message)
 		     final_buffer.remove(final_buffer.size());  // '\n'
 		     final_buffer.remove(final_buffer.size());  // '\r'
 		 }
-
-	         // Build the WWW_Authenticate record with token.  SPNEGO negotiation
-	         // requires that a WWW_Authenticate record is always sent.
-		 authenticate_header << KERBEROS_CHALLENGE_HEADER;
-		 authenticate_header.appendArray(sa->getServerToken());
-
-	         // rebuild the headers and wrapped message to send back to the client
-		 if (final_buffer.size() == 0) 
-		 {
-		     // if outWrappedMessage is empty that indicates client did not
-		     // wrap the message.  The original message will be used.
-		     if (outWrappedMessage.size())
-		     {
-			 final_buffer.appendArray(header_buffer);
-			 final_buffer.appendArray(authenticate_header);
-			 final_buffer << "\r\n";
-			 final_buffer << "\r\n";
-			 final_buffer.appendArray(outWrappedMessage);
-		     }
-		 }
-		 else
-		 {
-                     // error occurred on wrap so the final_buffer needs to be built
-		     // differently
-		     final_buffer.appendArray(authenticate_header);
-		     // add double separaters to end
-		     final_buffer << "\r\n";
-		     final_buffer << "\r\n";
-		 }
-
-		 // replace the existing httpMessage with the headers and unwrapped message.
-		 // Or it can be replaced with a bad request response and a challenge.
-		 if (final_buffer.size())
-		 {
-		     httpMessage->message.clear();
-		     httpMessage->message = final_buffer;
-		     Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
-					 httpMessage->message.getData(),
-					 httpMessage->message.size());
-
-		 }
 	     } // content length check
+
+	     // Add headers to the response.  If the final_buffer size is not zero
+             // a bad request header was added earlier.  No additional headers will
+             // be sent.
+	     if (final_buffer.size() == 0)
+	     {
+		 final_buffer.appendArray(header_buffer);
+	     }
+
+	     // Search for an existing "Authentication" header.  If one does
+	     // not exist add one if the the client sent an "Authoriztion"
+	     // header.  An "Authentication" header may have already been added
+	     // in HTTPAuthentication delegator so we do not want to add it again.
+	     String authorization = String::EMPTY;
+	     if (HTTPMessage::lookupHeader(headers, "Authorization", authorization, false) &&
+		 sa->getClientSentAuthorization())
+	     {
+		 final_buffer.appendArray(authenticate_header);
+		 final_buffer << "\r\n";  // header needs to be terminated with a separater
+	     }
+
+	     final_buffer << "\r\n";  // add back the last separater to the headers
+
+	     // add the message data to be sent sent back to the client
+	     // if outWrappedMessage is empty that indicates client did not
+	     // wrap the message or there is no content data in the response.
+	     // The original message, if any, will be used.
+             if (outWrappedMessage.size())
+             {
+                 final_buffer.appendArray(outWrappedMessage);
+             }
+             else
+             {
+		 // this may be empty...this is okay
+                 final_buffer.appendArray(inUnwrappedMessage);
+             }
+
+	     // replace the existing httpMessage with the headers and unwrapped message.
+	     // Or it can be replaced with a bad request response and a challenge.
+	     if (final_buffer.size())
+	     {
+		 httpMessage->message.clear();
+		 httpMessage->message = final_buffer;
+		 Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+				     httpMessage->message.getData(),
+				     httpMessage->message.size());
+	     }
 	 } // auth info and security association check
 #endif
 
@@ -711,35 +721,39 @@ void HTTPConnection2::handleEnqueue(Message *message)
 	     Uint32 contentLength = 0;
 	     httpMessage->parse(startLine, headers, contentLength);
 
+	     Uint32 rc;  // return code for the wrap
+	     Array<Sint8> final_buffer;
+	     final_buffer.clear();
+	     Array<Sint8> header_buffer;
+	     header_buffer.clear();
+	     Array<Sint8> authenticate_header;
+	     authenticate_header;
+	     Array<Sint8> inUnwrappedMessage;
+	     inUnwrappedMessage.clear();
+	     Array<Sint8> outWrappedMessage;
+	     outWrappedMessage.clear();
+	     int ss_size = 2;  // size of separater "\n\r"
+
+	     // Build the WWW_Authenticate record with token.
+	     authenticate_header << KERBEROS_CHALLENGE_HEADER;
+	     authenticate_header.appendArray(sa->getServerToken());
+
+	     // Extract the unwrapped headers (do not include last separater pair)
+	     for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength-ss_size); i++)
+	     {
+		 header_buffer.append(httpMessage->message[i]);
+	     }
+
+	     // Extract the unwrapped content
+	     for (Uint32 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+	     {
+		 inUnwrappedMessage.append(httpMessage->message[i]);
+	     }
+
 	     // only wrap_message when there is content to wrap
 	     if (contentLength)
 	     {
-		 Uint32 rc;  // return code for the wrap
-		 Array<Sint8> final_buffer;
-		 final_buffer.clear();
-		 Array<Sint8> header_buffer;
-		 header_buffer.clear();
-		 Array<Sint8> authenticate_header;
-		 authenticate_header;
-		 Array<Sint8> inUnwrappedMessage;
-		 inUnwrappedMessage.clear();
-		 Array<Sint8> outWrappedMessage;
-		 outWrappedMessage.clear();
-		 int ss_size = 2;  // size of separater "\n\r"
-
-	         // Extract the unwrapped headers (do not include last separater pair)
-		 for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength-ss_size); i++)
-		 {
-		     header_buffer.append(httpMessage->message[i]);
-		 }
-
-	         // Extract the unwrapped content
-		 for (Uint32 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
-		 {
-		     inUnwrappedMessage.append(httpMessage->message[i]);
-		 }
-
-		 sa->wrap_message(inUnwrappedMessage,  // Ascii
+		 rc = sa->wrap_message(inUnwrappedMessage,  // Ascii
 				  outWrappedMessage);
 
 		 if (rc) 
@@ -758,48 +772,54 @@ void HTTPConnection2::handleEnqueue(Message *message)
 		     final_buffer.remove(final_buffer.size());  // '\n'
 		     final_buffer.remove(final_buffer.size());  // '\r'
 		 }
-
-	         // Build the WWW_Authenticate record with token.  SPNEGO negotiation
-	         // requires that a WWW_Authenticate record is always sent.
-		 authenticate_header << KERBEROS_CHALLENGE_HEADER;
-		 authenticate_header.appendArray(sa->getServerToken());
-
-	         // rebuild the headers and wrapped message to send back to the client
-		 if (final_buffer.size() == 0) 
-		 {
-		     // if outWrappedMessage is empty that indicates client did not
-		     // wrap the message.  The original message will be used.
-		     if (outWrappedMessage.size())
-		     {
-			 final_buffer.appendArray(header_buffer);
-			 final_buffer.appendArray(authenticate_header);
-			 final_buffer << "\r\n";
-			 final_buffer << "\r\n";
-			 final_buffer.appendArray(outWrappedMessage);
-		     }
-		 }
-		 else
-		 {
-                     // error occurred on wrap so the final_buffer needs to be built
-		     // differently
-		     final_buffer.appendArray(authenticate_header);
-		     // add double separaters to end
-		     final_buffer << "\r\n";
-		     final_buffer << "\r\n";
-		 }
-
-		 // replace the existing httpMessage with the headers and unwrapped message.
-		 // Or it can be replaced with a bad request response and a challenge.
-		 if (final_buffer.size())
-		 {
-		     httpMessage->message.clear();
-		     httpMessage->message = final_buffer;
-		     Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
-					 httpMessage->message.getData(),
-					 httpMessage->message.size());
-
-		 }
 	     } // content length check
+
+	     // Add headers to the response.  If the final_buffer size is not zero
+             // a bad request header was added earlier.  No additional headers will
+             // be sent.
+	     if (final_buffer.size() == 0)
+	     {
+		 final_buffer.appendArray(header_buffer);
+	     }
+
+	     // Search for an existing "Authentication" header.  If one does
+	     // not exist add one if the the client sent an "Authoriztion"
+	     // header.  An "Authentication" header may have already been added
+	     // in HTTPAuthentication delegator so we do not want to add it again.
+	     String authorization = String::EMPTY;
+	     if (HTTPMessage::lookupHeader(headers, "Authorization", authorization, false) &&
+		 sa->getClientSentAuthorization())
+	     {
+		 final_buffer.appendArray(authenticate_header);
+		 final_buffer << "\r\n";  // header needs to be terminated with a separater
+	     }
+
+	     final_buffer << "\r\n";  // add back the last separater to the headers
+
+	     // add the message data to be sent sent back to the client
+	     // if outWrappedMessage is empty that indicates client did not
+	     // wrap the message or there is no content data in the response.
+	     // The original message, if any, will be used.
+             if (outWrappedMessage.size())
+             {
+                 final_buffer.appendArray(outWrappedMessage);
+             }
+             else
+             {
+		 // this may be empty...this is okay
+                 final_buffer.appendArray(inUnwrappedMessage);
+             }
+
+	     // replace the existing httpMessage with the headers and unwrapped message.
+	     // Or it can be replaced with a bad request response and a challenge.
+	     if (final_buffer.size())
+	     {
+		 httpMessage->message.clear();
+		 httpMessage->message = final_buffer;
+		 Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+				     httpMessage->message.getData(),
+				     httpMessage->message.size());
+	     }
 	 } // auth info and security association check
 #endif
 	 //------------------------------------------------------------

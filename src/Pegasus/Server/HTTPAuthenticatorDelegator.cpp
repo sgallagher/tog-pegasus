@@ -346,6 +346,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
              enableAuthentication
            )
         {
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+	    // The presence of a Security Association indicates that Kerberos is being
+	    // used.
+	    CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
+	    if (sa)
+	    {
+		sa->setClientSentAuthorization(true);
+	    }
+#endif	
             //
             // Do http authentication if not authenticated already
             //
@@ -387,6 +396,57 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	}  // "Authorization" header check
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
+	// The presence of a Security Association indicates that Kerberos is being
+	// used.
+	CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
+
+	// This will process a request with no content.
+	if (sa && authenticated)
+	{
+	    if (sa->getServerToken().size())
+	    {
+		// This will handle the scenario where client did not send data (content) but
+		// is authenticated.  After the client receives the success it should will
+		// send the request.  For mutual authentication the client may choose not to
+		// send request data until the context is fully established.
+		// Note:  if mutual authentication wass not requested by the client then
+		// no server token will be available.
+		if (contentLength == 0)
+		{
+                    String authResp =   
+                        _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+                    if (!String::equal(authResp, String::EMPTY))
+                    {
+                        _sendSuccess(queueId, authResp);
+                    }
+                    else
+                    {
+                        _sendError(queueId, "Invalid Request");
+                    }
+
+                    PEG_METHOD_EXIT();
+                    return;
+		}
+	    }
+	}
+
+	// This will process a request without an authorization record.
+	if (sa && !authenticated)
+	{
+	    // Not authenticated can result from the client not sending an authorization
+	    // record due to a previous authentication.  In this scenario the client
+            // was previous authenticated but chose not to send an authorization
+            // record.  The Security Association maintains state so a request will not
+            // be processed unless the Security association thinks the client is authenticated.
+
+	    // This will handle the scenario where the client was authenticated in the
+	    // previous request but choose not to send an authorization record.
+	    if (sa->getClientAuthenticated())
+	    {	
+		authenticated = true;
+	    }
+	}
+
 	// The following is processing to unwrap (unencrypt) the message received from the
 	// client when using kerberos authentication.
 	// For Kerberos there should always be an "Authorization" record sent with the request
@@ -395,7 +455,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	// client can't be authenticated.  The "Authorization" record was processed above
 	// and if the "Authorization" record was successfully processed then the client
 	// is authenticated.
-	CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
 	if (sa  &&  authenticated)
 	{
 	    Uint32 rc;  // return code for the wrap
@@ -460,8 +519,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 		final_buffer.remove(final_buffer.size());  // "\n"
 		final_buffer.remove(final_buffer.size());  // "\r"
 
-		// Build the WWW_Authenticate record with token.  SPNEGO negotiation
-		// requires that a WWW_Authenticate record is always sent.
+		// Build the WWW_Authenticate record with token.
 		String authResp =   
 		  _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
 		// error occurred on wrap so the final_buffer needs to be built

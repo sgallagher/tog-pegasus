@@ -1,6 +1,6 @@
 //%///-*-c++-*-/////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM, 
 // The Open Group, Tivoli Systems 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy

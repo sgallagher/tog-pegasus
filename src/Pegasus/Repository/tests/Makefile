@@ -9,6 +9,8 @@ DIRS = \
     NameSpace \
     AssocTable \
     EnumerateClassNames \
-    InheritanceTree 
+    InheritanceTree \
+    QualifierDeclRep \
+    ClassDeclRep
 
 include ../../../../mak/recurse.mak

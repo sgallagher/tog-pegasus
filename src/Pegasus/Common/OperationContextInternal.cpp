@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -62,16 +62,15 @@ LocaleContainer::~LocaleContainer(void)
 {
 }
 
-LocaleContainer & LocaleContainer::operator=(const LocaleContainer &container)
+LocaleContainer &LocaleContainer::operator=(const LocaleContainer &container)
 {
-    if(this == &container)
-    {
-        return(*this);
-    }
+	if (this == &container)
+	{
+		return (*this);
+	}
 
-    _languageId = container._languageId;
-
-    return(*this);
+	_languageId = container._languageId;
+	return (*this);
 }
 
 String LocaleContainer::getName(void) const
@@ -112,11 +111,8 @@ ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & con
     *this = *p;
 }
 
-ProviderIdContainer::ProviderIdContainer(
-    const CIMInstance & module,
-    const CIMInstance & provider,
-    Boolean remoteNameSpace,
-    String remoteInfo)
+ProviderIdContainer::ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
+        Boolean remoteNameSpace, String remoteInfo)
 {
     _module = module;
     _provider = provider;
@@ -128,11 +124,12 @@ ProviderIdContainer::~ProviderIdContainer(void)
 {
 }
 
-ProviderIdContainer & ProviderIdContainer::operator=(const ProviderIdContainer & container)
+ProviderIdContainer & ProviderIdContainer::operator=(
+    const ProviderIdContainer & container)
 {
-    if(this == &container)
+    if (this == &container)
     {
-        return(*this);
+        return (*this);
     }
 
     _module = container._module;
@@ -140,7 +137,7 @@ ProviderIdContainer & ProviderIdContainer::operator=(const ProviderIdContainer &
     _remoteNameSpace = container._remoteNameSpace;
     _remoteInfo = container._remoteInfo;
 
-    return(*this);
+    return (*this);
 }
 
 String ProviderIdContainer::getName(void) const
@@ -176,66 +173,6 @@ Boolean ProviderIdContainer::isRemoteNameSpace(void) const
 const String & ProviderIdContainer::getRemoteInfo(void) const
 {
     return(_remoteInfo);
-}
-
-//
-// CachedClassDefinitionContainer
-//
-
-const String CachedClassDefinitionContainer::NAME = "CachedClassDefinitionContainer";
-
-CachedClassDefinitionContainer::CachedClassDefinitionContainer(const OperationContext::Container & container)
-{
-    const CachedClassDefinitionContainer * p = dynamic_cast<const CachedClassDefinitionContainer *>(&container);
-
-    if(p == 0)
-    {
-        throw DynamicCastFailedException();
-    }
-
-    *this = *p;
-}
-
-
-CachedClassDefinitionContainer::CachedClassDefinitionContainer(const CIMClass & cimClass)
-    : _cimClass(cimClass)
-{
-}
-
-CachedClassDefinitionContainer::~CachedClassDefinitionContainer(void)
-{
-}
-
-CachedClassDefinitionContainer & CachedClassDefinitionContainer::operator=(const CachedClassDefinitionContainer & container)
-{
-    if(this == &container)
-    {
-        return(*this);
-    }
-
-    _cimClass = container._cimClass;
-
-    return(*this);
-}
-
-String CachedClassDefinitionContainer::getName(void) const
-{
-    return(NAME);
-}
-
-OperationContext::Container * CachedClassDefinitionContainer::clone(void) const
-{
-    return(new CachedClassDefinitionContainer(*this));
-}
-
-void CachedClassDefinitionContainer::destroy(void)
-{
-    delete this;
-}
-
-CIMClass CachedClassDefinitionContainer::getClass(void) const
-{
-    return(_cimClass);
 }
 
 PEGASUS_NAMESPACE_END

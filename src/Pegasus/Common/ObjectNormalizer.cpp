@@ -157,13 +157,6 @@ static CIMProperty _processProperty(
     return(normalizedProperty);
 }
 
-ObjectNormalizer::ObjectNormalizer(void)
-    : _localOnly(false),
-    _includeQualifiers(false),
-    _includeClassOrigin(false)
-{
-}
-
 ObjectNormalizer::ObjectNormalizer(
     const CIMClass & cimClass,
     const Boolean localOnly,

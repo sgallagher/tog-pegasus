@@ -265,11 +265,24 @@ Z [Zz]
 {IDENT_CHAR}*\:\:{PROP_CHAR}* {
     globalParserState->currentTokenPos+=yyleng;
     globalParserState->tokenCount++;
-    size_t n = strlen(yytext);
+	 /* remove any single quotes surrounding embedded literals */
+	 const char* string = yytext;
+	 String s(yytext);
+	 Uint32 index = 1;
+	 index = s.find("'");
+	 if(index != PEG_NOT_FOUND){
+	 	s.remove(index,1);
+		s.remove(s.size()-1,1);
+	 
+		CString cstr = s.getCString();
+	 	string = (const char*)cstr;
+	 }
+	 
+    size_t n = strlen(string);
     if(CQL_lval.strValue)
         delete [] CQL_lval.strValue;
     CQL_lval.strValue = new char[n+1];
-    memcpy(CQL_lval.strValue, yytext, n);
+    memcpy(CQL_lval.strValue, string, n);
     CQL_lval.strValue[n] = '\0';
     sprintf(msg_,"LEX: %s [SCOPED_PROPERTY] ", CQL_lval.strValue);
     printf__(msg_);

@@ -128,6 +128,13 @@ private:
     typedef HashTable<String,
         const char*,EqualFunc<String>,HashFunc<String> > FixedValueTable;
 
+    /*
+    friend declaration needed by some compilers to allow OwnerTable and
+    FixedValueTable to be accessible from PropertyTable.
+    */
+    struct PropertyTable;
+    friend struct ConfigManager::PropertyTable;
+
     /**
     Structure used to identify properties.
     */

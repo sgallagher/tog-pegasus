@@ -27,12 +27,17 @@ code.  The committed files are generated from flex 2.5.4 and bison 1,28.
 This change paves the way for upcoming changes that will allow the compiler
 to work indepently of the repository. (grb)
 7. Extend testclient (clients/testclient) tests and functions. ks 19 June 2001
-8. CV added const to CIMOperations modifyInstance, createInstance, modifyClass,
+8. CV added const to CIMOperations modifyInstance, createInstance,
+modifyClass,
 createClass to protect caller's object.
-9. CV added CIMQueryProvider and CIMAssociationProvider to the Provider2 directory. These
-interfaces allow very smart providers to perform advances operations. CIMProviderStub has
+9. CV added CIMQueryProvider and CIMAssociationProvider to the Provider2
+directory. These
+interfaces allow very smart providers to perform advances operations.
+CIMProviderStub has
 been updated to support the new interfaces. Needs testing.
 10. Added rpm packaging support and shell script based build process. MM
+11. Changed Make so make tests no longer rebuilds repository.  To rebuild
+repository you make world, make rebuild or make repository. ks
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 
@@ -117,6 +122,7 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 
 

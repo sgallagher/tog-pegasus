@@ -580,7 +580,7 @@ int main(int argc, char ** argv)
 	String lang("CIM:CQL");
    String query("");
 	CQLSelectStatement _ss(lang,query,_ctx);
-	char text[255];
+	char text[1024];
 	char* _text;
 
 	// setup Test Instances
@@ -627,7 +627,7 @@ int main(int argc, char ** argv)
 			return 1;
 		}
 		while(!queryInputSource.eof()){
-			queryInputSource.getline(text, 255);
+			queryInputSource.getline(text, 1024);
 			char* _ptr = text;
 			_text = strcat(_ptr,"\n");	
 			// check for comments and ignore

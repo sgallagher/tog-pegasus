@@ -47,6 +47,7 @@
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/StatisticalData.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Need to include these before the WMI Provider headers
@@ -270,6 +271,8 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetClassRequest");
 
+STAT_PROVIDERSTART
+
 	CIMClass cimClass;
 	CIMException cimException;
 	WMIClassProvider provider;
@@ -307,12 +310,16 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimClass);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -324,6 +331,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetInstanceRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMInstance cimInstance;
 	CIMException cimException;
@@ -365,12 +374,16 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMGetInstanceResponseMessage * response = new CIMGetInstanceResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimInstance);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -382,6 +395,8 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleDeleteClassRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIClassProvider provider;
@@ -415,11 +430,15 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMDeleteClassResponseMessage* response = new CIMDeleteClassResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -432,6 +451,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleDeleteInstanceRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIInstanceProvider provider;
@@ -465,11 +486,15 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND	
+
 	// create the response
 	CIMDeleteInstanceResponseMessage* response = new CIMDeleteInstanceResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
     // and send it
 	_enqueueResponse(request, response);
@@ -482,6 +507,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleCreateClassRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIClassProvider provider;
@@ -515,10 +542,14 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	CIMCreateClassResponseMessage* response = new CIMCreateClassResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -531,6 +562,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleCreateInstanceRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMObjectPath instanceName;
 	CIMException cimException;
@@ -565,12 +598,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	//create the response
 	CIMCreateInstanceResponseMessage* response = new CIMCreateInstanceResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		instanceName);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -583,6 +620,8 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleModifyClassRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIClassProvider provider;
@@ -616,10 +655,14 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	CIMModifyClassResponseMessage* response = new CIMModifyClassResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -632,6 +675,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleModifyInstanceRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIInstanceProvider provider;
@@ -667,11 +712,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response
 	CIMModifyInstanceResponseMessage* response = new CIMModifyInstanceResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -684,6 +733,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateClassesRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMClass> cimClasses;
@@ -722,11 +773,15 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	CIMEnumerateClassesResponseMessage* response = new CIMEnumerateClassesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimClasses);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -739,6 +794,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMName> classNames;
@@ -774,11 +831,15 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	//terminate the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	CIMEnumerateClassNamesResponseMessage* response = new CIMEnumerateClassNamesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		classNames);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -791,6 +852,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateInstanceRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMInstance> cimInstances;
@@ -828,12 +891,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMEnumerateInstancesResponseMessage * response = new CIMEnumerateInstancesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimInstances);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -845,6 +912,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMObjectPath> instanceNames;
@@ -880,12 +949,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMEnumerateInstanceNamesResponseMessage * response = new CIMEnumerateInstanceNamesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		instanceNames);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send the response
 	_enqueueResponse(request, response);
@@ -897,6 +970,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleAssociatorsRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMObject> cimObjects;
@@ -941,12 +1016,16 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response
 	CIMAssociatorsResponseMessage* response = new CIMAssociatorsResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimObjects);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -959,6 +1038,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMObjectPath> objectNames;
@@ -997,12 +1078,16 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response
 	CIMAssociatorNamesResponseMessage* response = new CIMAssociatorNamesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		objectNames);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1015,6 +1100,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleReferencesRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMObject> cimObjects;
@@ -1057,12 +1144,16 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response
 	CIMReferencesResponseMessage* response = new CIMReferencesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimObjects);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1075,6 +1166,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleReferenceNamesRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMObjectPath> objectNames;
@@ -1111,12 +1204,16 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	// cancel the provider
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response
 	CIMReferenceNamesResponseMessage* response = new CIMReferenceNamesResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		objectNames);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1129,6 +1226,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetPropertyRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	CIMValue value;
@@ -1163,12 +1262,16 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMGetPropertyResponseMessage* response = new CIMGetPropertyResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		value);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1181,6 +1284,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleSetPropertyRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	CIMValue value;
@@ -1254,11 +1359,15 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response
 	CIMSetPropertyResponseMessage* response = new CIMSetPropertyResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1271,6 +1380,8 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetQualifierRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	CIMQualifierDecl cimQualifierDecl;
@@ -1304,12 +1415,16 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMGetQualifierResponseMessage* response = new CIMGetQualifierResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimQualifierDecl);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1322,6 +1437,8 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleSetQualifierRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIQualifierProvider provider;
@@ -1354,11 +1471,15 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMSetQualifierResponseMessage* response = new CIMSetQualifierResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1371,6 +1492,8 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleDeleteQualifierRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	WMIQualifierProvider provider;
@@ -1403,11 +1526,15 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMDeleteQualifierResponseMessage* response = new CIMDeleteQualifierResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop());
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1420,6 +1547,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMQualifierDecl> qualifierDeclarations;
@@ -1452,12 +1581,16 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMEnumerateQualifiersResponseMessage* response = new CIMEnumerateQualifiersResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		qualifierDeclarations);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1470,6 +1603,8 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleExecQueryRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 	Array<CIMObject> cimObjects;
@@ -1504,12 +1639,16 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMExecQueryResponseMessage* response = new CIMExecQueryResponseMessage(
 		request->messageId,
 		cimException,
 		request->queueIds.copyAndPop(),
 		cimObjects);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);
@@ -1522,6 +1661,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 {
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleInvokeMethodRequest");
+
+	STAT_PROVIDERSTART
 
 	CIMException cimException;
 
@@ -1600,6 +1741,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	// ATTN:  I need some exception handling here
 	provider.terminate();
 
+	STAT_PROVIDEREND
+
 	// create the response message
 	CIMInvokeMethodResponseMessage *response = new CIMInvokeMethodResponseMessage(
 		request->messageId,
@@ -1608,6 +1751,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 		retValue,
 		outParameters,
 		request->methodName);
+
+	STAT_COPYDISPATCHER_REP
 
 	// and send it
 	_enqueueResponse(request, response);

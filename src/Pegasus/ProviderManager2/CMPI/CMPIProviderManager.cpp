@@ -496,7 +496,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-        STAT_PMS_PROVIDEREND;
     }
     HandlerCatch(handler);
 
@@ -996,7 +995,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-        STAT_PMS_PROVIDEREND;
+    
     }
     HandlerCatch(handler);
 

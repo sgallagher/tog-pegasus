@@ -1560,7 +1560,7 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));	  
 
-               // ATTN KS STAT_GETSTARTTIME;
+               STAT_GETSTARTTIME;
                pm_service_op_lock op_lock(&ph.GetProvider());
 
                ph.GetProvider().associators(
@@ -1682,6 +1682,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
 		context.insert(request->operationContext.get(IdentityContainer::NAME));
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+
+		STAT_GETSTARTTIME
 
 	    pm_service_op_lock op_lock(&ph.GetProvider());
             ph.GetProvider().associatorNames(
@@ -3264,12 +3266,15 @@ void ProviderManagerService::handleExportIndicationRequest(AsyncOpNode *op,
       // add the langs to the context
       context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
+	  STAT_GETSTARTRIME
+
       CIMInstance indication_copy = request->indicationInstance;
       pm_service_op_lock op_lock(&ph.GetProvider());
       ph.GetProvider().consumeIndication(context, 
 				request->destinationPath,
 				indication_copy);
 
+	  STAT_PMS_PROVIDEREND
    }
    catch(CIMException & e)
    {

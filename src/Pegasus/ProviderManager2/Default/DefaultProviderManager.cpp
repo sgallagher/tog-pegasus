@@ -2363,6 +2363,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
+		STAT_GETSTARTTIME
+
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                        "Calling provider.: " +
                        ph.GetProvider().getName());
@@ -2385,6 +2387,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
       ph.GetProvider().consumeIndication(context,
                                 request->destinationPath,
                                 indication_copy);
+
+	  STAT_PMS_PROVIDEREND
 
     }
 

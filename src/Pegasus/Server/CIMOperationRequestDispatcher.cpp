@@ -3275,6 +3275,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
+		STAT_COPYDISPATCHER_REP
         return;
     }
 
@@ -3654,6 +3655,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
         _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
+		STAT_COPYDISPATCHER_REP
         return;
     }
 
@@ -4948,6 +4950,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
+	  STAT_COPYDISPATCHER_REP
       PEG_METHOD_EXIT();
       return;
    }
@@ -5081,6 +5084,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
+	  STAT_COPYDISPATCHER_REP
       PEG_METHOD_EXIT();
       return;
    }
@@ -5381,6 +5385,8 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    Boolean exception=false;
    CIMException cimException;
 
+	STAT_PROVIDERSTART
+
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleExecQueryRequest");
 
@@ -5394,6 +5400,8 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
    if (exception) {
    Array<CIMObject> cimObjects;
+
+	STAT_PROVIDEREND
 
    CIMExecQueryResponseMessage* response =
       new CIMExecQueryResponseMessage(

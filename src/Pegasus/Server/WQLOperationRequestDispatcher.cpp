@@ -223,6 +223,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             request->queueIds.copyAndPop(),
             Array<CIMObject>()));
 
+		STAT_COPYDISPATCHER_REP
+
         _enqueueResponse(request, response.release());
         PEG_METHOD_EXIT();
         return;

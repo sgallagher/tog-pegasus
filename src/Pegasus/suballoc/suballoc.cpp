@@ -98,6 +98,7 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 PEGASUS_NAMESPACE_END
 PEGASUS_USING_STD;
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 PEGASUS_USING_PEGASUS;
 void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
 {
@@ -203,6 +204,7 @@ void operator delete[] (void *dead)
 #endif
    return;
 }
+#endif // PEGASUS_PLATFORM_HPUX_PARISC_ACC
 
 
 PEGASUS_NAMESPACE_BEGIN

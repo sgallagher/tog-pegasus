@@ -121,6 +121,17 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
 }
 
 
+static inline CIMNamespaceName NameSpaceName(const char *ns) {
+    if (ns==NULL) return CIMNamespaceName();
+    return CIMNamespaceName(ns);
+}
+
+static inline CIMName Name(const char *n) {
+    if (n==NULL) return CIMName();
+    return CIMName(n);
+}
+
+
 extern "C" {
 
    static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc);
@@ -173,16 +184,6 @@ extern "C" {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
    //   CMPIString *str=mbEncToString(mb,neInst,NULL);
       return neInst;
-   }
-
-   static inline CIMNamespaceName NameSpaceName(const char *ns) {
-      if (ns==NULL) return CIMNamespaceName();
-      return CIMNamespaceName(ns);
-   }
-
-   static inline CIMName Name(const char *n) {
-      if (n==NULL) return CIMName();
-      return CIMName(n);
    }
 
    static CMPIObjectPath* mbEncNewObjectPath(CMPIBroker* mb, const char *ns, const char *cls,
@@ -450,10 +451,10 @@ extern "C" {
          WQLParser::parse(query, *stmt);
          exception=0;
       }
-      catch (ParseError& e) {
+      catch (const ParseError&) {
          if (st) CMSetStatus(st,CMPI_RC_ERR_INVALID_QUERY);
       }
-      catch (MissingNullTerminator& e) {
+      catch (const MissingNullTerminator&) {
          if (st) CMSetStatus(st,CMPI_RC_ERR_INVALID_QUERY);
       }
       if (exception) {

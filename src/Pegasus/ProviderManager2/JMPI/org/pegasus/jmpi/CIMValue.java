@@ -76,9 +76,98 @@ public class CIMValue
    }
    public CIMValue(Object o) {
 
-      cInst=-1;
-      if (o instanceof Number) {
-         if (o instanceof UnsignedInt8)
+     cInst=-1;
+
+      if (o instanceof Vector) {
+         Vector v=(Vector)o;
+         Object o0=v.elementAt(0);
+	 int size=v.size();
+	 if (o0 instanceof Number) {
+            if (o0 instanceof UnsignedInt8) {
+               short[] u8=new short[size];
+               for (int i=0; i<size; i++)
+                  u8[i]=((UnsignedInt8)v.elementAt(i)).shortValue();
+               cInst=_byteArray(u8,true);
+	    }
+            else if (o0 instanceof Byte) {
+               short[] s8=new short[size];
+               for (int i=0; i<size; i++)
+                  s8[i]=((Byte)v.elementAt(i)).shortValue();
+               cInst=_byteArray(s8,false);
+            }
+            else if (o0 instanceof UnsignedInt16) {
+               int[] u16=new int[size];
+               for (int i=0; i<size; i++)
+                  u16[i]=((UnsignedInt16)v.elementAt(i)).intValue();
+               cInst=_shortArray(u16,true);
+	    }
+            else if (o0 instanceof Short) {
+               int[] s16=new int[size];
+               for (int i=0; i<size; i++)
+                  s16[i]=((Short)v.elementAt(i)).intValue();
+               cInst=_shortArray(s16,false);
+	    }
+            else if (o0 instanceof UnsignedInt32) {
+               long[] u32=new long[size];
+               for (int i=0; i<size; i++)
+                  u32[i]=((UnsignedInt32)v.elementAt(i)).longValue();
+               cInst=_intArray(u32,true);
+	    }
+            else if (o0 instanceof Integer) {
+               long[] s32=new long[size];
+               for (int i=0; i<size; i++)
+                  s32[i]=((Integer)v.elementAt(i)).longValue();
+               cInst=_intArray(s32,false);
+	    }
+            else if (o0 instanceof UnsignedInt64) {
+               long u64[]=new long[size];
+               for (int i=0; i<size; i++)
+                  u64[i]=((UnsignedInt64)v.elementAt(i)).longValue();
+               cInst=_longArray(u64,true);
+	    }
+            else if (o0 instanceof Long) {
+               long s64[]=new long[size];
+               for (int i=0; i<size; i++)
+                  s64[i]=((Long)v.elementAt(i)).longValue();
+               cInst=_longArray(s64,false);
+	    }
+            else if (o0 instanceof Float) {
+               float f[]=new float[size];
+               for (int i=0; i<size; i++)
+                  f[i]=((Float)v.elementAt(i)).floatValue();
+               cInst=_floatArray(f);
+	    }
+            else if (o0 instanceof Double) {
+               double d[]=new double[size];
+               for (int i=0; i<size; i++)
+                  d[i]=((Double)v.elementAt(i)).doubleValue();
+               cInst=_doubleArray(d);
+	    }
+	 }
+
+         else if (o0 instanceof Boolean) {
+            boolean b[]=new boolean[size];
+            for (int i=0; i<size; i++)
+            b[i]=((Boolean)v.elementAt(i)).booleanValue();
+            cInst=_booleanArray(b);
+ 	  }
+
+          else if (o0 instanceof String) {
+             String s[]=new String[size];
+	     v.copyInto(s);
+             cInst=_stringArray(s);
+	  }
+
+          else if (o0 instanceof CIMObjectPath) {
+             int c[]=new int[size];
+             for (int i=0; i<size; i++)
+                c[i]=((CIMObjectPath)v.elementAt(i)).cInst;
+              cInst=_refArray(c);
+          }
+      }
+
+      else if (o instanceof Number) {
+          if (o instanceof UnsignedInt8)
              cInst=_byte(((UnsignedInt8)o).shortValue(),true);
           else if (o instanceof Byte)
              cInst=_byte(((Byte)o).byteValue(),false);
@@ -100,124 +189,15 @@ public class CIMValue
              cInst=_double(((Double)o).doubleValue());
       }
 
-      else if (o instanceof Byte[]) {
-         Byte S8[]=(Byte[])o;
-         short s8[]=new short[S8.length];
-
-         for (int i=0;i<S8.length;i++)
-            s8[i]=S8[i].byteValue();
-         cInst=_byteArray(s8,false);
-      }
-
-      else if (o instanceof UnsignedInt8[]) {
-         UnsignedInt8[] U8=(UnsignedInt8[])o;
-         short u8[]=new short[U8.length];
-
-         for (int i=0;i<U8.length;i++)
-            u8[i]=U8[i].shortValue();
-         cInst=_byteArray(u8,true);
-      }
-
-      else if (o instanceof Short[]) {
-         Short S16[]=(Short[])o;
-         int s16[]=new int[S16.length];
-
-         for (int i=0;i<S16.length;i++)
-            s16[i]=S16[i].shortValue();
-         cInst=_shortArray(s16,false);
-      }
-
-      else if (o instanceof UnsignedInt16[]) {
-         UnsignedInt16 U16[]=(UnsignedInt16[])o;
-         int u16[]=new int[U16.length];
-
-         for (int i=0;i<U16.length;i++)
-            u16[i]=U16[i].intValue();
-         cInst=_shortArray(u16,true);
-      }
-
-      else if (o instanceof Integer[]) {
-         Integer S32[]=(Integer[])o;
-         long s32[]=new long[S32.length];
-
-         for (int i=0;i<S32.length;i++)
-            s32[i]=S32[i].intValue();
-         cInst=_intArray(s32,false);
-      }
-
-      else if (o instanceof UnsignedInt32[]) {
-         UnsignedInt32 U32[]=(UnsignedInt32[])o;
-         long u32[]=new long[U32.length];
-         for (int i=0;i<U32.length;i++)
-            u32[i]=U32[i].longValue();
-         cInst=_intArray(u32,true);
-      }
-
-      else if (o instanceof Long[]) {
-         Long S64[]=(Long[])o;
-         long s64[]=new long[S64.length];
-
-         for (int i=0;i<S64.length;i++)
-            s64[i]=S64[i].longValue();
-         cInst=_longArray(s64,false);
-      }
-
-      else if (o instanceof UnsignedInt64[]) {
-         UnsignedInt64 U64[]=(UnsignedInt64[])o;
-         long u64[]=new long[U64.length];
-
-         for (int i=0;i<U64.length;i++)
-            u64[i]=U64[i].longValue();
-         cInst=_longArray(u64,true);
-      }
-
-      else if (o instanceof Float[]) {
-         Float F[]=(Float[])o;
-         float f[]=new float[F.length];
-
-         for (int i=0;i<F.length;i++)
-            f[i]=F[i].floatValue();
-         cInst=_floatArray(f);
-      }
-
-      else if (o instanceof Double[]) {
-         Double D[]=(Double[])o;
-         double d[]=new double[D.length];
-
-         for (int i=0;i<D.length;i++)
-            d[i]=D[i].doubleValue();
-         cInst=_doubleArray(d);
-      }
-
       else if (o instanceof Boolean)
          cInst=_boolean(((Boolean)o).booleanValue());
-
-      else if (o instanceof Boolean[]) {
-         Boolean B[]=(Boolean[])o;
-         boolean b[]=new boolean[B.length];
-
-         for (int i=0;i<B.length;i++)
-            b[i]=B[i].booleanValue();
-         cInst=_booleanArray(b);
-      }
 
       else if (o instanceof String)
          cInst=_string((String)o);
 
-      else if (o instanceof String[])
-         cInst=_stringArray((String[])o);
-
       else if (o instanceof CIMObjectPath)
          cInst=_ref(((CIMObjectPath)o).cInst);
 
-      else if (o instanceof CIMObjectPath[]) {
-         CIMObjectPath C[]=(CIMObjectPath[])o;
-         int c[]=new int[C.length];
-
-         for (int i=0;i<C.length;i++)
-            c[i]=C[i].cInst;
-         cInst=_refArray(c);
-      }
       else if (o instanceof CIMDateTime)
          cInst=_datetime(((CIMDateTime)o).cInst);
 
@@ -230,152 +210,6 @@ public class CIMValue
       cInst=nv.cInst;
       nv.cInst=0;
    }
-
-   public CIMValue(String str, CIMDataType type) throws Exception {
-      CIMValue nv=new CIMValue(str,type.getType(),type.isArrayType());
-      cInst=nv.cInst;
-      nv.cInst=0;
-   }
-
-  public CIMValue(String str, int type, boolean isArray) throws Exception {
-
-      //System.out.println("value: "+str+" , type: "+CIMDataType.toStr[type]+" , isArray: "+isArray);
-
-      cInst=-1;
-      if (isArray) {
-         StringTokenizer st = new StringTokenizer(str, ",");
-         Vector v = new Vector(st.countTokens());
-         while (st.hasMoreTokens())
-            v.addElement(st.nextToken());
-         int len=v.size();
-         switch (type) {
-         case CIMDataType.UINT8:
-            short u8[]=new short[len];
-            for (int i=0;i<len;i++)
-               u8[i]=new UnsignedInt8((String)v.elementAt(i)).shortValue();
-            cInst=_byteArray(u8,true);
-            break;
-         case CIMDataType.SINT8:
-            short s8[]=new short[len];
-            for (int i=0;i<len;i++)
-               s8[i]=new Byte((String)v.elementAt(i)).byteValue();
-            cInst=_byteArray(s8,false);
-            break;
-         case CIMDataType.UINT16:
-            int u16[]=new int[len];
-            for (int i=0;i<len;i++)
-               u16[i]=new UnsignedInt16((String)v.elementAt(i)).intValue();
-            cInst=_shortArray(u16,true);
-            break;
-         case CIMDataType.SINT16:
-            int s16[]=new int[len];
-            for (int i=0;i<len;i++)
-               s16[i]=new Short((String)v.elementAt(i)).shortValue();
-            cInst=_shortArray(s16,false);
-            break;
-         case CIMDataType.UINT32:
-            long u32[]=new long[len];
-            for (int i=0;i<len;i++)
-               u32[i]=new UnsignedInt32((String)v.elementAt(i)).longValue();
-            cInst=_intArray(u32,true);
-            break;
-         case CIMDataType.SINT32:
-            long s32[]=new long[len];
-            for (int i=0;i<len;i++)
-               s32[i]=new Integer((String)v.elementAt(i)).intValue();
-            cInst=_intArray(s32,false);
-            break;
-         case CIMDataType.UINT64:
-            long u64[]=new long[len];
-            for (int i=0;i<len;i++)
-               u64[i]=new UnsignedInt64((String)v.elementAt(i)).longValue();
-            cInst=_longArray(u64,true);
-            break;
-         case CIMDataType.SINT64:
-            long s64[]=new long[len];
-            for (int i=0;i<len;i++)
-               s64[i]=new Long((String)v.elementAt(i)).longValue();
-            cInst=_longArray(s64,false);
-            break;
-         case CIMDataType.STRING:
-            String s[]=new String[len];
-            for (int i=0;i<len;i++)
-               s[i]=(String)v.elementAt(i);
-            cInst=_stringArray(s);         
-            break;
-         case CIMDataType.BOOLEAN:
-            boolean b[]=new boolean[len];
-            for (int i=0;i<len;i++)
-               b[i]=new Boolean((String)v.elementAt(i)).booleanValue();
-            cInst=_booleanArray(b);
-            break;
-         case CIMDataType.REAL32:
-            float f[]=new float[len];
-            for (int i=0;i<len;i++)
-               f[i]=new Float((String)v.elementAt(i)).floatValue();
-            cInst=_floatArray(f);
-            break;
-         case CIMDataType.REAL64:
-            double d[]=new double[len];
-            for (int i=0;i<len;i++)
-               d[i]=new Double((String)v.elementAt(i)).doubleValue();
-            cInst=_doubleArray(d);
-            break;
-         case CIMDataType.REFERENCE:
-            int r[]=new int[len];
-            for (int i=0;i<len;i++)
-               r[i]=new CIMObjectPath((String)v.elementAt(i)).cInst;
-            cInst=_refArray(r);
-         }
-      }
-      
-      else {
-         switch (type) {
-         case CIMDataType.UINT8:
-            cInst=_byte(new UnsignedInt8(str).shortValue(),true);
-            break;
-         case CIMDataType.SINT8:
-            cInst=_byte(new Byte(str).byteValue(),false);
-            break;
-         case CIMDataType.UINT16:
-            cInst=_short(new UnsignedInt16(str).intValue(),true);
-            break;
-         case CIMDataType.SINT16:
-            cInst=_short(new Short(str).shortValue(),false);
-            break;
-         case CIMDataType.UINT32:
-            cInst=makeInt(new UnsignedInt32(str).longValue(),true);
-            break;
-         case CIMDataType.SINT32:
-            cInst=makeInt(new Integer(str).intValue(),false);
-            break;
-         case CIMDataType.UINT64:
-            cInst=_long(new UnsignedInt64(str).longValue(),true);
-            break;
-         case CIMDataType.SINT64:
-            cInst=_long(new Long(str).longValue(),false);
-            break;
-         case CIMDataType.STRING:
-            cInst=_string(str);
-            break;
-         case CIMDataType.BOOLEAN:
-            cInst=_boolean(new Boolean(str).booleanValue());
-            break;
-         case CIMDataType.REAL32:
-            cInst=_float(new Float(str).floatValue());
-            break;
-         case CIMDataType.REAL64:
-            cInst=_double(new Double(str).doubleValue());
-            break;
-         case CIMDataType.REFERENCE:
-            cInst=_ref(new CIMObjectPath(str).cInst);
-         }        
-      }
-
-      if (cInst==-1)
-         throw new Exception("+++ unsupported type: "+type+" , isArray: "+isArray);
-   }
-
 
    public Object getValue() throws CIMException {
       return getValue(true);

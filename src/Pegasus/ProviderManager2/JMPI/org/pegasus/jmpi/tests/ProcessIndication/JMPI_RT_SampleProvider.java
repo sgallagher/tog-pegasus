@@ -57,7 +57,7 @@ public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
 
       System.err.println("+++ generateIndication()");
 
-      cop=new CIMObjectPath("JMPI_RT_SampleIndication","root/cimv2");
+      cop=new CIMObjectPath("JMPI_RT_SampleIndication","test/static");
       cls=ch.getClass(cop,false);
       inst=cls.newInstance();
 
@@ -75,7 +75,7 @@ public class JMPI_RT_SampleProvider implements MethodProvider, EventProvider
 
 //      CMAddContextEntry(ctx,"SnmpTrapOidContainer","1.3.6.1.4.1.900.2.3.9002.9600",CMPI_chars);
 
-      ch.deliverEvent("root/cimv2",inst);
+      ch.deliverEvent("test/static",inst);
 
       System.err.println("+++ generateIndication() done");
    }

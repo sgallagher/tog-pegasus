@@ -26,6 +26,7 @@
 // Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
 // Modified By:   Dan Gorey (djgorey@us.ibm.com)
+//                Amit K Arora, IBM (amita@in.ibm.com) for PEP#183
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -222,21 +223,18 @@ void CIMListenerService::runForever()
   if(!_dieNow)
     {
 #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-      if(false == _monitor->run(100)) 
+      if(false == _monitor->run(500000)) 
 	{	
 	  modulator++;
-	  if(!(modulator % 5000) )
-	    {
-	      try 
-		{
-		  //MessageQueueService::_check_idle_flag = 1;
-		  //MessageQueueService::_polling_sem.signal();
-		  MessageQueueService::get_thread_pool()->kill_idle_threads();
-		}
-	      catch(...)
-		{
-		}
-	    }	
+      try 
+      {
+	     //MessageQueueService::_check_idle_flag = 1;
+		 //MessageQueueService::_polling_sem.signal();
+		 MessageQueueService::get_thread_pool()->kill_idle_threads();
+      }
+	  catch(...)
+      {
+      }
 	}
 /*
       if (handleShutdownSignal)
@@ -259,6 +257,9 @@ void CIMListenerService::shutdown()
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::shutdown()");
 
     _dieNow = true;
+#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
+    _monitor->tickle();
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -294,8 +295,8 @@ void CIMListenerService::stopClientConnection()
     // for the wait here is to make sure that the Monitor entries
     // are updated before closing the connection sockets.
     //
-    pegasus_sleep(150);
-
+    // pegasus_sleep(150); Not needed now due to the semaphore in the Monitor
+    
     if(_acceptor!=NULL)
     _acceptor->closeConnectionSocket();
 

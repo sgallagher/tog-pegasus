@@ -71,6 +71,9 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static int MAX_CONNECTION_QUEUE_LENGTH = -1;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // HTTPAcceptorRep
@@ -136,6 +139,41 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _exportConnection(exportConnection)
 {
    Socket::initializeInterface();
+ 
+   /*
+        Platforms interpret the value of MAX_CONNECTION_QUEUE_LENGTH differently.  Some platforms interpret
+        the value literally, while others multiply a fudge factor. When the server is under
+        stress from multiple clients with multiple requests, toggling this number may prevent clients from
+        being dropped.  Instead of hard coding the value, we allow an environment variable to be set which
+        specifies a number greater than the maximum concurrent client connections possible.  If this environment
+        var is not specified, then MAX_CONNECTION_QUEUE_LENGTH = 15.
+   */
+
+//To engage runtime backlog queue length: uncomment the following block AND comment out the line MAX_CONNECTION_QUEUE_LENGTH = 15
+
+/*
+   if(MAX_CONNECTION_QUEUE_LENGTH == -1){
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(37)
+   	const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
+   	EtoA(env);
+#pragma convert(0)
+#else
+   	const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
+#endif
+	if(!env){
+		MAX_CONNECTION_QUEUE_LENGTH = 15;
+	}else{	
+   		char *end = NULL;
+   		MAX_CONNECTION_QUEUE_LENGTH = strtol(env, &end, 10);
+   		if(*end)
+			MAX_CONNECTION_QUEUE_LENGTH = 15;
+		cout << " MAX_CONNECTION_QUEUE_LENGTH = " << MAX_CONNECTION_QUEUE_LENGTH << endl;
+	}
+   }
+*/
+   MAX_CONNECTION_QUEUE_LENGTH = 15;
+	
 }
 
 HTTPAcceptor::~HTTPAcceptor()
@@ -368,7 +406,7 @@ void HTTPAcceptor::_bind()
 
    // Set up listening on the given socket:
 
-   int const MAX_CONNECTION_QUEUE_LENGTH = 15;
+   //int const MAX_CONNECTION_QUEUE_LENGTH = 15;
 
    if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
    {

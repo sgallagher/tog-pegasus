@@ -113,6 +113,8 @@ public:
     */
     void bind();
 
+    void tickle_monitor();
+
     /** routine to call when monitor_2 is idle 
      */
     static void _monitor_idle_routine(void* parm);
@@ -155,7 +157,7 @@ public:
 
     /** Signal to shutdown
     */
-    void shutdownSignal();
+    static void shutdownSignal();
 
     /** startSLPProvider is a temporary function to get this
         provider started as part of system startup.

@@ -173,7 +173,7 @@ class PEGASUS_COMMON_LINKAGE Monitor
 public:
   enum Type 
     {
-      UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION
+      UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION, INTERNAL
     };
       
       
@@ -185,6 +185,8 @@ public:
   /** This destruct deletes all handlers which were installed. */
   ~Monitor();
 
+  void initializeTickler();
+  void tickle();
   /** Monitor system-level for the given number of milliseconds. Post a
       message to the corresponding queue when such an event occurs.
       Return after the time has elapsed or a single event has occurred,
@@ -239,8 +241,15 @@ private:
   Boolean _async;
   Mutex _entry_mut;
   AtomicInt _stopConnections;
+  Semaphore _stopConnectionsSem;
+  Uint32 _solicitSocketCount;  // tracks how many times solicitSocketCount() has been called
   friend class HTTPConnection;
-      
+  struct sockaddr_in _tickle_server_addr;
+  struct sockaddr_in _tickle_client_addr;
+  struct sockaddr_in _tickle_peer_addr;
+  Sint32 _tickle_client_socket; 
+  Sint32 _tickle_server_socket;      
+  Sint32 _tickle_peer_socket;
 };
 
 enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION, CLIENTSESSION };

@@ -117,7 +117,7 @@ void ProviderModule::load(void)
 		// get the base file name from the file name parameter in the event that a path
 		// is given. the original provider entry point function was composed of a prefix
 		// and the providerId or base file name.
-		String fileName;
+		String fileName = _fileName;
 		
 		// convert slashes
 		FileSystem::translateSlashes(fileName);

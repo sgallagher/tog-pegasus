@@ -68,7 +68,7 @@ void test01()
     //  Will test WQLParser::parse(const Array<Sint8>&, WQLSelectStatement&)
     //  and WQLParser::parse(const char*, WQLSelectStatement&) forms
     //
-    Array<Sint8> text;
+    Array<char> text;
     text.append(TEXT, sizeof(TEXT));
     if (verbose)
     {

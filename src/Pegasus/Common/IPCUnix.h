@@ -45,7 +45,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_NEED_CRITICAL_TYPE
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
+#endif
+
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
@@ -71,8 +74,11 @@ typedef struct {
     pthread_t owner;
 } PEGASUS_MUTEX_HANDLE ;
 
-typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE ;
-
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+typedef _cleanup_t PEGASUS_CLEANUP_HANDLE;
+#else
+typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE;
+#endif
 
 typedef void *PEGASUS_THREAD_RETURN;
 
@@ -173,8 +179,11 @@ typedef atomic_t PEGASUS_ATOMIC_TYPE ;
 
 inline void pegasus_yield(void)
 {
-
+#ifdef PEGASUS_NEED_CRITICAL_TYPE
       pthread_yield();
+#else
+      sched_yield();
+#endif
 }
 
 // pthreads cancellation calls 
@@ -196,6 +205,8 @@ inline void pegasus_sleep(int msec)
    wait.tv_nsec =  (msec & 1000) * 1000000;
    nanosleep(&wait, NULL);
 }
+
+#ifdef PEGASUS_NEED_CRITICAL_TYPE
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)
 {
@@ -222,6 +233,7 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
    pthread_spin_destroy(crit);
 }
 
+#endif /* PEGASUS_NEED_CRITICAL_TYPE */
 
 //-----------------------------------------------------------------
 /// accurate version of gettimeofday for unix systems

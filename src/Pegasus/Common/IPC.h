@@ -25,6 +25,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#define PEGASUS_NEED_CRITICAL_TYPE
 
 #ifndef Pegasus_IPC_h
 #define Pegasus_IPC_h
@@ -36,6 +37,8 @@
 # include "IPCUnix.h"
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include "IPCHpux.h"
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include "IPCUnix.h"
 #else
 # error "Unsupported platform"
 #endif
@@ -60,11 +63,15 @@ void PEGASUS_COMMON_LINKAGE disable_cancel(void);
 void PEGASUS_COMMON_LINKAGE enable_cancel(void);
 //void PEGASUS_COMMON_LINKAGE native_cleanup_push( void (*)(void *), void * );
 void PEGASUS_COMMON_LINKAGE native_cleanup_pop(Boolean execute);
+
+#ifdef PEGASUS_NEED_CRITICAL_TYPE
 void PEGASUS_COMMON_LINKAGE init_crit(PEGASUS_CRIT_TYPE *crit);
 void PEGASUS_COMMON_LINKAGE enter_crit(PEGASUS_CRIT_TYPE *crit);
 void PEGASUS_COMMON_LINKAGE try_crit(PEGASUS_CRIT_TYPE *crit);
 void PEGASUS_COMMON_LINKAGE destroy_crit(PEGASUS_CRIT_TYPE *crit);
 void PEGASUS_COMMON_LINKAGE exit_crit(PEGASUS_CRIT_TYPE *crit);
+#endif
+
 PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void);
 void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc); 
 void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms);
@@ -317,7 +324,9 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
 
    private:
       PEGASUS_ATOMIC_TYPE _rep; //    atomic_t on POSIX systems with glibc
+#ifdef PEGASUS_NEED_CRITICAL_TYPE
       PEGASUS_CRIT_TYPE _crit;
+#endif /* PEGASUS_NEED_CRITICAL_TYPE */
 };
     
 
@@ -520,6 +529,8 @@ class PEGASUS_COMMON_LINKAGE Condition
 #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+# include "IPCUnix_inline.h"
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include "IPCUnix_inline.h"
 #endif
 

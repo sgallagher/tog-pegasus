@@ -36,13 +36,42 @@
 // they are implemented as macros by glibc. 
 // native_cleanup_push( void (*func)(void *) ) ;
 // these ALSO SET CANCEL STATE TO DEFER
-#define native_cleanup_push( func, arg ) \
-   pthread_cleanup_push_defer_np((func), arg)
 
-// native cleanup_pop(Boolean execute) ; 
-#define native_cleanup_pop(execute) \
-   pthread_cleanup_pop_restore_np(execute)
+/*
+** For platforms which support these non-portable thread cleanup routines,
+**
+**     pthread_cleanup_push_defer_np
+**     pthread_cleanup_pop_restore_np
+**
+** We define the following:
+*/
 
+#ifndef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+# define PEGASUS_HAVE_NP_THREAD_CLEANUP_ROUTINES
+#endif
+
+/*
+**
+** Define native_cleanup_push() and native_cleanup_pop().
+**
+*/
+
+#ifdef PEGASUS_HAVE_NP_THREAD_CLEANUP_ROUTINES
+# define native_cleanup_push(func, arg) \
+     pthread_cleanup_push_defer_np((func), arg)
+# define native_cleanup_pop(execute) \
+    pthread_cleanup_pop_restore_np(execute)
+#else
+# define native_cleanup_push(func, arg) \
+    { \
+	int _oldtype_; \
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &_oldtype_); \
+	pthread_cleanup_push((func), arg);
+# define native_cleanup_pop(execute) \
+	pthread_cleanup_pop(execute); \
+	pthread_setcanceltype(_oldtype_, NULL); \
+    }
+#endif
 
 // block until gaining the lock - throw a deadlock 
 // exception if process already holds the lock 

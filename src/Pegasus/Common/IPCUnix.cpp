@@ -27,9 +27,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
-
 PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+# define SEM_VALUE_MAX 0x0000ffff
+#endif
 
 Mutex::Mutex()
 {

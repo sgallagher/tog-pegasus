@@ -121,9 +121,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 	memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
 	memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
 
-	const Uint32 SEC = milliseconds / 1000;
-	const Uint32 USEC = (milliseconds % 1000) * 1000;
-	struct timeval tv = { SEC, USEC };
+	const Uint32 SECONDS = milliseconds / 1000;
+	const Uint32 MICROSECONDS = (milliseconds % 1000) * 1000;
+	struct timeval tv = { SECONDS, MICROSECONDS };
 
 	count = select(
 	    FD_SETSIZE,

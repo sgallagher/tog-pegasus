@@ -206,8 +206,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    ThreadPool *pool = (ThreadPool *)myself->get_parm();
    if(pool == 0 )
       throw NullPointer();
-   Semaphore *sleep_sem;
-   struct timeval *deadlock_timer;
+   Semaphore *sleep_sem = 0;
+   struct timeval *deadlock_timer = 0;
    
    try 
    {
@@ -231,8 +231,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 break;
      
       
-      PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *);
-      void *parm;
+      PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
+      void *parm = 0;
 
       try 
       {

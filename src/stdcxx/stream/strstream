@@ -1,12 +1,19 @@
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_HPUX) 
 #include <strstream.h>
+
 #ifndef HAVE_STRSTREAM
-#define HAVE_STRSTREAM
+#define HAVE_STRSTREAM 1
+#endif
+
+#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#include <strstream>
+
+#ifndef HAVE_STRSTREAM
+#define HAVE_STRSTREAM 1
 #endif
 
 #else
 #include <sstream>
-
 #ifndef HAVE_STREAM
 #define HAVE_SSTREAM 1
 #endif

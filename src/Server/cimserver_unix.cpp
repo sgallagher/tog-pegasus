@@ -106,7 +106,9 @@ Boolean isCIMServerRunning(void)
   }
 
   // get the pid from the file
-  fscanf(pid_file, "%ld\n", &pid);
+  fscanf(pid_file, "%d\n", &pid);
+
+  fclose(pid_file);
 
   if (pid == 0)
   {
@@ -119,8 +121,12 @@ Boolean isCIMServerRunning(void)
 #if defined(PEGASUS_OS_HPUX)
   struct pst_status pstru;
 
-  if (pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid) != -1)
+  int ret_code;
+  ret_code = pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid);
+
+  if ( (ret_code != -1 ) && (strcmp(pstru.pst_ucomm, "cimserver")) == 0)
   {
+      // cimserver is running
       return true;
   }
 #endif
@@ -141,7 +147,9 @@ int cimserver_kill(void)
   }
 
   // get the pid from the file
-  fscanf(pid_file, "%ld\n", &pid);
+  fscanf(pid_file, "%d\n", &pid);
+
+  fclose(pid_file);
 
   if (pid == 0)
   {
@@ -155,8 +163,12 @@ int cimserver_kill(void)
 #if defined(PEGASUS_OS_HPUX)
   struct pst_status pstru;
 
-  if (pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid) != -1)
+  int ret_code;
+  ret_code = pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid);
+
+  if ( (ret_code != -1 ) && (strcmp(pstru.pst_ucomm, "cimserver")) == 0)
   {
+      // cimserver is running, kill the process
       kill(pid, SIGKILL);
   }
 #endif

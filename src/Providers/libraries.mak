@@ -4,3 +4,10 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegserver$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX)
+
+DYNAMIC_LIBRARIES = \
+    -lpegcommon \
+    -lpegrepository \
+    -lpegprotocol \
+    -lpegserver \
+    -lpegprovider

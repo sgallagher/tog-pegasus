@@ -10,6 +10,12 @@ LIBRARIES = \
 	$(LIB_DIR)/$(LIB_PREFIX)pegcompiler$(LIB_SUFFIX) \
 	$(LIB_DIR)/$(LIB_PREFIX)peggetoopt$(LIB_SUFFIX)
 
+DYNAMIC_LIBRARIES = \
+	-lpegcommon \
+    	-lpegrepository \
+	-lpegcompiler \
+	-lpeggetoopt
+
 #EXTRA_INCLUDES = $(SYS_INCLUDES)
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

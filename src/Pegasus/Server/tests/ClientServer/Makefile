@@ -5,6 +5,8 @@ include ../libraries.mak
 
 LIBRARIES += $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX)
 
+DYNAMIC_LIBRARIES += -lpegclient
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = ClientServer

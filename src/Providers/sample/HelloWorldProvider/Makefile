@@ -12,6 +12,11 @@ LIBRARIES = \
 	 $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX) \
 	 $(LIB_DIR)/$(LIB_PREFIX)pegprovider2$(LIB_SUFFIX)
 	
+DYNAMIC_LIBRARIES = \
+	 -lpegcommon \
+	 -lpegprovider \
+	 -lpegprovider2
+	
 SOURCES = \
    HelloWorldProvider.cpp
 

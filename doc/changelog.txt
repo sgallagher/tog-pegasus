@@ -77,6 +77,14 @@ variables.
 18. (Mike Brasher) Added support for Associators(), AssociatorNames(),
     References() and ReferenceNames() CIM operations. These only operate
     on instances at this time. They will operate on classes soon.
+
+19. (Mike Glantz) Extended and modified dynamic support
+    changes to (1) work on HP-UX and (2) have all images and libraries
+    buildable per the value of PEGASUS_SUPPORTS_DYNLIB. The biggest
+    change is to program.mak and library-unix.mak, removing specific
+    lists of dynamic library specs and putting them in the Makefile
+    and libraries.mak files that build the actual targets (lots of
+    these now have DYNAMIC_LIBRARIES defined).
     
 ------------------------------------------------------------------------------
 --

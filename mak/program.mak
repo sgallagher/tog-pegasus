@@ -10,18 +10,17 @@ endif
 
 FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
+$(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-DYNAMIC_LIBRARIES= -lpegcommon -lpegrepository -lpegprotocol -lpegserver \
--lpegclient -lpegcompiler -lpeggetoopt -lslp
-
-$(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
-	$(LINK_WRAPPER) $(CXX) $(FLAGS) -L $(LIB_DIR) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
-	@ $(ECHO)
+##
+## build images with -l<name> syntax for needed shared libraries
+## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile files
+##
+	$(LINK_WRAPPER) $(CXX) $(FLAGS) -L$(LIB_DIR) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
 else
-$(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(LIBRARIES) $(SYS_LIBS)
-	@ $(ECHO)
 endif
+	@ $(ECHO)
 
 include $(ROOT)/mak/objects.mak
 

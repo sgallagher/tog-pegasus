@@ -10,6 +10,14 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)slp$(LIB_SUFFIX)		
 
+DYNAMIC_LIBRARIES = \
+    -lpegcommon \
+    -lpegrepository \
+    -lpegprotocol \
+    -lpegserver \
+    -lpegprovider \
+    -lslp
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = cimserver

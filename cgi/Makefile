@@ -8,7 +8,7 @@ ifeq ($(OS_TYPE),windows)
 	$(COPY) $(BIN_DIR)/*.dll cgi-bin
 else
 	$(COPY) $(BIN_DIR)/CGIClient cgi-bin
-	$(COPY) $(LIB_DIR)/*.so cgi-bin
+	$(COPY) $(LIB_DIR)/*$(LIB_SUFFIX) cgi-bin
 endif
 
 clean:

@@ -263,10 +263,6 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 		break;
 	    }
 
-	    // 
-	    // ATTN-A: implement these next!
-	    //
-
 	    case WQL_IS_TRUE:
 	    case WQL_IS_NOT_FALSE:
 	    {

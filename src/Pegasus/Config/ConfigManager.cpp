@@ -132,6 +132,7 @@ static struct OwnerEntry _properties[] =
     {"enableClientCertification", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAssociationTraversal", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableIndicationService", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"maximumEnumerationBreadth", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"usePAMAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableNamespaceAuthorization", (ConfigPropertyOwner* )ConfigManager::securityOwner},

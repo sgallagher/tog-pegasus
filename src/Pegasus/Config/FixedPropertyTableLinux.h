@@ -37,7 +37,7 @@
     {"remove",              "false"},
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
-    {"enableAssociationTraversal", "false"},
+    {"enableAssociationTraversal", "true"},
     {"enableIndicationService", "true"},
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},

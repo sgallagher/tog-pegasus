@@ -40,6 +40,7 @@
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
+    {"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},

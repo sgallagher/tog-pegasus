@@ -11,3 +11,5 @@ Testing new improved commit messages.
 More testing
 Last test?
 
+Fixing diff file error
+

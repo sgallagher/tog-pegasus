@@ -76,7 +76,15 @@ clean:
 
 depend:
 
-tests:  
+tests: \
+	Like.query.res \
+	isa.query.res \
+	SymbolicConstant.query.res \
+	EmbeddedEvaluate.query.res \
+	ValidateProperties.query.res \
+	GetPropertyList.query.res \
+	ApplyProjection.query.res \
+	EmbeddedSelect.query.res  
 
 poststarttests:
 

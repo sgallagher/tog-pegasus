@@ -154,6 +154,11 @@ repository implementation.
     be NULL. Also, if -u -p specified in the cimconfig, instead of updating
     property value to be default in the plan file, remove the property from the
     plan file. Converted ConfigSettingProvider to use provider2 library.
+
+30. (Sushma Fernandes - HP) 24 Oct 2001 - Added an interface to the tracer 
+    to allow tracing of a specific number of bytes in a given
+    string. Also modified the XmlIO trace code to use the new interface. 
+    Changed the config file defaults for tracing. 
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

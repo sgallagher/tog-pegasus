@@ -66,6 +66,25 @@ public:
     
     #ifdef PEGASUS_REMOVE_TRACE
         
+        inline static void traceBuffer(
+            const char*  fileName,
+            const Uint32 lineNum,
+            const Uint32 traceComponent,
+            const Uint32 traceLevel,
+            const char*  data,
+            const Uint32 size)
+        {
+            // empty function
+        }
+        inline static void traceBuffer(
+            const Uint32 traceComponent,
+            const Uint32 traceLevel,
+            const char* data,
+            const Uint32 size)
+        {
+            // empty function
+        }
+        
         inline static void trace(
             const Uint32 traceComponent,
             const Uint32 traceLevel,
@@ -105,6 +124,43 @@ public:
         
 
     #else
+        /** Traces the specified number of bytes in a given buffer 
+            @param    traceComponent  component being traced
+            @param    traceLevel      trace level of the trace message
+            @param    data            buffer to be traced
+            @param    size            number of bytes to be traced 
+         */
+        inline static void traceBuffer(
+            const Uint32 traceComponent,
+            const Uint32 traceLevel,
+            const char*  data,
+            const Uint32 size)
+        {
+	    _traceBuffer( traceComponent, traceLevel, data, size );
+        }
+        
+        /** Traces the specified number of bytes in a given buffer 
+	    Overloaded to include the filename and the line number 
+	    of trace origin. 
+            @param    fileName        filename of the trace originator
+            @param    lineNum         line number of the trace originator
+            @param    traceComponent  component being traced
+            @param    traceLevel      trace level of the trace message
+            @param    data            buffer to be traced
+            @param    size            size of the buffer
+         */
+        inline static void traceBuffer(
+            const char*  fileName,
+            const Uint32 lineNum,
+            const Uint32 traceComponent,
+            const Uint32 traceLevel,
+            const char*  data,
+            const Uint32 size)
+        {
+            _traceBuffer( fileName, lineNum,
+		          traceComponent, traceLevel, data, size ); 
+        }
+        
         
         /** Traces the given message 
             @param    traceComponent  component being traced
@@ -232,6 +288,7 @@ private:
     // Message Strings for Logger
     static const char _LOG_MSG1[]; 
     static const char _LOG_MSG2[]; 
+    static const char _LOG_MSG3[]; 
 
     // Checks if trace is enabled for the given component and trace level
     // @param    traceComponent  component being traced
@@ -268,6 +325,34 @@ private:
 	const char* fmt,
 	va_list argList);
 
+    //  Traces the specified number of bytes in a given buffer
+    //  @param    traceComponent  component being traced
+    //  @param    traceLevel      trace level of the trace message
+    //  @param    data            buffer to be traced
+    //  @param    size            number of bytes to be traced
+    static void _traceBuffer(
+	const Uint32 traceComponent,
+        const Uint32 traceLevel,
+        const char*  data,
+        const Uint32 size);
+
+    //  Traces the specified number of bytes in a given buffer
+    //  Overloaded to include the filename and the line number
+    //  of trace origin.
+    //  @param    fileName        filename of the trace originator
+    //  @param    lineNum         line number of the trace originator
+    //  @param    traceComponent  component being traced
+    //  @param    traceLevel      trace level of the trace message
+    //  @param    data            buffer to be traced
+    //  @param    size            size of the buffer
+    static void _traceBuffer(
+	const char*  fileName,
+	const Uint32 lineNum,
+	const Uint32 traceComponent,
+        const Uint32 traceLevel,
+        const char*  data,
+        const Uint32 size);
+
     // Called by all the trace interfaces to log message to the 
     // trace file
     // @param    fileName        filename of the trace originator
@@ -279,7 +364,7 @@ private:
 	const Uint32 traceComponent,
 	const char* message,
 	const char* fmt,
-	va_list argList);
+	va_list argList=0);
 
     // Traces method enter
     // @param    fileName        filename of the trace originator

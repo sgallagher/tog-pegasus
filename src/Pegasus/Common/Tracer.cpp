@@ -49,7 +49,9 @@ const char Tracer::_FUNC_EXIT_MSG[]  = "Exiting method";
 
 // Set Log messages
 const char Tracer::_LOG_MSG1[] = "LEVEL1 not enabled with Tracer::trace call.";
-const char Tracer::_LOG_MSG2[]="Use trace macros, PEG_FUNC_ENTER/PEG_FUNC_EXIT";
+const char 
+      Tracer::_LOG_MSG2[] = "LEVEL1 not enabled with Tracer::traceBuffer call.";
+const char Tracer::_LOG_MSG3[]="Use trace macros, PEG_FUNC_ENTER/PEG_FUNC_EXIT";
 
 // Initialize singleton instance of Tracer
 Tracer* Tracer::_tracerInstance = 0;
@@ -106,7 +108,7 @@ void Tracer::_trace(
 	// ATTN: Setting the Log file type to DEBUG_LOG
 	// May need to change to an appropriate log file type
 	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
-           _LOG_MSG1,_LOG_MSG2); 
+           _LOG_MSG1,_LOG_MSG3); 
     }
     else
     {
@@ -133,7 +135,7 @@ void Tracer::_trace(
     if ( traceLevel == LEVEL1 )
     {
 	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
-           _LOG_MSG1,_LOG_MSG2); 
+           _LOG_MSG1,_LOG_MSG3); 
      }
      else
      {
@@ -145,6 +147,69 @@ void Tracer::_trace(
 
             _trace(traceComponent,message,fmt,argList); 
 	    delete []message;
+         }
+     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Traces the given buffer
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::_traceBuffer(
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char*  data,
+    const Uint32 size)
+{
+    if ( traceLevel == LEVEL1 )
+    {
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
+           _LOG_MSG2,_LOG_MSG3);
+    }
+    else
+    {
+        if (_isTraceEnabled(traceComponent,traceLevel))
+        {
+            char* tmpBuf = new char[size+1];
+
+            strncpy( tmpBuf, data, size );
+            tmpBuf[size] = '\0';
+            _trace(traceComponent,"",tmpBuf);
+
+            delete []tmpBuf;
+        }
+    }
+}
+////////////////////////////////////////////////////////////////////////////////
+//Traces the given buffer - Overloaded for including FileName and Line number
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::_traceBuffer(
+    const char* fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char*  data,
+    const Uint32 size)
+{
+    if ( traceLevel == LEVEL1 )
+    {
+        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
+           _LOG_MSG2,_LOG_MSG3);
+    }
+    else
+    {
+        if ( _isTraceEnabled( traceComponent, traceLevel ) )
+        {
+            char* message = new char[ strlen(fileName) +
+                _STRLEN_MAX_UNSIGNED_INT + 6 ];
+            char* tmpBuf = new char[size+1];
+
+            sprintf(message,"[%s:%d]: ",fileName,lineNum);
+            strncpy( tmpBuf, data, size );
+            tmpBuf[size] = '\0';
+            _trace(traceComponent,message,tmpBuf);
+
+            delete []tmpBuf;
+            delete []message;
          }
      }
 }

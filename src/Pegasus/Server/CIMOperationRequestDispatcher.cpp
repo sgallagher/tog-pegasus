@@ -880,7 +880,7 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
    @param pl CIMPropertyList to convert.
    @return String representation of property list for display.
 */
-String _toStringPropertyList(const CIMPropertyList& pl)
+static String _toStringPropertyList(const CIMPropertyList& pl)
 {
     String tmp;
     for (Uint32 i = 0; i < pl.size() ; i++)
@@ -899,7 +899,7 @@ String _toStringPropertyList(const CIMPropertyList& pl)
    @return String containing the list of properties comma separated
    or the keywords NULL or Empty.
  */
-String _showPropertyList(const CIMPropertyList& pl)
+static String _showPropertyList(const CIMPropertyList& pl)
 {
     if (pl.isNull())
         return("NULL");

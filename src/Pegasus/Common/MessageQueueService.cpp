@@ -82,9 +82,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 void MessageQueueService::force_shutdown(void)
 {
    PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
-   MessageQueueService::_stop_polling = 1;
+   //MessageQueueService::_stop_polling = 1;
    MessageQueueService *svc;
-   
+   int counter = 0;   
    _polling_list.lock();
    svc = _polling_list.next(0);
    while(svc != 0)
@@ -105,10 +105,27 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
    while ( _stop_polling.value()  == 0 ) 
    {
+      counter++;
       _polling_sem.wait();
       if(_stop_polling.value() != 0 )
       {
          break;
+
+   _polling_sem.signal();
+
+  while ( counter != 0) {
+	Thread::sleep(100);
+	_polling_list.lock();
+	svc = _polling_list.next(0);
+	while (svc != 0 ) {
+		if (svc ->_incoming_queue_shutdown.value() == 1 ) {
+			counter--;
+		}
+		svc  = _polling_list.next(svc);
+	}
+	_polling_list.unlock();
+   }
+   MessageQueueService::_stop_polling = 1;
       }
       
       list->lock();
@@ -684,7 +701,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 	 MessageQueueService *service = static_cast<MessageQueueService *>(req->op->_service_ptr);
 	 
 	 // respond to this message.
-	 _make_response(req, async_results::OK);
+	 // _make_response(req, async_results::OK);
 	 // ensure we do not accept any further messages
 
 	 // ensure we don't recurse on IO_CLOSE

@@ -67,14 +67,16 @@ String Formatter::Arg::toString() const
 	case LINTEGER:
 	{
 	    char buffer[32];
-	    sprintf(buffer, "%ld", _lInteger);
+	    // ATTN-B: truncation here!
+	    sprintf(buffer, "%ld", long(_lInteger));
 	    return buffer;
 	}
 	
 	case ULINTEGER:
 	{
 	    char buffer[32];
-	    sprintf(buffer, "%lu", _lUInteger);
+	    // ATTN-B: truncation here:
+	    sprintf(buffer, "%lu", long(_lUInteger));
 	    return buffer;
 	}
 

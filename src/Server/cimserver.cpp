@@ -33,7 +33,7 @@
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Protocol/Handler.h>
-#include <Pegasus/Common/logger.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     }
 
     // Check the trace options and set global variable
-    Boolean pegasusIOTrace; 
+    Boolean pegasusIOTrace = true; 
     if (om.valueEquals("trace", "true"))
     {
          Handler::sethandlerTrace(true);

@@ -30,8 +30,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
 
 #include <Pegasus/ProviderManager2/ProviderManagerModule.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T ProviderManagerModule
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
@@ -92,12 +101,50 @@ void Test2(void)
     module.unload();
 }
 
+// array behavior experiment
+void Test3(void)
+{
+    Array<ProviderManagerModule> modules;
+
+    for(Uint32 i = 0, n = 3; i < n; i++)
+    {
+        cout << "creating ProviderManagerModule object for " << FILE_NAME << endl;
+
+        ProviderManagerModule module(FILE_NAME);
+
+        modules.append(module);
+    }
+
+    for(Uint32 i = 0, n = modules.size(); i < n; i++)
+    {
+        cout << "loading ProviderManagerModule object for " << modules[i].getFileName() << endl;
+
+        modules[i].load();
+    }
+
+    for(Uint32 i = 0, n = modules.size(); i < n; i++)
+    {
+        cout << "unloading ProviderManagerModule object for " << modules[i].getFileName() << endl;
+
+        modules[i].unload();
+    }
+
+    while(modules.size() != 0)
+    {
+        cout << "removing (destroying) ProviderManagerModule object for " << modules[0].getFileName() << endl;
+
+        modules.remove(0);
+    }
+}
+
 int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     Test1();
     Test2();
+
+    Test3();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

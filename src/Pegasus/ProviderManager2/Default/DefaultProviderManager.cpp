@@ -1297,7 +1297,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             request->role,
             request->includeQualifiers,
             request->includeClassOrigin,
-            request->propertyList.getPropertyNameArray(),
+            request->propertyList,
             handler);
 
         STAT_PMS_PROVIDEREND;

@@ -204,11 +204,11 @@ void HTTPMessage::printAll(ostream& os) const
     Uint32 contentLength;
     parse(startLine, headers, contentLength);
 
-    const Sint8* content = message.getData() - contentLength;
-
+    // get pointer to start of data.
+    const Sint8* content = message.getData() + message.size() - contentLength;
     // Print the first line:
 
-    cout << startLine << endl;
+    os << endl << startLine << endl;
 
     // Print the headers:
 
@@ -216,40 +216,40 @@ void HTTPMessage::printAll(ostream& os) const
 
     for (Uint32 i = 0; i < headers.size(); i++)
     {
-	cout << headers[i].first << ": " << headers[i].second << endl;
-
-	if (String::equalNoCase(headers[i].first, "content-type"))
-	{
-	    if (headers[i].second.find("image/") == 0)
-		image = true;
-	}
+    	cout << headers[i].first << ": " << headers[i].second << endl;
+    
+    	if (String::equalNoCase(headers[i].first, "content-type"))
+    	{
+    	    if (headers[i].second.find("image/") == 0)
+    		image = true;
+    	}
     }
 
-    cout << endl;
+    os << endl;
 
     // Print the content:
 
     for (Uint32 i = 0; i < contentLength; i++)
     {
-	Sint8 c = content[i];
+	//Sint8 c = content[i];
 
 	if (image)
 	{
 	    if ((i % 60) == 0)
-		cout << endl;
+		os << endl;
 
 	    Sint8 c = content[i];
 
 	    if (c >= ' ' && c < '~')
-		cout << c;
+		os << c;
 	    else
-		cout << '.';
+		os << '.';
 	}
 	else
-	    cout << c;
+	    cout << content[i];
     }
 
-    cout << endl;
+    os << endl;
 }
 
 Boolean HTTPMessage::lookupHeader(

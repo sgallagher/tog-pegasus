@@ -237,28 +237,32 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
                                        String("The FROM class $0 does not exist."),
                                        fromList[0].getName().getString()));
               }
+              else
+              {
+                throw ce;
+              }
             }
+          }  
+        }
+        else
+        {	
+          // The firstId was found in the FROM list, but it could have been 
+          // an alias
+          if (!matchedId.getName().equal(firstId.getName()))
+          {
+            // It was an alias.
+            // Replace the alias with the FROM class
+            _subIdentifiers[0] = matchedId;
           }
-	}
-	else
-	{	
-	  // The firstId was found in the FROM list, but it could have been 
-	  // an alias
-	  if (!matchedId.getName().equal(firstId.getName()))
-	  {
-	    // It was an alias.
-	    // Replace the alias with the FROM class
-	    _subIdentifiers[0] = matchedId;
-	  }
-	  else 
-	  {
-	    // It was not an alias. Do nothing.
-	    ;
-	  }
-	}
-      }
-    }
-  }
+          else 
+          {
+            // It was not an alias. Do nothing.
+            ;
+          }
+        }  //else first identifier was in the FROM list
+      }  // else first identifier was not scoped
+    }  // else first identifier was not wildcard
+  }  // first identifier has some contents
   
   // Go through and replace any aliases on scoping classes
   for (Uint32 i = 0; i < _subIdentifiers.size(); i++)

@@ -38,14 +38,19 @@
 PEGASUS_NAMESPACE_BEGIN
 
 SelectStatementRep::SelectStatementRep()
+  :_ctx(NULL)
 {
 }
 
 SelectStatementRep::SelectStatementRep(const SelectStatementRep& ssr)
   :_qlang(ssr._qlang),
    _query(ssr._query)
-{  
-  _ctx = ssr._ctx->clone();  
+{
+  _ctx = NULL;
+  if (ssr._ctx != NULL)
+  {
+    _ctx = ssr._ctx->clone();  
+  }
 }
 
 SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery, QueryContext& inCtx)
@@ -57,9 +62,9 @@ SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery, QueryCo
 
 SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery)
   :_qlang(inQlang),
-   _query(inQuery)
+   _query(inQuery),
+   _ctx(NULL)
 {
-  _ctx = NULL;
 }
 
 SelectStatementRep::~SelectStatementRep()
@@ -75,7 +80,20 @@ SelectStatementRep& SelectStatementRep::operator=(const SelectStatementRep& rhs)
 
   _qlang = rhs._qlang;
   _query = rhs._query;
-  _ctx = rhs._ctx->clone();
+
+  if (_ctx != NULL)
+  {
+    delete _ctx;
+  }
+
+  if (rhs._ctx != NULL)
+  {
+    _ctx = rhs._ctx->clone();
+  }
+  else
+  {
+    _ctx = NULL;
+  }
 
   return *this;
 }
@@ -90,8 +108,17 @@ String SelectStatementRep::getQuery() const
    return _query;
 }
 
-void SelectStatementRep::setQueryContext(QueryContext& inCtx){
-	_ctx = inCtx.clone();
+void SelectStatementRep::setQueryContext(QueryContext& inCtx)
+{
+  if (_ctx == NULL)
+  {
+    _ctx = inCtx.clone();
+  } 
+  else
+  {
+    throw QueryException(MessageLoaderParms("QueryCommon.SelectStatementRep.QUERY_CTX_ALREADY_SET",
+                        "The QueryContext can only be set once on a SelectStatement."));
+  }
 }
 
 PEGASUS_NAMESPACE_END

@@ -112,6 +112,9 @@
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
 
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
 int cimserver_run( int argc, char** argv, Boolean shutdownOption );
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -126,9 +129,6 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption );
 #else
 # error "Unsupported platform"
 #endif
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
 
 //
 //  The command name.

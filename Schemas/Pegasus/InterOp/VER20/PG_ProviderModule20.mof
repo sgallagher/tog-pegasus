@@ -7,15 +7,15 @@ class PG_ProviderModule : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
        "uniquely identifies the Provider Module.")]
    string Name;
-      [Description ("The name of the Provider Module vendor.") ]
+      [Required, Description ("The name of the Provider Module vendor.") ]
    string Vendor;
-      [Description ("The Provider Module version.")]
+      [Required, Description ("The Provider Module version.")]
    string Version;
-      [Description ("")]
+      [Required, Description ("")]
    string InterfaceType;
-      [Description ("")]
+      [Required, Description ("")]
    string InterfaceVersion;
-      [Description ("")]
+      [Required, Description ("")]
    string Location;
       [Description ( 
         "   Indicates the current status(es) of the element. "
@@ -122,12 +122,12 @@ class PG_CapabilitiesRegistration : CIM_ManagedElement {
          "ProviderCapabilities describes a set of PG_Provider "
          "capabilities. ") ]
 class PG_ProviderCapabilities : PG_CapabilitiesRegistration {
-      [Description (
+      [Required, Description (
        "The ClassName describes the class for which the associated "
        "Provider supplies instances, associations or indications "
        "information.")]
    string ClassName;
-      [Description ("Namespaces describes the namespaces that are "
+      [Required, Description ("Namespaces describes the namespaces that are "
        "supported by the Provider for ClassName.")] 
    string Namespaces[];
       [Description (

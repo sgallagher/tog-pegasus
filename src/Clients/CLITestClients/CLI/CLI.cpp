@@ -175,7 +175,7 @@ int main(int argc, char** argv)
     opts.cimCmd = "unknown";
     opts.className = CIMName();
     opts.objectName = "unknown";
-    opts.outputFormat;
+    
     opts.isXmlOutput = false;
     opts.outputFormatType = OUTPUT_MOF;
     opts.user = String::EMPTY;
@@ -475,7 +475,7 @@ int main(int argc, char** argv)
                     opts.methodName = CIMName(argv[3]);
                     if (argc >= 4)
                     {
-                        for (Uint32 i = 4 ; i < argc; i++)
+                        for (Sint32 i = 4 ; i < argc; i++)
                         {
                             CIMParamValue pv;
                             String s = argv[i];
@@ -510,7 +510,8 @@ int main(int argc, char** argv)
                 if (opts.time)
                 {
                     totalTime += opts.saveElapsedTime;
-                    maxTime = max(maxTime,opts.saveElapsedTime);
+#define LOCAL_MAX(a, b) ((a > b) ? a : b)
+                    maxTime = LOCAL_MAX(maxTime, opts.saveElapsedTime);
                     minTime = min(minTime, opts.saveElapsedTime);
                 }
             }

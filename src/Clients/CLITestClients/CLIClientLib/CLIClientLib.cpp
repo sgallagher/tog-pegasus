@@ -290,7 +290,8 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
         client.enumerateInstanceNames(opts.nameSpace, classNames[iClass]);
         if (opts.summary)
         {
-        _displaySummary(instanceNames.size(), String(" instance names of class "), opts.className.getString(),opts);    
+	  String s = " instance names of class ";   
+	  _displaySummary(instanceNames.size(), s, opts.className.getString(),opts);    
         /*
         if (instanceNames.size() != 0)
             {
@@ -333,8 +334,8 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-        _displaySummary(instanceNames.size(), String(" instances names of class "),
-             opts.className.getString(),opts);    
+      String s = " instances names of class ";  
+      _displaySummary(instanceNames.size(), s, opts.className.getString(),opts);    
     }
     else
     {
@@ -372,8 +373,8 @@ int enumerateInstances(CIMClient& client, Options& opts)
     
     if (opts.summary)
     {
-        _displaySummary(instances.size(), String(" instances of class "),
-             opts.className.getString(),opts);    
+      String s = " instances of class ";
+        _displaySummary(instances.size(), s, opts.className.getString(),opts);    
         /*
         cout << instances.size() << " instances of class " << opts.className << " returned. ";
             if (opts.repeat > 0)
@@ -452,7 +453,8 @@ int enumerateClassNames(CIMClient& client, Options& opts)
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     if (opts.summary)
     {
-        _displaySummary(classNames.size(), String(" class names "),
+      String s = "class names ";
+        _displaySummary(classNames.size(), s,
              opts.className.getString(),opts);    
     }
     else
@@ -498,8 +500,8 @@ int enumerateClasses(CIMClient& client, Options& opts)
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     if (opts.summary)
     {
-        _displaySummary(classes.size(), String(" classes "),
-             opts.className.getString(),opts);    
+      String s = " classes ";
+        _displaySummary(classes.size(), s, opts.className.getString(),opts);    
     }
     else
     {
@@ -579,7 +581,7 @@ int getProperty(CIMClient& client, Options& opts)
     
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
                                    
-    // display returned property
+    // ATTN: TODO: display returned property
     return 0;
 }
 
@@ -604,6 +606,7 @@ int setProperty(CIMClient& client, Options& opts)
                                    
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
 
+ ATTN: TODO:
     return 0;
 }
 
@@ -729,7 +732,8 @@ int referenceNames(CIMClient& client, Options& opts)
     
     if (opts.summary)
     {
-        _displaySummary(referenceNames.size(), String(" referenceNames "),
+      String s = " referenceNames ";
+        _displaySummary(referenceNames.size(),s,
              opts.objectName,opts);    
     }
     else
@@ -782,7 +786,8 @@ int references(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-        _displaySummary(objects.size(), String(" referenceNames "),
+      String s = " references ";
+        _displaySummary(objects.size(), s,
              opts.objectName,opts);    
     }
     else
@@ -840,7 +845,8 @@ int associatorNames(CIMClient& client, Options& opts)
     
     if (opts.summary)
     {
-        _displaySummary(associatorNames.size(), String(" associator names "),
+      String s = " associator names ";
+        _displaySummary(associatorNames.size(), s,
              opts.objectName,opts);    
     }
     else
@@ -899,8 +905,8 @@ int associators(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-        _displaySummary(objects.size(), String(" associators "),
-             opts.objectName,opts);    
+      String s = " associators ";
+        _displaySummary(objects.size(), s, opts.objectName,opts);    
     }
     else
     {
@@ -1197,15 +1203,18 @@ void GetOptions(
 */
 void showCommands()
 {
+#define LOCAL_MAX(a, b) ((a > b) ? a : b)    
     cout << "\nPossible CIMOperations are\nshort cut     name       Usage: \n";
     Uint32 width = 0;
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ )
-        width = max(strlen(CommandTable[i].CommandName), width);
+        width = LOCAL_MAX(strlen(CommandTable[i].CommandName), width);
     
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ ) 
     {
-        cout << setw(6) << left << CommandTable[i].ShortCut;
-        cout << setw(width) << left << CommandTable[i].CommandName; 
+        // ATTN: left not compile linus cout << setw(6) << left << CommandTable[i].ShortCut;
+        // ATTN: left not compile linux cout << setw(width) << left << CommandTable[i].CommandName;
+        cout << setw(6)  << CommandTable[i].ShortCut;
+        cout << setw(width) << CommandTable[i].CommandName; 
         cout << " " << CommandTable[i].UsageText << endl;
     }
 }

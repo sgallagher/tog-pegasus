@@ -213,29 +213,18 @@ CIMServer::CIMServer(Monitor* monitor)
     ConfigManager* configManager = ConfigManager::getInstance();
 
     Boolean enableAuthentication = false;
-    Boolean enableNamespaceAuthorization = false;
 
-    if (String::equal(
+    if (String::equalNoCase(
         configManager->getCurrentValue("enableAuthentication"), "true"))
     {
         enableAuthentication = true;
     }
 
-    if (String::equal(
-        configManager->getCurrentValue("enableNamespaceAuthorization"), "true"))
-    {
-        enableNamespaceAuthorization = true;
-    }
-
     //
-    // check if authentication and authorization are enabled
+    // Create Authorization queue only if authentication is enabled
     //
-    if ( enableAuthentication && enableNamespaceAuthorization )
+    if ( enableAuthentication )
     {
-        //
-        // Create Authorization queue only if authorization and
-        // authentication are enabled
-        //
         _cimOperationRequestAuthorizer = new CIMOperationRequestAuthorizer(
             _cimOperationRequestDispatcher);
 

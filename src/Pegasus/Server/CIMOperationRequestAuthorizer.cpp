@@ -331,61 +331,64 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    }
 
    //
-   // Do Authorization verification
-   //
-   UserManager* userManager = UserManager::getInstance();
-
-   //
-   // Get a config manager instance and current value for 
-   // enableRemotePrivilegedUserAccess property.
+   // Get a config manager instance
    //
    ConfigManager* configManager = ConfigManager::getInstance();
 
-   String privilegedAccessEnabled = String::EMPTY; 
-   privilegedAccessEnabled = 
-      configManager->getCurrentValue("enableRemotePrivilegedUserAccess");
-
    //
-   // Check if the user is not priviliged, if so perform authorization check.
+   // Do namespace authorization verification
    //
-#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-   if ( ! System::isPrivilegedUser(userName) )
-#else
-   // On OS/400, always check authorization if remote user.
-   // Always allow local privileged users through.
-   // Check authorization for local non-privileged users.
-   // (User authorization to providers are checked downstream from here).
-   if ( ! String::equalNoCase(authType,"Local") ||
-        ! System::isPrivilegedUser(userName) )
-#endif
+   if (String::equalNoCase(
+          configManager->getCurrentValue("enableNamespaceAuthorization"),
+          "true"))
    {
-      if ( !userManager || !userManager->verifyAuthorization(
-              userName, nameSpace, cimMethodName) )
+      //
+      // If the user is not privileged, perform the authorization check.
+      //
+#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+      if ( ! System::isPrivilegedUser(userName) )
+#else
+      // On OS/400, always check authorization if remote user.
+      // Always allow local privileged users through.
+      // Check authorization for local non-privileged users.
+      // (User authorization to providers are checked downstream from here).
+      if ( ! String::equalNoCase(authType,"Local") ||
+           ! System::isPrivilegedUser(userName) )
+#endif
       {
-	 String description = "Not authorized to run ";
-	 description.append(cimMethodName);
-	 description.append(" in the namespace ");
-	 description.append(nameSpace.getString());
+         UserManager* userManager = UserManager::getInstance();
 
-	 sendIMethodError(
-	    queueId,
-            request->getHttpMethod(),
-	    ((CIMRequestMessage*)request)->messageId,
-	    cimMethodName,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+         if ( !userManager || !userManager->verifyAuthorization(
+                 userName, nameSpace, cimMethodName) )
+         {
+            String description = "Not authorized to run ";
+            description.append(cimMethodName);
+            description.append(" in the namespace ");
+            description.append(nameSpace.getString());
 
-	 PEG_METHOD_EXIT();
+            sendIMethodError(
+               queueId,
+               request->getHttpMethod(),
+               ((CIMRequestMessage*)request)->messageId,
+               cimMethodName,
+               PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
 
-	 return;
+            PEG_METHOD_EXIT();
+
+            return;
+         }
       }
    }
+
    //
    // If the user is privileged, and remote privileged user access is not 
-   // enabled and the auth type is not local then reject access.
-   // If the auth type is local then allow access.
+   // enabled and the auth type is not Local then reject access.
    //
-   else if ( (!String::equalNoCase(authType,"Local")) &&
-	     String::equalNoCase(privilegedAccessEnabled,"false"))
+   if ( System::isPrivilegedUser(userName) &&
+        !String::equalNoCase(authType, "Local") &&
+        !String::equalNoCase(
+           configManager->getCurrentValue("enableRemotePrivilegedUserAccess"),
+           "true") )
    {
       String description =
 	 "Remote privileged user access is not enabled.";

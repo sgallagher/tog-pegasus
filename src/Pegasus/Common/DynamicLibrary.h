@@ -31,6 +31,7 @@
 #define Pegasus_DynamicLibrary_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
 
 #include <Pegasus/Common/Linkage.h>
@@ -66,11 +67,11 @@ public:
     virtual Boolean load(void);
     virtual Boolean unload(void);
 
+    virtual Boolean isLoaded(void) const;
+
     String getFileName(void) const;
     LIBRARY_HANDLE getHandle(void) const;
     LIBRARY_SYMBOL getSymbol(const String & symbolName);
-
-    //static String dynamicLoadError(void);
 
 private:
     String _fileName;

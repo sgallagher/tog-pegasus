@@ -45,50 +45,48 @@ PEGASUS_NAMESPACE_BEGIN
 
 Boolean DynamicLibrary::load(void)
 {
-    if(_handle == 0)
-    {
-        CString cstr = _fileName.getCString();
+    // ensure the module is not already loaded
+    PEGASUS_ASSERT(isLoaded() == false);
 
-        #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
-        _handle = dlopen(cstr, RTLD_NOW);
-        #elif defined(PEGASUS_OS_TRU64)
-        _handle = dlopen(cstr, RTLD_NOW);
-        #elif defined(PEGASUS_OS_ZOS)
-        _handle = dllload(cstr);
-        #elif defined(PEGASUS_OS_OS400)
-        _handle = OS400_LoadDynamicLibrary((const char *)cstr);
-        #endif
+    CString cstr = _fileName.getCString();
 
-        if(_handle == 0)
-        {
-            return(false);
-        }
-    }
+    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
+    _handle = dlopen(cstr, RTLD_NOW);
+    #elif defined(PEGASUS_OS_TRU64)
+    _handle = dlopen(cstr, RTLD_NOW);
+    #elif defined(PEGASUS_OS_ZOS)
+    _handle = dllload(cstr);
+    #elif defined(PEGASUS_OS_OS400)
+    _handle = OS400_LoadDynamicLibrary((const char *)cstr);
+    #endif
 
-    return(true);
+    return(isLoaded());
 }
 
 Boolean DynamicLibrary::unload(void)
 {
-    if(_handle != 0)
-    {
-        #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
-        dlclose(_handle);
-        #elif defined(PEGASUS_OS_OS400)
-        OS400_UnloadDynamicLibrary(_handle);
-        #endif
+    // ensure the module is loaded
+    PEGASUS_ASSERT(isLoaded() == true);
 
-        _handle = 0;
-    }
+    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
+    dlclose(_handle);
+    #elif defined(PEGASUS_OS_OS400)
+    OS400_UnloadDynamicLibrary(_handle);
+    #endif
 
-    return(true);
+    return(isLoaded());
+}
+
+Boolean DynamicLibrary::isLoaded(void) const
+{
+    return(_handle != 0);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
 {
     LIBRARY_SYMBOL func = 0;
 
-    if(_handle != 0)
+    if(isLoaded())
     {
         CString cstr = symbolName.getCString();
 

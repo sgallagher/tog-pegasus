@@ -33,43 +33,43 @@ PEGASUS_NAMESPACE_BEGIN
 
 Boolean DynamicLibrary::load(void)
 {
-    if(_handle == 0)
-    {
-        CString cstr = _fileName.getCString();
+    // ensure the module is not already loaded
+    PEGASUS_ASSERT(isLoaded() == false);
 
-        _handle = ::LoadLibrary(cstr);
+    CString cstr = _fileName.getCString();
 
-        if(_handle == 0)
-        {
-            return(false);
-        }
-    }
+    _handle = LoadLibrary(cstr);
 
-    return(true);
+    return(isLoaded());
 }
 
 Boolean DynamicLibrary::unload(void)
 {
-    if(_handle != 0)
-    {
-        ::FreeLibrary(_handle);
+    // ensure the module is loaded
+    PEGASUS_ASSERT(isLoaded() == true);
 
-        _handle = 0;
-    }
+    FreeLibrary(_handle);
 
-    return(true);
+    _handle = 0;
+
+    return(isLoaded());
+}
+
+Boolean DynamicLibrary::isLoaded(void) const
+{
+    return(_handle != 0);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
 {
     LIBRARY_SYMBOL func = 0;
 
-    if(_handle != 0)
+    if(isLoaded())
     {
         // convert Char16 data to ascii
         CString cstr = symbolName.getCString();
 
-        func = (LIBRARY_SYMBOL)::GetProcAddress(_handle, (const char *)cstr);
+        func = (LIBRARY_SYMBOL)GetProcAddress(_handle, (const char *)cstr);
     }
 
     return(func);

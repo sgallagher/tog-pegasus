@@ -93,46 +93,49 @@ Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 
 Boolean DynamicLibrary::load(void)
 {
+    // ensure the module is not already loaded
+    PEGASUS_ASSERT(isLoaded() == false);
+
+    CString cstr = _fileName.getCString();
+
+    //_handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
+    _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+
+    // increment handle if valid
     if(_handle == 0)
     {
-        // If library is not loaded, load it now
-        CString cstr = _fileName.getCString();
-
-        //_handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
-        _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
-
-        if (_handle == 0)
-        {
-            return(false);
-        }
+        _increment_handle(_handle);
     }
 
-    _increment_handle(_handle);
-
-    return(true);
+    return(isLoaded());
 }
 
 Boolean DynamicLibrary::unload(void)
 {
-    if(_handle != 0)
-    {
-        // release the library only if the handle reference count is 0
-        if(_decrement_handle(_handle) == 0)
-        {
-            shl_unload(reinterpret_cast<shl_t>(_handle));
-        }
+    // ensure the module is loaded
+    PEGASUS_ASSERT(isLoaded() == true);
 
-        _handle = 0;
+    // decrement handle is valid and release the library only if the handle reference count is 0
+    if((_handle != 0) && (_decrement_handle(_handle) == 0))
+    {
+        shl_unload(reinterpret_cast<shl_t>(_handle));
     }
 
-    return(true);
+    _handle = 0;
+
+    return(isLoaded());
+}
+
+Boolean DynamicLibrary::isLoaded(void) const
+{
+    return(_handle != 0);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
 {
     LIBRARY_SYMBOL func = 0;
 
-    if(_handle != 0)
+    if(isLoaded())
     {
         CString cstr = symbolName.getCString();
 

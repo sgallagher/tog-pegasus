@@ -29,7 +29,7 @@
 
 #include "DynamicLibrary.h"
 
-#include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/InternalException.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "DynamicLibraryWindows.cpp"
@@ -53,7 +53,7 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
 
     // load the module again, if necessary. this effectively increments the
     // operating system's reference count for the module.
-    if(library._handle != 0)
+    if(isLoaded())
     {
         load();
     }
@@ -81,11 +81,16 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
         return(*this);
     }
 
+    if(isLoaded())
+    {
+        unload();
+    }
+
     _fileName = library._fileName;
 
     // load the module again, if necessary. this effectively increments the
     // operating system's reference count for the module.
-    if(library._handle != 0)
+    if(library.isLoaded())
     {
         load();
     }

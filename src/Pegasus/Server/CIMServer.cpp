@@ -47,9 +47,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-# include <Pegasus/Common/Signal.h>
-#endif
+#include <Pegasus/Common/Signal.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include "ProviderMessageFacade.h"
@@ -92,8 +90,7 @@ static Message * controlProviderReceiveMessageCallback(
 }
 
 Boolean handleSigHup = false;
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-void sigHupHandler(int s_n, siginfo_t * s_info, void * sig)
+void sigHupHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "sigHupHandler");
 
@@ -101,7 +98,6 @@ void sigHupHandler(int s_n, siginfo_t * s_info, void * sig)
 
     PEG_METHOD_EXIT();
 }
-#endif
 
 
 CIMServer::CIMServer(Monitor* monitor)
@@ -270,11 +266,9 @@ CIMServer::CIMServer(Monitor* monitor)
             (_repository, _providerRegistrationManager);
     }
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     // Enable the signal handler to shutdown gracefully on SIGHUP
-    getSigHandle()->registerHandler(SIGHUP, sigHupHandler);
-    getSigHandle()->activate(SIGHUP);
-#endif
+    getSigHandle()->registerHandler(PEGASUS_SIGHUP, sigHupHandler);
+    getSigHandle()->activate(PEGASUS_SIGHUP);
 
     PEG_METHOD_EXIT();
 }

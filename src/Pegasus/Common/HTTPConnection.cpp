@@ -33,10 +33,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_HPUX_ACC)
-#include <Pegasus/Common/Signal.h>
-#endif
-
 #include <iostream>
 #include <cctype>
 #include <cstdlib>
@@ -46,6 +42,7 @@
 #include "MessageQueue.h"
 #include "Monitor.h"
 #include "HTTPMessage.h"
+#include "Signal.h"
 #include "Tracer.h"
 
 
@@ -90,6 +87,14 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
     return 0;
 }
+
+// Used to test signal handling
+void * sigabrt_generator(void * parm)
+{
+    abort();
+    return 0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -184,15 +189,13 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 const Array<Sint8>& buffer = httpMessage->message;
 	 const Uint32 CHUNK_SIZE = 16 * 1024;
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_HPUX_ACC)
-	 SignalHandler::ignore(SIGPIPE);
+	 SignalHandler::ignore(PEGASUS_SIGPIPE);
 
-	 //getSigHandle()->registerHandler(SIGSEGV,sig_act);
-	 //getSigHandle()->activate(SIGSEGV);
-	 // use the next two lines to test the SIGSEGV handler
-	 //Thread t(::segmentation_faulter,NULL,false);
+	 // use the next four lines to test the SIGABRT handler
+	 //getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
+	 //getSigHandle()->activate(PEGASUS_SIGABRT);
+	 //Thread t(sigabrt_generator, NULL, false);
 	 //t.run();
-#endif
 
          Uint32 totalBytesWritten = 0;
 	 for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )

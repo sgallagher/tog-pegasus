@@ -33,14 +33,20 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
 #include <cstdio>
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#include <unistd.cleinc>
+#else
 #include <unistd.h>
+#endif
 
 void sig_act(int s_n, siginfo_t * s_info, void * sig)
 {
     void * retval = NULL;
 
     printf("Received a segmentation fault\n");
+#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
     printf(" in address %p\n", s_info->si_addr);
+#endif
     printf(" pid %d\n", getpid());
     
     // in general it is dangerous to call pthread call
@@ -52,12 +58,14 @@ void sig_act(int s_n, siginfo_t * s_info, void * sig)
 
 void * segmentation_faulter(void * parm)
 {
+#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
     int * dataspace;
 
     printf("my pid is %d\n", getpid());
     dataspace = (int *) sbrk(0);
     dataspace++;
     *dataspace = 16;
+#endif
     return NULL;
 }
 
@@ -96,7 +104,7 @@ void SignalHandler::activate(Uint32 signum)
 
     sig_acts->sa_sigaction = reg_handler[signum].sh;
     sigfillset(&(sig_acts->sa_mask));
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
     sig_acts->sa_flags = SA_SIGINFO | SA_RESETHAND;
 #else
     sig_acts->sa_flags = SA_SIGINFO | SA_ONESHOT;
@@ -139,7 +147,19 @@ void SignalHandler::deactivateAll()
 
 void SignalHandler::ignore(Uint32 signum)
 {
+#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
     ::sigignore(signum);
+#else
+    struct sigaction * sig_acts = new struct sigaction;
+
+    sig_acts->sa_handler = SIG_IGN;
+    sigfillset(&(sig_acts->sa_mask));
+    sig_acts->sa_flags = 0;
+
+    sigaction(signum, sig_acts, NULL);
+
+    delete sig_acts;	
+#endif
 }
 
 

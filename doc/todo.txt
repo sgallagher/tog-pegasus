@@ -1,4 +1,7 @@
 
+    -   Need way of signaling the cimserver so that it will reload the
+	class inheritance table (after a MOF compile).
+    
     -   Revisit use of namespace v.s. objectName in all CIM operations.
 
     -   What do we do when getInstance() is called and the nameSpace is

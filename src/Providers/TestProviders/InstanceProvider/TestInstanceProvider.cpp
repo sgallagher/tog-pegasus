@@ -55,9 +55,14 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
 
 	// create default instances
     {
-        CIMInstance instance("TST_Instance1");
+        CIMInstance instance("tst_instance1");
 
         instance.addProperty(CIMProperty("name", String("001")));
+
+        instance.addProperty(CIMProperty("s", String("specified")));
+        instance.addProperty(CIMProperty("n", Uint64(001)));
+        instance.addProperty(CIMProperty("f", Real64(1.001)));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"001\""));
 
@@ -65,9 +70,16 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
     }
 
     {
-        CIMInstance instance("TST_Instance1");
+        CIMInstance instance("tst_instance1");
 
         instance.addProperty(CIMProperty("name", String("002")));
+
+        instance.addProperty(CIMProperty("s", String("specified")));
+        instance.addProperty(CIMProperty("n", Uint64(002)));
+        instance.addProperty(CIMProperty("f", Real64(1.002)));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+
+        instance.addProperty(CIMProperty("e", String("extra property")));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"002\""));
 
@@ -75,33 +87,64 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
     }
 
     {
-        CIMInstance instance("TST_Instance1");
+        CIMInstance instance("tst_instance1");
 
         instance.addProperty(CIMProperty("name", String("003")));
+
+        //instance.addProperty(CIMProperty("s", String("specified")));
+        instance.addProperty(CIMProperty("n", Uint64(003)));
+        instance.addProperty(CIMProperty("f", Real64(1.003)));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"003\""));
 
         _instances.append(instance);
     }
 
-    // create instance without object path (normalizer test)
+    // create instance without object path (key property not in instance)
     {
-        CIMInstance instance("TST_Instance1");
+        CIMInstance instance("tst_instance1");
 
-        instance.addProperty(CIMProperty("name", String("004")));
+        //instance.addProperty(CIMProperty("name", String("004")));
+
+        instance.addProperty(CIMProperty("s", String("specified")));
+        instance.addProperty(CIMProperty("n", Uint64(004)));
+        instance.addProperty(CIMProperty("f", Real64(1.004)));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         //instance.setPath(CIMObjectPath("TST_Instance1.Name=\"004\""));
 
         _instances.append(instance);
     }
 
-    // create instances with incorrect class name
+    // create instance with incorrect class name
     {
-        CIMInstance instance("TST_InstanceBAD");
+        CIMInstance instance("tst_instanceBAD");
 
         instance.addProperty(CIMProperty("name", String("005")));
 
+        instance.addProperty(CIMProperty("s", String("specified")));
+        instance.addProperty(CIMProperty("n", Uint64(005)));
+        instance.addProperty(CIMProperty("f", Real64(1.005)));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+
         instance.setPath(CIMObjectPath("TST_InstanceBAD.Name=\"005\""));
+
+        _instances.append(instance);
+    }
+
+    // wrong property type
+    {
+        CIMInstance instance("tst_instance1");
+
+        instance.addProperty(CIMProperty("name", Uint16(006)));
+
+        instance.addProperty(CIMProperty("s", String("specified")));
+        instance.addProperty(CIMProperty("n", Uint64(006)));
+        instance.addProperty(CIMProperty("f", Real64(1.006)));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+
+        instance.setPath(CIMObjectPath("TST_Instance1.Name=\"006\""));
 
         _instances.append(instance);
     }
@@ -126,7 +169,14 @@ void TestInstanceProvider::getInstance(
     {
         if(instanceReference == _instances[i].getPath())
         {
-            handler.deliver(_instances[i]);
+            try
+            {
+                handler.deliver(_instances[i]);
+            }
+            catch(CIMException &)
+            {
+                // suppress error
+            }
 
             break;
         }
@@ -147,7 +197,14 @@ void TestInstanceProvider::enumerateInstances(
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        handler.deliver(_instances[i]);
+        try
+        {
+            handler.deliver(_instances[i]);
+        }
+        catch(CIMException &)
+        {
+            // suppress error
+        }
     }
 
     handler.complete();
@@ -162,7 +219,14 @@ void TestInstanceProvider::enumerateInstanceNames(
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        handler.deliver(_instances[i].getPath());
+        try
+        {
+            handler.deliver(_instances[i].getPath());
+        }
+        catch(CIMException &)
+        {
+            // suppress error
+        }
     }
 
     handler.complete();

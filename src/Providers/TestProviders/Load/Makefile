@@ -29,6 +29,12 @@ repository:
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 
+	@ $(ECHO) +++++ Loading TestInstanceProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" TestInstanceProviderSchema.mof
+
+	@ $(ECHO) +++++ Registering TestInstanceProvider ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
+
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
@@ -47,7 +53,6 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
 endif
 endif
-
 
 # Load the test MOF with cimmof.  (Do not remove the existing repository.)
 repositoryServer:

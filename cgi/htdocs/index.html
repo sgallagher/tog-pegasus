@@ -2,7 +2,7 @@
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.51 [en] (WinNT; I) [Netscape]">
+   <meta name="GENERATOR" content="Microsoft FrontPage 4.0">
    <meta name="Author" content="Michael E. Brasher">
    <title>Pegasus</title>
 </head>
@@ -12,7 +12,7 @@
   <tr>
   <td WIDTH="50%">
   <h1>
-  Pegasus Server</h1>
+  Pegasus Server Demonstration</h1>
   </td>
 
   <td></td>
@@ -22,48 +22,100 @@
   </table>
 
   <hr>
-  <p><a href="GetClass.html">GetClass</a> Get a CIM Class
-  <p><a href="DeleteClass.html">DeleteClass</a> Delete a CIM Class
-  <p><a href="EnumerateClassNames.html">EnumerateClassNames</a>Enumerate subclass names of a CIM Class
-  <p><a href="GetQualifier.html">GetQualifier</a>Get a Qualifier declaration
-  <p><a href="EnumerateQualifiers.html">EnumerateQualifiers</a> Enumerate CIM Qualifier definitions
+  <p style="margin-bottom: 0">The following hyperlinks demonstrate&nbsp; the
+  Pegasus CIM Server and the Basic WBEM/CIM operations. Unless noted below, each
+  of the hyperlinks represents a single WBEM operation as defined in the WBEM
+  standard. For each Operation, a WEB page allows you to enter parameters and
+  then the correct request is made to the CIM Server and the response formatted
+  as a WEB page an returned.
+  <p style="margin-bottom: 0"><b>SETUP Pegasus CIM Services Broker Interface</b>
+  <p style="margin-top: 0"><a href="DefineHostParameters.html">DefineHostParameters</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Define the host name and port to use in subsequent operations
+  <p style="margin-top: 0">&nbsp;
+  <p style="margin-top: 0"><b>CIM NameSpace Operations</b>
+  <p style="margin-top: 0">Under Construction
+  <p><b>WBEM CIM Meta Operations (Operations on CIM Classes and Qualfiers)</b>
+
+  <p style="margin-top: 0; margin-bottom: 0"><a href="EnumerateClassNames.html">EnumerateClassNames</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Enumerate subclass names of a CIM Class
+
+  <p style="margin-top: 0; margin-bottom: 0"><a href="GetClass.html">GetClass</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Get a CIM Class
+  <p style="margin-top: 0; margin-bottom: 0"><a href="DeleteClass.html">DeleteClass</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Delete a CIM Class
+  <p style="margin-top: 0; margin-bottom: 0"><a href="GetQualifier.html">GetQualifier</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Get a Qualifier declaration
+  <p style="margin-top: 0; margin-bottom: 0"><a href="EnumerateQualifiers.html">EnumerateQualifiers</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Enumerate CIM Qualifier definitions
   <p>
-  <p><a href="GetInstance.html">GetInstance</a> Get a CIM Instance
-  <p><a href="EnumerateInstanceNames.html">EnumerateInstanceNames</a>Enumerate instance names of a CIM Class
-  <p><a href="EnumerateInstance.html">EnumerateInstance</a> Enumerate instances of a CIM Class
+  <b>WBEM CIM Object Instance Operations</b>
+  <p style="margin-top: 0; margin-bottom: 0"><a href="EnumerateInstance.html">EnumerateInstance</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Enumerate instances of a CIM Class
+  <p style="margin-top: 0; margin-bottom: 0"><a href="GetInstance.html">GetInstance</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Get a CIM Instance
+  <p style="margin-top: 0; margin-bottom: 0"><a href="EnumerateInstanceNames.html">EnumerateInstanceNames</a>&nbsp;&nbsp;&nbsp;
+  Enumerate instance names of a CIM Class
   <p>
-  <p><a href="GetProperty.html">GetProperty</a>Get a CIM Property value from a CIM Instance
-  <p><a href="SetProperty.html">SetProperty</a>Set a CIM Property value from a CIM Instance
+  <b>Special CIM Object Instance Operations</b>
+  <p style="margin-top: 0; margin-bottom: 0"><a href="GetProperty.html">GetProperty</a>Get a CIM Property value from a CIM Instance
+  <p style="margin-top: 0; margin-bottom: 0"><a href="SetProperty.html">SetProperty</a>Set a CIM Property value from a CIM Instance
+
+<p><b>The CIM Operations as defined in the CIM HTTP </b>
+<b>Specification</b>
+  <blockquote>
+    <blockquote>
+     <p style="margin-top: 0; margin-bottom: 0">Get a CIM Class *
+     <p style="margin-top: 0; margin-bottom: 0">Get a CIM Instance *&nbsp;
+     <p style="margin-top: 0; margin-bottom: 0">
+     Delete a CIM Class *&nbsp;
+     <p style="margin-top: 0; margin-bottom: 0">
+     Delete a CIM Instance&nbsp;
+     <p style="margin-top: 0; margin-bottom: 0">
+     Create a CIM Class
+     <p style="margin-top: 0; margin-bottom: 0">Create a CIM Instance
+     <p style="margin-top: 0; margin-bottom: 0">Modify a CIM Class
+     <p style="margin-top: 0; margin-bottom: 0">Modify a CIM Instance
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate subclasses of a CIM Class
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate subclass names of a CIM Class *
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate instances of a CIM Class *
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate instance names of a CIM Class *
+     <p style="margin-top: 0; margin-bottom: 0">Delete a CIM Qualifier definition
+     <p style="margin-top: 0; margin-bottom: 0">Create a CIM Qualifier definition
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate CIM Qualifier definitions *
+     <p style="margin-top: 0; margin-bottom: 0">Execute a Query
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate associators of a CIM Object
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate names of associators of a CIM Object
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate references to a CIM Object
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate names of references to a CIM Object
+     <p style="margin-top: 0; margin-bottom: 0">Get a CIM Property value from a CIM Instance
+     <p style="margin-top: 0; margin-bottom: 0">Set a CIM Property value from a CIM Instance
+     <p style="margin-top: 0; margin-bottom: 0">Get a Qualifier declaration *
+     <p style="margin-top: 0; margin-bottom: 0">Set a Qualifier declaration
+     <p style="margin-top: 0; margin-bottom: 0">Delete a Qualifier declaration
+     <p style="margin-top: 0; margin-bottom: 0">Enumerate Qualifier declarations
+
+    </blockquote>
+  </blockquote>
+
+     <h1 style="margin-top: 0; margin-bottom: 0">Description of the
+     Demonstration Environment</h1>
+  <hr>
+     <p style="margin-top: 0; margin-bottom: 0">Under Construction
+     <p style="margin-top: 0; margin-bottom: 0">&nbsp;
+
+     <h1> <b> Open Questions Questions</b>
+
+  </h1>
+
+     <p> &nbsp;- Enumerate Qualifier - Declaration vs defintion.
+  <hr>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
 
 </body>
 </html>
 
-<p>The CIM Operations as defined in the CIM HTTP Specificaiton
-     <p>Get a CIM Class *
-     <p>Get a CIM Instance *
-     <p>Delete a CIM Class *
-     <p>Delete a CIM Instance
-     <p>Create a CIM Class
-     <p>Create a CIM Instance
-     <p>Modify a CIM Class
-     <p>Modify a CIM Instance
-     <p>Enumerate subclasses of a CIM Class
-     <p>Enumerate subclass names of a CIM Class *
-     <p>Enumerate instances of a CIM Class *
-     <p>Enumerate instance names of a CIM Class *
-     <p>Delete a CIM Qualifier definition
-     <p>Create a CIM Qualifier definition
-     <p>Enumerate CIM Qualifier definitions *
-     <p>Execute a Query
-     <p>Enumerate associators of a CIM Object
-     <p>Enumerate names of associators of a CIM Object
-     <p>Enumerate references to a CIM Object
-     <p>Enumerate names of references to a CIM Object
-     <p>Get a CIM Property value from a CIM Instance
-     <p>Set a CIM Property value from a CIM Instance
-     <p>Get a Qualifier declaration *
-     <p>Set a Qualifier declaration
-     <p>Delete a Qualifier declaration
-     <p>Enumerate Qualifier declarations
-
-     <p> Question - Enumerate Qualifier - Declaration vs defintion.

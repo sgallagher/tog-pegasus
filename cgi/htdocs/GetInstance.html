@@ -2,24 +2,24 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>GetClass Operation</h1><td>
+	<td width="50%" align="bottom"><h1>Get Instance Operation</h1><td>
 	<td width="50%" align="right">
-	  <img border=1 src="http://localhost/pegasus/icons/OpenGroupLogo.gif
+	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif
 	  ">
         </td>
       </tr>
     </table>
     <hr></hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
-      <INPUT TYPE="hidden" NAME="Operation" VALUE="GetClass">
-	  <P>The <<TT>GetInstance</TT> method returns a single CIM Instance from the target
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="GetInstance">
+	  <P>The <TT>GetInstance</TT> method returns a single CIM Instance from the target
 	  Namespace based on the InstanceName parameter provided.
 
       <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
-      The NameSpace parameter is a string that defines the target namespace.
+      The <TT>NameSpace</TT> parameter is a string that defines the target namespace.
 
       <p><b>InstanceName</b> <INPUT TYPE="text" NAME="InstanceName" SIZE=30>
-      The InstanceName input parameter defines the name of the Class to be
+      The <TT>InstanceName</TT> input parameter defines the name of the Class to be
       retrieved.
 
       <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -63,7 +63,6 @@
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       &nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset Form">
-
 
       <p><b>RETURN - </b>If successful, the return value is a single CIM
       Class.If unsuccessful, one of the following status codes MUST be returned by this

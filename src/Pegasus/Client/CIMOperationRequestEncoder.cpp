@@ -400,7 +400,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
-	message->nameSpace, "EnumerateClasses", message->messageId, params);
+	message->nameSpace, "EnumerateInstances", message->messageId, params);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }

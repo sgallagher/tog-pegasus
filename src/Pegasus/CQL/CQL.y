@@ -766,6 +766,16 @@ comp : arith
                 throw ParseError(_msg);
 	   }
        }
+     | value_symbol comp_op value_symbol
+       {
+		sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
+           	printf_(msg);
+                                                                                                                                                             
+                CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject($1, Expression));
+                CQLExpression* _exp2 = (CQLExpression*)(_factory.makeObject($3,Expression));
+                CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
+                $$ = new CQLPredicate(_sp);
+       }
      | arith _ISA identifier
        {
 	   /* make sure $1 isSimple(), get its expression, make simplepred->predicate */

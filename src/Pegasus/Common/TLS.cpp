@@ -166,7 +166,7 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
     Sint32 rc,rsn;
     TLS_DEBUG( cerr << "---> SSL: (r) ";)
     TLS_DEBUG( cerr << SSL_state_string_long(_SSLConnection) << endl;)
-    rc = SSL_read(_SSLConnection, ptr, size);
+    rc = SSL_read(_SSLConnection, (char *)ptr, size);
     return rc;
 }
 
@@ -175,7 +175,7 @@ Sint32 SSLSocket::write( const void* ptr, Uint32 size)
     Sint32 rc,rsn;
     TLS_DEBUG( cerr << "---> SSL: (w) ";)
     TLS_DEBUG( cerr << SSL_state_string_long(_SSLConnection) << endl;)
-    rc = SSL_write(_SSLConnection, ptr, size);
+    rc = SSL_write(_SSLConnection, (char *)ptr, size);
     return rc;
 }
 

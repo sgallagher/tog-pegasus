@@ -30,6 +30,7 @@
 #define Pegasus_MessageQueue_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Exception.h>
 
@@ -60,12 +61,12 @@ public:
 	@param message pointer to message to be enqueued.
 	@exception throws NullPointer exception if message parameter is null.
     */
-    void enqueue(Message* message);
+    void enqueue(Message* message) throw(IPCException);
 
     /** Dequeues a message (removes it from the front of the queue).
 	@return pointer to message or zero if queue is empty.
     */
-    Message* dequeue();
+    Message* dequeue() throw(IPCException);
 
     /** Removes the given message from the queue.
 	@param message to be removed.
@@ -73,35 +74,35 @@ public:
 	@exception throws NoSuchMessageOnQueue is message paramter is not
 	    on this queue.
     */
-    void remove(Message* message);
+    void remove(Message* message) throw(IPCException);
 
     /** Find the message with the given type.
 	@parameter type type of message to be found.
 	@return pointer to message if found; null otherwise.
     */
-    Message* findByType(Uint32 type);
-
+    Message* findByType(Uint32 type) throw(IPCException);
+ 
     /** Const version of findByType(). */
-    const Message* findByType(Uint32 type) const;
+    const Message* findByType(Uint32 type) const throw(IPCException);
 
     /** Find the message with the given key.
 	@parameter key key of message to be found.
 	@return pointer to message if found; null otherwise.
     */
-    Message* findByKey(Uint32 key);
+    Message* findByKey(Uint32 key) throw(IPCException);
 
     /** Const version of findByKey(). */
-    const Message* findByKey(Uint32 key) const;
+    const Message* findByKey(Uint32 key) const throw(IPCException);
 
     /** Finds the messages with the given type and key.
 	@param type type of message to be found.
 	@param type key of message to be found.
 	@return pointer to message if found; null otherwise.
     */
-    Message* find(Uint32 type, Uint32 key);
+    Message* find(Uint32 type, Uint32 key) throw(IPCException);
 
     /** Const version of find(). */
-    const Message* find(Uint32 type, Uint32 key) const;
+    const Message* find(Uint32 type, Uint32 key) const throw(IPCException);
 
     /** Returns pointer to front message. */
     Message* front() { return _front; }
@@ -128,10 +129,10 @@ public:
 	of each message.
 	@param os stream onto which the output is placed.
     */
-    void print(PEGASUS_STD(ostream)& os) const;
+    void print(PEGASUS_STD(ostream)& os) const throw(IPCException);
 
     /** Lock this queue. */
-    virtual void lock();
+    virtual void lock() throw(IPCException);
 
     /** Unlock this queue. */
     virtual void unlock();
@@ -149,31 +150,35 @@ public:
     virtual void handleEnqueue();
 
     /** Lookup a message queue from a queue id. */
-    static MessageQueue* lookup(Uint32 queueId);
-    static  MessageQueue* lookup(const char *name);
+    static MessageQueue* lookup(Uint32 queueId) throw(IPCException);
+    static  MessageQueue* lookup(const char *name) throw(IPCException);
     static Uint32 _CIMOM_Q_ID;
     
 private:
     
+    Mutex _mut;
     Uint32 _queueId;
     Uint32 _count;
     Message* _front;
     Message* _back;
     // Wed Oct 17 11:26:22 2001 mdday
-    char _name[16];
+    char _name[26];
 };
 
-inline const Message* MessageQueue::findByType(Uint32 type) const
+inline const Message* MessageQueue::findByType(Uint32 type) const 
+     throw(IPCException)
 {
     return ((MessageQueue*)this)->findByType(type);
 }
 
 inline const Message* MessageQueue::findByKey(Uint32 key) const
+     throw(IPCException)
 {
     return ((MessageQueue*)this)->findByKey(key);
 }
 
 inline const Message* MessageQueue::find(Uint32 type, Uint32 key) const
+     throw(IPCException)
 {
     return ((MessageQueue*)this)->find(type, key);
 }

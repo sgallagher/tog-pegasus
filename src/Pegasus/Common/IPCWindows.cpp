@@ -80,7 +80,6 @@ Semaphore::Semaphore(const Semaphore & sem)
 		   0, TRUE,
 		   DUPLICATE_SAME_ACCESS | SEMAPHORE_ALL_ACCESS | SYNCHRONIZE);
 
-
    _semaphore.owner = (PEGASUS_THREAD_TYPE)0;
 }
 
@@ -89,7 +88,6 @@ Semaphore::~Semaphore()
 {
    CloseHandle(_semaphore.sem);
 }
-
 
 
 //-----------------------------------------------------------------

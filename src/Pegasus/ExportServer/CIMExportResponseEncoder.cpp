@@ -70,15 +70,13 @@ void CIMExportResponseEncoder::sendEMethodError(
    Uint32 queueId, 
    const String& messageId,
    const String& eMethodName,
-   CIMStatusCode code,
-   const String& description) 
+   const CIMException& cimException) 
 {
     Array<Sint8> message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
-        code,
-        description);
+        cimException);
 
     sendResponse(queueId, message);
 }
@@ -94,8 +92,7 @@ void CIMExportResponseEncoder::sendEMethodError(
       queueId,
       response->messageId, 
       cimMethodName, 
-      response->errorCode, 
-      response->errorDescription);
+      response->cimException);
 }
 
 void CIMExportResponseEncoder::handleEnqueue(Message *message)
@@ -130,7 +127,7 @@ const char* CIMExportResponseEncoder::getQueueName() const
 void CIMExportResponseEncoder::encodeExportIndicationResponse(
    CIMExportIndicationResponseMessage* response)
 {
-   if (response->errorCode != CIM_ERR_SUCCESS)
+   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
       sendEMethodError(response, "ExportIndication");
       return;

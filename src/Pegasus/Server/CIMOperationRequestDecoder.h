@@ -64,15 +64,13 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
+	 const CIMException& cimException);
 
       void sendMethodError(
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
+	 const CIMException& cimException);
 
       void sendHttpError(
 	 Uint32 queueId, 

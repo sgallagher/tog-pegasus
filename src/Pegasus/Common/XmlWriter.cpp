@@ -736,14 +736,17 @@ void XmlWriter::_appendIMethodResponseElementEnd(
 
 void XmlWriter::_appendErrorElement(
     Array<Sint8>& out,
-    CIMStatusCode code,
-    const char* description)
+    const CIMException& cimException)
 {
     out << "<ERROR";
-    out << " CODE=\"" << Uint32(code) << "\"";
-    out << " DESCRIPTION=\"";
-    appendSpecial(out, description);
-    out << "\"/>";
+    out << " CODE=\"" << Uint32(cimException.getCode()) << "\"";
+    if (cimException.getMessage() != String::EMPTY)
+    {
+        out << " DESCRIPTION=\"";
+        appendSpecial(out, cimException.getMessage());
+        out << "\"";
+    }
+    out << "/>";
 }
 
 //------------------------------------------------------------------------------
@@ -1121,18 +1124,16 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
 Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
     const String& methodName,
     const String& messageId,
-    CIMStatusCode code,
-    const String& description)
+    const CIMException& cimException)
 {
     ArrayDestroyer<char> tmp1(methodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> out;
     Array<Sint8> tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
     _appendMethodResponseElementBegin(out, tmp1.getPointer());
-    _appendErrorElement(out, code, tmp2.getPointer());
+    _appendErrorElement(out, cimException);
     _appendMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
@@ -1220,18 +1221,16 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
 Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
     const String& iMethodName,
     const String& messageId,
-    CIMStatusCode code,
-    const String& description)
+    const CIMException& cimException)
 {
     ArrayDestroyer<char> tmp1(iMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> out;
     Array<Sint8> tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
     _appendIMethodResponseElementBegin(out, tmp1.getPointer());
-    _appendErrorElement(out, code, tmp2.getPointer());
+    _appendErrorElement(out, cimException);
     _appendIMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
@@ -1464,18 +1463,16 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
 Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
     const String& eMethodName,
     const String& messageId,
-    CIMStatusCode code,
-    const String& description)
+    const CIMException& cimException)
 {
     ArrayDestroyer<char> tmp1(eMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> out;
     Array<Sint8> tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleExportRspElementBegin(out);
     _appendEMethodResponseElementBegin(out, tmp1.getPointer());
-    _appendErrorElement(out, code, tmp2.getPointer());
+    _appendErrorElement(out, cimException);
     _appendEMethodResponseElementEnd(out);
     _appendSimpleExportRspElementEnd(out);
     _appendMessageElementEnd(out);

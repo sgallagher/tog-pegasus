@@ -3232,8 +3232,7 @@ Boolean XmlReader::getBooleanValueElement(
 
 Boolean XmlReader::getErrorElement(
     XmlParser& parser, 
-    CIMStatusCode& code,
-    const char*& description,
+    CIMException& cimException,
     Boolean required)
 {
     XmlEntry entry;
@@ -3255,16 +3254,16 @@ Boolean XmlReader::getErrorElement(
 	throw XmlValidationError(
 	    parser.getLine(), "missing ERROR.CODE attribute");
 
-    code = CIMStatusCode(tmpCode);
-
     // Get ERROR.DESCRIPTION:
 
-    description = "";
-    entry.getAttributeValue("DESCRIPTION", description);
+    String tmpDescription;
+
+    entry.getAttributeValue("DESCRIPTION", tmpDescription);
 
     if (!empty)
 	expectEndTag(parser, "ERROR");
 
+    cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(tmpCode), tmpDescription);
     return true;
 }
 

@@ -98,8 +98,7 @@ inline void OperationResponseHandler<T>::complete(const OperationContext & conte
 template<class T>
 inline void OperationResponseHandler<T>::setStatus(const Uint32 code, const String & message)
 {
-    _response->errorCode = CIMStatusCode(code);
-    _response->errorDescription = message;
+    _response->cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(code), message);
 }
 
 PEGASUS_NAMESPACE_END

@@ -287,15 +287,13 @@ CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndic
    XmlParser& parser, const String& messageId)
 {
    XmlEntry entry;
-   CIMStatusCode code;
-   const char* description = 0;
+   CIMException cimException;
 
-   if (XmlReader::getErrorElement(parser, code, description))
+   if (XmlReader::getErrorElement(parser, cimException))
    {
       return(new CIMExportIndicationResponseMessage(
 		messageId,
-		code,
-		description,
+		cimException,
 		QueueIdStack()));
    }
    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -304,8 +302,7 @@ CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndic
 
       return(new CIMExportIndicationResponseMessage(
 		messageId,
-		CIM_ERR_SUCCESS,
-		String(),
+		cimException,
 		QueueIdStack()));
    }
    else

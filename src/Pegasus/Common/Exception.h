@@ -513,21 +513,22 @@ class PEGASUS_COMMON_LINKAGE CIMException : public Exception
 public:
 
     CIMException(
-	CIMStatusCode code, 
-	const String& extraMessage = String::EMPTY,
+	CIMStatusCode code = CIM_ERR_SUCCESS,
+	const String& description = String::EMPTY,
 	const char* file = "",
 	Uint32 line = 0);
+    CIMException(const CIMException& cimException);
 
     CIMStatusCode getCode() const { return _code; }
-    String getExtraMessage() const { return _extraMessage; }
+    String getDescription() const { return _description; }
     String getTraceMessage() const;
 
 private:
 
     CIMStatusCode  _code;
+    String         _description;
     const char*    _file;
     Uint32         _line;
-    String         _extraMessage;
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception

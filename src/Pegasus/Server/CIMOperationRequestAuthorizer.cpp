@@ -84,8 +84,7 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
    Uint32 queueId,
    const String& messageId,
    const String& iMethodName,
-   CIMStatusCode code,
-   const String& description)
+   const CIMException& cimException)
 {
     PEG_METHOD_ENTER(TRC_SERVER,
                      "CIMOperationRequestAuthorizer::sendIMethodError");
@@ -94,8 +93,7 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
-        code,
-        description);
+        cimException);
 
     sendResponse(queueId, message);
 
@@ -122,6 +120,23 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    QueueIdStack qis = ((CIMRequestMessage*)request)->queueIds.copyAndPop();
 
    Uint32 queueId = qis.top();
+
+   //
+   // If CIMOM is shutting down, return "Service Unavailable" response
+   //
+   if (_serverTerminating)
+   {
+       Array<Sint8> message;
+       message = XmlWriter::formatHttpErrorRspMessage(
+           HTTP_STATUS_SERVICEUNAVAILABLE,
+           String::EMPTY,
+           "CIM Server is shutting down.  "
+               "Request cannot be processed.");
+
+       sendResponse(queueId, message);
+       PEG_METHOD_EXIT();
+       return;
+   }
 
    String userName = String::EMPTY;
    String authType = String::EMPTY;
@@ -312,28 +327,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    }
 
    //
-   // if CIMOM is shutting down, return error response
-   //
-   // ATTN:  Need to define a new CIM Error.
-   //
-   if (_serverTerminating)
-   {
-      String description = "CIMServer is shutting down.  ";
-      description.append("Request cannot be processed: ");
-
-      sendIMethodError(
-	 queueId,
-	 ((CIMRequestMessage*)request)->messageId,
-	 cimMethodName,
-	 CIM_ERR_FAILED,
-	 description);
-
-      PEG_METHOD_EXIT();
-
-      return;
-   }
-
-   //
    // Do Authorization verification
    //
    UserManager* userManager = UserManager::getInstance();
@@ -365,8 +358,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	    queueId,
 	    ((CIMRequestMessage*)request)->messageId,
 	    cimMethodName,
-	    CIM_ERR_FAILED,
-	    description);
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, description));
 
 	 PEG_METHOD_EXIT();
 
@@ -388,8 +380,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 queueId,
 	 ((CIMRequestMessage*)request)->messageId,
 	 cimMethodName,
-	 CIM_ERR_ACCESS_DENIED,
-	 description);
+	 PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
 
       PEG_METHOD_EXIT();
 

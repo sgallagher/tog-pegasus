@@ -1074,11 +1074,10 @@ Message* CIMClient::_waitForResponse(
 
 void CIMClient::_checkError(const CIMResponseMessage* responseMessage)
 {
-    if (responseMessage && (responseMessage->errorCode != CIM_ERR_SUCCESS))
+    if (responseMessage &&
+        (responseMessage->cimException.getCode() != CIM_ERR_SUCCESS) )
     {
-        // ATTN-RK-P3-20020405: Probably aren't interested in THIS file, line#
-	throw PEGASUS_CIM_EXCEPTION(responseMessage->errorCode, 
-	                            responseMessage->errorDescription);
+	throw responseMessage->cimException;
     }
 }
 

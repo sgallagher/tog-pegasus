@@ -231,8 +231,7 @@ public:
     static Array<Sint8> formatSimpleMethodErrorRspMessage(
 	const String& methodName,
 	const String& messageId,
-	CIMStatusCode code,
-	const String& description);
+	const CIMException& cimException);
 
     static Array<Sint8> formatSimpleIMethodReqMessage(
 	const char* host,
@@ -250,8 +249,7 @@ public:
     static Array<Sint8> formatSimpleIMethodErrorRspMessage(
 	const String& iMethodName,
 	const String& messageId,
-	CIMStatusCode code,
-	const String& description);
+	const CIMException& cimException);
 
     static void appendEMethodRequestHeader(
     	Array<Sint8>& out,
@@ -279,8 +277,7 @@ public:
     static Array<Sint8> formatSimpleEMethodErrorRspMessage(
 	const String& eMethodName,
 	const String& messageId,
-	CIMStatusCode code,
-	const String& description);
+	const CIMException& cimException);
 
     static void indentedPrint(
 	PEGASUS_STD(ostream)& os,
@@ -335,8 +332,7 @@ private:
 
     static void _appendErrorElement(
 	Array<Sint8>& out,
-	CIMStatusCode code,
-	const char* description);
+	const CIMException& cimException);
 
     static void _appendIReturnValueElementBegin(Array<Sint8>& out);
     static void _appendIReturnValueElementEnd(Array<Sint8>& out);

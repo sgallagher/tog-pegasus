@@ -120,8 +120,7 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 {
     OperationContext context;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
 
     if (request->indicationInstance.getClassName() ==
 	"PG_IndicationConsumerRegistration")
@@ -131,7 +130,8 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 	    instance.existsProperty("Location") &&
 	    instance.existsProperty("ActionType"))
 	{
-	    errorCode = _consumerTable.registerConsumer(
+            String errorDescription;
+	    CIMStatusCode errorCode = _consumerTable.registerConsumer(
 		instance.getProperty(instance.findProperty("ConsumerId"))
 		    .getValue().toString(),
 		instance.getProperty(instance.findProperty("Location"))
@@ -139,11 +139,13 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 		instance.getProperty(instance.findProperty("ActionType"))
 		    .getValue().toString(),
 		errorDescription);
+
+            cimException = PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	else
 	{
-	    errorCode = CIM_ERR_FAILED;
-	    errorDescription = "Invalid Consumer registration data";
+            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                "Invalid Consumer registration data");
 	}
     }
     else
@@ -160,15 +162,15 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 	}
 	else
 	{
-	    throw CIMException(CIM_ERR_FAILED);
+            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                "No consumer is registered for this location.");
 	}
     }
 
     CIMExportIndicationResponseMessage* response =
 	new CIMExportIndicationResponseMessage(
 	request->messageId,
-	errorCode,
-	errorDescription,
+	cimException,
 	request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);

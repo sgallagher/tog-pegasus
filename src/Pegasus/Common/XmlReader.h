@@ -360,8 +360,7 @@ public:
 
     static Boolean getErrorElement(
 	XmlParser& parser, 
-	CIMStatusCode& code,
-	const char*& description,
+	CIMException& cimException,
 	Boolean required = false);
 
     static Boolean getValueObjectElement(

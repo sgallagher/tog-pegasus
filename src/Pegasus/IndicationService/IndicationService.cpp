@@ -400,8 +400,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     CIMCreateInstanceRequestMessage* request = 
         (CIMCreateInstanceRequestMessage*) message;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
 
     CIMReference instanceRef;
 
@@ -554,21 +553,24 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 instanceRef = _repository->createInstance (request->nameSpace, 
                     instance);
             }
+            catch (CIMException & exception)
+            {
+                cimException = exception;
+            }
             catch (Exception & exception)
             {
-                //
-                //  Unlock repository in case of exception
-                //
-                _repository->write_unlock ();
+                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                                     exception.getMessage());
+            }
 
-                errorCode = CIM_ERR_FAILED;
-                errorDescription = exception.getMessage ();
-
+            _repository->write_unlock ();
+        
+            if (cimException.getCode() != CIM_ERR_SUCCESS)
+            {
                 CIMCreateInstanceResponseMessage* response =
                     new CIMCreateInstanceResponseMessage(
                         request->messageId,
-                        errorCode,
-                        errorDescription,
+                        cimException,
                         request->queueIds.copyAndPop(),
                         instanceRef);
     
@@ -587,8 +589,6 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
                 return;
             }
-        
-            _repository->write_unlock ();
         
             //
             //  If the instance is of the CIM_IndicationSubscription class
@@ -630,20 +630,18 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     }
     catch (CIMException & exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
+        cimException = exception;
     }
     catch (Exception & exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                             exception.getMessage());
     }
 
     CIMCreateInstanceResponseMessage* response =
         new CIMCreateInstanceResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop(),
             instanceRef);
 
@@ -671,8 +669,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
     CIMGetInstanceRequestMessage* request = 
         (CIMGetInstanceRequestMessage*) message;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
     CIMInstance instance;
 
     _repository->read_lock ();
@@ -707,21 +704,19 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
     }
     catch (CIMException& exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
+        cimException = exception;
     }
     catch (Exception& exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                             exception.getMessage());
     }
 
     _repository->read_unlock ();
 
     CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage
         (request->messageId,
-        errorCode,
-        errorDescription,
+        cimException,
         request->queueIds.copyAndPop(),
         instance);
 
@@ -752,8 +747,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     Array <CIMNamedInstance> enumInstances;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
     CIMInstance cimInstance;
 
     _repository->read_lock ();
@@ -791,13 +785,12 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     }
     catch (CIMException& exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
+        cimException = exception;
     }
     catch (Exception& exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                             exception.getMessage());
     }
 
     _repository->read_unlock ();
@@ -805,8 +798,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     CIMEnumerateInstancesResponseMessage* response = 
         new CIMEnumerateInstancesResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop(),
             enumInstances);
 
@@ -837,8 +829,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     Array<CIMReference> enumInstanceNames;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
 
     _repository->read_lock ();
 
@@ -849,13 +840,12 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     }
     catch (CIMException& exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
+        cimException = exception;
     }
     catch (Exception& exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                             exception.getMessage());
     }
 
     _repository->read_unlock ();
@@ -863,8 +853,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     CIMEnumerateInstanceNamesResponseMessage* response =
         new CIMEnumerateInstanceNamesResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop(),
             enumInstanceNames);
 
@@ -893,8 +882,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     CIMModifyInstanceRequestMessage* request = 
         (CIMModifyInstanceRequestMessage*) message;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
     
     try
     {
@@ -1064,22 +1052,25 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         request->modifiedInstance.getInstance ()), 
                         request->includeQualifiers, request->propertyList);
                 }
+                catch (CIMException & exception)
+                {
+                    cimException = exception;
+                }
                 catch (Exception & exception)
                 {
-                    //
-                    //  Unlock repository in case of exception
-                    //
-                    _repository->write_unlock ();
+                    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                       exception.getMessage());
+                }
+
+               _repository->write_unlock ();
     
-                    errorCode = CIM_ERR_FAILED;
-                    errorDescription = exception.getMessage ();
-    
+                if (cimException.getCode() != CIM_ERR_SUCCESS)
+                {
                     CIMModifyInstanceResponseMessage* response =
                         new CIMModifyInstanceResponseMessage (
                             request->messageId,
-                            errorCode,
-                            errorDescription,
-    	                request->queueIds.copyAndPop ());
+                            cimException,
+                            request->queueIds.copyAndPop ());
         
                     //
                     //  Preserve message key
@@ -1097,8 +1088,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     return;
                 }
                 
-               _repository->write_unlock ();
-    
                 //
                 //  If subscription is newly enabled, send enable requests
                 //  and start providers
@@ -1159,20 +1148,18 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     }
     catch (CIMException& exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
+        cimException = exception;
     }
     catch (Exception& exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                             exception.getMessage());
     }
 
     CIMModifyInstanceResponseMessage* response =
         new CIMModifyInstanceResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop());
 
     //
@@ -1200,8 +1187,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
     CIMDeleteInstanceRequestMessage* request = 
         (CIMDeleteInstanceRequestMessage*) message;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
 
     try
     {
@@ -1258,21 +1244,24 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 _repository->deleteInstance (request->nameSpace, 
                     request->instanceName);
             }
+            catch (CIMException & exception)
+            {
+                cimException = exception;
+            }
             catch (Exception & exception)
             {
-                //
-                //  Unlock repository in case of exception
-                //
-                _repository->write_unlock ();
+                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                   exception.getMessage());
+            }
 
-                errorCode = CIM_ERR_FAILED;
-                errorDescription = exception.getMessage ();
+            _repository->write_unlock ();
 
+            if (cimException.getCode() != CIM_ERR_SUCCESS)
+            {
                 CIMDeleteInstanceResponseMessage* response =
                     new CIMDeleteInstanceResponseMessage (
                         request->messageId,
-                        errorCode,
-                        errorDescription,
+                        cimException,
                         request->queueIds.copyAndPop ());
 
                 //
@@ -1290,26 +1279,22 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
                 return;
             }
-
-            _repository->write_unlock ();
         }
     }
     catch (CIMException& exception)
     {
-        errorCode = exception.getCode ();
-        errorDescription = exception.getMessage ();
+        cimException = exception;
     }
     catch (Exception& exception)
     {
-        errorCode = CIM_ERR_FAILED;
-        errorDescription = exception.getMessage ();
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                             exception.getMessage());
     }
 
     CIMDeleteInstanceResponseMessage* response =
         new CIMDeleteInstanceResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop());
 
     //
@@ -1337,14 +1322,12 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     CIMProcessIndicationRequestMessage* request =
         (CIMProcessIndicationRequestMessage*) message;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
 
     CIMProcessIndicationResponseMessage* response =
         new CIMProcessIndicationResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop());
 
     String filterQuery;
@@ -1448,13 +1431,12 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     }
     catch (CIMException& exception)
     {
-        response->errorCode = exception.getCode();
-        response->errorDescription = exception.getMessage();
+        response->cimException = exception;
     }
     catch (Exception& exception)
     {
-        response->errorCode = CIM_ERR_FAILED;
-        response->errorDescription = exception.getMessage();
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                                       exception.getMessage());
     }
 
     _enqueueResponse(request, response);
@@ -1476,8 +1458,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMNotifyProviderRegistrationRequestMessage* request = 
         (CIMNotifyProviderRegistrationRequestMessage*) message;
 
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
+    CIMException cimException;
 
     CIMInstance provider = request->provider;
     CIMInstance providerModule = request->providerModule;
@@ -4158,7 +4139,7 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
 	(asyncReply))->get_result());
    
    PEGASUS_ASSERT(response != 0);
-   if (response->errorCode == CIM_ERR_SUCCESS)
+   if (response->cimException.getCode() == CIM_ERR_SUCCESS)
    {
       //cout << "Enable accepted" << endl;
       
@@ -4178,8 +4159,8 @@ void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op,
       //
       
       //cout << "Enable rejected" << endl;
-      //cout << "Error code: " << response->errorCode << endl;
-      //cout << response->errorDescription << endl;
+      //cout << "Error code: " << response->cimException.getCode() << endl;
+      //cout << response->cimException.getMessage() << endl;
    }
    
    //

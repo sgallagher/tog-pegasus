@@ -55,8 +55,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
+	 const CIMException& cimException);
 
       void sendEMethodError(
 	 CIMResponseMessage* response,

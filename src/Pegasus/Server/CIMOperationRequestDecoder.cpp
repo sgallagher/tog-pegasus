@@ -83,15 +83,13 @@ void CIMOperationRequestDecoder::sendIMethodError(
    Uint32 queueId, 
    const String& messageId,
    const String& iMethodName,
-   CIMStatusCode code,
-   const String& description) 
+   const CIMException& cimException)
 {
     Array<Sint8> message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
-        code,
-        description);
+        cimException);
 
     sendResponse(queueId, message);
 }
@@ -100,15 +98,13 @@ void CIMOperationRequestDecoder::sendMethodError(
    Uint32 queueId, 
    const String& messageId,
    const String& methodName,
-   CIMStatusCode code,
-   const String& description) 
+   const CIMException& cimException)
 {
     Array<Sint8> message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
-        code,
-        description);
+        cimException);
     
     sendResponse(queueId, message);
 }
@@ -625,8 +621,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                queueId, 
                messageId,
                cimMethodName,
-               e.getCode(),
-               e.getMessage());
+               e);
 
             PEG_METHOD_EXIT();
             return;
@@ -787,8 +782,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                queueId, 
                messageId,
                cimMethodName,
-               e.getCode(),
-               e.getMessage());
+               e);
 
             PEG_METHOD_EXIT();
             return;

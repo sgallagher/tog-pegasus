@@ -44,34 +44,6 @@ ProviderMessageFacade::~ProviderMessageFacade(void)
 {
 }
 
-class Status
-{
-public:
-    Status(void)
-    : _code(0), _message("")
-    {
-    }
-
-    Status(const Uint32 code, const String & message)
-    : _code(code), _message(message)
-    {
-    }
-
-    Uint32 getCode(void) const
-    {
-	return(_code);
-    }
-
-    String getMessage(void) const
-    {
-	return(_message);
-    }
-
-private:
-    Uint32 _code;
-    String _message;
-};
-
 
 Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 {
@@ -141,7 +113,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
     CIMInstance cimInstance;
 
     try
@@ -194,23 +166,22 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMGetInstanceResponseMessage * response =
 	new CIMGetInstanceResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimInstance);
 
@@ -227,7 +198,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
     Array<CIMNamedInstance> cimInstances;
 
     try
@@ -277,23 +248,22 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMEnumerateInstancesResponseMessage * response =
 	new CIMEnumerateInstancesResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimInstances);
 
@@ -310,7 +280,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
     Array<CIMReference> cimReferences;
 
     try
@@ -345,23 +315,22 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMEnumerateInstanceNamesResponseMessage * response =
 	new CIMEnumerateInstanceNamesResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimReferences);
 
@@ -378,7 +347,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
     CIMInstance cimInstance;
     CIMReference instanceName;
 
@@ -424,23 +393,22 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMCreateInstanceResponseMessage * response =
 	new CIMCreateInstanceResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    instanceName);
 
@@ -457,7 +425,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
     CIMReference instanceName;
 
     try
@@ -506,23 +474,22 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMModifyInstanceResponseMessage * response =
 	new CIMModifyInstanceResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop());
 
     // preserve message key
@@ -538,7 +505,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
 
     try
     {
@@ -570,23 +537,22 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMDeleteInstanceResponseMessage * response =
 	new CIMDeleteInstanceResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop());
 
     // preserve message key
@@ -607,8 +573,7 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
     CIMExecQueryResponseMessage * response =
 	new CIMExecQueryResponseMessage(
 	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
 
@@ -630,8 +595,7 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) th
     CIMAssociatorsResponseMessage * response =
 	new CIMAssociatorsResponseMessage(
 	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
 
@@ -653,8 +617,7 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     CIMAssociatorNamesResponseMessage * response =
 	new CIMAssociatorNamesResponseMessage(
 	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	    request->queueIds.copyAndPop(),
 	    cimReferences);
 
@@ -676,8 +639,7 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) thr
     CIMReferencesResponseMessage * response =
 	new CIMReferencesResponseMessage(
 	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
 
@@ -699,8 +661,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     CIMReferenceNamesResponseMessage * response =
 	new CIMReferenceNamesResponseMessage(
 	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	    request->queueIds.copyAndPop(),
 	    cimReferences);
 
@@ -723,8 +684,7 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) th
     CIMGetPropertyResponseMessage * response =
 	new CIMGetPropertyResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimValue);
 
@@ -745,8 +705,7 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) th
     CIMSetPropertyResponseMessage * response =
 	new CIMSetPropertyResponseMessage(
 	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	    request->queueIds.copyAndPop());
 
     // preserve message key
@@ -762,7 +721,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 
     PEGASUS_ASSERT(request != 0);
 
-    Status status;
+    CIMException cimException;
     CIMValue returnValue;
     Array<CIMParamValue> outParameters;
     CIMInstance cimInstance;
@@ -813,23 +772,22 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
     }
     catch(CIMException & e)
     {
-	status = Status(e.getCode(), e.getMessage());
+        cimException = e;
     }
     catch(Exception & e)
     {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
     CIMInvokeMethodResponseMessage * response =
 	new CIMInvokeMethodResponseMessage(
 	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    returnValue,
 	    outParameters,

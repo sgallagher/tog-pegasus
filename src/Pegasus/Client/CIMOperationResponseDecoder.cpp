@@ -352,15 +352,13 @@ CIMCreateClassResponseMessage* CIMOperationResponseDecoder::_decodeCreateClassRe
     const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMCreateClassResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
 
     }
@@ -370,8 +368,7 @@ CIMCreateClassResponseMessage* CIMOperationResponseDecoder::_decodeCreateClassRe
 
 	return(new CIMCreateClassResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -385,15 +382,13 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMGetClassResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    CIMClass()));
     }
@@ -408,8 +403,7 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
 
 	return(new CIMGetClassResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    cimClass));
     }
@@ -424,15 +418,13 @@ CIMModifyClassResponseMessage* CIMOperationResponseDecoder::_decodeModifyClassRe
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMModifyClassResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -441,8 +433,7 @@ CIMModifyClassResponseMessage* CIMOperationResponseDecoder::_decodeModifyClassRe
 
 	return(new CIMModifyClassResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -456,15 +447,13 @@ CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMEnumerateClassNamesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<String>()));
     }
@@ -480,8 +469,7 @@ CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnume
 
 	return(new CIMEnumerateClassNamesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    classNames));
     }
@@ -496,15 +484,13 @@ CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerat
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMEnumerateClassesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMClass>()));
     }
@@ -520,8 +506,7 @@ CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerat
 
 	return(new CIMEnumerateClassesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    cimClasses));
     }
@@ -536,15 +521,13 @@ CIMDeleteClassResponseMessage* CIMOperationResponseDecoder::_decodeDeleteClassRe
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMDeleteClassResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -553,8 +536,7 @@ CIMDeleteClassResponseMessage* CIMOperationResponseDecoder::_decodeDeleteClassRe
 
 	return(new CIMDeleteClassResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -568,15 +550,13 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMCreateInstanceResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    CIMReference()));
     }
@@ -589,8 +569,7 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
 
 	return(new CIMCreateInstanceResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    instanceName));
     }
@@ -605,15 +584,13 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMGetInstanceResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    CIMInstance()));
     }
@@ -631,8 +608,7 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
 
 	return(new CIMGetInstanceResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    cimInstance));
     }
@@ -647,15 +623,13 @@ CIMModifyInstanceResponseMessage* CIMOperationResponseDecoder::_decodeModifyInst
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMModifyInstanceResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -664,8 +638,7 @@ CIMModifyInstanceResponseMessage* CIMOperationResponseDecoder::_decodeModifyInst
 
 	return(new CIMModifyInstanceResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -679,15 +652,13 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMEnumerateInstanceNamesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMReference>()));
     }
@@ -712,8 +683,7 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
 
 	return(new CIMEnumerateInstanceNamesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    instanceNames));
     }
@@ -728,15 +698,13 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMEnumerateInstancesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMNamedInstance>()));
     }
@@ -752,8 +720,7 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
 
 	return(new CIMEnumerateInstancesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    namedInstances));
     }
@@ -768,15 +735,13 @@ CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInst
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMDeleteInstanceResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -785,8 +750,7 @@ CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInst
 
 	return(new CIMDeleteInstanceResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -800,15 +764,13 @@ CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyRe
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMGetPropertyResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    CIMValue()));
     }
@@ -826,8 +788,7 @@ CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyRe
 
 	return(new CIMGetPropertyResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    cimValue));
     }
@@ -842,15 +803,13 @@ CIMSetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeSetPropertyRe
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMSetPropertyResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -859,8 +818,7 @@ CIMSetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeSetPropertyRe
 
 	return(new CIMSetPropertyResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -874,15 +832,13 @@ CIMSetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeSetQualifier
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMSetQualifierResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -891,8 +847,7 @@ CIMSetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeSetQualifier
 
 	return(new CIMSetQualifierResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -906,15 +861,13 @@ CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifier
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMGetQualifierResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    CIMQualifierDecl()));
     }
@@ -927,8 +880,7 @@ CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifier
 
 	return(new CIMGetQualifierResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    qualifierDecl));
     }
@@ -943,15 +895,13 @@ CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMEnumerateQualifiersResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMQualifierDecl>()));
     }
@@ -967,8 +917,7 @@ CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnume
 
 	return(new CIMEnumerateQualifiersResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    qualifierDecls));
     }
@@ -983,15 +932,13 @@ CIMDeleteQualifierResponseMessage* CIMOperationResponseDecoder::_decodeDeleteQua
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMDeleteQualifierResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
@@ -1000,8 +947,7 @@ CIMDeleteQualifierResponseMessage* CIMOperationResponseDecoder::_decodeDeleteQua
 
 	return(new CIMDeleteQualifierResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack()));
     }
     else
@@ -1017,15 +963,13 @@ CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceN
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMReferenceNamesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMReference>()));
     }
@@ -1041,8 +985,7 @@ CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceN
 
 	return(new CIMReferenceNamesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    objectPaths));
     }
@@ -1057,15 +1000,13 @@ CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResp
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMReferencesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMObjectWithPath>()));
     }
@@ -1081,8 +1022,7 @@ CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResp
 
 	return(new CIMReferencesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    objectWithPathArray));
     }
@@ -1097,15 +1037,13 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMAssociatorNamesResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMReference>()));
     }
@@ -1121,8 +1059,7 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
 
 	return(new CIMAssociatorNamesResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    objectPaths));
     }
@@ -1137,15 +1074,13 @@ CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsRe
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMAssociatorsResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMObjectWithPath>()));
     }
@@ -1161,8 +1096,7 @@ CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsRe
 
 	return(new CIMAssociatorsResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    objectWithPathArray));
     }
@@ -1177,15 +1111,13 @@ CIMExecQueryResponseMessage* CIMOperationResponseDecoder::_decodeExecQueryRespon
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMExecQueryResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    Array<CIMObjectWithPath>()));
     }
@@ -1199,8 +1131,7 @@ CIMExecQueryResponseMessage* CIMOperationResponseDecoder::_decodeExecQueryRespon
 
 	return(new CIMExecQueryResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    objectWithPathArray));
     }
@@ -1215,8 +1146,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
     XmlParser& parser, const String& messageId, const String& methodName)
 {
     XmlEntry entry;
-    CIMStatusCode code;
-    const char* description = 0;
+    CIMException cimException;
 
     CIMParamValue paramValue;
     Array<CIMParamValue> outParameters;
@@ -1224,12 +1154,11 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
     const char* paramName;
     String inValue;
 
-    if (XmlReader::getErrorElement(parser, code, description))
+    if (XmlReader::getErrorElement(parser, cimException))
     {
 	return(new CIMInvokeMethodResponseMessage(
 	    messageId,
-	    code,
-	    description,
+	    cimException,
 	    QueueIdStack(),
 	    returnValue,
 	    outParameters,
@@ -1272,8 +1201,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 
 	return(new CIMInvokeMethodResponseMessage(
 	    messageId,
-	    CIM_ERR_SUCCESS,
-	    String(),
+	    cimException,
 	    QueueIdStack(),
 	    returnValue,
 	    outParameters,

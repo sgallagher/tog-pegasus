@@ -57,8 +57,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 	 Uint32 queueId,
 	 const String& messageId,
 	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
+	 const CIMException& cimException);
 
       virtual void handleEnqueue(Message *);
 

@@ -211,12 +211,12 @@ const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 //
 static String _makeCIMExceptionMessage(
     CIMStatusCode code,
-    const String& extraMessage)
+    const String& description)
 {
     String tmp;
     tmp.append(CIMStatusCodeToString(code));
     tmp.append(": \"");
-    tmp.append(extraMessage);
+    tmp.append(description);
     tmp.append("\"");
     return tmp;
 }
@@ -226,7 +226,7 @@ static String _makeCIMExceptionMessage(
 //
 static String _makeCIMExceptionMessage(
     CIMStatusCode code, 
-    const String& extraMessage,
+    const String& description,
     const char* file,
     Uint32 line)
 {
@@ -239,7 +239,7 @@ static String _makeCIMExceptionMessage(
 
     tmp.append(CIMStatusCodeToString(code));
     tmp.append(": \"");
-    tmp.append(extraMessage);
+    tmp.append(description);
     tmp.append("\"");
     return tmp;
 }
@@ -250,28 +250,37 @@ static String _makeCIMExceptionMessage(
 String CIMException::getTraceMessage() const
 {
     String traceMsg =
-        _makeCIMExceptionMessage(_code, _extraMessage, _file, _line);
+        _makeCIMExceptionMessage(_code, _description, _file, _line);
     
     return traceMsg;
 }
 
 CIMException::CIMException(
     CIMStatusCode code, 
-    const String& extraMessage,
+    const String& description,
     const char* file,
     Uint32 line)
     : 
 #ifdef DEBUG_CIMEXCEPTION
-    Exception(_makeCIMExceptionMessage(code, extraMessage, file, line)),
+    Exception(_makeCIMExceptionMessage(code, description, file, line)),
 #else
-    Exception(_makeCIMExceptionMessage(code, extraMessage)),
+    Exception(_makeCIMExceptionMessage(code, description)),
 #endif
     _code(code),
-    _extraMessage(extraMessage),
+    _description(description),
     _file(file),
     _line(line)
 {
 
+}
+
+CIMException::CIMException(const CIMException& cimException)
+    : Exception(cimException.getMessage()),
+    _code(cimException._code),
+    _description(cimException._description),
+    _file(cimException._file),
+    _line(cimException._line)
+{
 }
 
 void ThrowUnitializedHandle()

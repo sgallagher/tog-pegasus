@@ -364,8 +364,7 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
     CIMGetInstanceResponseMessage * response =
 	new CIMGetInstanceResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	String::EMPTY,
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	CIMInstance());
 
@@ -470,8 +469,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
     CIMEnumerateInstancesResponseMessage * response =
 	new CIMEnumerateInstancesResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	String::EMPTY,
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	Array<CIMNamedInstance>());
 
@@ -576,8 +574,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message *
     CIMEnumerateInstanceNamesResponseMessage * response =
 	new CIMEnumerateInstanceNamesResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	String::EMPTY,
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	Array<CIMReference>());
 
@@ -664,8 +661,7 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
     CIMCreateInstanceResponseMessage * response =
 	new CIMCreateInstanceResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	String::EMPTY,
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	CIMReference());
 
@@ -758,8 +754,7 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
     CIMModifyInstanceResponseMessage * response =
 	new CIMModifyInstanceResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	String::EMPTY,
+	CIMException(),
 	request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
@@ -852,8 +847,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
     CIMDeleteInstanceResponseMessage * response =
 	new CIMDeleteInstanceResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	String::EMPTY,
+	CIMException(),
 	request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
@@ -935,8 +929,7 @@ void ProviderManagerService::handleExecuteQueryRequest(const Message * message) 
     CIMExecQueryResponseMessage * response =
 	new CIMExecQueryResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimObjects);
 
@@ -960,8 +953,7 @@ void ProviderManagerService::handleAssociatorsRequest(const Message * message) t
     CIMAssociatorsResponseMessage * response =
 	new CIMAssociatorsResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimObjects);
 
@@ -985,8 +977,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
     CIMAssociatorNamesResponseMessage * response =
 	new CIMAssociatorNamesResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimReferences);
 
@@ -1010,8 +1001,7 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
     CIMReferencesResponseMessage * response =
 	new CIMReferencesResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimObjects);
 
@@ -1035,8 +1025,7 @@ void ProviderManagerService::handleReferenceNamesRequest(const Message * message
     CIMReferenceNamesResponseMessage * response =
 	new CIMReferenceNamesResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimReferences);
 
@@ -1060,8 +1049,7 @@ void ProviderManagerService::handleGetPropertyRequest(const Message * message) t
     CIMGetPropertyResponseMessage * response =
 	new CIMGetPropertyResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop(),
 	cimValue);
 
@@ -1084,8 +1072,7 @@ void ProviderManagerService::handleSetPropertyRequest(const Message * message) t
     CIMSetPropertyResponseMessage * response =
 	new CIMSetPropertyResponseMessage(
 	request->messageId,
-	CIM_ERR_FAILED,
-	"not implemented",
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
 	request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
@@ -1107,8 +1094,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
     CIMInvokeMethodResponseMessage * response =
 	new CIMInvokeMethodResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	"",
+	CIMException(),
 	request->queueIds.copyAndPop(),
 	CIMValue(),
 	Array<CIMParamValue>(),
@@ -1293,8 +1279,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(const Message * mes
     CIMCreateSubscriptionResponseMessage * response =
 	new CIMCreateSubscriptionResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	"",
+	CIMException(),
 	request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
@@ -1354,8 +1339,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(const Message * mes
     CIMModifySubscriptionResponseMessage * response =
 	new CIMModifySubscriptionResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	"",
+	CIMException(),
 	request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
@@ -1415,8 +1399,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
     CIMDeleteSubscriptionResponseMessage * response =
 	new CIMDeleteSubscriptionResponseMessage(
 	request->messageId,
-	CIM_ERR_SUCCESS,
-	"",
+	CIMException(),
 	request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);

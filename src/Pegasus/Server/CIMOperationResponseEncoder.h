@@ -51,12 +51,21 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       void sendResponse(Uint32 queueId, Array<Sint8>& message);
 
+      void sendMethodError(
+	 Uint32 queueId, 
+	 const String& messageId,
+	 const String& methodName,
+	 const CIMException& cimException);
+
+      void sendMethodError(
+	 CIMResponseMessage* response,
+	 const String& cimMethodName);
+
       void sendIMethodError(
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
+	 const CIMException& cimException);
 
       void sendIMethodError(
 	 CIMResponseMessage* response,
@@ -140,17 +149,6 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       void encodeInvokeMethodResponse(
 	 CIMInvokeMethodResponseMessage* response);
-
-      void sendMethodError(
-	 Uint32 queueId, 
-	 const String& messageId,
-	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
-
-      void sendMethodError(
-	 CIMResponseMessage* response,
-	 const String& cimMethodName);
 };
 
 PEGASUS_NAMESPACE_END

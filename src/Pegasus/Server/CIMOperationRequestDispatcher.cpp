@@ -562,8 +562,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
    // ATTN: Need code here to expand partial class!
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
    CIMClass cimClass;
 
    _repository->read_lock();
@@ -580,25 +579,23 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    }
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->read_unlock();
 
    CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
       request->messageId,
-      errorCode,
-      errorDescription,
+      cimException,
       request->queueIds.copyAndPop(),
       cimClass);
 
@@ -658,8 +655,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       CIMInstance cimInstance;
 
       _repository->read_lock();
@@ -676,17 +672,16 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -694,8 +689,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       CIMGetInstanceResponseMessage* response =
          new CIMGetInstanceResponseMessage(
             request->messageId,
-            errorCode,
-            errorDescription,
+            cimException,
             request->queueIds.copyAndPop(),
             cimInstance);
 
@@ -706,8 +700,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       CIMGetInstanceResponseMessage* response =
          new CIMGetInstanceResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             CIMInstance());
 
@@ -722,8 +715,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleDeleteClassRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
 
    _repository->write_lock();
 
@@ -736,17 +728,16 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->write_unlock();
@@ -754,8 +745,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
    CIMDeleteClassResponseMessage* response =
       new CIMDeleteClassResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
@@ -813,8 +803,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
 
       _repository->write_lock();
 
@@ -826,17 +815,16 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->write_unlock();
@@ -844,8 +832,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       CIMDeleteInstanceResponseMessage* response =
          new CIMDeleteInstanceResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop());
 
       _enqueueResponse(request, response);
@@ -855,8 +842,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       CIMDeleteInstanceResponseMessage* response =
          new CIMDeleteInstanceResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop());
 
       _enqueueResponse(request, response);
@@ -871,8 +857,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleCreateClassRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
 
    _repository->write_lock();
 
@@ -885,17 +870,16 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->write_unlock();
@@ -903,8 +887,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
    CIMCreateClassResponseMessage* response =
       new CIMCreateClassResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
@@ -981,8 +964,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       CIMCreateInstanceResponseMessage* response =
 	 new CIMCreateInstanceResponseMessage(
 	    request->messageId,
-	    CIM_ERR_SUCCESS,
-	    "",
+	    CIMException(),
 	    request->queueIds.copyAndPop(),
 	    CIMReference());
 
@@ -1008,8 +990,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       CIMReference instanceName;
 
       _repository->write_lock();
@@ -1022,17 +1003,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->write_unlock();
@@ -1040,8 +1020,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       CIMCreateInstanceResponseMessage* response =
          new CIMCreateInstanceResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    instanceName);
 
@@ -1052,8 +1031,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       CIMCreateInstanceResponseMessage* response =
          new CIMCreateInstanceResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             CIMReference());
 
@@ -1069,8 +1047,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleModifyClassRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
 
    _repository->write_lock();
 
@@ -1083,17 +1060,16 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->write_unlock();
@@ -1101,8 +1077,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
    CIMModifyClassResponseMessage* response =
       new CIMModifyClassResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
@@ -1164,8 +1139,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    else if (_repository->isDefaultInstanceProvider())
    {
       // translate and forward request to repository
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
 
       _repository->write_lock();
 
@@ -1178,17 +1152,16 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->write_unlock();
@@ -1196,8 +1169,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       CIMModifyInstanceResponseMessage* response =
          new CIMModifyInstanceResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop());
 
       _enqueueResponse(request, response);
@@ -1207,8 +1179,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       CIMModifyInstanceResponseMessage* response =
          new CIMModifyInstanceResponseMessage(
 	    request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
 	    request->queueIds.copyAndPop());
 
       _enqueueResponse(request, response);
@@ -1223,8 +1194,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateClassesRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
    Array<CIMClass> cimClasses;
 
    _repository->read_lock();
@@ -1242,17 +1212,16 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->read_unlock();
@@ -1260,8 +1229,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
    CIMEnumerateClassesResponseMessage* response =
       new CIMEnumerateClassesResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop(),
 	 cimClasses);
 
@@ -1276,8 +1244,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
    Array<String> classNames;
 
    _repository->read_lock();
@@ -1292,17 +1259,16 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->read_unlock();
@@ -1310,8 +1276,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
    CIMEnumerateClassNamesResponseMessage* response =
       new CIMEnumerateClassNamesResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop(),
 	 classNames);
 
@@ -1370,8 +1335,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       Array<CIMNamedInstance> cimNamedInstances;
 
       _repository->read_lock();
@@ -1389,17 +1353,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1407,8 +1370,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       CIMEnumerateInstancesResponseMessage* response =
          new CIMEnumerateInstancesResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimNamedInstances);
 
@@ -1419,8 +1381,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       CIMEnumerateInstancesResponseMessage* response =
          new CIMEnumerateInstancesResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMNamedInstance>());
 
@@ -1480,8 +1441,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       Array<CIMReference> instanceNames;
 
       _repository->read_lock();
@@ -1494,17 +1454,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1512,8 +1471,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    instanceNames);
 
@@ -1524,8 +1482,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMReference>());
 
@@ -1560,8 +1517,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       Array<CIMObjectWithPath> cimObjects;
 
       _repository->read_lock();
@@ -1581,17 +1537,16 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1599,8 +1554,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
       CIMAssociatorsResponseMessage* response =
          new CIMAssociatorsResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
 
@@ -1611,8 +1565,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
       CIMAssociatorsResponseMessage* response =
          new CIMAssociatorsResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMObjectWithPath>());
 
@@ -1647,8 +1600,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       Array<CIMReference> objectNames;
 
       _repository->read_lock();
@@ -1665,17 +1617,16 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1683,8 +1634,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
       CIMAssociatorNamesResponseMessage* response =
          new CIMAssociatorNamesResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    objectNames);
 
@@ -1695,8 +1645,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
       CIMAssociatorNamesResponseMessage* response =
          new CIMAssociatorNamesResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMReference>());
 
@@ -1731,8 +1680,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       Array<CIMObjectWithPath> cimObjects;
 
       _repository->read_lock();
@@ -1750,17 +1698,16 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1768,8 +1715,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
       CIMReferencesResponseMessage* response =
          new CIMReferencesResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
 
@@ -1780,8 +1726,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
       CIMReferencesResponseMessage* response =
          new CIMReferencesResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMObjectWithPath>());
 
@@ -1816,8 +1761,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       Array<CIMReference> objectNames;
 
       _repository->read_lock();
@@ -1832,17 +1776,16 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1850,8 +1793,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
       CIMReferenceNamesResponseMessage* response =
          new CIMReferenceNamesResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    objectNames);
 
@@ -1862,8 +1804,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
       CIMReferenceNamesResponseMessage* response =
          new CIMReferenceNamesResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             Array<CIMReference>());
 
@@ -1897,8 +1838,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       CIMValue value;
 
       _repository->read_lock();
@@ -1912,17 +1852,16 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->read_unlock();
@@ -1930,8 +1869,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       CIMGetPropertyResponseMessage* response =
          new CIMGetPropertyResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop(),
 	    value);
 
@@ -1942,8 +1880,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       CIMGetPropertyResponseMessage* response =
          new CIMGetPropertyResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop(),
             CIMValue());
 
@@ -1959,34 +1896,31 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       "CIMOperationRequestDispatcher::handleSetPropertyRequest()");
 
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       try
       {
          _fixSetPropertyValueType(request);
       }
       catch (CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
-      if (errorCode != CIM_ERR_SUCCESS)
+      if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
          CIMSetPropertyResponseMessage* response =
             new CIMSetPropertyResponseMessage(
                request->messageId,
-               errorCode,
-               errorDescription,
+               cimException,
                request->queueIds.copyAndPop());
 
          _enqueueResponse(request, response);
@@ -2015,8 +1949,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
 
       _repository->write_lock();
 
@@ -2030,17 +1963,16 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       }
       catch(CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
       _repository->write_unlock();
@@ -2048,8 +1980,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       CIMSetPropertyResponseMessage* response =
          new CIMSetPropertyResponseMessage(
 	    request->messageId,
-	    errorCode,
-	    errorDescription,
+	    cimException,
 	    request->queueIds.copyAndPop());
 
       _enqueueResponse(request, response);
@@ -2059,8 +1990,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       CIMSetPropertyResponseMessage* response =
          new CIMSetPropertyResponseMessage(
             request->messageId,
-            CIM_ERR_NOT_SUPPORTED,
-            CIMException(CIM_ERR_NOT_SUPPORTED).getMessage(),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
             request->queueIds.copyAndPop());
 
       _enqueueResponse(request, response);
@@ -2075,8 +2005,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetQualifierRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
    CIMQualifierDecl cimQualifierDecl;
 
    _repository->read_lock();
@@ -2089,17 +2018,16 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    }
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->read_unlock();
@@ -2107,8 +2035,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    CIMGetQualifierResponseMessage* response =
       new CIMGetQualifierResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop(),
 	 cimQualifierDecl);
 
@@ -2123,8 +2050,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleSetQualifierRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
 
    _repository->write_lock();
 	
@@ -2136,17 +2062,16 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    }
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->write_unlock();
@@ -2154,8 +2079,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    CIMSetQualifierResponseMessage* response =
       new CIMSetQualifierResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
@@ -2169,8 +2093,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleDeleteQualifierRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
 
    _repository->write_lock();
 
@@ -2183,17 +2106,16 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->write_unlock();
@@ -2201,8 +2123,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
    CIMDeleteQualifierResponseMessage* response =
       new CIMDeleteQualifierResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
@@ -2216,8 +2137,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-   String errorDescription;
+   CIMException cimException;
    Array<CIMQualifierDecl> qualifierDeclarations;
 
    _repository->read_lock();
@@ -2230,17 +2150,16 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
    catch(CIMException& exception)
    {
-      errorCode = exception.getCode();
-      errorDescription = exception.getMessage();
+      cimException = exception;
    }
    catch(Exception& exception)
    {
-      errorCode = CIM_ERR_FAILED;
-      errorDescription = exception.getMessage();
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      errorCode = CIM_ERR_FAILED;
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
    _repository->read_unlock();
@@ -2248,8 +2167,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    CIMEnumerateQualifiersResponseMessage* response =
       new CIMEnumerateQualifiersResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop(),
 	 qualifierDeclarations);
 
@@ -2264,15 +2182,14 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleExecQueryRequest()");
 
-   CIMStatusCode errorCode = CIM_ERR_NOT_SUPPORTED;
-   String errorDescription = PEGASUS_CIM_EXCEPTION(errorCode, "ExecQuery").getMessage();
+   CIMException cimException =
+       PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ExecQuery");
    Array<CIMObjectWithPath> cimObjects;
 
    CIMExecQueryResponseMessage* response =
       new CIMExecQueryResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop(),
 	 cimObjects);
 
@@ -2290,34 +2207,31 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    CIMResponseMessage * response;
 
    {
-      CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-      String errorDescription;
+      CIMException cimException;
       try
       {
          _fixInvokeMethodParameterTypes(request);
       }
       catch (CIMException& exception)
       {
-         errorCode = exception.getCode();
-         errorDescription = exception.getMessage();
+         cimException = exception;
       }
       catch(Exception& exception)
       {
-         errorCode = CIM_ERR_FAILED;
-         errorDescription = exception.getMessage();
+         cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         errorCode = CIM_ERR_FAILED;
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
-      if (errorCode != CIM_ERR_SUCCESS)
+      if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
          response =
             new CIMInvokeMethodResponseMessage(
                request->messageId,
-               errorCode,
-               errorDescription,
+               cimException,
                request->queueIds.copyAndPop(),
                CIMValue(),
                Array<CIMParamValue>(),
@@ -2373,16 +2287,15 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       return;
    }
 	
-   CIMStatusCode errorCode = CIM_ERR_FAILED;
-   String errorDescription = "Provider not available";
+   CIMException cimException =
+       PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Provider not available");
    CIMValue retValue(1);
    Array<CIMParamValue> outParameters;
 
    response =
       new CIMInvokeMethodResponseMessage(
 	 request->messageId,
-	 errorCode,
-	 errorDescription,
+	 cimException,
 	 request->queueIds.copyAndPop(),
 	 retValue,
 	 outParameters,

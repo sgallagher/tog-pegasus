@@ -79,15 +79,13 @@ void CIMExportRequestDecoder::sendEMethodError(
    Uint32 queueId, 
    const String& messageId,
    const String& eMethodName,
-   CIMStatusCode code,
-   const String& description) 
+   const CIMException& cimException) 
 {
     Array<Sint8> message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
-        code,
-        description);
+        cimException);
 
     sendResponse(queueId, message);
 }
@@ -463,8 +461,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
             queueId,
             messageId,
             cimExportMethodName,
-            e.getCode(),
-            e.getMessage());
+            e);
 
          return;
       }

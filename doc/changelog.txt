@@ -5,6 +5,28 @@ TAG: Version_1_09.
 
 1. 5 April 2002 (KS) Update version to 1.09. TAG, and took snapshot.
 
+2. (Roger Kumpf - HP) 5 Apr 2002 - Modified the CIMOperationResponseMessage
+   class and its subclasses to contain a CIMException instead of a
+   CIMStatusCode and String description.  This allows extra information in
+   a CIMException, such as file name and line number, to be carried
+   internally throughout the system.
+
+   This change creates a single place where CIMExceptions are converted
+   to an error code and description to be written out in XML.  This
+   single place controls the ability to tune what gets included in the
+   error description, as well as providing a convenient place to trace
+   errors that get returned to clients.  In particular, client applications
+   currently see messages that contain redundant error code information,
+   such as:
+
+       CIM_ERR_INVALID_PARAMETER: One or more parameter values passed
+       to the method were invalid: "CIM_ERR_INVALID_PARAMETER: One
+       or more parameter values passed to the method were invalid:
+       "Unrecognized parameter "Bogus"""
+
+   The CIMOperationResponseMessage change will allow the redundant
+   information to be eliminated from the messages.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

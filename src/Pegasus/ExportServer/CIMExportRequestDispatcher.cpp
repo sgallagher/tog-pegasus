@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -246,7 +247,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMExportIndicationRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
-      "CIMExportRequestDispatcher::handleEnqueue");
+      "CIMExportRequestDispatcher::_handleExportIndicationRequest");
 
     OperationContext context;
 

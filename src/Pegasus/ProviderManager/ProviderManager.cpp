@@ -76,13 +76,17 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
 			  "_provider_ctrl::GET_PROVIDER");
 	 
-	 Provider *pr;
-	 
-	 if(true == _providers.lookup(*(parms->providerName), *(reinterpret_cast<Provider * *>(ret))))
+	 Provider *pr = NULL;
+	 OpProviderHolder* ph = reinterpret_cast< OpProviderHolder* >( ret );
+
+
+	 if( true == _providers.lookup( *(parms->providerName), pr ) )
 	 {
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Found Provider " + *(parms->providerName) + " in Provider Manager Cache");
-	    (*(reinterpret_cast<Provider * *>(ret)))->update_idle_timer();
+	    
+	    ph->SetProvider( pr );
+	    ph->GetProvider().update_idle_timer();
 	    break;
 	 }
 	 
@@ -153,7 +157,9 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 
 	 pr->update_idle_timer();
 	 _providers.insert(*(parms->providerName), pr);
-	 *(reinterpret_cast<Provider * *>(ret)) = pr;
+	 
+	 
+	 ph->SetProvider( pr );
 	 break;
       }
       
@@ -541,13 +547,13 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
    return ccode;
 }
 
-Provider ProviderManager::getProvider(
+OpProviderHolder ProviderManager::getProvider(
     const String & fileName,
     const String & providerName,
     const String & interfaceName) 
 {
 
-   Provider *provider = 0;
+   OpProviderHolder ph;
    CTRL_STRINGS strings;
    Sint32 ccode;
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
@@ -556,7 +562,7 @@ Provider ProviderManager::getProvider(
    strings.interfaceName = &interfaceName;
    try
    {
-      ccode = _provider_ctrl(GET_PROVIDER, &strings, &provider);
+      ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
    }
    catch(...)
    {
@@ -566,7 +572,7 @@ Provider ProviderManager::getProvider(
    
    
    PEG_METHOD_EXIT();
-   return *provider;
+   return ph;
    
 }
 

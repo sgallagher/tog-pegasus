@@ -737,7 +737,8 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
                 _lookupProviderForClass(objectPath);
 
         // get cached or load new provider module
-        Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -752,11 +753,11 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.getInstance: " + 
-			 provider.getName());
+			 ph.GetProvider().getName());
 	
         // forward request
-	pm_service_op_lock op_lock(&provider);
-        provider.getInstance(
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().getInstance(
             context,
             objectPath,
             request->includeQualifiers,
@@ -845,7 +846,8 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
                 _lookupProviderForClass(objectPath);
 
         // get cached or load new provider module
-        Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -860,9 +862,9 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.enumerateInstances: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.enumerateInstances(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().enumerateInstances(
             context,
             objectPath,
             request->includeQualifiers,
@@ -950,7 +952,8 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
                 _lookupProviderForClass(objectPath);
 
         // get cached or load new provider module
-        Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -962,9 +965,9 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.enumerateInstanceNames: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.enumerateInstanceNames(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().enumerateInstanceNames(
             context,
             objectPath,
             handler);
@@ -1051,7 +1054,8 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
                 _lookupProviderForClass(objectPath);
 
         // get cached or load new provider module
-        Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -1065,9 +1069,9 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.createInstance: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.createInstance(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().createInstance(
             context,
             objectPath,
             request->newInstance,
@@ -1153,7 +1157,8 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
                 _lookupProviderForClass(objectPath);
 
         // get cached or load new provider module
-        Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -1168,9 +1173,9 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.modifyInstance: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.modifyInstance(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().modifyInstance(
             context,
             objectPath,
             request->modifiedInstance,
@@ -1259,7 +1264,8 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
                 _lookupProviderForClass(objectPath);
 
         // get cached or load new provider module
-        Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -1271,10 +1277,10 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.deleteInstance: " +
-			 provider.getName());
+			 ph.GetProvider().getName());
 
-	pm_service_op_lock op_lock(&provider);
-        provider.deleteInstance(
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().deleteInstance(
             context,
             objectPath,
             handler);
@@ -1407,7 +1413,8 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
            for(Uint32 i=0,n=first.size(); i<n; i++)
            {
                // get cached or load new provider module
-               Provider provider =
+               //Provider provider =
+               OpProviderHolder ph = 
                   providerManager.getProvider(first[i], second[i], third[i]);
 
                // convert arguments
@@ -1417,9 +1424,9 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
                context.insert(IdentityContainer(request->userName));
 
                // ATTN KS STAT_GETSTARTTIME;
-               pm_service_op_lock op_lock(&provider);
+               pm_service_op_lock op_lock(&ph.GetProvider());
 
-               provider.associators(
+               ph.GetProvider().associators(
                    context,
                    objectPath,
                    request->assocClass,
@@ -1528,7 +1535,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {
             // get cached or load new provider module
-            Provider provider =
+            //Provider provider =
+            OpProviderHolder ph = 
                providerManager.getProvider(first[i], second[i], third[i]);
 
             // convert arguments
@@ -1537,8 +1545,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-	    pm_service_op_lock op_lock(&provider);
-            provider.associatorNames(
+	    pm_service_op_lock op_lock(&ph.GetProvider());
+            ph.GetProvider().associatorNames(
                 context,
                 objectPath,
                 request->assocClass,
@@ -1631,18 +1639,18 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         Array<String> second;
         Array<String> third;
 
-        // Get the assoc Provider based on the result class input.
-        // The function result class is nulled
         _lookupProviderForAssocClass(objectPath,
-        //                           request->associationClass,
-                                     request->resultClass,
+        //                             request->associationClass,
+        //                             request->resultClass,
+                                     CIMName(),
                                      CIMName(),
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {
             // get cached or load new provider module
-            Provider provider =
+            //Provider provider =
+            OpProviderHolder ph = 
                providerManager.getProvider(first[i], second[i], third[i]);
 
             // convert arguments
@@ -1654,9 +1662,9 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             STAT_GETSTARTTIME;
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Calling provider.references: " + 
-			     provider.getName());
-	    pm_service_op_lock op_lock(&provider);
-            provider.references(
+			     ph.GetProvider().getName());
+	    pm_service_op_lock op_lock(&ph.GetProvider());
+            ph.GetProvider().references(
                 context,
                 objectPath,
                 request->resultClass,
@@ -1762,7 +1770,8 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         for(Uint32 i=0,n=first.size(); i<n; i++)
         {
             // get cached or load new provider module
-            Provider provider =
+            //Provider provider =
+            OpProviderHolder ph = 
                providerManager.getProvider(first[i], second[i], third[i]);
 
             // convert arguments
@@ -1774,9 +1783,9 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             STAT_GETSTARTTIME;
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Calling provider.referenceNames: " + 
-			     provider.getName());
-	pm_service_op_lock op_lock(&provider);
-            provider.referenceNames(
+			     ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+            ph.GetProvider().referenceNames(
                 context,
                 objectPath,
                 request->resultClass,
@@ -1869,7 +1878,8 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
                 _lookupProviderForClass(objectPath);
 
     	// get cached or load new provider module
-    	Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
     	// convert arguments
@@ -1883,11 +1893,11 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.getProperty: " + 
-			 provider.getName());
+			 ph.GetProvider().getName());
 	
         // forward request
-	pm_service_op_lock op_lock(&provider);
-        provider.getProperty(
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().getProperty(
             context,
             objectPath,
             propertyName,
@@ -1974,7 +1984,8 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
                 _lookupProviderForClass(objectPath);
 
     	// get cached or load new provider module
-    	Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
                 providerManager.getProvider(triad.first, triad.second, triad.third);
 
     	// convert arguments
@@ -1990,11 +2001,11 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.setProperty: " + 
-			 provider.getName());
+			 ph.GetProvider().getName());
 	
         // forward request
-	pm_service_op_lock op_lock(&provider);
-        provider.setProperty(
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().setProperty(
             context,
             objectPath,
             propertyName,
@@ -2086,7 +2097,8 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
             _lookupMethodProviderForClass(objectPath, request->methodName);
 
 	// get cached or load new provider module
-	Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -2105,9 +2117,9 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
         STAT_GETSTARTTIME;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.invokeMethod: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.invokeMethod(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().invokeMethod(
             context,
             instanceReference,
             request->methodName,
@@ -2183,7 +2195,9 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	
 	// get cached or load new provider module
 	   
-	Provider provider = providerManager.getProvider(triad.first, triad.second, triad.third);
+        //Provider provider =
+        OpProviderHolder ph = 
+	   providerManager.getProvider(triad.first, triad.second, triad.third);
 
 	// convert arguments
 	OperationContext context;
@@ -2219,9 +2233,9 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.createSubscription: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-	provider.createSubscription(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+	ph.GetProvider().createSubscription(
 	    context,
 	    subscriptionName,
 	    classNames,
@@ -2295,7 +2309,8 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -2333,9 +2348,9 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.modifySubscription: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.modifySubscription(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().modifySubscription(
             context,
             subscriptionName,
             classNames,
@@ -2407,7 +2422,8 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -2438,9 +2454,9 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         }
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.deleteSubscription: " + 
-			 provider.getName());
-	pm_service_op_lock op_lock(&provider);
-        provider.deleteSubscription(
+			 ph.GetProvider().getName());
+	pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().deleteSubscription(
             context,
             subscriptionName,
             classNames);
@@ -2520,22 +2536,23 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 	  _getProviderRegPair(request->provider, request->providerModule);
 	  
        // get cached or load new provider module
-       Provider provider =
+        //Provider provider =
+       OpProviderHolder ph = 
 	  providerManager.getProvider(triad.first, triad.second, triad.third);
 
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Calling provider.enableIndications: " + 
-			provider.getName());
-       provider.protect();
-       provider.enableIndications(*handler);
+			ph.GetProvider().getName());
+       ph.GetProvider().protect();
+       ph.GetProvider().enableIndications(*handler);
 
 
        // if no exception, store the handler so it is persistent for as 
        // long as the provider has indications enabled. 
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-			"Storing indication handler for " + provider.getName());
+			"Storing indication handler for " + ph.GetProvider().getName());
        
-       _insertEntry(provider, handler);
+       _insertEntry(ph.GetProvider(), handler);
     }
     catch(CIMException & e)
     {
@@ -2602,19 +2619,20 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 	    _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
-	Provider provider =
+        //Provider provider =
+        OpProviderHolder ph = 
             providerManager.getProvider(triad.first, triad.second, triad.third);
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.disableIndications: " + 
-			 provider.getName());
+			 ph.GetProvider().getName());
 	
-        provider.disableIndications();
-	provider.unprotect();
+        ph.GetProvider().disableIndications();
+	ph.GetProvider().unprotect();
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Removing and Destroying indication handler for " + 
-			 provider.getName());
+			 ph.GetProvider().getName());
 	
-	delete _removeEntry(_generateKey(provider));
+	delete _removeEntry(_generateKey(ph.GetProvider()));
     }
 
     catch(CIMException & e)
@@ -2932,17 +2950,18 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
 	 _getProviderRegPair(request->consumer_provider, request->consumer_module);
       
       // get cached or load new provider module
-      Provider provider =
+      //Provider provider =
+      OpProviderHolder ph = 
 	 providerManager.getProvider(triad.first, triad.second, triad.third);
 
       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 		       "Calling provider.: " + 
-		       provider.getName());
+		       ph.GetProvider().getName());
        
       OperationContext context;
       CIMInstance indication_copy = request->indicationInstance;
       SimpleIndicationResponseHandler handler;
-      provider.handleIndication(context, 
+      ph.GetProvider().handleIndication(context, 
 				indication_copy,
 				handler);
 

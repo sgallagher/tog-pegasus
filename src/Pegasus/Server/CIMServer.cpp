@@ -104,8 +104,8 @@ CIMServer::CIMServer(
 	_cimExportResponseEncoder->getQueueId());
 
     HTTPAuthenticatorDelegator* serverQueue = new HTTPAuthenticatorDelegator(
-        _cimOperationRequestDecoder,
-        _cimExportRequestDecoder);
+        _cimOperationRequestDecoder->getQueueId(),
+        _cimExportRequestDecoder->getQueueId());
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue);
 }

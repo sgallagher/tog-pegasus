@@ -42,11 +42,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
-    MessageQueue* operationMessageQueue,
-    MessageQueue* exportMessageQueue)
+    Uint32 operationMessageQueueId,
+    Uint32 exportMessageQueueId)
     : 
-    _operationMessageQueue(operationMessageQueue),
-    _exportMessageQueue(exportMessageQueue)
+    _operationMessageQueueId(operationMessageQueueId),
+    _exportMessageQueueId(exportMessageQueueId)
 {
     _authenticationManager = new AuthenticationManager();
 }
@@ -115,7 +115,10 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
         handleHTTPMessage((HTTPMessage*)message);
     }
 
-    delete message;
+    // ATTN: This should only be deleted sometimes, because the same message
+    // gets passed along to the Decoder when authentication/delegation is
+    // successful.
+    //delete message;
 }
 
 void HTTPAuthenticatorDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
@@ -255,12 +258,24 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
             if (HTTPMessage::lookupHeader(
                 headers, "*CIMOperation", cimOperation, true))
             {
-                _operationMessageQueue->enqueue(httpMessage);
+                MessageQueue* queue =
+                    MessageQueue::lookup(_operationMessageQueueId);
+
+                if (queue)
+                {
+                    queue->enqueue(httpMessage);
+                }
             }
             else if (HTTPMessage::lookupHeader(
                 headers, "*CIMExport", cimOperation, true))
             {
-                _exportMessageQueue->enqueue(httpMessage);
+                MessageQueue* queue =
+                    MessageQueue::lookup(_exportMessageQueueId);
+
+                if (queue)
+                {
+                    queue->enqueue(httpMessage);
+                }
             }
             else
             {

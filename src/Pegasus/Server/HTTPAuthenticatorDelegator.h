@@ -53,8 +53,8 @@ public:
 
     /** Constructor. */
     HTTPAuthenticatorDelegator(
-	MessageQueue* operationMessageQueue,
-	MessageQueue* exportMessageQueue);
+	Uint32 operationMessageQueueId,
+	Uint32 exportMessageQueueId);
 
     /** Destructor. */
     ~HTTPAuthenticatorDelegator();
@@ -79,9 +79,9 @@ private:
         Uint32 queueId,
         const String errorMessage);
 
-    MessageQueue* _operationMessageQueue;
+    Uint32 _operationMessageQueueId;
 
-    MessageQueue* _exportMessageQueue;
+    Uint32 _exportMessageQueueId;
 
     AuthenticationManager* _authenticationManager;
 };

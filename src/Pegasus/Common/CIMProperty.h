@@ -48,11 +48,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstProperty;
 class CIMPropertyRep;
-#ifdef PEGASUS_INTERNALONLY
 class CIMClassRep;
 class CIMInstanceRep;
 class Resolver;
-#endif
 
 // ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
 // ATTN: Define the property concept in more detail and ref property.

@@ -251,7 +251,6 @@ private:
 
     CIMObjectRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     CIMObject(CIMObjectRep* rep);
 
     void _checkRep() const;
@@ -261,7 +260,6 @@ private:
     friend class CIMConstClass;
     friend class CIMInstance;
     friend class CIMConstInstance;
-#endif
 };
 
 #define PEGASUS_ARRAY_T CIMObject
@@ -334,7 +332,6 @@ private:
 
     CIMObjectRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     void _checkRep() const;
 
     friend class CIMObject;
@@ -342,7 +339,6 @@ private:
     friend class CIMConstClass;
     friend class CIMInstance;
     friend class CIMConstInstance;
-#endif
 };
 
 PEGASUS_NAMESPACE_END

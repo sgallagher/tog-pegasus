@@ -303,6 +303,10 @@ void CIMListenerService::stopClientConnection()
     PEG_METHOD_EXIT();
 }
 
+Uint32 CIMListenerService::getOutstandingRequestCount()
+{
+    return _acceptor->getOutstandingRequestCount();
+}
 
 CIMListenerIndicationDispatcher* CIMListenerService::getIndicationDispatcher() const
 {
@@ -325,6 +329,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
 #endif
     svc->runForever();
   }
+
   delete svc;
 
   return 0;
@@ -356,11 +361,13 @@ public:
 	Boolean removeConsumer(CIMIndicationConsumer* consumer);
 
 private:
-	Uint32			_portNumber;
-	SSLContext* _sslContext;
+  Boolean waitForPendingRequests(Uint32 shutdownTimeout);
+
+  Uint32 _portNumber;
+  SSLContext* _sslContext;
 
   CIMListenerIndicationDispatcher* _dispatcher;
-	ThreadPool* _thread_pool;
+  ThreadPool* _thread_pool;
   CIMListenerService* _svc;  
   Semaphore *_listener_sem;
 };
@@ -381,6 +388,9 @@ CIMListenerRep::~CIMListenerRep()
   {
     // Block incoming export requests and unbind the port
     _svc->stopClientConnection();
+
+    // Wait until pending export requests in the server are done.
+    waitForPendingRequests(10);
     
     // Shutdown the CIMListenerService
     _svc->shutdown();   
@@ -465,7 +475,17 @@ void CIMListenerRep::stop()
 
     // Block incoming export requests and unbind the port
     _svc->stopClientConnection();
-    
+
+    // Wait until pending export requests in the server are done.
+    if (!waitForPendingRequests(10))
+    {
+      // Pendings requests did not finish in time.
+      MessageLoaderParms parms("Listener.CIMListenerRep.SHUTDOWN_TIMEOUT",
+	     "The CIMListener could not be stopped after $0 seconds because export requests have not finished.",
+	     10);
+      throw Exception(parms);
+    }
+   
     // Shutdown the CIMListenerService
     _svc->shutdown();
 
@@ -510,6 +530,23 @@ Boolean CIMListenerRep::removeConsumer(CIMIndicationConsumer* consumer)
 {
 	return _dispatcher->removeConsumer(consumer);
 }
+
+Boolean CIMListenerRep::waitForPendingRequests(Uint32 shutdownTimeout)
+{
+  // Wait for 10 sec max
+  Uint32 reqCount;
+  Uint32 countDown = shutdownTimeout * 10;
+  for (; countDown > 0; countDown--)
+  {
+    reqCount = _svc->getOutstandingRequestCount();
+    if (reqCount > 0)
+      pegasus_sleep(100);
+    else
+      return true;
+  }
+  
+  return false;
+} 
 
 /////////////////////////////////////////////////////////////////////////////
 // CIMListener

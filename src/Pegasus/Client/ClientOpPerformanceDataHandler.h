@@ -78,7 +78,8 @@ struct PEGASUS_CLIENT_LINKAGE ClientOpPerformanceData
      
 
 /** A sub-class of the ClientOpPerformanceDataHandler class is registered by 
-the client app.  
+the client app. This sub-class should have the same scope as the CIMClient object
+that is registering it. 
 */                                                                           
 class PEGASUS_CLIENT_LINKAGE ClientOpPerformanceDataHandler
 {
@@ -90,6 +91,9 @@ public:
     of this class, and does whatever it wants to do with the 
     raw data item it gets as an argument. For instance, it can accumulate the 
     single values to allow calculating the average across a number of operations.
+    Exceptions thrown by this method are not handled by the CIMClient code. The
+    exception will appear to the client application and causes the server respones 
+    information not to be delivered. 
     @param item The client statistics data item being delivered.
     */
     
@@ -149,6 +153,9 @@ int main(int argc, char** argv)
 
    String className = "PG_ComputerSystem";
    CIMClient client;
+                                          //NOTE: ClientStatisticsAccumulator variable must have the same 
+                                          //      scope as the CIMClient variable    
+   ClientStatisticsAccumulator accumulator = ClientStatisticsAccumulator();
 
    try
    {
@@ -168,7 +175,6 @@ int main(int argc, char** argv)
    // Register callback and EnumerateInstances 
    /////////////////////////////////////////////////////
      
-   ClientStatisticsAccumulator accumulator = ClientStatisticsAccumulator();
    client.registerClientOpPerformanceDataHandler(accumulator);
 
      

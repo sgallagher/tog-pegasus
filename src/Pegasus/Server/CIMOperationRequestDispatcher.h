@@ -61,7 +61,9 @@ public:
       typedef MessageQueueService Base;
 
       CIMOperationRequestDispatcher(
-	 CIMRepository* repository, CIMServer* server);
+	 CIMRepository* repository,
+	 ProviderRegistrationManager* providerRegistrationManager,
+	 CIMServer* server);
 
       virtual ~CIMOperationRequestDispatcher();
 
@@ -179,7 +181,7 @@ protected:
 
       CIMRepository * _repository;
 
-      ProviderRegistrationManager _providerRegistrationManager;
+      ProviderRegistrationManager* _providerRegistrationManager;
 
       ServiceCIMOMHandle _cimom;
 

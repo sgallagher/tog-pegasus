@@ -44,11 +44,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class ProviderManager;
+class ProviderRegistrationManager;
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
 public:
-    ProviderManagerService(void);
+    ProviderManagerService(
+        ProviderRegistrationManager* providerRegistrationManager);
     virtual ~ProviderManagerService(void);
 
     // short term hack
@@ -111,6 +113,7 @@ protected:
     SafeQueue<Message *> _incomingQueue;
     SafeQueue<Message *> _outgoingQueue;
 
+    ProviderRegistrationManager* _providerRegistrationManager;
 };
 
 PEGASUS_NAMESPACE_END

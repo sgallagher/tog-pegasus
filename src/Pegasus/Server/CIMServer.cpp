@@ -95,20 +95,24 @@ CIMServer::CIMServer(
 	throw NoSuchDirectory(repositoryRootPath);
     }
 
-    CIMRepository* repository = new CIMRepository(repositoryRootPath);
+    _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a CIMServerState object:
 
     _serverState = new CIMServerState();
 
+    _providerRegistrationManager = new ProviderRegistrationManager(_repository);
+
     // -- Create queue inter-connections:
-    _providerManager = new ProviderManagerService;
-    _handlerService = new IndicationHandlerService(repository);
+    _providerManager = new ProviderManagerService(_providerRegistrationManager);
+    _handlerService = new IndicationHandlerService(_repository);
 
     _cimOperationRequestDispatcher
-	= new CIMOperationRequestDispatcher(repository, this);
+	= new CIMOperationRequestDispatcher(_repository,
+                                            _providerRegistrationManager,
+                                            this);
 
-    _indicationService = new IndicationService(repository, this);
+    _indicationService = new IndicationService(_repository, this);
 
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
@@ -173,7 +177,7 @@ CIMServer::CIMServer(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
-    UserManager* userManager = UserManager::getInstance(repository);
+    UserManager* userManager = UserManager::getInstance(_repository);
 
     // Create SSL context
     SSLContext * sslcontext;

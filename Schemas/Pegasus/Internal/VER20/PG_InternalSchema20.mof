@@ -1,0 +1,3 @@
+#pragma include ("PG_Authorization20.mof")
+#pragma include ("PG_ConfigSetting20.mof")
+#pragma include ("PG_User20.mof")

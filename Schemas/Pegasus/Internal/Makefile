@@ -7,12 +7,7 @@
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
-
-# The PG_INTERNALNS variable defines the absolute name of the 
-# Pegasus INTERNALNS Namespace.
-
-PG_INTERNALNS = root/PG_Internal
-PG_INTERNALNSDIRECTORY = $(REPOSITORY_ROOT)/root\#PG_Internal
+include $(ROOT)/mak/configschema.mak
 
 # The following two variables determine the version of the Schema to
 # be loaded into the Pegasus Internal Namespace.
@@ -31,20 +26,16 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ echo +++++ Removing existing repository named $(PG_INTERNALNS)
-	@ $(RMREPOSITORY) $(PG_INTERNALNSDIRECTORY)
-	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(PG_INTERNALNS) namespace ...
-	@ cimmofl  -n$(PG_INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_User$(PG_SCHEMA_VER).mof into $(PG_INTERNALNS) namespace...
-	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_User$(PG_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_Authorization$(PG_SCHEMA_VER).mof into $(PG_INTERNALNS) namespace...
-	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_Authorization$(PG_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_ConfigSetting$(PG_SCHEMA_VER).mof into $(PG_INTERNALNS) namespace...
-	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_ConfigSetting$(PG_SCHEMA_VER).mof
+	@ echo +++++ Removing existing repository named $(INTERNALNS)
+	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
+	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(INTERNALNS) namespace ...
+	@ $(CIMMOFCLI)  -n$(INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
+	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
-	@ $(RMREPOSITORY) $(PG_INTERNALNSDIRECTORY)
+	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
 
 
 depend:

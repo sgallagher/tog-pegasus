@@ -7,12 +7,7 @@
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
-
-# The PG_INTEROPNS variable defines the absolute name of the 
-# Pegasus InterOp Namespace.
-
-PG_INTEROPNS=root/PG_InterOp
-PG_INTEROPNSDIRECTORY = $(REPOSITORY_ROOT)/root\#PG_InterOp
+include $(ROOT)/mak/configschema.mak
 
 # The following two variables determine the version of the Schema to
 # be loaded into the Pegasus InterOp Namespace.
@@ -31,19 +26,17 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ echo +++++ Removing existing repository named $(PG_INTEROPNS)
-	@ $(RMREPOSITORY) $(PG_INTEROPNSDIRECTORY)
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PG_INTEROPNS) namespace ...
-	@ cimmofl -I$(CIM_MOF_PATH) -n$(PG_INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_Events$(PG_SCHEMA_VER).mof into $(PG_INTEROPNS) namespace...
-	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTEROPNS) $(PG_MOF_PATH)/PG_Events$(PG_SCHEMA_VER).mof
-	@ echo +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER).mof into $(PG_INTEROPNS) namespace...
-	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTEROPNS) $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
+	@ echo +++++ Removing existing repository named $(INTEROPNS)
+	@ $(RMREPOSITORY) $(INTEROPNSDIRECTORY)
+	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
+	@ $(CIMMOFCLI) -I$(CIM_MOF_PATH) -n$(INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading PG_InterOpSchema$(PG_SCHEMA_VER).mof into $(INTEROPNS) namespace...
+	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
 
 
 clean:
-	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
-	@ $(RMREPOSITORY) $(PG_INTEROPNSDIRECTORY)
+	@ echo +++++ Removing existing CIM Repository named $(INTEROPNS)
+	@ $(RMREPOSITORY) $(INTEROPNSDIRECTORY)
 
 
 depend:

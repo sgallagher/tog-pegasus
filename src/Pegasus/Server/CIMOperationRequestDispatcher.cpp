@@ -49,11 +49,12 @@ DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
+    ProviderRegistrationManager* providerRegistrationManager,
     CIMServer* server)
       :
       Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
       _repository(repository),
-      _providerRegistrationManager(repository),
+      _providerRegistrationManager(providerRegistrationManager),
       _cimom(this, server, repository),
       _configurationManager(_cimom)
 {
@@ -94,7 +95,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "CIMOperationRequestDispatcher::_lookupInstanceProvider");
 
-    if (_providerRegistrationManager.lookupInstanceProvider(
+    if (_providerRegistrationManager->lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance))
     {
 	// get the provder name
@@ -112,7 +113,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 	else
 	{
             Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                          "Provider not found.");
+                          "Provider name not found.");
             PEG_METHOD_EXIT();
    	    return(String::EMPTY);
 	}
@@ -135,7 +136,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     CIMInstance pmInstance;
     String providerName;
 
-    if (_providerRegistrationManager.lookupMethodProvider(
+    if (_providerRegistrationManager->lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))
     {
 	// get the provder name
@@ -2852,7 +2853,7 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
 
 ProviderRegistrationManager* CIMOperationRequestDispatcher::getProviderRegistrationManager(void)
 {
-    return &_providerRegistrationManager;
+    return _providerRegistrationManager;
 }
 
 /**

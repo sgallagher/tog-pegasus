@@ -1,0 +1,2 @@
+#pragma include ("PG_Events20.mof")
+#pragma include ("PG_ProviderModule20.mof")

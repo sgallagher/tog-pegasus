@@ -51,10 +51,12 @@ class CIMExportRequestDispatcher;
 class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
 class HTTPAcceptor;
+class CIMRepository;
 
 class IndicationHandlerService;
 class IndicationService;
 class ProviderManagerService;
+class ProviderRegistrationManager;
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
@@ -121,6 +123,7 @@ private:
     Boolean _useSSL;
 
     Monitor* _monitor;
+    CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
     CIMOperationRequestDecoder* _cimOperationRequestDecoder;
@@ -133,9 +136,10 @@ private:
     HTTPAcceptor*   _acceptor;
     CIMServerState* _serverState;
 
-    IndicationHandlerService * _handlerService;
-    IndicationService * _indicationService;
-    ProviderManagerService * _providerManager;
+    IndicationHandlerService* _handlerService;
+    IndicationService* _indicationService;
+    ProviderManagerService* _providerManager;
+    ProviderRegistrationManager* _providerRegistrationManager;
 };
 
 PEGASUS_NAMESPACE_END

@@ -13,12 +13,14 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	$(MAKE) --directory=InterOp repository
 	$(MAKE) --directory=Internal repository
+	$(MAKE) --directory=InterOp repository
+	$(MAKE) --directory=ManagedSystem repository
 
 clean:
-	$(MAKE) --directory=InterOp clean
 	$(MAKE) --directory=Internal clean
+	$(MAKE) --directory=InterOp clean
+	$(MAKE) --directory=ManagedSystem clean
 
 
 depend:

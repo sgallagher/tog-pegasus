@@ -32,6 +32,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
@@ -42,6 +43,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 
 //#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -80,10 +82,12 @@ static struct timeval await = { 0, 40};
 static struct timeval dwait = { 10, 0};
 static struct timeval deadwait = { 1, 0};
 
-ProviderManagerService::ProviderManagerService(void)
+ProviderManagerService::ProviderManagerService(
+    ProviderRegistrationManager* providerRegistrationManager)
     : MessageQueueService("Server::ProviderManagerService", MessageQueue::getNextQueueId()),
     _threadPool(10, "ProviderManagerService", 2, 7, await, dwait, deadwait),
-    _threadSemaphore(0)
+    _threadSemaphore(0),
+    _providerRegistrationManager(providerRegistrationManager)
 {
 }
 
@@ -98,6 +102,67 @@ ProviderManager * ProviderManagerService::getProviderManager(void)
 
 Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
 {
+   CIMInstance pInstance;
+   CIMInstance pmInstance;
+   String providerName;
+   String location;
+
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                    "ProviderManagerService::_lookupProviderForClass");
+   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "nameSpace = " + objectPath.getNameSpace() +
+                        "; className = " + objectPath.getClassName());
+
+  if (_providerRegistrationManager->lookupInstanceProvider(
+                         objectPath.getNameSpace(), objectPath.getClassName(), 
+                             pInstance, pmInstance))
+  {
+      // get the provider Name
+      Uint32 pos = pmInstance.findProperty("Name");
+
+      if ( pos != PEG_NOT_FOUND )
+      {
+          pmInstance.getProperty(pos).getValue().get(providerName);
+
+          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                             "providerName = " + providerName + " found.");
+      }
+      else
+      {
+          Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Provider name not found.");
+          PEG_METHOD_EXIT();
+          return(Pair<String, String>(String::EMPTY, String::EMPTY));
+       }
+
+      // get the provider Location
+      pos = pmInstance.findProperty("Location");
+
+      if ( pos != PEG_NOT_FOUND )
+      {
+          pmInstance.getProperty(pos).getValue().get(location);
+
+          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                             "location = " + location + " found.");
+      }
+      else
+      {
+          Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Provider location not found.");
+          PEG_METHOD_EXIT();
+          return(Pair<String, String>(String::EMPTY, String::EMPTY));
+      }
+   }
+   else
+   {
+      Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Provider location not found.");
+       PEG_METHOD_EXIT();
+       return(Pair<String, String>(String::EMPTY, String::EMPTY));
+   }
+
+/*
+
     CIMOMHandle _cimom(this);
 
     // get all provider capability instances
@@ -140,6 +205,8 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     // get the module location
     String location = moduleInstance.getProperty(moduleInstance.findProperty("Location")).getValue().toString();
 
+*/
+
     String fileName;
 
     #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -152,6 +219,7 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     fileName += String("/lib") + location + String(".so");
     #endif
 
+    PEG_METHOD_EXIT();
     return(Pair<String, String>(fileName, providerName));
 }
 

@@ -115,7 +115,7 @@ static const char _PROPERTY_PROVIDER_NAME [] = "Name";
 /**
    The name of the namespace which is owned by CIMOM 
 */
-static const char INTEROPNAMESPACE [] = "root/cimv2";
+static const char INTEROPNAMESPACE [] = "root/PG_InterOp";
 
 /**
    Registered instance provider 
@@ -1598,6 +1598,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         // get all instances of providerModule class
         //
+
+        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                      "nameSpace = %s; className = %s", INTEROPNAMESPACE,
+                       _CLASS_PROVIDER_MODULE);
 
         cimNamedInstances = _repository->enumerateInstances(
                 INTEROPNAMESPACE,

@@ -927,7 +927,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
 
 #if defined(PEGASUS_OS_OS400)
-    CString cstr = str.getCStringUTF8();
+    CString cstr = str.getCString();
     const char* utf8str = cstr;
 
     os << utf8str;
@@ -945,7 +945,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     	os.flush();
     	delete [] buf;
 	}else{
-		CString cstr = str.getCStringUTF8();
+		CString cstr = str.getCString();
     	const char* utf8str = cstr;
     	os << utf8str;
 	}

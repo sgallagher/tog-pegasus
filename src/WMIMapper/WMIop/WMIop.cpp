@@ -24,10 +24,13 @@
 //==============================================================================
 //
 // Author: Jair F. T. dos Santos (t.dos.santos.francisco@hp.com)
+// Modified By:
+//             Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "WMIop.h"
 #include <iostream>
 #include <unistd.h>
@@ -62,7 +65,7 @@ int main(const int argc, const char **argv)
     return 1;
   }
 
-  SSLContext *sslContext = 0; // initialized for unencrypted connection
+  AutoPtr<SSLContext> sslContext; // initialized for unencrypted connection
   _c.setTimeout(TIMEOUT);
 
   // Get hostname from environment, if defined
@@ -86,10 +89,10 @@ int main(const int argc, const char **argv)
     {
       try
       {
-        sslContext = new SSLContext(PEGASUS_SSLCLIENT_CERTIFICATEFILE,
+        sslContext.reset(new SSLContext(PEGASUS_SSLCLIENT_CERTIFICATEFILE,
                                     verifyServerCertificate,
                                     PEGASUS_SSLCLIENT_RANDOMFILE
-                                    /* "/var/opt/wbem/ssl.rnd" */);
+                                    /* "/var/opt/wbem/ssl.rnd" */));
       }
       catch (Exception &e)
       {
@@ -118,7 +121,7 @@ int main(const int argc, const char **argv)
     else
     // hostname was specified; do remote connect
     {
-      if (sslContext) _c.connect(_hostName, _portNumber, *sslContext, _userName, _passWord);
+      if (sslContext.get()) _c.connect(_hostName, _portNumber, *sslContext.get(), _userName, _passWord);
       else _c.connect(_hostName, _portNumber, _userName, _passWord);
     }
   }

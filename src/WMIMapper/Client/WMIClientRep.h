@@ -51,7 +51,6 @@
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/PegasusVersion.h>

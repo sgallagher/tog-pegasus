@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //				Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/AcceptLanguages.h>  //l10n
 #include <Pegasus/Common/ContentLanguages.h>  //l10n
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -309,7 +311,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
    private:
 
-      MessageQueueService* _outputQueue;
+      AutoPtr<MessageQueueService> _outputQueue; //PEP101
 
       // Queue where responses should be enqueued.
       Uint32 _returnQueueId;

@@ -31,6 +31,7 @@
 //	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //     Dan Gorey (djgorey@us.ibm.com)
 //     Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "HTTPAuthenticatorDelegator.h"
 
@@ -178,7 +180,7 @@ private:
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
     Array<HTTPAcceptor*> _acceptors;
-    CIMServerState* _serverState;
+    AutoPtr<CIMServerState> _serverState; //PEP101
 
     ModuleController* _controlService;
 	IndicationHandlerService* _handlerService;
@@ -187,8 +189,8 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;
     
-    SSLContext* _sslcontext;
-    SSLContext* _exportSSLContext;
+    AutoPtr<SSLContext> _sslcontext; //PEP101
+    AutoPtr<SSLContext> _exportSSLContext; //PEP101
     server_type _type;
 
 };

@@ -37,6 +37,7 @@
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Jair F. T. Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,6 @@
 #include <cstdio>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/System.h>
@@ -77,7 +77,7 @@ CIMOperationRequestDecoder::CIMOperationRequestDecoder(
 
 CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
 {
-
+    _outputQueue.release();
 }
 
 void CIMOperationRequestDecoder::sendResponse(
@@ -88,8 +88,8 @@ void CIMOperationRequestDecoder::sendResponse(
 
    if (queue)
    {
-      HTTPMessage* httpMessage = new HTTPMessage(message);
-      queue->enqueue(httpMessage);
+      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
+      queue->enqueue(httpMessage.release());
    }
 }
 

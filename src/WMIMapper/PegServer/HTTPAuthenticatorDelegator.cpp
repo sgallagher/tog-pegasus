@@ -65,7 +65,7 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
 
-    _authenticationManager = new AuthenticationManager();
+    _authenticationManager.reset(new AuthenticationManager());
 
     PEG_METHOD_EXIT();
 }
@@ -75,8 +75,7 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator");
 
-    delete _authenticationManager;
-
+   
     PEG_METHOD_EXIT();
 }
 
@@ -96,10 +95,10 @@ void HTTPAuthenticatorDelegator::_sendResponse(
 
     if (queue)
     {
-        HTTPMessage* httpMessage = new HTTPMessage(message);
+        AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
         httpMessage->dest = queue->getQueueId();
         
-        queue->enqueue(httpMessage);
+        queue->enqueue(httpMessage.release());
     }
 
     PEG_METHOD_EXIT();

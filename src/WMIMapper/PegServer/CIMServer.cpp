@@ -38,6 +38,7 @@
 //		   Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //         Dan Gorey, IBM  (djgorey@us.ibm.com)
 //         Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -194,7 +195,7 @@ void CIMServer::_init(void)
 
     // -- Create a CIMServerState object:
 
-    _serverState = new CIMServerState();
+    _serverState.reset(new CIMServerState());
 
 /*
     _providerRegistrationManager = new ProviderRegistrationManager(_repository);
@@ -315,8 +316,8 @@ void CIMServer::_init(void)
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
-    _sslcontext = 0;
-    _exportSSLContext = 0;
+    _sslcontext.reset();
+    _exportSSLContext.reset();
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -354,14 +355,6 @@ CIMServer::~CIMServer()
         delete _providerRegistrationManager;
     }
 */
-
-    if (_sslcontext)
-        delete _sslcontext;
-
-    if (_exportSSLContext) 
-    { 
-        delete _exportSSLContext; 
-    } 
 
     if (_type != OLD)
     {
@@ -670,7 +663,7 @@ SSLContext* CIMServer::_getSSLContext()
     static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath"; 
   
 
-    if (_sslcontext == 0)
+    if (!_sslcontext.get())
     {
         //
         // Get the sslCertificateFilePath property from the Config Manager.
@@ -696,10 +689,10 @@ SSLContext* CIMServer::_getSSLContext()
         randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-        _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
+        _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile));
     }
 
-    return _sslcontext;
+    return _sslcontext.get();
 }
 
 SSLContext* CIMServer::_getExportSSLContext()
@@ -710,7 +703,7 @@ SSLContext* CIMServer::_getExportSSLContext()
     static const String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
     static const String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
 
-    if (_exportSSLContext == 0)
+    if (!_exportSSLContext.get())
     {
         //
         // Get the exportSSLTrustStore property from the Config Manager.
@@ -749,11 +742,11 @@ SSLContext* CIMServer::_getExportSSLContext()
         // Note: Trust store is used by default on Export connections,
         // verification callback function is not used.
         //
-        _exportSSLContext = new SSLContext(trustPath, certPath, keyPath, 0, randFile);
+        _exportSSLContext.reset(new SSLContext(trustPath, certPath, keyPath, 0, randFile));
     }
 
     PEG_METHOD_EXIT();
-    return _exportSSLContext;
+    return _exportSSLContext.get();
 }
 
 

@@ -28,7 +28,7 @@
 
 #ifndef PEGASUS_SUBALLOC_INCLUDE
 #define PEGASUS_SUBALLOC_INCLUDE 1
- 
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/OperationContext.h>
@@ -38,13 +38,11 @@
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <windows.h>
 #include <process.h>
-typedef HANDLE PEGASUS_MUTEX_T
 
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 #include <sched.h>
@@ -58,30 +56,24 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
-
-#elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
 
 typedef Uint32 PEGASUS_MUTEX_T;
 
@@ -90,7 +82,7 @@ typedef Uint32 PEGASUS_MUTEX_T;
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
@@ -106,111 +98,531 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_DEBUG_ALLOC
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-#define GUARD_SIZE 0x10
-#define MAX_PATH_LEN 0xff
-#define MAX_LINE_LEN 0x14
-typedef struct _suballocHandle {
-	void (*de_init)(Uint32);
-	void *(*malloc)(size_t, Uint32, Sint8 *f, Sint32 l);
-	void *(*calloc)(size_t, size_t, Uint32, Sint8 *f, Sint32 l);
-	void *(*realloc)(void *, size_t, Uint32, Sint8 *f, Sint32 l);
-	Sint8 *(*strdup)(const Sint8 *, Uint32, Sint8 *f, Sint32 l);
-	Sint16 *(*wcsdup)(const Sint16 *, Uint32, Sint8 *f, Sint32 l);
-	BOOL (*unfreed)(Uint32);
-	Sint8 logpath[256];
+#define ENOTSOCK WSAENOTSOCK
+#define EADDRNOTAVAIL WSAEADDRNOTAVAIL 
+#define EAFNOSUPPORT WSAEAFNOSUPPORT 
+#define EISCONN WSAEISCONN 
+#define ETIMEDOUT WSAETIMEDOUT
+#define ECONNREFUSED WSAECONNREFUSED
+#define ENETUNREACH WSAENETUNREACH
+#define EADDRINUSE WSAEADDRINUSE
+#define EINPROGRESS WSAEINPROGRESS 
+#define EALREADY WSAEALREADY 
+#define EWOULDBLOCK WSAEWOULDBLOCK
+#ifndef EINVAL
+#define EINVAL WSAEINVAL
+#endif
 
-}SUBALLOC_HANDLE;
+typedef HANDLE PEGASUS_MUTEX_T;
 
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 
-#else
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
-typedef struct _suballocHandle {
-	void (*de_init)(Uint32);
-	void *(*malloc)(size_t, Uint32);
-	void *(*calloc)(size_t, size_t, Uint32);
-	void *(*realloc)(void *, size_t, Uint32);
-	Sint8 *(*strdup)(const Sint8 *, Uint32);
-	Sint16 *(*wcsdup)(const Sint16 *, Uint32);
-	BOOL (*unfreed)(Uint32);
-}SUBALLOC_HANDLE;
+#elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
+
+typedef Uint32 PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #endif
 
-typedef struct _subAllocTemplate {
-	struct _subAllocNode *next;
-	struct _subAllocNode *prev;
-	BOOL isHead;
-	BOOL avail;
-	Uint32 allocSize;
-#ifdef PEGASUS_DEBUG_ALLOC
-	Uint8 guardPre[GUARD_SIZE];
+class PEGASUS_SUBALLOC_INTERNAL peg_suballocator 
+{
+   public:
+      static const int GUARD_SIZE = 0x10;
+      static const int MAX_PATH_LEN = 0xff;
+      static const int MAX_LINE_LEN = 0x14 ;
+      static const int PRE_ALLOCATE = 0x00;
+      static const int STEP_ALLOCATE = 0x01;
+
+   private:
+      peg_suballocator(const peg_suballocator &);
+      peg_suballocator & operator = (const peg_suballocator &);
+      Boolean _debug;
+
+      typedef struct _subAllocTemplate {
+	    struct _subAllocNode *next;
+	    struct _subAllocNode *prev;
+	    Boolean isHead;
+	    Boolean avail;
+	    Uint32 allocSize;
+	    Uint8 guardPre[GUARD_SIZE];
+      } SUB_TEMPLATE;
+
+      typedef struct _subAllocNode {
+	    struct _subAllocNode *next;
+	    struct _subAllocNode *prev;
+	    Boolean isHead;
+	    Boolean avail;
+	    Uint32 allocSize;
+	    Uint8 guardPre[GUARD_SIZE];
+	    void *allocPtr;
+	    Uint8 guardPost[GUARD_SIZE];
+	    Sint8 file[MAX_PATH_LEN + 1];
+	    Sint8 line[MAX_LINE_LEN + 1];
+	    void *concurrencyHandle;
+      } SUBALLOC_NODE;
+
+
+      SUBALLOC_NODE *nodeListHeads[3][16];
+
+      PEGASUS_MUTEX_T globalSemHandle;
+      PEGASUS_MUTEX_T semHandles[3][16];
+      static const Sint32 nodeSizes[][16]; 
+      Uint32 allocs[][16];
+      Uint32 wastedBytes[][16];
+      Uint32 inUse[][16];
+      Uint32 avail[][16] ;
+      Uint32 totalAllocs;
+      Uint32 totalMemoryInUse;
+      
+      static const Uint32 preAlloc[][16];
+      static const Uint32 step[][16];
+      
+      Sint32 initialized;
+      Sint32 init_count;
+      PEGASUS_MUTEX_T init_mutex;
+      
+
+      int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
+      void WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result);
+      void WAIT_MUTEX(PEGASUS_MUTEX_T *mut);
+      void RELEASE_MUTEX(PEGASUS_MUTEX_T *mut);
+      void CLOSE_MUTEX(PEGASUS_MUTEX_T *mut);
+
+      Boolean IS_HEAD(SUBALLOC_NODE *x);
+      void INSERT(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after);
+      void INSERT_AFTER(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after);
+      void INSERT_BEFORE(SUBALLOC_NODE *new_node, SUBALLOC_NODE *before);
+      void DELETE(SUBALLOC_NODE *x);
+      void _DELETE(SUBALLOC_NODE *x);
+      Boolean IS_LAST(SUBALLOC_NODE *head, SUBALLOC_NODE *node);
+      Boolean IS_FIRST(SUBALLOC_NODE *head, SUBALLOC_NODE *node);
+      Boolean IS_ONLY(SUBALLOC_NODE *head, SUBALLOC_NODE *node);
+      inline Boolean IS_EMPTY(SUBALLOC_NODE *h) ;
+      
+      Boolean _Allocate(Sint32, Sint32, Sint32);
+      void _DeAllocate(Sint32 vector, Sint32 index);
+      SUBALLOC_NODE *GetNode(Sint32 vector, Sint32 index);
+      SUBALLOC_NODE *GetHugeNode(Sint32 size);
+      void PutNode(Sint32 vector, Sint32 index, SUBALLOC_NODE *node);
+      void PutHugeNode(SUBALLOC_NODE *node);
+      
+      static const Sint8 dumpFileName[];
+      Sint8 global_log_filename[MAX_PATH_LEN + 1];
+      FILE *dumpFile ;
+      static const Uint8 guard[];
+
+      static Boolean _CheckGuard(SUBALLOC_NODE *);
+
+
+   public:
+
+      peg_suballocator(void);
+      peg_suballocator(Sint8 *log_filename);
+      virtual ~peg_suballocator(void);
+
+      inline Boolean PEGASUS_DEBUG_ALLOC(void) { return _debug; }
+
+      typedef class _suballocHandle 
+      { 
+	 public:
+	    Sint8 logpath[MAX_PATH_LEN + 1];
+	    _suballocHandle(Sint8 *log_path = 0)
+	    {
+	       if(log_path)
+		  snprintf(logpath, MAX_PATH_LEN, "%s", log_path);
+	       else
+		  snprintf(logpath, MAX_PATH_LEN, "%p_suballoc_log", this);
+	    }
+	    virtual ~_suballocHandle(void) 
+	    { 
+	    }
+	    
+      }SUBALLOC_HANDLE;
+
+      Boolean InitializeSubAllocator(Sint8 *f = NULL);
+      SUBALLOC_HANDLE *InitializeProcessHeap(Sint8 *f = NULL);
+      void *vs_malloc(size_t size, void *handle, Sint8 *f = 0, Sint32 l = 0);
+      void *vs_calloc(size_t num, size_t size, void *handle, Sint8 *f = 0, Sint32 l = 0);
+      void *vs_realloc(void *pblock, size_t newsize, void *handle, Sint8 *f = 0, Sint32 l = 0);
+      Sint8 * vs_strdup(const Sint8 *string, void *handle, Sint8 *f = 0, Sint32 l = 0);
+      void vs_free(void *m);
+      Boolean _UnfreedNodes(void *handle);
+      void DeInitSubAllocator(void *handle);
+      static void _CheckNode(void *m);
+   private:
+      _suballocHandle internal_handle;
+};
+
+
+
+inline Boolean peg_suballocator::IS_HEAD(SUBALLOC_NODE *x) { return x->isHead; }
+
+inline Boolean peg_suballocator::IS_EMPTY(SUBALLOC_NODE *h) 
+{
+   return (( (h)->next == (h) && (h)->prev == (h) ) ? true : false);
+}
+      
+inline void peg_suballocator::INSERT(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after)
+{ 
+   new_node->prev = after;
+   new_node->next = after->next;
+   after->next->prev = new_node;
+   after->next = new_node;
+}
+      
+inline void peg_suballocator::INSERT_AFTER(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after)
+{
+   INSERT(new_node, after);
+   return;
+}
+      
+inline void peg_suballocator::INSERT_BEFORE(SUBALLOC_NODE *new_node, SUBALLOC_NODE *before)
+{
+   new_node->next = before;
+   new_node->prev = before->prev;
+   before->prev->next = new_node;
+   before->prev = new_node; 
+}
+      
+inline void peg_suballocator::_DELETE(SUBALLOC_NODE *x)
+{
+   x->prev->next = x->next;
+   x->next->prev = x->prev;	
+}
+      
+inline void peg_suballocator::DELETE(SUBALLOC_NODE *x)
+{
+   _DELETE(x);
+   return;
+}
+      
+inline Boolean peg_suballocator::IS_LAST(SUBALLOC_NODE *head, SUBALLOC_NODE *node)
+{
+   return ((node->prev == head && head->prev == node) ? true : false);
+}
+      
+inline Boolean peg_suballocator::IS_FIRST(SUBALLOC_NODE *head, SUBALLOC_NODE *node)
+{
+   return ((node->prev == head && head->next == node) ? true : false);
+}
+      
+inline Boolean peg_suballocator::IS_ONLY(SUBALLOC_NODE *head, SUBALLOC_NODE *node)
+{
+   return ((node->next == head && node->prev == head) ? true : false);
+}
+
+
+
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   if((*mut = CreateMutex(NULL, false, NULL))) return 0;
+   return -1;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   assert(mut && *mut && result);
+   *result = WaitForSingleObject(*mut, INFINITE);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   WaitForSingleObject(*mut, INFINITE);
+   return;
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   ReleaseMutex(*mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   CloseHandle(*mut);
+   *mut = 0;
+   return;
+}
+
+
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(0);
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+
+}
+
+#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
 #endif
-} SUB_TEMPLATE;
-
-typedef struct _subAllocNode {
-	struct _subAllocNode *next;
-	struct _subAllocNode *prev;
-	BOOL isHead;
-	BOOL avail;
-	Uint32 allocSize;
-#ifdef PEGASUS_DEBUG_ALLOC
-	Uint8 guardPre[GUARD_SIZE];
-#endif
-	void *allocPtr;
-#ifdef PEGASUS_DEBUG_ALLOC
-	Uint8 guardPost[GUARD_SIZE];
-	Sint8 file[MAX_PATH_LEN + 1];
-	Sint8 line[MAX_LINE_LEN + 1];
-#endif
-	void *concurrencyHandle;
-} SUBALLOC_NODE;
-
-/* is node x the head of the list? */
-#define IS_HEAD(x) \
-	(x)->isHead
-/* where h is the head of the list */
-#define IS_EMPTY(h) \
-	( (h)->next == (h) && (h)->prev == (h) ) ? TRUE : FALSE
-
-/* where n is the new node, insert it immediately after node x */
-/* x can be the head of the list */
-#define INSERT(n, x)   	\
-        {(n)->prev = (x); 		\
-	(n)->next = (x)->next; 	\
-	(x)->next->prev = (n); 	\
-	(x)->next = (n);}
-
-#define INSERT_AFTER INSERT
-#define INSERT_BEFORE(n, x)   \
-	{(n)->next = (x);					\
-	(n)->prev = (x)->prev;				\
-	(x)->prev->next = (n);				\
-	(x)->prev = (n); }
-
-/* delete node x  - harmless if mib is empty */
-/* void DELETE_MIB(MIBVARS *x); */
-#define _DELETE(x)				\
-	{(x)->prev->next = (x)->next;	\
-	(x)->next->prev = (x)->prev;}	
-
-/* given the head of the list h, determine if node x is the last node */
-#define IS_LAST(h, x) \
-	((x)->prev == (h) && (h)->prev == (x)) ? TRUE : FALSE
-
-/* given the head of the list h, determine if node x is the first node */
-#define IS_FIRST(h, x) \
-	((x)->prev == (h) && (h)->next == (x)) ? TRUE : FALSE
-
-/* given the head of the list h, determine if node x is the only node */
-#define IS_ONLY(h, x) \
-	((x)->next == (h) && (x)->prev == (h)) ? TRUE : FALSE
-
-#define PRE_ALLOCATE 0
-#define STEP_ALLOCATE 1
 
 PEGASUS_NAMESPACE_END
 
-#endif	/* SUBALLOC_INCLUDE */
+#endif	 /* SUBALLOC_INCLUDE */
+
+
+// how to debug a specific object:
+// add an operator new to the object such that 
+// void * operator new(size_t size, peg_suballocator::_sub_handle = 0);
+// void operator delete(void *dead, size_t size);
+// have operator delete check for unfreed nodes by calling sub->unfreed_nodes
 

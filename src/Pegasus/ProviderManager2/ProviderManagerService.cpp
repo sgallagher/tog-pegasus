@@ -70,6 +70,26 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
     catch(...)
     {
     }
+
+    try
+    {
+        ProviderManagerModule module("CMPIProviderManager");
+
+        // ATTN: ensure module loaded
+        module.load();
+
+        // ATTN: ensure entry point returned valid response
+        ProviderManager * manager = module.getProviderManager("CMPI");
+
+        // ATTN: only set the hacked/cached provider registration manager pointer after the module
+        // has loaded.
+        // manager->setProviderRegistrationManager(providerRegistrationManager);
+
+        _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
+    }
+    catch(...)
+    {
+    }
 }
 
 ProviderManagerService::~ProviderManagerService(void)

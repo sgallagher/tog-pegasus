@@ -1706,8 +1706,11 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
                 (SubscriptionFilterConditionContainer::NAME);
 
-        CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,request->query,
-                sub_cntr.getQueryLanguage());
+        CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
+			NULL,
+			request->nameSpace.getString(),
+			request->query,
+                	sub_cntr.getQueryLanguage());
         srec->eSelx=eSelx;
 
         JMPIProvider & pr=ph.GetProvider();

@@ -50,8 +50,19 @@ PEGASUS_USING_STD;
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repository)
-    : _repository(repository), _providerManager(this, repository)
+   : _repository(repository), _providerManager(this, repository),
+     _context_cache(true, 15), _opnode_cache(true, 15), 
+     _started_ops(true, 10), _completed_ops(true, 10)
+     
 {
+   _response_handler_cache[CIM_CLASS] = AsyncDQueue<AsyncResponseHandler<CIMClass> >(true, 5);
+   _response_handler_cache[CIM_INSTANCE] = AsyncDQueue<AsyncResponseHandler<CIMInstance> >(true, 5);
+   _response_handler_cache[CIM_OBJECT] = AsyncDQueue<AsyncResponseHandler<CIMObject> >(true, 5);
+   _response_handler_cache[CIM_OBJECT_WITH_PATH] = AsyncDQueue<AsyncResponseHandler<CIMObjectWithPath> >(true, 5);
+   _response_handler_cache[CIM_VALUE] = AsyncDQueue<AsyncResponseHandler<CIMValue> >(true, 5);
+   _response_handler_cache[CIM_INDICATION] = AsyncDQueue<AsyncResponseHandler<CIMIndication> >(true, 5);
+   _response_handler_cache[CIM_REFERENCE] = AsyncDQueue<AsyncResponseHandler<CIMReference> >(true, 5);
+
     DDD(cout << _DISPATCHER << endl;)
 }
 
@@ -327,7 +338,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		request->localOnly,
 		request->includeQualifiers,
 		request->includeClassOrigin,
-		request->propertyList);
+		request->propertyList); 
 	}
 	else
 	{

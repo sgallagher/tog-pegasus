@@ -15,6 +15,7 @@ DIRS = \
     Compare \
     DateTime \
     Dir \
+    DQueue \
     FileSystem \
     InstanceDecl \
     Method \
@@ -29,6 +30,7 @@ DIRS = \
     String \
     String \
     StrToInstName \
+    Thread \
     TimeValue \
     ValidateClass \
     Value \
@@ -43,9 +45,7 @@ DIRS = \
     WebClient \
     ParamValue
 
-ifeq ($(OS),linux)
-DIRS += IPC Thread
-endif
+
 #    Tracer \
 
 include $(ROOT)/mak/recurse.mak

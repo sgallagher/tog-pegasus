@@ -79,7 +79,7 @@ class PEGASUS_COMMON_LINKAGE AsyncResponseHandler : public ResponseHandler<objec
       void set_parent(AsyncOpNode *parent);
       
       void set_provider(CIMBaseProviderHandle *provider);
-      void clear(void);
+
 
       virtual Boolean operator == (const void *key) const;
       virtual Boolean operator == (ResponseHandlerType type) const;
@@ -96,7 +96,100 @@ class PEGASUS_COMMON_LINKAGE AsyncResponseHandler : public ResponseHandler<objec
       Array<object_type> *_objects;
       ResponseHandlerType _type;
       struct timeval _key;
+      void _clear(void);
+      friend class AsyncOpNode;
+      
 };
+
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::deliver(const object_type & object)
+{
+   _objects->append(object);
+   _parent->notify(&_key,  NULL, AsyncOpFlags::DELIVER, 
+		   AsyncOpState::SINGLE | AsyncOpState::NORMAL , _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::deliver(const Array<object_type> & objects) 
+{
+   _objects->appendArray(objects);
+   _parent->notify(&_key,  NULL, AsyncOpFlags::DELIVER, 
+		   AsyncOpState::MULTIPLE | AsyncOpState::NORMAL , _type);
+}
+
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::processing(void) 
+{
+   _parent->notify(&_key, NULL, AsyncOpFlags::PROCESSING, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::processing(OperationContext *context) 
+{
+   _parent->notify(&_key, context, AsyncOpFlags::PROCESSING, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::complete(void) 
+{
+   _parent->notify(&_key, NULL, AsyncOpFlags::COMPLETE, 
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::complete(OperationContext *context) 
+{
+   _parent->notify(&_key, context, AsyncOpFlags::COMPLETE,
+		   AsyncOpState::NORMAL, _type);
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::set_thread(Thread *thread)
+{
+   _thread = thread;
+   
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::set_parent(AsyncOpNode *parent)
+{
+   _parent = parent;
+}
+
+template<class object_type>
+inline void AsyncResponseHandler<object_type>::set_provider(CIMBaseProviderHandle *provider)
+{
+   _provider = provider;
+}
+
+
+template<class object_type>
+inline Boolean AsyncResponseHandler<object_type>::operator == (const void *key) const
+{
+   if( ! memcmp(&_key, key, sizeof(struct timeval)))
+      return true;
+   return false;
+}
+
+template<class object_type>
+inline Boolean AsyncResponseHandler<object_type>::operator == (ResponseHandlerType type) const
+{
+   if(_type == type)
+      return true;
+   return false;
+}
+
+template<class object_type>
+inline Boolean AsyncResponseHandler<object_type>::operator == (
+   const AsyncResponseHandler<object_type> & rh) const
+{
+   return(this->operator ==((void *)&(rh._key)));
+}
+
 
 
 // /** 

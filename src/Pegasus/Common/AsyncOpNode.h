@@ -74,7 +74,8 @@ enum ResponseHandlerType
    CIM_OBJECT_WITH_PATH,
    CIM_VALUE,
    CIM_INDICATION,
-   CIM_REFERENCE
+   CIM_REFERENCE, 
+   CIM_LAST
 };
 
 // ok, create a wrapper facade around the responsehandler, 

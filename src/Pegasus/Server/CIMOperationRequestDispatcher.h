@@ -25,16 +25,25 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+// Modified by: Mike Day (mdday@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusDispatcher_Dispatcher_h
 #define PegasusDispatcher_Dispatcher_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/AsyncOpNode.h>
+#include <Pegasus/Common/AsyncResponseHandler.h>
+#include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Server/ProviderManager.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -139,6 +148,13 @@ protected:
 
     CIMRepository* _repository;
     ProviderManager _providerManager;
+    
+    internal_dq _response_handler_cache[CIM_LAST - 1];
+    AsyncDQueue<OperationContext> _context_cache;
+    AsyncDQueue<AsyncOpNode> _opnode_cache;
+    AsyncDQueue<AsyncOpNode> _started_ops;
+    AsyncDQueue<AsyncOpNode> _completed_ops;
+    
 };
 
 PEGASUS_NAMESPACE_END

@@ -28,7 +28,7 @@
 
 #ifndef Pegasus_IPC_h
 #define Pegasus_IPC_h
-
+#include <Pegasus/Common/Config.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
@@ -63,7 +63,6 @@ void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit);
 PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void);
 void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc);
 void PEGASUS_EXPORT sleep(int ms);
-
 
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
@@ -140,9 +139,18 @@ class PEGASUS_EXPORT ListFull: public IPCException
 	 return _capacity;
       }
    private:
-      ListFull(void *);
+      ListFull(void );
       Uint32 _capacity;
 };
+
+class PEGASUS_EXPORT ListClosed: public IPCException
+{
+   public:
+      ListClosed(void) : IPCException(pegasus_thread_self()) 
+      {
+      }
+};
+      
 
 #define PEG_DQUEUE_FIRST 0
 #define PEG_DQUEUE_LAST 1
@@ -216,21 +224,21 @@ class PEGASUS_EXPORT internal_dq {
 	 empty_list(); 
       }
 
-      void insert_first(void *element)
+      inline void insert_first(void *element)
       {
 	 internal_dq *ins = new internal_dq(false);
 	 ins->_rep = element;
 	 ins->insert_first(*this); 
       }
 
-      void insert_last(void *element)
+      inline void insert_last(void *element)
       {
 	 internal_dq *ins = new internal_dq(false);
 	 ins->_rep = element;
 	 ins->insert_last(*this);
       }
       
-      virtual void empty_list( void )
+      inline virtual void empty_list( void )
       {
 	 while( _count > 0 ) {
 	    internal_dq *temp = _next;
@@ -246,7 +254,7 @@ class PEGASUS_EXPORT internal_dq {
       inline void *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
       inline void *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
 
-      void *remove(void *key)
+      inline void *remove(void *key)
       {
 	 void *ret = NULL;
 	 if(_count > 0)
@@ -267,7 +275,7 @@ class PEGASUS_EXPORT internal_dq {
 	 return(ret); 
       }
 
-      void *reference(void *key)
+      inline void *reference(void *key)
       {
 	 if( _count > 0 ) {
 	    internal_dq *temp = _next;
@@ -300,7 +308,7 @@ class PEGASUS_EXPORT internal_dq {
 	 return(_cur->_rep);
       }
 
-      Boolean exists(void *key) 
+      inline Boolean exists(void *key) 
       {
 	 Boolean ret = false;
 	 if( _count > 0) {
@@ -317,7 +325,7 @@ class PEGASUS_EXPORT internal_dq {
 	 }
 	 return(ret);
       }
-      inline virtual int count(void) { return _count ; }
+      inline virtual Uint32 count(void) { return _count ; }
 } ;
 
 
@@ -330,11 +338,9 @@ class PEGASUS_EXPORT Mutex
       Mutex(void) ;
       Mutex(int type);
 
-#ifdef PEGASUS_OS_TYPE_UNIX
-      // to be able to share the mutex between different condition variables
+      // to be able to share the mutex handle between different condition variables
       Mutex(const Mutex& _mutex);
-#endif
-
+      
       ~Mutex(void);
 
       // block until gaining the lock - throw a deadlock 
@@ -344,12 +350,14 @@ class PEGASUS_EXPORT Mutex
       // try to gain the lock - lock succeeds immediately if the 
       // mutex is not already locked. throws an exception and returns
       // immediately if the mutex is currently locked. 
-      void try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed);
+      void try_lock(PEGASUS_THREAD_TYPE caller) 
+	 throw(Deadlock, AlreadyLocked, WaitFailed);
 
       // wait for milliseconds and throw an exception then return if the wait
       // expires without gaining the lock. Otherwise return without throwing an
       // exception. 
-      void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller) throw(Deadlock, TimeOut, WaitFailed);
+      void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller) 
+	 throw(Deadlock, TimeOut, WaitFailed);
 
       // unlock the semaphore
       void unlock(void) throw(Permission);
@@ -357,13 +365,18 @@ class PEGASUS_EXPORT Mutex
       inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
 
    private:
+      inline void _set_owner(PEGASUS_THREAD_TYPE owner) { _mutex.owner = owner; }
       PEGASUS_MUTEX_HANDLE _mutex;
+      PEGASUS_MUTEX_HANDLE & _get_handle(void) 
+      {
+	 return _mutex;
+      }
       friend class Condition;
 } ;
 
 
 //%////////////////////////////////////////////////////////////////////////////
-
+ 
 class PEGASUS_EXPORT Semaphore
 {
   
@@ -444,10 +457,10 @@ class PEGASUS_EXPORT AtomicInt
       Uint32  value(void);
 
       void operator++(void); // prefix
-      inline void operator++(int) { this->operator++(); }  // postfix
+      inline void operator++(int); // postfix
 
       void operator--(void); // prefix
-      inline void operator--(int) { this->operator--(); } // postfix
+      inline void operator--(int) ; // postfix
 
       Uint32 operator+(const AtomicInt& val);
       Uint32 operator+(Uint32 val);
@@ -611,41 +624,71 @@ typedef struct peg_condition{
 class PEGASUS_EXPORT Condition
 { 
    public:
-    
       // create the condition variable
       Condition(void)  ;
       ~Condition(void);
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
       Condition(const Mutex& mutex);
-#endif
 
       // signal the condition variable
       void signal(PEGASUS_THREAD_TYPE caller) 
-	 throw(Deadlock, WaitFailed, Permission);
+	 throw(IPCException);
       void lock_object(PEGASUS_THREAD_TYPE caller) 
-	 throw(Deadlock, WaitFailed);
+	 throw(IPCException);
       void try_lock_object(PEGASUS_THREAD_TYPE caller)
-	 throw(Deadlock, AlreadyLocked, WaitFailed);
+	 throw(IPCException);
       void wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-	 throw(Deadlock, TimeOut, WaitFailed);
+	 throw(IPCException);
       void unlock_object(void);
 
       // without pthread_mutex_lock/unlock
       void unlocked_wait(PEGASUS_THREAD_TYPE caller) 
-	 throw(Permission);
+	 throw(IPCException);
       void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
-	 throw(TimeOut, Permission);
+	 throw(IPCException);
       void unlocked_signal(PEGASUS_THREAD_TYPE caller)
-	 throw(Permission);
+	 throw(IPCException);
 
+      void set_owner(PEGASUS_THREAD_TYPE caller) 
+      {
+	 _cond_mutex->_set_owner(caller);
+      }
+      
+      void disallow(void)
+      {
+	 _disallow++;
+      }
+      
+      void reallow(void)
+      {
+	 if(_disallow.value() > 0)
+	    _disallow--;
+      }
 
+      Boolean is_shutdown(void)
+      {
+	 if(_disallow.value() > 0)
+	    return true;
+	 return false;
+      }
+      
+      
    private:
-      int _disallow; // don't allow any further waiters
+      AtomicInt _disallow; // don't allow any further waiters
+      Boolean _destroy_mut;
       PEGASUS_COND_TYPE _condition; // special type to control execution flow
-      Mutex _cond_mutex; // the conditional mutex
+      Mutex *_cond_mutex; // the conditional mutex
       friend void extricate_condition(void *);
       
 };
+
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include "IPCWindows_inline.h"
+#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+# include "IPCUnix_inline.h"
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+# include "IPCUnix_inline.h"
+#endif
 
 PEGASUS_NAMESPACE_END
 

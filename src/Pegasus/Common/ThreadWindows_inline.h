@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////-*-c++-*-//////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -24,29 +24,47 @@
 //
 // Modified By:
 //
-//%////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
-PEGASUS_NAMESPACE_BEGIN
 
-Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-		void *parameter, 
-		Boolean detached ) : _is_detached(detached), 
-				     _cancel_enabled(true), 
-				     _cancelled(false),
-				     _suspend_count(), 
-				     _start(start), 
-				     _cleanup(true),
-				     _tsd(true),
-				     _thread_parm(parameter), 
-				     _exit_code(0)
+#ifndef ThreadWindows_inline_h
+#define ThreadWindows_inline_h
+
+inline void Thread::run(void)
 {
-   _handle.thatt = NULL;
-   _handle.thid = (PEGASUS_THREAD_TYPE)0;
-
+   _handle.thid = (PEGASUS_THREAD_TYPE)_beginthread( ((void (__cdecl *)(void *))(_start)), 
+						     0, 
+						     (void *)this) ;
 }
 
+inline void Thread::cancel(void)
+{
+  _cancelled = true;
+}
 
-Thread::~Thread()
+inline void Thread::test_cancel(void)
+{
+   if(_cancel_enabled == true)
+   {
+      if(_cancelled == true)
+      {
+	 exit_self(0);
+	 _endthread();
+      }
+   }
+}
+
+inline void Thread::thread_switch(void)
+{
+   Sleep(0);
+}
+
+inline void Thread::sleep(Uint32 milliseconds)
+{
+  Sleep(milliseconds);
+}
+
+inline void Thread::join(void)
 {
    if( (! _is_detached) && (_handle.thid != 0))
    {
@@ -62,4 +80,10 @@ Thread::~Thread()
    }
 }
 
-PEGASUS_NAMESPACE_END
+inline void Thread::thread_init(void)
+{
+   ;
+   
+}
+
+#endif // ThreadWindows_inline_h

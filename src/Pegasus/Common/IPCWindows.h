@@ -55,6 +55,8 @@ typedef void *PEGASUS_CLEANUP_HANDLE;
 
 typedef DWORD PEGASUS_THREAD_RETURN;
 
+#define PTHREAD_MUTEX_TIMED_NP
+
 #define PEGASUS_THREAD_CDECL __stdcall
 
 typedef struct {
@@ -107,4 +109,91 @@ struct timezone
       int tz_dsttime;
 };
 
-int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz);
+
+inline int pegasus_gettimeofday(struct timeval *tv)
+{
+	struct _timeb timebuffer;   
+	if (tv == NULL)
+		return(-1);
+	_ftime( &timebuffer );
+	tv->tv_sec = timebuffer.time;
+	tv->tv_usec = ( timebuffer.millitm / 1000 );
+	return(0);
+}
+	
+inline int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+  return(pegasus_gettimeofday(tv));
+}
+
+PEGASUS_NAMESPACE_BEGIN
+
+inline PEGASUS_EXPORT void pegasus_yield(void)
+{
+  Sleep(0);
+}
+
+// pthreads cancellation calls 
+inline  PEGASUS_EXPORT void disable_cancel(void)
+{
+  ;
+}
+
+inline  PEGASUS_EXPORT void enable_cancel(void)
+{
+  ;
+}
+
+
+// Windows does not have equivalent functionality with Unix-like
+// operating systems. Be careful using these next two 
+// macros. There is no pop routine in windows. Further, windows
+// does not allow passing parameters to exit functions. !!
+inline PEGASUS_EXPORT void native_cleanup_push( void (*)(void *), void *) { ; }
+
+inline PEGASUS_EXPORT void native_cleanup_pop(Boolean) { ; }
+
+inline void PEGASUS_EXPORT init_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   InitializeCriticalSection(crit);
+}
+
+inline void PEGASUS_EXPORT enter_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   EnterCriticalSection(crit);
+}
+
+inline void PEGASUS_EXPORT try_crit(PEGASUS_CRIT_TYPE *crit)
+{
+  EnterCriticalSection(crit); 
+}
+
+inline void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   LeaveCriticalSection(crit);
+}
+
+inline void PEGASUS_EXPORT destroy_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   DeleteCriticalSection(crit);
+}
+
+inline PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void) 
+{ 
+   return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
+}
+
+inline void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc)
+{
+  _endthreadex(rc);
+}
+
+inline void PEGASUS_EXPORT sleep(int ms)
+{
+  Sleep(ms);
+}
+
+PEGASUS_NAMESPACE_END
+
+
+

@@ -65,83 +65,6 @@ class PEGASUS_COMMON_LINKAGE cleanup_handler
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE SimpleThread
-{
-
-   public:
-      SimpleThread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-		    void *parameter, Boolean detached );
-
-      ~SimpleThread();
-
-      void run(void);
-
-      Uint32 threadId(void);
-
-      // get the user parameter 
-      void *get_parm(void);
-
-      // cancellation must be deferred (not asynchronous)
-      // for user-level threads the thread itself can decide
-      // when it should die. 
-      void cancel(void);
-
-      void kill(int signum);
-
-      // cancel if there is a pending cancellation request
-      void test_cancel(void);
-
-      // for user-level threads  - put the calling thread
-      // to sleep and jump to the thread scheduler. 
-      // platforms with preemptive scheduling and native threads 
-      // can define this to be a no-op. 
-      // platforms without preemptive scheduling like NetWare 
-      // or gnu portable threads will have an existing 
-      // routine that can be mapped to this method 
-
-      void thread_switch(void);
-
-      // suspend this thread 
-      void suspend(void) ;
-
-      // resume this thread
-      void resume(void) ;
-
-      void sleep(Uint32 msec) ;
-
-      // block the calling thread until this thread terminates
-      void join( PEGASUS_THREAD_RETURN *ret_val);
-
-
-      // stack of functions to be called when thread terminates
-      // will be called last in first out (LIFO)
-      void cleanup_push( void (*routine) (void *), void *parm );
-      void cleanup_pop(Boolean execute) ;
-
-      PEGASUS_THREAD_TYPE self(void) ;
-
-   private:
-      SimpleThread();
-
-      PEGASUS_THREAD_HANDLE _handle;
-      Boolean _is_detached;
-      Boolean _cancel_enabled;
-      Boolean _cancelled; 
-  
-      //PEGASUS_SEM_HANDLE _suspend_count;
-      Semaphore _suspend;
-
-      // always pass this * as the void * parameter to the thread
-      // store the user parameter in _thread_parm 
-
-      PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
-
-      void *_thread_parm;
-} ;
-
-///////////////////////////////////////////////////////////////////////////////
-
-
 
 class  PEGASUS_COMMON_LINKAGE thread_data
 {
@@ -473,6 +396,64 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       Thread *_init_thread(void) throw(IPCException);
       void _link_pool(Thread *th) throw(IPCException);
 };
+
+
+inline void ThreadPool::_sleep_sem_del(void *p)
+{
+   if(p != 0)
+   {
+      delete (Semaphore *)p;
+   }
+}
+
+inline void ThreadPool::_check_deadlock(struct timeval *start) throw(Deadlock)
+{
+   if (true == _check_time(start, &_deadlock_detect))
+      throw Deadlock(pegasus_thread_self());
+   return;
+}
+
+
+inline Boolean ThreadPool::_check_deadlock_no_throw(struct timeval *start)
+{
+   return(_check_time(start, &_deadlock_detect));
+}
+
+inline Boolean ThreadPool::_check_dealloc(struct timeval *start)
+{
+   return(_check_time(start, &_deallocate_wait));
+}
+
+inline Thread *ThreadPool::_init_thread(void) throw(IPCException)
+{
+   Thread *th = (Thread *) new Thread(&_loop, this, false);
+   // allocate a sleep semaphore and pass it in the thread context
+   // initial count is zero, loop function will sleep until
+   // we signal the semaphore
+   Semaphore *sleep_sem = (Semaphore *) new Semaphore(0);
+   th->put_tsd("sleep sem", &_sleep_sem_del, sizeof(Semaphore), (void *)sleep_sem);
+   struct timeval *dldt = (struct timeval *) ::operator new(sizeof(struct timeval));
+   th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
+   // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
+   th->run();
+   _current_threads++;
+   return th;
+}
+
+inline void ThreadPool::_link_pool(Thread *th) throw(IPCException)
+{
+   if(th == 0)
+      throw NullPointer();
+   _pool.insert_first(th);
+   _pool_sem.signal();
+}
+
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include "ThreadWindows_inline.h"
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+# include "ThreadUnix_inline.h"
+#endif
 
 PEGASUS_NAMESPACE_END
 

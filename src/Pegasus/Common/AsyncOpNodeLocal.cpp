@@ -43,25 +43,25 @@ namespace
 	 case UNDEFINED:
 	    break;
 	 case CIM_CLASS:
-	    delete static_cast<ResponseHandler<CIMClass> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMClass> *>(handler);
 	    break;
 	 case CIM_INSTANCE:
-	    delete static_cast<ResponseHandler<CIMInstance> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMInstance> *>(handler);
 	    break;
 	 case CIM_OBJECT:
-	    delete static_cast<ResponseHandler<CIMObject> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMObject> *>(handler);
 	    break;
 	 case CIM_OBJECT_WITH_PATH:
-	    delete static_cast<ResponseHandler<CIMObjectWithPath> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMObjectWithPath> *>(handler);
 	    break;
 	 case CIM_VALUE:
-	    delete static_cast<ResponseHandler<CIMValue> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMValue> *>(handler);
 	    break;
 	 case CIM_INDICATION:
-	    delete static_cast<ResponseHandler<CIMIndication> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMIndication> *>(handler);
 	    break;
 	 case CIM_REFERENCE:
-	    delete static_cast<ResponseHandler<CIMReference> *>(handler);
+	    delete reinterpret_cast<ResponseHandler<CIMReference> *>(handler);
 	 default:
 	    throw TypeMismatch();
       }
@@ -74,7 +74,7 @@ AsyncOpNodeLocal::AsyncOpNodeLocal(void)
    : _mut(), _request(0), _response(0), _req_ctx(0), 
      _proc_ctx(0), _comp_ctx(0), _state(0), _flags(0),
      _total_ops(0), _completed_ops(0), _responseHandler(0), 
-     _parent(0), _children(true)
+     _parent(0), _children(true, 100)
 {
    memset(&_start, 0x00, sizeof(struct timeval));
    memset(&_lifetime, 0x00, sizeof(struct timeval));
@@ -98,20 +98,7 @@ void AsyncOpNodeLocal::reset(void) throw(IPCException)
    _children.empty_list();
 }
 
-inline Boolean AsyncOpNodeLocal::operator == (const void *key) const
-{
-   if (key == (void *)this)
-      return true;
-   return false;
-}
 
-inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
-{
-   return AsyncOpNodeLocal::operator==((const void *)&node);
-}
-
-
-// notifications should only come from children 
  void AsyncOpNodeLocal::notify(const void *key, 
 			       OperationContext *context,
 			       Uint32 flag, 
@@ -119,10 +106,15 @@ inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
 			       ResponseHandlerType type)
    throw(IPCException)
 {
-   if( ! _children.count() )
-      return;
+
+   // update my own state
+   // if I have a parent, call notify pasing my own state
+   // this allows a trickle up consolidation of complex
+   // operation results
+
    if(flag & AsyncOpFlags::COMPLETE)
    {
+
       ;
    }
    if(flag & AsyncOpFlags::INDICATION)
@@ -140,125 +132,7 @@ inline Boolean AsyncOpNodeLocal::operator == (const AsyncOpNode & node) const
 
 
 
-inline  void AsyncOpNodeLocal::put_req_context(OperationContext *context) 
-   throw(IPCException)
-{
-   _put_ctx(&_req_ctx, context);
-}
 
-inline  void AsyncOpNodeLocal::put_proc_context(OperationContext *context) 
-   throw(IPCException)
-{
-   _put_ctx(&_proc_ctx, context);
-}
-
-inline  void AsyncOpNodeLocal::put_completion_context(OperationContext *context) 
-   throw(IPCException)
-{
-   _put_ctx(&_comp_ctx, context);
-}
-
-inline  OperationContext * AsyncOpNodeLocal::take_req_context(void) 
-   throw(IPCException)
-{
-   return(_take_ctx(&_req_ctx));
-}
-         
-inline  OperationContext * AsyncOpNodeLocal::take_proc_context(void)
-   throw(IPCException)
-{
-   return(_take_ctx(&_proc_ctx));
-}
-
-inline  OperationContext * AsyncOpNodeLocal::take_completion_context(void) 
-   throw(IPCException)
-{
-   return(_take_ctx(&_comp_ctx));
-}
-
-      
-inline  void AsyncOpNodeLocal::put_request(Message *request) 
-   throw(IPCException)
-{
-   _put_msg(&_request, request);
-}
-
-inline  Message * AsyncOpNodeLocal::take_request(void) 
-   throw(IPCException)
-{
-   return(_take_msg(&_request));
-}
-
-inline  void AsyncOpNodeLocal::put_response(Message *response) 
-   throw(IPCException)
-{
-   _put_msg(&_response, response);
-}
-
-inline  Message * AsyncOpNodeLocal::take_response(void) 
-   throw(IPCException)
-{
-   return(_take_msg(&_response));
-}
-
-inline  void AsyncOpNodeLocal::set_state_bits(Uint32 bits) 
-   throw(IPCException)
-{
-   _set_bits(&_state, bits);
-}
-
-inline  void AsyncOpNodeLocal::clear_state_bits(Uint32 bits) 
-   throw(IPCException)
-{
-   _clear_bits(&_state, bits);
-}
-
-
-inline  Uint32 AsyncOpNodeLocal::get_state(void) 
-   throw(IPCException)
-{
-   check_owner();
-   return _state;
-}
-
-inline  Boolean AsyncOpNodeLocal::test_state_bit(Uint32 mask) 
-   throw(IPCException)
-{
-   return(_test_bits(&_state, mask));
-}
-
-inline  void AsyncOpNodeLocal::set_flag_bits(Uint32 bits) 
-   throw(IPCException)
-{
-   _set_bits(&_flags, bits);
-}
-
-inline  void AsyncOpNodeLocal::clear_flag_bits(Uint32 bits) 
-   throw(IPCException)
-{
-   _clear_bits(&_flags, bits);
-}
-
-inline  Uint32 AsyncOpNodeLocal::get_flag_bits(void) 
-   throw(IPCException)
-{
-   check_owner();
-   return _flags;
-}
-
-inline  Boolean AsyncOpNodeLocal::test_flag_bit(Uint32 mask) 
-   throw(IPCException)
-{
-   return(_test_bits(&_flags, mask));
-}
-      
-inline  void AsyncOpNodeLocal::set_lifetime(struct timeval *lifetime) 
-   throw(IPCException)
-{
-   check_owner();
-   _lifetime.tv_sec = lifetime->tv_sec;
-   _lifetime.tv_usec = lifetime->tv_usec;
-}
 
 Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst)
    throw(IPCException)
@@ -276,55 +150,6 @@ Boolean AsyncOpNodeLocal::check_lifetime(struct timeval *dst)
    return true;
 }
 
-inline  void AsyncOpNodeLocal::lock(void)  
-   throw(IPCException) 
-{
-   _mut.lock(pegasus_thread_self());
-}
-
-inline  void AsyncOpNodeLocal::unlock(void) 
-   throw(IPCException) 
-{
-   _mut.unlock();
-}
-
-inline  void AsyncOpNodeLocal::check_owner(void) throw(IPCException)
-{
-   if(_mut.get_owner() != pegasus_thread_self())
-      throw Permission(pegasus_thread_self());
-   return;
-}
-
-inline ResponseHandlerType AsyncOpNodeLocal::get_rh_type(void) 
-   throw(IPCException)
-{
-   check_owner();
-   return _rh_type;
-}
-
-
-inline void AsyncOpNodeLocal::_adopt_child(AsyncOpNodeLocal *child) 
-   throw(IPCException)
-{
-   if(child == NULL)
-      throw NullPointer();
-   if(true == child->is_child())
-      throw Permission(pegasus_thread_self());
-   child->_parent = this;
-   _children.insert_last(child);
-}
-
-      
-inline void AsyncOpNodeLocal::_disown_child(AsyncOpNodeLocal *child)
-   throw(IPCException)
-{
-   if(child == NULL)
-      throw NullPointer();
-   if( false == child->is_child() || false == child->is_my_child(this))
-      throw Permission(pegasus_thread_self());
-   child->make_orphan(this);
-   _children.remove(child);
-}
-
+ 
 
 PEGASUS_NAMESPACE_END

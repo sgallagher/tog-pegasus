@@ -37,8 +37,6 @@
 #endif
 
 
-
-
 PEGASUS_NAMESPACE_BEGIN
 
 //-----------------------------------------------------------------
@@ -234,7 +232,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    while(_writers > 0)
 	       pegasus_yield(); 
 	 }
-	 else // timed wait
+ 	 else // timed wait
 	 {
 	    struct timeval start, now;
 	    gettimeofday(&start, NULL);
@@ -408,8 +406,21 @@ void AtomicInt::operator++(void)
     _rep._mutex.unlock();
 }
 
+void AtomicInt::operator++(int)
+{
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value++;
+    _rep._mutex.unlock();
+}
 
 void AtomicInt::operator--(void)
+{
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value--;
+    _rep._mutex.unlock();
+}
+
+void AtomicInt::operator--(int)
 {
     _rep._mutex.lock(pegasus_thread_self());
     _rep._value--;
@@ -515,17 +526,28 @@ void extricate_condition(void *parm)
    if(pegasus_thread_self() == c->_condition._spin.get_owner())
       c->_condition._spin.unlock();
    // if I DO NOT own the mutex, obtain it
-   if(pegasus_thread_self() != c->_cond_mutex.get_owner())
-      c->_cond_mutex.lock(pegasus_thread_self());
+   if(pegasus_thread_self() != c->_cond_mutex->get_owner())
+      c->_cond_mutex->lock(pegasus_thread_self());
 }
 
-Condition::Condition(void) : _disallow(0), _condition(), _cond_mutex() { } 
+Condition::Condition(void) : _disallow(0), _condition(), _cond_mutex() 
+{ 
+   _cond_mutex = new Mutex();
+   _destroy_mut = true;
+} 
+
+Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
+{
+   _cond_mutex = const_cast<Mutex *>(&mutex);
+   _destroy_mut = false;
+}
+
 
 Condition::~Condition(void)
 {
    cond_waiter *lingerers;
    // don't allow any new waiters
-   _disallow = 1;
+   _disallow++;
    _condition._spin.lock(pegasus_thread_self());
 
    while(NULL != (lingerers = static_cast<cond_waiter *>(_condition._waiters.remove_last())))
@@ -536,19 +558,17 @@ Condition::~Condition(void)
    while( _condition._waiters.count())   {
       pegasus_yield();
    }
+   if(_destroy_mut == true)
+      delete _cond_mutex;
 }
 
 void Condition::signal(PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, WaitFailed, Permission)
+   throw(IPCException)
 {
-   try 
-   {
-      lock_object(caller);
-   }
-   catch(...)
-   {
-      throw;
-   }
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   lock_object(caller);
+
    try
    {
       unlocked_signal(caller);
@@ -557,95 +577,17 @@ void Condition::signal(PEGASUS_THREAD_TYPE caller)
    {
       unlock_object();
       throw;
-   } 
+   }
    unlock_object();
 }
 
-void Condition::lock_object(PEGASUS_THREAD_TYPE caller) 
-   throw(Deadlock, WaitFailed)
-{
-   _cond_mutex.lock(caller);
-}
-
-void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, AlreadyLocked, WaitFailed)
-{
-   _cond_mutex.try_lock(caller);
-}
-
-void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(Deadlock, TimeOut, WaitFailed)
-{
-   _cond_mutex.timed_lock(milliseconds, caller);
-   
-}
-
-void Condition::unlock_object(void)
-{
-   _cond_mutex.unlock();
-}
-
-void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
-	 throw(Permission)
-{
-   unlocked_timed_wait(-1, caller);
-}
-
-void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
-  throw(TimeOut, Permission)
-{
-
-   IPCException *caught = NULL;
-   
-   if(_disallow == 1) 
-      throw(TimeOut((PEGASUS_THREAD_TYPE)caller));
-   // enforce that the caller owns the conditional lock
-   if(_cond_mutex._mutex.owner != caller)
-      throw(Permission((PEGASUS_THREAD_TYPE)caller));
-   cond_waiter *waiter = new cond_waiter(caller, milliseconds);
-   {
-      native_cleanup_push(extricate_condition, this);
-
-      // lock the internal list
-      _condition._spin.lock(caller);
-      _condition._waiters.insert_first(waiter);
-      // unlock the condition mutex 
-      _cond_mutex.unlock();
-      _condition._spin.unlock();
-      try 
-      {
-	 if(milliseconds == -1)
-	    waiter->signalled.wait();
-	 else
-	    waiter->signalled.time_wait(milliseconds);
-      }
-      catch(TimeOut& t) 
-      {
-	 t = t;
-      }
-      catch(IPCException& e)
-      {
-	 caught = &e;
-      }
-      _condition._spin.lock(caller);
-      _condition._waiters.remove(waiter);
-      _condition._spin.unlock();
-      delete waiter;
-      _cond_mutex.lock(caller);
-      native_cleanup_pop(0);
-   }
-   if(caught != NULL)
-      throw(*caught);
-   return;
-}
-
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
-   throw(Permission)
+   throw(IPCException)
 {
-   if(_disallow == 1)
+   if(_disallow.value() > 0)
       return;
       // enforce that the caller owns the conditional lock
-   if(_cond_mutex._mutex.owner != caller)
+   if(_cond_mutex->_mutex.owner != caller)
       throw(Permission((PEGASUS_THREAD_TYPE)caller));
 
    // lock the internal list
@@ -661,6 +603,83 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
    }
    _condition._spin.unlock();
 }
+
+void Condition::lock_object(PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   _cond_mutex->lock(caller);
+}
+
+void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0 ) 
+      throw ListClosed();
+   _cond_mutex->try_lock(caller);
+}
+
+void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   _cond_mutex->timed_lock(milliseconds, caller);
+}
+
+void Condition::unlock_object(void)
+{
+   _cond_mutex->unlock();
+}
+
+void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
+   
+   unlocked_timed_wait(-1, caller);
+}
+
+void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException)
+{
+   if(_disallow.value() > 0)
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
+   // enforce that the caller owns the conditional lock
+   if(_cond_mutex->_mutex.owner != caller)
+      throw Permission((PEGASUS_THREAD_TYPE)caller);
+   cond_waiter *waiter = new cond_waiter(caller, milliseconds);
+   {
+      native_cleanup_push(extricate_condition, this);
+      // lock the internal list
+      _condition._spin.lock(caller);
+      _condition._waiters.insert_first(waiter);
+      // unlock the condition mutex 
+      _cond_mutex->unlock();
+      _condition._spin.unlock();
+      if(milliseconds == -1)
+	 waiter->signalled.wait();
+      else
+	 waiter->signalled.time_wait(milliseconds);
+      _condition._spin.lock(caller);
+      _condition._waiters.remove(waiter);
+      _condition._spin.unlock();
+      delete waiter;
+      _cond_mutex->lock(caller);
+      native_cleanup_pop(0);
+   }
+   return;
+}
+
+
 
 
 #endif // PEGASUS_CONDITIONAL_NATIVE

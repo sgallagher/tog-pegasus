@@ -49,7 +49,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
-
+#include <sys/timex.h>
 
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
@@ -92,7 +92,7 @@ typedef struct {
 /// Conditionals to support native or generic Conditional Semaphore
 //-----------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define PEGASUS_CONDITIONAL_NATIVE = 1
 
 typedef pthread_cond_t PEGASUS_COND_TYPE;
@@ -174,4 +174,86 @@ typedef atomic_t PEGASUS_ATOMIC_TYPE ;
 
 //#endif // linux platform read/write type
 
+PEGASUS_NAMESPACE_BEGIN
 
+inline void pegasus_yield(void)
+{
+
+      pthread_yield();
+}
+
+// pthreads cancellation calls 
+inline void disable_cancel(void)
+{
+   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+}
+
+inline void enable_cancel(void)
+{
+   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+}
+
+inline void sleep(int msec)
+{
+  struct timespec timeout;
+  timeout.tv_sec = msec / 1000;
+  timeout.tv_nsec = (msec & 1000) * 1000;
+  nanosleep(&timeout,NULL);
+}
+
+inline void init_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_init(crit, 0);
+}
+
+inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_lock(crit);
+}
+
+inline void try_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_trylock(crit);
+}
+
+inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_unlock(crit);
+}
+
+inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_spin_destroy(crit);
+}
+
+
+//-----------------------------------------------------------------
+/// accurate version of gettimeofday for unix systems
+//  posix glibc implementation does not return microseconds.
+//  mdday Wed Aug  1 16:05:26 2001
+//-----------------------------------------------------------------
+inline static int pegasus_gettimeofday(struct timeval *tv)
+{
+   struct ntptimeval ntp;
+   int err;
+   if(tv == NULL)
+      return(EINVAL);
+   err = ntp_gettime(&ntp);
+   tv->tv_sec = ntp.time.tv_sec;
+   tv->tv_usec = ntp.time.tv_usec;
+   return(err);
+}
+
+   
+inline void exit_thread(PEGASUS_THREAD_RETURN rc)
+{
+  pthread_exit(rc);
+}
+
+inline PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
+{ 
+   return(pthread_self());
+}
+
+
+PEGASUS_NAMESPACE_END

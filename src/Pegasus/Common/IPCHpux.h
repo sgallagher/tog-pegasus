@@ -105,3 +105,88 @@ typedef struct {
     pthread_t owner;
 } PEGASUS_RWLOCK_HANDLE;
 
+
+PEGASUS_NAMESPACE_BEGIN
+inline void pegasus_yield(void)
+{
+      sched_yield();
+}
+
+
+// pthreads cancellation calls 
+inline void disable_cancel(void)
+{
+   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+}
+
+inline void enable_cancel(void)
+{
+   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+}
+
+
+// the next two routines are macros that MUST SHARE the same stack frame
+// they are implemented as macros by glibc. 
+// native_cleanup_push( void (*func)(void *) ) ;
+// these ALSO SET CANCEL STATE TO DEFER
+#define native_cleanup_push( func, arg ) \
+   pthread_cleanup_push_defer_np((func), arg)
+
+// native cleanup_pop(Boolean execute) ; 
+#define native_cleanup_pop(execute) \
+   pthread_cleanup_pop_restore_np(execute)
+
+void sleep(int msec)
+{
+  struct timespec timeout;
+  timeout.tv_sec = msec / 1000;
+  timeout.tv_nsec = (msec & 1000) * 1000;
+  nanosleep(&timeout,NULL);
+}
+
+inline void init_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutexattr_init(&(crit->mutatt));
+   pthread_mutexattr_setspin_np(&(crit->mutatt), PTHREAD_MUTEX_SPINONLY_NP);
+   pthread_mutex_init(&(crit->mut), &(crit->mutatt));
+   crit->owner = 0;
+}
+
+inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_lock(&(crit->mut));
+}
+
+inline void try_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_trylock(&(crit->mut));
+}
+
+inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_unlock(&(crit->mut));
+}
+
+inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   while( EBUSY == pthread_mutex_destroy(&(crit->mut)))
+   {
+      pegasus_yield();
+   }
+   pthread_mutexattr_destroy(&(crit->mutatt));
+}
+
+static inline int pegasus_gettimeofday(struct timeval *tv) { return(gettimeofday(tv, NULL)); }
+
+inline void exit_thread(PEGASUS_THREAD_RETURN rc)
+{
+  pthread_exit(rc);
+}
+
+inline PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
+{ 
+   return(pthread_self());
+}
+
+
+PEGASUS_NAMESPACE_END

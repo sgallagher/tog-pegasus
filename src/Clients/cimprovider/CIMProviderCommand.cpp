@@ -1560,6 +1560,7 @@ void CIMProviderCommand::_ListProviders
  	  	cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
+                delete _client;  // Bug 980 - need to destruct the CIMClient
 		exit(-1);	
 	    }
 	    else
@@ -1593,6 +1594,7 @@ void CIMProviderCommand::_ListProviders
 		    cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
+                    delete _client;  // Bug 980 - need to destruct the CIMClient
 		    exit(-1);
 		}
 	    }
@@ -1610,6 +1612,7 @@ void CIMProviderCommand::_ListProviders
  	  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
+                delete _client;  // Bug 980 - need to destruct the CIMClient
 		exit(-1);	
 	    }
 	    else
@@ -1662,6 +1665,7 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
+        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     catch (Exception& exception)
@@ -1672,6 +1676,7 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
+        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     
@@ -1711,6 +1716,7 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
         cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
+        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     catch (Exception& exception)
@@ -1721,6 +1727,7 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
         cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
+        delete _client;  // Bug 980 - need to destruct the CIMClient
 	exit(-1);	
     }
     
@@ -1976,7 +1983,7 @@ int main (int argc, char* argv [])
 
     retCode = command->execute (cout, cerr);
 
-    delete command;   // Needed to destruct the CIMClient used by the command
+    delete command;   // Bug 980 - Needed to destruct the CIMClient used by the command
 
     exit(retCode);
     return (0);

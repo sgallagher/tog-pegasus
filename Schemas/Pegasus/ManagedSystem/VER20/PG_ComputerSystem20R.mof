@@ -1,6 +1,6 @@
 instance of PG_ProviderModule 
 {
-   Name = "ComputerSystemProvider";
+   Name = "ComputerSystemModule";
    Location = "ComputerSystemProvider";
    Vendor = "Pegasus Community";
    Version = "2.0.0";
@@ -10,13 +10,13 @@ instance of PG_ProviderModule
 
 instance of PG_Provider 
 {
-   ProviderModuleName = "ComputerSystemProvider";
+   ProviderModuleName = "ComputerSystemModule";
    Name = "PG_ComputerSystemProvider";
 };
 
 instance of PG_ProviderCapabilities 
 {
-   ProviderModuleName = "ComputerSystemProvider";
+   ProviderModuleName = "ComputerSystemModule";
    ProviderName = "PG_ComputerSystemProvider";
    CapabilityID = "1";
    ClassName = "CIM_ComputerSystem";
@@ -28,7 +28,7 @@ instance of PG_ProviderCapabilities
 
 instance of PG_ProviderCapabilities 
 {
-   ProviderModuleName = "ComputerSystemProvider";
+   ProviderModuleName = "ComputerSystemModule";
    ProviderName = "PG_ComputerSystemProvider";
    CapabilityID = "2";
    ClassName = "CIM_UnitaryComputerSystem";
@@ -40,7 +40,7 @@ instance of PG_ProviderCapabilities
 
 instance of PG_ProviderCapabilities 
 {
-   ProviderModuleName = "ComputerSystemProvider";
+   ProviderModuleName = "ComputerSystemModule";
    ProviderName = "PG_ComputerSystemProvider";
    CapabilityID = "3";
    ClassName = "PG_ComputerSystem";

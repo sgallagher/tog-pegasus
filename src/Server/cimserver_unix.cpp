@@ -44,12 +44,15 @@
 // 	 your platform.
 #define PEGASUS_RETURN_WHEN_READY
 
+#define MAX_WAIT_TIME 15
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #ifdef PEGASUS_RETURN_WHEN_READY
 static sig_atomic_t sigflag;
 static sigset_t newmask, oldmask, zeromask;
+Boolean signalFlag = true;
 #endif
 
 void cim_server_service(int argc, char **argv ) { return; }  
@@ -73,13 +76,19 @@ int cimserver_fork(void)
 { 
 #ifdef PEGASUS_RETURN_WHEN_READY
     // set up things
-    signal(SIGUSR1, sig_usr);
-    sigemptyset(&zeromask);
-    sigemptyset(&newmask);
-    sigaddset(&newmask, SIGUSR1);
+    if (signal(SIGUSR1, sig_usr) == SIG_ERR)
+    {
+	signalFlag = false;
+    }
+    else
+    {
+    	sigemptyset(&zeromask);
+    	sigemptyset(&newmask);
+    	sigaddset(&newmask, SIGUSR1);
 
-    // block SIGUSR1 and save current signal mask
-    sigprocmask(SIG_BLOCK, &newmask, &oldmask);
+    	// block SIGUSR1 and save current signal mask
+    	sigprocmask(SIG_BLOCK, &newmask, &oldmask);
+    }
 #endif
  
   pid_t pid;
@@ -88,12 +97,28 @@ int cimserver_fork(void)
   else if (pid != 0)
   {
 #ifdef PEGASUS_RETURN_WHEN_READY
-    // parent wait for child
-    while (sigflag == 0)
-        sigsuspend(&zeromask);
+    if (signalFlag)
+    {
+    	// parent wait for child
+    	while (sigflag == 0)
+       	    sigsuspend(&zeromask);
 
-    // reset signal mask to original value
-    sigprocmask(SIG_SETMASK, &oldmask, NULL);
+        // reset signal mask to original value
+        sigprocmask(SIG_SETMASK, &oldmask, NULL);
+    }
+    else
+    {
+	// if there is a problem with signal, parent process terminates
+	// until file cimserver_start.conf exists or maxWaitTime expires
+
+        Uint32 maxWaitTime = MAX_WAIT_TIME;
+
+	while(!FileSystem::exists(fname) && maxWaitTime > 0)
+	{
+	    sleep(1);
+	    maxWaitTime = maxWaitTime - 1;
+	}
+    }
 #endif
     exit(0);
   }
@@ -187,6 +212,11 @@ void notify_parent(void)
 {
 #ifdef PEGASUS_RETURN_WHEN_READY
   pid_t ppid = getppid();
-  kill(ppid, SIGUSR1);
+
+  // if kill() fails, no signal is sent
+  if (kill(ppid, SIGUSR1) == -1)
+  {
+	signalFlag = false;
+  }
 #endif
 }

@@ -143,7 +143,7 @@ CIMDateTime OperatingSystem::GetLastBootUpTime(void) const
    ss << std::setw(3) << ::abs(lastboottime->tm_gmtoff / 60);
 
    char* tmp = ss.str();
-   CIMDateTime lastBootUpTime;// = tmp;
+   CIMDateTime lastBootUpTime = tmp;
    delete [] tmp;
    return lastBootUpTime;
 }
@@ -169,7 +169,7 @@ CIMDateTime OperatingSystem::GetLocalDateTime(void) const
    ss << std::setw(3) << ::abs(loctime->tm_gmtoff / 60);
 
    char* tmp = ss.str();
-   CIMDateTime localDateTime; // = tmp;
+   CIMDateTime localDateTime = tmp;
    delete [] tmp;
    return localDateTime;
 }

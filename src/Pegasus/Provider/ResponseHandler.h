@@ -183,6 +183,16 @@ template<class T>
 class PEGASUS_PROVIDER_LINKAGE ResponseHandler : public BaseResponseHandler<T>
 {
 public:
+    ResponseHandler(void)
+    {
+    }
+
+protected:
+    ResponseHandler(ResponseHandlerRep<T> * rep)
+        : BaseResponseHandler<T>(rep)
+    {
+    }
+
 };
 
 //
@@ -194,17 +204,6 @@ class ResponseHandler<CIMObject> : public BaseResponseHandler<CIMObject>
 public:
     ResponseHandler(void)
     {
-    }
-    ResponseHandler(const ResponseHandler & handler)
-        : BaseResponseHandler<CIMObject>(handler)
-    {
-    }
-
-    ResponseHandler & operator=(const ResponseHandler & handler)
-    {
-        BaseResponseHandler<CIMObject>::operator=(handler);
-
-        return(*this);
     }
 
     virtual void deliver(const CIMObject & object)
@@ -237,18 +236,6 @@ public:
     {
     }
 
-    ResponseHandler(const ResponseHandler & handler)
-        : BaseResponseHandler<CIMClass>(handler)
-    {
-    }
-
-    ResponseHandler & operator=(const ResponseHandler & handler)
-    {
-        BaseResponseHandler<CIMClass>::operator=(handler);
-
-        return(*this);
-    }
-
     virtual void deliver(const CIMClass & object)
     {
         getRep()->deliver(object);
@@ -276,18 +263,6 @@ class ResponseHandler<CIMInstance> : public BaseResponseHandler<CIMInstance>
 public:
     ResponseHandler(void)
     {
-    }
-
-    ResponseHandler(const ResponseHandler & handler)
-        : BaseResponseHandler<CIMInstance>(handler)
-    {
-    }
-
-    ResponseHandler & operator=(const ResponseHandler & handler)
-    {
-        BaseResponseHandler<CIMInstance>::operator=(handler);
-
-        return(*this);
     }
 
     virtual void deliver(const CIMInstance & object)
@@ -319,18 +294,6 @@ public:
     {
     }
 
-    ResponseHandler(const ResponseHandler & handler)
-        : BaseResponseHandler<CIMIndication>(handler)
-    {
-    }
-
-    ResponseHandler & operator=(const ResponseHandler & handler)
-    {
-        BaseResponseHandler<CIMIndication>::operator=(handler);
-
-        return(*this);
-    }
-
     virtual void deliver(const CIMIndication & object)
     {
         getRep()->deliver(object);
@@ -360,18 +323,6 @@ public:
     {
     }
 
-    ResponseHandler(const ResponseHandler & handler)
-        : BaseResponseHandler<CIMValue>(handler)
-    {
-    }
-
-    ResponseHandler & operator=(const ResponseHandler & handler)
-    {
-        BaseResponseHandler<CIMValue>::operator=(handler);
-
-        return(*this);
-    }
-
     virtual void deliver(const CIMValue & object)
     {
         getRep()->deliver(object);
@@ -399,18 +350,6 @@ class ResponseHandler<CIMObjectPath> : public BaseResponseHandler<CIMObjectPath>
 public:
     ResponseHandler(void)
     {
-    }
-
-    ResponseHandler(const ResponseHandler & handler)
-        : BaseResponseHandler<CIMObjectPath>(handler)
-    {
-    }
-
-    ResponseHandler & operator=(const ResponseHandler & handler)
-    {
-        BaseResponseHandler<CIMObjectPath>::operator=(handler);
-
-        return(*this);
     }
 
     virtual void deliver(const CIMObjectPath & object)

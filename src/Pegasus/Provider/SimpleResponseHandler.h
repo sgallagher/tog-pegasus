@@ -43,30 +43,10 @@ public:
     {
     }
 
-    virtual ~SimpleResponseHandlerRep(void)
-    {
-    }
-
-    //virtual void processing(void)
-    //{
-    //}
-
-    //virtual void complete(void)
-    //{
-    //}
-
     virtual void deliver(const T & object)
     {
         _objects.append(object);
     }
-
-    //virtual void deliver(const Array<T> & objects)
-    //{
-    //    for(Uint32 i = 0, n = objects.size(); i < n; i++)
-    //    {
-    //        deliver(objects[i]);
-    //    }
-    //}
 
     const Array<T> & getObjects(void) const
     {
@@ -82,19 +62,9 @@ template<class T>
 class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
 {
 public:
-    SimpleResponseHandler(void) : ResponseHandler<T>(new SimpleResponseHandlerRep<T>())
+    SimpleResponseHandler(void)
+        : ResponseHandler<T>(new SimpleResponseHandlerRep<T>())
     {
-    }
-
-    SimpleResponseHandler(const SimpleResponseHandler & handler) : ResponseHandler<T>(handler)
-    {
-    }
-
-    SimpleResponseHandler & operator=(const SimpleResponseHandler & handler)
-    {
-        ResponseHandler<T>::operator=(handler);
-
-        return(*this);
     }
 
     const Array<T> getObjects(void) const
@@ -105,10 +75,15 @@ public:
 };
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-    SimpleResponseHandler<void>::SimpleResponseHandler(void)
-    : ResponseHandler<void>()
+class SimpleResponseHandler<void> : public ResponseHandler<void>
 {
-}
+public:
+    SimpleResponseHandler(void)
+        : ResponseHandler<void>(new ResponseHandlerRep<void>())
+    {
+    }
+
+};
 
 PEGASUS_NAMESPACE_END
 

@@ -39,7 +39,8 @@ DIRS =  \
         Processor \
         Processor/tests \
 	IP \
-	IP/tests
+	IP/tests \
+	IP/testclient
 
 ifeq ($(OS),HPUX)
   DIRS += NTPProviderSecurity \

@@ -77,6 +77,21 @@ Char16 utf16Chars[] =
 	0xdbc0,	0xdc01,
         0x00};
 
+// A shorter array of UTF-16 chars to be used in the repository tests for the names
+// of the repository files.
+// Longer strings are more likely to hit the filesystem maximum name length
+// if the repository is set up to escape these characters in its file names.
+// Mix in a utf-16 surrogate pair at the start (dbc0/dc01).
+Char16 utfRepChars[] =
+  {
+    0xdbc0, 0xdc01,
+    'a',
+    0xFF95, 
+    'z',
+    0xFF86,
+    0x00
+  };
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Indication Related Stuff 
@@ -173,6 +188,7 @@ static void TestUTFRepository( CIMClient& client,
   }
 
   const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName ROOT_NAMESPACE = CIMNamespaceName ("root");
 
   Boolean deepInheritance = true;
   Boolean localOnly = true;
@@ -182,6 +198,7 @@ static void TestUTFRepository( CIMClient& client,
   try
     {
         String utf16String(utf16Chars);
+	String utf16FileName(utfRepChars);
 
   	//
   	//  TEST 1 - Create qualifier 
@@ -190,22 +207,21 @@ static void TestUTFRepository( CIMClient& client,
   	//  This will test UTF support in the repository.
   	//
 
-	cout << endl << "REPOSITORY TEST 1: Create Qualifier with UTF-16 chars" << endl;	
+	cout << endl << "REPOSITORY TEST 1: Create Qualifier containing UTF-16 chars" << endl;	
 
 	// Decide whether to use UTF-16 in the name of the qualifier
         CIMName qualDeclName("UTFTestQualifier");
         if (!utfRepNames)
         {
-            if (verboseTest)
-	       cout << "Not using UTF-16 in the qualifier name" << endl;
+	  cout << "Note: utfrep option was not set. Not using UTF-16 in the qualifier name" << endl;
         }
         else
         {
-            if (verboseTest)
-	       cout << "Using UTF-16 in the qualifier name" << endl;
+	  if (verboseTest)
+	    cout << "Using UTF-16 in the qualifier name" << endl;
 
-            // This will create a repository file with UTF-8 chars in the name
-            qualDeclName = utf16String;
+	  // This will create a repository file with UTF-8 chars in the name
+	  qualDeclName = utf16FileName;
         }    
 
         //  First, delete the qualifier if it was there from before  
@@ -244,6 +260,21 @@ static void TestUTFRepository( CIMClient& client,
 
         MYASSERT(qualDecl.identical(rtnQualDecl));
 
+        if (verboseTest)
+	    cout << "Enumerating the qualifiers, and looking for the UTF-16 one" << endl;
+
+	Array<CIMQualifierDecl> rtnQualDeclArray = client.enumerateQualifiers(
+		      NAMESPACE );
+
+	Boolean foundQualDecl = false;
+	for (Uint32 i = 0; i < rtnQualDeclArray.size(); i++)
+        {
+	  if (qualDecl.identical(rtnQualDeclArray[i]))
+	      foundQualDecl = true;
+	}
+
+	MYASSERT(foundQualDecl == true);
+
   	//
   	//  TEST 2 - Create class 
   	//  Create a class with UTF-16 in the class name,
@@ -255,22 +286,21 @@ static void TestUTFRepository( CIMClient& client,
   	//  This will test UTF support in the repository.
   	//
 
-	cout << endl << "REPOSITORY TEST 2: Create Class with UTF-16 chars" << endl;	
+	cout << endl << "REPOSITORY TEST 2: Create Class containing UTF-16 chars" << endl;	
 
 	// Decide whether to use UTF-16 in the name of the class
         CIMName className("UTFTestClass");
         if (!utfRepNames)
         {
-            if (verboseTest)
-	       cout << "Not using UTF-16 in the class name" << endl;
+	  cout << "Note: utfrep option was not set. Not using UTF-16 in the class name" << endl;
         }
         else
         {
-            if (verboseTest)
-	       cout << "Using UTF-16 in the class name" << endl;
+	  if (verboseTest)
+	    cout << "Using UTF-16 in the class name" << endl;
 
-            // This will create a repository file with UTF-8 chars in the name
-            className = utf16String; 
+	  // This will create a repository file with UTF-8 chars in the name
+	  className = utf16FileName; 
         } 
 
         //  First, delete the class if it was there from before  
@@ -318,16 +348,16 @@ static void TestUTFRepository( CIMClient& client,
 			NAMESPACE,
 			className,
 			true,
-                    true);
+			true);
 
         if (verboseTest)
-	    cout << "Checking that the UTF-16 was preserved is property name" << endl;
+	    cout << "Checking that the UTF-16 was preserved in the property name" << endl;
 
 	Uint32 idx = rtnClass.findProperty(name2);  // name2 is UTF16
         MYASSERT(idx != PEG_NOT_FOUND);
 
         if (verboseTest)
-	    cout << "Checking that the UTF-16 was preserved in qualifier" << endl;
+	    cout << "Checking that the UTF-16 was preserved in the qualifier" << endl;
 
 	CIMProperty rtnProp = rtnClass.getProperty(idx);
         idx = rtnProp.findQualifier(qualDecl.getName());
@@ -336,7 +366,48 @@ static void TestUTFRepository( CIMClient& client,
         CIMQualifier rtnQual = rtnProp.getQualifier(idx);
         MYASSERT(rtnQual.getValue() == utf16String);
 
-        //
+	if (verboseTest)
+	  cout << "Modifying the class" << endl;
+
+	CIMName name3("anotherprop");
+        CIMProperty prop5(name3, fred);             
+        CIMQualifier qual3(qualDecl.getName(),      // UTF16 qualifier
+                           qualDecl.getValue(),
+                           qualDecl.getFlavor());
+        CIMProperty prop6 = prop5.addQualifier(qual3);
+        cimClass.addProperty(prop6);
+
+	client.modifyClass(NAMESPACE,
+			   cimClass);
+
+        if (verboseTest)
+	    cout << "Getting the class that was just modified" << endl;
+
+        rtnClass = client.getClass(
+				   NAMESPACE,
+				   className,
+				   true,
+				   true);
+
+        if (verboseTest)
+	    cout << "Checking that the UTF-16 was preserved in the property name" << endl;
+
+	idx = rtnClass.findProperty(name2);  // name2 is UTF16
+        MYASSERT(idx != PEG_NOT_FOUND);
+	idx = rtnClass.findProperty(name3);  
+        MYASSERT(idx != PEG_NOT_FOUND);
+
+        if (verboseTest)
+	    cout << "Checking that the UTF-16 was preserved in the qualifier" << endl;
+
+	rtnProp = rtnClass.getProperty(idx);
+        idx = rtnProp.findQualifier(qualDecl.getName());
+        MYASSERT(idx != PEG_NOT_FOUND);
+
+        rtnQual = rtnProp.getQualifier(idx);
+        MYASSERT(rtnQual.getValue() == utf16String);
+			    
+	//
         // Clean up the repository
         //
         if (verboseTest)
@@ -345,12 +416,111 @@ static void TestUTFRepository( CIMClient& client,
         if (verboseTest)
 	    cout << "Delete the qualifier" << endl;
 
-     	client.deleteQualifier(NAMESPACE, qualDeclName);
+	client.deleteQualifier(NAMESPACE, qualDeclName);
 
         if (verboseTest)
 	    cout << "Deleting the class" << endl;
 
-        client.deleteClass(NAMESPACE, className);
+	client.deleteClass(NAMESPACE, className);
+
+  	//
+  	//  TEST 3 - Create namespace 
+        //
+  	//  Create a namespace with UTF-16 in the namespace name, and
+	//  add class to the namespace.
+ 	//
+
+	cout << endl << "REPOSITORY TEST 3: Create Namespace with UTF-16 chars in the name" << endl;
+
+	if (!utfRepNames)
+	{
+	  // Since namespaces are only directory names, no point in doing this
+	  // if the utfrep option wasn't set.
+	  cout << "Note: Skipping this test because the utfrep option was not used" 
+	       << endl;
+	}
+	else
+        {
+	  if (verboseTest)
+	    cout << endl << "Deleting the old namespace in case it was there from before."
+		 << endl;
+
+	  CIMName __nameSpace = "__NameSpace";
+
+	  Array<CIMObjectPath> enumNamespaces = client.enumerateInstanceNames(
+				      CIMNamespaceName("root"),
+				      __nameSpace);
+
+	  for (Uint32 i = 0; i < enumNamespaces.size(); i++)
+          {
+	    Array<CIMKeyBinding> kb = enumNamespaces[i].getKeyBindings();
+	    if (kb[0].getValue() == utf16FileName)
+	    {  
+	      client.deleteInstance(ROOT_NAMESPACE, enumNamespaces[i]);
+	    }
+	  }
+
+	  if (verboseTest)
+	    cout << endl << "Creating the namespace" << endl;
+
+	  CIMInstance nsInstance(__nameSpace);
+	  CIMName nsPropName("Name");
+	  CIMProperty nsProp(nsPropName,
+			     CIMValue(utf16FileName));
+	  nsInstance.addProperty(nsProp);
+
+	  CIMObjectPath nsInstanceName = client.createInstance(ROOT_NAMESPACE,
+							       nsInstance);
+
+	  if (verboseTest)
+	    cout << endl << "Getting the namespace just created" << endl;
+
+	  CIMInstance rtnNSInst = client.getInstance(ROOT_NAMESPACE, nsInstanceName);
+
+	  idx = rtnNSInst.findProperty(nsPropName);
+	  MYASSERT(idx != PEG_NOT_FOUND);
+
+	  CIMProperty rtnNSProp = rtnNSInst.getProperty(idx);
+	  String rtnNSName;
+	  rtnNSProp.getValue().get(rtnNSName);
+	  MYASSERT(rtnNSName == utf16FileName);
+
+	  if (verboseTest)
+	    cout << endl << "Creating classes in that namespace" << endl;
+
+	  String root("root/");
+	  root.append(utf16FileName);
+	  CIMNamespaceName ns(root);
+
+	  // Do a little inheriting with UTF-16 class names
+	  CIMName baseClassName(utf16FileName);
+	  CIMClass baseClass(baseClassName);  
+	  CIMName basePropName("baseProp1");
+	  CIMValue basePropValue("fred");
+	  CIMProperty baseProp(basePropName, basePropValue);
+	  baseClass.addProperty(baseProp);
+
+	  CIMName inhClassName(&utf16Chars[1]);
+	  CIMClass inhClass(inhClassName, baseClassName);  
+	  CIMName inhPropName("inhProp1");
+	  CIMValue inhPropValue("fred");
+	  CIMProperty inhProp(inhPropName, inhPropValue);
+	  inhClass.addProperty(inhProp);
+
+	  client.createClass(ns, baseClass);
+	  client.createClass(ns, inhClass);
+
+	  if (verboseTest)
+	    cout << endl << "Deleting classes in that namespace" << endl;
+
+	  client.deleteClass(ns, inhClassName);
+	  client.deleteClass(ns, baseClassName);
+
+	  if (verboseTest)
+	    cout << endl << "Deleting the namespace" << endl;
+
+	  client.deleteInstance(ROOT_NAMESPACE, nsInstanceName);
+	}  // endif utfrep
     }
     catch(Exception& e)
     {
@@ -1924,7 +2094,7 @@ void GetOptions(
 		 		       "Specifies the listener host:port for the CIMListener tests" },
 
 		 {"utfrep", "false", false, Option::BOOLEAN, 0, 0, "utfrep",
-	 		      "If set then use UTF-16 class/qualifier names in the repository tests" }
+	 		      "If set then use class/qualifier/namepaces names with UTF-16 in the repository tests." }
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -2144,7 +2314,7 @@ int main(int argc, char** argv)
                      TestLocalizedMethods(client, activeTest, verboseTest);
                      testEnd(elapsedTime.getElapsed());
 
-                     testStart("Test Class and Qualifier Operations");
+                     testStart("Test Class, Qualifier, and Namespace Operations");
                      elapsedTime.reset();
                      TestUTFRepository(client, utfRepNames, activeTest, verboseTest);
                      testEnd(elapsedTime.getElapsed());

@@ -111,7 +111,9 @@ clean:
 
 depend:
 
-tests: \
+tests:
+
+poststarttests: \
 	Like.query.res \
 	isa.query.res \
 	SymbolicConstant.query.res \
@@ -126,7 +128,6 @@ tests: \
 	Function.query.res \
 	Function2.query.res
 
-poststarttests:
 
 general:
 

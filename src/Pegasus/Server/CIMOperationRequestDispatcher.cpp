@@ -917,27 +917,32 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    */
    // Add the destination queue ID to the first response.
 
-   CIMResponseMessage* response = poA->getResponse(0);
 
-   response->dest = poA->dest;
-
+   CIMResponseMessage *response;
+   
    if(totalResponses == 1)
    {
-       SendForget(poA->getResponse(0));
-
-       delete poA;
-
-       PEG_METHOD_EXIT();
-       return;
+      response = poA->getResponse(0);
+      
+      response->dest = poA->dest;
+      response->_async = 0;
+      
+      SendForget(response);
+      
+      delete poA;
+      
+      PEG_METHOD_EXIT();
+      return;
    }
 
     /* Determine if there any "good" responses. If all responses are error
        we return CIMException.
     */
    Uint32 errorCount = 0;
+
    for(Uint32 i = 0; i < totalResponses; i++)
    {
-       CIMResponseMessage *response = poA->getResponse(i);
+      response = poA->getResponse(i);
        if (response->cimException.getCode() != CIM_ERR_SUCCESS)
 	   errorCount++;
    }
@@ -955,15 +960,19 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 	// Here we need to send some other response error message because
 	// which one we pick is a crapshoot.  They could all be different
 	// ATTN: For the moment, simply send the first and delete all others.
-        SendForget(poA->getResponse(0));
-        for(Uint32 j = totalResponses - 1; j > 0; j--)
-        {
-            poA->deleteResponse(j);
-        }
-        delete poA;
-
-        PEG_METHOD_EXIT();
-        return;
+      response = poA->getResponse(0);
+      
+      response->dest = poA->dest;
+      response->_async = 0;
+      SendForget(poA->getResponse(0));
+      for(Uint32 j = totalResponses - 1; j > 0; j--)
+      {
+	 poA->deleteResponse(j);
+      }
+      delete poA;
+      
+      PEG_METHOD_EXIT();
+      return;
    }
 
     /* We have at least one good response.  Now delete the error responses.  We will
@@ -971,11 +980,19 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 	We remove them from the array. Note that this means that the
 	size must be repeatedly recalculated.
     */
+
+
+   // << Tue Feb 11 16:10:07 2003 mdd >>
+   // also in this loop take the opportunity to initialize the 
+   // async and dest fields. 
+
    if(errorCount > 0)
    {
        for(Uint32 j = 0; j < poA->numberResponses(); j++)
        {
-    	   CIMResponseMessage* response = poA->getResponse(j);
+    	   CIMResponseMessage* response_aggregate = poA->getResponse(j);
+	   response_aggregate->dest = poA->dest;
+	   response_aggregate->_async = 0;
     	   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     	   {
     	       poA->deleteResponse(j);

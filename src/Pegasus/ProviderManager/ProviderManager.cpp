@@ -539,8 +539,10 @@ void ProviderManager::unload_idle_providers(void) throw()
 	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
 			  "Unload Idle Flag Set: Starting Provider Monitor Thread");
 	 _unload_idle_flag = 0;
-	 Thread th(provider_monitor, this , true);
-	 th.run();
+	 MessageQueueService::get_thread_pool()->allocate_and_awaken(this, provider_monitor);
+	 
+// 	 Thread th(provider_monitor, this , true);
+// 	 th.run();
       }
    }
    PEG_METHOD_EXIT();

@@ -66,23 +66,19 @@ void BinaryMessageHandler::handleEnqueue(Message * message)
    AsyncRequest * asyncRequest;
    AsyncOpNode * op;
    
-   if(message->_async != NULL)
-   {
-      asyncRequest = static_cast<AsyncRequest *>(message->_async);
-   }
-   else
-   {
-      PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4, 
-		       "Converting legacy message to AsyncLegacyOperationStart");
-      op = this->get_op();
-      asyncRequest = new AsyncLegacyOperationStart(
-	 get_next_xid(),
-	 op,
-	 this->getQueueId(),
-	 message,
-	 this->getQueueId());
-      op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
-   }
+   message->_async = 0;
+   
+   PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4, 
+		    "Converting legacy message to AsyncLegacyOperationStart");
+   op = this->get_op();
+   asyncRequest = new AsyncLegacyOperationStart(
+      get_next_xid(),
+      op,
+      this->getQueueId(),
+      message,
+      this->getQueueId());
+   op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   
 
    _handle_async_request(asyncRequest);
    PEG_METHOD_EXIT();
@@ -140,6 +136,9 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest * request)
       // pass all other operations to the default handler
       PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
 		       "Passing message to parent.");
+
+      PEGASUS_STD(cout) << "Unexpected Message: type " << request->getType() << PEGASUS_STD(endl);
+
       Base::_handle_async_request(request);
    }
 
@@ -201,7 +200,7 @@ BinaryMessageHandler::handle_binary_message(void *parm)
       // dispatch the request
       msg = static_cast<AsyncMessage *>(op->_request.next(0));
       legacy =  
-	 static_cast<AsyncLegacyOperationStart *>(msg)->get_action();
+	 static_cast<AsyncLegacyOperationStart *>(msg)->get_action(); 
    }
    if(msg && legacy)
    {
@@ -465,10 +464,21 @@ BinaryMessageHandler::_handleRequest(AsyncOpNode *op, Message *msg)
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,
 		    "BinaryMessageHandler::_handleRequest(AsyncOpNode *, Message *)");
 
-   msg->_async = 0;
+   AsyncRequest *async_request = static_cast<AsyncRequest *>(op->get_request());
    
-   _outputQueue->enqueue(msg);
-  _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+   msg->_async = 0;
+   try 
+   {
+      _outputQueue->enqueue(msg) ;
+   }
+   catch(...)
+   {
+
+   }
+   
+   delete async_request;
+   
+   _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
    PEG_METHOD_EXIT();
 }
 
@@ -479,7 +489,10 @@ BinaryMessageHandler::_handleResponse(AsyncOpNode *op, Message *msg)
 {
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,
 		    "BinaryMessageHandler::_handleResponse(AsyncOpNode *, Message *)");
+   AsyncReply *async_reply = static_cast<AsyncReply *>(op->get_response());
    msg->_async = 0;
+   delete async_reply;
+   
    MessageQueue *dest = MessageQueue::lookup(((CIMRequestMessage *)msg)->queueIds.top());
    if(dest == 0)
    {
@@ -489,9 +502,17 @@ BinaryMessageHandler::_handleResponse(AsyncOpNode *op, Message *msg)
    }
    else
    {
-      dest->enqueue(msg);
+      try
+      {
+	 
+	 dest->enqueue(msg);
+      }
+      catch(...)
+      {
+      }
+      
    }
-    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+   _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
    PEG_METHOD_EXIT();
 }
 

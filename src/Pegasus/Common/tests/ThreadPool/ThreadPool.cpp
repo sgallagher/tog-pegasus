@@ -152,9 +152,6 @@ int main(int argc, char **argv)
       }
    }
    cout << "deliberately causing deadlock detection to occur ..." << endl;
-   pegasus_sleep(1000);
-   tp.allocate_and_awaken((void *)10000000, work_func);
-   
    pegasus_sleep( 7000 ) ; 
    cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
    tp.kill_dead_threads( ) ;

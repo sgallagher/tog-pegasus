@@ -52,6 +52,9 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
+//ThreadPool *MessageQueueService::get_thread_pool(void);
+
+
 class CIMOMHandle;
 class cimom_handle_op_semaphore;
 class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
@@ -405,13 +408,13 @@ void CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *message)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL 
 CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
 {
-   Thread *th_dp = reinterpret_cast<Thread *>(parm);
+//   Thread *th_dp = reinterpret_cast<Thread *>(parm);
    
    PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
                     "CIMOMHandle::_cimom_handle_rep::_dispatch(void *)");
 
    cimom_handle_dispatch *dp  = 
-     reinterpret_cast<cimom_handle_dispatch *>(th_dp->get_parm());
+     reinterpret_cast<cimom_handle_dispatch *>(parm);
    if(dp )
    {
       try 
@@ -423,7 +426,6 @@ CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
 	    CIMOMHandle::_cimom_handle_rep *myself = 
 	       static_cast<CIMOMHandle::_cimom_handle_rep *>(me);
 	    target->enqueue(dp->_msg);
-//	    (myself->_pending_operation)--;
 	 }
       }
       catch(...)
@@ -433,8 +435,7 @@ CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
    }
    
    PEG_METHOD_EXIT();
-   delete th_dp;
-   exit_thread((PEGASUS_THREAD_RETURN)1);
+//   exit_thread((PEGASUS_THREAD_RETURN)1);
    return 0;
 }
 
@@ -471,10 +472,10 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
    cimom_handle_dispatch *dp = 
       new cimom_handle_dispatch(request, get_qid(), get_output_qid());
 
-   Thread *th_rq = new Thread(_dispatch, dp, true);
+   MessageQueueService::get_thread_pool()->allocate_and_awaken(dp, _dispatch);
+
    _request = request;
 
-   th_rq->run();
    Message *response = 0;
    
    try 

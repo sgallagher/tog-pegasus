@@ -80,7 +80,62 @@ static const char __NAMESPACE_NAMESPACE [] = "root";
 static AtomicInt unload_flag;
 static AtomicInt threads_running;
 
-//#include <Pegasus/Common/XmlWriter.h>
+
+static void TestInstanceGetOperations(CIMOMHandle & handle)
+{
+   OperationContext context;
+   
+   Array<CIMName> classNames = 
+      handle.enumerateClassNames(
+	 context, 
+	 globalNamespace, 
+	 CIMName(), 
+	 true);
+   
+   PEGASUS_STD(cout) << classNames.size() << " Classes found " << PEGASUS_STD(endl);
+   
+   Array<CIMObjectPath> instanceNames;
+   Uint16 numberOfNotSupportedClassesFound = 0;
+   
+   for(Uint32 i = 0; i < classNames.size() ; i++, pegasus_sleep(1)) 
+   {
+      if (classNames[i].getString() == "PG_ShutdownService")
+	 continue;
+      try
+      {
+	 OperationContext context;
+
+	 instanceNames = 
+	    handle.enumerateInstanceNames(
+	       context,
+	       globalNamespace, 
+	       classNames[i]);
+	 
+	 if( instanceNames.size())
+	 {
+	    
+	    PEGASUS_STD(cout) << instanceNames.size() << " Instances found " << PEGASUS_STD(endl);
+	    for(Uint32 i = 0; i < instanceNames.size() ; i++)
+	    {
+	       PEGASUS_STD(cout) << instanceNames[i] << PEGASUS_STD(endl);
+	    }
+	 }
+      }
+      catch(Exception & e)
+      {
+	 PEGASUS_STD(cout) << "Exception Instance Enumeration: " << e.getMessage() 
+			   << PEGASUS_STD(endl);
+      }
+      catch(...)
+      {
+	 PEGASUS_STD(cerr) << "Unexpected Exception in Instance Enumeration" << PEGASUS_STD(endl);
+      }
+      
+   }
+   
+}
+
+
 static void TestNameSpaceOperations(CIMOMHandle & handle)
 {
    String className = "__Namespace";
@@ -196,18 +251,18 @@ PEGASUS_THREAD_CDECL PEGASUS_THREAD_RETURN test_cimom_handle(void *parm)
    ComputerSystemProvider *myself = 
       reinterpret_cast<ComputerSystemProvider *>(th->get_parm());
    pegasus_sleep(1000);
-   if(unload_flag.value() == 0)
-   {      
-      if(unload_flag.value() == 0)   
-	 TestNameSpaceOperations(myself->_ch);
-      pegasus_sleep(1000);
-      if(unload_flag.value() == 0)   
-	 TestEnumerateClassNames(myself->_ch);
-      pegasus_sleep(1000);
+   while(unload_flag.value() == 0)
+   {
+      // if(unload_flag.value() == 0)   
+     TestNameSpaceOperations(myself->_ch);
+     pegasus_sleep(1000);
+     if(unload_flag.value() == 0)   
+	TestEnumerateClassNames(myself->_ch);
+     pegasus_sleep(1000);
       if(unload_flag.value() == 0)   
 	 TestGetClass(myself->_ch);
-      pegasus_sleep(1000);
-      
+     pegasus_sleep(1000);
+      TestInstanceGetOperations(myself->_ch); 
    }
    threads_running--;
    
@@ -314,6 +369,8 @@ void ComputerSystemProvider::enumerateInstanceNames(
 			  	const CIMObjectPath &ref,
 			  	ObjectPathResponseHandler& handler )
 {
+   PEGASUS_STD(cout) << " TEST PROVIDER RECURSIVE" << PEGASUS_STD(endl);
+   
     CIMName className = ref.getClassName();
     _checkClass(className);
 
@@ -378,11 +435,11 @@ void ComputerSystemProvider::initialize(CIMOMHandle& handle)
   // platform-specific routine to initialize protected members
   _cs.initialize();
 
-  PEGASUS_STD(cout) << "Initializing Test Thread " << PEGASUS_STD(endl);
+//   PEGASUS_STD(cout) << "Initializing Test Thread " << PEGASUS_STD(endl);
 
-  static Thread th(test_cimom_handle, this, true);
-  threads_running++;
-  th.run();
+//   static Thread th(test_cimom_handle, this, true);
+//   threads_running++;
+//   th.run();
 }
 
 

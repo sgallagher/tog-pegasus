@@ -383,7 +383,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     // Get the provider qualifier:
     //----------------------------------------------------------------------
 
-    Uint32 pos = cimClass.findQualifier("framework_module");
+    Uint32 pos = cimClass.findQualifier("provider");
     DDD(cout << dptchr << "Lookup Qualifier " << pos << endl;)
 
     if (pos == PEG_NOT_FOUND)

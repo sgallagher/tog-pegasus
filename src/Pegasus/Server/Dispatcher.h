@@ -183,8 +183,7 @@ public:
 	const Array<CIMValue>& inParameters,
 	Array<CIMValue>& outParameters);
 
-private:
-	
+protected:
     CIMProvider* _lookupProviderForClass(
 	const String& nameSpace,
 	const String& className);

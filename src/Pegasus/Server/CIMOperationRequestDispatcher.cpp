@@ -5350,6 +5350,10 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleExecQueryRequest");
 
+#ifdef PEGASUS_DISABLE_EXECQUERY
+   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+   exception=true;
+#else
    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false) {
 	   	SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
 	      cimException =
@@ -5357,6 +5361,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
          sub_cntr.getQueryLanguage());
       exception=true;
    }
+#endif
 
    if (exception) {
    Array<CIMObject> cimObjects;

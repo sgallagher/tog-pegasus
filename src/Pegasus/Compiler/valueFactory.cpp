@@ -123,6 +123,7 @@ StoDT(const String &val, CIMDateTime &dt) {
     case '.': s.append("."); break;
     case '+': s.append("+"); break;
     case '-': s.append("-"); break;
+    case ':': s.append(":"); break;
     }
   }
   if (s != "") {

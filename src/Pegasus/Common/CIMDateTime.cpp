@@ -185,7 +185,8 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 	sprintf(buffer, "%2.2s", str + 4);
 	long month = atoi(buffer);
 
-	if (month == 0 || month > 12)
+  // Allow for zero month - default value processing
+	if (/*month == 0 ||*/ month > 12)
 	    return false;
 
 	// Get the day:
@@ -193,7 +194,8 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 	sprintf(buffer, "%2.2s", str + 6);
 	long day = atoi(buffer);
 
-	if (day == 0 || day > 31)
+  // Allow for zero day - default value processing
+	if (/*day == 0 ||*/ day > 31)
 	    return false;
     }
 

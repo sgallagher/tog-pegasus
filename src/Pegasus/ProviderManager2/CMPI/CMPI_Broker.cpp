@@ -167,10 +167,12 @@ extern "C" {
 
       AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
       try {
+   	 CIMInstance cmi(*CM_Instance(ci));
+	 cmi.setPath(*CM_ObjectPath(cop));
          CM_CIMOM(mb)->modifyInstance(
                      OperationContext(*CM_Context(ctx)),
-         CM_ObjectPath(cop)->getNameSpace(),
-                     *CM_Instance(ci),
+		     CM_ObjectPath(cop)->getNameSpace(),
+                     cmi,
          CM_IncludeQualifiers(flgs),
          props);
          CMReturn(CMPI_RC_OK);

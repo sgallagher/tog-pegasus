@@ -90,19 +90,19 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    String& service,
    String& provider)
 {
-    if(String::equalNoCase(className, "PG_Provider") ||
-       String::equalNoCase(className, "PG_ProviderCapabilities") ||
-       String::equalNoCase(className, "PG_ProviderModule"))
+    if (String::equalNoCase(className, "PG_Provider") ||
+        String::equalNoCase(className, "PG_ProviderCapabilities") ||
+        String::equalNoCase(className, "PG_ProviderModule"))
     {
         service = "Server::ConfigurationManagerQueue";
         provider = String::EMPTY;
         return true;
     }
-    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-       String::equalNoCase(className, "PG_IndicationHandler") ||
-       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "PG_IndicationFilter"))
+    if (String::equalNoCase(className, "PG_IndicationSubscription") ||
+        String::equalNoCase(className, "PG_IndicationHandler") ||
+        String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+        String::equalNoCase(className, "PG_IndicationHandlerSNMPMapper") ||
+        String::equalNoCase(className, "PG_IndicationFilter"))
     {
         service = "Server::IndicationService";
         provider = String::EMPTY;

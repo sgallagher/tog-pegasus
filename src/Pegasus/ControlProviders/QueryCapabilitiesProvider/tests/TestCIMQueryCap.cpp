@@ -27,7 +27,7 @@
 //
 // Author: Amit K Arora, IBM (amitarora@in.ibm.com) - PEP 193
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2468
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ void _checkIfReturnedValueIsCorrect(Array<Uint16>& providerReturnedVal)
    }
 }
 
-void testEnumInstanceNames(CIMClient& client,char *ns)
+void testEnumInstanceNames(CIMClient& client,const char *ns)
 {
    Array<CIMObjectPath> refs;
 
@@ -101,7 +101,7 @@ void testEnumInstanceNames(CIMClient& client,char *ns)
 
 } 
    
-void testEnumInstances(CIMClient& client, char* ns)
+void testEnumInstances(CIMClient& client, const char* ns)
 {
     Array<CIMInstance> instances;
 
@@ -140,7 +140,7 @@ void testEnumInstances(CIMClient& client, char* ns)
 } 
 
 
-void testGetInstance(CIMClient& client, char* ns)
+void testGetInstance(CIMClient& client, const char* ns)
 {
 
    CIMInstance instance;
@@ -162,7 +162,7 @@ void testGetInstance(CIMClient& client, char* ns)
    _checkIfReturnedValueIsCorrect(providerReturnedVal);
 }
 
-void testCreateInstance(CIMClient& client, char* ns)
+void testCreateInstance(CIMClient& client, const char* ns)
 {
   CIMObjectPath path;
   Array<CIMInstance> instances;
@@ -193,7 +193,7 @@ void testCreateInstance(CIMClient& client, char* ns)
 }
 
 
-void testDeleteInstance(CIMClient& client, char* ns)
+void testDeleteInstance(CIMClient& client, const char* ns)
 {
   Array<CIMInstance> instances;
 
@@ -214,7 +214,7 @@ void testDeleteInstance(CIMClient& client, char* ns)
 }
     
 
-void testModifyInstance(CIMClient& client, char* ns)
+void testModifyInstance(CIMClient& client, const char* ns)
 {
   Array<CIMInstance> instances;
 

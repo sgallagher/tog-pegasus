@@ -97,7 +97,7 @@
 
 #define PEGASUS_USE_SYSLOGS
 
-//#define PEGASUS_KERBEROS_AUTHENTICATION
+#define PEGASUS_KERBEROS_AUTHENTICATION
 
 // This enables the default pluggable provider manager.
 // See ProviderManagerService.cpp

@@ -287,7 +287,7 @@ public:
     void setSecurityAssociation()
     { 
         _checkRep();
-        return _rep->setSecurityAssociation(); 
+        _rep->setSecurityAssociation(); 
     }
 #endif
 

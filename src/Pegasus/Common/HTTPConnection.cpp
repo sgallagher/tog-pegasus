@@ -197,89 +197,114 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-         // TODO::KERBEROS complete and verify code
-         CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
-         // Determine if message came from CIMOperationResponseEncoder and Kerberos is being used.
-         if ((int)httpMessage->authInfo == 99 && sa)
-         {
-             char* outmessage = NULL;
-             Uint64   outlength = 0;
-             Array<Sint8> final_buffer;
-             final_buffer.clear();
-             Array<Sint8> header_buffer;
-             header_buffer.clear();
-             Array<Sint8> unwrapped_content_buffer;
-             unwrapped_content_buffer.clear();
-             if (sa->getClientAuthenticated())
-             { 
-                 // TODO::KERBEROS Question - will parse be able to distinguish headers from 
-                 //     contents when the contents is wrapped??? I am thinking we are okay
-                 //     because the code breaks out of the loop as soon as it finds the 
-                 //     double separator that terminates the headers.
-                 // Parse the HTTP message:
-                 String startLine;
-                 Array<HTTPHeader> headers;
-                 Uint32 contentLength;
-                 httpMessage->parse(startLine, headers, contentLength);
+         // The following is processing to wrap (encrypt) the response from the
+	 // server when using kerberos authentications.
+	 // Checking for an authInfo of 99 indicates that the request came from
+	 // CIMOperationRequestAuthorizer or CIMOperationResponseEncoder and
+         // that a wrap should be done before sending the response back to the client.
+	 CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+	 if ((int)httpMessage->authInfo == 99 && sa)
+	 {
+	     // The message needs to be parsed in order to distinguish between the
+	     // headers and content. When parsing the code breaks out
+	     // of the loop as soon as it finds the double separator that terminates
+	     // the headers so the headers and content can be easily separated.
+	     // Parse the HTTP message:
+	     String startLine;
+	     Array<HTTPHeader> headers;
+	     Uint32 contentLength = 0;
+	     httpMessage->parse(startLine, headers, contentLength);
 
-                 for (Uint64 i = 0; i < (httpMessage->message.size()-contentLength); i++)
-                 {
-                     header_buffer.append(httpMessage->message[i]);
-                 }
+	     // only wrap_message when there is content to wrap
+	     if (contentLength)
+	     {
+		 Uint32 rc;  // return code for the wrap
+		 Array<Sint8> final_buffer;
+		 final_buffer.clear();
+		 Array<Sint8> header_buffer;
+		 header_buffer.clear();
+		 Array<Sint8> authenticate_header;
+		 authenticate_header;
+		 Array<Sint8> inUnwrappedMessage;
+		 inUnwrappedMessage.clear();
+		 Array<Sint8> outWrappedMessage;
+		 outWrappedMessage.clear();
+		 int ss_size = 2;  // size of separater "\n\r"
 
-                 for (Uint64 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
-                 {
-                      unwrapped_content_buffer.append(outmessage[i]);
-                 }
+	         // Extract the unwrapped headers (do not include last separater pair)
+		 for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength-ss_size); i++)
+		 {
+		     header_buffer.append(httpMessage->message[i]);
+		 }
 
-                 if (sa->wrap_message((const char*)unwrapped_content_buffer.getData(),
-                                      (Uint64)unwrapped_content_buffer.size(),
-                                       outmessage,
-                                       outlength))
-                 {
-                         // build a bad request
-                         final_buffer = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-                 }
-             }
-             //  Note:  wrap_message can result in the client no longer being authenticated so the 
-             //  flag needs to be checked.  
-             if (!sa->getClientAuthenticated())
-             {
-                  if (final_buffer.size() == 0)
-                  {
-                      // set authenticated flag in _authInfo to not authenticated because the
-                      // wrap resulted in an expired token or credential.
-                      _authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
-                      // build a 401 response 
-                      // do we need to add a token here or just restart the negotiate again???
-                      // authResponse.append(sa->getServerToken());
-                      XmlWriter::appendUnauthorizedResponseHeader(final_buffer, KERBEROS_CHALLENGE_HEADER);
-                  }
-             }
-             else
-             {
-                  if (final_buffer.size() == 0 && outlength > 0)
-                  {
-                      Array<Sint8> wrapped_content_buffer;
-                      wrapped_content_buffer.clear();
-                      for (Uint64 i = 0; i < outlength; i++)
-                      {
-                          wrapped_content_buffer.append(outmessage[i]);
-                      }
-                      final_buffer.appendArray(header_buffer);
-                      final_buffer.appendArray(wrapped_content_buffer);
-                  }
-             }
+	         // Extract the unwrapped content
+		 for (Uint32 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+		 {
+		     inUnwrappedMessage.append(httpMessage->message[i]);
+		 }
 
-             if (outmessage)
-                 delete [] outmessage;  // outmessage is no longer needed
+		 sa->wrap_message(inUnwrappedMessage,  // Ascii
+				  outWrappedMessage);
 
-             if (final_buffer.size())
-             {
-                 httpMessage->message.clear();
-                 httpMessage->message = final_buffer;
-             }
-         }
+		 if (rc) 
+		 {
+		     // clear out the outWrappedMessage; if wrapping was requested
+		     // by the client we should not send data, if any, back.  Reason
+		     // for wrap failing may be due to a problem with the credentials
+		     // or context or some other failure may have occurred.
+		     outWrappedMessage.clear();
+		     // build a bad request.  We do not want to risk sending back
+		     // data that can't be authenticated.
+		     final_buffer = 
+		       XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+		     //remove the last separater; the authentication record still
+		     // needs to be added.
+		     final_buffer.remove(final_buffer.size());  // '\n'
+		     final_buffer.remove(final_buffer.size());  // '\r'
+		 }
+
+	         // Build the WWW_Authenticate record with token.  SPNEGO negotiation
+	         // requires that a WWW_Authenticate record is always sent.
+		 authenticate_header << KERBEROS_CHALLENGE_HEADER;
+		 authenticate_header.appendArray(sa->getServerToken());
+
+	         // rebuild the headers and wrapped message to send back to the client
+		 if (final_buffer.size() == 0) 
+		 {
+		     // if outWrappedMessage is empty that indicates client did not
+		     // wrap the message.  The original message will be used.
+		     if (outWrappedMessage.size())
+		     {
+			 final_buffer.appendArray(header_buffer);
+			 final_buffer.appendArray(authenticate_header);
+			 final_buffer << "\r\n";
+			 final_buffer << "\r\n";
+			 final_buffer.appendArray(outWrappedMessage);
+		     }
+		 }
+		 else
+		 {
+                     // error occurred on wrap so the final_buffer needs to be built
+		     // differently
+		     final_buffer.appendArray(authenticate_header);
+		     // add double separaters to end
+		     final_buffer << "\r\n";
+		     final_buffer << "\r\n";
+		 }
+
+		 // replace the existing httpMessage with the headers and unwrapped message.
+		 // Or it can be replaced with a bad request response and a challenge.
+		 if (final_buffer.size())
+		 {
+		     httpMessage->message.clear();
+		     httpMessage->message = final_buffer;
+		     Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+					 httpMessage->message.getData(),
+					 httpMessage->message.size());
+
+		 }
+	     } // content length check
+	 } // auth info and security association check
 #endif
 
 	 // ATTN: convert over to asynchronous write scheme:
@@ -668,89 +693,114 @@ void HTTPConnection2::handleEnqueue(Message *message)
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-         // TODO::KERBEROS complete and verify code
-         CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
-         // Determine if message came from CIMOperationResponseEncoder and Kerberos is being used.
-         if ((int)httpMessage->authInfo == 99 && sa)
-         {
-             char* outmessage = NULL;
-             Uint64   outlength = 0;
-             Array<Sint8> final_buffer;
-             final_buffer.clear();
-             Array<Sint8> header_buffer;
-             header_buffer.clear();
-             Array<Sint8> unwrapped_content_buffer;
-             unwrapped_content_buffer.clear();
-             if (sa->getClientAuthenticated())
-             { 
-                 // TODO::KERBEROS Question - will parse be able to distinguish headers from 
-                 //     contents when the contents is wrapped??? I am thinking we are okay
-                 //     because the code breaks out of the loop as soon as it finds the 
-                 //     double separator that terminates the headers.
-                 // Parse the HTTP message:
-                 String startLine;
-                 Array<HTTPHeader> headers;
-                 Uint32 contentLength;
-                 httpMessage->parse(startLine, headers, contentLength);
+         // The following is processing to wrap (encrypt) the response from the
+	 // server when using kerberos authentications.
+	 // Checking for an authInfo of 99 indicates that the request came from
+	 // CIMOperationRequestAuthorizer or CIMOperationResponseEncoder and
+         // that a wrap should be done before sending the response back to the client.
+	 CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+	 if ((int)httpMessage->authInfo == 99 && sa)
+	 {
+	     // The message needs to be parsed in order to distinguish between the
+	     // headers and content. When parsing the code breaks out
+	     // of the loop as soon as it finds the double separator that terminates
+	     // the headers so the headers and content can be easily separated.
+	     // Parse the HTTP message:
+	     String startLine;
+	     Array<HTTPHeader> headers;
+	     Uint32 contentLength = 0;
+	     httpMessage->parse(startLine, headers, contentLength);
 
-                 for (Uint64 i = 0; i < (httpMessage->message.size()-contentLength); i++)
-                 {
-                     header_buffer.append(httpMessage->message[i]);
-                 }
+	     // only wrap_message when there is content to wrap
+	     if (contentLength)
+	     {
+		 Uint32 rc;  // return code for the wrap
+		 Array<Sint8> final_buffer;
+		 final_buffer.clear();
+		 Array<Sint8> header_buffer;
+		 header_buffer.clear();
+		 Array<Sint8> authenticate_header;
+		 authenticate_header;
+		 Array<Sint8> inUnwrappedMessage;
+		 inUnwrappedMessage.clear();
+		 Array<Sint8> outWrappedMessage;
+		 outWrappedMessage.clear();
+		 int ss_size = 2;  // size of separater "\n\r"
 
-                 for (Uint64 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
-                 {
-                      unwrapped_content_buffer.append(outmessage[i]);
-                 }
+	         // Extract the unwrapped headers (do not include last separater pair)
+		 for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength-ss_size); i++)
+		 {
+		     header_buffer.append(httpMessage->message[i]);
+		 }
 
-                 if (sa->wrap_message((const char*)unwrapped_content_buffer.getData(),
-                                      (Uint64)unwrapped_content_buffer.size(),
-                                       outmessage,
-                                       outlength))
-                 {
-                         // build a bad request
-                         final_buffer = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-                 }
-             }
-             //  Note:  wrap_message can result in the client no longer being authenticated so the 
-             //  flag needs to be checked.  
-             if (!sa->getClientAuthenticated())
-             {
-                  if (final_buffer.size() == 0)
-                  {
-                      // set authenticated flag in _authInfo to not authenticated because the
-                      // wrap resulted in an expired token or credential.
-                      _authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
-                      // build a 401 response 
-                      // do we need to add a token here or just restart the negotiate again???
-                      // authResponse.append(sa->getServerToken());
-                      XmlWriter::appendUnauthorizedResponseHeader(final_buffer, KERBEROS_CHALLENGE_HEADER);
-                  }
-             }
-             else
-             {
-                  if (final_buffer.size() == 0 && outlength > 0)
-                  {
-                      Array<Sint8> wrapped_content_buffer;
-                      wrapped_content_buffer.clear();
-                      for (Uint64 i = 0; i < outlength; i++)
-                      {
-                          wrapped_content_buffer.append(outmessage[i]);
-                      }
-                      final_buffer.appendArray(header_buffer);
-                      final_buffer.appendArray(wrapped_content_buffer);
-                  }
-             }
+	         // Extract the unwrapped content
+		 for (Uint32 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+		 {
+		     inUnwrappedMessage.append(httpMessage->message[i]);
+		 }
 
-             if (outmessage)
-                 delete [] outmessage;  // outmessage is no longer needed
+		 sa->wrap_message(inUnwrappedMessage,  // Ascii
+				  outWrappedMessage);
 
-             if (final_buffer.size())
-             {
-                 httpMessage->message.clear();
-                 httpMessage->message = final_buffer;
-             }
-         }
+		 if (rc) 
+		 {
+		     // clear out the outWrappedMessage; if wrapping was requested
+		     // by the client we should not send data, if any, back.  Reason
+		     // for wrap failing may be due to a problem with the credentials
+		     // or context or some other failure may have occurred.
+		     outWrappedMessage.clear();
+		     // build a bad request.  We do not want to risk sending back
+		     // data that can't be authenticated.
+		     final_buffer = 
+		       XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+		     //remove the last separater; the authentication record still
+		     // needs to be added.
+		     final_buffer.remove(final_buffer.size());  // '\n'
+		     final_buffer.remove(final_buffer.size());  // '\r'
+		 }
+
+	         // Build the WWW_Authenticate record with token.  SPNEGO negotiation
+	         // requires that a WWW_Authenticate record is always sent.
+		 authenticate_header << KERBEROS_CHALLENGE_HEADER;
+		 authenticate_header.appendArray(sa->getServerToken());
+
+	         // rebuild the headers and wrapped message to send back to the client
+		 if (final_buffer.size() == 0) 
+		 {
+		     // if outWrappedMessage is empty that indicates client did not
+		     // wrap the message.  The original message will be used.
+		     if (outWrappedMessage.size())
+		     {
+			 final_buffer.appendArray(header_buffer);
+			 final_buffer.appendArray(authenticate_header);
+			 final_buffer << "\r\n";
+			 final_buffer << "\r\n";
+			 final_buffer.appendArray(outWrappedMessage);
+		     }
+		 }
+		 else
+		 {
+                     // error occurred on wrap so the final_buffer needs to be built
+		     // differently
+		     final_buffer.appendArray(authenticate_header);
+		     // add double separaters to end
+		     final_buffer << "\r\n";
+		     final_buffer << "\r\n";
+		 }
+
+		 // replace the existing httpMessage with the headers and unwrapped message.
+		 // Or it can be replaced with a bad request response and a challenge.
+		 if (final_buffer.size())
+		 {
+		     httpMessage->message.clear();
+		     httpMessage->message = final_buffer;
+		     Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+					 httpMessage->message.getData(),
+					 httpMessage->message.size());
+
+		 }
+	     } // content length check
+	 } // auth info and security association check
 #endif
 	 //------------------------------------------------------------
 	 // There is no need to convert the write calls to be asynchronous.

@@ -80,6 +80,11 @@ void CIMOperationRequestAuthorizer::sendResponse(
    if (queue)
    {
       HTTPMessage* httpMessage = new HTTPMessage(message);
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+      httpMessage->authInfo = (AuthenticationInfo *)99;
+#endif
+
       queue->enqueue(httpMessage);
    }
    PEG_METHOD_EXIT();

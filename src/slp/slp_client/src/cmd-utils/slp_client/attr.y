@@ -1,27 +1,26 @@
 /*****************************************************************************
- *  Description:   encode/decode attribute lists 
+ *  Description:   encode/decode attribute lists
  *
  *  Originated: March 06, 2000
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
-
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
- *               					                    
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.2 2005/02/11 21:40:10 david.dillard Exp $
+ *
+ *  Copyright (c) 2001 - 2003  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -38,23 +37,23 @@
 #include "slp_client.h"
 void attrerror(int8 *, ...);
 int32 attrwrap(void);
-int32 attrlex(void);   
+int32 attrlex(void);
 int32 attrparse(void);
 BOOL bt = TRUE, bf = FALSE;
 void attr_close_lexer(uint32 handle);
 uint32 attr_init_lexer(int8 *s);
 
-lslpAttrList attrHead = 
+lslpAttrList attrHead =
 {
 	&attrHead, &attrHead, TRUE
 };
 
-lslpAttrList inProcessAttr = 
+lslpAttrList inProcessAttr =
 {
 	&inProcessAttr, &inProcessAttr, TRUE
 };
 
-lslpAttrList inProcessTag = 
+lslpAttrList inProcessTag =
 {
 	&inProcessTag, &inProcessTag, TRUE
 };
@@ -67,11 +66,11 @@ lslpAttrList inProcessTag =
 
 %union {
 	int32 _i;
-	int8 *_s;
+	char *_s;
 	lslpAttrList *_atl;
 }
 
-%token<_i> _TRUE _FALSE _MULTIVAL _INT 
+%token<_i> _TRUE _FALSE _MULTIVAL _INT
 %token<_s> _ESCAPED _TAG _STRING _OPAQUE
 
 /* typecast the non-terminals */
@@ -129,7 +128,7 @@ attr: _TAG 	{
 			$$ = inProcessTag.next;
 			while (! _LSLP_IS_HEAD($$))
 			{
-				$$->name = strdup($2); 
+				$$->name = strdup($2);
 				_LSLP_UNLINK($$);
 				_LSLP_INSERT_BEFORE($$, &inProcessAttr);
 				$$ = inProcessTag.next;
@@ -169,16 +168,16 @@ attr_val: _TRUE {
 				     }
                                   }
 			     else {
-			       
+
 			       $$ = lslpAllocAttr(NULL, string, $1, (int16)(strlen($1) + 1));
 			     }
-               } 
+               }
 
 	|     _INT {
 			$$ = lslpAllocAttr(NULL, integer, &($1), sizeof(int32));
 		}
 	;
-	
+
 %%
 
 void _lslpInitInternalAttrList(void)
@@ -190,7 +189,7 @@ void _lslpInitInternalAttrList(void)
 	inProcessTag.next =  inProcessTag.prev = &inProcessTag;
 	inProcessTag.isHead = TRUE;
 	return;
-}	
+}
 
 lslpAttrList *_lslpDecodeAttrString(int8 *s)
 {
@@ -220,7 +219,7 @@ lslpAttrList *_lslpDecodeAttrString(int8 *s)
 	attr_close_lexer(lexer);
 	return(NULL);
       }
-      
+
       if (! _LSLP_IS_EMPTY(&attrHead)) {
 	temp->attr_string_len = strlen(s);
 	temp->attr_string = (int8 *)malloc(temp->attr_string_len + 1);
@@ -230,17 +229,17 @@ lslpAttrList *_lslpDecodeAttrString(int8 *s)
 	}
 	_LSLP_LINK_HEAD(temp, &attrHead);
       }
-      if(lexer != 0) 
+      if(lexer != 0)
 	attr_close_lexer(lexer);
     }
   }
-  
+
   return(temp);
-}	
+}
 
 
-lslpAttrList *lslpAllocAttr(int8 *name, int8 type, void *val, int16 len)
-{	
+lslpAttrList *lslpAllocAttr(const int8 *name, int8 type, const void *val, int16 len)
+{
   lslpAttrList *attr;
   if (NULL != (attr = (lslpAttrList *)calloc(1, sizeof(lslpAttrList))))
     {
@@ -260,17 +259,17 @@ lslpAttrList *lslpAllocAttr(int8 *name, int8 type, void *val, int16 len)
 	  attr->attr_len = len;
 	  switch (type)	    {
 	    case string:
-	      if ( NULL != (attr->val.stringVal = strdup((int8 *)val)))
+	      if ( NULL != (attr->val.stringVal = strdup((const char *)val)))
 		return(attr);
 	      break;
 	    case integer:
-	      attr->val.intVal = *(uint32 *)val;
+	      attr->val.intVal = *(const uint32 *)val;
 	      break;
 	    case bool_type:
-	      attr->val.boolVal = *(BOOL *)val;
+	      attr->val.boolVal = *(const BOOL *)val;
 	      break;
 	    case opaque:
-	      if ( NULL != (attr->val.opaqueVal = strdup((int8 *)val)))
+	      if ( NULL != (attr->val.opaqueVal = strdup((const char *)val)))
 		return(attr);
 	      break;
 	    default:
@@ -279,7 +278,7 @@ lslpAttrList *lslpAllocAttr(int8 *name, int8 type, void *val, int16 len)
 	}
     }
   return(attr);
-}	
+}
 
 lslpAttrList *lslpAllocAttrList(void)
 {
@@ -287,10 +286,10 @@ lslpAttrList *lslpAllocAttrList(void)
   if (NULL != (temp = lslpAllocAttr(NULL, head, NULL, 0)))
     {
       temp->next = temp->prev = temp;
-      temp->isHead = TRUE;	
+      temp->isHead = TRUE;
     }
   return(temp);
-}	
+}
 
 /* attr MUST be unlinked from its list ! */
 void lslpFreeAttr(lslpAttrList *attr)
@@ -305,7 +304,7 @@ void lslpFreeAttr(lslpAttrList *attr)
   else if (attr->type == opaque && attr->val.opaqueVal != NULL)
     free(attr->val.opaqueVal);
   free(attr);
-}	
+}
 
 void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag)
 {
@@ -322,7 +321,5 @@ void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag)
   if(staticFlag == TRUE)
     lslpFreeAttr(list);
   return;
-	
-}	
 
-
+}

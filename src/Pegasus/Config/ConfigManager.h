@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,9 +35,9 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file defines the classes necessary to manage configuration properties
-// specified on the commandline and configuration files for Pegasus. 
+// specified on the commandline and configuration files for Pegasus.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -63,11 +63,12 @@
 #include <Pegasus/Config/ShutdownPropertyOwner.h>
 #include <Pegasus/Config/FileSystemPropertyOwner.h>
 #include <Pegasus/Config/ProviderDirPropertyOwner.h>
+#include <Pegasus/Config/NormalizationPropertyOwner.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  This class reads configuration properties from the config file, maps the 
+  This class reads configuration properties from the config file, maps the
   properties to owners, and implements access methods.
 */
 
@@ -87,7 +88,7 @@ private:
     ConfigManager();
 
 
-    /** 
+    /**
     Initialize config property with the value specified as a
     command line option.
 
@@ -101,12 +102,12 @@ private:
             //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
 
-    /** 
-    load config properties from the file 
+    /**
+    load config properties from the file
 
     @exception CannotRenameFile  if failed to rename the config file.
     @exception CannotOpenFile if failed to set permissions on the config file.
-    @exception ConfigFileSyntaxError  if there are synatx error 
+    @exception ConfigFileSyntaxError  if there are synatx error
                             while parsing the config files.
     */
     void _loadConfigProperties();
@@ -146,9 +147,9 @@ private:
         FixedValueTable fixedValueTable;
     };
 
-    /** 
-    HashTable to store the config property names and 
-    property owners 
+    /**
+    HashTable to store the config property names and
+    property owners
     */
     AutoPtr<PropertyTable> _propertyTable; //PEP101
 
@@ -178,19 +179,21 @@ public:
     */
     static TracePropertyOwner*      traceOwner;
 
-    static LogPropertyOwner*        logOwner; 
+    static LogPropertyOwner*        logOwner;
 
     static DefaultPropertyOwner*    defaultOwner;
 
-    static SecurityPropertyOwner*   securityOwner; 
+    static SecurityPropertyOwner*   securityOwner;
 
-    static RepositoryPropertyOwner* repositoryOwner; 
+    static RepositoryPropertyOwner* repositoryOwner;
 
-    static ShutdownPropertyOwner*   shutdownOwner; 
+    static ShutdownPropertyOwner*   shutdownOwner;
 
-    static FileSystemPropertyOwner*   fileSystemOwner; 
+    static FileSystemPropertyOwner*   fileSystemOwner;
 
     static ProviderDirPropertyOwner*	providerDirOwner;
+
+    static NormalizationPropertyOwner * normalizationOwner;
 
     /**
         Boolean indicating whether configuration data should be read from
@@ -202,14 +205,14 @@ public:
      */
     Boolean useConfigFiles;
 
-    /** 
+    /**
         Get a reference to the singleton ConfigManager instance.  If no
         ConfigManager instance exists, construct one.
     */
     static ConfigManager* getInstance();
 
 
-    /** 
+    /**
     Initialize the current value of a config property.
 
     @param  propertyName  The name of the property to initialize (e.g.,
@@ -225,7 +228,7 @@ public:
         const String& value);
         //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
-    /** 
+    /**
     Update current value of a property.
 
     @param  propertyName  The name of the property to update (eg. "httpPort").
@@ -244,10 +247,10 @@ public:
         const String& name,
         const String& value,
         Boolean unset);
-        //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
+        //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 
-    /** 
+    /**
     Update planned value of a property.
 
     @param  propertyName  The name of the property to update (eg. "httpPort").
@@ -266,15 +269,15 @@ public:
         const String& name,
         const String& value,
         Boolean unset);
-        //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
+        //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 
 
-    /** 
+    /**
     Validate the value of a property.
 
     @param  name    The name of the property.
-    @param  value   The value of the property to be validated. 
+    @param  value   The value of the property to be validated.
     @return true if the value of the property is valid, else false.
 
     @exception UnrecognizedConfigProperty  if property is not defined.
@@ -294,7 +297,7 @@ public:
         //throw (UnrecognizedConfigProperty);
 
 
-    /** 
+    /**
     Get current value of the specified property.
 
     @param  name    The name of the property.
@@ -306,7 +309,7 @@ public:
         //throw (UnrecognizedConfigProperty);
 
 
-    /** 
+    /**
     Get planned value of the specified property.
 
     @param  name    The name of the property.
@@ -318,7 +321,7 @@ public:
         //throw (UnrecognizedConfigProperty);
 
 
-    /** 
+    /**
     Get all the attributes of the specified property.
 
     @param name          The name of the property.
@@ -330,7 +333,7 @@ public:
         //throw (UnrecognizedConfigProperty);
 
 
-    /** 
+    /**
     Get a list of all the property names.
 
     @param propertyNames  List containing all the property names.
@@ -342,7 +345,7 @@ public:
         Array<String>& propertyNames,
         Boolean includeHiddenProperties);
 
-    /** 
+    /**
     Merges the config properties from the specified configuration files.
 
     @param currentFile   Name of file that contains current config properties.
@@ -352,14 +355,14 @@ public:
     @exception FileNotReadable  if the specified config file is not readable.
     @exception CannotRenameFile  if failed to rename the config file.
     @exception CannotOpenFile if failed to set permissions on the config file.
-    @exception ConfigFileSyntaxError  if there is synatx error 
+    @exception ConfigFileSyntaxError  if there is synatx error
                             while parsing the config files.
     */
     void mergeConfigFiles(const String& currentFile, const String& plannedFile);
-        //throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
+        //throw (NoSuchFile, FileNotReadable, CannotRenameFile,
         //    ConfigFileSyntaxError, CannotOpenFile);
 
-    /** 
+    /**
     Merge the config properties from the default planned config file
     with the properties in the default current config file.
 
@@ -367,16 +370,16 @@ public:
     @exception FileNotReadable  if the default config file is not readable.
     @exception CannotRenameFile  if failed to rename the config file.
     @exception CannotOpenFile if failed to set permissions on the config file.
-    @exception ConfigFileSyntaxError  if there are synatx error 
+    @exception ConfigFileSyntaxError  if there are synatx error
                             while parsing the config files.
     */
     void mergeConfigFiles();
-        //throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
+        //throw (NoSuchFile, FileNotReadable, CannotRenameFile,
         //    ConfigFileSyntaxError, CannotOpenFile);
 
 
-    /** 
-    Merge option values from the command line. 
+    /**
+    Merge option values from the command line.
 
     @param argc number of argument on the command line.
     @param argv list of command line arguments.
@@ -394,14 +397,14 @@ public:
     static String getPegasusHome();
 
     /**
-    Set Pegasus Home 
+    Set Pegasus Home
     */
     static void setPegasusHome(String& home);
 
     /**
     Get Homed Path
-    This function checks if the argument passed is an absolute path. 
-    If true then it returns the same value. Else, it prepends 
+    This function checks if the argument passed is an absolute path.
+    If true then it returns the same value. Else, it prepends
     the value of pegasusHome to the value.
     */
     static String getHomedPath(const String& value);

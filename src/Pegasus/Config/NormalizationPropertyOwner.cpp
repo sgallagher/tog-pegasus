@@ -89,7 +89,7 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name, Array<Stri
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
 
-    if(configProperty->dynamic)
+    if(configProperty->dynamic == IS_DYNAMIC)
     {
         propertyInfo.append(STRING_TRUE);
     }
@@ -98,7 +98,7 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name, Array<Stri
         propertyInfo.append(STRING_FALSE);
     }
 
-    if(configProperty->externallyVisible)
+    if(configProperty->externallyVisible == IS_VISIBLE)
     {
         propertyInfo.append(STRING_TRUE);
     }

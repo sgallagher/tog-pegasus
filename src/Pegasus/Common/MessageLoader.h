@@ -136,7 +136,18 @@ public:
 	/**
 	 * Constructor:
 	 */
-	MessageLoaderParms(){}
+	MessageLoaderParms(){
+		useProcessLocale = false;
+		useThreadLocale = true;
+		
+		#ifdef PEGASUS_HAS_ICU
+		useICUfallback = false;
+		#endif
+		
+		acceptlanguages = AcceptLanguages::EMPTY;
+		contentlanguages = ContentLanguages::EMPTY;
+		msg_src_path = String::EMPTY;
+	}
 	
 	/*
 	 * Constructor: 

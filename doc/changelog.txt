@@ -1,11 +1,13 @@
 CHANGE LOG FOR PEGASUS
 
 -----------------------------------------------------------------------
-23 May 20010.97.1
+23 May 2001 Version 0.97.1 Tages as version_0_971
+
 1. Add PEG_NOT_FOUND symbol to replace Uint32(-1) in any of the object
 find functions.  Note: This symbol is defined in config.h. (ks).
 
-2. Port To HP UX (Mike Add comments here).
+2. Port To HP UX.  This required a number of changes particularly in the area
+of dynamic lib loaading.
 
 
 ------------------------------------------------------------------------
@@ -31,3 +33,4 @@ with the complete unit test and client/server test successfully.
 23 May 2001
 
 1. Ported to HPUX
+

@@ -127,9 +127,14 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
         manager->setProviderRegistrationManager(providerRegistrationManager);
 
         _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "ProviderManagerService::ProviderManagerService() loaded DEFAULT provider manager.");
     }
     catch(...)
     {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "ProviderManagerService::ProviderManagerService() failed to load DEFAULT provider manager.");
     }
     #endif
 
@@ -149,9 +154,14 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
         // manager->setProviderRegistrationManager(providerRegistrationManager);
 
         _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "ProviderManagerService::ProviderManagerService() loaded CMPI provider manager.");
     }
     catch(...)
     {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "ProviderManagerService::ProviderManagerService() failed to load CMPI provider manager.");
     }
     #endif
 }
@@ -378,6 +388,9 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     try
     {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "ProviderManagerService::handleCimRequest() passing control to provider manager.");
+
         // forward request
         response = manager->processMessage(request);
     }

@@ -81,7 +81,6 @@ OSInfo::~OSInfo(void)
 void OSInfo::errorExit(const String& message)
 {
     cerr << "os info error: " << message << endl;
-    cerr << "Re-run with verbose for details (osinfo -verbose)" <<endl;
     exit(1);
 }
 
@@ -89,13 +88,8 @@ void OSInfo::errorExit(const String& message)
 /**
    displayProperties method of the osinfo Test Client
   */
-void OSInfo::displayProperties(Boolean verboseTest)
+void OSInfo::displayProperties()
 {
-   // don't have a try here - want it to be caught by caller
-
-   if (verboseTest)
-      cout << "Displaying properties . . . " << endl;
-
    // interesting properties are stored off in class variables
 
    cout << "OperatingSystem Information" << endl;
@@ -144,15 +138,56 @@ void OSInfo::displayProperties(Boolean verboseTest)
 }
 
 /**
+   formatCIMDateTime method takes a string with CIM formatted
+   DateTime and returns a user-readable string of the format
+   month day-of-month, year  hour:minute:second (value-hrs-GMT-offset)
+   */
+static void formatCIMDateTime (char* cimString, char* dateTime)
+{
+   int year = 0;
+   int month = 0;
+   int day = 0;
+   int hour = 0;
+   int minute = 0;
+   int second = 0;
+   int microsecond = 0;
+   int timezone = 0;
+   sscanf(cimString, "%04d%02d%02d%02d%02d%02d.%06d%04d",
+          &year, &month, &day, &hour, &minute, &second,
+          &microsecond, &timezone);
+   char monthString[5];
+   switch (month)
+   {
+      case 1 : { sprintf(monthString, "Jan"); break; }
+      case 2 : { sprintf(monthString, "Feb"); break; }
+      case 3 : { sprintf(monthString, "Mar"); break; }
+      case 4 : { sprintf(monthString, "Apr"); break; }
+      case 5 : { sprintf(monthString, "May"); break; } 
+      case 6 : { sprintf(monthString, "Jun"); break; }
+      case 7 : { sprintf(monthString, "Jul"); break; }
+      case 8 : { sprintf(monthString, "Aug"); break; }
+      case 9 : { sprintf(monthString, "Sep"); break; }
+      case 10 : { sprintf(monthString, "Oct"); break; }
+      case 11 : { sprintf(monthString, "Nov"); break; }
+      case 12 : { sprintf(monthString, "Dec"); break; }
+      // covered all knowned cases, if get to default, just 
+      // return the input string as received.
+      default : { dateTime = cimString; return; }
+   }
+   
+   sprintf(dateTime, "%s %d, %d  %d:%d:%d (%03d%02d)",
+           monthString, day, year, hour, minute, second, 
+           timezone/60, timezone%60);
+
+   return;
+}
+
+/**
    gatherProperties method of the osinfo Test Client
   */
-void OSInfo::gatherProperties(CIMInstance &inst, 
-                              Boolean verboseTest)
+void OSInfo::gatherProperties(CIMInstance &inst) 
 {
    // don't have a try here - want it to be caught by caller
-
-   if (verboseTest)
-      cout << "Gathering " <<inst.getPropertyCount()<<" properties"<<endl;
 
    // loop through the properties
    for (Uint32 j=0; j < inst.getPropertyCount(); j++)
@@ -216,28 +251,72 @@ void OSInfo::gatherProperties(CIMInstance &inst,
                                    "LastBootUpTime"))
       {
          CIMDateTime bdate;
+         char bdateString[80];
+
          inst.getProperty(j).getValue().get(bdate);
-// ATTN-SLC-17-May-02-P2  Format this nicely
-         osBootUpTime.assign(bdate.getString());
+         formatCIMDateTime((char *)bdate.getString(), bdateString);
+         osBootUpTime.assign(bdateString);
       }   // end if LastBootUpTime 
       
       else if (String::equalNoCase(propertyName,
                                    "LocalDateTime"))
       {
          CIMDateTime ldate;
+         char ldateString[80];
+
          inst.getProperty(j).getValue().get(ldate);
-// ATTN-SLC-17-May-02-P2  Format this nicely
-         osLocalDateTime.assign(ldate.getString());
+         formatCIMDateTime((char *)ldate.getString(), ldateString);
+         osLocalDateTime.assign(ldateString);
       }   // end if LocalDateTime 
       
       else if (String::equalNoCase(propertyName,
                                    "SystemUpTime"))
       {
-         Uint64 propertyValue;
-         inst.getProperty(j).getValue().get(propertyValue);
+         Uint64 total;
+         inst.getProperty(j).getValue().get(total);
+
+         // let's make things a bit easier for our user to read
+         Uint64 days = 0;
+         Uint64 hours = 0;
+         Uint64 minutes = 0;
+         Uint64 seconds = 0;
+         Uint64 totalSeconds = total;
+         seconds = total%60;
+         total = total/60;
+         minutes = total%60;
+         total = total/60;
+         hours = total%24;
+         total = total/24;
+         days = total;
+
+         // now deal with the proper singular/plural
+         char dayString[20];
+         char hourString[20];
+         char minuteString[20];
+         char secondString[20];
+   
+         sprintf(dayString, (days == 0?"":
+                            (days == 1?"1 day,":
+                            "%lld days,")), days);
+        
+         // for other values, want to display the 0s 
+         sprintf(hourString, (hours == 1?"1 hr,":
+                             "%lld hrs,"), hours);
+         
+         sprintf(minuteString, (minutes == 1?"1 min,":
+                               "%lld mins,"), minutes);
+         
+         sprintf(secondString, (seconds == 1?"1 sec":
+                               "%lld secs"), seconds);
+         
          char   uptime[80];
-         sprintf(uptime, "%lld seconds",propertyValue);
-// ATTN-SLC-17-May-02-P2  Would be nice to convert seconds in uptime
+         sprintf(uptime, "%lld seconds = %s %s %s %s",
+                 totalSeconds,
+                 dayString,
+                 hourString,
+                 minuteString,
+                 secondString);
+
          osSystemUpTime.assign(uptime);
 
       }   // end if SystemUpTime 
@@ -248,8 +327,7 @@ void OSInfo::gatherProperties(CIMInstance &inst,
 /* 
    getOSInfo of the OS provider. 
 */
-void OSInfo::getOSInfo(CIMClient &client,
-                       Boolean verboseTest)
+void OSInfo::getOSInfo(CIMClient &client)
 {
   try
     {
@@ -266,9 +344,6 @@ void OSInfo::getOSInfo(CIMClient &client,
 				         includeClassOrigin );
 	  
       numberInstances = cimNInstances.size();
-      if (verboseTest)
-	cout << numberInstances << " instances of PG_OperatingSystem" <<endl;
-
 
       // while we only have one instance (the running OS), we can take the
       // first instance.  When the OSProvider supports installed OSs as well,
@@ -278,19 +353,16 @@ void OSInfo::getOSInfo(CIMClient &client,
       {
          CIMObjectPath instanceRef = cimNInstances[i].getInstanceName();
          //String instanceRef = cimNInstances[i].getInstanceName().toString();
-         if (verboseTest)
-             cout<<"Instance ClassName is "<<instanceRef.getClassName()<<endl; 
 	 if( !(String::equalNoCase(instanceRef.getClassName(), CLASSNAME ) ) )
          {
 	    errorExit("EnumerateInstances failed");
 	 }
 
          // first gather the interesting properties
-         gatherProperties(cimNInstances[i].getInstance(),
-                           verboseTest);
+         gatherProperties(cimNInstances[i].getInstance());
          
          // then display them
-         displayProperties(verboseTest);
+         displayProperties();
 
       }   // end for looping through instances
     
@@ -309,52 +381,21 @@ void OSInfo::getOSInfo(CIMClient &client,
 int main(int argc, char** argv)
 {
 
-// ATTN-SLC-16-Mat-02-P1  enhance to take host & user info
+// ATTN-SLC-16-May-02-P1  enhance to take host & user info
+//  Decided to keep local only for first release 
 
-    String     host = String::EMPTY;
-    String     userName; // = String::EMPTY;
-    String     password; // = String::EMPTY;
-
-    Boolean    verboseTest = false;
-
-    // check if have a "verbose" on the command line
-    if (argv[1] != 0)
-    {
-       const char *arg = argv[1];
-       String arg1;
-           verboseTest = true;
-    }
-
-    if (host == String::EMPTY)
-    {
-       host.assign("localhost:5988");
-    }
-    
     // need to first connect to the CIMOM
-    // use null string for user and password, port 5988
 
     try
     {
-        if (verboseTest)
-           cout << "Create client" << endl;
-
         // specify the timeout value for the connection (if inactive)
         // in milliseconds, thus setting to one minute
         CIMClient client(60 * 1000);
-        if (verboseTest)
-           cout << "Client created" << endl;
-
-        if (verboseTest)
-           cout << "osinfo client connecting to " << host << endl;
-	client.connect(host, userName, password);
-        if (verboseTest)
-           cout << "osinfo client Connected" << endl;
-
-        OSInfo testClient;
-        testClient.getOSInfo(client, verboseTest);
+	client.connectLocal();
         
-        if (verboseTest)
-           cout << "osinfo client disconnecting from CIMOM " << endl;
+        OSInfo testClient;
+        testClient.getOSInfo(client);
+        
         client.disconnect();
   }
   catch(CIMClientException& e)

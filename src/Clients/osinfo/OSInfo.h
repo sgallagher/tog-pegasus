@@ -22,6 +22,7 @@
 #define _OSINFO_H
 
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/CIMDateTime.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -32,13 +33,12 @@ class OSInfo
      OSInfo(void);
      ~OSInfo(void);
 
-     // class is hardcoded, but flag for level of logging
-     void getOSInfo(CIMClient &client, Boolean verbose);
+     void getOSInfo(CIMClient &client);
 
      // utility methods for common functions
      void errorExit(const String &message);
-     void gatherProperties(CIMInstance &inst,Boolean verbose);
-     void displayProperties(Boolean verbose);
+     void gatherProperties(CIMInstance &inst);
+     void displayProperties();
 
   private:
      String osCSName;       // the hostname

@@ -580,6 +580,8 @@ Uint32 System::lookupPort(
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
 #endif // PEGASUS_OS_SOLARIS
 #else  // !PEGASUS_OS_OS400
+    // Note - serviceName came from Constants.h - no need to
+    // convert to EBCDIC
     // Need to cast on OS/400
     if ( (serv = getservbyname((char *)serviceName, TCP)) != NULL )
 #endif  // !PEGASUS_OS_OS400
@@ -632,6 +634,9 @@ String System::getEffectiveUserName()
     }
     else
     {
+#if defined(PEGASUS_OS_OS400)
+	EtoA(pwd->pw_name);
+#endif
         //
         //  get the user name
         //
@@ -653,6 +658,10 @@ String System::encryptPassword(const char* password, const char* salt)
 
 Boolean System::isSystemUser(const char* userName)
 {
+#if defined(PEGASUS_OS_OS400)
+    AtoE((char *)userName);
+#endif
+
 #ifdef PEGASUS_OS_SOLARIS
     struct passwd   pwd;
     struct passwd   *result;
@@ -666,8 +675,14 @@ Boolean System::isSystemUser(const char* userName)
     if  ( getpwnam(userName) == NULL )
 #endif
     {
+#if defined(PEGASUS_OS_OS400)
+	EtoA((char *)userName);
+#endif
 	return false;
     }
+#if defined(PEGASUS_OS_OS400)
+    EtoA((char *)userName);
+#endif
     return true;
 }
 
@@ -690,7 +705,10 @@ Boolean System::isPrivilegedUser(const String userName)
     }
     return false;
 #else
-    return ycmCheckUserCmdAuthorities(userName.getCString());
+    CString user = userName.getCString();
+    const char * tmp = (const char *)user;
+    AtoE((char *)tmp);
+    return ycmCheckUserCmdAuthorities(tmp);
 #endif
 }
 
@@ -716,6 +734,9 @@ String System::getPrivilegedUserName()
 #endif
         if ( pwd != NULL )
         {
+#if defined(PEGASUS_OS_OS400)
+	    EtoA(pwd->pw_name);
+#endif
             //
             //  get the user name
             //
@@ -747,7 +768,19 @@ Boolean System::truncateFile(
 #if !defined(PEGASUS_OS_OS400)
     return (truncate(path, newSize) == 0);
 #else
-    int fd = open(path, O_WRONLY);
+    OS400_PNSTRUCT pathname;
+    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
+    pathname.qlg_struct.CCSID = 1208;
+#pragma convert(37)
+    memcpy(pathname.qlg_struct.Country_ID,"US",2);
+    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
+#pragma convert(0)
+    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
+    pathname.qlg_struct.Path_Length = strlen(path);
+    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
+    pathname.pn = (char *)path;
+
+    int fd = QlgOpen((Qlg_Path_Name_T *)&pathname, O_WRONLY);
     if (fd != -1)
     {
        int rc = ftruncate(fd, newSize);
@@ -817,7 +850,11 @@ void System::syslog(Uint32 severity, const char *data)
 	ycmMessage theMessage(msgCPxDF80,
 			      CPIprefix,
 			      replacementData,
-			      "Logger",ycmCTLCIMID);
+#pragma convert(37)
+			      "Logger",
+#pragma convert(0)
+                          ycmCTLCIMID,
+			      utf8);
 
 	// put the message in the joblog
 	theMessage.joblogIt(UnitOfWorkError,
@@ -832,7 +869,11 @@ void System::syslog(Uint32 severity, const char *data)
 	ycmMessage theMessage(msgCPxDF82,
 			      CPDprefix,
 			      replacementData,
-			      "Logger",ycmCTLCIMID);
+#pragma convert(37)
+			      "Logger",
+#pragma convert(0)
+                          ycmCTLCIMID,
+			      utf8);
 
 	// put the message in the joblog
 	theMessage.joblogIt(UnitOfWorkError,

@@ -540,7 +540,7 @@ CN="Common Name"
 EMAIL="test@email.address"
 HOSTNAME=`uname -n`
 sed -e "s/$CN/$HOSTNAME/"  \
-    -e "s/$EMAIL/root@$HOSTNAME/" $PEGASUS_ROOT/ssl.cnf \
+    -e "s/$EMAIL/root@$HOSTNAME/" $PEGASUS_ROOT/src/Server/ssl.cnf \
     > $PEGASUS_HOME/ssl.cnf
 chmod 644 $PEGASUS_HOME/ssl.cnf
 chown bin $PEGASUS_HOME/ssl.cnf
@@ -551,8 +551,8 @@ chgrp bin $PEGASUS_HOME/ssl.cnf
    -keyout $PEGASUS_HOME/key.pem -out $PEGASUS_HOME/cert.pem 
 
 cat $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem > $PEGASUS_HOME/server.pem
-rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem
+rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 
 17. Testing with ICU enabled:
 ==============================

@@ -32,10 +32,11 @@
 #include <Pegasus/Common/Config.h>		// get platform specific definitions
 #include <Pegasus/Common/String.h>		// for usage of class String out of Pegasus/Common
 #include <Pegasus/Client/CIMClientRep.h>
+#include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMClientConnectionManager
+class PEGASUS_CLIENT_LINKAGE CIMClientConnectionManager
 {
 
 public:

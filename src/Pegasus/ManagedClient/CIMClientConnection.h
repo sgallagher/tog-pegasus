@@ -31,10 +31,11 @@
 
 #include <Pegasus/Client/CIMClientRep.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMClientConnection
+class PEGASUS_CLIENT_LINKAGE CIMClientConnection
 {
 
 public:

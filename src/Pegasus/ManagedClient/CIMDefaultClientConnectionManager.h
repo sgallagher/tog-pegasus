@@ -35,7 +35,7 @@
 	
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMDefaultClientConnectionManager : public CIMClientConnectionManager
+class PEGASUS_CLIENT_LINKAGE CIMDefaultClientConnectionManager : public CIMClientConnectionManager
 {
 
 public:

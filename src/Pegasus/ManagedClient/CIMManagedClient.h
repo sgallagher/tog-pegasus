@@ -44,7 +44,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMManagedClient
+class PEGASUS_CLIENT_LINKAGE CIMManagedClient
 {
 
 public:

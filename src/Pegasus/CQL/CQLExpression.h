@@ -16,6 +16,12 @@ PEGASUS_NAMESPACE_BEGIN
     //##ModelId=40FC040E0079
     enum TermOpType {plus,minus};
 
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T TermOpType
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 /**
   The CQLExpression class encapsulates a generic CQL expression to make it
 easier to break into components and process the expression.  

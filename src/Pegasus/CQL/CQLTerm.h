@@ -18,6 +18,12 @@ PEGASUS_NAMESPACE_BEGIN
     //##ModelId=40FC31A3026D
     enum FactorOpType { mult, divide, concat };
 
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T FactorOpType
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 /** The CQLTerm class encapsulates each CQL term in a CQL expression.  
 
 This class contains an array of CQLFactor objects and an array of CQLOperator
@@ -69,10 +75,10 @@ class PEGASUS_CQL_LINKAGE CQLTerm
 
   private:
     
-    FactorOpType _FactorOpType;
-
     //##ModelId=40FC317F0304
-    FactorOpType _FactorOperators[MAXFACTORS];
+    //FactorOpType _FactorOperators[MAXFACTORS];
+
+    Array<FactorOpType> _FactorOperators;
 
     //##ModelId=40FC317F0303
     Array<CQLFactor> _Factors;

@@ -30,9 +30,17 @@
 #include <Pegasus/CQL/CQLExpression.h>
 //#include <Pegasus/CQL/CQLTerm.h>
 PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T TermOpType
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 #define PEGASUS_ARRAY_T CQLExpression
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
+
+
+
 
 CQLExpression::CQLExpression(CQLTerm& theTerm)
 {
@@ -50,8 +58,6 @@ CQLExpression::CQLExpression(const CQLExpression& inExpress)
 
 CQLValue CQLExpression::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
-   Array<TermOpType> _TermOps;
-   
    CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
 
    for(Uint32 i = 0; i < _TermOperators.size(); ++i)

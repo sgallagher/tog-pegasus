@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.4  2001/02/11 06:21:24  mike
+// removed some coments
+//
 // Revision 1.3  2001/02/11 05:45:33  mike
 // Added case insensitive logic for files in Repository
 //
@@ -119,24 +122,17 @@ static void TestClassOperations(Client& client)
 
 static void TestQualifierOperations(Client& client)
 {
-cout << __LINE__ << endl;
     // Create two qualifier declarations:
 
     QualifierDecl qd1("qd1", false, Scope::CLASS, Flavor::TOSUBCLASS);
-cout << __LINE__ << endl;
     client.setQualifier(NAMESPACE, qd1);
-cout << __LINE__ << endl;
 
-cout << __LINE__ << endl;
     QualifierDecl qd2("qd2", "Hello", Scope::PROPERTY | Scope::CLASS, 
 	Flavor::OVERRIDABLE);
-cout << __LINE__ << endl;
     client.setQualifier(NAMESPACE, qd2);
 
-cout << __LINE__ << endl;
     // Get them and compare:
 
-cout << __LINE__ << endl;
     QualifierDecl tmp1 = client.getQualifier(NAMESPACE, "qd1");
     assert(tmp1.identical(qd1));
 
@@ -147,10 +143,8 @@ cout << __LINE__ << endl;
 
     Array<QualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
 
-cout << __LINE__ << endl;
     for (Uint32 i = 0; i < qualifierDecls.getSize(); i++)
     {
-cout << __LINE__ << endl;
 	QualifierDecl tmp = qualifierDecls[i];
 
 	if (tmp.getName() == "qd1")
@@ -158,11 +152,9 @@ cout << __LINE__ << endl;
 
 	if (tmp.getName() == "qd2")
 	    assert(tmp2.identical(tmp));
-cout << __LINE__ << endl;
     }
 
     // Delete the qualifiers:
-cout << __LINE__ << endl;
 
     client.deleteQualifier(NAMESPACE, "qd1");
     client.deleteQualifier(NAMESPACE, "qd2");
@@ -172,15 +164,10 @@ int main(int argc, char** argv)
 {
     try
     {
-cout << __LINE__ << endl;
 	Client client;
-cout << __LINE__ << endl;
 	client.connect("localhost", 8888);
-cout << __LINE__ << endl;
 	TestQualifierOperations(client);
-cout << __LINE__ << endl;
 	TestClassOperations(client);
-cout << __LINE__ << endl;
     }
     catch(Exception& e)
     {

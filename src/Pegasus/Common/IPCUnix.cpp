@@ -601,10 +601,18 @@ Semaphore::~Semaphore()
 
 // block until this semaphore is in a signalled state, or
 // throw an exception if the wait fails 
- void Semaphore::wait(void) throw(WaitFailed) 
+ void Semaphore::wait(void) throw(WaitFailed, WaitInterrupted) 
 {
-   if (sem_wait(&_semaphore.sem))
-      throw(WaitFailed(_semaphore.owner));
+   int rc = 0;
+   rc = sem_wait(&_semaphore.sem);
+   if (rc != 0) {
+
+     if (errno == EINTR)
+	throw(WaitInterrupted(_semaphore.owner));
+
+      //if (errno == EDEADLK
+     throw(WaitFailed(_semaphore.owner));
+   }
 }
 
 // wait succeeds immediately if semaphore has a non-zero count, 

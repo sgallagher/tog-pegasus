@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierDecl.h,v $
+// Revision 1.4  2001/01/30 23:39:00  karl
+// Add doc++ Documentation to header files
+//
 // Revision 1.3  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -51,23 +54,30 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ConstQualifierDecl;
 class ClassDeclRep;
+/** Class QualifierDecl
 
+  NOTE: Clarify difference between qualifier and qualiferdeclaration
+  ATTN: Important work required here.
+*/
 class PEGASUS_COMMON_LINKAGE QualifierDecl
 {
 public:
-
+    /// Constructor - ATTN:
     QualifierDecl() : _rep(0)
     {
 
     }
+    /// Constructor - ATTN:
 
     QualifierDecl(const QualifierDecl& x) 
     {
 	Inc(_rep = x._rep); 
     }
-
-    // Throws IllegalName if name argument not legal CIM identifier.
-
+    /** Constructor
+    Throws IllegalName if name argument not legal CIM identifier.
+    ATTN:
+    */
+    
     QualifierDecl(
 	const String& name, 
 	const Value& value, 
@@ -77,12 +87,12 @@ public:
     {
 	_rep = new QualifierDeclRep(name, value, scope, flavor, arraySize);
     }
-
+    /// Destructor
     ~QualifierDecl()
     {
 	Dec(_rep);
     }
-
+    /// Operator
     QualifierDecl& operator=(const QualifierDecl& x)
     {
 	if (x._rep != _rep)
@@ -93,7 +103,10 @@ public:
 
 	return *this;
     }
+    /** Method ATTN:
 
+    
+    */
     const String& getName() const 
     { 
 	_checkRep();
@@ -101,70 +114,105 @@ public:
     }
 
     // Throws IllegalName if name argument not legal CIM identifier.
-
+    /** Method	ATTN:
+    
+    */
     void setName(const String& name) 
     { 
 	_checkRep();
 	_rep->setName(name); 
     }
+    /** Method ATTN:
 
+    
+    */
     Type getType() const 
     { 
 	_checkRep();
 	return _rep->getType(); 
     }
+    /** Method  ATTN:
 
+    
+    */
     Boolean isArray() const 
     {
 	_checkRep();
 	return _rep->isArray();
     }
-
+    /** Method
+    
+    */
     const Value& getValue() const 
     { 
 	_checkRep();
 	return _rep->getValue(); 
     }
-
+    /** Method
+    
+    */
     void setValue(const Value& value) 
     { 
 	_checkRep();
 	_rep->setValue(value); 
     }
-
+    /** Method
+    
+    */
     Uint32 getScope() const 
     {
 	_checkRep();
 	return _rep->getScope();
     }
+    /** Method
+
+    */
 
     Uint32 getFlavor() const 
     {
 	_checkRep();
 	return _rep->getFlavor();
     }
+    /** Method
+
+    */
 
     Uint32 getArraySize() const 
     {
 	_checkRep();
 	return _rep->getArraySize();
     }
+    /** Method
+    
+    */
 
     operator int() const { return _rep != 0; }
+    /** Method
+    
+    */
 
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
+    /** Method
+    
+    */
 
     void print() const
     {
 	_checkRep();
 	_rep->print();
     }
+    /** Method
+    
+    */
 
     Boolean identical(const ConstQualifierDecl& x) const;
+    /** Method
+    
+    */
 
     QualifierDecl clone() const
     {

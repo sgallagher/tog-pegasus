@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDecl.h,v $
+// Revision 1.5  2001/01/30 23:39:00  karl
+// Add doc++ Documentation to header files
+//
 // Revision 1.4  2001/01/28 18:48:07  mike
 // fixed typo in comment
 //
@@ -48,25 +51,30 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ConstClassDecl;
 
-/**
-    The ClassDecl class is used to represent CIM classes, associations,
-    and qualifiers.
+/** The ClassDecl class is used to represent CIM classes in Pegasus.  In CIM, 
+a class object may be a class or an associator.  A CIM class must contain a 
+name and may contain methods, properties, and qualifiers.  It is a template 
+for creating a CIM instance.  A CIM class represents a collection of CIM 
+instances, all of which support a common type (for example, a set of 
+properties, methods, and associations).  
 */
-
 class PEGASUS_COMMON_LINKAGE ClassDecl
 {
 public:
-
+    /** Constructor - Creates and instantiates a new object reprenting a CIM
+    class. If you use this constructor, use setName to define a name for the 
+    class
+    */
     ClassDecl() : _rep(0)
     {
 
     }
-
+    /// Constructor - Creates a class from a previous class
     ClassDecl(const ClassDecl& x)
     {
 	Inc(_rep = x._rep);
     }
-
+    /// Operator = ATTN:
     ClassDecl& operator=(const ClassDecl& x)
     {
 	if (x._rep != _rep)
@@ -76,177 +84,258 @@ public:
 	}
 	return *this;
     }
-
-    // Throws IllegalName if className argument not legal CIM identifier.
-
+    /**	 Constructor - Creates a Class from inputs of a classname and 
+    SuperClassName
+    @param className - String representing the name of the class being created
+    @param superClassName - String representing the name of the SuperClass
+    ATTN: Define what makes up legal name.
+    @return Throws IllegalName if className argument not legal CIM identifier.
+    */
     ClassDecl(
 	const String& className, 
 	const String& superClassName = String())
     {
 	_rep = new ClassDeclRep(className, superClassName);
     }
-
+    /// Destructor
     ~ClassDecl()
     {
 	Dec(_rep);
     }
-
+    /** Method isAssociation - Identifies whether or not this CIM class is an 
+    association.  An association is a relationship between two (or more) classes 
+    or instances of two classes.  The properties of an association class include 
+    pointers, or references, to the two (or more) instances.  All CIM classes can 
+    be included in one or more associations.  
+    ATTN: Move the association definition elsewhere
+    @return  Boolean True if this CIM class belongs to an association; 
+    otherwise, false. 
+    */ 
     Boolean isAssociation() const
     {
 	_checkRep();
 	return _rep->isAssociation();
     }
-
+    ///	 Method isAbstract
     Boolean isAbstract() const
     {
 	_checkRep();
 	return _rep->isAbstract();
     }
-
+    /** Method Gets the name of the class
+    ATTN: COMMENT. Why not just get name so we have common method for all.
+    */
     const String& getClassName() const 
     { 
 	_checkRep();
 	return _rep->getClassName(); 
     }
-
+    /** Method getSuperClassName - Gets the name of the Parent
+    @return String with parent class name.
+    */
     const String& getSuperClassName() const 
     { 
 	_checkRep();
 	return _rep->getSuperClassName(); 
     }
-
-    // Throws IllegalName if superClassName argument not legal CIM identifier.
-
+    /**	Method setSuperClassName - Sets the name of the parent class from
+    the input parameter. \REF{CLASSNAME}.
+    ATTN: Define legal classnames
+    @param - String defining parent name.
+    @return Throws IllegalName if superClassName argument not legal CIM 
+    identifier. */
     void setSuperClassName(const String& superClassName)
     {
 	_checkRep();
 	_rep->setSuperClassName(superClassName);
     }
-
-    // Throws AlreadyExists.
-
+    /** Method addQualifier - Adds the specified qualifier to the class
+    and increments the qualifier count. It is illegal to add the same
+    qualifier more than one time.
+    @param - Qualifier object representing the qualifier to be added
+    ATTN: Pointer to qualifier object.
+    @return Throws AlreadyExists.
+    */
     ClassDecl& addQualifier(const Qualifier& qualifier)
     {
 	_checkRep();
 	_rep->addQualifier(qualifier);
 	return *this;
     }
-
+    /**	Method findQualifier - Finds a qualifier with the specified input name
+    if it exists in the class
+    @param name Name of the qualifier to be found
+    @return Position of the qualifier in the Class
+    ATTN: Clarify the return.  What if not found, etc.
+    */
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /** Method FindQualifier - ATTN:
+    @param name of the qualifier to be found
+    @return ATTN: Define this
+    */
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /**	 Method getQualifier - Gets the Qualifier object defined
+    by the input parameter
+    @param pos defines the position of the qualifier in the class from the
+    findQualifier method
+    @return Qualifier object representing the qualifier found.
+    ATTN: what is error return here?
+    */
     Qualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-
+    /// Method getQualifier - ATTN:
     ConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-
+    /** Method getQualifierCount - Returns the number of qualifiers
+    in the class.
+    @return ATTN:
+    */
     Uint32 getQualifierCount() const
     {
 	_checkRep();
 	return _rep->getQualifierCount();
     }
-
+    /**	Method addProperty - Adds the specified property object to the
+    properties in the CIM class
+    
+    */
     ClassDecl& addProperty(const Property& x)
     {
 	_checkRep();
 	_rep->addProperty(x);
 	return *this;
     }
-
+    /** Method removeProperty - Removes the property represented
+    by the position input parameter from the class
+    @param position parameter for the property to be removed from the 
+    findPropety method
+    @return ATTN:
+    */
     void removeProperty(Uint32 pos)
     {
 	_checkRep();
 	_rep->removeProperty(pos);
     }
-
+    /** Method findProperty - Finds the property object with the
+    name defined by the input parameter in the class.
+    @param String parameter with the property name.
+    @return position representing the property object found.
+    ATTN:   Clarify case of not found
+    */
     Uint32 findProperty(const String& name)
     {
 	_checkRep();
 	return _rep->findProperty(name);
     }
-
+    /// Method findProperty
     Uint32 findProperty(const String& name) const
     {
 	_checkRep();
 	return _rep->findProperty(name);
     }
-
+    /** Method getProperty - Returns a property representing the property 
+    defined by the input parameter
+    @param position for this property
+    ATTN: Should we not use something like handle for position???
+    @return Property object
+    ATTN: what is error return?
+    */
     Property getProperty(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getProperty(pos);
     }
-
+    /// Method getProperty - ATTN
     ConstProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
     }
-
+    /** Method getProperty -   Gets the count of the number of properties
+    defined in the class.
+    @return count of number of proerties in the class
+    */
     Uint32 getPropertyCount() const
     {
 	_checkRep();
 	return _rep->getPropertyCount();
     }
-
+    /** Method addMethod - Adds the method object defined by the input 
+    parameter to the class and increments the count of the number of methods in 
+    the class
+    @param - method object representing the method to be added 
+    /REF{METHODOBJECT}
+    */
     ClassDecl& addMethod(const Method& x)
     {
 	_checkRep();
 	_rep->addMethod(x);
 	return *this;
     }
-
+    /** Method findMethod - Located the method object defined by the
+    name input
+    @param String representing the name of the method to be found
+    @return Position of the method object in the class to be used in 
+    subsequent getmethod, etc. operations
+    */
     Uint32 findMethod(const String& name)
     {
 	_checkRep();
 	return _rep->findMethod(name);
     }
-
+    /// Method findMethod - ATTN:
     Uint32 findMethod(const String& name) const
     {
 	_checkRep();
 	return _rep->findMethod(name);
     }
-
+    /** Method getMethod - Gets the method object defined by the
+    input parameter.
+    @param   ATTN:
+    @ method object representing the method defined 
+    ATTN: Error???
+    */
     Method getMethod(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getMethod(pos);
     }
-
+    /// Method getMethod - ATTN:
     ConstMethod getMethod(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getMethod(pos);
     }
-
+    /** Method getMethodCount - Count of the number of methods in the class
+    @return integer representing the number of methods in the class
+    */
     Uint32 getMethodCount() const
     {
 	_checkRep();
 	return _rep->getMethodCount();
     }
 
-    // Resolve the class: inherit any properties and qualifiers.
-    // make sure the superClass really exists and is consistent with
-    // this class. Also set the propagated flag class-origin for each
-    // class feature.
-
+    
+    /** Method Resolve -  Resolve the class: inherit any properties and 
+    qualifiers. Make sure the superClass really exists and is consistent with
+    this class. Also set the propagated flag class-origin for each
+    class feature.
+    ATTN: explain why this here
+    */
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace)
@@ -254,23 +343,27 @@ public:
 	_checkRep();
 	_rep->resolve(declContext, nameSpace);
     }
-
+    /// operator - ATTN:
     operator int() const { return _rep != 0; }
-
+    /// Method toXML 
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
-
+    /// Method print 
     void print() const
     {
 	_checkRep();
 	_rep->print();
     }
-
+    /** Method identical -  Compares with another class
+    ATTN: Clarify exactly what identical means
+    @parm Class object for the class to be compared
+    @return True if the classes are identical
+    */
     Boolean identical(const ConstClassDecl& x) const;
-
+    /// Method clone - ATTN:
     ClassDecl clone() const
     {
 	return ClassDecl(_rep->clone());

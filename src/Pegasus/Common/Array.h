@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Array.h,v $
-// Revision 1.1  2001/01/14 19:50:34  mike
-// Initial revision
+// Revision 1.2  2001/01/30 23:39:00  karl
+// Add doc++ Documentation to header files
+//
+// Revision 1.1.1.1  2001/01/14 19:50:34  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -179,6 +182,14 @@ PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 
 class Value;
 
+/**
+Array Class
+Property data types are limited to the intrinsic data types, or arrays of such.
+Structured types are constructed by designing new classes. If the Property is an
+array property, the corresponding variant type is simply the array equivalent
+(fixed or variable length) of the variant for the underlying intrinsic type.
+ATTN: This not complete.
+*/
 template<class T>
 class Array
 {
@@ -202,17 +213,25 @@ public:
     ~Array();
 
     Array<T>& operator=(const Array<T>& x);
-
+	/** method clear
+	ATTN:
+	*/
     void clear();
-
+	/** method reserve
+	ATTN:
+	*/
     void reserve(Uint32 capacity)
     {
 	if (capacity > _rep->capacity)
 	    _reserveAux(capacity);
     }
-
+	/** method grow
+	ATTN:
+	*/
     void grow(Uint32 size, const T& x);
-
+	/** method swap
+	ATTN:
+	*/
     void swap(Array<T>& x);
 
     Uint32 getSize() const { return _rep->size; }
@@ -222,7 +241,9 @@ public:
     T& operator[](Uint32 pos);
 
     const T& operator[](Uint32 pos) const;
-
+	/** method append
+	ATTN:
+	*/
     void append(const T& x);
 
     void append(const T* x, Uint32 size);
@@ -231,7 +252,9 @@ public:
     {
 	append(x.getData(), x.getSize());
     }
-
+	/** method prepend -
+	ATTN:
+	*/
     void prepend(const T& x);
 
     void prepend(const T* x, Uint32 size);
@@ -239,9 +262,13 @@ public:
     void insert(Uint32 pos, const T& x);
 
     void insert(Uint32 pos, const T* x, Uint32 size);
-
+	/** method insert
+	ATTN:
+	*/
     void remove(Uint32 pos);
-
+	/** method remove
+	ATTN:
+	*/
     void remove(Uint32 pos, Uint32 size);
 
 private:

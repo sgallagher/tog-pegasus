@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Flavor.h,v $
+// Revision 1.3  2001/01/30 23:39:00  karl
+// Add doc++ Documentation to header files
+//
 // Revision 1.2  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -32,13 +35,11 @@
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Flavor.h
-//
-//     This file declares qualifier flavor constants.
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+
+ Flavor.h -- This file declares qualifier flavor constants.
+
+*/
 
 #ifndef Pegasus_Flavor_h
 #define Pegasus_Flavor_h
@@ -48,7 +49,9 @@
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+/**
+Qualifier flavor constants
+*/
 struct PEGASUS_COMMON_LINKAGE Flavor
 {
     static const Uint32 NONE;

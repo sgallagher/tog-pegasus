@@ -23,19 +23,19 @@
 // Author:
 //
 // $Log: Scope.h,v $
-// Revision 1.1  2001/01/14 19:53:12  mike
-// Initial revision
+// Revision 1.2  2001/01/30 23:39:00  karl
+// Add doc++ Documentation to header files
+//
+// Revision 1.1.1.1  2001/01/14 19:53:12  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Scope.h
-//
-//     This file declares qualifier scope constants.
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+ Scope.h  This file declares qualifier scope constants.
+*/
+
 
 #ifndef Pegasus_Scope_h
 #define Pegasus_Scope_h
@@ -46,6 +46,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+The Qualifier Scopes are as follows:
+NONE, Class, ASSOCIATION,INDICATION,PROPERTY, REFERENCE, METHOD, PARAMETER, ANY
+*/
 namespace Scope
 {
     PEGASUS_COMMON_LINKAGE extern const Uint32 NONE;

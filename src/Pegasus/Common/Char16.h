@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Char16.h,v $
-// Revision 1.1  2001/01/14 19:50:36  mike
-// Initial revision
+// Revision 1.2  2001/01/30 23:39:00  karl
+// Add doc++ Documentation to header files
+//
+// Revision 1.1.1.1  2001/01/14 19:50:36  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -47,23 +50,28 @@
 #include <Pegasus/Common/Config.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+/**
+    The Char16 class represents a CIM sixteen bit character (char16).
+	This class is a trivial wrapper for a sixteen bit integer. It is used
+	as the element type in the String class (used to represent the CIM
+	string type).
+*/
 class PEGASUS_COMMON_LINKAGE Char16 
 {
 public:
-
+    /// Constructor Char16
     Char16() : _code(0) { }
-
+    /// Constructor Char16
     Char16(Uint16 x) : _code(x) { }
-
+    /// Constructor Char16
     Char16(const Char16& x) : _code(x._code) { }
-
+    /// Constructor Char16
     Char16& operator=(Uint16 x) { _code = x; return *this; }
-
+    /// Constructor Char16
     Char16& operator=(const Char16& x) {_code = x._code; return *this;}
-
+    ///
     operator Uint16() const { return _code; }
-
+    ///
     Uint16 getCode() const { return _code; }
 
 private:

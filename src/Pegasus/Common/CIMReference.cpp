@@ -204,6 +204,7 @@ CIMReference::CIMReference(
     const String& nameSpace,
     const String& className,
     const Array<KeyBinding>& keyBindings)
+
 {
    set(host, nameSpace, className, keyBindings);
 }

@@ -29,32 +29,30 @@
 #ifndef Pegasus_Predicate_h
 #define Pegasus_Predicate_h
 
-
-
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
-#include <iostream>
+#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
 
-#include <Pegasus/Common/CIMReference.h>
+#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
-
-
+   
 /** The Predicate class adds a logical expression, truth value, 
     and one or more operators to the KeyBinding class. Using the 
     Predicate class, it is possible to construct evaluate a compiled
     expression using actual cim data values.
 */
 
-typedef enum LogicalOperator { AND, NOT, OR };
-typedef enum ExpressionOperator { EQUAL, NE, GT, GTE, LT, LTE, PRESENT };
+extern void PEGASUS_EXPORT _BubbleSort(Array<KeyBinding>& x);
+enum LogicalOperator { AND, NOT, OR };
+enum ExpressionOperator { EQUAL, NE, GT, GTE, LT, LTE, PRESENT };
 
-class PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
+class  PEGASUS_COMMON_LINKAGE Predicate: public Pegasus::KeyBinding
 {
    public:
 
@@ -63,7 +61,8 @@ class PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
       Predicate(const Predicate& x) ;
       Predicate(const KeyBinding& x, 
 		ExpressionOperator op, 
-		Boolean truth) ;
+		Boolean truth );
+
       Predicate(const String& name, 
 		const String& value, 
 		Type type, 
@@ -89,7 +88,7 @@ class PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 	 return _truth_value;
       }
 
-      Boolean evaluate(KeyBinding& key);
+      Boolean evaluate(const KeyBinding& key);
 
    private:
       void setTruth(Boolean truth)
@@ -98,8 +97,34 @@ class PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
       }
       ExpressionOperator _op;
       Boolean _truth_value;
+      friend Boolean operator==(const Predicate& x, const Predicate& y);
+      friend Boolean operator==(const Predicate& p, const KeyBinding& k);
+      friend class PredicateReference;
+      
 } ;
 
+inline Boolean operator==(const Predicate& x, const Predicate& y)
+{
+   return
+      x.getType() == y.getType() &&
+      x._op == y._op &&
+      x._truth_value == y._truth_value &&
+      CIMName::equal(x.getName(), y.getName()) &&
+      String::equal(x.getValue(), y.getValue());
+}
+
+inline Boolean operator==(const Predicate& p, const KeyBinding& k)
+{
+   return
+      CIMName::equal(p.getName(), k.getName());
+}
+
+
+#define PEGASUS_ARRAY_T Predicate
+#include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
+typedef Array<Predicate> PredicateArray;
 
 // PredicateTree represents a compiled wql expression or LDAP filter
 // it contains nested predicates that correspond to CIMReferences.
@@ -142,98 +167,50 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       void set(
 	 const String& host,
 	 const String& nameSpace,
-	 const STring& className,
+	 const String& className,
 	 const KeyBindingArray& keyBindings = getKeyBindingArray(),
 	 const PredicateArray& predicates = getPredicateArray(),
 	 Boolean truth = true,
 	 LogicalOperator lop = AND);
 
-      void set(const String& objectName);
-      
       PredicateReference& operator=(String& objectName)
       {
-	 set(objectName);
+	 CIMReference::set(objectName);
 	 return *this;
       }
       
       PredicateReference& operator=(const char *objectName)
       {
-	 set(objectName);
+	 CIMReference::set(objectName);
 	 return *this;
       }
-      
-      
 
-      const String& getHost() const
+      const Array<Predicate>& getPredicates() const
       {
-	 return _host;
+	 return _predicates;
       }
 
-
-      void setHost(const String& host)
-      {
-	 _host = host;
-      }
-
-      const String& getNameSpace() const
-      {
-	 return _nameSpace;
-      }
-
-
-      void setNameSpace(const String& nameSpace);
-
-
-      const String& getClassName() const
-      {
-	 return _className;
-      }
-
-
-      void setClassName(const String& className);
-
-
-      const Array<KeyBinding>& getKeyBindings() const
-      {
-	 return _keyBindings;
-      }
-
-      */
-      void setKeyBindings(const Array<KeyBinding>& keyBindings);
-
-      String toString() const;
-
-      String toStringCanonical() const;
-
+      void setPredicates(const Array<Predicate>& predicates);
 
       Boolean identical(const CIMReference& x) const;
-
-
-      void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
-
-      void toMof(Array<Sint8>& out, Boolean putValueWrapper = true) const;
-
-      void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
-
-
-      Uint32 makeHashCode() const;
-
-
-      Boolean isInstanceName() const
-      {
-	 return _keyBindings.size() != 0;
-      }
-
-      Boolean isClassName() const 
-      {
-	 return !isInstanceName();
-      }
-
+      Boolean identical(const PredicateReference& x) const;
+      Boolean evaluate(void);
+      
    private:
       Boolean _truth_value;
       LogicalOperator _logical_op;
       Array<Predicate> _predicates;
-}
+};
+
+
+#define PEGASUS_ARRAY_T PredicateReference
+#include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
+PEGASUS_NAMESPACE_END
+
+#endif // Predicate_h
+
 
 
 // class PEGASUS_COMMON_LINKAGE PredicateTree
@@ -310,6 +287,4 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
 // };
 
 
-PEGASUS_NAMESPACE_END
 
-#endif /* Predicate_h */

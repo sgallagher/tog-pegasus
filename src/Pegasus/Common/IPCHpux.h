@@ -55,7 +55,7 @@ typedef struct {
 
 typedef PEGASUS_MUTEX_HANDLE  PEGASUS_CRIT_TYPE;
 
-typedef void *PEGASUS_CLEANUP_HANDLE ;
+typedef __pthread_cleanup_handler_t PEGASUS_CLEANUP_HANDLE ;
 typedef void *PEGASUS_THREAD_RETURN;
 
 #define PEGASUS_THREAD_CDECL

@@ -221,13 +221,13 @@ void Thread::thread_init(void)
 
 // *****----- native thread exit routine -----***** //
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #define PEGASUS_THREAD_EXIT_NATIVE 
 void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
 #endif
 
 // *****----- native cleanup routines -----***** //
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #define PEGASUS_THREAD_CLEANUP_NATIVE 
 void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
 {
@@ -237,6 +237,8 @@ void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCExcepti
    _pthread_cleanup_push(&(cu->_cleanup_buffer), routine, parm);
    return;
 }
+
+
 
 void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
 {

@@ -29,11 +29,27 @@
 #include "CIMPredicate.h"
 
 PEGASUS_NAMESPACE_BEGIN
+extern int _Compare(const String& s1_, const String& s2_);
+static void _BubbleSort(Array<Predicate>& x)
+{
+    Uint32 n = x.size();
 
-#define PEGASUS_ARRAY_T Predicate
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
+    if (n < 2)
+	return;
 
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+	for (Uint32 j = 0; j < n - 1; j++)
+	{
+	    if (_Compare(x[j].getName(), x[j+1].getName()) > 0)
+	    {
+		Predicate t = x[j];
+		x[j] = x[j+1];
+		x[j+1] = t;
+	    }
+	}
+    }
+}
 
 // evaluation 
 //-----------------------------------------
@@ -191,7 +207,7 @@ Predicate& Predicate::operator=(const Predicate& x)
    return *this;
 }
 
-Boolean  Predicate::evaluate(KeyBinding& key)
+Boolean  Predicate::evaluate(const KeyBinding& key)
 {
    _truth_value = false;
    if(true == CIMName::equal(this->getName() , key.getName()))
@@ -217,5 +233,186 @@ Boolean  Predicate::evaluate(KeyBinding& key)
    }
    return _truth_value;
 }
+
+
+//-----------------------------------------------------------------
+// PredicateReference class implementation
+//-----------------------------------------------------------------
+
+PredicateReference::PredicateReference() 
+   : CIMReference(), _truth_value(false), 
+     _logical_op(AND), _predicates() { }
+
+PredicateReference::PredicateReference(const CIMReference& x)
+   : CIMReference(x), _truth_value(false), 
+     _logical_op(AND), _predicates() { }
+
+PredicateReference::PredicateReference(const PredicateReference& x)
+   : CIMReference(x), _truth_value(x._truth_value),
+     _logical_op(x._logical_op), _predicates(x._predicates)
+{
+   _BubbleSort(_predicates);
+}
+
+PredicateReference::PredicateReference(const String& objectName)
+   :CIMReference(objectName), _truth_value(false), 
+    _logical_op(AND), _predicates() { }
+
+PredicateReference::PredicateReference(const char *objectName)
+   :CIMReference(objectName), _truth_value(false), 
+    _logical_op(AND), _predicates() { }
+
+PredicateArray PredicateReference::getPredicateArray()
+{
+   return PredicateArray();
+}
+
+PredicateReference::PredicateReference(
+	 const String& host,
+	 const String& nameSpace,
+	 const String& className,
+	 const KeyBindingArray& keyBindings,
+	 const PredicateArray& predicates,
+	 Boolean truth ,
+	 LogicalOperator lop )
+   : CIMReference(host, nameSpace, className, keyBindings),
+    _truth_value(true), _logical_op(lop)
+{
+   setPredicates(predicates);
+}
+
+PredicateReference::~PredicateReference() 
+{
+
+}
+      
+PredicateReference& PredicateReference::operator=(const PredicateReference& x)
+{
+   if(&x != this) 
+   {
+      CIMReference::operator=(x);
+      _truth_value = x._truth_value;
+      _logical_op = x._logical_op;
+      _predicates = x._predicates;
+   }
+   return *this;
+}
+
+PredicateReference& PredicateReference::operator=(const CIMReference& x)
+{
+   if(&x != this)
+   {
+      CIMReference::operator=(x);
+      _truth_value = true;
+      _logical_op = AND;
+      _predicates =  PredicateArray();
+   }
+   return *this;
+}
+
+void PredicateReference::clear()
+{
+   CIMReference::clear();
+   _truth_value = true;
+   _logical_op = AND;
+   _predicates.clear();
+}
+      
+void PredicateReference::set(
+   const String& host,
+   const String& nameSpace,
+   const String& className,
+   const KeyBindingArray& keyBindings,
+   const PredicateArray& predicates,
+   Boolean truth ,
+   LogicalOperator lop )
+{
+   CIMReference::set(host, nameSpace, className, keyBindings);
+   _truth_value = truth;
+   _logical_op = lop;
+   setPredicates(predicates);
+}
+
+void PredicateReference::setPredicates(const Array<Predicate>& predicates)
+{
+   _predicates = predicates;
+   _BubbleSort(_predicates);
+}
+
+Boolean PredicateReference::identical(const CIMReference& x) const
+{
+   return
+      String::equal(getHost(), x.getHost()) &&
+      String::equal(getNameSpace(), x.getNameSpace()) &&
+      CIMName::equal(getClassName(), x.getClassName());
+   
+}
+
+Boolean PredicateReference::identical(const PredicateReference& x) const
+{
+   return
+      _truth_value == x._truth_value &&
+      _logical_op == x._logical_op &&
+      CIMReference::identical(x) &&
+      _predicates == x._predicates;
+}
+
+Boolean PredicateReference::evaluate(void)
+{
+   _truth_value = false;
+   
+   const Array<KeyBinding>& keys = CIMReference::getKeyBindings();
+   int x = _predicates.size();
+   int y = keys.size();
+   int i, j;
+   
+   for( i = 0; i < x; i++)
+   {
+      Predicate& pred = _predicates[i];
+      for ( j = 0; j < y; j++ ) 
+      {
+	 const KeyBinding& key = keys[i];
+	 if(pred == key)
+	 {
+	    if(true == pred.evaluate(key))
+	    {
+	       switch(_logical_op)
+	       {
+		  case AND:
+		     _truth_value = true;
+		     j = y; // force an exit from the loop
+		     break;
+		  case OR:
+		     _truth_value = true;
+		     return true;
+		  case NOT:
+		  default:
+		     _truth_value = false;
+		     return false;
+	       }
+	    }
+	    else 
+	    {
+	       switch(_logical_op)
+	       {
+		  case AND:
+		     _truth_value = false;
+		     return false;
+		  case OR:
+		     break;
+		  case NOT:
+		     _truth_value = true;
+		     break;
+		  default:
+		     _truth_value = false;
+		     return false;
+	       }
+	    }
+	 }
+      }
+   }
+   return _truth_value;
+}
+
 
 PEGASUS_NAMESPACE_END

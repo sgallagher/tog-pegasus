@@ -257,7 +257,7 @@ startcimWithoutSSL:
 	sleep 10
 
 startcimWithSSL:
-	cimserver SSL=true
+	cimserver enableHttpConnection=false enableHttpsConnection=true
 	sleep 10
 
 stopcim:

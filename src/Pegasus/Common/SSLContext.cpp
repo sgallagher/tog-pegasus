@@ -615,6 +615,7 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certPath = sslContextRep._certPath;
     _keyPath = sslContextRep._keyPath;
     _crlPath = sslContextRep._crlPath;
+	_crlStore = sslContextRep._crlStore;
     _verifyPeer = sslContextRep._verifyPeer;
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;

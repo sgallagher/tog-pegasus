@@ -7,13 +7,13 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = modifyInstances
+PROGRAM = modifyRegistration
 
 SOURCES = modifyInstances.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
-	@$(PROGRAM)
 
 poststarttests:
+	@$(PROGRAM)

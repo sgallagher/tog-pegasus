@@ -614,16 +614,6 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
         	throw CIMException(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
     	    }
 	    
-	    _providerInstances = _provider->getInstances();
-
-	    //
-	    // if the instance of the PG_Provider was not in the list, add the
-	    // instance to the list
-	    if (!Contains (provider, _providerInstances[0]))
-	    {
-		provider.append(_providerInstances[0]);
-	    }
-
 	    //
 	    // get provider module instance from the table
 	    //
@@ -633,14 +623,20 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
         	throw CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND);
     	    }
 	    
+	    _providerInstances = _provider->getInstances();
+
 	    _providerModuleInstances = _providerModule->getInstances();
 
-	    // if the instance of the provider module was not in the list, add the
-	    // instance to the list
-	    if (!Contains (providerModule, _providerModuleInstances[0]))
+	    //
+	    // if the instance of the PG_Provider was not in the list, add the
+	    // instance to the list, also, add the instance of the provider module
+	    // to the list
+	    if (!Contains (provider, _providerInstances[0]))
 	    {
+		provider.append(_providerInstances[0]);
 		providerModule.append(_providerModuleInstances[0]);
 	    }
+
 	}
 	else
 	{
@@ -680,15 +676,6 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    
 	    	     _providerInstances = _provider->getInstances();
 
-		     //    
-	    	     // if the instance of the PG_Provider was not in the list, add 
-		     // the instance to the list 
-		     //
-		     if (!Contains (provider, _providerInstances[0]))
-            	     {
-                	provider.append(_providerInstances[0]);
-            	     }
-
 		     //
                      // get provider module instance from the table
             	     //
@@ -700,12 +687,14 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
             	     _providerModuleInstances = _providerModule->getInstances();
 
+		     //    
+	    	     // if the instance of the PG_Provider was not in the list, add 
+		     // the instance to the list; also, add the instance of the 
+		     // provider module to the list 
 		     //
-            	     // if the instance of the provider module was not in the list, 
-		     // add the instance to the list
-		     //
-            	     if (!Contains (providerModule, _providerModuleInstances[0]))
+		     if (!Contains (provider, _providerInstances[0]))
             	     {
+                	provider.append(_providerInstances[0]);
                      	providerModule.append(_providerModuleInstances[0]);
             	     }
 		}
@@ -2027,7 +2016,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		k++;
 		instances = i.value()->getInstances();
 
-		for (Uint32 j = 0; j < instances.size(); j++)
+		for (Sint32 j = 0; j < instances.size(); j++)
 		{
 	    	    String capabilityID;
 		    String module;
@@ -2212,7 +2201,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		{
 		    instances = i.value()->getInstances();
 
-		    for (Uint32 j = 0; j < instances.size(); j++)
+		    for (Sint32 j = 0; j < instances.size(); j++)
 		    {
 	    	    	String _providerName;
 	    	    	String _moduleName;

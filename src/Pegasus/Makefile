@@ -43,6 +43,7 @@ DIRS = \
     Security/Authentication/tests \
     Security/UserManager/tests \
     IndicationService/tests \
+    ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
     Consumer/tests
 

@@ -10,6 +10,7 @@ DIRS = \
     cimuser \
     cimauth \
     cimprovider \
+    cimprovider/tests \
     wbemexec \
     wbemexec/tests \
     ToMofClient\

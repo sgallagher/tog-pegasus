@@ -85,8 +85,38 @@ Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIM
     String providerName;
     String location;
 
+    Array<Uint16> operationalStatus;
+
+    // get the OperationalStatus from the provider module instance
+    Uint32 pos = pmInstance.findProperty("OperationalStatus");
+
+    if(pos == PEG_NOT_FOUND)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	    "OperationalStatus not found.");
+
+	PEG_METHOD_EXIT();
+
+	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
+
+    pmInstance.getProperty(pos).getValue().get(operationalStatus);
+
+    for (Uint32 i = 0; i < operationalStatus.size(); i++)
+    {
+ 	if (operationalStatus[i] == _MODULE_STOPPED)
+	{
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	        "Provider blocked.");
+
+	    PEG_METHOD_EXIT();
+
+	    throw CIMException(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+	}	
+    }
+
     // get the provider name from the provider instance
-    Uint32 pos = pInstance.findProperty("Name");
+    pos = pInstance.findProperty("Name");
 
     if(pos == PEG_NOT_FOUND)
     {

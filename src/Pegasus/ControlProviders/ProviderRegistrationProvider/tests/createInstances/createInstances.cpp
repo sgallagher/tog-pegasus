@@ -152,6 +152,38 @@ void TestCreateInstances(CIMClient& client)
     keys.append(kb1);
 
     instanceName.setKeyBindings(keys);
+
+    // test getInstance
+    try
+    {
+    	client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
+
+    // test enumerateInstances
+    try
+    {
+    	client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
+
+    // test enumerateInstanceNames
+    try
+    {
+    	client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    }
+    catch(CIMException& e)
+    {
+        throw (e);
+    }
+
+
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }
 

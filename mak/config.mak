@@ -287,7 +287,6 @@ endif
 # PEP 197
 # Allow the Provider User Context feature to be disabled.
 #
-PEGASUS_DISABLE_PROV_USERCTXT=1
 ifdef PEGASUS_DISABLE_PROV_USERCTXT
     DEFINES += -DPEGASUS_DISABLE_PROV_USERCTXT
 else

@@ -51,3 +51,6 @@ MOVE = mu move
 PEGASUS_SUPPORTS_DYNLIB = yes
 
 LIB_SUFFIX =.olb
+
+# The Provider User Context feature (PEP 197) is not yet supported on OpenVMS
+PEGASUS_DISABLE_PROV_USERCTXT=1

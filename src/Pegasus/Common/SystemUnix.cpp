@@ -857,14 +857,14 @@ void System::syslog(Uint32 severity, const char *data)
     {
 
 	// turn into ycmMessage so we can put it in the job log
-	ycmMessage theMessage(msgCPxDF80,
-			      CPIprefix,
-			      replacementData,
 #pragma convert(37)
-			      "Logger",
+	ycmMessage theMessage("CPIDF80",
+			          data,
+                              strlen(data),
+			          "Logger",
+                              ycmCTLCIMID,
+			          utf8);
 #pragma convert(0)
-                          ycmCTLCIMID,
-			      utf8);
 
 	// put the message in the joblog
 	theMessage.joblogIt(UnitOfWorkError,
@@ -876,15 +876,14 @@ void System::syslog(Uint32 severity, const char *data)
 	(severity & Logger::FATAL))
     {
 	// turn into ycmMessage so we can put it in the job log
-	ycmMessage theMessage(msgCPxDF82,
-			      CPDprefix,
-			      replacementData,
 #pragma convert(37)
-			      "Logger",
+	ycmMessage theMessage("CPDDF82",
+			          data,
+                              strlen(data),
+			          "Logger",
+                              ycmCTLCIMID,
+			          utf8);
 #pragma convert(0)
-                          ycmCTLCIMID,
-			      utf8);
-
 	// put the message in the joblog
 	theMessage.joblogIt(UnitOfWorkError,
 			    ycmMessage::Diagnostic);

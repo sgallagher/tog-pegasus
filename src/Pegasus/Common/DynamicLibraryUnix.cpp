@@ -31,6 +31,8 @@
 
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <dlfcn.h>
+#elif defined(PEGASUS_OS_SOLARIS)
+#include <dlfcn.h>
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 #include <dlfcn.h>
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)

@@ -638,9 +638,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 							(MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 							PEGASUS_MODULENAME_INTEROPPROVIDER,
 							PEGASUS_QUEUENAME_CONTROLSERVICE);
-#endif
-	 
-#ifdef PEGASUS_ENABLE_SLP
+
+
      // PG_Namespace.  Note that this means that CIM_Namespace is not
      // managed by the provider.  It is not implemented so that the
      // information comes from PG_Namespace.
@@ -653,6 +652,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+#endif
+	 
+#ifdef PEGASUS_ENABLE_SLP
+     
      _routing_table.insert_record(PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,

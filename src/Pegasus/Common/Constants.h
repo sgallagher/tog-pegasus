@@ -159,14 +159,14 @@ static const CIMName PEGASUS_CLASSNAME_CIMOMSTATDATA      =
 #if defined(PEGASUS_HAS_PERFINST) || defined(PEGASUS_ENABLE_SLP)
 static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER            = 
     CIMName ("CIM_ObjectManager");
+static const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
+    CIMName ("PG_Namespace");
 #endif
 
 #ifdef PEGASUS_ENABLE_SLP
 // Interop Classes Accessed through Interop Control Provider
 static const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE            = 
     CIMName ("CIM_Namespace");
-static const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
-    CIMName ("PG_Namespace");
 static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  = 
     CIMName ("CIM_ObjectManagerCommunicationMechanism");
 static const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM  = 

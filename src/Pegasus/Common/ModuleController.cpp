@@ -989,7 +989,9 @@ ModuleController & ModuleController::get_client_handle(const char *controller,
 
 void ModuleController::return_client_handle(client_handle *handle)
 {
-   delete handle;
+   (handle->reference_count)--;
+   if( handle->reference_count.value() == 0 )
+      delete handle;
 }
 
 

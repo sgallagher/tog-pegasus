@@ -224,7 +224,8 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 				    CLIENT_SEND_ASYNC | 
 				    CLIENT_SEND_ASYNC_MODULE | 
 				    CLIENT_BLOCKING_THREAD_EXEC | 
-				    CLIENT_ASYNC_THREAD_EXEC) 
+				    CLIENT_ASYNC_THREAD_EXEC),
+		reference_count(1)
 	    {
 	    }
 	    
@@ -232,10 +233,21 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 	    {
 	    }
 	    
+	    client_handle & operator=(const client_handle & handle)
+	    {
+	       if(this == &handle)
+		  return *this;
+	       reference_count++;
+	       return *this;
+	    }
+	    
+
 	    virtual Boolean authorized(Uint32, Uint32);
 	    virtual Boolean authorized(Uint32 operation);
 	    virtual Boolean authorized(void);
 	    PEGASUS_STD(bitset<32>) allowed_operations;
+	    AtomicInt reference_count;
+	    
       };
       
       class callback_handle 

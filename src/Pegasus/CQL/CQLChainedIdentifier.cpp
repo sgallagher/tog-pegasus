@@ -109,7 +109,7 @@ Boolean CQLChainedIdentifier::prepend(CQLIdentifier & id){
 
 void CQLChainedIdentifier::applyContext(QueryContext& inContext)
 {
-  return _rep->applyContext(inContext);
+  _rep->applyContext(inContext);
 }
 
 void CQLChainedIdentifier::parse(String & string){

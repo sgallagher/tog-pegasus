@@ -584,7 +584,9 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
          }
          else if(x._valueType == Real_type)
          {
-            if(_theValue._U64 == x._theValue._R64)
+         	Real64 temp;
+         	memcpy(&temp, &_theValue._U64, sizeof(temp));
+            if(temp == x._theValue._R64)
             {
                return true;
             }
@@ -600,7 +602,9 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
          }
          else if(x._valueType == Uint64_type)
          {
-            if(_theValue._R64 == x._theValue._U64)
+          	Real64 temp;
+         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+            if(_theValue._R64 == temp)
             {
                return true;
             }
@@ -665,119 +669,10 @@ Boolean CQLValueRep::operator<=(const CQLValueRep& x)
    if(!_validate(x))
    {
       throw(Exception(String("CQLValueRep::operator<=")));
-   }  
-
-   if(x._valueType == Null_type ||
-      _valueType == Null_type)
-   {
-      throw(Exception(String("CQLValueRep::operator<=")));
    }
- 
-   switch(_valueType)
-   {
-      case Boolean_type:
-      {
-         if(x._valueType == Boolean_type)
-         {
-            if(_theValue._B <= x._theValue._B)
-            {
-               return true;
-            }
-         }
-         break; 
-      }
-      case Sint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._S64 <= x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._S64 <= (Sint64)x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._S64 <= x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Uint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if((Sint64)_theValue._U64 <= x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._U64 <= x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._U64 <= x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Real_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._R64 <= x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._R64 <= x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._R64 <= x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case String_type:
-         if(*_theValue._S <= *x._theValue._S)
-         {
-            return true;
-         }
-         break;
-      case CIMDateTime_type:
-         throw(Exception(String("CQLValueRep::operator<=")));
-         break;
-      case CIMReference_type:
-         throw(Exception(String("CQLValueRep::operator<=")));
-         break;
-      case CIMInstance_type:
-            throw(Exception(String("CQLValueRep::operator<=")));
-         break;
-      case CQLIdentifier_type:
-            throw(Exception(String("CQLValueRep::operator<=")));
-         break;
-
-      default:
-         throw(Exception(String("CQLValueRep::operator<=")));
-         break;
-   }
+   
+   if (this->operator<(x) || this->operator==(x))
+   		return true;  
    return false;
 }
 
@@ -787,120 +682,8 @@ Boolean CQLValueRep::operator>=(const CQLValueRep& x)
    if(!_validate(x))
    {
       throw(Exception(String("CQLValueRep::operator>=")));
-   }  
- 
-   if(x._valueType == Null_type ||
-      _valueType == Null_type)
-   {
-      throw(Exception(String("CQLValueRep::operator>=")));
    }
-
-   switch(_valueType)
-   {
-      case Boolean_type:
-      {
-         if(x._valueType == Boolean_type)
-         {
-            if(_theValue._B >= x._theValue._B)
-            {
-               return true;
-            }
-         }
-         break; 
-      }
-      case Sint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._S64 >= x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._S64 >= (Sint64)x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._S64 >= x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Uint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if((Sint64)_theValue._U64 >= x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._U64 >= x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._U64 >= x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Real_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._R64 >= x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._R64 >= x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._R64 >= x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case String_type:
-         if(*_theValue._S >= *x._theValue._S)
-         {
-            return true;
-         }
-         break;
-      case CIMDateTime_type:
-         throw(Exception(String("CQLValueRep::operator>=")));
-         break;
-      case CIMReference_type:
-         throw(Exception(String("CQLValueRep::operator>=")));
-         break;
-      case CIMInstance_type:
-            throw(Exception(String("CQLValueRep::operator>=")));
-         break;
-      case CQLIdentifier_type:
-            throw(Exception(String("CQLValueRep::operator>=")));
-         break;
-
-      default:
-         throw(Exception(String("CQLValueRep::operator>=")));
-         break;
-   }
-   return false;
+   return !(this->operator<(x));  
 }
 
 
@@ -970,7 +753,9 @@ if(!_validate(x))
          }
          else if(x._valueType == Real_type)
          {
-            if(_theValue._U64 < x._theValue._R64)
+         	Real64 temp;
+         	memcpy(&temp, &_theValue._U64, sizeof(temp));
+            if(temp < x._theValue._R64)
             {
                return true;
             }
@@ -986,7 +771,9 @@ if(!_validate(x))
          }
          else if(x._valueType == Uint64_type)
          {
-            if(_theValue._R64 < x._theValue._U64)
+         	Real64 temp;
+         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+            if(_theValue._R64 < temp)
             {
                return true;
             }
@@ -1032,119 +819,9 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
    {
       throw(Exception(String("CQLValueRep::operator>")));
    }  
- 
-   if(x._valueType == Null_type ||
-      _valueType == Null_type)
-   {
-      throw(Exception(String("CQLValueRep::operator>")));
-   }
-
-   switch(_valueType)
-   {
-      case Boolean_type:
-      {
-         if(x._valueType == Boolean_type)
-         {
-            if(_theValue._B > x._theValue._B)
-            {
-               return true;
-            }
-         }
-         break; 
-      }
-      case Sint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._S64 > x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._S64 > (Sint64)x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._S64 > x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Uint64_type:
-         if(x._valueType == Sint64_type)
-         {
-            if((Sint64)_theValue._U64 > x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._U64 > x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._U64 > x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case Real_type:
-         if(x._valueType == Sint64_type)
-         {
-            if(_theValue._R64 > x._theValue._S64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Uint64_type)
-         {
-            if(_theValue._R64 > x._theValue._U64)
-            {
-               return true;
-            }
-         }
-         else if(x._valueType == Real_type)
-         {
-            if(_theValue._R64 > x._theValue._R64)
-            {
-               return true;
-            }
-         }
-         break;
-      case String_type:
-         if(*_theValue._S > *x._theValue._S)
-         {
-            return true;
-         }
-         break;
-      case CIMDateTime_type:
-         throw(Exception(String("CQLValueRep::operator>")));
-         break;
-      case CIMReference_type:
-         throw(Exception(String("CQLValueRep::operator>")));
-         break;
-      case CIMInstance_type:
-            throw(Exception(String("CQLValueRep::operator>")));
-         break;
-      case CQLIdentifier_type:
-            throw(Exception(String("CQLValueRep::operator>")));
-         break;
-
-      default:
-         throw(Exception(String("CQLValueRep::operator>")));
-         break;
-   }
-   return false;
+   if (this->operator<(x) || this->operator==(x))
+   		return false;  
+   return true;
 }
 
 
@@ -1192,7 +869,9 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
          }
          else if(x._valueType == Real_type)
          {
-            return CQLValueRep(_theValue._U64 + x._theValue._R64);
+         	Real64 temp;
+         	memcpy(&temp, &_theValue._U64, sizeof(temp));
+            return CQLValueRep(temp + x._theValue._R64);
          }
          break;
       case Real_type:
@@ -1202,7 +881,9 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
          }
          else if(x._valueType == Uint64_type)
          {
-            return CQLValueRep(_theValue._R64 + x._theValue._U64);
+         	Real64 temp;
+         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+            return CQLValueRep(_theValue._R64 + temp);
          }
          else if(x._valueType == Real_type)
          {
@@ -1277,7 +958,9 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
          }
          else if(x._valueType == Real_type)
          {
-            return CQLValueRep(_theValue._U64 - x._theValue._R64);
+         	Real64 temp;
+         	memcpy(&temp, &_theValue._U64, sizeof(temp));
+            return CQLValueRep(temp - x._theValue._R64);
          }
          break;
       case Real_type:
@@ -1287,7 +970,9 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
          }
          else if(x._valueType == Uint64_type)
          {
-            return CQLValueRep(_theValue._R64 - x._theValue._U64);
+         	Real64 temp;
+         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+            return CQLValueRep(_theValue._R64 - temp);
          }
          else if(x._valueType == Real_type)
          {
@@ -1363,7 +1048,9 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
          }
          else if(x._valueType == Real_type)
          {
-            return CQLValueRep(_theValue._U64 * x._theValue._R64);
+         	Real64 temp;
+         	memcpy(&temp, &_theValue._U64, sizeof(temp));
+            return CQLValueRep(temp * x._theValue._R64);
          }
          break;
       case Real_type:
@@ -1373,7 +1060,9 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
          }
          else if(x._valueType == Uint64_type)
          {
-            return CQLValueRep(_theValue._R64 * x._theValue._U64);
+         	Real64 temp;
+         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+            return CQLValueRep(_theValue._R64 * temp);
          }
          else if(x._valueType == Real_type)
          {
@@ -1449,7 +1138,9 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
          }
          else if(x._valueType == Real_type)
          {
-            return CQLValueRep(_theValue._U64 / x._theValue._R64);
+         	Real64 temp;
+         	memcpy(&temp, &_theValue._U64, sizeof(temp));
+            return CQLValueRep(temp / x._theValue._R64);
          }
          break;
       case Real_type:
@@ -1459,7 +1150,9 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
          }
          else if(x._valueType == Uint64_type)
          {
-            return CQLValueRep(_theValue._R64 / x._theValue._U64);
+         	Real64 temp;
+         	memcpy(&temp, &x._theValue._U64, sizeof(temp));
+            return CQLValueRep(_theValue._R64 / temp);
          }
          else if(x._valueType == Real_type)
          {
@@ -2080,7 +1773,8 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
 
 void CQLValueRep::applyContext(QueryContext& _ctx,
                               CQLChainedIdentifier& inCid)
-{cout << "CQLValueRep::applyContext 0" << endl;
+{
+   printf("CQLValueRep::applyContext 0\n");
    if(inCid.size() != 0 && _CQLChainId.size() == 1)
    {
    

@@ -84,7 +84,7 @@ void CQLSelectStatement::applyProjection(CIMInstance& inCI) throw(Exception)
 {
   PEGASUS_ASSERT(_rep != NULL);
 
-   return _rep->applyProjection(inCI);
+   _rep->applyProjection(inCI);
 }
 
 void CQLSelectStatement::validateClass(const CIMObjectPath& inClassName) throw(Exception)

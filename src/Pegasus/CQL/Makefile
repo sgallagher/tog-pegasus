@@ -40,7 +40,6 @@ SOURCES = \
    CQLExpressionRep.cpp \
    CQLFactor.cpp \
    CQLFactorRep.cpp \
-   CQLScope.cpp \
    CQLFactory.cpp \
    CQLSelectStatement.cpp \
    CQLSelectStatementRep.cpp \
@@ -68,7 +67,8 @@ include $(ROOT)/mak/install.mak
 ##
                                                                                                                                        
 grammar: yacc_rule lex_rule
-#export BISON_SIMPLE = bison.simple
+
+export BISON_SIMPLE = bison.simple
 #YACC = bison                                                                                                                                       
 ##
 ## Lex rule:

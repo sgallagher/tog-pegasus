@@ -17,6 +17,7 @@ SOURCES = \
     NameSpaceManager.cpp \
     InheritanceTree.cpp \
     InstanceIndexFile.cpp \
+    RepositoryDeclContext.cpp \
     CIMRepository.cpp 
 
 include $(ROOT)/mak/library.mak

@@ -179,9 +179,13 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 
     // GetClass:
 
-    CIMClass c2 = client.getClass(globalNamespace, testClass, false);
+    CIMClass c2 = client.getClass(globalNamespace, testClass, true);
     if (!c1.identical(c2))
-		 cout << "Class SubClass Returned not equal to created" << endl;
+    {
+	cout << "Class SubClass Returned not equal to created" << endl;
+    }
+    // ATTN: This test should be uncommented when the repository implements
+    // the localOnly flag.
     //assert(c1.identical(c2));
 
     // Modify the class:
@@ -191,10 +195,13 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 
     // GetClass:
 
-    CIMClass c3 = client.getClass(globalNamespace, testClass, false);
+    CIMClass c3 = client.getClass(globalNamespace, testClass, true);
 
     if (!c3.identical(c2))
-		 cout << "Test Failed. Rtned class c3 not equal to c2" << endl;;
+    {
+	cout << "Test Failed. Rtned class c3 not equal to c2" << endl;
+    }
+    assert(c3.identical(c2));
 
     // Determine if the new Class exists in Enumerate
 

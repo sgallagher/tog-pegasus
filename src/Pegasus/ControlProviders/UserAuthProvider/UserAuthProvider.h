@@ -39,6 +39,7 @@
 #include <cctype>
 #include <iostream>
 
+#include "Linkage.h"
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Array.h>

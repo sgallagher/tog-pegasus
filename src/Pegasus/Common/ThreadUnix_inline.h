@@ -40,12 +40,18 @@ inline void Thread::run()
 
 inline void Thread::cancel()
 {
-  pthread_cancel(_handle.thid);
+   _cancelled = true;
+   pthread_cancel(_handle.thid);
 }
 
 inline void Thread::test_cancel()
 {
   pthread_testcancel();
+}
+
+inline Boolean Thread::is_cancelled(void)
+{
+   return _cancelled;
 }
 
 inline void Thread::thread_switch()

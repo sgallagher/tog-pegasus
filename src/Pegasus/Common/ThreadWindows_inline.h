@@ -54,6 +54,11 @@ inline void Thread::test_cancel(void)
    }
 }
 
+inline Boolean Thread::is_cancelled(void)
+{
+   return _cancelled;
+}
+
 inline void Thread::thread_switch(void)
 {
    Sleep(0);

@@ -201,6 +201,8 @@ class PEGASUS_COMMON_LINKAGE Thread
       // cancel if there is a pending cancellation request
       void test_cancel(void);
 
+      Boolean is_cancelled(void);
+      
       // for user-level threads  - put the calling thread
       // to sleep and jump to the thread scheduler. 
       // platforms with preemptive scheduling and native threads 

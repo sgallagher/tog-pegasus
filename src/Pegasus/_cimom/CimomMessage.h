@@ -39,61 +39,58 @@ PEGASUS_NAMESPACE_BEGIN
 
 class AsyncOpNode;
 
-enum cimom_results
+class cimom_results
 {
-	OK,
-	PARAMETER_ERROR,
-	MODULE_ALREADY_REGISTERED,
-	MODULE_NOT_FOUND,
-	INTERNAL_ERROR,
+   public:
+      static const Uint32 OK;
+      static const Uint32 PARAMETER_ERROR;
+      static const Uint32 MODULE_ALREADY_REGISTERED;
+      static const Uint32 MODULE_NOT_FOUND;
+      static const Uint32 INTERNAL_ERROR;
 
-	ASYNC_STARTED,
-	ASYNC_PROCESSING,
-	ASYNC_COMPLETE,
-	ASYNC_CANCELLED,
-	ASYNC_PAUSED,
-	ASYNC_RESUMED,
+      static const Uint32 ASYNC_STARTED;
+      static const Uint32 ASYNC_PROCESSING;
+      static const Uint32 ASYNC_COMPLETE;
+      static const Uint32 ASYNC_CANCELLED;
+      static const Uint32 ASYNC_PAUSED;
+      static const Uint32 ASYNC_RESUMED;
 
-	NUMBER_RESULTS
+      static const Uint32 SERVICE_STARTED;
+      static const Uint32 SERVICE_STOPPED;
+      static const Uint32 SERVICE_PAUSED;
+      static const Uint32 SERVICE_RESUMED;
+      static const Uint32 NAK;
+      
 };
 
 // messages handled by the cimom
-enum cimom_messages
+class cimom_messages
 {
-	MSG_CIMOM_HEARTBEAT,
-	MSG_CIMOM_REGISTER_SERVICE,
-	MSG_CIMOM_DEREGISTER_SERVICE,
-	MSG_CIMOM_UPDATE_SERVICE,
-	MSG_CIMOM_IOCTL,
-
-	MSG_CIMOM_ASYNC_OP_REPLY,
-
-	MSG_NUMBER_CIMOM_MESSAGES
+   public:
+      static const Uint32 HEARTBEAT;
+      static const Uint32 REGISTER_SERVICE;
+      static const Uint32 DEREGISTER_SERVICE;
+      static const Uint32 UPDATE_SERVICE;
+      static const Uint32 IOCTL;
+      static const Uint32 ASYNC_OP_REPLY;
 };
 
 // messages handled by services (modules)
-enum service_messages
+class service_messages
 {
-	MSG_SERVICE_HEARTBEAT,
-	MSG_SERVICE_START,
-	MSG_SERVICE_STOP,
-	MSG_SERVICE_PAUSE,
-	MSG_SERVICE_RESUME,
-	MSG_SERVICE_IOCTL,
-	MSG_SERVICE_ASYNC_OP_START,
-	MSG_SERVICE_ASYNC_OP_CANCEL,
-	MSG_SERVICE_ASYNC_OP_PAUSE,
-	MSG_SERVICE_ASYNC_OP_RESUME,
-
-	MSG_NUMBER_SERVICE_MESSAGES
+   public:
+      static const Uint32 HEARTBEAT;
+      static const Uint32 START;
+      static const Uint32 STOP;
+      static const Uint32 PAUSE;
+      static const Uint32 RESUME;
+      static const Uint32 IOCTL;
+      static const Uint32 ASYNC_OP_START;
+      static const Uint32 ASYNC_OP_CANCEL;
+      static const Uint32 ASYNC_OP_PAUSE;
+      static const Uint32 ASYNC_OP_RESUME;
 };
 
-enum lifetime_messages
-{
-	MSG_LIFETIME_HEARTBEAT,
-
-	MSG_NUMBER_LIFETIME_MESSAGES
-};
 
 class PEGASUS_CIMOM_LINKAGE Request : public Message
 {
@@ -154,7 +151,7 @@ class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
    public:
       CimomHeartBeat(Uint32 key,
 		     Uint32 routing = 0)
-	 : Reply(MSG_CIMOM_HEARTBEAT, key, 0,
+	 : Reply(cimom_messages::HEARTBEAT, key, 0,
 		 (message_mask::type_cimom | message_mask::ha_reply),
 		 routing )
       {
@@ -175,7 +172,7 @@ class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request
 			   Uint32 module_mask,
 			   Uint32 module_queue,
 			   Uint32 routing = 0)
-	 : Request(MSG_CIMOM_REGISTER_SERVICE, key, queue_ids, routing,
+	 : Request(cimom_messages::REGISTER_SERVICE, key, queue_ids, routing,
 		   ( message_mask::type_cimom | message_mask::ha_request )),
 	   name(module_name), capabilities(module_capabilities),
 	   mask(module_mask ), q_id(module_queue)  {   }
@@ -198,7 +195,7 @@ class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public Request
 			     QueueIdStack queue_ids,
 			     Uint32 module_queue,
 			     Uint32 routing = 0 )
-	 : Request(MSG_CIMOM_DEREGISTER_SERVICE, key, queue_ids, routing,
+	 : Request(cimom_messages::DEREGISTER_SERVICE, key, queue_ids, routing,
 		   (message_mask::type_cimom | message_mask::ha_request) ),
 	   q_id(module_queue) {  }
 
@@ -219,7 +216,7 @@ class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public Request
 			 Uint32 module_mask,
 			 Uint32 module_queue,
 			 Uint32 routing = 0)
-	 : Request(MSG_CIMOM_UPDATE_SERVICE, key, queue_ids, routing,
+	 : Request(cimom_messages::UPDATE_SERVICE, key, queue_ids, routing,
 		       message_mask::type_cimom | message_mask::ha_request ) ,
 	  capabilities(module_capabilities), mask(module_mask),
 	  q_id(module_queue) {  }
@@ -244,7 +241,7 @@ class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Ioctl
 		 Uint32 uint_param,
 		 void *pointer_param,
 		 Uint32 routing = 0)
-	 : Ioctl(MSG_CIMOM_IOCTL,
+	 : Ioctl(cimom_messages::IOCTL,
 		 key,
 		 queue_ids,
 		 message_mask::type_cimom | message_mask::ha_request,
@@ -252,7 +249,7 @@ class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Ioctl
 		 uint_param,
 		 pointer_param,
 		 routing) { }
-
+      
       virtual ~CimomIoctl(void) { };
 };
 
@@ -260,10 +257,10 @@ class PEGASUS_CIMOM_LINKAGE CimomAsyncOpReply : public Reply
 {
    public:
       CimomAsyncOpReply(Uint32 key,
-			 Uint32 result_code,
-			 AsyncOpNode *operation,
-			 Uint32 routing = 0)
-	 : Reply(MSG_CIMOM_ASYNC_OP_REPLY, key, result_code,
+			Uint32 result_code,
+			AsyncOpNode *operation,
+			Uint32 routing = 0)
+	 : Reply(cimom_messages::ASYNC_OP_REPLY, key, result_code,
 		 ( message_mask::type_cimom | message_mask::ha_reply), routing),
 	   op(operation) {  }
 
@@ -297,7 +294,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpStart : public ServiceAsyncReq
 			QueueIdStack queue_ids,
 			AsyncOpNode *operation,
 			Uint32 routing = 0)
-	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_START, key, queue_ids, operation, routing)  {  }
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_START, key, queue_ids, operation, routing)  {  }
 
       virtual ~ServiceAsyncOpStart(void) { };
 };
@@ -309,7 +306,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpCancel : public ServiceAsyncReq
 			 QueueIdStack queue_ids,
 			 AsyncOpNode *operation,
 			 Uint32 routing = 0)
-	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_CANCEL, key, queue_ids, operation, routing) {  }
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_CANCEL, key, queue_ids, operation, routing) {  }
 
       virtual ~ServiceAsyncOpCancel(void) { };
 
@@ -322,7 +319,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpPause : public ServiceAsyncReq
 			 QueueIdStack queue_ids,
 			 AsyncOpNode *operation,
 			 Uint32 routing = 0)
-	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_PAUSE, key, queue_ids, operation, routing) {  }
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_PAUSE, key, queue_ids, operation, routing) {  }
 
       virtual ~ServiceAsyncOpPause(void) { };
 
@@ -335,7 +332,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpResume : public ServiceAsyncReq
 			 QueueIdStack queue_ids,
 			 AsyncOpNode *operation,
 			 Uint32 routing = 0)
-	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_RESUME, key, queue_ids, operation, routing) {  }
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_RESUME, key, queue_ids, operation, routing) {  }
 
       virtual ~ServiceAsyncOpResume(void) { };
 
@@ -350,10 +347,10 @@ class PEGASUS_CIMOM_LINKAGE ServiceIoctl : public Ioctl
 		   Uint32 uint_param,
 		   void *pointer_param,
 		   Uint32 routing = 0)
-	 : Ioctl(MSG_SERVICE_IOCTL,
+	 : Ioctl(service_messages::IOCTL,
 		 key,
 		 queue_ids,
-		 message_mask::type_cimom | message_mask::ha_request,
+		 message_mask::type_service | message_mask::ha_request,
 		 code,
 		 uint_param,
 		 pointer_param,
@@ -362,6 +359,75 @@ class PEGASUS_CIMOM_LINKAGE ServiceIoctl : public Ioctl
       virtual ~ServiceIoctl(void) { };
 };
 
+class PEGASUS_CIMOM_LINKAGE ServiceHeartbeat : public Request
+{
+   public:
+      ServiceHeartbeat(Uint32 key, 
+		       QueueIdStack queue_ids,
+		       Uint32 routing = 0)
+	 :Request(service_messages::HEARTBEAT, 
+		  key, 
+		  queue_ids, 
+		  message_mask::type_service | message_mask::ha_request,
+		  routing) {  }
+      virtual ~ServiceHeartbeat(void) { };
+};
+
+class PEGASUS_CIMOM_LINKAGE ServiceStart : public Request
+{
+   public:
+      ServiceStart(Uint32 key, 
+		   QueueIdStack queue_ids,
+		   Uint32 routing = 0)
+	 :Request(service_messages::START, 
+		  key, 
+		  queue_ids, 
+		  message_mask::type_service | message_mask::ha_request,
+		  routing) {  }
+      virtual ~ServiceStart(void) { };
+};
+
+class PEGASUS_CIMOM_LINKAGE ServiceStop : public Request
+{
+   public:
+      ServiceStop(Uint32 key, 
+		  QueueIdStack queue_ids,
+		  Uint32 routing = 0)
+	 :Request(service_messages::STOP, 
+		  key, 
+		  queue_ids, 
+		  message_mask::type_service | message_mask::ha_request,
+		  routing) {  }
+      virtual ~ServiceStop(void) { };
+};
+
+class PEGASUS_CIMOM_LINKAGE ServicePause : public Request
+{
+   public:
+      ServicePause(Uint32 key, 
+		  QueueIdStack queue_ids,
+		  Uint32 routing = 0)
+	 :Request(service_messages::PAUSE, 
+		  key, 
+		  queue_ids, 
+		  message_mask::type_service | message_mask::ha_request,
+		  routing) {  }
+      virtual ~ServicePause(void) { };
+};
+
+class PEGASUS_CIMOM_LINKAGE ServiceResume : public Request
+{
+   public:
+      ServiceResume(Uint32 key, 
+		  QueueIdStack queue_ids,
+		  Uint32 routing = 0)
+	 :Request(service_messages::RESUME, 
+		  key, 
+		  queue_ids, 
+		  message_mask::type_service | message_mask::ha_request,
+		  routing) {  }
+      virtual ~ServiceResume(void) { };
+};
 
 // void handleEnqueue(void )
 // {

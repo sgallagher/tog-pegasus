@@ -29,12 +29,12 @@
 
 #include "Cimom.h"
 
-PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
-const Uint32 module_capabilities::async =   0x00000001;
-const Uint32 module_capabilities::remote =  0x00000002;
-const Uint32 module_capabilities::trusted = 0x00000004;
+Uint32 module_capabilities::async =   0x00000001;
+Uint32 module_capabilities::remote =  0x00000002;
+Uint32 module_capabilities::trusted = 0x00000004;
 
 void cimom::_enqueueResponse(
     Request* request,
@@ -66,8 +66,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_proc(void *parm)
 }
 
 
-// the cimom's mutex is unlocked upon entry into this routine
-
+// the cimom's mutex is UNLOCKED upon entry into this routine
 void cimom::handleEnqueue(void)
 {
     Message* request = dequeue();
@@ -77,47 +76,44 @@ void cimom::handleEnqueue(void)
    // at a gross level, look at the message and decide if it is for the cimom or
    // for another module
     Uint32 mask = request->getMask();
+    if( mask & message_mask::type_service )
+    {
+       // message to one of the registered modules
+       ;
+       // use mask to determine modules that may handle this 
+       // message. Give each eligible module the opportunity to 
+       // handle the message. More than one module may choose to do so. 
+       
 
-    if( mask == message_mask::type_legacy)
+    }
+    else if( mask &  message_mask::type_legacy)
     {
        // an existing (pre-asynchronous) message type
        // create an op node, contain the message within the op
-       // node. link the op node to the starting ops queue and put
-       // the caller to sleep by waiting on the op node's semaphore.
-
-       // when awakened, pull the response message out of the async op node
-       // and enqueue the response back to the caller
-
-    }
+       // node. link the op node to the starting ops queue
+       AsyncOpNode *op_node = new AsyncOpNode();
+       op_node->put_request(request);
+       op_node->write_state( ASYNC_OPSTATE_UNKNOWN ) ;
+       op_node->write_flags( ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_SINGLE);
+       _new_ops.insert_last_wait(op_node);
+    } // if a legacy message
     else if (mask & message_mask::type_cimom)
     {
-       // a message that must be handled by the cimom
-       if(mask & message_mask::type_control )
-       {
-	  // a message that we can handle synchronously on the caller's thread
-	  switch(request->getType())
-	  {
-	     case MSG_CIMOM_REGISTER_SERVICE:
-		register_module(static_cast<CimomRegisterService *>(request));
-		break;
-
-		
-	     default:
-		break;
-	  }
-	  delete request;
-       }
-    }
+       AsyncOpNode *op_node = new AsyncOpNode();
+       op_node->put_request(request);
+       op_node->write_state( ASYNC_OPSTATE_UNKNOWN ) ;
+       op_node->write_flags( ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_SINGLE);
+       _internal_ops.insert_last(op_node);
+    } // control message for the cimom
 }
-
 
 void cimom::register_module(CimomRegisterService *msg)
 {
    // first see if the module is already registered
-   Uint32 result = OK;
+   Uint32 result = cimom_results::OK;
 
-   if( _modules.exists( reinterpret_cast<void *>(&(msg->name)) ) )
-      result = MODULE_ALREADY_REGISTERED;
+   if( _modules.exists( reinterpret_cast<void *>(&(msg->name))))
+      result = cimom_results::MODULE_ALREADY_REGISTERED;
    else
    {
       message_module *new_mod =  new message_module(msg->name,
@@ -130,12 +126,12 @@ void cimom::register_module(CimomRegisterService *msg)
       }
       catch(IPCException& e)
       {
-	 result = INTERNAL_ERROR;
+	 result = cimom_results::INTERNAL_ERROR;
       }
    }
 
    Reply *reply = new Reply(msg->getType(), msg->getKey(), result,
-			    message_mask::type_cimom | message_mask::ha_reply,
+			    message_mask::type_service | message_mask::ha_reply,
 			    msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
@@ -145,7 +141,7 @@ void cimom::register_module(CimomRegisterService *msg)
 void cimom::deregister_module(CimomDeregisterService *msg)
 {
 
-   Uint32 result = OK;
+   Uint32 result = cimom_results::OK;
 
    _modules.lock();
    message_module *temp = _modules.next(0);
@@ -159,12 +155,12 @@ void cimom::deregister_module(CimomDeregisterService *msg)
    _modules.unlock();
 
    if(temp == 0)
-      result = MODULE_NOT_FOUND;
+      result = cimom_results::MODULE_NOT_FOUND;
    else
       delete temp;
 
    Reply *reply = new Reply ( msg->getType(), msg->getKey(), result,
-			      message_mask::type_cimom | message_mask::ha_reply,
+			      message_mask::type_service | message_mask::ha_reply,
 			      msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
@@ -188,5 +184,7 @@ Uint32 cimom::get_module_q(const String & name)
       return 0 ;
 }
 
-
 PEGASUS_NAMESPACE_END
+
+
+

@@ -38,7 +38,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// REVIEW: missing "PEGASUS_" prefixes:
 
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
 #define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010
@@ -67,10 +66,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_RESUMED           0x00000800
 #define ASYNC_OPSTATE_ORPHANED          0X00001000
 
-
-// REVIEW: Code documentation?
-
-// REVIEW: Coding/formatting standards?
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
@@ -387,8 +382,6 @@ inline void AsyncOpNode::_disown_child(AsyncOpNode *child)
    child->_make_orphan( *this );
    _children.remove(child);
 } 
-
-
 
 PEGASUS_NAMESPACE_END
 

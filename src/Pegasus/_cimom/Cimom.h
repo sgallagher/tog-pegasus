@@ -48,9 +48,9 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CIMOM_LINKAGE module_capabilities 
 {
    public:
-      static const Uint32 async;
-      static const Uint32 remote;
-      static const Uint32 trusted;
+      static Uint32 async;
+      static Uint32 remote;
+      static Uint32 trusted;
 } ;
 
 class PEGASUS_CIMOM_LINKAGE cimom;
@@ -87,7 +87,7 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 {
   
    public : cimom(void)
-      : MessageQueue("cimom"), _modules(true ), 
+      : MessageQueue("cimom"), _modules(true), 
 	_internal_ops(true ), _new_ops(true, 20), 
 	_pending_ops(true, 100), _completed_ops(true, 100),
 	_thread( _proc, this, false), _die(0)

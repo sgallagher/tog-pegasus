@@ -31,6 +31,51 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+ 
+const Uint32 cimom_results::OK =                        0x00000000;
+const Uint32 cimom_results::PARAMETER_ERROR =           0x00000001;
+const Uint32 cimom_results::MODULE_ALREADY_REGISTERED = 0x00000002;
+const Uint32 cimom_results::MODULE_NOT_FOUND =          0x00000003;
+const Uint32 cimom_results::INTERNAL_ERROR =            0x00000004;
+
+
+const Uint32 cimom_results::ASYNC_STARTED =             0x00000005;
+const Uint32 cimom_results::ASYNC_PROCESSING =          0x00000006;
+const Uint32 cimom_results::ASYNC_COMPLETE =            0x00000007;
+const Uint32 cimom_results::ASYNC_CANCELLED =           0x00000008;
+const Uint32 cimom_results::ASYNC_PAUSED =              0x00000009;
+const Uint32 cimom_results::ASYNC_RESUMED =             0x0000000a;
+
+const Uint32 cimom_results::SERVICE_STARTED =           0x0000000b;
+const Uint32 cimom_results::SERVICE_STOPPED =           0x0000000c;
+const Uint32 cimom_results::SERVICE_PAUSED =            0x0000000d;
+const Uint32 cimom_results::SERVICE_RESUMED =           0x0000000e;
+const Uint32 cimom_results::NAK =                       0x0000000f;
+      
+
+// messages handled by the cimom
+
+const Uint32 cimom_messages::HEARTBEAT =                0x00000000;
+const Uint32 cimom_messages::REGISTER_SERVICE =         0x00000001;
+const Uint32 cimom_messages::DEREGISTER_SERVICE =       0x00000002;
+const Uint32 cimom_messages::UPDATE_SERVICE =           0x00000003;
+const Uint32 cimom_messages::IOCTL =                    0x00000004;
+const Uint32 cimom_messages::ASYNC_OP_REPLY =           0x00000005;
+
+// messages handled by services (modules)
+
+ 
+const Uint32 service_messages::HEARTBEAT =              0x00000000;
+const Uint32 service_messages::START =                  0x00000000;
+const Uint32 service_messages::STOP =                   0x00000000;
+const Uint32 service_messages::PAUSE =                  0x00000000;
+const Uint32 service_messages::RESUME =                 0x00000000;
+const Uint32 service_messages::IOCTL =                  0x00000000;
+const Uint32 service_messages::ASYNC_OP_START =         0x00000000;
+const Uint32 service_messages::ASYNC_OP_CANCEL =        0x00000000;
+const Uint32 service_messages::ASYNC_OP_PAUSE =         0x00000000;
+const Uint32 service_messages::ASYNC_OP_RESUME =        0x00000000;
+
 
 
 PEGASUS_NAMESPACE_END

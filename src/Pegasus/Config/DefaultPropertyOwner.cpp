@@ -63,7 +63,7 @@ static struct ConfigPropertyRow properties[] =
     {"slp", "false", 0, 0, 0},
     {"SSL", "false", 0, 0, 0},
     {"enableAssociationTraversal", "true", 0, 0, 0},
-    {"enableIndicationService", "false", 0, 0, 0},
+    {"enableIndicationService", "true", 0, 0, 0},
     {"tempLocalAuthDir", "/tmp", 0, 0, 0},
 };
 

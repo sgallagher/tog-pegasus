@@ -309,6 +309,7 @@ public:
       AtomicInt _dying;
 
       Boolean _enableAssociationTraversal;
+      Boolean _enableIndicationService;
 
       // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);

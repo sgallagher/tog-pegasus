@@ -293,8 +293,13 @@ CIMServer::CIMServer(
     // otherwise HandlerService started by indicationService will never
     // get ExportQueue to export indications for existing subscriptions
 
-    _indicationService = new IndicationService
-        (_repository, _providerRegistrationManager);
+    _indicationService = 0;
+    if (String::equal(
+        configManager->getCurrentValue("enableIndicationService"), "true"))
+    {
+        _indicationService = new IndicationService
+            (_repository, _providerRegistrationManager);
+    }
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
 

@@ -72,6 +72,8 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    ConfigManager* configManager = ConfigManager::getInstance();
    _enableAssociationTraversal = String::equal(
         configManager->getCurrentValue("enableAssociationTraversal"), "true");
+   _enableIndicationService = String::equal(
+        configManager->getCurrentValue("enableIndicationService"), "true");
 
    PEG_METHOD_EXIT();
 }
@@ -174,11 +176,12 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-        String::equalNoCase(className, PEGASUS_CLASSNAME_INDFILTER))
+    if (_enableIndicationService &&
+        (String::equalNoCase(className, PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
+         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER) ||
+         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+         String::equalNoCase(className, PEGASUS_CLASSNAME_INDFILTER)))
     {
         service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
         provider = String::EMPTY;

@@ -26,7 +26,7 @@ static FILE *fd = NULL;
 /* ---------------------------------------------------------------------------*/
 /* private declarations                                                       */
 
-#define PROV_LOG(fmt, args...) if (!fd) fd=stderr; fprintf(fd, "%s: ", __FILE__); fprintf(fd, fmt, ## args); fprintf(fd,"\n"); fflush(fd);
+#define PROV_LOG(fmt, args...) if (!fd) fd=stderr; fprintf(fd, " "); fprintf(fd, fmt, ## args); fprintf(fd,"\n"); fflush(fd);
 /* ---------------------------------------------------------------------------*/
 
 void

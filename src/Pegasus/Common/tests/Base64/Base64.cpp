@@ -43,7 +43,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-void main()
+int main()
 {
     cout << "Simple Decode test" << endl;
     Uint32 maxLength = 1000;
@@ -196,5 +196,6 @@ void main()
 
     }
      cout << "+++++ passed all tests" << endl;
+     return 0;
 }
 

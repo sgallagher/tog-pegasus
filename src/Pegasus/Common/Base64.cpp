@@ -40,14 +40,16 @@ PEGASUS_USING_STD;
 //*************************************************************
 /*  Encode static method takes an array of 8-bit values and
     returns a base-64 stream.
+    ATTN: KS feb 2002 - This is probably a very slow an inefficient
+    implementation and could be improved if it is required for
+    production.  Today it is only for test programs.
 */
 inline Array<Sint8> Base64::encode(const Array<Uint8>& vby)
 {
-    Array<Sint8> retval;
-    // set retval = zero
+    Array<Sint8> retArray;
     // If nothing in input string, return empty string
     if (vby.size() == 0)
-        return retval;
+        return retArray;
     // for every character in the input array taken 3 bytes at a time
 
     for (Uint32 i=0; i < vby.size(); i+=3)
@@ -71,27 +73,27 @@ inline Array<Sint8> Base64::encode(const Array<Uint8>& vby)
         by6 = ((by2&0xf)<<2)|(by3>>6);
         by7 = by3&0x3f;
 
-        retval.append(_Encode(by4));
-        retval.append(_Encode(by5));
+        retArray.append(_Encode(by4));
+        retArray.append(_Encode(by5));
 
         if (i+1<vby.size())
-            retval.append( _Encode(by6));
+            retArray.append( _Encode(by6));
         else
-            retval.append('=');
+            retArray.append('=');
 
         if (i+2<vby.size())
-            retval.append( _Encode(by7));
+            retArray.append( _Encode(by7));
         else
-            retval.append('=');
+            retArray.append('=');
 
         if (i % (76/4*3) == 0)
         {
-            retval.append( '\r');
-            retval.append( '\n');
+            retArray.append( '\r');
+            retArray.append( '\n');
         }
     };
 
-    return retval;
+    return retArray;
 };
 /*I checked for the zero length. The algorithm would also work for zero length input stream, but I’m pretty adamant about handling border conditions. They are often the culprits of run-time production failures.
 The algorithm goes thru each three bytes of data at a time. The first thing I do is to shift the bits around from three 8-bit values to four 6-bit values. Then I encode the 6-bit values and add then one at a time to the output stream. This is actually quite inefficient. The STL character array is being allocated one byte at a time. The algorithm would be much faster, if I pre-allocated that array. I’ll leave that as an optimization practical exercise for the reader.
@@ -109,15 +111,12 @@ inline Array<Uint8> Base64::decode(const Array<Sint8> strInput)
         if (_IsBase64(strInput[j]))
             str += strInput[j];
     }
-    //cout << "base64::decode String = !" << strInput << "! Len = " 
-    //     << strInput.size() << endl;
-    //cout << "base64::decode stripped = !" << str.data() << "! Len = "
-    //     << str.length() << endl;
-    Array<Uint8> retval;
+
+    Array<Uint8> retArray;
 
     // Return if the input is zero length
     if (str.length() == 0)
-        return retval;
+        return retArray;
 
     //  comment
     for (int i=0; i < str.length();i+=4)
@@ -144,17 +143,17 @@ inline Array<Uint8> Base64::decode(const Array<Sint8> strInput)
         //      " 4 " << c4 << " " << by4 << endl;
         
         // append first byte by shifting
-        retval.append( (by1<<2)|(by2>>4) );
+        retArray.append( (by1<<2)|(by2>>4) );
 
         // append second byte if not padding
         if (c3 != '=')
-            retval.append( ((by2&0xf)<<4)|(by3>>2) );
+            retArray.append( ((by2&0xf)<<4)|(by3>>2) );
 
         if (c4 != '=')
-            retval.append( ((by3&0x3)<<6)|by4 );
+            retArray.append( ((by3&0x3)<<6)|by4 );
     }
 
-    return retval;
+    return retArray;
 };
 
 //**********************************************************

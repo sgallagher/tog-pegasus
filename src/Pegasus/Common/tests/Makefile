@@ -9,6 +9,7 @@ DIRS = \
     Formatter \
     Abstract \
     Array \
+    Base64 \
     CGIQueryString \
     ClassDecl \
     Compare \

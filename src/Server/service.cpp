@@ -738,7 +738,7 @@ Service::show_error(const char *action, const char *object, DWORD hr)
   // send courtesy message txt to stderr
   if (GetConsoleTitle(console_title, _MAX_PATH) > 0)
     {
-      std::cerr << txt << std::endl;
+      PEGASUS_STD(cerr) << txt << PEGASUS_STD(endl);
     }
 
   return LogEvent(EVENTLOG_ERROR_TYPE, 1, txt);

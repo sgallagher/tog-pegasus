@@ -23,10 +23,10 @@ include $(ROOT)/mak/recurse.mak
 # rebuild target cleans, setup dependencies, compiles all and builds 
 # repository
 
-rebuild: clean depend all repository config
+rebuild: clean depend all repository
 	@ $(MAKE) -s tests
 
-world: depend all repository config
+world: depend all repository
 	@ $(MAKE) -s tests
 
 # The repository Target removes and rebuilds the CIM repository

@@ -52,6 +52,11 @@
 #include <dirent.h>
 #include <pwd.h>
 
+#if defined(PEGASUS_OS_SOLARIS)
+#include <string.h>
+#endif
+#include <errno.h>
+
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
 #include <crypt.h> 
 #endif

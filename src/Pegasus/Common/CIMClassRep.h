@@ -73,6 +73,11 @@ public:
 	return _qualifiers.find(name);
     }
 
+    Boolean existsQualifier(const String& name) const
+    {
+	return (_qualifiers.find(name) != -1) ? true : false;
+    }
+
     CIMQualifier getQualifier(Uint32 pos)
     {
 	return _qualifiers.getQualifier(pos);
@@ -87,6 +92,10 @@ public:
     {
 	return _qualifiers.getCount();
     }
+    void removeQualifier(Uint32 pos)
+    {
+    _qualifiers.removeQualifier(pos);
+    }
 
     void addProperty(const CIMProperty& x);
 
@@ -98,6 +107,14 @@ public:
     {
 	return ((CIMClassRep*)this)->findProperty(name);
     }
+
+    Boolean existsProperty(const String& name);
+
+    Boolean existsProperty(const String& name) const
+    {
+	return ((CIMClassRep*)this)->existsProperty(name);
+    }
+
 
     CIMProperty getProperty(Uint32 pos);
 
@@ -117,12 +134,22 @@ public:
 	return ((CIMClassRep*)this)->findMethod(name);
     }
 
+    Boolean existsMethod(const String& name);
+
+    Boolean existsMethod(const String& name) const
+    {
+	return ((CIMClassRep*)this)->existsMethod(name);
+    }
+
+
     CIMMethod getMethod(Uint32 pos);
 
     CIMConstMethod getMethod(Uint32 pos) const
     {
 	return ((CIMClassRep*)this)->getMethod(pos);
     }
+
+    void removeMethod(Uint32 pos);
 
     Uint32 getMethodCount() const;
 

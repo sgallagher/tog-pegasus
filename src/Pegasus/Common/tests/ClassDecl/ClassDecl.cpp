@@ -25,6 +25,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
 
@@ -39,7 +40,7 @@ void test01()
     // }
 
     CIMClass class1("MyClass", "YourClass");
-
+    cout << "first" << endl;
     class1
 	.addQualifier(CIMQualifier("association", true))
 	.addQualifier(CIMQualifier("q1", Uint32(55)))
@@ -49,6 +50,66 @@ void test01()
 	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
 	    .addParameter(CIMParameter("hostname", CIMType::STRING))
 	    .addParameter(CIMParameter("port", CIMType::UINT32)));
+
+    // Test the method count function
+    assert(class1.getMethodCount() ==1);
+    cout << "first 2" << endl;
+
+    
+    // Test the findMethod and isMethod functions
+    assert(class1.findMethod("isActive") != -1);
+    assert(class1.findMethod("DoesNotExist") == -1);
+    cout << "first 3" << endl;
+
+    assert(class1.existsMethod("isActive"));
+    assert(!class1.existsMethod("DoesNotExist"));
+
+    cout << "first 4" << endl;
+
+    // Now add another method and reconfirm.
+
+    class1.addMethod(CIMMethod("makeActive", CIMType::BOOLEAN)
+	.addParameter(CIMParameter("hostname", CIMType::STRING))
+	.addParameter(CIMParameter("port", CIMType::UINT32)));
+    cout << "first 5" << endl;
+
+    assert(class1.getMethodCount() == 2);
+    cout << "first 6" << endl;
+
+    // Test the findMethod and isMethod functions
+    // with two methods defined
+    assert(class1.findMethod("isActive") != -1);
+    assert(class1.findMethod("makeActive") != -1);
+    cout << "first 7" << endl;
+
+    assert(class1.findMethod("DoesNotExist") == -1);
+    assert(class1.existsMethod("isActive"));
+    assert(class1.existsMethod("makeActive"));
+
+    assert(!class1.existsMethod("DoesNotExist"));
+    cout << "first 8" << endl;
+
+
+    // Test RemoveMethod function
+    Uint32 posMethod; 
+    posMethod = class1.findMethod("isActive");
+    assert(posMethod != -1);
+    cout << "first 9" << endl;
+
+
+    class1.removeMethod(posMethod);
+
+    cout << "first 10" << endl;
+
+    assert(class1.findMethod("isActive") == -1);
+    assert(class1.getMethodCount() ==1);
+    cout << "first11" << endl;
+       
+    //ATTN: TODO add tests for different case names
+
+    //ATTN: TODO - Add qualifier manipulation tests
+
+    //ATTN: TODO - Add the property manipulation tests.
 
     // class1.print();
 }

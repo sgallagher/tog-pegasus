@@ -56,10 +56,16 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 
     return *this;
 }
-
+//ATTN: Why do we not do the outofbounds check here. KS 18 May 2k
 CIMQualifier& CIMQualifierList::getQualifier(Uint32 pos) 
 { 
     return _qualifiers[pos]; 
+}		
+
+//ATTN: added ks 18 may 2001. Should we have outofbounds?
+void CIMQualifierList::removeQualifier(Uint32 pos)
+{
+    _qualifiers.remove(pos);
 }
 
 Uint32 CIMQualifierList::find(const String& name) const

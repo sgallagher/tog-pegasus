@@ -191,6 +191,24 @@ public:
 	return _rep->findQualifier(name);
     }
 
+    /** CIMMethod existsQualifier - returns the position of the qualifier with
+	the given name.
+	@param name Name of qualifier to be found.
+	@return index of the parameter if found; otherwise Uint32(-1).
+    */
+    Boolean existsQualifier(const String& name)
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+    Boolean existsQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
+
     /** CIMMethod getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.
 	@param Index of the qualifier requested.
@@ -209,6 +227,20 @@ public:
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
+
+    /** CIMMethod removeQualifier - Removes the CIMQualifier defined by the 
+	position input as a parameter.
+	@param Position of the qualifier requested.
+	@return CIMQualifier object or exception
+	@exception OutOfBounds exception if the index is outside the range of
+	parameters available from the CIMMethod.
+    */
+    void removeQualifier(Uint32 pos)
+    {
+	_checkRep();
+	_rep->removeQualifier(pos);
+    }
+
 
     /** CIMMethod getQualifierCount - Returns the number of Qualifiers attached
 	to this method.

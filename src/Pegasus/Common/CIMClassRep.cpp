@@ -139,6 +139,12 @@ Uint32 CIMClassRep::findProperty(const String& name)
     return Uint32(-1);
 }
 
+Boolean CIMClassRep::existsProperty(const String& name)
+{
+    return (findProperty(name) != Uint32(-1)) ?
+		    true : false;
+}
+
 CIMProperty CIMClassRep::getProperty(Uint32 pos)
 {
     if (pos >= _properties.size())
@@ -178,6 +184,11 @@ Uint32 CIMClassRep::findMethod(const String& name)
     return Uint32(-1);
 }
 
+Boolean CIMClassRep::existsMethod(const String& name)
+{
+    return(findMethod(name) != Uint32(-1)) ?
+			true : false;
+}
 CIMMethod CIMClassRep::getMethod(Uint32 pos)
 {
     if (pos >= _methods.size())
@@ -189,6 +200,14 @@ CIMMethod CIMClassRep::getMethod(Uint32 pos)
 Uint32 CIMClassRep::getMethodCount() const
 {
     return _methods.size();
+}
+//ATTN: Ks 18 May
+void CIMClassRep::removeMethod(Uint32 pos)
+{
+    if (pos >= _methods.size())
+	throw OutOfBounds();
+
+    _methods.remove(pos);
 }
 
 void CIMClassRep::resolve(

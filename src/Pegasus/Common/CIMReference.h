@@ -192,8 +192,8 @@ class XmlWriter;
     TennisPlayer.first="Patrick",last="Rafter"
     </pre>
 
-    This of course presupposes the existence of a class called "MyClass" that
-    has key properties named "first" and "last". For example, here is what
+    This of course presupposes the existence of a class called "TennisPlayer" 
+    that has key properties named "first" and "last". For example, here is what
     the MOF might look like:
 
     <pre>
@@ -250,7 +250,7 @@ class XmlWriter;
     Note that the host and nameSpace argument may be empty since object names
     need not necessarily include a namespace path according to the standard.
 
-    Of course the key bindings must be built up by appending KeyBinding objects
+    The key bindings must be built up by appending KeyBinding objects
     to a KeyBindingArray like this:
 
     <pre>

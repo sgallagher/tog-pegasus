@@ -195,6 +195,18 @@ public:
 	return _rep->findQualifier(name);
     }
 
+    Boolean existsQualifier(const String& name)
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+    ///
+    Boolean existsQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->existsQualifier(name);
+    }
+
     /**	getQualifier - Gets the CIMQualifier object defined
 	by the input parameter
 	@param pos defines the position of the qualifier in the class from the
@@ -213,6 +225,19 @@ public:
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
+    }
+    
+    /** removeQualifier - Removes the qualifier defined by the
+    index parameter.
+    @param Defines the index of the qualifier to be removed.
+    @return There is no return.
+    @exception Throw OutOfBound exception if the index is outside
+    the range of existing qualifier objects for this class
+    */
+    void removeQualifier(Uint32 pos) const
+    {
+	_checkRep();
+	_rep->removeQualifier(pos);
     }
 
     /** getQualifierCount - Returns the number of qualifiers
@@ -235,17 +260,7 @@ public:
 	return *this;
     }
 
-    /** removeProperty - Removes the property represented
-	by the position input parameter from the class
-	@param pos Index to the property to be removed from the
-	findPropety method
-	@exception Throws OutofBounds if index is not a property object
-    */
-    void removeProperty(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeProperty(pos);
-    }
+    
 
     /** CIMMethod findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
@@ -263,6 +278,22 @@ public:
     {
 	_checkRep();
 	return _rep->findProperty(name);
+    }
+
+    /** existsPropery - Determines if a property object with the
+	name defined by the input parameter exists in the class.
+	@parm String parameter with the property name.
+	@return True if the property object exists.
+    */
+    Boolean existsProperty(const String& name)
+    {
+	_checkRep();
+	return _rep->existsProperty(name);
+    }
+    Boolean existsProperty(const String& name) const
+    {
+       _checkRep();
+       return _rep->existsProperty(name);
     }
 
     /** getProperty - Returns a property representing the property
@@ -290,7 +321,19 @@ public:
 	return _rep->getProperty(pos);
     }
 
-    /** getProperty -   Gets the count of the number of properties
+    /** removeProperty - Removes the property represented
+	by the position input parameter from the class
+	@param pos Index to the property to be removed from the
+	findPropety method
+	@exception Throws OutofBounds if index is not a property object
+    */
+    void removeProperty(Uint32 pos)
+    {
+	_checkRep();
+	_rep->removeProperty(pos);
+    }
+
+    /** getPropertyCount -   Gets the count of the number of properties
 	defined in the class.
 	@return count of number of proerties in the class
     */
@@ -315,7 +358,7 @@ public:
 	return *this;
     }
 
-    /** findMethod - Located the method object defined by the
+    /** findMethod - Locate the method object defined by the
 	name input
 	@param String representing the name of the method to be found
 	@return Position of the method object in the class to be used in
@@ -332,6 +375,24 @@ public:
 	_checkRep();
 	return _rep->findMethod(name);
     }
+
+     /** existsMethod - Determine if the method object defined by the
+	name input exists
+	@param String representing the name of the method to be found
+	@return True if the method exists
+    */
+    Boolean existsMethod(const String& name)
+    {
+	_checkRep();
+	return _rep->existsMethod(name);
+    }
+
+    Boolean existsMethod(const String& name) const
+    {
+	_checkRep();
+	return _rep->existsMethod(name);
+    }
+
 
     /** getMethod - Gets the method object defined by the
 	input parameter.
@@ -354,6 +415,19 @@ public:
     {
 	_checkRep();
 	return _rep->getMethod(pos);
+    }
+
+    /** removeMethod - Removes the method defined by the
+    index parameter.
+    @param Defines the index of the method to be removed.
+    @return There is no return.
+    @exception Throw OutOfBound exception if the index is outside
+    the range of existing method objects for this class
+    */
+    void removeMethod(Uint32 pos) const
+    {
+	_checkRep();
+	_rep->removeMethod(pos);
     }
 
     /** CIMMethod getMethodCount - Count of the number of methods in the class

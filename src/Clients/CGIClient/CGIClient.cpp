@@ -68,13 +68,23 @@ public:
     void setHostPort(const char* str);
     int getHostPort();
     const char* getHostPortString();
+    const char* getAddress();
+private:
+    char _address[128]; 
 };
+//    sprintf(address, "%s:%d",
+//	    hostinfo.getHostName(), hostinfo.getHostPort());
+
 
 void HostInfo::setHostName( const char* str)
 {
   ///ATTN: to be done.
 }
 
+const char* HostInfo::getAddress()
+{
+    return("localhost:8888");
+}
 const char* HostInfo::getHostName()
 {
     return("localhost");
@@ -550,11 +560,7 @@ static void GetClass(const CGIQueryString& qs)
 	Selector selector;
 	CIMClient client(&selector);
 	HostInfo hostinfo;
-
-	char address[128];
-	sprintf(address, "%s:%d",
-	    hostinfo.getHostName(), hostinfo.getHostPort());
-	client.connect(address);
+	client.connect(hostinfo.getAddress());
 
 	CIMClass cimClass = client.getClass(nameSpace, className,
 	    localOnly, includeQualifiers, includeClassOrigin);
@@ -607,7 +613,9 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
     {
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
+	
 	// get the class
 	CIMClass cimClass = client.getClass(
 	    nameSpace, className, false, true, true);
@@ -713,7 +721,8 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	// Make the Connection
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	Array<String> classNames = client.enumerateClassNames(
 	    nameSpace, className, deepInheritance);
@@ -753,7 +762,8 @@ static void DeleteClass(const CGIQueryString& qs)
     {
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	client.deleteClass(nameSpace, className);
 
@@ -876,7 +886,8 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
     {
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	Array<CIMQualifierDecl> qualifierDecls =
 	    client.enumerateQualifiers(nameSpace);
@@ -913,7 +924,8 @@ static void GetQualifier(const CGIQueryString& qs)
     {
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	CIMQualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
 
@@ -1018,7 +1030,8 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	// Call enumerate Instances CIM Method
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
@@ -1085,7 +1098,8 @@ static void GetInstance(const CGIQueryString& qs)
     {
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	CIMInstance cimInstance = client.getInstance(nameSpace,
 	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
@@ -1175,7 +1189,8 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	{
 	    Selector selector;
 	    CIMClient client(&selector);
-	    client.connect("localhost:8888");
+	    HostInfo hostinfo;
+	    client.connect(hostinfo.getAddress());
 
 	    CIMValue value = client.getProperty(nameSpace,
 		referenceName, propertyName);
@@ -1277,7 +1292,8 @@ static void CreateNameSpace(const CGIQueryString& qs)
 
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	// Call create Instances CIM Method for class __Namespace
 	cout << "Creating " << nameSpaceName;
@@ -1336,7 +1352,8 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	// Call delete Instances CIM Method for class __Namespace
 	client.deleteInstance(nameSpace, referenceName);
@@ -1377,7 +1394,8 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	// Call enumerate Instances CIM Method
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
@@ -1489,8 +1507,7 @@ void PrintClassTreeEntry(const String& nameSpace,
 
     PrintA(href, className);
 
-}
-
+} 
 /** TraverseClassTree - Traverse the Tree of super-to-subclasses
     printing each new subclass.	This function uses recursieve calls
     to traverse the complete Class Tree.
@@ -1590,7 +1607,8 @@ static void ClassInheritance(const CGIQueryString& qs)
 
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 	client.setTimeOut(timeOut);
 
 
@@ -1676,8 +1694,8 @@ static void ClassTree(const CGIQueryString& qs)
 
 	Selector selector;
 	CIMClient client(&selector);
-	client.connect("localhost:8888");
-
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
 
 	Array<String> classNames = client.enumerateClassNames(
 					nameSpace,

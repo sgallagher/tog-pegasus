@@ -1,12 +1,14 @@
-/* Description of the Provider 
+/* Description of the Provider 	template
 
-This is the template for the version 1
-providers for Pegasus.
+This is the template for the version 1providers for Pegasus.
 
-It provides a useful tool to build
-new providers.
-    
-*/
+It provides a useful tool to build new providers.
+
+To use the template:
+
+1.   Change all instances of text string **NAMEOFPROVIDER**
+     to the name of this provider
+for t */
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
@@ -17,20 +19,38 @@ using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
+/* Diagnostic tool. Controls Diagnostic output for all
+   calls.  Change to DDD(X) X to enable
+*/
+#define DDD(X) // X
+//#define DDD(X) X
+
+
 static CIMRepository* _repository;
 
+/*  This Section is the provider class created from CIMProvider.
+    This section  process each of the CIM_Proivder operation calls
+    and returns the results.
+    The Template defines all of the reasonable methods.
+    ATTN: How do we handle CIM_Provider Operations that are not
+    implemented in this particular provider.  We need to:
+    
+    throw CIMException(CIMException::NOT_SUPPORTED);
+    
+    
+*/
 class **NAMEOFPROVIDER** : public CIMProvider
 {
 public:
 
     **NAMEOFPROVIDER**()
     {
-	// cout << "__NamespaceProvider::__NamespaceProvider()" << endl;
+	DDD(cout << "**NAMEOFPROVIDER**::**NAMEOFPROVIDER**()" << endl;)
     }
 
     virtual ~**NAMEOFPROVIDER**()
     {
-       // cout << "**NAMEOFPROVIDER**::~**NAMEOFPROVIDER**()" << endl;
+       DDD(cout << "**NAMEOFPROVIDER**::~**NAMEOFPROVIDER**()" << endl;)
     }
 
     // Returns instance based on instanceName.  Since there is only
@@ -42,78 +62,204 @@ public:
        Boolean includeQualifiers = false,
        Boolean includeClassOrigin = false,
        const Array<String>& propertyList = StringArray())
-       {
-	   cout << "**NAMEOFPROVIDER**::getInstance() called" << endl;
-    
-	   String tmp;
-	   CIMReference::referenceToInstanceName(instanceName, tmp);
-	   cout << "instanceName=" << tmp << endl;
-    
-	   CIMInstance instance("__Namespace");
-	   instance.addProperty(CIMProperty("name", tmp));
-    	   /////////ADD CODE HERE FOR get Instance ////////////
-	   return instance;
-       }
+
+   {
+       DDD(cout << "**NAMEOFPROVIDER**::getInstance() called" << endl;)
+
+       String tmp = instanceName.toString();
+       cout << "instanceName=" << tmp << endl;
+
+       // The following is sample conde only
+
+       // Create new instance with received classname
+       CIMInstance myInstance(instanceName.getClassName());
+       myInstance.addProperty(CIMProperty("name", tmp));
+
+       /////////ADD CODE HERE FOR get Instance ////////////
+       return instance;
+   }
 
     virtual void createInstance(
 	const String& nameSpace,
 	CIMInstance& myInstance)
-	{
-	    cout << "**NAMEOFPROVIDER**::createInstance() called" << endl;	
-	    // find property "name"
- 	    Uint32 i = myInstance.findProperty("name");
-	    if (i == -1)
-		{
-		cout << "Property name not found" << endl;
-		return;
-		}
-	    /////// ADD CODE HERE for create instance /////////
- 	    return;
-	}
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::createInstance() called" << endl;)	
+	// find property "name"
+	Uint32 i = myInstance.findProperty("name");
+	if (i == -1)
+	    {
+	    cout << "Property name not found" << endl;
+	    return;
+	    }
+	/////// ADD CODE HERE for create instance /////////
+	return;
+    }
 
 
    virtual Array<CIMReference> enumerateInstanceNames(
        const String& nameSpace,
-       const String& className) 
-       {
- 		  
-	   // ////////ADD CODE HERE FOR Enumerate Instance Names/////
-	    return instanceRefs;
-       }
+       const String& className)
 
-    virtual Array<CIMReference> enumerateInstances(
+   {
+       DDD(cout << "**NAMEOFPROVIDER**::EnumerateInstanceNames()" << endl;) 
+       Array<CIMReference> instanceNameRefs;
+      
+       // ////////ADD CODE HERE FOR Enumerate Instance Names/////
+
+       // Return the Array of CIMReferences Generated
+	return instanceNameRefs;
+   }
+
+   /* Process enumerateInstances.
+       ATTN: What do we do about the NULL option on the
+       propertyList
+   */
+   virtual Array<CIMInstance> enumerateInstances(
+       const String& nameSpace,
+       const String& className,
+       Boolean deepInheritance = true,
+       Boolean localOnly = true,
+       Boolean includeQualifiers = false,
+       Boolean includeClassOrigin = false,
+       const Array<String>& propertyList = StringArray())
+
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::enumerateInstance()" << endl;)	
+	      
+       // ////ADD CODE HERE FOR Enumerate Instance Names/////
+       return(NEEDSRETURNVALUE);
+	return Array<CIMInstance>();
+
+    }
+
+   virtual void modifyInstance(
 	const String& nameSpace,
-	const String& className,
-	Boolean deepInheritance = true,
-	Boolean localOnly = true,
-	Boolean includeQualifiers = false,
-	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = StringArray()) = 0;
+	const CIMInstance& modifiedInstance)
 
-	{
-		  
-	   // ////ADD CODE HERE FOR Enumerate Instance Names/////
-	   return(NEEDSRETURNVALUE);
-	}
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::modifyInstance()" << endl;)	
 
-
+	///// ADD CODE FOR modifyInstance here ///
+	return;
+    }
+    /* Process the getProperty
+    ATTN: there was  = 0 on propertyName. WHY
+    */
     virtual CIMValue getProperty(
 	const String& nameSpace,
 	const CIMReference& instanceName,
-	const String& propertyName) = 0;
-	{
-	    // ///ADD CODE HERE //
-	    return(NEEDSRETURNVALUE:
-	    }
+	const String& propertyName)
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::getProperty() called"
+		 << "instanceName= "	<< instanceName.ToString();
+		 " propertyName = " << propertyName << endl;)
 
+
+	// ///ADD CODE HERE  for get property//
+	return(NEEDSRETURNVALUE):
+     }
+
+    /* Process setProperty method.
+        ATTN: What about the newValue Default
+    */
     virtual void setProperty(
 	const String& nameSpace,
 	const CIMReference& instanceName,
 	const String& propertyName,
-	const CIMValue& newValue = CIMValue()) = 0;
+	const CIMValue& newValue = CIMValue())
     {
-	// ////ADD CODE HERE /////
+	DDD(cout << "**NAMEOFPROVIDER**::setProperty() called"
+		 << "instanceName "	<< instanceName.toString();
+		 " propertyName = " << propertyName <<
+	         " newValue= " << newValue.ToString() endl;)
+	
+	// ////ADD CODE HERE for set property/////
 	return;
+    }
+
+    /* Process invokeMethod
+       ATTN: what about the default on parameters
+    */
+    virtual CIMValue invokeMethod(
+	const String& nameSpace,
+	const CIMReference& instanceName,
+	const String& methodName,
+	const Array<CIMValue>& inParameters,
+	Array<CIMValue>& outParameters)
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::getProperty() called" << endl;)
+
+	CIMValue rtnValue
+
+	return(rntValue);
+    }
+
+    Array<CIMInstance> execQuery(
+	const String& queryLanguage,
+	const String& query) 
+    { 
+	DDD(cout << "**NAMEOFPROVIDER**::execQueyr() called" << endl;)
+	
+	throw CIMException(CIMException::NOT_SUPPORTED);
+	return Array<CIMInstance>();
+    }
+    
+    Array<CIMInstance> associators(
+	const String& nameSpace,
+	const CIMReference& objectName,
+	const String& assocClass,
+	const String& resultClass,
+	const String& role,
+	const String& resultRole,
+	Boolean includeQualifiers,
+	Boolean includeClassOrigin,
+	const Array<String>& propertyList)
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::associators() called" << endl;)
+
+	throw CIMException(CIMException::NOT_SUPPORTED);
+	return Array<CIMInstance>();
+    }
+    
+    Array<CIMReference> associatorNames(
+	const String& nameSpace,
+	const CIMReference& objectName,
+	const String& assocClass,
+	const String& resultClass,
+	const String& role,
+	const String& resultRole)
+    { 
+	DDD(cout << "**NAMEOFPROVIDER**::associatorNames() called" << endl;)
+	
+	throw CIMException(CIMException::NOT_SUPPORTED);
+	return Array<CIMReference>();
+    }
+    
+    Array<CIMInstance> references(
+	const String& nameSpace,
+	const CIMReference& objectName,
+	const String& resultClass,
+	const String& role,
+	Boolean includeQualifiers,
+	Boolean includeClassOrigin,
+	const Array<String>& propertyList)
+    {
+	DDD(cout << "**NAMEOFPROVIDER**::references() called" << endl;)
+	
+	throw CIMException(CIMException::NOT_SUPPORTED);
+	return Array<CIMInstance>();
+    }
+    
+    Array<CIMReference>referenceNames(
+	const String& nameSpace,
+	const CIMReference& objectName,
+	const String& resultClass,
+	const String& role)
+    { 
+	DDD(cout << "**NAMEOFPROVIDER**::referenceNames() called" << endl;)
+	
+	throw CIMException(CIMException::NOT_SUPPORTED);
+	return Array<CIMReference>();
     }
 
 
@@ -144,8 +290,10 @@ public:
 
 extern "C" PEGASUS_EXPORT CIMProvider* 
 	PegasusCreateProvider_**NAMEOFPROVIDER**() {
-   std::cout << "Called PegasusCreateProvider_**NAMEOFPROVIDER**" << std::endl; 
-    return new **NAMEOFPROVIDER**_**NAMEOFPROVIDER**;
+   DDD(cout << "Called PegasusCreateProvider_**NAMEOFPROVIDER**" << 
+	    std::endl;)
+
+   return new **NAMEOFPROVIDER**;
 }
 
 PEGASUS_NAMESPACE_END

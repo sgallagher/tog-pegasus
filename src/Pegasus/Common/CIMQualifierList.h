@@ -58,7 +58,14 @@ public:
     {
 	return _qualifiers[pos]; 
     }
-
+    // ATTN: KS 18 may 2001
+    /** removeQualifier - Removes the Qualifier defined by
+    the pos parameter
+    @exception Throws "OutOfBounds" if pos not within
+    range of current qualifiers.
+    */
+    void removeQualifier(Uint32 pos);
+    
     Uint32 find(const String& name) const;
 
     Uint32 findReverse(const String& name) const;

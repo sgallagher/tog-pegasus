@@ -90,10 +90,15 @@ public:
     {
 	_qualifiers.add(qualifier);
     }
-
+    // ATTN: ks 18 May.  Why no non-const version here
     Uint32 findQualifier(const String& name) const
     {
 	return _qualifiers.find(name);
+    }
+    // ATTN: ks 19 May.  Should this be here on in CPP.
+    Boolean existsQualifier(const String& name) const
+    {
+	return (findQualifier(name) != -1) ? true : false;
     }
 
     CIMQualifier getQualifier(Uint32 pos)
@@ -101,10 +106,17 @@ public:
 	return _qualifiers.getQualifier(pos);
     }
 
+        
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	return _qualifiers.getQualifier(pos);
     }
+    // ks 18 may 2001
+    void removeQualifier(Uint32 pos)
+    {
+	_qualifiers.removeQualifier(pos);
+    }
+
 
     Uint32 getQualifierCount() const
     {

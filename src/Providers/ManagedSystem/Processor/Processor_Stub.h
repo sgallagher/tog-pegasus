@@ -40,8 +40,9 @@
 /* ==========================================================================
    Includes.
    ========================================================================== */
-
-#include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMDateTime.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

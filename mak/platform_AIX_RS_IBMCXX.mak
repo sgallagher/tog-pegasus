@@ -109,9 +109,9 @@ ifdef PEGASUS_HAS_MESSAGES
         #SYS_INCLUDES += -I${ICU_ROOT}/source/i18n
         SYS_INCLUDES += -I${ICU_ROOT}/include
         DEFINES += -DPEGASUS_HAS_ICU
-        #ifdef ICU_INSTALL
-          #EXTRA_LIBRARIES += -L${ICU_INSTALL}/lib -licui18n -licuuc
+        ifdef ICU_INSTALL
+          EXTRA_LIBRARIES += -L${ICU_INSTALL}/lib -licui18n -licuuc
           #SYS_LIBS += -L${ICU_INSTALL}/lib -licui18n -licuuc
-        #endif
+        endif
   endif
 endif

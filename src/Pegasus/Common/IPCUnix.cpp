@@ -656,6 +656,19 @@ Semaphore::Semaphore(Uint32 initial)
     _semaphore.waiters = 0;
 }
 
+Semaphore::Semaphore(const Semaphore & sem)
+{
+    pthread_mutex_init (&_semaphore.mutex,NULL);
+    pthread_cond_init (&_semaphore.cond,NULL);
+    Uint initial = sem.count();
+    if (initial > SEM_VALUE_MAX)
+         _count = SEM_VALUE_MAX - 1;
+    else
+         _count = initial;
+    _semaphore.owner = pegasus_thread_self();
+    _semaphore.waiters = 0;
+}
+
 Semaphore::~Semaphore()
 {
    pthread_mutex_lock(&_semaphore.mutex);
@@ -663,16 +676,31 @@ Semaphore::~Semaphore()
    {
       pthread_mutex_unlock(&_semaphore.mutex);
       pegasus_yield();
+      pthread_mutex_lock(&_semaphore.mutex);
    }
    pthread_mutex_unlock(&_semaphore.mutex);
    pthread_mutex_destroy(&_semaphore.mutex);
 }
+
+// cleanup function 
+static void semaphore_cleanup(void *arg)
+{
+   //cast back to proper type and unlock mutex
+   PEGASUS_SEM_HANDLE *s = (PEGASUS_SEM_HANDLE *)arg;
+   pthread_mutex_unlock(&s->mutex);
+}
+
 
 // block until this semaphore is in a signalled state
 void Semaphore::wait(void) 
 {
    // Acquire mutex to enter critical section.
    pthread_mutex_lock (&_semaphore.mutex);
+
+   // Push cleanup function onto cleanup stack
+   // The mutex will unlock if the thread is killed early
+   //pthread_cleanup_push(semaphore_cleanup, &_semaphore);
+   native_cleanup_push(semaphore_cleanup, &_semaphore);
 
    // Keep track of the number of waiters so that <sema_post> works correctly.
    _semaphore.waiters++;
@@ -691,17 +719,22 @@ void Semaphore::wait(void)
    _count--;
 
    // Release mutex to leave critical section.
-   pthread_mutex_unlock (&_semaphore.mutex);
+   //pthread_mutex_unlock (&_semaphore.mutex);
+    // Since we push an unlock onto the cleanup stack
+   // We will pop it off to release the mutex when leaving the critical section.
+   native_cleanup_pop(1);
 }
 
 void Semaphore::try_wait(void) throw(WaitFailed)
 {
 // not implemented
+      throw(WaitFailed(_semaphore.owner));
 }
 
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
 // not implemented
+      throw(WaitFailed(_semaphore.owner));
 }
 
 // increment the count of the semaphore 
@@ -809,7 +842,7 @@ AtomicInt& AtomicInt::operator=(const AtomicInt& original)
    return *this;
 }
 
-Uint32 AtomicInt::value(void)
+Uint32 AtomicInt::value(void) const
 {
    int i;
 

@@ -155,6 +155,15 @@ PEGASUS_NAMESPACE_BEGIN
 #define HTTP_REASONPHRASE_SERVICEUNAVAILABLE "Service Unavailable"
 #define HTTP_STATUS_SERVICEUNAVAILABLE "503 Service Unavailable"
 
+//
+// Miscellaneous Constants
+//
+
+// Constant defines the maximum number of providers that will be addressed in a single
+// enumerate instance request.  This is strictly a performance requirement for different
+// systems.  To disable the whole test, simply set this variable to 0
+#define MAX_ENUMERATE_BREADTH 30
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Constants_h */

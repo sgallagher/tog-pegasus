@@ -78,6 +78,29 @@ void test01()
 
 	CIMReference r3 = "x.B=TRUE,A=123,c=FALSE";
 	assert(r1 != r3);
+        String            keyValue;
+
+        Array<KeyBinding> kbArray;
+	{
+	    Boolean found = false;
+	    kbArray = r3.getKeyBindings();
+	    for (Uint32 i = 0; i < kbArray.size(); i++)
+	    {
+		if ( kbArray[i].getName() == "x" )
+		{
+		    keyValue = kbArray[i].getValue();
+		    if(keyValue != "TRUE")
+		    {
+			found = true;    
+		    }
+		}
+	    }
+	    if(!found)
+	    {
+		cerr << "Key Binding Test error " << endl; 
+		    exit(1);
+	    }
+	}
     }
 
 
@@ -189,7 +212,7 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
+	cerr << argv[0] << " Exception " << e.getMessage() << endl;
 	exit(1);
     }
     return 0;

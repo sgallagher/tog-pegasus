@@ -84,6 +84,8 @@ Boolean CQLRegularExpression::match(const String& string, const String& pattern)
 
             // Check if pattern equal to '*'
         } else if (pattern[patIndex] == '*') {
+	    if(patIndex == 0)
+	        return false;
             if (pattern[patIndex-1] == '.') {
                 if ((patIndex > 1) && pattern[patIndex-2] =='\\') {
                     if (string[strIndex] != '.') {

@@ -1,3 +1,4 @@
+
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
@@ -94,7 +95,7 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code) 
 { 
     // execute the cleanup stack and then return 
-   while( _cleanup.count()  )
+   while( _cleanup.count() )
    {
        try 
        { 
@@ -358,7 +359,9 @@ void ThreadPool::kill_dead_threads(void)
 	 throw NullPointer();
       if(dead->_handle.thid != 0)
       {
+	 dead->detach();
 	 destroy_thread(dead->_handle.thid, 0);
+	 dead->_handle.thid = 0;
 	 while(dead->_cleanup.count() )
 	 {
 	    dead->cleanup_pop(true);

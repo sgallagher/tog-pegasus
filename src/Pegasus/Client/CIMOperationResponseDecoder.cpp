@@ -106,8 +106,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     if (httpMessage->message.size() == 0)
     {
-        CIMClientMalformedHTTPException malformedHTTPException(
-            "Empty HTTP response message.");
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException("Empty HTTP response message.");
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
@@ -129,8 +129,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         startLine, httpVersion, statusCode, reasonPhrase);
     if (!parsableMessage)
     {
-        CIMClientMalformedHTTPException malformedHTTPException(
-            "Malformed HTTP response message.");
+        CIMClientMalformedHTTPException* malformedHTTPException = new
+            CIMClientMalformedHTTPException("Malformed HTTP response message.");
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
@@ -168,7 +168,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
     catch(InvalidAuthHeader& e)
     {
-        CIMClientMalformedHTTPException malformedHTTPException(e.getMessage());
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(e.getMessage());
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
@@ -188,7 +189,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         HTTPMessage::lookupHeader(headers, "CIMError", cimError);
         HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
 
-        CIMClientHTTPError httpError(statusCode, cimError, pegasusError);
+        CIMClientHTTPError* httpError =
+            new CIMClientHTTPError(statusCode, cimError, pegasusError);
         ClientExceptionMessage * response =
             new ClientExceptionMessage(httpError);
 
@@ -205,8 +207,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     if (!HTTPMessage::lookupHeader(
 	headers, "CIMOperation", cimOperation, true))
     {
-        CIMClientMalformedHTTPException malformedHTTPException(
-            "Missing CIMOperation HTTP header");
+        CIMClientMalformedHTTPException* malformedHTTPException = new
+            CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
@@ -233,8 +235,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     if (!String::equalNoCase(cimOperation, "MethodResponse"))
     {
-        CIMClientMalformedHTTPException malformedHTTPException(
-            String("Received CIMOperation HTTP header value \"") +
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(
+                String("Received CIMOperation HTTP header value \"") +
                 cimOperation + "\", expected \"MethodResponse\"");
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
@@ -291,8 +294,9 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 
         if (!String::equalNoCase(protocolVersion, "1.0"))
 	{
-            CIMClientResponseException responseException(
-                String("Received unsupported protocol version \"") +
+            CIMClientResponseException* responseException =
+                new CIMClientResponseException(
+                    String("Received unsupported protocol version \"") +
                     protocolVersion + "\", expected \"1.0\"");
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(responseException);
@@ -412,7 +416,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
         }
 
         response = new ClientExceptionMessage(
-            CIMClientXmlException(x.getMessage()));
+            new CIMClientXmlException(x.getMessage()));
     }
     catch (Exception& x)
     {
@@ -425,7 +429,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
         }
 
         response = new ClientExceptionMessage(
-            CIMClientException(x.getMessage()));
+            new CIMClientException(x.getMessage()));
     }
 
     _outputQueue->enqueue(response);

@@ -871,10 +871,11 @@ Message* CIMClient::_doRequest(
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {
-                CIMClientException clientException(
-                    ((ClientExceptionMessage*)response)->clientException);
+                CIMClientException* clientException =
+                    ((ClientExceptionMessage*)response)->clientException;
                 delete response;
-                throw clientException;
+                Destroyer<CIMClientException> d(clientException);
+                throw *clientException;
             }
             else if (response->getType() == expectedResponseMessageType)
             {

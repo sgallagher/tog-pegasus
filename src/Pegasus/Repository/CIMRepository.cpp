@@ -1500,6 +1500,7 @@ void CIMRepository::_modifyClass(
     // instances in other repositories or in providers. We should do
     // an enumerate instance names at a higher level (above the repository).
     //
+    
 
     //
     // Delete the old file containing the class:
@@ -1526,6 +1527,21 @@ void CIMRepository::_modifyClass(
     Array<Sint8> classXml;
     XmlWriter::appendClassElement(classXml, cimClass);
     _SaveObject(classFilePath, classXml);
+
+    if (cimClass.isAssociation()) {
+      // Remove from Association
+      String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
+      if (FileSystem::exists(assocFileName)) {
+	AssocClassTable::deleteAssociation(assocFileName, cimClass.getClassName());    
+	// Create the association again.
+	_createAssocClassEntries(nameSpace, cimClass);
+      } 
+      else
+	{
+	  PEG_METHOD_EXIT();
+	  throw CannotOpenFile(assocFileName);
+	}
+    }
 
     PEG_METHOD_EXIT();
 }

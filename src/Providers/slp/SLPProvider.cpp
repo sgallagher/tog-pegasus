@@ -70,6 +70,8 @@
     the level of validation, etc. would be required.
     4. We would like separate this function completely from the CIMOM so that the registration
     it could operate as first a separate process and second as a separte executable.
+    5. Look at getting certain parameters as the default from the class.  This way we could
+    use the class definition for defaults.
 */
 
 #include "SLPProvider.h"
@@ -88,8 +90,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 
-//#define CDEBUG(X)
-#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -101,7 +103,7 @@ PEGASUS_USING_STD;
 //
 //*****************************************************************
 
-const char *SlpProvider = "SlpProvider";
+const char * SlpProvider = "SlpProvider";
 const char * SlpTemplateClassName = "PG_WBEMSLPTemplate";
 const char * CIMObjectManagerClassName = "CIM_ObjectManager";
 const char * CIMObjectManagerCommMechName = "CIM_ObjectManagerCommunicationMechanism";
@@ -111,23 +113,20 @@ const char * CIMCommMechanismForObjectManagerAdapterName =
 
 const char * CIM_NamespaceInManager = "CIM_NamespaceInManager";
 
-// This SLP service is names wbem.
-// This temporary name is here because at least our service registration
-// requires that the registred service name be servcie:wbem, not simply wbem
-// This must be cleared up since today apparently the standard in SNIA is simply
-// wbem so that they cannot find our service input.
-// See bugzilla:  1294
-//const char *tempServiceName = "service:wbem";
+// This SLP service is named wbem.
+// Internally the serviceName is wbem (in the template) and the serviceID is
+// service:wbem for registration.
+const char *serviceIDPrefix = "service";
+const char *serviceName = "wbem";
 
-const char *serviceName = "service:wbem";
 const char *elementNamePropertyName = "ElementName";
 const char *descriptionPropertyName = "Description";
 const char *instanceIDPropertyName = "InstanceID";
 
-
-// 
+//////////////////////////////////////////////////////////////////////////////////////// 
 // Predefined Values that are part of the SLP template. These values are defined as part
 // of the DMTF SLP template.
+////////////////////////////////////////////////////////////////////////////////////////
 
 // This is the current template version.  Should change only if there is a new template
 // specification released.
@@ -149,8 +148,9 @@ Drive,SNIA:Array:Location,SNIA:Array:LUN Mapping and Masking,SNIA:Array:Pool \
 Manipulation Capabilities and Settings,SNIA:Array:Extent Mapping,SNIA:Array:LUN \
 Creation,SNIA:Array:Software,SNIA:Server";
 
-//
+////////////////////////////////////////////////////////////////////////////////////
 //  Names for attributes of SLP template and corresponding PG_WbemSLPtemplate class.
+////////////////////////////////////////////////////////////////////////////////////
 //
 // Template attribute name constants This set of constants comes from the
 // DMTF wbem template definition. The ...attribute variables are the character constants that
@@ -160,8 +160,6 @@ Creation,SNIA:Array:Software,SNIA:Server";
 // different.  At this point, there are no differences except that all of the attribute
 // names with dash in the name need a separate property name because dash is not a 
 // legal CIMName.  We used "_" instead of "-" for the property names.
-
-const char * serviceNameAttribute = serviceName;
 
 const char * templateTypeProperty = "template_type";
 const char * templateTypeAttribute = "template-type";
@@ -440,7 +438,6 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     // Extract the namespace names and class info from the objects.
     for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
     {
-        
         String temp = _getPropertyValue(CIMNamespaceInstances[i], CIMName(namePropertyName));
         if (temp != String::EMPTY)
         {
@@ -637,6 +634,9 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
 
     // template type property.
     CDEBUG("test attr= " << templateTypeAttribute  << " Property name= " << templateTypeProperty);
+
+    //populateTemplateField(instance1, templateTypeAttribute, String("wbem"),
+    //    templateTypeProperty);
     populateTemplateField(instance1, templateTypeAttribute, String(serviceName),
         templateTypeProperty);
     
@@ -727,7 +727,12 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     // Add the template to the instance as a diagnostic for the moment.
     instance1.addProperty(CIMProperty(CIMName("RegisteredTemplate"), _currentSLPTemplateString));
 
-    String ServiceID = String("service:") + serviceName + String(":") + serviceUrlSyntaxValue;
+
+    String fullServiceName = serviceIDPrefix + String(":") + serviceName;
+    // generate the serviceID which is prefix:serviceName:serviceUrl 
+    String ServiceID = fullServiceName + String(":") + serviceUrlSyntaxValue;
+
+    //String ServiceID = serviceName + String(":") + serviceUrlSyntaxValue;
 
     CDEBUG("Service URL: " << ServiceID);
 
@@ -743,24 +748,18 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     // set the key property into the instance.
     instance1.addProperty(CIMProperty(CIMName(instanceIDPropertyName), ServiceID));
     
-    // Create the service ID from the serviceName and UUID for this system
-    // ATTN: All of this will be moved to issueSLPRegistrations()
-
-    //String ServiceID = serviceName + String(":") + strUUID;
+    // Make a Cstring from the registration information, etc for api
+    CString CfullServiceName = fullServiceName.getCString();
     CString CServiceID = ServiceID.getCString();
-    CDEBUG("Service URL CString: " << (const char *)CServiceID);
-
-    // Append the instance and reference and serviceID to the maintained object list.
-    
-    // Make a Cstring from the registration information
     CString CstrRegistration = _currentSLPTemplateString.getCString();
     
     // Test the registration
-    Uint32 errorCode;
 
-    errorCode = slp_agent.test_registration((const char *)CServiceID , 
+    CDEBUG("TEST_REG: " << (const char *)CServiceID << " serviceName: " << serviceName);
+
+    Uint32 errorCode = slp_agent.test_registration((const char *)CServiceID , 
                         (const char *)CstrRegistration,
-                        serviceName,
+                        (const char*)CfullServiceName,
                         "DEFAULT");
 
     if (errorCode != 0)
@@ -770,11 +769,12 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
             "SLP Registration Failed: test_registration. Code $0", errorCode);
         return(false);
     }
-    
+
+    CDEBUG("Tested Registration of instancd Good");
     // register this information.
     Boolean goodRtn = slp_agent.srv_register((const char *)CServiceID ,
                         (const char *)CstrRegistration,
-                        serviceName,
+                        (const char *)CfullServiceName,
                         "DEFAULT", 
                         0xffff);
 
@@ -974,7 +974,6 @@ void SLPProvider::getInstance(
    handler.processing();
 
    // instance index corresponds to reference index
-
    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
    {
        CIMObjectPath localReference_frominstanceNames = CIMObjectPath(
@@ -1014,6 +1013,7 @@ void SLPProvider::enumerateInstances(
     {
        // deliver instance
        handler.deliver(_instances[i]);
+       //XmlWriter::printInstanceElement( _instances[i]);
     }
     
     // complete processing the request

@@ -34,9 +34,9 @@ repository:
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 	@ echo +++++ Populating CIM repository - this will take a while
 	@ echo +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
-	@ cimmofl -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into $(NAMESPACE) namespace...
-	@ cimmofl -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof
 
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 
@@ -45,7 +45,7 @@ short:
 	@ echo +++++ Populating CIM repository - this will take a minute
 	$(RMREPOSITORY) $(REPOSITORY_ROOT)
 	echo +++++ Loading CIM_Core.mof into root namespace...
-	cimmofl -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
+	cimmofl -R$(REPOSITORY_DIR) -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
@@ -67,4 +67,4 @@ general:
 # used to generate xml output from the schema
 xml:
 	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into root/cimv2 namespace...
-	@ cimmofl --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof >CIM_Schema$(SCHEMA_VER).XML
+	@ cimmofl -R$(REPOSITORY_DIR) --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof >CIM_Schema$(SCHEMA_VER).XML

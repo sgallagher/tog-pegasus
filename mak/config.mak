@@ -44,13 +44,21 @@ endif
 
 ################################################################################
 
-OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
-BIN_DIR = $(HOME_DIR)/bin
-LIB_DIR = $(HOME_DIR)/lib
+ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+   OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
+   BIN_DIR = $(HOME_DIR)/bin
+   LIB_DIR = $(HOME_DIR)/lib
+   REPOSITORY_DIR = $(HOME_DIR)
+   REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
+else
+   OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
+   BIN_DIR = $(HOME_DIR)/bin
+   LIB_DIR = $(HOME_DIR)/lib
 
-# define the location for the repository
-
-REPOSITORY_ROOT = $(HOME_DIR)/repository
+   # define the location for the repository
+   REPOSITORY_DIR = $(HOME_DIR)
+   REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
+endif
 
 LEX = flex
 

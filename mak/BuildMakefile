@@ -132,8 +132,6 @@ poststarttests:
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP)
 	$(MAKE) --directory=pegasus -f Makefile poststarttests
-	@ $(CIMSERVER_STOP_SERVICE)
-	$(SLEEP)
 
 tests: $(TESTS)
 	@ echo Finished Tests

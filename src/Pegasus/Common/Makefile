@@ -4,6 +4,12 @@ DIR = Pegasus/Common
 
 include $(ROOT)/mak/config.mak
 
+# SSL support
+ifdef PEGASUS_HAS_SSL
+  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+endif
+
 LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_MEMORY_DEBUG
 
 LIBRARY = pegcommon
@@ -117,9 +123,15 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 SOURCES += Signal.cpp
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+  endif
 endif
 
-SYS_LIBS = ws2_32.lib advapi32.lib
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  SYS_LIBS = ws2_32.lib advapi32.lib
+endif
 
 include $(ROOT)/mak/library.mak
+
 # DO NOT DELETE

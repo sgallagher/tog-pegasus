@@ -38,11 +38,11 @@ repository:
 	@ echo +++++ Removing existing repository named $(MANAGEDSYSTEMNS)
 	@ $(RMREPOSITORY) $(MANAGEDSYSTEMNSDIRECTORY)
 	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) -I$(CIM_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
 	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
-	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 	$(LOADEXTSCHEMA)
 
 repositoryServer:

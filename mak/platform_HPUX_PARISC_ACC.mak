@@ -113,13 +113,6 @@ ifdef PEGASUS_PAM_AUTHENTICATION
    endif
 endif
 
-# SSL support
-ifdef PEGASUS_HAS_SSL
- FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
- SYS_INCLUDES += -I$(OPENSSL_HOME)/include
- SYS_LIBS += -L$(OPENSSL_HOME)/lib -lssl -lcrypto 
-endif
-
 SH = sh
 
 YACC = bison

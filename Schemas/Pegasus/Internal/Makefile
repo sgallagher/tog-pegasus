@@ -29,9 +29,9 @@ repository:
 	@ echo +++++ Removing existing repository named $(INTERNALNS)
 	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
 	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(INTERNALNS) namespace ...
-	@ $(CIMMOFCLI)  -n$(INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR)  -n$(INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
-	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(INTERNALNS) namespace ...

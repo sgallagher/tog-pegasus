@@ -6,7 +6,7 @@ ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
   DIFF = mu compare
   REDIRECTERROR = 2>&1
 else
-  CIMSERVER_START_SERVICE = cimserver -d
+  CIMSERVER_START_SERVICE = cimserver
   CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
   SLEEP = sleep 5
   STRIPCRS =

@@ -29,9 +29,9 @@ repository:
 	@ echo +++++ Removing existing repository named $(INTEROPNS)
 	@ $(RMREPOSITORY) $(INTEROPNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
-	@ $(CIMMOFCLI) -I$(CIM_MOF_PATH) -n$(INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_InterOpSchema$(PG_SCHEMA_VER).mof into $(INTEROPNS) namespace...
-	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_InterOpSchema$(PG_SCHEMA_VER).mof
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...

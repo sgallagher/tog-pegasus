@@ -47,9 +47,6 @@
 #include "HTTPMessage.h"
 #include "Tracer.h"
 
-#ifdef PEGASUS_CCOVER
-# include <ccover.h>
-#endif
 
 PEGASUS_USING_STD;
 
@@ -236,9 +233,6 @@ void HTTPConnection::handleEnqueue(Message *message)
             "Total bytes written = %d; Buffer Size = %d; _requestCount = %d",
              totalBytesWritten,  buffer.size(), _requestCount.value());
 
-#ifdef PEGASUS_CCOVER
-      cov_write();
-#endif
 	 break;
       }
 

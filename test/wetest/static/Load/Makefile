@@ -24,11 +24,11 @@ repository:
 	@ echo +++++ Removing existing repository named $(STATICTESTNS)
 	@$(RMREPOSITORY) $(STATICTESTNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...
-	@ cimmofl -I$(CIM_MOF_PATH) -n$(STATICTESTNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(STATICTESTNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading Static Test Schema into $(STATICTESTNS) namespace ...
-	@ cimmofl -n$(STATICTESTNS) StaticTestSchema.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(STATICTESTNS) StaticTestSchema.mof
 	@ echo +++++ Registering Static Tests Schema Providers  ...
-	@ cimmofl -n$(INTEROPNS) StaticTestSchemaR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) StaticTestSchemaR.mof
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...

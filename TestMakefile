@@ -1,0 +1,272 @@
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/test.mak
+
+system = localhost
+
+###############################################################################
+##
+## Test Makefile for Pegasus CIMOM
+##
+## Options:
+##      rebuild            - Rebuild
+##      build              - Build 
+##      prestarttests      - Execute functional tests
+##      poststarttests     - Execute poststarttests (No security, No SSL)
+##      tests              - Execute prestarttests and poststarttests
+##      standardtests      - Execute poststartests and a series of
+##                           posstarttests using multiple options.
+## 
+###############################################################################
+
+###############################################################################
+##
+## Platform specific settings for several platforms.
+##
+## NOTE: Please add platform specific environment variables as appropriate. 
+##
+###############################################################################
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  CIMSERVER_START_SERVICE = start cimserver
+  CIMSERVER_STOP_SERVICE =
+  SLEEP =
+  REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
+  MUEXE = mu.exe
+  COPYMU = copy src\utils\mu\$(MUEXE) /y $(MUEXE)
+  MKDIR = src/utils/mu/mu mkdirhier
+  TESTS = prestarttests
+endif
+
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  CIMSERVER_START_SERVICE = cimserver
+  CIMSERVER_STOP_SERVICE = cimserver -s
+  SLEEP = sleep 5
+  MUEXE = mu
+  COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
+  MKDIR = src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  CIMSERVER_START_SERVICE = cimserver
+  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
+  SLEEP = sleep 5
+  MUEXE = mu
+  COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
+  MKDIR = src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+  CIMSERVER_START_SERVICE = cimserver
+  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
+  SLEEP = sleep 5
+  MUEXE = mu
+  COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
+  MKDIR = src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
+error: 
+	@ echo "Specify desired makefile option (i.e., build, rebuild)"
+
+buildmu:
+	$(MAKE) --directory=src/utils/mu -f Makefile
+	$(MKDIR) $(BIN_DIR)
+	$(COPYMU)
+
+rebuild: clean buildmu all
+
+build: all
+
+all: buildmu
+	$(MAKE)  -f Makefile depend
+	$(MAKE)  -f Makefile all
+
+doc:
+	$(MAKE) --directory=doc/ProviderSpec -f Makefile
+	$(MAKE) --directory=doc/DevManual -f Makefile
+
+clean:
+	$(MAKE) -f Makefile clean
+
+repositoryServer: 
+	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
+	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP)
+	$(MAKE) -f Makefile repositoryServer
+	$(MAKE) -f Makefile testrepositoryServer
+		
+prestarttests: 
+	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
+	$(MAKE) -f Makefile repository
+	$(MAKE) -f Makefile testrepository
+	$(MAKE) -f Makefile tests
+	$(MAKE) --directory=src/Server -f Makefile install
+
+poststarttests:
+	$(MAKE) --directory=test/wetest -f Makefile clean
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP)
+	$(MAKE) -f Makefile poststarttests
+
+tests: $(TESTS)
+	@ echo Finished Tests
+
+###############################################################################
+##
+## Trace Configuration
+##
+## Options:
+##      XMLTraceOn: Enables XML request and response tracing.
+##      ProviderLoadTraceOn: Enables Provider load tracing.
+##      XML+ProviderLoadTraceOn: Enables both XML request/response and Provider
+##                                 load tracing.
+##      AllTraceOn: Enables all tracing.
+##      AllTraceOff: Disables all tracing.
+##      list: Lists trace settings.
+##
+###############################################################################
+
+XMLTraceOn:
+	cimconfig -s traceComponents=XmlIO -c
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+ProviderLoadTraceOn:
+	cimconfig -s traceComponents=ProvManager,OsAbstraction
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+XML+ProviderLoadTraceOn:
+	cimconfig -s traceComponents=XmlIO,ProvManager,OsAbstraction
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+AllTraceOn:
+	cimconfig -s traceComponents=ALL
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+AllTraceOff:
+	cimconfig -s traceComponents=
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+list:
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+	cimconfig -g traceFilePath
+
+# DO NOT DELETE
+
+standardtests: 
+	$(MAKE) -f TestMakefile -i DisableSecurity
+	$(MAKE) -f TestMakefile TestCimmof
+	$(MAKE) -f TestMakefile TestNoSecurity
+	$(MAKE) -f TestMakefile EnableAuthentication 
+	$(MAKE) -f TestMakefile TestLocalSecurity
+
+TestNoSecurity:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests
+	$(MAKE) -f TestMakefile RunTestClientLocal
+
+TestLocalSecurity:
+	$(MAKE) -f TestMakefile RunTestClientLocal
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests HOSTNAME= PORT= USER= PASSWORD= SECURITY_ENABLED=true
+
+TestRemoteSecurity:
+	TestClient -user guest -password guest $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+
+TestAuthorization:
+	$(MAKE) -f TestMakefile EnableAuthorization 
+	DeleteNamespace -a 
+	$(MAKE) -f TestMakefile RunTestClientLocal
+
+TestSubscriptions:
+	$(MAKE) -f TestMakefile DisableSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+	$(MAKE) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/cimv2/Subscription -f Makefile poststarttests 
+	$(MAKE) -f TestMakefile stopcim
+
+TestCimmof:
+	$(MAKE) -f Testcimmof poststarttests
+
+
+RunTestClientLocal:
+	TestClient -local
+
+DisableSecurity:
+	$(MAKE) -f TestMakefile -i stopcim	
+	cimconfig -s enableAuthentication=false -p
+	cimconfig -s enableNamespaceAuthorization=false -p
+
+EnableAuthentication:
+	$(MAKE) -f TestMakefile -i stopcim	
+	cimconfig -s enableAuthentication=true -p
+	$(MAKE) -f TestMakefile startcimWithoutSSL
+	$(MAKE) -f TestMakefile ConfigureUsers
+
+EnableAuthorization:
+	$(MAKE) -f TestMakefile -i stopcim
+	cimconfig -s enableAuthorization=true -p
+	$(MAKE) -f TestMakefile startcimWithoutSSL
+	$(MAKE) -f TestMakefile -i ConfigureAuthorizations
+
+EnableSSL:
+	$(MAKE) -f TestMakefile -i stopcim
+	$(MAKE) -f TestMakefile startcimWithSSL
+
+ConfigureUsers:
+ifndef PEGASUS_PAM_AUTHENTICATION
+	cimuser -a -u guest -w guest
+endif
+
+ConfigureAuthorizations:
+	cimauth -a -u guest -n test/cimv2 -R -W
+	cimauth -a -u guest -n root/cimv2 -R -W
+	cimauth -a -u guest -n test/static -R -W
+	cimauth -a -u guest -n root/SampleProvider -R -W
+	cimauth -a -u guest -n root -R -W
+	cimauth -a -u guest -n test1 -R -W
+	cimauth -a -u guest -n test2 -R -W
+	cimauth -a -u guest -n test3 -R -W
+	cimauth -a -u guest -n test4 -R -W
+	cimauth -a -u guest -n test5 -R -W
+	cimauth -a -u guest -n test6 -R -W
+	cimauth -a -u guest -n test1/test2 -R -W
+	cimauth -a -u guest -n test1/test2/test3 -R -W
+	cimauth -a -u guest -n test1/test2/test3/test4 -R -W
+	cimauth -a -u guest -n test1/test2/test3/test4/test5 -R -W
+	cimauth -a -u guest -n test1/test2/test3/test4/test5/test6 -R -W
+
+startcimWithoutSSL:
+	cimserver
+	sleep 10
+
+startcimWithSSL:
+	cimserver SSL=true
+	sleep 10
+
+stopcim:
+	$(CIMSERVER_STOP_SERVICE)
+	sleep 5
+
+rebuild:
+	$(MAKE) -f TestMakefile -i stopcim	
+	rm -f rebuild.txt
+	$(MAKE) -f TestMakefile pegasus >> rebuild.txt  2>&1
+
+pegasus:
+	$(MAKE) -f Makefile rebuild 
+

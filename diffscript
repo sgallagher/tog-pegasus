@@ -1,0 +1,18 @@
+echo "Comparing Repository files..."
+cd $1/repository/$2
+rm -f repository.log
+retCode=0
+for i in `find ./ -type f`
+do
+    echo "Comparing " $i >> repository.log
+    diff $i ../../../repository.old/$2/$i >> repository.log
+    if [ $? -eq 1 ] ;then
+        retCode=1
+        echo "Files are different" >> repository.log
+    fi
+done
+if [ retCode -eq 1 ] ;then
+    echo +++ Test failed +++
+else
+    echo +++ Test passed +++
+fi

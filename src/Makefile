@@ -5,7 +5,7 @@ include $(ROOT)/mak/config.mak
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 DIRS =  Pegasus Clients Providers Server
 else
-ifeq ($(OS),HPUX)
+ifeq ($(OS),HPUX) || ifdef NO_SLP
 DIRS =  Pegasus Clients Providers Server
 else
 DIRS =  Pegasus slp Clients Providers Server utils

@@ -136,7 +136,7 @@ Boolean ClientPerfDataStore::checkMessageIDandType(String messageID, Uint32 type
   return true;
 }
  
-String ClientPerfDataStore::toString()
+String ClientPerfDataStore::toString() const
 {
     Array<char> out;
     /*XMLWriter::append(out, String(" serverTime = ");
@@ -173,7 +173,7 @@ String ClientPerfDataStore::toString()
     
  
 
-Boolean ClientPerfDataStore::getStatError()
+Boolean ClientPerfDataStore::getStatError() const
 {
     return _errorCondition;
 }
@@ -183,7 +183,7 @@ void ClientPerfDataStore::setClassRegistered(Boolean bol)
     _classRegistered = bol;
 }
 
-Boolean ClientPerfDataStore::isClassRegistered()
+Boolean ClientPerfDataStore::isClassRegistered() const
 {
     return _classRegistered;
 }

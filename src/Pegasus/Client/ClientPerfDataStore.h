@@ -119,11 +119,11 @@ public:
     //void setErrorCondition(Boolean bol);
 
 
-    String toString();
+    String toString() const;
 
     void setMessageID(String messageID);
 
-    Boolean getStatError();
+    Boolean getStatError() const;
 
     void setClassRegistered(Boolean bol);
 
@@ -131,7 +131,7 @@ public:
 
     ClientOpPerformanceDataHandler * handler_prt;
 
-    Boolean isClassRegistered();
+    Boolean isClassRegistered() const;
 
 
 protected:

@@ -134,10 +134,8 @@ void Provider::terminate(void)
 	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 			       "Exception caught in ProviderFacade::Terminate for " +
 			       _name);
+	  throw;
        }
-	
-
-	throw;
     }
     
     _status = UNINITIALIZED;

@@ -34,6 +34,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2322
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2960
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -757,7 +758,7 @@ template<class L> Condition *AsyncDQueue<L>::get_node_cond(void)
 
 template<class L> Condition * AsyncDQueue<L>::get_slot_cond(void)
 {
-    return _slot.get()
+    return _slot.get();
 }
 
 template<class L> void AsyncDQueue<L>::wait_for_node(void) throw(IPCException)

@@ -8,15 +8,15 @@ COMPILER = acc
 
 SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
 
-#ifdef PEGASUS_CCOVER
+ifdef PEGASUS_CCOVER
  SYS_INCLUDES += -I/opt/ccover11/include
-#endif
+endif
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
-#ifdef PEGASUS_CCOVER
+ifdef PEGASUS_CCOVER
  DEFINES += -DPEGASUS_CCOVER
-#endif
+endif
 
 DEPEND_INCLUDES =
 

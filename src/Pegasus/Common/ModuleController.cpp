@@ -213,17 +213,18 @@ Boolean pegasus_module::_shutdown(void)
 } 
 
 
-
-static struct timeval create = {0, 50000};
-static struct timeval destroy = {15, 0};
-static struct timeval deadlock = {5, 0};
+// NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
+static struct timeval createTime = {0, 50000};
+static struct timeval destroyTime = {15, 0};
+static struct timeval deadlockTime = {5, 0};
 
 ModuleController::ModuleController(const char *name )
    :Base(name, MessageQueue::getNextQueueId(), 
 	 module_capabilities::module_controller |
 	 module_capabilities::async),
     _modules(true),
-   _thread_pool(2, "Module Controller",  1, 10, create, destroy, deadlock)   
+   _thread_pool(2, "Module Controller",  1, 10,
+                createTime, destroyTime, deadlockTime)   
 { 
 
 }

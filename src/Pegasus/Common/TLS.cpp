@@ -93,9 +93,9 @@ PEGASUS_NAMESPACE_BEGIN
 // seem to care the Random seed and /dev/random. 
 //
 //
-SSLContext::SSLContext(const String&  certPath,
-                       const String&  randomFile,
-                       Boolean isCIMClient )
+SSLContext::SSLContext(const String& certPath,
+                       const String& randomFile,
+                       Boolean isCIMClient)
     throw(SSL_Exception)
 {
     _certPath = certPath.allocateCString();
@@ -487,7 +487,9 @@ PEGASUS_NAMESPACE_BEGIN
 // these definitions are used if ssl is not availabel
 //
 
-SSLContext::SSLContext(const String& certPath) throw(SSL_Exception) {}
+SSLContext::SSLContext(const String& certPath,
+                       const String& randomFile,
+                       Boolean isCIMClient) throw(SSL_Exception) {}
 SSLContext::~SSLContext() {}
 SSL_CTX * SSLContext::getContext() { return NULL; }
 

@@ -575,7 +575,7 @@ Condition::~Condition()
 // Native implementation of semaphore object
 //-----------------------------------------------------------------
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) && !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
  
 Semaphore::Semaphore(Uint32 initial) 
 {
@@ -906,7 +906,7 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
 // not implemented
-      throw(WaitFailed(_semaphore.owner));
+//      throw(WaitFailed(_semaphore.owner));
 }
 
 // increment the count of the semaphore 

@@ -64,7 +64,7 @@ typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
-#if !defined(PEGASUS_OS_ZOS_ZSERIES_IBM) && !defined(PEGASUS_OS_DARWIN)
+#if !defined(PEGASUS_OS_ZOS_ZSERIES_IBM) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 typedef struct {
     sem_t sem;
     pthread_t owner;
@@ -77,7 +77,7 @@ typedef struct {
 } PEGASUS_SEM_HANDLE ;
 #else
 typedef struct {
-    UInt32 waiters;
+    Uint32 waiters;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     pthread_t owner;

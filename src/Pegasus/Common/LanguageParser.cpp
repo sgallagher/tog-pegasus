@@ -205,7 +205,7 @@ Boolean LanguageParser::isValid(String language_tag, Boolean validate_length){
 	Array<String> subtags;
 	parseLanguageSubtags(subtags, language_tag);
 	if(subtags.size() > 0){ 
-		for(int i = 0; i < subtags.size(); i++){
+		for(Uint32 i = 0; i < subtags.size(); i++){
 			//length should be 8 or less AND all characters should be A-Z or a-z
 			if((validate_length && subtags[i].size() > 8) || !checkAlpha(subtags[i].getCString()))
 				return false;
@@ -219,7 +219,7 @@ Boolean LanguageParser::isValid(String language_tag, Boolean validate_length){
 
 String LanguageParser::convertPrivateLanguageTag(String language_tag){
 	// figure out if its a unix style locale or windows locale
-	int i;
+	Uint32 i;
 	if(( i = language_tag.find("pegasus-")) != PEG_NOT_FOUND ){
 		language_tag = language_tag.subString(i+5);  // capture the remainder of the string
 		return String(replaceSeparator(language_tag.getCString(), '-'));
@@ -234,14 +234,16 @@ String LanguageParser::convertPrivateLanguageTag(String language_tag){
 }
 
 Boolean LanguageParser::checkAlpha(CString _str){
-	for(int i = 0; i < strlen(_str); i++)
+	Uint32 length = (Uint32) strlen(_str);
+	for(Uint32 i = 0; i < length; i++)
 		if( !isalpha(_str[i]) )
 			return false;
 	return true;
 }
 
 char LanguageParser::findSeparator(CString _str){
-	for(int i = 0; i < strlen(_str); i++)
+	Uint32 length = (Uint32) strlen(_str);
+	for(Uint32 i = 0; i < length; i++)
 		if(!isalnum(_str[i]))
 			return _str[i];
 	return '\0';
@@ -249,7 +251,8 @@ char LanguageParser::findSeparator(CString _str){
 
 CString LanguageParser::replaceSeparator(CString _s, char new_sep){
 	char * _str = const_cast<char *>((const char*)_s);
-	for(int i = 0; i < strlen(_str); i++)
+	Uint32 length = (Uint32) strlen(_str);
+	for(Uint32 i = 0; i < length; i++)
 		_str[i] = (!isalnum(_str[i])) ? new_sep : _str[i];
 	return (String(_str)).getCString();
 }

@@ -612,7 +612,7 @@ CIMInstance IPPEpProvider::_constructInstance(
   // loop through keys, inserting them as properties
   // luckily, all keys for this class are strings, so no
   // need to check key type
-  for (int i=0; i<key.size(); i++)
+  for (Uint32 i=0; i<key.size(); i++)
   {
     // add a property created from the name and value
     inst.addProperty(CIMProperty(key[i].getName(),key[i].getValue()));

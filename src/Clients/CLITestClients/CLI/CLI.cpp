@@ -139,7 +139,7 @@ int main(int argc, char** argv)
     // The following is a temporary hack to get around the fact that I cannot input the
     // double quote character from the commandline, either with or without the escape
     // character.  I simply replace all @ characters with the " charcter
-    for (Uint32 i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         char *p;
         while ((p = strchr(argv[i], '@')) != NULL)
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
     if (strcmp(argv[1],"displayargs") == 0)
     {
         cout << "argc = " << argc << endl;
-        for (Uint32 i = 0; i < argc; i++)
+        for (int i = 0; i < argc; i++)
             cout << "argv[" << i << "] = " << argv[i] << endl;
     }
 

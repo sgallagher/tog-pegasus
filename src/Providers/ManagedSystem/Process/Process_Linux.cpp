@@ -459,7 +459,7 @@ NOTES             :
 */
 Boolean Process::getParameters(Array<String>& as) const
 {
-  int idx_new=0, idx_old=0;
+  Uint32 idx_new=0, idx_old=0;
   String p = pInfo.pst_cmd;
 
 
@@ -1144,7 +1144,7 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
 	break;
     }
     count++;
-  } while ( dir = readdir(procDir));
+  } while ( (dir = readdir(procDir)) );
   
   if (!dir || !dir->d_name)	// then we've finished lookin at all the procs
   {

@@ -77,8 +77,8 @@ void mofFormat(
     Boolean quoteState = false;
     Boolean qualifierState = false;
     char c;
-    char prevchar;
-    while (c = *tmp++)
+    char prevchar = 0;
+    while ((c = *tmp++))
     {
 	count++;
 	// This is too simplistic and must move to a token based mini parser

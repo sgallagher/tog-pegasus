@@ -203,7 +203,7 @@ int testClass(const String& className)
   // -------------------- First do normal getInstance() --------------------
 
   // pick the middle instance of the bunch
-  int i = (refs.size()-1) >> 1;  // This is a shift right, not streamio!
+  Uint32 i = (refs.size()-1) >> 1;  // This is a shift right, not streamio!
   CIMObjectPath ref = refs[i];
   CIMInstance inst;
   cout << "+++++ getInstance " << i << endl;

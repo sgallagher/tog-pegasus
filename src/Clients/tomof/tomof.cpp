@@ -208,7 +208,7 @@ void mofFormat(
     Boolean quoteState = false;
     Boolean qualifierState = false;
     char c;
-    char prevchar;
+    char prevchar = 0;
     while ((c = *tmp++))
     {
 	count++;

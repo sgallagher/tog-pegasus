@@ -1705,7 +1705,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			Uint32 pos;
 			Boolean suppMethodIsNull = true;
 			CIMValue value;
-			Uint32 methodsCount;
+			Uint32 methodsCount = 0;
 
 			pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
 			if (pos != PEG_NOT_FOUND)
@@ -2224,7 +2224,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 			case _METHOD_PROVIDER:
 			{
 			    CIMValue value;
-			    Uint32 methodsCount;
+			    Uint32 methodsCount = 0;
 			    Boolean suppMethodIsNull = true;
 
 			    //
@@ -2432,7 +2432,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		k++;
 		instances = i.value()->getInstances();
 
-		for (Sint32 j = 0; j < instances.size(); j++)
+		for (Uint32 j = 0; j < instances.size(); j++)
 		{
 	    	    String capabilityID;
 		    String module;
@@ -2627,7 +2627,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		{
 		    instances = i.value()->getInstances();
 
-		    for (Sint32 j = 0; j < instances.size(); j++)
+		    for (Uint32 j = 0; j < instances.size(); j++)
 		    {
 	    	    	String _providerName;
 	    	    	String _moduleName;

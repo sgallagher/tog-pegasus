@@ -105,7 +105,7 @@ Uint32 _getShowType(String& s)
     return 0;
 }
 
-void CIMClientRep::_connect(AutoPtr<SSLContext>& connectSSLContext)
+void CIMClientRep::_connect()
 {
     //
     // Test for Display optons of the form
@@ -219,7 +219,7 @@ void CIMClientRep::_reconnect()
 {
     _disconnect();
     _authenticator.setRequestMessage(0);
-    _connect(_connectSSLContext);
+    _connect();
 }
 
 void CIMClientRep::connect(
@@ -263,7 +263,7 @@ void CIMClientRep::connect(
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
-    _connect(_connectSSLContext);
+    _connect();
 }
 
 
@@ -308,9 +308,8 @@ void CIMClientRep::connect(
     _connectHost = hostName;
     _connectPortNumber = portNumber;
 
-    AutoPtr<SSLContext> connectSSLContext(new SSLContext(sslContext));
-    _connect(connectSSLContext);
-    _connectSSLContext.reset(connectSSLContext.release());
+    _connectSSLContext.reset(new SSLContext(sslContext));
+    _connect();
 }
 
 
@@ -332,7 +331,7 @@ void CIMClientRep::connectLocal()
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
-    _connect(_connectSSLContext);
+    _connect();
 #else
 
     try
@@ -350,7 +349,7 @@ void CIMClientRep::connectLocal()
 
         _connectSSLContext.reset();
 
-        _connect(_connectSSLContext);
+        _connect();
     }
     catch(CannotConnectException &e)
     {
@@ -389,10 +388,9 @@ void CIMClientRep::connectLocal()
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-        AutoPtr<SSLContext> connectSSLContext;
         try
         {
-            connectSSLContext.reset(
+            _connectSSLContext.reset(
                 new SSLContext(String::EMPTY, NULL, randFile));
         }
         catch (SSLException &se)
@@ -400,8 +398,7 @@ void CIMClientRep::connectLocal()
             throw se;
         }
 
-        _connect(connectSSLContext);
-        _connectSSLContext.reset(connectSSLContext.release());
+        _connect();
     }
 #endif
 }
@@ -1094,7 +1091,8 @@ Message* CIMClientRep::_doRequest(
     // Sending a new request, so clear out the response Content-Languages
     responseContentLanguages = ContentLanguages::EMPTY;
 
-    _requestEncoder->enqueue(request.release());
+    _requestEncoder->enqueue(request.get());
+    request.release();
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;

@@ -291,7 +291,7 @@ public:
 
 private:
 
-    void _connect(AutoPtr<SSLContext>& connectSSLContext);
+    void _connect();
 
     void _disconnect();
 

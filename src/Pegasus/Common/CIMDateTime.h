@@ -47,6 +47,8 @@ PEGASUS_NAMESPACE_BEGIN
    the Java rep is probably tostring, not get string, 
 */
 
+class CIMDateTimeRep;
+
 /**
     The CIMDateTime class represents the CIM datetime data type as a C++ class 
     CIMDateTime. A CIM datetime may contain a date or an interval. CIMDateTime 
@@ -177,6 +179,9 @@ public:
     */
     void clear();
 
+    /** Makes a deep copy (clone) of the given object. */
+    CIMDateTime clone() const;
+
     /**
     Get current time as CIMDateTime. The time returned is the local time.
 
@@ -211,25 +216,9 @@ public:
 
 private:
 
-    enum { FORMAT_LENGTH = 25 };
-
-    char _rep[FORMAT_LENGTH + 1];
+    CIMDateTimeRep* _rep;
 
 #ifdef PEGASUS_INTERNALONLY
-    //
-    // Length of the string required to store only the date and time without
-    // the UTC sign and UTC offset.
-    // Format is yyyymmddhhmmss.
-    // Note : The size does not include the null byte.
-    //
-    enum { DATE_TIME_LENGTH = 14 };
-
-    //
-    // Length of the string required to store the  formatted date and time
-    // Format is yyyy:mm:dd:hh:mm:ss.
-    //
-    enum { FORMATTED_DATE_TIME = 20 };
-
     Boolean _set(const char* str);
 
     /**

@@ -63,46 +63,77 @@ PEGASUS_NAMESPACE_BEGIN
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
 static const char _NULL_DATE_TYPE_STRING[] = "00000000000000.000000-000";
 
+class CIMDateTimeRep
+{
+public:
+    enum { FORMAT_LENGTH = 25 };
+
+    //
+    // Length of the string required to store only the date and time without
+    // the UTC sign and UTC offset.
+    // Format is yyyymmddhhmmss.
+    // Note : The size does not include the null byte.
+    //
+    enum { DATE_TIME_LENGTH = 14 };
+
+    //
+    // Length of the string required to store the  formatted date and time
+    // Format is yyyy:mm:dd:hh:mm:ss.
+    //
+    enum { FORMATTED_DATE_TIME = 20 };
+
+    char data[FORMAT_LENGTH + 1];
+};
+
+
 CIMDateTime::CIMDateTime()
 {
+    _rep = new CIMDateTimeRep();
     clear();
 }
 
 CIMDateTime::CIMDateTime(const char* str)
 {
-    set(str);
+    _rep = new CIMDateTimeRep();
+    if (!_set(str))
+    {
+        delete _rep;
+        throw BadDateTimeFormat();
+    }
 }
 
 CIMDateTime::CIMDateTime(const CIMDateTime& x)
 {
-    memcpy(_rep, x._rep, sizeof(_rep));
+    _rep = new CIMDateTimeRep();
+    memcpy(_rep->data, x._rep->data, sizeof(_rep->data));
 }
 
 CIMDateTime& CIMDateTime::operator=(const CIMDateTime& x)
 {
     if (&x != this)
-	memcpy(_rep, x._rep, sizeof(_rep));
+        memcpy(_rep->data, x._rep->data, sizeof(_rep->data));
 
     return *this;
 }
 
 CIMDateTime::~CIMDateTime()
 {
+    delete _rep;
 }
 
 Boolean CIMDateTime::isNull() const
 {
-    return strcmp(_rep, _NULL_INTERVAL_TYPE_STRING) == 0;
+    return strcmp(_rep->data, _NULL_INTERVAL_TYPE_STRING) == 0;
 }
 
 const char* CIMDateTime::getString() const
 {
-    return _rep;
+    return _rep->data;
 }
 
 void CIMDateTime::clear()
 {
-    strcpy(_rep, _NULL_INTERVAL_TYPE_STRING);
+    strcpy(_rep->data, _NULL_INTERVAL_TYPE_STRING);
 }
 
 Boolean CIMDateTime::_set(const char* str)
@@ -111,7 +142,7 @@ Boolean CIMDateTime::_set(const char* str)
 
     // Be sure the incoming string is the proper length:
 
-    if (strlen(str) != FORMAT_LENGTH)
+    if (strlen(str) != CIMDateTimeRep::FORMAT_LENGTH)
 	return false;
 
     // Determine the type (date or interval); examine the 21st character;
@@ -132,7 +163,7 @@ Boolean CIMDateTime::_set(const char* str)
 
     // Check to see if other characters are digits:
 
-    for (Uint32 i = 0; i < FORMAT_LENGTH; i++)
+    for (Uint32 i = 0; i < CIMDateTimeRep::FORMAT_LENGTH; i++)
     {
 	if (i != DOT_OFFSET && i != SIGN_OFFSET && !isdigit(str[i]))
 	    return false;
@@ -181,7 +212,7 @@ Boolean CIMDateTime::_set(const char* str)
     if (seconds > 59)
 	return false;
 
-    memcpy(_rep, str, sizeof(_rep));
+    memcpy(_rep->data, str, sizeof(_rep->data));
 
     return true;
 }
@@ -192,6 +223,11 @@ void CIMDateTime::set(const char* str)
 	throw BadDateTimeFormat();
 }
 
+CIMDateTime CIMDateTime::clone() const
+{
+    return CIMDateTime(*this);
+}
+
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
 {
     return os << x.getString();
@@ -199,7 +235,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
 
 Boolean operator==(const CIMDateTime& x, const CIMDateTime& y)
 {
-    return memcmp(x._rep, y._rep, sizeof(x._rep)) == 0;
+    return memcmp(x._rep->data, y._rep->data, sizeof(x._rep->data)) == 0;
 }
 
 void CIMDateTime::formatDateTime(char* dateTimeStr, tm* tm)
@@ -359,16 +395,16 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     //
     // Copy only the Start date and time in to the dateTimeOnly string
     //
-    dateTimeOnly = new char [FORMATTED_DATE_TIME];
-    strncpy( dateTimeOnly, startDateTimeCString, DATE_TIME_LENGTH );
-    dateTimeOnly[DATE_TIME_LENGTH] = 0;
+    dateTimeOnly = new char [CIMDateTimeRep::FORMATTED_DATE_TIME];
+    strncpy( dateTimeOnly, startDateTimeCString, CIMDateTimeRep::DATE_TIME_LENGTH );
+    dateTimeOnly[CIMDateTimeRep::DATE_TIME_LENGTH] = 0;
     formatDateTime(dateTimeOnly ,&tmvalStart);
 
     //
     // Copy only the Finish date and time in to the dateTimeOnly string
     //
-    strncpy( dateTimeOnly, finishDateTimeCString, DATE_TIME_LENGTH );
-    dateTimeOnly[DATE_TIME_LENGTH] = 0;
+    strncpy( dateTimeOnly, finishDateTimeCString, CIMDateTimeRep::DATE_TIME_LENGTH );
+    dateTimeOnly[CIMDateTimeRep::DATE_TIME_LENGTH] = 0;
     formatDateTime( dateTimeOnly, &tmvalFinish );
 
     // Convert local time to seconds since the epoch

@@ -619,19 +619,6 @@ else
     chmod 400 %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_TRUSTSTORE
 fi
 
-# Start the cimserver
-(/etc/init.d/tog-pegasus start || /opt/tog-pegasus/sbin/cimserver) >> %INSTALL_LOG 2>&1
-
-if [ $? != 0 ];
-then
-  echo "Brute-starting Pegasus. If the installation fails:"
-  echo " - Start Pegasus: '/etc/init.d/tog-pegasus start'"
-  echo " - Run '/opt/tog-pegasus/sbin/init_repository'"
-  # No need to try it again, since it already failed.
-  # Just giving the above notice should be sufficent
-  # /etc/init.d/tog-pegasus start || /opt/tog-pegasus/sbin/cimserver
-fi
-
 echo " To start Pegasus manually:"
 echo " /etc/init.d/tog-pegasus start"
 echo " Stop it:"

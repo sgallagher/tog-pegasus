@@ -27,6 +27,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company 
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -156,6 +157,47 @@ const char* MessageTypeToString(Uint32 messageType)
 	return _MESSAGE_TYPE_STRINGS[messageType - 1];
 
     return "Unknown message type";
+}
+
+inline void Message::startServer()
+{
+    pegasus_gettimeofday(&_timeServerStart);
+}
+
+void Message::endServer()
+{
+    pegasus_gettimeofday(&_timeServerEnd);
+
+    //Uint16 statType = (Uint16)((_type>36)?_type-36:_type-1);
+    // CIM_GET_CLASS_RESPONSE_MESSAGE is the first response message
+    Uint16 statType = (Uint16)((_type > CIM_GET_CLASS_RESPONSE_MESSAGE) ?
+       _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
+
+    Uint64 providerTime = (Uint64)
+        ((_timeProviderEnd.tv_sec - _timeProviderStart.tv_sec)*1000000 +
+        (_timeProviderEnd.tv_usec - _timeProviderStart.tv_usec));
+
+    _totalTime = (Uint64)((_timeServerEnd.tv_sec -
+        _timeServerStart.tv_sec)*1000000 +
+        (_timeServerEnd.tv_usec - _timeServerStart.tv_usec));
+
+    Uint64 serverTime =  _totalTime - providerTime;
+
+    StatisticalData::current()->addToValue(serverTime ,
+        statType, StatisticalData::SERVER );
+
+    StatisticalData::current()->addToValue(providerTime ,
+        statType, StatisticalData::PROVIDER );
+}
+
+inline void Message::startProvider()
+{
+    pegasus_gettimeofday(&_timeProviderStart);
+}
+
+inline void Message::endProvider()
+{
+    pegasus_gettimeofday(&_timeProviderEnd);
 }
 
 PEGASUS_NAMESPACE_END

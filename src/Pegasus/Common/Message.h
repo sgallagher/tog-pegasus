@@ -28,6 +28,7 @@
 //                  (carolann_graves@hp.com)
 //              Mike Day (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <cstring>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -155,6 +157,49 @@ class PEGASUS_COMMON_LINKAGE Message
 
       void setMask(Uint32 mask) { _mask = mask; }
 
+//
+// Needed for performance measurement
+//
+
+      void startServer();
+
+      void endServer();
+
+      void startProvider();
+
+      void endProvider();
+
+      timeval getStartServerTime() const { return _timeServerStart; }
+
+      void setStartServerTime(timeval timeServerStart)
+      {
+           _timeServerStart = timeServerStart;
+      }
+
+      timeval getStartProviderTime() const { return _timeProviderStart; }
+
+      void setStartProviderTime(timeval timeProviderStart)
+      {
+          _timeProviderStart = timeProviderStart;
+      }
+
+      timeval getEndServerTime() const { return _timeServerEnd; }
+
+      void setEndServerTime (timeval timeServerEnd)
+      {
+          _timeServerEnd = timeServerEnd;
+      }
+
+      timeval getEndProviderTime() const { return _timeProviderEnd; }
+
+      void setEndProviderTime(timeval timeProviderEnd)
+      {
+          _timeProviderEnd = timeProviderEnd;
+      }
+
+      Uint32 getTotalTime() { return _totalTime; }
+//
+
       Message* getNext() { return _next; }
 
       const Message* getNext() const { return _next; }
@@ -202,6 +247,13 @@ class PEGASUS_COMMON_LINKAGE Message
       Uint32 _key;
       Uint32 _routing_code;
       Uint32 _mask;
+// Needed for performance measurement
+      timeval _timeServerStart;
+      timeval _timeServerEnd;
+      timeval _timeProviderStart;
+      timeval _timeProviderEnd;
+      Uint64 _totalTime;
+//
       Message* _next;
       Message* _prev;
    protected:

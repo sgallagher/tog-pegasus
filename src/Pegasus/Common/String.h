@@ -168,15 +168,15 @@ public:
     */
     Uint32 size() const;
 
-    /** getData Returns a pointer to the first character in the 
-	null-terminated string of the String object.
+    /** getChar16Data Returns a pointer to the first character in the 
+	null-terminated Char16 buffer of the String object.
 	@return	Pointer to the first character of the String object
     	<pre>
 	    String t1 = "abc";
-	    const Char16* q = t1.getData();
+	    const Char16* q = t1.getChar16Data();
 	</pre>
     */
-    const Char16* getData() const;
+    const Char16* getChar16Data() const;
 
     /** getCString - Create an 8-bit representation of this String object.
 

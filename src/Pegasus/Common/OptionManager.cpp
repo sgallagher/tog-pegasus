@@ -252,7 +252,7 @@ void OptionManager::mergeFile(const String& fileName)
 
 	// Skip leading whitespace:
 
-	const Char16* p = line.getData();
+	const Char16* p = line.getChar16Data();
 
 	while (*p && isspace(*p))
 	    p++;

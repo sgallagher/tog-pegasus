@@ -161,7 +161,7 @@ String::String(const String& str)
 String::String(const String& str, Uint32 n)
 {
     _rep = new StringRep;
-    assign(str.getData(), n);
+    assign(str.getChar16Data(), n);
 }
 
 String::String(const Char16* str)
@@ -263,7 +263,7 @@ Uint32 String::size() const
     return _rep->c16a.size() - 1;
 }
 
-const Char16* String::getData() const
+const Char16* String::getChar16Data() const
 {
     return _rep->c16a.getData();
 }
@@ -273,7 +273,7 @@ CString String::getCString() const
     Uint32 n = size() + 1;
     char* str = new char[n];
     char* p = str;
-    const Char16* q = getData();
+    const Char16* q = getChar16Data();
 
     for (Uint32 i = 0; i < n; i++)
     {
@@ -321,7 +321,7 @@ String& String::append(const Char16* str, Uint32 n)
 
 String& String::append(const String& str)
 {
-    return append(str.getData(), str.size());
+    return append(str.getChar16Data(), str.size());
 }
 
 void String::remove(Uint32 index, Uint32 size)
@@ -343,7 +343,7 @@ String String::subString(Uint32 index, Uint32 length) const
 	if (length == PEG_NOT_FOUND)
 	    length = size() - index;
 
-	return String(getData() + index, length);
+	return String(getChar16Data() + index, length);
     }
     else
 	return String();
@@ -351,7 +351,7 @@ String String::subString(Uint32 index, Uint32 length) const
 
 Uint32 String::find(Char16 c) const
 {
-    const Char16* first = getData();
+    const Char16* first = getChar16Data();
 
     for (const Char16* p = first; *p; p++)
     {
@@ -364,7 +364,7 @@ Uint32 String::find(Char16 c) const
 
 Uint32 String::find(Uint32 index, Char16 c) const
 {
-    const Char16* data = getData();
+    const Char16* data = getChar16Data();
 
     for (Uint32 i = index, n = size(); i < n; i++)
     {
@@ -377,8 +377,8 @@ Uint32 String::find(Uint32 index, Char16 c) const
 
 Uint32 String::find(const String& s) const
 {
-    const Char16* pSubStr = s.getData();
-    const Char16* pStr = getData();
+    const Char16* pSubStr = s.getChar16Data();
+    const Char16* pStr = getChar16Data();
     Uint32 subStrLen = s.size();
     Uint32 strLen = size();
 
@@ -410,8 +410,8 @@ Uint32 String::find(const String& s) const
 
 Uint32 String::reverseFind(Char16 c) const
 {
-    const Char16* first = getData();
-    const Char16* last = getData() + size();
+    const Char16* first = getChar16Data();
+    const Char16* last = getChar16Data() + size();
 
     while (last != first)
     {
@@ -433,8 +433,8 @@ void String::toLower()
 
 int String::compare(const String& s1, const String& s2, Uint32 n)
 {
-    const Char16* s1c16 = s1.getData();
-    const Char16* s2c16 = s2.getData();
+    const Char16* s1c16 = s1.getChar16Data();
+    const Char16* s2c16 = s2.getChar16Data();
 
     while (n--)
     {
@@ -449,8 +449,8 @@ int String::compare(const String& s1, const String& s2, Uint32 n)
 
 int String::compare(const String& s1, const String& s2)
 {
-    const Char16* s1c16 = s1.getData();
-    const Char16* s2c16 = s2.getData();
+    const Char16* s1c16 = s1.getChar16Data();
+    const Char16* s2c16 = s2.getChar16Data();
 
     while (*s1c16 && *s2c16)
     {
@@ -470,8 +470,8 @@ int String::compare(const String& s1, const String& s2)
 
 int String::compareNoCase(const String& s1, const String& s2)
 {
-    const Char16* _s1 = s1.getData();
-    const Char16* _s2 = s2.getData();
+    const Char16* _s1 = s1.getChar16Data();
+    const Char16* _s2 = s2.getChar16Data();
 
     while (*_s1 && *_s2)
     {
@@ -509,8 +509,8 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
     if (str1.size() != str2.size())
 	return false;
 
-    const Char16* p = str1.getData();
-    const Char16* q = str2.getData();
+    const Char16* p = str1.getChar16Data();
+    const Char16* q = str2.getChar16Data();
 
     Uint32 n = str1.size();
 
@@ -655,13 +655,13 @@ _StringMatch(
 Boolean String::match(const String& str, const String& pattern)
 {
     return _StringMatch(
-	(Uint16*)str.getData(), (Uint16*)pattern.getData(), 0) != 0;
+	(Uint16*)str.getChar16Data(), (Uint16*)pattern.getChar16Data(), 0) != 0;
 }
 
 Boolean String::matchNoCase(const String& str, const String& pattern)
 {
     return _StringMatch(
-	(Uint16*)str.getData(), (Uint16*)pattern.getData(), 1) != 0;
+	(Uint16*)str.getChar16Data(), (Uint16*)pattern.getChar16Data(), 1) != 0;
 }
 
 

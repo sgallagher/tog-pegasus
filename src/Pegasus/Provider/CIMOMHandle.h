@@ -309,6 +309,7 @@ virtual
       _cimom_handle_rep *_rep;
 
       friend class Provider;
+      friend class CMPIProvider;
       friend class cimom_handle_op_semaphore;
       void get_idle_timer(void *);
       void update_idle_timer(void);

@@ -267,6 +267,8 @@ private:
     Array<WQLOperand> _operands;
 
     void f() const { }
+    
+    friend class CMPI_Wql2Dnf;
 };
 
 PEGASUS_NAMESPACE_END

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -56,6 +56,21 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/AcceptLanguages.h>  // l10n
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
+
+/*   ProviderType should become part of Pegasus/Common     PEP# 99
+   #include <Pegasus/ProviderManager2/ProviderType.h>
+   #define TYPE_INSTANCE    ProviderType::INSTANCE
+   #define TYPE_CLASS       ProviderType::CLASS
+   #define TYPE_METHOD      ProviderType::METHOD
+   #define TYPE_ASSOCIATION ProviderType::ASSOCIATION
+   #define TYPE_QUERY       ProviderType::QUERY
+*/ 
+// using these equations instead      PEP# 99
+   #define TYPE_INSTANCE    2
+   #define TYPE_CLASS       3
+   #define TYPE_METHOD      4
+   #define TYPE_ASSOCIATION 5
+   #define TYPE_QUERY       6
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -105,7 +120,7 @@ class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
 {
 public:
     CIMRequestMessage(
-        Uint32 type_, 
+        Uint32 type_,
 	const String& messageId_,
 	QueueIdStack queueIds_,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
@@ -157,8 +172,53 @@ public:
     CIMException cimException;
 };
 
+class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage : public CIMRequestMessage
+{	// PEP# 99
+public:
+    CIMOperationRequestMessage(
+        Uint32 type_,
+	const String& messageId_,
+	QueueIdStack queueIds_,
+        const CIMNamespaceName& nameSpace_,
+	const CIMName& className_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY,
+	Uint32 providerType_ = TYPE_INSTANCE)
+    : CIMRequestMessage(type_, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        providerType(providerType_)
+    {
+    }
+    CIMNamespaceName nameSpace;
+    CIMName className;
+    Uint32 providerType;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMIndicationRequestMessage : public CIMRequestMessage
+{	// PEP# 99
+public:
+    CIMIndicationRequestMessage(
+        Uint32 type_,
+        const String & messageId_,
+        QueueIdStack queueIds_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(type_, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        provider(provider_),
+        providerModule(providerModule_)
+    {
+    }
+    CIMInstance provider;
+    CIMInstance providerModule;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage
-    : public CIMRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMGetClassRequestMessage(
@@ -174,10 +234,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        className(className_),
+    : CIMOperationRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,className_,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
         includeClassOrigin(includeClassOrigin_),
@@ -187,8 +247,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
-    CIMName className;
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
@@ -197,7 +255,7 @@ public:
     String userName;
 };
 
-class CIMGetInstanceRequestMessage : public CIMRequestMessage
+class CIMGetInstanceRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMGetInstanceRequestMessage(
@@ -213,11 +271,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_GET_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,instanceName_.getClassName(),
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        instanceName(instanceName_),
+	instanceName(instanceName_),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
         includeClassOrigin(includeClassOrigin_),
@@ -227,7 +285,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     Boolean localOnly;
     Boolean includeQualifiers;
@@ -265,7 +322,7 @@ public:
     String userName;
 };
 
-class CIMDeleteClassRequestMessage : public CIMRequestMessage
+class CIMDeleteClassRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMDeleteClassRequestMessage(
@@ -277,23 +334,21 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_DELETE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        className(className_),
+         nameSpace_,className_,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
-    CIMName className;
     String authType;
     String userName;
 };
 
-class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
+class CIMDeleteInstanceRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMDeleteInstanceRequestMessage(
@@ -305,23 +360,22 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_DELETE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,instanceName_.getClassName(),
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
         instanceName(instanceName_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     String authType;
     String userName;
 };
 
-class CIMCreateClassRequestMessage : public CIMRequestMessage
+class CIMCreateClassRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMCreateClassRequestMessage(
@@ -333,23 +387,23 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_CREATE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,newClass_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         newClass(newClass_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMClass newClass;
     String authType;
     String userName;
 };
 
-class CIMCreateInstanceRequestMessage : public CIMRequestMessage
+class CIMCreateInstanceRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMCreateInstanceRequestMessage(
@@ -361,23 +415,22 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+	 nameSpace_,newInstance_.getClassName(),
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
         newInstance(newInstance_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMInstance newInstance;
     String authType;
     String userName;
 };
 
-class CIMModifyClassRequestMessage : public CIMRequestMessage
+class CIMModifyClassRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMModifyClassRequestMessage(
@@ -389,23 +442,23 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_MODIFY_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+         nameSpace_,modifiedClass_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         modifiedClass(modifiedClass_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMClass modifiedClass;
     String authType;
     String userName;
 };
 
-class CIMModifyInstanceRequestMessage : public CIMRequestMessage
+class CIMModifyInstanceRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMModifyInstanceRequestMessage(
@@ -419,10 +472,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,modifiedInstance_.getClassName(),
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
         modifiedInstance(modifiedInstance_),
         includeQualifiers(includeQualifiers_),
         propertyList(propertyList_),
@@ -431,7 +484,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMInstance modifiedInstance;
     Boolean includeQualifiers;
     CIMPropertyList propertyList;
@@ -439,7 +491,7 @@ public:
     String userName;
 };
 
-class CIMEnumerateClassesRequestMessage : public CIMRequestMessage
+class CIMEnumerateClassesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateClassesRequestMessage(
@@ -455,11 +507,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        className(className_),
+	 nameSpace_,className_,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         deepInheritance(deepInheritance_),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
@@ -469,8 +521,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
-    CIMName className;
     Boolean deepInheritance;
     Boolean localOnly;
     Boolean includeQualifiers;
@@ -479,7 +529,7 @@ public:
     String userName;
 };
 
-class CIMEnumerateClassNamesRequestMessage : public CIMRequestMessage
+class CIMEnumerateClassNamesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateClassNamesRequestMessage(
@@ -492,25 +542,23 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        className(className_),
+	 nameSpace_,className_,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         deepInheritance(deepInheritance_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
-    CIMName className;
     Boolean deepInheritance;
     String authType;
     String userName;
 };
 
-class CIMEnumerateInstancesRequestMessage : public CIMRequestMessage
+class CIMEnumerateInstancesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateInstancesRequestMessage(
@@ -527,11 +575,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 nameSpace_,className_,
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        className(className_),
         deepInheritance(deepInheritance_),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
@@ -542,8 +589,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
-    CIMName className;
     Boolean deepInheritance;
     Boolean localOnly;
     Boolean includeQualifiers;
@@ -553,7 +598,7 @@ public:
     String userName;
 };
 
-class CIMEnumerateInstanceNamesRequestMessage : public CIMRequestMessage
+class CIMEnumerateInstanceNamesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateInstanceNamesRequestMessage(
@@ -565,11 +610,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 nameSpace_,className_,
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
-        className(className_),
         authType(authType_),
         userName(userName_)
     {
@@ -577,10 +621,9 @@ public:
 
     CIMEnumerateInstanceNamesRequestMessage(
 	const CIMEnumerateInstanceNamesRequestMessage& x)
-    : CIMRequestMessage(
-        CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, x.messageId, x.queueIds),
-        nameSpace(x.nameSpace),
-        className(x.className),
+    : CIMOperationRequestMessage(
+        CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, x.messageId, x.queueIds,
+	x.nameSpace, x.className),
         authType(x.authType),
         userName(x.userName)
     {
@@ -607,13 +650,11 @@ public:
 	}
     }
 
-    CIMNamespaceName nameSpace;
-    CIMName className;
     String authType;
     String userName;
 };
 
-class CIMExecQueryRequestMessage : public CIMRequestMessage
+class CIMExecQueryRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMExecQueryRequestMessage(
@@ -626,9 +667,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+    : CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,String::EMPTY,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_QUERY),
         queryLanguage(queryLanguage_),
         query(query_),
         authType(authType_),
@@ -636,14 +678,13 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     String queryLanguage;
     String query;
     String authType;
     String userName;
 };
 
-class CIMAssociatorsRequestMessage : public CIMRequestMessage
+class CIMAssociatorsRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMAssociatorsRequestMessage(
@@ -662,10 +703,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,objectName_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_ASSOCIATION),
         objectName(objectName_),
         assocClass(assocClass_),
         resultClass(resultClass_),
@@ -679,7 +721,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName assocClass;
     CIMName resultClass;
@@ -692,7 +733,7 @@ public:
     String userName;
 };
 
-class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
+class CIMAssociatorNamesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMAssociatorNamesRequestMessage(
@@ -708,10 +749,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,objectName_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_ASSOCIATION),
         objectName(objectName_),
         assocClass(assocClass_),
         resultClass(resultClass_),
@@ -722,7 +764,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName assocClass;
     CIMName resultClass;
@@ -732,7 +773,7 @@ public:
     String userName;
 };
 
-class CIMReferencesRequestMessage : public CIMRequestMessage
+class CIMReferencesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMReferencesRequestMessage(
@@ -749,9 +790,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+    : CIMOperationRequestMessage(
+         CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,objectName_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_ASSOCIATION),
         objectName(objectName_),
         resultClass(resultClass_),
         role(role_),
@@ -763,7 +806,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
@@ -774,7 +816,7 @@ public:
     String userName;
 };
 
-class CIMReferenceNamesRequestMessage : public CIMRequestMessage
+class CIMReferenceNamesRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMReferenceNamesRequestMessage(
@@ -788,10 +830,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_REFERENCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,objectName_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_ASSOCIATION),
         objectName(objectName_),
         resultClass(resultClass_),
         role(role_),
@@ -800,7 +843,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
@@ -808,7 +850,7 @@ public:
     String userName;
 };
 
-class CIMGetPropertyRequestMessage : public CIMRequestMessage
+class CIMGetPropertyRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMGetPropertyRequestMessage(
@@ -821,10 +863,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_GET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
+	 nameSpace_,instanceName_.getClassName(),
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
         instanceName(instanceName_),
         propertyName(propertyName_),
         authType(authType_),
@@ -832,14 +874,13 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     CIMName propertyName;
     String authType;
     String userName;
 };
 
-class CIMSetPropertyRequestMessage : public CIMRequestMessage
+class CIMSetPropertyRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMSetPropertyRequestMessage(
@@ -853,10 +894,10 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_SET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
+	 nameSpace_,instanceName_.getClassName(),
 	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
         instanceName(instanceName_),
         propertyName(propertyName_),
         newValue(newValue_),
@@ -865,7 +906,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     CIMName propertyName;
     CIMValue newValue;
@@ -873,7 +913,7 @@ public:
     String userName;
 };
 
-class CIMGetQualifierRequestMessage : public CIMRequestMessage
+class CIMGetQualifierRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMGetQualifierRequestMessage(
@@ -885,23 +925,23 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,String::EMPTY,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         qualifierName(qualifierName_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMName qualifierName;
     String authType;
     String userName;
 };
 
-class CIMSetQualifierRequestMessage : public CIMRequestMessage
+class CIMSetQualifierRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMSetQualifierRequestMessage(
@@ -913,23 +953,23 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,String::EMPTY,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         qualifierDeclaration(qualifierDeclaration_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMQualifierDecl qualifierDeclaration;
     String authType;
     String userName;
 };
 
-class CIMDeleteQualifierRequestMessage : public CIMRequestMessage
+class CIMDeleteQualifierRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMDeleteQualifierRequestMessage(
@@ -941,23 +981,23 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,String::EMPTY,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         qualifierName(qualifierName_),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMName qualifierName;
     String authType;
     String userName;
 };
 
-class CIMEnumerateQualifiersRequestMessage : public CIMRequestMessage
+class CIMEnumerateQualifiersRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateQualifiersRequestMessage(
@@ -968,21 +1008,21 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,String::EMPTY,
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_CLASS),
         authType(authType_),
         userName(userName_)
     {
     }
 
-    CIMNamespaceName nameSpace;
     String authType;
     String userName;
 };
 
-class CIMInvokeMethodRequestMessage : public CIMRequestMessage
+class CIMInvokeMethodRequestMessage : public CIMOperationRequestMessage
 {
 public:
     CIMInvokeMethodRequestMessage(
@@ -996,10 +1036,11 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMOperationRequestMessage(
         CIM_INVOKE_METHOD_REQUEST_MESSAGE, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        nameSpace(nameSpace_),
+	 nameSpace_,instanceName_.getClassName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_METHOD),
         instanceName(instanceName_),
         methodName(methodName_),
         inParameters(inParameters_),
@@ -1008,7 +1049,6 @@ public:
     {
     }
 
-    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     CIMName methodName;
     Array<CIMParamValue> inParameters;
@@ -1048,10 +1088,10 @@ class CIMConsumeIndicationRequestMessage : public CIMRequestMessage
 {
    public:
       CIMConsumeIndicationRequestMessage(
-	 const String & messageId_, 
-	 const CIMNamespaceName & nameSpace_,     // ns of the origin of the indication 
-	 const CIMInstance & indicationInstance_, 
-	 const CIMInstance & consumer_provider_, 
+	 const String & messageId_,
+	 const CIMNamespaceName & nameSpace_,     // ns of the origin of the indication
+	 const CIMInstance & indicationInstance_,
+	 const CIMInstance & consumer_provider_,
 	 const CIMInstance & consumer_module_,
 	 QueueIdStack queueIds_,
 	 const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
@@ -1059,9 +1099,9 @@ class CIMConsumeIndicationRequestMessage : public CIMRequestMessage
 	 : CIMRequestMessage(
 	    CIM_CONSUME_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
             contentLanguages_, acceptLanguages_),
-	   nameSpace(nameSpace_), 
+	   nameSpace(nameSpace_),
 	   indicationInstance(indicationInstance_),
-	   consumer_provider(consumer_provider_), 
+	   consumer_provider(consumer_provider_),
 	   consumer_module(consumer_module_)
       {
       }
@@ -1074,7 +1114,7 @@ class CIMConsumeIndicationRequestMessage : public CIMRequestMessage
 
 
 
-class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
+class CIMEnableIndicationsRequestMessage : public CIMIndicationRequestMessage
 {
 public:
     CIMEnableIndicationsRequestMessage(
@@ -1082,20 +1122,16 @@ public:
         const CIMInstance & provider_,
         const CIMInstance & providerModule_,
         QueueIdStack queueIds_)
-    : CIMRequestMessage(
+    : CIMIndicationRequestMessage(
         CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
         messageId_,
-        queueIds_),
-        provider(provider_),
-        providerModule(providerModule_)
+        queueIds_,
+	provider_,providerModule_)
     {
     }
-
-    CIMInstance provider;
-    CIMInstance providerModule;
 };
 
-class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
+class CIMDisableIndicationsRequestMessage : public CIMIndicationRequestMessage
 {
 public:
     CIMDisableIndicationsRequestMessage(
@@ -1103,17 +1139,13 @@ public:
         const CIMInstance & provider_,
         const CIMInstance & providerModule_,
         QueueIdStack queueIds_)
-    : CIMRequestMessage(
+    : CIMIndicationRequestMessage(
         CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
         messageId_,
-        queueIds_),
-        provider(provider_),
-        providerModule(providerModule_)
+        queueIds_,
+	provider_,providerModule_)
     {
     }
-
-    CIMInstance provider;
-    CIMInstance providerModule;
 };
 
 class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
@@ -1208,7 +1240,7 @@ public:
     String userName;
 };
 
-class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
+class CIMCreateSubscriptionRequestMessage : public CIMIndicationRequestMessage
 {
 public:
     CIMCreateSubscriptionRequestMessage(
@@ -1227,16 +1259,15 @@ public:
         const String & userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMIndicationRequestMessage(
         CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
         messageId_,
         queueIds_,
+        provider_,providerModule_,
         contentLanguages_, acceptLanguages_),
         nameSpace (nameSpace_),
         subscriptionInstance(subscriptionInstance_),
         classNames(classNames_),
-        provider (provider_),
-        providerModule (providerModule_),
         propertyList (propertyList_),
         repeatNotificationPolicy (repeatNotificationPolicy_),
         condition (condition_),
@@ -1244,13 +1275,12 @@ public:
         authType(authType_),
         userName(userName_)
     {
+       std::cout<<"--- classNames.size(): "<<classNames.size()<<std::endl;
     }
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array <CIMName> classNames;
-    CIMInstance provider;
-    CIMInstance providerModule;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
     String condition;
@@ -1259,7 +1289,7 @@ public:
     String userName;
 };
 
-class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
+class CIMModifySubscriptionRequestMessage : public CIMIndicationRequestMessage
 {
 public:
     CIMModifySubscriptionRequestMessage(
@@ -1278,16 +1308,15 @@ public:
         const String & userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMIndicationRequestMessage(
         CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
         messageId_,
         queueIds_,
+        provider_,providerModule_,
 	contentLanguages_, acceptLanguages_),
         nameSpace(nameSpace_),
         subscriptionInstance(subscriptionInstance_),
         classNames(classNames_),
-        provider (provider_),
-        providerModule (providerModule_),
         propertyList (propertyList_),
         repeatNotificationPolicy (repeatNotificationPolicy_),
         condition (condition_),
@@ -1300,8 +1329,6 @@ public:
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
-    CIMInstance provider;
-    CIMInstance providerModule;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
     String condition;
@@ -1310,7 +1337,7 @@ public:
     String userName;
 };
 
-class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
+class CIMDeleteSubscriptionRequestMessage : public CIMIndicationRequestMessage
 {
 public:
     CIMDeleteSubscriptionRequestMessage(
@@ -1325,26 +1352,24 @@ public:
         const String& userName_ = String::EMPTY,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
-    : CIMRequestMessage(
+    : CIMIndicationRequestMessage(
         CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
         messageId_,
         queueIds_,
-		contentLanguages_, acceptLanguages_),
+        provider_,providerModule_,
+        contentLanguages_, acceptLanguages_),
         nameSpace(nameSpace_),
         subscriptionInstance(subscriptionInstance_),
         classNames(classNames_),
-        provider (provider_),
-        providerModule (providerModule_),
         authType(authType_),
         userName(userName_)
     {
+       std::cout<<"--- classNames.size(): "<<classNames.size()<<std::endl;
     }
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
-    CIMInstance provider;
-    CIMInstance providerModule;
     String authType;
     String userName;
 };

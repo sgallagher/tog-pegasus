@@ -116,6 +116,8 @@ Dir::Dir(const String& path)
 #endif
         {
 	    _more = false;
+            closedir(_rep->dir);
+            delete _rep;
 	    throw CannotOpenDirectory(_path);
         }
 #else
@@ -126,6 +128,7 @@ Dir::Dir(const String& path)
     else
     {
 	_more = false;
+        delete _rep;
 	throw CannotOpenDirectory(_path);
     }
 }

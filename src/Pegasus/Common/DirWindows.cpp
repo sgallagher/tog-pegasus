@@ -52,6 +52,7 @@ Dir::Dir(const String& path)
     if (_rep->file == -1)
     {
 	_more = false;
+        delete _rep;
 	throw CannotOpenDirectory(path);
     }
     else

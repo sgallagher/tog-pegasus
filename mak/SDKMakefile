@@ -128,7 +128,8 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/InstanceProvider/Makefile \
    DefaultC++/MethodProvider/Makefile \
    CMPI/Makefile \
-   CMPI/FilesAndDirectories/Makefile 
+   CMPI/FilesAndDirectories/Makefile \
+   CMPI/FilesAndDirectories/tests/Makefile 
    
 PROVIDERSRCPATH2FILES = \
    Load/CWS_FilesAndDir.mof \

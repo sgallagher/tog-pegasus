@@ -5,6 +5,9 @@ LIBRARY = FilesAndDirectories
 
 SOURCE_DIR = Providers/CMPI/FilesAndDirectories
 
+# Remove this flag if you do not want to run the CMPI provider in simulated mode.
+DEFINES += -DSIMULATED
+
 LIBRARIES = \
   pegcommon \
   pegprovider

@@ -117,13 +117,21 @@ const Uint32 WbemExecException::INVALID_XML = 8;
  */
 const Uint32 WbemExecException::INVALID_INPUT = 9;
 
+
+/**
+  
+    Exception identifier indicating malloc error.
+  
+ */
+const Uint32 WbemExecException::MALLOC_ERROR = 10;
+
 /**
   
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
   
  */
-const Uint32 WbemExecException::MAX_ID = WbemExecException::INVALID_INPUT;
+const Uint32 WbemExecException::MAX_ID = WbemExecException::MALLOC_ERROR;
 
 /**
 
@@ -144,7 +152,8 @@ const char*  WbemExecException::_messageStrings [] =
     "Failed to connect to cimom ",
     "Timed out waiting for response ",
     "Invalid XML request: ",
-    "Invalid input: expected XML request, or HTTP M-POST or POST method request"
+    "Invalid input: expected XML request, or HTTP M-POST or POST method request",
+    "Failed to allocate additional memory "
 };
 
 /**

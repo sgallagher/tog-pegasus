@@ -36,6 +36,15 @@
 #include <Clients/cliutils/CommandException.h>
 #include "WbemExecException.h"
 
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+char * ultostr(unsigned long int ulint, int width)
+{
+    char * retval = NULL;
+    asprintf(&retval,"%*ld", width, ulint); // allocates buffer automatically
+    return retval;
+}
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -98,6 +107,111 @@ private:
 
     /**
         
+        Creates a channel for an HTTP connection.
+      
+        @param   outPrintWriter     the ostream to which error output should be
+                                    written
+      
+        @return  the Channel created
+      
+        @exception  WbemExecException  if an error is encountered in creating
+                                       the connection 
+      
+     */
+    Channel* _getHTTPChannel (ostream& outPrintWriter) 
+        throw (WbemExecException);
+
+/**
+  
+    Check the HTTP response message for errors.
+  
+    @param   startLine             First header line from an HTTP response
+
+    @return  true = successful response
+
+ */
+    Boolean _isHTTPOk( String startLine );
+
+/**
+       
+    Check the HTTP response message for authentication challenge or data.
+  
+     Sample Local authentication request/response
+
+    Challenge:
+    ----------
+    HTTP/1.1 401 Unauthorized
+    WWW-Authenticate: LocalPrivileged "filePath"
+    
+    
+    Challenge response:
+    --------------------
+     
+    M-POST /cimom HTTP/1.1
+    HOST: cascades
+    Content-CIMType: application/xml; charset="utf-8"
+    Content-Length: 508
+    Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=35
+    35-CIMOperation: MethodCall
+    35-CIMMethod: GetInstance
+    35-CIMObject: root/cimv2
+    PegasusAuthorization: LocalPrivileged "root:/tmp/cimclient_root_476:root131006297810"
+    
+    <?xml version="1.0" encoding="utf-8" ?>
+    <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+    <MESSAGE ID="1001" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+    <IMETHODCALL NAME="GetInstance">
+    <LOCALNAMESPACEPATH>
+    <NAMESPACE NAME="root"/>
+    <NAMESPACE NAME="cimv2"/>
+    </LOCALNAMESPACEPATH>
+    <IPARAMVALUE NAME="InstanceName">
+    <INSTANCENAME CLASSNAME="PG_ConfigSetting">
+    <KEYBINDING NAME="PropertyName">
+    <KEYVALUE VALUETYPE="string">port</KEYVALUE>
+    </KEYBINDING>
+    </INSTANCENAME>
+    </IPARAMVALUE>
+    </IMETHODCALL>
+    </SIMPLEREQ>
+    </MESSAGE>
+    </CIM>
+    
+    Final response:
+    --------------------
+    HTTP/1.1 200 OK
+ 
+
+    @param   channel             Connection to cimserver
+
+    @param   handler             Communications processor for channel
+ 
+    @param   content             Array <Sint8> containing XML request
+
+    @param   httpHeaders         Array <Sint8> returning the HTTP headers
+
+    @param   clientAuthenticator Authenticator object used to generate
+                                 authentication headers
+
+    @param   useAuthentication   Boolean indicating use of client authenticaion
+
+    @param   ostream             the ostream to which output should be written
+
+    @return  true = wait for data from challenge response
+  
+    */
+    Boolean _handleResponse( Channel*               channel,
+                             WbemExecClientHandler* handler,
+                             Array <Sint8>          content,
+                             Array <Sint8>          httpHeaders,
+                             ClientAuthenticator*   clientAuthenticator,
+                             Boolean                useAuthentication,
+                             ostream&               outS
+                          );
+
+    /**
+        
         Executes the command using HTTP.  A CIM request encoded in XML is read
         from the input, and encapsualted in an HTTP request message.  A channel
         is obtained for an HTTP connection, and the message is written to the
@@ -115,22 +229,6 @@ private:
      */
     void _executeHttp (ostream& outPrintWriter, ostream& errPrintWriter) 
         throw (WbemExecException);
-
-    /**
-        
-        Waits for a response on the server queue.
-      
-        @param   timeOutMilliseconds number of milliseconds to wait
-        @param   monitor             monitors WbemExecQueue for response
-
-      
-        @exception  WbemExecException  if an error is encountered in executing
-                                       the command 
-      
-     */
-    void _waitForResponse( const Uint32 timeOutMilliseconds,
-			   Monitor* monitor
-			   );
 
     /**
         The host on which the command is to be executed.  A CIM Server must be

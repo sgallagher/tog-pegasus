@@ -91,11 +91,14 @@ Array<Sint8> Base64::encode(const Array<Uint8>& vby)
         else
             retArray.append('=');
 
+        /* ATTN: Need to fix this. It adds unwanted cr-lf after 4 chars.
+
         if (i % (76/4*3) == 0)
         {
             retArray.append( '\r');
             retArray.append( '\n');
         }
+        */
     };
 
     return retArray;

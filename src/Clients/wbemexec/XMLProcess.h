@@ -102,7 +102,12 @@ public:
                                      generated for an M-POST request 
         @param   useHTTP11           Boolean indicating that headers should be 
                                      generated for an HTTP/1.1 request 
+        @param   clientAuthenticator Authenticator object used to generate
+                                     authentication headers
+        @param   useAuthentication   Boolean indicating that an authentication
+                                     header should be added to the request
         @param   content             Array <Sint8> containing XML request
+        @param   httpHeaders         Array <Sint8> returning the HTTP headers
       
         @return  Array <Sint8> containing the XML request encapsulated in an
                  HTTP request message
@@ -119,7 +124,12 @@ public:
                                       String hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
-                                      Array <Sint8> content) 
+                                      String password,
+                                      String userName,
+                                      ClientAuthenticator* clientAuthenticator,
+                                      Boolean useAuthentication,
+                                      Array <Sint8> content,
+                                      Array <Sint8>& httpHeaders) 
         throw (XmlValidationError, XmlSemanticError, WbemExecException);
 
 private:

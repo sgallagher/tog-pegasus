@@ -21,43 +21,56 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Socket_h
-#define Pegasus_Socket_h
+#ifndef Pegasus_WbemExecClientHandler_h
+#define Pegasus_WbemExecClientHandler_h
 
-#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
+#include "Handler.h"
+#include "TCPChannel.h"
+#include "Selector.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE Socket
+/**
+  
+    WbemExecClientHandler provides a generic handler for the wbemexec command 
+    line client.  WbemExecClientHandler is based on the ClientHandler class 
+    (in Client/CIMClient.cpp), but is generic, not CIM operation-specific.
+  
+    @author  Hewlett-Packard Company
+  
+ */
+class WbemExecClientHandler : public Handler 
 {
 public:
 
+    WbemExecClientHandler (Selector* selector, 
+                           PEGASUS_STD(ostream)& os, 
+                           Boolean debugOutput);
 
-    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+    virtual int handleMessage ();
 
-    static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
+    Boolean waitForResponse (Uint32 timeOutMilliseconds);
 
-    static void close(Sint32 socket);
+    void printContent ();
 
-    static void enableBlocking(Sint32 socket);
+    Array <Sint8> getMessage ();
 
-    static void disableBlocking(Sint32 socket);
-
-    static void initializeInterface();
-
-    static void uninitializeInterface();
 
 private:
-
-    Socket() { }
+    Boolean _blocked;
+    Selector* _selector;
+    PEGASUS_STD(ostream)& _os;
+    Boolean _debugOutput;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Socket_h */
+#endif  /*  Pegasus_WbemExecClientHandler_h */

@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+// define asprintf used to implement ultostr on Linux
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define _GNU_SOURCE
 #include <features.h>
@@ -38,20 +38,19 @@
 
 #include <iostream>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
-#include "XMLProcess.h"
-#include "WbemExecCommand.h"
-#include "WbemExecQueue.h"
 #include "HttpConstants.h"
+#include "TCPChannel.h"
+#include "XMLProcess.h"
+#include "WbemExecClientHandler.h"
+#include "WbemExecClientHandlerFactory.h"
+#include "WbemExecCommand.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -184,47 +183,200 @@ WbemExecCommand::WbemExecCommand ()
     setUsage (usage);
 }
 
-void WbemExecCommand::_waitForResponse(
-    const Uint32 timeOutMilliseconds,
-    Monitor* monitor
-    )
+/**
+  
+    Creates a channel for an HTTP connection.
+  
+    @param   outPrintWriter     the ostream to which error output should be
+                                written
+  
+    @return  the Channel created
+  
+    @exception  WbemExecException  if an error is encountered in creating
+                                   the connection
+  
+ */
+Channel* WbemExecCommand::_getHTTPChannel (ostream& outPrintWriter) 
+    throw (WbemExecException)
 {
+    Selector*              selector;
+    ChannelHandlerFactory* factory;
+    TCPChannelConnector*   connector;
+    Channel*               channel               = NULL;
+    String                 addressStr            = String ();
+    char*                  address               = NULL;
 
-    long rem = long(timeOutMilliseconds);
 
-    for (;;)
+    //
+    //  Create HTTP channel
+    //
+    selector = new Selector ();
+    factory = new WbemExecClientHandlerFactory (selector, outPrintWriter,
+        _debugOutput2);
+    connector = new TCPChannelConnector (factory, selector);
+
+    addressStr.append (_hostName);
+    addressStr.append (":");
+    addressStr.append (_portNumberStr);
+
+    address = addressStr.allocateCString ();
+
+    // ATTN-A: need connection timeout here:
+
+    channel = connector->connect (address);
+
+    delete [] address;
+
+    if (!channel) 
     {
-	//
-	// Wait until the timeout expires or an event occurs:
-	//
-
-	TimeValue start = TimeValue::getCurrentTime();
-	
-	if( monitor->run(rem) )
-	  {
-	    return;
-	  }
-	TimeValue stop = TimeValue::getCurrentTime();
-
-	// 
-	// Terminate loop if timed out:
-	//
-
-	long diff = stop.toMilliseconds() - start.toMilliseconds();
-
-	if (diff >= rem)
-	    break;
-
-	rem -= diff;
+        WbemExecException e (WbemExecException::CONNECT_FAIL);
+        throw e;
     }
 
-    //
-    // Throw timed out exception:
-    //
 
-    throw TimedOut();
+    return (channel);
+}
+/**
+  
+    Check the HTTP response message for errors.
+  
+    @param   startLine             First header line from an HTTP response
+
+    @return  true = successful response
+
+ */
+Boolean WbemExecCommand::_isHTTPOk( String startLine )
+{
+  String httpReturnCode;
+  String httpVersion;
+
+  // Response-Line = HTTP-Version SP HTTP-Return Code SP HTTP-Message Text
+
+  // Extract HTTP version
+
+  Uint32 space1 = startLine.find(' ');
+
+  if (space1 == PEGASUS_NOT_FOUND)
+    return false;
+
+  httpVersion = startLine.subString(0, space1);
+  
+  // Extract the HTTP response code
+  
+  Uint32 space2 = startLine.find(space1 + 1, ' ');
+  
+  if (space2 == PEGASUS_NOT_FOUND)
+    return false;
+  
+  Uint32 rcPos = space1 + 1;
+  httpReturnCode = startLine.subString( rcPos, space2 - rcPos );
+
+  if( String::equal( httpReturnCode, "200" ) )
+    {
+      return true;
+    }
+            
+  // This is an error response
+
+  return false;
 }
 
+/**
+  
+    Check the HTTP response message for authentication challenge or data.
+  
+    @param   channel             Connection to cimserver
+
+    @param   handler             Communications processor for channel
+ 
+    @param   content             Array <Sint8> containing XML request
+
+    @param   httpHeaders         Array <Sint8> returning the HTTP headers
+
+    @param   clientAuthenticator Authenticator object used to generate
+                                 authentication headers
+
+    @param   useAuthentication   Boolean indicating use of client authenticaion
+
+    @param   ostream             the ostream to which output should be written
+
+    @return  true = wait for data from challenge response
+  
+ */
+Boolean WbemExecCommand::_handleResponse( Channel*               channel,
+                                          WbemExecClientHandler* handler,
+                                          Array <Sint8>          content,
+                                          Array <Sint8>          httpHeaders,
+                                          ClientAuthenticator*   clientAuthenticator,
+                                          Boolean                useAuthentication,
+                                          ostream&               oStream
+                                       )
+{
+    Array <Sint8>                responseMessage;
+    String                       startLine;
+    Array<HTTPHeader>            headers;
+    Uint32                       contentLength;
+    HTTPMessage*                 httpMessage;
+    Array <Sint8>                challengeResponse;
+    String                       authHeader;
+    Boolean                      needsAuthentication = false;
+
+    responseMessage = handler->getMessage();
+    httpMessage = new HTTPMessage( responseMessage, 0 );
+    httpMessage->parse( startLine, headers, contentLength );
+    if (HTTPMessage::lookupHeader(
+        headers, "WWW-Authenticate", authHeader, false))
+    {
+      needsAuthentication = true;
+    }
+    if( clientAuthenticator->checkResponseHeaderForChallenge( headers ) )
+      {
+        //
+        // An authentication header was found.
+        // Get the original request, send with authentication challenge
+        // response. 
+        //
+        challengeResponse << httpHeaders;
+        challengeResponse << clientAuthenticator->buildRequestAuthHeader();
+        challengeResponse << HTTP_CRLF << HTTP_CRLF;
+        challengeResponse << content;
+        channel->writeN( challengeResponse.getData(), challengeResponse.size() );
+        return true;
+      }
+    else
+      {
+
+        // No authentication header was found
+
+        if( needsAuthentication )
+          {
+            
+            // This is an invalid authentication challenge
+
+            oStream << startLine << endl;
+            oStream.flush();
+            exit( 1 );
+          }
+        else
+          {
+            if( !_isHTTPOk( startLine ) )
+              {
+
+                // Received an HTTP error response
+                // Output the HTTP error message and exit
+
+                oStream << startLine << endl;
+                oStream.flush();
+                exit( 1 );
+              }
+          }
+
+        //
+        // Received a valid response or an error response from the server.
+        //
+        return false;
+      }
+}
 
 /**
   
@@ -247,17 +399,15 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
                                     ostream& errPrintWriter) 
     throw (WbemExecException)
 {
-    Monitor*                     monitor                        = NULL;
-    WbemExecQueue*               wbemexecQueue                  = NULL;
-    HTTPConnector*               httpConnector                  = NULL;
-    HTTPConnection*              httpConnection                 = NULL;
-    HTTPMessage*                 httpMessage                    = NULL;
-    String                       addressStr                     = String ();
-    char*                        address                        = NULL;
+    Channel*                     channel                        = NULL;
+    WbemExecClientHandler*       handler                        = NULL;
     Uint32                       size;
     Array <Sint8>                content;
     Array <Sint8>                contentCopy;
     Array <Sint8>                message;
+    Array <Sint8>                httpHeaders;
+    ClientAuthenticator*         clientAuthenticator            = NULL;
+    Boolean                      useAuthentication              = false;
 
     //
     //  Check for invalid combination of options
@@ -364,16 +514,36 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     XmlParser parser ((char*) contentCopy.getData ());
 
     //
+    // Create authenticator for authentication header generation.
+    //
+    clientAuthenticator = new ClientAuthenticator();
+    clientAuthenticator->clearRequest();
+    if( !_hostNameSet )
+      {
+        useAuthentication = true;
+
+        // No hostname specified; use local authentication
+
+        if( _userName.size() )
+          {
+            clientAuthenticator->setUserName( _userName );
+          }
+        clientAuthenticator->setAuthType( ClientAuthenticator::LOCAL );
+      }
+    //
     //  Encapsulate XML request in an HTTP request
     //
     try
     {
-        message = XMLProcess::encapsulate (parser, _hostName, 
+        message = XMLProcess::encapsulate( parser, _hostName, 
                                            _useMPost, _useHTTP11,
-                                           content);
+                                           _userName, _password,
+                                           clientAuthenticator,
+                                           useAuthentication,
+                                           content, httpHeaders );
         if (_debugOutput1)
         {
-            outPrintWriter << message.getData () << endl;
+          outPrintWriter << message.getData () << endl;
         }
     }
     catch (XmlValidationError xve)
@@ -389,44 +559,39 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         throw e;
     }
 
-    //  Create a queue for communications with cimserver
+    //
+    //  Get channel and write message to channel
+    //
+    channel = _getHTTPChannel (outPrintWriter);
+    channel->writeN (message.getData (), message.size ());
 
-    monitor = new Monitor;
-    httpConnector = new HTTPConnector( monitor );
-    ClientAuthenticator* clientAuthenticator = new ClientAuthenticator();
-    wbemexecQueue = new WbemExecQueue( httpConnector,
-				     outPrintWriter,
-				     _debugOutput2,
-				     clientAuthenticator );
+    //
+    //  Get handler and wait for response
+    //
+    handler = (WbemExecClientHandler*) channel->getChannelHandler ();
 
-    // Attempt to establish a connection:
-
-    addressStr.append (_hostName);
-    addressStr.append (":");
-    addressStr.append (_portNumberStr);
-    address = addressStr.allocateCString ();
-    
-    try
+    if (!handler->waitForResponse (_timeout))
     {
-	httpConnection = httpConnector->connect( address, wbemexecQueue );
-    }
-    catch (Exception& e)
-    {
-      delete wbemexecQueue;
-      WbemExecException ef (WbemExecException::CONNECT_FAIL);
-      throw ef;
+        WbemExecException e (WbemExecException::TIMED_OUT);
+        throw e;
     }
 
-    // Send the request to cimserver
+    //
+    // Process the response message
+    //
+    if( _handleResponse( channel, handler, content, httpHeaders,
+                         clientAuthenticator, useAuthentication,
+                         outPrintWriter ) == true )
+      {
+        // Wait for final response
 
-    httpConnection->enqueue( new HTTPMessage( message ) );
-    
-    //
-    // Wait until the timeout expires or an event occurs:
-    //
-      
-    long rem = long( _timeout );
-    _waitForResponse(  rem, monitor );
+        if (!handler->waitForResponse (_timeout))
+          {
+            WbemExecException e (WbemExecException::TIMED_OUT);
+            throw e;
+          }
+      }
+    handler->printContent();
 }
 
 /**
@@ -892,4 +1057,3 @@ int main (int argc, char* argv [])
     exit (rc);
     return 0;
 }
-

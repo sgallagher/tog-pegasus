@@ -28,11 +28,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlConstants.h>
+#include <Pegasus/Common/Base64.h>
 #include "HttpConstants.h"
 #include "XMLProcess.h"
 
@@ -56,6 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
              object path corresponding to the &lt;LOCALNAMESPACE&gt; element
   
  */
+
 Array <Sint8> XMLProcess::getObjPath (XmlParser& parser)
     throw (XmlValidationError, XmlSemanticError)
 {
@@ -145,7 +147,12 @@ Array <Sint8> XMLProcess::getObjPath (XmlParser& parser)
                                  generated for an M-POST request
     @param   useHTTP11           Boolean indicating that headers should be
                                  generated for an HTTP/1.1 request
+    @param   clientAuthenticator Authenticator object used to generate
+                                 authentication headers
+    @param   useAuthentication   Boolean indicating that an authentication
+                                 header should be added to the request
     @param   content             Array <Sint8> containing XML request
+    @param   httpHeaders         Array <Sint8> returning the HTTP headers
   
     @return  Array <Sint8> containing the XML request encapsulated in an
              HTTP request message
@@ -156,11 +163,17 @@ Array <Sint8> XMLProcess::getObjPath (XmlParser& parser)
                                     M-POST or POST method request
   
  */
-Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
+Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
                                        String hostName,
                                        Boolean useMPost,
                                        Boolean useHTTP11,
-                                       Array <Sint8> content) 
+                                       String userName,
+                                       String password,
+                                       ClientAuthenticator* clientAuthenticator,
+                                       Boolean useAuthentication,
+                                       Array <Sint8> content,
+                                       Array <Sint8>& httpHeaders
+                                       )
     throw (XmlValidationError, XmlSemanticError, WbemExecException)
 {
     XmlEntry                     entry;
@@ -169,15 +182,37 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
     const char*                  protocolVersion       = 0;
     String                       className;
     String                       methodName;
+    String                       authString;
+    String                       base64String;
+    Array<Sint8>                 encoded;
     Array <Sint8>                objPath;
     Array <KeyBinding>           keyBindings;
     KeyBinding::Type             type;
     Boolean                      multireq              = false;
     Uint32                       i                     = 0;
     static Uint32                BUFFERSIZE            = 1024;
+    Array <Uint8>                authArray;
+    Uint32                       authLen               = 0;
 
-    Boolean                      expReq                = false;
-
+    if( ( userName.size() > 0 ) &&
+        ( password.size() > 0 ) )
+      {
+        /*
+          Construct basic authentication header.
+        */
+        authString.append( userName );
+        authString.append( ":" );
+        authString.append( password );
+        authLen = authString.size();
+        authArray.reserve( authLen );
+        authArray.clear();
+        for( i = 0; i < authLen; i++ )
+          {
+            authArray.append( (Uint8)authString[i] );
+          }
+        encoded = Base64::encode( authArray );
+        base64String = String( encoded.getData(), encoded.size() );
+      }
 
     //
     //  xml declaration
@@ -236,10 +271,15 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
     {
         multireq = true;
     }
+    else if (!XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
+    {
+        throw XmlValidationError (parser.getLine (), MISSING_ELEMENT_REQ);
+    }
+
     //
     //  SIMPLEREQ element
     //
-    else if (XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
+    else
     {
         //
         //  IMETHODCALL element
@@ -372,14 +412,6 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
                 MISSING_ELEMENT_METHODCALL);
         }
     }
-    else if (XmlReader::testStartTag (parser, entry, "SIMPLEEXPREQ"))
-    {
-        expReq = true;
-    }
-    else if (!XmlReader::testStartTag (parser, entry, XML_ELEMENT_SIMPLEREQ))
-    {
-        throw XmlValidationError (parser.getLine (), MISSING_ELEMENT_REQ);
-    }
 
     //
     //  Set headers
@@ -418,43 +450,33 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
             << HTTP_CRLF;
     message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR << HTTP_SP 
             << content.size () << HTTP_CRLF;
+    if( base64String.size() > 0 )
+      {
+        message << HEADER_NAME_AUTHORIZATION << HEADER_SEPARATOR << HTTP_SP <<
+          HTTP_AUTH_BASIC << HTTP_SP << base64String << HTTP_CRLF;
+      }
 
     if (useMPost)
     {
-        if (!expReq)
+        message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP 
+                << HEADER_VALUE_MAN << nn << HTTP_CRLF;
+        message << nn << HEADER_PREFIX_DELIMITER 
+                << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR 
+                << HTTP_SP << protocolVersion << HTTP_CRLF;
+        message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOPERATION
+                << HEADER_SEPARATOR << HTTP_SP << HEADER_VALUE_CIMOPERATION 
+                << HTTP_CRLF;
+        if (multireq)
         {
-            message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP 
-                    << HEADER_VALUE_MAN << nn << HTTP_CRLF;
-            message << nn << HEADER_PREFIX_DELIMITER 
-                    << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR 
-                    << HTTP_SP << protocolVersion << HTTP_CRLF;
-            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOPERATION
-                    << HEADER_SEPARATOR << HTTP_SP << HEADER_VALUE_CIMOPERATION 
-                    << HTTP_CRLF;
-            if (multireq)
-            {
-                message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH 
-                    << HTTP_CRLF;
-            }
-            else
-            {
-                message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD 
-                    << HEADER_SEPARATOR << HTTP_SP << methodName << HTTP_CRLF;
-                message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOBJECT
-                    << HEADER_SEPARATOR << HTTP_SP << objPath << HTTP_CRLF;
-            }
+            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH 
+                << HTTP_CRLF;
         }
         else
         {
-            message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP
-                    << HEADER_VALUE_MAN << nn << HTTP_CRLF;
-            message << nn << HEADER_PREFIX_DELIMITER
-                    << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR
-                    << HTTP_SP << protocolVersion << HTTP_CRLF;
-            message << "CIMExport" << HEADER_SEPARATOR << HTTP_SP 
-                    << "MethodRequest" << HTTP_CRLF;
-            message << "CIMExportMethod" << HEADER_SEPARATOR << HTTP_SP 
-                    << "ExportIndication" << HTTP_CRLF;
+            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD 
+                << HEADER_SEPARATOR << HTTP_SP << methodName << HTTP_CRLF;
+            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOBJECT
+                << HEADER_SEPARATOR << HTTP_SP << objPath << HTTP_CRLF;
         }
     }
     else
@@ -476,6 +498,17 @@ Array <Sint8> XMLProcess::encapsulate (XmlParser parser,
         }
     }
 
+    //
+    // Save the HTTP headers in case of authentication
+    //
+    httpHeaders << message;
+    //
+    // Set the authentication header if authentication required
+    //
+    if( useAuthentication )
+      {
+        message << clientAuthenticator->buildRequestAuthHeader() << HTTP_CRLF;
+      }
     message << HTTP_CRLF;
     message << content;
 

@@ -168,6 +168,13 @@ public:
     static const Uint32 INVALID_INPUT;
     
     /**
+       
+       Exception identifier indicating malloc error.
+  
+    */
+    static const Uint32 MALLOC_ERROR;
+
+    /**
       
         Maximum valid exception identifier.  This value must be updated when
         a new exception identifier and message are added.

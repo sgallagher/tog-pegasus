@@ -1,7 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
+// Compaq Computer Corporation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -23,41 +23,43 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Socket_h
-#define Pegasus_Socket_h
+#include <cstring>
+#include "Selector.h"
 
-#include <Pegasus/Common/Config.h>
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include "SelectorWindows.cpp"
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+# include "SelectorUnix.cpp"
+#elif defined(PEGASUS_OS_TYPE_NSK)
+# include "SelectorNsk.cpp"
+#else
+# error "Unsupported platform"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE Socket
+#define PEGASUS_ARRAY_T SelectorEntry
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+Uint32 Selector::_findEntry(Sint32 desc) const
 {
-public:
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
+    {
+        if (_entries[i].desc == desc)
+            return i;
+    }
 
+    return PEG_NOT_FOUND;
+}
 
-    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+SelectorHandler::~SelectorHandler()
+{
 
-    static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
-
-    static void close(Sint32 socket);
-
-    static void enableBlocking(Sint32 socket);
-
-    static void disableBlocking(Sint32 socket);
-
-    static void initializeInterface();
-
-    static void uninitializeInterface();
-
-private:
-
-    Socket() { }
-};
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_Socket_h */

@@ -85,6 +85,10 @@ static const char HTTP_VERSION_10 [] = "1.0";
 static const char HTTP_VERSION_11 [] = "1.1";
 
 /**
+ *  A string representing basic authentication
+ */
+static const char HTTP_AUTH_BASIC [] = "Basic";
+/**
  *  A string representing the required CRLF sequence.
  */
 static const char HTTP_CRLF [] = "\r\n";
@@ -99,6 +103,11 @@ static const char HTTP_SP [] = " ";
 //  Header names
 //
 
+/**
+ *  The name of the HTTP header specifying the authentication type and value
+ */
+static const char HEADER_NAME_AUTHORIZATION [] =
+                                    "Authorization";
 /**
  *  The name of the HTTP header specifying the Internet host of the resource
  *  being requested.

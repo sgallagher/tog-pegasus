@@ -1,7 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -27,37 +26,33 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Socket_h
-#define Pegasus_Socket_h
-
-#include <Pegasus/Common/Config.h>
+#include "Channel.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE Socket
+Channel::~Channel()
 {
-public:
 
+}
 
-    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+ChannelHandler::~ChannelHandler()
+{
 
-    static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
+}
 
-    static void close(Sint32 socket);
+ChannelHandlerFactory::~ChannelHandlerFactory()
+{
 
-    static void enableBlocking(Sint32 socket);
+}
 
-    static void disableBlocking(Sint32 socket);
+ChannelConnector::~ChannelConnector()
+{
 
-    static void initializeInterface();
+}
 
-    static void uninitializeInterface();
+ChannelAcceptor::~ChannelAcceptor()
+{
 
-private:
-
-    Socket() { }
-};
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_Socket_h */

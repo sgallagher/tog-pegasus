@@ -21,43 +21,49 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Socket_h
-#define Pegasus_Socket_h
+#ifndef Pegasus_WbemExecClientHandlerFactory_h
+#define Pegasus_WbemExecClientHandlerFactory_h
 
-#include <Pegasus/Common/Config.h>
+#include "Selector.h"
+#include "Channel.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE Socket
+/**
+  
+    WbemExecClientHandlerFactory is a factory class for the
+    WbemExecClientHandler class.  It is based on the ClientHandlerFactory class
+    (in Client/CIMClient.cpp).
+  
+    @author  Hewlett-Packard Company
+  
+ */
+class WbemExecClientHandlerFactory : public ChannelHandlerFactory
 {
 public:
 
+    WbemExecClientHandlerFactory (Selector* selector, 
+                                  PEGASUS_STD(ostream)& os, 
+                                  Boolean debugOutput);
 
-    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+    virtual ~WbemExecClientHandlerFactory ();
 
-    static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
-
-    static void close(Sint32 socket);
-
-    static void enableBlocking(Sint32 socket);
-
-    static void disableBlocking(Sint32 socket);
-
-    static void initializeInterface();
-
-    static void uninitializeInterface();
+    virtual ChannelHandler* create ();
 
 private:
 
-    Socket() { }
+    Selector* _selector;
+    PEGASUS_STD(ostream)& _os;
+    Boolean _debugOutput;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Socket_h */
+#endif  /* Pegasus_WbemExecClientHandlerFactory_h */

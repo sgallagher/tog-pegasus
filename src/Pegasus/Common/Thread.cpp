@@ -51,6 +51,17 @@ void thread_data::default_delete(void * data)
       ::operator delete(data);
 }
 
+// l10n start
+void language_delete(void * data)
+{
+   if( data != NULL)
+   {
+      AcceptLanguages * al = static_cast<AcceptLanguages *>(data);
+      ::operator delete(al);
+   }
+}
+// l10n end
+
 Boolean Thread::_signals_blocked = false;
 // l10n
 PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
@@ -207,7 +218,7 @@ void Thread::setLanguages(AcceptLanguages *langs) //l10n
    {
    		// deletes the old tsd and creates a new one
 		currentThrd->put_tsd("acceptLanguages",
-			thread_data::default_delete, 
+			language_delete, 
 			sizeof(AcceptLanguages *),
 			langs);   		
    }

@@ -46,7 +46,7 @@ class CIMRepository;  // forward declaration for repository member
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class RepositoryDeclContext : public DeclContext
+class PEGASUS_REPOSITORY_LINKAGE RepositoryDeclContext : public DeclContext
 {
 public:
 

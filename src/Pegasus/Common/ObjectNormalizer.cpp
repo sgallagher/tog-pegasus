@@ -39,6 +39,10 @@ PEGASUS_NAMESPACE_BEGIN
 #define DEBUG_PRINT(X)
 #endif
 
+static String CLASSES_TO_IGNORE[] = {
+    "__Namespace"
+};
+
 static CIMQualifier _resolveQualifier(
     const CIMQualifier & referenceQualifier,
     const CIMQualifier & cimQualifier)
@@ -552,6 +556,15 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     String hostName = cimInstances[0].getPath().getHost();
     CIMNamespaceName nameSpace = cimInstances[0].getPath().getNameSpace();
     CIMName className = cimInstances[0].getPath().getClassName();
+
+    // ignore "special" objects (like __Namespace, which does not have a class definition)
+    for(Uint32 i = 0, n = sizeof(CLASSES_TO_IGNORE) / sizeof(CLASSES_TO_IGNORE[0]); i < n; i++)
+    {
+        if(String::equalNoCase(className.getString(), CLASSES_TO_IGNORE[i]))
+        {
+            return(cimInstances);
+        }
+    }
 
     // ATTN: get the complete instance and use this resolver to remove extraneous information.
     CIMClass referenceClass =

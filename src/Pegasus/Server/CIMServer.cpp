@@ -34,6 +34,7 @@
 //         Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+//         Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -174,7 +175,7 @@ void CIMServer::_init(void)
 #endif
     // -- Save the monitor or create a new one:
     repositoryRootPath =
-	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+        ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
     // -- Create a repository:
 
@@ -188,7 +189,7 @@ void CIMServer::_init(void)
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
         PEG_METHOD_EXIT();
-	throw NoSuchDirectory(repositoryRootPath);
+    throw NoSuchDirectory(repositoryRootPath);
 
     }
 #endif
@@ -272,13 +273,13 @@ void CIMServer::_init(void)
 #endif
 
     _cimOperationRequestDispatcher
-	= new CIMOperationRequestDispatcher(_repository,
+    = new CIMOperationRequestDispatcher(_repository,
                                             _providerRegistrationManager);
     _binaryMessageHandler =
        new BinaryMessageHandler(_cimOperationRequestDispatcher);
 
     _cimOperationResponseEncoder
-	= new CIMOperationResponseEncoder;
+    = new CIMOperationResponseEncoder;
 
     //
     // get the configured authentication and authorization flags
@@ -316,14 +317,14 @@ void CIMServer::_init(void)
     }
 
     _cimExportRequestDispatcher
-	= new CIMExportRequestDispatcher();
+    = new CIMExportRequestDispatcher();
 
     _cimExportResponseEncoder
-	= new CIMExportResponseEncoder;
+    = new CIMExportResponseEncoder;
 
     _cimExportRequestDecoder = new CIMExportRequestDecoder(
-	_cimExportRequestDispatcher,
-	_cimExportResponseEncoder->getQueueId());
+    _cimExportRequestDispatcher,
+    _cimExportResponseEncoder->getQueueId());
 
     _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
@@ -367,7 +368,7 @@ CIMServer::~CIMServer()
     }
 
     if (_sslcontext)
-	delete _sslcontext;
+    delete _sslcontext;
 
     if(_type != OLD)
     {
@@ -395,10 +396,10 @@ void CIMServer::addAcceptor(
   else {
     pegasus_acceptor* acceptor =
       new pegasus_acceptor(monitor2,
-			   _httpAuthenticatorDelegator,
-			   localConnection,
-			   portNumber,
-			   useSSL ? _getSSLContext() : 0);
+               _httpAuthenticatorDelegator,
+               localConnection,
+               portNumber,
+               useSSL ? _getSSLContext() : 0);
     acceptor->bind();
   }
 }
@@ -410,20 +411,20 @@ void CIMServer::bind()
     if(_type == OLD) {
 
       if (_acceptors.size() == 0)
-	{
-	  // l10n
+    {
+      // l10n
 
-	  // throw BindFailedException("No CIM Server connections are enabled.");
+      // throw BindFailedException("No CIM Server connections are enabled.");
 
-	  MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
+      MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
 
-	  throw BindFailedException(mlp);
-	}
+      throw BindFailedException(mlp);
+    }
 
       for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-	  _acceptors[i]->bind();
-	}
+    {
+      _acceptors[i]->bind();
+    }
     }
 
     PEG_METHOD_EXIT();
@@ -452,7 +453,7 @@ void CIMServer::_monitor_idle_routine(void *parm)
    if (handleShutdownSignal)
    {
       Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-		    "CIMServer::runForever - signal received.  Shutting down.");
+            "CIMServer::runForever - signal received.  Shutting down.");
       myself->monitor2->stop();
       
       ShutdownService::getInstance(myself)->shutdown(true, 10, false);
@@ -547,9 +548,9 @@ void CIMServer::stopClientConnection()
         pegasus_sleep(150);
 
         for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-	  _acceptors[i]->closeConnectionSocket();
-	}
+    {
+      _acceptors[i]->closeConnectionSocket();
+    }
     }
 
     PEG_METHOD_EXIT();
@@ -641,36 +642,65 @@ Uint32 CIMServer::getOutstandingRequestCount()
 
     if(_type == OLD) {
       for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-	  requestCount += _acceptors[i]->getOutstandingRequestCount();
-	}
+    {
+      requestCount += _acceptors[i]->getOutstandingRequestCount();
+    }
     }
 
     PEG_METHOD_EXIT();
     return requestCount;
 }
 
+// added by hns for client ssl auth
+Boolean verifyClientCallback(SSLCertificateInfo &certInfo)
+{
+    // Note: For now, this function returns true all the time, i.e. 
+    // all clients are trusted.  This allows the SSL handshake to
+    // proceed even if the certificate the client sent is not trusted.
+    // Only use this in conjunction with another form of authentication,
+    // such as HTTP basic authentication. hns
+    //PEGASUS_STD(cout) << "Verify client callback \n";
+    return true;
+}
+
 SSLContext* CIMServer::_getSSLContext()
 {
     static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
     static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
+    static String PROPERTY_NAME__SSLTRUST_FILEPATH  = "sslTrustFilePath";
+    static String PROPERTY_NAME__SSLCLIENT_VERIFICATION = "enableSSLClientVerification";
 
 
     if (_sslcontext == 0)
     {
         //
+        // Get the enableSSLClientVerification property from the Config Manager.
+        //
+        
+        String verifyClient = String::EMPTY;
+        verifyClient = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLCLIENT_VERIFICATION);
+
+        //
+        // Get the sslTrustFilePath property from the Config Manager.
+        //
+        String trustPath = String::EMPTY;
+        trustPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLTRUST_FILEPATH);
+
+        //
         // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath;
-		certPath = ConfigManager::getHomedPath(
-			ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLCERT_FILEPATH));
+        certPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLCERT_FILEPATH);
 
-		//
+        //
         // Get the sslKeyFilePath property from the Config Manager.
         //
         String keyPath;
-        keyPath = ConfigManager::getHomedPath(
-			ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLKEY_FILEPATH));
+        keyPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLKEY_FILEPATH);
 
         String randFile = String::EMPTY;
 
@@ -682,7 +712,20 @@ SSLContext* CIMServer::_getSSLContext()
         randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-        _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
+        // modified by hns for ssl client verification
+        // only send trustpath to SSLContext if the enableSSLClientVerification flag is set
+        if (String::compareNoCase(verifyClient, "true") == 0)
+        {
+            Tracer::trace(TRC_SSL, Tracer::LEVEL3,
+                "SSL Client verification ON.");
+            _sslcontext = new SSLContext(trustPath, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientCallback, randFile);
+        } 
+        else 
+        {
+            Tracer::trace(TRC_SSL, Tracer::LEVEL3,
+                "SSL Client verification OFF.");
+            _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
+        }
     }
 
     return _sslcontext;
@@ -722,8 +765,8 @@ void CIMServer::startSLPProvider()
     _runSLP = false;
 
     // Create a separate thread, detach and call function to execute the startup.
-	Thread t( _callSLPProvider, 0, true );
-	t.run();
+    Thread t( _callSLPProvider, 0, true );
+    t.run();
 
     PEG_METHOD_EXIT();
     return;
@@ -805,7 +848,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
         "SLP Registration Initiated");
 
     PEG_METHOD_EXIT();
-	return( (PEGASUS_THREAD_RETURN)32 );
+    return( (PEGASUS_THREAD_RETURN)32 );
 }
 #endif
 

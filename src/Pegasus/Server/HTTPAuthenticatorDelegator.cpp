@@ -27,6 +27,7 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +91,7 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     if (queue)
     {
         HTTPMessage* httpMessage = new HTTPMessage(message);
-	httpMessage->dest = queue->getQueueId();
+    httpMessage->dest = queue->getQueueId();
 
         queue->enqueue(httpMessage);
     }
@@ -212,7 +213,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
-    Boolean authenticated = false;
+    //modified for SSL client verification -hns
+    //client may have already authenticated via SSL
+    //Boolean authenticated = false;
+    Boolean authenticated = httpMessage->authInfo->getAuthStatus();
     deleteMessage = true;
 
     // ATTN-RK-P3-20020408: This check probably shouldn't be necessary, but
@@ -290,11 +294,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         // Process M-POST and POST messages:
         //
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	    "HTTPAuthenticatorDelegator - M-POST/POST processing start");
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "HTTPAuthenticatorDelegator - M-POST/POST processing start");
 
-	httpMessage->message.append('\0');
+    httpMessage->message.append('\0');
 
+    if (!authenticated) 
+    {
         //
         // Search for Authorization header:
         //
@@ -351,16 +357,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         }
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	// The presence of a Security Association indicates that Kerberos is being used
-	// Reset flag for subsequent calls to indicate that no Authorization
+    // The presence of a Security Association indicates that Kerberos is being used
+    // Reset flag for subsequent calls to indicate that no Authorization
         // record was sent. If one was sent the flag will be appropriately reset later.
-	// The sa is maintained while the connection is active.
+    // The sa is maintained while the connection is active.
         CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
         if (sa)
         {
             sa->setClientSentAuthorization(false);
         }
-#endif	
+#endif  
 
         if ( HTTPMessage::lookupHeader(
              headers, "Authorization", authorization, false) &&
@@ -407,48 +413,50 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     PEG_METHOD_EXIT();
                     return;
                 }
-	    }  // first not authenticated check
-	}  // "Authorization" header check
+        }  // first not authenticated check
+    }  // "Authorization" header check
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	// The pointer to the sa is created in the authenticator so we need to also
-	// assign it here.
-	sa = httpMessage->authInfo->getSecurityAssociation();
-	if (sa)
-	{
-	    Uint32 sendAction = 0;  // 0 - continue, 1 = send success, 2 = send response
-	     // The following is processing to unwrap (decrypt) the request from the
-	     // client when using kerberos authentication.
-	    sa->unwrapRequestMessage(httpMessage->message, contentLength,
-				     authenticated, sendAction);
-	    if (sendAction)  // send success or send response
-	    {
-		if (httpMessage->message.size() == 0)
-		{
-		    _sendHttpError(queueId,
-				   HTTP_STATUS_BADREQUEST,
-				   String::EMPTY,
-				   "Authorization header error");
-		}
-		else
-		{
-		    if (sendAction == 1)  // Send success
-		    {
-			_sendSuccess(queueId,
-				     String(httpMessage->message.getData(), httpMessage->message.size()));
-		    }
+    // The pointer to the sa is created in the authenticator so we need to also
+    // assign it here.
+    sa = httpMessage->authInfo->getSecurityAssociation();
+    if (sa)
+    {
+        Uint32 sendAction = 0;  // 0 - continue, 1 = send success, 2 = send response
+         // The following is processing to unwrap (decrypt) the request from the
+         // client when using kerberos authentication.
+        sa->unwrapRequestMessage(httpMessage->message, contentLength,
+                     authenticated, sendAction);
+        if (sendAction)  // send success or send response
+        {
+        if (httpMessage->message.size() == 0)
+        {
+            _sendHttpError(queueId,
+                   HTTP_STATUS_BADREQUEST,
+                   String::EMPTY,
+                   "Authorization header error");
+        }
+        else
+        {
+            if (sendAction == 1)  // Send success
+            {
+            _sendSuccess(queueId,
+                     String(httpMessage->message.getData(), httpMessage->message.size()));
+            }
 
-		    if (sendAction == 2)  // Send response
-		    {
-			_sendResponse(queueId, httpMessage->message);
-		    }
-		}
+            if (sendAction == 2)  // Send response
+            {
+            _sendResponse(queueId, httpMessage->message);
+            }
+        }
 
-		PEG_METHOD_EXIT();
-		return;
-	    }
-	}
+        PEG_METHOD_EXIT();
+        return;
+        }
+    }
 #endif
+
+    } //end BIG if(!authenticated)
 
         if ( authenticated || !enableAuthentication )
         {
@@ -460,47 +468,47 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (HTTPMessage::lookupHeader(
                 headers, "CIMOperation", cimOperation, true))
             {
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation);
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation);
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
 
                 if (queue)
                 {
-		   httpMessage->dest = queue->getQueueId();
-		   
-		   try
-		     {
+           httpMessage->dest = queue->getQueueId();
+           
+           try
+             {
                        queue->enqueue(httpMessage);
-		     }
-		   catch(exception & e)
-		     {
-		       delete httpMessage;
+             }
+           catch(exception & e)
+             {
+               delete httpMessage;
                        _sendHttpError(queueId,
                                       HTTP_STATUS_REQUEST_TOO_LARGE);
-		       PEG_METHOD_EXIT();
-		       deleteMessage = false;
-		       return;
-		     }
+               PEG_METHOD_EXIT();
+               deleteMessage = false;
+               return;
+             }
                  deleteMessage = false;
                 }
             }
             else if (HTTPMessage::lookupHeader(
                 headers, "CIMExport", cimOperation, true))
             {
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_exportMessageQueueId);
 
                 if (queue)
                 {
-		   httpMessage->dest = queue->getQueueId();
+           httpMessage->dest = queue->getQueueId();
 
-		   queue->enqueue(httpMessage);
-		   deleteMessage = false;
+           queue->enqueue(httpMessage);
+           deleteMessage = false;
                 }
             }
             else

@@ -63,7 +63,7 @@
 #include <Pegasus/IndicationService/IndicationService.h>
 
 #ifdef ENABLE_PROVIDER_MANAGER2
-#include <Pegasus/ProviderManaer2/ProviderManagerService.h>
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #else
 #include <Pegasus/ProviderManager/ProviderManagerService.h>
 #include <Pegasus/ProviderManager/ProviderManager.h>

@@ -1,413 +1,361 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-// Only include if not included as general template or if explicit instantiation
-#if !defined(Pegasus_ArrayImpl_h) || defined(PEGASUS_ARRAY_T)
-#if !defined(PEGASUS_ARRAY_T)
-#define Pegasus_ArrayImpl_h
-#endif
-
-PEGASUS_NAMESPACE_END
-
-#include <Pegasus/Common/Memory.h>
-#include <Pegasus/Common/ArrayRep.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Linkage.h>
-
-PEGASUS_NAMESPACE_BEGIN
-
-PEGASUS_COMMON_LINKAGE void ArrayThrowIndexOutOfBoundsException();
+#if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array()
 {
-    _rep = &ArrayRepBase::_empty_rep;
+    _rep = Rep::getNullRep();
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(const Array<PEGASUS_ARRAY_T>& x)
 {
-    _rep = x._rep;
-    ArrayRep<PEGASUS_ARRAY_T>::ref(Array_rep);
+    Rep::inc(_rep = x._rep);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
-    _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
-
-    // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
-    // storage could not be obtained.
-
-    InitializeRaw(Array_data, size);
+    _rep = Rep::create(size);
+    InitializeRaw(_rep->data(), size);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
-    _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
+    _rep = Rep::create(size);
 
-    // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
-    // storage could not be obtained.
-
-    PEGASUS_ARRAY_T* data = Array_data;
-
-    // Note: we could use template specialization (by adding functions to
-    // Memory.h) so that this loop becomes a memset() for single byte raw
-    // types, but this function is rarely called.
+    PEGASUS_ARRAY_T* data = _rep->data();
 
     while (size--)
-        new(data++) PEGASUS_ARRAY_T(x);
+	new(data++) PEGASUS_ARRAY_T(x);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 {
-    _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
-
-    // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
-    // storage could not be obtained.
-
-    CopyToRaw(Array_data, items, size);
+    _rep = Rep::create(size);
+    CopyToRaw(_rep->data(), items, size);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::~Array()
 {
-    ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
+    Rep::dec(_rep);
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>& Array<PEGASUS_ARRAY_T>::operator=(
     const Array<PEGASUS_ARRAY_T>& x)
 {
-    if (x._rep != Array_rep)
+    if (x._rep != _rep)
     {
-        ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-        _rep = x._rep;
-        ArrayRep<PEGASUS_ARRAY_T>::ref(Array_rep);
+	Rep::dec(_rep);
+	Rep::inc(_rep = x._rep);
     }
-
     return *this;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::clear()
 {
-    if (Array_size)
-    {
-        if (Array_refs.get() == 1)
-        {
-            Destroy(Array_data, Array_size);
-            Array_size = 0;
-        }
-        else
-        {
-            ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-            _rep = &ArrayRepBase::_empty_rep;
-        }
-    }
+    Rep::dec(_rep);
+    _rep = Rep::getNullRep();
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
+void Array<PEGASUS_ARRAY_T>::_reserveAux(Uint32 capacity)
 {
-    if (capacity > Array_capacity || Array_refs.get() != 1)
+    Uint32 size = this->size();
+    Rep* rep = Rep::create(capacity);
+    rep->size = size;
+    CopyToRaw(rep->data(), _rep->data(), size);
+    Rep::dec(_rep);
+    _rep = rep;
+}
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+void Array<PEGASUS_ARRAY_T>::_copyOnWriteAux()
+{
+    if (_rep->ref != 1)
     {
-        ArrayRep<PEGASUS_ARRAY_T>* rep =
-            ArrayRep<PEGASUS_ARRAY_T>::alloc(capacity);
-
-        // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
-        // storage could not be obtained.
-
-        rep->size = Array_size;
-
-        if (Array_refs.get() == 1)
-        {
-            memcpy( 
-                (void*)rep->data(), 
-                (void*)Array_data, 
-                Array_size*sizeof(PEGASUS_ARRAY_T));
-            Array_size = 0;
-        }
-        else
-            CopyToRaw(rep->data(), Array_data, Array_size);
-
-        ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-        _rep = rep;
+	Rep* rep = _rep->clone();
+	Rep::dec(_rep);
+	_rep = rep;
     }
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::grow(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
-    reserveCapacity(Array_size + size);
-    PEGASUS_ARRAY_T* p = Array_data + Array_size;
+    Uint32 oldSize = _rep->size;
+    reserve(oldSize + size);
+    _copyOnWrite();
+
+    PEGASUS_ARRAY_T* p = _rep->data() + oldSize;
     Uint32 n = size;
 
     while (n--)
-        new(p++) PEGASUS_ARRAY_T(x);
+	new(p++) PEGASUS_ARRAY_T(x);
 
-    Array_size += size;
+    _rep->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::swap(Array<PEGASUS_ARRAY_T>& x)
 {
-    ArrayRep<PEGASUS_ARRAY_T>* tmp = Array_rep;
+    Rep* tmp = _rep;
     _rep = x._rep;
     x._rep = tmp;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T& x)
 {
-    Uint32 n = Array_size + 1;
-
-    if (n > Array_capacity || Array_refs.get() != 1)
-        reserveCapacity(n);
-
-    new (Array_data + Array_size) PEGASUS_ARRAY_T(x);
-    Array_size++;
+    reserve(size() + 1);
+    _copyOnWrite();
+    new (_data() + size()) PEGASUS_ARRAY_T(x);
+    _rep->size++;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    Uint32 n = Array_size + size;
-    reserveCapacity(n);
-    CopyToRaw(Array_data + Array_size, x, size);
-    Array_size = n;
+    reserve(this->size() + size);
+    _copyOnWrite();
+    CopyToRaw(_data() + this->size(), x, size);
+    _rep->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
-#endif
-void Array<PEGASUS_ARRAY_T>::appendArray(const Array<PEGASUS_ARRAY_T>& x)
-{
-    append(x.getData(), x.size());
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T& x)
 {
-    prepend(&x, 1);
+    reserve(size() + 1);
+    _copyOnWrite();
+    memmove(_data() + 1, _data(), sizeof(PEGASUS_ARRAY_T) * size());
+    new(_data()) PEGASUS_ARRAY_T(x);
+    _rep->size++;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    reserveCapacity(Array_size + size);
-    memmove(
-        (void*)(Array_data + size),
-        (void*)Array_data,
-        sizeof(PEGASUS_ARRAY_T) * Array_size);
-    CopyToRaw(Array_data, x, size);
-    Array_size += size;
+    reserve(this->size() + size);
+    _copyOnWrite();
+    memmove(_data() + size, _data(), sizeof(PEGASUS_ARRAY_T) * this->size());
+    CopyToRaw(_data(), x, size);
+    _rep->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-void Array<PEGASUS_ARRAY_T>::insert(Uint32 index, const PEGASUS_ARRAY_T& x)
+void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T& x)
 {
-    insert(index, &x, 1);
-}
+    if (pos > size())
+	ThrowOutOfBounds();
 
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-void Array<PEGASUS_ARRAY_T>::insert(
-    Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size)
-{
-    if (index > Array_size)
-    {
-        throw IndexOutOfBoundsException();
-    }
+    reserve(size() + 1);
+    _copyOnWrite();
 
-    reserveCapacity(Array_size + size);
-
-    Uint32 n = Array_size - index;
+    Uint32 n = size() - pos;
 
     if (n)
-    {
-        memmove(
-            Array_data + index + size,
-            Array_data + index,
-            sizeof(PEGASUS_ARRAY_T) * n);
-    }
+	memmove(_data() + pos + 1, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
 
-    CopyToRaw(Array_data + index, x, size);
-    Array_size += size;
+    new(_data() + pos) PEGASUS_ARRAY_T(x);
+    _rep->size++;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-void Array<PEGASUS_ARRAY_T>::remove(Uint32 index)
+void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    remove(index, 1);
+    if (pos + size > this->size())
+	ThrowOutOfBounds();
+
+    reserve(this->size() + size);
+    _copyOnWrite();
+
+    Uint32 n = this->size() - pos;
+
+    if (n)
+	memmove(
+	    _data() + pos + size, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
+
+    CopyToRaw(_data() + pos, x, size);
+    _rep->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
+void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos)
 {
-    if (size == 0)
-    {
-        return;
-    }
+    if (pos >= this->size())
+	ThrowOutOfBounds();
 
-    if (Array_refs.get() != 1)
-        _rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
+    _copyOnWrite();
 
-    // Case 1: attempting to remove last element (this is an optimization
-    // for when the array is used as a stack; see Stack class).
+    Destroy(_data() + pos);
 
-    if (index + 1 == Array_size)
-    {
-        Destroy(Array_data + index, 1);
-        Array_size--;
-        return;
-    }
-
-    // Case 2: not attempting to remove last element:
-
-    if (index + size - 1 > Array_size)
-    {
-        throw IndexOutOfBoundsException();
-    }
-
-    Destroy(Array_data + index, size);
-    Uint32 rem = Array_size - (index + size);
+    Uint32 rem = this->size() - pos - 1;
 
     if (rem)
-    {
-        memmove(
-            Array_data + index,
-            Array_data + index + size,
-            sizeof(PEGASUS_ARRAY_T) * rem);
-    }
+	memmove(_data() + pos, _data() + pos + 1, sizeof(PEGASUS_ARRAY_T) * rem);
 
-    Array_size -= size;
+    _rep->size--;
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-Uint32 Array<PEGASUS_ARRAY_T>::size() const
+void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 {
-    return Array_size;
+    if (pos + size > this->size())
+	ThrowOutOfBounds();
+
+    _copyOnWrite();
+
+    Destroy(_data() + pos, size);
+
+    Uint32 rem = this->size() - (pos + size);
+
+    if (rem)
+	memmove(
+	    _data() + pos, _data() + pos + size, sizeof(PEGASUS_ARRAY_T) * rem);
+
+    _rep->size -= size;
+}
+
+#ifdef PEGASUS_HAS_EBCDIC
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+void Array<PEGASUS_ARRAY_T>::etoa()
+{
+#if PEGASUS_ARRAY_T == Sint8
+    _copyOnWrite();
+    __etoa_l((char *)_data(),_rep->size);
+#endif
 }
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
-    Uint32 index)
+void Array<PEGASUS_ARRAY_T>::atoe()
 {
-    if (index >= Array_size)
-        ArrayThrowIndexOutOfBoundsException();
-
-    if (Array_refs.get() != 1)
-        _rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
-
-    return Array_data[index];
+#if PEGASUS_ARRAY_T == Sint8
+    _copyOnWrite();
+    __atoe_l((char *)_data(),_rep->size);
+#endif
 }
 
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
 #endif
-const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
-    Uint32 index) const
-{
-    if (index >= Array_size)
-        ArrayThrowIndexOutOfBoundsException();
 
-    return Array_data[index];
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-Uint32 Array<PEGASUS_ARRAY_T>::getCapacity() const
-{
-    return Array_capacity;
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::getData() const
-{
-    return Array_data;
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::_data() const
-{
-    return Array_data;
-}
-
-#endif //!defined(Pegasus_ArrayImpl_h) || !defined(PEGASUS_ARRAY_T)
+#endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

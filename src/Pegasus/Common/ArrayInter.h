@@ -1,243 +1,274 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-// Only include if not included as general template or if explicit instantiation
-#if !defined(Pegasus_ArrayInter_h) || defined(PEGASUS_ARRAY_T)
-#if !defined(PEGASUS_ARRAY_T)
-#define Pegasus_ArrayInter_h
-#endif
+#if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
 
-#include <Pegasus/Common/Linkage.h>
-
-#ifndef PEGASUS_ARRAY_T
-/**
-    This class is used to represent arrays of intrinsic data types in CIM.
+/** Array Class.
+    This clas is used to represent arrays of intrinsic data types in CIM. And
+    it is also used by the implementation to represent arrays of other kinds of
+    objects (e.g., it is used to implement the String class). However, the user
+    will only use it directly to manipulate arrays of CIM data types.
 */
-template<class PEGASUS_ARRAY_T> class Array
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+class Array
 #else
-PEGASUS_TEMPLATE_SPECIALIZATION
-    class PEGASUS_COMMON_LINKAGE Array<PEGASUS_ARRAY_T>
+PEGASUS_TEMPLATE_SPECIALIZATION class Array<PEGASUS_ARRAY_T>
 #endif
 {
 public:
 
-    /**
-        Constructs an array object with null values (default constructor).
-    */
+    /// Default constructor.
     Array();
 
-    /**
-        Creates a new Array object using the parameters and values in the
-        Array object.
-        @param x Specifies the new Array object name.
-    */
+    /// Copy Constructor.
     Array(const Array<PEGASUS_ARRAY_T>& x);
 
-    /**
-        Constructs an array with size elements. The elements are
-        initialized with their copy constructor.
-        @param size Defines the number of elements.
+    /** Constructs an array with size elements. The elements are
+	initialized with their copy constructor.
+	@param size defines the number of elements
     */
     Array(Uint32 size);
 
-    /**
-        Constructs an array with size elements. The elements are
-        initialized with array x.
-        @param size Defines the number of elements.
-        @param x Specifies the new array object name.
+    /** Constructs an array with size elements. The elements are
+    	initialized with x.
     */
     Array(Uint32 size, const PEGASUS_ARRAY_T& x);
 
-    /**
-        Constructs an array with size elements. The values come from
-        the items pointer.
-        @param items References the values of the specified array.
-        @param size Uint32 representing how many elements are in the array.
+    /** Constructs an array with size elements. The values come from
+	the items pointer.
     */
     Array(const PEGASUS_ARRAY_T* items, Uint32 size);
 
-    /**
-        Destroys the objects, freeing any resources.
-    */
+    Array(ArrayRep<PEGASUS_ARRAY_T>* rep)
+    {
+	Rep::inc(_rep = rep);
+    }
+
+    /// Destructs the objects, freeing any resources.
     ~Array();
 
-    /**
-        The values of one array object are assigned to another (assignment
-        operator).
-        @param x Array object to assign the Array parameters to.
-    */
+    /// Assignment operator.
     Array<PEGASUS_ARRAY_T>& operator=(const Array<PEGASUS_ARRAY_T>& x);
 
-    /**
-        Clears the contents of the array. After calling this, size()
-        returns zero.
+    /** Clears the contents of the array. After calling this, size()
+	returns zero.
     */
     void clear();
 
-    /**
-        Reserves memory for capacity elements. Notice that this does not
-        change the size of the array (size() returns what it did before).
-        If the capacity of the array is already greater or equal to the
-        capacity argument, this method has no effect. After calling
-        reserveCapacity(), getCapacity() returns a value which is greater
-        or equal to the capacity argument.
-        @param capacity Defines the size that is to be reserved
+    /** Reserves memory for capacity elements. Notice that this does not
+	change the size of the array (size() returns what it did before).
+	If the capacity of the array is already greater or equal to the
+	capacity argument, this method has no effect. After calling reserve(),
+	getCapacity() returns a value which is greater or equal to the
+	capacity argument.
+	@param capacity defines the size that is to be reserved
     */
-    void reserveCapacity(Uint32 capacity);
+    void reserve(Uint32 capacity)
+    {
+	if (capacity > _rep->capacity)
+	    _reserveAux(capacity);
+    }
 
-    /**
-        Make the size of the array grow by size elements. The new size will
-        be size() + size. The new elements (there are size of them) are
-        initialized with x.
-        @param size Defines the number of elements by which the array is to
-        grow.
-        @param x The element value with which to initialize the new elements.
+    /** Make the size of the array grow by size elements. Thenew size will 
+	be size() + size. The new elements (there are size of them) are
+	initialized with x.
+	@param size defines the number of elements by which the array is to
+	grow.
     */
     void grow(Uint32 size, const PEGASUS_ARRAY_T& x);
 
-    /**
-        Swaps the contents of two arrays.  After the swap, Array x references
-        the original values of this Array object and this Array object
-        references the original values of Array x.
-        @param x The Array with which to swap values.
-    */
+    /// Swaps the contents of two arrays.
     void swap(Array<PEGASUS_ARRAY_T>& x);
 
-    /**
-        Returns the number of elements in the array.
-        @return The number of elements in the array.
+    /** Returns the number of elements in the array.
+    @return The number of elements in the array.
     */
-    Uint32 size() const;
+    Uint32 size() const { return _rep->size; }
 
-    /**
-        Returns the capacity of the array.
-        @return The capacity of the array.
+    /// Returns the capacity of the array.
+    Uint32 getCapacity() const { return _rep->capacity; }
+
+    /// Returns a pointer to the first element of the array.
+    const PEGASUS_ARRAY_T* getData() const
+    {
+	return _rep->data();
+    }
+
+    /** Returns the element at the index given by the pos argument.
+	@return A reference to the elementdefined by index so that it may be
+	modified.
     */
-    Uint32 getCapacity() const;
+    PEGASUS_ARRAY_T& operator[](Uint32 pos);
 
-    /**
-        Returns a pointer to the first element of the array.
-        @return A pointer to the first element of the array.
+    /** Same as the above method except that this is the version called
+	on const arrays. The return value cannot be modified since it
+	is constant.
     */
-    const PEGASUS_ARRAY_T* getData() const;
+    const PEGASUS_ARRAY_T& operator[](Uint32 pos) const;
 
-    /**
-        Returns the element indicated by the index argument.
-        @return A reference to the element defined by index so that it may be
-        modified.
-    */
-    PEGASUS_ARRAY_T& operator[](Uint32 index);
-
-    /**
-        Returns the element in the const array specified as the index argument.
-        The return value cannot be modified since it is constant.
-        @return A reference to the element defined by index but the reference
-        cannot be modified.
-    */
-    const PEGASUS_ARRAY_T& operator[](Uint32 index) const;
-
-    /**
-        Appends an element to the end of the array. This increases the size
-        of the array by one.
-        @param x Element to append.
+    /** Appends an element to the end of the array. This increases the size
+	of the array by one.
+	@param Element to append.
     */
     void append(const PEGASUS_ARRAY_T& x);
 
-    /**
-        Appends size elements at x to the end of this array.
-        @param x Pointer to a buffer containing the elements to append.
-        @param size A Uint32 value specifying the number of elements to append.
-    */
+    /// Appends size elements at x to the end of this array.
     void append(const PEGASUS_ARRAY_T* x, Uint32 size);
 
-    /**
-        Appends one array to another. The size of this array grows by the
-        size of the other.
-        @param x Array to add to the appended array.
+    /** Appends one array to another. The size of this array grows by the
+	size of the other.
+	@param Array to append.
     */
-    void appendArray(const Array<PEGASUS_ARRAY_T>& x);
+    void appendArray(const Array<PEGASUS_ARRAY_T>& x)
+    {
+	append(x.getData(), x.size());
+    }
 
-    /**
-        Appends one element to the beginning of the array. This increases
-        the size by one.
-        @param x The element to prepend.
+    /** Appends one element to the beginning of the array. This increases
+	the size by one.
+	@param Element to prepend.
     */
     void prepend(const PEGASUS_ARRAY_T& x);
 
-    /**
-        Prepends a specified number of elements from a buffer to the array.
-        @param x Pointer to a buffer containing the elements to prepend.
-        @param size A Uint32 value specifying the number of elements to prepend.
+    /** Appends size elements to the array starting at the memory address
+	given by x. The array grows by size elements.
     */
     void prepend(const PEGASUS_ARRAY_T* x, Uint32 size);
 
-    /**
-        Inserts the element at the given index in the array. Subsequent
-        elements are moved down. The size of the array grows by one.
-        @param index The index at which to insert the element into the array.
-        @param x Specifies the element to add to the array.
+    /** Inserts the element at the given index in the array. Subsequent
+	elements are moved down. The size of the array grows by one.
     */
-    void insert(Uint32 index, const PEGASUS_ARRAY_T& x);
+    void insert(Uint32 pos, const PEGASUS_ARRAY_T& x);
 
-    /**
-        Inserts a specified number of elements from a buffer into the array at
-        a given index.  Subsequent elements are moved down.  The size of the
-        array grows by the specified number of elements.
-        @param index The index at which to insert the elements into the array.
-        @param x Pointer to a buffer containing the elements to insert.
-        @param size A Uint32 value specifying the number of elements to insert.
+    /** Inserts size elements at x into the array at the given position.
+	Subsequent elements are moved down. The size of the array grows
+	by size elements.
     */
-    void insert(Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size);
+    void insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size);
 
-    /**
-        Removes the element at the given index from the array. The
-        size of the array shrinks by one.
-        @param index Specifies the array element to remove.
+    /** Removes the element at the given position from the array. The
+	size of the array shrinks by one.
     */
-    void remove(Uint32 index);
+    void remove(Uint32 pos);
 
-    /**
-        Removes size elements starting at the given index. The size of
-        the array shrinks by size elements.
-        @param index Specifies where in the array to begin removing elements.
-        @param size Uint32 size that specifies how many elements to remove
-        from the array.
+    /** Removes size elements starting at the given position. The size of
+	the array shrinks by size elements.
     */
-    void remove(Uint32 index, Uint32 size);
+    void remove(Uint32 pos, Uint32 size);
+
+#ifdef PEGASUS_HAS_EBCDIC
+    void etoa();
+
+    void atoe();
+#endif
+
+    typedef PEGASUS_ARRAY_T* iterator;
+
+    typedef const PEGASUS_ARRAY_T* const_iterator;
+
+    iterator begin() { return _rep->data(); }
+
+    iterator end() { return _rep->data() + size(); }
+
+    const_iterator begin() const { return getData(); }
+
+    const_iterator end() const { return getData() + size(); }
 
 private:
 
-    PEGASUS_ARRAY_T* _data() const;
+    void set(ArrayRep<PEGASUS_ARRAY_T>* rep)
+    {
+	if (_rep != rep)
+	{
+	    Rep::dec(_rep);
+	    Rep::inc(_rep = rep);
+	}
+    }
 
-    void* _rep;
+    void _reserveAux(Uint32 capacity);
+
+    PEGASUS_ARRAY_T* _data() const { return _rep->data(); }
+
+    typedef ArrayRep<PEGASUS_ARRAY_T> Rep;
+
+    void _copyOnWriteAux();
+
+    void _copyOnWrite()
+    {
+	if (_rep->ref != 1)
+	    _copyOnWriteAux();
+    }
+
+    Rep* _rep;
+
+    friend class CIMValue;
 };
 
-#endif //!defined(Pegasus_ArrayInter_h) || !defined(PEGASUS_ARRAY_T)
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+inline Boolean operator==(
+    const Array<PEGASUS_ARRAY_T>& x,
+    const Array<PEGASUS_ARRAY_T>& y)
+{
+    return Equal(x, y);
+}
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+inline PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
+{
+    if (pos >= size())
+	ThrowOutOfBounds();
+
+    _copyOnWrite();
+
+    return _rep->data()[pos];
+}
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+inline const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
+    Uint32 pos) const
+{
+    if (pos >= size())
+	ThrowOutOfBounds();
+
+    return _rep->data()[pos];
+}
+
+#endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

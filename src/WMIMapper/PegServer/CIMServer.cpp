@@ -33,6 +33,7 @@
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //		   Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
+//		   Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/Signal.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 /*
@@ -72,21 +74,21 @@
 /*
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
+#include "BinaryMessageHandler.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
+#include <Pegasus/ProviderManager/ProviderManager.h>
 */
+
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
 
-#ifndef TRC_WMI_MAPPER
-#define TRC_WMI_MAPPER TRC_DISPATCHER
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
-
 /*
 // Need a static method to act as a callback for the control provider.
 // This doesn't belong here, but I don't have a better place to put it.
@@ -100,8 +102,7 @@ static Message * controlProviderReceiveMessageCallback(
 }
 
 Boolean handleShutdownSignal = false;
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-void shutdownSignalHandler(int s_n, siginfo_t * s_info, void * sig)
+void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
     Tracer::trace(TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n);
@@ -110,13 +111,12 @@ void shutdownSignalHandler(int s_n, siginfo_t * s_info, void * sig)
 
     PEG_METHOD_EXIT();
 }
-#endif
 */
 
 CIMServer::CIMServer(Monitor* monitor)
    : _dieNow(false)
 {
-    PEG_METHOD_ENTER(TRC_WMI_MAPPER, "CIMServer::CIMServer()");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
 
     String repositoryRootPath = String::EMPTY;
 
@@ -141,9 +141,11 @@ CIMServer::CIMServer(Monitor* monitor)
     {
         PEG_METHOD_EXIT();
 	throw NoSuchDirectory(repositoryRootPath);
+
     }
 #endif
 */
+
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
@@ -208,14 +210,19 @@ CIMServer::CIMServer(Monitor* monitor)
                                        namespaceProvider,
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
-	_cimOperationRequestDispatcher
-	= new CIMOperationRequestDispatcher(_repository,
-                                        _providerRegistrationManager);
-*/
 
-	_cimOperationRequestDispatcher = new CIMOperationRequestDispatcher;
-    
-	_cimOperationResponseEncoder = new CIMOperationResponseEncoder;
+    _cimOperationRequestDispatcher
+	= new CIMOperationRequestDispatcher(_repository,
+                                            _providerRegistrationManager);
+    _binaryMessageHandler = 
+       new BinaryMessageHandler(_cimOperationRequestDispatcher);
+*/
+        
+    _cimOperationRequestDispatcher = 
+		new CIMOperationRequestDispatcher;
+	
+	_cimOperationResponseEncoder
+		= new CIMOperationResponseEncoder;
 
     //
     // get the configured authentication and authorization flags
@@ -223,7 +230,7 @@ CIMServer::CIMServer(Monitor* monitor)
     ConfigManager* configManager = ConfigManager::getInstance();
 
     Boolean enableAuthentication = false;
-    
+
     if (String::equalNoCase(
         configManager->getCurrentValue("enableAuthentication"), "true"))
     {
@@ -231,14 +238,10 @@ CIMServer::CIMServer(Monitor* monitor)
     }
 
     //
-    // check if authentication and authorization are enabled
+    // Create Authorization queue only if authentication is enabled
     //
     if ( enableAuthentication )
     {
-        //
-        // Create Authorization queue only if authorization and
-        // authentication are enabled
-        //
         _cimOperationRequestAuthorizer = new CIMOperationRequestAuthorizer(
             _cimOperationRequestDispatcher);
 
@@ -248,21 +251,23 @@ CIMServer::CIMServer(Monitor* monitor)
     }
     else
     {
-        //_cimOperationRequestAuthorizer = 0;
+        _cimOperationRequestAuthorizer = 0;
 
-        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(	
-            _cimOperationRequestDispatcher, // to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
-            _cimOperationResponseEncoder->getQueueId()); // substitute the cimom as well for the _cimOperationResponseEncoder below
+        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
+            _cimOperationRequestDispatcher,
+            _cimOperationResponseEncoder->getQueueId());
 
     }
 
-    _cimExportRequestDispatcher	= new CIMExportRequestDispatcher;
+    _cimExportRequestDispatcher
+	= new CIMExportRequestDispatcher();
 
-    _cimExportResponseEncoder = new CIMExportResponseEncoder;
+    _cimExportResponseEncoder
+	= new CIMExportResponseEncoder;
 
     _cimExportRequestDecoder = new CIMExportRequestDecoder(
-		_cimExportRequestDispatcher,
-		_cimExportResponseEncoder->getQueueId());
+	_cimExportRequestDispatcher,
+	_cimExportResponseEncoder->getQueueId());
 
     _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
@@ -275,7 +280,7 @@ CIMServer::CIMServer(Monitor* monitor)
     // get ExportQueue to export indications for existing subscriptions
 
 /*
-	_indicationService = 0;
+    _indicationService = 0;
     if (String::equal(
         configManager->getCurrentValue("enableIndicationService"), "true"))
     {
@@ -283,11 +288,11 @@ CIMServer::CIMServer(Monitor* monitor)
             (_repository, _providerRegistrationManager);
     }
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    // Enable the signal handler to shutdown gracefully on SIGHUP
-    getSigHandle()->registerHandler(SIGHUP, sigHupHandler);
-    getSigHandle()->activate(SIGHUP);
-#endif
+    // Enable the signal handler to shutdown gracefully on SIGHUP and SIGTERM
+    getSigHandle()->registerHandler(PEGASUS_SIGHUP, shutdownSignalHandler);
+    getSigHandle()->activate(PEGASUS_SIGHUP);
+    getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
+    getSigHandle()->activate(PEGASUS_SIGTERM);
 */
 
     PEG_METHOD_EXIT();
@@ -300,12 +305,12 @@ CIMServer::~CIMServer()
     // Note: do not delete the acceptor because it belongs to the Monitor
     // which takes care of disposing of it.
 
-    /*
-	if (_providerRegistrationManager)
+/*
+    if (_providerRegistrationManager)
     {
         delete _providerRegistrationManager;
     }
-	*/
+*/
 
     if (_sslcontext)
 	delete _sslcontext;
@@ -334,7 +339,13 @@ void CIMServer::bind()
 
     if (_acceptors.size() == 0)
     {
-        throw BindFailedException("No CIM Server connections are enabled.");
+      // l10n
+      
+      // throw BindFailedException("No CIM Server connections are enabled.");
+
+      MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
+      
+      throw BindFailedException(mlp);
     }
 
     for (Uint32 i=0; i<_acceptors.size(); i++)
@@ -347,40 +358,52 @@ void CIMServer::bind()
 
 void CIMServer::runForever()
 {
-   // Note: Trace code in this method will be invoked frequently.
-
-   static int modulator = 0;
+	// Note: Trace code in this method will be invoked frequently.
+	static int modulator = 0;
    
-   if(!_dieNow)
-   {
-      if(false == _monitor->run(100))
-      {
-		modulator++;
-		if( ! (modulator % 1000) )
-			ThreadPool::kill_idle_threads();
-      }
+	if(!_dieNow)
+	{
+		if(false == _monitor->run(100))
+		{
+			modulator++;
+			if(!(modulator % 5000))
+			{
+				try 
+				{
+					MessageQueueService::_check_idle_flag = 1;
+					MessageQueueService::_polling_sem.signal();
+					//ProviderManagerService::getProviderManager()->unload_idle_providers();
+					_monitor->kill_idle_threads();
+					
+				}
+				catch(...)
+				{
+					Tracer::trace(TRC_SERVER, Tracer::LEVEL3, "problems");
+				}
+			}
+		}
 
       /*
 	  if (handleShutdownSignal)
       {
          Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-            "CIMServer::runForever - signal received.  Shutting down.");
-
+		       "CIMServer::runForever - signal received.  Shutting down.");
+	 
          ShutdownService::getInstance(this)->shutdown(true, 10, false);
          handleShutdownSignal = false;
       }
 	  */
-   }
-   
+	}
 }
 
 void CIMServer::stopClientConnection()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
-    // set monitor flag to close the acceptor sockets
-    //
-    _monitor->setCloseAcceptorSockets();
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->closeConnectionSocket();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -480,15 +503,24 @@ Uint32 CIMServer::getOutstandingRequestCount()
 SSLContext* CIMServer::_getSSLContext()
 {
     static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath"; 
+    static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath"; 
+  
 
     if (_sslcontext == 0)
     {
         //
-        // Get the CertificateFilePath property from the Config Manager.
+        // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath;
         certPath = ConfigManager::getInstance()->getCurrentValue(
                                PROPERTY_NAME__SSLCERT_FILEPATH);
+
+        //
+        // Get the sslKeyFilePath property from the Config Manager.
+        //
+        String keyPath;
+        keyPath = ConfigManager::getInstance()->getCurrentValue(
+                               PROPERTY_NAME__SSLKEY_FILEPATH);
 
         String randFile = String::EMPTY;
 
@@ -497,11 +529,10 @@ SSLContext* CIMServer::_getSSLContext()
         // the server side, but it is easier to use a consistent interface
         // on the client and server than to optimize out the random file on
         // the server side.
-        randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
-
+        randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-		_sslcontext = new SSLContext(String::EMPTY, certPath, 0, randFile);
+        _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
     }
 
     return _sslcontext;

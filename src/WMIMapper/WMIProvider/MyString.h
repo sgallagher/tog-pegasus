@@ -23,7 +23,7 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,6 +51,7 @@ public:
     CMyString(LPCWSTR lpsz);
     CMyString(LPCSTR lpsz);
     CMyString(const unsigned char* psz);
+	CMyString(String sStr);
 
     BSTR Bstr();
     BOOL Compare(BSTR bStr);
@@ -82,6 +83,7 @@ public:
 	// string concatenation
     const CMyString& operator+=(const CMyString& stringSrc);
     const CMyString& operator+=(LPCTSTR lpsz);
+	const CMyString& operator+=(String sStr);
 
 // Implementation
 public:

@@ -24,6 +24,7 @@
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:	 Adriano Zanuz (adriano.zanuz@hp.com)
+//               Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider.cpp: implementation of the WMIBaseProvider class.
@@ -31,8 +32,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-
-//#include <Pegasus/Common/CIMNamedInstance.h>
 
 #include "WMICollector.h"
 #include "WMIBaseProvider.h"
@@ -86,7 +85,6 @@ void WMIBaseProvider::terminate(void)
 	cleanup();
 
 	PEG_METHOD_EXIT();
-
 }
 
 
@@ -163,14 +161,13 @@ CIMInstance WMIBaseProvider::getCIMInstance(const String& nameSpace,
 	CIMInstance cimInstance;
 	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
 	String errorDescription;
+	WMIInstanceProvider provider;
 
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMInstance()");
 
 	try
 	{
-		WMIInstanceProvider provider;
-
-		provider.initialize(_collector->isLocalConnection());
+		provider.initialize(true);
 
 		cimInstance = provider.getInstance(nameSpace, 
 										   userName, 
@@ -180,23 +177,25 @@ CIMInstance WMIBaseProvider::getCIMInstance(const String& nameSpace,
 										   false, 
 										   false, 
 										   propertyList);
-
 		provider.terminate();
 	}
 	catch(CIMException& exception)
 	{
+		provider.terminate();
 		errorCode = exception.getCode();
 		errorDescription = exception.getMessage();
 		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	catch(Exception& exception)
 	{
+		provider.terminate();
 		errorCode = CIM_ERR_FAILED;
 		errorDescription = exception.getMessage();
 		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	catch(...)
 	{
+		provider.terminate();
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -219,14 +218,13 @@ CIMClass WMIBaseProvider::getCIMClass(const String& nameSpace,
 	CIMClass cimClass;
 	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
 	String errorDescription;
+	WMIClassProvider provider;
 
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMClass()");
 
 	try
 	{
-		WMIClassProvider provider;
-
-		provider.initialize(_collector->isLocalConnection());
+		provider.initialize(true);
 
 		cimClass = provider.getClass(nameSpace, userName, password, className, false, true, true, propertyList);
 
@@ -234,18 +232,21 @@ CIMClass WMIBaseProvider::getCIMClass(const String& nameSpace,
 	}
 	catch(CIMException& exception)
 	{
+		provider.terminate();
 		errorCode = exception.getCode();
 		errorDescription = exception.getMessage();
 		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	catch(Exception& exception)
 	{
+		provider.terminate();
 		errorCode = CIM_ERR_FAILED;
 		errorDescription = exception.getMessage();
 		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	catch(...)
 	{
+		provider.terminate();
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -273,14 +274,13 @@ Array<CIMObject> WMIBaseProvider::execCIMQuery(
 	CIMInstance cimInstance;
 	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
 	String errorDescription;
+	WMIQueryProvider provider;
 
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::execCIMQuery()");
 
 	try
 	{
-		WMIQueryProvider provider;
-
-		provider.initialize(_collector->isLocalConnection());
+		provider.initialize(true);
 
 		objects = provider.execQuery(nameSpace,
 					userName,
@@ -290,23 +290,26 @@ Array<CIMObject> WMIBaseProvider::execCIMQuery(
 					propertyList,
 					includeQualifiers,
 					includeClassOrigin);
-
+		
 		provider.terminate();
 	}
 	catch(CIMException& exception)
 	{
+		provider.terminate();
 		errorCode = exception.getCode();
 		errorDescription = exception.getMessage();
 		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	catch(Exception& exception)
 	{
+		provider.terminate();
 		errorCode = CIM_ERR_FAILED;
 		errorDescription = exception.getMessage();
 		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
 	}
 	catch(...)
 	{
+		provider.terminate();
 		throw CIMException(CIM_ERR_FAILED);
 	}
 
@@ -328,31 +331,22 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 		const String &role,
 		const String &resultRole)
 {
-	String s;
 	bool hasWHERE = false;
 	bool isInst;
 
-	String sObjName;
-	CMyString sName;
-	CMyString sQCmnd;
-
-	CMyString sQuery;
-
-	sQCmnd = sQueryCommand;
-
 	//first we need to get the object name
-	sObjName = getObjectName(objectName);
+	String sObjName = getObjectName(objectName);
 
 	// check if is an instance name
 	Uint32 pos = sObjName.find(qString(Q_PERIOD));
 	isInst = (PEG_NOT_FOUND != pos);
 
-	sName = sObjName;
-	sQuery.Format(sQCmnd, 128, sName);
+	CMyString sQuery;
+	sQuery.Format(CMyString(sQueryCommand), 128, CMyString(sObjName));
 
 	//set up any optional parameters
-	if (!(	(0 == assocClass.size()) && (0 == resultClass.size()) &&
-			(0 == role.size()) && (0 == resultRole.size()) ))
+	if (!((0 == assocClass.size()) && (0 == resultClass.size()) &&
+		  (0 == role.size()) && (0 == resultRole.size())))
 	{	
 		// we have optional parameters, append the appropriate ones
 		sQuery += qChar(Q_WHERE);
@@ -361,29 +355,25 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 		if (0 != assocClass.size())
 		{
 			sQuery += qChar(Q_ASSOC_CLS);
-			sName = assocClass;
-			sQuery += sName;
+			sQuery += assocClass;
 		}
 
 		if (0 != resultClass.size())
 		{
 			sQuery += qChar(Q_RESULT_CLASS);
-			sName = resultClass;
-			sQuery += sName;
+			sQuery += resultClass;
 		}
 
 		if (0 != role.size())
 		{
 			sQuery += qChar(Q_ROLE);
-			sName = role;
-			sQuery += sName;
+			sQuery += role;
 		}
 
 		if (0 != resultRole.size())
 		{
 			sQuery += qChar(Q_RESULT_ROLE);
-			sName = resultRole;
-			sQuery += sName;
+			sQuery += resultRole;
 		}
 	}
 
@@ -402,7 +392,7 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMIBaseProvider::getQueryString() - Query is %s", (LPCTSTR)sQuery); 
 
-	s = (LPCTSTR)sQuery;
+	String s = (LPCTSTR)sQuery;
 	return s;
 }
 
@@ -415,27 +405,9 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 {
 	String sObjName;
 	bool bHaveReference = false;
-	Uint32 i, size, refCount;
-
+	
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getObjectName()");
 
-	// we will need the keys to massage the object name string
-	KeyBindingArray keys = objectName.getKeyBindings();
-	size = keys.size();
-
-	for (i = 0, refCount = 0; i < size; i++)
-	{
-		KeyBinding key = keys[i];
-
-		if (KeyBinding::REFERENCE == key.getType())
-		{
-			refCount++;
-		}
-	}
-
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIBaseProvider::getObjectName() - Reference count is %x", refCount); 
-	
 	sObjName = objectName.toString();
 	
 	Tracer::trace("WMIBaseProvider", 400, TRC_WMIPROVIDER, Tracer::LEVEL3,
@@ -479,24 +451,6 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 			sObjName.remove(pos + 1, 1);	//removing R"
 			pos = sObjName.find(qString(Q_REF_KEY));
 		}
-
-		// now remove extra quotes and \"
-		//===================================
-		/*
-		pos = sObjName.find(qString(Q_SLASH));
-		while (PEG_NOT_FOUND != pos)
-		{
-			sObjName[pos] = '\\';
-			pos = sObjName.find(qString(Q_SLASH));
-		}
-
-		while (PEG_NOT_FOUND != pos)
-		{
-			sObjName.remove(pos, 1);	// removing \ from \"
-			pos = sObjName.find(qString(Q_SLASH_QUOTE));
-		}
-		*/
-		//===================================
 	}
 
 	Tracer::trace("WMIBaseProvider", 420, TRC_WMIPROVIDER, Tracer::LEVEL3, sObjName); 

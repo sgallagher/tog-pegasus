@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,28 +45,23 @@ WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList) : CI
 
 WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 {
-	CComPtr<IWbemQualifierSet> pQualifiers = pObject;
-
 	HRESULT hr;
-	CMyString	sMessage;
+	String	sMessage;
 
-	CComBSTR	bsName;			// of the qualifier
-	CComVariant	vValue;			// of the qualifier
-	long		lFlavor;		// of the qualifier
-	CIMQualifier	qualifier;
+	CComBSTR	 bsName = NULL;	// of the qualifier
+	CComVariant	 vValue;		// of the qualifier
+	long		 lFlavor;		// of the qualifier
+	CIMQualifier qualifier;
 	
  	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
 
-	hr = pQualifiers->BeginEnumeration(0);
+	hr = pObject->BeginEnumeration(0);
 	sMessage = "BeginEnumeration()";
 
 	if (SUCCEEDED(hr))
 	{
-		bsName.Empty();
-		vValue.Clear();
 		sMessage = "Next()";
-
-		hr = pQualifiers->Next(0, &bsName, &vValue, &lFlavor);
+		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
 	}
 
 	// process each qualifier
@@ -82,25 +78,28 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 		}
 		catch (...)
 		{
+			bsName.Empty();
+			VariantClear(&vValue);
+
 			throw CIMException(CIM_ERR_FAILED);
 		}
 
 		bsName.Empty();
-		vValue.Clear();
+		VariantClear(&vValue);
 
-		hr = pQualifiers->Next(0, &bsName, &vValue, &lFlavor);
+		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
 	}
-
+	
+	bsName.Empty();
+	VariantClear(&vValue);
+	pObject->EndEnumeration();
 
 	if (FAILED(hr))
 	{
 		Tracer::trace(TRC_WMIPROVIDER,Tracer::LEVEL3,
-			"WMIQualifierSet::WMIQualifierSet - %s result is %x", (LPCTSTR)sMessage, hr);
+			"WMIQualifierSet::WMIQualifierSet - %s result is %x", sMessage, hr);
+		
 		throw CIMException(CIM_ERR_FAILED);
-	}
-	else
-	{
-		pQualifiers->EndEnumeration();
 	}
 
 	PEG_METHOD_EXIT();

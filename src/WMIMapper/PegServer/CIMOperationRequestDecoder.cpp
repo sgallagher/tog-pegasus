@@ -33,6 +33,8 @@
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
+//              Jair F. T. Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +51,12 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/OperationContext.h>
 #include "CIMOperationRequestDecoder.h"
+#include "WMIMapperUserInfoContainer.h"
+
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
 
@@ -313,7 +320,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          return;
       }
 
-	  try
+      try
       {
          cimMethod = XmlReader::decodeURICharacters(cimMethod);
       }
@@ -326,6 +333,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          return;
       }
    }
+
    if (HTTPMessage::lookupHeader(headers, "CIMObject", cimObject, true))
    {
       if (cimObject == String::EMPTY)
@@ -337,7 +345,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          return;
       }
 
-	  try
+      try
       {
          cimObject = XmlReader::decodeURICharacters(cimObject);
       }
@@ -350,6 +358,43 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          return;
       }
    }
+
+// l10n start
+   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;
+   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
+   try 
+   { 
+		// Get and validate the Accept-Language header, if set 	   	  
+		String acceptLanguageHeader;		
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Accept-Language", 
+		      acceptLanguageHeader,
+	    	  false) == true)
+	    {
+			acceptLanguages = AcceptLanguages(acceptLanguageHeader);
+	    }
+
+		// Get and validate the Content-Language header, if set 	
+		String contentLanguageHeader;
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Content-Language", 
+		      contentLanguageHeader,
+	    	  false) == true)
+	    {						
+			contentLanguages = ContentLanguages(contentLanguageHeader);      
+	    }
+   }			
+   catch (Exception &e)
+   {
+		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
+					"request-not-valid",
+                    e.getMessage());		         	
+       	PEG_METHOD_EXIT();
+       	return;
+   }        
+// l10n end   
 
    // Zero-terminate the message:
 
@@ -364,10 +409,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // If it is a method call, then dispatch it to be handled:
 
+// l10n
    handleMethodCall(queueId, httpMethod, content, contentLength, 
                     cimProtocolVersion, cimMethod,
-                    cimObject, authType, userName,
-					password);
+                    cimObject, authType, userName, password, 
+					acceptLanguages, contentLanguages);
     
    PEG_METHOD_EXIT();
 }
@@ -383,10 +429,20 @@ void CIMOperationRequestDecoder::handleMethodCall(
    const String& cimObjectInHeader,
    String authType,
    String userName,
-   String password)
+   String password,
+   const AcceptLanguages& httpAcceptLanguages,  // l10n
+   const ContentLanguages& httpContentLanguages)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleMethodCall()");
+
+/*
+// l10n
+	// Set the Accept-Language into the thread for this service.
+	// This will allow all code in this thread to get
+	// the languages for the messages returned to the client.
+	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));		
+*/
 
    //
    // If CIMOM is shutting down, return "Service Unavailable" response
@@ -400,6 +456,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
        return;
    }
 
+   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	       "CIMOperationRequestdecoder - XML content: $0", content);
    // Create a parser:
 
    XmlParser parser(content);
@@ -456,8 +514,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
       if (!XmlReader::getMessageStartTag(
 	     parser, messageId, protocolVersion))
       {
-	 throw XmlValidationError(
-	    parser.getLine(), "expected MESSAGE element");
+
+	// l10n
+
+	// throw XmlValidationError(
+	//  parser.getLine(), "expected MESSAGE element");
+
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element", "MESSAGE");
+
+	throw XmlValidationError(parser.getLine(), mlParms);
+				 
+			       
       }
 
       // Validate that the protocol version in the header matches the XML
@@ -563,8 +631,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	 if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
 	 {
-	    throw XmlValidationError(parser.getLine(), 
-				     "expected LOCALNAMESPACEPATH element");
+
+	   // l10n
+
+	   // throw XmlValidationError(parser.getLine(), 
+	   // "expected LOCALNAMESPACEPATH element");
+
+	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				      "expected $0 element", "LOCALNAMESPACEPATH");
+
+	   throw XmlValidationError(parser.getLine(),mlParms);
+				    
+			       
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
@@ -696,8 +774,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
                   queueId, parser, messageId, nameSpace, authType, userName);
             else
             {
-               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                  String("Unrecognized intrinsic method: ") + cimMethodName);
+	      // l10n
+
+	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+	      // String("Unrecognized intrinsic method: ") + cimMethodName);
+
+	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD",
+									     "Unrecognized intrinsic method: $0", cimMethodName));
+
             }
          }
          catch (CIMException& e)
@@ -782,8 +866,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.putBack(entry);
 	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
 	    {
-	       throw XmlValidationError(parser.getLine(),
-					"expected LOCALINSTANCEPATH element");
+
+	      // l10n
+
+	      // throw XmlValidationError(parser.getLine(),
+	      // "expected LOCALINSTANCEPATH element");
+	      
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+					 "expected $0 element", "LOCALINSTANCEPATH");
+
+	      throw XmlValidationError(parser.getLine(),mlParms);
+
+				       
 	    }
 	 }
 	 //
@@ -795,14 +889,23 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.putBack(entry);
 	    if (!XmlReader::getLocalClassPathElement(parser, reference))
 	    {
-	       throw XmlValidationError(parser.getLine(),
-					"expected LOCALCLASSPATH element");
+	      // l10n
+
+	      // throw XmlValidationError(parser.getLine(),
+	      // "expected LOCALCLASSPATH element");
+
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+					 "expected $0 element", "LOCALCLASSPATH");
+
+	      throw XmlValidationError(parser.getLine(),mlParms);
+
 	    }
 	 }
 	 else
 	 {
-	    throw XmlValidationError(parser.getLine(),
-				     MISSING_ELEMENT_LOCALPATH);
+	   throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
+	   // is a hardcoded variable, not a message
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
@@ -905,8 +1008,16 @@ void CIMOperationRequestDecoder::handleMethodCall(
       }
       else
       {
-	 throw XmlValidationError(parser.getLine(), 
-				  "expected IMETHODCALL or METHODCALL element");
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(), 
+	// "expected IMETHODCALL or METHODCALL element");
+
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element", "IMETHODCALL or METHODCALL");
+
+	throw XmlValidationError(parser.getLine(),mlParms);
+			       
       }
 
       // Expect </SIMPLEREQ>
@@ -923,6 +1034,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (XmlValidationError& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDecoder::handleMethodCall - XmlValidationError exception has occurred. Message: $0",e.getMessage());
+
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
                     e.getMessage());
       PEG_METHOD_EXIT();
@@ -930,6 +1044,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (XmlSemanticError& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDecoder::handleMethodCall - XmlSemanticError exception has occurred. Message: $0",e.getMessage());
+
       // ATTN-RK-P2-20020404: Is this the correct response for these errors?
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
                     e.getMessage());
@@ -938,6 +1055,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (XmlException& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDecoder::handleMethodCall - XmlException has occurred. Message: $0",e.getMessage());
+
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed",
                     e.getMessage());
       PEG_METHOD_EXIT();
@@ -966,14 +1086,27 @@ void CIMOperationRequestDecoder::handleMethodCall(
    STAT_BYTESREAD
 
    request->setHttpMethod (httpMethod);
-
-#ifdef PEGASUS_WMIMAPPER
-
+   
    ((CIMRequestMessage *)request)->operationContext.insert(WMIMapperUserInfoContainer(password));
 
-#endif
+//l10n start
+// l10n TODO - might want to move A-L and C-L to Message
+// to make this more maintainable
+	// Add the language headers to the request
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+	if (cimmsg != NULL)
+	{
+		cimmsg->acceptLanguages = httpAcceptLanguages;
+		cimmsg->contentLanguages = httpContentLanguages;			
+	}
+	else
+	{
+		;	// l10n TODO - error back to client here	
+	}
+// l10n end	
 
    _outputQueue->enqueue(request);
+   
    PEG_METHOD_EXIT();
 }
 

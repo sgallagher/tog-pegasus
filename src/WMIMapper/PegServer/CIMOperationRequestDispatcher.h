@@ -31,6 +31,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //		Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //				Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
+//				Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -46,12 +47,8 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/OperationContext.h>
-
+#include <WMIMapper/PegServer/WMIMapperUserInfoContainer.h>
 #include <WMIMapper/PegServer/CIMServer.h>
-
-//#include <Pegasus/Repository/CIMRepository.h>
-
-//#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 
 #include <WMIMapper/WMIProvider/WMIInstanceProvider.h>

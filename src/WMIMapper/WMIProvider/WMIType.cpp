@@ -24,7 +24,8 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Barbara Packard (barbara_packard@hp.com)
-//				Paulo Sehn		(paulo_sehn@hp.com)
+//              Paulo Sehn (paulo_sehn@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

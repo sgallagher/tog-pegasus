@@ -30,6 +30,7 @@
 //              (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//				Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,8 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/AcceptLanguages.h>  //l10n
+#include <Pegasus/Common/ContentLanguages.h>  //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -88,6 +91,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       void handleHTTPMessage(HTTPMessage* httpMessage);
 
+// l10n
       void handleMethodCall(
 	 Uint32 queueId,
          HttpMethod httpMethod,
@@ -98,7 +102,9 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 const String& cimObjectInHeader,
 	 String authType,
 	 String userName,
-	 String password);
+	 String password,
+	 const AcceptLanguages& httpAcceptLanguages,
+	 const ContentLanguages& httpContentLanguages);
 
       CIMCreateClassRequestMessage* decodeCreateClassRequest(
 	 Uint32 queueId,
@@ -107,6 +113,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
+
 
       CIMGetClassRequestMessage* decodeGetClassRequest(
 	 Uint32 queueId,

@@ -20,11 +20,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
+//s
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
 //		change Reference to ObjectPath - (bp 5/23/02)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +133,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 	while(p[pos] != Char16(0))
 	{
 		// get keys
-		KeyBinding key;
+		CIMKeyBinding key;
 
 		// seek to '='
 		for(len = 0; (p[pos] != Char16(0)) && (p[pos] != '='); len++, pos++);
@@ -185,7 +186,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 			}
 
 			key.setValue(temp);
-			key.setType(KeyBinding::STRING);
+			key.setType(CIMKeyBinding::STRING);
 		}
 		else if((p[pos] == 't') || (p[pos] == 'T') || (p[pos] == 'f') || (p[pos] == 'F'))
 		{
@@ -196,7 +197,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
 			key.setValue(String(&p[pos - len], len));
 
-			key.setType(KeyBinding::BOOLEAN);
+			key.setType(CIMKeyBinding::BOOLEAN);
 		}
 		else if(std::isdigit<wchar_t>(p[pos], std::locale()))
 		{
@@ -207,7 +208,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
 			key.setValue(String(&p[pos - len], len));
 
-			key.setType(KeyBinding::NUMERIC);
+			key.setType(CIMKeyBinding::NUMERIC);
 		}
 		else
 		{
@@ -215,7 +216,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 		}
 
 		// update key list
-		Array<KeyBinding> keySet = getKeyBindings();
+		Array<CIMKeyBinding> keySet = getKeyBindings();
 
 		keySet.append(key);
 
@@ -301,7 +302,7 @@ WMIObjectPath::WMIObjectPath(IWbemClassObject * pObject)
 	::SafeArrayGetLBound(pKeyArray, 1, &lbound);
 	::SafeArrayGetUBound(pKeyArray, 1, &ubound);
 
-	Array<KeyBinding> KeyList;
+	Array<CIMKeyBinding> KeyList;
 
 	for(long i = lbound; i <= ubound; ++i)
 	{
@@ -309,7 +310,7 @@ WMIObjectPath::WMIObjectPath(IWbemClassObject * pObject)
 
 		::SafeArrayGetElement(pKeyArray, &i, &Property);
 
-		KeyList.append(KeyBinding(WMIString(_bstr_t(Property, false)), String(), KeyBinding::STRING));
+		KeyList.append(CIMKeyBinding(WMIString(_bstr_t(Property, false)), String(), CIMKeyBinding::STRING));
 	}
 
 	::SafeArrayDestroy(pKeyArray);
@@ -319,7 +320,7 @@ WMIObjectPath::WMIObjectPath(IWbemClassObject * pObject)
 		CIMTYPE type;
 
 		vt.Clear();
-		pObject->Get(_bstr_t(WMIString(KeyList[j].getName())), 0, &vt, &type, 0);
+		pObject->Get(_bstr_t(WMIString(KeyList[j].getName().getString())), 0, &vt, &type, 0);
 
 		KeyList[j].setValue(WMIString(vt));
 
@@ -335,15 +336,15 @@ WMIObjectPath::WMIObjectPath(IWbemClassObject * pObject)
 		case CIM_UINT64:
 		case CIM_REAL32:
 		case CIM_REAL64:
-			KeyList[j].setType(KeyBinding::NUMERIC);
+			KeyList[j].setType(CIMKeyBinding::NUMERIC);
 
 			break;
 		case CIM_STRING:
-			KeyList[j].setType(KeyBinding::STRING);
+			KeyList[j].setType(CIMKeyBinding::STRING);
 
 			break;
 		case CIM_BOOLEAN:
-			KeyList[j].setType(KeyBinding::BOOLEAN);
+			KeyList[j].setType(CIMKeyBinding::BOOLEAN);
 
 			break;
 		default:
@@ -360,13 +361,13 @@ WMIObjectPath::operator const BSTR(void) const
 
 	if(!(getNameSpace().isNull()))
 	{
-		bstr += _bstr_t(WMIString(getNameSpace()));
+		bstr += _bstr_t(WMIString(getNameSpace().getString()));
 		bstr += L":";
 	}
 
-	bstr += _bstr_t(WMIString(getClassName()));
+	bstr += _bstr_t(WMIString(getClassName().getString()));
 
-	Array<KeyBinding> KeyList = getKeyBindings();
+	Array<CIMKeyBinding> KeyList = getKeyBindings();
 
 	if(KeyList.size() != 0)
 	{
@@ -375,7 +376,7 @@ WMIObjectPath::operator const BSTR(void) const
 
 	for(Uint32 i = 0; i < KeyList.size(); ++i)
 	{
-		bstr += _bstr_t(WMIString(KeyList[i].getName()));
+		bstr += _bstr_t(WMIString(KeyList[i].getName().getString()));
 		bstr += L"=";
 		bstr += L"\"";
 

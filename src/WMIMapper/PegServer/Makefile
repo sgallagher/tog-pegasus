@@ -12,7 +12,7 @@ endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_WMIMAPPER
+LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegwmiserver
 
@@ -35,7 +35,8 @@ SOURCES = \
     CIMOperationResponseEncoder.cpp \
     CIMOperationRequestDispatcher.cpp \
     CIMOperationRequestAuthorizer.cpp \
-    CIMServerState.cpp 
+    CIMServerState.cpp \
+	WMIMapperUserInfoContainer.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
@@ -57,3 +58,12 @@ copy2:
 	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.cpp ./CIMServerState.cpp
 	$(COPY) $(ROOT)/src/Pegasus/Server/CIMServerState.h ./CIMServerState.h
 	$(COPY) $(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.h ./HTTPAuthenticatorDelegator.h
+
+clean2:
+	$(RM) ./CIMOperationResponseEncoder.cpp
+	$(RM) ./CIMOperationResponseEncoder.h
+	$(RM) ./CIMOperationRequestAuthorizer.cpp 
+	$(RM) ./CIMOperationRequestAuthorizer.h 
+	$(RM) ./CIMServerState.cpp
+	$(RM) ./CIMServerState.h
+	$(RM) ./HTTPAuthenticatorDelegator.h

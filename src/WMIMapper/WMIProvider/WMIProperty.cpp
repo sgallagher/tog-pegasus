@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,14 +52,11 @@ WMIProperty::WMIProperty(const BSTR & name,
 						 Boolean includeQualifiers)
 {
 	CIMQualifierList qualifierList;
-
 	CComBSTR bsName = name;
 	CComVariant vValue = value;
-
 	qualifierList = WMIQualifierSet(pQualifierSet);
 
 	// get additional property information
-
 	String referenceClass = String::EMPTY;
 
 	// the WMI 'CIMTYPE' qualifier stores a string that contains the reference class name
@@ -101,7 +99,6 @@ WMIProperty::WMIProperty(const BSTR & name,
 
 	// build the property
 	String s = WMIString(bsName);
-
 	CIMName cimRef;
 	CIMName cimClsOrigin;
 
@@ -117,6 +114,8 @@ WMIProperty::WMIProperty(const BSTR & name,
 
 	*this = CIMProperty(CIMName(s), WMIValue(vValue, type), 0, cimRef,
 				cimClsOrigin, (classOrigin.size() != 0));
+
+	VariantClear(&vValue);
 
 	// add the qualifiers
 	if (includeQualifiers)
@@ -138,6 +137,8 @@ WMIProperty::WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE
 
 	// build the property
 	*this = CIMProperty(WMIString(bsName), WMIValue(vValue, type));
+
+	VariantClear(&vValue);
 }
 
 

@@ -23,7 +23,7 @@
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:
+// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,13 +104,16 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
 	if (!m_bInitialized)
 	{
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Initialization failed!");
+		throw CIMException(CIM_ERR_FAILED);
 	}
 
 	// retrieve results
 	if (!(_collector->getQueryResult(&pObjEnum, query, queryLanguage)))
 	{
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "ExecQuery failed!");
+		if (pObjEnum)
+			pObjEnum.Release();
+
+		throw CIMException(CIM_ERR_FAILED);
 	}
 
 	//set proxy security on pObjEnum
@@ -118,7 +121,6 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	
 	//get the results and append them to the array
 	hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
-
 	
 	if (SUCCEEDED(hr) && (1 == dwReturned))
 	{
@@ -131,17 +133,13 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 		CIMObject cimObj;
 		String className2 = _collector->getClassName(pObject);
 
-
 		if (!(String::equalNoCase(className, className2)))
 		{	// first time or
 			// changed classes on us, have to get new data...
 			// shouldn't happen very often (I hope!)
-			CMyString p; p = className;
-			CMyString q; q = className2;
-
 			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 						  "WMIInstanceProvider::execQuery() - classname changed from %s to %s",
-						  (LPCTSTR)p, (LPCTSTR)q);
+						  className.getCString(), className2.getCString());
 
 			className = className2;
 
@@ -201,9 +199,14 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 			}
 		}
 
-		pObject.Release();
+		if (pObject)
+			pObject.Release();
+
 		hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
 	}
+
+	if (pObjEnum)
+		pObjEnum.Release();
 
 	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMIQueryProvider::execQuery() - Result count is %d", lCount); 
@@ -212,9 +215,6 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	{
 		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIQueryProvider::execQuery() - hResult value is %x", hr); 
-		
-		//it is not an error
-		//throw CIMException(CIM_ERR_NOT_FOUND);
 	}
 
 	PEG_METHOD_EXIT();

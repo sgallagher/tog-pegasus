@@ -21,14 +21,14 @@
 //
 //==============================================================================
 //
-// Author: Jair F. T. Santos (t.dos.santos.francisco@hp.com)
+// Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Client_h
-#define Pegasus_Client_h
+#ifndef Pegasus_WMIClient_h
+#define Pegasus_WMIClient_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -43,13 +43,15 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Client/CIMClientInterface.h>
+
+#include <Pegasus/Client/CIMClientRep.h>
+#include "WMIClientRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-
-class WMIClientRep;
 
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
@@ -220,6 +222,37 @@ public:
     */
     void disconnect();
 
+// l10n start
+    /** Sets the accept languages that will be used on the next request.
+     * Accept languages are the preferred languages that are to be
+     * returned on the response to the next request.
+    */	
+	void setRequestAcceptLanguages(AcceptLanguages& langs);
+
+    /** Gets the accept languages that will be used on the next request.
+     * Accept languages are the preferred languages that are to be
+     * returned on the response to the next request.
+    */
+	AcceptLanguages getRequestAcceptLanguages() const;
+	
+    /** Sets the content languages that will be used on the next request.
+     * These content languages are the languages of the CIM objects that will
+     * sent on the next request.
+    */  	
+	void setRequestContentLanguages(ContentLanguages& langs);
+
+    /** Gets the content languages that will be used on the next request.
+     * These content languages are the languages of the CIM objects that will
+     * sent on the next request.
+    */    
+	ContentLanguages getRequestContentLanguages() const;
+	
+    /** Gets the content languages of the last response.
+     * These content languages are the languages of the CIM objects, or 
+     * CIM exceptions, that were returned on the last response..
+    */    	
+	ContentLanguages getResponseContentLanguages() const;
+// l10n end	
 
     /** The <TT>getClass</TT> method executes a CIM operation that returns
 	a single CIM Class from the
@@ -481,9 +514,12 @@ public:
 
 private:
 
-    WMIClientRep* _rep;
-};
+    CIMClientInterface* _rep;
+	Boolean _connected;
+	Uint32 _timeoutMilliseconds;
+
+};	
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Client_h */
+#endif /* Pegasus_WMIClient_h */

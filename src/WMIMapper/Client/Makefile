@@ -17,12 +17,15 @@ LIBRARY = pegwmiclient
     
 LIBRARIES = \
     pegcommon \
+	pegclient \
     wmiprovider
 
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-    CIMClient.cpp \
+	WMIClientRep.cpp \
+	CIMClientRep.cpp \
+    WMIClient.cpp \
     CIMOperationRequestEncoder.cpp \
     CIMOperationResponseDecoder.cpp \
     ClientAuthenticator.cpp \
@@ -35,6 +38,8 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 include $(ROOT)/mak/library.mak
 
 copy2:
+	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientRep.cpp ./CIMClientRep.cpp
+	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientRep.h ./CIMClientRep.h
 	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.cpp ./CIMOperationRequestEncoder.cpp
 	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.h ./CIMOperationRequestEncoder.h
 	$(COPY) $(ROOT)/src/Pegasus/Client/CIMOperationResponseDecoder.cpp ./CIMOperationResponseDecoder.cpp
@@ -44,3 +49,16 @@ copy2:
 	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientException.cpp ./CIMClientException.cpp
 	$(COPY) $(ROOT)/src/Pegasus/Client/CIMClientException.h ./CIMClientException.h
 	$(COPY) $(ROOT)/src/Pegasus/Client/Linkage.h ./Linkage.h
+
+clean2:
+	$(RM) ./CIMClientRep.cpp
+	$(RM) ./CIMClientRep.h
+	$(RM) ./CIMOperationRequestEncoder.cpp
+	$(RM) ./CIMOperationRequestEncoder.h
+	$(RM) ./CIMOperationResponseDecoder.cpp
+	$(RM) ./CIMOperationResponseDecoder.h
+	$(RM) ./ClientAuthenticator.cpp
+	$(RM) ./ClientAuthenticator.h
+	$(RM) ./CIMClientException.cpp
+	$(RM) ./CIMClientException.h
+	$(RM) ./Linkage.h

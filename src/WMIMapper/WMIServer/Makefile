@@ -1,19 +1,26 @@
 ROOT = ../../..
+
 DIR = WMIMapper/WMIServer
+
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegcommon \
     pegconfig \
-    pegrepository \
     pegwmiserver \
-    pegprovider \
-    pegwql \
-    pegwmiclient
+    pegclient
+
+ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+  ifneq ($(OS),HPUX)
+    ifndef NO_SLP
+      LIBRARIES += slp
+    endif
+  endif
+endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_NO_SLP
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
 
 PROGRAM = WMIServer
 
@@ -49,4 +56,12 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 else
 	cimserver
 endif
+
+copy2:
+	$(COPY) $(ROOT)/src/Server/service.cpp ./service.cpp
+	$(COPY) $(ROOT)/src/Server/service.h ./service.h
+
+clean2:
+	$(RM) ./service.cpp
+	$(RM) ./service.h
 

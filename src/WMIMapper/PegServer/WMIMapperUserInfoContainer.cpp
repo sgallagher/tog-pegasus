@@ -23,55 +23,57 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard	(bpackard@hp.com)
-//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Jair Santos, Hewlett-Packard Company  (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "StdAfx.h"
-
-#include "WMIString.h"
+#include "WMIMapperUserInfoContainer.h"
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIString::WMIString(const String & s) : String(s)
+//
+// WMIMapperUserInfoContainer
+//
+const String WMIMapperUserInfoContainer::NAME = "WMIMapperUserInfoContainer";
+
+WMIMapperUserInfoContainer::WMIMapperUserInfoContainer(const OperationContext::Container & container)
 {
+    const WMIMapperUserInfoContainer * p = dynamic_cast<const WMIMapperUserInfoContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+	_password = p->_password;
 }
 
-WMIString::WMIString(const BSTR & s)
+WMIMapperUserInfoContainer::WMIMapperUserInfoContainer(const String & password)
 {
-	try 
-	{
-		CMyString mystr;
-		mystr = s;
-		*this = String((LPCTSTR)mystr);
-	}
-	catch(...) 
-	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIString::WMIString(const BSTR & s) - Constructor failed");
-	}
+	_password = password;
 }
 
-WMIString::WMIString(const VARIANT & var)
+String WMIMapperUserInfoContainer::getName(void) const
 {
-	try 
-	{
-		*this = WMIString(_bstr_t(_variant_t(var)));
-	}
-	catch(...) 
-	{ 
-	}
+    return(NAME);
+	//return("WMIMapperUserInfoContainer");
 }
 
-WMIString::operator const BSTR(void) const
+OperationContext::Container * WMIMapperUserInfoContainer::clone(void) const
 {
-	return(_bstr_t((const wchar_t *)getChar16Data()));
+    return(new WMIMapperUserInfoContainer(_password));
 }
 
-WMIString::operator const VARIANT(void) const
+void WMIMapperUserInfoContainer::destroy(void)
 {
-	return(_variant_t(_bstr_t(BSTR(*this))));
+    delete this;
+}
+
+String WMIMapperUserInfoContainer::getPassword(void) const
+{
+    return(_password);
 }
 
 PEGASUS_NAMESPACE_END

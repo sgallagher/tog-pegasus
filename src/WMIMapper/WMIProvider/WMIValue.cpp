@@ -24,8 +24,10 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Barbara Packard (barbara_packard@hp.com)
-//				Paulo Sehn		(paulo_sehn@hp.com)
-//				Adriano Zanuz   (adriano.zanuz@hp.com)
+//              Paulo Sehn (paulo_sehn@hp.com)
+//              Adriano Zanuz (adriano.zanuz@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
@@ -71,7 +73,6 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 {
 	CIMValue val;
 	CComVariant vValue;
-
 	vValue = value;
 
 	if ((vValue.vt != VT_NULL) && ((type & ~CIM_FLAG_ARRAY) != CIM_REFERENCE)) 
@@ -261,9 +262,9 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 			}
 			catch(...)
 			{
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"WMIValue::WMIValue - Constructor failed; setting NULL string");
-				val.setNullValue(CIMTYPE_STRING, false, 0);
+				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+					"WMIValue::WMIValue - Constructor failed; setting NULL string");
+					val.setNullValue(CIMTYPE_STRING, false, 0);
 			}
 
 			break;
@@ -323,187 +324,11 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
 			break;
 		}
-	}	
-
+	}
+	
+	VariantClear(&vValue);
 	*this = CIMValue(val);
 }
-
-
-
-/*WMIValue::operator VARIANT(void) const
-{
-	_variant_t vt;
-	//isArray();
-
-	switch(getType())
-	{
-	case CIMTYPE_BOOLEAN:
-		{
-			Boolean value;
-
-			get(value);
-
-			vt = value;
-		}
-
-		break;
-	case CIMTYPE_UINT8:
-		{
-			Uint8 value;
-
-			get(value);
-
-			vt = value;
-		}
-
-		break;
-	case CIMTYPE_SINT8:
-		{
-			Sint8 value;
-
-			get(value);
-
-			vt = (BYTE)value;
-		}
-
-		break;
-	case CIMTYPE_UINT16:
-		{
-			Uint16 value;
-
-			get(value);
-
-			vt = (short)value;
-		}
-
-		break;
-	case CIMTYPE_SINT16:
-		{
-			Sint16 value;
-
-			get(value);
-
-			vt = value;
-		}
-
-		break;
-	case CIMTYPE_UINT32:
-		{
-			Uint32 value;
-
-			get(value);
-
-			vt = (long)value;
-		}
-
-		break;
-	case CIMTYPE_SINT32:
-		{
-			Sint32 value;
-
-			get(value);
-
-			vt = (long)value;
-		}
-
-		break;
-	case CIMTYPE_UINT64:
-		{
-			Uint64 value;
-
-			get(value);
-
-			wchar_t wsz[20 + 1];
-
-			_i64tow(value, wsz, 10);
-
-			vt = _bstr_t(wsz);
-		}
-
-		break;
-	case CIMTYPE_SINT64:
-		{
-			Sint64 value;
-
-			get(value);
-
-			wchar_t wsz[20 + 1];
-
-			_ui64tow(value, wsz, 10);
-
-			vt = _bstr_t(wsz);
-		}
-
-		break;
-	case CIMTYPE_REAL32:
-		{
-			Real32 value;
-
-			get(value);
-
-			vt = value;
-		}
-
-		break;
-	case CIMTYPE_REAL64:
-		{
-			Real64 value;
-
-			get(value);
-
-			vt = value;
-		}
-
-		break;
-	case CIMTYPE_CHAR16:
-		{
-			Char16 value;
-
-			get(value);
-
-			vt = (short)value;
-		}
-
-		break;
-	case CIMTYPE_STRING:
-		{
-			String value;
-
-			get(value);
-
-			vt = BSTR(WMIString(value));
-		}
-
-		break;
-	case CIMTYPE_DATETIME:
-		{
-			CIMDateTime value;
-
-			get(value);
-
-			vt = _bstr_t(value.getString());
-		}
-
-		break;
-	case CIMTYPE_REFERENCE:
-		{
-			CIMReference value;
-
-			get(value);
-
-			vt = _bstr_t(WMIString(value.toString()));
-		}
-
-		break;
-	default:
-		break;
-	}
-
-	return(vt);
-}
-
-
-*/
 
 /////////////////////////////////////////////////////////////////////////////
 // WMIValue::getCIMValueFromVariant - helper function to convert a variant 
@@ -585,7 +410,9 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
 				s = _NULL_INTERVAL_TYPE_STRING;
 			}
 
+			bs.Empty();
 			tmp.set(String((LPCTSTR)s));
+			
 			return CIMValue(tmp);
 		}
 		break;
@@ -593,7 +420,7 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
 		case VT_BSTR:
 			
 			bs = *((BSTR *)pVal);
-
+						
 			//By Jair - Due to Windows automation limitations
 			//the 64 integer bit numbers and the datetime routine
 			//are being cast as strings. We must to handle this in 
@@ -632,7 +459,7 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
 				else s = str;
 
 				dt.set(String((LPCTSTR)s));
-				
+
 				return (CIMValue(WMIDateTime(dt)));
 			}
 			else
@@ -717,8 +544,6 @@ CIMValue WMIValue::getValue(const CComVariant & vValue, const CIMTYPE Type)
 	bool isRef = isReferenceType(vValue.vt);
 	bool isArray = isArrayType(vValue.vt);
 
-// 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIValue::getValue()");
-
 	if (isArray) 
 	{
 		return getArrayValue(vValue, Type);
@@ -738,7 +563,6 @@ CIMValue WMIValue::getValue(const CComVariant & vValue, const CIMTYPE Type)
 		pValue = (void *)&(vValue.lVal);
 	}
 
-//	PEG_METHOD_EXIT();
 	return (getCIMValueFromVariant(vt, pValue, Type));
 }
 
@@ -755,8 +579,6 @@ CIMValue getArrayValueAux(LPSAFEARRAY psa, VARTYPE vt, const CIMTYPE Type, T*)
 	HRESULT hr;
 
 	Array <T> array;
-
-// 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIValue::getArrayValueAux()");
 
 	index = psa->rgsabound[0].lLbound;	// get the beginning index
 	numElements = psa->rgsabound[0].cElements;	// elements in the array
@@ -785,14 +607,13 @@ CIMValue getArrayValueAux(LPSAFEARRAY psa, VARTYPE vt, const CIMTYPE Type, T*)
 
 	if (SUCCEEDED(hr))
 	{
-//		PEG_METHOD_EXIT();
 		return CIMValue(array);
 	}
 	else
 	{
 		Tracer::trace(TRC_WMIPROVIDER,Tracer::LEVEL3,
 			"WMIValue::getArrayValueAux() - SafeArray result is %x",  hr);
-		throw CIMException(CIM_ERR_FAILED);
+		throw CIMException(CIM_ERR_FAILED, "getArrayValueAux()");
 	}
 }
 
@@ -812,7 +633,6 @@ CIMValue WMIValue::getArrayValue(const CComVariant& vValue, const CIMTYPE Type)
 
 	CIMTYPE type = Type & (~CIM_FLAG_ARRAY);
 
-// 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIValue::getArrayValue()");
 	if (!(isArrayType(vValue.vt)))
 	{
 		return (getValue(vValue));
@@ -939,7 +759,7 @@ CIMValue WMIValue::getArrayValue(const CComVariant& vValue, const CIMTYPE Type)
     }
 
 	// if we get here, we are in trouble...
-	throw CIMException(CIM_ERR_FAILED);
+	throw CIMException(CIM_ERR_FAILED, "getArrayValue()");
 }
 
 
@@ -948,6 +768,7 @@ VARIANT WMIValue::toVariant()
 	CComVariant cv;
 	VARIANT v;
 	cv.Detach(&v);
+	VariantClear(&cv);
 	return v;
 
 }
@@ -957,7 +778,7 @@ VARIANT WMIValue::toVariant()
 //		     to a variant including arrays
 //
 // ///////////////////////////////////////////////////////////////////////////
-void WMIValue::getAsVariant (CComVariant *var)
+void WMIValue::getAsVariant(CComVariant *var)
 {
 	HRESULT hr;
 	CMyString tmp;
@@ -1006,6 +827,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 				// the array of boolean must be set as an array of uint8.
 				var->vt = VT_ARRAY | VT_UI1;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1047,12 +869,14 @@ void WMIValue::getAsVariant (CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException (CIM_ERR_FAILED);
 					}
+					VariantClear(&vOut);
 				}
 						  
 				// by Jair - due to WMI coercion rules
 				// the array of boolean must be set as an array of uint8.
 				var->vt = VT_ARRAY | VT_BSTR;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1093,6 +917,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 			  //sets the value to the variant
 			  var->vt = VT_ARRAY | VT_UI1;
 			  var->parray = pSA;
+			  
 		  }
 		  break;
 
@@ -1130,6 +955,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 
 			  var->vt = VT_ARRAY | VT_I2;
 			  var->parray = pSA;
+			  
 		  }
 		  break;
 
@@ -1169,10 +995,12 @@ void WMIValue::getAsVariant (CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
+					VariantClear(&vOut);
 				}
 
 				var->vt = VT_ARRAY | VT_BSTR;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1210,6 +1038,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 			  
 				var->vt = VT_ARRAY | VT_I4;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1247,6 +1076,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 			  
 				var->vt = VT_ARRAY | VT_I4;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1287,10 +1117,12 @@ void WMIValue::getAsVariant (CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException (CIM_ERR_FAILED);
 					}
+					VariantClear(&vOut);
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1303,7 +1135,6 @@ void WMIValue::getAsVariant (CComVariant *var)
 				tmp.Format("%I64d", 21, value);
 				var->vt = VT_BSTR;
 				var->bstrVal = tmp.Bstr();
-
 			}
 			else
 			{ 
@@ -1332,10 +1163,12 @@ void WMIValue::getAsVariant (CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
+					VariantClear(&vOut);
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1373,6 +1206,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 			  
 				var->vt = VT_ARRAY | VT_R4;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1410,6 +1244,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 			  
 				var->vt = VT_ARRAY | VT_R8;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1447,6 +1282,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 			  
 				var->vt = VT_ARRAY | VT_I2;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1488,10 +1324,12 @@ void WMIValue::getAsVariant (CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
+					VariantClear(&vOut);
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;
 				var->parray = pSA;
+				
 			}
 			break;
 
@@ -1533,6 +1371,7 @@ void WMIValue::getAsVariant (CComVariant *var)
 						SafeArrayDestroy(pSA);
 						throw CIMException(CIM_ERR_FAILED);
 					}
+					VariantClear(&vOut);
 				}
 			  
 				var->vt = VT_ARRAY | VT_BSTR;

@@ -23,55 +23,41 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard	(bpackard@hp.com)
-//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+// Modified By: Mike Day (mdday@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Jair F. T. dos Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "StdAfx.h"
+#ifndef Pegasus_WMIMapperUserInfoContainer_h
+#define Pegasus_WMIMapperUserInfoContainer_h
 
-#include "WMIString.h"
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIString::WMIString(const String & s) : String(s)
+class PEGASUS_SERVER_LINKAGE WMIMapperUserInfoContainer : virtual public OperationContext::Container
 {
-}
+public:
+    static const String NAME;
 
-WMIString::WMIString(const BSTR & s)
-{
-	try 
-	{
-		CMyString mystr;
-		mystr = s;
-		*this = String((LPCTSTR)mystr);
-	}
-	catch(...) 
-	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIString::WMIString(const BSTR & s) - Constructor failed");
-	}
-}
+    WMIMapperUserInfoContainer(const OperationContext::Container & container);
+    WMIMapperUserInfoContainer(const String & password);
+    
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-WMIString::WMIString(const VARIANT & var)
-{
-	try 
-	{
-		*this = WMIString(_bstr_t(_variant_t(var)));
-	}
-	catch(...) 
-	{ 
-	}
-}
+    String getPassword(void) const;
 
-WMIString::operator const BSTR(void) const
-{
-	return(_bstr_t((const wchar_t *)getChar16Data()));
-}
+protected:
+    String _password;
 
-WMIString::operator const VARIANT(void) const
-{
-	return(_variant_t(_bstr_t(BSTR(*this))));
-}
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif

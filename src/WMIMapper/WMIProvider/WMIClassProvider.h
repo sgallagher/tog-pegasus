@@ -24,6 +24,7 @@
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:	Adriano Zanuz (adriano.zanuz@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +69,8 @@ public:
 		const String& nameSpace, 
         const String& userName,
         const String& password,
-		const CIMClass& newClass);
+		const CIMClass& newClass,
+		Boolean updateClass = false);
 
 	// modifyClass
 	virtual void modifyClass(
@@ -99,7 +101,8 @@ public:
 protected:
 	
 	// verifies if the class already exists into the wmi
-	void performInitialCheck(const CIMClass& newClass);
+	void performInitialCheck(const CIMClass& newClass,
+							 Boolean updateClass = false);
 
 	// do the initial consistences defined by the CIM model, this is a step of create class
 	Boolean classAlreadyExists(const String& className);
@@ -131,14 +134,6 @@ private:
 					   IWbemClassObject *pNewClass);
 	// create a parameter
 	void createParam (const CIMConstParameter &param, IWbemClassObject *pNewClass);
-	
-	// remove class methods
-	void removeMethods (IWbemClassObject *pClass);
-	// remove class properties
-	void removeProperties (IWbemClassObject *pClass);
-	// remove class qualifiers
-	void removeQualifiers (IWbemClassObject *pClass);
-
 };
 
 

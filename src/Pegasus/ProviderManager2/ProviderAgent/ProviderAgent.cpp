@@ -62,6 +62,7 @@ public:
     {
         agent = agent_;
         request = request_;
+        request->requestIsOOP = true;
     }
 
     ProviderAgent* agent;

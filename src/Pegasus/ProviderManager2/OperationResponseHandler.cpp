@@ -51,18 +51,25 @@ OperationResponseHandler::OperationResponseHandler
 
 	_responseObjectTotal = 0;
 	_responseMessageTotal = 0;
-	_responseObjectThreshold = PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD;
+    if(request->requestIsOOP == true)
+    {
+        _responseObjectThreshold = ~0;
+    }
+	else
+    {
+        _responseObjectThreshold = PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD;
 
 #ifdef PEGASUS_DEBUG
-	static const char *responseObjectThreshold = 
-		getenv("PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD");
-	if (responseObjectThreshold)
-	{
-		Uint32 i = (Uint32) atoi(responseObjectThreshold);
-		if (i > 0)
-			_responseObjectThreshold = i;
-	}
+	    static const char *responseObjectThreshold = 
+		    getenv("PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD");
+	    if (responseObjectThreshold)
+	    {
+		    Uint32 i = (Uint32) atoi(responseObjectThreshold);
+		    if (i > 0)
+			    _responseObjectThreshold = i;
+	    }
 #endif
+    }
 }
 
 OperationResponseHandler::~OperationResponseHandler()

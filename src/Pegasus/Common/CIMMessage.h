@@ -140,6 +140,7 @@ public:
     }
 
     QueueIdStack queueIds;
+    Boolean requestIsOOP;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage

@@ -1,0 +1,82 @@
+//BEGIN_LICENSE
+//
+// Copyright (c) 2000 The Open Group, BMC Software
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+//END_LICENSE
+//BEGIN_HISTORY
+//
+// Author: Mike Brasher
+//
+// $Log: CIMServer.h,v $
+// Revision 1.1  2001/02/16 02:08:26  mike
+// Renamed several classes
+//
+// Revision 1.2  2001/01/29 02:19:18  mike
+// added primitive provider dispatching
+//
+// Revision 1.1.1.1  2001/01/14 19:54:05  mike
+// Pegasus import
+//
+//
+//END_HISTORY
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMServer.h
+//
+//	Implementation of main Pegasus server class
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_Server_h
+#define Pegasus_Server_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct ServerRep;
+
+class PEGASUS_SERVER_LINKAGE CIMServer
+{
+public:
+
+    enum Protocol { PROPRIETARY, STANDARD };
+
+    CIMServer(const String& rootPath);
+
+    ~CIMServer();
+    
+    void bind(Protocol protocol, Uint32 port);
+
+    void runForever();
+
+private:
+
+    /// This object was created to hide the ACE headers
+
+    ServerRep* _rep;
+
+    String _rootPath;
+    String _repositoryRootPath;
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_Server_h */

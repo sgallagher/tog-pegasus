@@ -57,6 +57,76 @@ PEGASUS_NAMESPACE_BEGIN
 CQLParserState* globalParserState = 0;
 PEGASUS_NAMESPACE_END
 
+void printProperty(CIMProperty& prop, Uint32 propNum, String& prefix)
+{
+  // Recursive function to handle embedded object trees
+
+  cout << prefix << "Prop #" << propNum << " Name = " << prop.getName().getString();
+
+  CIMValue val = prop.getValue();
+
+  if (val.getType() != CIMTYPE_OBJECT)
+  {
+    // Not embedded object
+    if (val.isNull())
+    {
+      cout << ", Value = NULL" << endl;
+    }
+    else
+    {
+      cout << ", Value = " << val.toString() << endl;
+    }
+  }
+  else
+  {
+    // Embedded object, or array of objects
+    Array<CIMObject> embObjs;
+    if (val.isArray())
+    {
+      val.get(embObjs);
+    }
+    else
+    {
+      CIMObject tmpObj;
+      val.get(tmpObj);
+      embObjs.append(tmpObj);
+    }
+
+    for (Uint32 j = 0; j < embObjs.size(); j++)
+    {
+      CIMObject embObj = embObjs[j];
+      if (embObj.isClass())
+      {
+        // Embedded class
+        CIMClass embCls(embObj);
+        cout << ", Value = class of " << embCls.getClassName().getString() << endl;
+      }
+      else
+      {
+        // Embedded instance, need to recurse on each property
+        CIMInstance embInst(embObj);
+
+        String newPrefix = prefix;
+        newPrefix.append(prefix);
+
+        cout << endl << newPrefix << "Instance of class " << embInst.getClassName().getString() << endl;
+
+        Uint32 cnt = embInst.getPropertyCount(); 
+        if (cnt == 0)
+        {
+          cout << newPrefix << "No properties left after projection" << endl;
+        }
+
+        for (Uint32 n = 0; n < cnt; n++)
+        {
+          CIMProperty prop = embInst.getProperty(n);
+          printProperty(prop, n, newPrefix);
+        }
+      }
+    }
+  }
+}
+
 Boolean _applyProjection(Array<CQLSelectStatement>& _statements, 
                          Array<CIMInstance>& _instances,
                          String testOption)
@@ -67,7 +137,7 @@ Boolean _applyProjection(Array<CQLSelectStatement>& _statements,
 
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
-      cout << "======================================" << endl;
+      cout << "======================================" << i << endl;
       cout << _statements[i].toString() << endl;
 
       for(Uint32 j = 0; j < _instances.size(); j++)
@@ -94,19 +164,12 @@ Boolean _applyProjection(Array<CQLSelectStatement>& _statements,
             cout << "-----No properties left after projection" << endl;
           }
 
+          String prefix("-----");
+          
           for (Uint32 n = 0; n < cnt; n++)
           {
             CIMProperty prop = projInst.getProperty(n);
-            CIMValue val = prop.getValue();
-            cout << "-----Prop #" << n << " Name = " << prop.getName().getString();
-            if (val.isNull())
-            {
-              cout << " Value = NULL" << endl;
-            }
-            else
-            {
-              cout << " Value = " << val.toString() << endl;
-            }
+            printProperty(prop, n, prefix);
           }
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
@@ -128,7 +191,7 @@ Boolean _validateProperties(Array<CQLSelectStatement>& _statements,
 
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
-      cout << "======================================" << endl;
+      cout << "======================================" << i << endl;
       cout << _statements[i].toString() << endl;
 
       try
@@ -174,7 +237,7 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
 
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
-      cout << "======================================" << endl;
+      cout << "======================================" << i << endl;
       cout << _statements[i].toString() << endl;
 
       for(Uint32 j = 0; j < _instances.size(); j++)
@@ -330,7 +393,7 @@ Boolean _normalize(Array<CQLSelectStatement>& _statements,
 
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
-      cout << "======================================" << endl;
+      cout << "======================================" << i << endl;
 
       try
       {
@@ -403,7 +466,7 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
 
   for (Uint32 i = 0; i < instances.size(); i++)
   {
-    // Save the CQL_TestElement with InstanceId = 0
+    // Find the CQL_TestElement with InstanceId = 0
     if (instances[i].getClassName() == nameTE)
     {
       Uint32 index = instances[i].findProperty(instIdName);
@@ -416,7 +479,11 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
       instances[i].getProperty(index).getValue().get(instId);
       if (instId == 0)
       {
+        // Found the CQL_TestElement with InstanceId = 0.
+        // Change to InstanceId to 10, and save it.
         foundTestElem = true;
+        instances[i].removeProperty(index);
+        instances[i].addProperty(CIMProperty(instIdName, CIMValue((Uint64)10)));
         testElem = instances[i].clone();
       }
     }
@@ -432,6 +499,14 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
     {
       foundCS = true;
       testCS = instances[i].clone();
+
+      // Remove the PrimaryOwnerName property so that apply projection
+      // using the wildcard will fail
+      Uint32 tmpIdx = testCS.findProperty("PrimaryOwnerName");
+      if (tmpIdx != PEG_NOT_FOUND)
+      {
+        testCS.removeProperty(tmpIdx);
+      }
     }
   }
 
@@ -458,12 +533,12 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
 
   Uint32 index = testElem.findProperty(instIdName);
   testElem.removeProperty(index);
-  testElem.addProperty(CIMProperty(instIdName, CIMValue((Uint64)1)));
+  testElem.addProperty(CIMProperty(instIdName, CIMValue((Uint64)11)));
   testElemArray.append(testElem.clone());
 
   index = testElem.findProperty(instIdName);
   testElem.removeProperty(index);
-  testElem.addProperty(CIMProperty(instIdName, CIMValue((Uint64)2)));
+  testElem.addProperty(CIMProperty(instIdName, CIMValue((Uint64)12)));
   testElemArray.append(testElem.clone());
 
   //
@@ -491,11 +566,12 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   //      instance of CQL_EmbeddedTestElement
   //         property InstanceID has value 1000
   //         property TEArray has array of instance of CQL_TestElement
-  //             each array element has an InstanceID property
-  //             that matches the index of the element
+  //             the array elements have InstanceID properties
+  //             set to 10, 11, 12
   //         property TE has instance of CQL_TestElement
-  //             property InstanceID has value 0
+  //             property InstanceID has value 10
   //         property CS has instance of CIM_ComputerSystem
+  //             note that the PrimaryOwnerName property is removed
   //         property SomeClass has class of CIM_Process
   //         property SomeString has a string
   //   
@@ -503,42 +579,40 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   //      instance of CQL_EmbeddedTypePropertyTypes
   //         property InstanceID has value 1001
   //         property TEArray has array of instance of CQL_TestElement
-  //             each array element has an InstanceID property
-  //             that matches the index of the element
+  //             the array elements have InstanceID properties
+  //             set to 10, 11, 12
   //         property TE has instance of CQL_TestElement
-  //             property InstanceID has value 0
+  //             property InstanceID has value 10
   //         property CS has instance of CIM_ComputerSystem
+  //             note that the PrimaryOwnerName property is removed
   //         property TPTArray has array of instance of CQL_TestPropertyTypes
   //             the array is built from the instances compiled in the repository
   //         property TPT has instance of CQL_TestPropertyTypes
-  //             this instance is the first instance found
+  //             this instance is the first instance found in the repository
   //         property SomeClass has class of CIM_Process
+  //         property SomeString has a string
   //         property SomeUint8 has a uint8
   //
-  /* embobj
   CIMInstance embTE("CQL_EmbeddedTestElement");
   embTE.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)1000)));
   embTE.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
   CIMObject _obj1 = testElemArray[0];
-  CIMValue temp(_obj1);
-  embTE.addProperty(CIMProperty("TE", temp));
-
-
-  temp = CIMValue(testCS);
-  embTE.addProperty(CIMProperty("CS", temp));
+  CIMValue testElemVal(_obj1);
+  embTE.addProperty(CIMProperty("TE", testElemVal));
+  CIMValue csVal(testCS);
+  embTE.addProperty(CIMProperty("CS", csVal));
   embTE.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
-  embTE.addProperty(CIMProperty("SomeString", CIMValue("Huh?")));
-  
+  embTE.addProperty(CIMProperty("SomeString", CIMValue(String("Huh?"))));
 
   CIMInstance embTPT("CQL_EmbeddedTestPropertyTypes");
   embTPT.addProperty(CIMProperty("InstanceID", CIMValue((Uint64)1001)));
-
-
- 
+  embTPT.addProperty(CIMProperty("TEArray", CIMValue(testElemArray)));
+  embTPT.addProperty(CIMProperty("TE", testElemVal));
+  embTPT.addProperty(CIMProperty("CS", csVal));
   embTPT.addProperty(CIMProperty("TPTArray", CIMValue(testPropTypesArray)));
-
-  embTPT.addProperty(CIMProperty("TPT", CIMValue(testElemArray[0])));
+  embTPT.addProperty(CIMProperty("TPT", CIMValue(testPropTypesArray[0])));
   embTPT.addProperty(CIMProperty("SomeClass", CIMValue(someClass)));
+  embTPT.addProperty(CIMProperty("SomeString", CIMValue(String("What?"))));
   embTPT.addProperty(CIMProperty("SomeUint8", CIMValue((Uint8)3)));
 
   CIMInstance embSub("CQL_EmbeddedSubClass");
@@ -546,8 +620,8 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   embSub.addProperty(CIMProperty("EmbObjBase", CIMValue(embTE)));  
   embSub.addProperty(CIMProperty("EmbObjSub", CIMValue(embTPT)));  
 
+  instances.clear();
   instances.append(embSub);
-  */
 }
 
 void help(const char* command){
@@ -555,8 +629,8 @@ void help(const char* command){
 	cout << " options:" << endl;
 	cout << " -test: ";
 	cout << "1 = evaluate" << endl 
-             << "        2 = apply projection" << endl 
-             << "        3 = get property list" << endl;
+        << "        2 = apply projection" << endl 
+        << "        3 = get property list" << endl;
 	cout << "        4 = validate properties" << endl;
 	cout << "        5 = normalize to DOC" << endl;
 	cout << " -className class" << endl;
@@ -615,34 +689,51 @@ int main(int argc, char ** argv)
 	char* _text;
 
 	// setup Test Instances
+   String embSubName("CQL_EmbeddedSubClass");
+   String embBaseName("CQL_EmbeddedBase");
 	Array<CIMInstance> _instances;
-	if(className != String::EMPTY){
-		try{
-			const CIMName _testclass(className);
-			_instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
+	if(className != String::EMPTY && className != embSubName && className != embBaseName)
+   {
+      // If the classname was specified, and was not an embedded object class, then
+      // load its instances from the repository.
+		try
+      {
+        const CIMName _testclass(className);
+        _instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
 		}catch(Exception& e){
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
 		}
-	}else{ // load default class names
+	}
+   else
+   { 
+      // load all the non-embedded instances we support
 		cout << endl << "Using default class names to test queries. " << endl << endl;
-        	const CIMName _testclass(String("CQL_TestPropertyTypes"));
-		const CIMName _testclass1(String("CIM_ComputerSystem"));
-		const CIMName _testclass2(String("CQL_TestElement"));
-		try{
-        _instances = _rep->enumerateInstances( _ns, _testclass, true ); // deep inh true
-        _instances.appendArray(_rep->enumerateInstances( _ns, _testclass1, false )); // deep inh false
-	_instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, true )); // deep inh true
-		}catch(Exception& e){
+		const CIMName _testclass1(String("CQL_TestElement"));
+		const CIMName _testclass2(String("CIM_ComputerSystem"));
+		try
+      {
+        // Deep inh = true for CQL_TestElement to also get CQL_TestPropertyTypes
+        // and CQL_TestPropertyTypesMissing
+        _instances = _rep->enumerateInstances( _ns, _testclass1, true ); // deep inh true
+
+        // Deep inh = false to only get the CIM_ComputerSystem
+        _instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, false )); // deep inh false
+		}
+      catch(Exception& e)
+      {
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
       }
+      
+      if (className == embSubName || className == embBaseName)
+      {
+        // If the embedded object classname was specified, then build its instances.
+        // Note: this will remove the other instances from the array.
+        buildEmbeddedObjects(_ns,
+                             _instances,
+                             _rep);
+      }
 	}
-
-   // Add the embedded object instances to the array
-   // embobj
-   //buildEmbeddedObjects(_ns,
-   //                    _instances,
-   //                    _rep);
-   
+  
 	// demo setup
 	if(argc == 3 && strcmp(argv[2],"Demo") == 0){
 		cout << "Running Demo..." << endl;

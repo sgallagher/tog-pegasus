@@ -1,28 +1,22 @@
 include $(PEGASUS_ROOT)/mak/config.mak
-include $(PEGASUS_ROOT)/mak/test.mak
-
-SCHEMA_VER=25
-SCHEMA_DIR=CIM$(SCHEMA_VER)
-MOF_PATH = $(ROOT)/Schemas/$(SCHEMA_DIR)
-
-NAMESPACE=root/cimv2
+include $(PEGASUS_ROOT)/mak/commands.mak
 
 clean:
-	@rm -Rf $(REPOSITORY_DIR)/repository.old
-	@rm -Rf $(REPOSITORY_DIR)/repository
-	@rm -Rf repository.log
+	@$(RM) -Rf $(REPOSITORY_DIR)/repository.old
+	@$(RM) -Rf $(REPOSITORY_DIR)/repository
+	@$(RM) -Rf repository.log
 
 poststarttests:
-	$(CIMSERVER_STOP_SERVICE)
-	@rm -Rf $(REPOSITORY_DIR)/repository.old
-	@rm -Rf $(REPOSITORY_DIR)/repository
-	@rm -Rf repository.log
-	@ echo $(MOF_PATH)
+	$(MAKE) -f $(ROOT)/Testcimmof -i cimstop
+	@$(RM) -Rf $(REPOSITORY_DIR)/repository.old
+	@$(RM) -Rf $(REPOSITORY_DIR)/repository
+	@$(RM) -Rf repository.log
+	@$(ECHO) $(CIM_SCHEMA_DIR)
 	$(MAKE) repository
-	@mv $(REPOSITORY_DIR)/repository $(REPOSITORY_DIR)/repository.old
-	$(CIMSERVER_START_SERVICE)
-	@sleep 5 
-	@ echo $(MOF_PATH)
+	@$(MOVE) $(REPOSITORY_DIR)/repository $(REPOSITORY_DIR)/repository.old
+	$(MAKE) -f $(ROOT)/Testcimmof cimstart
+	@$(SLEEP) 5 
+	@$(ECHO) $(CIM_SCHEMA_DIR)
 	$(MAKE) repositoryServer
 	@ ./diffscript $(REPOSITORY_DIR) root#cimv2/classes
 	@ ./diffscript $(REPOSITORY_DIR) root#PG_Internal/classes

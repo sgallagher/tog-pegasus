@@ -39,12 +39,6 @@
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 
-#include <strings.h>       // for strcasecmp
-
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#define strcasecmp stricmp
-#endif
-
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -98,12 +92,11 @@ extern "C" {
             CIMConstProperty prop = inst.getProperty(idx);
             String sName = prop.getName().getString();
             char * name = strdup(sName.getCString());
-            //fprintf(stderr,"--rk-> Checking for property %s\n",name);
             char **list = listroot;
             int found = false;
             while (*list)
             {
-               if (strcasecmp(name,*list)==0)
+               if (System::strcasecmp(name,*list)==0)
                {
                   found = true;
                   break;
@@ -113,7 +106,6 @@ extern "C" {
             free(name);
             if (!found)
             {
-               //fprintf(stderr,"--rk-> Removing property %s(%d)\n",name,idx);
                inst.removeProperty(idx);
             }
          }

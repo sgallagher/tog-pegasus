@@ -101,15 +101,8 @@ public:
 
         Boolean force = false;
         Uint32 timeoutValue = 0;
-        String forceStr = String::EMPTY;
-        String timeoutStr = String::EMPTY;
 
         // Get the input parameter values
-        //
-        // ATTN: Currently the server only returns String values even
-        //       though the types of the parameters are not defined
-        //       as String type.
-        //
         for (Uint32 i = 0; i < inParameters.size(); i++)
         {
             String parmName = inParameters[i].getParameter().getName();
@@ -118,11 +111,7 @@ public:
                 //
                 // get the force parameter
                 //
-                inParameters[i].getValue().get(forceStr);
-                if (String::equalNoCase(forceStr, "TRUE"))
-                {
-                    force = true;
-                }
+                inParameters[i].getValue().get(force);
             }
             else
             {
@@ -131,17 +120,7 @@ public:
                     //
                     // get the timeout value
                     //
-                    inParameters[i].getValue().get(timeoutStr);
-
-                    //
-                    // convert the timeout string to integer
-                    //
-                    if (timeoutStr != String::EMPTY)
-                    {
-                        char* tmp = timeoutStr.allocateCString();
-                        timeoutValue = strtol(tmp, (char **)0, 10);
-                        delete [] tmp;
-                    }
+                    inParameters[i].getValue().get(timeoutValue);
                 }
                 else
                 {

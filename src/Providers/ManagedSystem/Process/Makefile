@@ -36,7 +36,7 @@ DIR = Providers/ManagedSystem/Process
 
 include $(ROOT)/mak/config.mak
 
-LIBRARY = Process
+LIBRARY = ProcessProvider
 
 EXTRA_INCLUDES =
 

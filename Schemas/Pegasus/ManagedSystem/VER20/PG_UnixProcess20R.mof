@@ -4,7 +4,7 @@
 instance of PG_ProviderModule 
 {
    Name = "ProcessModule";
-   Location = "Process";
+   Location = "ProcessProvider";
    Vendor = "Pegasus Community";
    Version = "2.0.0";
    InterfaceType = "C++Default";

@@ -469,6 +469,8 @@ Boolean _parseHostElement(
     // Eg. xyz.company.com
     // Hostnames must match the following regular expression: 
     // ^([A-Za-z][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*$
+    // or if it is an ip address
+    // ^([0-9]*)(\.[0-9]*)*$
     //----------------------------------------------------------------------
 
     char* q = p;
@@ -477,8 +479,15 @@ Boolean _parseHostElement(
     while (foundDot == true)
     {
         foundDot = false;
-// Bugzilla Report xxx. Will not pass host names that are IP addresses.
-#ifndef PEGASUS_SNIA_INTEROP_TEST
+// Bugzilla Report 211. Will not pass host names that are IP addresses.
+// Note that the following is a temp bypass.  Had to also bypass one
+// Test in th references test for illegal host name.  Fix that when
+// this is fixed.
+//ATTN: The following is a temp fix only
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+        if (!isalnum(*q))
+            throw MalformedObjectNameException(objectName);
+#else
         if (!isalpha(*q))
             throw MalformedObjectNameException(objectName);
 #endif

@@ -41,7 +41,6 @@ PEGASUS_USING_STD;
 
 static char * verbose = 0;
 
-static CIMClient client;
 static const String NAMESPACE("test/TestProvider");
 static const String CLASSNAME("TST_Instance1");
 
@@ -61,7 +60,7 @@ Boolean isValid(const CIMObjectPath & cimObjectPath)
 }
 
 // instance name normalization
-void Test1(void)
+void Test1(CIMClient& client)
 {
     if(verbose)
     {
@@ -85,7 +84,7 @@ void Test1(void)
 }
 
 // get instance normalization (with request permutations)
-void Test2(void)
+void Test2(CIMClient& client)
 {
     if(verbose)
     {
@@ -265,7 +264,7 @@ void Test2(void)
 }
 
 // enumerate instances normalization (with request permutations)
-void Test3(void)
+void Test3(CIMClient& client)
 {
     if(verbose)
     {
@@ -417,13 +416,15 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
+    CIMClient client;
+
     client.connectLocal();
 
     try
     {
-        Test1();
-        Test2();
-        Test3();
+        Test1(client);
+        Test2(client);
+        Test3(client);
     }
     catch(CIMException & e)
     {

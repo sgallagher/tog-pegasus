@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -405,7 +405,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMGetInstanceRequestMessage * req = dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -515,7 +515,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMEnumerateInstancesRequestMessage * req = dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -618,7 +618,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMEnumerateInstanceNamesRequestMessage * req = dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -724,7 +724,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMCreateInstanceRequestMessage * req = dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -833,7 +833,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMModifyInstanceRequestMessage * req = dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -936,7 +936,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMDeleteInstanceRequestMessage * req = dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1039,7 +1039,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
                           CMPIPrincipal,
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
-		eCtx.ft->addEntry(&eCtx, 
+		eCtx.ft->addEntry(&eCtx,
 						  CMPINamespace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
@@ -1052,7 +1052,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMExecQueryRequestMessage * req = dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1176,7 +1176,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMAssociatorsRequestMessage * req = dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1294,7 +1294,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMAssociatorNamesRequestMessage * req = dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1413,7 +1413,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMReferencesRequestMessage * req = dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1527,7 +1527,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMReferenceNamesRequestMessage * req = dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1641,7 +1641,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMInvokeMethodRequestMessage * req = dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1805,11 +1805,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
-		eCtx.ft->addEntry(&eCtx, 
+		eCtx.ft->addEntry(&eCtx,
 						  CMPINamespace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
-	
+
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1819,7 +1819,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMCreateSubscriptionRequestMessage * req = dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(*context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1858,7 +1858,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 //
                 if (_subscriptionInitComplete)
                 {
-                    _callEnableIndications (req_provider, _indicationCallback, 
+                    _callEnableIndications (req_provider, _indicationCallback,
                         ph);
                 }
             }
@@ -1957,7 +1957,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
-		eCtx.ft->addEntry(&eCtx, 
+		eCtx.ft->addEntry(&eCtx,
 						  CMPINamespace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
@@ -1970,7 +1970,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMDeleteSubscriptionRequestMessage * req = dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(req->userName);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1985,7 +1985,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
        STAT_PMS_PROVIDEREND;
 
-	   delete qContext;       
+	   delete qContext;
 	   delete eSelx;
 	   delete srec;
 
@@ -2035,7 +2035,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     // get provider module name
     Boolean disableProviderOnly = request->disableProviderOnly;
-	
+
     Array<Uint16> operationalStatus;
     // Assume success.
     operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
@@ -2054,13 +2054,13 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         String providerName;
-        _pInstances [i].getProperty (_pInstances [i].findProperty 
+        _pInstances [i].getProperty (_pInstances [i].findProperty
             (CIMName ("Name"))).getValue ().get (providerName);
 
 		Uint32 pos = _pInstances[i].findProperty("Name");
         providerManager.unloadProvider(_pInstances[i].getProperty(
 											_pInstances[i].findProperty("Name")
-										).getValue ().toString (), 
+										).getValue ().toString (),
                                        physicalName);
 
         //

@@ -17,6 +17,10 @@ XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PASSWORD)
 
 %.rsp: %.xml
+
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+	@chtag -tc IBM-1047 ./PG_OS_Fail*.xml
+endif
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp | cd .
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
@@ -32,9 +36,9 @@ XMLSCRIPTS = \
    PG_OS_Fail6_GetInstance_ExtraKeys \
    PG_OS_Fail7_GetInstance_DupKeys
 #   PG_OS_Fail8_EnumNamesCIM \
-#   PG_OS_Fail9_EnumCIM 
+#   PG_OS_Fail9_EnumCIM
 else
-ifeq ($(PEGASUS_PLATFORM), LINUX_GENERIC_GNU) 
+ifeq ($(PEGASUS_PLATFORM), LINUX_GENERIC_GNU)
 XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \
@@ -44,9 +48,9 @@ XMLSCRIPTS = \
    PG_OS_Fail6_GetInstance_ExtraKeys \
    PG_OS_Fail7_GetInstance_DupKeys
 #   PG_OS_Fail8_EnumNamesCIM \
-#   PG_OS_Fail9_EnumCIM 
+#   PG_OS_Fail9_EnumCIM
 else
-ifeq ($(PEGASUS_PLATFORM), LINUX_IA64_GNU) 
+ifeq ($(PEGASUS_PLATFORM), LINUX_IA64_GNU)
 XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \
@@ -56,22 +60,22 @@ XMLSCRIPTS = \
    PG_OS_Fail6_GetInstance_ExtraKeys \
    PG_OS_Fail7_GetInstance_DupKeys
 #   PG_OS_Fail8_EnumNamesCIM \
-#   PG_OS_Fail9_EnumCIM 
+#   PG_OS_Fail9_EnumCIM
 else
 XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \
    PG_OS_Fail3_InvokeMethod
 #   PG_OS_Fail8_EnumNamesCIM \
-#   PG_OS_Fail9_EnumCIM 
+#   PG_OS_Fail9_EnumCIM
 endif
 endif
 endif
 
 clean:
 	$(RM) $(XMLRESPONSES)
-	
-tests: 
+
+tests:
 
 messages:
 

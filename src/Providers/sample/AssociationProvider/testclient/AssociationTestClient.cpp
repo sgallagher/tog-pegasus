@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,7 +35,7 @@
 //
 // This CIM client program is used to test the SampleAssociationProvider.
 //
-// This program makes CIMClient association method calls (associators, 
+// This program makes CIMClient association method calls (associators,
 // associatorNames, references, referenceNames) to get information about the
 // relationships between the Sample_Teacher and Sample_Student classes.
 //
@@ -69,9 +69,7 @@ const CIMName SAMPLE_STUDENT = CIMName ("Sample_Student");
 const CIMName SAMPLE_TEACHERSTUDENT = CIMName ("Sample_TeacherStudent");
 const CIMName SAMPLE_ADVISORSTUDENT = CIMName ("Sample_AdvisorStudent");
 
-static CIMClient client;
 static Boolean verbose = false;
-
 // exepected results - number of returned objects expected for each test
 //
 static const Uint32 resultArray_asso_T1[] = { 3, 2, 2, 1 };
@@ -153,7 +151,7 @@ void _displayResult(const Array<CIMObjectPath> & objectPaths)
 //  _testAssociators
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociators(CIMName assocClass, CIMObjectPath instancePath,
+void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath instancePath,
     Uint32 numExpectedObjects)
 {
     if (verbose)
@@ -171,7 +169,7 @@ void _testAssociators(CIMName assocClass, CIMObjectPath instancePath,
         // Get the CIM instances that are associated with the specified source
         // instance via an instance of the AssocClass
         //
-        Array<CIMObject> resultObjects = 
+        Array<CIMObject> resultObjects =
             client.associators(NAMESPACE, instancePath, assocClass,
                                resultClass, role, resultRole);
 
@@ -191,8 +189,8 @@ void _testAssociators(CIMName assocClass, CIMObjectPath instancePath,
 //  _testAssociatorNames
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociatorNames(CIMName assocClass, CIMObjectPath instancePath,
-    Uint32 numExpectedObjects)
+void _testAssociatorNames(CIMClient& client, CIMName assocClass,
+						  CIMObjectPath instancePath, Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -202,20 +200,20 @@ void _testAssociatorNames(CIMName assocClass, CIMObjectPath instancePath,
 
     try
     {
-        // Get the names of the CIM instances that are associated to the 
+        // Get the names of the CIM instances that are associated to the
         // specified source instance via an instance of the AssocClass.
         //
         CIMName resultClass = CIMName();
         String role = String::EMPTY;
         String resultRole = String::EMPTY;
 
-        Array<CIMObjectPath> resultObjectPaths = 
-            client.associatorNames(NAMESPACE, instancePath, 
+        Array<CIMObjectPath> resultObjectPaths =
+            client.associatorNames(NAMESPACE, instancePath,
                                    assocClass, resultClass, role, resultRole);
 
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
-     
+
         // display result
         _displayResult(resultObjectPaths);
     }
@@ -229,7 +227,7 @@ void _testAssociatorNames(CIMName assocClass, CIMObjectPath instancePath,
 //  _testReferences
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferences(CIMObjectPath instancePath, Uint32 numExpectedObjects)
+void _testReferences(CIMClient& client, CIMObjectPath instancePath, Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -244,7 +242,7 @@ void _testReferences(CIMObjectPath instancePath, Uint32 numExpectedObjects)
         CIMName resultClass = CIMName();
         String role = String::EMPTY;
 
-        resultObjects = client.references(NAMESPACE, instancePath, resultClass, 
+        resultObjects = client.references(NAMESPACE, instancePath, resultClass,
             role);
 
         // verify result
@@ -263,7 +261,7 @@ void _testReferences(CIMObjectPath instancePath, Uint32 numExpectedObjects)
 //  _testReferenceNames
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferenceNames(CIMObjectPath instancePath, Uint32 numExpectedObjects)
+void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath, Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -278,7 +276,7 @@ void _testReferenceNames(CIMObjectPath instancePath, Uint32 numExpectedObjects)
         CIMName resultClass = CIMName();
         String role = String::EMPTY;
 
-        resultObjectPaths = 
+        resultObjectPaths =
             client.referenceNames(NAMESPACE, instancePath, resultClass, role);
 
         // verify result
@@ -303,9 +301,9 @@ void _testReferenceNames(CIMObjectPath instancePath, Uint32 numExpectedObjects)
 //
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociatorFilters(String instancePath, String role, String resultRole,
-    CIMName resultClass, CIMName assocClass, Uint32 numExpectedObjects,
-    String testMsg)
+void _testAssociatorFilters(CIMClient& client, String instancePath, String role,
+	String resultRole, CIMName resultClass, CIMName assocClass,
+	Uint32 numExpectedObjects, String testMsg)
 {
     Array<CIMObjectPath> resultObjectPaths;
     Array<CIMObject> resultObjects;
@@ -353,7 +351,7 @@ void _testAssociatorFilters(String instancePath, String role, String resultRole,
         // get the associator instance names
         resultObjectPaths = client.associatorNames(NAMESPACE, op, assocClass,
             resultClass, role, resultRole);
-        
+
 	// verify result
 	_verifyResult(resultObjectPaths.size(), numExpectedObjects);
 
@@ -370,8 +368,9 @@ void _testAssociatorFilters(String instancePath, String role, String resultRole,
 //  _testReferenceFilter
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferenceFilter(String instancePath, String role, String resultRole,
-    CIMName resultClass, CIMName assocClass, Uint32 numExpectedObjects)
+void _testReferenceFilter(CIMClient& client, String instancePath, String role,
+	String resultRole, CIMName resultClass, CIMName assocClass,
+	Uint32 numExpectedObjects)
 {
     Array<CIMObjectPath> resultObjectPaths;
     Array<CIMObject> resultObjects;
@@ -416,7 +415,7 @@ void _testReferenceFilter(String instancePath, String role, String resultRole,
     try
     {
         // get the reference instance names
-        resultObjectPaths = 
+        resultObjectPaths =
             client.referenceNames(NAMESPACE, op, resultClass, role);
 
         // verify result
@@ -435,7 +434,7 @@ void _testReferenceFilter(String instancePath, String role, String resultRole,
 //  _testAssociationClassOperations
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociationClassOperations(CIMName className)
+void _testAssociationClassOperations(CIMClient& client, CIMName className)
 {
     Array<CIMObjectPath> resultObjectPaths;
     Array<CIMObject> resultObjects;
@@ -447,7 +446,7 @@ void _testAssociationClassOperations(CIMName className)
     String resultRole = String::EMPTY;
 
     // =======================================================================
-    // associators 
+    // associators
     //
     // Get the CIM classes that are associated with the specified CIM Class
     // =======================================================================
@@ -457,10 +456,10 @@ void _testAssociationClassOperations(CIMName className)
         cout << "\n+++++ Test associators for (" << className.getString();
         cout << ")" << endl;
     }
-   
+
     try
     {
-        // get the association classes 
+        // get the association classes
         resultObjects = client.associators(NAMESPACE, op, assocClass,
             resultClass, role, resultRole);
 
@@ -536,7 +535,7 @@ void _testAssociationClassOperations(CIMName className)
 
     try
     {
-        resultObjectPaths = 
+        resultObjectPaths =
             client.referenceNames(NAMESPACE, op, resultClass, role);
 
         // display result
@@ -577,6 +576,8 @@ int main(int argc, char** argv)
         }
     }
 
+    CIMClient client;
+
     // Connect to server
     try
     {
@@ -599,9 +600,9 @@ int main(int argc, char** argv)
     Array<CIMObjectPath> studentRefs;
     try
     {
-        teacherRefs = 
+        teacherRefs =
             client.enumerateInstanceNames(NAMESPACE, SAMPLE_TEACHER);
-        studentRefs = 
+        studentRefs =
             client.enumerateInstanceNames(NAMESPACE, SAMPLE_STUDENT);
     }
     catch (Exception& e)
@@ -616,24 +617,24 @@ int main(int argc, char** argv)
     // =======================================================================
     // Test associators
     //
-    // Get the CIM instances that are associated with the specified source CIM 
+    // Get the CIM instances that are associated with the specified source CIM
     // instance via an instance of a specified association class.
     // =======================================================================
 
     cout << "\n+++++ Test associators" << endl;
     for (Uint32 i = 0; i < numTeacherInstances; i++)
     {
-       _testAssociators(SAMPLE_TEACHERSTUDENT, teacherRefs[i], 
+       _testAssociators(client, SAMPLE_TEACHERSTUDENT, teacherRefs[i],
            resultArray_asso_T1[i]);
-       _testAssociators(SAMPLE_ADVISORSTUDENT, teacherRefs[i], 
+       _testAssociators(client, SAMPLE_ADVISORSTUDENT, teacherRefs[i],
            resultArray_asso_T2[i]);
     }
 
     for (Uint32 i = 0; i < numStudentInstances; i++)
     {
-       _testAssociators(SAMPLE_TEACHERSTUDENT, studentRefs[i], 
+       _testAssociators(client, SAMPLE_TEACHERSTUDENT, studentRefs[i],
            resultArray_asso_S1[i]);
-       _testAssociators(SAMPLE_ADVISORSTUDENT, studentRefs[i], 
+       _testAssociators(client, SAMPLE_ADVISORSTUDENT, studentRefs[i],
            resultArray_asso_S2[i]);
     }
 
@@ -647,34 +648,34 @@ int main(int argc, char** argv)
     cout << "\n+++++ Test associatorNames" << endl;
     for (Uint32 i = 0; i < numTeacherInstances; i++)
     {
-        _testAssociatorNames(SAMPLE_TEACHERSTUDENT, teacherRefs[i], 
+        _testAssociatorNames(client, SAMPLE_TEACHERSTUDENT, teacherRefs[i],
             resultArray_asso_T1[i]);
-        _testAssociatorNames(SAMPLE_ADVISORSTUDENT, teacherRefs[i],
+        _testAssociatorNames(client, SAMPLE_ADVISORSTUDENT, teacherRefs[i],
             resultArray_asso_T2[i]);
     }
     for (Uint32 i = 0; i < numStudentInstances; i++)
     {
-        _testAssociatorNames(SAMPLE_TEACHERSTUDENT, studentRefs[i],
+        _testAssociatorNames(client, SAMPLE_TEACHERSTUDENT, studentRefs[i],
             resultArray_asso_S1[i]);
-        _testAssociatorNames(SAMPLE_ADVISORSTUDENT, studentRefs[i],
+        _testAssociatorNames(client, SAMPLE_ADVISORSTUDENT, studentRefs[i],
             resultArray_asso_S2[i]);
     }
 
     // =======================================================================
     // Test references
     //
-    // Get the association instances that refer to the specified target CIM 
+    // Get the association instances that refer to the specified target CIM
     // instance.
     // =======================================================================
 
     cout << "\n+++++ Test references" << endl;
     for (Uint32 i = 0; i < numTeacherInstances; i++)
     {
-        _testReferences(teacherRefs[i], resultArray_ref_T[i]);
+        _testReferences(client, teacherRefs[i], resultArray_ref_T[i]);
     }
     for (Uint32 i = 0; i < numStudentInstances; i++)
     {
-        _testReferences(studentRefs[i], resultArray_ref_S[i]);
+        _testReferences(client, studentRefs[i], resultArray_ref_S[i]);
     }
 
     // =======================================================================
@@ -687,11 +688,11 @@ int main(int argc, char** argv)
     cout << "\n+++++ Test referenceNames" << endl;
     for (Uint32 i = 0; i < numTeacherInstances; i++)
     {
-        _testReferenceNames(teacherRefs[i], resultArray_ref_T[i]);
+        _testReferenceNames(client, teacherRefs[i], resultArray_ref_T[i]);
     }
     for (Uint32 i = 0; i < numStudentInstances; i++)
     {
-        _testReferenceNames(studentRefs[i], resultArray_ref_S[i]);
+        _testReferenceNames(client, studentRefs[i], resultArray_ref_S[i]);
     }
 
     // =======================================================================
@@ -713,9 +714,9 @@ int main(int argc, char** argv)
     resultClass = SAMPLE_STUDENT;
     numExpectedObjects = 3;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "all filters");
 
     // good filters
@@ -724,9 +725,9 @@ int main(int argc, char** argv)
     resultClass = SAMPLE_STUDENT;
     numExpectedObjects = 2;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "all filters");
 
     // good filters
@@ -735,9 +736,9 @@ int main(int argc, char** argv)
     resultClass = CIMName("Sample_Teacher");
     numExpectedObjects = 3;
 
-    _testAssociatorFilters("Sample_Student.Name=\"Student1\"", role,
+    _testAssociatorFilters(client, "Sample_Student.Name=\"Student1\"", role,
         resultRole, resultClass, assocClass,
-        numExpectedObjects, 
+        numExpectedObjects,
         "all filters");
 
     // good filters
@@ -746,9 +747,9 @@ int main(int argc, char** argv)
     resultClass = CIMName("Sample_Teacher");
     numExpectedObjects = 1;
 
-    _testAssociatorFilters("Sample_Student.Name=\"Student1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Student.Name=\"Student1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "all filters");
 
     // set only one filter - resultClass
@@ -760,9 +761,9 @@ int main(int argc, char** argv)
     resultClass = CIMName();
     numExpectedObjects = 5;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "resultClass filter");
 
     // set only one filter - role
@@ -772,9 +773,9 @@ int main(int argc, char** argv)
     resultClass = CIMName();
     numExpectedObjects = 3;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "role filter");
 
     // set only one filter - resultRole
@@ -784,9 +785,9 @@ int main(int argc, char** argv)
     resultClass = CIMName();
     numExpectedObjects = 3;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "resultRole filter");
 
     // bad parameter - role
@@ -795,9 +796,9 @@ int main(int argc, char** argv)
     resultClass = SAMPLE_STUDENT;
     numExpectedObjects = 0;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass, 
-        numExpectedObjects, 
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
+        resultRole, resultClass, assocClass,
+        numExpectedObjects,
         "bad role filter");
 
     // bad parameter - resultRole
@@ -806,9 +807,9 @@ int main(int argc, char** argv)
     resultClass = SAMPLE_STUDENT;
     numExpectedObjects = 0;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
         resultRole, resultClass, assocClass,
-        numExpectedObjects, 
+        numExpectedObjects,
         "bad resultRole filter");
 
     // bad parameter - resultClass
@@ -817,9 +818,9 @@ int main(int argc, char** argv)
     resultClass = CIMName("Sample_Teacher");
     numExpectedObjects = 0;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
         resultRole, resultClass, assocClass,
-        numExpectedObjects, 
+        numExpectedObjects,
         "bad resultClass filter");
 
     // bad parameter - assocClass
@@ -829,9 +830,9 @@ int main(int argc, char** argv)
     assocClass = SAMPLE_STUDENT;
     numExpectedObjects = 0;
 
-    _testAssociatorFilters("Sample_Teacher.Name=\"Teacher1\"", role,
+    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
         resultRole, resultClass, assocClass,
-        numExpectedObjects, 
+        numExpectedObjects,
         "bad assocClass filter");
 
     // =======================================================================
@@ -839,8 +840,8 @@ int main(int argc, char** argv)
     // =======================================================================
 
     cout << "\n+++++ Test association class operations" << endl;
-    _testAssociationClassOperations(SAMPLE_TEACHER);
-    _testAssociationClassOperations(SAMPLE_STUDENT);
+    _testAssociationClassOperations(client, SAMPLE_TEACHER);
+    _testAssociationClassOperations(client, SAMPLE_STUDENT);
 
     // =======================================================================
     // Association tests completed

@@ -20,4 +20,7 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+	@chtag -tc IBM-1047 masterOutput
+endif
 	@$(PROGRAM)

@@ -34,10 +34,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-// Provider operation exceptions
-//
-
 class OperationFailure : public CIMException
 {
 public:

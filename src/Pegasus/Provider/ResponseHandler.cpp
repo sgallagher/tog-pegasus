@@ -26,16 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderHandle.h"
+#include "ResponseHandler.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-ProviderHandle::ProviderHandle(void)
-{
-}
-
-ProviderHandle::~ProviderHandle(void)
-{
-}
 
 PEGASUS_NAMESPACE_END

@@ -12,9 +12,9 @@ LIBRARIES = \
 LIBRARY = pegprovider
 
 SOURCES = \
-	 OperationFlag.cpp \
-	 ResponseHandler.cpp \
-	 SimpleResponseHandler.cpp \
+	OperationFlag.cpp \
+	ResponseHandler.cpp \
+	SimpleResponseHandler.cpp \
     CIMOMHandle.cpp \
     CIMBaseProvider.cpp \
     CIMInstanceProvider.cpp \

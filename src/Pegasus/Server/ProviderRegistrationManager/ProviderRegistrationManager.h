@@ -26,6 +26,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Server/ProviderRegistrationManager/Linkage.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -278,10 +280,20 @@ protected:
 	CIMRepository * _repository;
 
 	/**
-	HashTable to store instances of PG_ProviderModule, instances of
-	PG_Provider, and instances of PG_ProviderCapability 
+            HashTable to store instances of PG_ProviderModule, instances of
+            PG_Provider, and instances of PG_ProviderCapability 
 	*/
 	RegistrationTable* _registrationTable;
+
+        /**
+            A lock used to control access to the _registrationTable.  Before
+            accessing the _registrationTable, one must first lock this for
+            read access.  Before updating the _registrationTable, one must
+            first lock this for write access.  One should never attempt to
+            lock the _registrationTableLock while holding the repository
+            lock.
+        */
+        ReadWriteSem _registrationTableLock;
 
 	String _generateKey(const String & name, 
 		const String & provider);
@@ -302,18 +314,35 @@ protected:
 
 private:
 
+        /**
+            Initialize the registration table.  The caller must first lock
+            _registrationTableLock for write access.
+        */
 	void _initialRegistrationTable();
 
+        /**
+            Adds an entry to the registration table for the specified
+            instances.  The caller must first lock _registrationTableLock
+            for write access.
+        */
 	void _addInstancesToTable(const String & key,
 		const Array<CIMInstance> & instances); 
 
+        /**
+            Adds an entry to the registration table for the specified
+            instances.  This method is intended for use in the initialization
+            routine.  The caller must first lock _registrationTableLock for
+            write access.
+        */
 	void _addInitialInstancesToTable(const String & key,
 		const Array<CIMInstance> & instances); 
 
-	void _addClassNamespaceInfoToTable(const String & instanceID,
-		const String & namespaceName, const String & className, 
-		const Array<String> & supportedMethods);
-
+        /**
+            Get the provider instance and module instance corresponding to
+            the specified provider name or provider module name from the
+            registration table.  The caller must first lock
+            _registrationTableLock for read (or write) access.
+        */
 	void _getInstances(const String & providerName,
 		const String & moduleName,
 		CIMInstance & providerInstance,
@@ -322,16 +351,39 @@ private:
 	void _getPropertyNames(const CIMInstance & instance,
 		CIMPropertyList & propertyNames);
 
+        /**
+            Notify the subscription service that the specified provider
+            capability instance was deleted.  The caller must first lock
+            _registrationTableLock for read (or write) access.
+        */
 	void _sendDeleteNotifyMessage(const CIMInstance & instance);
 
+        /**
+            Notify the subscription service that the specified provider
+            capability instance was modified.  The caller must first lock
+            _registrationTableLock for read (or write) access.
+        */
 	void _sendModifyNotifyMessage(const CIMInstance & instance,
 				      const CIMInstance & origInstance);
 
+        /**
+            Register a provider.  The caller must first lock
+            _registrationTableLock for write access.
+        */
 	CIMObjectPath _createInstance(const CIMObjectPath & ref, 
 		const CIMInstance & instance, Operation flag);
 
+        /**
+            Unregister a provider.  The caller must first lock
+            _registrationTableLock for write access.
+        */
 	void _deleteInstance(const CIMObjectPath & ref, Operation flag);
 
+        /**
+            Set the status of the specified provider module instance and
+            update the repository.  The caller must first lock the repository
+            for write access.
+        */
 	void _setStatus(const Array<Uint16> & status, CIMInstance & moduleInstance); 
 
 };

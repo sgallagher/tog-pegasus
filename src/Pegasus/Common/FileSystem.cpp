@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.13  2001/04/08 21:57:13  karl
+// dir hier tested
+//
 // Revision 1.12  2001/04/08 20:31:55  mike
 // Fixed
 //
@@ -72,6 +75,7 @@
 #include "Destroyer.h"
 #include "FileSystem.h"
 #include "Dir.h"
+// For debugging
 #include <iostream>
 
 using namespace std;
@@ -275,36 +279,33 @@ Boolean FileSystem::removeDirectory(const String& path)
 
 Boolean FileSystem::removeDirectoryHier(const String& path)
 {
-    String saveCwd;
-    FileSystem::getCurrentDirectory(saveCwd);
-
     Array<String> fileList;
 
+    // Get contents of current directory
     if (!FileSystem::getDirectoryContents(path,fileList))
 	return false;
 
-    FileSystem::changeDirectory(path);
-
     // for files-in-directory, delete or recall removedir
-    // Do not yet test for boolean returns on the removes
     for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
     {   
-	// ATTN: Debug code here
-	ArrayDestroyer<char> q(_clonePath(fileList[i]));
+	String newPath = path;	 // extend path	to subdir
+	newPath.append("/");
+	newPath.append(fileList[i]);
 	
-	if (FileSystem::isDirectory(fileList[i])){
-	    FileSystem::removeDirectoryHier(fileList[i]);
+	if (FileSystem::isDirectory(newPath))
+	{
+	    // Recall ourselves with extended path
+	    if (!FileSystem::removeDirectoryHier(newPath))
+		return false; 
 	}
 
-	else{
-	    // ATTN: Mike the second is the problem.
-	    cout << "DEBUG RMFIL " << q.getPointer() << endl;
-	    cout << "DEBUG RMFIL " << fileList[i] << endl;
-	    removeFile(fileList[i]);
+	else
+	{
+          if (!FileSystem::removeFile(newPath))
+		return false;
 	}
     }
 
-    FileSystem::changeDirectory(saveCwd);
     return removeDirectory(path);	
 }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.9  2001/04/08 21:57:13  karl
+// dir hier tested
+//
 // Revision 1.8  2001/04/08 19:56:38  karl
 // Test version
 //
@@ -70,10 +73,9 @@ using namespace std;
 int main()
 {
     String path;
-    if (!FileSystem::getCurrentDirectory(path))
-        return false;
-    cout <<  "CWD = " << path << endl;
-
+    assert(FileSystem::getCurrentDirectory(path));
+    // Need to add test to confirm that the directory
+    // is indeed FileSystem. 
     assert(FileSystem::exists("FileSystem.cpp"));
     assert(!FileSystem::exists("NoSuchFile.dat"));
     // assert(!FileSystem::canExecute("FileSytem.cpp"));
@@ -116,14 +118,17 @@ int main()
     // Then return and test for file
     {
 	String saveDir;
-	FileSystem::getCurrentDirectory(saveDir);
-	// Should this be ./testdir????
-	FileSystem::changeDirectory("testdir");
+	assert(FileSystem::getCurrentDirectory(saveDir));
+	assert(FileSystem::changeDirectory("testdir"));
 	assert(FileSystem::exists("a"));
 	FileSystem::changeDirectory(saveDir);
+	String newSaveDir;
+	assert(FileSystem::getCurrentDirectory(newSaveDir));
+	assert(saveDir == newSaveDir);
 	assert(FileSystem::exists("FileSystem.cpp"));
     }
     // Test the Create and delete functions
+    // Creates directories and files and deletes them.
     {
 	String t = "TestDirectory";
 	String t1 = "TestDirectory2";
@@ -178,11 +183,9 @@ int main()
 
 	FileSystem::changeDirectory(save_cwd);
         assert(FileSystem::isDirectory(t));
-	cout << "Before Remove " << t << endl;
 	FileSystem::removeDirectoryHier(t);
-	// ATTN: Removed until above fixed.
+	// be sure directory is removed
 	assert(!FileSystem::isDirectory(t));
-	 //end-of-temp-removal*/
         
     }
     // Test renameFile:

@@ -323,6 +323,151 @@ void test03()
 
 }
 
+void test04()
+{
+    if (verbose)
+    {
+        cout << "Test04 - Create instance from Class. " << endl;
+    }
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+
+    // Create and populate a declaration context:
+
+    SimpleDeclContext* context = new SimpleDeclContext;
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false, 
+        CIMScope::PROPERTY));
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false, 
+        CIMScope::CLASS));
+
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(), 
+        CIMScope::PROPERTY));
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(), 
+        CIMScope::PROPERTY));
+
+    context->addQualifierDecl(NAMESPACE,
+	CIMQualifierDecl(CIMName ("Description"), String(), 
+        CIMScope::PROPERTY));
+
+    CIMClass class1(CIMName ("MyClass"));
+
+    class1
+	.addProperty(CIMProperty(CIMName ("count"), Uint32(55))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))))
+	.addProperty(CIMProperty(CIMName ("message"), String("Hello"))
+	    .addQualifier(CIMQualifier(CIMName ("description"), 
+                String("My Message"))))
+	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
+
+
+    Resolver::resolveClass (class1, context, NAMESPACE);
+    context->addClass(NAMESPACE, class1);
+
+	if(verbose) {
+		XmlWriter::printClassElement(class1);
+	}
+    //
+    // Create instance with qualifiers, classorigin, and Null propertyList
+    //
+    {
+        CIMInstance newInstance;
+    
+        newInstance = class1.createInstance(true, true, CIMPropertyList());
+    
+        if(verbose) {
+    		XmlWriter::printInstanceElement(newInstance);
+    	}
+    
+        assert(newInstance.getPropertyCount() == class1.getPropertyCount());
+        assert(newInstance.getQualifierCount() == class1.getQualifierCount());
+        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(newInstance.findProperty("message") != PEG_NOT_FOUND);
+
+    }
+    //
+    // Test with include qualifiers false. Should be no qualifiers in result
+    //
+    {
+        CIMInstance newInstance = class1.createInstance(false, true, CIMPropertyList());
+    
+        assert(newInstance.getQualifierCount() == 0);
+        assert(newInstance.getPropertyCount() == class1.getPropertyCount());
+        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(newInstance.findProperty("message") != PEG_NOT_FOUND);
+    }
+    //
+    // Test with empty property list.  Should have no properties.
+    //
+    {
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+    
+        CIMInstance newInstance = class1.createInstance(false, true, pl1);
+    
+        assert(newInstance.getQualifierCount() == 0);
+        assert(newInstance.getPropertyCount() == 0);
+    }
+
+    //
+    // Test with a property that exists in property list.
+    //
+    {
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+        pl1.clear();
+        pl1Array.append("ratio");
+        pl1.set(pl1Array);
+    
+        CIMInstance newInstance = class1.createInstance(false, true, pl1);
+    
+        if(verbose) {
+            cout << "Test with one property in new instance" << endl;
+    		XmlWriter::printInstanceElement(newInstance);
+    	}
+        cout << " count of properties: " << newInstance.getPropertyCount() << endl;
+        assert(newInstance.getPropertyCount() == 1);
+        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(newInstance.findProperty("message") == PEG_NOT_FOUND);
+        assert(newInstance.getQualifierCount() == 0);
+    }
+
+    //
+    // Test with a property that Does Not exist in property list and one that exists
+    //
+    {
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+        pl1.clear();
+        pl1Array.append("blob");
+        pl1Array.append("ratio");
+        pl1.set(pl1Array);
+    
+        CIMInstance newInstance = class1.createInstance(false, true, pl1);
+    
+        if(verbose) {
+            cout << "Test with one property in new instance" << endl;
+    		XmlWriter::printInstanceElement(newInstance);
+    	}
+        cout << " count of properties: " << newInstance.getPropertyCount() << endl;
+        assert(newInstance.getPropertyCount() == 1);
+        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(newInstance.findProperty("blob") == PEG_NOT_FOUND);
+        assert(newInstance.findProperty("message") == PEG_NOT_FOUND);
+        assert(newInstance.getQualifierCount() == 0);
+
+    }
+    delete context;
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -331,6 +476,7 @@ int main(int argc, char** argv)
 	test01();
 	test02();
     test03();
+    test04();
     }
     catch (Exception& e)
     {

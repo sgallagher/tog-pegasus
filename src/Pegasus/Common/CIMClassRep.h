@@ -39,6 +39,8 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/common/CIMInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -103,6 +105,10 @@ public:
     void getKeyNames(Array<CIMName>& keyNames) const;
 
     Boolean hasKeys() const;
+
+    CIMInstance createInstance(Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList) const;
 
 private:
 

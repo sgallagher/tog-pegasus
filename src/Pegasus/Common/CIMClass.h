@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Adriann Schuur (schuur@de.ibm.com) PEP 164
+//              Karl Schopmeyer k.schopmeyer@opengroup.org (PEP 157)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,8 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/common/CIMInstance.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -113,6 +116,7 @@ public:
 	@return true if the CIMClass Object is abstract, false otherwise.
     */
     Boolean isAbstract() const;
+
 
     /** Gets the name of the class represented by this CIM object.
 	@return CIMName with the class name.
@@ -299,6 +303,49 @@ public:
         false otherwise.
     */
     Boolean isUninitialized() const;
+
+    /**
+    Build a CIMInstance based on this CIM Class.  Properties in the instance 
+    are initialized to the default values (if any) specified in the class 
+    definition.  The parameters of the call determine whether qualifiers are 
+    included, the class origin attributes are included and which properties 
+    are included in the new instance.  This method is designed specifically 
+    for providers to allow them to easily build instance objects using the 
+    parameters provided with the CIM instance operations such as getInstance, 
+    enumerateInstances.  
+    
+    @param includeQualifiers If true attaches the class level qualifiers from 
+    this class to the instance and all properties inserted in the instance.  
+    If false, no qualifiers are attached to the instance or to any properties 
+    included in the instance.  The TOINSTANCE flavor is ignored.  Because 
+    there is still confusion over the exact operation of this parameter in the 
+    CIM specifications and the concept of instance level qualifiers, the 
+    behavior of this function when the parameter is true MAY change in the 
+    future to match any future clarifications of interoperable behavior in the 
+    CIM specifications.  
+    
+    @param includeClassOrigin If true ClassOrigin attributes attached to 
+    properties inthe class object are transferred to the properties attached 
+    to the instance object.  If false, any ClassOrigin attributes are ignored.  
+    
+    @param propertyList A CIMPropertyList defining the properties that are to 
+    be added to the created instance.  If propertyList is not NULL properties 
+    defined in the class and in this propertyList are added to the new 
+    instance.  If the propertyLlist is NULL, all properties are added to the 
+    instance.  If the propertyList exists but is empty, not properties are 
+    added.  Note that this function does NOT generate an error if a property 
+    name is supplied that is NOT in the class; it simply does not add that 
+    property to the instance.  
+    
+    @return CIMInstance of this class appropriately initialized.
+    
+    EXAMPLE:
+
+    <Will be provided with the code>
+    */
+    CIMInstance createInstance(Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList) const;
 
 private:
 

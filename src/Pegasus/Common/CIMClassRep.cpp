@@ -94,7 +94,6 @@ Boolean CIMClassRep::isAbstract() const
     value.get(flag);
     return flag;
 }
-
 void CIMClassRep::setSuperClassName(const CIMName& superClassName)
 {
     _superClassName = superClassName;
@@ -477,6 +476,52 @@ void CIMClassRep::resolve(
     }
 
     // _resolved = true;
+}
+
+CIMInstance CIMClassRep::createInstance(Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList) const
+{
+
+    // Create the new instance
+    CIMInstance newInstance(_reference.getClassName());
+
+    // Copy qualifiers if required
+    if (includeQualifiers)
+    {
+        for (Uint32 i = 0 ; i < getQualifierCount() ; i++)
+        {
+            newInstance.addQualifier(getQualifier(i).clone());
+        }
+    }
+
+    // Copy Properties
+    for (Uint32 i = 0 ; i < _properties.size() ; i++)
+    {
+        CIMConstProperty p = getProperty(i);
+        CIMName name = p.getName();
+        Array<CIMName> pl = propertyList.getPropertyNameArray();
+        if (propertyList.isNull() || Contains(pl, name))
+        {
+            CIMProperty p = getProperty(i).clone();
+            if (!includeQualifiers && p.getQualifierCount() != 0)
+            {
+                for (Uint32 j = 0 ; j < getQualifierCount() ; j++)
+                {
+                    p.removeQualifier(i - 1);
+                }
+            }
+            if (!includeClassOrigin)
+            {
+                p.setClassOrigin(CIMName());
+            }
+            newInstance.addProperty(p);
+
+            // Delete class origin attribute if required
+        }
+    }
+
+    return(newInstance);
 }
 
 void CIMClassRep::toXml(Array<Sint8>& out) const

@@ -342,21 +342,38 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Search for "Content-Type" header:
     //
-
+   // BUG 572, Use of Content-Type header and change error msg.
+   // If header exists, test type.  If not, ignore. We will find
+   // content type errors in text analysis.
+   // content-type header  value format:
+   //              type "/" subtype *( ";" parameter )
+   // ex. text/xml;Charset="utf8"
    String cimContentType;
-
-   if (!HTTPMessage::lookupHeader(
+   
+   if (HTTPMessage::lookupHeader(
 				  headers, "Content-Type", cimContentType, true))
    {
-       CIMClientMalformedHTTPException* malformedHTTPException = new
-	 CIMClientMalformedHTTPException("Missing CIMContentType HTTP header");
-       ClientExceptionMessage * response =
-	 new ClientExceptionMessage(malformedHTTPException);
-
-       _outputQueue->enqueue(response);
-       return;
+		Uint32 len;
+		String contentTypeValue;
+		if ((len = cimContentType.find(';')) != PEG_NOT_FOUND)
+			contentTypeValue = cimContentType.subString(0,len);
+		else
+			contentTypeValue = cimContentType;
+		
+		if (!String::equalNoCase(contentTypeValue, "text/xml") && 
+			!String::equalNoCase(contentTypeValue, "application/xml"))
+		{
+			CIMClientMalformedHTTPException* malformedHTTPException = new
+				CIMClientMalformedHTTPException
+					("Bad Content-Type HTTP header; " + contentTypeValue);
+			ClientExceptionMessage * response =
+				new ClientExceptionMessage(malformedHTTPException);
+			
+			_outputQueue->enqueue(response);
+			return;
+		}
    }
-
+   
     //
     // Zero-terminate the message:
     //

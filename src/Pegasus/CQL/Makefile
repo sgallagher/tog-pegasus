@@ -33,6 +33,7 @@ SOURCES = \
    CQLExpression.cpp \
    CQLFactor.cpp \
    CQLScope.cpp \
+   CQLFactory.cpp \
    CQLSelectStatement.cpp \
    SelectStatement.cpp \
    CQLValue.cpp 

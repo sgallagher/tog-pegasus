@@ -31,11 +31,17 @@ constants, etc.
 class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 {
   public:
+
+    CQLChainedIdentifier(){}
     /**  constructor 
           Parses the string into the various components of a CQL identifier.
           Throws parsing errors.
       */
     CQLChainedIdentifier(String inString);
+
+    CQLChainedIdentifier(CQLIdentifier & id);
+
+    ~CQLChainedIdentifier(){}
 
     /**  The getSubIdentifiers method
     returns the array of subIdentifiers from a CQL SELECT
@@ -50,6 +56,10 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
     const Array<CQLIdentifier>& getSubIdentifiers()const;
 
     String toString()const;
+
+    void append(CQLIdentifier & id);
+
+    CQLIdentifier getLastIdentifier();
 
   private:
 

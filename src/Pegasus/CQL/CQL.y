@@ -2,6 +2,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/CQL/CQLFactory.h>
 #include "memobjs.h"
 #include <stdio.h>
 
@@ -10,11 +11,13 @@
 #define CQLVALUE 1
 #define CQLIDENTIFIER 2
 #define CQLFUNCTION 3
+#define CQLCHAINEDIDENTIFIER 4
 
 int yylex();
 int yyerror(char * err){printf("%s\n", err); return 1;}
 extern char * yytext;
 int chain_state;
+CQLFactory _factory;
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
@@ -101,15 +104,15 @@ PEGASUS_NAMESPACE_END
 %type <strValue> class_name
 %type <strValue> class_path
 %type <_identifier> property_scope
-%type <strValue> scoped_property
+%type <_identifier> scoped_property
 %type <_string> literal_string
 %type <_value> binary_value
 %type <_value> hex_value
 %type <_value> decimal_value
 %type <_value> real_value
 %type <_value> literal
-%type <strValue> array_index
-%type <strValue> array_index_list
+%type <_string> array_index
+%type <_string> array_index_list
 %type <_node> chain
 %type <_value> concat
 %type <_factor> factor
@@ -167,7 +170,9 @@ property_scope : class_path SCOPE
 
 scoped_property : SCOPED_PROPERTY
                   {
-			printf("BISON::scoped_property = %s\n",$1);
+			printf("BISON::scoped_property = %s\n",CQL_lval.strValue);
+		        String tmp(CQL_lval.strValue);
+		        $$ = new CQLIdentifier(tmp);
                   }
 ;   
 
@@ -266,6 +271,9 @@ literal : literal_string
 array_index : expr
               {
                   printf("BISON::array_index->expr\n");
+                  /* drill down expr and check its _value to make sure it is an unsigned int */
+                  /* if yes, then grab the value and toString() and assign $$ to it */
+                  /* else error */
               }
 ;
 
@@ -284,6 +292,7 @@ chain : literal
         {
             printf("BISON::chain-> ( expr )\n");
             chain_state = CQLPREDICATE;
+	    $$ = $2;
         }
       | identifier
         {
@@ -296,6 +305,13 @@ chain : literal
             String tmp = $1->getName().getString();
             tmp.append("#").append(*$3);
             $$ = new CQLIdentifier(tmp);
+	    chain_state = CQLIDENTIFIER;
+        }
+      | scoped_property
+        {
+	    printf("BISON::chain-> scoped_property\n");
+            chain_state = CQLIDENTIFIER;
+	    $$ = $1;
         }
       | identifier LPAR arg_list RPAR
         {
@@ -307,10 +323,14 @@ chain : literal
 	    printf("BISON::chain-> chain DOT scoped_property\n");
 	    if(chain_state == CQLIDENTIFIER){
                 $$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
-                String tmpstr($3);
-                CQLIdentifier tmpid(tmpstr);
-                ((CQLChainedIdentifier*)$$)->append(tmpid);
+                ((CQLChainedIdentifier*)$$)->append(*$3);
+            }else if(chain_state == CQLCHAINEDIDENTIFIER){
+		    ((CQLChainedIdentifier*)$$)->append(*$3);
+	    }else{
+		/* error */
             }
+
+            chain_state = CQLCHAINEDIDENTIFIER;
         }
       | chain DOT identifier
         {
@@ -318,7 +338,14 @@ chain : literal
             if(chain_state == CQLIDENTIFIER){
 		$$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
 		((CQLChainedIdentifier*)$$)->append(*$3);
+            }else if(chain_state == CQLCHAINEDIDENTIFIER){
+                ((CQLChainedIdentifier*)$$)->append(*(CQLIdentifier*)$3);
+            }else{
+                /* error */
             }
+                                                                                                        
+            chain_state = CQLCHAINEDIDENTIFIER;
+
         }
       | chain DOT identifier HASH literal_string
         {
@@ -329,11 +356,36 @@ chain : literal
 		tmp.append("#").append(*$5);
                 CQLIdentifier tmpid(tmp);
                 ((CQLChainedIdentifier*)$$)->append(tmpid);
+            }else if(chain_state == CQLCHAINEDIDENTIFIER){
+		String tmp($3->getName().getString());
+                tmp.append("#").append(*$5);
+                CQLIdentifier tmpid(tmp);
+                ((CQLChainedIdentifier*)$1)->append(tmpid);
+		$$ = $1;
+            }else{
+                /* error */
             }
+                                                                                                        
+            chain_state = CQLCHAINEDIDENTIFIER;
+
         }
       | chain LBRKT array_index_list RBRKT
         {
             printf("BISON::chain->chain[ array_index_list ]\n");
+            if(chain_state == CQLIDENTIFIER){
+                CQLIdentifier tmpid = *(CQLIdentifier*)$1;
+		String tmp = tmpid.getName().getString();
+		tmp.append("[").append(*$3).append("]");
+		$$  = new CQLIdentifier(tmp);
+	    }else if(chain_state == CQLCHAINEDIDENTIFIER){
+	        CQLChainedIdentifier tmpcid = *(CQLChainedIdentifier*)$1;
+		CQLIdentifier tmpid = tmpcid.getLastIdentifier();
+		String tmp = tmpid.getName().getString();
+                tmp.append("[").append(*$3).append("]");
+		tmpcid.append(*(new CQLIdentifier(tmp)));
+	    }else{
+		/* error */
+	    }
         }
 ;
 
@@ -345,7 +397,15 @@ concat : chain
        | concat DBL_PIPE chain
          {
              printf("BISON::concat||chain\n");
-	     $$ = new CQLValue(*(CQLChainedIdentifier*)$1);
+	     if(chain_state == CQLVALUE){
+		if(((CQLValue*)$3)->getValueType() == String_type){
+	                if(((CQLValue*)$1)->getValueType() == String_type){
+                        	$$ = new CQLValue((*(CQLValue*)$3) + (*(CQLValue*)$1));
+				                   
+        	        }
+
+		}
+             }
          }
 ;
 
@@ -362,9 +422,9 @@ factor : concat
        | MINUS concat
          {
              printf("BISON::factor->MINUS concat\n");
-             CQLValue tmp = *(CQLValue*)$1;
-             tmp.invert();
-	     $$ = new CQLFactor(tmp);
+             CQLValue *tmp = (CQLValue*)$1;
+             tmp->invert();
+	     $$ = new CQLFactor(*tmp);
          }
 ;
 
@@ -376,12 +436,14 @@ term : factor
      | term STAR factor
        {
            printf("BISON::term->term STAR factor\n");
-           $$->appendOperation(mult, *$3);
+           $1->appendOperation(mult, *$3);
+           $$ = $1;
        }
      | term DIV factor
        {
            printf("BISON::term->term DIV factor\n");
-           $$->appendOperation(divide, *$3);
+           $1->appendOperation(divide, *$3);
+           $$ = $1;
        }
 ;
 
@@ -394,13 +456,13 @@ arith : term
         {
             printf("BISON::arith->arith PLUS term\n");
             $1->appendOperation(plus, *$3);
-            $$ = new CQLExpression(*$1);
+            $$ = $1;
         }
       | arith MINUS term
         {
             printf("BISON::arith->arith MINUS term\n");
 	    $1->appendOperation(minus, *$3);
-            $$ = new CQLExpression(*$1);
+            $$ = $1;
         }
 ;
 
@@ -421,9 +483,7 @@ arith_or_value_symbol : arith
                       | value_symbol
                         {
                             printf("BISON::arith_or_value_symbol->value_symbol\n");
-			    CQLFactor tmpfctr(*$1);
-			    CQLTerm tmpterm(tmpfctr);
-			    $$ = new CQLExpression(tmpterm);
+			    $$ = (CQLExpression*)(_factory.makeObject(new CQLFactor(*$1), Expression));
                         }
 ;
 
@@ -480,33 +540,22 @@ comp : arith
      | value_symbol comp_op arith
        {
            printf("BISON::comp->value_symbol comp_op arith\n");
-           CQLFactor tmpfctr(*$1);
-           CQLTerm tmpterm(tmpfctr);
-           CQLExpression tmpexpr(tmpterm);
-	   CQLSimplePredicate tmp(tmpexpr, *$3, $2);
+           CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLFactor(*$1), Expression));
+	   CQLSimplePredicate tmp(*tmpexpr, *$3, $2);
            $$ = new CQLPredicate(tmp);
        }
      | arith _ISA identifier
        {
            printf("BISON::comp->arith _ISA identifier\n");
-	   CQLChainedIdentifier tmpcid(*$3);
-	   CQLValue tmpval(tmpcid);
-	   CQLFactor tmpfctr(tmpval);
-           CQLTerm tmpterm(tmpfctr);
-           CQLExpression tmpexpr(tmpterm);
-           CQLSimplePredicate tmp(*$1, tmpexpr, ISA);
+	   CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLChainedIdentifier(*$3), Expression));
+           CQLSimplePredicate tmp(*$1, *tmpexpr, ISA);
            $$ = new CQLPredicate(tmp);
        }
      | arith _LIKE literal_string
        {
-           printf("BISON::comp->arith LIKE_ literal_string\n");
-	   CQLIdentifier tmpid(*$3);
-	   CQLChainedIdentifier tmpcid(tmpid);
-           CQLValue tmpval(tmpcid);
-           CQLFactor tmpfctr(tmpval);
-           CQLTerm tmpterm(tmpfctr);
-           CQLExpression tmpexpr(tmpterm);
-           CQLSimplePredicate tmp(*$1, tmpexpr, LIKE);
+           printf("BISON::comp->arith _LIKE literal_string\n");
+           CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLIdentifier(*$3), Expression));
+           CQLSimplePredicate tmp(*$1, *tmpexpr, LIKE);
            $$ = new CQLPredicate(tmp);
        }
 ;

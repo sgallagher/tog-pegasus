@@ -7,9 +7,19 @@ CQLChainedIdentifier::CQLChainedIdentifier(String inString)
 	parse(inString);
 }
 
+CQLChainedIdentifier::CQLChainedIdentifier(CQLIdentifier &id)
+{
+        _subIdentifiers.append(id);
+}
+
+
 const Array<CQLIdentifier>& CQLChainedIdentifier::getSubIdentifiers()const
 {
 	return _subIdentifiers;
+}
+
+CQLIdentifier CQLChainedIdentifier::getLastIdentifier(){
+	return _subIdentifiers[_subIdentifiers.size()-1];
 }
 
 String CQLChainedIdentifier::toString()const{
@@ -20,6 +30,10 @@ String CQLChainedIdentifier::toString()const{
 			s.append(".");
 	}
 	return s;
+}
+
+void CQLChainedIdentifier::append(CQLIdentifier & id){
+	_subIdentifiers.append(id);
 }
 
 void CQLChainedIdentifier::parse(String & string){

@@ -222,6 +222,7 @@ void ShutdownService::_shutdownCIMServer()
     //
     // Shutdown the providers
     //
+
     _shutdownProviders();
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -276,14 +277,11 @@ void ShutdownService::_shutdownCimomServices()
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDECODER);
 
-    //
-    // shutdown  CIM Operation Request Dispatcher Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDISPATCHER);
 
     //
     // shutdown  CIM Export Request Decoder Service
     //
+
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDECODER);
 
     //
@@ -296,6 +294,11 @@ void ShutdownService::_shutdownCimomServices()
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_BINARY_HANDLER);
     
+    //
+    // shutdown  CIM Operation Request Dispatcher Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDISPATCHER);
+
 
     PEG_METHOD_EXIT();
     return;

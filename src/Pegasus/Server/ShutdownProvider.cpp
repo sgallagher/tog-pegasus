@@ -36,7 +36,9 @@
 
 #include "ShutdownProvider.h"
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
 
@@ -60,6 +62,8 @@ void ShutdownProvider::invokeMethod(
     MethodResultResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownProvider::invokeMethod()");
+
+    
 
     // Check to see if the method name is correct
     if (!methodName.equal(METHOD_NAME_SHUTDOWN))
@@ -147,7 +151,9 @@ void ShutdownProvider::invokeMethod(
 
     try
     {
+
         _shutdownService->shutdown(force, timeoutValue, true);
+	
     }
     catch (CIMException& e)
     {
@@ -162,6 +168,10 @@ void ShutdownProvider::invokeMethod(
 
     handler.deliver(CIMValue(0));
     handler.complete();
+#ifdef PEGASUS_MONITOR2
+    monitor_2::get_monitor2()->stop();
+#endif
+    
 
     PEG_METHOD_EXIT();
     return;

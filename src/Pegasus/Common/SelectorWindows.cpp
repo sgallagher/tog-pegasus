@@ -124,8 +124,8 @@ Selector::~Selector()
 
 Boolean Selector::select(Uint32 milliseconds)
 {
-    // Windows select() has a strange little bug. It returns immediately if 
-    // there are no descriptors in the set even if the timeout is non-zero. 
+    // Windows select() has a strange little bug. It returns immediately if
+    // there are no descriptors in the set even if the timeout is non-zero.
     // To work around this, we call Sleep() for now:
 
     if (_entries.size() == 0)
@@ -147,10 +147,10 @@ Boolean Selector::select(Uint32 milliseconds)
 	struct timeval tv = { SEC, USEC };
 
 	count = select_wrapper(
-	    FD_SETSIZE, 
-	    &_rep->active_rd_fd_set, 
-	    &_rep->active_wr_fd_set, 
-	    &_rep->active_ex_fd_set, 
+	    FD_SETSIZE,
+	    &_rep->active_rd_fd_set,
+	    &_rep->active_wr_fd_set,
+	    &_rep->active_ex_fd_set,
 	    &tv);
 
 	if (count == 0)
@@ -217,7 +217,7 @@ Boolean Selector::addHandler(
 
     Uint32 pos = _findEntry(desc);
 
-    if (pos != Uint32(-1))
+    if (pos != PEG_NOT_FOUND)
 	return false;
 
     // Set the reasons:

@@ -42,10 +42,10 @@ int main()
 
 
 	// Tests for Qualifiers
-	assert(m1.findQualifier("stuff") != -1);
-	assert(m1.findQualifier("stuff2") != -1);
-	assert(m1.findQualifier("stuff21") == -1);
-	assert(m1.findQualifier("stuf") == -1);
+	assert(m1.findQualifier("stuff") != PEG_NOT_FOUND);
+	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(m1.findQualifier("stuff21") == PEG_NOT_FOUND);
+	assert(m1.findQualifier("stuf") == PEG_NOT_FOUND);
 	assert(m1.getQualifierCount() == 2);
 
 	assert(m1.existsQualifier("stuff"));

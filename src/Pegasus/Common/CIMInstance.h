@@ -27,8 +27,8 @@
 
 /*
 
-CIMInstance.h File defines the Class used to create, instantiate, and modify 
-CIM Instances 
+CIMInstance.h File defines the Class used to create, instantiate, and modify
+CIM Instances
 
 */
 #ifndef Pegasus_InstanceDecl_h
@@ -47,10 +47,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstInstance;
 
-/** Class CIMInstance	- The CIMInstance class represents the instance of 
-    a CIM class in Pegasus. It is used manipulate instances and the 
+/** Class CIMInstance	- The CIMInstance class represents the instance of
+    a CIM class in Pegasus. It is used manipulate instances and the
     characteristics of instances
-*/ 
+*/
 class PEGASUS_COMMON_LINKAGE CIMInstance
 {
 public:
@@ -87,7 +87,7 @@ public:
 	from the input parameters
 	@param - String className to be used with new instance object
 	@return The new instance object
-	@exception Throws IllegalName if className argument not legal CIM 
+	@exception Throws IllegalName if className argument not legal CIM
 	identifier. ATTN: Clarify the defintion	of legal CIM identifier.
     */
     CIMInstance(const String& className)
@@ -104,10 +104,10 @@ public:
     /**	getClassName - 	Returns the class name of the instance
 	@return String with the class name.
     */
-    const String& getClassName() const 
-    { 
+    const String& getClassName() const
+    {
 	_checkRep();
-	return _rep->getClassName(); 
+	return _rep->getClassName();
     }
 
     /**	addQualifier - Adds the CIMQualifier object to the instance.
@@ -126,9 +126,9 @@ public:
     /**	findQualifier - Searches the instance for the qualifier object
         defined by the input parameter.
 	@param String defining the qualifier object to be found.
-	@return - Position of the qualifier to be used in subsequent 
-	operations or -1 if the qualifier is not found. 
-    */ 
+	@return - Position of the qualifier to be used in subsequent
+	operations or PEG_NOT_FOUND if the qualifier is not found.
+    */
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
@@ -144,8 +144,8 @@ public:
         defined by the input parameter.
 	@param String defining the qualifier object to be found.
 	@return - Returns True if  the qualifier object exists or false
-	if the qualifier is not found. 
-    */ 
+	if the qualifier is not found.
+    */
     Uint32 existsQualifier(const String& name)
     {
 	_checkRep();
@@ -166,10 +166,10 @@ public:
 	index input parameter.  @ index for the qualifier object.
 	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
-	objects in a CIMInstnace.  
+	objects in a CIMInstnace.
 	@return: Returns qualifier object defined by index.
 	@exception Throws the OutOfBounds exception if the index
-	is out of bounds  
+	is out of bounds
     */
     CIMQualifier getQualifier(Uint32 pos)
     {
@@ -181,10 +181,10 @@ public:
 	index input parameter.  @ index for the qualifier object.
 	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
-	objects in a CIMInstnace.  
-	@return: Returns qualifier object defined by index. 
+	objects in a CIMInstnace.
+	@return: Returns qualifier object defined by index.
 	@exception Throws the OutOfBounds exception if the index
-	is out of bounds  
+	is out of bounds
 	ATTN: What is effect of out of range index???
 	ATTN: Is the above statement correct???
     */
@@ -194,13 +194,13 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /**	getQualifierCount - Gets the numbercount of CIMQualifierobjects 
+    /**	getQualifierCount - Gets the numbercount of CIMQualifierobjects
 	defined for this CIMInstance.
 	@return	Count of the number of CIMQalifier objects in the
 	CIMInstance.
 	@exception Throws the OutOfBounds exception if the index
-	is out of bounds  
-    */ 
+	is out of bounds
+    */
     Uint32 getQualifierCount() const
     {
 	_checkRep();
@@ -212,7 +212,7 @@ public:
 	@param Property Object to be added.  See the CIM Property
 	class for definition of the property object
 	@return ATTN:
-	@exception Throws the exception AlreadyExists if the property 
+	@exception Throws the exception AlreadyExists if the property
 	already exists.
     */
     CIMInstance& addProperty(const CIMProperty& x)
@@ -222,12 +222,13 @@ public:
 	return *this;
     }
 
-    /**	findProperty - Searches the CIMProperty objects installed in the 
+    /**	findProperty - Searches the CIMProperty objects installed in the
 	CIMInstance for property objects with the name defined by the
 	input.
 	@param String with the name of the property object to be found
-	@return Index in the CIM Instance to the property object if found or 
-	-1 if no property object found with the name defined by the input. 
+	@return Position in the CIM Instance to the property object if found or
+	PEG_NOT_FOUND if no property object found with the name defined by the
+	input.
     */
     Uint32 findProperty(const String& name)
     {
@@ -258,16 +259,16 @@ public:
     }
 
 
-    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined 
+    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
 	@param Index to the property object in the CIMInstance.
     	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
-	objects in a CIMInstnace. 
+	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
 	@exception Throws the OutOfBounds exception if the index
-	is out of bounds  
- 
+	is out of bounds
+
 	ATTN: What is the effect of out of range?
     */
     CIMProperty getProperty(Uint32 pos)
@@ -276,16 +277,16 @@ public:
 	return _rep->getProperty(pos);
     }
 
-    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined 
+    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
 	@param Index to the property object in the CIMInstance.
     	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
-	objects in a CIMInstnace. 
+	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
 	@exception Throws the OutOfBounds exception if the index
-	is out of bounds  
- 
+	is out of bounds
+
 	ATTN: What is the effect of out of range?
     */
     CIMConstProperty getProperty(Uint32 pos) const
@@ -306,13 +307,13 @@ public:
 	_rep->removeProperty(pos);
     }
 
-    /**	getPropertyCount - Gets the numbercount of CIMProperty 
+    /**	getPropertyCount - Gets the numbercount of CIMProperty
 	objects defined for this CIMInstance.
 	@return	Count of the number of CIMProperty objects in the
 	CIMInstance. Zero indicates that no CIMProperty objects
 	are contained in the CIMInstance
 	@exception Throws the OutOfBounds exception if the index
-	is out of bounds  
+	is out of bounds
 
     */
     Uint32 getPropertyCount() const
@@ -328,7 +329,7 @@ public:
     void resolve(DeclContext* declContext, const String& nameSpace);
 
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	CIMConstClass& cimClassOut)
     {
@@ -362,18 +363,18 @@ public:
     Boolean identical(const CIMConstInstance& x) const;
 
     /**	CIMMethod
-    
+
     */
     CIMInstance clone() const
     {
 	return CIMInstance(_rep->clone());
     }
 
-    /** getInstnaceName - Get the instance name of this instance. The class 
+    /** getInstnaceName - Get the instance name of this instance. The class
 	argument is used to determine which fields are keys. The instance
 	name has this from:
 
-	<PRE> 
+	<PRE>
 	    ClassName.key1=value1,...,keyN=valueN
 	</PRE>
 
@@ -460,10 +461,10 @@ public:
 	Dec(_rep);
     }
 
-    const String& getClassName() const 
-    { 
+    const String& getClassName() const
+    {
 	_checkRep();
-	return _rep->getClassName(); 
+	return _rep->getClassName();
     }
 
     Uint32 findQualifier(const String& name) const
@@ -549,3 +550,4 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_InstanceDecl_h */
+

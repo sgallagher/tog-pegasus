@@ -40,7 +40,7 @@ void test01()
     // }
 
     CIMClass class1("MyClass", "YourClass");
-    
+
     class1
 	.addQualifier(CIMQualifier("association", true))
 	.addQualifier(CIMQualifier("q1", Uint32(55)))
@@ -54,10 +54,10 @@ void test01()
     // Test the method count function
     assert(class1.getMethodCount() ==1);
 
-    
+
     // Test the findMethod and isMethod functions
-    assert(class1.findMethod("isActive") != -1);
-    assert(class1.findMethod("DoesNotExist") == -1);
+    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
+    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
     assert(class1.existsMethod("isActive"));
     assert(!class1.existsMethod("DoesNotExist"));
@@ -72,10 +72,10 @@ void test01()
 
     // Test the findMethod and isMethod functions
     // with two methods defined
-    assert(class1.findMethod("isActive") != -1);
-    assert(class1.findMethod("makeActive") != -1);
+    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
+    assert(class1.findMethod("makeActive") != PEG_NOT_FOUND);
 
-    assert(class1.findMethod("DoesNotExist") == -1);
+    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
     assert(class1.existsMethod("isActive"));
     assert(class1.existsMethod("makeActive"));
 
@@ -83,22 +83,22 @@ void test01()
 
 
     // Test RemoveMethod function
-    Uint32 posMethod; 
+    Uint32 posMethod;
     posMethod = class1.findMethod("isActive");
-    assert(posMethod != -1);
+    assert(posMethod != PEG_NOT_FOUND);
 
     class1.removeMethod(posMethod);
 
-    assert(class1.findMethod("isActive") == -1);
-    assert(class1.getMethodCount() ==1);
-       
+    assert(class1.findMethod("isActive") == PEG_NOT_FOUND);
+    assert(class1.getMethodCount() == 1);
+
     //ATTN: TODO add tests for different case names
 
     //Qualifier manipulation tests  (find, exists, remove)
 
-    assert(class1.findQualifier("q1") != -1);
-    assert(class1.findQualifier("q2") != -1);
-    assert(class1.findQualifier("qx") == -1);
+    assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
+    assert(class1.findQualifier("q2") != PEG_NOT_FOUND);
+    assert(class1.findQualifier("qx") == PEG_NOT_FOUND);
 
     assert(class1.existsQualifier("q1"));
     assert(class1.existsQualifier("q2"));
@@ -114,7 +114,7 @@ void test01()
     class1.removeQualifier(posQualifier);
     assert(class1.getQualifierCount() == 2);
 
-    assert(class1.findQualifier("q2") == -1);
+    assert(class1.findQualifier("q2") == PEG_NOT_FOUND);
     assert(!class1.existsQualifier("q2"));
     assert(class1.existsQualifier("q1"));
     assert(class1.isAssociation());
@@ -122,13 +122,13 @@ void test01()
 
     // Remove the first parameter "q1"
     posQualifier = class1.findQualifier("q1");
-    
+
     assert(class1.getQualifierCount() == 2);
     assert(posQualifier <= class1.getQualifierCount());
     class1.removeQualifier(posQualifier);
     assert(class1.getQualifierCount() == 1);
 
-    assert(class1.findQualifier("q1") == -1);
+    assert(class1.findQualifier("q1") == PEG_NOT_FOUND);
     assert(!class1.existsQualifier("q1"));
     assert(!class1.existsQualifier("q2"));
     assert(class1.isAssociation());
@@ -143,18 +143,18 @@ void test01()
 
     //The property manipulation tests.
 
-    assert(class1.findProperty("count") != -1);
-    assert(class1.findProperty("message") != -1);
+    assert(class1.findProperty("count") != PEG_NOT_FOUND);
+    assert(class1.findProperty("message") != PEG_NOT_FOUND);
 
     assert(class1.existsProperty("count"));
     assert(class1.existsProperty("message"));
 
-    assert(class1.findProperty("isActive") == -1);
+    assert(class1.findProperty("isActive") == PEG_NOT_FOUND);
     assert(!class1.existsProperty("isActive"));
 
     assert(class1.getPropertyCount() == 2);
 
- 
+
     Uint32  posProperty;
     posProperty = class1.findProperty("count");
     class1.removeProperty(posProperty);

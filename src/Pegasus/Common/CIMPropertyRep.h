@@ -49,7 +49,7 @@ class PEGASUS_COMMON_LINKAGE CIMPropertyRep : public Sharable
 public:
 
     CIMPropertyRep(
-	const String& name, 
+	const String& name,
 	const CIMValue& value,
 	Uint32 arraySize,
 	const String& referenceClassName,
@@ -58,16 +58,16 @@ public:
 
     ~CIMPropertyRep();
 
-    const String& getName() const 
-    { 
-	return _name; 
+    const String& getName() const
+    {
+	return _name;
     }
 
     void setName(const String& name);
 
-    const CIMValue& getValue() const 
-    { 
-	return _value; 
+    const CIMValue& getValue() const
+    {
+	return _value;
     }
 
     void setValue(const CIMValue& value);
@@ -77,26 +77,26 @@ public:
 	return _arraySize;
     }
 
-    const String& getReferenceClassName() const 
+    const String& getReferenceClassName() const
     {
-	return _referenceClassName; 
+	return _referenceClassName;
     }
 
-    const String& getClassOrigin() const 
-    { 
-	return _classOrigin; 
+    const String& getClassOrigin() const
+    {
+	return _classOrigin;
     }
 
     void setClassOrigin(const String& classOrigin);
 
-    Boolean getPropagated() const 
-    { 
-	return _propagated; 
+    Boolean getPropagated() const
+    {
+	return _propagated;
     }
 
-    void setPropagated(Boolean propagated) 
-    { 
-	_propagated = propagated; 
+    void setPropagated(Boolean propagated)
+    {
+	_propagated = propagated;
     }
 
     void addQualifier(const CIMQualifier& qualifier)
@@ -111,7 +111,7 @@ public:
 
     Boolean existsQualifier(const String& name) const
     {
-	return (findQualifier(name) != Uint32(-1)) ? true : false;
+	return (findQualifier(name) != PEG_NOT_FOUND) ? true : false;
     }
 
     CIMQualifier getQualifier(Uint32 pos)
@@ -135,13 +135,13 @@ public:
     }
 
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
 	const CIMConstProperty& property);
 
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart);
 

@@ -70,7 +70,7 @@ public:
     const char* getHostPortString();
     const char* getAddress();
 private:
-    char _address[128]; 
+    char _address[128];
 };
 //    sprintf(address, "%s:%d",
 //	    hostinfo.getHostName(), hostinfo.getHostPort());
@@ -615,14 +615,14 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 	CIMClient client(&selector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
-	
+
 	// get the class
 	CIMClass cimClass = client.getClass(
 	    nameSpace, className, false, true, true);
 	//
 	Uint32 pos = cimClass.findProperty(propertyName);
 
-	if (pos == Uint32(-1))
+	if (pos == PEG_NOT_FOUND)
 	{
 	    ErrorExit("No such property");
 	    return;
@@ -1420,7 +1420,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	    // Strip off all but the namespace itself
 	    String work = tmpInstanceNames[i];
 	    Uint32 pos = work.find('\"');
-	    if (pos != Uint32(-1))
+	    if (pos != PEG_NOT_FOUND)
 		work = tmpInstanceNames[i].subString((pos+1), -1);
 
 	    // remove trailing quote
@@ -1507,7 +1507,7 @@ void PrintClassTreeEntry(const String& nameSpace,
 
     PrintA(href, className);
 
-} 
+}
 /** TraverseClassTree - Traverse the Tree of super-to-subclasses
     printing each new subclass.	This function uses recursieve calls
     to traverse the complete Class Tree.
@@ -1731,7 +1731,7 @@ static void ClassTree(const CGIQueryString& qs)
 	   superClassNames.append(myClass.getSuperClassName());
 	}
  	TraverseClassTree(nameSpace, rootClass, superClassNames,
-			    classNames,classNames.size(),Uint32(-1));
+			    classNames,classNames.size(),PEG_NOT_FOUND);
 
 	// Close the Page
 	cout << "<p>Returned " << classNames.size() << " getClasses ";

@@ -36,14 +36,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMPropertyRep::CIMPropertyRep(
-    const String& name, 
+    const String& name,
     const CIMValue& value,
     Uint32 arraySize,
     const String& referenceClassName,
     const String& classOrigin,
     Boolean propagated) :
     _name(name), _value(value), _arraySize(arraySize),
-    _referenceClassName(referenceClassName), _classOrigin(classOrigin), 
+    _referenceClassName(referenceClassName), _classOrigin(classOrigin),
     _propagated(propagated)
 {
     if (!CIMName::legal(name))
@@ -82,12 +82,12 @@ CIMPropertyRep::~CIMPropertyRep()
 
 }
 
-void CIMPropertyRep::setName(const String& name) 
+void CIMPropertyRep::setName(const String& name)
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-    _name = name; 
+    _name = name;
 }
 
 void CIMPropertyRep::setClassOrigin(const String& classOrigin)
@@ -95,11 +95,11 @@ void CIMPropertyRep::setClassOrigin(const String& classOrigin)
     if (!CIMName::legal(classOrigin))
 	throw IllegalName();
 
-    _classOrigin = classOrigin; 
+    _classOrigin = classOrigin;
 }
 
 void CIMPropertyRep::resolve(
-    DeclContext* declContext, 
+    DeclContext* declContext,
     const String& nameSpace,
     Boolean isInstancePart,
     const CIMConstProperty& inheritedProperty)
@@ -131,7 +131,7 @@ void CIMPropertyRep::resolve(
 }
 
 void CIMPropertyRep::resolve(
-    DeclContext* declContext, 
+    DeclContext* declContext,
     const String& nameSpace,
     Boolean isInstancePart)
 {
@@ -266,7 +266,7 @@ Boolean CIMPropertyRep::isKey() const
 {
     Uint32 pos = _qualifiers.findReverse("key");
 
-    if (pos == Uint32(-1))
+    if (pos == PEG_NOT_FOUND)
 	return false;
 
     Boolean flag;
@@ -280,7 +280,7 @@ CIMPropertyRep::CIMPropertyRep()
 
 }
 
-CIMPropertyRep::CIMPropertyRep(const CIMPropertyRep& x) : 
+CIMPropertyRep::CIMPropertyRep(const CIMPropertyRep& x) :
     Sharable(),
     _name(x._name),
     _value(x._value),
@@ -292,9 +292,9 @@ CIMPropertyRep::CIMPropertyRep(const CIMPropertyRep& x) :
     x._qualifiers.cloneTo(_qualifiers);
 }
 
-CIMPropertyRep& CIMPropertyRep::operator=(const CIMPropertyRep& x) 
-{ 
-    return *this; 
+CIMPropertyRep& CIMPropertyRep::operator=(const CIMPropertyRep& x)
+{
+    return *this;
 }
 
 void CIMPropertyRep::setValue(const CIMValue& value)

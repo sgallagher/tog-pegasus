@@ -167,10 +167,17 @@ public:
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
     /** appendToCString - Append the given string to a C-string. If the length
-    is not Uint32(-1),
-	then the lesser of the the length argument and the length of this
-	string is truncated. Otherwise, the entire string is trunctated. The
-	TruncatedCharacter exception is thrown if any characters are truncated.
+    	is not PEG_NOT_FOUND, then the lesser of the the length argument and the
+    	length of this string is truncated. Otherwise, the entire string is
+    	trunctated. The TruncatedCharacter exception is thrown if any characters
+    	are truncated.
+    	@param str Char pointer to the string to append
+    	@param length Length to append or PEG_NOT_FOUND (Uint32(-1)
+    	@param noThrow - If false, throw the "TruncatedCharacter" exception of
+    	any characters are truncated
+    	@return void
+    	@exception Throws TruncatedCharacter exception of characters are
+    	truncated and noThrow parameter is false.
 	<pre>
 	    const char STR0[] = "one two three four";
 	    String s = STR0;
@@ -183,7 +190,7 @@ public:
     */
     void appendToCString(
 	char* str,
-	Uint32 length = Uint32(-1),
+	Uint32 length = PEG_NOT_FOUND,
 	Boolean noThrow = false) const;
 
     /** Returns the Ith character of the String object.
@@ -256,10 +263,11 @@ public:
     }
 
     /** Remove size characters from the string starting at the given
-	position. If size is -1, then all characters after pos are removed.
+	position. If size is PEG_NOT_FOUND, then all characters after pos are
+	removed.
 	@param pos Position in string to start remove
-	@param size Number of characters to remove. Default is -1 which
-	causes all characters after pos to be removed
+	@param size Number of characters to remove. Default is PEG_NOT_FOUND
+	(Uint32(-1) which causes all characters after pos to be removed
 	<pre>
 	    String s;
 	    s = "abc";
@@ -273,14 +281,15 @@ public:
 	@exception throws "OutOfBounds" exception if size is greater than
 	length of String plus starting position for remove.
     */
-    void remove(Uint32 pos, Uint32 size = Uint32(-1));
+    void remove(Uint32 pos, Uint32 size = PEG_NOT_FOUND);
 
     /** Return a new String which is initialzed with <TT>length</TT>
 	characters from this string starting at <TT>pos</TT>.
 	@param <TT>pos</TT> is the positon in string to start getting the
 	substring.
 	@param <TT>length</TT> is the number of characters to get. If length
-	is -1, then all characters after pos are added to the new string.
+	is PEG_NOT_FOUND, then all characters after pos are added to the new
+	string.
 	@return String with the defined substring.
 	<pre>
 	    s = "abcdefg";
@@ -288,21 +297,22 @@ public:
 	    assert(String::equal(s, "abc"));
 	</pre>
     */
-    String subString(Uint32 pos, Uint32 length = Uint32(-1)) const;
+    String subString(Uint32 pos, Uint32 length = PEG_NOT_FOUND) const;
 
     /** Find the position of the first occurence of the character c.
-	If the character is not found, -1 is returned.
+	If the character is not found, PEG_NOT_FOUND is returned.
 	@param c Char to be found in the String
-	@return Position of the character in the string or -1 if not found.
+	@return Position of the character in the string or PEG_NOT_FOUND if not
+	found.
     */
     Uint32 find(Char16 c) const;
 
 
     /** Find the position of the first occurence of the string object.
 	This function finds one string inside another
-	If the matching substring is not found, -1 is returned.
+	If the matching substring is not found, PEG_NOT_FOUND is returned.
 	@param s String object to be found in the String
-	@return Position of the substring in the String or -1 if not
+	@return Position of the substring in the String or PEG_NOT_FOUND if not
 	found.
     */
     Uint32 find(const String& s) const;
@@ -310,14 +320,14 @@ public:
     /** Find substring
 	@ param 16 bit character pointer
 	@seealso find
-	@return Position of the substring in the String or -1 if not
+	@return Position of the substring in the String or PEG_NOT_FOUND if not
 	found.
     */
     Uint32 find(const Char16* s) const;
 
     /** find substring
 	@param s char* to substring
-	@return Position of the substring in the String or -1 if not
+	@return Position of the substring in the String or PEG_NOT_FOUND if not
 	found.
     */
     Uint32 find(const char* s) const;
@@ -326,7 +336,8 @@ public:
     character first).
     	@param c Char16 character to find in String.
 	@Seealso find
-	@return Position of the character in the string or -1 if not found.
+	@return Position of the character in the string or PEG_NOT_FOUND if not
+	found.
 
 	NOTE: This function is defined only for char* input, not for
 	String.
@@ -341,12 +352,12 @@ public:
     */
     void translate(Char16 fromChar, Char16 toChar);
 
-    /** Compare the first n characters of the two strings.
-    	@param s1 First null-terminated string for the comparison
-	@param s2 Second null-terminated string for the comparison
-	@param n Number of characters to compare
-	@return Return -1 if s1 is lexographically less than s2. If they
-	are equavalent return 0. Otherwise return 1.
+    /** Compare the first n characters of the two strings..
+    	@param s1 First null-terminated string for the comparison.
+	@param s2 Second null-terminated string for the comparison.
+	@param n Number of characters to compare.
+	@return Return -1 if s1 is lexographically less than s2. If they are
+	equavalent return 0. Otherwise return 1.
     */
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
 
@@ -355,8 +366,8 @@ public:
     static int compareNoCase(const char* s1, const char* s2, Uint32 n);
 
     /** Compare two null-terminated strings.
-    	@param s1 First null-terminated string for the comparison
-	@param s2 Second null-terminated string for the comparison
+    	@param s1 First null-terminated string for the comparison.
+	@param s2 Second null-terminated string for the comparison.
 	@return If s1 is less than s2, return -1; if equal return 0;
 	otherwise, return 1.
 
@@ -649,3 +660,5 @@ PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */
+
+

@@ -181,7 +181,8 @@ public:
         input name if it exists in the class
 	@param name CIMName of the qualifier
 	to be found @return Position of the qualifier in the Class.
-	@return Returns index of the qualifier found or -1 if not found.
+	@return Returns index of the qualifier found or PEG_NOT_FOUND
+	if not found.
     */
     Uint32 findQualifier(const String& name)
     {
@@ -230,7 +231,7 @@ public:
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-    
+
     /** removeQualifier - Removes the qualifier defined by the
     index parameter.
     @param Defines the index of the qualifier to be removed.
@@ -264,13 +265,13 @@ public:
 	return *this;
     }
 
-    
+
 
     /** CIMMethod findProperty - Finds the property object with the
 	name defined by the input parameter in the class.
 	@param String parameter with the property name.
-	@return position representing the property object found or -1 if the
-	property is not found.
+	@return position representing the property object found or
+	PEG_NOT_FOUND if the property is not found.
     */
     Uint32 findProperty(const String& name)
     {

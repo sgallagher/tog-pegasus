@@ -35,11 +35,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMMethodRep::CIMMethodRep(
-    const String& name, 
+    const String& name,
     CIMType type,
     const String& classOrigin,
-    Boolean propagated) 
-    : _name(name), _type(type), 
+    Boolean propagated)
+    : _name(name), _type(type),
     _classOrigin(classOrigin), _propagated(propagated)
 {
     if (!CIMName::legal(name))
@@ -57,12 +57,12 @@ CIMMethodRep::~CIMMethodRep()
 
 }
 
-void CIMMethodRep::setName(const String& name) 
+void CIMMethodRep::setName(const String& name)
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-    _name = name; 
+    _name = name;
 }
 
 void CIMMethodRep::setClassOrigin(const String& classOrigin)
@@ -70,7 +70,7 @@ void CIMMethodRep::setClassOrigin(const String& classOrigin)
     if (!CIMName::legal(classOrigin))
 	throw IllegalName();
 
-    _classOrigin = classOrigin; 
+    _classOrigin = classOrigin;
 }
 
 void CIMMethodRep::addParameter(const CIMParameter& x)
@@ -78,7 +78,7 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
     if (!x)
 	throw UnitializedHandle();
 
-    if (findParameter(x.getName()) != Uint32(-1))
+    if (findParameter(x.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
 
     _parameters.append(x);
@@ -92,7 +92,7 @@ Uint32 CIMMethodRep::findParameter(const String& name)
 	    return i;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 CIMParameter CIMMethodRep::getParameter(Uint32 pos)
@@ -109,7 +109,7 @@ Uint32 CIMMethodRep::getParameterCount() const
 }
 
 void CIMMethodRep::resolve(
-    DeclContext* declContext, 
+    DeclContext* declContext,
     const String& nameSpace,
     const CIMConstMethod& inheritedMethod)
 {
@@ -202,7 +202,7 @@ CIMMethodRep::CIMMethodRep()
 
 }
 
-CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) : 
+CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
     Sharable(),
     _name(x._name),
     _type(x._type),
@@ -217,9 +217,9 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
 	_parameters.append(x._parameters[i].clone());
 }
 
-CIMMethodRep& CIMMethodRep::operator=(const CIMMethodRep& x) 
-{ 
-    return *this; 
+CIMMethodRep& CIMMethodRep::operator=(const CIMMethodRep& x)
+{
+    return *this;
 }
 
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
@@ -247,7 +247,7 @@ Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 
 void CIMMethodRep::setType(CIMType type)
 {
-    _type = type; 
+    _type = type;
 
     if (type == CIMType::NONE)
 	throw NullType();

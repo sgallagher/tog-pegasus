@@ -35,7 +35,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMClassRep::CIMClassRep(
-    const String& className, 
+    const String& className,
     const String& superClassName)
     : _className(className), _superClassName(superClassName), _resolved(false)
 {
@@ -54,8 +54,8 @@ CIMClassRep::~CIMClassRep()
 Boolean CIMClassRep::isAssociation() const
 {
     Uint32 pos = findQualifier(CIMQualifierNames::ASSOCIATION);
-    
-    if (pos == Uint32(-1))
+
+    if (pos == PEG_NOT_FOUND)
 	return false;
 
     Boolean flag;
@@ -72,8 +72,8 @@ Boolean CIMClassRep::isAssociation() const
 Boolean CIMClassRep::isAbstract() const
 {
     Uint32 pos = findQualifier(CIMQualifierNames::ABSTRACT);
-    
-    if (pos == Uint32(-1))
+
+    if (pos == PEG_NOT_FOUND)
 	return false;
 
     Boolean flag;
@@ -86,12 +86,12 @@ Boolean CIMClassRep::isAbstract() const
     return flag;
 }
 
-void CIMClassRep::setSuperClassName(const String& superClassName) 
+void CIMClassRep::setSuperClassName(const String& superClassName)
 {
     if (!CIMName::legal(superClassName))
 	throw IllegalName();
 
-    _superClassName = superClassName; 
+    _superClassName = superClassName;
 }
 
 void CIMClassRep::addProperty(const CIMProperty& x)
@@ -101,7 +101,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 
     // Reject addition of duplicate property name:
 
-    if (findProperty(x.getName()) != Uint32(-1))
+    if (findProperty(x.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
 
     // Reject addition of references to non-associations:
@@ -129,12 +129,12 @@ Uint32 CIMClassRep::findProperty(const String& name)
 	    return i;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 Boolean CIMClassRep::existsProperty(const String& name)
 {
-    return (findProperty(name) != Uint32(-1)) ?
+    return (findProperty(name) != PEG_NOT_FOUND) ?
 		    true : false;
 }
 
@@ -167,7 +167,7 @@ void CIMClassRep::addMethod(const CIMMethod& x)
 
     // Reject duplicate method names:
 
-    if (findMethod(x.getName()) != Uint32(-1))
+    if (findMethod(x.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
 
     // Add the method:
@@ -183,12 +183,12 @@ Uint32 CIMClassRep::findMethod(const String& name)
 	    return i;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 Boolean CIMClassRep::existsMethod(const String& name)
 {
-    return(findMethod(name) != Uint32(-1)) ?
+    return(findMethod(name) != PEG_NOT_FOUND) ?
 			true : false;
 }
 CIMMethod CIMClassRep::getMethod(Uint32 pos)
@@ -230,7 +230,7 @@ void CIMClassRep::resolve(
 	// First check to see if the super-class really exists:
 	//----------------------------------------------------------------------
 
-	CIMConstClass superClass 
+	CIMConstClass superClass
 	    = context->lookupClass(nameSpace, _superClassName);
 
 	if (!superClass)
@@ -251,19 +251,20 @@ void CIMClassRep::resolve(
 	    CIMProperty& property = _properties[i];
 	    Uint32 pos = superClass.findProperty(property.getName());
 
-	    if (pos == Uint32(-1))
+	    if (pos == PEG_NOT_FOUND)
 	    {
 		property.resolve(context, nameSpace, false);
 	    }
 	    else
 	    {
-		CIMConstProperty superClassProperty = superClass.getProperty(pos);
+		CIMConstProperty superClassProperty =
+		superClass.getProperty(pos);
 		property.resolve(context, nameSpace, false, superClassProperty);
 	    }
 	}
 
 	//----------------------------------------------------------------------
-	// Now prepend all properties inherited from the super-class (that 
+	// Now prepend all properties inherited from the super-class (that
 	// are not overriden by this sub-class).
 	//----------------------------------------------------------------------
 
@@ -274,15 +275,15 @@ void CIMClassRep::resolve(
 	    CIMConstProperty superClassProperty = superClass.getProperty(i);
 
 	    // Find the property in *this* class; if not found, then clone and
-	    // insert it (setting the propagated flag). Otherwise, change 
+	    // insert it (setting the propagated flag). Otherwise, change
 	    // the class-origin and propagated flag accordingly.
 
-	    Uint32 pos = Uint32(-1);
+	    Uint32 pos = PEG_NOT_FOUND;
 
 	    for (Uint32 j = m, n = _properties.size(); j < n; j++)
 	    {
 		if (CIMName::equal(
-		    _properties[j].getName(), 
+		    _properties[j].getName(),
 		    superClassProperty.getName()))
 		{
 		    pos = j;
@@ -294,7 +295,7 @@ void CIMClassRep::resolve(
 	    // clone and insert it. Otherwise, the properties class
 	    // origin was set above.
 
-	    if (pos == Uint32(-1))
+	    if (pos == PEG_NOT_FOUND)
 	    {
 		CIMProperty property = superClassProperty.clone();
 		property.setPropagated(true);
@@ -312,7 +313,7 @@ void CIMClassRep::resolve(
 	    CIMMethod& method = _methods[i];
 	    Uint32 pos = superClass.findMethod(method.getName());
 
-	    if (pos == Uint32(-1))
+	    if (pos == PEG_NOT_FOUND)
 	    {
 		method.resolve(context, nameSpace);
 	    }
@@ -324,7 +325,7 @@ void CIMClassRep::resolve(
 	}
 
 	//----------------------------------------------------------------------
-	// Now prepend all methods inherited from the super-class (that 
+	// Now prepend all methods inherited from the super-class (that
 	// are not overriden by this sub-class).
 	//----------------------------------------------------------------------
 
@@ -333,15 +334,15 @@ void CIMClassRep::resolve(
 	    CIMConstMethod superClassMethod = superClass.getMethod(i);
 
 	    // Find the method in *this* class; if not found, then clone and
-	    // insert it (setting the propagated flag). Otherwise, change 
+	    // insert it (setting the propagated flag). Otherwise, change
 	    // the class-origin and propagated flag accordingly.
 
-	    Uint32 pos = Uint32(-1);
+	    Uint32 pos = PEG_NOT_FOUND;
 
 	    for (Uint32 j = m, n = _methods.size(); j < n; j++)
 	    {
 		if (CIMName::equal(
-		    _methods[j].getName(), 
+		    _methods[j].getName(),
 		    superClassMethod.getName()))
 		{
 		    pos = j;
@@ -353,7 +354,7 @@ void CIMClassRep::resolve(
 	    // clone and insert it. Otherwise, the method's class origin
 	    // has already been set above.
 
-	    if (pos == Uint32(-1))
+	    if (pos == PEG_NOT_FOUND)
 	    {
 		CIMMethod method = superClassMethod.clone();
 		method.setPropagated(true);
@@ -450,7 +451,7 @@ CIMClassRep::CIMClassRep()
 
 }
 
-CIMClassRep::CIMClassRep(const CIMClassRep& x) : 
+CIMClassRep::CIMClassRep(const CIMClassRep& x) :
     Sharable(),
     _className(x._className),
     _superClassName(x._superClassName),
@@ -469,9 +470,9 @@ CIMClassRep::CIMClassRep(const CIMClassRep& x) :
 	_methods.append(x._methods[i].clone());
 }
 
-CIMClassRep& CIMClassRep::operator=(const CIMClassRep& x) 
-{ 
-    return *this; 
+CIMClassRep& CIMClassRep::operator=(const CIMClassRep& x)
+{
+    return *this;
 }
 
 Boolean CIMClassRep::identical(const CIMClassRep* x) const
@@ -543,3 +544,4 @@ void CIMClassRep::getKeyNames(Array<String>& keyNames) const
 }
 
 PEGASUS_NAMESPACE_END
+

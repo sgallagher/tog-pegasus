@@ -26,17 +26,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /* __Namespace CIMProvider
-The __Namespace Provider provides responses to the CIM Operations defined in 
+The __Namespace Provider provides responses to the CIM Operations defined in
 the DMTF docuument CIM Operations over HTTP (Section 2.5),
 This provider implements 3 functions:
 Create namespace when it receives a create __Namespace instance.
 Delete namesapce when it receives a delete __Namespace instance
-Enumerate namespace when it recieves an enumerate __Namespaces or 
+Enumerate namespace when it recieves an enumerate __Namespaces or
     enumerate __Namespace names
-    
+
 NOTE: It is the intention of the DMTF to depricate the __Namespace
-functions so that eventually this provider will be depricated and 
-removed 
+functions so that eventually this provider will be depricated and
+removed
 
 */
 
@@ -98,25 +98,25 @@ public:
 
 	    // find property "name"
 	    Uint32 i = myInstance.findProperty("name");
-	    if (i == Uint32(-1))
+	    if (i == PEG_NOT_FOUND)
 		{
 		    throw CIMException(CIMException::INVALID_PARAMETER);
 		    return;
 		}
 	    // ATTN: Only allow creation of namespaces if the current namespace
-	    // is root.  Is this important.  Have not thought this out but 
+	    // is root.  Is this important.  Have not thought this out but
 	    // seems logical. Wrong.  This must be corrected in the future.
 	    //if (nameSpace != "root")
 	    //        throw CIMException(CIMException::INVALID_NAMESPACE);
 	    //        return;
-    
+
 	    // get property "name"
 	    CIMProperty myProperty = myInstance.getProperty(i);
 	    // get value from property "name"
 	    // This is new namespace name.
-    
+
 	    CIMValue myValue = myProperty.getValue();
-    
+
 	    CIMType myType = myValue.getType();
 	    String myName;
 	    myValue.get(myName);
@@ -124,17 +124,17 @@ public:
 
 	    // check if namespace already exists
 	    Array<String> ns;
-    
+
 	    // ATTN: Does this throw an exception?
 	    ns = _repository->enumerateNameSpaces();
 	    for (Uint32 i = 0, n = ns.size(); i < n; i++)
 		{
-		cout <<"DEBUG Loop " << ns[i] << " " << n << " " << myName << 
+		cout <<"DEBUG Loop " << ns[i] << " " << n << " " << myName <<
 			endl;
 		 if (String::equal(ns[i], myName))
 			 throw CIMException(CIMException::ALREADY_EXISTS);
 		}
-     
+
 	    // create new namespace
 	    try
 	    {
@@ -144,9 +144,9 @@ public:
 	    {
 		// ATTN: Not sure how to handle this error
 		cout << "__Namespace Provider Exception ";
-		cout << e.getMessage() <<  endl; 
+		cout << e.getMessage() <<  endl;
 	    }
-            
+
 	    return;
 	}
 
@@ -154,12 +154,12 @@ public:
 	by the instance
 	@param - InstanceReferenc
     */
-    virtual void deleteInstance( 
-	const String& nameSpace, 
+    virtual void deleteInstance(
+	const String& nameSpace,
 	const CIMReference& instanceName)
     {
 	// cout << "__NamespaceProvider::deleteInstance" << endl;
-        throw CIMException(CIMException::NOT_SUPPORTED); 
+        throw CIMException(CIMException::NOT_SUPPORTED);
 	// _repository->deleteNameSpace();
 
     }
@@ -169,15 +169,15 @@ public:
    */
    Array<CIMReference> enumerateInstanceNames(
        const String& nameSpace,
-       const String& className) 
+       const String& className)
    {
        Array<CIMReference> instanceRefs;
        Array<String> instanceName;
        Array<String> ns;
-              
+
        // ATTN: Does this throw an exception?
        ns = _repository->enumerateNameSpaces();
- 
+
        // Create an instance name from namespace names
        // ATTN: Legal to append to String in Array?
        for (Uint32 i = 0; i < ns.size(); i++)
@@ -185,7 +185,7 @@ public:
 	    instanceName.append("__Namespace.name=\"");
 	    instanceName[i].append(ns[i]);
 	    instanceName[i].append("\"");
-       } 
+       }
 
        // Convert to references here so can return references
        CIMReference ref;
@@ -201,7 +201,7 @@ public:
        {
            // ATTN: Not sure how to handle this error
 	   cout << "__Namespace Provider Exception ";
-	   cout << e.getMessage() <<  endl; 
+	   cout << e.getMessage() <<  endl;
        }
 
        //ATTN: How dow we return error codes from the provider.
@@ -212,7 +212,7 @@ public:
 
     /** initialize - Standard initialization function for the
        provider.  This is required for each provider.
-       
+
        NOTE: For the moment, the pointer to the repository is provided
        with the call.  This will be changed in the future for the provider
        interface.  However, this is really a service extension and therefore
@@ -233,13 +233,15 @@ public:
 
 // NOTE: The name of the provider must be correct to be loadable.
 
-extern "C" PEGASUS_EXPORT CIMProvider* 
+extern "C" PEGASUS_EXPORT CIMProvider*
 	PegasusCreateProvider___NamespaceProvider() {
-   PEGASUS_STD(cout) << "Called PegasusCreateProvider___NamespaceProvider" << PEGASUS_STD(endl); 
+   PEGASUS_STD(cout) << "Called PegasusCreateProvider___NamespaceProvider" <<
+   PEGASUS_STD(endl);
     return new __NamespaceProvider;
 }
 
 PEGASUS_NAMESPACE_END
+
 
 
 

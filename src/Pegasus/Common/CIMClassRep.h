@@ -46,9 +46,9 @@ class CIMInstanceRep;
 class PEGASUS_COMMON_LINKAGE CIMClassRep : public Sharable
 {
 public:
-    
+
     CIMClassRep(
-	const String& className, 
+	const String& className,
 	const String& superClassName);
 
     ~CIMClassRep();
@@ -75,7 +75,7 @@ public:
 
     Boolean existsQualifier(const String& name) const
     {
-	return ((_qualifiers.find(name) != Uint32(-1)) ? true : false);
+	return ((_qualifiers.find(name) != PEG_NOT_FOUND) ? true : false);
     }
 
     CIMQualifier getQualifier(Uint32 pos)
@@ -113,7 +113,7 @@ public:
     Boolean existsProperty(const String& name) const
     {
 	return ((CIMClassRep*)this)->existsProperty(name);
-    } 
+    }
 
     CIMProperty getProperty(Uint32 pos);
 
@@ -170,7 +170,7 @@ public:
 	return new CIMClassRep(*this);
     }
 
-    /** Return the names of all properties which bear a true key qualifier. 
+    /** Return the names of all properties which bear a true key qualifier.
 	Sort the keys in ascending order.
     */
     void getKeyNames(Array<String>& keyNames) const;

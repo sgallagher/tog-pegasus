@@ -220,7 +220,7 @@ String& String::append(const Char16* str, Uint32 n)
 
 void String::remove(Uint32 pos, Uint32 size)
 {
-    if (size == Uint32(-1))
+    if (size == PEG_NOT_FOUND)
 	size = this->size() - pos;
 
     if (pos + size > this->size())
@@ -315,7 +315,7 @@ String String::subString(Uint32 pos, Uint32 length) const
 {
     if (pos < size())
     {
-	if (length == Uint32(-1))
+	if (length == PEG_NOT_FOUND)
 	    length = size() - pos;
 
 	return String(getData() + pos, length);
@@ -334,7 +334,7 @@ Uint32 String::find(Char16 c) const
 	    return  p - first;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 Uint32 String::find(const String& s) const
@@ -343,7 +343,7 @@ Uint32 String::find(const String& s) const
     const Char16* pStr = getData();
     Uint32 subStrLen = s.size();
     Uint32 strLen = size();
-    
+
     // loop to find first char match
     Uint32 loc = 0;
     for( ; loc <= (strLen-subStrLen); loc++)
@@ -362,7 +362,7 @@ Uint32 String::find(const String& s) const
 		return loc;
 	}
     }
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 // ATTN:KS 5 apr 2000 Need to add the Char16* version.
@@ -382,7 +382,7 @@ Uint32 String::reverseFind(Char16 c) const
 	    return last - first;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 void String::toLower()
@@ -492,10 +492,10 @@ String::~String()
 {
 }
 
-String& String::assign(const String& x) 
-{ 
-    _rep = x._rep; 
-    return *this; 
+String& String::assign(const String& x)
+{
+    _rep = x._rep;
+    return *this;
 }
 
 String& String::append(const Char16& c)
@@ -504,15 +504,15 @@ String& String::append(const Char16& c)
     return *this;
 }
 
-void String::clear() 
-{ 
-    _rep.clear(); 
-    _rep.append('\0'); 
+void String::clear()
+{
+    _rep.clear();
+    _rep.append('\0');
 }
 
-void String::reserve(Uint32 capacity) 
-{ 
-    _rep.reserve(capacity + 1); 
+void String::reserve(Uint32 capacity)
+{
+    _rep.reserve(capacity + 1);
 }
 
 const Array<String>& EmptyStringArray()

@@ -46,7 +46,7 @@ class CIMConstClass;
 class PEGASUS_COMMON_LINKAGE CIMInstanceRep : public Sharable
 {
 public:
-    
+
     CIMInstanceRep(const String& className);
 
     ~CIMInstanceRep();
@@ -65,7 +65,7 @@ public:
 
     Boolean existsQualifier(const String& name) const
     {
-	return ((_qualifiers.find(name) != Uint32(-1)) ? true : false);
+	return ((_qualifiers.find(name) != PEG_NOT_FOUND) ? true : false);
     }
 
 
@@ -117,7 +117,7 @@ public:
     Uint32 getPropertyCount() const;
 
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	CIMConstClass& cimClassOut);
 

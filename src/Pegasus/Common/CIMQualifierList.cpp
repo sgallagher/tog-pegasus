@@ -49,7 +49,7 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     if (!qualifier)
 	throw UnitializedHandle();
 
-    if (find(qualifier.getName()) != Uint32(-1))
+    if (find(qualifier.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
 
     _qualifiers.append(qualifier);
@@ -57,10 +57,10 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     return *this;
 }
 //ATTN: Why do we not do the outofbounds check here. KS 18 May 2k
-CIMQualifier& CIMQualifierList::getQualifier(Uint32 pos) 
-{ 
-    return _qualifiers[pos]; 
-}		
+CIMQualifier& CIMQualifierList::getQualifier(Uint32 pos)
+{
+    return _qualifiers[pos];
+}
 
 //ATTN: added ks 18 may 2001. Should we have outofbounds?
 void CIMQualifierList::removeQualifier(Uint32 pos)
@@ -75,8 +75,8 @@ Uint32 CIMQualifierList::find(const String& name) const
 	if (CIMName::equal(_qualifiers[i].getName(), name))
 	    return i;
     }
-    
-    return Uint32(-1);
+
+    return PEG_NOT_FOUND;
 }
 
 Uint32 CIMQualifierList::findReverse(const String& name) const
@@ -86,8 +86,8 @@ Uint32 CIMQualifierList::findReverse(const String& name) const
 	if (CIMName::equal(_qualifiers[i - 1].getName(), name))
 	    return i - 1;
     }
-    
-    return Uint32(-1);
+
+    return PEG_NOT_FOUND;
 }
 
 void CIMQualifierList::resolve(
@@ -97,7 +97,7 @@ void CIMQualifierList::resolve(
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers)
 {
-    // For each qualifier in the qualifiers array, the following 
+    // For each qualifier in the qualifiers array, the following
     // is checked:
     //
     //     1. Whether it is declared (can be obtained from the declContext).
@@ -111,7 +111,7 @@ void CIMQualifierList::resolve(
     //
     //	   5. Whether the qualifier should be propagated to the subclass.
     //
-    // If the qualifier should be overriden, then it is injected into the 
+    // If the qualifier should be overriden, then it is injected into the
     // qualifiers array (from the inheritedQualifiers array).
 
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
@@ -158,7 +158,7 @@ void CIMQualifierList::resolve(
 #if 0
 	Uint32 pos = inheritedQualifiers.find(q.getName());
 
-	if (pos != Uint32(-1))
+	if (pos != PEG_NOT_FOUND)
 	{
 	    CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);
 
@@ -169,7 +169,7 @@ void CIMQualifierList::resolve(
     }
 
     //--------------------------------------------------------------------------
-    // Propagate qualifiers to subclass or to instance that do not have 
+    // Propagate qualifiers to subclass or to instance that do not have
     // already have those qualifiers:
     //--------------------------------------------------------------------------
 
@@ -191,7 +191,7 @@ void CIMQualifierList::resolve(
 	// If the qualifiers list does not already contain this qualifier,
 	// then propagate it (and set the propagated flag to true).
 
-	if (find(iq.getName()) != Uint32(-1))
+	if (find(iq.getName()) != PEG_NOT_FOUND)
 	    continue;
 
 	CIMQualifier q = iq.clone();

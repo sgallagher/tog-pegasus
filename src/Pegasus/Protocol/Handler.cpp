@@ -115,7 +115,7 @@ const char* Handler::getFieldValueSubString(const char* str) const
 		return 0;
 
 	    p++;
-	    
+
 	    while (isspace(*p))
 		p++;
 
@@ -126,7 +126,7 @@ const char* Handler::getFieldValueSubString(const char* str) const
     return 0;
 }
 
-const char* Handler::getContent() const 
+const char* Handler::getContent() const
 {
     return _message.getData() + _contentOffset;
 }
@@ -136,7 +136,7 @@ Uint32 Handler::getContentLength() const
     const char* p = getFieldValue("Content-Length");
 
     if (!p)
-	return Uint32(-1);
+	return PEG_NOT_FOUND;
 
     return atoi(p);
 }
@@ -193,7 +193,7 @@ Boolean Handler::handleInput(Channel* channel)
     // If in the waiting state, set start state to header state.
     //--------------------------------------------------------------------------
 
-    if (_state == WAITING) 
+    if (_state == WAITING)
 	_state = LINES;
 
     //--------------------------------------------------------------------------
@@ -291,7 +291,7 @@ Boolean Handler::handleInput(Channel* channel)
 	{
 	    Uint32 currentContentLength = _message.size() - _contentOffset;
 
-	    if (_contentLength != Uint32(-1)
+	    if (_contentLength != PEG_NOT_FOUND
 		&& currentContentLength == _contentLength)
 	    {
 		_state = DONE;
@@ -336,7 +336,7 @@ int Handler::handleMessage()
 
     if (getenv("PEGASUS_TRACE_PROTOCOL"))
     {
-	cout << "========== RECEIVED ==========" << endl; 
+	cout << "========== RECEIVED ==========" << endl;
 	print();
     }
 

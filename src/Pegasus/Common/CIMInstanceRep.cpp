@@ -52,7 +52,7 @@ void CIMInstanceRep::addProperty(const CIMProperty& x)
 
     // Reject duplicate property names:
 
-    if (findProperty(x.getName()) != Uint32(-1))
+    if (findProperty(x.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
 
     // Note: class origin is resolved later:
@@ -70,12 +70,12 @@ Uint32 CIMInstanceRep::findProperty(const String& name)
 	    return i;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 Boolean CIMInstanceRep::existsProperty(const String& name)
 {
-    return (findProperty(name) != Uint32(-1)) ?
+    return (findProperty(name) != PEG_NOT_FOUND) ?
 		    true : false;
 }
 
@@ -91,7 +91,7 @@ void CIMInstanceRep::removeProperty(Uint32 pos)
     {
 	if (pos >= _properties.size())
 	    throw OutOfBounds();
-    
+
 	_properties.remove(pos);
     }
 
@@ -102,7 +102,7 @@ Uint32 CIMInstanceRep::getPropertyCount() const
 }
 
 void CIMInstanceRep::resolve(
-    DeclContext* context, 
+    DeclContext* context,
     const String& nameSpace,
     CIMConstClass& cimClassOut)
 {
@@ -118,7 +118,7 @@ void CIMInstanceRep::resolve(
     // First obtain the class:
     //----------------------------------------------------------------------
 
-    CIMConstClass cimClass = 
+    CIMConstClass cimClass =
 	context->lookupClass(nameSpace, _className);
 
     if (!cimClass)
@@ -163,7 +163,7 @@ void CIMInstanceRep::resolve(
 
 	Uint32 pos = cimClass.findProperty(property.getName());
 
-	if (pos == Uint32(-1))
+	if (pos == PEG_NOT_FOUND)
 	    throw NoSuchProperty(property.getName());
 
 	property.resolve(context, nameSpace, true, cimClass.getProperty(pos));
@@ -212,7 +212,7 @@ CIMInstanceRep::CIMInstanceRep()
 
 }
 
-CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : 
+CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) :
     Sharable(),
     _className(x._className),
     _resolved(x._resolved)
@@ -225,9 +225,9 @@ CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) :
 	_properties.append(x._properties[i].clone());
 }
 
-CIMInstanceRep& CIMInstanceRep::operator=(const CIMInstanceRep& x) 
-{ 
-    return *this; 
+CIMInstanceRep& CIMInstanceRep::operator=(const CIMInstanceRep& x)
+{
+    return *this;
 }
 
 Boolean CIMInstanceRep::identical(const CIMInstanceRep* x) const
@@ -320,7 +320,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 	const String& keyName = keyNames[i];
 
 	Uint32 pos = findProperty(keyName);
-	PEGASUS_ASSERT(pos != Uint32(-1));
+	PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
 	CIMConstProperty tmp = getProperty(pos);
 
@@ -339,7 +339,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 
 	    switch (type)
 	    {
-		case CIMType::BOOLEAN: 
+		case CIMType::BOOLEAN:
 		    kbType = KeyBinding::BOOLEAN;
 		    break;
 
@@ -359,7 +359,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 		case CIMType::DATETIME:
 		    kbType = KeyBinding::STRING;
 		    break;
-		
+
 		case CIMType::REAL32:
 		case CIMType::REAL64:
 		    PEGASUS_ASSERT(false);

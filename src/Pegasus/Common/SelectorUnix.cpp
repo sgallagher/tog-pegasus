@@ -116,10 +116,10 @@ Boolean Selector::select(Uint32 milliseconds)
 	struct timeval tv = { seconds, microseconds };
 
 	count = select_wrapper(
-	    FD_SETSIZE, 
-	    &_rep->active_rd_fd_set, 
-	    &_rep->active_wr_fd_set, 
-	    &_rep->active_ex_fd_set, 
+	    FD_SETSIZE,
+	    &_rep->active_rd_fd_set,
+	    &_rep->active_wr_fd_set,
+	    &_rep->active_ex_fd_set,
 	    &tv);
 
 	if (count == 0)
@@ -186,7 +186,7 @@ Boolean Selector::addHandler(
 
     Uint32 pos = _findEntry(desc);
 
-    if (pos != Uint32(-1))
+    if (pos != PEG_NOT_FOUND)
 	return false;
 
     // Set the reasons:

@@ -177,7 +177,7 @@ public:
     /** CIMMethod findQualifier - returns the position of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
-	@return index of the parameter if found; otherwise Uint32(-1).
+	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
     Uint32 findQualifier(const String& name)
     {
@@ -194,7 +194,7 @@ public:
     /** existsQualifier - returns the position of the qualifier with
 	the given name.
 	@param name Name of qualifier to be found.
-	@return index of the parameter if found; otherwise Uint32(-1).
+	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
     Boolean existsQualifier(const String& name)
     {
@@ -228,7 +228,7 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /** removeQualifier - Removes the CIMQualifier defined by the 
+    /** removeQualifier - Removes the CIMQualifier defined by the
 	position input as a parameter.
 	@param Position of the qualifier requested.
 	@return CIMQualifier object or exception
@@ -265,7 +265,7 @@ public:
     /** CIMMethod findParameter - Finds the parameter whose name is given
 	by the name parameter.
 	@param name Name of parameter to be found.
-	@return index of the parameter if found; otherwise Uint32(-1).
+	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
     Uint32 findParameter(const String& name)
     {

@@ -48,23 +48,23 @@ class PEGASUS_COMMON_LINKAGE CIMMethodRep : public Sharable
 public:
 
     CIMMethodRep(
-	const String& name, 
+	const String& name,
 	CIMType type,
 	const String& classOrigin,
 	Boolean propagated);
 
     ~CIMMethodRep();
 
-    virtual const String& getName() const 
-    { 
-	return _name; 
+    virtual const String& getName() const
+    {
+	return _name;
     }
 
     void setName(const String& name);
 
-    CIMType getType() const 
+    CIMType getType() const
     {
-	return _type; 
+	return _type;
     }
 
     void setType(CIMType type);
@@ -76,14 +76,14 @@ public:
 
     void setClassOrigin(const String& classOrigin);
 
-    Boolean getPropagated() const 
-    { 
-	return _propagated; 
+    Boolean getPropagated() const
+    {
+	return _propagated;
     }
 
-    void setPropagated(Boolean propagated) 
-    { 
-	_propagated = propagated; 
+    void setPropagated(Boolean propagated)
+    {
+	_propagated = propagated;
     }
 
     void addQualifier(const CIMQualifier& qualifier)
@@ -98,7 +98,7 @@ public:
     // ATTN:
     Boolean existsQualifier(const String& name) const
     {
-	return (findQualifier(name) != Uint32(-1)) ? true : false;
+	return (findQualifier(name) != PEG_NOT_FOUND) ? true : false;
     }
 
     CIMQualifier getQualifier(Uint32 pos)
@@ -106,12 +106,12 @@ public:
 	return _qualifiers.getQualifier(pos);
     }
 
-        
+
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	return _qualifiers.getQualifier(pos);
     }
-    // 
+    //
     void removeQualifier(Uint32 pos)
     {
 	_qualifiers.removeQualifier(pos);
@@ -142,7 +142,7 @@ public:
     Uint32 getParameterCount() const;
 
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	const CIMConstMethod& method);
 

@@ -46,7 +46,7 @@ Uint32 Selector::_findEntry(Sint32 desc) const
 	    return i;
     }
 
-    return Uint32(-1);
+    return PEG_NOT_FOUND;
 }
 
 SelectorHandler::~SelectorHandler()

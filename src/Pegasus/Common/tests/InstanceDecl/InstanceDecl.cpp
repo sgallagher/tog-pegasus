@@ -51,7 +51,7 @@ void test01()
     context->addQualifierDecl(
 	NAMESPACE, CIMQualifierDecl("max", String(), CIMScope::PROPERTY));
 
-    context->addQualifierDecl(NAMESPACE, 
+    context->addQualifierDecl(NAMESPACE,
 	CIMQualifierDecl("Description", String(), CIMScope::PROPERTY));
 
     CIMClass class1("MyClass");
@@ -66,10 +66,10 @@ void test01()
 	.addProperty(CIMProperty("ratio", Real32(1.5)));
 
 
-    // Test 
-    assert(class1.findProperty("count") != -1);
-    assert(class1.findProperty("message") != -1);
-    assert(class1.findProperty("ratio") != -1);
+    // Test
+    assert(class1.findProperty("count") != PEG_NOT_FOUND);
+    assert(class1.findProperty("message") != PEG_NOT_FOUND);
+    assert(class1.findProperty("ratio") != PEG_NOT_FOUND);
 
     assert(class1.existsProperty("count"));
     assert(class1.existsProperty("message"));
@@ -82,7 +82,7 @@ void test01()
     CIMInstance instance1("MyClass");
     instance1.addProperty(CIMProperty("message", "Goodbye"));
 
-    assert(instance1.findProperty("message") != -1);
+    assert(instance1.findProperty("message") != PEG_NOT_FOUND);
     assert(instance1.existsProperty("message"));
 
     assert(!instance1.existsProperty("count"));
@@ -94,7 +94,7 @@ void test01()
 
     // Now test for parameters after resolution.
 
-    assert(instance1.findProperty("message") != -1);
+    assert(instance1.findProperty("message") != PEG_NOT_FOUND);
     assert(instance1.existsProperty("message"));
     assert(instance1.existsProperty("count"));
     assert(instance1.existsProperty("ratio"));
@@ -107,13 +107,13 @@ void test01()
     Uint32 posProperty;
     posProperty = instance1.findProperty("count");
     instance1.removeProperty(posProperty);
-    
+
     assert(instance1.existsProperty("message"));
     assert(!instance1.existsProperty("count"));
     assert(instance1.existsProperty("ratio"));
     assert(!instance1.existsProperty("nuts"));
 
-    assert(instance1.getPropertyCount() == 2); 
+    assert(instance1.getPropertyCount() == 2);
 
 }
 
@@ -151,7 +151,7 @@ void test02()
 
 
 
-    CIMReference instanceName 
+    CIMReference instanceName
 	= cimInstance.getInstanceName(CIMConstClass(cimClass));
 
     CIMReference tmp("myclass.age=101,first=\"John\",last=\"Smith\"");

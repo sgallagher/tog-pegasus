@@ -166,6 +166,8 @@ ProviderManagerService::ProviderManagerService(void)
 ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
 {
+    SetProviderRegistrationManager(providerRegistrationManager);
+
     for(Uint32 i = 0, n = _fileNames.size(); i < n; i++)
     {
         String message;

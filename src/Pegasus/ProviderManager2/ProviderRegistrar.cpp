@@ -78,17 +78,20 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
 
                 _getPropertyValue(cimInstance, "Namespaces").get(nameSpaces);
 
-                for(Uint32 i = 0, n = nameSpaces.size(); i < n; i++)
+                // ATTN: need to walk the array
+                if(String::equalNoCase(cimObjectPath.getNameSpace().getString(), nameSpaces[0]))
                 {
-                    if(String::equalNoCase(cimObjectPath.getNameSpace().getString(), nameSpaces[i]))
-                    {
-                        providerName = _getPropertyValue(cimInstance, "ProviderName").toString();
+                    providerName = _getPropertyValue(cimInstance, "ProviderName").toString();
 
-                        break;
-                    }
+                    break;
                 }
             }
         }
+    }
+    catch(Exception & e)
+    {
+        // log error
+        String message = e.getMessage();
     }
     catch(...)
     {
@@ -119,6 +122,11 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
             }
         }
     }
+    catch(Exception & e)
+    {
+        // log error
+        String message = e.getMessage();
+    }
     catch(...)
     {
     }
@@ -145,19 +153,22 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
 
             if(String::equalNoCase(moduleName, _getPropertyValue(cimInstance, "Name").toString()))
             {
-                // check status
-                if(String::equalNoCase("2", _getPropertyValue(cimInstance, "OperationalStatus").toString()))
-                {
-                    // get interface
-                    interfaceType = _getPropertyValue(cimInstance, "InterfaceType").toString();
+                // ATTN: check operational status
 
-                    // get location
-                    moduleLocation = _getPropertyValue(cimInstance, "Location").toString();
+                // get interface
+                interfaceType = _getPropertyValue(cimInstance, "InterfaceType").toString();
 
-                    break;
-                }
+                // get location
+                moduleLocation = _getPropertyValue(cimInstance, "Location").toString();
+
+                break;
             }
         }
+    }
+    catch(Exception & e)
+    {
+        // log error
+        String message = e.getMessage();
     }
     catch(...)
     {
@@ -168,23 +179,6 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
     {
         throw Exception("Could not determine PG_ProviderModule.InterfaceType or PG_ProviderModule.Location or module is disabled.");
     }
-
-    // fully qualify physical provider name (module), if not already done so.
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    moduleLocation = moduleLocation + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
-    String temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-
-    moduleLocation = temp + String("/lib") + moduleLocation + String(".so"));
-    #elif defined(PEGASUS_OS_HPUX)
-    String temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-
-    moduleLocation = temp + String("/lib") + moduleLocation + String(".sl"));
-    #elif defined(PEGASUS_OS_OS400)
-    // do nothing
-    #else
-    foo // needs code
-    #endif
 
     ProviderName temp(
         cimObjectPath.toString(),
@@ -219,7 +213,7 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
     Uint32 flags = providerName.getCapabilitiesMask();
 
     // validate arguments
-    if(objectName.getNameSpace().isNull() || objectName.getClassName().isNull() || (flags == 0))
+    if(objectName.getNameSpace().isNull() || objectName.getClassName().isNull())
     {
         throw Exception("Invalid argument.");
     }

@@ -73,15 +73,11 @@ endif
 
 ifdef PEGASUS_ENABLE_COMPAREREPOSITORIES
 tests:  repo_build run_test repo_clean
-	@ $(ECHO) +++++ Compare repository test: FINISHED with test
-
-
+	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
 
 else
 
 tests:
-
-
 
 endif
 # endif for ifdef PEGASUS_ENABLE_COMPAREREPOSITORIES
@@ -94,7 +90,7 @@ endif
 # in a local file then compare them. It might be an interesting test
 #
 # poststarttests: repo_Server_build run_test repo_clean
-# 	@ $(ECHO) +++++ Compare repository test: FINISHED with test
+# 	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
 #
 
 poststarttests:
@@ -107,46 +103,45 @@ messages:
 
 depend:
 
-repo_clean: 
-	  $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
-	  $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
+repo_clean:
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
 
 local-clean: repo_clean
 	@ - rm -rf file1 file2
 
 run_test:
-	@ $(ECHO) +++++ Compare Repositories test: RUNNING TESTS
 	$(PROGRAM) $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 
 #
-# build both XML and BIN in local files
+# build both XML and BIN in local files 
 #
+# The following would build the entire repository with all name spaces
+#
+#	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
+#
+# To save time the Internal namespace is built rather than the whole repository
+# To build the whole repository or other name namespaces, then refer to 
+# the following table for what string to put in the MAKE line. 
+# Remember to change both lines.
+# 
+#  WHAT                   
+# Whole repo       	$(ROOT)/Schemas/Pegasus
+# Internal NameSpace    $(ROOT)/Schemas/Pegasus/Internal
+# InterOp NS            $(ROOT)/Schemas/Pegasus/InterOp
+# ManagedSsytem NS      $(ROOT)/Schemas/Pegasus/ManagedSystem
+#
+
 repo_build:
-	@ $(ECHO) 
-	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING XML repository
-	@ $(ECHO) +++++     $(REPO_DIR)/$(REPO_XML)
-	@ $(ECHO)
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
-	@ $(ECHO)  
-	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING BIN reposititories for compare test
-	@ $(ECHO) +++++     $(REPO_DIR)/$(REPO_BIN)
-	@ $(ECHO) 
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
 
 #
 # build the XML with the server
 # build the BIN in a local file
 #
 repo_Server_build:
-	@ $(ECHO) 
-	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING XML repository
-	@ $(ECHO) +++++     $(REPO_DIR)/$(REPO_XML)
-	@ $(ECHO)
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
-	@ $(ECHO)  
-	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING BIN reposititories for compare test
-	@ $(ECHO) +++++     $(REPO_DIR)/$(REPO_BIN)
-	@ $(ECHO) 
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
 
 
 

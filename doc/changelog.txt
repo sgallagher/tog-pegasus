@@ -287,6 +287,13 @@ TAG: Version_1_09.
 48. (Sushma Fernandes - HP) 21 May 2002: Fixed a problem in repository related
     to rollback failure. 
 
+49. (MM) 23 May 2002 - Added ProviderAdapter support
+    The ProviderAdapterManager loads an additional Adapter library in 
+    case of a non-default interfaceName. This Adapter library has to offer a
+    factory callback PegasusCreateProviderAdapter() in analogy to the
+    CIMBaseProvider - an example, the AdapterSkeleton, can be found in 
+    src/Providers/generic/CMPIAdapter/
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

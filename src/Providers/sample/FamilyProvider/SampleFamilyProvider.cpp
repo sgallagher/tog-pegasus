@@ -856,7 +856,7 @@ void SampleFamilyProvider::associatorNames(
                     //path.setHost(host);
                     //path.setNameSpace(nameSpace);
 
-                    CDEBUG("Path found in property is " << path.toString() << " compare to " << localReference);
+                    CDEBUG("Path found in property is " << path.toString() << " compare to " << localReference.toString());
                     
                     if (path.identical(localReference))
                     {
@@ -978,7 +978,7 @@ void SampleFamilyProvider::references(
                     // what is general solution to compare these objects.
                     path.setHost(host);
                     path.setNameSpace(nameSpace);
-                    CDEBUG("path test path= " << path << " ObjectName " << objectName);
+                    CDEBUG("path test path= " << path.toString() << " ObjectName " << objectName.toString());
                     if (path.identical(objectName))
                     {
                         if (objectPath.getHost().size() == 0)
@@ -1062,12 +1062,12 @@ void SampleFamilyProvider::referenceNames(
                     CIMValue v = p.getValue();
                     CIMObjectPath path;
                     v.get(path);
-                    CDEBUG("Get Property path" << path);
+                    CDEBUG("Get Property path" << path.toString());
                     // Note that this may be hack to set host names.  Not sure
                     // what is general solution to compare these objects.
                     //path.setHost(host);
                     //path.setNameSpace(nameSpace);
-                    CDEBUG("Path Compare path= " << path << " objectName " << objectName);
+                    CDEBUG("Path Compare path= " << path.toString() << " objectName " << objectName.toString());
                     if (path.identical(localReference))
                     {
                         if (objectPath.getHost().size() == 0)

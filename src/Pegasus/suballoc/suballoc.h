@@ -32,7 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/suballoc/Linkage.h>
-
+#include <stdio.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <windows.h>
 #include <process.h>
@@ -210,6 +210,7 @@ class peg_suballoc;
 #define PEGASUS_CHECK_FOR_LEAKS(h) peg_suballocator::get_instance()->_UnfreedNodes((h))
 #define PEGASUS_START_LEAK_CHECK() peg_suballocator::get_instance()->set_leak_mode(true)
 #define PEGASUS_STOP_LEAK_CHECK() peg_suballocator::get_instance()->set_leak_mode(false)
+#define PEGASUS_PRINT_NODE(a, b) peg_suballocator::PrintNodeInfo((void *)(a), (Sint8 *)(b), __FILE__, __LINE__)
 #else
 #define PEGASUS_NEW(a, h) new
 #define PEGASUS_ARRAY_NEW(a, i, h) new a[(i)] 
@@ -218,6 +219,7 @@ class peg_suballoc;
 #define PEGASUS_CHECK_FOR_LEAKS(h) 
 #define PEGASUS_START_LEAK_CHECK()
 #define PEGASUS_STOP_LEAK_CHECK()
+#define PEGASUS_PRINT_NODE(a, b)
 #endif 
 
 
@@ -303,6 +305,8 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       SUBALLOC_NODE *_CheckNode(void *m, int type, Sint8 *file, Uint32 line);
    public:
       static Uint32  CheckMemory(void *);
+      static void PrintNodeInfo(void *, Sint8 *, Sint8 *, Uint32);
+      
 #endif
    public:
 

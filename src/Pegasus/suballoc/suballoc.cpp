@@ -31,7 +31,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <new.h>
 PEGASUS_NAMESPACE_BEGIN
-
+#define PEGASUS_DEBUG_MEMORY
 peg_suballocator *peg_suballocator::_suballoc_instance = 0;
 
 PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
@@ -99,114 +99,114 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 PEGASUS_NAMESPACE_END
 PEGASUS_USING_STD;
 
-// #if !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-// PEGASUS_USING_PEGASUS;
-// void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
-// {
+#if !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+PEGASUS_USING_PEGASUS;
+void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
+{
 
-//    if( size == 0 )
-//       size = 1;
-//    void *p;
-//    while(1)
-//    {
-// #if defined(PEGASUS_DEBUG_MEMORY)
-//       p = peg_suballocator::get_instance()->vs_malloc(size, 
-// 				       &(peg_suballocator::get_instance()->get_handle()),
-// 				       NORMAL, 
-// 				       "BUILTIN NEW", 
-// 				       __FILE__, __LINE__) ;
+   if( size == 0 )
+      size = 1;
+   void *p;
+   while(1)
+   {
+#if defined(PEGASUS_DEBUG_MEMORY)
+      p = peg_suballocator::get_instance()->vs_malloc(size, 
+				       &(peg_suballocator::get_instance()->get_handle()),
+				       NORMAL, 
+				       "BUILTIN NEW", 
+				       __FILE__, __LINE__) ;
 
       
-// #else 
-//       p = peg_suballocator::get_instance()->vs_malloc(size); 
-// #endif
-//       if( p )
-// 	 return p;
-//       new_handler global = set_new_handler(0);
-//       set_new_handler(global);
-//       if( global) 
-// 	 (*global)();
-//       else
-// 	 throw PEGASUS_STD(bad_alloc());
-//    }
-// }
+#else 
+      p = peg_suballocator::get_instance()->vs_malloc(size); 
+#endif
+      if( p )
+	 return p;
+      new_handler global = set_new_handler(0);
+      set_new_handler(global);
+      if( global) 
+	 (*global)();
+      else
+	 throw PEGASUS_STD(bad_alloc());
+   }
+}
 
-// #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-// void operator delete(void *dead) throw()
-// #else
-// void operator delete(void *dead) 
-// #endif
-// {
-//    if( dead == 0 )
-//       return;
-// #if defined(PEGASUS_DEBUG_MEMORY)
-//    peg_suballocator::get_instance()->vs_free(dead,  
-// 			      &(peg_suballocator::get_instance()->get_handle()), 
-// 			      NORMAL, 
-// 			      "internal", 
-// 			      __FILE__, 
-// 			      __LINE__);
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+void operator delete(void *dead) throw()
+#else
+void operator delete(void *dead) 
+#endif
+{
+   if( dead == 0 )
+      return;
+#if defined(PEGASUS_DEBUG_MEMORY)
+   peg_suballocator::get_instance()->vs_free(dead,  
+			      &(peg_suballocator::get_instance()->get_handle()), 
+			      NORMAL, 
+			      "internal", 
+			      __FILE__, 
+			      __LINE__);
 
-// #else
-//    peg_suballocator::get_instance()->vs_free(dead);
-// #endif 
-//    return;
-// }
+#else
+   peg_suballocator::get_instance()->vs_free(dead);
+#endif 
+   return;
+}
 
-// void * operator new[] (size_t size) throw (PEGASUS_STD(bad_alloc))
-// {
+
+void * operator new[] (size_t size) throw (PEGASUS_STD(bad_alloc))
+{
 
    
-//    if( size == 0 )
-//       size = 1;
-//     void *p;  
+   if( size == 0 )
+      size = 1;
+    void *p;  
    
-//    while(1)
-//    {
-// #if defined(PEGASUS_DEBUG_MEMORY)
-//       p = peg_suballocator::get_instance()->vs_malloc(size, 
-// 				       &(peg_suballocator::get_instance()->get_handle()), 
-// 				       ARRAY, 
-// 				       "BUILTIN ARRAY NEW", 
-// 				       __FILE__, __LINE__) ;
+   while(1)
+   {
+#if defined(PEGASUS_DEBUG_MEMORY)
+      p = peg_suballocator::get_instance()->vs_malloc(size, 
+				       &(peg_suballocator::get_instance()->get_handle()), 
+				       ARRAY, 
+				       "BUILTIN ARRAY NEW", 
+				       __FILE__, __LINE__) ;
 
-// #else
-//       p = peg_suballocator::get_instance()->vs_malloc(size);
-// #endif
-//       if( p )
-// 	 return p;
-//       new_handler global = set_new_handler(0);
-//       set_new_handler(global);
-//       if( global)  
-// 	 (*global)();
-//       else 
-// 	 throw PEGASUS_STD(bad_alloc());
-//    }
-// }
+#else
+      p = peg_suballocator::get_instance()->vs_malloc(size);
+#endif
+      if( p )
+	 return p;
+      new_handler global = set_new_handler(0);
+      set_new_handler(global);
+      if( global)  
+	 (*global)();
+      else 
+	 throw PEGASUS_STD(bad_alloc());
+   }
+}
 
-// #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-// void operator delete[] (void *dead) throw()
-// #else
-// void operator delete[] (void *dead) 
-// #endif
-// {
-//    if( dead == 0 )
-//       return;
-// #if defined(PEGASUS_DEBUG_MEMORY)
-//    peg_suballocator::get_instance()->vs_free(dead, 
-// 			      &(peg_suballocator::get_instance()->get_handle()), 
-// 			      ARRAY, 
-// 			      "internal",
-// 			      __FILE__, 
-// 			      __LINE__);
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+void operator delete[] (void *dead) throw()
+#else
+void operator delete[] (void *dead) 
+#endif
+{
+   if( dead == 0 )
+      return;
+#if defined(PEGASUS_DEBUG_MEMORY)
+   peg_suballocator::get_instance()->vs_free(dead, 
+			      &(peg_suballocator::get_instance()->get_handle()), 
+			      ARRAY, 
+			      "internal",
+			      __FILE__, 
+			      __LINE__);
 
-// #else
-//    peg_suballocator::get_instance()->vs_free(dead);
-// #endif
-//    return;
-// }
-// #endif // PEGASUS_PLATFORM_HPUX_PARISC_ACC
-
+#else
+   peg_suballocator::get_instance()->vs_free(dead);
+#endif
+   return;
+}
+#endif // PEGASUS_PLATFORM_HPUX_PARISC_ACC
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -261,7 +261,7 @@ const Uint32 peg_suballocator::step[3][16] =
 peg_suballocator::peg_suballocator(void)
    : initialized(0),
      debug_mode(true), 
-     abort_on_error(false), 
+     abort_on_error(true), 
      check_for_leaks(true),
      internal_handle("internal_suballoc_log")
      
@@ -274,7 +274,7 @@ peg_suballocator::peg_suballocator(void)
 peg_suballocator::peg_suballocator(Boolean mode)
    : initialized(0),
      debug_mode(mode), 
-     abort_on_error(false), 
+     abort_on_error(true), 
      check_for_leaks(true),
      internal_handle("internal_suballoc_log")
      
@@ -1205,9 +1205,44 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
    return temp;
 }
 
-#endif
 
 
+void peg_suballocator::PrintNodeInfo(void *m, Sint8 *output_file, Sint8 *file, Uint32 line)
+{
+   assert(m != NULL);
+   SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
+   temp--;
+   FILE *output = fopen(output_file, "a+");
+   if(output != NULL)
+   {
+      fprintf(output, "********* MEMORY NODE RECORD *********\n");
+      fprintf(output, "node address: %p\n", temp);
+      
+      fprintf(output, "allocated at %s line %d\n", temp->file, temp->line);
+      fprintf(output, "classname (may not be available): %s\n", temp->classname);
+      fprintf(output, "alloc size: %d; node size: %d\n", temp->allocSize, temp->nodeSize);
+      
+      if(temp->flags & AVAIL)
+      {
+	 fprintf(output, 
+		 "Doubly freed memory, already deleted by class %s at " \
+		 "source file %s line number %d; this deletion is from " \
+		 "source file %s line number %d\n",
+		 temp->d_classname, temp->d_file, temp->d_line, file, line);
+      }
+      if( true == IS_ARRAY(temp))
+      {
+	 fprintf(output, "Array node\n");
+      }
+      if( false == _CheckGuard(temp))
+      {
+	 fprintf(output, "Memory overwritten!\n");
+      }
+      
+      fclose(output);
+   }
+}
 
 
+#endif // defined PEGASUS_DEBUG_MEMORY 
 PEGASUS_NAMESPACE_END

@@ -66,6 +66,7 @@ build WBEM Clients and Providers. It also supports C provider developers via the
 %prep
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
+%setup -n %{name}-%{version} 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 
 # Needed for CMPI patch

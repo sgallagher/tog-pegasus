@@ -62,7 +62,7 @@ public:
 	const String& nameSpace, 
 	const String& className) const;
 
-private:
+protected:
 
     CIMRepository* _repository;
 };

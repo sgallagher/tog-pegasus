@@ -28,10 +28,16 @@ LIBRARIES = \
     pegcommon \
     pegservice
 
+
 ifndef PEGASUS_DISABLE_PERFINST
-LIBRARIES += \
-    InteropProvider \
-    CIMOMStatDataProvider
+    LIBRARIES += \
+       CIMOMStatDataProvider \
+       InteropProvider 
+else
+    ifdef PEGASUS_ENABLE_SLP
+        LIBRARIES += \
+            InteropProvider 
+    endif
 endif
 
 ifdef PEGASUS_HAS_SSL

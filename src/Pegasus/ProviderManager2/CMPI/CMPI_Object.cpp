@@ -35,6 +35,8 @@
 #include "CMPI_ThreadContext.h"
 #include "CMPI_Ftabs.h"
 
+#include <string.h>
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 

@@ -389,41 +389,67 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #if defined(CMPI_VER_85)
 #ifdef DOC_ONLY
-     /** Retrieves translated message. Only available as macro.
-         Use CMFmtArgsX macros for specifying variable parameter list.
+     /** Retrieves translated message. When using as macro, use
+         CMFmtArgsX and CMFmtX macros to generate the variable parameter list and ommit
+	 the count parameter.
+	 @example  CMGetMessage(_broker,"msgid","Test $0 $1",NULL,
+	       CMFmtArgs2(CMFmtChars("message"),CMFmtSint(1));
          @param mb Broker this pointer
 	 @param msgId The message identifier.
-	 @param defMsg The default message.
+	 @param defMsg The default message. The message can have up to 10 message
+	        insert placeholders ($0 through $9). The placeholders will be
+		replaced by the corresponding message insert values.
 	 @param rc Output: Service return status (suppressed when NULL).
-	 @param count The number of message substitution values.
-         @return the trabslated message.
+	 @param count The number of message insert values. Ommit when using
+	         CMGetMessage as macro.
+	 @param ... Up to 10 Message insert values.
+	        These are specified using the following macros:
+                   CMFmtSint(v)    integer value
+                   CMFmtUint(v)    unsigned integer value
+                   CMFmtSint64(v)  long integer value
+                   CMFmtUint64(v)  long unsigned integer vale
+                   CMFmtReal(v)    float or double real value
+                   CMFmtBoolean(v) CMPIBoolean value
+                   CMFmtChars(v)   char string
+                   CMFmtString(v)  CMPIString
+         @return the translated message.
      */
   inline static   CMPIString* CMgetMessage
                  (CMPIBroker* mb, char *msgId, char *defMsg, CMPIStatus* rc, unsigned int, ...);
 #endif
 
+  #define CMFmtSint(v)    ((int)v),CMPI_sint32
+  #define CMFmtUint(v)    ((unsigned int)v),CMPI_uint32
+  #define CMFmtSint64(v)  ((long int)v),CMPI_sint64
+  #define CMFmtUint64(v)  ((long unsigned int)v),CMPI_uint64
+  #define CMFmtReal(v)    ((double)v),CMPI_real64
+  #define CMFmtBoolean(v) ((int)v),CMPI_boolean
+  #define CMFmtChars(v)   ((char*)v),CMPI_chars
+  #define CMFmtString(v)  (CMPI_String*)v),CMPI_String
+
   #define CMFmtArgs0() 0
-  #define CMFmtArgs1(v1,t1) \
-     1,v1,t1
-  #define CMFmtArgs2(v1,t1,v2,t2) \
-     2,v1,t1,v2,t2
-  #define CMFmtArgs3(v1,t1,v2,t2,v3,t3) \
-     3,v1,t1,v2,t2,v3,t3
-  #define CMFmtArgs4(v1,t1,v2,t2,v3,t3,v4,t4) \
-     4,v1,t1,v2,t2,v3,t3,v4,t4
-  #define CMFmtArgs5(v1,t1,v2,t2,v3,t3,v4,t4,v5,t5) \
-     5,v1,t1,v2,t2,v3,t3,v4,t4,v5,t5
-  #define CMFmtArgs6(v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6) \
-     6,v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,
-  #define CMFmtArgs7(v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7) \
-     7,v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7
-  #define CMFmtArgs8(v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7,v8,t8) \
-     8,v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7,v8,t8,
-  #define CMFmtArgs9(v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7,v8,t8,v9,t9,v10,t19) \
-     9,v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7,v8,t8,v9,t9
-  #define CMFmtArgs10(v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7,v8,t8,v9,t9,v10,t19) \
-     10,v1,t1,v2,t2,v3,t3,v4,t4,v5,t5,v6,t6,v7,t7,v8,t8,v9,t9,v10,t10
-  
+  #define CMFmtArgs1(v1) \
+     1,v1
+  #define CMFmtArgs2(v1,v2) \
+     2,v1,v2
+  #define CMFmtArgs3(v1,v2,v3) \
+     3,v1,v2,v3
+  #define CMFmtArgs4(v1,v2,v3,v4) \
+     4,v1,v2,v3,v4
+  #define CMFmtArgs5(v1,v2,v3,v4,v5) \
+     5,v1,v2,v3,v4,v5
+  #define CMFmtArgs6(v1,v2,v3,v4,v5,v6) \
+     6,v1,v2,v3,v4,v5,v6
+  #define CMFmtArgs7(v1,v2,v3,v4,v5,v6,v7) \
+     7,v1,v2,v3,v4,v5,v6,v7
+  #define CMFmtArgs8(v1,v2,v3,v4,v5,v6,v7,v8) \
+     8,v1,v2,v3,v4,v5,v6,v7,v8
+  #define CMFmtArgs9(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10) \
+     9,v1,v2,v3,v4,v5,v6,v7,v8,v9
+  #define CMFmtArgs10(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10) \
+     10,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10
+
+
   #define CMGetMessage(b,id,def,rc,parms)      ((b)->eft->getMessage((b),(id),(def),(rc),parms))
 #endif //CMPI_VER_85
 

@@ -42,7 +42,9 @@
 #include <Pegasus/Common/MessageLoader.h>
 #endif
 #include <Pegasus/Provider/CIMOMHandle.h>
+
 #include <stdarg.h>
+#include <string.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -293,39 +295,39 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc) {
    CMPIValue *val=va_arg(*argptr,CMPIValue*);
    CMPIType type=va_arg(*argptr,int);
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   
+
    if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
-     CMPIUint64 u64;
+     CMPIUint64 u64=0;
       switch (type) {
-      case CMPI_uint8:  u64=(CMPIUint64)val->uint8;  break;    
-      case CMPI_uint16: u64=(CMPIUint64)val->uint16; break; 
+      case CMPI_uint8:  u64=(CMPIUint64)val->uint8;  break;
+      case CMPI_uint16: u64=(CMPIUint64)val->uint16; break;
       case CMPI_uint32: u64=(CMPIUint64)val->uint32; break;
       case CMPI_uint64: u64=(CMPIUint64)val->uint64; break;
       }
       return Formatter::Arg(u64);
    }
    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
-    CMPISint64 s64;
+    CMPISint64 s64=0;
      switch (type) {
-      case CMPI_sint8:  s64=(CMPISint64)val->sint8;  break;    
-      case CMPI_sint16: s64=(CMPISint64)val->sint16; break; 
+      case CMPI_sint8:  s64=(CMPISint64)val->sint8;  break;
+      case CMPI_sint16: s64=(CMPISint64)val->sint16; break;
       case CMPI_sint32: s64=(CMPISint64)val->sint32; break;
       case CMPI_sint64: s64=(CMPISint64)val->sint64; break;
       }
       return Formatter::Arg(s64);
-   } 
+   }
    else if (type==CMPI_chars) return Formatter::Arg((const char*)val);
-   else if (type==CMPI_string) 
+   else if (type==CMPI_string)
       return Formatter::Arg((const char*)CMGetCharsPtr(val->string,NULL));
-   else if (type==CMPI_real32)  return Formatter::Arg((CMPIReal64)val->real32);  
+   else if (type==CMPI_real32)  return Formatter::Arg((CMPIReal64)val->real32);
    else if (type==CMPI_real64)  return Formatter::Arg(val->real64);
    else if (type==CMPI_boolean) return Formatter::Arg((Boolean)val->boolean);
-    
+
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
    return Formatter::Arg((Boolean)0);
 }
 
-CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg, 
+CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
             CMPIStatus* rc, unsigned int count, ...) {
    MessageLoaderParms parms(msgId,defMsg);  
    cerr<<"::: mbEncGetMessage() count: "<<count<<endl;

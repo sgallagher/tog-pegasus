@@ -29,7 +29,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef PEGASUS_OS_SOLARIS
 #define PEGASUS_NEED_CRITICAL_TYPE
+#endif
 
 #ifndef Pegasus_IPC_h
 #define Pegasus_IPC_h
@@ -44,6 +46,8 @@
 # include "IPCHpux.h"
 #elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include "IPCUnix.h"
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# include "IPCSun.h"
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 # include "IPCAix.h"
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -608,6 +612,8 @@ class PEGASUS_COMMON_LINKAGE Condition
 #elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include "IPCUnix_inline.h"
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 # include "IPCUnix_inline.h"

@@ -212,6 +212,9 @@ IdentityContainer::IdentityContainer(const OperationContext::Container & contain
 }
 
 IdentityContainer::IdentityContainer(const IdentityContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new IdentityContainerRep();
     _rep->userName = container._rep->userName;
@@ -296,6 +299,9 @@ SubscriptionInstanceContainer::SubscriptionInstanceContainer
 
 SubscriptionInstanceContainer::SubscriptionInstanceContainer
     (const SubscriptionInstanceContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new SubscriptionInstanceContainerRep();
     _rep->subscriptionInstance = container._rep->subscriptionInstance;
@@ -381,6 +387,9 @@ SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
 
 SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
     (const SubscriptionInstanceNamesContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new SubscriptionInstanceNamesContainerRep();
     _rep->subscriptionInstanceNames = container._rep->subscriptionInstanceNames;
@@ -472,6 +481,9 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
 
 SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
     (const SubscriptionFilterConditionContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new SubscriptionFilterConditionContainerRep();
     _rep->filterCondition = container._rep->filterCondition;
@@ -613,6 +625,9 @@ AcceptLanguageListContainer::AcceptLanguageListContainer
 
 AcceptLanguageListContainer::AcceptLanguageListContainer
     (const AcceptLanguageListContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new AcceptLanguageListContainerRep();
     _rep->languages = container._rep->languages;
@@ -698,6 +713,9 @@ SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
 
 SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
     (const SubscriptionLanguageListContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new SubscriptionLanguageListContainerRep();
     _rep->languages = container._rep->languages;
@@ -783,6 +801,9 @@ ContentLanguageListContainer::ContentLanguageListContainer
 
 ContentLanguageListContainer::ContentLanguageListContainer
     (const ContentLanguageListContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new ContentLanguageListContainerRep();
     _rep->languages = container._rep->languages;
@@ -870,6 +891,9 @@ SnmpTrapOidContainer::SnmpTrapOidContainer
 
 SnmpTrapOidContainer::SnmpTrapOidContainer
     (const SnmpTrapOidContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
 {
     _rep = new SnmpTrapOidContainerRep();
     _rep->snmpTrapOid = container._rep->snmpTrapOid;

@@ -937,19 +937,76 @@ Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList()
 CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inClassName)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getPropertyList");
-  return getPropertyListInternal(inClassName, true, true);
+  try 
+  {
+    return getPropertyListInternal(inClassName, true, true);
+  }
+  catch (CIMException& ce)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"cim exception");
+    PEG_METHOD_EXIT();
+    if (ce.getCode() == CIM_ERR_NOT_FOUND ||
+        ce.getCode() == CIM_ERR_INVALID_CLASS)
+    {
+      MessageLoaderParms parms("CQL.CQLSelectStatementRep.GPL_CLASS_NOT_EXIST",
+                               "A class required to determine the property list was not found.");
+      throw CQLRuntimeException(parms);
+    }
+    else
+    {
+      throw ce;
+    }
+  }
 }
 
 CIMPropertyList CQLSelectStatementRep::getSelectPropertyList(const CIMObjectPath& inClassName)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getSelectPropertyList");
-  return getPropertyListInternal(inClassName, true, false);
+  try
+  {
+    return getPropertyListInternal(inClassName, true, false);
+  }
+  catch (CIMException& ce)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"cim exception");
+    PEG_METHOD_EXIT();
+    if (ce.getCode() == CIM_ERR_NOT_FOUND ||
+        ce.getCode() == CIM_ERR_INVALID_CLASS)
+    {
+      MessageLoaderParms parms("CQL.CQLSelectStatementRep.GPL_CLASS_NOT_EXIST",
+                               "A class required to determine the property list was not found.");
+      throw CQLRuntimeException(parms);
+    }
+    else
+    {
+      throw ce;
+    }
+  }
 }
 
 CIMPropertyList CQLSelectStatementRep::getWherePropertyList(const CIMObjectPath& inClassName)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getWherePropertyList");
-  return getPropertyListInternal(inClassName, false, true);
+  try
+  {
+    return getPropertyListInternal(inClassName, false, true);
+  }
+  catch (CIMException& ce)
+  {
+    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"cim exception");
+    PEG_METHOD_EXIT();
+    if (ce.getCode() == CIM_ERR_NOT_FOUND ||
+        ce.getCode() == CIM_ERR_INVALID_CLASS)
+    {
+      MessageLoaderParms parms("CQL.CQLSelectStatementRep.GPL_CLASS_NOT_EXIST",
+                               "A class required to determine the property list was not found.");
+      throw CQLRuntimeException(parms);
+    }
+    else
+    {
+      throw ce;
+    }
+  }
 }
 
 CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPath& inClassName,
@@ -996,8 +1053,8 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
                     className.getString());
         throw CQLRuntimeException(parms);
       }
-    }
-  }
+    } 
+  }  
   
   Boolean isWildcard;
   Array<CIMName> reqProps;
@@ -1017,7 +1074,8 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
     
       if (isWildcard)
       {
-        // If any wildcard is found then all properties are required.
+        // This indicates that a wildcard was found, 
+        // and the class passed in was the FROM class.
         // Return null property list to indicate all properties required.
         return CIMPropertyList();
       }

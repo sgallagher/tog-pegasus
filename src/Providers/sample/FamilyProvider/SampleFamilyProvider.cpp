@@ -150,7 +150,8 @@ String _showPathArray(Array<CIMObjectPath>& p)
     }
     return(rtn);
 }
-targetClass _verifyValidClassInput(const CIMName& className)
+
+static targetClass _verifyValidClassInput(const CIMName& className)
 {
     if (className.equal(personDynamicClassName))
         return TST_PERSONDYNAMIC;
@@ -167,7 +168,7 @@ targetClass _verifyValidClassInput(const CIMName& className)
             (className.getString() + " not supported by " + SampleFamilyProviderName);
 }
 
-targetClass _verifyValidAssocClassInput(const CIMName& className)
+static targetClass _verifyValidAssocClassInput(const CIMName& className)
 {
     if (className.equal(lineageDynamicAssocClassName))
         return TST_LINEAGEDYNAMIC;
@@ -175,7 +176,7 @@ targetClass _verifyValidAssocClassInput(const CIMName& className)
     if (className.equal(labeledLineageDynamicAssocClassName))
         return TST_LABELEDLINEAGEDYNAMIC;
     throw CIMNotSupportedException
-        (className.getString() + " not supported by Interop Provider");
+        (className.getString() + " not supported by Family Provider");
 }
 
 /** returns a local (no namespace or host component) version of the

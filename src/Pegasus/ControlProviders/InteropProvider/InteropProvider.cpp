@@ -503,7 +503,7 @@ CIMClass InteropProvider::_getClass(const CIMNamespaceName& nameSpace,
    @return - Uint32 indicating type
    @Exceptions - throws CIMNotSupportedException if invalid class.
 */
-targetClass _verifyValidClassInput(const CIMName& className)
+static targetClass _verifyValidClassInput(const CIMName& className)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_verifyValidClassInput");
@@ -523,7 +523,7 @@ targetClass _verifyValidClassInput(const CIMName& className)
     return PG_NAMESPACE;
 }
 
-targetAssocClass _verifyValidAssocClassInput(const CIMName& className)
+static targetAssocClass _verifyValidAssocClassInput(const CIMName& className)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_verifyValidAssocClassInput");

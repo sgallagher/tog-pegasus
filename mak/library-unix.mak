@@ -12,7 +12,7 @@ ifeq ($(COMPILER),xlc)
 endif
 
 ifeq ($(COMPILER),acc)
-  LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
+  LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX) -Wl,-Bsymbolic
   ifeq ($(PEGASUS_PLATFORM), HPUX_IA64_ACC)
     LINK_COMMAND += +DD64 -mt
   endif

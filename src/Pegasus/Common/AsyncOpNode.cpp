@@ -32,6 +32,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#define snprintf _snprintf
+#endif
+
 AsyncOpNode * AsyncOpNode::_headOfFreeList;
 const int AsyncOpNode::BLOCK_SIZE = 200;
 Mutex AsyncOpNode::_alloc_mut;

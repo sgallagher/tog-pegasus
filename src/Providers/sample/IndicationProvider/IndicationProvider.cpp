@@ -53,10 +53,16 @@ void IndicationProvider::terminate(void)
 
 void IndicationProvider::enableIndications(ResponseHandler<CIMIndication> & handler)
 {
+    handler.processing();
+
+    CIMIndication cimIndication("root/SampleProvider:Sample_IndicationProviderClass");
+
+    handler.deliver(cimIndication);
 }
 
 void IndicationProvider::disableIndications(void)
 {
+    //handler.complete();
 }
 
 void IndicationProvider::createSubscription(

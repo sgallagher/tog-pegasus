@@ -109,6 +109,8 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 
     // Reject addition of references to non-associations:
 
+    // ATTN-RK-20020815: This is the wrong place for this check, because
+    // the ASSOCIATION qualifier could be removed later
     if (!isAssociation() && x.getValue().getType() == CIMTYPE_REFERENCE)
 	throw AddedReferenceToClass(_reference.getClassName());
 

@@ -567,7 +567,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     {
         httpResponse = client.issueRequest( message );
     }
-    catch (TimedOut& ex)
+    catch (ConnectionTimeoutException& ex)
     {
         WbemExecException e
             (WbemExecException::TIMED_OUT);

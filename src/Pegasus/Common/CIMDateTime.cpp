@@ -394,7 +394,8 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     }
     else if ( startTime.isInterval() || finishTime.isInterval() )
     {
-        throw BadFormat();
+        // ATTN-RK-20020815: Wrong exception to throw.
+        throw BadDateTimeFormat();
     }
 
     //

@@ -79,10 +79,10 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 	  host:port).
 	  @param outputMessageQueue output message queue for the HTTPConnection
 	  that will be created.
-	  @exception InvalidLocator
-	  @exception CannotCreateSocket
-	  @exception CannotConnect
-	  @exception UnexpectedFailure
+	  @exception InvalidLocatorException
+	  @exception CannotCreateSocketException
+	  @exception CannotConnectException
+	  @exception UnexpectedFailureException
       */
       inline HTTPConnection* connect(
 	 const String& locator, 
@@ -99,10 +99,10 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 	  @param sslContext Specifies the SSL context to use for this connection
 	  @param outputMessageQueue output message queue for the HTTPConnection
 	  that will be created.
-	  @exception InvalidLocator
-	  @exception CannotCreateSocket
-	  @exception CannotConnect
-	  @exception UnexpectedFailure
+	  @exception InvalidLocatorException
+	  @exception CannotCreateSocketException
+	  @exception CannotConnectException
+	  @exception UnexpectedFailureException
       */
       HTTPConnection* connect(
 	 const String& locator, 

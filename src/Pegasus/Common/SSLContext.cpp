@@ -187,7 +187,7 @@ SSLContextRep::SSLContextRep(const String& certPath,
                        VERIFY_CERTIFICATE verifyCert,
                        const String& randomFile,
                        Boolean isCIMClient)
-    throw(SSL_Exception)
+    throw(SSLException)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
@@ -221,7 +221,7 @@ SSLContextRep::SSLContextRep(const String& certPath,
           if ( ret < 0 )
           {
             PEG_METHOD_EXIT();
-            throw( SSL_Exception("RAND_load_file - failed"));
+            throw( SSLException("RAND_load_file - failed"));
           }
 
           //
@@ -237,13 +237,13 @@ SSLContextRep::SSLContextRep(const String& certPath,
               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
                   "Not enough data , RAND_status = " + seedRet );
               PEG_METHOD_EXIT();
-              throw( SSL_Exception("RAND_seed - Not enough seed data "));
+              throw( SSLException("RAND_seed - Not enough seed data "));
           }
        }
        else
        {
            PEG_METHOD_EXIT();
-           throw( SSL_Exception("Random seed file required"));
+           throw( SSLException("Random seed file required"));
        }
  
      }
@@ -257,12 +257,12 @@ SSLContextRep::SSLContextRep(const String& certPath,
     if (!( _SSLContext = SSL_CTX_new(SSLv23_method()) ))
     {
         PEG_METHOD_EXIT();
-        throw( SSL_Exception("Could not get SSL CTX"));
+        throw( SSLException("Could not get SSL CTX"));
     }
 
 #ifdef PEGASUS_OS_HPUX
     if (!(SSL_CTX_set_cipher_list(_SSLContext, SSL_TXT_EXP40)))
-        throw( SSL_Exception("Could not set the cipher list"));
+        throw( SSLException("Could not set the cipher list"));
 #endif
 
     //
@@ -291,7 +291,7 @@ SSLContextRep::SSLContextRep(const String& certPath,
     if (!cert_verify(_SSLContext, _certPath, _certPath))
     {
         PEG_METHOD_EXIT();
-        throw( SSL_Exception("Could not get certificate and/or private key"));
+        throw( SSLException("Could not get certificate and/or private key"));
     }
 
     PEG_METHOD_EXIT();
@@ -325,7 +325,7 @@ SSL_CTX * SSLContextRep::getContext() const
 SSLContextRep::SSLContextRep(const String& certPath,
                        VERIFY_CERTIFICATE verifyCert,
                        const String& randomFile,
-                       Boolean isCIMClient) throw(SSL_Exception) {}
+                       Boolean isCIMClient) throw(SSLException) {}
 
 SSLContextRep::~SSLContextRep() {}
 
@@ -344,7 +344,7 @@ SSLContext::SSLContext(
     const String& certPath,
     VERIFY_CERTIFICATE verifyCert,
     const String& randomFile,
-    Boolean isCIMClient) throw(SSL_Exception) 
+    Boolean isCIMClient) throw(SSLException) 
 {
     _rep = new SSLContextRep(certPath, verifyCert, randomFile, isCIMClient);
 }

@@ -103,13 +103,13 @@ public:
         @param password - String containing the password of the user
         the client is connecting as.
         @return - No return defined. Failure to connect throws an exception
-        @exception CIMClientAlreadyConnectedException
+        @exception AlreadyConnectedException
             If a connection has already been established.
-        @exception CIMClientInvalidLocatorException
+        @exception InvalidLocatorException
             If the specified address is improperly formed.
-        @exception CIMClientCannotCreateSocketException
+        @exception CannotCreateSocketException
             If a socket cannot be created.
-        @exception CIMClientCannotConnectException
+        @exception CannotConnectException
             If the socket connection fails.
         @exception CIMClientConnectionException
             If any other failure occurs.
@@ -121,7 +121,7 @@ public:
         const String& address,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
-    ) throw(CIMClientException);
+    );
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
@@ -133,13 +133,13 @@ public:
         @param password - String containing the password of the user
         the client is connecting as.
         @return - No return defined. Failure to connect throws an exception
-        @exception CIMClientAlreadyConnectedException
+        @exception AlreadyConnectedException
             If a connection has already been established.
-        @exception CIMClientInvalidLocatorException
+        @exception InvalidLocatorException
             If the specified address is improperly formed.
-        @exception CIMClientCannotCreateSocketException
+        @exception CannotCreateSocketException
             If a socket cannot be created.
-        @exception CIMClientCannotConnectException
+        @exception CannotConnectException
             If the socket connection fails.
         @exception CIMClientConnectionException
             If any other failure occurs.
@@ -152,7 +152,7 @@ public:
         SSLContext* sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
-    ) throw(CIMClientException);
+    );
 
     /** connectLocal - Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
@@ -162,7 +162,7 @@ public:
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
-    void connectLocal() throw(CIMClientException);
+    void connectLocal();
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
@@ -248,7 +248,7 @@ public:
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
 	const CIMPropertyList& propertyList = CIMPropertyList()
-    ) throw(CIMClientException);
+    );
 
     /** ATTN TBD
     */
@@ -259,39 +259,39 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const CIMPropertyList& propertyList = CIMPropertyList()
-    ) throw(CIMClientException);
+    );
 
     /** ATTN TBD
     */
     virtual void deleteClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className
-    ) throw(CIMClientException);
+    );
 
     /** ATTN TBD
     */ 
     virtual void deleteInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName
-    ) throw(CIMClientException);
+    );
 
     /** ATTN TBD
     */
     virtual void createClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMClass& newClass
-    ) throw(CIMClientException);
+    );
 
     virtual CIMObjectPath createInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMInstance& newInstance
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual void modifyClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMClass& modifiedClass
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual void modifyInstance(
@@ -299,7 +299,7 @@ public:
 	const CIMInstance& modifiedInstance,
 	Boolean includeQualifiers = true,
 	const CIMPropertyList& propertyList = CIMPropertyList()
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMClass> enumerateClasses(
@@ -309,14 +309,14 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMName> enumerateClassNames(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className = CIMName(),
 	Boolean deepInheritance = false
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMInstance> enumerateInstances(
@@ -327,20 +327,20 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const CIMPropertyList& propertyList = CIMPropertyList()
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMObjectPath> enumerateInstanceNames(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMObject> execQuery(
 	const CIMNamespaceName& nameSpace,
 	const String& queryLanguage,
 	const String& query
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMObject> associators(
@@ -353,7 +353,7 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const CIMPropertyList& propertyList = CIMPropertyList()
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMObjectPath> associatorNames(
@@ -363,7 +363,7 @@ public:
 	const CIMName& resultClass = CIMName(),
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMObject> references(
@@ -374,7 +374,7 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const CIMPropertyList& propertyList = CIMPropertyList()
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMObjectPath> referenceNames(
@@ -382,14 +382,14 @@ public:
 	const CIMObjectPath& objectName,
 	const CIMName& resultClass = CIMName(),
 	const String& role = String::EMPTY
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual CIMValue getProperty(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
 	const CIMName& propertyName
-    ) throw(CIMClientException);
+    );
 
     ////
     virtual void setProperty(
@@ -397,30 +397,30 @@ public:
 	const CIMObjectPath& instanceName,
 	const CIMName& propertyName,
 	const CIMValue& newValue = CIMValue()
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual CIMQualifierDecl getQualifier(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& qualifierName
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual void setQualifier(
 	const CIMNamespaceName& nameSpace,
 	const CIMQualifierDecl& qualifierDeclaration
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual void deleteQualifier(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& qualifierName
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
 	const CIMNamespaceName& nameSpace
-    ) throw(CIMClientException);
+    );
 
     ///
     virtual CIMValue invokeMethod(
@@ -429,7 +429,7 @@ public:
 	const CIMName& methodName,
 	const Array<CIMParamValue>& inParameters,
 	Array<CIMParamValue>& outParameters
-    ) throw(CIMClientException);
+    );
 
 private:
 

@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Client/Linkage.h>
 
@@ -42,128 +43,13 @@ PEGASUS_NAMESPACE_BEGIN
     All exceptions intentionally thrown by the CIMClient interface are of this
     type.
 */
-class PEGASUS_CLIENT_LINKAGE CIMClientException
+class PEGASUS_CLIENT_LINKAGE CIMClientException : public Exception
 {
 public:
 
     CIMClientException(const String& message);
 
-    CIMClientException(const char* message);
-
     ~CIMClientException();
-
-    const String& getMessage() const;
-
-protected:
-
-    String _message;
-};
-
-/**
-    An exception of this type indicates a problem with a connection to a CIM
-    Server.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientConnectionException
-    : public CIMClientException
-{
-public:
-    CIMClientConnectionException(const String& message);
-};
-
-/**
-    An exception of this type indicates a failure to connect to a CIM Server.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientCannotConnectException
-    : public CIMClientConnectionException
-{
-public:
-    CIMClientCannotConnectException(const String& message);
-};
-
-/**
-    An exception of this type indicates a failure to create a CIM Client
-    socket.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientCannotCreateSocketException
-    : public CIMClientConnectionException
-{
-public:
-    CIMClientCannotCreateSocketException(const String& message);
-};
-
-/**
-    An exception of this type indicates that the CIM Client could not bind the
-    connection to a CIM Server.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientBindFailedException
-    : public CIMClientConnectionException
-{
-public:
-    CIMClientBindFailedException(const String& message);
-};
-
-/**
-    An exception of this type indicates that the CIM Server locator provided
-    is invalid.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientInvalidLocatorException
-    : public CIMClientConnectionException
-{
-public:
-    CIMClientInvalidLocatorException(const String& message);
-};
-
-/**
-    An exception of this type indicates that a connection to a CIM Server was
-    attempted while the CIM Client was already connected to a CIM Server.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientAlreadyConnectedException
-    : public CIMClientConnectionException
-{
-public:
-    CIMClientAlreadyConnectedException();
-
-private:
-    static const char MSG[];
-};
-
-/**
-    An exception of this type indicates a CIM operation was attempted when
-    the CIM Client was not connected to a CIM Server.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientNotConnectedException
-    : public CIMClientConnectionException
-{
-public:
-    CIMClientNotConnectedException();
-
-private:
-    static const char MSG[];
-};
-
-/**
-    An exception of this type indicates a failure to create a SSLContext
-    by the CIM Client.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientCannotCreateSSLContextException
-    : public CIMClientException
-{
-public:
-    CIMClientCannotCreateSSLContextException(const String& message);
-};
-
-/**
-    An exception of this type indicates that the configured timeout interval
-    has been reached while waiting for a response from the CIM Server.
-*/
-class PEGASUS_CLIENT_LINKAGE CIMClientTimeoutException
-    : public CIMClientException
-{
-public:
-    CIMClientTimeoutException();
-
-private:
-    static const char MSG[];
 };
 
 /**

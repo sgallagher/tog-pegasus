@@ -57,13 +57,13 @@ public:
     @param isCIMClient  flag indicating that the context is created by
     the client.
 
-    @exception SSL_Exception  exception indicating failure to create a context.
+    @exception SSLException  exception indicating failure to create a context.
     */
     SSLContextRep(
         const String& certPath,
         VERIFY_CERTIFICATE verifyCert = NULL,
         const String& randomFile = String::EMPTY,
-        Boolean isCIMClient = false) throw(SSL_Exception);
+        Boolean isCIMClient = false) throw(SSLException);
 
     ~SSLContextRep();
 

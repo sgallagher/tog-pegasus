@@ -180,10 +180,10 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
     catch(UnauthorizedAccess& e)
     {
-         CIMClientCannotConnectException* cannotConnectHTTPException =
-            new  CIMClientCannotConnectException(e.getMessage());
+         CannotConnectException* cannotConnectException =
+            new CannotConnectException(e.getMessage());
 	 ClientExceptionMessage * response =
-            new ClientExceptionMessage(cannotConnectHTTPException);
+            new ClientExceptionMessage(cannotConnectException);
 
         _outputQueue->enqueue(response);
         return;

@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 
 SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
-   throw(SSL_Exception) :
+   throw(SSLException) :
    _SSLCertificate(0),
    _SSLConnection(0),
    _socket(socket),
@@ -65,7 +65,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
     if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
     {
         PEG_METHOD_EXIT();
-        throw( SSL_Exception("Could not get SSL Connection Area"));
+        throw( SSLException("Could not get SSL Connection Area"));
     }
 
     //
@@ -74,7 +74,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
     if (!(SSL_set_fd(_SSLConnection, _socket) ))
     {
         PEG_METHOD_EXIT();
-        throw( SSL_Exception("Could not link socket to SSL Connection"));
+        throw( SSLException("Could not link socket to SSL Connection"));
     }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
@@ -302,7 +302,7 @@ MP_Socket::MP_Socket(Uint32 socket)
  : _isSecure(false), _socket(socket) {}
 
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
-   throw(SSL_Exception)
+   throw(SSLException)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
@@ -401,7 +401,7 @@ MP_Socket::MP_Socket(Uint32 socket)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
-   throw(SSL_Exception)
+   throw(SSLException)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::~MP_Socket() {}

@@ -836,7 +836,7 @@ static void TestEnumerateInstances( CIMClient& client,
 				      localOnly,  includeQualifiers,
 				      includeClassOrigin );
 
-	  ASSERTTEMP( cimNInstances.size() == 3);
+	  assert(cimNInstances.size() == 3);
           numberInstances =  cimNInstances.size();
 	  for (Uint32 i = 0; i < cimNInstances.size(); i++)
 	    {

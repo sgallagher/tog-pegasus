@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     {
         differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
     }
-    catch(BadFormat &e)
+    catch(BadDateTimeFormat &e)
     {
     }
 
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
     {
         differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
     }
-    catch(BadFormat &e)
+    catch(BadDateTimeFormat &e)
     {
     }
 
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
     {
         differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
     }
-    catch(BadFormat &e)
+    catch(BadDateTimeFormat &e)
     {
     }
 
@@ -184,7 +184,7 @@ int main(int argc, char** argv)
     {
         differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
     }
-    catch(BadFormat &e)
+    catch(BadDateTimeFormat &e)
     {
     }
 
@@ -222,7 +222,7 @@ int main(int argc, char** argv)
     {
         CIMDateTime::getDifference(startInterval, finishTime);
     }
-    catch (BadFormat& bfe)
+    catch (BadDateTimeFormat& bfe)
     {
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

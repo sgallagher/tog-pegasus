@@ -152,8 +152,8 @@ public:
     @param classReference
     @param handler
 
-    @exception NotImplemented
-    @exception InvalidArgument
+    @exception NotSupported
+    @exception InvalidParameter
     */
     virtual void deleteClass(
         const OperationContext & context,

@@ -57,7 +57,7 @@ class PEGASUS_COMMON_LINKAGE SSLSocket
 public:
 
     SSLSocket(Sint32 socket, SSLContext * sslcontext)
-        throw(SSL_Exception);
+        throw(SSLException);
 
     ~SSLSocket();
 
@@ -107,7 +107,7 @@ public:
     MP_Socket(Uint32 socket);                          // "normal" socket
 
     MP_Socket(Uint32 socket, SSLContext * sslcontext)
-         throw(SSL_Exception);                         // secure socket
+         throw(SSLException);                          // secure socket
 
     ~MP_Socket();
 

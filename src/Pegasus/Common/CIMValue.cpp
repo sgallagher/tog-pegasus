@@ -1355,10 +1355,7 @@ void CIMValue::get(Array<String>& x) const
 
 void CIMValue::get(Array<CIMDateTime>& x) const
 {
-#ifdef CIMValueisNullexception
-    if (_rep->_isNull)
-        throw CIMValueIsNull();
-#endif
+// ATTN-RK-20020815: Use UninitializedObject exception here if CIMValue is null?
 
     if (_rep->_type != CIMTYPE_DATETIME || !_rep->_isArray)
         throw TypeMismatch();

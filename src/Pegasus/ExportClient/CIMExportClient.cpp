@@ -89,7 +89,7 @@ void CIMExportClient::connect(const String& address)
    // If already connected, bail out!
     
    if (_connected)
-      throw AlreadyConnected();
+      throw AlreadyConnectedException();
     
    // Create response decoder:
     
@@ -167,7 +167,7 @@ Message* CIMExportClient::_waitForResponse(
    const Uint32 timeOutMilliseconds)
 {
    if (!_connected)
-      throw NotConnected();
+      throw NotConnectedException();
     
    long rem = long(timeOutMilliseconds);
 
@@ -215,7 +215,7 @@ Message* CIMExportClient::_waitForResponse(
    // Throw timed out exception:
    //
 
-   throw TimedOut();
+   throw ConnectionTimeoutException();
 }
 
 void CIMExportClient::_checkError(const CIMResponseMessage* responseMessage)

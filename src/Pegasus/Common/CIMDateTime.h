@@ -205,8 +205,8 @@ public:
 
     @return difference   Difference between the two datetimes in seconds.
     
-    @throws BadFormat
-
+    @throws BadDateTimeFormat If one argument is a datetime and one is an
+                              interval.
     */
     static Sint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  

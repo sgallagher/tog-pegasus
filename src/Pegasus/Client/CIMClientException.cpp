@@ -38,95 +38,12 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMClientException::CIMClientException(const String& message)
-    : _message(message)
+    : Exception(message)
 { 
-}
-
-CIMClientException::CIMClientException(const char* message)
-    : _message(message)
-{
 }
 
 CIMClientException::~CIMClientException()
 {
-}
-
-const String& CIMClientException::getMessage() const
-{
-    return _message;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMClientConnectionException
-//
-////////////////////////////////////////////////////////////////////////////////
-
-CIMClientConnectionException::CIMClientConnectionException(
-    const String& message)
-    : CIMClientException(message)
-{ 
-}
-
-CIMClientCannotConnectException::CIMClientCannotConnectException(
-    const String& message)
-    : CIMClientConnectionException(message)
-{ 
-}
-
-CIMClientCannotCreateSocketException::CIMClientCannotCreateSocketException(
-    const String& message)
-    : CIMClientConnectionException(message)
-{ 
-}
-
-CIMClientBindFailedException::CIMClientBindFailedException(
-    const String& message)
-    : CIMClientConnectionException(message)
-{ 
-}
-
-CIMClientInvalidLocatorException::CIMClientInvalidLocatorException(
-    const String& message)
-    : CIMClientConnectionException(message)
-{ 
-}
-
-const char CIMClientAlreadyConnectedException::MSG[] =
-    "CIMClient is already connected.";
-
-CIMClientAlreadyConnectedException::CIMClientAlreadyConnectedException()
-    : CIMClientConnectionException(MSG)
-{ 
-}
-
-const char CIMClientNotConnectedException::MSG[] =
-    "CIMClient is not connected.";
-
-CIMClientNotConnectedException::CIMClientNotConnectedException()
-    : CIMClientConnectionException(MSG)
-{ 
-}
-
-CIMClientCannotCreateSSLContextException::CIMClientCannotCreateSSLContextException(
-    const String& message)
-    : CIMClientException(message)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMClientTimeoutException
-//
-////////////////////////////////////////////////////////////////////////////////
-
-const char CIMClientTimeoutException::MSG[] =
-    "Timed out waiting for CIM response.";
-
-CIMClientTimeoutException::CIMClientTimeoutException()
-    : CIMClientException(MSG)
-{ 
 }
 
 

@@ -60,6 +60,7 @@ SOURCES = \
     Dir.cpp \
     DQueue.cpp \
     Exception.cpp \
+    InternalException.cpp \
     FileSystem.cpp \
     Formatter.cpp \
     HashTable.cpp \

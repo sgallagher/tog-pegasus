@@ -179,7 +179,7 @@ void HTTPAcceptor::handleEnqueue()
 void HTTPAcceptor::bind(Uint32 portNumber)
 {
    if (_rep)
-      throw BindFailed("HTTPAcceptor already bound");
+      throw BindFailedException("HTTPAcceptor already bound");
 
    _rep = new HTTPAcceptorRep;
 
@@ -225,7 +225,7 @@ void HTTPAcceptor::_bind()
    {
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to create socket");
+      throw BindFailedException("Failed to create socket");
    }
 
    //
@@ -240,7 +240,7 @@ void HTTPAcceptor::_bind()
    {
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to set socket option");
+      throw BindFailedException("Failed to set socket option");
    }
 
    // Bind socket to port:
@@ -252,7 +252,7 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to bind socket");
+      throw BindFailedException("Failed to bind socket");
    }
 
    // Set up listening on the given socket:
@@ -264,7 +264,7 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to bind socket");
+      throw BindFailedException("Failed to bind socket");
    }
 
    // Register to receive SocketMessages on this socket:
@@ -278,7 +278,7 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to solicit socket messaeges");
+      throw BindFailedException("Failed to solicit socket messaeges");
    }
 }
 

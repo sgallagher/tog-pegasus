@@ -226,7 +226,7 @@ HTTPConnection* HTTPConnector::connect(
 
       socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
       if (socket < 0)
-         throw CannotCreateSocket();
+         throw CannotCreateSocketException();
 
       // Connect the socket to the address:
 
@@ -234,7 +234,7 @@ HTTPConnection* HTTPConnector::connect(
                     reinterpret_cast<sockaddr*>(&address),
                     sizeof(address)) < 0)
       {
-         throw CannotConnect("local CIM server");
+         throw CannotConnectException("local CIM server");
       }
    }
    else
@@ -248,7 +248,7 @@ HTTPConnection* HTTPConnector::connect(
 
    if (!_ParseLocator(locator, hostname, port))
    {
-      throw InvalidLocator(locator);
+      throw InvalidLocatorException(locator);
    }
 
    // Make the internet address:
@@ -258,7 +258,7 @@ HTTPConnection* HTTPConnector::connect(
    if (!_MakeAddress(hostname, port, address))
    {
       delete [] hostname;
-      throw InvalidLocator(locator);
+      throw InvalidLocatorException(locator);
    }
 
    delete [] hostname;
@@ -268,7 +268,7 @@ HTTPConnection* HTTPConnector::connect(
    socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
    if (socket < 0)
-      throw CannotCreateSocket();
+      throw CannotCreateSocketException();
 
    // Conect the socket to the address:
 
@@ -276,7 +276,7 @@ HTTPConnection* HTTPConnector::connect(
                  reinterpret_cast<sockaddr*>(&address),
                  sizeof(address)) < 0)
    {
-      throw CannotConnect(locator);
+      throw CannotConnectException(locator);
    }
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -287,7 +287,7 @@ HTTPConnection* HTTPConnector::connect(
 
    MP_Socket * mp_socket = new MP_Socket(socket, sslContext);
    if (mp_socket->connect() < 0) {
-      throw CannotConnect(locator);
+      throw CannotConnectException(locator);
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
@@ -302,7 +302,7 @@ HTTPConnection* HTTPConnector::connect(
    {
       delete connection;
       Socket::close(socket);
-      throw UnexpectedFailure();
+      throw UnexpectedFailureException();
    }
 
    // Save the socket for cleanup later:

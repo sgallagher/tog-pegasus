@@ -69,7 +69,7 @@ public:
 	listens for connections).
 	@param portNumber the number of the port used to listen for
 	    connection requests.
-	@exception throws BindFailed is unable to bind to the given
+	@exception throws BindFailedException if unable to bind to the given
 	    port (either because the port number is invalid or the
 	    port is in use).
     */

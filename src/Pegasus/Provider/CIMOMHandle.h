@@ -33,6 +33,7 @@
 #define Pegasus_CIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/InternalException.h>  // ATTN: Temporary hack
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMName.h>

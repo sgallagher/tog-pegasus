@@ -150,7 +150,7 @@ MessageQueueService::MessageQueueService(const char *name,
    if( false == register_service(name, _capabilities, _mask) )
    {
       _meta_dispatcher_mutex.unlock();
-      throw BindFailed("MessageQueueService Base Unable to register with  Meta Dispatcher");
+      throw BindFailedException("MessageQueueService Base Unable to register with  Meta Dispatcher");
    }
    
    _polling_list.insert_last(this);

@@ -52,14 +52,14 @@ class XmlParser;
 class ClientExceptionMessage : public Message
 {
 public:
-    ClientExceptionMessage(CIMClientException* clientException_)
+    ClientExceptionMessage(Exception* clientException_)
         :
         Message(CLIENT_EXCEPTION_MESSAGE),
         clientException(clientException_)
     {
     }
 
-    CIMClientException* clientException;
+    Exception* clientException;
 };
 
 

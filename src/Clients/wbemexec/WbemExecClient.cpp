@@ -101,7 +101,8 @@ void WbemExecClient::handleEnqueue()
 void WbemExecClient::_connect(
     const String& address,
     SSLContext* sslContext
-) throw(CannotCreateSocket, CannotConnect, InvalidLocator, UnexpectedFailure)
+) throw(CannotCreateSocketException, CannotConnectException,
+        InvalidLocatorException, UnexpectedFailureException)
 {
     //
     // Attempt to establish a connection:
@@ -112,8 +113,8 @@ void WbemExecClient::_connect(
                                                   sslContext,
                                                   this);
     //}
-    // Could catch CannotCreateSocket, CannotConnect, InvalidLocator, or
-    // UnexpectedFailure
+    // Could catch CannotCreateSocketException, CannotConnectException,
+    // InvalidLocatorException, or UnexpectedFailureException
     //catch (Exception& e)
     //{
     //    throw e;
@@ -128,20 +129,21 @@ void WbemExecClient::connect(
     SSLContext* sslContext,
     const String& userName,
     const String& password
-) throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
-        CannotConnect, UnexpectedFailure)
+) throw(AlreadyConnectedException, InvalidLocatorException,
+        CannotCreateSocketException, CannotConnectException,
+        UnexpectedFailureException)
 {
     //
     // If already connected, bail out!
     //
     if (_connected)
-	throw AlreadyConnected();
+	throw AlreadyConnectedException();
 
     //
     // If the address is empty, reject it
     //
     if (address == String::EMPTY)
-	throw InvalidLocator(address);
+	throw InvalidLocatorException(address);
 
     //
     // Set authentication information
@@ -166,14 +168,15 @@ void WbemExecClient::connect(
 
 
 void WbemExecClient::connectLocal()
-    throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
-          CannotConnect, UnexpectedFailure)
+    throw(AlreadyConnectedException, InvalidLocatorException,
+          CannotCreateSocketException, CannotConnectException,
+          UnexpectedFailureException)
 {
     //
     // If already connected, bail out!
     //
     if (_connected)
-	throw AlreadyConnected();
+	throw AlreadyConnectedException();
 
     String      address = String::EMPTY;
 
@@ -207,7 +210,7 @@ void WbemExecClient::connectLocal()
 
         _connect(address, sslContext);
     }
-    catch(CannotConnect &e)
+    catch(CannotConnectException &e)
     {
         //
         // Look up the WBEM HTTPS port number for the local system
@@ -304,11 +307,11 @@ String WbemExecClient::_promptForPassword()
 
 Array<Sint8> WbemExecClient::issueRequest(
     const Array<Sint8>& request
-) throw(NotConnected, TimedOut, UnauthorizedAccess)
+) throw(NotConnectedException, ConnectionTimeoutException, UnauthorizedAccess)
 {
     if (!_connected)
     {
-	throw NotConnected();
+	throw NotConnectedException();
     }
     
     HTTPMessage* httpRequest = new HTTPMessage(request);
@@ -358,7 +361,8 @@ Array<Sint8> WbemExecClient::issueRequest(
     return(httpResponse->message);
 }
 
-Message* WbemExecClient::_doRequest(HTTPMessage * request) throw(TimedOut)
+Message* WbemExecClient::_doRequest(HTTPMessage * request)
+    throw(ConnectionTimeoutException)
 {
     // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
@@ -395,7 +399,7 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request) throw(TimedOut)
     // Throw timed out exception:
     //
 
-    throw TimedOut();
+    throw ConnectionTimeoutException();
 }
 
 String WbemExecClient::_getLocalHostName()

@@ -23,13 +23,12 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Jenny Yu (jenny_yu@hp.com)
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,70 +75,6 @@ protected:
     String _message;
 };
 
-/** Class AssertionFailureException
-This is an Exception class tied to the definiton of an assert named
-PEGASUS_ASSERT.  This assertion can be included at any point in Pegasus
-code
-*/
-class PEGASUS_COMMON_LINKAGE AssertionFailureException : public Exception
-{
-public:
-
-    AssertionFailureException(
-	const char* file,
-	size_t line,
-	const String& message);
-};
-
-/** define PEGASUS_ASSERT assertion statement.  This statement tests the
-    condition defined by the parameters and if not True executes an
-
-    <pre>
-    throw AssertionFailureException
-    </pre>
-
-    defining the file, line and condition that was tested.
-*/
-#ifdef NDEBUG
-#define PEGASUS_ASSERT(COND)
-#else
-#define PEGASUS_ASSERT(COND) \
-    do \
-    { \
-        if (!(COND)) \
-        { \
-            throw AssertionFailureException(__FILE__, __LINE__, #COND); \
-        } \
-    } while (0)
-#endif
-
-/* Macro to Create the equivalent of an assert but without the
-   termination.  This can be used as a temporary marker for asserts
-   that are not working.  Prints out the error but continues.
-   NOTE: This is useful in test programs to keep us aware that we
-   have problems without halting the test sequence.
-   This was created primarily to put temporary asserts into tests that
-   are not yet working correctly but will not stop the test sequence.
-*/
-#define ASSERTTEMP(COND) \
-    do \
-    { \
-	if (!(COND)) \
-	{ \
-	    cerr << "TEMP Assert Error TEMP **********"	\
-		<<__FILE__ << " " << __LINE__ \
-		<< " " << #COND << endl; \
-	} \
-    } while (0)
-
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE BadReference : public Exception
-{
-public:
-
-    BadReference(const String& message) : Exception(message) { }
-};
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE OutOfBounds : public Exception
@@ -159,16 +94,6 @@ public:
     static const char MSG[];
 
     AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NullPointer() : Exception(MSG) { }
 };
 
 // ATTN: P3  KS documentation Required
@@ -211,81 +136,6 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE InvalidPropertyOverride : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InvalidPropertyOverride(const String& message)
-	: Exception(MSG + message) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE InvalidMethodOverride : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InvalidMethodOverride(const String& message)
-	: Exception(MSG + message) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE UndeclaredQualifier : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    UndeclaredQualifier(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE BadQualifierScope : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadQualifierScope(const String& qualifierName, const String& scopeString)
-	: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadQualifierOverride(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
-};
-
-class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadQualifierType(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NullType : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NullType() : Exception(MSG) { }
-};
-
-// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE AddedReferenceToClass : public Exception
 {
 public:
@@ -294,61 +144,6 @@ public:
 
     AddedReferenceToClass(const String& className)
 	: Exception(MSG + className) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    ClassAlreadyResolved(const String& className)
-	: Exception(MSG + className) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE ClassNotResolved : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    ClassNotResolved(const String& className)
-	: Exception(MSG + className) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE InstanceAlreadyResolved : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InstanceAlreadyResolved()
-     : Exception(MSG) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE InstantiatedAbstractClass : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InstantiatedAbstractClass(const String& className)
-     : Exception(MSG + className) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NoSuchProperty : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NoSuchProperty(const String& propertyName)
-	: Exception(MSG + propertyName) { }
 };
 
 // ATTN: P3  KS documentation Required
@@ -382,16 +177,6 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE IllegalTypeTag : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    IllegalTypeTag() : Exception(MSG) { }
-};
-
-// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE TypeMismatch : public Exception
 {
 public:
@@ -399,16 +184,6 @@ public:
     static const char MSG[];
 
     TypeMismatch() : Exception(MSG) { }
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CIMValueIsNull : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    CIMValueIsNull() : Exception(MSG) { }
 };
 
 // ATTN: P3  KS documentation Required
@@ -432,128 +207,116 @@ public:
     DynamicCastFailed() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
+class PEGASUS_COMMON_LINKAGE BadDateTimeFormat : public Exception
 {
 public:
 
     static const char MSG[];
 
-    NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
+    BadDateTimeFormat() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE FileNotReadable : public Exception
+class PEGASUS_COMMON_LINKAGE IncompatibleTypes : public Exception
 {
 public:
 
     static const char MSG[];
 
-    FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
+    IncompatibleTypes() : Exception(MSG) { }
 };
 
-class PEGASUS_COMMON_LINKAGE CannotBindToAddress : public Exception
+class PEGASUS_COMMON_LINKAGE IllformedObjectName : public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotBindToAddress(const String& address) : Exception(MSG + address) { }
+    IllformedObjectName(const String& instanceName)
+	: Exception(MSG + instanceName) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CannotRemoveDirectory : public Exception
+class PEGASUS_COMMON_LINKAGE BindFailedException : public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
+    BindFailedException(const String& message) : Exception(MSG + message) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CannotRemoveFile : public Exception
+class PEGASUS_COMMON_LINKAGE InvalidLocatorException : public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotRemoveFile(const String& path) : Exception(MSG + path) { }
+    InvalidLocatorException(const String& locator) : Exception(MSG + locator) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CannotRenameFile : public Exception
+class PEGASUS_COMMON_LINKAGE CannotCreateSocketException : public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotRenameFile(const String& path) : Exception(MSG + path) { }
+    CannotCreateSocketException() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NoSuchDirectory : public Exception
+class PEGASUS_COMMON_LINKAGE CannotConnectException : public Exception
 {
 public:
 
     static const char MSG[];
 
-    NoSuchDirectory(const String& directoryName)
-	: Exception(MSG + directoryName) { }
+    CannotConnectException(const String& locator) : Exception(MSG + locator) { }
 };
 
-class PEGASUS_COMMON_LINKAGE ChangeDirectoryFailed : public Exception
+class PEGASUS_COMMON_LINKAGE UnexpectedFailureException : public Exception
 {
 public:
 
     static const char MSG[];
 
-    ChangeDirectoryFailed(const String& directoryName)
-	: Exception(MSG + directoryName) { }
+    UnexpectedFailureException() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CannotCreateDirectory : public Exception
+class PEGASUS_COMMON_LINKAGE AlreadyConnectedException: public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotCreateDirectory(const String& path)
-	: Exception(MSG + path) { }
+    AlreadyConnectedException() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NoSuchNameSpace : public Exception
+class PEGASUS_COMMON_LINKAGE NotConnectedException: public Exception
 {
 public:
 
     static const char MSG[];
 
-    NoSuchNameSpace(const String& directoryName)
-	: Exception(MSG + directoryName) { }
+    NotConnectedException() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CannotOpenFile : public Exception
+class PEGASUS_COMMON_LINKAGE ConnectionTimeoutException: public Exception
 {
 public:
 
     static const char MSG[];
 
-    CannotOpenFile(const String& path)
-	: Exception(MSG + path) { }
+    ConnectionTimeoutException() : Exception(MSG) { }
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
+class PEGASUS_COMMON_LINKAGE SSLException: public Exception
 {
 public:
 
     static const char MSG[];
 
-    NotImplemented(const String& method) : Exception(MSG + method) { }
+    SSLException(const String& message)
+       : Exception(MSG + message) { }
 };
+
 
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
     CIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
@@ -576,241 +339,17 @@ public:
     String getTraceDescription() const;
 
 private:
+
     CIMStatusCode  _code;
     const char*    _file;
     Uint32         _line;
-
-};
-
-class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    StackUnderflow() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    StackOverflow() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    QueueUnderflow() : Exception(MSG) { }
 };
 
 
-class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadFormat() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE BadDateTimeFormat : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadDateTimeFormat() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE IncompatibleTypes : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    IncompatibleTypes() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadlyFormedCGIQueryString() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE IllformedObjectName : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    IllformedObjectName(const String& instanceName)
-	: Exception(MSG + instanceName) { }
-};
-
-class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    DynamicLoadFailed(const String& libraryName)
-	: Exception(MSG + libraryName) { }
-};
-
-class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    DynamicLookupFailed(const String& symbolName)
-	: Exception(MSG + symbolName) { }
-};
-
-class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
-};
-
-class PEGASUS_COMMON_LINKAGE CorruptFile : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    CorruptFile(const String& path) : Exception(MSG + path) { }
-};
-
-class PEGASUS_COMMON_LINKAGE BindFailed : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BindFailed(const String& message) : Exception(MSG + message) { }
-};
-
-class PEGASUS_COMMON_LINKAGE InvalidLocator : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InvalidLocator(const String& locator) : Exception(MSG + locator) { }
-};
-
-class PEGASUS_COMMON_LINKAGE CannotCreateSocket : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    CannotCreateSocket() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE CannotConnect : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    CannotConnect(const String& locator) : Exception(MSG + locator) { }
-};
-
-class PEGASUS_COMMON_LINKAGE UnexpectedFailure : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    UnexpectedFailure() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE AlreadyConnected: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    AlreadyConnected() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE NotConnected: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NotConnected() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE TimedOut: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    TimedOut() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE ParseError : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    ParseError(const String& message) : Exception(MSG + message) { }
-};
-
-class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    MissingNullTerminator() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE SSL_Exception: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    SSL_Exception(const String& message)
-       : Exception(MSG + message) { }
-};
-
-class PEGASUS_COMMON_LINKAGE InvalidAuthHeader: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    InvalidAuthHeader() : Exception(MSG) { }
-};
-
-class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    UnauthorizedAccess() : Exception(MSG) { }
-};
+// ATTN-RK-20020815: Remove this dependency
+#ifdef PEGASUS_INTERNALONLY
+#include <Pegasus/Common/InternalException.h>
+#endif
 
 PEGASUS_NAMESPACE_END
 

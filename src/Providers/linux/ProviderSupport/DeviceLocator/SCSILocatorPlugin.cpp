@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -93,14 +94,7 @@ static struct {
 
 
 SCSILocatorPlugin::SCSILocatorPlugin(){
-	fileReader=NULL;
-}
-
-SCSILocatorPlugin::~SCSILocatorPlugin(){
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
+	fileReader.reset();
 }
 
 /* Sets the device search criteria.
@@ -122,13 +116,9 @@ int SCSILocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_cla
 		return -1;
 	}
 
-	/* Delete the old file reader */
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
 	/* Create a new file reader */
-	if((fileReader=new FileReader)==NULL){
+    fileReader.reset(new FileReader);
+	if((fileReader.get())==NULL){
 		return -1;
 	}
 
@@ -170,23 +160,23 @@ DeviceInformation *SCSILocatorPlugin::getNextDevice(void){
   int index;
   String line;
   vector<String> matches;
-  MediaAccessDeviceInformation *curDevice=NULL;
+  AutoPtr<MediaAccessDeviceInformation> curDevice; 
   String descriptionString;
   int i;
 
   /* Check to see if we have been set up correctly */
-  if(!fileReader) return NULL;
+  if(!fileReader.get()) return NULL;
 
   while (fileReader->GetNextMatchingLine(line, &index, matches) != -1) {
 
     switch(lookup_info[index].match_type) {
     case MATCH_SCSI_HOST:
-      curDevice=new MediaAccessDeviceInformation;
+      curDevice.reset(new MediaAccessDeviceInformation);
       curDevice->setName(matches[1]);
       break;
     case MATCH_SCSI_VENDOR:
       /* Description is: manufacturer model revision */
-      if (curDevice == NULL)
+      if (curDevice.get() == NULL)
         // ATTN: Add more useful failure explanation
         throw CIMOperationFailedException("Bad format");
 	
@@ -198,7 +188,7 @@ DeviceInformation *SCSILocatorPlugin::getNextDevice(void){
       curDevice->setDescription(descriptionString);
       break;
     case MATCH_SCSI_TYPE:
-      if(curDevice){
+      if(curDevice.get()){
 	for(i=0;i<N_IN_ARRAY(device_type_list);i++){
       	  if(matches[1]==device_type_list[i].name){
 	    curDevice->setSubClass(device_type_list[i].subClass);
@@ -206,10 +196,9 @@ DeviceInformation *SCSILocatorPlugin::getNextDevice(void){
 	}
         /* See if we are to return this device or not */
         if(subClass==WILDCARD_DEVICE||subClass==curDevice->getSubClass()){
-          return curDevice;
+          return curDevice.release();
         }
         else {
-          delete curDevice;
 	  continue;
         }
       } else {

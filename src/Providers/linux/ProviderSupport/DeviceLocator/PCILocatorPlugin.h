@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@
 #include "DeviceLocatorPlugin.h"
 #include "FileReader.h"
 #include "ExecScanner.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 /* Device list */
 
@@ -79,8 +81,8 @@ class PCILocatorPlugin : public DeviceLocatorPlugin {
   Uint16 subClass;
   Uint16 progIF;
 
-  ExecScanner *detailedScanner;
-  ExecScanner *textScanner;
+  AutoPtr<ExecScanner> detailedScanner; 
+  AutoPtr<ExecScanner> textScanner; 
 };
 
 

@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -122,15 +123,10 @@ static const struct {
 
 NetConfPlugin::NetConfPlugin(void)
 {
-  routeScanner = ifconfigScanner = NULL;
+  routeScanner.reset();
+  ifconfigScanner.reset();
 }
 
-
-NetConfPlugin::~NetConfPlugin(void)
-{
-  delete routeScanner;
-  delete ifconfigScanner;
-}
 
 
 /** Sets the device search criteria.  Returns 0 on success or -1 if it is
@@ -174,25 +170,22 @@ int NetConfPlugin::setDeviceSearchCriteria(Uint16 base_class,
 
 
   /* Delete the old exec readers (if any). */
-  delete routeScanner;
-  delete ifconfigScanner;
-  routeScanner = ifconfigScanner = NULL;
+  routeScanner.reset();
+  ifconfigScanner.reset();
 
   if (sub_class == WILDCARD_DEVICE ||
       sub_class == Device_IPV4NetworkSettings_IPRoutes)
-    if ((routeScanner = new ExecScanner) == NULL) {
-      delete routeScanner;
-      delete ifconfigScanner;
-      ifconfigScanner = routeScanner = NULL;
+    routeScanner.reset(new ExecScanner);
+    if ((routeScanner.get()) == NULL) {
+      ifconfigScanner.reset();
       return -1;
     }
 
   if (sub_class == WILDCARD_DEVICE ||
       sub_class == Device_IPV4NetworkSettings_Interfaces)
-    if ((ifconfigScanner = new ExecScanner) == NULL) {
-      delete routeScanner;
-      delete ifconfigScanner;
-      ifconfigScanner = routeScanner = NULL;
+    ifconfigScanner.reset(new ExecScanner);
+    if ((ifconfigScanner.get()) == NULL) {
+      routeScanner.reset();
       return -1;
     }
   
@@ -202,10 +195,10 @@ int NetConfPlugin::setDeviceSearchCriteria(Uint16 base_class,
   regex_patts2[i] = NULL;
 
   try {
-    if (routeScanner != NULL)
+    if (routeScanner.get() != NULL)
       routeScanner->SetSearchRegexps(regex_patts1);
 
-    if (ifconfigScanner != NULL)
+    if (ifconfigScanner.get() != NULL)
       ifconfigScanner->SetSearchRegexps(regex_patts2);
   }
   catch (Exception & e) {
@@ -213,19 +206,18 @@ int NetConfPlugin::setDeviceSearchCriteria(Uint16 base_class,
   }
 
   // Spawn the jobs which will feed us data.
-  if ((routeScanner != NULL &&
+  if ((routeScanner.get() != NULL &&
        routeScanner->ExecuteForScan(command1, args1) != 0) ||
-      (ifconfigScanner != NULL &&
+      (ifconfigScanner.get() != NULL &&
        ifconfigScanner->ExecuteForScan(command2, args2) != 0)) {
-    delete routeScanner;
-    delete ifconfigScanner;
-    routeScanner = ifconfigScanner = NULL;
+    routeScanner.reset();
+    ifconfigScanner.reset();
     return -1;
   }
 
   // If the setup doesn't correspond to anything I can do, shut down.
-  if (routeScanner == NULL &&
-      ifconfigScanner == NULL)
+  if (routeScanner.get() == NULL &&
+      ifconfigScanner.get() == NULL)
     return -1;
 
 
@@ -250,7 +242,7 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
   int matchp = -1;
 
   // First, do the routes.
-  if (routeScanner != NULL) {
+  if (routeScanner.get() != NULL) {
     while (routeScanner->GetNextMatchingLine(junk_line, NULL, matches) != -1) {
 
       route = new IPV4RouteInformation;
@@ -265,13 +257,12 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
     }
     
     // If we get here, we've run out of routes data.
-    delete routeScanner;
-    routeScanner = NULL;
+    routeScanner.reset();
   }
   
 
   // Now do the interfaces.
-  if (ifconfigScanner != NULL) {
+  if (ifconfigScanner.get() != NULL) {
 
     while (!end_of_data) {
 
@@ -355,8 +346,7 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
       }
 
       if (!valid_data) {   // happens when we get to the end of the stream
-	delete ifconfigScanner;
-	ifconfigScanner = NULL;
+    ifconfigScanner.reset();
 	return NULL;
       }
 
@@ -369,8 +359,7 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
 
       if (matchp == -1) {
 	end_of_data = true; 
-	delete ifconfigScanner;
-	ifconfigScanner = NULL;
+    ifconfigScanner.reset();
       }
 
 
@@ -390,8 +379,7 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
     }
   }
 
-  delete ifconfigScanner;
-  ifconfigScanner = NULL;
+  ifconfigScanner.reset(NULL);
 
   return NULL;
 }

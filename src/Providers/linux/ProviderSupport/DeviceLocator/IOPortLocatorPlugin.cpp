@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -66,14 +67,6 @@ static char const *trial_regex_patterns[] = {
 
 
 IOPortLocatorPlugin::IOPortLocatorPlugin(){
-	fileReader=NULL;
-}
-
-IOPortLocatorPlugin::~IOPortLocatorPlugin(){
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
 }
 
 /* Sets the device search criteria.
@@ -92,13 +85,9 @@ int IOPortLocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_c
 		return -1;
 	}
 
-	/* Delete the old file reader */
-	if(fileReader){
-		delete fileReader;
-		fileReader=NULL;
-	}
 	/* Create a new file reader */
-	if((fileReader=new FileReader)==NULL){
+    fileReader.reset(new FileReader);
+    if(fileReader.get()==NULL){
 		return -1;
 	}
 
@@ -126,17 +115,17 @@ DeviceInformation *IOPortLocatorPlugin::getNextDevice(void){
   int index;
   String line;
   vector<String> matches;
-  IOPortInformation *curDevice=NULL;
+  AutoPtr<IOPortInformation> curDevice; 
   String descriptionString;
 
   /* Check to see if we have been set up correctly */
-  if(!fileReader) return NULL;
+  if(!fileReader.get()) return NULL;
 
   do {
 	
     while (fileReader->GetNextMatchingLine(line, &index, matches) != -1) {
 	/* We found a line.  Each line in the file is an entry */
-	curDevice=new IOPortInformation();
+	curDevice.reset(new IOPortInformation());
 	if(dirIndex==0&&(subClass==Device_SystemResources_IOPort||subClass==WILDCARD_DEVICE)){
 		curDevice->setSubClass(Device_SystemResources_IOPort);
 		curDevice->setIOPortMapped();
@@ -151,7 +140,7 @@ DeviceInformation *IOPortLocatorPlugin::getNextDevice(void){
 	curDevice->setStartingAddress(matches[1]);
 	curDevice->setEndingAddress(matches[2]);
 	curDevice->setOwner(matches[3]);
-	return curDevice;
+	return curDevice.release();
     }
   } while (fileReader->SearchFileRegexList(trial_filename_patterns, &dirIndex, matches) != NULL);
 

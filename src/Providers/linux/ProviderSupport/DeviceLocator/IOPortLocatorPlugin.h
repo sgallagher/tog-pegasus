@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +50,7 @@
 #include <Pegasus/Common/Config.h>
 #include "DeviceLocatorPlugin.h"
 #include "FileReader.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 /* Device list */
 
@@ -80,7 +82,7 @@ private:
 
 	int dirIndex;
 
-	FileReader *fileReader;
+    AutoPtr<FileReader> fileReader; 
 };
 
 PEGASUS_NAMESPACE_END

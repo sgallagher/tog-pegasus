@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -48,6 +49,7 @@
 #include "DeviceLocatorPlugin.h"
 #include "ExecScanner.h"
 #include "IPV4NetInformation.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 /* Device list */
 
@@ -82,10 +84,10 @@ class NetConfPlugin : public DeviceLocatorPlugin {
   Uint16 progIF;
 
   /// A handle to the ExecScanner which reads the output of /sbin/route
-  ExecScanner *routeScanner;
+  AutoPtr<ExecScanner> routeScanner; 
 
   /// A handle to the ExecScanner which reads the output of /sbin/ifconfig
-  ExecScanner *ifconfigScanner;
+  AutoPtr<ExecScanner> ifconfigScanner; 
   
 };
 

@@ -31,6 +31,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -143,13 +144,8 @@ static struct {
 
 PCILocatorPlugin::PCILocatorPlugin(void)
 {
-  detailedScanner = textScanner = NULL;
-}
-
-PCILocatorPlugin::~PCILocatorPlugin(void)
-{
-  delete detailedScanner;
-  delete textScanner;
+  detailedScanner.reset();
+  textScanner.reset();
 }
 
 /* Sets the device search criteria.  Returns 0 on success or -1 if it is
@@ -187,18 +183,13 @@ int PCILocatorPlugin::setDeviceSearchCriteria(Uint16 base_class,
   progIF = prog_if;
 
 
-  /* Delete the old exec readers (if any).  Note that in C++ it is always
-   * safe to delete a NULL pointer. */
-  delete detailedScanner;
-  delete textScanner;
-  detailedScanner = textScanner = NULL;
-
   /* Create a new file reader */
-  if ((detailedScanner = new ExecScanner) == NULL ||
-      (textScanner = new ExecScanner) == NULL) {
-    delete detailedScanner;
-    delete textScanner;
-    detailedScanner = textScanner = NULL;
+  detailedScanner.reset(new ExecScanner);
+  textScanner.reset(new ExecScanner);
+  if ((detailedScanner.get()) == NULL ||
+      (textScanner.get()) == NULL) {
+    detailedScanner.reset();
+    textScanner.reset();
     return -1;
   }
 
@@ -231,18 +222,18 @@ DeviceInformation *PCILocatorPlugin::getNextDevice(void)
   String junk_line;
   vector<String> detailed_matches, text_matches;
   Uint16 PCI_base = 0, PCI_sub = 0;
-  PCIControllerInformation *curDevice = NULL;
+  AutoPtr<PCIControllerInformation> curDevice; 
 
   /* Check to see if we have been set up correctly */
-  if (detailedScanner == NULL ||
-      textScanner == NULL)
+  if (detailedScanner.get() == NULL ||
+      textScanner.get() == NULL)
     return NULL;
 
   while (textScanner->GetNextMatchingLine(junk_line, NULL, text_matches) != -1) {
     bool pci_start_seen, pci_end_seen;
     int index;
 
-    curDevice = new PCIControllerInformation;
+    curDevice.reset(new PCIControllerInformation);
 
     // Start of a new PCI device.  Scarf down the details.
     pci_start_seen = pci_end_seen = false;
@@ -254,7 +245,6 @@ DeviceInformation *PCILocatorPlugin::getNextDevice(void)
       case PCI_START_OF_NEW_DEVICE:
 	pci_start_seen = true;
 	if (detailed_matches[1] != text_matches[1]) {
-	  delete curDevice;
 	  throw UnexpectedError("The two invocations of lspci "
 				"were not synchronized.");
 	}
@@ -349,7 +339,6 @@ DeviceInformation *PCILocatorPlugin::getNextDevice(void)
     if (!pci_start_seen || !pci_end_seen) {
       throw UnexpectedError("The two invocations of lspci "
 			    "were not synchronized.");
-      delete curDevice;
     }
 
     // Skip this device if it isn't in our search criteria.
@@ -361,13 +350,11 @@ DeviceInformation *PCILocatorPlugin::getNextDevice(void)
 	   subClass != PCI_sub))
 	continue;
     
-    return (DeviceInformation *) curDevice;
+    return (DeviceInformation *) curDevice.release();
   }
 
-  delete detailedScanner;
-  delete textScanner;
-  
-  detailedScanner = textScanner = NULL;
+  detailedScanner.reset();
+  textScanner.reset();
 
   return NULL;
 }

@@ -99,15 +99,23 @@ AtomicInt cimom::_xid(0);
 Boolean cimom::route_async(AsyncOpNode *op)
 {
 
-   if( op == 0 )
+   if( _die.value()  )
       return false;
+<<<<<<< Cimom.cpp
+   
+   _routed_ops.insert_last(op);
+   
+=======
 
    _routed_ops.insert_last_wait(op);
 
+>>>>>>> 1.6
    return true;
 
 }
 
+<<<<<<< Cimom.cpp
+=======
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_internal_proc(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
@@ -130,18 +138,24 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_internal_proc(void *parm)
 }
 
 
+>>>>>>> 1.6
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 {
 
    Thread *myself = reinterpret_cast<Thread *>(parm);
    cimom *dispatcher = reinterpret_cast<cimom *>(myself->get_parm());
 
-   while( dispatcher->_die.value() < 1 )
+   while( dispatcher->_die.value()  == 0 ||
+	  dispatcher->_routed_ops.count() )
    {
-      dispatcher->_routed_ops.wait_for_node();
-      AsyncOpNode *op = dispatcher->_routed_ops.next(0);
-      op = dispatcher->_routed_ops.remove_no_lock(op);
-      dispatcher->_routed_ops.unlock();
+      if ( dispatcher->_routed_ops.count() == 0 )
+      {
+	 pegasus_yield();
+	 continue;
+	 
+      }
+      
+      AsyncOpNode *op = dispatcher->_routed_ops.remove_first();
       cout << " cimom routing " << op->get_request()->getRouting() << endl;
       AsyncRequest *request = static_cast<AsyncRequest *>(op->_request);
       PEGASUS_ASSERT(request->getMask() & message_mask::ha_async);
@@ -152,12 +166,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
       if(dest == CIMOM_Q_ID )
       {
-        // put the op  on our internal list
-	 dispatcher->_internal_ops.insert_last_wait(op);
+	 Cimom.cpp
+	 dispatcher->_handle_cimom_op(op);
 	 accepted = true;
       }
       else
       {
+	 
 	 MessageQueueService *svce = 0;
 	
 	 message_module *temp = 0;
@@ -168,7 +183,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 	    if ( temp->_q_id == dest )
 	    {
 	       svce = static_cast<MessageQueueService *>(MessageQueue::lookup(dest));
-	       accepted = true;
 	       break;
 	    }
 	    temp = dispatcher->_modules.next(temp);
@@ -178,26 +192,25 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 	 {
 	    accepted = svce->accept_async(op);
 	 }
+	 
+	 if ( accepted == false )
+	 {
+	    // make a NAK and flag completed 
+	    AsyncReply *reply = new AsyncReply(async_messages::REPLY, 
+					       request->getKey(),
+					       request->getRouting(),
+					       0, 
+					       request->op,
+					       async_results::CIM_NAK, 
+					       request->resp, 
+					       request->block);
+	    dispatcher->_completeAsyncResponse(request, 
+					       reply, 
+					       ASYNC_OPSTATE_COMPLETE, 
+					       0);
+	 }
       }
-
-      if ( accepted == false )
-      {
-	 // make a NAK and flag completed
-	 AsyncReply *reply = new AsyncReply(async_messages::REPLY,
-					    request->getKey(),
-					    request->getRouting(),
-					    0,
-					    request->op,
-					    async_results::CIM_NAK,
-					    request->resp,
-					    request->block);
-	 dispatcher->_completeAsyncResponse(request,
-					     reply,
-					     ASYNC_OPSTATE_COMPLETE,
-					     0);
-      }
-   } // loop
-
+   } // loop 
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
@@ -208,17 +221,15 @@ cimom::cimom(void)
    : MessageQueue("cimom", false, CIMOM_Q_ID),
      _modules(true),
      _recycle(true),
-     _routed_ops(true, 1000),
-     _internal_ops(true, 1000),
+     _routed_ops(true), 
+     _internal_ops(true),
      _routing_thread( _routing_proc, this, false),
-     _internal_thread( _internal_proc, this, false),
      _die(0)
 {
    pegasus_gettimeofday(&_last_module_change);
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
    _routing_thread.run();
-   _internal_thread.run();
 
 }
 
@@ -235,12 +246,9 @@ cimom::~cimom(void)
 // send STOP messages to all modules
 // shutdown legacy queues; e.g., cim operation dispatcher etc.
    _die++;
-
-   _routed_ops.shutdown_queue();
-   _internal_ops.shutdown_queue();
-
    _routing_thread.join();
-   _internal_thread.join();
+   _modules.empty_list();
+   
    return;
 
 }
@@ -264,6 +272,8 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
    op->unlock();
+   op->_client_sem.signal();
+   
 }
 
 
@@ -300,8 +310,6 @@ void cimom::_handle_cimom_op(AsyncOpNode *op)
 
       if( type == async_messages::REGISTER_CIM_SERVICE )
 	 register_module(static_cast<RegisterCimService *>(msg));
-      else if ( type == async_messages::DEREGISTER_CIM_SERVICE )
-	 deregister_module(static_cast<DeRegisterCimService *>(msg));
       else if ( type == async_messages::UPDATE_CIM_SERVICE )
 	 update_module(static_cast<UpdateCimService *>(msg ));
       else if ( type == async_messages::IOCTL )
@@ -310,7 +318,6 @@ void cimom::_handle_cimom_op(AsyncOpNode *op)
 	 find_service_q(static_cast<FindServiceQueue *>(msg));
       else if (type == async_messages::ENUMERATE_SERVICE)
 	 enumerate_service(static_cast<EnumerateService *>(msg));
-      cout << " cimom accepted " << op->get_request()->getRouting() << endl;
    }
    if ( accepted == false )
    {
@@ -400,55 +407,6 @@ void cimom::deregister_module(Uint32 quid)
    }
 
    _modules.unlock();
-}
-
-void cimom::deregister_module(DeRegisterCimService *msg)
-{
-
-   Uint32 result = async_results::OK;
-
-   msg->op->processing();
-
-
-   _modules.lock();
-
-   message_module *temp = _modules.next(0);
-   while( temp != 0 )
-   {
-      if (temp->_q_id == msg->queue)
-      {
-	
-	 _modules.remove_no_lock(temp);
-	
-	 break;
-      }
-      temp = _modules.next(temp);
-   }
-
-   _modules.unlock();
-
-   if(temp == 0)
-      result = async_results::MODULE_NOT_FOUND;
-   else
-   {
-
-      delete temp;
-   }
-
-
-   AsyncReply *reply = new AsyncReply(async_messages::REPLY,
-				      msg->getKey(),
-				      msg->getRouting(),
-				      0,
-				      msg->op,
-				      result,
-				      msg->resp,
-				      msg->block);
-   _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			  reply,
-			  ASYNC_OPSTATE_COMPLETE,
-			  0);
-   return;
 }
 
 

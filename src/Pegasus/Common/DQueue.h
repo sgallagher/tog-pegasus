@@ -238,7 +238,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 
       inline void _insert_prep(void) throw(IPCException)
       {
-	 lock(pegasus_thread_self());
+
+	 _slot->lock_object(pegasus_thread_self());
 	 while(true == is_full())
 	 {
 	    if(_disallow->value() > 0)
@@ -259,7 +260,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
       
       inline void _unlink_prep(void) throw(IPCException)
       {
-	 lock(pegasus_thread_self());
+	 _node->lock_object(pegasus_thread_self());
 	 while(true == is_empty())
 	 {
 	    if(_disallow->value() > 0)
@@ -291,7 +292,10 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 while(ret != 0)
 	 {
 	    if(ret->operator==(key))
+	    {
 	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
+	    }
+	    
 	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	 }
 	 return 0;
@@ -310,7 +314,10 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 while(ret != 0)
 	 {
 	    if(ret->operator==(key))
+	    {
 	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
+	    }
+	    
 	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	 }
 	 return 0;

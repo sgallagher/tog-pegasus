@@ -53,7 +53,6 @@ typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
-
 #ifndef PEGASUS_OS_ZOS_ZSERIES_IBM
 typedef struct {
     sem_t sem;
@@ -251,7 +250,6 @@ inline static int pegasus_gettimeofday(struct timeval *tv)
    tv->tv_usec = ntp.time.tv_usec;
    return(err);
 }
-
    
 inline void exit_thread(PEGASUS_THREAD_RETURN rc)
 {

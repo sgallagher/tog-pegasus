@@ -107,7 +107,8 @@ AsyncRequest::AsyncRequest(Uint32 type,
      resp(response),
      block(blocking) 
 {  
-   op->put_request(this);
+   if( op != 0 )
+      op->put_request(this);
 }
 
 AsyncReply::AsyncReply(Uint32 type, 
@@ -123,7 +124,8 @@ AsyncReply::AsyncReply(Uint32 type,
      dest(destination),
      block(blocking) 
 {  
-   op->put_response(this);
+   if( op != 0 )
+      op->put_response(this);
 }
 
 
@@ -270,7 +272,8 @@ AsyncOperationStart::AsyncOperationStart(Uint32 routing,
 		  destination, response, blocking),
      act(action) 
 {  
-   op->put_request(act);
+   if( op != 0 )
+      op->put_request(act);
 }
 
 
@@ -299,7 +302,8 @@ AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing,
 		  operation, destination, CIMOM_Q_ID, false),
      act(action) 
 {  
-   op->put_request(act);
+   if( op != 0 )
+      op->put_request(act);
 }
 
 
@@ -312,7 +316,8 @@ AsyncLegacyOperationResult::AsyncLegacyOperationResult(Uint32 key,
 		0, CIMOM_Q_ID, false),
      res(result)
 {   
-   op->put_response(res);
+   if( op != 0 )
+      op->put_response(res);
 }
       
 

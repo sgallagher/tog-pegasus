@@ -30,6 +30,38 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+MessageQueueService::MessageQueueService(const char *name, 
+					 Uint32 queueID, 
+					 Uint32 capabilities, 
+					 Uint32 mask) 
+   : Base(name, false,  queueID),
+     _capabilities(capabilities),
+     _mask(mask),
+     _die(0),
+     _pending(true), 
+     _incoming(true),
+     _req_thread(_req_proc, this, false)
+{ 
+   _default_op_timeout.tv_sec = 30;
+   _default_op_timeout.tv_usec = 100;
+   _meta_dispatcher = static_cast<cimom *>(Base::lookup(CIMOM_Q_ID));
+   if(_meta_dispatcher == 0 )
+      throw NullPointer();
+   _req_thread.run();
+   
+}
+
+
+MessageQueueService::~MessageQueueService(void)
+{
+   _die = 1;
+
+   _req_thread.join();
+
+}
+
+AtomicInt MessageQueueService::_xid(1);
+
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
@@ -39,59 +71,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    // pull messages off the incoming queue and dispatch them. then 
    // check pending messages that are non-blocking
 
-   while ( service->_die.value() < 1 )
+   while ( service->_die.value() == 0  || 
+	   service->_incoming.count() > 0  )
    {
-
-      AsyncOpNode *operation = service->_incoming.remove_first_wait();
-      service->_handle_incoming_operation(operation);
-   }
-   
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
-   return(0);
-}
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_rpl_proc(void * parm)
-{
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(myself->get_parm());
-
-   // pull messages off the _pending queue and complete them. 
-   // this loop is not optimized because every time we complete an operation 
-   // we start again to traverse the loop at the beginning. 
-   Uint32 loop = 1;
-   Boolean unlinked = false;
-   
-   
-   while ( service->_die.value() < 1 )
-   {
-      service->_pending.wait_for_node();
-      AsyncOpNode *operation = service->_pending.next(0);
-//      operation = service->_pending.remove_no_lock(operation);
-      while( operation != 0 )
-      {
-	 if ( operation->_user_data != loop )
-	 {
-	    Uint32 state = operation->read_state();
-	    
-	    if ( state  & ASYNC_OPSTATE_COMPLETE )
-	    {
-	       service->_pending.remove_no_lock(operation) ;
-	       operation->_client_sem.signal();
-	       operation = service->_pending.next(0);
-	       unlinked = true;
-	       continue;
-	    }
-	    operation->_user_data = loop;
-	 }
-	 operation = service->_pending.next(operation);
-      }
-      service->_pending.unlock();
-      loop++;
-      if ( unlinked == true)
+      if ( service->_incoming.count() == 0 )
       {
 	 pegasus_yield();
-	 unlinked = false;
+	 continue;
+	 
       }
+      
+      AsyncOpNode *operation = service->_incoming.remove_first();
+      service->_handle_incoming_operation(operation);
    }
    
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -112,107 +103,6 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
    
    return;
    
-}
-
-
-Boolean MessageQueueService::messageOK(const Message *msg)
-{
-   if ( msg != 0 )
-   {
-      Uint32 mask = msg->getMask();
-      if ( mask & message_mask::ha_async)
-	 if ( mask & message_mask::ha_request)
-	    return true;
-   }
-   return false;
-}
-
-
-MessageQueueService::MessageQueueService(const char *name, 
-					 Uint32 queueID, 
-					 Uint32 capabilities, 
-					 Uint32 mask) 
-   : Base(name, false,  queueID),
-     _capabilities(capabilities),
-     _mask(mask),
-     _die(0),
-     _pending(true, 1000), 
-     _incoming(true, 1000),
-     _req_thread(_req_proc, this, false),
-     _rpl_thread(_rpl_proc, this, false)
-{ 
-   _default_op_timeout.tv_sec = 30;
-   _default_op_timeout.tv_usec = 100;
-   _meta_dispatcher = static_cast<cimom *>(Base::lookup(CIMOM_Q_ID));
-   if(_meta_dispatcher == 0 )
-      throw NullPointer();
-   _req_thread.run();
-   _rpl_thread.run();
-   
-}
-
-
-MessageQueueService::~MessageQueueService(void)
-{
-   _die = 1;
-   _pending.shutdown_queue();
-   _incoming.shutdown_queue();
-   _req_thread.join();
-   _rpl_thread.join();
-}
-
-AtomicInt MessageQueueService::_xid(1);
-
-
-Boolean MessageQueueService::accept_async(AsyncOpNode *op) throw(IPCException)
-{
-   // incoming async request message
-   
-   PEGASUS_ASSERT(op != 0 );
-   
-   Message *rq = op->get_request();
-   if ( true == messageOK(rq) )
-   {
-      try 
-      {
-	 _incoming.insert_first_wait(op);
-      }
-      catch ( IPCException& e)
-      {
-	 return false ;
-      }
-      return true;
-   }
-   return false;
-}
-
-
-void MessageQueueService::_completeAsyncResponse(AsyncRequest *request, 
-						AsyncReply *reply, 
-						Uint32 state, 
-						Uint32 flag)
-{
-   PEGASUS_ASSERT(request != 0  && reply != 0 );
-   
-   AsyncOpNode *op = request->op;
-   op->lock();
-//   if (false == op->_response.exists(reply))
-//      op->_response.insert_last(reply);
-   op->_response = reply;
-   
-   op->_state |= state ;
-   op->_flags |= flag;
-   gettimeofday(&(op->_updated), NULL);
-   op->unlock();
-}
-
-void MessageQueueService::handleEnqueue(void)
-{
-   Message *msg = dequeue();
-   if( msg )
-   {
-      delete msg;
-   }
 }
 
 void MessageQueueService::_handle_async_request(AsyncRequest *req)
@@ -244,26 +134,6 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
    }
 }
 
-void MessageQueueService::_handle_async_reply(AsyncReply *rep)
-{
-
-   if (rep->op != 0 )
-      rep->op->processing();
-   
-   Uint32 type = rep->getType();
-   
-   if ( type == async_messages::ASYNC_OP_RESULT )
-      handle_AsyncOperationResult(static_cast<AsyncOperationResult *>(rep));
-   else 
-   {
-      // we don't handle this reply
-      ;
-   }
-
-   if( rep->op != 0 )
-      rep->op->release();
-}
-
 void MessageQueueService::_make_response(AsyncRequest *req, Uint32 code)
 {
    AsyncReply *reply = 
@@ -278,6 +148,60 @@ void MessageQueueService::_make_response(AsyncRequest *req, Uint32 code)
    _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
 }
 
+
+void MessageQueueService::_completeAsyncResponse(AsyncRequest *request, 
+						AsyncReply *reply, 
+						Uint32 state, 
+						Uint32 flag)
+{
+   PEGASUS_ASSERT(request != 0  && reply != 0 );
+   
+   AsyncOpNode *op = request->op;
+   op->lock();
+   op->_response = reply;
+   
+   op->_state |= state ;
+   op->_flags |= flag;
+   gettimeofday(&(op->_updated), NULL);
+   op->unlock();
+   op->_client_sem.signal();
+   
+}
+
+
+
+Boolean MessageQueueService::accept_async(AsyncOpNode *op)
+{
+   Message *rq = op->get_request();
+   if( true == messageOK(rq) &&  _die.value() == 0  )
+   {
+      _incoming.insert_last(op);
+      return true;
+   }
+   return false;
+}
+
+Boolean MessageQueueService::messageOK(const Message *msg)
+{
+   if ( msg != 0 )
+   {
+      Uint32 mask = msg->getMask();
+      if ( mask & message_mask::ha_async)
+	 if ( mask & message_mask::ha_request)
+	    return true;
+   }
+   return false;
+}
+
+
+void MessageQueueService::handleEnqueue(void)
+{
+   Message *msg = dequeue();
+   if( msg )
+   {
+      delete msg;
+   }
+}
 
 void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
 {
@@ -355,14 +279,23 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
 {
    if ( request == 0 )
       return 0 ;
-   PEGASUS_ASSERT( request->op != 0 );
+
+   Boolean destroy_op = false;
+   
+   if (request->op == false)
+   {
+      request->op = get_op();
+      request->op->put_request(request);
+      
+      destroy_op = true;
+   }
    
    request->block = true;
    request->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    request->op->put_response(0);
    
    // first link it on our pending list
-   _pending.insert_last_wait(request->op);
+   // _pending.insert_last_wait(request->op);
    
    // now see if the meta dispatcher will take it
 
@@ -370,9 +303,16 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    {
       request->op->_client_sem.wait();
    }
-
-   return static_cast<AsyncReply *>(request->op->get_response());
    
+   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->get_response());
+   if( destroy_op == true)
+   {
+      request->op->release();
+      delete request->op;
+      request->op = 0;
+   }
+   
+   return rpl;
 }
 
 
@@ -381,13 +321,8 @@ Boolean MessageQueueService::register_service(String name,
 					      Uint32 mask)
 
 {
-   AsyncOpNode *op = _meta_dispatcher->get_cached_op();
-   
-   op->_state |= ASYNC_OPSTATE_UNKNOWN;
-   op->_flags |= ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
-   
    RegisterCimService *msg = new RegisterCimService(get_next_xid(),
-						    op, 
+						    0, 
 						    true, 
 						    name, 
 						    capabilities, 
@@ -404,30 +339,26 @@ Boolean MessageQueueService::register_service(String name,
 	 {
 	    if((static_cast<AsyncReply *>(reply))->result == async_results::OK)
 	       registered = true;
-	    
 	 }
       }
       
       delete reply;
    }
+   delete msg;
    return registered;
 }
 
 Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 {
    
-   AsyncOpNode *op = _meta_dispatcher->get_cached_op();
-   op->_state |= ASYNC_OPSTATE_UNKNOWN;
-   op->_flags |= ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
    
    UpdateCimService *msg = new UpdateCimService(get_next_xid(), 
-						op, 
+						0, 
 						true, 
 						_queueId,
 						_capabilities, 
 						_mask);
    Boolean registered = false;
-
 
    AsyncMessage *reply = SendWait(msg);
    if (reply)
@@ -442,6 +373,7 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
       }
       delete reply;
    }
+   delete msg;
    return registered;
 }
 
@@ -449,23 +381,8 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 Boolean MessageQueueService::deregister_service(void)
 {
 
-//   _meta_dispatcher->deregister_module(_queueId);
-//   return true;
-   
-
-   AsyncOpNode *op = _meta_dispatcher->get_cached_op();
-   op->_state |= ASYNC_OPSTATE_UNKNOWN;
-   op->_flags |= ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
-   
-   DeRegisterCimService *msg = new DeRegisterCimService(get_next_xid(), 
-							op, 
-							true, 
-							_queueId);
-   Boolean deregistered = false;
-
-
-
-   return _meta_dispatcher->accept_async(static_cast<Message *>(msg));
+   _meta_dispatcher->deregister_module(_queueId);
+   return true;
 }
 
 
@@ -477,13 +394,12 @@ void MessageQueueService::find_services(String name,
    
    if( results == 0 )
       throw NullPointer();
-   
-   AsyncOpNode *op = get_op();
+    
    results->clear();
    
    FindServiceQueue *req = 
       new FindServiceQueue(get_next_xid(), 
-			   op, 
+			   0, 
 			   _queueId, 
 			   true, 
 			   name, 
@@ -506,6 +422,7 @@ void MessageQueueService::find_services(String name,
       }
       delete reply;
    }
+   delete req;
    return ;
 }
 
@@ -514,11 +431,9 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
    if(result == 0)
       throw NullPointer();
    
-   AsyncOpNode *op = get_op();
-   
    EnumerateService *req 
       = new EnumerateService(get_next_xid(),
-			     op, 
+			     0, 
 			     _queueId, 
 			     true, 
 			     queue);
@@ -552,6 +467,8 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
       }
       delete reply;
    }
+   delete req;
+   
    return;
 }
 

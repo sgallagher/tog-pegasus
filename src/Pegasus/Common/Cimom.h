@@ -119,7 +119,6 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       virtual void handleEnqueue();
       void register_module(RegisterCimService *msg);
       void deregister_module(Uint32 quid);
-      void deregister_module(DeRegisterCimService *msg) ;
       void update_module(UpdateCimService *msg );
       void ioctl(AsyncIoctl *msg );
 
@@ -141,14 +140,12 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 
       DQueue<AsyncOpNode> _recycle;
       
-      AsyncDQueue<AsyncOpNode> _routed_ops;
-      AsyncDQueue<AsyncOpNode> _internal_ops;
+      DQueue<AsyncOpNode> _routed_ops;
+      DQueue<AsyncOpNode> _internal_ops;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _routing_proc(void *);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _internal_proc(void *);
 
       Thread _routing_thread;
-      Thread _internal_thread;
 
       static Uint32 get_xid(void);
       void _handle_cimom_op(AsyncOpNode *op);

@@ -53,6 +53,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
       { 
 	 _prev->_next = _next; 
 	 _next->_prev = _prev; 
+	 _next = _prev = 0;
       }
     
       inline void insert_first(internal_dq & head)
@@ -105,7 +106,8 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       virtual ~internal_dq() 
       {  
-	 empty_list(); 
+	 if (_isHead  )
+	    empty_list(); 
       }
 
       inline void insert_first(void *element)
@@ -130,14 +132,18 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
       
       inline virtual void empty_list( void )
       {
-	 while( _count > 0 ) {
-	    internal_dq *temp = _next;
-	    temp->unlink();
-	    if(temp->_rep != NULL)
-	       ::operator delete(temp->_rep);
-	    delete temp;
-	    _count--;
+	 if ( _isHead == true ) 
+	 {
+	    while( _count > 0 ) {
+	       internal_dq *temp = _next;
+	       temp->unlink();
+	       if(temp->_rep != NULL)
+		  ::operator delete(temp->_rep);
+	       delete temp;
+	       _count--;
+	    }
 	 }
+	 
 	 return;
       }
 

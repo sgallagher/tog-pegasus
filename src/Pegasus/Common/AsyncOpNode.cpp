@@ -31,7 +31,7 @@
 PEGASUS_NAMESPACE_BEGIN
    
 AsyncOpNode::AsyncOpNode(void) 
-   : _client_sem(1), _mut(),  
+   : _client_sem(0), _mut(),  
      _state(0), _flags(0), _total_ops(0), _completed_ops(0),
      _parent(0), _children(true)
 {

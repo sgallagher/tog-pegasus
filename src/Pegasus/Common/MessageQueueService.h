@@ -53,8 +53,6 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       virtual ~MessageQueueService(void);
       
-      // don't allow derived classes to override
-      void handleEnqueue();
       virtual void handle_heartbeat_request(AsyncRequest *req);
       virtual void handle_heartbeat_reply(AsyncReply *rep);
       
@@ -66,13 +64,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
       virtual void handle_AsyncOperationResult(AsyncOperationResult *req);
-            
-      virtual Boolean accept_async(AsyncOpNode *op) throw(IPCException);
+      virtual Boolean accept_async(AsyncOpNode *op);
       virtual Boolean messageOK(const Message *msg) ;
 
-//      virtual Message *openEnvelope(Message *msg);
-      
-//      Boolean SendAsync(AsyncMessage *msg);
       AsyncReply *SendWait(AsyncRequest *request);
       
       void _completeAsyncResponse(AsyncRequest *request, 
@@ -95,26 +89,23 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Uint32 _mask;
       AtomicInt _die;
    protected:
-
+      virtual void _handle_incoming_operation(AsyncOpNode *operation);
       virtual void _handle_async_request(AsyncRequest *req);
-      virtual void _handle_async_reply(AsyncReply *rep);
       virtual void _make_response(AsyncRequest *req, Uint32 code);
       cimom *_meta_dispatcher;
 
    private: 
-
-      AsyncDQueue<AsyncOpNode> _pending;
-      AsyncDQueue<AsyncOpNode> _incoming;
+      void handleEnqueue();
+      DQueue<AsyncOpNode> _pending;
+      DQueue<AsyncOpNode> _incoming;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _rpl_proc(void *);
       Thread _req_thread;
-      Thread _rpl_thread;
       
       struct timeval _default_op_timeout;
 
       static AtomicInt _xid;
-      void _handle_incoming_operation(AsyncOpNode *operation);
+
 
 
 };

@@ -107,21 +107,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       */
       Boolean isAsync(void) { return _async; }
     
-      /** Allows a message queue to decline to enqueue a message. If
-	  the message is enqueued returns true. If the queue declines to
-	  handle the message returns false and the message is not enqueued
 
-	  Note: accept_async() MUST NEVER call handleEnqueue(). Synchronous
-	  MessageQueues (those not having a worker thread) must always return 
-	  false.
-
-	  accept_async determines whether or not it will accept the message
-	  by calling messageOK(const Message *) (below), which is a virtual 
-	  function that may be overriden by a derived class.
-      */
-    
-      Boolean accept_async(Message *message) throw(IPCException);
-    
       /** Dequeues a message (removes it from the front of the queue).
 	  @return pointer to message or zero if queue is empty.
       */
@@ -213,12 +199,6 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 	  to handle the message by returning false **/
 
       virtual Boolean messageOK(const Message *msg) { return true ;}
-      
-
-      /** Overridden by MessageQueueService and derived classes to handle
-	  asynchronous messages. 
-      */
-      virtual Message *openEnvelope(Message *msg) { return 0 ; }
       
       /** Lookup a message queue from a queue id. Note this is an O(1) operation.
        */

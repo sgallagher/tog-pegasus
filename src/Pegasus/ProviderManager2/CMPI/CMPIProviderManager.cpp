@@ -1972,24 +1972,36 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
 
         CMPIProvider & pr=ph.GetProvider();
 
-        CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+		/* Versions prior to 86 did not include enableIndications routine */
+		if (pr.miVector.indMI->ft->ftVersion >= 86) {
+        	CMPIStatus rc={CMPI_RC_OK,NULL};
+        	CMPI_ContextOnStack eCtx(context);
+        	CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.EnableIndicationRequest: " + pr.getName());
+        	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            	"Calling provider.EnableIndicationRequest: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<endl);
+        	DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<endl);
 
-        CMPIProvider::pm_service_op_lock op_lock(&pr);
-        ph.GetProvider().protect();
+        	CMPIProvider::pm_service_op_lock op_lock(&pr);
+        	ph.GetProvider().protect();
 
-        STAT_GETSTARTTIME;
+        	STAT_GETSTARTTIME;
 
-        pr.miVector.indMI->ft->enableIndications(
-           pr.miVector.indMI);
+        	pr.miVector.indMI->ft->enableIndications(
+           		pr.miVector.indMI);
 
-       STAT_PMS_PROVIDEREND;
+       		STAT_PMS_PROVIDEREND;
+		}
+		else
+	  	{
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+							"Not calling provider.EnableIndicationRequest: " + pr.getName() +
+							" routine as it is an earlier version that does not support this function");
+			DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest cannot be called " \
+						"as the provider uses an earlier version that does not support this function"<<endl);
+		}
+
     }
     HandlerCatch(handler);
 
@@ -2043,25 +2055,38 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 
         CMPIProvider & pr=ph.GetProvider();
 
-        CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+		/* Versions prior to 86 did not include disableIndications routine */
+		if (pr.miVector.indMI->ft->ftVersion >= 86) {
+        	CMPIStatus rc={CMPI_RC_OK,NULL};
+        	CMPI_ContextOnStack eCtx(context);
+        	CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.DisableIndicationRequest: " + pr.getName());
+        	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            	"Calling provider.DisableIndicationRequest: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest"<<endl);
+        	DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest"<<endl);
 
-        CMPIProvider::pm_service_op_lock op_lock(&pr);
+        	CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        STAT_GETSTARTTIME;
+        	STAT_GETSTARTTIME;
 
-        pr.miVector.indMI->ft->disableIndications(
-           pr.miVector.indMI);
+        	pr.miVector.indMI->ft->disableIndications(
+           		pr.miVector.indMI);
 
-        ph.GetProvider().unprotect();
+        	ph.GetProvider().unprotect();
 
-        STAT_PMS_PROVIDEREND;
+        	STAT_PMS_PROVIDEREND;
+		}
+		else
+		{
+        	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+				"Not calling provider.EnableIndicationRequest: " + pr.getName() +
+				" routine as it is an earlier version that does not support this function");
+
+			DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest cannot be called " \
+					"as the provider uses an earlier version that does not support this function"<<endl);
+
+		}
     }
     HandlerCatch(handler);
 

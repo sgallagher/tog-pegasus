@@ -22,135 +22,555 @@
 //==============================================================================
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
+//         Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
 //
-// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+// Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //         Mike Day (mdday@us.ibm.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
 //         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cstring>
-#include <Pegasus/Common/Destroyer.h>
 
+#include <iostream>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/SSLContext.h>
 
-// Using the general CIMOM TestClient as an example, developed an
-// osinfo client that does an enumerateInstances of the
-// PG_OperatingSystem class and displays properties of interest.
-// Using PG_OperatingSystem versus CIM_OperatingSystem to get
-// SystemUpTime and OSCapability properties.
+#include <Pegasus/getoopt/getoopt.h>
+#include <Clients/cliutils/CommandException.h>
+#include "OSInfo.h"
 
-// At this time, there is only one instance (the running OS).  When
-// add installed OSs, will need to select proper instance.
+// To build a version of osinfo that does not
+// support remote connections the
+// DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
+// flag can be enabled.
+//#define DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
 
-#include "OSInfo.h" 
+//#define DEBUG
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
 #define NAMESPACE CIMNamespaceName ("root/cimv2")
 #define CLASSNAME CIMName ("PG_OperatingSystem")
 
-/**  Constructor for OSInfo Client
-  */
+/**
+    The command name.
+ */
+const char   OSInfoCommand::COMMAND_NAME []      = "osinfo";
 
-OSInfo::OSInfo(void)
+/**
+    Label for the usage string for this command.
+ */
+const char   OSInfoCommand::_USAGE []            = "usage: ";
+
+/**
+    The option character used to specify the hostname.
+ */
+const char   OSInfoCommand::_OPTION_HOSTNAME     = 'h';
+
+/**
+    The option character used to specify the port number.
+ */
+const char   OSInfoCommand::_OPTION_PORTNUMBER   = 'p';
+
+/**
+    The option character used to specify SSL usage.
+ */
+const char   OSInfoCommand::_OPTION_SSL          = 's';
+
+/**
+    The option character used to specify the timeout value.
+ */
+const char   OSInfoCommand::_OPTION_TIMEOUT      = 't';
+
+/**
+    The option character used to specify the username.
+ */
+const char   OSInfoCommand::_OPTION_USERNAME     = 'u';
+
+/**
+    The option character used to specify the password.
+ */
+const char   OSInfoCommand::_OPTION_PASSWORD     = 'w';
+
+/**
+    The option character used to specify the password.
+ */
+const char   OSInfoCommand::_OPTION_RAW_DATETIME_FORMAT     = 'c';
+
+/**
+    The minimum valid portnumber.
+ */
+const Uint32 OSInfoCommand::_MIN_PORTNUMBER      = 0;
+
+/**
+    The maximum valid portnumber.
+ */
+const Uint32 OSInfoCommand::_MAX_PORTNUMBER      = 65535;
+
+static const char PASSWORD_PROMPT []  =
+                     "Please enter your password: ";
+
+static const char PASSWORD_BLANK []  = 
+                     "Password cannot be blank. Please re-enter your password.";
+
+static const Uint32 MAX_PW_RETRIES = 3;
+
+static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
-   osCSName = String::EMPTY;
-   osName = String::EMPTY;
-   osVersion = String::EMPTY;
-   osOtherInfo = String::EMPTY;
-   osLicensedUsers = String::EMPTY;
-   osCapability = String::EMPTY;
-   osBootUpTime = String::EMPTY;
-   osLocalDateTime = String::EMPTY;
-   osSystemUpTime = String::EMPTY;
 
-}
-
-OSInfo::~OSInfo(void)
-{
-}         
-
-/** ErrorExit - Print out the error message as an
-    and get out.
-    @param - Text for error message
-    @return - None, Terminates the program
-    @exception - This function terminates the program
-*/
-void OSInfo::errorExit(const String& message)
-{
-    cerr << "osinfo error: " << message << endl;
-    exit(1);
-}
-
-/** _usage method for osinfo - only accept one option
-    -c for raw CIM formatting
-*/
-void OSInfo::_usage()
-{
-  cerr << "Usage: osinfo [-c]" << endl;
-  cerr << "Example:" << endl;
-  cerr << "  osinfo " << endl;
-  cerr << "  osinfo -c " << endl;
+#ifdef DEBUG
+    cout << certInfo.getSubjectName() << endl;
+#endif
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
 }
 
 /**
-   displayProperties method of the osinfo Test Client
-  */
-void OSInfo::displayProperties()
+  
+    Constructs a OSInfoCommand and initializes instance variables.
+  
+ */
+OSInfoCommand::OSInfoCommand ()
 {
-   // interesting properties are stored off in class variables
 
-   cout << "OperatingSystem Information" << endl;
+    _hostName            = String ();
+    _hostNameSet         = false;
+    _portNumber          = WBEM_DEFAULT_HTTP_PORT;
+    _portNumberSet       = false;
 
-   // expect to have values for the keys (even if Unknown)
-   cout << "  Host: " << osCSName << endl;
-   cout << "  Name: " << osName << endl;
+    char buffer[32];
+    sprintf(buffer, "%lu", (unsigned long) _portNumber);
+    _portNumberStr       = buffer;
 
-   // on Linux, the OtherTypeDescription field had distribution info
-   // wrote to display this info whenever it's present (any OS)
-   if (osOtherInfo != String::EMPTY)
-   {
-      // put in parens after the name
-      cout << "   ( " << osOtherInfo << " ) " << endl;
-   }
+    _timeout             = DEFAULT_TIMEOUT_MILLISECONDS;
+    _userName            = String ();
+    _userNameSet         = false;
+    _password            = String ();
+    _passwordSet         = false;
+    _useSSL              = false;
+    _useRawDateTimeFormat   = false;
 
-   if (osVersion != String::EMPTY)
-      cout << "  Version: " << osVersion << endl;
-   else
-      cout << "  Version: Unknown" << endl;
-   
-   if (osLicensedUsers != String::EMPTY)
-      cout << "  UserLicense: " << osLicensedUsers << endl;
-   else
-      cout << "  UserLicense: Unknown" << endl;
-
-   if (osCapability != String::EMPTY)
-      cout << "  OSCapability: " << osCapability << endl;
-   else
-      cout << "  OSCapability: Unknown" << endl;
-   
-   if (osBootUpTime != String::EMPTY)
-      cout << "  LastBootTime: " << osBootUpTime << endl;
-   else
-      cout << "  LastBootTime: Unknown" << endl;
-   
-   if (osLocalDateTime != String::EMPTY)
-      cout << "  LocalDateTime: " << osLocalDateTime << endl;
-   else
-      cout << "  LocalDateTime: Unknown" << endl;
-   
-   if (osSystemUpTime != String::EMPTY)
-      cout << "  SystemUpTime: " << osSystemUpTime << endl;
-   else
-      cout << "  SystemUpTime: Unknown" << endl;
+    String usage = String (_USAGE);
+    usage.append (COMMAND_NAME);
+    usage.append (" [ -");
+#ifndef DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
+    usage.append (_OPTION_SSL);
+    usage.append (" ] [ -");
+    usage.append (_OPTION_HOSTNAME);
+    usage.append (" hostname ] [ -");
+    usage.append (_OPTION_PORTNUMBER);
+    usage.append (" portnumber ] [ -");
+    usage.append (_OPTION_USERNAME);
+    usage.append (" username ] [ -");
+    usage.append (_OPTION_PASSWORD);
+    usage.append (" password ] [ -");
+    usage.append (_OPTION_TIMEOUT);
+    usage.append (" timeout ] [ -");
+#endif
+    usage.append (_OPTION_RAW_DATETIME_FORMAT);
+    usage.append (" ]");
+    setUsage (usage);
 }
+
+String OSInfoCommand::_promptForPassword( ostream& outPrintWriter ) 
+{
+  //
+  // Password is not set, prompt for non-blank password
+  //
+  String pw = String::EMPTY;
+  Uint32 retries = 1;
+  do
+    {
+      pw = System::getPassword( PASSWORD_PROMPT );
+
+      if ( pw == String::EMPTY || pw == "" )
+        {
+          if( retries < MAX_PW_RETRIES )
+            {
+              retries++;
+
+            }
+          else
+            {
+              break;
+            }
+          outPrintWriter << PASSWORD_BLANK << endl;
+          pw = String::EMPTY;
+          continue;
+        }
+    }
+  while ( pw == String::EMPTY );
+  return( pw );
+}
+
+/**
+  
+    Connects to cimserver.
+  
+    @param   outPrintWriter     the ostream to which error output should be
+                                written
+  
+    @exception       Exception  if an error is encountered in creating
+                               the connection
+  
+ */
+ void OSInfoCommand::_connectToServer( CIMClient& client,
+				         ostream& outPrintWriter ) 
+    throw (Exception)
+{
+    String                 host                  = String ();
+    Uint32                 portNumber            = 0;
+    Boolean                connectToLocal        = false;
+
+    //
+    //  Construct host address
+    //
+
+    if ((!_hostNameSet) && (!_portNumberSet) && (!_userNameSet) && (!_passwordSet))
+      {
+        connectToLocal = true;
+      }
+    else
+    {
+        if (!_hostNameSet)
+        {
+           _hostName = System::getHostName();
+        }
+        if( !_portNumberSet )
+        {
+           if( _useSSL )
+           {
+               _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
+                                          WBEM_DEFAULT_HTTPS_PORT );
+           }
+           else
+           {
+               _portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
+                                          WBEM_DEFAULT_HTTP_PORT );
+           }
+           char buffer[32];
+           sprintf( buffer, "%lu", (unsigned long) _portNumber );
+           _portNumberStr = buffer;
+        }
+    }
+    host = _hostName;
+    portNumber = _portNumber;
+
+    if( connectToLocal )
+    {
+        client.connectLocal();
+    }
+    else if( _useSSL )
+    {
+        //
+        // Get environment variables:
+        //
+        const char* pegasusHome = getenv("PEGASUS_HOME");
+	
+	String certpath = FileSystem::getAbsolutePath(
+           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+	
+	String randFile = String::EMPTY;
+
+	randFile = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+        SSLContext  sslcontext (certpath, verifyCertificate, randFile);
+
+        if (!_userNameSet)
+        {
+           _userName = System::getEffectiveUserName();
+        }
+
+        if (!_passwordSet)
+        {
+            _password = _promptForPassword( outPrintWriter );
+        }
+	client.connect(host, portNumber, sslcontext,  _userName, _password );
+    }
+    else
+    { 
+        if (!_passwordSet)
+        {
+            _password = _promptForPassword( outPrintWriter );
+        }
+        client.connect(host, portNumber, _userName, _password );
+     }
+}
+
+/**
+  
+    Parses the command line, validates the options, and sets instance
+    variables based on the option arguments.
+  
+    @param   argc  the number of command line arguments
+    @param   argv  the string vector of command line arguments
+  
+    @exception  CommandFormatException  if an error is encountered in parsing
+                                        the command line
+  
+ */
+void OSInfoCommand::setCommand (Uint32 argc, char* argv []) 
+    throw (CommandFormatException)
+{
+    Uint32         i              = 0;
+    Uint32         c              = 0;
+    String         httpVersion    = String ();
+    String         httpMethod     = String ();
+    String         timeoutStr     = String ();
+    String         GetOptString   = String ();
+    getoopt        getOpts;
+
+    //
+    //  Construct GetOptString
+    //
+#ifndef DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
+    GetOptString.append (_OPTION_HOSTNAME);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    GetOptString.append (_OPTION_PORTNUMBER);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    GetOptString.append (_OPTION_SSL);
+    GetOptString.append (_OPTION_TIMEOUT);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    GetOptString.append (_OPTION_USERNAME);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    GetOptString.append (_OPTION_PASSWORD);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#endif
+    GetOptString.append (_OPTION_RAW_DATETIME_FORMAT);
+
+    //
+    //  Initialize and parse getOpts
+    //
+    getOpts = getoopt ();
+    getOpts.addFlagspec (GetOptString);
+    getOpts.parse (argc, argv);
+
+    if (getOpts.hasErrors ())
+    {
+        CommandFormatException e (getOpts.getErrorStrings () [0]);
+        throw e;
+    }
+    
+    //
+    //  Get options and arguments from the command line
+    //
+    for (i =  getOpts.first (); i <  getOpts.last (); i++)
+    {
+        if (getOpts [i].getType () == Optarg::LONGFLAG)
+        {
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
+        } 
+        else if (getOpts [i].getType () == Optarg::REGULAR)
+        {
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
+        } 
+        else /* getOpts [i].getType () == FLAG */
+        {
+            c = getOpts [i].getopt () [0];
+    
+            switch (c) 
+            {
+                case _OPTION_HOSTNAME: 
+                {
+                    if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
+                    {
+                        //
+                        // More than one hostname option was found
+                        //
+                        DuplicateOptionException e (_OPTION_HOSTNAME); 
+                        throw e;
+                    }
+                    _hostName = getOpts [i].Value ();
+                    _hostNameSet = true;
+                    break;
+                }
+    
+                case _OPTION_PORTNUMBER: 
+                {
+                    if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
+                    {
+                        //
+                        // More than one portNumber option was found
+                        //
+                        DuplicateOptionException e (_OPTION_PORTNUMBER); 
+                        throw e;
+                    }
+    
+                    _portNumberStr = getOpts [i].Value ();
+    
+                    try
+                    {
+                        getOpts [i].Value (_portNumber);
+                    }
+                    catch (TypeMismatchException& it)
+                    {
+                        InvalidOptionArgumentException e (_portNumberStr,
+                            _OPTION_PORTNUMBER);
+                        throw e;
+                    }
+		    _portNumberSet = true;
+                    break;
+                }
+    
+                case _OPTION_SSL: 
+                {
+                    //
+                    // Use port 5989 as the default port for SSL
+                    //
+		    _useSSL = true;
+                    if (!_portNumberSet)
+                       _portNumber = 5989;
+                    break;
+                }
+      
+                case _OPTION_RAW_DATETIME_FORMAT: 
+                {
+                    //
+                    // Display "raw" CIM_DateTime format. 
+                    //
+		    _useRawDateTimeFormat = true;
+                    break;
+                }
+      
+                case _OPTION_TIMEOUT: 
+                {
+                    if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
+                    {
+                        //
+                        // More than one timeout option was found
+                        //
+                        DuplicateOptionException e (_OPTION_TIMEOUT); 
+                        throw e;
+                    }
+    
+                    timeoutStr = getOpts [i].Value ();
+    
+                    try
+                    {
+                        getOpts [i].Value (_timeout);
+                    }
+                    catch (TypeMismatchException& it)
+                    {
+                        InvalidOptionArgumentException e (timeoutStr,
+                            _OPTION_TIMEOUT);
+                        throw e;
+                    }
+                    break;
+                }
+    
+                case _OPTION_USERNAME: 
+                {
+                    if (getOpts.isSet (_OPTION_USERNAME) > 1)
+                    {
+                        //
+                        // More than one username option was found
+                        //
+                        DuplicateOptionException e (_OPTION_USERNAME); 
+                        throw e;
+                    }
+                    _userName = getOpts [i].Value ();
+                    _userNameSet = true;
+                    break;
+                }
+    
+                case _OPTION_PASSWORD: 
+                {
+                    if (getOpts.isSet (_OPTION_PASSWORD) > 1)
+                    {
+                        //
+                        // More than one password option was found
+                        //
+                        DuplicateOptionException e (_OPTION_PASSWORD); 
+                        throw e;
+                    }
+                    _password = getOpts [i].Value ();
+                    _passwordSet = true;
+                    break;
+                }
+    
+                default:
+                    //
+                    //  This path should not be hit
+                    //
+                    break;
+            }
+        }
+    }
+
+    if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
+    {
+        //
+        //  No portNumber specified
+        //  Default to WBEM_DEFAULT_PORT
+        //  Already done in constructor
+        //
+    } 
+    else 
+    {
+        if (_portNumber > _MAX_PORTNUMBER)
+        {
+            //
+            //  Portnumber out of valid range
+            //
+            InvalidOptionArgumentException e (_portNumberStr,
+                _OPTION_PORTNUMBER);
+            throw e;
+        }
+    }
+
+    if (getOpts.isSet (_OPTION_TIMEOUT) < 1)
+    {
+        //
+        //  No timeout specified
+        //  Default to DEFAULT_TIMEOUT_MILLISECONDS
+        //  Already done in constructor
+        //
+    } 
+    else 
+    {
+        if (_timeout <= 0) 
+        {
+            //
+            //  Timeout out of valid range
+            //
+            InvalidOptionArgumentException e (timeoutStr,
+                _OPTION_TIMEOUT);
+            throw e;
+        }
+    }
+}
+
+/** ErrorExit - Print out the error message and exits.
+    @param   errPrintWriter     The ostream to which error output should be
+                                written
+    @param   message            Text for error message
+    @return - None, Terminates the program
+    @exception - This function terminates the program
+*/
+void OSInfoCommand::errorExit( ostream& errPrintWriter,
+                               const String& message)
+{
+    errPrintWriter << "osinfo error: " << message << endl;
+    exit(1);
+}
+
 
 /**
    formatCIMDateTime method takes a string with CIM formatted
@@ -177,7 +597,7 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
       case 2 : { sprintf(monthString, "Feb"); break; }
       case 3 : { sprintf(monthString, "Mar"); break; }
       case 4 : { sprintf(monthString, "Apr"); break; }
-      case 5 : { sprintf(monthString, "May"); break; } 
+      case 5 : { sprintf(monthString, "May"); break; }
       case 6 : { sprintf(monthString, "Jun"); break; }
       case 7 : { sprintf(monthString, "Jul"); break; }
       case 8 : { sprintf(monthString, "Aug"); break; }
@@ -185,22 +605,24 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
       case 10 : { sprintf(monthString, "Oct"); break; }
       case 11 : { sprintf(monthString, "Nov"); break; }
       case 12 : { sprintf(monthString, "Dec"); break; }
-      // covered all knowned cases, if get to default, just 
+      // covered all known cases, if get to default, just
       // return the input string as received.
       default : { strcpy(dateTime, cimString); return; }
    }
-   
+
    sprintf(dateTime, "%s %d, %d  %d:%d:%d (%03d%02d)",
-           monthString, day, year, hour, minute, second, 
+           monthString, day, year, hour, minute, second,
            timezone/60, timezone%60);
 
    return;
 }
 
+
 /**
    gatherProperties method of the osinfo Test Client
-  */
-void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat) 
+*/
+
+void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 {
    // don't have a try here - want it to be caught by caller
 
@@ -214,16 +636,34 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
       {
          inst.getProperty(j).getValue().get(osCSName);
       }  // end if CSName
-      
-      if (propertyName.equal (CIMName ("Name")))
+
+      else if (propertyName.equal (CIMName ("Name")))
       {
-         inst.getProperty(j).getValue().get(osName); 
+         inst.getProperty(j).getValue().get(osName);
       }  // end if Name
+
+      else if (propertyName.equal (CIMName ("NumberOfProcesses")))
+      {
+         Uint32 propertyValue;
+         inst.getProperty(j).getValue().get(propertyValue);
+         char tmpString[80];
+         sprintf(tmpString, "%d processes", propertyValue);
+         osNumberOfProcesses.assign(tmpString);
+      }  // end if NumberOfProcesses
+
+      else if (propertyName.equal (CIMName ("NumberOfUsers")))
+      {
+         Uint32 propertyValue;
+         inst.getProperty(j).getValue().get(propertyValue);
+         char tmpString[80];
+         sprintf(tmpString, "%d users", propertyValue);
+         osNumberOfUsers.assign(tmpString);
+      }  // end if NumberOfUsers
 
       if (propertyName.equal (CIMName ("Version")))
       {
-         inst.getProperty(j).getValue().get(osVersion); 
-      }  // end if Version 
+         inst.getProperty(j).getValue().get(osVersion);
+      }  // end if Version
 
       else if (propertyName.equal (CIMName ("OperatingSystemCapability")))
       {
@@ -234,7 +674,6 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
       {
          inst.getProperty(j).getValue().get(osOtherInfo);
       }   // end if OtherTypeDescription
-
       else if (propertyName.equal (CIMName ("NumberOfLicensedUsers")))
       {
          Uint32 propertyValue;
@@ -254,11 +693,11 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          else  // standard number of users
          {
             char users[80];
-            sprintf(users, "%lld users", propertyValue);
+            sprintf(users, "%d users", propertyValue);
             osLicensedUsers.assign(users);
          }
-      }   // end if NumberOfLicensedUsers 
-      
+      }   // end if NumberOfLicensedUsers
+
       else if (propertyName.equal (CIMName ("LastBootUpTime")))
       {
          CIMDateTime bdate;
@@ -266,7 +705,7 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 
          inst.getProperty(j).getValue().get(bdate);
          CString dtStr = bdate.toString().getCString();
-         if (!cimFormat) 
+         if (!cimFormat)
          { // else leave in raw CIM
             formatCIMDateTime(dtStr, bdateString);
          }
@@ -275,8 +714,8 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
             sprintf(bdateString,"%s",(const char*)dtStr);
          }
          osBootUpTime.assign(bdateString);
-      }   // end if LastBootUpTime 
-      
+      }   // end if LastBootUpTime
+
       else if (propertyName.equal (CIMName ("LocalDateTime")))
       {
          CIMDateTime ldate;
@@ -284,7 +723,7 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 
          inst.getProperty(j).getValue().get(ldate);
          CString dtStr = ldate.toString().getCString();
-         if (!cimFormat) 
+         if (!cimFormat)
          { // else leave in raw CIM
             formatCIMDateTime(dtStr, ldateString);
          }
@@ -293,15 +732,15 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
             sprintf(ldateString,"%s",(const char*)dtStr);
          }
          osLocalDateTime.assign(ldateString);
-      }   // end if LocalDateTime 
-      
+      }   // end if LocalDateTime
+
       else if (propertyName.equal (CIMName ("SystemUpTime")))
       {
          Uint64 total;
          char   uptime[80];
          inst.getProperty(j).getValue().get(total);
 
-         if (!cimFormat) 
+         if (!cimFormat)
          { // else leave in raw CIM
             // let's make things a bit easier for our user to read
             Uint64 days = 0;
@@ -322,21 +761,21 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
             char hourString[20];
             char minuteString[20];
             char secondString[20];
-   
+
             sprintf(dayString, (days == 0?"":
                                (days == 1?"1 day,":
                                "%lld days,")), days);
-        
-            // for other values, want to display the 0s 
+
+            // for other values, want to display the 0s
             sprintf(hourString, (hours == 1?"1 hr,":
                                 "%lld hrs,"), hours);
-         
+
             sprintf(minuteString, (minutes == 1?"1 min,":
                                   "%lld mins,"), minutes);
-         
+
             sprintf(secondString, (seconds == 1?"1 sec":
                                   "%lld secs"), seconds);
-         
+
             sprintf(uptime, "%lld seconds = %s %s %s %s",
                     totalSeconds,
                     dayString,
@@ -345,76 +784,108 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
                     secondString);
             osSystemUpTime.assign(uptime);
          }  // end of if wanted nicely formatted vs. raw CIM
-         else 
+         else
          {
             sprintf(uptime,"%lld",total);
          }
 
          osSystemUpTime.assign(uptime);
 
-      }   // end if SystemUpTime 
+      }   // end if SystemUpTime
 
    }  // end of for looping through properties
 }
 
-/* 
-   getOSInfo of the OS provider. 
-*/
-void OSInfo::getOSInfo(const int argc, const char** argv)
+
+
+/**
+   displayProperties method of the osinfo Test Client
+  */
+void OSInfoCommand::displayProperties(ostream& outPrintWriter)
+{
+   // interesting properties are stored off in class variables
+
+   outPrintWriter << "OperatingSystem Information" << endl;
+
+   // expect to have values for the keys (even if Unknown)
+   outPrintWriter << "  Host: " << osCSName << endl;
+   outPrintWriter << "  Name: " << osName << endl;
+
+   // on Linux, the OtherTypeDescription field had distribution info
+   // wrote to display this info whenever it's present (any OS)
+   if (osOtherInfo != String::EMPTY)
+   {
+      // put in parens after the name
+      outPrintWriter << "   ( " << osOtherInfo << " ) " << endl;
+   }
+
+   if (osVersion != String::EMPTY)
+      outPrintWriter << "  Version: " << osVersion << endl;
+   else
+      outPrintWriter << "  Version: Unknown" << endl;
+
+   if (osLicensedUsers != String::EMPTY)
+      outPrintWriter << "  UserLicense: " << osLicensedUsers << endl;
+   else
+      outPrintWriter << "  UserLicense: Unknown" << endl;
+
+   if (osNumberOfUsers != String::EMPTY)
+      outPrintWriter << "  Number of Users: " << osNumberOfUsers << endl;
+   else
+      outPrintWriter << "  Number of Users: Unknown" << endl;
+
+   if (osNumberOfProcesses != String::EMPTY)
+      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses << endl;
+   else
+      outPrintWriter << "  Number of Processes: Unknown" << endl;
+
+   if (osCapability != String::EMPTY)
+      outPrintWriter << "  OSCapability: " << osCapability << endl;
+   else
+      outPrintWriter << "  OSCapability: Unknown" << endl;
+
+   if (osBootUpTime != String::EMPTY)
+      outPrintWriter << "  LastBootTime: " << osBootUpTime << endl;
+   else
+      outPrintWriter << "  LastBootTime: Unknown" << endl;
+
+   if (osLocalDateTime != String::EMPTY)
+      outPrintWriter << "  LocalDateTime: " << osLocalDateTime << endl;
+   else
+      outPrintWriter << "  LocalDateTime: Unknown" << endl;
+
+   if (osSystemUpTime != String::EMPTY)
+      outPrintWriter << "  SystemUpTime: " << osSystemUpTime << endl;
+   else
+      outPrintWriter << "  SystemUpTime: Unknown" << endl;
+}
+
+
+
+
+void OSInfoCommand::getOSInfo(ostream& outPrintWriter,
+                              ostream& errPrintWriter)
+     throw (OSInfoException)
 {
 
-// ATTN-SLC-16-May-02-P1  enhance to take host & user info
-//  Decided to keep local only for first release 
-
-    Boolean cimFormat = false;
-
-    // before we even connect to CIMOM, make sure we're
-    // syntactically valid
-
-    if (argc > 2)
-    {
-       _usage();
-       exit(1);
-    }
-
-    if (argc == 2)
-    {
-       // only support one option, -c for CIM formatting
-       const char *opt = argv[1];
-
-       if (strcmp(opt,"-c") == 0)
-       {
-          cimFormat = true;
-       }
-       else
-       {
-          _usage();
-          exit(1);
-       }
-    }
-
-    // need to first connect to the CIMOM
+    CIMClient client;
+    client.setTimeout( _timeout );
 
     try
     {
-        // specify the timeout value for the connection (if inactive)
-        // in milliseconds, thus setting to one minute
-        CIMClient client;
-        client.setTimeout(60 * 1000);
-	client.connectLocal();
-        
+        _connectToServer( client, outPrintWriter);
+
         Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Uint32 numberInstances;
-
-        Array<CIMInstance> cimNInstances = 
-	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
+        Array<CIMInstance> cimNInstances =
+               client.enumerateInstances(NAMESPACE, CLASSNAME,
                                          deepInheritance,
-				         localOnly,  includeQualifiers,
-				         includeClassOrigin );
-	  
+                                         localOnly,  includeQualifiers,
+                                         includeClassOrigin );
+
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the
@@ -426,34 +897,90 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
            CIMObjectPath instanceRef = cimNInstances[i].getPath ();
            if ( !(instanceRef.getClassName().equal (CIMName (CLASSNAME))))
            {
-              errorExit("EnumerateInstances failed");
+              errorExit(errPrintWriter, "EnumerateInstances failed");
            }
 
            // first gather the interesting properties
-           gatherProperties(cimNInstances[i], cimFormat);
-         
+           gatherProperties(cimNInstances[i], _useRawDateTimeFormat);
            // then display them
-           displayProperties();
+           displayProperties(outPrintWriter);
 
       }   // end for looping through instances
-    
-    }  // end try 
-   
+
+    }  // end try
+
     catch(Exception& e)
     {
-      errorExit(e.getMessage());
+      errorExit(errPrintWriter, e.getMessage());
     }
 
 }
 
-///////////////////////////////////////////////////////////////
-//    MAIN
-///////////////////////////////////////////////////////////////
 
-int main(const int argc, const char** argv)
+/**
+  
+    Executes the command and writes the results to the PrintWriters.
+  
+    @param   outPrintWriter     the ostream to which output should be
+                                written
+    @param   errPrintWriter     the ostream to which error output should be
+                                written
+  
+    @return  0                  if the command is successful
+             1                  if an error occurs in executing the command
+  
+ */
+Uint32 OSInfoCommand::execute (ostream& outPrintWriter, 
+                                 ostream& errPrintWriter) 
 {
-   OSInfo osInfo;
-   osInfo.getOSInfo(argc, argv);
-   return 0;
+    try
+    {
+        OSInfoCommand::getOSInfo( outPrintWriter, errPrintWriter );
+    }
+    catch (OSInfoException& e)
+    {
+      errPrintWriter << OSInfoCommand::COMMAND_NAME << ": " << 
+	e.getMessage () << endl;
+        return (RC_ERROR);
+    }
+    return (RC_SUCCESS);
 }
 
+/**
+    
+    Parses the command line, and executes the command.
+  
+    @param   argc  the number of command line arguments
+    @param   argv  the string vector of command line arguments
+  
+    @return  0                  if the command is successful
+             1                  if an error occurs in executing the command
+  
+ */
+PEGASUS_NAMESPACE_END
+
+// exclude main from the Pegasus Namespace
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+int main (int argc, char* argv []) 
+{
+    OSInfoCommand    command = OSInfoCommand ();
+    int                rc;
+
+    try 
+    {
+        command.setCommand (argc, argv);
+    } 
+    catch (CommandFormatException& cfe) 
+    {
+        cerr << OSInfoCommand::COMMAND_NAME << ": " << cfe.getMessage () 
+             << endl;
+        cerr << command.getUsage () << endl;
+        exit (Command::RC_ERROR);
+    }
+
+    rc = command.execute (cout, cerr);
+    exit (rc);
+    return 0;
+}

@@ -21,33 +21,259 @@
 //
 //==============================================================================
 //
-// Author: Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
+//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _OSINFO_H
-#define _OSINFO_H
+#ifndef Pegasus_OSInfoCommand_h
+#define Pegasus_OSInfoCommand_h
 
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/CIMDateTime.h>
+#include <Clients/cliutils/Command.h>
+#include <Clients/cliutils/CommandException.h>
+#include "OSInfoException.h"
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-class OSInfo
+/**
+   The osinfo command displays information regarding the operating
+   system, gathered via WBEM using the PG_OperatingSystem class supported
+   by the OperatingSystem Provider.  osinfo requires CIM Server to be 
+   installed and running on the target host.
+  
+    @author  Hewlett-Packard Company
+  
+ */
+class OSInfoCommand : public Command 
 {
-  public:
-     OSInfo(void);
-     ~OSInfo(void);
+public:
 
-     void getOSInfo(const int argc, const char** argv);
+    enum { DEFAULT_TIMEOUT_MILLISECONDS = 200000 };
 
-     // utility methods for common functions
-     void errorExit(const String &message);
-     void gatherProperties(CIMInstance &inst, Boolean cimFormat);
-     void displayProperties();
+    /**
+      
+        Constructs an OSInfoCommand and initializes instance variables.
+      
+     */
+    OSInfoCommand ();
+
+    /**
+        
+        Parses the command line, validates the options, and sets instance 
+        variables based on the option arguments.
+      
+        @param   argc  the number of command line arguments
+        @param   argv  the string vector of command line arguments
+      
+        @exception  CommandFormatException  if an error is encountered in 
+                                            parsing the command line
+      
+     */
+    void setCommand (Uint32 argc, char* argv []) throw (CommandFormatException);
+
+    /**
+        
+        Executes the command and writes the results to the PrintWriters.
+      
+        @param   outPrintWriter     the ostream to which output should be
+                                    written
+        @param   errPrintWriter     the ostream to which error output should be
+                                    written
+      
+        @return  0                  if the command is successful
+                 1                  if an error occurs in executing the command
+      
+     */
+    Uint32 execute (ostream& outPrintWriter, ostream& errPrintWriter);
+
+    /**
+        The command name.
+     */
+    static const char   COMMAND_NAME [];
+    
+private:
+
+    /**
+        
+        Connect to cimserver.
+      
+        @param   outPrintWriter     the ostream to which error output should be
+                                    written
+      
+        @exception Exception        if an error is encountered in creating
+                                    the connection 
+      
+     */
+    void _connectToServer( CIMClient& client,
+			   ostream& outPrintWriter ) 
+        throw (Exception);
+
+/**
+  
+    Prompt for password.
+  
+    @param   estream             the ostream to which errors should be written
+
+    @return  String value of the user entered password
+
+ */
+    String _promptForPassword( ostream&  eStream );
+
+    void getOSInfo (ostream& outPrintWriter, ostream& errPrintWriter)
+        throw (OSInfoException);
+
+    void errorExit(ostream& eStream, const String &message);
+
+    void gatherProperties(CIMInstance &inst, Boolean cimFormat);
+
+    void displayProperties(ostream& outPrintWriter);
+
+    /**
+        The host on which the command is to be executed.  A CIM Server must be
+        running on this host when the command is executed.  The default host is
+        the local host.
+     */
+    String _hostName;
+
+    /**
+        A Boolean indicating whether a hostname was specified on the command 
+        line.  The default host is the local host.
+     */
+    Boolean _hostNameSet;
+
+    /**
+
+        The port to be used when the command is executed. The 
+        port number must be the port number on which the 
+        target CIM Server is running.
+
+        If no port is specified, osinfo will attempt to locate the port
+        associated with the service "wbem-http" for non-SSL connections 
+        and "wbem-https" for SSL connections. If not found, the DMTF 
+        recommended default port number will be used.
+
+        _portNumberStr and _portNumber are not used with
+        connectLocal().
+        
+        The default port for non-SSL 5988 and 5989 for SSL.
+
+     */
+    String _portNumberStr;
+    Uint32 _portNumber;
+
+    /**
+        A Boolean indicating whether a port number was specified on the
+	command line.
+     */
+    Boolean _portNumberSet;
+
+    /**
+        The timeout value to be used, in milliseconds.
+        The default timeout value is DEFAULT_TIMEOUT_MILLISECONDS.
+     */
+    Uint32 _timeout;
+
+    /**
+        The username to be used for authentication and 
+        authorization of the operation.
+     */
+    String _userName;
+
+    /**
+        Indicates that the user name is set.
+     */
+    Boolean _userNameSet;
+
+    /**
+        The password to be used for authentication.
+     */
+    String _password;
+
+    /**
+        Indicates that the password is set.
+     */
+    Boolean _passwordSet;
+
+    /**
+        A Boolean indicating whether an SSL connection was specified on the 
+        command line.
+     */
+    Boolean _useSSL;
+
+    /**
+        A Boolean indicating whether CIM_DateTime values should be diplayed
+        using raw format.
+     */
+    Boolean _useRawDateTimeFormat;
+
+    /**
+        The option character used to specify the hostname.
+     */
+    static const char   _OPTION_HOSTNAME;
+
+    /**
+        The option character used to specify the port number.
+     */
+    static const char   _OPTION_PORTNUMBER;
+
+    /**
+        The option character used to specify the timeout value.
+     */
+    static const char   _OPTION_TIMEOUT;
+
+    /**
+        The option character used to specify the username.
+     */
+    static const char   _OPTION_USERNAME;
+
+    /**
+        The option character used to specify the password.
+     */
+    static const char   _OPTION_PASSWORD;
+
+    /**
+        The option character used to specify whether SSL should be used.
+     */
+    static const char   _OPTION_SSL;
+
+    /**
+        The option character used to specify whether DATETIME values
+        should be formatted.
+     */
+    static const char   _OPTION_RAW_DATETIME_FORMAT;
+
+    /**
+        Label for the usage string for this command.
+     */
+    static const char   _USAGE [];
+    
+    /**
+        The minimum valid portnumber.
+     */
+    static const Uint32 _MIN_PORTNUMBER;
+
+    /**
+        The maximum valid portnumber.
+     */
+    static const Uint32 _MAX_PORTNUMBER;
+
+    /**
+        The debug option argument value used to specify that the HTTP 
+        encapsulation of the original XML request be included in the output.
+     */
+    static const char   _DEBUG_OPTION1;
+
+    /**
+        The debug option argument value used to specify that the HTTP 
+        encapsulation of the XML response be included in the output.
+     */
+    static const char   _DEBUG_OPTION2;
 
   private:
      String osCSName;       // the hostname
@@ -59,7 +285,10 @@ class OSInfo
      String osLicensedUsers;
      String osLocalDateTime;
      String osSystemUpTime;
-     void _usage();
+     String osNumberOfProcesses;
+     String osNumberOfUsers;
 };
 
-#endif
+PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_OSInfoCommand_h */

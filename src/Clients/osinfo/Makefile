@@ -4,10 +4,15 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
 DIR = Clients/osinfo
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
+
+LIBRARIES = \
+    pegcommon \
+    peggetoopt \
+    pegclient \
+    pegcliutils 
 
 PROGRAM = osinfo
-SOURCES = OSInfo.cpp
+SOURCES = OSInfoException.cpp OSInfo.cpp
 
 include $(ROOT)/mak/program.mak
 

@@ -1,4 +1,24 @@
-root:table {
+// ==============================================================================
+// Developer's notes:
+//
+// 1)  The message key naming convention is:
+//           <directory-name>.<sourcecode-file-name>.KEY
+//
+//     This will allow us to tell which source code file is using a message.
+//     Please try to follow this naming convention.
+//
+// 2)  All the messages for a source code file are grouped together.  When adding 
+//     new messages for a source code file, please add those messages to the same 
+//     group as the other messages for that file.
+//
+// 3)  Place any platform-specific messages in the section at the end of this file.
+//
+// 4)  To compile this message bundle, run make messages (but refer to 
+//     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
+// ==============================================================================
+
+
+en:table {
 
 	Clients.CLI.USAGE_STRING:string {"VALID USAGE OF THIS COMMAND: "}
 
@@ -32,29 +52,59 @@ root:table {
 
 	Clients.CIMConfig.CIMConfigCommand.OPTION_INVALID_CIM_RUNNING:string {"OPTION -{0} IS NOT VALID FOR THIS COMMAND WHEN CIM SERVER IS NOT RUNNING."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUE_IS:string {"{0} VALUE IS {1}."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_IS:string {"PLANNED VALUE IS {0}."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_IS:string {"CURRENT VALUE IS {0}."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_IS:string {"DEFAULT VALUE IS {0}."}
 
-	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_VALUE_CIM_RUNNING:string {"{0} VALUE CAN NOT BE DETERMINED BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING:string {"PLANNED VALUE CAN NOT BE DETERMINED BECAUSE THE CIM SERVER IS NOT RUNNING."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_IS:string {"{0} VALUE FOR THE PROPERTY {1} IS SET TO {2} IN CIMSERVER."}
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING:string {"CURRENT VALUE CAN NOT BE DETERMINED BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING:string {"DEFAULT VALUE CAN NOT BE DETERMINED BECAUSE THE CIM SERVER IS NOT RUNNING."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"{0} VALUE FOR THE PROPERTY {1} CAN NOT BE SET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_IS:string {"PLANNED VALUE FOR THE PROPERTY {0} IS SET TO {1} IN CIMSERVER."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"CURRENT VALUE FOR THE PROPERTY {0} IS SET TO {1} IN CIMSERVER."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_IS:string {"DEFAULT VALUE FOR THE PROPERTY {0} IS SET TO {1} IN CIMSERVER."}
 
-	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_VALUE_IN_FILE:string {"FAILED TO UPDATE THE {0} VALUE OF THE PROPERTY {1} IN CONFIGURATION FILE."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"PLANNED VALUE FOR THE PROPERTY {0} CAN NOT BE SET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CURRENT VALUE FOR THE PROPERTY {0} CAN NOT BE SET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"DEFAULT VALUE FOR THE PROPERTY {0} CAN NOT BE SET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE:string {"FAILED TO UPDATE THE PLANNED VALUE OF THE PROPERTY {0} IN CONFIGURATION FILE."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE:string {"FAILED TO UPDATE THE CURRENT VALUE OF THE PROPERTY {0} IN CONFIGURATION FILE."}
+	
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE:string {"FAILED TO UPDATE THE DEFAULT VALUE OF THE PROPERTY {0} IN CONFIGURATION FILE."}
 
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE:string {"PROPERTY {0} UPDATED IN CONFIGURATION FILE."}
 
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO:string {"THE PROPERTY {0} VALUE IS ALREADY SET TO {1}."}
 
-	Clients.CIMConfig.CIMConfigCommand.PROPERTY_SET_TO_DEFAULT:string {"{0} VALUE FOR THE PROPERTY {1} IS SET TO DEFAULT VALUE IN CIMSERVER."}
-
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_SET_TO_DEFAULT:string {"PLANNED VALUE FOR THE PROPERTY {0} IS SET TO DEFAULT VALUE IN CIMSERVER."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_SET_TO_DEFAULT:string {"CURRENT VALUE FOR THE PROPERTY {0} IS SET TO DEFAULT VALUE IN CIMSERVER."}
+	
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE:string {"PROPERTY {0} IS UNSET IN THE CONFIGURATION FILE."}
 
-	Clients.CIMConfig.CIMConfigCommand.PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"{0} VALUE FOR THE PROPERTY {1} CAN NOT BE UNSET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"PLANNED VALUE FOR THE PROPERTY {0} CAN NOT BE UNSET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CURRENT VALUE FOR THE PROPERTY {0} CAN NOT BE UNSET BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"DEFAULT VALUE FOR THE PROPERTY {0} CAN NOT BE UNSET BECAUSE THE CIM SERVER IS NOT RUNNING."}
 
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET:string {"THE PROPERTY {0} VALUE IS ALREADY UNSET."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"{0} VALUE OF PROPERTIES CAN NOT BE LISTED BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"PLANNED VALUE OF PROPERTIES CAN NOT BE LISTED BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CURRENT VALUE OF PROPERTIES CAN NOT BE LISTED BECAUSE THE CIM SERVER IS NOT RUNNING."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"DEFAULT VALUE OF PROPERTIES CAN NOT BE LISTED BECAUSE THE CIM SERVER IS NOT RUNNING."}
 
 	Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE:string {"NO CONFIGURATION PROPERTIES FOUND IN THE CONFIGURATION FILE."}
 
@@ -187,5 +237,15 @@ root:table {
 	Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR:string {"ERROR, NEW AND OLD PASSWORDS CANNOT BE SAME."}
 
 	Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"UNEXPECTED OPTION."}
+
+
+				// ==========================================================
+        		// Start of platform-specific messages
+        		// ==========================================================
+        		
+        		
+        		// ==========================================================
+        		// End of platform-specific messages
+        		// ==========================================================
 
 }

@@ -816,6 +816,23 @@ Boolean _namespaceDeleteCIM_Namespace(CIMClient& client, const CIMNamespaceName&
     return(true);
 }
 
+Boolean testClassExists(CIMClient & client, const CIMName & className)
+{
+    try
+    {
+        CIMClass thisClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
+                                            className,
+                                            false,true,true);
+        return(true);
+    }
+
+    catch(Exception& e)
+    {
+        cerr << "Error: " << e.getMessage() << " Class " << className.getString() 
+            << " does not exist in Namespace " << PEGASUS_NAMESPACENAME_INTEROP.getString() << endl;
+    }
+    return(false);
+}
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -826,6 +843,7 @@ int main(int argc, char** argv)
     String userName = String::EMPTY;
     String password = String::EMPTY;
     Array<CIMNamespaceName> nameListNew;
+
     try
     {
         client.connect (host, portNumber,
@@ -837,6 +855,18 @@ int main(int argc, char** argv)
         exit(1);
     }
 
+    // Test for required classes to assure that the interop provider and
+    // its corresponding classes exist.
+    assert(testClassExists(client, CIM_NAMESPACE_CLASSNAME));
+    assert(testClassExists(client, PG_NAMESPACE_CLASSNAME));
+    assert(testClassExists(client, CIM_OBJECTMANAGER_CLASSNAME));
+    assert(testClassExists(client, CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME));
+    assert(testClassExists(client, PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME));
+    assert(testClassExists(client, CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
+
+    // Test namespace usage with both __namespace and CIM_Namespace.
+    // __namespace is called old
+    // CIM_Namespace is called new for these tests.
     Array<CIMNamespaceName> nameListOld = _getNamespacesOld(client);
 
     CDEBUG("Got Namespaces with __Namespace. Now Validate");

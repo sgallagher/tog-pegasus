@@ -1176,6 +1176,7 @@ void CIMProviderCommand::_ListProviders
     	String providerName;
 	Array<String> moduleNames;
 	Array<CIMInstance> instances;
+	Boolean moduleExist = false;
 
 	if ( _moduleSet )
 	{
@@ -1201,9 +1202,16 @@ void CIMProviderCommand::_ListProviders
 			instance.findProperty(_PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
 		    if (String::equalNoCase(moduleName, _moduleName))
 		    {
+			moduleExist = true;
 		    	outPrintWriter << providerName << endl;;
 		    }
 	        }  
+		
+		if (!moduleExist)
+		{
+		    cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+		    exit(-1);
+		}
 	    }
 	}
 	else
@@ -1219,23 +1227,6 @@ void CIMProviderCommand::_ListProviders
 	    }
 	    else
 	    {
-/*
-	      if (_statusSet)
-	      {
-	        // List all the registered modules and status 
-String test;
-test = "MODULE";
-for (Uint32 i=0; i <10; i++)
-{
-    test.append(" ");
-}
-test.append("STATUS");
-outPrintWriter << test << endl;
-		//outPrintWriter << "MODULE						STATUS" << endl;
-	      }
-	      else
-	      {
-*/
 	        // List all the registered provider modules 
 	        for (Uint32 i = 0; i < moduleInstances.size(); i++)
 	        {
@@ -1244,8 +1235,6 @@ outPrintWriter << test << endl;
 			instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
 		    moduleNames.append(moduleName);
 		    instances.append(instance);
-
-	//	    outPrintWriter << moduleName << endl;
 	        }  
 
 		_printList(moduleNames, instances, outPrintWriter, errPrintWriter);

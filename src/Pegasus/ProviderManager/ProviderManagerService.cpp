@@ -2057,7 +2057,8 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 
     response->dest = request->queueIds.top();
 
-    EnableIndicationsResponseHandler handler(request, response, this);
+    // ATTN-YZ-P2-20020821: Hack: in order to continue indication work 
+    static EnableIndicationsResponseHandler handler(request, response, this);
 
     try
     {

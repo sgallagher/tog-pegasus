@@ -92,8 +92,9 @@ void _generateIndication (
 
         indicationInstance.setPath(path);
 
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
+	CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+	indicationInstance.addProperty
+            (CIMProperty ("IndicationTime", currentDateTime));
 
         char buffer[32];
         sprintf(buffer, "%d", _nextUID++);

@@ -127,7 +127,7 @@ void IndicationFormatter::validateTextFormat (
 	        String propertyTypeStr;
 	        String propertyIndexStr;
 	        char propertyIndexBuffer[32];
-	        Uint32 propertyIndex;
+	        Sint32 propertyIndex;
 
 	        Uint32 comma;
 	        Uint32 leftBracket;
@@ -231,7 +231,7 @@ void IndicationFormatter::validateTextFormat (
 
            // check the property index
            if ((propertyIndex < 0) ||
-	       (propertyIndex >= textFormatParams.size()))
+	       ((Uint32)propertyIndex >= textFormatParams.size()))
            {
 	       // property index is out of bounds
 	       MessageLoaderParms parms(
@@ -561,7 +561,7 @@ String IndicationFormatter::getFormattedIndText(
     CIMValue textFormatValue;
     CIMValue textFormatParamsValue;
 
-    Array<String> textFormatParams = NULL;
+    Array<String> textFormatParams;
 
         // get TextFormat from subscription
         Uint32 textFormatPos =
@@ -750,7 +750,7 @@ String IndicationFormatter::_formatIndicationText(
 
     String propertyIndexStr;
     char propertyIndexBuffer[16];
-    Uint32 propertyIndex;
+    Sint32 propertyIndex;
 
     Uint32 leftBrace = textFormat.find("{");
     Uint32 rightBrace;
@@ -836,7 +836,7 @@ String IndicationFormatter::_formatIndicationText(
 
             // property index is out of range
             if ((propertyIndex < 0) ||
-                (propertyIndex >= textFormatParams.size()))
+                ((Uint32)propertyIndex >= textFormatParams.size()))
             {
 		propertyValue = "UNKNOWN";
             }
@@ -991,7 +991,7 @@ String IndicationFormatter::_getArrayValues(
     Uint32 arraySize = propertyValue.getArraySize();
 
     char arrayIndexBuffer[16];
-    Uint32 arrayIndex;
+    Sint32 arrayIndex = 0;
     Uint32 sizeOfArrayIndexStr = arrayIndexStr.size();
 
     // there is an index value enclosed in brackets (e.g. [2])
@@ -1015,7 +1015,7 @@ String IndicationFormatter::_getArrayValues(
 
     // Array index is out of range
     if (sizeOfArrayIndexStr != 0 &&
-	((arrayIndex < 0) || (arrayIndex >= arraySize)))
+	((arrayIndex < 0) || ((Uint32)arrayIndex >= arraySize)))
     {
 	arrayValues = "UNKNOWN";
 
@@ -1135,7 +1135,7 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%u",
+		    sprintf(propertyValueBuffer, "%llu",
 			propertyValueUint64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1149,7 +1149,7 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%u",
+	        sprintf(propertyValueBuffer, "%llu",
 		    propertyValueUint64[arrayIndex]);
 	        arrayValues = propertyValueBuffer;
 	    }
@@ -1267,7 +1267,7 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%i",
+		    sprintf(propertyValueBuffer, "%lli",
 			propertyValueSint64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1281,7 +1281,7 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%i",
+	        sprintf(propertyValueBuffer, "%lli",
 		    propertyValueSint64[arrayIndex]);
 	        arrayValues = propertyValueBuffer;
 	    }

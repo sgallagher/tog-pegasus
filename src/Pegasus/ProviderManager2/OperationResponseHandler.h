@@ -52,10 +52,6 @@
 #include <Pegasus/Common/CIMIndication.h>
 #include <Pegasus/Common/CIMValue.h>
 
-#include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/OperationContextInternal.h>
-
-#include <Pegasus/Common/ObjectNormalizer.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -106,6 +102,7 @@ public:
     }
 
 protected:
+
     // the default for all derived handlers. Some handlers may not apply
     // async behavior because their callers cannot handle partial responses.
     virtual Boolean isAsync(void) const
@@ -165,37 +162,6 @@ public:
         CIMGetInstanceResponseMessage * response)
     : OperationResponseHandler(request, response)
     {
-        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // Attempt to get the cached class definition used to validate results of this
-        // operation. If it does not exist, then this feature is disabled for this
-        // operation.
-        try
-        {
-            CachedClassDefinitionContainer container =
-                request->operationContext.get(CachedClassDefinitionContainer::NAME);
-
-            CIMClass cimClass = container.getClass();
-
-            _normalizer =
-                ObjectNormalizer(
-                    cimClass,
-                    request->localOnly,
-                    request->includeQualifiers,
-                    request->includeClassOrigin);
-        }
-        catch(Exception &)
-        {
-            // Do nothing. Container is missing, which implies normalization is disabled
-            // for this operation.
-        }
-        #endif
-    }
-
-    virtual void deliver(const CIMInstance & cimInstance)
-    {
-        // If the normalizer was seeded with a class definition, the results are
-        // normalized. Otherwise, the normalizer does nothing.
-        deliver(_normalizer.processInstance(cimInstance));
     }
 
     virtual String getClass(void) const
@@ -223,10 +189,6 @@ public:
             setStatus(CIM_ERR_NOT_FOUND);
         }
     }
-
-private:
-    ObjectNormalizer _normalizer;
-
 };
 
 class EnumerateInstancesResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
@@ -237,37 +199,6 @@ public:
         CIMEnumerateInstancesResponseMessage * response)
     : OperationResponseHandler(request, response)
     {
-        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // Attempt to get the cached class definition used to validate results of this
-        // operation. If it does not exist, then this feature is disabled for this
-        // operation.
-        try
-        {
-            CachedClassDefinitionContainer container =
-                request->operationContext.get(CachedClassDefinitionContainer::NAME);
-
-            CIMClass cimClass = container.getClass();
-
-            _normalizer =
-                ObjectNormalizer(
-                    cimClass,
-                    request->localOnly,
-                    request->includeQualifiers,
-                    request->includeClassOrigin);
-        }
-        catch(Exception &)
-        {
-            // Do nothing. Container is missing, which implies normalization is disabled
-            // for this operation.
-        }
-        #endif
-    }
-
-    virtual void deliver(const CIMInstance & cimInstance)
-    {
-        // If the normalizer was seeded with a class definition, the results are
-        // normalized. Otherwise, the normalizer does nothing.
-        deliver(_normalizer.processInstance(cimInstance));
     }
 
     virtual String getClass(void) const
@@ -282,10 +213,6 @@ public:
 
         msg.cimNamedInstances = getObjects();
     }
-
-private:
-    ObjectNormalizer _normalizer;
-
 };
 
 class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
@@ -296,37 +223,6 @@ public:
         CIMEnumerateInstanceNamesResponseMessage * response)
     : OperationResponseHandler(request, response)
     {
-        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // Attempt to get the cached class definition used to validate results of this
-        // operation. If it does not exist, then this feature is disabled for this
-        // operation.
-        try
-        {
-            CachedClassDefinitionContainer container =
-                request->operationContext.get(CachedClassDefinitionContainer::NAME);
-
-            CIMClass cimClass = container.getClass();
-
-            _normalizer =
-                ObjectNormalizer(
-                    cimClass,
-                    false,
-                    false,
-                    false);
-        }
-        catch(Exception &)
-        {
-            // Do nothing. Container is missing, which implies normalization is disabled
-            // for this operation.
-        }
-        #endif
-    }
-
-    virtual void deliver(const CIMObjectPath & cimObjectPath)
-    {
-        // If the normalizer was seeded with a class definition, the results are
-        // normalized. Otherwise, the normalizer does nothing.
-        deliver(_normalizer.processInstanceObjectPath(cimObjectPath));
     }
 
     virtual String getClass(void) const
@@ -341,10 +237,6 @@ public:
 
         msg.instanceNames = getObjects();
     }
-
-private:
-    ObjectNormalizer _normalizer;
-
 };
 
 class CreateInstanceResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler

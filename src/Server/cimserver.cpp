@@ -542,6 +542,11 @@ int main(int argc, char** argv)
 MessageLoader::_useProcessLocale = true; 
 //l10n
 
+//l10n
+#if defined(PEGASUS_OS_AIX) && defined(PEGASUS_HAS_MESSAGES)
+setlocale(LC_ALL, "");
+#endif
+
 #ifdef PEGASUS_OS_OS400
 
   VFYPTRS_INCDCL;               // VFYPTRS local variables

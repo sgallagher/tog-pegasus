@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 void PEGASUS_EXPORT disable_cancel(void);
 void PEGASUS_EXPORT enable_cancel(void);
-void PEGASUS_EXPORT native_cleanup_push( void (*)(void *), void * );
+//void PEGASUS_EXPORT native_cleanup_push( void (*)(void *), void * );
 void PEGASUS_EXPORT native_cleanup_pop(Boolean execute);
 void PEGASUS_EXPORT init_crit(PEGASUS_CRIT_TYPE *crit);
 void PEGASUS_EXPORT enter_crit(PEGASUS_CRIT_TYPE *crit);
@@ -457,10 +457,10 @@ class PEGASUS_EXPORT AtomicInt
       Uint32  value(void);
 
       void operator++(void); // prefix
-      inline void operator++(int); // postfix
+      void operator++(int); // postfix
 
       void operator--(void); // prefix
-      inline void operator--(int) ; // postfix
+      void operator--(int) ; // postfix
 
       Uint32 operator+(const AtomicInt& val);
       Uint32 operator+(Uint32 val);

@@ -136,7 +136,7 @@ inline void enable_cancel(void)
 #define native_cleanup_pop(execute) \
    pthread_cleanup_pop_restore_np(execute)
 
-void sleep(int msec)
+inline void sleep(int msec)
 {
   struct timespec timeout;
   timeout.tv_sec = msec / 1000;

@@ -297,7 +297,7 @@ Condition::Condition() : _disallow(0)
 }
 
 //#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-Condition::Condition(const Pegasus::Mutex& mutex)  : _disallow(0)
+Condition::Condition(const Mutex& mutex)  : _disallow(0)
 {
    _cond_mutex = const_cast<Mutex *>(&mutex);
    _destroy_mut = false;

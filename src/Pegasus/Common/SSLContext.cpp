@@ -311,7 +311,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
     SSL_CTX_set_verify(sslContext, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, 
         prepareForCallback);
 #else
-    if (verifyCert != NULL)
+    if (verify_certificate != NULL)
     {
         SSL_CTX_set_verify(sslContext, 
             SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);

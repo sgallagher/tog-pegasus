@@ -13,9 +13,9 @@
 <p style="margin-top: 0; margin-bottom: 0"><b>PEP #:</b> 103</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Title: </b>OpenPegasus Version 2.3 
 Release Readme file</p>
-<p style="margin-top: 0; margin-bottom: 0"><b>Version: </b>1.0</p>
+<p style="margin-top: 0; margin-bottom: 0"><b>Version: </b>1.1</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Created:</b> 12 November 2003</p>
-<p style="margin-top: 0; margin-bottom: 0"><b>Authors: </b>Karl Schopmeyer</p>
+<p style="margin-top: 0; margin-bottom: 0"><b>Authors: </b>Karl Schopmeyer, Konrad Rzeszutek</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Status:&nbsp; </b>draft</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Version History:</b></p>
 <table border="1" cellspacing="1" bordercolordark="#666666"
@@ -32,6 +32,12 @@ Release Readme file</p>
     <td align="center">12 November 2003</td>
     <td align="center">Karl Schopmeyer</td>
     <td>Update from 2.2 Release notes. Converted to HTML</td>
+  </tr>
+  <tr>
+    <td align="center">1.1</td>
+    <td align="center">March 10 2004</td>
+    <td align="center">Konrad Rzeszutek</td>
+    <td>Added sections describing SSL and PAM configuration</td>
   </tr>
   <tr>
     <td align="center">&nbsp;</td>
@@ -112,6 +118,9 @@ Providers</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Configuring SSL">Configuring Pegasus to use SSL</a>.
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<a href="#Configuring PAM">Configuring Pegasus to use PAM</a>.
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Testing with ICU enabled">Testing with ICU enabled </a>
@@ -891,7 +900,44 @@ the cleartext 5988 port. Modify your cimserver_planned.conf
 to include:
 <blockquote><pre>
 	enableHttpConnection=false
-</pre></blockquote><h1><a name="Testing with ICU enabled">Testing with ICU enabled</a></h1><p>
+</pre></blockquote>
+
+<h1><a name="Configuring PAM">Configuring Pegasus to use PAM</a></h1><p>
+
+In order to use PAM Authentication you have to compile Pegasus
+with one extra enviroment flags:
+<blockquote><pre>
+	PEGASUS_PAM_AUTHENTICATION=1
+</blockquote></pre>
+You can also set the PEGASUS_ALWAYS_USE_PAM=1 flag to disable
+Pegasus password authentication using a flag text-file (recommended).
+<br>
+After compiling (refer to section <a href="#Building Pegasus">Building Pegasus </a>
+ for details), follow these two important steps:
+<br>
+<ul>
+ <ul>a).  Copy the rpm/wbem file in-to /etc/pam.d directory.
+      This notifies PAM what kind of libraries to use when authenticating
+      Pegasus.</uL>
+ <ul>
+ b).  Edit  cimserver_planned.conf to include:
+	<blockquote><pre>
+	usePAMAuthentication=true
+	enableAuthentication=true
+	</blockquote></pre>
+      And if you want to allow 'root' to login (*not recommended*)
+
+	<blockquote><pre>
+	enableRemotePrivilegedUserAccess=true
+	</blockquote></pre>
+  </ul>
+</ul>
+The user is authenticated using HTTP Basic method, thererfore it is
+strongly suggested you use SSL connection instead of normal HTTP connection.
+Refer to section  
+<a href="#Configuring SSL">Configuring Pegasus to use SSL</a> for more details on creating and using SSL keys.
+</p>
+<h1><a name="Testing with ICU enabled">Testing with ICU enabled</a></h1><p>
 ICU (International Components for Unicode) refers to the set of libraries that
 Pegasus uses to run globalized. For example: these libraries are used to
 load messages in different languages, format currency and numbers according to

@@ -361,6 +361,16 @@ ifdef PEGASUS_ENABLE_SLP
   DEFINES+= -DPEGASUS_ENABLE_SLP
 endif
 
+# set PEGASUS_DEBUG into the DEFINES if it exists.
+# Note that this flag is the general separator between
+# debug compiles and non-debug compiles and controls both
+# the use of any debug options on compilers and linkers
+# and general debug support that we want to be turned on in
+# debug mode. 
+ifdef PEGASUS_DEBUG
+  DEFINES+= -DPEGASUS_DEBUG
+endif
+
 # compile in the experimental APIs
 DEFINES+= -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 

@@ -14,7 +14,6 @@ DEFINES += -DPEGASUS_OS_DARWIN
 
 ifdef PEGASUS_DEBUG
 FLAGS = -g -W -Wall -Wno-unused -fPIC
-DEFINES += -DPEGASUS_DEBUG
 else
 FLAGS = -O2 -W -Wall -Wno-unused -fPIC
 endif

@@ -69,7 +69,7 @@ endif
 
 
 ifdef PEGASUS_DEBUG
-FLAGS += -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -DPEGASUS_DEBUG
+FLAGS += -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 else
 FLAGS += -O2 -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif

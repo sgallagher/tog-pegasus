@@ -30,7 +30,6 @@ endif
 
 ifdef PEGASUS_DEBUG
 FLAGS = -g -pto -KPIC -mt -xs -xildoff
-DEFINES += -DPEGASUS_DEBUG
 else
 FLAGS = -O -pto -KPIC -mt -xildoff
 endif

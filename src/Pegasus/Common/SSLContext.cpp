@@ -505,45 +505,6 @@ void SSLContextRep::_randomInit(const String& randomFile)
     Boolean ret;
     int retVal = 0;
 
-    const int DEV_RANDOM_BYTES = 64;	        /* how many bytes to read */
-    const String devRandom = "/dev/random";     /* random device name */
-    const String devUrandom = "/dev/urandom";   /* pseudo-random device name */
-
-#ifdef PEGASUS_SSL_DEVRANDOM
-
-    if ( FileSystem::exists(devRandom) )
-    {
-        while ( RAND_status() == 0 )
-        {
-            //
-            // Always attempt to seed from good entropy sources, first
-            // try /dev/random
-            //
-            retVal = RAND_load_file(devRandom.getCString(), DEV_RANDOM_BYTES);
-            if (retVal <= 0)
-            {
-                break;
-            }
-        }
-    }
-
-    if ( FileSystem::exists(devUrandom) )
-    {
-        while ( RAND_status() == 0 )
-        {
-            //
-            // If there isn't /dev/random try /dev/urandom
-            //
-            retVal = RAND_load_file(devUrandom.getCString(), DEV_RANDOM_BYTES);
-            if (retVal <= 0)
-            {
-                break;
-            }
-        }
-    }
-#endif  /* PEGASUS_SSL_DEVRANDOM */
-
-
 #ifdef PEGASUS_SSL_RANDOMFILE
     if ( RAND_status() == 0 )
     {

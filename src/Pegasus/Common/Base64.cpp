@@ -30,6 +30,7 @@
 #include "Base64.h"
 #include <cassert>
 #include <strstream>
+#include <string>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/Array.h>
@@ -105,7 +106,7 @@ The algorithm goes thru each three bytes of data at a time. The first thing I do
 inline Array<Uint8> Base64::decode(const Array<Sint8> strInput)
 {
     //Strip any non-base64 characters from the input
-    std::string str;
+    PEGASUS_STD(string) str;
     for (Uint32 j=0;j<strInput.size();j++)
     {
         if (_IsBase64(strInput[j]))

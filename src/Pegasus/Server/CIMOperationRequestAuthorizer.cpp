@@ -105,6 +105,29 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
     PEG_METHOD_EXIT();
 }
 
+// Code is duplicated in CIMOperationRequestDecoder
+void CIMOperationRequestAuthorizer::sendMethodError(
+   Uint32 queueId,
+   HttpMethod httpMethod,
+   const String& messageId,
+   const CIMName& methodName,
+   const CIMException& cimException)
+{
+    PEG_METHOD_ENTER(TRC_SERVER,
+                     "CIMOperationRequestAuthorizer::sendMethodError");
+
+    Array<Sint8> message;
+    message = XmlWriter::formatSimpleMethodErrorRspMessage(
+        methodName,
+        messageId,
+        httpMethod,
+        cimException);
+
+    sendResponse(queueId, message);
+
+    PEG_METHOD_EXIT();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -366,12 +389,24 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
             description.append(" in the namespace ");
             description.append(nameSpace.getString());
 
-            sendIMethodError(
-               queueId,
-               request->getHttpMethod(),
-               ((CIMRequestMessage*)request)->messageId,
-               cimMethodName,
-               PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+            if (cimMethodName == "InvokeMethod")
+            {
+               sendMethodError(
+                  queueId,
+                  request->getHttpMethod(),
+                  ((CIMRequestMessage*)request)->messageId,
+                  ((CIMInvokeMethodRequestMessage*)request)->methodName,
+                  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+            }
+            else
+            {
+               sendIMethodError(
+                  queueId,
+                  request->getHttpMethod(),
+                  ((CIMRequestMessage*)request)->messageId,
+                  cimMethodName,
+                  PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+            }
 
             PEG_METHOD_EXIT();
 
@@ -393,12 +428,24 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
       String description =
 	 "Remote privileged user access is not enabled.";
 
-      sendIMethodError(
-	 queueId,
-         request->getHttpMethod(),
-	 ((CIMRequestMessage*)request)->messageId,
-	 cimMethodName,
-	 PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+      if (cimMethodName == "InvokeMethod")
+      {
+         sendMethodError(
+            queueId,
+            request->getHttpMethod(),
+            ((CIMRequestMessage*)request)->messageId,
+            ((CIMInvokeMethodRequestMessage*)request)->methodName,
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+      }
+      else
+      {
+         sendIMethodError(
+            queueId,
+            request->getHttpMethod(),
+            ((CIMRequestMessage*)request)->messageId,
+            cimMethodName,
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, description));
+      }
 
       PEG_METHOD_EXIT();
 

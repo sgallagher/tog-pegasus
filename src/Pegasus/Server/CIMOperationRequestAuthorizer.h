@@ -62,6 +62,13 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 	 const CIMName& methodName,
 	 const CIMException& cimException);
 
+      void sendMethodError(
+         Uint32 queueId,
+         HttpMethod httpMethod,
+         const String& messageId,
+         const CIMName& methodName,
+         const CIMException& cimException);
+
       virtual void handleEnqueue(Message *);
 
       virtual void handleEnqueue();

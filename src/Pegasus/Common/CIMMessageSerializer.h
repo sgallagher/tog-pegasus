@@ -347,11 +347,9 @@ private:
         Array<Sint8>& out,
         CIMProcessIndicationResponseMessage* message);
 
-#if 0    // ATTN: This message type is currently not defined
     static void _serializeCIMConsumeIndicationResponseMessage(
         Array<Sint8>& out,
         CIMConsumeIndicationResponseMessage* message);
-#endif
 
     static void _serializeCIMDisableModuleResponseMessage(
         Array<Sint8>& out,

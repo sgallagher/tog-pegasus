@@ -435,7 +435,6 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMProcessIndicationResponseMessage(
                 out, (CIMProcessIndicationResponseMessage*)cimMessage);
             break;
-#if 0    // ATTN: These message types are currently not defined
         case CIM_CONSUME_INDICATION_RESPONSE_MESSAGE:
             _serializeCIMConsumeIndicationResponseMessage(
                 out, (CIMConsumeIndicationResponseMessage*)cimMessage);
@@ -452,7 +451,6 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             //_serializeCIMNotifyProviderTerminationResponseMessage(
             //    out, (CIMNotifyProviderTerminationResponseMessage*)cimMessage);
             break;
-#endif
         case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
             PEGASUS_ASSERT(0);
@@ -1569,7 +1567,6 @@ void CIMMessageSerializer::_serializeCIMProcessIndicationResponseMessage(
     // No additional attributes to serialize!
 }
 
-#if 0    // ATTN: This message type is currently not defined
 //
 // _serializeCIMConsumeIndicationResponseMessage
 //
@@ -1579,7 +1576,6 @@ void CIMMessageSerializer::_serializeCIMConsumeIndicationResponseMessage(
 {
     // No additional attributes to serialize!
 }
-#endif
 
 //
 // _serializeCIMDisableModuleResponseMessage

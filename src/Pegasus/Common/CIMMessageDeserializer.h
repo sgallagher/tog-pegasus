@@ -289,10 +289,8 @@ private:
     static CIMProcessIndicationResponseMessage*
         _deserializeCIMProcessIndicationResponseMessage(XmlParser& parser);
 
-#if 0    // ATTN: This message type is currently not defined
     static CIMConsumeIndicationResponseMessage*
         _deserializeCIMConsumeIndicationResponseMessage(XmlParser& parser);
-#endif
 
     static CIMDisableModuleResponseMessage*
         _deserializeCIMDisableModuleResponseMessage(XmlParser& parser);

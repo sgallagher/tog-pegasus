@@ -416,7 +416,6 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
             message = _deserializeCIMProcessIndicationResponseMessage(parser);
             break;
-#if 0    // ATTN: These message types are currently not defined
         case CIM_CONSUME_INDICATION_RESPONSE_MESSAGE:
             message = _deserializeCIMConsumeIndicationResponseMessage(parser);
             break;
@@ -430,7 +429,6 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderTerminationResponseMessage(parser);
             break;
-#endif
         case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
             PEGASUS_ASSERT(0);
@@ -2334,7 +2332,6 @@ CIMMessageDeserializer::_deserializeCIMProcessIndicationResponseMessage(
     return(message);
 }
 
-#if 0    // ATTN: This message type is currently not defined
 //
 // _deserializeCIMConsumeIndicationResponseMessage
 //
@@ -2350,7 +2347,6 @@ CIMMessageDeserializer::_deserializeCIMConsumeIndicationResponseMessage(
 
     return(message);
 }
-#endif
 
 //
 // _deserializeCIMDisableModuleResponseMessage

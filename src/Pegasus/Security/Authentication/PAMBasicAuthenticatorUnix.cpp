@@ -649,10 +649,8 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
                     //
                     // Get environment variables:
                     //
-                    const char* pegasusHome = getenv("PEGASUS_HOME");
-
-                    String certpath = FileSystem::getAbsolutePath(
-                        pegasusHome, PEGASUS_PAM_STANDALONE_PROC_NAME);	
+                    String certpath = ConfigManager::getHomedPath(
+			PEGASUS_PAM_STANDALONE_PROC_NAME);
                     if (execl((const char*)certpath.getCString(),
                               (const char*)certpath.getCString(), (char*)0) < 0)
                     {

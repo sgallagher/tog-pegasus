@@ -58,6 +58,7 @@ CIMOMHandle::CIMOMHandle(void)
         // No BinaryMessageHandler exists.  We must use ClientCIMOMHandleRep
         _rep = new ClientCIMOMHandleRep();
     }
+    bmh.release();
 }
 
 #ifdef PEGASUS_OS_OS400
@@ -75,6 +76,7 @@ CIMOMHandle::CIMOMHandle(Uint32 os400UserStateKey)
         // No BinaryMessageHandler exists.  We must use ClientCIMOMHandleRep
         _rep = new ClientCIMOMHandleRep();
     }
+    bmh.release();
 }
 
 void CIMOMHandle::setOS400ProfileHandle(const char * profileHandle)

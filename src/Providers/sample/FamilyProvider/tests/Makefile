@@ -97,47 +97,54 @@ poststarttests:
 
 # The following actually generates a CIMException. Investigate why KS 20030608.
 #	CLI an  TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -rc  TST_Lineage -r -s -count 0
-	
 #	CLI an  TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -rc  TST_Lineage -r junk -s -count 0
 
-	@echo +++++ TST_Person Testing with result Class filters but with bad Class
+	@echo +++++ TST_Person with result Class filters but with bad Class
 #To Be Done.
 
-	@echo +++++ TST_PersonDynamic Testing Family provider in  $(SAMPLEPROVIDERNS)
+	@echo +++++ TST_PersonDynamic Family class Operations in  $(SAMPLEPROVIDERNS)
 
 	CLI ei TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI ni TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI rn TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI r  TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 2
-#TempBypassError	CLI a  TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 2 
+	CLI a  TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 2
+
+	@echo +++++ TST_PersonDynamic and Family provider with simple class operations
+ 
 	CLI rn TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI r TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
-# temp bypass error	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 
-	@echo Test with bad name (lower case)
+	@echo TST_PersonDynamic with bad object name (lower case)
 
 	CLI rn TST_PersonDynamic.name=@father@ -n $(SAMPLEPROVIDERNS) -s -count 0
 
-	@echo Test resultClass resultClass/AssocClassoptions
+	@echo Test TST_PersonDynamic classes with  resultClass/AssocClass options
+
 	CLI rn TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 1
 	CLI r TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 1
-	
 	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
-#Temp Bypass Error	CLI a TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 5
+	CLI a TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
+
+	@echo TST_PersonDynamic instances with resultClass/AssociationClass options
+
 	CLI rn TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 3
 	CLI r TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 3
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
-#Temp bypass error	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
-#TempBypass	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
 
-	@echo Test resultClass role option
+	@echo TST_PersonDynamic association with resultClass role option
 
-	CLI rn TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 1
-# END_OF_FILE
-	
+	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_Lineage -s -count 0
+	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_PersonDynamic -s -count 2
+	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_Person -s -count 0
+
+
 general:
 
 clean:
-
+# END_OF_FILE

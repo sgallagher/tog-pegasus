@@ -45,7 +45,6 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
 #include <sched.h>
@@ -70,8 +69,6 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
-
-typedef Uint32 PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
 #include <sched.h>
@@ -148,11 +145,13 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 #endif
 
 
+// to reduce the number of wasted bytes:
+// reduce GUARD_SIZE
+// eliminate guard checking from SUBALLOC_NODEs 
+// 
+
 class PEGASUS_SUBALLOC_LINKAGE peg_suballocator 
 {
-   public:
-      
-            
    private:
       peg_suballocator(const peg_suballocator &);
       peg_suballocator & operator = (const peg_suballocator &);
@@ -171,7 +170,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 	    struct _subAllocNode *next;
 	    struct _subAllocNode *prev;
 	    Boolean isHead;
-	    Boolean avail;
+	    int avail;
 	    Uint32 allocSize;
 	    Uint8 guardPre[GUARD_SIZE];
 	    void *allocPtr;
@@ -194,14 +193,14 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       Uint32 totalAllocs;
       Uint32 totalMemoryInUse;
       
-      static const Uint32 preAlloc[][16];
-      static const Uint32 step[][16];
+      static const Uint32 preAlloc[3][16];
+      static const Uint32 step[3][16];
       
       Sint32 initialized;
       Sint32 init_count;
       PEGASUS_MUTEX_T init_mutex;
+      Boolean debug_mode;
       
-
       int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
       void WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result);
       void WAIT_MUTEX(PEGASUS_MUTEX_T *mut);
@@ -229,14 +228,16 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       Sint8 global_log_filename[MAX_PATH_LEN + 1];
       FILE *dumpFile ;
       static const Uint8 guard[];
-
+      static const Uint8 alloc_pattern;
+      static const Uint8 delete_pattern;
+      
       static Boolean _CheckGuard(SUBALLOC_NODE *);
 
 
    public:
 
-      peg_suballocator(void);
-      peg_suballocator(Sint8 *log_filename);
+      peg_suballocator(Boolean mode = true);
+      peg_suballocator(Sint8 *log_filename, Boolean mode = true);
       virtual ~peg_suballocator(void);
 
       inline Boolean PEGASUS_DEBUG_ALLOC(void) { return _debug; }
@@ -260,11 +261,11 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 
       Boolean InitializeSubAllocator(Sint8 *f = NULL);
       SUBALLOC_HANDLE *InitializeProcessHeap(Sint8 *f = NULL);
-      void *vs_malloc(size_t size, void *handle, Sint8 *f = 0, Sint32 l = 0);
-      void *vs_calloc(size_t num, size_t size, void *handle, Sint8 *f = 0, Sint32 l = 0);
-      void *vs_realloc(void *pblock, size_t newsize, void *handle, Sint8 *f = 0, Sint32 l = 0);
-      Sint8 * vs_strdup(const Sint8 *string, void *handle, Sint8 *f = 0, Sint32 l = 0);
-      void vs_free(void *m);
+      void *vs_malloc(size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
+      void *vs_calloc(size_t num, size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
+      void *vs_realloc(void *pblock, size_t newsize, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
+      Sint8 * vs_strdup(const Sint8 *string, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
+      void vs_free(void *m, int type = NORMAL);
       Boolean _UnfreedNodes(void *handle);
       void DeInitSubAllocator(void *handle);
       static void _CheckNode(void *m);

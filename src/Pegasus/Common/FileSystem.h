@@ -311,6 +311,24 @@ public:
     */
     static Boolean changeFilePermissions(const String& path, mode_t mode);
 
+    /**
+       Return OS path specific delimiter.
+       
+       @return delimiter specific to the platform
+    */
+    static String getPathDelimiter();
+
+    /**
+       Returns the absolute pathname for the specified filename.
+       
+       @param paths directories seperated by an OS specific delimiter to search
+       @param filename filename to search for in the paths
+
+       @return the full absolute pathname to the found filename or an empty
+       string on failure.
+    */
+    static String getAbsoluteFileName(const String &paths, const String &filename);
+       
 private:
 
     FileSystem() { }
@@ -422,6 +440,15 @@ inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
     os.open(path.getCString(), PEGASUS_STD(ios::app));
 #endif
     return !!os;
+}
+
+inline String FileSystem::getPathDelimiter() 
+{
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+  return String(";");
+#else
+  return String(":");
+#endif
 }
 
 /** Get the next line from the input file.

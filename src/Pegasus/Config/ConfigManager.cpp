@@ -101,6 +101,7 @@ SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner
 RepositoryPropertyOwner* ConfigManager::repositoryOwner= new RepositoryPropertyOwner;
 ShutdownPropertyOwner*   ConfigManager::shutdownOwner= new ShutdownPropertyOwner;
 FileSystemPropertyOwner* ConfigManager::fileSystemOwner= new FileSystemPropertyOwner;
+ProviderDirPropertyOwner* ConfigManager::providerDirOwner= new ProviderDirPropertyOwner;
 
 
 
@@ -150,7 +151,7 @@ static struct OwnerEntry _properties[] =
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
-    {"providerDir",         (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
+    {"providerDir",         (ConfigPropertyOwner* )ConfigManager::providerDirOwner},
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSubscriptionsForNonprivilegedUsers", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 };
@@ -868,9 +869,31 @@ String ConfigManager::getHomedPath(const String& value)
     //
     // Get the pegasusHome and prepend it
     //
-    homedPath = _pegasusHome + "/" + value;
-  }
 
+    String temp = value;
+    Uint32 pos =0;
+    Uint32 token=0;
+    do {
+      if (( pos = temp.find(":")) == PEG_NOT_FOUND) {
+	pos = temp.size();
+	token = 0;
+      }
+      else {
+	  token = 1;
+      }
+      if  (System::is_absolute_path((const char *)temp.subString(0,pos).getCString())) 
+      {
+	homedPath.append(temp.subString(0,pos));
+      } else
+         homedPath.append( _pegasusHome + "/" + temp.subString(0, pos));
+
+      if (token == 1)
+	homedPath.append(":");
+      temp.remove(0,pos+token);	
+    }
+    while ( temp.size() > 0 );	
+   
+  }
   return homedPath;
 }
      

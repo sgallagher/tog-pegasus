@@ -58,6 +58,7 @@
 #include <Pegasus/Config/RepositoryPropertyOwner.h>
 #include <Pegasus/Config/ShutdownPropertyOwner.h>
 #include <Pegasus/Config/FileSystemPropertyOwner.h>
+#include <Pegasus/Config/ProviderDirPropertyOwner.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -171,6 +172,7 @@ public:
 
     static FileSystemPropertyOwner*   fileSystemOwner; 
 
+    static ProviderDirPropertyOwner*	providerDirOwner;
     /** 
     Construct the singleton instance of the ConfigManager and return a 
     pointer to that instance.

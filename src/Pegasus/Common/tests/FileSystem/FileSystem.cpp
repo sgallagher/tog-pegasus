@@ -196,7 +196,14 @@ int main(int argc, char** argv)
 	assert(FileSystem::exists(FILE1));
 	assert(!FileSystem::exists(FILE2));
     }
-
+     // Test getFileNameFromPath
+    {
+        FileSystem::changeDirectory(path);
+    	String pathName = FileSystem::getAbsoluteFileName("./testdir","a");
+	assert(pathName.size()!=0);	// It should be there.
+	pathName = FileSystem::getAbsoluteFileName("./testdir","#$@#(@$#!");
+	assert(pathName.size()==0);	// It should not be there.	
+    }
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

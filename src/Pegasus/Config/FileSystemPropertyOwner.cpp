@@ -57,7 +57,6 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"repositoryDir", "repository", 0, 0, 0, 1},
-    {"providerDir", "lib", 0, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -67,14 +66,12 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 FileSystemPropertyOwner::FileSystemPropertyOwner()
 {
     _repositoryDir = new ConfigProperty;
-    _providerDir = new ConfigProperty;
 }
 
 /** Destructor  */
 FileSystemPropertyOwner::~FileSystemPropertyOwner()
 {
     delete _repositoryDir;
-    delete _providerDir;
 }
 
 /**
@@ -110,18 +107,6 @@ void FileSystemPropertyOwner::initialize()
             _repositoryDir->domainSize = properties[i].domainSize;
             _repositoryDir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(properties[i].propertyName, "providerDir"
-))
-        {
-            _providerDir->propertyName = properties[i].propertyName;
-            _providerDir->defaultValue = properties[i].defaultValue;
-            _providerDir->currentValue = properties[i].defaultValue;
-            _providerDir->plannedValue = properties[i].defaultValue;
-            _providerDir->dynamic = properties[i].dynamic;
-            _providerDir->domain = properties[i].domain;
-            _providerDir->domainSize = properties[i].domainSize;
-            _providerDir->externallyVisible = properties[i].externallyVisible;
-        }
     }
 }
 
@@ -131,10 +116,6 @@ struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
         return _repositoryDir;
-    }
-    else if (String::equalNoCase(_providerDir->propertyName, name))
-    {
-        return _providerDir;
     }
     else
     {

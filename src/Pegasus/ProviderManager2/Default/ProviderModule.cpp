@@ -57,16 +57,17 @@ ProviderModule::ProviderModule(const String & fileName, const String & interface
         #ifdef PEGASUS_OS_TYPE_WINDOWS
         _interfaceFileName=_interfaceName+String("Adapter.dll");
         #elif defined(PEGASUS_OS_HPUX)
-        _interfaceFileName=ConfigManager::getHomedPath(
-            ConfigManager::getInstance()->getCurrentValue("providerDir"))+
-            String("/lib")+interfaceName+String("Adapter.sl");
+	_interfaceFileName = 
+            String("lib")+interfaceName+String("Adapter.sl");
         #elif defined(PEGASUS_OS_OS400)
         _interfaceFileName=interfaceName+String("Adapter");
         #else
-        _interfaceFileName=ConfigManager::getHomedPath(
-            ConfigManager::getInstance()->getCurrentValue("providerDir"))+
-            String("/lib")+interfaceName+String("Adapter.so");
+        _interfaceFileName= String("lib")+interfaceName+String("Adapter.so");
         #endif
+
+	 _interfaceFileName = FileSystem::getAbsoluteFileName(
+                ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), _interfaceFileName);
+
     }
 }
 
@@ -93,18 +94,16 @@ ProviderModule::ProviderModule(const String & fileName,
             #ifdef PEGASUS_OS_TYPE_WINDOWS
             _interfaceFileName = _interfaceName + String(".dll");
             #elif defined(PEGASUS_OS_HPUX)
-            _interfaceFileName = ConfigManager::getHomedPath(
-                ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFileName.append(
-                String("/lib") + _interfaceName + String(".sl"));
+            _interfaceFileName = String("lib") + _interfaceName + String(".sl");
             #elif defined(PEGASUS_OS_OS400)
             _interfaceFileName = _interfaceName;
             #else
-            _interfaceFileName = ConfigManager::getHomedPath(
-                ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFileName.append(
-                String("/lib") + _interfaceName + String(".so"));
+            _interfaceFileName = String("lib") + _interfaceName + String(".so");
             #endif
+
+	     _interfaceFileName = FileSystem::getAbsoluteFileName(
+                ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), _interfaceFileName);
+
         }
 }
 

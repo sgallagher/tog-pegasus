@@ -31,7 +31,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <cstdio>
+//#include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include "Destroyer.h"
@@ -410,6 +410,34 @@ Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
 #endif
 
     return System::changeFilePermissions(tempPath, mode);
+}
+
+String FileSystem::getAbsoluteFileName(const String &paths, const String &filename) {
+
+  Uint32 pos =0;
+  Uint32 token=0;
+  String path = String::EMPTY;
+  String root = String::EMPTY;
+  String tempPath = paths;
+  do {
+    if (( pos = tempPath.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
+                pos = tempPath.size();
+                token = 0;
+        }
+        else {
+                token = 1;
+        }
+        path = tempPath.subString(0, pos);
+        tempPath.remove(0,pos+token);
+        if (FileSystem::exists( path + "/" + filename ) == true) {
+	  root = path + "/" + filename;
+	  break;
+        } else
+	  {
+	  //  cout << "File does not exist.\n";
+	  }
+  } while (tempPath.size() > 0);
+  return root;
 }
 
 

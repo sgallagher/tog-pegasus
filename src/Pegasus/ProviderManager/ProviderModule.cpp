@@ -82,16 +82,18 @@ void ProviderModule::setInterfaceName(const String & interfaceName)
         _interfaceFileName=_interfaceName+String("Adapter.dll");
 #elif defined(PEGASUS_OS_HPUX)
         // ATTN: Fix this for IA64.
-        _interfaceFileName=ConfigManager::getHomedPath(
-            ConfigManager::getInstance()->getCurrentValue("providerDir"))+
-            String("/lib")+interfaceName+String("Adapter.sl");
+        _interfaceFileName=
+		 String("lib")+interfaceName+String("Adapter.sl");
 #elif defined(PEGASUS_OS_OS400)
         _interfaceFileName=interfaceName+String("Adapter");
 #else
-        _interfaceFileName=ConfigManager::getHomedPath(
-            ConfigManager::getInstance()->getCurrentValue("providerDir"))+
-            String("/lib")+interfaceName+String("Adapter.so");
+        _interfaceFileName=
+            String("lib")+interfaceName+String("Adapter.so");
 #endif
+                                                                                
+    	_interfaceFileName = FileSystem::getAbsoluteFileName(
+		ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), _interfaceFileName);
+
      }
 }
 

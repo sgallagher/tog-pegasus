@@ -54,6 +54,7 @@
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
+#include <Pegasus/Common/FileSystem.h>
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -216,18 +217,23 @@ Triad<String, String, String> _getProviderRegPair(
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     fileName = location + String(".dll");
 #elif defined(PEGASUS_OS_HPUX)
-    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    //fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
 # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    fileName.append(String("/lib") + location + String(".sl"));
+    fileName.append(String("lib") + location + String(".sl"));
 # else
-    fileName.append(String("/lib") + location + String(".so"));
+    fileName.append(String("lib") + location + String(".so"));
 # endif
 #elif defined(PEGASUS_OS_OS400)
     fileName = location;
 #else
-    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName.append(String("/lib") + location + String(".so"));
+    fileName.append(String("lib") + location + String(".so"));
 #endif
+
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+
+    //cerr << "Checking: ["<<root<<"]\n";
+    fileName = FileSystem::getAbsoluteFileName(root, fileName);
+    //cerr << "["<<fileName <<"]\n";
 
     PEG_METHOD_EXIT();
 
@@ -314,18 +320,24 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         fileName = Location + String(".dll");
 #elif defined(PEGASUS_OS_HPUX)
-        fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+
 # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-        fileName.append(String("/lib") + Location + String(".sl"));
+        fileName = String("lib") + Location + String(".sl");
 # else
-        fileName.append(String("/lib") + Location + String(".so"));
+        fileName = String("lib") + Location + String(".so");
 # endif
 #elif defined(PEGASUS_OS_OS400)
         fileName = Location;
 #else
-        fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        fileName.append(String("/lib") + Location + String(".so"));
+        fileName = String("lib") + Location + String(".so");
 #endif
+
+        String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+
+        //cerr << "Checking: ["<<root<<"]\n";
+        fileName = FileSystem::getAbsoluteFileName(root, fileName);
+        //cerr << "["<<fileName <<"]\n";
+
 
         providerNames.append(providerName);
         Locations.append(fileName);

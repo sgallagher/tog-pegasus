@@ -606,18 +606,18 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 
 		fileName = ConfigManager::getHomedPath(fileName);
 
-	    //
+	//
         // Check if the file path is a directory
-	    //
+	//
         FileSystem::translateSlashes(fileName);
         if (FileSystem::isDirectory(fileName))
         {
             return false;
         }
 
-	    //
+	//
         // Check if the file exists and is writable
-	    //
+	//
         if (FileSystem::exists(fileName))
         {
             if (!FileSystem::canWrite(fileName))
@@ -631,9 +631,9 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         }
         else
         {
-	        //
+	    //
             // Check if directory is writable
-	        // 
+	    // 
             Uint32 pos = fileName.reverseFind('/');
 
             if (pos != PEG_NOT_FOUND)
@@ -656,10 +656,10 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             {
                 String currentDir;
 
-		        //
+		//
                 // Check if there is permission to write in the	
                 // current working directory
-		        //
+		//
                 FileSystem::getCurrentDirectory(currentDir);
 
                 if (!FileSystem::canWrite(currentDir))
@@ -676,17 +676,15 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     else if (String::equalNoCase(_certificateFilePath->propertyName, name) ||
              String::equalNoCase(_keyFilePath->propertyName, name))
     {
-	    String fileName(value);
-
         //
         // Check if the file path is empty
         //
-        if (fileName == String::EMPTY)
+        if (value == String::EMPTY)
         {
             return false;
         }
 
-		fileName = ConfigManager::getHomedPath(fileName);
+		String fileName = ConfigManager::getHomedPath(value);
 
         //
         // Check if the file path is a directory
@@ -717,17 +715,15 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     else if (String::equalNoCase(_trustStore->propertyName, name) ||
              String::equalNoCase(_exportSSLTrustStore->propertyName, name))
     {
-	    String fileName(value);
-
         //
         // Allow the exportSSLTrustStore and sslTrustStore file paths to be empty
         //
-        if (fileName == String::EMPTY)
+        if (value == String::EMPTY)
         {
             return true;
         }
 
-		fileName = ConfigManager::getHomedPath(fileName);
+		String fileName = ConfigManager::getHomedPath(value);
 
         //
         // Check if the file path is a directory

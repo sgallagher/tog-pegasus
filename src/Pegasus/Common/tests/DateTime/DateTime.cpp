@@ -793,8 +793,8 @@ int main(int argc, char** argv)
   Uint64 topA_num0 = topA_cdt0.toMicroSeconds();
   Uint64 tot_num0 = top_num0 + topA_num0;
   top_cdt0 += topA_cdt0;
-  Uint64 topA0 = top_cdt0.toMicroSeconds();
-  if (tot_num0 != topA0) {
+  CIMDateTime topA0 = CIMDateTime(tot_num0,true);
+  if (top_cdt0 != topA0) {
       assert(false);
   }
 
@@ -805,8 +805,8 @@ int main(int argc, char** argv)
   Uint64 topA_num2 = topA_cdt2.toMicroSeconds();
   Uint64 tot_num2 = top_num2 + topA_num2;
   top_cdt2 += topA_cdt2;
-  Uint64 topA2 = top_cdt2.toMicroSeconds();
-  if (tot_num2 != topA2) {
+  CIMDateTime topA2 = CIMDateTime(tot_num2,false);
+  if (top_cdt2 != topA2) {
       assert(false);
   }
 

@@ -5,37 +5,25 @@
 <IMETHODRESPONSE NAME="GetInstance">
 <IRETURNVALUE>
 <INSTANCE CLASSNAME="CWS_Directory">
-<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="Caption" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="Description" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="ElementName" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="ElementName" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="InstallDate" TYPE="datetime">
 </PROPERTY>
-<PROPERTY NAME="InstallDate" PROPAGATED="true" TYPE="datetime">
-</PROPERTY>
-<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" PROPAGATED="true">
+<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16">
 </PROPERTY.ARRAY>
-<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" PROPAGATED="true">
+<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string">
 </PROPERTY.ARRAY>
-<PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="Status" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="CompressionMethod" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="EncryptionMethod" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="EncryptionMethod" PROPAGATED="true" TYPE="string">
-</PROPERTY>
-<PROPERTY NAME="InUseCount" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="InUseCount" TYPE="uint64">
 </PROPERTY>
 <PROPERTY NAME="CSCreationClassName" TYPE="string">
 <VALUE>
@@ -73,10 +61,19 @@ CWS_Directory
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="CreationDate" TYPE="datetime">
+<VALUE>
+20040307005203.000000+060
+</VALUE>
 </PROPERTY>
 <PROPERTY NAME="LastModified" TYPE="datetime">
+<VALUE>
+20040307005709.000000+060
+</VALUE>
 </PROPERTY>
 <PROPERTY NAME="LastAccessed" TYPE="datetime">
+<VALUE>
+20040307005203.000000+060
+</VALUE>
 </PROPERTY>
 <PROPERTY NAME="Readable" TYPE="boolean">
 <VALUE>

@@ -10,26 +10,6 @@
     <IPARAMVALUE NAME="ClassName">
      <CLASSNAME NAME="CWS_Directory"/>
     </IPARAMVALUE>
-    <IPARAMVALUE NAME="DeepInheritance">
-       <VALUE>
-         FALSE
-       </VALUE>
-    </IPARAMVALUE>
-    <IPARAMVALUE NAME="LocalOnly">
-       <VALUE>
-         FALSE
-       </VALUE>
-    </IPARAMVALUE>
-    <IPARAMVALUE NAME="IncludeQualifiers">
-       <VALUE>
-          FALSE
-       </VALUE>
-    </IPARAMVALUE>
-    <IPARAMVALUE NAME="IncludeClassOrigin">
-       <VALUE>
-          FALSE
-       </VALUE>
-    </IPARAMVALUE>
    </IMETHODCALL>
   </SIMPLEREQ>
  </MESSAGE>

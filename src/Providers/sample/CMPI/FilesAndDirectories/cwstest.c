@@ -25,36 +25,47 @@
 //
 // Author:       Viktor Mihajlovski <mihajlov@de.ibm.com>
 //
-// Modified By:  Adrian Schuur <schuur@de.ibm.com>
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef CWS_FILEUTILS_H
-#define CWS_FILEUTILS_H
-
 #include "cwsutil.h"
-#include <Pegasus/ProviderManager2/CMPI/cmpidt.h>
 
-#if defined SIMULATED
- #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
- #define SILENT 1
-#else
- #define CWS_FILEROOT  "/home/mihajlov/pkg"
- #define SILENT 0
-#endif
+#include <stdio.h>
+#include <stdlib.h>
 
-char * CSCreationClassName();
-char * CSName();
-char * FSCreationClassName();
-char * FSName();
+int main(int argc, char * argv[])
+{
+  void     *enumhdl;
+  CWS_FILE  filebuf;
 
+  if (argc != 2) {
+    fprintf(stderr,"usage: %s directory\n",argv[0]);
+    exit(-1);
+  }
 
-CMPIObjectPath *makePath(CMPIBroker *broker, const char *classname,
-			 const char *namespace, CWS_FILE *cwsf);
-CMPIInstance   *makeInstance(CMPIBroker *broker, const char *classname,
-			     const char *namespace, CWS_FILE *cwsf);
-int             makeFileBuf(CMPIInstance *instance, CWS_FILE *cwsf);
+  printf("=== Searching for plain files in %s \n",argv[1]);
+  enumhdl = CWS_Begin_Enum(argv[1],CWS_TYPE_PLAIN);
+  if (enumhdl) {
+    while (CWS_Next_Enum(enumhdl,&filebuf))
+      printf("--- File: %s Size: %lld Mode: %u\n",
+	     filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
+    CWS_End_Enum(enumhdl);
+  }
 
-int silentMode();
+  printf("=== Searching for directories in %s \n",argv[1]);
+  enumhdl = CWS_Begin_Enum(argv[1],CWS_TYPE_DIR);
+  if (enumhdl) {
+    while (CWS_Next_Enum(enumhdl,&filebuf))
+      printf("--- Dir: %s Size: %lld Mode: %u\n",
+	     filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
+    CWS_End_Enum(enumhdl);
+  }
 
-#endif
+  printf("=== Direct Access to Directory %s \n",argv[1]);
+  if (CWS_Get_File(argv[1],&filebuf))
+    printf("--- Dir: %s Size: %lld Mode: %u\n",
+	   filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
+  
+  return 0;
+}

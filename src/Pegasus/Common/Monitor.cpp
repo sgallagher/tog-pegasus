@@ -250,21 +250,17 @@ Boolean Monitor::run(Uint32 milliseconds)
 	   events, _idleEntries);
        for( int indx = 0; indx < (int)_entries.size(); indx++)
        {
-	  if(FD_ISSET(_entries[indx].socket, &fdread))
+          // The Monitor should only look at entries in the table that are IDLE (i.e.,
+          // owned by the Monitor).
+	  if((_entries[indx]._status.value() == _MonitorEntry::IDLE) && 
+	     (FD_ISSET(_entries[indx].socket, &fdread)))
 	  {
 	     MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
-	     if(q == 0)
-	     {
-		try
-		{
-		   _entries[indx]._status = _MonitorEntry::EMPTY;
-		}
-		catch(...)
-		{
+             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                  "Monitor::run indx = %d, queueId =  %d, q = %p",
+                  indx, _entries[indx].queueId, q);
+             PEGASUS_ASSERT(q !=0);
 
-		}
-		continue;
-	     }
 	     try 
 	     {
 		if(_entries[indx]._type == Monitor::CONNECTION)
@@ -371,6 +367,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
        if(_entries[index].socket == socket)
        {
 	  _entries[index]._status = _MonitorEntry::EMPTY;
+	  _entries[index].socket = -1;
 	  break;
        }
     }
@@ -382,8 +379,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-          "Monitor::_dispatch: entering run() for index  = %d", 
-          dst->_entry_index);
+        "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",
+        dst->_entry_index, dst->_monitor->_entries[dst->_entry_index].queueId, dst);
    try
    {
       dst->run(1);
@@ -401,6 +398,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
    // if the connection is being closed.  However, the current logic
    // in Monitor::run requires this value to be set for the close
    // to be processed. 
+   
+   PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);
    dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
    if (dst->_connectionClosePending)
    {

@@ -91,7 +91,7 @@ variable is set to TRUE
 class PEGASUS_CQL_LINKAGE CQLPredicateRep
 {
   public:
-    CQLPredicateRep(){}
+    CQLPredicateRep();
     
     CQLPredicateRep(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
 

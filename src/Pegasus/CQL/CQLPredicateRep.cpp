@@ -41,13 +41,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted)
+CQLPredicateRep::CQLPredicateRep():
+_invert(false)
+{
+
+}
+
+CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted):
+_invert(false)
 {
 	_simplePredicate = inSimplePredicate;
 	_invert = inVerted;
 }
 
-CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInverted)
+CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInverted):
+_invert(false)
 {
 /*	 printf("CQLPredicateRep()\n");
 	_predicates.append(inPredicate);
@@ -57,7 +65,9 @@ CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInve
 */
 }
 
-CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep){
+CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep):
+_invert(false)
+{
 	_booleanOpType = rep->_booleanOpType;
 	_predicates = rep->_predicates;
 	_simplePredicate = rep->_simplePredicate;

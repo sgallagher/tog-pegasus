@@ -69,9 +69,9 @@ public:
         const Uint32& portNumber,
         const Uint16& snmpVersion, 
         const String& engineID,
-        Array<String>& vbOids,
-        Array<String>& vbTypes,
-        Array<String>& vbValues) = 0;
+        const Array<String>& vbOids,
+        const Array<String>& vbTypes,
+        const Array<String>& vbValues) = 0;
 };
 
 PEGASUS_NAMESPACE_END

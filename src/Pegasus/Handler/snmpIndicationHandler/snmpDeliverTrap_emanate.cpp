@@ -46,7 +46,7 @@
 
 #include <prnt_lib.h>  // MUST be at the end in include list.
 
-static char *sr_filename = __FILE__;
+static const char *sr_filename = __FILE__;
 
 IPCFunctionP IPCfp;  /* IPC functions pointer  */
 
@@ -83,12 +83,19 @@ PEGASUS_USING_STD;
 
 snmpDeliverTrap_emanate::snmpDeliverTrap_emanate()
 {
-
+    //
+    // Initialize Subagent and establish comunication with the Master Agent
+    //
+    initialize();
 }
 
 snmpDeliverTrap_emanate::~snmpDeliverTrap_emanate()
 {
-
+    //
+    // Close the connection to the Master Agent and shut down the 
+    // Subagent
+    //
+    EndSubagent();
 }
 
 
@@ -130,19 +137,15 @@ void snmpDeliverTrap_emanate::deliverTrap(
         const Uint32& portNumber,
         const Uint16& snmpVersion, 
         const String& engineID,
-        Array<String>& vbOids,
-        Array<String>& vbTypes,
-        Array<String>& vbValues)
+        const Array<String>& vbOids,
+        const Array<String>& vbTypes,
+        const Array<String>& vbValues)
 {
     VarBind *vbhead = NULL;
     VarBind *vb = NULL;
     VarBind *vblast = NULL;
     
     OID	    *object = NULL;
-
-    // Initialize with Master agent
-
-    	initialize();
 
     // Translate a string into an OID
     OID *sendtrapOid = MakeOIDFromDot(trapOid.getCString());

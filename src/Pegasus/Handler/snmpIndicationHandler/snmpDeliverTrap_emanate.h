@@ -169,9 +169,9 @@ public:
         const Uint32& portNumber,
         const Uint16& snmpVersion, 
         const String& engineID,
-        Array<String>& vbOids,
-        Array<String>& vbTypes,
-        Array<String>& vbValues);
+        const Array<String>& vbOids,
+        const Array<String>& vbTypes,
+        const Array<String>& vbValues);
 
 private:
     char * _getIPAddress(const CString& hostName);

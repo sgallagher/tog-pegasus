@@ -143,9 +143,9 @@ void snmpIndicationHandler::handleIndication(
         // and passing this instance as it is to deliverTrap() call
 
 #ifdef HPUX_EMANATE
-        snmpDeliverTrap_emanate emanateTrap;
+        static snmpDeliverTrap_emanate emanateTrap;
 #else
-        snmpDeliverTrap_stub emanateTrap;
+        static snmpDeliverTrap_stub emanateTrap;
 #endif
 
         Uint32 targetHostPos = handler.findProperty(CIMName ("TargetHost"));

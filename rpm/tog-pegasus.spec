@@ -76,7 +76,7 @@ sources.
 
 %global PEGASUS_RPM_ROOT $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
-%global PEGASUS_INSTALL_LOG $PEGASUS_LOG_DIR/install.log
+%global PEGASUS_INSTALL_LOG /var/opt/tog-pegasus/log/install.log
 
 %ifarch ia64 x86_64
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU
@@ -245,7 +245,7 @@ if [ $1 -eq 1 ]; then
    %OPENSSL_BIN/openssl req -x509 -days 356 -newkey rsa:2048 \
       -nodes -config %PEGASUS_CONFIG_DIR/ssl.cnf \
       -keyout %PEGASUS_PEM_DIR/key.pem -out %PEGASUS_PEM_DIR/cert.pem \
-           2>>%INSTALL_LOG
+           2>>%PEGASUS_INSTALL_LOG
 
    cat %PEGASUS_PEM_DIR/key.pem > %PEGASUS_PEM_DIR/key-2048.pem
    chmod 400 %PEGASUS_PEM_DIR/key-2048.pem
@@ -304,38 +304,38 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files
-%dir %attr(-,root,root) /opt/tog-pegasus
-%dir %attr(-,root,root) /opt/tog-pegasus/share
-%dir %attr(-,root,root) /opt/tog-pegasus/share/man
-%dir %attr(-,root,root) /opt/tog-pegasus/share/man/man1
-%dir %attr(-,root,root) /opt/tog-pegasus/share/man/man8
-%dir %attr(-,root,root) /opt/tog-pegasus/lib
-%dir %attr(-,root,root) /opt/tog-pegasus/providers
-%dir %attr(-,root,root) /opt/tog-pegasus/providers/lib
-%dir %attr(-,root,root) /opt/tog-pegasus/sbin
-%dir %attr(-,root,root) /opt/tog-pegasus/bin
-%dir %attr(-,root,root) /opt/tog-pegasus/mof
-%dir %attr(-,root,root) /var/opt/tog-pegasus
-%dir %attr(-,root,root) /var/opt/tog-pegasus/cache
-%dir %attr(-,root,root) /var/opt/tog-pegasus/log
-%dir %attr(-,root,root) /var/opt/tog-pegasus/cache/localauth
-%dir %attr(-,root,root) /var/run/tog-pegasus
-%dir %attr(-,root,root) /etc/opt/tog-pegasus
+%dir %attr(555,root,root) /opt/tog-pegasus
+%dir %attr(555,root,root) /opt/tog-pegasus/share
+%dir %attr(555,root,root) /opt/tog-pegasus/share/man
+%dir %attr(555,root,root) /opt/tog-pegasus/share/man/man1
+%dir %attr(555,root,root) /opt/tog-pegasus/share/man/man8
+%dir %attr(555,root,root) /opt/tog-pegasus/lib
+%dir %attr(555,root,root) /opt/tog-pegasus/providers
+%dir %attr(555,root,root) /opt/tog-pegasus/providers/lib
+%dir %attr(555,root,root) /opt/tog-pegasus/sbin
+%dir %attr(555,root,root) /opt/tog-pegasus/bin
+%dir %attr(555,root,root) /opt/tog-pegasus/mof
+%dir %attr(555,root,root) /var/opt/tog-pegasus
+%dir %attr(555,root,root) /var/opt/tog-pegasus/cache
+%dir %attr(555,root,root) /var/opt/tog-pegasus/log
+%dir %attr(555,root,root) /var/opt/tog-pegasus/cache/localauth
+%dir %attr(555,root,root) /var/run/tog-pegasus
+%dir %attr(555,root,root) /etc/opt/tog-pegasus
 %dir %attr(1555,root,root) /var/run/tog-pegasus/socket
-%dir %attr(755,root,root) /opt/tog-pegasus/mof/CIM28
+%dir %attr(555,root,root) /opt/tog-pegasus/mof/CIM28
 
-%dir %attr(755,root,root) /opt/tog-pegasus/mof/Pegasus
+%dir %attr(555,root,root) /opt/tog-pegasus/mof/Pegasus
 
 /var/opt/tog-pegasus/repository
 
 %doc %attr(444,root,root) /opt/tog-pegasus/license.txt
-%doc /opt/tog-pegasus/share/man/man1/cimmof.1
-%doc /opt/tog-pegasus/share/man/man1/cimprovider.1
-%doc /opt/tog-pegasus/share/man/man1/osinfo.1
-%doc /opt/tog-pegasus/share/man/man1/wbemexec.1
-%doc /opt/tog-pegasus/share/man/man8/cimauth.8
-%doc /opt/tog-pegasus/share/man/man8/cimconfig.8
-%doc /opt/tog-pegasus/share/man/man8/cimserver.8
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man1/cimmof.1
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man1/cimprovider.1
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man1/osinfo.1
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man1/wbemexec.1
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimauth.8
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimconfig.8
+%doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimserver.8
 
 %attr(444,root,root) /opt/tog-pegasus/mof/CIM28/Application28_AppRuntime.mof
 %attr(444,root,root) /opt/tog-pegasus/mof/CIM28/Application28_BIOS.mof
@@ -470,7 +470,7 @@ fi
 
 %config(noreplace) %attr(644,root,root)  /var/opt/tog-pegasus/cimserver_planned.conf
 %config %attr(500,root,root) /etc/init.d/tog-pegasus
-%config %attr(-,root,root) %PAM_CONFIG_DIR/wbem
+%config %attr(444,root,root) %PAM_CONFIG_DIR/wbem
 
 %attr(500,root,root) /opt/tog-pegasus/sbin/cimauth
 %attr(500,root,root) /opt/tog-pegasus/sbin/cimconfig
@@ -537,16 +537,15 @@ fi
 /opt/tog-pegasus/providers/lib/libProcessProvider.so
 
 %files sdk
-%defattr(444,root,root)
 
 # SDK Include Files
 #
-%dir %attr(755,root,root) /opt/tog-pegasus/include
-%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus
-%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Client
-%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Common
-%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Consumer
-%dir %attr(755,root,root) /opt/tog-pegasus/include/Pegasus/Provider
+%dir %attr(555,root,root) /opt/tog-pegasus/include
+%dir %attr(555,root,root) /opt/tog-pegasus/include/Pegasus
+%dir %attr(555,root,root) /opt/tog-pegasus/include/Pegasus/Client
+%dir %attr(555,root,root) /opt/tog-pegasus/include/Pegasus/Common
+%dir %attr(555,root,root) /opt/tog-pegasus/include/Pegasus/Consumer
+%dir %attr(555,root,root) /opt/tog-pegasus/include/Pegasus/Provider
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClientException.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClient.h
 %attr(444,root,root) /opt/tog-pegasus/include/Pegasus/Client/Linkage.h
@@ -602,20 +601,20 @@ fi
 
 # SDK Sample Files
 #
-%dir %attr(755,root,root) /opt/tog-pegasus/samples
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/Providers/Load
-%dir %attr(755,root,root) /opt/tog-pegasus/samples/mak
+%dir %attr(777,root,root) /opt/tog-pegasus/samples
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Clients
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/Load
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/mak
 %attr(444,root,root) /opt/tog-pegasus/samples/Makefile
 %attr(444,root,root) /opt/tog-pegasus/samples/mak/LINUX_IX86_GNU.mak
 %attr(444,root,root) /opt/tog-pegasus/samples/mak/config.mak
@@ -662,59 +661,63 @@ fi
 
 # SDK Documentation
 #
-/opt/tog-pegasus/html
+%dir %attr(555,root,root) /opt/tog-pegasus/html
+%dir %attr(555,root,root) /opt/tog-pegasus/html/DefaultC++
+%attr(444,root,root) /opt/tog-pegasus/html/index.html
+%attr(444,root,root) /opt/tog-pegasus/html/DefaultC++/*.html
+%attr(444,root,root) /opt/tog-pegasus/html/DefaultC++/*.gif
 
 %files test
 
 # Test Files
 #
-%dir %attr(-, root,root) /opt/tog-pegasus/test
-%dir %attr(-, root,root) /opt/tog-pegasus/test/lib
-%dir %attr(-, root,root) /opt/tog-pegasus/test/bin
-%dir %attr(-, root,root) /opt/tog-pegasus/test/mak
-%attr(-,root,root) /opt/tog-pegasus/test/mak/commands.mak
-%attr(-,root,root) /opt/tog-pegasus/test/lib/libSampleInstanceProvider.so.1
-%attr(-,root,root) /opt/tog-pegasus/test/lib/libSampleMethodProvider.so.1
-%attr(-,root,root) /opt/tog-pegasus/test/lib/libSampleFamilyProvider.so.1
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestAbstract
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestArray
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestBase64
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestClassDecl
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestDateTime
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestFlavor
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestFormatter
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestHashTable
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestInstanceDecl
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestLogger
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestMethod
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestObject
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestOperationContext
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestParamValue
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestParameter
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestProperty
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestQualifier
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestQualifierDecl
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestQualifierList
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestQueue
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestReference
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestResolve
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestResponseHandler
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestScope
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestStack
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestStopwatch
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestStrToInstName
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestString
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestTimeValue
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestToMof
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestValidateClass
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestValue
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TracerTest
-%attr(-,root,root) /opt/tog-pegasus/test/bin/IPC
-%attr(-,root,root) /opt/tog-pegasus/test/bin/CompAssoc
-%attr(-,root,root) /opt/tog-pegasus/test/bin/UserManagerTest
-%attr(-,root,root) /opt/tog-pegasus/test/bin/TestClient
-%attr(-,root,root) /opt/tog-pegasus/test/bin/OSTestClient
-%attr(-,root,root) /opt/tog-pegasus/test/bin/InvokeMethod2
-%attr(-,root,root) /opt/tog-pegasus/test/Makefile
+%dir %attr(555, root,root) /opt/tog-pegasus/test
+%dir %attr(555, root,root) /opt/tog-pegasus/test/lib
+%dir %attr(555, root,root) /opt/tog-pegasus/test/bin
+%dir %attr(555, root,root) /opt/tog-pegasus/test/mak
+%attr(444,root,root) /opt/tog-pegasus/test/mak/commands.mak
+%attr(555,root,root) /opt/tog-pegasus/test/lib/libSampleInstanceProvider.so.1
+%attr(555,root,root) /opt/tog-pegasus/test/lib/libSampleMethodProvider.so.1
+%attr(555,root,root) /opt/tog-pegasus/test/lib/libSampleFamilyProvider.so.1
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestAbstract
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestArray
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestBase64
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestClassDecl
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestDateTime
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestFlavor
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestFormatter
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestHashTable
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestInstanceDecl
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestLogger
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestMethod
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestObject
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestOperationContext
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestParamValue
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestParameter
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestProperty
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestQualifier
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestQualifierDecl
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestQualifierList
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestQueue
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestReference
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestResolve
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestResponseHandler
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestScope
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestStack
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestStopwatch
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestStrToInstName
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestString
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestTimeValue
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestToMof
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestValidateClass
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestValue
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TracerTest
+%attr(555,root,root) /opt/tog-pegasus/test/bin/IPC
+%attr(555,root,root) /opt/tog-pegasus/test/bin/CompAssoc
+%attr(555,root,root) /opt/tog-pegasus/test/bin/UserManagerTest
+%attr(555,root,root) /opt/tog-pegasus/test/bin/TestClient
+%attr(555,root,root) /opt/tog-pegasus/test/bin/OSTestClient
+%attr(555,root,root) /opt/tog-pegasus/test/bin/InvokeMethod2
+%attr(444,root,root) /opt/tog-pegasus/test/Makefile
 /var/opt/tog-pegasus/testrepository
 

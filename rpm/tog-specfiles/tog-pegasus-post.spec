@@ -23,7 +23,7 @@
    %OPENSSL_BIN/openssl req -x509 -days 356 -newkey rsa:2048 \
       -nodes -config %PEGASUS_CONFIG_DIR/ssl.cnf \
       -keyout %PEGASUS_PEM_DIR/key.pem -out %PEGASUS_PEM_DIR/cert.pem \
-           2>>%INSTALL_LOG
+           2>>%PEGASUS_INSTALL_LOG
 
    cat %PEGASUS_PEM_DIR/key.pem > %PEGASUS_PEM_DIR/key-2048.pem
    chmod 400 %PEGASUS_PEM_DIR/key-2048.pem

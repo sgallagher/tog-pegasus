@@ -616,7 +616,7 @@ _append_PreambleToSpecFile: FORCE
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_RPM_HOME \044RPM_BUILD_ROOT/build/tog-pegasus" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG \044PEGASUS_LOG_DIR/install.log" >> \
+	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%ifarch ia64 x86_64" >> \
@@ -791,20 +791,20 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), if [ $(i) != $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR) ]; then \
                                                       if [ $(i) != $(PEGASUS_REPOSITORY_DIR) ]; then \
-                   $(ECHO-E) "%dir %attr(-,root,root) $(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi;) 
+                   $(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi;) 
 	@$(ECHO-E) "%dir %attr(1555,root,root) $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),root,root) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),root,root) $(PEGASUS_MOF_DIR)/Pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_MOF_DIR)/Pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LICENSE), \
 	           $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_PROD_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), \
-                   $(ECHO-E) "%doc $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), \
-                   $(ECHO-E) "%doc $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+                   $(ECHO-E) "%doc %attr($(Pr__r__r__),root,root) $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(CIM28_MOF_FILES), \
                    $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
@@ -819,7 +819,7 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__),root,root) \
                    $(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Pr_x______),root,root) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config %attr(-,root,root) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config %attr($(Pr__r__r__),root,root) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_ADMIN_CMDS), \
                    $(ECHO-E) "%attr($(Pr_x______),root,root) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 

@@ -31,6 +31,9 @@ PROVIDER_SRCPATH2 = $(PEGASUS_ROOT)/src/Providers/sample
 PROVIDER_SRCPATH3 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Providers
 PROVIDER_SRCPATH4 = $(PEGASUS_ROOT)/src/Providers/IndicationConsumer
 
+HTML_DIRS = \
+  DefaultC++
+
 INCLUDE_DIRS = \
   Pegasus \
   Pegasus/Client \
@@ -232,21 +235,20 @@ stageHTML:
 
 _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%files sdk"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Pr__r__r__),root,root)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Include Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(INCLUDE_DIRS), $(ECHO-E) \
-              "%dir %attr($(Prwxr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) \
               "%attr($(Pr__r__r__),root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Sample Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),root,root) $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Prwxrwxrwx),root,root) $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(SAMPLES_DIRS), $(ECHO-E) \
-              "%dir %attr($(Prwxr_xr_x),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%dir %attr($(Prwxrwxrwx),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) \
               "%attr($(Pr__r__r__),root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) \
@@ -264,7 +266,13 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Documentation"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(HTML_DIRS), $(ECHO-E) \
+              "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_HTML_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_HTML_DIR)/index.html"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(HTML_DIRS),\
+              $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_HTML_DIR)/$(i)/*.html" >> $(PEGASUS_RPM_SPEC_FILE_PATH);\
+              $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_HTML_DIR)/$(i)/*.gif" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 removeSampleProviderNamespace:

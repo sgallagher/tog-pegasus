@@ -177,18 +177,19 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# Test Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)/lib" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)/bin" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)/mak" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x), root,root) $(PEGASUS_TEST_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x), root,root) $(PEGASUS_TEST_DIR)/lib" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x), root,root) $(PEGASUS_TEST_DIR)/bin" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x), root,root) $(PEGASUS_TEST_DIR)/mak" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(MAK_FILES), $(ECHO-E) \
-              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/mak/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr__r__r__),root,root) $(PEGASUS_TEST_DIR)/mak/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) \
-              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr_xr_xr_x),root,root) $(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PRESTARTTEST_FILES), $(ECHO-E) \
-              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/bin/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+              "%attr($(Pr_xr_xr_x),root,root) $(PEGASUS_TEST_DIR)/bin/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(POSTSTARTTEST_FILES), $(ECHO-E) \
-              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/bin/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "%attr(-,root,root) $(PEGASUS_TEST_DIR)/Makefile" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+              "%attr($(Pr_xr_xr_x),root,root) $(PEGASUS_TEST_DIR)/bin/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_TEST_DIR)/Makefile" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+

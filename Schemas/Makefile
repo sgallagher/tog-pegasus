@@ -66,5 +66,5 @@ general:
 
 # used to generate xml output from the schema
 xml:
-	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
-	@ cimmofl --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof	 >CIM_Schema$(SCHEMA_VER).XML
+	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into root/cimv2 namespace...
+	@ cimmofl --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof >CIM_Schema$(SCHEMA_VER).XML

@@ -64,13 +64,13 @@ indent = 0
 is = ""
 lv = 0
 # Print the TOC Header
-print "<html>"
-print "<head>"
-print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">"
-print "<title>PegasusDocumentTOC</title>"
-print "<base target=\"main\">"
-print "</head>"
-print "<body bgcolor=\"#FF9966\">"
+# print "<html>"
+#print "<head>"
+#print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">"
+#print "<title>PegasusDocumentTOC</title>"
+#print "<base target=\"main\">"
+#print "</head>"
+#print "<body bgcolor=\"#FF9966\">"
 print "<p align=\"center\"><img border=\"0\" src=\"/pegasus/images/pegicon2.gif\" width=\"100\" height=\"100\"></p>"
 print "<p>&nbsp;</p>"
 print "<p><b><font size=\"5\">Contents</font></b></p>"
@@ -111,8 +111,8 @@ print "<LI><I><A HREF=\"index.html\">Alphabetic index</A></I>"
 #print "<LI><I><A HREF=\"toc.html\">Alphabetic index</A></I>"
 print "<LI><I><A HREF=\"HIER.html\">Hierarchy of classes</A></I>"
 print "</UL>"
-print "</body>"
-print "</html>"
+# print "</body>"
+# print "</html>"
 }
 #
 # functions

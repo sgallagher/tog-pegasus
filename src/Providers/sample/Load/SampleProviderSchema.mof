@@ -13,6 +13,13 @@ class Sample_InstanceProviderClass : Sample_ProviderClass
 	string Message;
 };
 
+[Version ("2.2.0")]
+class Sample_InstanceQueryProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};
+
 // globalization test class for localization and UTF testing
 [Version ("2.2.0")]
 class Sample_LocalizedProviderClass : Sample_ProviderClass

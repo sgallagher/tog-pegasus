@@ -260,6 +260,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         // Process M-POST and POST messages:
         //
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	    "HTTPAuthenticatorDelegator - M-POST/POST processing start");
 
 	httpMessage->message.append('\0');
 
@@ -352,6 +354,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (HTTPMessage::lookupHeader(
                 headers, "CIMOperation", cimOperation, true))
             {
+		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation);
+
                 MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
 
@@ -366,6 +371,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             else if (HTTPMessage::lookupHeader(
                 headers, "CIMExport", cimOperation, true))
             {
+		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			    "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
+
                 MessageQueue* queue =
                     MessageQueue::lookup(_exportMessageQueueId);
 

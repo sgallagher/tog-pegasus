@@ -11,14 +11,19 @@ If you change it, the HTML Frame must also be changed.
 <CENTER><FONT Size=+4>PEGASUS Public APIs</FONT></CENTER>
 
 <P><B><CENTER>STATUS: DRAFT FOR REVIEW</CENTER></B>
-<SMALL><CENTER>version 1.01 13 September 2003, Pegasus 2.3</CENTER></SMALL>
+<SMALL><CENTER>version 1.01 30 October 2003, Pegasus 2.3</CENTER></SMALL>
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
 
-<P>This is a working document that contains the interfaces for the Pegasus CIM Server implementation.  This is being created by the OpenGroup Enterprise Management Program Group.
+<P>This is a working document that contains the interfaces for the Pegasus 
+CIM Server implementation.  This is being created by the OpenGroup 
+Enterprise Management Program Group.  
 
-<p>In addition to this documentation, Pegasus has a Users' Guide that specifies overview information and how to set up and install Pegasus.  In addition to the manual, the README files contain specific information to aide you in when working with Pegasus and its documentation.</p>
+<p>In addition to this documentation, Pegasus has a Users' Guide that 
+specifies overview information and how to set up and install Pegasus.  In 
+addition to the manual, the README files contain specific information to 
+aide you in when working with Pegasus and its documentation.</p> 
 
 <p>Within this document, you will find the following:</p>
 <UL>
@@ -28,9 +33,16 @@ Pegasus is an open source implementation of the manageability environment define
 </UL>
 
 <p>The following are interfaces that are frozen with the 2.3 release of Pegasus:
+CONNIE: we will go nuts if we try to do the lists this way.  We need to mark them
+        in the classes and methods themselves, not in this list.  In reality
+        all interfaces that are not explicitly marked experimental are frozen.
+        We should state that.
+        Need to reference PEP 57 as the authority for this release.
 
 
 <p>The following are interfaces that are experimental:
+CONNIE: We might get by with this experimental list but it will change for each
+        version of the document.
 
 
 <p>The following is the complete file hiearchy for this document.
@@ -43,7 +55,8 @@ TBD: Pegasus API version information
 */
 
 /** @name Pegasus CIM Objects and Common Function APIs
-	NOTE: This needs to be reorganized to take into account a structure for these APIs 
+	This section defines the Pegasus C++ Class that represent
+        the CIM objects and the common functions used by Pegasus 
 */    
         //@{
         /// @name Classes for CIM Objects and Containers
@@ -82,7 +95,7 @@ TBD: Pegasus API version information
 		//@Include: ../../src/Pegasus/Common/ResponseHandler.h
 		//@Include: ../../src/Pegasus/Common/SSLContext.h
             //@}
-       /// @name Exceptions
+       /// @name CIM Object Exceptions
             //@{
         	//@Include: ../../src/Pegasus/Common/Exception.h
             //@}
@@ -98,6 +111,7 @@ TBD: Pegasus API version information
 	    /// @name Pegasus Client CIM Operation and Connection Interfaces   
 		//@{    
 		    //@Include: ../../src/Pegasus/Client/CIMClient.h
+		    //@Include: ../../src/Pegasus/Client/CIMClientException.h
 		//@}
 	    /// @name Pegasus Client SLP interfaces   
 		//@{    
@@ -116,7 +130,7 @@ TBD: Pegasus API version information
 	        //@{
 			//@Include: ../../src/Pegasus/Provider/CIMProvider.h
 			//@Include: ../../src/Pegasus/Provider/CIMAssociationProvider.h
-			//@Include: ../../src/Pegasus/Provider/CIMIndicationConsumer.h
+			//@Include: ../../src/Pegasus/Consumer/CIMIndicationConsumer.h
 			//@Include: ../../src/Pegasus/Provider/CIMIndicationProvider.h
 			//@Include: ../../src/Pegasus/Provider/CIMInstanceProvider.h
 			//@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
@@ -124,12 +138,24 @@ TBD: Pegasus API version information
 	    /// Pegasus CIM Provider  CIMOM Handle Callback
 	      //@{ 
 		//@Include: ../../src/Pegasus/Provider/CIMOMHandle.h
-	        //@}  	 
+	      //@}  	 
 	    /// Pegasus CIM Provider Exceptions
 	      //@{ 
 		//@Include: ../../src/Pegasus/Provider/ProviderException.h
 	      //@}  	 
-	//@}  	 
+	//@}
+  /// @name Pegasus Server Indication Consumer
+        //@{
+                //@Include: ../../src/Pegasus/Consumer/CIMIndicationConsumer.h
+        //@}  	 
+
+/** @name References and Glossary
+This section contains common definitions, glossary information, etc.
+*/ 
+     //@{
+        //@Include: ../DevManual/references.dxx
+     //@}
+
 /** @name Document References
 
 This section will contain references to external documents.
@@ -140,6 +166,6 @@ NOTE: documents we must reference include:
 	<LI>DMTF Specifications
 	<LI>
 </UL/
-*/    //@Include: references.dxx
+*/    
  
 

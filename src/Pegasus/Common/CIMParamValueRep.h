@@ -89,7 +89,7 @@ private:
     // not implicitly define a default copy constructor.
     CIMParamValueRep& operator=(const CIMParamValueRep& x)
     {
-        PEGASUS_ASSERT(0);
+        //PEGASUS_ASSERT(0);
         return *this;
     }
 

@@ -78,7 +78,7 @@ private:
     // not implicitly define a default copy constructor.
     CIMInstanceRep& operator=(const CIMInstanceRep& x)
     {
-        PEGASUS_ASSERT(0);
+        //PEGASUS_ASSERT(0);
         return *this;
     }
 

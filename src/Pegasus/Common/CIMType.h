@@ -97,11 +97,6 @@ public:
     ///  Constructor
     CIMType(Tag tag);
 
-#if 0 // ATTN-RK-P3-20020514: Why encourage/allow this?
-    /// Constructor
-    PEGASUS_EXPLICIT CIMType(Uint32 tag);
-#endif
-
     ///  Constructor
     CIMType(const CIMType& x);
 
@@ -126,18 +121,13 @@ private:
     Tag _tag;
 };
 
-#if 0 // ATTN-RK-P3-20020514: These shouldn't be necessary because the
-      // compiler can convert CIMType to CIMType::Tag automatically
-inline Boolean operator==(CIMType x, CIMType y)
-{
-    return CIMType::Tag(x) == CIMType::Tag(y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType x, CIMType y);
+PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType x, CIMType y);
 
-inline Boolean operator!=(CIMType x, CIMType y)
-{
-    return !operator==(x, y);
-}
-#endif
+PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType x, CIMType::Tag y);
+PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType::Tag x, CIMType y);
+PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType x, CIMType::Tag y);
+PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType::Tag x, CIMType y);
 
 PEGASUS_NAMESPACE_END
 

@@ -110,7 +110,7 @@ private:
     // not implicitly define a default copy constructor.
     CIMClassRep& operator=(const CIMClassRep& x)
     {
-        PEGASUS_ASSERT(0);
+        //PEGASUS_ASSERT(0);
         return *this;
     }
 

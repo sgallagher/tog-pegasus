@@ -144,7 +144,7 @@ private:
     // not implicitly define a default copy constructor.
     CIMObjectRep& operator=(const CIMObjectRep& x)
     {
-	PEGASUS_ASSERT(0);
+	//PEGASUS_ASSERT(0);
 	return *this;
     }
 

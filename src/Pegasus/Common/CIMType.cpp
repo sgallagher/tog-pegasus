@@ -47,12 +47,6 @@ CIMType::CIMType(Tag tag) : _tag(tag)
 {
 }
 
-#if 0
-CIMType::CIMType(Uint32 tag) : _tag(Tag(tag))
-{
-}
-#endif
-
 CIMType::CIMType(const CIMType& x) : _tag(x._tag)
 {
 }
@@ -76,6 +70,37 @@ Boolean CIMType::equal(const CIMType& x) const
 const char* CIMType::toString() const
 {
     return _typeStrings[Uint32(_tag)];
+}
+
+
+Boolean operator==(CIMType x, CIMType y)
+{
+    return CIMType::Tag(x) == CIMType::Tag(y);
+}
+
+Boolean operator!=(CIMType x, CIMType y)
+{
+    return CIMType::Tag(x) != CIMType::Tag(y);
+}
+
+Boolean operator==(CIMType x, CIMType::Tag y)
+{
+    return x.equal(y);
+}
+
+Boolean operator==(CIMType::Tag x, CIMType y)
+{
+    return y.equal(x);
+}
+
+Boolean operator!=(CIMType x, CIMType::Tag y)
+{
+    return !operator==(x, y);
+}
+
+Boolean operator!=(CIMType::Tag x, CIMType y)
+{
+    return !operator==(x, y);
 }
 
 PEGASUS_NAMESPACE_END

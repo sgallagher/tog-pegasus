@@ -52,6 +52,7 @@ class ProviderManager;
 class Provider;
 #ifdef PEGASUS_OS_OS400
 class CIMProviderOS400UserState;
+class CIMProviderOS400SystemState;
 #endif
 
 class cimom_handle_op_semaphore;
@@ -249,6 +250,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 #ifdef PEGASUS_OS_OS400
       friend CIMProviderOS400UserState;
       CIMOMHandle(Uint32 os400UserStateKey);
+
+      friend CIMProviderOS400SystemState;
+      void setOS400ProfileHandle(const char * profileHandle);
 #endif
       void get_idle_timer(void *);
       void update_idle_timer(void);

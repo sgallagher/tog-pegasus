@@ -56,6 +56,7 @@
 #include <qycmutilu2.H>
 #include "OS400ConvertChar.h"
 #include "CIMOMHandleOS400UserState.h"
+#include "CIMOMHandleOS400SystemState.h"
 #endif
 
 #include  "CIMOMHandle.h"
@@ -87,6 +88,10 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
       Uint32 _providerUnloadProtect;
       Mutex _providerUnloadProtectMutex;
 
+#ifdef PEGASUS_OS_OS400
+      char os400PH[12];
+#endif
+
    public: 
       typedef MessageQueue Base;
       
@@ -98,6 +103,7 @@ class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
       ~_cimom_handle_rep(void) {  }
 
 #ifdef PEGASUS_OS_OS400
+      void setOS400ProfileHandle(const char *ph);
       CIMOMHandleOS400UserState _chOS400;
 #endif
 
@@ -180,6 +186,9 @@ class cimom_handle_dispatch
       Message *_msg;
       Uint32 _my_qid;
       Uint32 _out_qid;
+#ifdef PEGASUS_OS_OS400
+      char os400PH[12];
+#endif
 };
 
 
@@ -230,6 +239,11 @@ CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(Uint32 os400key)
    :Base(PEGASUS_QUEUENAME_INTERNALCLIENT),
     _chOS400(os400key)
 {
+}
+
+void CIMOMHandle::_cimom_handle_rep::setOS400ProfileHandle(const char *ph)
+{
+   memcpy(os400PH, ph, 12);
 }
 #endif
 
@@ -488,6 +502,16 @@ CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
    {
       try 
       {
+#ifdef PEGASUS_OS_OS400
+         // On OS/400, this code runs in a system state thread.  Swap the thread
+         // profile to be able to access server resources.
+         if (CIMOMHandleOS400SystemState::setProfileHandle(dp->os400PH) !=
+              CIM_ERR_SUCCESS)
+	 {
+            throw Exception("");
+	 }
+#endif
+
 	 MessageQueue * target = MessageQueue::lookup(dp->_out_qid);
 	 MessageQueue *me = MessageQueue::lookup(dp->_my_qid);
 	 if(me && target && dp->_msg)
@@ -560,6 +584,10 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
 
    cimom_handle_dispatch *dp = 
       new cimom_handle_dispatch(request, get_qid(), get_output_qid());
+
+#ifdef PEGASUS_OS_OS400
+   memcpy(dp->os400PH, os400PH, 12); 
+#endif
 
    MessageQueueService::get_thread_pool()->allocate_and_awaken(dp, _dispatch);
 
@@ -654,6 +682,11 @@ CIMOMHandle::CIMOMHandle(void)
 CIMOMHandle::CIMOMHandle(Uint32 os400UserStateKey)
 {
    _rep = new _cimom_handle_rep(os400UserStateKey);
+}
+
+void CIMOMHandle::setOS400ProfileHandle(const char * profileHandle)
+{
+   _rep->setOS400ProfileHandle(profileHandle);
 }
 #endif
 

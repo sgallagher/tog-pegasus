@@ -33,6 +33,8 @@ registerproviders:
 	@ $(ECHO) +++++ Registering providers for SampleProvider namespace  ...
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) InstanceProviderR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) MethodProviderR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) IndicationProviderR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) SimpleDisplayConsumerR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) CWS_FilesAndDirR.mof
 
 deregisterproviders:
@@ -40,5 +42,9 @@ deregisterproviders:
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleInstanceProviderModule
 	@ $(ECHO) +++++ Deregistering SampleMethodProvider ...
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleMethodProviderModule
+	@ $(ECHO) +++++ Deregistering SampleIndicationProvider ...
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleIndicationProviderModule
+	@ $(ECHO) +++++ Deregistering SimpleDisplayConsumerModule ...
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SimpleDisplayConsumerModule
 	@ $(ECHO) +++++ Deregistering FilesandDirectoryModule ...
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m FilesAndDirectoriesModule 

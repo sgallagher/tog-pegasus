@@ -24,10 +24,12 @@ HTML_SRCPATH = $(PEGASUS_HOME)/html
 
 CLIENT_SRCPATH1 = $(PEGASUS_ROOT)/src/SDK/samples
 CLIENT_SRCPATH2 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Clients
+CLIENT_SRCPATH3 = $(PEGASUS_ROOT)/src/Clients
 
 PROVIDER_SRCPATH1 = $(PEGASUS_ROOT)/src/SDK/samples/Providers
 PROVIDER_SRCPATH2 = $(PEGASUS_ROOT)/src/Providers/sample
 PROVIDER_SRCPATH3 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Providers
+PROVIDER_SRCPATH4 = $(PEGASUS_ROOT)/src/Providers/IndicationConsumer
 
 INCLUDEFILES = \
    Pegasus/Client/CIMClientException.h \
@@ -124,28 +126,39 @@ CLIENTSRCPATH1FILES = \
    Clients/Makefile \
    Clients/DefaultC++/Makefile \
    Clients/DefaultC++/EnumInstances/Makefile \
-   Clients/DefaultC++/InvokeMethod/Makefile 
+   Clients/DefaultC++/InvokeMethod/Makefile \
+   Clients/DefaultC++/SendTestIndications/Makefile 
 
 CLIENTSRCPATH2FILES = \
    EnumInstances/EnumInstances.cpp \
-   InvokeMethod/InvokeMethod.cpp \
+   InvokeMethod/InvokeMethod.cpp 
+
+CLIENTSRCPATH3FILES = \
+   SendTestIndications/SendTestIndications.cpp
 
 PROVIDERSRCPATH1FILES = \
    Makefile \
    Load/Makefile \
+   Load/SampleProviderSchema.mof \
+   Load/IndicationProviderR.mof \
    DefaultC++/Makefile \
    DefaultC++/InstanceProvider/Makefile \
    DefaultC++/MethodProvider/Makefile \
    CMPI/Makefile \
    CMPI/FilesAndDirectories/Makefile \
-   CMPI/FilesAndDirectories/tests/Makefile 
+   CMPI/FilesAndDirectories/tests/Makefile \
+   DefaultC++/IndicationProvider/Makefile \
+   DefaultC++/IndicationProvider/IndicationProvider.cpp \
+   DefaultC++/IndicationProvider/IndicationProvider.h \
+   DefaultC++/IndicationProvider/IndicationProviderMain.cpp \
+   DefaultC++/SimpleDisplayConsumer/Makefile
    
 PROVIDERSRCPATH2FILES = \
    Load/CWS_FilesAndDir.mof \
    Load/CWS_FilesAndDirR.mof \
    Load/InstanceProviderR.mof \
    Load/MethodProviderR.mof \
-   Load/SampleProviderSchema.mof \
+   Load/SimpleDisplayConsumerR.mof \
    CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml \
    CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml \
    CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml \
@@ -181,6 +194,11 @@ PROVIDERSRCPATH3FILES = \
    MethodProvider/MethodProvider.h \
    MethodProvider/InvokeMethod.xml \
    MethodProvider/InvokeMethodrspgood.xml
+
+PROVIDERSRCPATH4FILES = \
+   SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp \
+   SimpleDisplayConsumer/SimpleDisplayConsumer.cpp \
+   SimpleDisplayConsumer/SimpleDisplayConsumer.h
 
 error:
 	@echo "Please specify an action"
@@ -226,6 +244,9 @@ createConfigFile:
 	@$(ECHO) "ifndef PEGASUS_PLATFORM" > $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO) "   PEGASUS_PLATFORM = $(PEGASUS_PLATFORM)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "ifndef PEGASUS_INDICATION_CONSUMER_LOG_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "   PEGASUS_INDICATION_CONSUMER_LOG_DIR = $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(CAT)  $(PEGASUS_ROOT)/src/SDK/samples/mak/config.mak >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 
@@ -235,15 +256,20 @@ stageSAMPLES:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/EnumInstances
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/InvokeMethod
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/SendTestIndications
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/InstanceProvider
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/MethodProvider
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/IndicationProvider
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/CMPI/FilesAndDirectories/tests
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
 	@$(foreach i, $(CLIENTSRCPATH2FILES), $(COPY) $(CLIENT_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
+	@$(foreach i, $(CLIENTSRCPATH3FILES), $(COPY) $(CLIENT_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i);)
 	@$(foreach i, $(PROVIDERSRCPATH2FILES), $(COPY) $(PROVIDER_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i);)
 	@$(foreach i, $(PROVIDERSRCPATH3FILES), $(COPY) $(PROVIDER_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i);)
+	@$(foreach i, $(PROVIDERSRCPATH4FILES), $(COPY) $(PROVIDER_SRCPATH4)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i);)
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createConfigFile
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createPlatformFile
 
@@ -259,14 +285,15 @@ removeSampleProviderNamespace:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstart
 
 buildSDK:
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i deregisterproviders
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i removeSampleProviderNamespace
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i deregisterproviders
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) -f Makefile clean \
              PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
              PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) -f Makefile all \
              PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_INCLUDE_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR) \
-             PEGASUS_DEST_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
+             PEGASUS_DEST_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
+             PEGASUS_INDICATION_CONSUMER_LOG_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load -f Makefile createrepository \
              PEGASUS_MOF_DIR=$(PEGASUS_ROOT)/Schemas PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i registerproviders PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin

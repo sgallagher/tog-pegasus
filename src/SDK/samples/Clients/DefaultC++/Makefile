@@ -4,6 +4,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     EnumInstances \
-    InvokeMethod
+    InvokeMethod \
+    SendTestIndications
 
 include $(ROOT)/mak/recurse.mak

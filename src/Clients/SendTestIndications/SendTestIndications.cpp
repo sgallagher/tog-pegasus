@@ -165,7 +165,7 @@ void _subscribe
     CIMObjectPath filterPath = _createFilter 
        (client, 
         "TestFilter",
-        "SELECT MethodName FROM Sample_IndicationProviderClass",
+        "SELECT MethodName FROM RT_TestIndication",
         "WQL",
          SOURCENAMESPACE.getString ());
 

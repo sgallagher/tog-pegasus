@@ -1,9 +1,7 @@
-//%2003////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
-// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
-// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -27,20 +25,20 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
-#include "SimpleDisplayConsumer.h"
+#include "IndicationProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C"
-PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider
+    (const String & providerName)
 {
-    if (String::equalNoCase(providerName, "SimpleDisplayConsumer"))
+    if (String::equalNoCase (providerName, "SampleIndicationProvider"))
     {
-         return(new SimpleDisplayConsumer());
+	return new IndicationProvider;
     }
-    return 0;
+
+    return (0);
 }
 
 PEGASUS_NAMESPACE_END

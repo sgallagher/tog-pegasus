@@ -4,6 +4,8 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     InstanceProvider \
-    MethodProvider 
+    MethodProvider \
+    IndicationProvider \
+    SimpleDisplayConsumer
 
 include $(ROOT)/mak/recurse.mak

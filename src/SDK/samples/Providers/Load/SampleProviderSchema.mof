@@ -1,0 +1,37 @@
+[abstract, Version ("2.2.0")]
+class Sample_ProviderClass
+{
+	[key,
+	read]
+	Uint8 Identifier;
+};
+
+[Version ("2.2.0")]
+class Sample_InstanceProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};
+
+[Version ("2.2.0")]
+class Sample_MethodProviderClass : Sample_ProviderClass
+{
+	string SayHello( [IN] string Name, [OUT] string place);
+};
+
+[Version ("2.2.0")]
+class Sample_IndicationProviderClass : CIM_Indication
+{
+	[read]
+	string Message;
+	
+	[read]
+	datetime TimeStamp;
+};
+
+[Version ("2.3.0"), Indication]
+class RT_TestIndication : CIM_Indication
+{
+    string MethodName;
+    [Static] uint32 SendTestIndication();
+};

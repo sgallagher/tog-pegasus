@@ -199,7 +199,7 @@ public:
     */
     Array<Sint8> issueRequest(
 	const Array<Sint8>& request
-    ) throw(NotConnected, TimedOut);
+    ) throw(NotConnected, TimedOut, UnauthorizedAccess);
 
 private:
 

@@ -314,7 +314,7 @@ String WbemExecClient::_promptForPassword()
 
 Array<Sint8> WbemExecClient::issueRequest(
     const Array<Sint8>& request
-) throw(NotConnected, TimedOut)
+) throw(NotConnected, TimedOut, UnauthorizedAccess)
 {
     if (!_connected)
     {

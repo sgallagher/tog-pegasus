@@ -77,7 +77,7 @@ static const String LOCALPRIVILEGED_AUTH_HEADER =
 
 
 
-ClientAuthenticator::ClientAuthenticator()
+ClientAuthenticator::ClientAuthenticator(): _challengeReceived(false)
 {
     clearRequest(true);
 }
@@ -117,9 +117,7 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
 
     if (_challengeReceived)
     {
-        //ATTN-DME-P1-20000527: this needs to be changed to
-        //      throw and ACCESS_DENIED_EXCEPTION.
-        throw InvalidAuthHeader();
+        throw UnauthorizedAccess();
     }
     else
     {

@@ -574,6 +574,12 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             (WbemExecException::TIMED_OUT);
         throw e;
     }
+    catch (UnauthorizedAccess& ex)
+    {
+        WbemExecException e
+            (WbemExecException::CONNECT_FAIL, ex.getMessage ());
+        throw e;
+    }
     catch (Exception& ex)
     {
         WbemExecException e

@@ -176,6 +176,16 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
+    catch(UnauthorizedAccess& e)
+    {
+         CIMClientCannotConnectException* cannotConnectHTTPException =
+            new  CIMClientCannotConnectException(e.getMessage());
+	 ClientExceptionMessage * response =
+            new ClientExceptionMessage(cannotConnectHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
 
     //
     // Check for a success (200 OK) response

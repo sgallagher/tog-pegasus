@@ -791,6 +791,15 @@ public:
     InvalidAuthHeader() : Exception(MSG) { }
 };
 
+class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    UnauthorizedAccess() : Exception(MSG) { }
+};
+
 PEGASUS_COMMON_LINKAGE void ThrowUninitializedHandle();
 
 PEGASUS_NAMESPACE_END

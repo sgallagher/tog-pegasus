@@ -1,0 +1,20 @@
+
+
+Notes for Solaris:
+
+    Used static libraries for G++.
+    Add -fPIC to compiler line.
+    Reorder libraries in libraries.mak files (one pass linking).
+    Add space between "-o" and ".tmp.o".
+    Add FILTER= for purify
+
+Notes on xlC on AIX (IBM C++):
+
+    No template specialization.
+    No namespaces.
+    No for scope.
+    Destructor warnings.
+    No template default arguments.
+    Missing standard headers (e.g., <cstdio>, <cstddef>,...)
+    No boolean type.
+

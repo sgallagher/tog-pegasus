@@ -12,6 +12,8 @@ Urgent
 
     -	Add tracing of output HTTP messages.
 
+    -   Need CIMInstance::removeMethod() and CIMInstance::removeProperty().
+
 Topical To-Do List
 ==================
 

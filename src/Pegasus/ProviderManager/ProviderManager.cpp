@@ -454,7 +454,6 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 			   
 			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 					    "Destroying Module " + provider->_module->_fileName);
-			   
 			}
 		     }
 
@@ -463,31 +462,32 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 		     try
 		     {
 			// terminate eventually tries to unload the module 
-			if(false == provider->tryTerminate())
+			if(true == provider_removed )
 			{
-			   if(true == module_removed)
+			   if(false == provider->tryTerminate())
 			   {
-			      _modules.insert(provider->_module->getFileName(), provider->_module);
-			   }
-			   
-			   if(true == provider_removed)
-			   {
+			      if( true == module_removed)
+			      {
+				 _modules.insert(provider->_module->getFileName(), provider->_module);
+			      }
+			      
 			      _providers.insert(provider->_name, provider);
+			      i = myself->_providers.start();
+			      continue;
 			   }
-			   continue;
+			   else
+			   {
+			      if(true == module_removed)
+				 delete provider->_module;
+			   }
 			}
-			else
-			{
-			   if(true == module_removed)
-			      delete provider->_module;
-			}
-			
 		     }
 		     catch(...)
 		     {
 			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 					 "Exception terminating " + 
 					 provider->getName());
+			i = myself->_providers.start();
 			continue;
 		     }
 		  

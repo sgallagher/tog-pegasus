@@ -193,17 +193,13 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 
 void CMPIProviderModule::unloadModule(void)
 {
-    _ref_count--;
-
-    if(_ref_count.value() > 0)
-        return;
-
-    _ref_count = 0;
-
-    if (_library != 0) {
-        if (genericProviderModule) return;
-        System::unloadDynamicLibrary(_library);
-        _library = 0;
+    if (_ref_count.DecAndTestIfZero())
+    {
+        if(_library != 0)
+        {
+            System::unloadDynamicLibrary(_library);
+            _library = 0;
+        }
     }
 }
 

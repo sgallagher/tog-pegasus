@@ -1,0 +1,4 @@
+select * from CIM_ComputerSystem where 'abcdefg' LIKE 'abcdefg'
+select * from CIM_ComputerSystem where 'abcdefg' LIKE 'a.cdefg'
+select * from CIM_ComputerSystem where 'abcdefg' LIKE '*defg'
+select * from CIM_ComputerSystem where 'abcdefg' LIKE 'abcd*'

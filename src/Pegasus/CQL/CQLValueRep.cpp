@@ -1273,6 +1273,7 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    // Poughkepsie is doing this, Dan Gorey.
    return false;
 }
+
 /*
 void CQLValueRep::invert()
 {

@@ -318,7 +318,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
 {	
   // cout << "ProcessorProvider::getInstance(" << instanceName << ")" << endl;
 
-  KeyBinding kb;
+  CIMKeyBinding kb;
   String className = instanceName.getClassName();
   String nameSpace = instanceName.getNameSpace();
   String deviceID;
@@ -330,7 +330,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
   _checkClass(className);
 
   // Extract the key values
-  Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+  Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
 
   // Leave immediately if wrong number of keys
   if ( kbArray.size() != NUMKEYS_PROCESSOR )
@@ -491,26 +491,26 @@ void ProcessorProvider::terminate()
 // PARAMETERS        : className
 // ================================================================================
 
-Array<KeyBinding> ProcessorProvider::_constructKeyBindings(const Processor& _p)
+Array<CIMKeyBinding> ProcessorProvider::_constructKeyBindings(const Processor& _p)
 {
-  Array<KeyBinding> keyBindings;
+  Array<CIMKeyBinding> keyBindings;
 
   // Construct the key bindings
-  keyBindings.append(KeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
 		                CLASS_CIM_COMPUTER_SYSTEM,
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 		
-  keyBindings.append(KeyBinding(PROPERTY_SYSTEM_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME,
                                 _getSysName(),
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
+  keyBindings.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
 		                CLASS_PROCESSOR,
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(KeyBinding(PROPERTY_DEVICE_ID,
+  keyBindings.append(CIMKeyBinding(PROPERTY_DEVICE_ID,
                                 _p.getDeviceID(),
-                                KeyBinding::STRING));
+                                CIMKeyBinding::STRING));
 
   return keyBindings;
 }
@@ -597,7 +597,7 @@ CIMInstance ProcessorProvider::_constructInstance(const String &className,
   // trusting that this was done correctly
 
   // Get the keys
-  Array<KeyBinding> key = inst.getPath().getKeyBindings();
+  Array<CIMKeyBinding> key = inst.getPath().getKeyBindings();
   // loop through keys, inserting them as properties
   // luckily, all keys for this class are strings, so no
   // need to check key type

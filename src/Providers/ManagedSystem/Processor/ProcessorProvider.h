@@ -100,7 +100,7 @@ private:
   // private member to store handle passed by initialize()
   CIMOMHandle _cimomHandle;
 
-  Array<KeyBinding> _constructKeyBindings(const Processor&);
+  Array<CIMKeyBinding> _constructKeyBindings(const Processor&);
 
   // Used to add properties to an instance
   // first argument is the class of instance to be built

@@ -69,9 +69,9 @@ public:
 	const QueueIdStack& queueIds_)
 	: 
 	CIMMessage(type_, messageId_), 
+	queueIds(queueIds_),
 	errorCode(errorCode_), 
-	errorDescription(errorDescription_),
-	queueIds(queueIds_)
+	errorDescription(errorDescription_)
     {
     }
 

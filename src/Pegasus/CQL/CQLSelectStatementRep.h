@@ -266,10 +266,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
     void applyProjection(PropertyNode* node, CIMProperty& nodeProp);
 
-    void removeUnneededProperties(CIMInstance& inst, 
-				  Array<CIMName>& requiredProps,
-				  CIMName requiredScope);
-
     void validateProperty(CQLChainedIdentifier& chainId);
 
     CIMName lookupFromClass(const String&  lookup);
@@ -277,6 +273,14 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     Boolean addRequiredProperty(Array<CIMName>& reqProps,
 				CIMClass& theClass,
 				CQLChainedIdentifier& chainId);
+
+    void addProjectedProperty(const CIMInstance& inst,
+                              PropertyNode* node,
+                              Array<CIMName>& requiredProps);
+
+    void removeUnneededProperties(CIMInstance& inst, 
+                                  Boolean & allPropsRequired,
+				  Array<CIMName>& requiredProps);
 
     Boolean containsProperty(const CIMName& name,
 			     const Array<CIMName>& props);

@@ -61,7 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct PropertyNode
 {
   CIMName name;
-  Array<CIMName> scopes;
+  CIMName scope;
   Boolean wildcard;
   AutoPtr<PropertyNode> sibling;
   AutoPtr<PropertyNode> firstChild;
@@ -79,8 +79,8 @@ CQLSelectStatementRep::CQLSelectStatementRep()
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
-					     String& inQuery,
-					     QueryContext& inCtx)
+                                             String& inQuery,
+                                             QueryContext& inCtx)
   :SelectStatementRep(inQlang, inQuery, inCtx),
    _hasWhereClause(false),
    _contextApplied(false)
@@ -149,6 +149,8 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
   AutoPtr<PropertyNode> rootNode(new PropertyNode);
   Array<CQLIdentifier> fromList = _ctx->getFromList();
   rootNode->name = fromList[0].getName();  // not doing joins
+  rootNode->scope = fromList[0].getName();
+  rootNode->wildcard = false;
 
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
   {
@@ -163,56 +165,54 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
     {
       if (ids[j].isWildcard())
       {
-	curNode->wildcard = true;
-	break;
+        curNode->wildcard = true;
+        break;
       }
 
       Boolean found = false;
       while (curChild != NULL && !found)
       {
-	if (curChild->name == ids[j].getName())
+        if (curChild->name == ids[j].getName() &&
+            String::equalNoCase(curChild->scope.getString(), ids[j].getScope()))
         {
-	  found = true;
-	}
-	else
+          found = true;
+        }
+        else
         {
-	  curChild = curChild->sibling.get();
-	}
+          curChild = curChild->sibling.get();
+        }
       }
 
       if (!found)
       {
-	curChild = new PropertyNode;
-	curChild->sibling = curNode->firstChild;
-	curChild->name = ids[j].getName();
+        curChild = new PropertyNode;
+        curChild->sibling = curNode->firstChild;
+        curChild->name = ids[j].getName();
+        curChild->wildcard = false;
+        curNode->firstChild.reset(curChild);  // safer than using the = operator
+      }
 
-	if (ids[j].isScoped())
-	{
-	  CQLIdentifier matchId  = _ctx->findClass(ids[j].getScope());
-	  CIMName scope;
-	  if (matchId.getName().getString() != String::EMPTY)
-	  {
-	    scope = matchId.getName();
-	  }
-	  else
-	  {
-	    scope = CIMName(ids[j].getScope());
-	  }
-	  
-	  Uint32 i = 0;
-	  for (; i < curChild->scopes.size(); i++)
-	  {
-	    if (curChild->scopes[i] == scope)
-	      break;
-	  }
-	  if (i == curChild->scopes.size())
-	  {
-	    curChild->scopes.append(scope);
-	  }
- 	}
-
-	curChild->wildcard = false;
-	curNode->firstChild.reset(curChild);  // safer than using the = operator
+      if (ids[j].isScoped())
+      {
+        CQLIdentifier matchId  = _ctx->findClass(ids[j].getScope());
+        CIMName scope;
+        if (matchId.getName().getString() != String::EMPTY)
+        {
+          scope = matchId.getName();
+        }
+        else
+        {
+          scope = CIMName(ids[j].getScope());
+        }
+          
+        curChild->scope = scope;
+      }
+      else
+      {
+        if (j == 1)
+        {
+          curChild->scope = fromList[0].getName();
+        }
       }
 
       curNode = curChild;
@@ -221,7 +221,8 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
   }
 
   Array<CIMName> requiredProps;
-  CIMName requiredScope;
+  Boolean allPropsRequired = rootNode->wildcard;
+
   PropertyNode* childNode = rootNode->firstChild.get();
   while (childNode != NULL)
   {
@@ -234,53 +235,21 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
       inCI.addProperty(childProp);
     }
 
-    // ATTN: what to do about selecting one element of an array.  Is this allowed
-    // in basic, and if so, then it would cause a property type change.  
-    // Line 461.  May need to call CQLValue to figure this out.
-
-    // ATTN: Line 636-640 - does this only apply to basic?
-
-    if (!rootNode->wildcard)
-      requiredProps.append(childNode->name);   
-
-    for (Uint32 i = 0; i < childNode->scopes.size(); i++)    
+    if (!allPropsRequired)
     {
-      if (childNode->scopes[i] == requiredScope)
-      {
-	continue;
-      }
-
-      if (requiredScope.isNull() || 
-	  isSubClass(childNode->scopes[i], requiredScope))
-      {
-	requiredScope = childNode->scopes[i];
-      }
-      else if (!isSubClass(requiredScope, childNode->scopes[i]))
-      {
-	// note: no multiple inheritance in CIM
-	throw Exception("TEMP MSG instance cannot be all the required scopes");
-      }
+      addProjectedProperty(inCI,
+                           childNode,
+                           requiredProps);
     }
- 
+
     childNode = childNode->sibling.get();
   }
 
-  if (requiredScope.getString() == String::EMPTY)
-  {
-    requiredScope = fromList[0].getName(); 
-  }
-
-  if (!inCI.getClassName().equal(requiredScope) &&
-      !isSubClass(inCI.getClassName(),requiredScope))
-  {
-    throw Exception("TEMP MSG - indication is not of the required scope");
-  }
-
-  removeUnneededProperties(inCI, requiredProps, requiredScope);
+  removeUnneededProperties(inCI, allPropsRequired, requiredProps);
 }
 
 void CQLSelectStatementRep::applyProjection(PropertyNode* node,
-					    CIMProperty& nodeProp)
+                                            CIMProperty& nodeProp)
 {
   PEGASUS_ASSERT(node->firstChild.get() != NULL);
 
@@ -291,7 +260,7 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
 //nodeVal.get(nodeInst);
 
   Array<CIMName> requiredProps;
-  CIMName requiredScope;
+  Boolean allPropsRequired = node->wildcard;
 
   PropertyNode * curChild = node->firstChild.get();
   while (curChild != NULL)
@@ -305,59 +274,64 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
       nodeInst.addProperty(childProp);
     }
 
-    // ATTN: what to do about selecting one element of an array.  Is this allowed
-    // in basic, and if so, then it would cause a property type change.  
-    // Line 461.  May need to call CQLValue to figure this out.
-
-    if (!node->wildcard)
+    if (!allPropsRequired)
     {
-      requiredProps.append(curChild->name);
-    }
-
-    for (Uint32 i = 0; i < curChild->scopes.size(); i++)    
-    {
-      if (curChild->scopes[i] == requiredScope)
-      {
-	continue;
-      }
-
-      if (requiredScope.isNull() || 
-	  isSubClass(curChild->scopes[i], requiredScope))
-      {
-	requiredScope = curChild->scopes[i];
-      }
-      else if (!isSubClass(requiredScope, curChild->scopes[i]))
-      {
-	// note: no multiple inheritance in CIM
-	throw Exception("TEMP MSG instance cannot be all the required scopes");
-      }
+      addProjectedProperty(nodeInst,
+                           curChild,
+                           requiredProps);
     }
 
     curChild = curChild->sibling.get();
   }
 
-  PEGASUS_ASSERT(requiredScope.getString() != String::EMPTY);
-
-  if (!nodeInst.getClassName().equal(requiredScope) &&
-      !isSubClass(nodeInst.getClassName(),requiredScope))
-  {
-    throw Exception("TEMP MSG - indication is not of the required scope");
-  }
-
-  removeUnneededProperties(nodeInst, requiredProps, requiredScope);
+  removeUnneededProperties(nodeInst, allPropsRequired, requiredProps);
 
 // ATTN - UNCOMMENT when emb objs are supported
 //CIMValue newNodeVal(nodeInst);
 //nodeProp.setValue(newNodeVal);
 } 
 
-void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst, 
-						     Array<CIMName>& requiredProps,
-						     CIMName requiredScope)
+void CQLSelectStatementRep::addProjectedProperty(const  CIMInstance& inst,
+                                                 PropertyNode* node,
+                                                 Array<CIMName>& requiredProps)
 {
-  if (requiredProps.size() == 0)
+  // ATTN: what to do about selecting one element of an array.  Is this allowed
+  // in basic, and if so, then it would cause a property type change.  
+  // Line 461.  May need to call CQLValue to figure this out.
+
+  // ATTN: Line 636-640 - does this only apply to basic?
+
+  // Implementation note:
+  // Scoping operator before a wildcard is not allowed
+  // Example:
+  // SELECT fromclass.embobj.scope::*
+  // (if allowed it would have said "return all props on embobj only
+  //  when its is a scope or subclass of scope")
+
+  Boolean filterable = false;
+  if (inst.getClassName() == node->scope)
   {
-    CIMClass cls = _ctx->getClass(requiredScope);
+    filterable = true;
+  }
+  else if (isSubClass(inst.getClassName(), node->scope))
+  {
+    filterable = true;
+  }
+
+  if (filterable)
+  {
+    requiredProps.append(node->name);
+  }
+} 
+
+void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst, 
+                                                     Boolean & allPropsRequired,
+                                                     Array<CIMName>& requiredProps)
+{
+  if (allPropsRequired)
+  {
+    requiredProps.clear();
+    CIMClass cls = _ctx->getClass(inst.getClassName());
     Array<CIMName> clsProps;
     for (Uint32 i = 0; i < cls.getPropertyCount(); i++)
     {
@@ -375,7 +349,7 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
   {
     if (!containsProperty(requiredProps[i], supportedProps))
     {
-      throw Exception("TEMP MSG - instance missing required property");
+      throw Exception("TEMP MSG - instance missing required property: " + requiredProps[i].getString());
     }
   }
 
@@ -383,7 +357,9 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
   {
     if (!containsProperty(supportedProps[i], requiredProps))
     {
-      inst.removeProperty(i);
+      Uint32 index = inst.findProperty(supportedProps[i]);
+      PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+      inst.removeProperty(index);
     }
   }
 }
@@ -405,7 +381,7 @@ void CQLSelectStatementRep::validateClass(const CIMObjectPath& inClassName) thro
   catch (CIMException& ce)
   {
     if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
-	ce.getCode() == CIM_ERR_NOT_FOUND)
+        ce.getCode() == CIM_ERR_NOT_FOUND)
     {
       // ATTN may just want to throw the CIMException rather than
       // CQL exception
@@ -427,9 +403,10 @@ void CQLSelectStatementRep::validateProperties() throw(Exception)
   {
     validateProperty(_selectIdentifiers[i]);
   }
-
+  
   for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
   {
+    // ATTN : need new drill down here to get the where ids
     validateProperty(_whereIdentifiers[i]);
   }
 }
@@ -440,28 +417,13 @@ void CQLSelectStatementRep::validateProperties() throw(Exception)
 //
 void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
 {
+  // Note: applyContext has been called beforehand
+  
   Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
 
-  // Determine the starting class context.
-  // See CQLIdentifier::applyContext for a description
-  // of the form of the identifier after applyContext.
-  CIMName startingContext;
-  Uint32 startingPos = 0;
-  if (ids[0].isScoped())
-  { 
-    // The first element is scoped, therefore the FROM class
-    // was not prepended.  Get the starting context from the FROM
-    Array<CQLIdentifier> fromList = _ctx->getFromList();
-    PEGASUS_ASSERT(fromList.size() == 1);   // no joins yet
-    startingContext = fromList[0].getName();
-  }
-  else
-  {
-    // First element was not scoped, therefore the FROM class
-    // was prepended.  Use the first element as the starting context.
-    startingContext = ids[0].getName();
-    startingPos = 1;
-  }
+  // The starting class context is the FROM class
+  CIMName startingContext(ids[0].getName());
+  Uint32 startingPos = 1;
 
   CIMName curContext;
   for (Uint32 pos = startingPos; pos < ids.size(); pos++)
@@ -475,8 +437,8 @@ void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
       curContext = lookupFromClass(ids[pos].getScope());
       if (curContext.getString() == String::EMPTY)
       {
-	// It was not in the FROM list, just use the scope name.
-	curContext = CIMName(ids[pos].getScope());
+        // It was not in the FROM list, just use the scope name.
+        curContext = CIMName(ids[pos].getScope());
       }      
     }
     else
@@ -494,30 +456,54 @@ void CQLSelectStatementRep::validateProperty(CQLChainedIdentifier& chainId)
     catch (CIMException& ce)
     {
       if (ce.getCode() == CIM_ERR_NOT_FOUND ||
-	  ce.getCode() == CIM_ERR_INVALID_CLASS)
+          ce.getCode() == CIM_ERR_INVALID_CLASS)
       {
-	// ATTN: better to just throw the CIMException rather
-	// than the CQL exception?
-	throw Exception("TEMP_MSG: class context does not exist");
+        // ATTN: better to just throw the CIMException rather
+        // than the CQL exception?
+        throw Exception("TEMP_MSG: class context does not exist: " + curContext.getString());
       }
     }
 
-    // Determine if the property name at the current position
-    // exists on the current class context.
-    if (classDef.findProperty(ids[pos].getName()) == PEG_NOT_FOUND)
+    // This check handles the right side of ISA case. ie
+    // that is the one case where a single element chain
+    // is left after applyContext
+    if (ids.size() > 1)
     {
-      throw Exception("TEMP MSG: prop not on scoped class");
-    }
-
-    // Checking class relationship rules in section 5.4.1.
-    // For validateProperties, this only applies to the first
-    // property in the chain,
-    if ((pos == startingPos) && !curContext.equal(startingContext))
-    {
-      if (!isSubClass(curContext, startingContext) &&
-	  !isSubClass(startingContext, curContext))
+      if (ids[pos].isWildcard())
       {
-	throw Exception("TEMP MSG: section 5.4.1 violation!");
+        continue;
+      }
+
+      // Determine if the property name at the current position
+      // exists on the current class context.
+      Uint32 propertyIndex = classDef.findProperty(ids[pos].getName());
+      if (propertyIndex == PEG_NOT_FOUND)
+      {
+        throw Exception("TEMP MSG: prop not on scoped class: " + ids[pos].getName().getString());
+      }
+
+      // Checking class relationship rules in section 5.4.1.
+      // For validateProperties, this only applies to the first
+      // property in the chain,
+      if ((pos == startingPos) && !curContext.equal(startingContext))
+      {
+        if (!isSubClass(curContext, startingContext) &&
+            !isSubClass(startingContext, curContext))
+        {
+          throw Exception("TEMP MSG: section 5.4.1 violation!");
+        }
+      }
+
+      // If the current position implies an embedded object, then
+      // verify that the property is an embedded object
+      if (pos < ids.size() - 1) 
+      {
+        CIMProperty embObj = classDef.getProperty(propertyIndex);
+        CIMName qual("EmbeddedObject");
+        if (embObj.findQualifier(qual) == PEG_NOT_FOUND)
+        {
+          throw Exception("TEMP MSG: property is not an embedded object: " + embObj.getName().getString());
+        }
       }
     }
   }
@@ -569,9 +555,15 @@ CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
 
   for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
   {
+    // ATTN - need new drill down to get the where ids
     isWildcard = addRequiredProperty(reqProps, theClass, _whereIdentifiers[i]);
 
     PEGASUS_ASSERT(!isWildcard);
+  }
+
+  if (reqProps.size() == 0)
+  {
+    throw Exception("TEMP MSG: no properties are required on the instance");
   }
 
   Uint32 propCnt = theClass.getPropertyCount();
@@ -596,26 +588,36 @@ CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
 }
 
 Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
-						     CIMClass& theClass,
-						     CQLChainedIdentifier& chainId)
+                                                     CIMClass& theClass,
+                                                     CQLChainedIdentifier& chainId)
 {
   // Does not look at properties on embedded objects
 
   Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
 
-  // see the description of CQLIdentifier::applyContext
-
-  if (ids[0].isScoped())
+  if (ids.size() == 1)
   {
-    PEGASUS_ASSERT(!ids[0].isWildcard());
+    // Right side of ISA
+    return false;
+  }
+
+  if (chainId.getLastIdentifier().isSymbolicConstant())
+  {
+    // Symbolic constants are not properties
+    return false;
+  }
+
+  if (ids[1].isScoped())
+  {
+    PEGASUS_ASSERT(!ids[1].isWildcard());
 
     // Check if the scoped property is exposed by the class passed in.
-    if (theClass.findProperty(ids[0].getName()) != PEG_NOT_FOUND) 
+    if (theClass.findProperty(ids[1].getName()) != PEG_NOT_FOUND) 
     {
       CIMName scopingClass = lookupFromClass(ids[0].getScope());
       if (scopingClass.getString() == String::EMPTY)
       {
-	scopingClass = CIMName(ids[0].getScope());
+        scopingClass = CIMName(ids[1].getScope());
       }    
 
       // Check if the scoping class is a subclass of the class passed in
@@ -625,10 +627,10 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
       // is not a subclass of the class passed in
       if (!sub)
       {
-	if (!containsProperty(ids[0].getName(), reqProps))
-	{  
-	  reqProps.append(ids[0].getName());
-	}
+        if (!containsProperty(ids[1].getName(), reqProps))
+        {  
+          reqProps.append(ids[1].getName());
+        }
       }
     }
   }
@@ -643,7 +645,7 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
     {
       if (!containsProperty(ids[1].getName(), reqProps))
       {  
-	reqProps.append(ids[1].getName());
+        reqProps.append(ids[1].getName());
       }
     }
   }
@@ -652,7 +654,7 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
 }
 
 Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
-						const Array<CIMName>& props) 
+                                                const Array<CIMName>& props) 
 {
   for (Uint32 i = 0; i < props.size(); i++)
   {
@@ -666,7 +668,7 @@ Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
 }
 
 Boolean CQLSelectStatementRep::isSubClass(const CIMName& derived,
-					  const CIMName& base)
+                                          const CIMName& base)
 {
   Array<CIMName> subClasses = _ctx->enumerateClassNames(base);
   for (Uint32 i = 0; i < subClasses.size(); i++)
@@ -674,7 +676,7 @@ Boolean CQLSelectStatementRep::isSubClass(const CIMName& derived,
     if (subClasses[i] == derived)
     {
       return true;
-    }	
+    }   
   }
   
   return false;
@@ -691,7 +693,7 @@ void CQLSelectStatementRep::setPredicate(CQLPredicate inPredicate)
 }
 
 void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifier,
-						 String inAlias)
+                                                 String inAlias)
 {
   _ctx->insertClassPath(inIdentifier,inAlias);
 }
@@ -715,36 +717,47 @@ void CQLSelectStatementRep::applyContext()
     checkWellFormedIdentifier(_selectIdentifiers[i], true);
   }
 
-  for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
-  {
-    _whereIdentifiers[i].applyContext(*_ctx);
-    checkWellFormedIdentifier(_whereIdentifiers[i], false);
-  }
-
   if (hasWhereClause())
   {
     _predicate.applyContext(*_ctx);
   }
 
+  // Note: must be after call to predicate's applyContext
+  // ATTN - need new drill down to get the where ids
+  for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
+  {
+    _whereIdentifiers[i].applyContext(*_ctx);
+    checkWellFormedIdentifier(_whereIdentifiers[i], false);
+  }
 }
 
 void CQLSelectStatementRep::checkWellFormedIdentifier(const CQLChainedIdentifier& chainId,
-						      Boolean isSelectListId)
+                                                      Boolean isSelectListId)
 {
+  // This function assumes that applyContext has been called.
   Array<CQLIdentifier> ids = chainId.getSubIdentifiers();
 
-  Uint32 startingPos = 0;
-
-  if (!ids[0].isScoped())
+  if (ids.size() == 0)
   {
-    if (ids.size() == 1 && isSelectListId)
-    {
-      throw Exception("TEMP MSG: need to select a property on the FROM class");
-    }
-    
-    startingPos = 1;
+    throw Exception("TEMP MSG: empty chained identifier");
   }
 
+  if (ids.size() == 1 && isSelectListId)
+  {
+    // Note - this also covers right side of ISA
+    throw Exception("TEMP MSG: need to select a property on the FROM class");
+  }
+
+  if (ids[0].isScoped()
+      || ids[0].isWildcard()
+      || ids[0].isSymbolicConstant() 
+      || ids[0].isArray())
+  {
+    // Note - this also covers right side of ISA
+    throw Exception("TEMP MSG: first identifier is illegal after applyContext");
+  }
+   
+  Uint32 startingPos = 1;
   for (Uint32 pos = startingPos; pos < ids.size(); pos++)
   {  
     if (ids[pos].isArray() && isSelectListId)
@@ -754,19 +767,19 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const CQLChainedIdentifier
 
     if (ids[pos].isSymbolicConstant() && isSelectListId)
     {
-      throw Exception("TEMP MSG: array indexing not allowed in basic select");
+      throw Exception("TEMP MSG: symbolic constant not allowed in basic select");
     }
 
     if (ids[pos].isWildcard())
     {
       if ( !isSelectListId)
       {
-	throw Exception("TEMP MSG: wildcard not allowed in WHERE clause");
+        throw Exception("TEMP MSG: wildcard not allowed in WHERE clause");
       }
 
       if ( pos != ids.size() - 1)
       {
-	throw Exception("TEMP MSG: wildcard must be at the end of select-list property");
+        throw Exception("TEMP MSG: wildcard must be at the end of select-list property");
       }
     }
 
@@ -774,7 +787,7 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const CQLChainedIdentifier
     {
       if (!ids[pos].isScoped())
       {
-	throw Exception("TEMP MSG: property on embedded object must be scoped");
+        throw Exception("TEMP MSG: property on embedded object must be scoped");
       }
     }
   }
@@ -787,22 +800,22 @@ void CQLSelectStatementRep::normalizeToDOC()
 
 String CQLSelectStatementRep::toString()
 {
-	String s("SELECT ");
-	for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
-		if((i > 0) && (i < _selectIdentifiers.size())){
-			s.append(",");
-		}
-		s.append(_selectIdentifiers[i].toString());
-	}	
+        String s("SELECT ");
+        for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
+                if((i > 0) && (i < _selectIdentifiers.size())){
+                        s.append(",");
+                }
+                s.append(_selectIdentifiers[i].toString());
+        }       
 
-	s.append(" ");
-	s.append(_ctx->getFromString());
+        s.append(" ");
+        s.append(_ctx->getFromString());
 
-	if(_hasWhereClause){
-		s.append(" WHERE ");
-		s.append(_predicate.toString());
-	}
-	return s;
+        if(_hasWhereClause){
+                s.append(" WHERE ");
+                s.append(_predicate.toString());
+        }
+        return s;
 }
 
 void CQLSelectStatementRep::setHasWhereClause()
@@ -817,12 +830,12 @@ Boolean CQLSelectStatementRep::hasWhereClause()
 
 void  CQLSelectStatementRep::clear()
 {
-	_ctx->clear();
-	_hasWhereClause = false;
-	_contextApplied = false;
-	_predicate = CQLPredicate();
-	_selectIdentifiers.clear();
-	_whereIdentifiers.clear();
+        _ctx->clear();
+        _hasWhereClause = false;
+        _contextApplied = false;
+        _predicate = CQLPredicate();
+        _selectIdentifiers.clear();
+        _whereIdentifiers.clear();
 }
 
 PEGASUS_NAMESPACE_END

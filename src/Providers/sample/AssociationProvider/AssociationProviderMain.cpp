@@ -27,7 +27,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,13 +38,13 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & className)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
-	if(String::equalNoCase(className, "sample_associationproviderclass"))
-	{
-		return(new AssociationProvider());
-	}
+        if (String::equalNoCase(name, "sampleAssociationProvider"))
+        {
+                return(new AssociationProvider());
+        }
 
-	return(0);
+        return(0);
 }
 

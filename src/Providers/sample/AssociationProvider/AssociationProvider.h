@@ -27,69 +27,168 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssociationProvider_h
 #define Pegasus_AssociationProvider_h
 
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 
 PEGASUS_USING_PEGASUS;
 
-class AssociationProvider : public CIMAssociationProvider
+class AssociationProvider : 
+        public CIMInstanceProvider, public CIMAssociationProvider
 {
 public:
-	AssociationProvider(void);
-	virtual ~AssociationProvider(void);
+        AssociationProvider(void);
+        virtual ~AssociationProvider(void);
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+        // CIMProvider interface
+        virtual void initialize(CIMOMHandle & cimom);
+        virtual void terminate(void);
 
-	// CIMAssociationProvider interface
-	virtual void associators(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+        // CIMInstanceProvider interfaces
+        virtual void getInstance(
+                const OperationContext & context,
+                const CIMObjectPath & ref,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
+                const CIMPropertyList & propertyList,
+                InstanceResponseHandler & handler);
 
-	virtual void associatorNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		ObjectPathResponseHandler & handler);
+        virtual void enumerateInstances(
+                const OperationContext & context,
+                const CIMObjectPath & ref,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
+                const CIMPropertyList & propertyList,
+                InstanceResponseHandler & handler);
 
-	virtual void references(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+        virtual void enumerateInstanceNames(
+                const OperationContext & context,
+                const CIMObjectPath & ref,
+                ObjectPathResponseHandler & handler);
 
-	virtual void referenceNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		ObjectPathResponseHandler & handler);
+        virtual void modifyInstance(
+                const OperationContext & context,
+                const CIMObjectPath & ref,
+                const CIMInstance & obj,
+                const Boolean includeQualifiers,
+                const CIMPropertyList & propertyList,
+                ResponseHandler & handler);
 
-protected:
+        virtual void createInstance(
+                const OperationContext & context,
+                const CIMObjectPath & ref,
+                const CIMInstance & obj,
+                ObjectPathResponseHandler & handler);
 
+        virtual void deleteInstance(
+                const OperationContext & context,
+                const CIMObjectPath & ref,
+                ResponseHandler & handler);
+
+        // CIMAssociationProvider interface
+        virtual void associators(
+                const OperationContext & context,
+                const CIMObjectPath & objectName,
+                const CIMName & associationClass,
+                const CIMName & resultClass,
+                const String & role,
+                const String & resultRole,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
+                const CIMPropertyList & propertyList,
+                ObjectResponseHandler & handler);
+
+        virtual void associatorNames(
+                const OperationContext & context,
+                const CIMObjectPath & objectName,
+                const CIMName & associationClass,
+                const CIMName & resultClass,
+                const String & role,
+                const String & resultRole,
+                ObjectPathResponseHandler & handler);
+
+        virtual void references(
+                const OperationContext & context,
+                const CIMObjectPath & objectName,
+                const CIMName & resultClass,
+                const String & role,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
+                const CIMPropertyList & propertyList,
+                ObjectResponseHandler & handler);
+
+        virtual void referenceNames(
+                const OperationContext & context,
+                const CIMObjectPath & objectName,
+                const CIMName & resultClass,
+                const String & role,
+                ObjectPathResponseHandler & handler);
+
+private:
+
+        Array<CIMInstance>   _teacherInstances;
+        Array<CIMInstance>   _studentInstances;
+        Array<CIMInstance>   _TSassociationInstances;
+        Array<CIMInstance>   _ASassociationInstances;
+
+        void _createDefaultInstances();
+
+        CIMInstance _createInstance(
+            const CIMName& className, const String& name, Uint8 id);
+
+        CIMInstance _createTSAssociationInstance(
+            CIMObjectPath ref1, CIMObjectPath ref2);
+
+        CIMInstance _createASAssociationInstance(
+            CIMObjectPath ref1, CIMObjectPath ref2);
+
+        Array<CIMInstance> _filterAssociationInstancesByRole(
+            const Array<CIMInstance> & associationInstances,
+            const CIMObjectPath & targetObjectPath,
+            const String& role);
+
+        Array<CIMObjectPath> _filterAssociationInstances(
+            CIMInstance & associationInstance,
+            const CIMObjectPath & sourceObjectPath,
+            CIMName resultClass,
+            String resultRole);
+
+        void _getInstance( 
+            const Array<CIMInstance> & instances,
+            const CIMObjectPath & localReference,
+            InstanceResponseHandler & handler);
+
+        void _enumerateInstances( 
+            const Array<CIMInstance> & instances,
+            InstanceResponseHandler & handler);
+
+        void _enumerateInstanceNames( 
+            const Array<CIMInstance> & instances,
+            ObjectPathResponseHandler & handler);
+
+        void _associators(
+            const Array<CIMInstance> & associationInstances,
+            const CIMObjectPath & localReference,
+            const String & role,
+            const CIMName & resultClass,
+            const String & resultRole,
+            ObjectResponseHandler & handler);
+
+        void _associatorNames(
+            const Array<CIMInstance> & associationInstances,
+            const CIMObjectPath & localReference,
+            const String & role,
+            const CIMName & resultClass,
+            const String & resultRole,
+            ObjectPathResponseHandler & handler);
 };
 
 #endif

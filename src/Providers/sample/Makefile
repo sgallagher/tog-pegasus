@@ -9,6 +9,8 @@ DIRS = \
 	RT_Indication \
 	FamilyProvider \
 	FamilyProvider/tests \
+	AssociationProvider \
+	AssociationProvider/testclient \
 	LocalizedProvider \
 	LocalizedProvider/msg
 

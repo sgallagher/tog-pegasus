@@ -2,7 +2,7 @@
 
 instance of PG_ProviderModule
 {
-    Description = "The Sample Pegasus Association Provider Module that implements Sample_InstanceProviderClass";
+    Description = "The Sample Pegasus Association Provider Module that implements the Sample_TeacherStudent and Sample_AdvisorStudent association classes";
     Caption = "Sample Pegasus Association Provider Module";
     Name = "SampleAssociationProviderModule";
     Vendor = "Pegasus";
@@ -22,10 +22,46 @@ instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleAssociationProviderModule";
     ProviderName = "SampleAssociationProvider";
-    CapabilityID = "SampleAssociationProvider";
-    ClassName = "Sample_InstanceProviderClass";
+    CapabilityID = "SampleTeacher";
+    ClassName = "Sample_Teacher";
     Namespaces = { "root/SampleProvider" };
-    ProviderType = { 3 };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleAssociationProviderModule";
+    ProviderName = "SampleAssociationProvider";
+    CapabilityID = "SampleStudent";
+    ClassName = "Sample_Student";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleAssociationProviderModule";
+    ProviderName = "SampleAssociationProvider";
+    CapabilityID = "SampleTeacherStudent";
+    ClassName = "Sample_TeacherStudent";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2, 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleAssociationProviderModule";
+    ProviderName = "SampleAssociationProvider";
+    CapabilityID = "SampleAdvisorStudent";
+    ClassName = "Sample_AdvisorStudent";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2, 3 };
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };

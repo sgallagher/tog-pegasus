@@ -114,6 +114,10 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 SOURCES += Signal.cpp
 endif
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+SOURCES += Signal.cpp
+endif
+
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak

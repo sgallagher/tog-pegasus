@@ -32,7 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #include <Pegasus/Common/Signal.h>
 #endif
 
@@ -193,7 +193,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 const Array<Sint8>& buffer = httpMessage->message;
 	 const Uint32 CHUNK_SIZE = 16 * 1024;
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 	 SignalHandler::ignore(SIGPIPE);
 
 	 //getSigHandle()->registerHandler(SIGSEGV,sig_act);

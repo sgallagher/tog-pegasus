@@ -94,7 +94,7 @@ void SignalHandler::activate(Uint32 signum)
 
     sig_acts->sa_sigaction = reg_handler[signum].sh;
     sigfillset(&(sig_acts->sa_mask));
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
     sig_acts->sa_flags = SA_SIGINFO | SA_RESETHAND;
 #else
     sig_acts->sa_flags = SA_SIGINFO | SA_ONESHOT;

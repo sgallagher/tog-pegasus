@@ -21,23 +21,7 @@
 //
 //==============================================================================
 /*
+    $Author:
 */
-/** @name Provider API Defintions
-
-Provider APIs are defined to:
-
-<OL>
-<LI>Control individual providers including operations such as starting and stopping 
-the provkders
-<LI>Pass CIM information between the providers and the CIM Object Manager. CIM operations
-are passed from the CIM Object Manager to the providers and responses to these operations
-are passed back to the CIM Object manager by the providers.  In addition, providers can
-generate CIM Indications and pass these back to the CIM Object Manager.
-</OL>
-
-<H2>CIM Operations</H2>
-ATTN: We need to define the CIM Operations here in terms of the operations from the client
-and those specifications.
-
-
+/** @name Pegasus Provider API Defintions
 */

@@ -1,5 +1,14 @@
+	$Author: karl $
+
 /*
- */
+ $Log: classes.dxx,v $
+ Revision 1.1.2.1  2001/08/24 16:27:01  karl
+ import
+
+ Revision 1.1  2001/02/25 18:04:45  karl
+ extend programing deffinitions
+
+*/
 
 /** @name Class Definitions
 */

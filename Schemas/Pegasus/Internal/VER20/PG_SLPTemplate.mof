@@ -12,15 +12,15 @@ class PG_WBEMSLPTemplate {
    string template_type="wbem";
    string template_version="1.0";
    string template_description="This template describes the attributes used for advertising CIM Servers.";
+   [key]
    string template_url_syntax;
    string service_hi_name;
-      [Description ("This string is used as a description of the CIM service "
-      "for human interfaces. This attribute MUST be the "
-      "CIM_ObjectManager.Description property value.") ]
+  [Description ("This string is used as a description of the CIM service "
+    "for human interfaces. This attribute MUST be the "
+    "CIM_ObjectManager.Description property value.") ]
    string service_hi_description;
    [Key]
    string service_id;
-   [key]
    string service_location_tcp;
    string CommunicationMechanism;
    string OtherCommunicationMechanismDescription;
@@ -33,10 +33,25 @@ class PG_WBEMSLPTemplate {
    string OtherAuthenticationDescription;
    string Namespace;
    string classinfo;
-   // Following 2 properties are a part of PEP30 but not a part of template. Not sure ig this needs to be included ?
-      
    string FunctionalProfilesSupported;
    string FunctionalProfileDescriptions;
+   
+   [ Description ("String representing the complete registered template. "
+       "This string is primarily a diagnostic to see what the produced template "
+       "looks like.")]
    string RegisteredTemplate;
+   
+   [Description ("Time that this entry was registered with the SA") ]
+   datetime registeredTime;
+   
+   [Description ("Initiate the registration process based on the CIMServer "
+   "characteristics.") ]
+   Uint32 register();
+   
+   [ Description ("Remove any existing SLP registrations.") ]
+   Uint32 unregister();
+   
+   [ Description ("Force an update to any existing registrations.") ]
+   Uint32 update();
    
 };

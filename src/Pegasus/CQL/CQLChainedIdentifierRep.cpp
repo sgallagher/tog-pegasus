@@ -35,6 +35,8 @@
 #include "CQLChainedIdentifier.h"
 #include "CQLChainedIdentifierRep.h"
 #include <Pegasus/CQL/CQLFactory.h>
+#include <Pegasus/CQL/QueryContext.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(){
@@ -300,7 +302,6 @@ void CQLChainedIdentifierRep::parse(String & string){
 		/* append the range we may have removed */
 		String tmp = string.subString(index+1);
 		tmp.append(range);
-		PEGASUS_STD(cout) << "tmp = " << tmp << PEGASUS_STD(endl);
 		_subIdentifiers.append(CQLIdentifier(tmp));
 
 		while(index != PEG_NOT_FOUND){

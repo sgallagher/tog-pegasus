@@ -45,6 +45,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
+#include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -72,6 +73,10 @@ class PEGASUS_CQL_LINKAGE QueryContext
         CIMNamespaceName getNamespace() const;
 
         void insertClassPath(const CQLIdentifier& inIdentifier, String inAlias = String::EMPTY);
+
+        void addWhereIdentifier(const CQLChainedIdentifier& inIdentifier);
+
+        Array<CQLChainedIdentifier> getWhereList();
 
         CQLIdentifier findClass(const String& inAlias) const;
 
@@ -112,6 +117,7 @@ class PEGASUS_CQL_LINKAGE QueryContext
         CIMNamespaceName _NS;
 	HT_Alias_Class _AliasClassTable;
 	Array<CQLIdentifier> _fromList;
+	Array<CQLChainedIdentifier> _whereList;
 };
 
 PEGASUS_NAMESPACE_END

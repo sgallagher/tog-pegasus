@@ -195,24 +195,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
         */
     void appendSelectIdentifier(const CQLChainedIdentifier& x);
 
-    /** Appends a CQL Identifier to the where CQL identifier list. The user
-    should not call this method; it should only be called by Bison.
-    
-            @param x  the CQL identifier.
-            @return false if that identifier already exists.
-    
-    
-        Since the identifiers in the WHERE clause must be distinct,
-        a boolean is returned indicating if the identifier is not distinct.
-    
-     TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
-       NOT IMPLEMENTED IN PEGASUS V2.5
-        */
-    Boolean appendWhereIdentifier(
-        /**  Input the chained CQL identifiers to append. 
-           */
-        const CQLChainedIdentifier& x);
-
     /**
        Applies the class contexts from the FROM list to the identifiers
        in the statement.
@@ -249,17 +231,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     
         */
     Array<CQLChainedIdentifier> _selectIdentifiers;
-
-    /** 
-        // The unique list of CQL query identifiers appearing in the WHERE clause.
-        // Although a property may occur many times in the WHERE clause, it will
-        // only appear once in this list.
-        //
-    
-       TODO:  THIS MAY BE NEEDED IN A FUTURE RELEASE.
-       NOT IMPLEMENTED IN PEGASUS V2.5
-       */
-    Array<CQLChainedIdentifier> _whereIdentifiers;
 
     Boolean _hasWhereClause;
 

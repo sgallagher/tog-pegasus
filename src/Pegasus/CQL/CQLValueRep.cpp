@@ -361,7 +361,7 @@ CQLValueRep::CQLValueRep(Real64 inReal)
 }
 
 void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx)
-{   
+{ 
   if(_CQLChainId.size() == 0)
     {
       return;
@@ -415,7 +415,8 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
       // We will check the property type to determine what processing 
       // needs to be done.
       propObj = objectContext.getProperty(propertyIndex);
-      
+
+      /*      
       if(inQueryCtx.getClassRelation(Idstrings[index].getScope(),classContext)
 	 == QueryContext::NOTRELATED)
 	{
@@ -423,6 +424,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	  _valueType = CQLValue::Null_type;
 	  return;
 	}
+      */
       
       if(index == Idstrings.size()-1)
 	{
@@ -1773,14 +1775,25 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
        // We need to take the chain and create a complete context
        // for the symbolic constant.  We will use the context from
        // inCid to populate the context for chain.
+       /*
         _CQLChainId[0].setName(inCid[inCid.size()-1].getName());
         _CQLChainId[0].applyScope(inCid[inCid.size()-1].getScope());
-      
-	for(Sint32 i = inCid.size()-2; i >= 0; --i)
-	  {
-	    _CQLChainId.prepend(inCid[i]); 
-	  }
-	
+       */
+       
+       CQLIdentifier id = _CQLChainId[0];
+       id.setName(inCid[inCid.size()-1].getName());
+       id.applyScope(inCid[inCid.size()-1].getScope());
+
+       CQLChainedIdentifier chainId(id);
+
+       for(Sint32 i = inCid.size()-2; i >= 0; --i)
+       {
+         chainId.prepend(inCid[i]); 
+       }
+
+       _CQLChainId = chainId;
+
+
 	CIMInstance temp;
 	resolve(temp,_ctx);
      }
@@ -1788,6 +1801,13 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
      {
        _CQLChainId.applyContext(_ctx); 
      }
+
+   // Add the chained identifier to the WHERE identifier list.
+   // Note: CQLValue's are only used in WHERE processing.
+   if (_CQLChainId.size() > 0)
+   {
+     _ctx.addWhereIdentifier(_CQLChainId);
+   }
 }
 
 void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
@@ -1811,6 +1831,8 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
       className = _CQLChainId[0].getName();
    }
 
+   PEGASUS_STD(cout) << _CQLChainId.toString() << PEGASUS_STD(endl);
+
    QueryClass = inQueryCtx.getClass(className);
 
    Uint32 propertyIndex = 
@@ -1818,7 +1840,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
 
    if(propertyIndex == PEG_NOT_FOUND)
    {
-      throw(Exception(String("CQLValueRep::_resolveSymbolicConstant")));
+      throw(Exception(String("CQLValueRep::_resolveSymbolicConstant1")));
    }
 
    CIMProperty queryPropObj = QueryClass.getProperty(propertyIndex);
@@ -1831,7 +1853,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
    if(qualIndex == PEG_NOT_FOUND)
    {
       // This property can not be processed with a symbolic constant.
-      throw(Exception(String("CQLValueRep::_resolveSymbolicConstant")));
+      throw(Exception(String("CQLValueRep::_resolveSymbolicConstant2")));
    }
 
    valueMap = queryPropObj.getQualifier(qualIndex).getValue();
@@ -1860,7 +1882,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
 	 {
 	   // The symbolic constant provided is not valid
 	   // for this property.
-	   throw(Exception(String("CQLValueRep::_resolveSymbolicConstant")));
+	   throw(Exception(String("CQLValueRep::_resolveSymbolicConstant3")));
 	 }
        
        // The symbolic constant defined in the CQLIdentifier is 
@@ -1895,7 +1917,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
 	 {
 	   // The symbolic constant provided is not valid
 	   // for this property.
-	   throw(Exception(String("CQLValueRep::_resolveSymbolicConstant"))); 
+	   throw(Exception(String("CQLValueRep::_resolveSymbolicConstant4"))); 
 	 }
        
        CString cStr = valueMapArray[matchIndex].getCString();

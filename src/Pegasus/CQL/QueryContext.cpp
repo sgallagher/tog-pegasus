@@ -34,6 +34,7 @@
 
 #include "QueryContext.h"
 #include <Pegasus/Common/System.h>
+#include <Pegasus/CQL/CQLChainedIdentifier.h>
 
 #include <iostream>
 
@@ -47,7 +48,8 @@ QueryContext::QueryContext(CIMNamespaceName& inNS)
 QueryContext::QueryContext(const QueryContext& ctx)
   :_NS(ctx._NS),
    _AliasClassTable(ctx._AliasClassTable),
-   _fromList(ctx._fromList)
+   _fromList(ctx._fromList),
+   _whereList(ctx._whereList)
 {
 
 }
@@ -64,6 +66,7 @@ QueryContext& QueryContext::operator=(const QueryContext& rhs)
   _NS = rhs._NS;
   _fromList = rhs._fromList;
   _AliasClassTable = rhs._AliasClassTable;
+  _whereList = rhs._whereList;
 
   return *this;
 }
@@ -135,6 +138,37 @@ void QueryContext::insertClassPath(const CQLIdentifier& inIdentifier, String inA
   }
 }
 
+void QueryContext::addWhereIdentifier(const CQLChainedIdentifier& inIdentifier)
+{
+  // If the identifier is already in the list then don't append.
+  for (Uint32 i = 0; i < _whereList.size(); i++)
+  {
+    if (inIdentifier.size() == _whereList[i].size())
+    {
+      Array<CQLIdentifier> subsWhere = _whereList[i].getSubIdentifiers();
+      Array<CQLIdentifier> subsIn = inIdentifier.getSubIdentifiers();
+      Boolean match = true;
+      for (Uint32 j = 0; j < subsWhere.size(); j++)
+      {
+        if (subsIn[j] != subsWhere[j])
+        {
+          match = false;
+        }
+      }
+
+      if (match)
+        return;
+    }
+  }
+
+  _whereList.append(inIdentifier);
+}
+
+Array<CQLChainedIdentifier> QueryContext::getWhereList()
+{
+  return _whereList;
+}
+
 CQLIdentifier QueryContext::findClass(const String& inAlias) const
 {
 	// look for alias match
@@ -202,6 +236,7 @@ String QueryContext::getFromString() const
 
 void QueryContext::clear(){
   _fromList.clear();
+  _whereList.clear();
    _AliasClassTable.clear();
 }
 

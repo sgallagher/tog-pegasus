@@ -10,25 +10,36 @@ SELECT * FROM CIM_NonExistent
 SELECT * FROM CQL_TestPropertyTypes
 #
 # Tests for getPropertyList, getSelectPropertyList
-# Base class
+#
+# Base class, all FROM props by name
 SELECT InstanceID FROM CQL_TestElement
-SELECT * FROM CQL_TestElement
-# Sub class
-SELECT InstanceID, MissingProperty FROM CQL_TestPropertyTypesMissing
-SELECT InstanceID FROM CQL_TestPropertyTypesMissing
-SELECT MissingProperty FROM CQL_TestPropertyTypesMissing
-SELECT * FROM CQL_TestPropertyTypesMissing
-# Scoping class is super-class or same as FROM class
+# Base class, all FROM props by name, scoped to FROM
 SELECT CQL_TestElement::InstanceID FROM CQL_TestElement
-SELECT CQL_TestPropertyTypesMissing::InstanceID FROM CQL_TestPropertyTypesMissing
-SELECT CQL_TestElement::InstanceID FROM CQL_TestPropertyTypesMissing
-SELECT CQL_TestPropertyTypesMissing::MissingProperty FROM CQL_TestPropertyTypesMissing
-SELECT CQL_TestElement::MissingProperty FROM CQL_TestPropertyTypesMissing
-# Scoping class is sub-class of FROM class
+# Base class, all FROM props by name, scope is sub-class of FROM 
 SELECT InstanceID, CQL_TestPropertyTypesMissing::MissingProperty FROM CQL_TestElement
 SELECT InstanceID, CQL_TestPropertyTypes::propertySint64 FROM CQL_TestElement
-# Various mixtures
-SELECT propertyDateTime, * FROM CQL_TestPropertyTypes
+# Base class, wildcard
+SELECT * FROM CQL_TestElement
+#
+# Sub class, all props by name
+SELECT InstanceID, MissingProperty FROM CQL_TestPropertyTypesMissing
+# Sub class, partial prop list
+SELECT InstanceID FROM CQL_TestPropertyTypesMissing
+SELECT MissingProperty FROM CQL_TestPropertyTypesMissing
+# Sub class, scoped to FROM, full list
+SELECT CQL_TestPropertyTypesMissing::MissingProperty, InstanceID FROM CQL_TestPropertyTypesMissing
+# Sub class, scoped to FROM, partial list
+SELECT CQL_TestPropertyTypesMissing::InstanceID FROM CQL_TestPropertyTypesMissing
+# Sub class, scoped to base class, partial list
+SELECT CQL_TestElement::InstanceID FROM CQL_TestPropertyTypesMissing
+# Sub class, scoped to base class, full list
+SELECT MissingProperty, CQL_TestElement::InstanceID FROM CQL_TestPropertyTypesMissing
+SELECT CQL_TestElement::MissingProperty FROM CQL_TestPropertyTypesMissing
+# Sub class, wildcard
+SELECT * FROM CQL_TestPropertyTypesMissing
+SELECT InstanceID, *, MissingProperty FROM CQL_TestPropertyTypesMissing
+SELECT *, CQL_TestElement::InstanceID FROM CQL_TestPropertyTypesMissing
+SELECT MissingProperty, * FROM CQL_TestPropertyTypesMissing
 #
 # Tests for getPropertyList, getWherePropertyList
 # ATTN:  WHERE list not working yet

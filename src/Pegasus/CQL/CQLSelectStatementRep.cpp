@@ -90,7 +90,6 @@ CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
 CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
   :SelectStatementRep(rep),
    _selectIdentifiers(rep._selectIdentifiers),
-   _whereIdentifiers(rep._whereIdentifiers),
    _hasWhereClause(rep._hasWhereClause),
    _predicate(rep._predicate),
    _contextApplied(rep._contextApplied)
@@ -108,7 +107,6 @@ CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatement
 
   SelectStatementRep::operator=(rhs);
 
-  _whereIdentifiers = rhs._whereIdentifiers;
   _selectIdentifiers = rhs._selectIdentifiers;
   _predicate = rhs._predicate;
   _contextApplied = rhs._contextApplied;
@@ -588,10 +586,10 @@ void CQLSelectStatementRep::validateProperties() throw(Exception)
   {
     validateProperty(_selectIdentifiers[i]);
   }
-  
+
+  Array<CQLChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
   for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
   {
-    // ATTN : need new drill down here to get the where ids
     validateProperty(_whereIdentifiers[i]);
   }
 }
@@ -759,9 +757,9 @@ CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
   }
 
   // Add required properties from the WHERE clause.
+  Array<CQLChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
   for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
   {
-    // ATTN - need new drill down to get the where ids
     isWildcard = addRequiredProperty(reqProps,
                                      className,
                                      _whereIdentifiers[i],
@@ -901,13 +899,31 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
   else
   {
     // The 2nd chain element is an unscoped property
+    // Check if it is wildcarded
     if (ids[1].isWildcard())
     {
-      CIMName fromClass = _ctx->getFromList()[0].getName();
-
-      // Wildcards only indicate all properties on the FROM class
-      if (fromClass == className)
+      // Wildcard.
+      // If the class passed in is the FROM class, then
+      // all properties are required on the class passed in.
+      CIMName fromClassName = _ctx->getFromList()[0].getName();
+      if (fromClassName == className)
+      {
         return true;
+      }
+
+      // Add all the properties on the FROM class to
+      // the required property list.
+      CIMClass fromClass = _ctx->getClass(fromClassName);
+      for (Uint32 n = 0; n < fromClass.getPropertyCount(); n++)
+      {
+        // Add to the required property list if not already there.
+        if (!containsProperty(fromClass.getProperty(n).getName(), reqProps))
+        {  
+          reqProps.append(fromClass.getProperty(n).getName());
+        }        
+      }
+
+      return false;
     }
 
     // Implementation note:
@@ -964,12 +980,6 @@ void CQLSelectStatementRep::appendSelectIdentifier(const CQLChainedIdentifier& x
   _selectIdentifiers.append(x);
 }
 
-Boolean CQLSelectStatementRep::appendWhereIdentifier(const CQLChainedIdentifier& x)
-{
-  _whereIdentifiers.append(x);
-  return true;
-}
-
 void CQLSelectStatementRep::applyContext()
 {
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
@@ -981,14 +991,13 @@ void CQLSelectStatementRep::applyContext()
   if (hasWhereClause())
   {
     _predicate.applyContext(*_ctx);
-  }
 
-  // Note: must be after call to predicate's applyContext
-  // ATTN - need new drill down to get the where ids
-  for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
-  {
-    _whereIdentifiers[i].applyContext(*_ctx);
-    checkWellFormedIdentifier(_whereIdentifiers[i], false);
+    // Note: must be after call to predicate's applyContext
+    Array<CQLChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
+    for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
+    {
+      checkWellFormedIdentifier(_whereIdentifiers[i], false);
+    }
   }
 }
 
@@ -1103,7 +1112,6 @@ void  CQLSelectStatementRep::clear()
         _contextApplied = false;
         _predicate = CQLPredicate();
         _selectIdentifiers.clear();
-        _whereIdentifiers.clear();
 }
 
 PEGASUS_NAMESPACE_END

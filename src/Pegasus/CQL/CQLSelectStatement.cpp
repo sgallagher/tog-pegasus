@@ -145,13 +145,6 @@ void CQLSelectStatement::appendSelectIdentifier(const CQLChainedIdentifier& x)
   _rep->appendSelectIdentifier(x);
 }
 
-Boolean CQLSelectStatement::appendWhereIdentifier(const CQLChainedIdentifier& x)
-{
-  PEGASUS_ASSERT(_rep != NULL);
-
-   return _rep->appendWhereIdentifier(x);
-}
-
 void CQLSelectStatement::applyContext()
 {
    PEGASUS_ASSERT(_rep != NULL);

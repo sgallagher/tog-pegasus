@@ -40,6 +40,7 @@
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//         Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1064,8 +1065,17 @@ int main (int argc, char* argv [])
     } 
     catch (CommandFormatException& cfe) 
     {
-        cerr << OSInfoCommand::COMMAND_NAME << 
+        String msg(cfe.getMessage());
+
+        cerr << OSInfoCommand::COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+          cerr << OSInfoCommand::COMMAND_NAME <<
             ": Invalid option. Use '--help' to obtain command syntax" << endl;
+        else
+          cerr << OSInfoCommand::COMMAND_NAME <<
+            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+
         exit (Command::RC_ERROR);
     }
 

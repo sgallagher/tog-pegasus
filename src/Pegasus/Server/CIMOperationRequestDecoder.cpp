@@ -33,6 +33,7 @@
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -397,6 +398,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
        return;
    }
 
+   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	       "CIMOperationRequestdecoder - XML content: $0", content);
    // Create a parser:
 
    XmlParser parser(content);
@@ -920,6 +923,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (XmlValidationError& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDecoder::handleMethodCall - XmlValidationError exception has occurred. Message: $0",e.getMessage());
+
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
                     e.getMessage());
       PEG_METHOD_EXIT();
@@ -927,6 +933,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (XmlSemanticError& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDecoder::handleMethodCall - XmlSemanticError exception has occurred. Message: $0",e.getMessage());
+
       // ATTN-RK-P2-20020404: Is this the correct response for these errors?
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
                     e.getMessage());
@@ -935,6 +944,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (XmlException& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDecoder::handleMethodCall - XmlException has occurred. Message: $0",e.getMessage());
+
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed",
                     e.getMessage());
       PEG_METHOD_EXIT();

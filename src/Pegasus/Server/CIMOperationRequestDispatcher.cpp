@@ -34,6 +34,7 @@
 //               Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //               Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //               Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//               Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -220,6 +221,10 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     	    // Get the complete list of subclass names
     	    _repository->getSubClassNames(nameSpace,
     			 className, true, subClassNames);
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			"CIMOperationRequestDispatcher::_getSubClassNames - Name Space: $0  Class name: $1",
+			nameSpace.getString(),
+			className.getString());
     	}
     	catch(CIMException& e)
     	{
@@ -311,11 +316,26 @@ Boolean CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
    // Check for class provided by an internal provider
    if (_lookupInternalProvider(nameSpace, className, serviceName,
            controlProviderName))
+   {
        hasProvider = true;
+
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::_lookupNewInstanceProvider - Name Space: $0  Class Name: $1  Service Name: $2  Provider Name: $3",
+		   nameSpace.getString(),
+		   className.getString(),
+		   serviceName,
+		   controlProviderName);
+   }
    else
    {
        // get provider for class
        providerName = _lookupInstanceProvider(nameSpace, className);
+
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::_lookupNewInstanceProvider - Name Space: $0  Class Name: $1  Provider Name: $2",
+		   nameSpace.getString(),
+		   className.getString(),
+		   providerName);
    }
 
    if(providerName != String::EMPTY)
@@ -1042,6 +1062,10 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
       return;
    }
 
+   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+   "CIMOperationRequestDispatcher::handleEnqueue - Case: $0",
+	       request->getType()); 
+
    switch(request->getType())
    {
 
@@ -1156,6 +1180,11 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 	 handleInvokeMethodRequest(
 	    (CIMInvokeMethodRequestMessage*)request);
 	 break;
+
+     default :
+	 Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+         "CIMOperationRequestDispatcher::handleEnqueue - Case: $0 not valid",
+		     request->getType());
    }
 
    delete request;
@@ -1202,6 +1231,11 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
     	 request->includeQualifiers,
     	 request->includeClassOrigin,
     	 request->propertyList.getPropertyNameArray());
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleGetClassRequest - Name Space: $0  Class name: $1",
+		  request->nameSpace.getString(),
+		  request->className.getString());
    }
    catch(CIMException& exception)
    {
@@ -1249,6 +1283,11 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleGetInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
+
       CIMGetInstanceResponseMessage* response =
          new CIMGetInstanceResponseMessage(
             request->messageId,
@@ -1329,6 +1368,10 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	    request->includeQualifiers,
 	    request->includeClassOrigin,
 	    request->propertyList.getPropertyNameArray());
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleGetInstanceRequest - Name Space: $0  Instance Name: $1",
+		     request->nameSpace.getString(),
+		     request->instanceName.toString());
       }
       catch(CIMException& exception)
       {
@@ -1392,6 +1435,12 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
       _repository->deleteClass(
 	 request->nameSpace,
 	 request->className);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleDeleteClassRequest - Name Space: $0  Class Name: $1",
+		  request->nameSpace.getString(),
+		  request->className.getString());
+      
    }
 
    catch(CIMException& exception)
@@ -1439,6 +1488,10 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
       CIMDeleteInstanceResponseMessage* response =
          new CIMDeleteInstanceResponseMessage(
             request->messageId,
@@ -1494,6 +1547,11 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
          _repository->deleteInstance(
 	    request->nameSpace,
 	    request->instanceName);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - Name Space: $0  Instance Name: $1",
+		     request->nameSpace.getString(),
+		     request->instanceName.toString());
       }
       catch(CIMException& exception)
       {
@@ -1556,6 +1614,11 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
       _repository->createClass(
 	 request->nameSpace,
 	 request->newClass);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleCreateClassRequest - Name Space: $0  Class Name: $1",
+		  request->nameSpace.getString(),
+		  request->newClass.getClassName().getString());
    }
 
    catch(CIMException& exception)
@@ -1603,6 +1666,10 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleGetInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
       CIMCreateInstanceResponseMessage* response =
          new CIMCreateInstanceResponseMessage(
             request->messageId,
@@ -1659,6 +1726,11 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
          instanceName = _repository->createInstance(
 	    request->nameSpace,
 	    request->newInstance);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleCreateInstanceRequest - Name Space: $0  Instance name: $1",
+		     request->nameSpace.getString(),
+		     request->newInstance.getClassName().getString());
       }
       catch(CIMException& exception)
       {
@@ -1723,6 +1795,11 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
       _repository->modifyClass(
 	 request->nameSpace,
 	 request->modifiedClass);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleModifyClassRequest - Name Space: $0  Class name: $1",
+		  request->nameSpace.getString(),
+		  request->modifiedClass.getClassName().getString());
    }
 
    catch(CIMException& exception)
@@ -1772,6 +1849,10 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleModifyInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
       CIMModifyInstanceResponseMessage* response =
          new CIMModifyInstanceResponseMessage(
             request->messageId,
@@ -1829,6 +1910,11 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     	    request->nameSpace,
     	    request->modifiedInstance,
     	    request->includeQualifiers,request->propertyList);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleModifiedInstanceRequest - Name Space: $0  Instance name: $1",
+		     request->nameSpace.getString(),
+		     request->modifiedInstance.getClassName().getString());
       }
       catch(CIMException& exception)
       {
@@ -1897,6 +1983,11 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
     	 request->localOnly,
     	 request->includeQualifiers,
     	 request->includeClassOrigin);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleEnumerateClassesRequest - Name Space: $0  Class name: $1",
+		  request->nameSpace.getString(),
+		  request->className.getString());
    }
 
    catch(CIMException& exception)
@@ -1951,6 +2042,11 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	 request->nameSpace,
 	 request->className,
 	 request->deepInheritance);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest - Name Space: $0  Class name: $1",
+		  request->nameSpace.getString(),
+		  request->className.getString());
    }
 
    catch(CIMException& exception)
@@ -1998,6 +2094,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleEnumerateInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
       CIMEnumerateInstancesResponseMessage* response =
          new CIMEnumerateInstancesResponseMessage(
             request->messageId,
@@ -2167,6 +2267,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     	    request->includeClassOrigin,
     	    true,
     	    request->propertyList.getPropertyNameArray());
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleEnumerateInstanceRequest - Name Space: $0  Class name: $1",
+		     request->nameSpace.getString(),
+		     request->className.getString());
       }
       catch(CIMException& exception)
       {
@@ -2295,6 +2400,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
       CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
             request->messageId,
@@ -2412,6 +2521,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             request->nameSpace,
             request->className,
             true);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest - Name Space: $0  Instance name: $1",
+		     request->nameSpace.getString(),
+		     request->className.getString());
       }
       catch(CIMException& exception)
       {
@@ -2614,6 +2728,13 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     	    request->includeQualifiers,
     	    request->includeClassOrigin,
     	    request->propertyList.getPropertyNameArray());
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleAssociatorsRequest - Name Space: $0  Object Name: $1  Association Name: $2  Results: $3",
+		     request->nameSpace.getString(),
+		     request->objectName.getClassName().getString(),
+		     request->assocClass.getString(),
+		     request->resultClass.getString());
       }
       catch(CIMException& exception)
       {
@@ -2725,6 +2846,13 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	    request->resultClass,
 	    request->role,
 	    request->resultRole);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleAssociatorNamesRequest - Name Space: $0  Object Name: $1  Association Name: $2  Results: $3",
+		     request->nameSpace.getString(),
+		     request->objectName.getClassName().getString(),
+		     request->assocClass.getString(),
+		     request->resultClass.getString());
       }
       catch(CIMException& exception)
       {
@@ -2836,6 +2964,12 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	    request->includeQualifiers,
 	    request->includeClassOrigin,
 	    request->propertyList.getPropertyNameArray());
+
+	  Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleReferencesRequest - Name Space: $0  Object Name: $1  Results: $2",
+		     request->nameSpace.getString(),
+		     request->objectName.getClassName().getString(),
+		     request->resultClass.getString());
       }
       catch(CIMException& exception)
       {
@@ -2944,6 +3078,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	    request->objectName,
 	    request->resultClass,
 	    request->role);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleReferenceNamesRequest - Name Space: $0  Object Name: $1  Results: $2",
+		     request->nameSpace.getString(),
+		     request->objectName.getClassName().getString(),
+		     request->resultClass.getString());
       }
       catch(CIMException& exception)
       {
@@ -3029,6 +3169,12 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 	    request->nameSpace,
 	    request->instanceName,
 	    request->propertyName);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleGetPropertyRequest - Name Space: $0  Instance Name: $1  Property Name: $2",
+		     request->nameSpace.getString(),
+		     request->instanceName.getClassName().getString(),
+		     request->propertyName.getString());
       }
       catch(CIMException& exception)
       {
@@ -3103,6 +3249,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
+	  Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		      "CIMOperationRequestDispatcher::handleSetPropertyRequest - CIM exception has occurred.");
          CIMSetPropertyResponseMessage* response =
             new CIMSetPropertyResponseMessage(
                request->messageId,
@@ -3150,6 +3298,13 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	    request->instanceName,
 	    request->propertyName,
 	    request->newValue);
+
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		     "CIMOperationRequestDispatcher::handleSetPropertyRequest - Name Space: $0  Instance Name: $1  Property Name: $2  New Value: $3",
+		     request->nameSpace.getString(),
+		     request->instanceName.getClassName().getString(),
+		     request->propertyName.getString(),
+		     request->newValue.toString());
       }
       catch(CIMException& exception)
       {
@@ -3213,6 +3368,11 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
       cimQualifierDecl = _repository->getQualifier(
 	 request->nameSpace,
 	 request->qualifierName);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleGetQualifierRequest - Name Space: $0  Qualifier Name: $1",
+		  request->nameSpace.getString(),
+		  request->qualifierName.getString());
    }
    catch(CIMException& exception)
    {
@@ -3263,6 +3423,11 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
       _repository->setQualifier(
 	 request->nameSpace,
 	 request->qualifierDeclaration);
+
+ Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleSetQualifierRequest - Name Space: $0  Qualifier Name: $1",
+		  request->nameSpace.getString(),
+		  request->qualifierDeclaration.getName().getString());
    }
    catch(CIMException& exception)
    {
@@ -3312,6 +3477,12 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
       _repository->deleteQualifier(
 	 request->nameSpace,
 	 request->qualifierName);
+
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleDeleteQualifierRequest - Name Space: $0  Qualifier Name: $1",
+		  request->nameSpace.getString(),
+		  request->qualifierName.getString());
    }
 
    catch(CIMException& exception)
@@ -3363,6 +3534,10 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    {
       qualifierDeclarations = _repository->enumerateQualifiers(
 	 request->nameSpace);
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest - Name Space: $0",
+		  request->nameSpace.getString());
    }
 
    catch(CIMException& exception)
@@ -3451,6 +3626,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
       if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
+	  Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		      "CIMOperationRequestDispatcher::handleInvokeMethodRequest - CIM exception has occurred.");
          response =
             new CIMInvokeMethodResponseMessage(
                request->messageId,
@@ -3476,6 +3653,10 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMOperationRequestDispatcher::handleInvokeMethodRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+		   request->nameSpace.getString(),
+		   className.getString());
       CIMInvokeMethodResponseMessage* response =
          new CIMInvokeMethodResponseMessage(
             request->messageId,
@@ -3668,6 +3849,11 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeQualifiers,
                         false, //includeClassOrigin,
                         CIMPropertyList());
+
+		    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				"CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes - Name Space: $0  Class Name: $1",
+				request->nameSpace.getString(),
+				request->instanceName.getClassName().getString());
                 }
                 catch (CIMException& exception)
                 {
@@ -3785,6 +3971,11 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
          false, //includeQualifiers,
          false, //includeClassOrigin,
          CIMPropertyList());
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::_fixSetPropertyValueType - Name Space: $0  Class Name: $1",
+		  request->nameSpace.getString(),
+		  request->instanceName.getClassName().getString());
    }
    catch (CIMException& exception)
    {
@@ -3869,6 +4060,11 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
          false,
          false,
          CIMPropertyList());
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::_checkExistenceOfClass - Name Space: $0  Class Name: $1",
+		  nameSpace.getString(),
+		  className.getString());
    }
    catch(CIMException& exception)
    {

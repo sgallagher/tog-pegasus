@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,6 +99,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         if(getObjects().size() == 0)
         {
             // error? provider claims success,
@@ -123,6 +128,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         static_cast<CIMEnumerateInstancesResponseMessage *>(
             getResponse())->cimNamedInstances = getObjects();
     }
@@ -141,6 +149,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         static_cast<CIMEnumerateInstanceNamesResponseMessage *>(
             getResponse())->instanceNames = getObjects();
     }
@@ -159,6 +170,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         if(getObjects().size() == 0)
         {
             // ATTN: is it an error to not return instance name?
@@ -207,6 +221,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         if(getObjects().size() == 0)
         {
             // error? provider claims success,
@@ -245,6 +262,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         static_cast<CIMAssociatorNamesResponseMessage *>(
             getResponse())->objectNames.appendArray(getObjects());
     }
@@ -263,6 +283,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         static_cast<CIMReferencesResponseMessage *>(
             getResponse())->cimObjects = getObjects();
     }
@@ -281,6 +304,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         static_cast<CIMReferenceNamesResponseMessage *>(
             getResponse())->objectNames.appendArray(getObjects());
     }
@@ -299,6 +325,9 @@ public:
 
     virtual void complete()
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: complete()");
+
         // ATTN-RK-20020903: Is it legal for the return value to be null?
         //if(getReturnValue().isNull())
         //{
@@ -360,6 +389,8 @@ public:
 
     virtual void deliver(const OperationContext & context, const CIMIndication & cimIndication)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "OperationResponseHandler: deliver()");
         // ATTN: temporarily convert indication to instance
         CIMInstance cimInstance(cimIndication);
 

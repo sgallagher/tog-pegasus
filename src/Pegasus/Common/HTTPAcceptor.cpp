@@ -26,6 +26,7 @@
 // Modified By:
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,7 @@ public:
 #else
             PEGASUS_ASSERT(false);
 #endif
-        }
+        }  
         else
         {
             address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
@@ -442,10 +443,18 @@ void HTTPAcceptor::_acceptConnection()
 
    if (socket < 0)
    {
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		   "HTTPAcceptor - accept() failure.  errno: $0"
+		   ,errno);
+
        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
                         "HTTPAcceptor: accept() failed");
       return;
    }
+
+   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	       "HTTPAcceptor - accept() success.  Socket: $1"
+	       ,socket);
 
    // Create a new conection and add it to the connection list:
 

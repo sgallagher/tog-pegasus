@@ -23,7 +23,7 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By:
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -131,10 +131,17 @@ void ShutdownService::shutdown(
         //
         _cimserver->setState(CIMServerState::TERMINATING);
 
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "ShutdownService::shutdown - CIM server state set to CIMServerState::TERMINATING");
+
         //
         // Tell the CIMServer to stop accepting new client connection requests.
         //
         _cimserver->stopClientConnection();
+
+
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "ShutdownService::shutdown - No longer accepting new client connection requests.");
 
         //
         // Determine if there are any outstanding CIM operation requests
@@ -144,12 +151,19 @@ void ShutdownService::shutdown(
 
         if (requestCount > (requestPending ? 1 : 0))
         {
+
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			"ShutdownService::shutdown - Waiting for outstanding CIM operations to complete.  Request count: $0",
+			requestCount);
             noMoreRequests = _waitUntilNoMoreRequests(requestPending);
         }
         else
         {
             noMoreRequests = true;
         }
+
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "ShutdownService::shutdown - All outstanding CIM operations complete");
 
         //
         // proceed to shutdown the CIMServer
@@ -205,15 +219,24 @@ void ShutdownService::_shutdownCIMServer()
     //
     _shutdownProviders();
 
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"ShutdownService::_shutdownCIMServer - CIM server provider shutdown complete");
+
     //
     // Shutdown the Cimom services
     //
     _shutdownCimomServices();
 
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"ShutdownService::_shutdownCIMServer - Cimom services shutdown complete");
+
     //
     // Tell CIMServer to shutdown completely.
     //
     _cimserver->shutdown();
+
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"ShutdownService::_shutdownCIMServer - CIM Server shutdown complete");
 
     PEG_METHOD_EXIT();
     return;
@@ -353,6 +376,8 @@ void ShutdownService::_shutdownProviders()
 
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
+	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		    "ShutdownService::_shutdownProviders - CIM provider shutdown exception has occurred.");
         CIMException e = response->cimException;
         delete stopRequest;
         delete asyncRequest;

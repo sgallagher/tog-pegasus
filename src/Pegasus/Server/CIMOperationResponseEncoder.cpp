@@ -31,6 +31,7 @@
 //                (carolann_graves@hp.com)
 //              Sushma Fernandes , Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,6 +85,11 @@ void CIMOperationResponseEncoder::sendResponse(
       HTTPMessage* httpMessage = new HTTPMessage(message);
       Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
 			  httpMessage->message.getData(), httpMessage->message.size());
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationResponseEncoder::SendResponse - QueueId: $0  XML content: $1",
+		  queue,
+		  httpMessage->message.getData());
 
       queue->enqueue(httpMessage);
 

@@ -26,6 +26,7 @@
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//         Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -385,6 +386,11 @@ void HTTPConnection::_handleReadEvent()
 	       //
                incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
             }
+	    if(n < 0)
+	    {
+		Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			    "HTTPConnection - _handleReadEvent() failure.");
+	    }
 	    break;
 	}
 

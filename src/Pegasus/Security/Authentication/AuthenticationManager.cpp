@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -100,6 +100,9 @@ Boolean AuthenticationManager::performHttpAuthentication
 
     String cookie = String::EMPTY;
 
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"AuthenticationManager:: performHttpAuthentication - Authority Header: $0", authHeader); 
+
     //
     // Parse the HTTP authentication header for authentication information
     //
@@ -151,6 +154,10 @@ Boolean AuthenticationManager::performPegasusAuthentication
     String authType = String::EMPTY; 
     String userName = String::EMPTY;
     String cookie = String::EMPTY;
+
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"AuthenticationManager:: performPegasusAuthentication - Authority Header: $0",
+		authHeader); 
 
     //
     // Parse the pegasus authentication header authentication information

@@ -31,6 +31,7 @@
 //                  (carolann_graves@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
 //                  (sushma_fernandes@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -438,6 +439,9 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
     }
     catch (XmlException& x)
     {
+	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		    "CIMOperationResponseDecoder::_handleMethodResponse - XmlException has occurred. Message: $0",x.getMessage());
+
         if (response)
         {
             delete response;

@@ -28,6 +28,7 @@
 // 		 Ben Heilbronn, Hewlett-Packard Company
 //               (ben_heilbronn@hp.com)
 // 		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//               Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -626,6 +627,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             {
                 instanceRef = _repository->createInstance (request->nameSpace, 
                     instance);
+
+		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			    "IndicationService::_handleCreateInstanceRequest - Name Space: $0  Instance name: $1",
+			    request->nameSpace.getString(),
+			    instance.getClassName().getString());
             }
             catch (CIMException & exception)
             {
@@ -1185,7 +1191,12 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     _repository->modifyInstance (request->nameSpace,
                         modifiedInstance, 
                         request->includeQualifiers, propertyList);
-                }
+
+		    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				"IndicationService::_handleModifyInstanceRequest - Name Space: $0  Instance name: $1",
+				request->nameSpace.getString(),
+				modifiedInstance.getClassName().getString());
+		}
                 catch (CIMException & exception)
                 {
                     cimException = exception;
@@ -1392,6 +1403,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
             {
                 _repository->deleteInstance (request->nameSpace, 
                     request->instanceName);
+		
+		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			    "IndicationService::_handleDeleteInstanceRequest - Name Space: $0  Instance name: $1",
+			    request->nameSpace.getString(),
+			    request->instanceName.getClassName().getString());
             }
             catch (CIMException & exception)
             {

@@ -27,6 +27,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -499,12 +500,17 @@ void CIMExportRequestDecoder::handleMethodRequest(
    }
    catch (XmlValidationError& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMExportRequestDecoder::handleMethodRequest - XmlValidationError exception has occurred. Message: $0",e.getMessage());
+
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
                     e.getMessage());
       return;
    }
    catch (XmlSemanticError& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMExportRequestDecoder::handleMethodRequest - XmlSemanticError exception has occurred. Message: $0",e.getMessage());
       // ATTN-RK-P2-20020404: Is this the correct response for these errors?
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
                     e.getMessage());
@@ -512,6 +518,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
    }
    catch (XmlException& e)
    {
+       Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+		   "CIMExportRequestDecoder::handleMethodRequest - XmlException has occurred. Message: $0",e.getMessage());
+
       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed",
                     e.getMessage());
       return;

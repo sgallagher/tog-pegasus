@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -182,6 +183,10 @@ void HTTPMessage::parse(
 		String value(start, sep - start);
 
 		headers.append(HTTPHeader(name, value));
+
+		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			    "HTTPMessage - HTTP header name: $0  HTTP header value: $1"
+			    ,name,value);
 	    }
 	}
 

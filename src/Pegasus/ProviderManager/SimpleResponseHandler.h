@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,11 +51,16 @@ public:
 
     virtual void processing(void)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: processing()");
         // do nothing
     }
 
     virtual void complete(void)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: complete()");
+
         // do nothing
     }
 };
@@ -70,6 +77,9 @@ public:
 
     virtual void deliver(const CIMInstance & instance)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
         _objects.append(instance);
     }
 
@@ -104,6 +114,8 @@ public:
 
     virtual void deliver(const CIMObjectPath & objectPath)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
         _objects.append(objectPath);
     }
 
@@ -152,6 +164,8 @@ public:
 
     virtual void deliver(const CIMValue & returnValue)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
         _returnValue = returnValue;
     }
 
@@ -184,6 +198,9 @@ public:
 
     virtual void deliver(const CIMIndication & indication)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
         _objects.append(indication);
     }
 
@@ -200,6 +217,9 @@ public:
         const OperationContext & context,
         const CIMIndication & indication)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
         _objects.append(indication);
     }
 
@@ -236,6 +256,9 @@ public:
 
     virtual void deliver(const CIMObject & object)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
         _objects.append(object);
     }
 
@@ -270,6 +293,9 @@ public:
 
     virtual void deliver(const CIMValue & value)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
         _objects.append(value);
     }
 
@@ -304,6 +330,9 @@ public:
 
     virtual void deliver(const CIMClass & classObj)
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
         _objects.append(classObj);
     }
 

@@ -37,6 +37,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Triad.h>
 #include <Pegasus/Common/Thread.h>
 
 #include <Pegasus/ProviderManager/SafeQueue.h>
@@ -59,15 +60,19 @@ protected:
     virtual void _handle_async_request(AsyncRequest * request);
 
 protected:
-    virtual Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
-    virtual Pair<String, String> _lookupMethodProviderForClass(
+
+    virtual Triad<String, String, String>
+        _lookupProviderForClass(const CIMObjectPath & objectPath);
+
+    virtual Triad<String, String, String> _lookupMethodProviderForClass(
 	const CIMObjectPath & objectPath,
 	const String & methodName);
 
     virtual void _lookupProviderForAssocClass(
         const CIMObjectPath & objectPath, const String& assocClassName,
         const String& resultClassName,
-        Array<String>& Locations, Array<String>& providerNames);
+        Array<String>& Locations, Array<String>& providerNames,
+        Array<String>& interfaceNames);
 
 protected:
     //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();

@@ -370,42 +370,42 @@ TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
-TRUE
+FALSE
 =========     47     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Lower = STRINGTOSINT('-0x8000000000000000')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
-TRUE
+FALSE
 =========     48     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Lower = STRINGTOSINT('-1000000000000000000000000000000000000000000000000000000000000000b')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
-TRUE
+FALSE
 =========     49     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Upper = STRINGTOSINT('9223372036854775807')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
-TRUE
+FALSE
 =========     50     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Upper = STRINGTOSINT('0x7fffFFFFffffFFFF')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
-TRUE
+FALSE
 =========     51     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Upper = STRINGTOSINT('0111111111111111111111111111111111111111111111111111111111111111B')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
-TRUE
+FALSE
 =========     52     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('18446744073709551616')
 

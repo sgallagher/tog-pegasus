@@ -121,6 +121,8 @@ instance of CQL_TestPropertyTypes
    PropertySint32Array = { -32,-31,-30,-29,-28,-27,-26 };
                                                                                 
    PropertySint64 = 0x7FFFFFFFFFFFFFFF;
+   PropertySint64Lower = -808;
+   PropertySint64Upper = 807;
    PropertySint64Array = { 0x7FFFFFFFFFFFFFFF, 0x7FFFFFFFFFFFFFFE, 0x7FFFFFFFFFFFFFFD, 0x7FFFFFFFFFFFFFFC, 0x7FFFFFFFFFFFFFFB, 0x7FFFFFFFFFFFFFFA };
                                                                                 
    PropertyBoolean = true;
@@ -133,6 +135,7 @@ instance of CQL_TestPropertyTypes
    PropertyReal64Array = { 64.001,63.001,62.001,61.001,60.001,59.001,-58.001 };
                                                                                 
    PropertyDatetime = "20040811105625.000000-360";
+   PropertyInterval = "00005678223344.000056:000";
    PropertyDatetimeArray = { "20040811105625.000000-360", "20030811105625.000000-360", "20020811105625.000000-360" };
 
    PropertyChar16 = "A";

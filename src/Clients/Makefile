@@ -26,7 +26,7 @@ DIRS = \
 
 ifndef PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED
   DIRS += \
-    wbemexec.tests
+    wbemexec/tests
 endif
 
 ifeq ($(OS),HPUX)

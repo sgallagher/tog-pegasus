@@ -249,6 +249,26 @@ static String _makeCIMExceptionDescription(
     return tmp;
 }
 
+//l10n 
+TraceableCIMException::TraceableCIMException(
+    CIMStatusCode code,
+    MessageLoaderParms parms,
+    const char* file,
+    Uint32 line)
+    :
+    CIMException(code, parms)
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    rep->file = file;
+    rep->line = line;
+
+// l10n
+	// Localize the cim message from the code.  Use the language of
+	// the current thread.
+	rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
+}
+
 TraceableCIMException::TraceableCIMException(
     CIMStatusCode code,
     const String& message,

@@ -46,7 +46,7 @@ static CIMQualifier _processQualifier(
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_QUALIFIER_NAME",
-            "\"$0\"",
+            "Invalid qualifier name: $0",
             cimQualifier.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -57,7 +57,7 @@ static CIMQualifier _processQualifier(
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_QUALIFIER_TYPE",
-            "\"$0\"",
+            "Invalid qualifier type: $0",
             cimQualifier.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -89,7 +89,7 @@ static CIMProperty _processProperty(
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_PROPERTY_NAME",
-            "\"$0\"",
+            "Invalid property name: $0",
             cimProperty.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -99,8 +99,8 @@ static CIMProperty _processProperty(
     if(referenceProperty.getType() != cimProperty.getType())
     {
         MessageLoaderParms message(
-            "Common.ObjectNormalizer.INVALID_PROPERTY_NAME",
-            "\"$0\"",
+            "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
+            "Invalid property type: $0",
             cimProperty.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -213,7 +213,7 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(const CIMObjectPath & cim
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_CLASS_NAME",
-            "\"$0\"",
+            "Invalid class name: $0",
             cimObjectPath.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -225,7 +225,7 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(const CIMObjectPath & cim
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
-            "\"$0\"",
+            "Invalid class type: $0",
             cimObjectPath.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -263,7 +263,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_CLASS_NAME",
-            "\"$0\"",
+            "Invalid class name: $0",
             cimObjectPath.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -275,7 +275,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
-            "\"$0\"",
+            "Invalid class type: $0",
             cimObjectPath.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -327,7 +327,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
             {
                 MessageLoaderParms message(
                     "Common.ObjectNormalizer.MISSING_KEY",
-                    "\"$0\"",
+                    "Missing key: $0",
                     name.getString());
 
                 throw CIMException(CIM_ERR_FAILED, message);
@@ -368,8 +368,8 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
             default:
                 {
                     MessageLoaderParms message(
-                        "Common.ObjectNormalizer.MISSING_KEY",
-                        "\"$0\"",
+                        "Common.ObjectNormalizer.INVALID_KEY",
+                        "Invalid key: $0",
                         name.getString());
 
                     throw CIMException(CIM_ERR_FAILED, message);
@@ -409,7 +409,7 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_CLASS_NAME",
-            "\"$0\"",
+            "Invalid class name: \"$0\"",
             cimInstance.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
@@ -421,7 +421,7 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
-            "\"$0\"",
+            "Invalid class type: \"$0\"",
             cimInstance.getClassName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);

@@ -242,6 +242,7 @@ install -D -m 0755  $PEGASUS_HOME/lib/libpegprovidermanager.so.1    $RPM_BUILD_R
 install -D -m 0755  $PEGASUS_HOME/lib/libpegprovider.so.1    $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegprovider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegrepository.so.1    $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegrepository.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegserver.so.1    $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegserver.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libpegservice.so.1    $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegservice.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpeguser.so.1    $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpeguser.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libpegwql.so.1    $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegwql.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libCMPIProviderManager.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCMPIProviderManager.so.1
@@ -948,6 +949,7 @@ fi
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegprovider.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegrepository.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegserver.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegservice.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpeguser.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegwql.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCMPIProviderManager.so.1

@@ -204,8 +204,8 @@ int main(int argc, char** argv)
     
     catch(CIMClientException& e)
     {
-	  cerr << "CIMClientException connecting to : " << location << endl;
-	  cerr << e.getMessage() << endl;
+	  cerr << "CIMClientException connecting to : " << location << " "
+	  << e.getMessage() << endl;
     }
     catch(Exception &e) 
     {
@@ -224,13 +224,13 @@ int main(int argc, char** argv)
     }
 	catch(CIMClientException& e)
 	{
-	      cerr << "CIMClientException : " << className << endl;
-	      cerr << e.getMessage() << endl;
+	      PEGASUS_STD(cerr) << Argv[0] << " CIMClientException : " << e.getMessage()
+	      <<  " ClassName = " << className << PEGASUS_STD(endl);
 	}
 	catch(Exception& e)
 	{
-	    PEGASUS_STD(cerr) << "Pegasus Exception: " << e.getMessage() <<
-		" ClassName = " << className << PEGASUS_STD(endl);
+	    PEGASUS_STD(cerr) << Argv[0] << " Pegasus Exception: " << e.getMessage() 
+		<<  " ClassName = " << className << PEGASUS_STD(endl);
 	    exit(1);
 	}
 

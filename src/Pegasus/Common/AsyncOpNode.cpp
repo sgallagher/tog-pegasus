@@ -38,7 +38,8 @@ AsyncOpNode::AsyncOpNode(void)
    gettimeofday(&_start, NULL);
    memset(&_lifetime, 0x00, sizeof(struct timeval));
    memset(&_updated, 0x00, sizeof(struct timeval));
-   memset(&_timeout_interval, 0xff, sizeof(struct timeval));
+   _timeout_interval.tv_sec = 60;
+   _timeout_interval.tv_usec = 100;
 }
 
 AsyncOpNode::~AsyncOpNode(void)

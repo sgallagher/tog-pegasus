@@ -95,7 +95,7 @@ AtomicInt cimom::_xid(0);
 
 
 cimom::cimom(void)
-   : MessageQueue("cimom", true, CIMOM_Q_ID), 
+   : MessageQueue("cimom", true, CIMOM_Q_ID),
      _modules(true), 
      _recycle(true),
      _pending_ops(true, 100), 
@@ -121,7 +121,13 @@ Uint32 cimom::get_xid(void)
 
 cimom::~cimom(void)
 {
+
+// send STOP messages to all modules
+// shutdown legacy queues; e.g., cim operation dispatcher etc.
    _die++;
+   
+   _pending_thread.join();
+   _completed_thread.join();
    
    _pending_ops.empty_list();
    _pending_ops.shutdown_queue();
@@ -129,8 +135,7 @@ cimom::~cimom(void)
    _completed_ops.shutdown_queue(); 
 
 
-// send STOP messages to all modules
-// shutdown legacy queues; e.g., cim operation dispatcher etc.
+
    return;
    
 }
@@ -264,13 +269,36 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_pending_proc(void *parm)
 	 // enqueue response messages from each op node 
 	 operation = completed.remove_first();
 	 cim_manager->_enqueueResponse(operation);
-	 cim_manager->_completed_ops.insert_first(operation);
+	 cim_manager->_completed_ops.insert_first_wait(operation);
       }
       
       // recycle the dead operations 
       while( recycle.count() )
       {
-	 cim_manager->cache_op( recycle.remove_first() );
+	 // create an error response and enqueue it with the 
+	 // sending services
+	 AsyncOpNode *op = recycle.remove_first();
+	 if( op != 0 )
+	 {
+	    
+	    op->lock();
+	    
+	    AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
+	    
+	    op->unlock();
+	    
+	    AsyncReply *reply = new AsyncReply(async_messages::REPLY, 
+					       request->getKey(),
+					       request->getRouting(),
+					       0, 
+					       op,
+					       async_results::INTERNAL_ERROR, 
+					       request->resp, 
+					       request->block);
+	    op->complete();
+	    cim_manager->_enqueueResponse(op);
+	    cim_manager->_completed_ops.insert_first_wait(op);
+	 }
       }
    } // while alive 
    
@@ -419,7 +447,7 @@ void cimom::handleEnqueue(void)
       }
       // link the op node to the pending list so we can manage 
       // the result 
-      _pending_ops.insert_last(async_msg->op);
+      _pending_ops.insert_last_wait(async_msg->op);
 
       // if the request was not accepted, send a NAK response 
       if(accepted == false )
@@ -455,7 +483,7 @@ void cimom::handleEnqueue(void)
       {
 	 // ok, flag it as completed and put it on the completed list 
 	 async_msg->op->complete();
-	 _completed_ops.insert_last( async_msg->op );
+	 _completed_ops.insert_last_wait( async_msg->op );
       }
       else
       {

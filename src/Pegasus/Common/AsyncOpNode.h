@@ -38,6 +38,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// ATTN usage of flags and state is inconsistent. suggest mergine
+// << Wed Jan 16 17:41:57 2002 mdd >>
 
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
 #define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010
@@ -69,7 +71,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_RELEASED          0x00002000
 
 class Cimom;
-
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {

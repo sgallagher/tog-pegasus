@@ -1,7 +1,10 @@
 ifeq ($(COMPILER),xlc)
-  LINK_COMMAND = makeC++SharedLib_r
-  LINK_ARGUMENTS = -p 0
+  LINK_COMMAND = xlC_r
+  LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY)
   LINK_OUT = -o
+  ifeq ($(PEGASUS_SUPPORTS_DYNLIB), yes)
+    LINK_COMMAND += -G
+  endif
 endif
 
 ifeq ($(COMPILER),acc)

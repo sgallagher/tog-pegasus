@@ -21,9 +21,9 @@ instance of PG_ProviderCapabilities
 {
     ProviderModuleName = "SampleIndicationProviderModule";
     ProviderName = "SampleIndicationProvider";
-    CapabilityID = "SampleIndicationProvider";
+    CapabilityID = "SampleIndicationProvider-01";
     ClassName = "Sample_IndicationProviderClass";
-    Namespaces[] = { "root/cimv2" };
+    Namespaces[] = { "root/SampleProvider" };
     ProviderType[] = { 4 };  // Inidcation
     SupportedProperties[] = NULL;
     SupportedMethods[] = NULL;

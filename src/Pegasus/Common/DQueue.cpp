@@ -31,6 +31,102 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+DQueue<class L> * DQueue<L>::_headOfFreeList;
+const int DQueue<class L>::BLOCK_SIZE = 20;
+Mutex DQueue<class L>::_alloc_mut;
+
+
+void * DQueue<class L>::operator new(size_t size)
+{
+   if (size != sizeof(DQueue<L>))
+      return ::operator new(size);
+   
+   _alloc_mut.lock(pegasus_thread_self());
+   
+   DQueue<L> *p = _headOfFreeList;
+   if(p)
+      _headOfFreeList = p->_dq_next;
+   else
+   {
+      DQueue<L> * newBlock = 
+	 static_cast<DQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(DQueue<L>)));
+      int i;
+      for( i = 1; i < BLOCK_SIZE - 1; ++i)
+	 newBlock[i]._dq_next = &newBlock[i];
+      newBlock[BLOCK_SIZE - 1]._dq_next = 0;
+      
+      p = newBlock;
+      _headOfFreeList = &newBlock[1];
+   }
+   _alloc_mut.unlock();
+   
+   return p;
+}
+
+void DQueue<class L>::operator delete(void *deadObject, size_t size)
+{
+   if(deadObject == 0)
+      return;
+   if(size != sizeof(DQueue<L>))
+   {
+      ::operator delete(deadObject);
+      return;
+   }
+   DQueue<L> *p = static_cast<DQueue<L> *>(deadObject);
+   _alloc_mut.lock(pegasus_thread_self());
+   p->_dq_next = _headOfFreeList;
+   _headOfFreeList = p;
+   _alloc_mut.unlock();
+}
+
+
+
+AsyncDQueue<class L> * AsyncDQueue<L>::_headOfFreeList;
+const int AsyncDQueue<class L>::BLOCK_SIZE = 20;
+Mutex AsyncDQueue<class L>::_alloc_mut;
+
+void * AsyncDQueue<class L>::operator new(size_t size)
+{
+   if (size != sizeof(AsyncDQueue<L>))
+      return ::operator new(size);
+   
+   _alloc_mut.lock(pegasus_thread_self());
+   
+   AsyncDQueue<L> *p = _headOfFreeList;
+   if(p)
+      _headOfFreeList = p->_dq_next;
+   else
+   {
+      AsyncDQueue<L> * newBlock = 
+	 static_cast<AsyncDQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(AsyncDQueue<L>)));
+      int i;
+      for( i = 1; i < BLOCK_SIZE - 1; ++i)
+	 newBlock[i]._dq_next = &newBlock[i];
+      newBlock[BLOCK_SIZE - 1]._dq_next = 0;
+      
+      p = newBlock;
+      _headOfFreeList = &newBlock[1];
+   }
+   _alloc_mut.unlock();
+   
+   return p;
+}
+
+void AsyncDQueue<class L>::operator delete(void *deadObject, size_t size)
+{
+   if(deadObject == 0)
+      return;
+   if(size != sizeof(AsyncDQueue<L>))
+   {
+      ::operator delete(deadObject);
+      return;
+   }
+   AsyncDQueue<L> *p = static_cast<AsyncDQueue<L> *>(deadObject);
+   _alloc_mut.lock(pegasus_thread_self());
+   p->_dq_next = _headOfFreeList;
+   _headOfFreeList = p;
+   _alloc_mut.unlock();
+}
        
 
 PEGASUS_NAMESPACE_END

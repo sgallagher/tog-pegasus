@@ -1065,6 +1065,7 @@ MessageLoader::_useProcessLocale = false;
     AcceptLanguages default_al;
     try{
     	 default_al = AcceptLanguages::getDefaultAcceptLanguages();   
+    	 Thread::setLanguages(new AcceptLanguages(default_al));
     }catch(InvalidAcceptLanguageHeader e){
     	  Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 				  "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
@@ -1072,7 +1073,7 @@ MessageLoader::_useProcessLocale = false;
 		  Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		    				 e.getMessage()); 
     }
-    Thread::setLanguages(new AcceptLanguages(default_al));
+    
     
 
 #ifdef PEGASUS_OS_OS400

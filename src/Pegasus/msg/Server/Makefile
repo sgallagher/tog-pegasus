@@ -13,8 +13,7 @@ MSG_DIR = $(MSG_ROOT)/pegasus
 
 # NOTE - your .txt files must be named with the package name before the '_'
 MSG_SOURCES = \
-   pegasusServer_en.txt \
-   pegasusServer_blah.txt 
+   pegasusServer_en.txt 
 
 # Keep the following in the order listed
 

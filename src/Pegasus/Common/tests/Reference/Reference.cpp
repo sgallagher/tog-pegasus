@@ -262,9 +262,12 @@ void test03()
     assert(!kb6.equal(Boolean(true)));
 
     CIMKeyBinding kb7("test7", CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\""));
-    assert(kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"")));
-    assert(kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"")));
-    assert(!kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"")));
+    String path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
+    assert(kb7.equal(CIMObjectPath(path)));
+    path = "//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"";
+    assert(kb7.equal(CIMObjectPath(path)));
+    path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"";
+    assert(!kb7.equal(CIMObjectPath(path)));
 
     Boolean exceptionFlag = false;
     try

@@ -64,8 +64,10 @@ request->setStartServerTime(startTime);
 
 #define STAT_SERVEREND \
 response->endServer();\
+
+#define STAT_BYTESSENT \
 Uint16 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
-    response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE:response->getType() - 1;\
+  response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE:response->getType() - 1;\
 StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::BYTES_SENT);
 
 
@@ -108,8 +110,10 @@ StatisticalData::current()->addToValue(contentLength, statType, StatisticalData:
 
 
 
-
-#define STAT_SERVERTIME out << "Servertime:  \r\n";
+//serverResponseTime should be an Uint64 but the << operator wont accept that
+#define STAT_SERVERTIME \
+if (StatisticalData::current()->copyGSD)\
+	 out << "WBEMServerResponseTime: " << (Uint32) serverResponseTime << "\r\n";
 #else
 #define STAT_GETSTARTTIME
 #define STAT_PMS_PROVIDEREND
@@ -123,6 +127,7 @@ StatisticalData::current()->addToValue(contentLength, statType, StatisticalData:
 #define STAT_COPYDISPATCHER_REP
 #define STAT_BYTESREAD
 #define STAT_SERVERTIME
+#define STAT_BYTESSENT
 #endif
 
 class PEGASUS_COMMON_LINKAGE StatisticalData

@@ -30,6 +30,7 @@
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
+//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -241,7 +242,7 @@ void Message::endServer()
     Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
        _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
-	Uint16 _provTi, _totTi, _servTi;
+	Sint16 _provTi, _totTi, _servTi;
 	//May need to use intermedate varriables in doc say that _providerTime should be a Timespan
 	try
     {
@@ -249,9 +250,13 @@ void Message::endServer()
 	}
 	//If there is an error in the provider no time is added to the count
 	catch (InvalidDateTimeFormatException e)
-	{_provTi = 0;}
+	{_provTi = 0;
+	throw e;
+	}
 	catch (DateTimeOutOfRangeException e)
-	{_provTi = 0;}
+	{_provTi = 0;
+	throw e;
+	}
 
 
 	try
@@ -259,8 +264,16 @@ void Message::endServer()
 	_totTi =  CIMDateTime::getDifference(_timeServerStart, _timeServerEnd);
 	}
 	// if there is an error in the CIMOM no time is added to the count
-	catch (InvalidDateTimeFormatException e) {_totTi = 0;}
-	catch (DateTimeOutOfRangeException e) {_totTi =0;}		
+	catch (InvalidDateTimeFormatException e) 
+	{_totTi = 0;
+	throw e;
+	}
+	catch (DateTimeOutOfRangeException e) 
+	{_totTi =0;
+	throw e;
+	}		
+
+	totServerTime = _totTi;
 		
 	// totoal time subtract the provider time equall the server time
 

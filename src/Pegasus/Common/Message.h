@@ -31,8 +31,9 @@
 //              Mike Day (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//				Willis White (whiwill@us.ibm.com)
+//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//		
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -344,6 +345,9 @@ class PEGASUS_COMMON_LINKAGE Message
    public:
       Message *_async;
       Uint32 dest;
+	  //needed for PEP 128 - transmitting Server Response Time to Client
+      Uint64 totServerTime;
+
    private:
       MessageQueue* _owner;
       Boolean _isComplete;

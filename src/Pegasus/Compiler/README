@@ -1,4 +1,4 @@
-02/16/2001
+03/04/2001
 
 The mof compiler is a long ways from done, but it does
 build and populate a repository.
@@ -19,16 +19,13 @@ Build instructions
 It will be integrated in Mike's make system shortly.
 It should build on NT with MSVC++ version 6 (I haven't tried version 5)
 and on Linux with gcc 2.95.  On my machines, it successfully compiles
-CIM_Schema25.mof.
+CIM_Schema25.mof in about 50 seconds on NT and about 15 on Linux.
 
 Partial list of to-do's:
   - Add command line arguments to control over-laying of existing objects,
     stopping the addition of new base classes and several other things.
-  - Parse and store references correctly
   - Test parsing and storage of instances.  They probably don't work now.
-  - Rationalize the error logging scheme.  Things are spit randomly to
-    sterr now.
-  - Handle a whole bunch of errors that are ignored now.
+  - Handle a few  errors that are ignored now.
   - bunch of other cleanup
 
 Here are two gotcha's in trying to get things running:

@@ -27,6 +27,12 @@ ifdef PEGASUS_SNIA_INTEROP_TEST
  DEFINES+= -DPEGASUS_SNIA_INTEROP_TEST
 endif
 
+# Bugzilla 307 - KS get this flag from environment.
+# ATTN: should this become permanent? KS.
+ifdef PEGASUS_REMOVE_DEPRECATED
+ DEFINES+= -DPEGASUS_REMOVE_DEPRECATED
+ endif
+ 
 RM = mu rm
 
 RMDIRHIER = mu rmdirhier

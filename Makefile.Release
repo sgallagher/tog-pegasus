@@ -424,4 +424,22 @@ endif
 	$(MAKE) -f $(ROOT)/Makefile.Release createClientCertificateFiles
 endif
 
+createProductVersionFile: FORCE
+ifdef PEGASUS_OVERRIDE_PRODUCT_ID
+ifdef PEGASUS_PRODUCT_NAME
+ifdef PEGASUS_PRODUCT_VERSION
+ifdef PEGASUS_PRODUCT_STATUS
+	@$(ECHO-E) "#ifndef Product_Version_h" > $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#define Product_Version_h" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#define PEGASUS_PRODUCT_NAME "\""$(PEGASUS_PRODUCT_NAME)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#define PEGASUS_PRODUCT_VERSION "\""$(PEGASUS_PRODUCT_VERSION)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#define PEGASUS_PRODUCT_STATUS "\""$(PEGASUS_PRODUCT_STATUS)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#endif /* Product_Version_h */" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+endif
+endif
+endif
+endif
+
 include $(ROOT)/mak/commands.mak

@@ -352,15 +352,20 @@ CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
    case CIMKeyBinding::NUMERIC: {
  //        const char *vp=v.getCString();
          CString vp=v.getCString();
-        #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-          data->value.sint64=strtoll((const char*)vp, NULL, 10);
-        #elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-          data->value.sint64 = 0;
-          sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+
+        //#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+          //data->value.sint64=strtoll((const char*)vp, NULL, 10);
+        //#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+          //data->value.sint64 = 0;
+          //sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                 //&data->value.sint64);
+        //#else
+          //data->value.sint64=atoll((const char*)vp);
+        //#endif
+
+         data->value.sint64 = 0;
+         sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                  &data->value.sint64);
-        #else
-          data->value.sint64=atoll((const char*)vp);
-        #endif
          data->type=CMPI_sint64;
 //         delete vp;
       }

@@ -28,8 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-#define _GNU_SOURCE
-#include <signal.h>
+#include <Pegasus/Common/Signal.h>
 #endif
 
 #include <iostream>
@@ -142,7 +141,13 @@ void HTTPConnection::handleEnqueue()
 	    const Uint32 CHUNK_SIZE = 16 * 1024;
 
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-            ::sigignore(SIGPIPE);
+            SignalHandler::ignore(SIGPIPE);
+
+            getSigHandle()->registerHandler(SIGSEGV,sig_act);
+            getSigHandle()->activate(SIGSEGV);
+            // use the next two lines to test the SIGSEGV handler
+            //Thread t(::segmentation_faulter,NULL,false);
+            //t.run();
 #endif
 	    for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
 	    {

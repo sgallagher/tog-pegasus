@@ -68,37 +68,40 @@ CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep){
 
 Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
-  Boolean result = false; 
-
+	Boolean result = false;
+                                                                                                                  
   if (isSimple())
   {
     result = _simplePredicate.evaluate(CI, QueryCtx);
   }
   else
   {
+                                                                                                                  
     PEGASUS_ASSERT(_predicates.size() % 2 == 0);
- 
-    result = _predicates[0].evaluate(CI, QueryCtx); 
-    
+                                                                                                                  
+    result = _predicates[0].evaluate(CI, QueryCtx);
     for (Uint32 i = 0; i < _operators.size(); i++)
     {
       if (_operators[i] == AND)
       {
-	if (result == false)
-	  continue;
-
-	result = result && _predicates[i+1].evaluate(CI, QueryCtx);
-      }	
+        if(result)
+        {
+          result = _predicates[i+1].evaluate(CI, QueryCtx);
+        }
+      }
       else
       {
-	if (result == true)
-	  break;
-
-	result = _predicates[i+1].evaluate(CI, QueryCtx);
-      } 
+        if(result)
+        {
+          break;
+        }
+        else
+        {
+           result = _predicates[i+1].evaluate(CI, QueryCtx);
+	}
+      }
     }
   }
-
   return (getInverted()) ? !result : result;
 }
 
@@ -166,22 +169,18 @@ Boolean CQLPredicateRep::isSimpleValue(){
 }
 
 String CQLPredicateRep::toString(){
-	printf("CQLPredicateRep::toString()\n");
 	if(_terminal){
-	printf("CQLPredicateRep::toString()_terminal\n");
 		String s;
 		if(_invert) s = "NOT ";
 		s.append(_simplePredicate.toString());
 		return s;
 	}
 	if(isSimple()){
-	printf("CQLPredicateRep::toString()isSimple\n");
 		String s;
                 if(_invert) s = "NOT ";
                 s.append(_simplePredicate.toString());
                 return s;
 	}
-	printf("CQLPredicateRep::toString()else\n");
 	String s;
 	if(_invert) s = "NOT ";
 	for(Uint32 i = 0; i < _predicates.size(); i++){

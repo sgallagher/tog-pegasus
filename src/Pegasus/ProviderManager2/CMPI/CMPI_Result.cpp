@@ -48,6 +48,8 @@ extern "C" {
 
    static CMPIStatus resultReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
       CMPIrc rc;
+      if ((eRes->hdl == NULL) || (data == NULL))
+	     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
       CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
       if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
          MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
@@ -69,7 +71,14 @@ extern "C" {
    }
 
    static CMPIStatus resultReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
+
       InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
+      if ((res == NULL) || (eInst == NULL))
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+
+	  if (!eInst->hdl)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+		
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
@@ -119,6 +128,13 @@ extern "C" {
 
    static CMPIStatus resultReturnObject(CMPIResult* eRes, CMPIInstance* eInst) {
       ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
+
+      if ((res == NULL) || (eInst == NULL))
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+
+	  if (!eInst->hdl)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+ 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
@@ -136,6 +152,13 @@ extern "C" {
 
    static CMPIStatus resultReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
       ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
+
+      if ((res == NULL) || (eRef == NULL))
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+
+	  if (!eRef->hdl)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+ 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
@@ -147,6 +170,9 @@ extern "C" {
 
    static CMPIStatus resultReturnInstDone(CMPIResult* eRes) {
       InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
+	  if (!res)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+ 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
@@ -154,6 +180,8 @@ extern "C" {
 
    static CMPIStatus resultReturnRefDone(CMPIResult* eRes) {
       ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
+	  if (!res)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
@@ -162,6 +190,8 @@ extern "C" {
 
    static CMPIStatus resultReturnDataDone(CMPIResult* eRes) {
       ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
+	  if (!res)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
@@ -170,6 +200,8 @@ extern "C" {
 
    static CMPIStatus resultReturnMethDone(CMPIResult* eRes) {
       MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
+	  if (!res)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
    //   res->complete();    // Do not close the handle
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
@@ -178,6 +210,8 @@ extern "C" {
 
    static CMPIStatus resultReturnObjDone(CMPIResult* eRes) {
       ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
+	  if (!res)
+		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);

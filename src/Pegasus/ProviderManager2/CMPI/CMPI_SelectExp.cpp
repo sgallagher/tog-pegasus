@@ -57,11 +57,22 @@ extern "C" {
 
    static CMPIBoolean selxEvaluate(CMPISelectExp* eSx, CMPIInstance* inst, CMPIStatus* rc) {
       CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+	  if (!inst) {
+		if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
+		return false;
+	  }
+	  if (!inst->hdl) {
+		if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
+		return false;
+	  }
       WQLInstancePropertySource ips(*(CIMInstance*)inst->hdl);
+		
       try {
+	     if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return sx->stmt->evaluateWhereClause(&ips);
       }
       catch (...) {
+	     if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
          return false;
       }
          return false;
@@ -71,11 +82,17 @@ extern "C" {
    static CMPIBoolean selxEvaluateUsingAccessor(CMPISelectExp* eSx,
                CMPIAccessor* accessor, void *parm, CMPIStatus* rc) {
       CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+      if (!accessor) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return false;
+      }
       CMPI_SelectExpAccessor ips(accessor,parm);
       try {
+	     if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return sx->stmt->evaluateWhereClause(&ips);
       }
       catch (...) {
+	     if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
          return false;
       }
       return false;
@@ -84,6 +101,7 @@ extern "C" {
 
    static CMPIString* selxGetString(CMPISelectExp* eSx, CMPIStatus* rc) {
       CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+	  if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return string2CMPIString(sx->cond);
    }
 

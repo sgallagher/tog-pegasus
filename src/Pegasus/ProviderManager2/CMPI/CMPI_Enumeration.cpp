@@ -60,13 +60,18 @@ extern "C" {
    //   CIMInstance* enm=(CIMInstance*)eEnum->hdl;
    //   CIMInstance* cInst=new CIMInstance(enum->clone());
    //   CMPIEnumeration* neEnum=(CMPIEnumeration*)new CMPI_Object(cInst,CMPI_Instance_Ftab);
-   //   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
    //   return neEnum;
       return NULL;
    }
 
    static CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
       CMPIData data={0,0,{0}};
+      if (!eEnum->hdl)
+        {
+            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            return data;
+        }
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
          CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
          data.type=CMPI_instance;
@@ -106,6 +111,11 @@ extern "C" {
    }
 
    static CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+      if (!eEnum->hdl)
+        {
+            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            return false;
+        }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
          CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
@@ -131,7 +141,11 @@ extern "C" {
       Uint32 size;
       CMPI_Object* obj;
       CMPIArray *nar=NULL;
-
+      if (!eEnum->hdl)
+        {
+            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            return NULL;
+        }
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab ||
          (void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
          Array<CIMInstance>* ia;

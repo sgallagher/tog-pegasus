@@ -68,6 +68,10 @@ extern "C" {
    }
 
    static CMPIInstance* instClone(CMPIInstance* eInst, CMPIStatus* rc) {
+	  if (!eInst->hdl)  {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+	  }
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CIMInstance* cInst=new CIMInstance(inst->clone());
       CMPI_Object* obj=new CMPI_Object(cInst);
@@ -81,6 +85,11 @@ extern "C" {
                               CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
+
+	  if (!inst)  {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return data;
+	  }
 
       if (pos>inst->getPropertyCount()) {
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
@@ -104,6 +113,13 @@ extern "C" {
    }
 
    static CMPIData instGetProperty(CMPIInstance* eInst, const char *name, CMPIStatus* rc) {
+
+      CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
+
+	  if (!eInst->hdl)  {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return data;
+	  }
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       Uint32 pos=inst->findProperty(String(name));
 
@@ -111,7 +127,6 @@ extern "C" {
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return instGetPropertyAt(eInst,pos,NULL,rc);
       }
-      CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
       return data;
    }
@@ -119,6 +134,10 @@ extern "C" {
 
    static CMPICount instGetPropertyCount(CMPIInstance* eInst, CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
+	  if (!inst)  {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return 0;
+	  }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return inst->getPropertyCount();
    }
@@ -126,6 +145,9 @@ extern "C" {
    static CMPIStatus instSetProperty(CMPIInstance* eInst, const char *name,
                            CMPIValue* data, CMPIType type) {
       CIMInstance *inst=(CIMInstance*)eInst->hdl;
+	  if (!inst)  {
+	    CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	  }
       char **list=(char**)(reinterpret_cast<CMPI_Object*>(eInst))->priv;
       CMPIrc rc;
 
@@ -183,6 +205,10 @@ extern "C" {
 
    static CMPIObjectPath* instGetObjectPath(CMPIInstance* eInst, CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
+	  if (!inst)  {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+	  }
       const CIMObjectPath &clsRef=inst->getPath();
       CMPIObjectPath *cop=NULL;
       if (clsRef.getKeyBindings().size()==0) {
@@ -200,6 +226,9 @@ extern "C" {
 
    static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
                char** propertyList, char **keys){
+	  if (!eInst->hdl)  {
+	    CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	  }
       CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);
       char **list=(char**)inst->priv;    // Thank you Warren !
       int i,s;

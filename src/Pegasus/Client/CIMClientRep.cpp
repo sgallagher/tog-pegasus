@@ -38,6 +38,7 @@
 //               Amit Arora (amita@in.ibm.com) for Bug#2040
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //               Willis White, IBM <whiwill@us.ibm.com)
+//               Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/System.h>
 
 #include <iostream>
 #include <fstream>
@@ -1281,7 +1283,12 @@ Message* CIMClientRep::_doRequest(
 
 String CIMClientRep::_getLocalHostName()
 {
-    static String hostname = "localhost";
+    static String hostname;
+
+    if (!hostname.size())
+    {
+        hostname.assign(System::getHostName());
+    }
 
     return hostname;
 }

@@ -88,8 +88,7 @@ static void testEnd(const double elapsedTime)
    for the instance operations
 */
 
-static void TestLocalizedInstances( CIMClient& client,
-								    Boolean verboseTest )
+static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 {
 
   const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
@@ -137,7 +136,6 @@ Char16 utf16Chars[] =
       Boolean includeQualifiers = false;
       Boolean includeClassOrigin = false;
       Uint32 testRepeat = 1;
-      Uint32 numberInstances;
 
 	  if (verboseTest)
 	  	cout << "Getting class: " << CLASSNAME << endl;	
@@ -163,9 +161,9 @@ Char16 utf16Chars[] =
 	  	//
 	  	
 		AcceptLanguages acceptLangs1;
-		acceptLangs1.add(AcceptLanguageElement("fr", 0.5));
-		acceptLangs1.add(AcceptLanguageElement("de", 0.8)); 
-		acceptLangs1.add(AcceptLanguageElement("es", 0.4));    	  	
+		acceptLangs1.add(AcceptLanguageElement("fr", float(0.5)));
+		acceptLangs1.add(AcceptLanguageElement("de", float(0.8))); 
+		acceptLangs1.add(AcceptLanguageElement("es", float(0.4)));    	  	
 		client.setRequestAcceptLanguages(acceptLangs1);
         	
   		cout << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = " << acceptLangs1 << endl;	        	
@@ -211,9 +209,9 @@ Char16 utf16Chars[] =
 	  	//	    
 	    
 		AcceptLanguages acceptLangs2;
-		acceptLangs2.add(AcceptLanguageElement("x-martian",0.8));
-		acceptLangs2.add(AcceptLanguageElement("x-pig-latin", 0.1)); 
-		acceptLangs2.add(AcceptLanguageElement("x-men", 0.4));    	  	
+		acceptLangs2.add(AcceptLanguageElement("x-martian",float(0.8)));
+		acceptLangs2.add(AcceptLanguageElement("x-pig-latin", float(0.1))); 
+		acceptLangs2.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
 		client.setRequestAcceptLanguages(acceptLangs2);	    
 
   		cout << "INSTANCE TEST 2: Get Instance with AcceptLanguages = " << acceptLangs2 << endl;	        		    
@@ -242,9 +240,9 @@ Char16 utf16Chars[] =
 	  	//	   		
 	  	
 		AcceptLanguages acceptLangs3;
-		acceptLangs3.add(AcceptLanguageElement("x-martian", 0.8));
-		acceptLangs3.add(AcceptLanguageElement("fr", 0.1)); 
-		acceptLangs3.add(AcceptLanguageElement("x-men", 0.4));    	  	
+		acceptLangs3.add(AcceptLanguageElement("x-martian", float(0.8)));
+		acceptLangs3.add(AcceptLanguageElement("fr", float(0.1))); 
+		acceptLangs3.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
 		client.setRequestAcceptLanguages(acceptLangs3);	  		
 		
   		cout << "INSTANCE TEST 3: Get Instance with AcceptLanguages = " << acceptLangs3 << endl;	        		    		
@@ -285,15 +283,12 @@ Char16 utf16Chars[] =
 	
  		String oui = "Oui";
     	CIMInstance frInstance(CLASSNAME);
-	    frInstance.addProperty(CIMProperty(
-	    							CIMName(CLPROP),
-		    						oui));
-	    frInstance.addProperty(CIMProperty(
-	    							CIMName(ROUNDTRIPPROP),
-		    						String(utf16Chars)));
-	    frInstance.addProperty(CIMProperty(
-	    							CIMName(IDPROP),
-		    						Uint8(2)));			    								    						
+	    frInstance.addProperty(CIMProperty(	CIMName(CLPROP),
+		    				oui));
+	    frInstance.addProperty(CIMProperty(	CIMName(ROUNDTRIPPROP),
+		    				String(utf16Chars)));
+	    frInstance.addProperty(CIMProperty(	CIMName(IDPROP),
+		    				Uint8(2)));				
 
 	    CIMObjectPath frInstanceName = frInstance.buildPath(sampleClass);
 	    
@@ -305,9 +300,9 @@ Char16 utf16Chars[] =
 	    client.createInstance(NAMESPACE, frInstance);
 	
 		AcceptLanguages acceptLangs4;
-		acceptLangs4.add(AcceptLanguageElement("x-martian", 0.8));
-		acceptLangs4.add(AcceptLanguageElement("fr", 0.1)); 
-		acceptLangs4.add(AcceptLanguageElement("x-men", 0.4));    	  	
+		acceptLangs4.add(AcceptLanguageElement("x-martian", float(0.8)));
+		acceptLangs4.add(AcceptLanguageElement("fr", float(0.1))); 
+		acceptLangs4.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
 		client.setRequestAcceptLanguages(acceptLangs4);		
 
  		cout << "Getting the instance with AcceptLanguages = " << acceptLangs4
@@ -320,19 +315,17 @@ Char16 utf16Chars[] =
 				includeQualifiers,
 				includeClassOrigin);	    						
 
-		instance4.getProperty (
-				instance4.findProperty(ROUNDTRIPPROP)).
-    	        getValue().
-        	    get(returnedString);
+		instance4.getProperty (instance4.findProperty(ROUNDTRIPPROP)).
+		  getValue().
+        	  get(returnedString);
 
  		cout << "Checking the UTF-16 string was preserved" << endl;	 
 
 		MYASSERT(expectedUTF16String == returnedString); 
 		
-		instance4.getProperty (
-				instance4.findProperty(CLPROP)).
-    	        getValue().
-        	    get(returnedString);
+		instance4.getProperty (	instance4.findProperty(CLPROP)).
+		  getValue().
+		  get(returnedString);
 
 		cout << "Checking for fr returned" << endl;
 		MYASSERT(oui == returnedString); 
@@ -361,13 +354,11 @@ Char16 utf16Chars[] =
 	    String doh = "doh!";
 	    ContentLanguages CL_HOMER("x-homer");    	
 		instance2.removeProperty (instance2.findProperty(CLPROP));
-	    instance2.addProperty(CIMProperty(
-	    							CIMName(CLPROP),
-		    						doh));
-		instance2.removeProperty (instance2.findProperty(ROUNDTRIPPROP));		    						
-	    instance2.addProperty(CIMProperty(
-	    							CIMName(ROUNDTRIPPROP),
-		    						String(utf16Chars)));			    								
+	    instance2.addProperty(CIMProperty(CIMName(CLPROP),
+		    				doh));
+	    instance2.removeProperty (instance2.findProperty(ROUNDTRIPPROP));		
+	    instance2.addProperty(CIMProperty(CIMName(ROUNDTRIPPROP),
+					      String(utf16Chars)));			
 		
 	    client.setRequestContentLanguages(CL_HOMER);
 	    
@@ -375,11 +366,11 @@ Char16 utf16Chars[] =
  				CL_HOMER << "  and UTF-16 string." << endl;	   	    
 	    
 	    client.modifyInstance(NAMESPACE,
-	    						instance2,
-	    						includeQualifiers);
+				instance2,
+				includeQualifiers);
 	    			
 	    AcceptLanguages acceptLangs5;
-		acceptLangs5.add(AcceptLanguageElement("x-homer", 0.8));	    			
+	    acceptLangs5.add(AcceptLanguageElement("x-homer", float(0.8)));		
 	    client.setRequestAcceptLanguages(acceptLangs5);
 	    
  		cout << "Getting the instance with AcceptLanguages = " << acceptLangs5
@@ -397,7 +388,7 @@ Char16 utf16Chars[] =
     	        getValue().
         	    get(returnedString);
         	       		
-		cout << "Checking the UTF-16 string was preserved" << endl;	         	       		
+		cout << "Checking the UTF-16 string was preserved" << endl;    		
         	       						
 		MYASSERT(expectedUTF16String == returnedString);
 		
@@ -408,7 +399,7 @@ Char16 utf16Chars[] =
         	
 		cout << "Checking for x-homer returned" << endl;	         	    
 		MYASSERT(returnedString == doh); 
-		MYASSERT(CL_HOMER == client.getResponseContentLanguages());				
+		MYASSERT(CL_HOMER == client.getResponseContentLanguages());	
 		
 	  	//
 	  	//  TEST 6 - Exception test. 
@@ -420,8 +411,8 @@ Char16 utf16Chars[] =
 	  	//
 	  	
 		AcceptLanguages acceptLangs6;
-		acceptLangs6.add(AcceptLanguageElement("es", 1.0));
-		acceptLangs6.add(AcceptLanguageElement("fr", 0.9)); 
+		acceptLangs6.add(AcceptLanguageElement("es", float(1.0)));
+		acceptLangs6.add(AcceptLanguageElement("fr", float(0.9))); 
 		client.setRequestAcceptLanguages(acceptLangs6);			  	
 	  	
  		cout << "INSTANCE TEST 6: Delete Instance with AcceptLanguages = " << 
@@ -433,7 +424,7 @@ Char16 utf16Chars[] =
 	  	{
 			client.deleteInstance(
 					NAMESPACE,
-					instance2.buildPath(sampleClass));	 	  	
+					instance2.buildPath(sampleClass)); 	  	
 	  	} catch (CIMException & ce)
 	  	{
 	  		String message = ce.getMessage();	

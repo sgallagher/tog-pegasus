@@ -672,7 +672,6 @@ ln -sf libProcessProvider.so.1 libProcessProvider.so
 #  Generate a self signed node certificate
 #
 echo " Generating SSL certificates... "
-HOSTNAME=`uname -n`
 echo "[ req ]" > %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "distinguished_name     = req_distinguished_name"  >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "prompt                 = no"  >> %PEGASUS_CONFIG_DIR/ssl.cnf
@@ -682,12 +681,12 @@ echo "ST                     = Berkshire" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "L                      = Reading" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "O                      = The Open Group" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "OU                     = The OpenPegasus Project" >> %PEGASUS_CONFIG_DIR/ssl.cnf
-echo "CN                     = $HOSTNAME" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+echo "CN                     = `host \`hostname\`|cut -d\" \" -f1`" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 chmod 400 %PEGASUS_CONFIG_DIR/ssl.cnf
 chown root %PEGASUS_CONFIG_DIR/ssl.cnf
 chgrp root %PEGASUS_CONFIG_DIR/ssl.cnf
 
-openssl req -x509 -days 365 -newkey rsa:2048 \
+openssl req -x509 -days 3650 -newkey rsa:2048 \
    -nodes -config %PEGASUS_CONFIG_DIR/ssl.cnf   \
    -keyout %PEGASUS_CONFIG_DIR/key.pem -out %PEGASUS_CONFIG_DIR/cert.pem 2>>%INSTALL_LOG
 

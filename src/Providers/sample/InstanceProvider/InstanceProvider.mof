@@ -1,20 +1,43 @@
 #pragma locale ("en_US")
 
-instance of CIM_Provider
+// physical provider
+instance of PG_ProviderModule
 {
-	Name = "SampleInstanceProvider";
-	Location = "SampleInstanceProvider";
+    Description = "The Sample Pegasus Instance Provider Module that implements Sample_InstanceProviderClass";
+    Caption = "Sample Pegasus Instance Provider Module";
+    Name = "SampleInstanceProvider (MODULE)";
+    Vendor = "Pegasus";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "SampleInstanceProvider";
 };
 
-instance of CIM_ProviderCapabilities
+// logical provider
+instance of PG_Provider
 {
-	InstanceID = "SampleInstanceProvider";
-	ClassName = "Sample_InstanceProviderClass";
-//	ProviderType = { "Instance" };
+    ProviderModuleName = "SampleInstanceProvider (MODULE)";
+    Name = "SampleInstanceProvider (PROVIDER)";
 };
 
-instance of CIM_ProviderElementCapabilities
+// logical provider capabilities
+instance of PG_ProviderCapabilities
 {
-	ManagedElement = "CIM_Provider.CreationClassName=\"\",Name=\"SampleInstanceProvider\",SystemCreationClassName=\"\",SystemName=\"\"";
-	Capabilities = "CIM_ProviderCapabilities.InstanceID=\"SampleInstanceProvider\"";
+    ProviderModuleName = "SampleInstanceProvider (MODULE)";
+    ProviderName = "SampleInstanceProvider (PROVIDER)";
+    CapabilityID = "SampleInstanceProvider";
+    ClassName = "Sample_InstanceProviderClass";
+    Namespaces[] = { "root/cimv2" };
+    ProviderType[] = { 2 };
+    //SupportedProperties = {};
+    //SupportedMethods = {};
 };
+
+// association of module and provider
+//instance of PG_ProviderModuleElements
+//{
+//};
+
+// association of provider and capabilities
+//instance of PG_ProviderCapababilitiesElements
+//{
+//};

@@ -1,28 +1,42 @@
-[provider("OperatingSystemProvider")]
-class Pegasus_OperatingSystem
+#pragma locale ("en_US")
+
+// physical provider
+instance of PG_ProviderModule
 {
-	[key]
-	string CSCreationClassName;
-	string CSName;
-	string CreationClassName;
-	string Name;
-	uint16 OSType;
-	string OtherTypeDescription;
-	string Version;
-	datetime LastBootUpTime;
-	datetime LocalDateTime;
-	sint16 CurrentTimeZone;
-	uint32 NumberOfLicensedUsers;
-	uint32 NumberOfUsers;
-	uint32 NumberOfProcesses;
-	uint32 MaxNumberOfProcesses;
-	uint64 TotalSwapSpaceSize;
-	uint64 TotalVirtualMemorySize;
-	uint64 FreeVirtualMemory;
-	uint64 FreePhysicalMemory;
-	uint64 TotalVisibleMemorySize;
-	uint64 SizeStoredInPagingFiles;
-	uint64 FreeSpaceInPagingFiles;
-	uint64 MaxProcessMemorySize;
-	boolean Distributed;
+    Name = "OperatingSystemProvider (MODULE)";
+    Vendor = "Pegasus";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "OperatingSystemProvider";
 };
+
+// logical provider
+instance of PG_Provider
+{
+    Name = "OperatingSystemProvider (PROVIDER)";
+    ProviderModuleName = "OperatingSystemProvider (MODULE)";
+};
+
+// logical provider capabilities
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "OperatingSystemProvider (MODULE)";
+    ProviderName = "OperatingSystemProvider (PROVIDER)";
+    CapabilityID = "OperatingSystemProvider";
+    ClassName = "Pegasus_OperatingSystem";
+    Namespaces[] = { "root/cimv2" };
+    ProviderType[] = { 2 };
+    //SupportedProperties = {};
+    //SupportedMethods = {};
+};
+
+// association of module and provider
+//instance of PG_ProviderModuleElements
+//{
+//};
+
+// association of provider and capabilities
+//instance of PG_ProviderCapababilitiesElements
+//{
+//};
+

@@ -1,0 +1,5 @@
+#pragma locale ("en_US")
+
+class Pegasus_OperatingSystem : CIM_OperatingSystem
+{
+};

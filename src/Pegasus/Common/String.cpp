@@ -747,13 +747,48 @@ Boolean operator!=(const String& str1, const String& str2)
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
+#ifdef PEGASUS_OS_OS400
+    int inc = 0;
+    int	newbuf = 0;
+    char *buffer = NULL;
+    char buffer1[201];
+    char temp[2];
+    if (str.size() > 200)
+    {
+	buffer = new char[str.size()+1];
+	newbuf = 1;
+    }
+    else
+	buffer = buffer1;
+#endif
+
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
         Uint16 code = str[i];
 
         if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
         {
+#ifdef PEGASUS_OS_OS400
+            // process so messages don't get displayed as one char per line on OS/400.
+            // Uint16 is a 2 byte character where byte 1 is '00' and byte 2 is
+            // the character.  Also, the entire string needs to be sent to os instead
+            // of one "byte/Unit16" at a time.  Sending one "byte/Uint16" at a time also  
+            // causes one character per line.  On OS/400 use of os << char(code) is a 
+            // restriction and no available c/cpp alternative was available. The 
+            // following was created to compensate for this restriction.
+	    memcpy(temp, &code, 2);
+	    memcpy(buffer+inc, &temp[1], 1);  // do not include the '00'
+	    if ((i+1) == n)  // last character
+	    {
+		memset(buffer+n, 0x00, 1); // add null terminator
+		os << buffer;  // return 1-byte per character string
+		if (buffer && newbuf != 0)		
+		    delete [] buffer;  // okay; this is the end of the loop
+	    }
+	    inc++;
+#else
             os << char(code);
+#endif
         }
         else
         {

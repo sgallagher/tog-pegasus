@@ -671,12 +671,13 @@ private:
         If no indication providers are found, condition and queryLanguage are 
         set to empty string.
 
-        @param   nameSpace             Input namespace name
+        @param   nameSpace             Input namespace name (of subscription)
         @param   subscription          Input subscription instance
         @param   indicationProviders   Output list of providers with associated
                                            classes
         @param   propertyList          Output list of properties required by the
                                            subscription
+        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
@@ -686,6 +687,7 @@ private:
         const CIMInstance & subscriptionInstance,
         Array <ProviderClassList> & indicationProviders,
         CIMPropertyList & propertyList,
+        String & sourceNameSpace,
         String & condition,
         String & queryLanguage);
 
@@ -693,10 +695,11 @@ private:
         Gets the parameter values required to create or modify the subscription
         request.
 
-        @param   nameSpace             Input namespace name
+        @param   nameSpace             Input namespace name (of subscription)
         @param   subscription          Input subscription instance
         @param   propertyList          Output list of properties required by the
                                            subscription
+        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
@@ -705,6 +708,7 @@ private:
         const String & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         CIMPropertyList & propertyList,
+        String & sourceNameSpace,
         String & condition,
         String & queryLanguage);
 

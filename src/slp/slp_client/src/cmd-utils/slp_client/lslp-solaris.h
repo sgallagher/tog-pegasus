@@ -32,7 +32,7 @@
  *  Originated: December 17, 2001 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-solaris.h,v 1.4 2005/02/05 23:01:36 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-solaris.h,v 1.5 2005/02/26 23:09:12 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -72,7 +72,7 @@ extern "C" {
 typedef size_t socklen_t;
 
 /*** defines ***/
-#define INADDR_NONE 0
+#define INADDR_NONE ((in_addr_t) -1)
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \
            setsockopt((int)(a), (int)(b), (int)(c), (const char *)(d), (socklen_t)(e))
 #define _LSLP_SENDTO(a, b, c, d, e, f) \

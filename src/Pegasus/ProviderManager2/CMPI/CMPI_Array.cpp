@@ -60,7 +60,7 @@ static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
 
    for (unsigned int i=0; i<=dta->value.uint32; i++) {
       nDta[i]=dta[i];
-      if (dta->type & CMPI_ENC && dta[i].state==0) {
+      if (dta->type & CMPI_ENC && dta[i].state==CMPI_goodValue) {
          nDta[i].value.string=
          ((CMPIString*)dta[i].value.string)->ft->clone((CMPIString*)dta[i].value.string,&rrc);
          if (rrc.rc) {
@@ -90,7 +90,7 @@ static CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
 
    if (pos<dta->value.uint32) {
       if ((dta->type&~CMPI_ARRAY)==type) {
-         dta[pos+1].state=0;
+         dta[pos+1].state=CMPI_goodValue;
          dta[pos+1].value=*val;
          CMReturn(CMPI_RC_OK);
       }

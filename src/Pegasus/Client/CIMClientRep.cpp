@@ -133,7 +133,10 @@ void CIMClientRep::_connect()
         else
             io = input.subString(0,pos);
 
-        showOutput = _getShowType(input.subString(pos + 1));
+        // some compilers do not allow temporaries to be passed to a
+        // reference argument - so break into 2 lines
+        String out = input.subString(pos + 1);
+        showOutput = _getShowType(out);
 
         showInput = _getShowType(io);
     }

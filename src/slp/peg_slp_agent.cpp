@@ -31,8 +31,71 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class sa_reg_params
+{
+   public:
+
+      sa_reg_params(const char*, const char*, const char*, const char*, unsigned short);
+      ~sa_reg_params(void);
+      
+      int8* url;
+      int8* attrs;
+      int8* type;
+      int8* scopes;
+      unsigned short lifetime;
+      unsigned short expire;
+      
+
+   private:
+      sa_reg_params(void);
+      sa_reg_params(const sa_reg_params&);
+      sa_reg_params& operator=(const sa_reg_params&);
+      
+};
+
+
+
+ sa_reg_params::sa_reg_params(const char*  _url, 
+			     const char*  _attrs, 
+			     const char*  _type,
+			     const char*  _scopes,
+			     unsigned short _lifetime)
+{
+   if(_url)
+      url = strdup(_url);
+   
+   if(_attrs)
+      attrs = strdup(_attrs);
+   
+   if(_type)
+      type = strdup(_type);
+   
+   if(_scopes)
+      scopes = strdup(_scopes);
+   
+
+   lifetime = _lifetime;
+   time_t now = time(NULL);
+   expire = now + lifetime;
+}
+
+sa_reg_params::~sa_reg_params(void)
+{
+   if(url)
+      free(url);
+   if(attrs)
+      free(attrs);
+   if(type)
+      free(type);
+   if(scopes)
+      free(scopes);
+}
+
 
 slp_service_agent::slp_service_agent(void)
+   : _listen_thread(service_listener, this, false),
+   _initialized(0)
+
 {
    try 
    {
@@ -42,7 +105,7 @@ slp_service_agent::slp_service_agent(void)
    {
       
    }
-   if(_lib_handle && _create_client)
+   if(_initialized.value() && _lib_handle && _create_client)
    {
       _rep = _create_client("239.255.255.253",
 			    0,
@@ -59,6 +122,8 @@ slp_service_agent::slp_service_agent(const char *local_interface,
 				     const char *scopes,
 				     Boolean listen,
 				     Boolean use_da)
+   : _listen_thread(service_listener, this, false),
+   _initialized(0)
 {
    
    try 
@@ -69,7 +134,7 @@ slp_service_agent::slp_service_agent(const char *local_interface,
    {
       
    }
-   if(_lib_handle && _create_client)
+   if(_initialized.value() && _lib_handle && _create_client)
    {
       _rep = _create_client("239.255.255.253",
 			    local_interface,
@@ -92,7 +157,7 @@ void slp_service_agent::_init(void)
 #else
    _lib_fileName.append("slp_client.so");
 #endif
-   _lib_handle = System::loadDynamicLibrary((const char *)_lib_fileName.getCstring());
+   _lib_handle = System::loadDynamicLibrary((const char *)_lib_fileName.getCString());
 
    if(_lib_handle)
    {
@@ -100,9 +165,19 @@ void slp_service_agent::_init(void)
 	 (slp_client * (*)(const int8*, const int8*,  uint16, const int8*, const int8*, BOOL, BOOL))
 	 System::loadDynamicSymbol(_lib_handle, "create_slp_client");
 
+      _destroy_client = 
+	 (void (*)(struct slp_client *)) 
+	 System::loadDynamicSymbol(_lib_handle, "destroy_slp_client");
+      
+      _find_das = 
+	 (int (*)(struct slp_client *, const int8 *,  const int8 *))
+	 System::loadDynamicSymbol(_lib_handle, "find_das");
+
       _test_reg = 
 	 (uint32 (*)(int8*, int8*, int8*, int8*))
-	 System::locadDynamicSymbol(_lib_handle, "test_srv_reg");
+	 System::loadDynamicSymbol(_lib_handle, "test_srv_reg");
+      
+      _initialized = 1;
    }
    else 
    {
@@ -111,11 +186,16 @@ void slp_service_agent::_init(void)
    }
 }
 
-
 void slp_service_agent::_de_init(void)
 {
-   if(_lib_handle)
+   if(_initialized.value() && _lib_handle)
    {
+      if(_rep)
+      {
+	 _destroy_client(_rep);
+	 _rep = 0;
+      }
+
       try 
       {
 	 System::unloadDynamicLibrary(_lib_handle);
@@ -127,6 +207,148 @@ void slp_service_agent::_de_init(void)
       }
    }
 }
+
+
+Boolean slp_service_agent::srv_register(const char* url, 
+					const char* attributes, 
+					const char* type,
+					const char* scopes, 
+					unsigned short lifetime)
+{
+
+   if(url == 0 || attributes == 0 || type == 0)
+      return false;
+
+   sa_reg_params* rp;
+   _internal_regs.lookup(url, rp);
+   if(rp )
+   {
+      _internal_regs.remove(url);
+      delete rp;
+   }
+   
+   rp = new sa_reg_params(url, attributes, type, scopes, lifetime);
+   
+   _internal_regs.insert(url, rp);
+   
+   
+   return true;
+    
+}
+
+
+void slp_service_agent::unregister(void)
+{
+   while(slp_reg_table::Iterator i = _internal_regs.start())
+   {
+      sa_reg_params *rp = i.value();
+      _internal_regs.remove(rp->url);
+      delete rp;
+   }
+}
+
+
+
+Uint32 slp_service_agent::test_registration(const char *type, 
+					    const char *url, 
+					    const char *attrs, 
+					    const char *scopes)
+{
+
+   
+   if(type ==  0)
+      return 1;
+   
+   if(url == 0)
+      return 2;
+   
+   if(attrs == 0)
+      return 3;
+   
+   if(scopes == 0)
+      return 4;
+   
+   int8* _type = strdup(type);
+   int8* _url = strdup(url);
+   int8* _attrs = strdup(attrs);
+   int8* _scopes = strdup(scopes);
+
+   Uint32 ccode = _test_reg(_type, _url, _attrs, _scopes);
+   
+   free(_type);
+   free(_url);
+   free(_attrs);
+   free(_scopes);
+   return ccode;
+}
+
+
+void slp_service_agent::start_listener(void)
+{
+   // see if we need to use an slp directory agent 
+
+   _using_das = _find_das(_rep, NULL, "DEFAULT");
+
+   _should_listen = 1;
+   _listen_thread.run();
+   
+}
+
+PEGASUS_THREAD_RETURN 
+PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
+{
+   Thread *myself = (Thread *)parm;
+   if(myself == 0)
+      throw NullPointer();
+   
+   slp_service_agent *agent = 
+      (slp_service_agent *)myself->get_parm();
+   
+   lslpMsg msg_list;
+   
+   while(agent->_should_listen.value())
+   {
+      time_t now = time(NULL);
+	 // now register everything
+      
+      for(slp_reg_table::Iterator i = agent->_internal_regs.start(); i ; i++)
+      {
+	 sa_reg_params *rp = i.value();
+	 if(rp->expire > now - 1)
+	 {
+	    rp->expire = now + rp->lifetime;
+	    
+	    if(agent->_using_das.value())
+	    { 
+	       agent->_rep->srv_reg_all(
+		  agent->_rep, 
+		  rp->url, 
+		  rp->attrs, 
+		  rp->type, 
+		  rp->scopes, 
+		  rp->lifetime);
+	    }
+	    else
+	    {
+	       agent->_rep->srv_reg_all(
+		  agent->_rep, 
+		  rp->url, 
+		  rp->attrs, 
+		  rp->type, 
+		  rp->scopes, 
+		  rp->lifetime);
+	    }
+	 }
+	 
+      }
+      
+      agent->_rep->service_listener(agent->_rep, 0, &msg_list);
+      _LSLP_SLEEP(1);
+   }
+   myself->exit_self((PEGASUS_THREAD_RETURN) 0) ;
+   return(0);
+}
+
 
 
 PEGASUS_NAMESPACE_END

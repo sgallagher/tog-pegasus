@@ -32,16 +32,45 @@
 #define Pegasus_slp_agent_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/HashTable.h>
+
+#include "Linkage.h"
 #include <Pegasus/../Unsupported/slp_client/src/cmd-utils/slp_client/slp_client.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
+class sa_reg_params;
 
-class PEGASUS_SLP_LINKAGE slp_service_agent 
+struct slpTableEqual
+{
+    static Boolean equal(const String & x, const String & y)
+    {
+        if (0 == String::compareNoCase(x, y))
+            return true;
+        return false;
+    }
+};
+
+struct slpTableHash
+{
+      static Uint32 hash(const String & str)
+      {
+	 String cpy(str);
+	 cpy.toLower();
+	 Uint32 h = 0;
+	 for(Uint32 i = 0, n = cpy.size(); i < n; i++)
+            h = 5 * h + cpy[i];
+	 return h;
+      }
+};
+
+typedef HashTable<String, sa_reg_params*, slpTableEqual, slpTableHash > slp_reg_table;
+
+class PEGASUS_SLP_LINKAGE slp_service_agent
 {
    public:
       slp_service_agent(void);
@@ -52,30 +81,11 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 			Boolean use_da);
       ~slp_service_agent(void);
       
-      Boolean register_local(const char *url, 
-			     const char *attributes, 
-			     const char *type,
-			     const char *scopes, 
-			     unsigned short lifetime);
-      
-      Boolean register_multicast(const char *interface, 
-				 const char *url, 
-				 const char *attributes, 
-				 const char *type,
-				 const char *scopes, 
-				 unsigned short lifetime);
-      
-      Boolean register_broadcast(const char *url, 
-				 const char *attributes, 
-				 const char *type,
-				 const char *scopes, 
-				 unsigned short lifetime);
-      
-      Boolean register_da(const char *url, 
-			  const char *attributes, 
-			  const char *type,
-			  const char *scopes, 
-			  unsigned short lifetime);
+      Boolean srv_register(const char *url, 
+		       const char *attributes, 
+		       const char *type,
+		       const char *scopes, 
+		       unsigned short lifetime);
       
       Uint32 test_registration(const char *type, 
 			       const char *url, 
@@ -83,12 +93,18 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 			       const char *scopes);
 
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL service_listener(void *);
+      
+      void start_listener(void);
+      void unregister(void);
 			
    private:
+
+
+
       slp_service_agent(const slp_service_agent & );
       slp_service_agent & operator= (const slp_service_agent &);
 
-      slp_client* _rep;
+      struct slp_client* _rep;
 
       slp_client * (*_create_client )(const int8 *,
 				      const int8 *, 
@@ -97,7 +113,13 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 				      const int8 *, 
 				      BOOL, 
 				      BOOL);
+      void (*_destroy_client)(struct slp_client *);
       
+      
+      int (*_find_das)(struct slp_client *client, 
+		       const int8 *predicate, 
+		       const int8 *scopes);
+
       uint32 (*_test_reg)(int8 *, 
 			  int8 *, 
 			  int8 *, 
@@ -108,7 +130,11 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 
       void _init(void);
       void _de_init(void);
-      
+      Thread _listen_thread;
+      AtomicInt _should_listen;
+      AtomicInt _initialized;
+      AtomicInt _using_das;
+      slp_reg_table _internal_regs;
 };
 
 

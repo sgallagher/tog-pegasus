@@ -12,9 +12,10 @@ DIRS = \
 	LocalizedProvider \
 	LocalizedProvider/msg
 
-# BUG 1801, 1802, etc. Temp bypass until problems fixed. KS
-REMOVED_PENDING_BUG_FIXES = \
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+DIRS = \
 	CMPI/FilesAndDirectories \
 	CMPI/FilesAndDirectories/tests
+endif
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

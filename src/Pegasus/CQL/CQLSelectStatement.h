@@ -36,6 +36,7 @@
 #define Pegasus_CQLSelectStatement_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/CQL/SelectStatement.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
@@ -82,7 +83,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
            */
         String& inQuery, 
         
-        QueryContext* inCtx);
+        QueryContext& inCtx);
 
     CQLSelectStatement(const CQLSelectStatement& statement);
 

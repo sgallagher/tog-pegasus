@@ -44,7 +44,7 @@ CQLSelectStatement::CQLSelectStatement()
   _rep = new CQLSelectStatementRep();
 }
 
-CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery, QueryContext* inCtx)
+CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery, QueryContext& inCtx)
   :SelectStatement()
 {
   _rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
@@ -191,8 +191,6 @@ void CQLSelectStatement::clear(){
   PEGASUS_ASSERT(_rep != NULL);
 
   _rep->clear();
-  if(_rep) delete _rep;
-  _rep = new CQLSelectStatementRep();
 }
 
 PEGASUS_NAMESPACE_END

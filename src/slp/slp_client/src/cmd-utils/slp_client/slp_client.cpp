@@ -2946,7 +2946,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 /* 		to allocate a socket and send it back to the requesting node  */
 
 		/* only send the response if there is an attribute or if this is a unicast */ 
-		if(attr_tags != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
+//		if(attr_tags != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
 		  if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 		    SOCKADDR_IN local;
 		    int err = 1;
@@ -2962,7 +2962,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		    } /*  successfully bound this socket  */
 		    _LSLP_CLOSESOCKET(sock);
 		  } /* successfully opened this socket */
-		}
+//		}
 		
 		if(attr_tags)
 		  lslpFreeAttrList(attr_tags, TRUE);

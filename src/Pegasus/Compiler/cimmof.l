@@ -1,21 +1,19 @@
 %option never-interactive
+%option stack
+%option yylineno
 %{ 
 
 #include "cimmofParser.h"
 #include "memobjs.h"
 #include "cimmof_tab.h"
 
-/*--- change history (recent) ---------------------------------------------
+/*                                                                       */
+/*  7/27/2004: bug 1330, support for slash* comments, E Boden, IBM       */
+/*  8/14/2004: bug 544,  support for string escape characters, E Boden   */
+/*                                                                       */
+/*                                                                       */
+/*                                                                       */
 
-      7/29/2004, Ed Boden, bug 1330; support for slash-asterick comments.
-
--------------------------------------------------------------------------*/
-
-
-/* ATTN-DME-DEFERRED-20020516 - MOF COMPILER ALIASING DISABLED           */
-/* To enable aliasing add the following two lines                        */
-/* $[_$0-9a-zA-Z]+                     { return(TOK_ALIAS_IDENTIFIER); } */
-/* [Aa][Ss]                            { return(TOK_AS); }               */
 
 /*---------------------------------------------------------------*/
 /* These routines wrap certain flex functions, keeping down the  */
@@ -46,18 +44,20 @@ int switch_to_buffer_wrapper(void *buffstate, Boolean closeCurrent) {
   return 0;
 }
 
+char  strbuf[1024], *strbuf_p, slashx[2];
 
 
 %}
 
 
+%x str hex
 %%
 
 
 \n                                  { 
-                                cimmofParser::Instance()->increment_lineno(); }
+                                      cimmofParser::Instance()->increment_lineno(); }
 \/\/.*[\r\n]?                       {
-                                cimmofParser::Instance()->increment_lineno(); }
+                                      cimmofParser::Instance()->increment_lineno(); }
 [ \t\r]                             { /* skip white space */ }
 class                                 { return(TOK_CLASS); }
 \{                                  { return(TOK_LEFTCURLYBRACE); }
@@ -85,25 +85,84 @@ class                                 { return(TOK_CLASS); }
 ,                                   { return(TOK_COMMA); }
 \'.+\'                              { cimmof_lval.strval = new String(yytext);
                                       return(TOK_CHAR_VALUE); }
-\"[^\"\n]*[\"\n]                    { cimmof_lval.strval = new String(yytext);
-                                      return(TOK_STRING_VALUE); }
-\/\*                                { /* rational for this over approaches that use
-                                         reg exp's to go through the comment is that
-                                         this approach will not overflow flex's buffer, 
-                                         even for very long comments.
-                                      */
-                                      int c1=0, c2=yyinput();
-                                      for (;;) {
-                                          if (c2==EOF) break;
-                                          if (c1=='*' && c2=='/') break;
-                                          c1=c2;
-                                          c2=yyinput();
-                                          }                               
+
+
+                                    /*--- bugzilla 544 fix; handle string escapes --- 
+                                    
+                                       an impl. decision: invalid escape sequences 
+                                       are simply ignored, and left in the string.
+
+                                       an impl. decision: yyleng is set to the len
+                                       of resulting string, not the len of the matched
+                                       token(s), since they are different, with escapes.
+                                       (but note; cimmof.y does not use yyleng!)
+
+                                       an impl. req't: strings are returned to parser
+                                       with [no kidding!] enclosing "s.  
+                                    */                                               
+\"                                  { BEGIN(str); strbuf_p = strbuf; 
+                                      /**strbuf_p++ = '"';*/ }
+<str>\"                             { BEGIN(INITIAL);  
+                                      /**strbuf_p++ = '"';*/  *strbuf_p = '\0';
+                                      cimmof_leng = strbuf_p - strbuf;
+                                      cimmof_lval.strval = new String(strbuf);
+                                      return TOK_STRING_VALUE; }
+<str><<EOF>>                        |
+<str>\n                             { BEGIN(INITIAL); 
+                                      /**strbuf_p++ = '"';*/  *strbuf_p = '\0';
+                                      cimmof_leng = strbuf_p - strbuf;
+                                      cimmof_lval.strval = new String(strbuf);
+                                      return TOK_UNEXPECTED_CHAR; }
+<str>\\b                            { /* backspace */        *strbuf_p++ = '\b'; }
+<str>\\f                            { /* form feed */        *strbuf_p++ = '\f'; }
+<str>\\n                            { /* line feed */        *strbuf_p++ = '\n'; }
+<str>\\r                            { /* carriage return */  *strbuf_p++ = '\r'; }
+<str>\\t                            { /* horizontal tab */   *strbuf_p++ = '\t'; }
+<str>\\'                            { /* single quote */     *strbuf_p++ = '\''; }
+<str>\\\"                           { /* double quote */     *strbuf_p++ = '"';  }
+<str>\\\\                           { /* backslash */        *strbuf_p++ = '\\'; }
+<str>\\[xX]                         { yy_push_state(hex);
+                                      memcpy(slashx,yytext,2);
                                       }
+<str>\\(.|\n)                       { *strbuf_p++ = '\\';
+                                      *strbuf_p++ = yytext[1]; }
+<str>[^\\\n\"]+                     { char *t = yytext;
+                                      while( *t ) *strbuf_p++ = *t++;
+                                      *strbuf_p = '\0'; }
+<hex>[0-9A-Fa-f]{1,4}               { /* get escaped hex digits */
+                                      char  hexfmt[4];   unsigned int n;
+                                      sprintf( hexfmt, "%%%dx", yyleng );
+                                      sscanf(yytext, hexfmt, &n);
+                                      if (n>255) {
+                                          memcpy(strbuf_p,slashx,2);
+                                          strbuf_p += 2;
+                                          char *t = yytext;
+                                          while( *t ) *strbuf_p++ = *t++;
+                                          }
+                                      else *strbuf_p++ = *(char*)&n;
+                                      yy_pop_state();     
+                                      }
+<hex>.                              { memcpy(strbuf_p,slashx,2);
+                                      strbuf_p += 2;
+                                      *strbuf_p++ = *yytext;
+                                      yy_pop_state();
+                                      }
+                                    /* --- end of bugzilla 544 fix --- */
+
+
+
+\/\*                                {   int c1=0, c2=yyinput();
+                                        for(;;) {
+                                            if (c2==EOF) break;
+                                            if (c1=='*' && c2=='/') break;
+                                            c1=c2;
+                                            c2=yyinput();
+                                            }
+                                        }
+<<EOF>>                             { yyterminate(); }
 [Nn][Uu][Ll][Ll]                    { return(TOK_NULL_VALUE); }
 [Tt][Rr][Uu][Ee]                    { return(TOK_TRUE); }
 [Ff][Aa][Ll][Ss][Ee]                { return(TOK_FALSE); }
-\"                                  { return(TOK_DQUOTE); }
 \.                                  { return(TOK_PERIOD); }
 \#[Pp][Rr][Aa][Gg][Mm][Aa]          { return(TOK_PRAGMA); }
 [Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]    {
@@ -134,6 +193,9 @@ class                                 { return(TOK_CLASS); }
 [Tt][Rr][Aa][Nn][Ss][Ll][Aa][Tt][Aa][Bb][Ll][Ee] {
                                       return(TOK_TRANSLATABLE); }
 [Ii][Nn][Cc][Ll][Uu][Dd][Ee]        { return(TOK_INCLUDE); }
+$[_$0-9a-zA-Z]+                     { cimmof_lval.strval = new String(yytext);
+                                      return TOK_ALIAS_IDENTIFIER; }
+[Aa][Ss]                            { return TOK_AS; }              
 [Ss][Tt][Rr][Ii][Nn][Gg]            { return(TOK_DT_STR); }
 [Bb][Oo][Oo][Ll][Ee][Aa][Nn]        { return(TOK_DT_BOOL); }
 [Dd][Aa][Tt][Ee][Tt][Ii][Mm][Ee]    { return(TOK_DT_DATETIME); }
@@ -156,6 +218,4 @@ class                                 { return(TOK_CLASS); }
 
 %%
 
-void cimmof_yy_less(int n) {
-  yyless(n);
-}
+void cimmof_yy_less(int n) { yyless(n); }

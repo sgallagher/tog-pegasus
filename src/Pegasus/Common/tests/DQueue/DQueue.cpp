@@ -44,16 +44,16 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
  
-class FAKE_MESSAGE : public PEGASUS_CHECKED_OBJECT
+class FAKE_MESSAGE 
 {
    public:
-      
-      FAKE_MESSAGE(void *key, int type, PEGASUS_CHECK_PARAM) 
-	  : PEGASUS_CHECK_INIT,  _type(type)
+      FAKE_MESSAGE(void){} 
+      FAKE_MESSAGE(void *key, int type) 
+	  : _type(type)
       { 
 	 _key = (Thread *)key;
       }
-
+      
       ~FAKE_MESSAGE(void)
       {
       }
@@ -73,7 +73,7 @@ class FAKE_MESSAGE : public PEGASUS_CHECKED_OBJECT
       } 
 
    private:
-      FAKE_MESSAGE(void); 
+
       Thread * _key; 
       int _type;
 };
@@ -98,20 +98,20 @@ const Uint32 NUMBER_MSGS = 100;
 const int NUMBER_CLIENTS = 2 ;
 const int NUMBER_SERVERS =  1; 
  
-FAKE_MESSAGE *get_next_msg(void *key )
+FAKE_MESSAGE *get_next_msg(void *key)
 {
    FAKE_MESSAGE *msg = 0;
 
    msg_mutex.lock(pegasus_thread_self());
    if(requests.value() < NUMBER_MSGS)
    {
-      msg = new FAKE_MESSAGE(key, 0, PEGASUS_MEMCHECK(FAKE_MESSAGE));
+      msg = PEGASUS_NEW(FAKE_MESSAGE) FAKE_MESSAGE(key, 0);
       requests++;
    }
-   msg_mutex.unlock();
-   return msg;
+   msg_mutex.unlock(); 
+   return msg;  
 }
-
+ 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
 {
    Thread *my_handle = (Thread *)parm;
@@ -224,7 +224,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 
       if(msg != 0 )
       {
-	 PEGASUS_MEMCHECK_DELETE(msg); 
 //	 delete msg;
 	 replies++;
       }

@@ -39,13 +39,14 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 }
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
+					      int type,
 					      const Sint8 *classname, 
 					      Sint8 *file,
 					      int line)
 {
    return internal_allocator.vs_malloc(size, 
  				       &(internal_allocator.get_handle()),
-				       NORMAL, 
+				       type, 
 				       classname, 
 				       file,  
 				       line) ;
@@ -53,6 +54,9 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size,
 
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead, int type, Sint8 *classname, Sint8 * file, int line) 
 {
+   if ( dead == 0 )
+      return;
+   
    internal_allocator.vs_free(dead, type, classname, file, line); 
 }
 
@@ -66,12 +70,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
-void * operator new(size_t size)
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    throw(PEGASUS_STD(bad_alloc))
-#else
-    throw()
-#endif
+void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
 {
    
    if( size == 0 )
@@ -106,14 +105,8 @@ void operator delete(void *dead, size_t size) throw()
    return;
 }
 
-void * operator new [] (size_t size)
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    throw(PEGASUS_STD(bad_alloc))
-#else
-    throw()
-#endif
+void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
 {
-
    if( size == 0 )
       size = 1;
    void *p;
@@ -263,7 +256,6 @@ Boolean peg_suballocator::InitializeSubAllocator(Sint8 *file)
 
    // check to see if we are already initialized
    // gain ownership of global semaphore here
-   
 
    for (o = 0; o < 3; o++)
    {
@@ -272,7 +264,6 @@ Boolean peg_suballocator::InitializeSubAllocator(Sint8 *file)
 	 // allocate our list heads
 	 if (0 == ((Sint32)(CREATE_MUTEX(&(semHandles[o][i])))))
 	 {
-
 	    nodeListHeads[o][i] = (SUBALLOC_NODE *)calloc(1, sizeof (SUBALLOC_NODE));
 	    if ( nodeListHeads[o][i] == NULL )
 	    {
@@ -298,8 +289,7 @@ Boolean peg_suballocator::InitializeSubAllocator(Sint8 *file)
 
 	    temp = nodeListHeads[o][i];
 	    temp->next = temp->prev = temp;
-	    temp->isHead = true;
-	    temp->avail = NORMAL;
+	    temp->flags |= (IS_HEAD_NODE );
 	    memcpy(temp->guardPre, guard, GUARD_SIZE);
 	    memcpy(temp->guardPost, guard, GUARD_SIZE);
 	    if (preAlloc[o][i])
@@ -378,7 +368,7 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
       temp2 = (SUBALLOC_NODE *)calloc(1, sizeof(SUBALLOC_NODE));
       if (temp2 == NULL)
 	 return(false);
-      temp2->avail = AVAILABLE;
+      temp2->flags |= AVAIL;
       memcpy(temp2->guardPre, guard, GUARD_SIZE);
       memcpy(temp2->guardPost, guard, GUARD_SIZE);
 //      temp2->allocPtr = malloc( sizeof(void *) + nodeSizes[vector][index] +
@@ -500,14 +490,19 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::GetNode(Sint32 vector, Sint32
 {
    SUBALLOC_NODE *temp;
    Sint32 waitCode;
+   if(initialized == 0 )
+   {
+      InitializeSubAllocator();
+   }
    WAIT_MUTEX(&(semHandles[vector][index]), 1000, &waitCode);
    temp = (nodeListHeads[vector][index])->next;
    // if list is empty we will fall through
+   
    while (! IS_HEAD(temp) )
    {
-      if (temp->avail == AVAILABLE)
+      if ((temp->flags & AVAIL) && (false == IS_HEAD(temp)))
       {
-	 temp->avail = NORMAL;
+	 temp->flags &= ~(AVAIL) ;
 	 // release semHandles[index] 
 	 RELEASE_MUTEX(&(semHandles[vector][index]));
 	 return(temp);
@@ -524,7 +519,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::GetNode(Sint32 vector, Sint32
    // Allocate always links new nodes at the front of the list
    // we can just grab the first node and go
    temp = (nodeListHeads[vector][index])->next;
-   temp->avail = NORMAL;
+   temp->flags &= ~(AVAIL);
    // release semHandles[vector][index];
    RELEASE_MUTEX(&(semHandles[vector][index]));
    return(temp);
@@ -552,6 +547,10 @@ peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
    SUBALLOC_NODE *temp;
    Sint8 *g;
    Sint32 waitCode;
+   if(initialized == 0 )
+   {
+      InitializeSubAllocator();
+   }
    WAIT_MUTEX(&(semHandles[0x03][0x0f]), 1000, &waitCode);
    // use the last listhead to hold all the huge nodes
    temp = (nodeListHeads[0x03][0x0f])->next;
@@ -559,9 +558,9 @@ peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
    while (! IS_HEAD(temp) )
    {
      hugeNodeLoop:
-      if (temp->avail == AVAILABLE)
+      if (temp->flags & AVAIL)
       {
-	 temp->avail = NORMAL;
+	 temp->flags &= ~(AVAIL);
 	 if (temp->allocPtr != NULL)
 	    free(temp->allocPtr);
 	 temp->allocPtr = calloc(sizeof(SUBALLOC_NODE **) + size + 
@@ -631,7 +630,7 @@ void peg_suballocator::PutNode(Sint32 vector, Sint32 index, SUBALLOC_NODE *node)
    // this will make it faster to get the node
    // next time we need it. 
    INSERT(node, nodeListHeads[vector][index]);
-   node->avail = AVAILABLE;
+   node->flags |= AVAIL;
    RELEASE_MUTEX(&(semHandles[vector][index]));
    return;
 }	
@@ -669,7 +668,7 @@ void peg_suballocator::PutHugeNode(SUBALLOC_NODE *node)
    // this will make it faster to get the node
    // next time we need it. 
    INSERT(node, nodeListHeads[0x03][0x0f]);
-   node->avail = AVAILABLE;
+   node->flags |= AVAIL;
    RELEASE_MUTEX(&(semHandles[0x03][0x0f]));
    return;
 }	
@@ -696,18 +695,7 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sin
    SUBALLOC_NODE *temp;
    Sint8 *g;
    assert(size != 0);
-   WAIT_MUTEX(&init_mutex);
-   if (! initialized)
-   {
-      RELEASE_MUTEX(&init_mutex);
-      if (! InitializeSubAllocator())
-	 return(NULL);
-   }
-   else
-   {
-      RELEASE_MUTEX(&init_mutex);
-   }
-   
+     
    if (! (size >> 8))
    {
       temp = GetNode(0, (size >> 4));
@@ -724,6 +712,8 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sin
       GetHugeNode(size);
    temp->allocSize = size;
    temp->concurrencyHandle = (void *)handle;
+   if(type == ARRAY)
+      temp->flags |= ARRAY_NODE;
    g = (Sint8 *)temp->allocPtr;
    assert(*(SUBALLOC_NODE **)g == temp);
    g += sizeof(SUBALLOC_NODE **);
@@ -769,11 +759,6 @@ void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, 
    assert(num != 0);
    assert(s != 0);
    size = num * s;
-   if (! initialized)
-   {
-      if (! InitializeSubAllocator())
-	 return(NULL);
-   }
 
    if (! (size >> 8))
    {
@@ -819,18 +804,10 @@ void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, 
 
 void peg_suballocator::vs_free(void *m)
 {
-      // we don't need to grab any semaphores - 
+   // we don't need to grab any semaphores - 
    // called routines will do that for us
-   SUBALLOC_NODE *temp;
-   Sint8 *g;
-   assert(m != NULL);
-   g = (Sint8 *)m;
-   g -= GUARD_SIZE;	
-   temp = *(SUBALLOC_NODE **)(g - sizeof(SUBALLOC_NODE **));
-   // check all the guard pages
-   // we don't need to own semaphores because we will not be
-   // walking the list 
-   assert(_CheckGuard(temp));
+   assert( m != 0 );
+   SUBALLOC_NODE *temp = _CheckNode(m, NORMAL);
 
    if (! (temp->allocSize >> 8))
    {
@@ -853,16 +830,8 @@ void peg_suballocator::vs_free(void *m, int type , Sint8 *classname, Sint8* file
 {
    // we don't need to grab any semaphores - 
    // called routines will do that for us
-   SUBALLOC_NODE *temp;
-   Sint8 *g;
-   assert(m != NULL);
-   g = (Sint8 *)m;
-   g -= GUARD_SIZE;	
-   temp = *(SUBALLOC_NODE **)(g - sizeof(SUBALLOC_NODE **));
-   // check all the guard pages
-   // we don't need to own semaphores because we will not be
-   // walking the list 
-   assert(_CheckGuard(temp));
+   assert( m != 0 );
+   SUBALLOC_NODE *temp = _CheckNode(m, NORMAL);
 
    if (! (temp->allocSize >> 8))
    {
@@ -966,15 +935,15 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	 // if list is empty we will fall through
 	 while (! IS_HEAD(temp) )
 	 {
-	    if (temp->avail != AVAILABLE  && temp->concurrencyHandle == (void *)handle)
+	    if (!(temp->flags & AVAIL) && temp->concurrencyHandle == (void *)handle)
 	    {
 	       if (dumpFile != NULL)
 	       {
 		  fprintf(dumpFile, "\nLeaked  memory: %s, %s, %s", 
-			  temp->classname, temp->file, temp->line);
+ 			  temp->classname, temp->file, temp->line);
 	       }
 	       ccode = true;
-	       temp->avail = AVAILABLE;
+	       temp->flags |= AVAIL;
 	       if ((temp->allocSize >> 16))
 	       {
 		  free(temp->allocPtr);
@@ -1014,7 +983,7 @@ Boolean peg_suballocator::_CheckGuard(SUBALLOC_NODE *node)
 {
    Sint32 ccode;
    Sint8 *g;
-   assert(node->avail != AVAILABLE);
+
    ccode = memcmp(node->guardPre, guard, GUARD_SIZE);
    if (ccode == 0)
    {
@@ -1035,7 +1004,8 @@ Boolean peg_suballocator::_CheckGuard(SUBALLOC_NODE *node)
    return(false);
 }
 
-void peg_suballocator::_CheckNode(void *m)
+
+peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m, int type)
 {
    // we don't need to grab any semaphores - 
    // called routines will do that for us
@@ -1048,8 +1018,13 @@ void peg_suballocator::_CheckNode(void *m)
    // check all the guard pages
    // we don't need to own semaphores because we will not be
    // walking the list 
+   assert(! (temp->flags & AVAIL));
+   if( type == ARRAY )
+      assert(IS_ARRAY(temp));
+   else
+      assert( ! IS_ARRAY(temp));
    assert(_CheckGuard(temp));
-   return;
+   return temp;
 }
 
 

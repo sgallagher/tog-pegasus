@@ -11,6 +11,10 @@ LIBRARY = pegconfig
 LIBRARIES = \
     pegcommon
 
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+EXTRA_LIBRARIES += $(SOLARIS_COMPILER_PATH)/lib/libCstd.a
+endif
+
 SOURCES = \
 	ConfigExceptions.cpp \
 	ConfigFile.cpp \

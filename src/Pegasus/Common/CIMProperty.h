@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,10 @@
 #define Pegasus_Property_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#ifdef PEGASUS_INTERNALONLY
 #include <Pegasus/Common/CIMPropertyRep.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,7 +44,10 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 class CIMConstProperty;
+#ifdef PEGASUS_INTERNALONLY
+class CIMClassRep;
 class CIMInstanceRep;
+#endif
 
 /** CIMProperty Class - This C++ class implements the CIM Property 
 Object. It defines a single CIM Property and allows the manipulation of that 
@@ -50,23 +56,17 @@ class.
 ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
 ATTN: Define the property concept in more detail and ref property.
 */
- class PEGASUS_COMMON_LINKAGE CIMProperty
+class PEGASUS_COMMON_LINKAGE CIMProperty
 {
 public:
 
     /** CIMProperty constructor. */
-    CIMProperty() : _rep(0)
-    {
-
-    }
+    CIMProperty();
 
     /** CIMProperty constructor. Constructs this property form another 
 		CIMProperty object
 	*/
-    CIMProperty(const CIMProperty& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMProperty(const CIMProperty& x);
 
     /** CIMProperty Constructor for CIMProperty that adds a number of 
         parameters to the constructed CIMProperty object.
@@ -89,29 +89,14 @@ public:
 	const CIMValue& value,
 	Uint32 arraySize = 0,
 	const String& referenceClassName = String::EMPTY,
-	const String& classOrigin = String(),
-	Boolean propagated = false)
-    {
-	_rep = new CIMPropertyRep(name, value,
-	    arraySize, referenceClassName, classOrigin, propagated);
-    }
+	const String& classOrigin = String::EMPTY,
+	Boolean propagated = false);
 
     /** ~CIMProperty(). */
-    ~CIMProperty()
-    {
-	Dec(_rep);
-    }
+    ~CIMProperty();
 
     /// Operator =
-    CIMProperty& operator=(const CIMProperty& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMProperty& operator=(const CIMProperty& x);
 
     /** getName - Gets the name of the property.
         @return String containing the property name.
@@ -120,11 +105,7 @@ public:
     	assert(p1.getName() == Uint32(231));
 		</pre>
     */
-    const String& getName() const
-    {
-	_checkRep();
-	return _rep->getName();
-    }
+    const String& getName() const;
 
     /** setName - Set the property name. Throws IllegalName if name 
         argument not legal CIM identifier.
@@ -133,100 +114,56 @@ public:
 		ATTN: P3 please hide this. The only way a name should be
 		set is through a constructor.
     */
-    void setName(const String& name)
-    {
-		_checkRep();
-		_rep->setName(name);
-    }
+    void setName(const String& name);
 
     /** Get the value of the property. */
-    const CIMValue& getValue() const
-    {
-	_checkRep();
-	return _rep->getValue();
-    }
+    const CIMValue& getValue() const;
 
     /** Get the type of the property. */
-    CIMType getType() const
-    {
-	_checkRep();
-	return _rep->getValue().getType();
-    }
+    CIMType getType() const;
 
     /** Check if the property is an array type. */
-    Boolean isArray() const
-    {
-	_checkRep();
-	return _rep->getValue().isArray();
-    }
+    Boolean isArray() const;
 
     /** setValue Sets the Value in the Property object from the input 
         parameter.
 		@param value CIMValue containing the value to be put into the 
         property. /Ref{CIMValue}
     */
-    void setValue(const CIMValue& value)
-    {
-	_checkRep();
-	_rep->setValue(value);
-    }
+    void setValue(const CIMValue& value);
 
     /** getArraySize gets the arraysize parameter from the property
 	@return Uint32 with the arraysize.
 	*/
-    Uint32 getArraySize() const
-    {
-	_checkRep();
-	return _rep->getArraySize();
-    }
+    Uint32 getArraySize() const;
 
     /** getReferenceClassName - gets the referenceClassName.
 	@return String contianing the referenceClassName if this is a
 	reference property or empty if another CIMType.
     */
-    const String& getReferenceClassName() const
-    {
-	_checkRep();
-	return _rep->getReferenceClassName();
-    }
+    const String& getReferenceClassName() const;
 
     /** getClassOrigin - Gets the classOrigin field from the property
 		object. This will be a string with the name of the originating
 		class for the property or empty if this is the originating class
 		@return String with classOrigin name.
 	*/
-    const String& getClassOrigin() const
-    {
-	_checkRep();
-	return _rep->getClassOrigin();
-    }
+    const String& getClassOrigin() const;
 
     /**setClassOrigin - Sets the Class Origin attribute
 	@param classOrigin String containing the classOrigin
     */
-    void setClassOrigin(const String& classOrigin)
-    {
-	_checkRep();
-	_rep->setClassOrigin(classOrigin);
-    }
+    void setClassOrigin(const String& classOrigin);
 
     /** getPropagated - Tests if this property is propogated.
 	@return - Returns true if the class is propogated.
     */
-    Boolean getPropagated() const
-    {
-	_checkRep();
-	return _rep->getPropagated();
-    }
+    Boolean getPropagated() const;
 
     /** setProgagated - Sets the propagated attribute true or fals.
 		@param Boolean true or false representing propagated state to be set.
 	*/
-    void setPropagated(Boolean propagated)
-    {
-	_checkRep();
-	_rep->setPropagated(propagated);
-    }
+    void setPropagated(Boolean propagated);
 
     /** addQualifier adds a qualifier object to the property and
 		increases the qualifier count
@@ -234,12 +171,7 @@ public:
 		@return Returns this properpty as a convience in adding multiple entities
 		@exceptionThrows AlreadyExists.
     */
-    CIMProperty& addQualifier(const CIMQualifier& x)
-    {
-	_checkRep();
-	_rep->addQualifier(x);
-	return *this;
-    }
+    CIMProperty& addQualifier(const CIMQualifier& x);
 
     /**findQualifier - Finds the qualifier object defined
 	by the name parameter if it is attached to this 
@@ -249,17 +181,7 @@ public:
 	@return Position of the qualifier object or -1 if not 
 	found
     */
-    Uint32 findQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
-
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    Uint32 findQualifier(const String& name) const;
 
     /** existsQualifier - Determines if the qualifier object 
         defined by the name parameter is attached to this 
@@ -269,17 +191,7 @@ public:
 		@return Returns true if the qualifier is found, else 
 		returns false. 
     */
-    Boolean existsQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
-
-    Boolean existsQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->existsQualifier(name);
-    }
+    Boolean existsQualifier(const String& name) const;
 
     /** getQualifier - gets the Qualifier object specified by the
 	pos parameter.
@@ -289,11 +201,7 @@ public:
 	@exception Throws OutOfBounds if pos is outside range
 	of Qualifiers in this property object.
     */
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMQualifier getQualifier(Uint32 pos);
 
     /** getQualifier returns the qualifier defined at the position
         input.
@@ -303,11 +211,7 @@ public:
         @exception throws OutOfBounds if pos is outside the range
         of qualifiers that exist for the property.
     */
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
     /** removeQualifier - Removes the CIMQualifier defined by the 
 	position input as a parameter.
@@ -316,35 +220,40 @@ public:
 	@exception OutOfBounds exception if the index is outside the range of
 	parameters available from the CIMMethod.
     */
-    void removeQualifier(Uint32 pos)
-    {
-	_checkRep();
-	_rep->removeQualifier(pos);
-    }
+    void removeQualifier(Uint32 pos);
     
     /** getQualifierCount - Returns count of the number
     	of qualifiers attached to the CIMProperty object.
 	@return Count of the number of CIMQualifier objects attached
 	to the CIMProperty object.
     */
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 getQualifierCount() const;
 
+    /**identical - compares the CIMProperty object with
+       another CIMProperty object defined by the input parameter.
+       @param x CIMPropery object for comparison
+       @return Returns true if the objects are identical
+    */
+    Boolean identical(const CIMConstProperty& x) const;
+
+    /** isKey - Tests the CIMProperty to determine if any
+        qualifiers is a key indicating that this is a key
+	property
+	@return Returns true if this is a key property.
+    */
+    Boolean isKey() const;
+
+    /// clone - ATTN: P3 Documentation
+    CIMProperty clone(Boolean propagateQualifiers) const;
+
+#ifdef PEGASUS_INTERNALONLY
     /// CIMMethod resolve
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
 	const CIMConstProperty& property,
-	Boolean propagateQualifiers)
-    {
-	_checkRep();
-	_rep->resolve(declContext, 
-	    nameSpace, isInstancePart, property, propagateQualifiers);
-    }
+	Boolean propagateQualifiers);
 
     /** resolve - Resolves the property. Resolution is the process of
         intregating the property into the the context of a repository
@@ -363,90 +272,44 @@ public:
 	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
-	Boolean propagateQualifiers)
-    {
-	_checkRep();
-	_rep->resolve(
-	    declContext, nameSpace, isInstancePart, propagateQualifiers);
-    }
+	Boolean propagateQualifiers);
 
     /// ATTN: documentation
-    operator int() const { return _rep != 0; }
+    operator int() const;
 
     /** toXML  - Converts the object to XML and puts the
 	resutl in the out parameter
 	@param out Parameter for XML output
     */
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    void toXml(Array<Sint8>& out) const;
 
     /** print - Converts the object to XML and output
     	it to cout
     */
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    void print(PEGASUS_STD(ostream)& o = PEGASUS_STD(cout)) const;
 
     /** toMof  - Converts the object to Mof and puts the
 	resutl in the out parameter
 	@param out Parameter for Mof output
     */
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
-
-    /**identical - compares the CIMProperty object with
-       another CIMProperty object defined by the input parameter.
-       @param x CIMPropery object for comparison
-       @return Returns true if the objects are identical
-    */
-    Boolean identical(const CIMConstProperty& x) const;
-
-    /** isKey - Tests the CIMProperty to determine if any
-        qualifiers is a key indicating that this is a key
-	property
-	@return Returns true if this is a key property.
-    */
-    Boolean isKey() const
-    {
-	_checkRep();
-	return _rep->isKey();
-    }
-
-    /// clone - ATTN: P3 Documentation
-    CIMProperty clone(Boolean propagateQualifiers) const
-    {
-	return CIMProperty(_rep->clone(propagateQualifiers));
-    }
+    void toMof(Array<Sint8>& out) const;
 
 private:
 
-    CIMProperty(CIMPropertyRep* rep) : _rep(rep)
-    {
-    }
+    CIMProperty(CIMPropertyRep* rep);
 
     // This constructor allows the CIMClassRep friend class to cast
     // away constness.
 
     PEGASUS_EXPLICIT CIMProperty(const CIMConstProperty& x);
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMPropertyRep* _rep;
     friend class CIMConstProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
+#endif
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -459,20 +322,11 @@ class PEGASUS_COMMON_LINKAGE CIMConstProperty
 {
 public:
 
-    CIMConstProperty() : _rep(0)
-    {
+    CIMConstProperty();
 
-    }
+    CIMConstProperty(const CIMConstProperty& x);
 
-    CIMConstProperty(const CIMConstProperty& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstProperty(const CIMProperty& x)
-    {
-	Inc(_rep = x._rep);
-    }
+    CIMConstProperty(const CIMProperty& x);
 
     // Throws IllegalName if name argument not legal CIM identifier.
 
@@ -481,154 +335,61 @@ public:
 	const CIMValue& value,
 	Uint32 arraySize = 0,
 	const String& referenceClassName = String::EMPTY,
-	const String& classOrigin = String(),
-	Boolean propagated = false)
-    {
-	_rep = new CIMPropertyRep(name, value,
-	    arraySize, referenceClassName, classOrigin, propagated);
-    }
+	const String& classOrigin = String::EMPTY,
+	Boolean propagated = false);
 
-    ~CIMConstProperty()
-    {
-	Dec(_rep);
-    }
+    ~CIMConstProperty();
 
-    CIMConstProperty& operator=(const CIMConstProperty& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMConstProperty& operator=(const CIMConstProperty& x);
 
-    CIMConstProperty& operator=(const CIMProperty& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMConstProperty& operator=(const CIMProperty& x);
 
-    const String& getName() const
-    {
-	_checkRep();
-	return _rep->getName();
-    }
+    const String& getName() const;
 
-    const CIMValue& getValue() const
-    {
-	_checkRep();
-	return _rep->getValue();
-    }
+    const CIMValue& getValue() const;
 
-    CIMType getType() const
-    {
-	_checkRep();
-	return _rep->getValue().getType();
-    }
+    CIMType getType() const;
 
-    Boolean isArray() const
-    {
-	_checkRep();
-	return _rep->getValue().isArray();
-    }
+    Boolean isArray() const;
 
-    Uint32 getArraySize() const
-    {
-	_checkRep();
-	return _rep->getArraySize();
-    }
+    Uint32 getArraySize() const;
 
-    const String& getReferenceClassName() const
-    {
-	_checkRep();
-	return _rep->getReferenceClassName();
-    }
+    const String& getReferenceClassName() const;
 
-    const String& getClassOrigin() const
-    {
-	_checkRep();
-	return _rep->getClassOrigin();
-    }
+    const String& getClassOrigin() const;
 
-    Boolean getPropagated() const
-    {
-	_checkRep();
-	return _rep->getPropagated();
-    }
+    Boolean getPropagated() const;
 
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    Uint32 findQualifier(const String& name) const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 getQualifierCount() const;
 
-    operator int() const { return _rep != 0; }
+    Boolean identical(const CIMConstProperty& x) const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    Boolean isKey() const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    CIMProperty clone(Boolean propagateQualifiers) const;
 
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    operator int() const;
 
-    Boolean identical(const CIMConstProperty& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    Boolean isKey() const
-    {
-	_checkRep();
-	return _rep->isKey();
-    }
+    void print(PEGASUS_STD(ostream)& o = PEGASUS_STD(cout)) const;
 
-    CIMProperty clone(Boolean propagateQualifiers) const
-    {
-	return CIMProperty(_rep->clone(propagateQualifiers));
-    }
+    void toMof(Array<Sint8>& out) const;
 
 private:
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMPropertyRep* _rep;
 
     friend class CIMProperty;
     friend class CIMPropertyRep;
+#endif
 };
 
 #define PEGASUS_ARRAY_T CIMProperty

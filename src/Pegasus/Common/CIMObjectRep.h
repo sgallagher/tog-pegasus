@@ -33,6 +33,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN

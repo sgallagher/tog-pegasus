@@ -288,16 +288,11 @@ void PrintHelp(const char* arg0)
     cout << endl;
     
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS",
-    						 usage,
-    						 "    -D [home]       - sets pegasus home directory\n");
-#elif !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-	MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD",
-    						 usage,
-    						 "    -D [home]       - sets pegasus home directory\n");
+    MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS", usage);
+#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+	MessageLoaderParms parms("src.Server.cimserver.MENU.HPUXLINUXIA64GNU", usage);
 #else
-	MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD",
-    						 usage);
+	MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD", usage);
 #endif
     //cout << usage << endl;
     cout << MessageLoader::getMessage(parms) << endl;
@@ -663,7 +658,7 @@ MessageLoader::_useProcessLocale = true;
                         //l10n
                         //cout << "You must have superuser privilege to run ";
                         //cout << "cimserver." << endl;
-                        MessageLoaderParms parms("src.Server.cimserver.SUPERVISOR_PRIVALEDGE_TO_RUN_SERVER",
+                        MessageLoaderParms parms("src.Server.cimserver.SUPERVISOR_PRIVILEGE_TO_RUN_SERVER",
                         						 "You must have superuser privilege to run cimserver.");
                        
                         cout << MessageLoader::getMessage(parms) << endl;

@@ -99,7 +99,7 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
         #elif defined(PEGASUS_OS_ZOS)
         func = dllqueryfn((dllhandle *)_handle, (const char *)cstr));
         #elif defined(PEGASUS_OS_OS400)
-        func = (LIBRARY_SYMBOL)OS400_LoadDynamicSymbol(_handle, (const char *)cstr));
+        func = (LIBRARY_SYMBOL)OS400_LoadDynamicSymbol(_handle, (const char *)cstr);
         #endif
     }
 

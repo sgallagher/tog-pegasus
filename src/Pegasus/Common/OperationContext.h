@@ -30,9 +30,7 @@
 #define Pegasus_OperationContext_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Provider/ProviderException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -86,6 +84,10 @@ public:
     ///
     OperationContext(void);
 
+    ///
+    OperationContext(const OperationContext & context);
+
+    ///
     virtual ~OperationContext(void);
 
     ///
@@ -104,7 +106,6 @@ public:
     void remove(const Uint32 key);
 
 protected:
-    Mutex _mutex;
     Array<Container> _containers;
 
 };

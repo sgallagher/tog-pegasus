@@ -34,6 +34,11 @@ OperationContext::OperationContext(void)
 {
 }
 
+OperationContext::OperationContext(const OperationContext & context)
+    : _containers(context._containers)
+{
+}
+
 OperationContext::~OperationContext(void)
 {
 }

@@ -3604,25 +3604,27 @@ Boolean XmlReader::getInstanceElement(
 {
     XmlEntry entry;
 
-    if (!testStartTag(parser, entry, "INSTANCE"))
+    if (!testStartTagOrEmptyTag(parser, entry, "INSTANCE"))
 	return false;
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     String className = getClassNameAttribute(
 	parser.getLine(), entry, "INSTANCE");
 
     cimInstance = CIMInstance(className);
 
-    // Get QUALIFIER elements:
+    if (!empty)
+    {
+        // Get QUALIFIER elements:
+        getQualifierElements(parser, cimInstance);
 
-    getQualifierElements(parser, cimInstance);
+        // Get PROPERTY elements:
+        GetPropertyElements(parser, cimInstance);
 
-    // Get PROPERTY elements:
-
-    GetPropertyElements(parser, cimInstance);
-
-    // Get INSTANCE end tag:
-
-    expectEndTag(parser, "INSTANCE");
+        // Get INSTANCE end tag:
+        expectEndTag(parser, "INSTANCE");
+    }
 
     return true;
 }

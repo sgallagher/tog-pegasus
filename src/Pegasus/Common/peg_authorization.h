@@ -80,12 +80,9 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
 
       }
       
-
-
       virtual ~pegasus_identity_rep(void)
       {
       }
-      
 
       void reference(void) 
       {
@@ -136,6 +133,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
 	 _thread_safety.unlock();
       }
       
+
    private:
       Uint32 _identity_type;
       void *_identity;
@@ -146,7 +144,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
             
       pegasus_identity_rep();
       pegasus_identity_rep(const pegasus_identity_rep & rep);
-      pegasus_identity_rep & operator = (const pegasus_identity_rep &rep);
+      pegasus_identity_rep & operator = (const pegasus_identity_rep & rep);
 };
 
 
@@ -158,6 +156,9 @@ class PEGASUS_COMMON_LINKAGE pegasus_base_identity
 			    Uint32 credential_type,
 			    void *credential);
       
+      pegasus_base_identity & operator=(const pegasus_base_identity & id);
+      pegasus_base_identity(const pegasus_base_identity & id);
+
       virtual ~pegasus_base_identity(void);
       virtual Boolean authenticate(void) = 0;
 
@@ -185,13 +186,9 @@ class PEGASUS_COMMON_LINKAGE pegasus_base_identity
       {
 	 return _rep->get_credential();
       }
-
-      pegasus_base_identity & operator=(const pegasus_base_identity & id);
-      pegasus_base_identity * operator=(const pegasus_base_identity *id);
-      pegasus_base_identity(const pegasus_base_identity & id);
       
    private:
-      pegasus_identity_rep *_rep;
+      pegasus_identity_rep * _rep;
 };
 
 
@@ -203,6 +200,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_basic_identity : protected  pegasus_base_id
       
       pegasus_basic_identity(String & username, String & password);
       pegasus_basic_identity( const pegasus_basic_identity & id);
+      pegasus_basic_identity & operator= (const pegasus_basic_identity & id);
       
       virtual ~pegasus_basic_identity(void);
       
@@ -222,6 +220,8 @@ class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : public pegasus_base_ide
       typedef pegasus_base_identity Base;
       pegasus_internal_identity(Uint32 identity);
       pegasus_internal_identity(const pegasus_internal_identity & id);
+      pegasus_internal_identity & operator= ( const pegasus_internal_identity & id);
+      
       virtual ~pegasus_internal_identity(void);
       const Uint32 get_credential(void);
       Boolean authenticate(void);
@@ -234,46 +234,30 @@ class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : public pegasus_base_ide
 class PEGASUS_COMMON_LINKAGE pegasus_authorization_handle
 {
    public:
-      pegasus_authorization_handle(pegasus_base_identity *id)
-	 : _id(id)
+      pegasus_authorization_handle( )
       {
-	 
+      }
+
+      virtual ~pegasus_authorization_handle(void)
+      {
       }
       
+      virtual Boolean authorized(pegasus_base_identity *, Uint32 operation) = 0;
+      virtual Boolean authorized(pegasus_base_identity *) = 0;
+   protected:
       pegasus_authorization_handle(const pegasus_authorization_handle & auth)
       {
-	 _id = auth._id;
       }
       
       pegasus_authorization_handle & operator=(const pegasus_authorization_handle & auth)
       {
 	 if(this != &auth)
 	 {
-	    _id = auth._id;
 	 }
 	 return *this;
       }
       
-      pegasus_authorization_handle * operator=(const pegasus_authorization_handle * auth)
-      {
-	 if(this != auth)
-	 {
-	    _id = auth->_id;
-	 }
-	 return this;
-      }
-      
-      virtual ~pegasus_authorization_handle(void)
-      {
-	 delete _id;
-      }
-      
-      virtual Boolean authorized(Uint32 operation) = 0;
-      virtual Boolean authorized(void) = 0;
-   protected:
-      pegasus_base_identity * _id;
    private:
-      pegasus_authorization_handle(void);
 
 };
 

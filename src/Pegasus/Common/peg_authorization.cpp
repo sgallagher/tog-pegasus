@@ -57,47 +57,29 @@ pegasus_base_identity::pegasus_base_identity(Uint32 identity_type,
 				   identity,
 				   credential_type,
 				   credential);
-   
 }
 
 pegasus_base_identity::pegasus_base_identity(const pegasus_base_identity & id)
 {
    _rep = id._rep;
+   _rep->reference();
 }
 
 pegasus_base_identity & pegasus_base_identity::operator=(const pegasus_base_identity & id)
 {
-   if( &id != this)
+   if(this != &id)
    {
-      _rep->dereference();
-      if( _rep->get_reference() == 0 )
+      if( _rep->get_reference() == 1 )
 	 delete _rep;
       _rep = id._rep;
+      _rep->reference();
    }
    return *this;
 }
 
-pegasus_base_identity *pegasus_base_identity::operator=(const pegasus_base_identity *id)
-{
-   if(id == NULL)
-      throw NullPointer();
-    
-   if( id != this)
-   {
-      _rep->dereference();
-      if( _rep->get_reference() == 0 )
-	 delete _rep;
-      _rep = id->_rep;
-   }
-   return this;
-}
-
-
 pegasus_base_identity::~pegasus_base_identity(void)
 {
-   _rep->dereference();
-
-   if ( _rep->get_reference() == 0 )
+   if ( _rep->get_reference() == 1 )
    {
       delete _rep;
    }
@@ -115,10 +97,18 @@ pegasus_basic_identity::pegasus_basic_identity(String & username,
    
 }
 
-pegasus_basic_identity::pegasus_basic_identity(const pegasus_basic_identity & id)
+pegasus_basic_identity::pegasus_basic_identity( const pegasus_basic_identity & id)
    :Base(id)
 {
-   
+}
+
+pegasus_basic_identity & pegasus_basic_identity::operator= (const pegasus_basic_identity & id)
+{
+   if(this != &id)
+   {
+      Base::operator=(id);
+   }
+   return *this;
 }
 	 
 pegasus_basic_identity::~pegasus_basic_identity(void)
@@ -138,6 +128,7 @@ const String & pegasus_basic_identity::get_username(void)
    return *(reinterpret_cast<const String *>( get_base_identity()));
 }
 
+ 
 const String & pegasus_basic_identity::get_password(void)
 {
    return *(reinterpret_cast<const String *>( get_base_credential()));
@@ -161,6 +152,15 @@ pegasus_internal_identity::pegasus_internal_identity(Uint32 credential)
 pegasus_internal_identity::pegasus_internal_identity(const pegasus_internal_identity & id)
    : Base(id)
 {
+}
+
+pegasus_internal_identity & pegasus_internal_identity::operator = (const pegasus_internal_identity & id)
+{
+   if(this != &id)
+   {
+      Base::operator=(id);
+   }
+   return *this;
 }
 
 pegasus_internal_identity::~pegasus_internal_identity(void)

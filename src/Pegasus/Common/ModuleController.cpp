@@ -107,7 +107,7 @@ pegasus_module::pegasus_module(ModuleController *controller,
 			       Message * (*receive_message)(Message *, void *),
 			       void (*async_callback)(Uint32, Message *, void *),
 			       void (*shutdown_notify)(Uint32 code, void *))
-   :Base(new pegasus_internal_identity(peg_credential_types::MODULE))
+   :Base(), _id(new pegasus_internal_identity(peg_credential_types::SERVICE))
 {
    _rep = new module_rep(controller, 
 			 id, 
@@ -142,14 +142,15 @@ pegasus_module::~pegasus_module(void)
    _send_shutdown_notify();
    if( 0 == _rep->reference_count())
       delete _rep;
+   delete _id;
 }
 
-Boolean pegasus_module::authorized(Uint32 operation)
+Boolean pegasus_module::authorized(pegasus_base_identity *id, Uint32 operation)
 {
    return true;
 }
 
-Boolean pegasus_module::authorized(void)
+Boolean pegasus_module::authorized(pegasus_base_identity *id)
 {
    return true;
 }
@@ -166,19 +167,6 @@ pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
    }
    return *this;
 }
-
-pegasus_module * pegasus_module::operator=(const pegasus_module * mod)
-{
-   if(this != mod)
-   {
-      if( _rep->reference_count() == 0 )
-	 delete _rep;
-      _rep = mod->_rep;
-      _id = mod->_id;
-   }
-   return this;
-}
-
 
 Boolean pegasus_module::operator== (const pegasus_module *mod) const
 {

@@ -17,6 +17,8 @@ endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = cimserver
 
 SOURCES = cimserver.cpp

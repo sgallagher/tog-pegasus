@@ -265,7 +265,7 @@ void Logger::_putInternal(
 	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
 	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
                 _rep->logOf(logFileType) << System::getCurrentASCIITime()
-               << " " << tmp << messageString.getCStringUTF8() << endl;
+               << " " << tmp << (const char *)messageString.getCStringUTF8() << endl;
 
        #endif
     }
@@ -539,3 +539,4 @@ Boolean Logger::isValidlogLevel(
 
 
 PEGASUS_NAMESPACE_END
+

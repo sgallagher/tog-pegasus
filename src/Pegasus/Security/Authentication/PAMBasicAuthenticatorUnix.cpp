@@ -588,7 +588,25 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
     }
     if (continue_PAMauthentication)
     {
+#if defined (PEGASUS_OS_HPUX)
+	/*
+	From signal manpage on Linux:
+	"  According  to  POSIX  (3.3.1.3)  it  is  unspecified  what happens when
+       SIGCHLD is set to SIG_IGN.  Here the BSD and  SYSV  behaviours  differ,
+       causing  BSD  software  that  sets the action for SIGCHLD to SIG_IGN to
+       fail on Linux."
+
+	On Linux, when you perform a "system" it calls wait().  If you have ignored
+	SIGCHLD, a POSIX-conformant system is allowed to collect zombies immediately
+	rather than holding them for you to wait for. And you end up with "system"
+	returning non-zero return code instead of zero return code for sucessfull 
+	calls.
+
+	HP-UX being a SYSV system behaves differently. 
+	*/
+
         SignalHandler::ignore(PEGASUS_SIGCHLD);  // Allows child death
+#endif
         if ((pid = fork()) < 0)
         {
             continue_PAMauthentication = false;

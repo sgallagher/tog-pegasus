@@ -29,10 +29,8 @@
 
 #include "PAMBasicAuthenticator.h"
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "PAMBasicAuthenticatorWindows.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX)
+#ifdef PEGASUS_OS_HPUX
 # include "PAMBasicAuthenticatorUnix.cpp"
 #else
-# error "Unsupported platform"
+# include "PAMBasicAuthenticatorStub.cpp"
 #endif

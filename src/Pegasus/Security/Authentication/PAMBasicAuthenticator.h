@@ -32,8 +32,6 @@
 #ifndef Pegasus_PAMBasicAuthenticator_h
 #define Pegasus_PAMBasicAuthenticator_h
 
-#include <security/pam_appl.h>
-
 #include <Pegasus/Common/Config.h>
 #include "BasicAuthenticator.h"
 #include "Linkage.h"

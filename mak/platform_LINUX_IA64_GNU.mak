@@ -14,6 +14,8 @@ PLATFORM_VERSION_SUPPORTED = yes
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
+DEFINES += -DPEGASUS_DISABLE_KILLING_HUNG_THREADS
+
 #
 ## The following flags need to be set or unset
 ## to compile-in the code required for PAM authentication

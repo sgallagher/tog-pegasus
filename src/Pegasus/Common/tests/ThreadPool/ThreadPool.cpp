@@ -64,10 +64,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
    function_count++;
    if( ! (function_count.value() % 10) )
    {
+#ifndef PEGASUS_DISABLE_KILLING_HUNG_THREADS
       while(1)
       { 
 	 pegasus_sleep(1);
       }
+#endif
    }
    
    return 0; 

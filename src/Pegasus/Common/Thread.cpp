@@ -434,7 +434,9 @@ Uint32 ThreadPool::kill_dead_threads(void)
    // first go thread the dead q and clean it up as much as possible
    while(_dead.count() > 0)
    {
+#if !defined(PEGASUS_PLATFORM_HPUX_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
       PEGASUS_STD(cout) << "ThreadPool:: removing and joining dead thread" << PEGASUS_STD(endl);
+#endif
       Thread *dead = _dead.remove_first();
       if(dead == 0)
 	 throw NullPointer();
@@ -452,8 +454,24 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
+#ifdef PEGASUS_DISABLE_KILLING_HUNG_THREADS
+   // This change prevents the thread pool from killing "hung" threads.
+   // The definition of a "hung" thread is one that has been on the run queue
+   // for longer than the time interval set when the thread pool was created.
+   // Cancelling "hung" threads has proven to be problematic.
 
+   // With this change the thread pool will not cancel "hung" threads.  This
+   // may prevent a crash depending upon the state of the "hung" thread.  In
+   // the case that the thread is actually hung, this change causes the
+   // thread resources not to be reclaimed.
+
+   // Idle threads, those that have not executed a routine for a time
+   // interval, continue to be destroyed.  This is normal and should not
+   // cause any problems.
+   for( ; i < 1; i++)
+#else
    for( ; i < 2; i++)
+#endif
    { 
       q = map[i];
       if(q->count() > 0 )
@@ -553,7 +571,9 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		  else 
 		  {
 		     // deadlocked threads
+#if !defined(PEGASUS_PLATFORM_HPUX_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 		     PEGASUS_STD(cout) << "Killing a deadlocked thread" << PEGASUS_STD(endl);
+#endif
 		     th->cancel();
 		     delete th;
 		  }

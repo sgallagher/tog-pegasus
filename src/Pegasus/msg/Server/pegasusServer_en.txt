@@ -2838,11 +2838,9 @@ en:table {
 
 
         // ==========================================================
-        // Messages for CIMServer
+        // Messages for src.Server.cimserver
         //  Please use message prefix "PGS10000"
         // ==========================================================
-
-        Server.CIMServer.BIND_FAILED:string {"PGS10000: No CIM server connections are enabled."}
 
         /**
         * @note  PGS10001:
@@ -3749,4 +3747,13 @@ CIM server listening on HTTPS port {0}."}
         * @version 2.4
         */
 	Pegasus.Server.HTTPAuthenticatorDelegator.CIMOPERATIONS_NOT_SUPPORTED:string{"PGS13002:  CIMOperation request not supported on this port."}
+
+
+	// ==========================================================
+        // Messages for Server.CIMServer
+        //  Please use message prefix "PGS13200"
+        // ==========================================================
+                                                                                                                                               
+        Server.CIMServer.BIND_FAILED:string {"PGS13200: No CIM server connections are enabled."}
+
 }

@@ -47,9 +47,11 @@ class ObjectBusyException : Exception
 {
    public:
       ObjectBusyException(void) 
+	:Exception()
       {
       }
       ObjectBusyException(const char *msg)
+	:Exception(msg)
       {
       }
       

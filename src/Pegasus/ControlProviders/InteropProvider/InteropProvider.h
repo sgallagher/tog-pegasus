@@ -208,13 +208,14 @@ private:
 
     Array<CIMNamespaceName> _enumerateNameSpaces();
     
+    CIMInstance _buildInstanceCIMObjectManager();
     //
     // Repository Instance variable
     //
        CIMRepository*   _repository;
        CIMClass * _cimNamespaceClass;
        CIMNamespaceName _operationNamespace;
-
+       CIMInstance instanceOfCIMObjectManager;
 };
 
 PEGASUS_NAMESPACE_END

@@ -42,14 +42,19 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 
-/* This is a tetprogram for namespace manipulation.
+/* This is a tetprogram for the Interop Control Provider.
 
 */
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+
+//#define CDEBUG(X)
+//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropTest", Logger::INFORMATION, "$0", X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest " << X << PEGASUS_STD(endl)
+
 /* Test the namespace manipulation functions.
-Creates, deletes, quieries namespaces using both the
+Creates, deletes, queries namespaces using both the
 __Namespace and CIM_Namespace functions
 */
 
@@ -88,7 +93,7 @@ Array<CIMNamespaceName> _getNamespacesOld( CIMClient& client)
         // for all new elements in the output array
         for (Uint32 range = start; range < end; range ++)
         {
-            // Get the next increment in naming for all a name element in the array
+            // Get the next increment in naming for all a name elements in the array
             CIMNamespaceName next;
             if (end != 0)
             {
@@ -185,7 +190,8 @@ Boolean _validateNamespaces(CIMClient& client, Array<CIMNamespaceName>& namespac
 {
     // Validate that these are all namespaces.  This is not a certain
     // Test but we simply check to see if there is an association 
-    // qualifier in the namespace.
+    // qualifier in the namespace. If the call returns the 
+    // invalidNamespace exception, assume this is not valid namespace.
     Array<CIMNamespaceName> returnNamespaces;
 
     for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
@@ -219,7 +225,7 @@ Boolean _validateNamespaces(CIMClient& client, Array<CIMNamespaceName>& namespac
         return(false);
 
 }
-/* Delete for now
+/* Deleted for now
 Boolean _existsOld(CIMNamespaceName& name)
 {
     Uint32 pos;
@@ -386,6 +392,7 @@ Boolean _existsNew(CIMClient& client, CIMNamespaceName& name)
 
     for(Uint32 i = 0; i < namespaceNames.size(); i++)
     {
+        CDEBUG("_existsNew. Num= " << i << " namespace[i]= " << namespaceNames[i].getString() << " name= " << name.getString());
         if(namespaceNames[i].equal ( name ))
        {
            return true;
@@ -393,7 +400,7 @@ Boolean _existsNew(CIMClient& client, CIMNamespaceName& name)
     }
     return false;
 }
-Boolean _namespaceCreateOld(CIMClient& client, CIMNamespaceName& parent, String& name)
+Boolean _namespaceCreateOld(CIMClient& client, CIMNamespaceName& parent, String& childName)
 {
     CIMObjectPath newInstanceName;
     try
@@ -401,7 +408,7 @@ Boolean _namespaceCreateOld(CIMClient& client, CIMNamespaceName& parent, String&
         // Build the new instance
         CIMInstance newInstance(__NAMESPACE_CLASSNAME);
         newInstance.addProperty(CIMProperty(CIMName (NAMESPACE_PROPERTYNAME), 
-            name));
+            childName));
         newInstanceName = client.createInstance(parent,
                                                  newInstance);
     }
@@ -416,7 +423,7 @@ Boolean _namespaceCreateOld(CIMClient& client, CIMNamespaceName& parent, String&
          else
          {
               PEGASUS_STD(cerr) << "CIMException NameSpace Creation: "
-                  << e.getMessage() << " Creating " << name
+                  << e.getMessage() << " Creating " << childName
                   << PEGASUS_STD(endl);
          }
          return(false);
@@ -542,7 +549,7 @@ int main(int argc, char** argv)
 
     Array<CIMNamespaceName> nameListOld = _getNamespacesOld(client);
 
-
+    CDEBUG("Got Namespaces with __Namespace. Now Validate");
     if (!_validateNamespaces(client, nameListOld))
     {
         cout << "Error exit, Invalid namespace returned" << endl;
@@ -550,6 +557,7 @@ int main(int argc, char** argv)
     
     Array<CIMNamespaceName> nameListNew = _getNamespacesNew(client);
 
+    CDEBUG("Got Namespaces with CIM_Namespace. Now Validate");
     if (!_validateNamespaces(client, nameListNew))
     {
         cout << "Error exit, Invalid namespace returned" << endl;
@@ -567,27 +575,64 @@ int main(int argc, char** argv)
     // Add assertion that they have the same items in the list
 
     // Create a new namespace with new functions
+    CDEBUG("Now Create New Namespace");
 
-    CIMNamespaceName testName = CIMNamespaceName("root/karl/junk/newtype");
-    _namespaceCreateNew(client, CIMNamespaceName(testName));
+    CIMNamespaceName testNameNew = CIMNamespaceName("root/junk/interoptest/newtype");
+    CIMNamespaceName testNameOldRoot = CIMNamespaceName("root");
+    CIMNamespaceName testNameOldTail = CIMNamespaceName("junk/interoptest/oldtype");
+    CIMNamespaceName testNameOldComplete = CIMNamespaceName("root/junk/interoptest/oldtype");
 
-    _showNamespaceList(nameListNew, "From CIM_Namespace after add.");
+    // Create the namespace with the CIM_Namespace class
+    _namespaceCreateNew(client, CIMNamespaceName(testNameNew));
 
-    assert(_existsNew(client, testName));
+    _showNamespaceList(nameListNew, "CIM_Namespace response after add.");
 
-    assert(_namespaceDeleteNew(client, CIMNamespaceName(testName)));
+    assert(_existsNew(client, testNameNew));
 
-    assert(!_existsNew(client, testName));
+    assert(_namespaceDeleteNew(client, CIMNamespaceName(testNameNew)));
+
+    assert(!_existsNew(client, testNameNew));
 
     
 
-    if(_existsNew(client, CIMNamespaceName("root/karl/junk/oldtype")))
-       _namespaceDeleteNew(client, CIMNamespaceName("root/karl/junk/oldtype"));
+    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
+       _namespaceDeleteNew(client, CIMNamespaceName(testNameOldComplete));
 
-    if(_existsNew(client, CIMNamespaceName("root/karl/junk/oldtype")))
+    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
         cerr << "Problem deleting namespace" << endl;
 
-    _namespaceCreateOld(client, CIMNamespaceName("root"), String("karl/junk/oldtype"));
+    _namespaceCreateOld(client, CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
+
+    assert(_existsNew(client, testNameOldComplete));
+
+    assert(_namespaceDeleteNew(client, CIMNamespaceName(testNameOldComplete)));
+
+    assert(!_existsNew(client, testNameOldComplete));
+
+    _showNamespaceList(nameListNew, "From CIM_Namespace after add.");
+
+    _namespaceCreateOld(client, CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
+
+    // Note that this is tries to delete the multiple levels all at the same time.
+
+
+    _deleteNamespaceOld(client, String(testNameOldComplete.getString())); 
+
+    assert(!_existsNew(client, testNameOldComplete));
+    
+
+    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
+       _namespaceDeleteNew(client, CIMNamespaceName(testNameOldComplete));
+
+    if(_existsNew(client, CIMNamespaceName(testNameOldComplete)))
+        cerr << "Problem deleting namespace" << endl;
+
+    // Test the CIM_ObjectManager Object
+
+    // TBD
+
+
+    // Test the CIM_CommunicationMechanism Object
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

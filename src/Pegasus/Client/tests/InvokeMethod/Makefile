@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/InvokeMethod/tests/InvokeMethod
+DIR = Pegasus/Client/tests/InvokeMethod
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

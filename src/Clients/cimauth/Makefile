@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/cimauth
+DIR = Clients/cimauth
 
 include $(ROOT)/mak/config.mak
 

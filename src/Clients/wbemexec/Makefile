@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/wbemexec
+DIR = Clients/wbemexec
 
 include $(ROOT)/mak/config.mak
 

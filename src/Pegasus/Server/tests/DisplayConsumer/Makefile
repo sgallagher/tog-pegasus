@@ -2,7 +2,7 @@ ROOT = ../../../../..
 
 include libraries.mak
 
-DIR = Pegasus/Serevr/tests/DisplayConsumer
+DIR = Pegasus/Server/tests/DisplayConsumer
 
 include $(ROOT)/mak/config.mak
 

@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/ExportClient/tests/ExportServer
+DIR = Pegasus/ExportServer/tests/ExportServer
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

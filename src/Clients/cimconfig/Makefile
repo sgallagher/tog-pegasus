@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/cimconfig
+DIR = Clients/cimconfig
 
 include $(ROOT)/mak/config.mak
 

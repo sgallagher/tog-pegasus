@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/CGIClient
+DIR = Clients/CGIClient
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/EnumInstNames/tests/EnumInstNames
+DIR = Pegasus/Client/tests/EnumInstNames
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

@@ -9,4 +9,5 @@ Testing commit messages
 
 Testing new improved commit messages.
 More testing
+Last test?
 

@@ -5,7 +5,7 @@
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
 // deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// rights to use, copy, modify, merge, publish, distribute, sublicense,  and/or 
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 // 
@@ -52,61 +52,127 @@ AtomicInt function_count;
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
+   
    Uint32 sleep_interval = (Uint32)parm;
    pegasus_sleep(sleep_interval);
    function_count++;
+   if( ! (function_count.value() % 100) )
+   {
+      while(1)
+      { 
+	 pegasus_yield();
+      }
+   }
    
    return 0; 
 }  
-
-int main(int argc, char **argv)
-{
+ 
+int main(int argc, char **argv) 
+{ 
    
-   struct timeval await = { 0, 40 };
+   struct timeval await = { 0, 40000 };
    struct timeval dwait = { 10, 0 };
-   struct timeval deadwait = { 1, 0 };
+   struct timeval deadwait = { 0, 80000 }; 
 
-   ThreadPool tp(10, "test pool ", 5, 15, await, dwait, deadwait);  
-
-   int i = 0;
+   ThreadPool tp(1, "test pool ",  1, 6, await, dwait, deadwait);   
+  
+   int i ;
    
-   for( ; i < 10; i++)
-   { 
+   for(i = 0 ; i < 10; i++)
+   {  
       cout << "Thread Pool scheduling Round " << i << endl;
       
       try 
       {
-	 tp.allocate_and_awaken((void *)10, work_func );
-	 tp.allocate_and_awaken((void *)10, work_func );
-	 tp.allocate_and_awaken((void *)10, work_func );
-	 tp.allocate_and_awaken((void *)100, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)2, work_func );	 
+	 tp.allocate_and_awaken((void *)3, work_func );
+	 tp.allocate_and_awaken((void *)4 , work_func );	 
 	 tp.allocate_and_awaken((void *)5, work_func );
 	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)100, work_func );
+	 tp.allocate_and_awaken((void *)7, work_func );
+	 tp.allocate_and_awaken((void *)8, work_func );
+	 tp.allocate_and_awaken((void *)9, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)2, work_func );	 
+	 tp.allocate_and_awaken((void *)3, work_func );
+	 tp.allocate_and_awaken((void *)4 , work_func );	 
+	 tp.allocate_and_awaken((void *)5, work_func );
+	 tp.allocate_and_awaken((void *)6, work_func );
+	 tp.allocate_and_awaken((void *)7, work_func );
+	 tp.allocate_and_awaken((void *)8, work_func );
+	 tp.allocate_and_awaken((void *)9, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)2, work_func );	 
+	 tp.allocate_and_awaken((void *)3, work_func );
+	 tp.allocate_and_awaken((void *)4 , work_func );	 
+	 tp.allocate_and_awaken((void *)5, work_func );
+	 tp.allocate_and_awaken((void *)6, work_func );
+	 tp.allocate_and_awaken((void *)7, work_func );
+	 tp.allocate_and_awaken((void *)8, work_func );
+	 tp.allocate_and_awaken((void *)9, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)1000, work_func );
+	 tp.allocate_and_awaken((void *)2, work_func );	 
+	 tp.allocate_and_awaken((void *)3, work_func );
+	 tp.allocate_and_awaken((void *)4 , work_func );	 
+	 tp.allocate_and_awaken((void *)5, work_func );
+	 tp.allocate_and_awaken((void *)6, work_func );
+	 tp.allocate_and_awaken((void *)7, work_func );
+	 tp.allocate_and_awaken((void *)8, work_func );
+	 tp.allocate_and_awaken((void *)9, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)13000, work_func );  
-	 tp.allocate_and_awaken((void *)140000, work_func ); 
-	 tp.allocate_and_awaken((void *)15, work_func );
-	 tp.allocate_and_awaken((void *)16, work_func );   
-      }   
-      catch(Deadlock & dl)
+	 tp.allocate_and_awaken((void *)2, work_func );	 
+	 tp.allocate_and_awaken((void *)3, work_func );
+	 tp.allocate_and_awaken((void *)4 , work_func );	 
+	 tp.allocate_and_awaken((void *)5, work_func );
+	 tp.allocate_and_awaken((void *)6, work_func );
+	 tp.allocate_and_awaken((void *)7, work_func );
+	 tp.allocate_and_awaken((void *)8, work_func );
+	 tp.allocate_and_awaken((void *)9, work_func );
+	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)2, work_func );	 
+	 tp.allocate_and_awaken((void *)3, work_func );
+	 tp.allocate_and_awaken((void *)4 , work_func );	 
+	 tp.allocate_and_awaken((void *)5, work_func );
+	 tp.allocate_and_awaken((void *)6, work_func );
+	 tp.allocate_and_awaken((void *)7, work_func );
+	 tp.allocate_and_awaken((void *)8, work_func );
+	 tp.allocate_and_awaken((void *)9, work_func );
+      } 
+       catch(Deadlock & )  
       {
-	 cout << "Thread Pool is fully in use... " << endl;
+	 cout << "Thread Pool is fully in use... " << endl; 
       }
    } 
    cout << "deliberately causing deadlock detection to occur ..." << endl;
-   pegasus_sleep( 7000 ) ;
-   tp.kill_dead_threads( );  
+   pegasus_sleep( 7000 ) ; 
+   cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
    tp.kill_dead_threads( ) ;
     
-   cout << "deadlock detection and cleanup successful, exiting" << endl;
+   cout << " allocating joinable threads " << endl;
+   Semaphore *blocking = new Semaphore(0);
+   Boolean success = false;
+   
+//    do 
+//    {
+//       try 
+//       {
+// 	 tp.allocate_and_awaken((void *)16, work_func , blocking);
+//       }
+//       catch(Deadlock & )
+//       {
+// 	 success = false;
+// 	 pegasus_sleep(100);
+//       }
+//    } while( success == false ); 
+   
+   
+   
+//   blocking->wait();
+//   cout << " joined " << endl;
+   tp.kill_dead_threads( ) ;
    while(tp.running_count() )
-   {
+   {  
       pegasus_sleep(1);
    }
    

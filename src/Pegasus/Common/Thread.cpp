@@ -122,8 +122,8 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 		       struct timeval & dealloc_wait,
 		       struct timeval & deadlock_detect)
    : _max_threads(max), _min_threads(min),
-     _current_threads(0), _waiters(initial_size),
-     _pool_sem(0), _pool(true), _running(true),
+     _current_threads(0),
+     _pool(true), _running(true),
      _dead(true), _dying(0)
 {
    _allocate_wait.tv_sec = alloc_wait.tv_sec;
@@ -152,7 +152,7 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 ThreadPool::~ThreadPool(void)
 {
    _dying++;
-   Thread *th = _pool.remove_first();
+   Thread *th = 0;
    while(th != 0)
    {
       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
@@ -218,7 +218,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    }
    catch(IPCException &)
    {
-      PEGASUS_STD(cout) << " ipc exception returning thread to avail list" << PEGASUS_STD(endl);
 
       myself->exit_self(0);
    }
@@ -228,12 +227,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    while(pool->_dying < 1)
    {
       sleep_sem->wait();
-      pegasus_yield();
-
+        
       // when we awaken we reside on the running queue, not the pool queue
       if(pool->_dying > 0)
 	 break;
-
 
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
@@ -248,7 +245,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
-	 PEGASUS_STD(cout) << " ipc exception returning thread to avail list" << PEGASUS_STD(endl);
 	
 	 myself->exit_self(0);
       }
@@ -266,7 +262,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
-	 PEGASUS_STD(cout) << " ipc exception returning thread to avail list" << PEGASUS_STD(endl);
 	
 	 myself->exit_self(0);
       }
@@ -288,36 +283,18 @@ void ThreadPool::allocate_and_awaken(void *parm,
    gettimeofday(&start, NULL);
 
    Thread *th = _pool.remove_first();
-
-
+   
    // wait for the right interval and try again
    while(th == 0 && _dying < 1)
    {
-      _check_deadlock(&start);
-      Uint32 interval = (_allocate_wait.tv_sec * 1000) + _allocate_wait.tv_usec;
-      // will throw a timeout if no thread comes free
-      try
+      _check_deadlock(&start) ;
+      
+      if(_current_threads < _max_threads)
       {
-	 _pool_sem.time_wait(interval);
+	 th = _init_thread();
+	 continue;
       }
-      catch(TimeOut & )
-      {
-	 if(_current_threads < _max_threads)
-	 {
-	    PEGASUS_STD(cout) << "timeout in waiting for free thread, allocating new thread  " << PEGASUS_STD(endl);
-	    th = _init_thread();
-	    continue;
-	 }
-	 PEGASUS_STD(cout) << " timeout but no free  thread, looping" << PEGASUS_STD(endl);
-	
-      }
-      catch(IPCException & )
-      {
-	 PEGASUS_STD(cout) << " IPC Exception " << PEGASUS_STD(endl);
-	 abort();
-      }
-
-
+      pegasus_yield();
       th = _pool.remove_first();
    }
 
@@ -340,6 +317,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
 
       if(sleep_sem == 0)
       {
+
 	 th->dereference_tsd();
 	 throw NullPointer();
       }
@@ -354,12 +332,13 @@ void ThreadPool::allocate_and_awaken(void *parm,
 // but should call it at least once per _deadlock_detect with the running q
 // and at least once per _deallocate_wait for the pool q
 
-void ThreadPool::kill_dead_threads(void)
+Uint32 ThreadPool::kill_dead_threads(void)
 	 throw(IPCException)
 {
    struct timeval now;
    gettimeofday(&now, NULL);
-
+   Uint32 bodies = 0;
+   
 
    // first go thread the dead q and clean it up as much as possible
    while(_dead.count() > 0)
@@ -470,6 +449,7 @@ void ThreadPool::kill_dead_threads(void)
 		  }
 		  // put the thread on the dead  list
 		  _dead.insert_first(th);
+		  bodies++;
 		  sleep_sem->signal();
 		  th->dereference_tsd();
 		  th = 0;
@@ -487,16 +467,46 @@ void ThreadPool::kill_dead_threads(void)
    }
 
 
-   return;
+   return bodies; 
 }
+
+
+// inline int timeval_subtract (struct timeval *result, 
+// 			     struct timeval *x, 
+// 			     struct timeval *y)
+// {
+//    /* Perform the carry for the later subtraction by updating Y. */
+//    if (x->tv_usec < y->tv_usec) {
+//       int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+//       y->tv_usec -= 1000000 * nsec;
+//       y->tv_sec += nsec;
+//    }
+//    if (x->tv_usec - y->tv_usec > 1000000) {
+//       int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+//       y->tv_usec += 1000000 * nsec;
+//       y->tv_sec -= nsec;
+//    }
+   
+//    /* Compute the time remaining to wait.
+//       `tv_usec' is certainly positive. */
+//    result->tv_sec = x->tv_sec - y->tv_sec;
+//    result->tv_usec = x->tv_usec - y->tv_usec;
+   
+//    /* Return 1 if result is negative. */
+//    return x->tv_sec < y->tv_sec;
+// }
 
 Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
 {
    struct timeval now;
    gettimeofday(&now, NULL);
-   if( (now.tv_sec - start->tv_sec) > interval->tv_sec ||
-       (((now.tv_sec - start->tv_sec) == interval->tv_sec) &&
-	((now.tv_usec - start->tv_usec) >= interval->tv_usec ) ) )
+   start->tv_sec += interval->tv_sec;
+   start->tv_usec += interval->tv_usec;
+   start->tv_sec += start->tv_usec / 1000000;
+   start->tv_usec %= 1000000;
+   struct timeval remaining;
+   
+   if ( timeval_subtract(&remaining, start, &now) )
       return true;
    else
       return false;

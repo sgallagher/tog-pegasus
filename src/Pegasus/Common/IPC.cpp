@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+ //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -31,7 +31,7 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "IPCWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "IPCUnix.cpp"
+# include "IPCUnix.cpp" 
 #else
 # error "Unsupported platform"
 #endif
@@ -63,7 +63,7 @@ void extricate_read_write(void *parm)
    if (rws->_rwlock._internal_lock.get_owner() == myself)
       rws->_rwlock._internal_lock.unlock();
 }
-
+ 
 
 ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0), _rwlock() {}
 
@@ -78,9 +78,9 @@ ReadWriteSem::~ReadWriteSem(void)
    {
       d = d; // no problem - we own the lock, which is what we want
    }
-   catch(IPCException& e) 
+   catch(IPCException& ) 
    {
-      e = e; // oops - this is really bad
+ 
       PEGASUS_ASSERT(0); 
    }
    while(_readers > 0 || _writers > 0) 

@@ -158,6 +158,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 	    return(true); 
 	 return(false);
       } 
+
       inline Boolean operator==(const thread_data& b) const
       {
 	 return(operator==((const void *)b._key));
@@ -374,7 +375,13 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *))  
 	 throw(IPCException);
 
-      void kill_dead_threads( void ) 
+      void allocate_and_awaken(void *parm, 
+			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *),
+			       Semaphore *blocking_sem)
+	 throw(IPCException);
+      
+
+      Uint32 kill_dead_threads( void ) 
 	 throw(IPCException);
       
       void get_key(Sint8 *buf, int bufsize);
@@ -471,9 +478,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       struct timeval _deallocate_wait;
       struct timeval _deadlock_detect;
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _loop(void *);
-      Semaphore _waiters;
       Sint8 _key[17];
-      Semaphore _pool_sem;
       DQueue<Thread> _pool;
       DQueue<Thread> _running;
       DQueue<Thread> _dead;
@@ -520,17 +525,20 @@ inline Boolean ThreadPool::_check_dealloc(struct timeval *start)
 
 inline Thread *ThreadPool::_init_thread(void) throw(IPCException)
 {
-   Thread *th = (Thread *) new Thread(&_loop, this, false);
+   Thread *th = (Thread *) new Thread(_loop, this, false);
    // allocate a sleep semaphore and pass it in the thread context
    // initial count is zero, loop function will sleep until
    // we signal the semaphore
    Semaphore *sleep_sem = (Semaphore *) new Semaphore(0);
    th->put_tsd("sleep sem", &_sleep_sem_del, sizeof(Semaphore), (void *)sleep_sem);
+   
    struct timeval *dldt = (struct timeval *) ::operator new(sizeof(struct timeval));
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
    th->run();
    _current_threads++;
+   pegasus_yield();
+   
    return th;
 }
 
@@ -539,7 +547,6 @@ inline void ThreadPool::_link_pool(Thread *th) throw(IPCException)
    if(th == 0)
       throw NullPointer();
    _pool.insert_first(th);
-   _pool_sem.signal();
 }
 
 

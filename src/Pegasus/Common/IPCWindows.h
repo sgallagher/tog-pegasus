@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -22,14 +22,14 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #define _WIN32_WINNT 0x0400
 
-#include <process.h>
+#include <process.h>  
 
 //
 // PLEASE DO NOT REMOVE THE DEFINTION OF FD_SETSIZE!
@@ -43,7 +43,7 @@
 #include <winbase.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <sys/timeb.h>
+#include <sys/timeb.h> 
 #include <errno.h>
 #include <Pegasus/Common/Config.h>
 
@@ -84,7 +84,7 @@ typedef struct {
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-#define PEGASUS_CONDITIONAL_NATIVE = 1
+#define PEGASUS_CONDITIONAL_NATIVE = 1 
 typedef HANDLE PEGASUS_COND_TYPE;
 
 typedef struct {
@@ -111,12 +111,12 @@ typedef LONG  PEGASUS_ATOMIC_TYPE ;
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-// no native rw lock for windows -- use the generic one
+// no native rw lock for windows -- use the generic one 
 
 #endif // platform read/write type
 
 
-//struct timeval
+//struct timeval 
 //{
 //      long int tv_sec;      long int tv_usec;
 //};
@@ -130,7 +130,7 @@ struct timezone
 
 inline int pegasus_gettimeofday(struct timeval *tv)
 {
-	struct _timeb timebuffer;
+	struct _timeb timebuffer;   
 	if (tv == NULL)
 		return(-1);
 	_ftime( &timebuffer );
@@ -151,7 +151,7 @@ inline PEGASUS_COMMON_LINKAGE void pegasus_yield(void)
   Sleep(0);
 }
 
-// pthreads cancellation calls
+// pthreads cancellation calls 
 inline  PEGASUS_COMMON_LINKAGE void disable_cancel(void)
 {
   ;
@@ -164,7 +164,7 @@ inline  PEGASUS_COMMON_LINKAGE void enable_cancel(void)
 
 
 // Windows does not have equivalent functionality with Unix-like
-// operating systems. Be careful using these next two
+// operating systems. Be careful using these next two 
 // macros. There is no pop routine in windows. Further, windows
 // does not allow passing parameters to exit functions. !!
 inline PEGASUS_COMMON_LINKAGE void native_cleanup_push( void (*)(void *), void *) { ; }
@@ -183,7 +183,7 @@ inline void PEGASUS_COMMON_LINKAGE enter_crit(PEGASUS_CRIT_TYPE *crit)
 
 inline void PEGASUS_COMMON_LINKAGE try_crit(PEGASUS_CRIT_TYPE *crit)
 {
-  EnterCriticalSection(crit);
+  EnterCriticalSection(crit); 
 }
 
 inline void PEGASUS_COMMON_LINKAGE exit_crit(PEGASUS_CRIT_TYPE *crit)
@@ -196,14 +196,14 @@ inline void PEGASUS_COMMON_LINKAGE destroy_crit(PEGASUS_CRIT_TYPE *crit)
    DeleteCriticalSection(crit);
 }
 
-inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void)
-{
+inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void) 
+{ 
    return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
 }
 
 inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {
-  _endthread();
+  _endthread(rc);
 }
 
 inline void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms)
@@ -213,18 +213,18 @@ inline void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms)
       Sleep(0);
       return;
    }
-
+   
    struct _timeb end, now;
    _ftime( &end );
    end.time += (ms / 1000);
    ms -= (ms / 1000);
    end.millitm += ms;
 	
-   do
+   do 
    {
       Sleep(0);
       _ftime(&now);
-
+      
    } while( end.millitm > now.millitm && end.time >= now.time);
 }
 

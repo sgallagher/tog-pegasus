@@ -30,6 +30,33 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+int timeval_subtract (struct timeval *result, 
+		      struct timeval *x, 
+		      struct timeval *y)
+{
+   /* Perform the carry for the later subtraction by updating Y. */
+   if (x->tv_usec < y->tv_usec) {
+      int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+      y->tv_usec -= 1000000 * nsec;
+      y->tv_sec += nsec;
+   }
+   if (x->tv_usec - y->tv_usec > 1000000) {
+      int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+      y->tv_usec += 1000000 * nsec;
+      y->tv_sec -= nsec;
+   }
+   
+   /* Compute the time remaining to wait.
+      `tv_usec' is certainly positive. */
+   result->tv_sec = x->tv_sec - y->tv_sec;
+   result->tv_usec = x->tv_usec - y->tv_usec;
+   
+   /* Return 1 if result is negative. */
+   return x->tv_sec < y->tv_sec;
+}
+
+
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
 # define SEM_VALUE_MAX 0x0000ffff
 #endif
@@ -67,6 +94,109 @@ Mutex::~Mutex()
    pthread_mutexattr_destroy(&_mutex.mutatt);
 }
 
+
+// block until gaining the lock - throw a deadlock 
+// exception if process already holds the lock 
+ void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
+{
+   int errorcode;
+   if( 0 == (errorcode = pthread_mutex_lock(&(_mutex.mut)))) 
+   {
+      _mutex.owner = caller;
+      return;
+   }
+   else if (errorcode == EDEADLK) 
+      throw( Deadlock( _mutex.owner ) );
+   else 
+      throw( WaitFailed( _mutex.owner) );
+}
+  
+// try to gain the lock - lock succeeds immediately if the 
+// mutex is not already locked. throws an exception and returns
+// immediately if the mutex is currently locked. 
+ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
+{
+   int errorcode ;
+   if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut))) 
+   {
+      _mutex.owner = caller;
+      return;
+   }
+   else if (errorcode == EBUSY) 
+      throw(AlreadyLocked(_mutex.owner));
+   else if (errorcode == EDEADLK) 
+      throw(Deadlock(_mutex.owner));
+   else
+      throw(WaitFailed(_mutex.owner));
+}
+
+// wait for milliseconds and throw an exception then return if the wait
+// expires without gaining the lock. Otherwise return without throwing an
+// exception.
+
+// Note: I was unable to get the expected behavior using pthread_mutex_timedlock. 
+// I don't know excactly why, but the locks were never timing out. Reimplemting
+// using pthread_mutex_trylock works reliably. The documentation says that
+// pthread_mutex_timedlock works with error checking mutexes but works
+// just like pthread_mutex_lock (i.e., it never times out) with other
+// kinds of mutexes. I couldn't determine whether or not it actually
+// works with any type of mutex other than PTHREAD_MUTEX_TIMED_NP.
+// However, we want the mutexes to be error checking whenever possible
+// mdday Sun Aug  5 13:08:43 2001
+
+// pthread_mutex_timedlock is not supported on HUPX
+// mdday Sun Aug  5 14:12:22 2001
+
+ void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) 
+   throw(Deadlock, TimeOut, WaitFailed)
+{
+
+   struct timeval start, now;
+   int errorcode;
+  
+   gettimeofday(&start,NULL);
+   now.tv_sec = start.tv_sec;
+   now.tv_usec = start.tv_usec;
+   
+   start.tv_usec += (milliseconds * 1000);
+   if (start.tv_usec < now.tv_usec)
+      start.tv_sec++;
+
+   while(1)
+   {
+      errorcode = pthread_mutex_trylock(&_mutex.mut);
+      if (errorcode == 0 )
+	 break;
+      
+      if(errorcode == EBUSY)
+      {
+	 gettimeofday(&now, NULL);
+	 if ( now.tv_sec > start.tv_sec || 
+	      now.tv_sec >= start.tv_sec && 
+	      now.tv_usec >= start.tv_usec )
+	 {
+	    throw TimeOut(pegasus_thread_self());
+	 }
+	 pegasus_yield();
+	 continue;
+      }
+      if( errorcode == EDEADLK )
+	 throw Deadlock(pegasus_thread_self());
+      throw WaitFailed(pegasus_thread_self());
+   }
+}
+
+// unlock the mutex
+ void Mutex::unlock() throw(Permission)
+{
+   PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
+   _mutex.owner = 0;
+   if(0 != pthread_mutex_unlock(&_mutex.mut)) 
+   {
+      _mutex.owner = m_owner;
+      throw(Permission(_mutex.owner));
+   }
+}
 
 
 #ifdef PEGASUS_READWRITE_NATIVE 
@@ -326,9 +456,113 @@ Condition::~Condition()
       delete _cond_mutex;
 }
 
+ void Condition::signal(PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException) 
+{ 
+
+   _cond_mutex->lock(caller); 
+   pthread_cond_broadcast(&_condition);
+   _cond_mutex->unlock(); 
+}
+
+
+ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException)
+{
+   if(_cond_mutex->get_owner() != caller)
+      throw Permission(_cond_mutex->get_owner());
+   pthread_cond_broadcast(&_condition);
+   _cond_mutex->_set_owner(caller);
+}
+
+
+ void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   _cond_mutex->lock(caller);
+}
+
+ void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   _cond_mutex->try_lock(caller);
+}
+
+ void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   _cond_mutex->timed_lock(milliseconds, caller);
+   if( _disallow.value() > 0 )
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
+}
+
+ void Condition::unlock_object(void)
+{
+   _cond_mutex->unlock();
+}
+
+
+// block until this semaphore is in a signalled state 
+ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
+   pthread_cond_wait(&_condition, &_cond_mutex->_mutex.mut);
+   _cond_mutex->_set_owner(caller);
+}
+
+// block until this semaphore is in a signalled state 
+ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
+   struct timeval now;
+   struct timespec waittime;
+   int retcode;
+   gettimeofday(&now, NULL);
+   waittime.tv_sec = now.tv_sec;
+   waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);  // microseconds
+   waittime.tv_sec += (waittime.tv_nsec / 1000000);  // roll overflow into
+   waittime.tv_nsec = (waittime.tv_nsec % 1000000);  // the "seconds" part
+   waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
+   do
+   {
+      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex->_mutex.mut, &waittime) ;
+   } while ( retcode == EINTR ) ;
+
+   if(retcode)
+      throw(TimeOut(caller));
+
+   _cond_mutex->_set_owner(caller);
+   
+}
+
 #endif // native conditional semaphore
 //-----------------------------------------------------------------
 // END of native conditional semaphore implementation
+//-----------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------
+// Native implementation of semaphore object
 //-----------------------------------------------------------------
 
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
@@ -356,6 +590,73 @@ Semaphore::~Semaphore()
    }
 }
 
+// block until this semaphore is in a signalled state
+ void Semaphore::wait(void) 
+{
+   sem_wait(&_semaphore.sem);
+}
+
+// wait succeeds immediately if semaphore has a non-zero count, 
+// return immediately and throw and exception if the 
+// count is zero. 
+ void Semaphore::try_wait(void) throw(WaitFailed)
+{
+   if (sem_trywait(&_semaphore.sem)) 
+      throw(WaitFailed(_semaphore.owner));
+}
+
+
+
+
+// Note: I could not get sem_timed_wait to work reliably. 
+// See my comments above on mut timed_wait. 
+// I reimplemented using try_wait, which works reliably. 
+// mdd Sun Aug  5 13:25:31 2001
+
+// wait for milliseconds and throw an exception
+// if wait times out without gaining the semaphore
+ void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+{
+   int retcode, i = 0;
+
+   struct timeval now, finish, remaining;
+   gettimeofday(&now, NULL);
+   finish.tv_sec = now.tv_sec;
+   finish.tv_usec = now.tv_usec;
+   finish.tv_sec += ( milliseconds / 1000 );
+   finish.tv_usec += (( milliseconds % 1000) * 1000);
+      
+   while( 1 )
+   {
+      do 
+      {
+	 retcode = sem_trywait(&_semaphore.sem);
+      } while (retcode == -1 && errno == EINTR);
+
+      if ( retcode == 0 )
+	 return ;
+
+      if( retcode == -1 && errno != EAGAIN )
+	 throw IPCException(pegasus_thread_self());
+      gettimeofday(&now, NULL);
+      if (  timeval_subtract( &remaining, &finish, &now ) )
+	 throw TimeOut(pegasus_thread_self());
+      pegasus_yield();
+   }
+}
+
+// increment the count of the semaphore 
+ void Semaphore::signal()
+{
+   sem_post(&_semaphore.sem);
+}
+
+// return the count of the semaphore
+ int Semaphore::count() 
+{
+   sem_getvalue(&_semaphore.sem,&_count);
+   return _count;
+}
 
 #else
 //
@@ -441,8 +742,8 @@ int Semaphore::count()
 {
    return _count;
 }
-#endif
 
+#endif
 
 
 //-----------------------------------------------------------------
@@ -469,9 +770,76 @@ AtomicInt::AtomicInt(const AtomicInt& original)
    _rep.counter = atomic_read(&original._rep);
 }
 
+AtomicInt& AtomicInt::operator=(Uint32 i) 
+{
+   atomic_set(&_rep, i );
+   return *this;
+}
 
+  AtomicInt& AtomicInt::operator=( const AtomicInt& original)
+{
+   if(this != &original)
+      atomic_set(&_rep,atomic_read(&original._rep));
+   return *this;
+}
+
+ Uint32 AtomicInt::value(void)
+{
+   return((Uint32)atomic_read(&_rep));
+}
+
+ void AtomicInt::operator++(void) { atomic_inc(&_rep); }
+ void AtomicInt::operator--(void) { atomic_dec(&_rep); }
+ void AtomicInt::operator++(int) { atomic_inc(&_rep); }
+ void AtomicInt::operator--(int) { atomic_dec(&_rep); }
+
+
+ Uint32 AtomicInt::operator+(const AtomicInt& val)
+{
+     return((Uint32)(atomic_read(&_rep) + atomic_read(&val._rep) ));
+}
+
+ Uint32 AtomicInt::operator+(Uint32 val)
+{ 
+    return( (Uint32)(atomic_read(&_rep) + val));
+}
+
+ Uint32 AtomicInt::operator-(const AtomicInt& val)
+{
+     return((Uint32)(atomic_read(&_rep) - atomic_read(&val._rep) ));
+}
+
+ Uint32 AtomicInt::operator-(Uint32 val)
+{ 
+    return( (Uint32)(atomic_read(&_rep) - val));
+}
+
+ AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
+{
+    atomic_add(atomic_read(&val._rep),&_rep);
+    return *this;
+}
+
+ AtomicInt& AtomicInt::operator+=(Uint32 val)
+{
+    atomic_add(val,&_rep);
+    return *this;
+}
+
+ AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
+{
+    atomic_sub(atomic_read(&val._rep),&_rep);
+    return *this;
+}
+
+ AtomicInt& AtomicInt::operator-=(Uint32 val)
+{
+    atomic_sub(val,&_rep);
+    return *this;
+}
 
 // still missing are atomic test like "subtract and test if zero"
+
 #endif // Native Atomic Type 
 
 PEGASUS_NAMESPACE_END

@@ -45,6 +45,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+int timeval_subtract (struct timeval *result, 
+		      struct timeval *x, 
+		      struct timeval *y);
+
+
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 #endif
@@ -174,8 +179,6 @@ typedef atomic_t PEGASUS_ATOMIC_TYPE ;
 
 //#endif // linux platform read/write type
 
-
-
 inline void pegasus_yield(void)
 {
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
@@ -266,7 +269,6 @@ inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
    pthread_cancel(th);
 
 }
-
 
 PEGASUS_NAMESPACE_END
 

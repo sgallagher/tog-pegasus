@@ -97,15 +97,17 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 
    // ATTN: KS 20030429 Bypass this until we get it into the config manager
    String maxEnumBreadthOption = String::EMPTY;;
+   try
+   {
    maxEnumBreadthOption = configManager->getCurrentValue("maximumEnumerationBreadth");
-   if (maxEnumBreadthOption != String::EMPTY)
-       _maximumEnumerateBreadth = atol(maxEnumBreadthOption.getCString());
-   else
-       _maximumEnumerateBreadth = 50;
-
+    if (maxEnumBreadthOption != String::EMPTY)
+       _maximumEnumerateBreadth = atol(maxEnumBreadthOption.getCString());  }
+   catch(...)
+   {
+   _maximumEnumerateBreadth=50;
+   }
 
    _routing_table = DynamicRoutingTable::get_rw_routing_table();
-   
 
   cimAggregationLocalHost = System::getHostName();
 

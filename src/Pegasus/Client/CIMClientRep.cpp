@@ -26,6 +26,7 @@
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 // Modified By:  Dan Gorey (djgorey@us.ibm.com)
+//               Amit Arora (amita@in.ibm.com) for Bug#1170
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -167,6 +168,7 @@ void CIMClientRep::_connect()
         _httpConnection = _httpConnector->connect(_connectHost,
                                                   _connectPortNumber,
                                                   _responseDecoder);
+        _monitor->set_session_dispatch(_httpConnection->connection_dispatch);
         #endif
         
     }

@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              Amit Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -134,6 +135,10 @@ void WbemExecClient::_connect(
                                                   portNumber,
                                                   sslContext,
                                                   this);
+    #ifndef PEGASUS_USE_23HTTPMONITOR_CLIENT
+    _monitor->set_session_dispatch(_httpConnection->connection_dispatch);//bug#1170
+    #endif
+
     //}
     // Could catch CannotCreateSocketException, CannotConnectException,
     // or InvalidLocatorException

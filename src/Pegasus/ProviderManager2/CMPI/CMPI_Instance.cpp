@@ -80,7 +80,8 @@ static CMPIData instGetPropertyAt(CMPIInstance* eInst, CMPICount pos, CMPIString
 
    if (pos>inst->getPropertyCount()) {
      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
-      return data;
+      CMPIData d={0,CMPI_nullValue,{0}};
+      return d; 
    }
    const CIMProperty& p=inst->getProperty(pos);
    const CIMValue& v=p.getValue();
@@ -181,9 +182,8 @@ static CMPIObjectPath* instGetObjectPath(CMPIInstance* eInst, CMPIStatus* rc) {
    const CIMObjectPath &clsRef=inst->getPath();
    CMPIObjectPath *cop=NULL;
    if (clsRef.getKeyBindings().size()==0) {
-//      CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
-      CIMClass *cc=mbGetClass(NULL,clsRef);
-     const CIMObjectPath &ref=inst->buildPath(
+      CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
+      const CIMObjectPath &ref=inst->buildPath( 
           *(reinterpret_cast<const CIMConstClass*>(cc)));
       cop=reinterpret_cast<CMPIObjectPath*>
           (new CMPI_Object(new CIMObjectPath(ref)));

@@ -59,6 +59,15 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
       int aSize=aData->value.sint32;
       aData++;
 
+     if (aType & CMPI_ENC && (data==NULL || data->array==NULL)) {
+         if (aType==CMPI_chars || aType==CMPI_string)
+            return CIMValue(CIMTYPE_STRING,true);
+         if (aType==CMPI_dateTime)
+            return CIMValue(CIMTYPE_DATETIME,true);
+         if (aType==CMPI_ref)
+            return CIMValue(CIMTYPE_REFERENCE,true);
+      }
+
       if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
          switch (aType) {
             case CMPI_sint32: CopyToArray(Sint32,sint32); break;
@@ -95,6 +104,23 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
       return CIMValue(v);
    } // end of array processing
 
+
+
+   else if (type==CMPI_chars) {
+      if (data) v.set(String((char*)data));
+      else return CIMValue(CIMTYPE_STRING,false);
+   }
+
+   else if (type & CMPI_ENC &&
+      (data==NULL || data->string==NULL || data->string->hdl==NULL)) {
+         if (type==CMPI_string)
+            return CIMValue(CIMTYPE_STRING,false);
+         if (type==CMPI_dateTime)
+            return CIMValue(CIMTYPE_DATETIME,false);
+         if (type==CMPI_ref)
+            return CIMValue(CIMTYPE_REFERENCE,false);
+   }
+
    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
       switch (type) {
          case CMPI_sint32: v.set((Sint32)data->sint32); break;
@@ -105,8 +131,6 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
       }
    }
 
-   else if (type==CMPI_chars)  v.set(data ?
-        String((char*)data) : String::EMPTY );
    else if (type==CMPI_string) v.set(data->string->hdl ?
         String((char*)data->string->hdl) : String::EMPTY);
 
@@ -154,6 +178,12 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
 
    data->type=t;
    data->state=0;
+   data->value.uint64=0;
+
+   if (v.isNull()) {
+      data->state=CMPI_nullValue;
+      return CMPI_RC_OK;
+   }
 
    if (t & CMPI_ARRAY) {
       int aSize=v.getArraySize();
@@ -161,6 +191,11 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
       CMPIData *aData=new CMPIData[aSize+1];
       aData->type=aType;
       aData->value.sint32=aSize;
+
+      for (int i=1; i<aSize+1; i++) {
+         aData[i].type=aType;
+         aData[i].state=0;
+      }
       aData++;
 
       if (aType & (CMPI_UINT|CMPI_SINT)==CMPI_SINT) {

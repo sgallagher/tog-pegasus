@@ -65,6 +65,57 @@ int main(void)
         exit(1);
     }
 
+    try
+    {
+        context.clear();
+        String userName("Yoda");
+
+        context.insert(IdentityContainer(userName));
+
+        //
+        //  This test exercises the IdentityContainer copy constructor
+        //
+        IdentityContainer container = 
+            (IdentityContainer)context.get(IdentityContainer::NAME);
+
+        if(userName != container.getUserName())
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << "----- Identity Container copy constructor failed" << endl;
+
+        exit(1);
+    }
+
+    try
+    {
+        context.clear();
+
+        String userName("Yoda");
+
+        context.insert(IdentityContainer(userName));
+
+        //
+        //  This test exercises the IdentityContainer assignment operator
+        //
+        IdentityContainer container = IdentityContainer(" ");
+        container =
+            (IdentityContainer)context.get(IdentityContainer::NAME);
+
+        if(userName != container.getUserName())
+        {
+            throw 0;
+        }
+    }
+    catch(...)
+    {
+        cout << "----- Identity Container assignment operator failed" << endl;
+
+        exit(1);
+    }
 
     //
     //  SubscriptionInstanceContainer

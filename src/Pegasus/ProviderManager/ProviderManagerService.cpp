@@ -753,8 +753,10 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
-
+    //response->setKey(request->getKey());
+    
+    response->synch_response(request);
+    
     //
     //  Set HTTP method in response from request
     //
@@ -869,8 +871,8 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
-
+    //response->setKey(request->getKey());
+    response->synch_response(request);
     //
     //  Set HTTP method in response from request
     //
@@ -979,7 +981,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
 	//set HTTP method in response from request
 
@@ -1085,7 +1087,7 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -1193,7 +1195,7 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -1305,7 +1307,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -1423,7 +1425,22 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
+
+
+// l10n
+// ATTN: when this is implemented, need to add the language containers to the 
+// OperationContext.  See how the other requests do it.
+
+
+// l10n
+// ATTN: when this is implemented, need to add the language containers to the 
+// OperationContext.  See how the other requests do it.
+
+
+// l10n
+// ATTN: when this is implemented, need to add the language containers to the 
+// OperationContext.  See how the other requests do it.
 
 
 // l10n
@@ -1468,7 +1485,7 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
        PEGASUS_ASSERT(response != 0);
 
        // preserve message key
-       response->setKey(request->getKey());
+       response->synch_response(request);
 
        // create a handler for this request
        AssociatorsResponseHandler handler(request, response);
@@ -1589,7 +1606,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -1705,7 +1722,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -1827,7 +1844,7 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         cimReferences);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -1950,7 +1967,7 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2070,7 +2087,7 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2187,7 +2204,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
     PEGASUS_ASSERT(response != 0);
 
     // propagate message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2303,7 +2320,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2427,7 +2444,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2549,7 +2566,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2668,7 +2685,7 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2763,7 +2780,7 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -2949,7 +2966,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -3032,7 +3049,7 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -3075,7 +3092,7 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
     PEGASUS_ASSERT(response != 0);
 
     // preserve message key
-    response->setKey(request->getKey());
+    response->synch_response(request);
 
     //
     //  Set HTTP method in response from request
@@ -3113,7 +3130,7 @@ void ProviderManagerService::handleExportIndicationRequest(AsyncOpNode *op,
    
    PEGASUS_ASSERT(response != 0);
    
-   response->setKey(request->getKey());
+   response->synch_response(request);
 
     //
     //  Set HTTP method in response from request

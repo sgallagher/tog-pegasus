@@ -170,11 +170,11 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 
 	// Creation was OK.  Now delete it
 
-	CIMReference myReference(instanceName);
-	cout << "CIMReference for delete";
-	myReference.print(cout);
 	try
 	{
+	    CIMReference myReference(instanceName);
+	    cout << "CIMReference for delete";
+	    myReference.print(cout);
 	    client.deleteInstance(globalNamespace, myReference);
 	}
 	catch(CIMClientException& e)

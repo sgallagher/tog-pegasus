@@ -408,6 +408,24 @@ Boolean OptionManager::lookupValue(const String& name, String& value) const
     return true;
 }
 
+Boolean OptionManager::lookupIntegerValue(const String& name, Uint32& value) const
+{
+    //ATTN: KS P1 7 May 2002 - Add test for Integer type in om table.
+    String valueString;
+    if (lookupValue(name, valueString))
+    {
+	char* CValueString = valueString.allocateCString();
+	value = atol(CValueString);
+	delete [] CValueString;
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+
+}
+
 Boolean OptionManager::valueEquals(const String& name, const String& value) 
     const
 {
@@ -418,9 +436,10 @@ Boolean OptionManager::valueEquals(const String& name, const String& value)
 
 Boolean OptionManager::isTrue(const String& name) const
 {
+    //ATTN: KS 7 May 2002 P3 Add test to confirm boolean type 
     return valueEquals(name, "true") ? true: false;
 }
-/*  Buried this one for the moment to think about it.
+/*  ATTN: P3 MB 2001 Buried this one for the moment to think about it.
 Uint32 OptionManager::isStringInOptionMask(const String& option, 
 					   const String& entry) 
 {

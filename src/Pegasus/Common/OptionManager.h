@@ -307,7 +307,17 @@ public:
 	value for this parameter (in String format).
 	@return Boolean return. True if the option found.
     */
-    Boolean lookupValue(const String& name, String& value) const;
+    Boolean lookupValue(const String& name, String& value ) const;
+
+    /** LookupIntegerValue value of an option determines if the value exists
+	and converts it to integer (Uint32).
+	@param Name provides the name of the option (ex. "port")
+	@param String parameter contains the String that contains the
+	value for this parameter (in String format).
+	@return Boolean return. True if the option found.
+    */
+    Boolean lookupIntegerValue(const String& name, Uint32& value) const;
+
 
     /**	isStringInOptionMask - Looks for a String value in an option.
 	This function is used to detect particular options listed in strings of

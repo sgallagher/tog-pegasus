@@ -239,7 +239,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 
       friend class Provider;
       friend class cimom_handle_op_semaphore;
-      void get_idle_timer(struct timeval *);
+      void get_idle_timer(void *);
       void update_idle_timer(void);
       Boolean pending_operation(void);
       Boolean unload_ok(void);

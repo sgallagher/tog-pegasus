@@ -2036,9 +2036,9 @@ CIMValue CIMOMHandle::invokeMethod(
 
 
 
-void CIMOMHandle::get_idle_timer(struct timeval *tv)
+void CIMOMHandle::get_idle_timer(void *tv)
 {
-   _rep->get_idle_timer(tv);
+   _rep->get_idle_timer(reinterpret_cast<struct timeval*>(tv));
 }
 
 void CIMOMHandle::update_idle_timer(void)

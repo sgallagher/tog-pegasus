@@ -127,6 +127,8 @@ prestarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 
 poststarttests:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP)

@@ -39,11 +39,6 @@
    #define _XOPEN_SOURCE 600
 #endif
 
-
-
-
-
-
 #ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 # include <features.h>
 #endif

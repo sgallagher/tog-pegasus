@@ -296,7 +296,7 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
 {
     const char*         startDateTimeCString;
     const char*         finishDateTimeCString;
-    char*               dateTimeOnly;
+    char                dateTimeOnly[CIMDateTimeRep::FORMATTED_DATE_TIME];
     struct tm           tmvalStart;
     struct tm           tmvalFinish;
     Sint64              differenceInSeconds = 0;
@@ -416,7 +416,6 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     //
     // Copy only the Start date and time in to the dateTimeOnly string
     //
-    dateTimeOnly = new char [CIMDateTimeRep::FORMATTED_DATE_TIME];
     strncpy( dateTimeOnly, startDateTimeCString, CIMDateTimeRep::DATE_TIME_LENGTH );
     dateTimeOnly[CIMDateTimeRep::DATE_TIME_LENGTH] = 0;
     formatDateTime(dateTimeOnly ,&tmvalStart);
@@ -521,7 +520,6 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
         differenceInMicroseconds -=
             (startDateMicroseconds - finishDateMicroseconds);
 
-    delete []dateTimeOnly;
     return differenceInMicroseconds;
 }
 

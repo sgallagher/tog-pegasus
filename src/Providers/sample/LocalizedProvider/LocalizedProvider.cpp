@@ -1071,10 +1071,11 @@ ContentLanguages LocalizedProvider::getRequestContentLanguages(	const OperationC
 
 CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanceObject)
 {
-    CIMObjectPath cimObjectPath(
-        String(),
-        NAMESPACE,
-        instanceObject.getClassName());
+    CIMObjectPath cimObjectPath =
+        CIMObjectPath(
+            String(),
+            NAMESPACE,
+            instanceObject.getClassName());
 
     Array<CIMKeyBinding> keys;
 

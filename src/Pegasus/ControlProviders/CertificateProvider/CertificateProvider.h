@@ -1,9 +1,11 @@
-//%2003////////////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
-// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -62,8 +64,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** This is the control provider outlined in PEP#187 SSL Certificate Mgmt Enhancements.
  * It models certificate mgmt operations as standard CIM operations.  Client certificates are modeled
- * by the PG_SSLCertificate class. Certificate revocation lists (CRL) are modeled using the 
- * PG_SSLCertificateRevocationClass.  The ssltrustmgr CLI in Clients/ssltrustmgr can be used to invoke these provider methods.
+ * by the PG_SSLCertificate class. Certificate revocation lists (CRLs) are modeled using the 
+ * PG_SSLCertificateRevocationClass.  These classes are defined in the pg_internal schema.  
+ * The ssltrustmgr CLI in Clients/ssltrustmgr can be used to invoke these provider methods.
 */
 
 class PEGASUS_CERTIFICATEPROVIDER_LINKAGE CertificateProvider : public CIMInstanceProvider, public CIMMethodProvider

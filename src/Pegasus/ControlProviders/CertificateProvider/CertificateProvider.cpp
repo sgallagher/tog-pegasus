@@ -1,9 +1,11 @@
-//%2003////////////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
-// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -100,9 +102,8 @@ typedef struct Timestamp
     char padding[3];
 } Timestamp_t;
 
-//
-// Convert ASN1_UTCTIME to CIMDateTime
-//
+/** Convert ASN1_UTCTIME to CIMDateTime
+ */
 inline CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
 {
     struct tm time;
@@ -200,7 +201,7 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
 	X509_NAME *n = NULL;
 	int nid;
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "CertificateProvider::getIssuerName");
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName");
 
     BIO* bio_err = BIO_new(BIO_s_mem());
 
@@ -219,7 +220,7 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
 
 	while (*sp)
 	{
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "CertificateProvider::getIssuerName WHILE");
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName WHILE");
 
 		/* collect type */
 		ne_types[ne_num] = bp;
@@ -280,7 +281,7 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
 		ne_num++;
 	}
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "CertificateProvider::getIssuerName  WHILE EXIT");
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName  WHILE EXIT");
 
 	if (!(n = X509_NAME_new()))
 		goto error;
@@ -307,7 +308,7 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
 	free(ne_types);
 	free(buf);
 
-	PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "CertificateProvider::getIssuerName RETURN");
+	PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName RETURN");
 
 	return n;
 
@@ -322,6 +323,8 @@ error:
 	return NULL;
 }
 
+/** Determines whether the user has sufficient access to perform a certificate operation.
+  */
 Boolean CertificateProvider::_verifyAuthorization(const String& userName)
 {
 	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::_verifyAuthorization");
@@ -339,8 +342,8 @@ Boolean CertificateProvider::_verifyAuthorization(const String& userName)
 	return true;
 }
 
-
-// Constructor
+/** Constructor
+ */
 CertificateProvider::CertificateProvider(CIMRepository* repository) : 
 _cimom(0), 
 _repository(repository),
@@ -363,14 +366,16 @@ _enableAuthentication(false)
 	PEG_METHOD_EXIT();
 }
 
-// Destructor
+/** Destructor
+ */ 
 CertificateProvider::~CertificateProvider(void)
 {
 	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::~CertificateProvider");
 	PEG_METHOD_EXIT();
 }
 
-// Called when a provider is loaded
+/** Called when a provider is loaded
+ */ 
 void CertificateProvider::initialize(CIMOMHandle & cimom)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::initialize");
@@ -381,7 +386,8 @@ void CertificateProvider::initialize(CIMOMHandle & cimom)
     PEG_METHOD_EXIT();
 }
 
-// Called before a provider is unloaded
+/** Called before a provider is unloaded
+ */ 
 void CertificateProvider::terminate(void)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::terminate");
@@ -393,7 +399,8 @@ void CertificateProvider::terminate(void)
     PEG_METHOD_EXIT();
 }
 
-// Delivers a single instance to the CIMOM
+/** Delivers a single instance to the CIMOM
+ */ 
 void CertificateProvider::getInstance(
                               const OperationContext & context,
                               const CIMObjectPath & cimObjectPath,
@@ -408,15 +415,15 @@ void CertificateProvider::getInstance(
 	const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
 	{
-		MessageLoaderParms parms("ControlProviders.CertificateProvider.SUPER_USER_PRIVILEGE_REQUIRED",
-								 "You must have superuser privileges to perform this operation.");
+		MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
+								 "Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
 	}
 
-    const String className(cimObjectPath.getClassName().getString());
+    CIMName className(cimObjectPath.getClassName());
 
 	//verify classname
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CERTIFICATE.getString()))
+    if (className == PEGASUS_CLASSNAME_CERTIFICATE)
     {
 		// process request
 		handler.processing();
@@ -432,13 +439,13 @@ void CertificateProvider::getInstance(
 	
 			if (!String::equal(keyName, ISSUER_NAME_PROPERTY.getString()) && !String::equal(keyName, SERIAL_NUMBER_PROPERTY.getString())) 
 			{
-				throw CIMException(CIM_ERR_INVALID_PARAMETER);
+				throw CIMException(CIM_ERR_INVALID_PARAMETER, keyName);
 			}
 		}
 	
 		CIMInstance cimInstance = _repository->getInstance(cimObjectPath.getNameSpace(), cimObjectPath);
 	
-		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CIMInstance path " + cimInstance.getPath().toString());
+		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Returning certificate COP " + cimInstance.getPath().toString());
 	
 		// deliver instance
 		handler.deliver(cimInstance);
@@ -446,19 +453,20 @@ void CertificateProvider::getInstance(
 		// complete request
 		handler.complete();
 
-	} else if (String::equalNoCase(className, PEGASUS_CLASSNAME_CRL.getString()))
+	} else if (className == PEGASUS_CLASSNAME_CRL)
 	{
 		//ATTN: Fill in
 
 	} else
 	{
-		throw CIMException(CIM_ERR_INVALID_CLASS, className);
+		throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
 	}
 
     PEG_METHOD_EXIT();
 }
 
-// builds and returns a PG_SSLCertificateRevocationList from an X509_CRL object
+/** Builds and returns a PG_SSLCertificateRevocationList from an X509_CRL object
+ */ 
 inline CIMInstance _getCRLInstance(X509_CRL* xCrl, String host, CIMNamespaceName nameSpace)
 {
     char issuerName[1024];
@@ -522,7 +530,8 @@ inline CIMInstance _getCRLInstance(X509_CRL* xCrl, String host, CIMNamespaceName
 	return (cimInstance);
 }
 
-// Delivers the complete collection of instances to the CIMOM
+/** Delivers the complete collection of instances to the CIMOM
+ */ 
 void CertificateProvider::enumerateInstances(
                                      const OperationContext & context,
                                      const CIMObjectPath & cimObjectPath,
@@ -537,15 +546,15 @@ void CertificateProvider::enumerateInstances(
 	const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
 	{
-		MessageLoaderParms parms("ControlProviders.CertificateProvider.SUPER_USER_PRIVILEGE_REQUIRED",
-								 "You must have superuser privileges to perform this operation.");
+		MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
+								 "Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
 	}
 
-    const String className(cimObjectPath.getClassName().getString());
+    CIMName className(cimObjectPath.getClassName());
 
 	//verify classname
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CERTIFICATE.getString()))
+    if (className == PEGASUS_CLASSNAME_CERTIFICATE)
     {
 		// process request
 		handler.processing();
@@ -565,7 +574,7 @@ void CertificateProvider::enumerateInstances(
 		// complete request
 		handler.complete();
 
-	} else if (String::equalNoCase(className, PEGASUS_CLASSNAME_CRL.getString()))
+	} else if (className == PEGASUS_CLASSNAME_CRL)
     {
 		// process request
 		handler.processing();
@@ -582,7 +591,7 @@ void CertificateProvider::enumerateInstances(
 				{
 					String filename = crlFiles[i];
 
-                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Filename " + filename);
+                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Filename " + filename);
 
 					//ATTN: Is this a two-way hash?  If so, I don't need to read in the CRL just to determine the issuer name
 					BIO* inFile = BIO_new(BIO_s_file());
@@ -594,7 +603,7 @@ void CertificateProvider::enumerateInstances(
 
 					if (BIO_read_filename(inFile, fullPathName))
 					{
-						PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Successfully read filename");
+						PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Successfully read filename");
 
                          if (PEM_read_bio_X509_CRL(inFile, &xCrl, NULL, NULL))
                          {
@@ -636,13 +645,14 @@ void CertificateProvider::enumerateInstances(
 		}
     } else
 	{
-        throw CIMException(CIM_ERR_INVALID_CLASS, className);
+        throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }
 
     PEG_METHOD_EXIT();
 }
 
-// Delivers the complete collection of instance names (CIMObjectPaths) to the CIMOM
+/** Delivers the complete collection of instance names (CIMObjectPaths) to the CIMOM
+ */ 
 void CertificateProvider::enumerateInstanceNames(
                                          const OperationContext & context,
                                          const CIMObjectPath & cimObjectPath,
@@ -654,20 +664,20 @@ void CertificateProvider::enumerateInstanceNames(
 	const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
 	{
-		MessageLoaderParms parms("ControlProviders.CertificateProvider.SUPER_USER_PRIVILEGE_REQUIRED",
-								 "You must have superuser privileges to perform this operation.");
+		MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
+								 "Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
 	}
 
-    const String className(cimObjectPath.getClassName().getString());
+    CIMName className(cimObjectPath.getClassName());
 
 	//verify classname
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CERTIFICATE.getString()))
+    if (className == PEGASUS_CLASSNAME_CERTIFICATE)
     {
 		// process request
 		handler.processing();
 	
-		Array<CIMObjectPath> instanceNames = _repository->enumerateInstanceNames(cimObjectPath.getNameSpace(), className);
+		Array<CIMObjectPath> instanceNames = _repository->enumerateInstanceNames(cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
 	
 		for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
 		{
@@ -680,7 +690,7 @@ void CertificateProvider::enumerateInstanceNames(
 		// complete request
 		handler.complete();
 
-	} else if (String::equalNoCase(className, PEGASUS_CLASSNAME_CRL.getString()))
+	} else if (className == PEGASUS_CLASSNAME_CRL)
 	{
          // process request
 		handler.processing();
@@ -761,15 +771,14 @@ void CertificateProvider::enumerateInstanceNames(
 		}
 	} else
     {
-        throw CIMException(CIM_ERR_INVALID_CLASS, className);
-    }
+        throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
+    } 
 
     PEG_METHOD_EXIT();
 }
 
-// Creates an instance from the specified CIMInstance and CIMObjectPath and adds it to the internal instance cache.
-// NOTE: Does not seem to work for CIM Studio (reports a WMI Generic failure on the returned object path, however,
-// works perfectly using WBEMTest.  The object path is correct and the same as other objects of the same class.
+/** Not supported.  Use invokeMethod to create a certificate or CRL
+  */ 
 void CertificateProvider::createInstance(
                                  const OperationContext & context,
                                  const CIMObjectPath & cimObjectPath,
@@ -779,7 +788,8 @@ void CertificateProvider::createInstance(
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "CertificateProvider::createInstance");
 }
 
-// Modifies the specified properties for the intenral object represented by the CIMInstance parameter.
+/** Not supported.
+  */ 
 void CertificateProvider::modifyInstance(
                                  const OperationContext & context,
                                  const CIMObjectPath & cimObjectPath,
@@ -791,7 +801,8 @@ void CertificateProvider::modifyInstance(
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "CertificateProvider::modifyInstance");
 }
 
-// Deletes the internal object denoted by the specified CIMObjectPath
+/** Deletes the internal object denoted by the specified CIMObjectPath
+ */ 
 void CertificateProvider::deleteInstance(
                                  const OperationContext & context,
                                  const CIMObjectPath & cimObjectPath,
@@ -803,26 +814,40 @@ void CertificateProvider::deleteInstance(
 	const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
 	{
-		MessageLoaderParms parms("ControlProviders.CertificateProvider.SUPER_USER_PRIVILEGE_REQUIRED",
-								 "You must have superuser privileges to perform this operation.");
+		MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
+								 "Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
 	}
 
-    const String className(cimObjectPath.getClassName().getString());
+    CIMName className(cimObjectPath.getClassName());
 
 	//verify classname
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CERTIFICATE.getString()))
+    if (className == PEGASUS_CLASSNAME_CERTIFICATE)
     {
         // process request
 		handler.processing();
 	
         String certificateFileName = String::EMPTY;
+		String issuerName = String::EMPTY;
+		String userName = String::EMPTY;
 
 		CIMInstance cimInstance = _repository->getInstance(cimObjectPath.getNameSpace(), cimObjectPath);
-		CIMProperty cimProperty = cimInstance.getProperty(cimInstance.findProperty(FILE_NAME_PROPERTY));
+		CIMProperty cimProperty;
+
+		//certificate file name
+		cimProperty = cimInstance.getProperty(cimInstance.findProperty(FILE_NAME_PROPERTY));
         cimProperty.getValue().get(certificateFileName);
 
-		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate file name" + certificateFileName);
+		//issuer name
+		cimProperty = cimInstance.getProperty(cimInstance.findProperty(ISSUER_NAME_PROPERTY));
+        cimProperty.getValue().get(issuerName);
+
+		//user name
+		cimProperty = cimInstance.getProperty(cimInstance.findProperty(USER_NAME_PROPERTY));
+        cimProperty.getValue().get(userName);
+
+		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Issuer name " + issuerName);
+		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "User name " + userName);
 		
         AutoMutex lock(_trustStoreMutex);
 
@@ -834,6 +859,11 @@ void CertificateProvider::deleteInstance(
 				
 				// only delete from repository if we successfully deleted it from the truststore, otherwise it is still technically "trusted"
 		        _repository->deleteInstance(cimObjectPath.getNameSpace(), cimObjectPath);
+
+				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+							"The certificate registered to $0 from issuer $1 has been deleted from the truststore.",
+							userName,
+							issuerName);
 
 			} else
 			{
@@ -853,7 +883,7 @@ void CertificateProvider::deleteInstance(
 		// complete request
 		handler.complete();
 
-	} else if (String::equalNoCase(className, PEGASUS_CLASSNAME_CRL.getString()))
+	} else if (className == PEGASUS_CLASSNAME_CRL)
 	{
 		Array<CIMKeyBinding> keys;
 		CIMKeyBinding key;
@@ -865,8 +895,8 @@ void CertificateProvider::deleteInstance(
             issuerName = keys[0].getValue();
 		}
 
-		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "COP" + cimObjectPath.toString());
-		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Issuer Name " + issuerName);
+		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CRL COP" + cimObjectPath.toString());
+		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Issuer Name " + issuerName);
 
 		//ATTN: it would nice to be able to do this by getting the hash directly from the issuerName
 		//unfortunately, there does not seem to be an easy way to achieve this
@@ -889,6 +919,10 @@ void CertificateProvider::deleteInstance(
 			{
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Successfully deleted CRL file " + crlFileName);
 
+				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+							"The CRL from issuer $0 has been deleted.",
+							issuerName);
+
 			} else
 			{
 				PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Could not delete file.");
@@ -908,19 +942,22 @@ void CertificateProvider::deleteInstance(
 
 	} else
     {
-        throw CIMException(CIM_ERR_INVALID_CLASS, className);
+        throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }
 
     PEG_METHOD_EXIT();
 }
 
+/** Returns the CRL filename associated with the hashvalue that represents the issuer name.  
+ *  There is only one CRL per issuer so the file name will always end in .r0
+ */ 
 String CertificateProvider::_getCRLFileName(String crlStore, unsigned long hashVal)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::_getCRLFileName");
 
     Uint32 index = 0;
 
-    //The files are looked up by the CA subject name hash value. 
+    //The files are looked up by the CA issuer name hash value. 
     //Since only one CRL should exist for a given CA, the extension .r0 is appended to the CA hash
     char hashBuffer[32];
     sprintf(hashBuffer, "%x", hashVal);
@@ -942,7 +979,7 @@ String CertificateProvider::_getCRLFileName(String crlStore, unsigned long hashV
 			(const char*)crlStore.getCString(),
 			(const char*)hashString.getCString());
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Searching for files like " + hashString + "in " + crlStore);
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Searching for files like " + hashString + "in " + crlStore);
 
     FileSystem::translateSlashes(crlStore); 
     if (FileSystem::isDirectory(crlStore) && FileSystem::canWrite(crlStore))
@@ -951,13 +988,11 @@ String CertificateProvider::_getCRLFileName(String crlStore, unsigned long hashV
 		{
 			//overwrite
 			PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "CRL already exists, overwriting");
-			//Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
 
 		} else
 		{
 			//create
 			PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "CRL does not exist, creating");
-			//Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
 		}
     } else
     {
@@ -972,12 +1007,14 @@ String CertificateProvider::_getCRLFileName(String crlStore, unsigned long hashV
     return (String(filename));
 }
 
+/** Returns the new certificate filename for the hashvalue that represents the subject name.
+ */ 
 String CertificateProvider::_getNewCertificateFileName(String trustStore, unsigned long hashVal) 
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::_getNewCertificateFileName");
 
     //The files are looked up by the CA subject name hash value. 
-    //If more than one CA certificate with the same name hash value exist, 
+    //If more than one CA certificate with the same name hash value exists, 
     //the extension must be different (e.g. 9d66eef0.0, 9d66eef0.1 etc)
     char hashBuffer[32];
     sprintf(hashBuffer, "%x", hashVal);
@@ -994,7 +1031,7 @@ String CertificateProvider::_getNewCertificateFileName(String trustStore, unsign
         }
     }
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Searching for files like " + hashString);
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Searching for files like " + hashString);
 
     Uint32 index = 0;
     FileSystem::translateSlashes(trustStore); 
@@ -1003,7 +1040,6 @@ String CertificateProvider::_getNewCertificateFileName(String trustStore, unsign
         Array<String> trustedCerts;
         if (FileSystem::getDirectoryContents(trustStore, trustedCerts))
         {
-			
             for (Uint32 i = 0; i < trustedCerts.size(); i++)
             {
                 if (String::compare(trustedCerts[i], hashString, hashString.size()) == 0)
@@ -1037,6 +1073,8 @@ String CertificateProvider::_getNewCertificateFileName(String trustStore, unsign
     return (String(filename));
 }
 
+/** Calls an extrinsic method on the class.
+ */ 
 void CertificateProvider::invokeMethod(
     const OperationContext & context,
     const CIMObjectPath & cimObjectPath,
@@ -1050,15 +1088,15 @@ void CertificateProvider::invokeMethod(
 	const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
 	{
-		MessageLoaderParms parms("ControlProviders.CertificateProvider.SUPER_USER_PRIVILEGE_REQUIRED",
-								 "You must have superuser privileges to perform this operation.");
+		MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
+								 "Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
 	}
 
-	const String className(cimObjectPath.getClassName().getString());
+	CIMName className(cimObjectPath.getClassName());
 
 	//verify classname
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CERTIFICATE.getString()))
+    if (className == PEGASUS_CLASSNAME_CERTIFICATE)
     {
 		// process request
         handler.processing();
@@ -1081,19 +1119,20 @@ void CertificateProvider::invokeMethod(
 			cimValue = inParams[2].getValue();
 			cimValue.get(truststoreType);
 	
-			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Parameter Certificatecontents:" + certificateContents);
-			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Parameter UserName:" + userName);
+			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Certificate parameters:\n");
+			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tcertificateContents:" + certificateContents);
+			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tuserName:" + userName);
             
 			//check for a valid username
 			if (!System::isSystemUser(userName.getCString()))
 			{
-				throw CIMException(CIM_ERR_INVALID_PARAMETER, "UserName is not a valid system user.");
+				throw CIMException(CIM_ERR_INVALID_PARAMETER, "The user specified by userName is not a valid system user.");
 			}
 	
 			//check for a valid truststore
 			if (truststoreType != SERVER_TRUSTSTORE && truststoreType != EXPORT_TRUSTSTORE && truststoreType != CLIENT_TRUSTSTORE)
 			{
-				throw CIMException(CIM_ERR_INVALID_PARAMETER, "Invalid truststore type.");
+				throw CIMException(CIM_ERR_INVALID_PARAMETER, "The truststore specified by truststoreType is invalid.");
 			}
 	
             //read in the certificate contents
@@ -1108,8 +1147,8 @@ void CertificateProvider::invokeMethod(
 				BIO_free(mem);
 
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Error: Could not read x509 PEM format.");
-		        MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_CERT_FORMAT",
-				        				 "Error: Could not read x509 PEM format.");
+		        MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_X509_FORMAT",
+				        				 "Could not read x509 PEM format.");
                 throw CIMException(CIM_ERR_FAILED, parms);
 			}
 			BIO_free(mem);
@@ -1155,32 +1194,36 @@ void CertificateProvider::invokeMethod(
 				{
 					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL is not valid yet.  Check the timestamps on your machine.");
 					MessageLoaderParms parms("ControlProviders.CertificateProvider.CERT_NOT_VALID_YET",
-											 "Certificate or CRL is not valid yet.  Check the timestamps on your machine.");
+											 "The certificate is not valid yet.  Check the timestamps on your machine.");
 					throw CIMException(CIM_ERR_FAILED, parms);
 				}
 				if (CIMDateTime::getDifference(notAfter, CIMDateTime::getCurrentDateTime()) > 0) 
 				{
 					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL is expired.");
 					MessageLoaderParms parms("ControlProviders.CertificateProvider.CERT_EXPIRED",
-											 "Certificate or CRL is expired.");
+											 "The certificate has expired.");
 					throw CIMException(CIM_ERR_FAILED, parms);
 				}
 
 			} catch (DateTimeOutOfRangeException& ex)
 			{
 					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL dates are out of range.");
-					MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_DATE",
-											 "Certificate or CRL dates are out of range.");
+					MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_DATE_FORMAT",
+											 "The validity dates are out of range.");
 					throw CIMException(CIM_ERR_FAILED, parms);
 			}
 
-			
 			String storePath = String::EMPTY;
+			String storeId = String::EMPTY;
 	
 			switch (truststoreType) 
 			{
-			case SERVER_TRUSTSTORE : storePath = _sslTrustStore; break;
-			case EXPORT_TRUSTSTORE : storePath = _exportSSLTrustStore; break;
+			case SERVER_TRUSTSTORE : storePath = _sslTrustStore; 
+			                         storeId = "server"; 
+									 break;
+			case EXPORT_TRUSTSTORE : storePath = _exportSSLTrustStore; 
+			                         storeId = "export";
+									 break;
 			case CLIENT_TRUSTSTORE : break; //ATTN: Fill this in
 			default: break;
 			}
@@ -1203,7 +1246,6 @@ void CertificateProvider::invokeMethod(
 			cimInstance.addProperty(CIMProperty(NOT_BEFORE_PROPERTY, CIMValue(notBefore)));
 			cimInstance.addProperty(CIMProperty(NOT_AFTER_PROPERTY, CIMValue(notAfter)));
 		
-			
 	 // set keys
 	Array<CIMKeyBinding> keys;
 	CIMKeyBinding key;
@@ -1227,12 +1269,11 @@ void CertificateProvider::invokeMethod(
             // set object path for instance
 			cimInstance.setPath(CIMObjectPath(cimObjectPath.getHost(), cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE, keys));
 	
-			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"cop: " + cimInstance.getPath().toString());
+			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"New certificate COP: " + cimInstance.getPath().toString());
 	
+			//attempt to add the instance to the repository first; that way if this instance already exist it will take care of throwing 
+			//an error before we add the file to the truststore
 			_repository->createInstance("root/PG_Internal", cimInstance);
-	
-			//only write out the certificate if we were able to create the instance (the instance might already exist, in which case
-			//we don't want to add it again
 	
 			//ATTN: Take care of this conversion
 			char newFileName[256];
@@ -1245,6 +1286,12 @@ void CertificateProvider::invokeMethod(
 			int i = PEM_write_bio_X509(outFile, xCert);
 			BIO_free_all(outFile);
 			
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
+						"The certificate registered to $0 from issuer $1 has been added to the $2 truststore.", 
+						userName,
+						issuerName,
+						storeId);
+
 			CIMValue returnValue(Boolean(true));
 	
 			handler.deliver(returnValue);
@@ -1255,7 +1302,8 @@ void CertificateProvider::invokeMethod(
 		{
 			throw CIMException(CIM_ERR_METHOD_NOT_FOUND, methodName.getString());
 		}
-    } else if (String::equalNoCase(className, PEGASUS_CLASSNAME_CRL.getString()))
+
+    } else if (className == PEGASUS_CLASSNAME_CRL)
     {
         if (methodName == METHOD_ADD_CRL)
 		{
@@ -1282,8 +1330,8 @@ void CertificateProvider::invokeMethod(
 				BIO_free(mem);
 				
 				PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Error: Could not read x509 PEM format.");
-		        MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_CERT_FORMAT",
-				        				 "Error: Could not read x509 PEM format.");
+		        MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_X509_FORMAT",
+				        				 "Could not read x509 PEM format.");
                 throw CIMException(CIM_ERR_FAILED, parms);
 			}
 			BIO_free(mem);
@@ -1310,23 +1358,23 @@ void CertificateProvider::invokeMethod(
 			{
                 if ((CIMDateTime::getDifference(CIMDateTime::getCurrentDateTime(), lastUpdate) > 0))
 				{
-					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL is not valid yet.  Check the timestamps on your machine.");
-					MessageLoaderParms parms("ControlProviders.CertificateProvider.CERT_NOT_VALID_YET",
-											 "Certificate or CRL is not valid yet.  Check the timestamps on your machine.");
+					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "The CRL is not valid yet.  Check the timestamps on your machine.");
+					MessageLoaderParms parms("ControlProviders.CertificateProvider.CRL_NOT_VALID_YET",
+											 "The CRL is not valid yet.  Check the timestamps on your machine.");
 					throw CIMException(CIM_ERR_FAILED, parms);
 				}
 				if (CIMDateTime::getDifference(nextUpdate, CIMDateTime::getCurrentDateTime()) > 0) 
 				{
-					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL is expired.");
-					MessageLoaderParms parms("ControlProviders.CertificateProvider.CERT_EXPIRED",
-											 "Certificate or CRL is expired.");
+					PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "This CRL is not up-to-date.  Check the CA for the latest one.");
+					MessageLoaderParms parms("ControlProviders.CertificateProvider.CRL_EXPIRED",
+											 "The CRL is not up-to-date.  Check with the issuing CA for the latest one.");
 					throw CIMException(CIM_ERR_FAILED, parms);
 				}
 
 			} catch (DateTimeOutOfRangeException& ex)
 			{
 				PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL dates are out of range.");
-				MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_DATE",
+				MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_DATE_FORMAT",
 											 "Certificate or CRL dates are out of range.");
 				throw CIMException(CIM_ERR_FAILED, parms);
 			}
@@ -1349,7 +1397,7 @@ void CertificateProvider::invokeMethod(
 			{
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Error: CRL is empty.");
 		        MessageLoaderParms parms("ControlProviders.CertificateProvider.EMPTY_CRL",
-				        				 "CRL is empty.");
+				        				 "The CRL is empty.");
                 throw CIMException(CIM_ERR_FAILED, parms);
 			}
 
@@ -1357,11 +1405,8 @@ void CertificateProvider::invokeMethod(
 
 			String crlFileName = _getCRLFileName(_crlStore, X509_NAME_hash(X509_CRL_get_issuer(xCrl)));
 
-			//ATTN : Check validity (nextUpdate, lastUpdate)
-
 			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"IssuerName:" + issuerName);
-			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4, "CRL FILE NAME IS ");
-			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4, crlFileName);
+			PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4, "FileName: " + crlFileName);
 
 			//ATTN: Take care of this conversion
 			//For some reason i cannot do this in the BIO_write_filename call
@@ -1375,6 +1420,10 @@ void CertificateProvider::invokeMethod(
 			int i = PEM_write_bio_X509_CRL(outFile, xCrl);
 			BIO_free_all(outFile);
 
+			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
+						"The CRL for issuer $1 has been updated.", 
+                        issuerName);
+
             CIMValue returnValue(Boolean(true));
 	
 			handler.deliver(returnValue);
@@ -1387,7 +1436,7 @@ void CertificateProvider::invokeMethod(
 		}
 	} else
 	{
-        throw CIMException(CIM_ERR_INVALID_CLASS, className);
+        throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }
     
 }

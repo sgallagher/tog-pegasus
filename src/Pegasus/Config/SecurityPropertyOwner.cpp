@@ -78,11 +78,11 @@ static struct ConfigPropertyRow properties[] =
     {"sslCertificateFilePath", "server.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
 #endif
     {"sslKeyFilePath", "file.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
-    {"sslTrustStore", "", IS_STATIC, 0, 0, IS_VISIBLE}, 
-    {"exportSSLTrustStore", "indication_trust.pem", IS_STATIC, 0, 0, IS_VISIBLE},
-	{"crlStore", "indication_trust.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslTrustStore", "cimserver_trust", IS_STATIC, 0, 0, IS_VISIBLE}, 
+    {"exportSSLTrustStore", "indication_trust", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"crlStore", "crl", IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-	{"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_OS_OS400
     {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #else

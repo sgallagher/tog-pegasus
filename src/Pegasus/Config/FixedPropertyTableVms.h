@@ -30,6 +30,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 // Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
 //            
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -44,15 +45,11 @@
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
-//    {"enableAuthentication", "true"},
     {"enableAuthentication", "false"},
     {"enableAssociationTraversal", "false"},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
-#endif
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
@@ -64,10 +61,10 @@
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
-    {"sslTrustStore",      "/etc/opt/hp/sslshare/client.pem"},
-    {"exportSSLTrustStore",   "/etc/opt/hp/sslshare/indication_trust.pem"},
+    {"sslTrustStore",       "/etc/opt/hp/sslshare/cimserver_trust"},
+    {"exportSSLTrustStore", "/etc/opt/hp/sslshare/indication_trust"},
+    {"crl",                 "/etc/opt/hp/sslshare/crl"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
-//    {"providerDir",         "/sys$share"},
     {"providerDir",         "/var/opt/wbem/providers/lib"},
 #endif
 

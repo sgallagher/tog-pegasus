@@ -49,8 +49,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-//#define CDEBUG(X) PEGASUS_STD(cout) << "CIMOpReqDsptchr " << X << PEGASUS_STD(endl)
-#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "CIMOpReqDsptchr " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
 //#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "CIMOpReqDsptchr", Logger::INFORMATION, "$0", X)
 
 // Test tool to limit enumerations to a single level.  This is not production and is used only to
@@ -3400,7 +3400,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    {
       CIMException cimException;
       STAT_PROVIDERSTART
-      CDEBUG("References executing Class Request");
+      CDEBUG("Associations executing Class Request");
       Array<CIMObject> cimObjects;
 
       _repository->read_lock();
@@ -3471,8 +3471,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             providerInfo = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
-                CIMName(),
-                CIMName(),
+                request->assocClass,
+                request->resultClass,
                 String::EMPTY,
                 providerCount);
         }
@@ -3748,8 +3748,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             providerInfo = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
-                CIMName(),
-                CIMName(),
+                request->assocClass,
+                request->resultClass,
                 String::EMPTY,
                 providerCount);
         }
@@ -4018,7 +4018,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             providerInfo = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
-                CIMName(),
+                request->resultClass,
                 CIMName(),
                 String::EMPTY,
                 providerCount);
@@ -4283,7 +4283,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             providerInfo = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
-                CIMName(),
+                request->resultClass,
                 CIMName(),
                 String::EMPTY,
                 providerCount);

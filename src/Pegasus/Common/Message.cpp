@@ -237,178 +237,123 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
     CIMOperationType enum_type;
     switch (type)
     {
-       case CIM_GET_CLASS_REQUEST_MESSAGE:
-            enum_type = CIMOPTYPE_GET_CLASS;
-            break;
-       case CIM_GET_CLASS_RESPONSE_MESSAGE:
-            enum_type = CIMOPTYPE_GET_CLASS;
-            break;
+        case CIM_GET_CLASS_REQUEST_MESSAGE:
+        case CIM_GET_CLASS_RESPONSE_MESSAGE:
+             enum_type = CIMOPTYPE_GET_CLASS;
+            break;    
 
       case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+      case CIM_GET_INSTANCE_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_GET_INSTANCE;
            break;
-      case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_GET_INSTANCE;
-           break;
-
-      case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_EXPORT_INDICATION;
-           break;
-      case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_EXPORT_INDICATION;
-           break;
-
+      
       case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+      case CIM_DELETE_CLASS_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_DELETE_CLASS;
            break;
-      case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_DELETE_CLASS;
-           break;
-
+      
       case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_DELETE_INSTANCE;              
-           break;
       case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
            enum_type = CIMOPTYPE_DELETE_INSTANCE;              
            break;
 
       case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+      case CIM_CREATE_CLASS_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_CREATE_CLASS;              
            break;
-      case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_CREATE_CLASS;              
-           break; 
 
       case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+      case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_CREATE_INSTANCE;              
            break;
-      case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_CREATE_INSTANCE;              
-           break;
-
+          
       case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+      case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_MODIFY_CLASS;              
            break;
-      case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_MODIFY_CLASS;              
-           break;
-
+           
       case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+      case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_MODIFY_INSTANCE;              
            break;
-      case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_MODIFY_INSTANCE;              
-           break;
-
+      
       case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ENUMERATE_CLASSES;              
-           break;
-      case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ENUMERATE_CLASSES;              
            break;
 
       case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ENUMERATE_CLASS_NAMES;              
-           break;
-      case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ENUMERATE_CLASS_NAMES;              
            break;
 
       case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ENUMERATE_INSTANCES;              
-           break;
-      case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ENUMERATE_INSTANCES;              
            break;
 
       case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ENUMERATE_INSTANCE_NAMES;              
-           break;
-      case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ENUMERATE_INSTANCE_NAMES;              
            break;
 
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_EXEC_QUERY;              
-           break;
-      case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+      case CIM_EXEC_QUERY_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_EXEC_QUERY;              
            break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ASSOCIATORS;              
-           break;
-      case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
+      case CIM_ASSOCIATORS_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ASSOCIATORS;              
            break;
 
       case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ASSOCIATORS;              
-           break;
-      case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
+      case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ASSOCIATORS;              
            break;
 
       case CIM_REFERENCES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_REFERENCES;              
-           break;
-      case CIM_REFERENCES_RESPONSE_MESSAGE:
+      case CIM_REFERENCES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_REFERENCES;              
            break;
 
       case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_REFERENCE_NAMES;              
-           break;
-      case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+      case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_REFERENCE_NAMES;              
            break;
 
       case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_GET_PROPERTY;              
-           break;
-      case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+      case CIM_GET_PROPERTY_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_GET_PROPERTY;              
            break;
 
       case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_SET_PROPERTY;              
-           break;
-      case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+      case CIM_SET_PROPERTY_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_SET_PROPERTY;              
            break;
 
       case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_GET_QUALIFIER;              
-           break;
-      case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+      case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_GET_QUALIFIER;              
            break;
 
       case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_SET_QUALIFIER;              
-           break;
-      case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+      case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_SET_QUALIFIER;              
            break;
 
       case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_DELETE_QUALIFIER;              
-           break;
-      case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+      case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_DELETE_QUALIFIER;              
            break;
 
       case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_ENUMERATE_QUALIFIERS;              
-           break;
-      case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_ENUMERATE_QUALIFIERS;              
            break;
 
       case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-           enum_type = CIMOPTYPE_INVOKE_METHOD;              
-           break;
-      case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
+      case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:     
            enum_type = CIMOPTYPE_INVOKE_METHOD;              
            break;
     default:

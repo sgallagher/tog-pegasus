@@ -132,7 +132,9 @@ CIMServer::CIMServer(monitor_2* m2)
 
     monitor2->set_accept_dispatch(pegasus_acceptor::accept_dispatch);
     monitor2->set_session_dispatch(HTTPConnection2::connection_dispatch);
-
+    monitor2->set_idle_dispatch(_monitor_idle_routine);
+    monitor2->set_idle_parm((void*)this);
+    
     PEG_METHOD_EXIT();
 }
 
@@ -384,6 +386,37 @@ void CIMServer::bind()
     PEG_METHOD_EXIT();
 }
 
+
+void CIMServer::_monitor_idle_routine(void *parm)
+{
+   CIMServer* myself = static_cast<CIMServer* >(parm);
+   
+   try
+   {
+      MessageQueueService::_check_idle_flag = 1;
+      MessageQueueService::_polling_sem.signal();
+      
+#ifdef ENABLE_PROVIDER_MANAGER2
+      myself->_providerManager->unload_idle_providers();
+#else
+      ProviderManagerService::getProviderManager()->unload_idle_providers();
+#endif
+      
+   }
+   catch(...)
+   {
+   }
+   if (handleShutdownSignal)
+   {
+      Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+		    "CIMServer::runForever - signal received.  Shutting down.");
+      myself->monitor2->stop();
+      
+      ShutdownService::getInstance(myself)->shutdown(true, 10, false);
+      handleShutdownSignal = false;
+   }
+}
+
 void CIMServer::runForever()
 {
   if(_type == OLD) {
@@ -433,6 +466,10 @@ void CIMServer::runForever()
   }
 
 }
+
+
+
+
 
 void CIMServer::stopClientConnection()
 {

@@ -105,6 +105,11 @@ public:
     */
     void bind();
 
+    /** routine to call when monitor_2 is idle 
+     */
+    static void _monitor_idle_routine(void* parm);
+    
+
     /** runForever Main runloop for the server.
     */
     void runForever();

@@ -55,7 +55,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 //
-// Retrieves the current system date and time in UTC format.
+// Returns the local time.
 //
 CIMDateTime CIMDateTime::getCurrentDateTime()
 {

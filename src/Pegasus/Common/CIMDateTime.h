@@ -178,7 +178,7 @@ public:
     void clear();
 
     /**
-    Get current time as CIMDateTime. The time returned is always in UTC format.
+    Get current time as CIMDateTime. The time returned is the local time.
 
     @return CIMDateTime   Contains the current datetime as a CIMDateTime object.
 

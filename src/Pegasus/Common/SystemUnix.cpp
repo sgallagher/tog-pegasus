@@ -24,9 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
-//
 //              Sushma Fernandes (sushma_fernandes@hp.com)
-//
 //              Nag Boranna (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -45,28 +43,20 @@
 
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <crypt.h> 
-#else
-#include <unistd.h>
 #endif
 
-#include "System.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cstdio>
 #include <time.h>
+#include <sys/time.h>
 #include <netdb.h>
+#include "System.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Exception.h>
 
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-#include <pwd.h>
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
-
-#include <sys/time.h>
-#include <unistd.h>
 
 #if defined(PEGASUS_OS_HPUX)
 Boolean System::bindVerbose = false;

@@ -178,33 +178,6 @@ public:
     */
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
-    /** appendToCString - Append the given String object to a C-string. If the 
-	length is not PEG_NOT_FOUND, then the lesser of the the length argument
-	and he length of this string is truncated.  Otherwise, the entire string
-	is trunctated.  The TruncatedCharacter exception is thrown if any 
-	characters are truncated.  
-    	@param str Char pointer to the string to append
-    	@param length Length to append or PEG_NOT_FOUND (Uint32(-1)
-    	@param noThrow - If false, throw the "TruncatedCharacter" exception of
-    	any characters are truncated
-    	@return void
-    	@exception Throws TruncatedCharacter exception of characters are
-    	truncated and noThrow parameter is false.
-	<pre>
-	    const char STR0[] = "one two three four";
-	    String s = STR0;
-	    const char STR1[] = "zero ";
-	    char* tmp = new char[strlen(STR1) + s.size() + 1];
-	    strcpy(tmp, STR1);
-	    s.appendToCString(tmp, 7);
-	    assert(strcmp(tmp, "zero one two") == 0);
-	</pre>
-    */
-    void appendToCString(
-	char* str,
-	Uint32 length = PEG_NOT_FOUND,
-	Boolean noThrow = false) const;
-
     /** Returns the Ith character of the String object.
 	@exception - Throws exception "OutofBounds" if the index
 	is outside the length of the string.
@@ -336,9 +309,6 @@ public:
     /** Converts all characters in this string to lower case.
     */
     void toLower();
-
-    /// Convert the plain old C-string to lower case:
-    static void toLower(char* str);
 #endif
 
     /** Compare the first n characters of the two strings..

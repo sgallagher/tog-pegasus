@@ -32,36 +32,27 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean CIMName::legal(const Char16* name) throw()
+Boolean CIMName::legal(const String& name) throw()
 {
-    const Char16* p = name;
+    Uint32 length = name.size();
 
-    if (!p)
+    if (length == 0 || !(isalpha(name[0]) || name[0] == '_'))
         return false;
-	//throw NullPointer();  // No apparent need for an exception here
 
-    if (!*p || !(isalpha(*p) || *p == '_'))
-	return false;
-
-    for (p++; *p; p++)
+    for (Uint32 i=1; i<length; i++)
     {
 #ifdef PEGASUS_HAS_EBCDIC
-	if (*p > 255)
+        if (name[i] > 255)
 #else
-	if (*p > 127)
+        if (name[i] > 127)
 #endif
-	    return false;
+            return false;
 
-	if (!(isalnum(*p) || *p == '_'))
-	    return false;
+        if (!(isalpha(name[0]) || name[0] == '_'))
+            return false;
     }
 
     return true;
-}
-
-Boolean CIMName::legal(const String& name) throw()
-{
-    return legal(name.getData());
 }
 
 Boolean CIMName::equal(const String& name1, const String& name2) throw()

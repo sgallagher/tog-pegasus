@@ -254,31 +254,6 @@ char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
     return str;
 }
 
-void String::appendToCString(
-    char* str,
-    Uint32 length,
-    Boolean noThrow) const
-{
-    if (!str)
-	throw NullPointer();
-
-    Uint32 n = (size() < length)? size() : length;
-
-    char* p = str + strlen(str);
-    const Char16* q = getData();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-	Uint16 c = *q++;
-	*p++ = char(c);
-
-	if ((c & 0xff00) && !noThrow)
-	    throw TruncatedCharacter();
-    }
-
-    *p = '\0';
-}
-
 Char16& String::operator[](Uint32 i)
 {
     if (i > size())
@@ -440,12 +415,6 @@ void String::toLower()
 #endif
 	    *p = tolower(*p);
     }
-}
-
-void String::toLower(char* str)
-{
-    while (*str)
-	tolower(*str++);
 }
 
 int String::compare(const String& s1, const String& s2, Uint32 n)

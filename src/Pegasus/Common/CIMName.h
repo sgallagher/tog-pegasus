@@ -62,16 +62,6 @@ public:
 	defnined in the CIMName class definition
 	@param - String to test
 	@return Returns true if the given name is legal.
-	@exception Throws
-	NullPointer exception if name argument is null.
-    */
-    static Boolean legal(const Char16* name) throw();
-
-    /** legal - Determine if the name string input is legal as
-	defnined in the CIMName class definition
-	@param - String to test
-	@return Returns true if the given name is legal. Throws
-	NullPointer exception if name argument is null.
     */
     static Boolean legal(const String& name) throw();
 

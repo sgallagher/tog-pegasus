@@ -84,6 +84,8 @@ int main(int argc, char** argv)
 	delete [] tmp;
     }
 
+// This method has been removed from the String class
+#if 0
     {
 	// Test appendToCString 
 	const char STR0[] = "one two three four";
@@ -107,6 +109,7 @@ int main(int argc, char** argv)
 	assert(strcmp(tmp, "zero one two") == 0);
 	delete [] tmp;
     }
+#endif
 
     {
 	// Test remove

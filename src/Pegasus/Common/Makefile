@@ -47,7 +47,6 @@ SOURCES = \
     Pair.cpp \
     Sharable.cpp \
     Stack.cpp \
-    Stopwatch.cpp \
     String.cpp \
     Union.cpp \
     XmlParser.cpp \

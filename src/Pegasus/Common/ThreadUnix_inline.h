@@ -110,11 +110,7 @@ inline Boolean Thread::run()
 inline void Thread::cancel()
 {
    _cancelled = true;
-  // Please refer to 1410.
-  // The guts are that C++ is incompatible with pThreads on Linux.
-#if !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    pthread_cancel(_handle.thid);
-#endif
 }
 
 inline void Thread::test_cancel()

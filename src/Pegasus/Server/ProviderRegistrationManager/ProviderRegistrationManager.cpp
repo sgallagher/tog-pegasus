@@ -34,6 +34,8 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -217,7 +219,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     String providerModuleName;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "ProviderRegistrationManager::lookupInstanceProvider");
+	"ProviderRegistrationManager::lookupInstanceProvider");
 
     ProviderRegistrationTable* providerCapability = 0;
     ProviderRegistrationTable* _provider= 0;
@@ -227,9 +229,9 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     // create the key by using nameSpace, className, and providerType
     //
     String capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-                     "\nnameSpace = " + nameSpace + "; className = " + 
-                         className +  "; capabilityKey = " + capabilityKey);
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		     "\nnameSpace = " + nameSpace + "; className = " +
+			className +  "; capabilityKey = " + capabilityKey);
 
     try
     {
@@ -289,8 +291,8 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     }
     catch(CIMException & exception)
     {
-        Tracer::traceCIMException(TRC_PROVIDERMANAGER, Tracer::LEVEL4, exception);
-        PEG_METHOD_EXIT();
+	Tracer::traceCIMException(TRC_PROVIDERMANAGER, Tracer::LEVEL4, exception);
+	PEG_METHOD_EXIT();
 	return (false);
     }
 
@@ -440,7 +442,7 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
 Boolean ProviderRegistrationManager::getIndicationProviders(
     const String & nameSpace, 
     const String & className,
-    const Array<String>& requiredProperties,
+    const CIMPropertyList & requiredPropertyList,
     Array<CIMInstance> & provider,
     Array<CIMInstance> & providerModule)
 {
@@ -449,6 +451,8 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
     String providerName;
     String providerModuleName;
+
+    Array<String> requiredProperties;
 
     provider.clear();
     providerModule.clear();
@@ -477,6 +481,8 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     for (Uint32 i=0; i < instances.size(); i++)
     {
 	Array <String> _supportedProperties;
+	CIMValue value;
+
 	//
 	// get supported properties
 	//
@@ -486,7 +492,11 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
     	}
 
-	instances[i].getProperty(pos).getValue().get(_supportedProperties);
+	value = instances[i].getProperty(pos).getValue();
+	if (!value.isNull())
+	{
+	    value.get(_supportedProperties);
+	}
 
 	//
 	// get provider name
@@ -508,7 +518,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     	}
 	instances[i].getProperty(pos3).getValue().get(providerModuleName);
 
-	if (_supportedProperties == EmptyStringArray())
+	if (value.isNull())
 	{
 	    //
 	    // provider supportes all the properties
@@ -549,12 +559,13 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	}
 	else
 	{
-	    if (requiredProperties != EmptyStringArray())
+	    if (!requiredPropertyList.isNull())
 	    {
 		// 
 		// there is a list for the required properties
 		//
 		Boolean match = true; 
+		requiredProperties = requiredPropertyList.getPropertyNameArray();
 
 		// 
 		// Compare supported properties with required properties
@@ -634,7 +645,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
     CIMInstance instance;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::getInstance");
+		     "ProviderRegistrationManager::getInstance");
 
     CIMReference localReference("", "",
 	instanceReference.getClassName(),
@@ -650,14 +661,14 @@ CIMInstance ProviderRegistrationManager::getInstance(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
 
@@ -674,7 +685,7 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     CIMInstance instance;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "ProviderRegistrationManager::enumerateInstances");
+	"ProviderRegistrationManager::enumerateInstances");
 
     Array<CIMNamedInstance> enumInstances;
 
@@ -688,14 +699,14 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
 
@@ -714,7 +725,7 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     CIMInstance instance;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::enumerateInstanceNames");
+		     "ProviderRegistrationManager::enumerateInstanceNames");
 
     Array<CIMReference> enumInstanceNames;
 
@@ -730,14 +741,14 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     {
         errorCode = exception.getCode ();
         errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
 
@@ -759,7 +770,7 @@ CIMReference ProviderRegistrationManager::createInstance(
     String _providerName;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::createInstance");
+		     "ProviderRegistrationManager::createInstance");
 
     String className = ref.getClassName();
 
@@ -786,7 +797,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 	    instances.append(instance);
 	    _addInstancesToTable(_providerModule, instances);
 
-            PEG_METHOD_EXIT();
+	    PEG_METHOD_EXIT();
 	    return (cimRef);
 	}	
 
@@ -821,7 +832,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 
 	        _addInstancesToTable(_providerName, instances);
 
-                PEG_METHOD_EXIT();
+		PEG_METHOD_EXIT();
 	        return (cimRef);
 	    }
 	    else
@@ -842,6 +853,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 	    Array<Uint16> _providerType;
 	    Array<String> _namespaces;
 	    Array<String> _supportedMethods;
+	    Array<String> _supportedProperties;
 	    String _className;
 	    String _capabilityKey;
 
@@ -953,9 +965,48 @@ CIMReference ProviderRegistrationManager::createInstance(
 
 				// update the entry
 				_addInstancesToTable(_capabilityKey, instances);
-				// ATTN-YZ-P1-20020301: Implement send 
-				// notification to subscription service
 			    }
+			    
+			    //
+			    // Create CIMNotifyProviderRegistrationRequestMessage
+			    // send the message to the subscription service
+			    //
+			    CIMInstance _providerInstance;
+			    CIMInstance _moduleInstance;
+
+			    // 
+			    // get provider instance and module instance from the
+			    // registration table
+			    //
+			    _getInstances(_providerName, _providerModule, 
+					  _providerInstance, _moduleInstance);
+
+			    CIMPropertyList _oldPropertyNames(EmptyStringArray());
+			    CIMPropertyList _newPropertyNames;
+
+			    //
+			    // get new property list from supported properties in the
+			    // providerCapability instance
+			    //
+			    _getPropertyNames(instance, _newPropertyNames);
+
+			    CIMNotifyProviderRegistrationRequestMessage * notify_req =
+			        new CIMNotifyProviderRegistrationRequestMessage(
+				    XmlWriter::getNextMessageId (),
+				    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
+				    _providerInstance,
+				    _moduleInstance,	
+				    _className,
+				    _namespaces,
+				    _newPropertyNames,
+				    _oldPropertyNames,
+				    QueueIdStack());
+
+			    // 
+			    // ATTN-YZ-P1-20020315: waiting for implementation of
+			    // control service to send message to subscription service 
+			    // 
+
 			    break;
 			}
 
@@ -965,17 +1016,23 @@ CIMReference ProviderRegistrationManager::createInstance(
 			    // get supportedMethods
 			    //
 			    Uint32 pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
+			    CIMValue value;
+			    Uint32 methodsCount;
+
 			    if (pos != PEG_NOT_FOUND)
 			    {
-				instance.getProperty(pos).getValue().get(_supportedMethods);
+				value = instance.getProperty(pos).getValue();
+				if (!value.isNull())
+				{
+				    value.get(_supportedMethods);	
+			    	    methodsCount = _supportedMethods.size();
+				}
 			    }
 			    else
 			    {
 				throw CIMException(CIM_ERR_INVALID_PARAMETER);
 			    }
 
-			    Uint32 methodsCount = _supportedMethods.size();
-			    
 			    for (Uint32 j=0; j < _namespaces.size(); j++)
 			    {
 				//
@@ -984,8 +1041,11 @@ CIMReference ProviderRegistrationManager::createInstance(
 				// instance to the table 
 				//
 
-				if (_supportedMethods == EmptyStringArray())
+				if ( value.isNull() )
 				{
+				    //
+				    // null value means all methods
+				    //
     	    			    Array<CIMInstance> instances;
 
 				    // Provider supports all methods
@@ -1004,6 +1064,9 @@ CIMReference ProviderRegistrationManager::createInstance(
 				}
 				else
 				{
+				    //
+				    // there is a list for supported methods
+				    //
 				    for (Uint32 k = 0; k < methodsCount; k++)
 				    {
     	    			        Array<CIMInstance> instances;
@@ -1038,7 +1101,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 		}
 
 	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
-                PEG_METHOD_EXIT();
+		PEG_METHOD_EXIT();
     		return (cimRef);
 	    }
 	    else
@@ -1054,18 +1117,18 @@ CIMReference ProviderRegistrationManager::createInstance(
     {
 	errorCode = exception.getCode ();
  	errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
 
-PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 // Unregister a provider
@@ -1159,28 +1222,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    {
 		if (providerType[i] == _INDICATION_PROVIDER)
 		{
-		// ATTN-YZ-P1-20020308: Implement 
-		// ATTN-YZ-P1-20020308: Implment 
-/*
-		// ATTN: This notification message need to rebuild
-		// based on current design
-	        String providername;
-	        instance.getProperty(
-		instance.findProperty("ProviderName")).getValue().get(providername);
-	    String classname;
-	    instance.getProperty(
-		instance.findProperty("ClassName")).getValue().get(classname);
-	    Array<String> oldPropertyNames = EmptyStringArray();
-	    Array<String> newPropertyNames = EmptyStringArray();
-
-		// send delete notification
-		notifyProviderRegistration(providername,
-			   classname,
-			   newPropertyNames,
-			   oldPropertyNames,
-			   2);
-*/
-
+		    _sendDeleteNotifyMessage(instance);
 		}
 	    }
         }
@@ -1192,6 +1234,11 @@ void ProviderRegistrationManager::deleteInstance(
 	//
         if(String::equalNoCase(className, _CLASS_PG_PROVIDER))
         {
+	    CIMInstance capInstance;
+	    CIMReference capReference;
+	    String _providerName;
+  	    Array<Uint16> providerType;
+
 	    String deletedProviderName;
 
 	    //
@@ -1215,10 +1262,6 @@ void ProviderRegistrationManager::deleteInstance(
 
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
-		CIMInstance capInstance;
-		CIMReference capReference;
-		String _providerName;
-
 		capInstance = enumCapInstances[i].getInstance();
 
 		// 
@@ -1241,7 +1284,23 @@ void ProviderRegistrationManager::deleteInstance(
 			capReference.getKeyBindings());
 
 	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
-		    
+
+		    //
+                    // get provider types
+                    // if the provider is indication provider, send notification
+                    // to subscription service
+                    //
+		    capInstance.getProperty(capInstance.findProperty(
+			_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+		    for (Uint32 k=0; k < providerType.size(); k++)
+		    {
+			if (providerType[k] == _INDICATION_PROVIDER)
+			{
+			    _sendDeleteNotifyMessage(capInstance);
+			}
+		    }
+ 
 		}
 
 	    }
@@ -1372,6 +1431,7 @@ void ProviderRegistrationManager::deleteInstance(
 		CIMInstance capInstance;
 		CIMReference capReference;
 		String _providerModuleName;
+		Array<Uint16> providerType;
 
 		capInstance = enumCapInstances[i].getInstance();
 
@@ -1395,6 +1455,22 @@ void ProviderRegistrationManager::deleteInstance(
 			capReference.getKeyBindings());
 
 	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
+		    
+		    //
+                    // get provider types
+                    // if the provider is indication provider, send notification
+                    // to subscription service
+                    //
+		    capInstance.getProperty(capInstance.findProperty(
+                        _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+                    for (Uint32 k=0; k < providerType.size(); k++)
+                    {
+                        if (providerType[k] == _INDICATION_PROVIDER)
+                        {
+                            _sendDeleteNotifyMessage(capInstance);
+                        }
+                    }
 		    
 		}
 
@@ -1589,20 +1665,18 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     Array<Uint16> providerType;
     Array<String> supportedMethods;
     Array<CIMNamedInstance> cimNamedInstances;
-
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::_initialRegistrationTable()");
   
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+		     "ProviderRegistrationManager::_initialRegistrationTable()");
     try
     {
         //
         // get all instances of providerModule class
         //
 
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "nameSpace = %s; className = %s", INTEROPNAMESPACE,
-                       _CLASS_PROVIDER_MODULE);
-
+	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		      "nameSpace = %s; className = %s", INTEROPNAMESPACE,
+		     	_CLASS_PROVIDER_MODULE);	
         cimNamedInstances = _repository->enumerateInstances(
                 INTEROPNAMESPACE,
                 _CLASS_PROVIDER_MODULE);
@@ -1823,7 +1897,7 @@ void ProviderRegistrationManager::_addInstancesToTable(
     const Array<CIMInstance> & instances)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::_addInstancesToTable");
+		     "ProviderRegistrationManager::_addInstancesToTable");
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
 
     ProviderRegistrationTable* elementInfo = 0;
@@ -1836,17 +1910,16 @@ void ProviderRegistrationManager::_addInstancesToTable(
     catch (Exception& e)
     {
 	delete elementInfo;
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
         throw e;
     } 
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
 	//ATTN-YZ-P3-20020301:Is this proper exception 
-        PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
         throw CIMException(CIM_ERR_FAILED, "can not insert element to the table ");
     }
-
     PEG_METHOD_EXIT();
 }
 
@@ -1885,6 +1958,153 @@ String ProviderRegistrationManager::_generateKey(
     providerKey.append(providerType);
 
     return (providerKey);
+}
+
+//
+// get provider instance and module instance from registration table 
+// by using provider name or provider module name to be a key
+//
+void ProviderRegistrationManager::_getInstances(
+    const String & providerName,
+    const String & moduleName,
+    CIMInstance & providerInstance,
+    CIMInstance & moduleInstance)
+{
+    Array<CIMInstance> _providerInstances;
+    Array<CIMInstance> _moduleInstances;
+    ProviderRegistrationTable* _provider;
+    ProviderRegistrationTable* _module;
+
+    //
+    // get provider instance
+    //
+    if (_registrationTable->table.lookup(providerName, _provider))
+    {
+	_providerInstances = _provider->getInstances();
+	providerInstance = _providerInstances[0];
+    }
+
+    //
+    // get provider module instance
+    //
+    if (_registrationTable->table.lookup(moduleName, _module))
+    {
+	_moduleInstances = _module->getInstances();
+	moduleInstance = _moduleInstances[0];
+    }
+}
+
+//
+// get property names from the supported properties in the
+// provider capability instance
+//
+void ProviderRegistrationManager::_getPropertyNames(
+    const CIMInstance & instance,
+    CIMPropertyList propertyNames)
+{
+    Array<String> _supportedProperties;
+    Uint32 pos;
+
+    pos = instance.findProperty(_PROPERTY_SUPPORTEDPROPERTIES);
+
+    if (pos == PEG_NOT_FOUND)
+    {
+	//
+	// no properties
+     	//
+	CIMPropertyList _propertyList(EmptyStringArray());
+	propertyNames = _propertyList;
+    }
+    else
+    {
+	CIMValue value = instance.getProperty(pos).getValue();
+	if (value.isNull())
+	{
+	    //
+	    // supports all properties
+	    //
+	    propertyNames.clear();
+	}
+	else
+	{
+	    value.get(_supportedProperties);
+	    CIMPropertyList _propertyList(_supportedProperties);
+	    propertyNames = _propertyList;
+	}
+    }
+}
+
+//
+// send delete notify message to the subscription service when  
+// the provider capability instance was deleted
+//
+void ProviderRegistrationManager::_sendDeleteNotifyMessage(
+    const CIMInstance & instance)
+{
+    String _providerName;
+    String _providerModule;
+    String _className;
+    Array<String> _namespaces;
+    CIMInstance _providerInstance;
+    CIMInstance _moduleInstance;
+    
+    //
+    // get provider module name
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
+
+    //
+    // get provider name
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
+
+    //
+    // get namespaces
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_NAMESPACES)).getValue().get(_namespaces);
+
+    //
+    // get classname
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_CLASSNAME)).getValue().get(_className); 
+
+    //
+    // get provider instance and module instance from the
+    // registration table
+    //  
+    _getInstances(_providerName, _providerModule,
+		  _providerInstance, _moduleInstance);
+
+    CIMPropertyList _newPropertyNames(EmptyStringArray());
+    CIMPropertyList _oldPropertyNames;
+
+    //
+    // get old property list from supported properties in the
+    // providerCapability instance
+    //
+    _getPropertyNames(instance, _oldPropertyNames);
+
+    CIMNotifyProviderRegistrationRequestMessage * notify_req =
+	new CIMNotifyProviderRegistrationRequestMessage(
+	    XmlWriter::getNextMessageId (),
+	    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_DELETE),
+	    _providerInstance,
+	    _moduleInstance,
+	    _className,
+	    _namespaces,
+	    _newPropertyNames,
+	    _oldPropertyNames,
+	    QueueIdStack());
+
+    //
+    // ATTN-YZ-P1-20020315: waiting for implementation of
+    // control service to send message to subscription service
+    //
+
 }
 
 PEGASUS_NAMESPACE_END

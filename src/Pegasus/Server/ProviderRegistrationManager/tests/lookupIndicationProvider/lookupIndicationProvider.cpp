@@ -225,8 +225,10 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     requiredProperties.append("p3");
     requiredProperties.append("p4");
 
+    CIMPropertyList requiredPropertyList(requiredProperties);
+
     if (prmanager.getIndicationProviders("test_namespace1", 
-	"test_class1", requiredProperties, providerIns, providerModuleIns))
+	"test_class1", requiredPropertyList, providerIns, providerModuleIns))
     {
 	return (true);
     }

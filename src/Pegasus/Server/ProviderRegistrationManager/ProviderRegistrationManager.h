@@ -77,7 +77,7 @@ public:
 	Boolean getIndicationProviders(
 		const String & nameSpace, 
 		const String & className,
-		const Array<String>& requiredProperties,
+		const CIMPropertyList & requiredProperties,
 		Array<CIMInstance> & provider,
 		Array<CIMInstance> & providerModule); 
 
@@ -92,13 +92,13 @@ public:
 	CIMReference createInstance(const CIMReference & ref, 
 		const CIMInstance & instance);
 
-//	void initialRegistrationTable();
-
 	void deleteInstance(const CIMReference & ref);
 
 	Array<Uint16> getProviderModuleStatus(const String & providerModuleName);
 
 	Boolean setProviderModuleStatus(const String & providerModuleName, Array<Uint16> status);
+
+   	enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 
 protected:
 
@@ -121,11 +121,6 @@ protected:
 		const String & supportedMethod,
 		const String & providerType);
 
-/*
-	Array<ProviderModule> _providers;
-	Array<ProviderStatusEntry> _providerST;
-*/
-
 private:
 
 	void _initialRegistrationTable();
@@ -137,7 +132,15 @@ private:
 		const String & namespaceName, const String & className, 
 		const Array<String> & supportedMethods);
 
-//	Uint32 _stopProvider(Uint32 providerIndex);
+	void _getInstances(const String & providerName,
+		const String & moduleName,
+		CIMInstance & providerInstance,
+		CIMInstance & moduleInstance);
+
+	void _getPropertyNames(const CIMInstance & instance,
+		CIMPropertyList propertyNames);
+
+	void _sendDeleteNotifyMessage(const CIMInstance & instance);
 
 };
 

@@ -1153,7 +1153,9 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 	 const String & messageId_,
 	 const Operation operation_,
 	 const CIMInstance & provider_,
+	 const CIMInstance & providerModule_,
 	 const String & className_,
+	 const Array <String> & nameSpaces_,
 	 const CIMPropertyList & newPropertyNames_,
 	 const CIMPropertyList & oldPropertyNames_,
 	 QueueIdStack queueIds_)
@@ -1162,7 +1164,9 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE, 
 	    messageId_, queueIds_),
 	 provider (provider_),
+	 providerModule (providerModule_),
 	 className (className_),
+	 nameSpaces (nameSpaces_),
 	 newPropertyNames (newPropertyNames_),
 	 oldPropertyNames (oldPropertyNames_),
 	 operation(operation_)
@@ -1171,7 +1175,9 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
       }
 
       CIMInstance provider;    
+      CIMInstance providerModule;    
       String className;
+      Array <String> nameSpaces;
       CIMPropertyList newPropertyNames;
       CIMPropertyList oldPropertyNames;
       Operation operation;

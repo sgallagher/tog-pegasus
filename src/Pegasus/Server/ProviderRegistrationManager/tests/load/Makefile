@@ -9,8 +9,8 @@ ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
 REPOSITORYDIR = ..
-NAMESPACENAME = root/cimv2
-NAMESPACEDIR = $(REPOSITORYDIR)/repository/root\#cimv2
+NAMESPACENAME = root/PG_InterOp
+NAMESPACEDIR = $(REPOSITORYDIR)/repository/root\#PG_InterOp
 
 # Update the following two environment variables to change the version
 # of the CIM_Schema to be loaded in the namespace.
@@ -35,9 +35,9 @@ localrep:
 	@ echo +++++ Removing existing repository named $(NAMESPACEDIR)
 	@ $(RMREPOSITORY) $(NAMESPACEDIR)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
-	@ cimmof -I$(CIM_MOF_PATH) -R$(REPOSITORYDIR) -n$(NAMESPACENAME) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl -I$(CIM_MOF_PATH) -R$(REPOSITORYDIR) -n$(NAMESPACENAME) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
-	@ cimmof -I$(PG_MOF_PATH) -R$(REPOSITORYDIR) -n$(NAMESPACENAME) $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
+	@ cimmofl -I$(PG_MOF_PATH) -R$(REPOSITORYDIR) -n$(NAMESPACENAME) $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
 
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(NAMESPACEDIR)

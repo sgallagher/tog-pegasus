@@ -298,7 +298,7 @@ a resource bundle format for their message files.&nbsp;&nbsp; In order
 to load the messages, ICU requires that the resource bundles are compiled
 into a binary form (.res file) using their genrb tool.
 <br>&nbsp;
-<p>Platform Maintainers Note: &nbsp;Please refer to PEP 58 for information
+<p>Platform Maintainers Note:&nbsp; Please refer to PEP 58 for information
 about how to build Pegasus to use the ICU libraries.
 <br>&nbsp;
 <p>The documentation for ICU resource bundles is in the <a href="http://oss.software.ibm.com/icu/userguide/ResourceManagement.html">Resource
@@ -591,9 +591,6 @@ need to make sense to the translators, and ultimately the customer.</li>
 <li>
 <b>TODO </b>- find a good message writing guide to link to</li>
 </ul>
-
-<h4>
-</h4>
 
 <h4>
 2.2.5 Localized Exceptions</h4>
@@ -986,10 +983,12 @@ bundles:
 <br>&nbsp;
 <ul>
 <li>
-pegasus/src/Pegasus/msg/Server/pegasusServer.txt&nbsp; for server messages</li>
+pegasus/src/Pegasus/msg/Server/pegasusServer_*.txt&nbsp; for server and
+MOF compiler (cimmof, cimmofl) messages</li>
 
 <li>
-pegasus/src/Clients/&lt;cli_name>/msg/&lt;cli_name>.txt for CLI messages</li>
+pegasus/src/Pegasus/msg/CLI/pegasusCLI_*.txt for all CLI messages (except
+the MOF&nbsp;compiler)</li>
 </ul>
 
 <p><br>The make messages target will compile these resource bundles.

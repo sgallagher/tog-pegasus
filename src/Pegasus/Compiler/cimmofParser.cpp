@@ -49,7 +49,6 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include "valueFactory.h"
 #include "cimmofMessages.h"
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;

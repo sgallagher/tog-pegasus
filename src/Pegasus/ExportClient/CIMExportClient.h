@@ -65,7 +65,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
       CIMExportClient(
 	 Monitor* monitor,
 	 HTTPConnector* httpConnector,
-	 Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+	 Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
       ///
       ~CIMExportClient();
@@ -75,15 +75,15 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
       virtual void handleEnqueue();
 
       ///
-      Uint32 getTimeOut() const
+      Uint32 getTimeout() const
       {
-	 return _timeOutMilliseconds;
+	 return _timeoutMilliseconds;
       }
 
       ///
-      void setTimeOut(Uint32 timeOutMilliseconds)
+      void setTimeout(Uint32 timeoutMilliseconds)
       {
-	 _timeOutMilliseconds = timeOutMilliseconds;
+	 _timeoutMilliseconds = timeoutMilliseconds;
       }
 
       ///
@@ -106,13 +106,13 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
       Message* _waitForResponse(
 	 const Uint32 messageType,
 	 const String& messageId,
-	 const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+	 const Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
       void _checkError(const CIMResponseMessage* responseMessage);
 
       Monitor* _monitor;
       HTTPConnector* _httpConnector;
-      Uint32 _timeOutMilliseconds;
+      Uint32 _timeoutMilliseconds;
       Boolean _connected;
       CIMExportResponseDecoder* _responseDecoder;
       CIMExportRequestEncoder* _requestEncoder;

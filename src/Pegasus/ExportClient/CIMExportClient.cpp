@@ -51,12 +51,12 @@ PEGASUS_NAMESPACE_BEGIN
 CIMExportClient::CIMExportClient(
    Monitor* monitor,
    HTTPConnector* httpConnector,
-   Uint32 timeOutMilliseconds)
+   Uint32 timeoutMilliseconds)
    : 
    Base(PEGASUS_QUEUENAME_EXPORTCLIENT),
    _monitor(monitor), 
    _httpConnector(httpConnector),
-   _timeOutMilliseconds(timeOutMilliseconds),
+   _timeoutMilliseconds(timeoutMilliseconds),
    _connected(false),
    _responseDecoder(0),
    _requestEncoder(0)
@@ -164,12 +164,12 @@ void CIMExportClient::exportIndication(
 Message* CIMExportClient::_waitForResponse(
    const Uint32 messageType,
    const String& messageId,
-   const Uint32 timeOutMilliseconds)
+   const Uint32 timeoutMilliseconds)
 {
    if (!_connected)
       throw NotConnectedException();
     
-   long rem = long(timeOutMilliseconds);
+   long rem = long(timeoutMilliseconds);
 
    for (;;)
    {

@@ -41,7 +41,6 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
@@ -411,7 +410,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     Array <Sint8>                httpResponse;
     WbemExecClient client;
 
-    client.setTimeOut( _timeout );
+    client.setTimeout( _timeout );
 
     //
     //  Check for invalid combination of options

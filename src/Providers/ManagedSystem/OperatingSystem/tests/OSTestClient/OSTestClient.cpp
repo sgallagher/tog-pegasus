@@ -687,7 +687,8 @@ int main(int argc, char** argv)
            cout << "Create client" << endl;
         // specify the timeout value for the connection (if inactive)
         // in milliseconds, thus setting to one minute
-        CIMClient client(60 * 1000);
+        CIMClient client;
+        client.setTimeout(60 * 1000);
         if (verboseTest)
            cout << "Client created" << endl;
 

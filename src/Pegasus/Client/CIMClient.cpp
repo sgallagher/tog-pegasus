@@ -77,20 +77,20 @@ public:
     // Timeout value defines the time the CIMClient will wait for a response
     // to an outstanding request.  If a request times out, the connection
     // gets reset (disconnected and reconnected).
-    CIMClientRep(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    CIMClientRep(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ~CIMClientRep();
 
     virtual void handleEnqueue();
 
-    Uint32 getTimeOut() const
+    Uint32 getTimeout() const
     {
-	return _timeOutMilliseconds;
+	return _timeoutMilliseconds;
     }
 
-    void setTimeOut(Uint32 timeOutMilliseconds)
+    void setTimeout(Uint32 timeoutMilliseconds)
     {
-	_timeOutMilliseconds = timeOutMilliseconds;
+	_timeoutMilliseconds = timeoutMilliseconds;
     }
 
     inline void connect(
@@ -294,7 +294,7 @@ private:
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
     HTTPConnection* _httpConnection;
-    Uint32 _timeOutMilliseconds;
+    Uint32 _timeoutMilliseconds;
     Boolean _connected;
     CIMOperationResponseDecoder* _responseDecoder;
     CIMOperationRequestEncoder* _requestEncoder;
@@ -309,11 +309,11 @@ static Boolean verifyServerCertificate(CertificateInfo &certInfo)
     return true;
 }
 
-CIMClientRep::CIMClientRep(Uint32 timeOutMilliseconds)
+CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     : 
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
     _httpConnection(0),
-    _timeOutMilliseconds(timeOutMilliseconds),
+    _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _responseDecoder(0),
     _requestEncoder(0)
@@ -1178,7 +1178,7 @@ Message* CIMClientRep::_doRequest(
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
-    Uint64 stopMilliseconds = nowMilliseconds + _timeOutMilliseconds;
+    Uint64 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
 
     while (nowMilliseconds < stopMilliseconds)
     {
@@ -1278,9 +1278,9 @@ String CIMClientRep::_getLocalHostName()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-CIMClient::CIMClient(Uint32 timeOutMilliseconds)
+CIMClient::CIMClient()
 {
-    _rep = new CIMClientRep(timeOutMilliseconds);
+    _rep = new CIMClientRep();
 }
 
 CIMClient::~CIMClient()
@@ -1288,14 +1288,14 @@ CIMClient::~CIMClient()
     delete _rep;
 }
 
-Uint32 CIMClient::getTimeOut() const
+Uint32 CIMClient::getTimeout() const
 {
-    return _rep->getTimeOut();
+    return _rep->getTimeout();
 }
 
-void CIMClient::setTimeOut(Uint32 timeOutMilliseconds)
+void CIMClient::setTimeout(Uint32 timeoutMilliseconds)
 {
-    _rep->setTimeOut(timeOutMilliseconds);
+    _rep->setTimeout(timeoutMilliseconds);
 }
 
 void CIMClient::connect(

@@ -575,11 +575,11 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     // Test timeout methods
 
     const Uint32 TEST_TIMEOUT = 10000;
-    Uint32 origTimeout = client.getTimeOut();
-    client.setTimeOut( TEST_TIMEOUT );
-    Uint32 newTimeout = client.getTimeOut();
+    Uint32 origTimeout = client.getTimeout();
+    client.setTimeout( TEST_TIMEOUT );
+    Uint32 newTimeout = client.getTimeout();
     assert( newTimeout == TEST_TIMEOUT );
-    client.setTimeOut( origTimeout );
+    client.setTimeout( origTimeout );
 
     // Test get/set property methods
 
@@ -1087,7 +1087,8 @@ int main(int argc, char** argv)
 		     cout << "Set Stopwatch" << endl;
 		     Stopwatch elapsedTime;
 		     cout << "Create client" << endl;
-		     CIMClient client(60 * 1000);
+		     CIMClient client;
+		     client.setTimeout(60 * 1000);
 		     cout << "Client created" << endl;
                      if (useSSL)
 		     {

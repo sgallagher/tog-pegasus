@@ -53,15 +53,12 @@ public:
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
     /** Constructor for a CIM Client object.
-    @param timeOutMilliseconds Defines the number of milliseconds
-    of inactivity before the connection will timeout
-    // ATTN-RK-P3-20020308: This means the time the CIMClient will wait for
-    // a response to an outstanding request, right?  Not inactivity on the
-    // connection?  If a request times out, does the connection remain
-    // active?
-    @exception ATTN-TBD
+        @param timeoutMilliseconds Defines the number of milliseconds the
+        WbemExecClient will wait for a response to an outstanding request.
+        If a request times out, the connection gets reset (disconnected and
+        reconnected).  Default is 20 seconds (20000 milliseconds).
     */
-    WbemExecClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    WbemExecClient(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ///
     virtual ~WbemExecClient();
@@ -73,16 +70,16 @@ public:
 
     /** TBD
     */
-    Uint32 getTimeOut() const
+    Uint32 getTimeout() const
     {
-	return _timeOutMilliseconds;
+	return _timeoutMilliseconds;
     }
 
-    /** Sets the timeout in milliseconds for the CIMClient.
+    /** Sets the timeout in milliseconds for the WbemExecClient.
     */
-    void setTimeOut(Uint32 timeOutMilliseconds)
+    void setTimeout(Uint32 timeoutMilliseconds)
     {
-	_timeOutMilliseconds = timeOutMilliseconds;
+	_timeoutMilliseconds = timeoutMilliseconds;
     }
 
     /** connect - Creates an HTTP connection with the server
@@ -201,7 +198,7 @@ private:
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
     HTTPConnection* _httpConnection;
-    Uint32 _timeOutMilliseconds;
+    Uint32 _timeoutMilliseconds;
     Boolean _connected;
     ClientAuthenticator _authenticator;
     Boolean _isRemote;

@@ -1877,7 +1877,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 	CIMClient client;
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
-	client.setTimeOut(timeOut);
+	client.setTimeout(timeOut);
 
 
 	Array<CIMClass> classArray = client.enumerateClasses(

@@ -64,34 +64,24 @@ class PEGASUS_CLIENT_LINKAGE CIMClient
 {
 public:
 
-    enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
-
     /** Constructor for a CIM Client object.
-    @param timeOutMilliseconds Defines the number of milliseconds the
-    CIMClient will wait for a response to an outstanding request.  If a
-    request times out, the connection gets reset (disconnected and
-    reconnected).
-    
-    <PRE>
-        CIMClient client;
-
-        cout << "connecting to " << connectionList[i] << endl;
-        client.connect(connectionList[i]);
-    </PRE>
-    @exception ATTN-TBD
     */
-    CIMClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    CIMClient();
 
     ///
     virtual ~CIMClient();
 
     /** TBD
     */
-    Uint32 getTimeOut() const;
+    Uint32 getTimeout() const;
 
     /** Sets the timeout in milliseconds for the CIMClient.
+        @param timeoutMilliseconds Defines the number of milliseconds the
+        CIMClient will wait for a response to an outstanding request.  If a
+        request times out, the connection gets reset (disconnected and
+        reconnected).  Default is 20 seconds (20000 milliseconds).
     */
-    void setTimeOut(Uint32 timeOutMilliseconds);
+    void setTimeout(Uint32 timeoutMilliseconds);
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
@@ -113,7 +103,8 @@ public:
         @exception CIMClientConnectionException
             If any other failure occurs.
         <PRE>
-            TBD
+            CIMClient client;
+            client.connect("localhost:5988");
         </PRE>
     */
     void connect(

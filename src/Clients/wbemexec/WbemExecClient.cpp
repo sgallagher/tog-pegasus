@@ -70,11 +70,11 @@ static Boolean verifyServerCertificate(CertificateInfo &certInfo)
     return true;
 }
 
-WbemExecClient::WbemExecClient(Uint32 timeOutMilliseconds)
+WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     : 
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
     _httpConnection(0),
-    _timeOutMilliseconds(timeOutMilliseconds),
+    _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _isRemote( false ),
     _password( String::EMPTY )
@@ -371,7 +371,7 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
-    Uint64 stopMilliseconds = nowMilliseconds + _timeOutMilliseconds;
+    Uint64 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
 
     while (nowMilliseconds < stopMilliseconds)
     {

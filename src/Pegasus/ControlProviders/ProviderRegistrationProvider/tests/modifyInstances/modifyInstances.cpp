@@ -32,7 +32,6 @@
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 

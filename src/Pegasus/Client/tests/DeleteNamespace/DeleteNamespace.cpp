@@ -525,7 +525,8 @@ int main(int argc, char** argv)
 		     cout << "Set Stopwatch" << endl;
 		     Stopwatch elapsedTime;
 		     cout << "Create client" << endl;
-		     CIMClient client(60 * 1000);
+		     CIMClient client;
+		     client.setTimeout(60 * 1000);
 		     cout << "Client created" << endl;
                      if (useSSL)
 		     {

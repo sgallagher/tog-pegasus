@@ -404,7 +404,8 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
     {
         // specify the timeout value for the connection (if inactive)
         // in milliseconds, thus setting to one minute
-        CIMClient client(60 * 1000);
+        CIMClient client;
+        client.setTimeout(60 * 1000);
 	client.connectLocal();
         
         Boolean deepInheritance = true;

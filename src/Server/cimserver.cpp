@@ -247,7 +247,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         // set client timeout to 2 seconds
         //
-        client.setTimeOut(2000);
+        client.setTimeout(2000);
     }
     catch(Exception& e)
     {

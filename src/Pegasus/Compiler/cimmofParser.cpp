@@ -23,6 +23,10 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofParser.cpp,v $
+// Revision 1.2  2001/02/18 02:45:49  mike
+// Added bison.simple to distribution so that there
+// would be no dependency on an external directory.
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -175,9 +179,9 @@ cimmofParser::setRepository(void) {
       } 
       try {
         _repository->createNameSpace(s);
-      } catch(AlreadyExists &e) {
+      } catch(AlreadyExists &) {
 	// OK, that's what we expect
-      } catch(IllegalName &e) {
+      } catch(IllegalName &) {
         cerr << "Creating Repository namespace: " << 
 	cerr << "Repository reported " << s << " is not a legal CIM name"
 	     << endl;

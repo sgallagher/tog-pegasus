@@ -32,6 +32,8 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
 
+export BISON_SIMPLE = bison.simple
+
 cimmof_tab.cpp cimmof_tab.h: cimmof.y
 	$(YACC) -vd -ocimmoftemp -p cimmof_ cimmof.y
 	$(COPY) cimmoftemp cimmof_tab.cpp

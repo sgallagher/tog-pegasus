@@ -194,7 +194,6 @@ public:
         #endif
     }
 
-    /*
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     virtual void deliver(const CIMInstance & cimInstance)
     {
@@ -202,7 +201,6 @@ public:
         SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
     }
     #endif
-    */
 
     virtual String getClass(void) const
     {
@@ -271,7 +269,6 @@ public:
         #endif
     }
 
-    /*
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     virtual void deliver(const CIMInstance & cimInstance)
     {
@@ -279,7 +276,6 @@ public:
         SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
     }
     #endif
-    */
 
     virtual String getClass(void) const
     {
@@ -335,7 +331,6 @@ public:
         #endif
     }
 
-    /*
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     virtual void deliver(const CIMObjectPath & cimObjectPath)
     {
@@ -343,7 +338,6 @@ public:
         SimpleObjectPathResponseHandler::deliver(_normalizer.processInstanceObjectPath(cimObjectPath));
     }
     #endif
-    */
 
     virtual String getClass(void) const
     {
@@ -512,7 +506,6 @@ public:
         msg.cimObjects = getObjects();
     }
 
-    // this handler will not send async
     virtual Boolean isAsync(void) const
     {
         return(false);
@@ -667,7 +660,6 @@ public:
         return(String("EnableIndicationsResponseHandler"));
     }
 
-    // this handler will not send async
     virtual Boolean isAsync(void) const
     {
         return(false);

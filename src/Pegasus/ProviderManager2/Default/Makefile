@@ -8,15 +8,19 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_DEFPM_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+LOCAL_DEFINES += -DPEGASUS_ENABLE_OBJECT_NORMALIZATION
+endif
+
 LIBRARY = DefaultProviderManager
 
 LIBRARIES = \
-    pegcommon \
+	pegcommon \
 	pegprovider \
 	pegprovidermanager \
-        pegconfig \
+	pegconfig \
 	pegwql \
-        pegqueryexpression
+	pegqueryexpression
 
 SOURCES = \
 	DefaultProviderManagerMain.cpp \
@@ -24,9 +28,7 @@ SOURCES = \
 	LocalProviderManager.cpp \
 	Provider.cpp \
 	ProviderFacade.cpp \
-	ProviderModule.cpp 
-#	OperationResponseHandler.cpp \
-#	SimpleResponseHandler.cpp
+	ProviderModule.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

@@ -81,7 +81,7 @@ void MT_MessageQueue::enqueue(Message* message)
 
     while (true) 
     {
-        _full->getMutex()->lock(pegasus_thread_self());
+        _full->lock_object(pegasus_thread_self());
  
         while(_mqueue->getCount() >= _highWaterMark) 
 	  {
@@ -101,16 +101,16 @@ void MT_MessageQueue::enqueue(Message* message)
             // just release all locks and try again
 	  try 
 	    { 
-	      _empty->getMutex()->try_lock(pegasus_thread_self()) ;
+	      _empty->lock_object(pegasus_thread_self()) ;
 	    }
 	  catch ( AlreadyLocked& al ) 
 	    { 
-	      _full->getMutex()->unlock(); 
+	      _full->unlock_object(); 
 	      break;
 	    }
         }
         else {
-            _empty->getMutex()->lock(pegasus_thread_self());
+            _empty->lock_object(pegasus_thread_self());
             break;
         }
     } /* end while */
@@ -119,9 +119,9 @@ void MT_MessageQueue::enqueue(Message* message)
 
     _empty->unlocked_signal(pegasus_thread_self());
 
-    _empty->getMutex()->unlock();
+    _empty->unlock_object();
 
-    _full->getMutex()->unlock();
+    _full->unlock_object();
 
     handleEnqueue();
 }
@@ -132,7 +132,7 @@ Message* MT_MessageQueue::dequeue()
 
     while (true) 
     {
-        _empty->getMutex()->lock(pegasus_thread_self());
+        _empty->lock_object(pegasus_thread_self());
 
         while (_mqueue->getCount() <= _lowWaterMark) 
 	  {
@@ -152,16 +152,16 @@ Message* MT_MessageQueue::dequeue()
             // just release all locks and try again
 	  try 
 	    {
-	      _full->getMutex()->try_lock(pegasus_thread_self());
+	      _full->try_lock_object(pegasus_thread_self());
 	      break;
 	    }
 	  catch (AlreadyLocked& al)
 	    {
-	      _empty->getMutex()->unlock();
+	      _empty->unlock_object();
 	    }
         }
         else {
-            _full->getMutex()->lock(pegasus_thread_self());
+            _full->lock_object(pegasus_thread_self());
             break;
         }
     } /* end while */
@@ -170,9 +170,9 @@ Message* MT_MessageQueue::dequeue()
 
     _full->unlocked_signal(pegasus_thread_self());
 
-    _empty->getMutex()->unlock();
+    _empty->unlock_object();
 
-    _full->getMutex()->unlock();
+    _full->unlock_object();
 
     return message;
 }
@@ -206,8 +206,8 @@ void MT_MessageQueue::lock()
 
 void MT_MessageQueue::unlock()
 {
-    _full->getMutex()->unlock();
-    _empty->getMutex()->unlock();
+    _full->unlock_object();
+    _empty->unlock_object();
 }
 
 MessageQueue* MT_MessageQueue::lookup(Uint32 queueId)

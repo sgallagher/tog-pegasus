@@ -40,8 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 PEG_SEM_READ = 1 ;
 const Uint32 PEG_SEM_WRITE = 2 ;
-const int PEG_DQUEUE_FIRST = 0;
-const int PEG_DQUEUE_LAST = 1;
+
 //-----------------------------------------------------------------
 /// Generic Implementation of read/write semaphore class
 //-----------------------------------------------------------------

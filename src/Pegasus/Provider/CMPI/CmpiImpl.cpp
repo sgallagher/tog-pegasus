@@ -1743,7 +1743,7 @@ CMPIContext *CmpiContext::getEnc() const {
    return (CMPIContext*)enc;
 }
 
-CmpiData CmpiContext::getEntry(const char* name) {
+CmpiData CmpiContext::getEntry(const char* name) const{
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    d.data=getEnc()->ft->getEntry(getEnc(),name,&rc);

@@ -77,7 +77,7 @@ public:
 
    /** getEntry - Gets a named context entry.
    */
-   CmpiData getEntry(const char* name);
+   CmpiData getEntry(const char* name) const;
 };
 
 #endif

@@ -380,9 +380,13 @@ cimmofParser::log_parse_error(char *token, const char *errmsg) const {
 // ------------------------------------------------------------------
 char *
 cimmofParser::oct_to_dec(const String &octrep) const {
-  unsigned long oval = 0;
+  signed long oval = 0;
   char buf[40];  // can't overrrun on an itoa of a long
-  for (int i = octrep.size() - 1; i >= 0; --i) {
+
+//The format of octrep string is [+-]0[0-7]+
+//E.g., +0345 (octal) = 228 (decimal)
+
+  for (int i = 1; i <= octrep.size() - 1; i++) {
      oval *= 8;
      switch(octrep[i]) {
      case '1': oval += 1; break;
@@ -393,6 +397,11 @@ cimmofParser::oct_to_dec(const String &octrep) const {
      case '6': oval += 6; break;
      case '7': oval += 7; break; 
      }
+  }
+
+  if (octrep[0] == '-')
+  {
+     oval = -oval;
   }
   sprintf(buf, "%ld", oval);
   return strdup(buf);
@@ -408,7 +417,11 @@ char *
 cimmofParser::hex_to_dec(const String &hexrep) const {
   unsigned long hval = 0;
   char buf[40];  // can't overrrun on an itoa of a long
-  for (int i = hexrep.size() - 1; i >= 2; --i) {
+
+//The format of hexrep string is 0x[0-9A-Fa-f]+
+//E.g., 0x9FFF (hex) = 40959 (decimal)
+
+  for (int i = 2; i <= hexrep.size() - 1; i++) {
      hval *= 16;
      switch(hexrep[i]) {
      case '1': hval += 1; break;
@@ -452,11 +465,19 @@ cimmofParser::hex_to_dec(const String &hexrep) const {
 // ------------------------------------------------------------------
 char *
 cimmofParser::binary_to_dec(const String &binrep) const {
-  unsigned long bval = 0;
+  signed long bval = 0;
   char buf[40];  // can't overrrun on an itoa of a long
-  for (int i = binrep.size() - 1; i >= 0; --i) {
+
+//The format of binrep string is [+-][01]+[Bb]
+//E.g., +01011b = 11
+
+  for (int i = 1; i <= binrep.size() - 2; i++) {
      bval *= 2;
-     bval += binrep[i] == '1' ? 1 : 0;
+     bval += (binrep[i] == '1' ? 1 : 0);
+  }
+  if (binrep[0] == '-')
+  {
+     bval = -bval;
   }
   sprintf(buf, "%ld", bval);
   return strdup(buf);

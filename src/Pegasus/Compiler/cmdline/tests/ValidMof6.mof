@@ -1,6 +1,10 @@
 class ValidMof6 {
     [key] uint32 id;
     uint32  A1;
+    sint32 decimalValue[];
+    sint32 octalValue[];
+    sint32 hexValue[];
+    sint32 binaryValue[];
 };
 
 instance of ValidMof6 {
@@ -15,4 +19,12 @@ instance of ValidMof6 {
 
 instance of ValidMof6 {
     id = 3;
+};
+
+instance of ValidMof6 {
+    id = 4;
+    decimalValue = { -100, 0, 100 };
+    octalValue = { -0144, +00, +0144 };
+    hexValue = { 0xFFFFFF9C, 0x64, 0x0 };
+    binaryValue = { -1100100B, +0b, +1100100b };
 };

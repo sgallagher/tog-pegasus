@@ -99,4 +99,8 @@
 
 //#define PEGASUS_KERBEROS_AUTHENTICATION
 
+// This enables the default pluggable provider manager.
+// See ProviderManagerService.cpp
+#define ENABLE_DEFAULT_PROVIDER_MANAGER
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

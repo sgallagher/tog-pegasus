@@ -52,11 +52,6 @@ void CIMMessageSerializer::serialize(Array<Sint8>& out, CIMMessage* cimMessage)
     XmlWriter::append(out, cimMessage->getType());
     XmlWriter::append(out, "\">");
 
-
-    _serializeContentLanguages(out,((ContentLanguageListContainer)cimMessage->operationContext.
-												get(ContentLanguageListContainer::NAME)).getLanguages());
-    _serializeAcceptLanguages(out,((AcceptLanguageListContainer)cimMessage->operationContext.
-												get(AcceptLanguageListContainer::NAME)).getLanguages());
     _serializeOperationContext(out, cimMessage->operationContext);
 
     CIMRequestMessage* cimReqMessage;

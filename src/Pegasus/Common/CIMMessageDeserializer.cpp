@@ -52,8 +52,6 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     String messageID;
     String typeString;
     Uint32 type;
-	ContentLanguages contentLanguages;
-    AcceptLanguages acceptLanguages;
     OperationContext operationContext;
 
     XmlReader::expectStartTag(parser, entry, "PGMESSAGE");
@@ -67,8 +65,6 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     }
     type = Uint32(atoi(typeString.getCString()));
 
-    _deserializeContentLanguages(parser, contentLanguages);
-    _deserializeAcceptLanguages(parser, acceptLanguages);
     _deserializeOperationContext(parser, operationContext);
 
     if (XmlReader::testStartTag(parser, entry, "PGREQ"))
@@ -90,9 +86,6 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     XmlReader::expectEndTag(parser, "PGMESSAGE");
 
     message->messageId = messageID;
-	message->operationContext.set(ContentLanguageListContainer(contentLanguages));
-    message->operationContext.set(AcceptLanguageListContainer(acceptLanguages));
-
     message->operationContext = operationContext;
 
     return message;

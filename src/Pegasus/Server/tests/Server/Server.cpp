@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Server.cpp,v $
-// Revision 1.1  2001/01/14 19:54:05  mike
-// Initial revision
+// Revision 1.2  2001/01/29 07:03:48  mike
+// reworked build environment variables
+//
+// Revision 1.1.1.1  2001/01/14 19:54:05  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -38,15 +41,28 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    if (argc != 2)
+    // No arguments are needed:
+
+    if (argc != 1)
     {
-	cerr << "Usage: " << argv[0] << " pegasus-root" << endl;
+	cerr << "Usage: " << argv[0] << endl;
+	exit(1);
+    }
+
+    // Get the PEGASUS_HOME environment variable:
+
+    const char* pegasusHome = getenv("PEGASUS_HOME");
+
+    if (!pegasusHome)
+    {
+	cerr << argv[0] << ": PEGASUS_HOME environment variable not set";
+	cerr << endl;
 	exit(1);
     }
 
     try
     {
-	Server server(argv[1]);
+	Server server(pegasusHome);
 
 	const Uint32 PORT = 8888;
 	server.bind(Server::PROPRIETARY, PORT);

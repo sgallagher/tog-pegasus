@@ -2,7 +2,7 @@
 variables:
 	@ echo "ROOT=$(ROOT)"
 	@ echo "DIR=$(DIR)"
-	@ echo "BUILD_DIR=$(BUILD_DIR)"
+	@ echo "HOME_DIR=$(HOME_DIR)"
 	@ echo "ACE_ROOT=$(ACE_ROOT)"
 	@ echo "OS_TYPE=$(OS_TYPE)"
 	@ echo "OBJ_DIR=$(OBJ_DIR)"

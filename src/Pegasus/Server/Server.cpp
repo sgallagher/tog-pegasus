@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Server.cpp,v $
+// Revision 1.3  2001/01/29 07:03:48  mike
+// reworked build environment variables
+//
 // Revision 1.2  2001/01/29 02:19:18  mike
 // added primitive provider dispatching
 //
@@ -617,7 +620,7 @@ void ServerHandler::handleGetInstance(
 
 	// ATTN: Need code here to fill out the class?
 
-	instanceName.print();
+	// instanceName.print();
     }
     catch (CimException& e)
     {

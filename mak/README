@@ -5,7 +5,8 @@ The build system depends on three environment variables:
 
     PEGASUS_ACE_ROOT - required (points to ACE_wrappers directory);
 
-    PEGASUS_BUILD - optional (points to build directory; defaults to build
-    directory under root of pegasus distribution).
+    PEGASUS_HOME - required (points to where executable directories will
+        be placed; you can make this the same as the root of the source 
+        distribution).
 
     PEGASUS_OS_TYPE - optional (defaults to windows; set to unix or windows).

@@ -367,8 +367,7 @@ public:
         const CIMObjectPath& objectName,
         const CIMName& assocClass,
         const String& role,
-        Uint32& providerCount,
-		CIMException& cimException);
+        Uint32& providerCount);
     
     Boolean _lookupNewAssociationProvider(
         const CIMNamespaceName& nameSpace, 

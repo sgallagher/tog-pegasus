@@ -375,26 +375,26 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     //
     if(!className.equal (PEGASUS_CLASSNAME___NAMESPACE))
     {
+        _repository->read_lock();
     	try
     	{
     	    // Get the complete list of subclass names
-			_repository->read_lock();
-
     	    _repository->getSubClassNames(nameSpace,
     			 className, true, subClassNames);
-			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-				"CIMOperationRequestDispatcher::_getSubClassNames - Name Space: $0  Class name: $1",
-				nameSpace.getString(),
-				className.getString());
-			_repository->read_unlock();
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			"CIMOperationRequestDispatcher::_getSubClassNames - "
+                            "Name Space: $0  Class name: $1",
+			nameSpace.getString(),
+			className.getString());
     	}
-    	catch(CIMException& e)
-    	{
-    	    // Gets exception back from the getSubClasses if class does not exist
-			_repository->read_unlock();
-    	    PEG_METHOD_EXIT();
-    	    throw e;
-    	}
+    	catch(...)
+        {
+            // getSubClassNames throws an exception if the class does not exist
+            _repository->read_unlock();
+            PEG_METHOD_EXIT();
+            throw;
+        }
+        _repository->read_unlock();
     }
     // Prepend the array with the classname that formed the array.
     subClassNames.prepend(className);
@@ -416,8 +416,8 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
    information on the provider so that the operation can be forwarded to the
    provider.
    @exception - returns one exception if the className is in error.  Note that
-   this should NEVER occur since the className should have already been validated
-   in the operation code.
+   this should NEVER occur since the className should have already been
+   validated in the operation code.
 */
 Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
                     const CIMNamespaceName& nameSpace,
@@ -428,7 +428,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
            "CIMOperationRequestDispatcher::_lookupAllInstanceProviders");
 
     // NOTE: This function can generate an exception.
-	Array<CIMName> classNames = _getSubClassNames(nameSpace,className);
+    Array<CIMName> classNames = _getSubClassNames(nameSpace,className);
 
     Array<ProviderInfo> providerInfoList;
     providerCount = 0;
@@ -663,20 +663,14 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     the count of classes in that the providerInfo list is all classes including those
     that would go to the repository.
     @returns List of ProviderInfo
-    @exception - exceptions are captured and passed back to the caller in the CIMException
-	parameter.
-	ATTN: This funciton operates differently that _lookupAllInstanceProviders in that it
-	locally captures exceptions and then passes an exception parameter back to the caller.
-	Hopefully this reduces the code level on the caller.
-	
+    @exception - Exceptions From the Repository
     */
  Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
     const String& role,
-	Uint32& providerCount,
-	CIMException& cimException )
+    Uint32& providerCount)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
            "CIMOperationRequestDispatcher::_lookupAllAssociationProviders");
@@ -702,57 +696,59 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 // to the target class.
 // ATTN: KS 20030515. After we test and complete the move to using this option, lets go back and
 // change the call to avoid the double conversion to and from CIM Object path.
-	
-	CDEBUG("_LookupALLAssocProvider Calling referenceNames. class " << className);
+
+    CDEBUG("_LookupALLAssocProvider Calling referenceNames. class " << className);
     Array<CIMObjectPath> tmp;
+    CIMException cimException;
 
-    // Note: we use assoc class here because this is the association function
-    // the referencname calls must put the result class here.
-	
-	_repository->read_lock();
-	try
-	{
-		tmp = _repository->referenceNames(
-				nameSpace,
-				CIMObjectPath(String::EMPTY, CIMNamespaceName(), className),
-				assocClass,
-				role);
-	}
-	catch(CIMException& exception)
-	{
-	   cimException = exception;
-	}
-	catch(Exception& exception)
-	{
-	   cimException =
-		  PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	}
-	catch(...)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-	}
-	_repository->read_unlock();
-	
-	// If exception return, generate error and return
-	if (cimException.getCode() != CIM_ERR_SUCCESS)
-	{
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-			"CIMOperationRequestDispatcher::lookupAllAssociationProvider exception.  Name Space: $0  Object Name: $1 Assoc Class: $2",
-			nameSpace.getString(),
-			objectName.toString(),
-			assocClass.getString());
-		return(providerInfoList);
-	}
+    _repository->read_lock();
+    try
+    {
+        // Note:  We use assocClass because this is the association function.
+        // The Reference(Name)s calls must put the resultClass here.
+        tmp = _repository->referenceNames(
+            nameSpace,
+            CIMObjectPath(String::EMPTY, CIMNamespaceName(), className),
+            assocClass,
+            role);
+    }
+    catch(CIMException& exception)
+    {
+        cimException = exception;
+    }
+    catch(Exception& exception)
+    {
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+    }
+    _repository->read_unlock();
 
-	// returns the list of possible association classes for this target.
-	// Convert to classnames
-	for (Uint32 i = 0 ; i < tmp.size() ; i++)
-	{
-	   classNames.append(tmp[i].getClassName());
-	   CDEBUG("Reference Lookup returnsclass " << tmp[i].getClassName());
-	}
+    // If exception from repository, write log message and throw the exception
+    if (cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "CIMOperationRequestDispatcher::lookupAllAssociationProvider "
+                "exception.  Namespace: $0  Object Name: $1  Assoc Class: $2",
+            nameSpace.getString(),
+            objectName.toString(),
+            assocClass.getString());
+        throw cimException;
+    }
 
-	CDEBUG("_lookup all assoc Classes Returned class list of size " << classNames.size() << " className= " << className.getString() << " assocClass= " << assocClass);
+
+   // returns the list of possible association classes for this target.
+    // Convert to classnames
+   for (Uint32 i = 0 ; i < tmp.size() ; i++)
+   {
+       classNames.append(tmp[i].getClassName());
+       CDEBUG("Reference Lookup returnsclass " << tmp[i].getClassName());
+   }
+
+    CDEBUG("_lookup all assoc Classes Returned class list of size " << classNames.size() << " className= " << className.getString() << " assocClass= " << assocClass);
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         CDEBUG(" Count i " << i << "Class rtned " << classNames[i].getString());
@@ -3618,26 +3614,30 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     else
     {
         //
-        // lookup Association  providers for this request
+        // For Instance requests, get results from providers and the repository
         //
+
+        //
+        // Determine list of providers for this request
+        //
+
         Array<ProviderInfo> providerInfo;
-		CIMException lookupAllAssocException;
         Uint32 providerCount;
-
-		providerInfo = _lookupAllAssociationProviders(
-			request->nameSpace,
-			request->objectName,
-			request->assocClass,
-			String::EMPTY,
-			providerCount,
-			lookupAllAssocException);
-
-		if (lookupAllAssocException.getCode() != CIM_ERR_SUCCESS)
-		{
+        try
+        {
+            providerInfo = _lookupAllAssociationProviders(
+                request->nameSpace,
+                request->objectName,
+                request->assocClass,
+                String::EMPTY,
+                providerCount);
+        }
+        catch(CIMException& cimException)
+        {
             CIMAssociatorsResponseMessage* response =
                 new CIMAssociatorsResponseMessage(
                     request->messageId,
-                    lookupAllAssocException,
+                    cimException,
                     request->queueIds.copyAndPop(),
                     Array<CIMObject>());
 
@@ -3646,7 +3646,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             _enqueueResponse(request, response);
             PEG_METHOD_EXIT();
             return;
-		}
+        }
 
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
@@ -3895,32 +3895,30 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         Array<ProviderInfo> providerInfo;
         Uint32 providerCount;
-		CIMException lookupAllAssocException;
+        try
+        {
+            providerInfo = _lookupAllAssociationProviders(
+                request->nameSpace,
+                request->objectName,
+                request->assocClass,
+                String::EMPTY,
+                providerCount);
+        }
+        catch(CIMException& cimException)
+        {
+            CIMAssociatorNamesResponseMessage* response =
+                new CIMAssociatorNamesResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObjectPath>());
 
-		providerInfo = _lookupAllAssociationProviders(
-			request->nameSpace,
-			request->objectName,
-			request->assocClass,
-			String::EMPTY,
-			providerCount,
-			lookupAllAssocException);
+            STAT_COPYDISPATCHER
 
-		// If lookup failed, generate exception response
-		if (lookupAllAssocException.getCode() != CIM_ERR_SUCCESS)
-		{
-			CIMAssociatorsResponseMessage* response =
-				new CIMAssociatorsResponseMessage(
-					request->messageId,
-					lookupAllAssocException,
-					request->queueIds.copyAndPop(),
-					Array<CIMObject>());
-	
-			STAT_COPYDISPATCHER
-	
-			_enqueueResponse(request, response);
-			PEG_METHOD_EXIT();
-			return;
-		}
+            _enqueueResponse(request, response);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
@@ -3998,6 +3996,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         //
         // Set up an aggregate object and save the original request message
         //
+
         OperationAggregate *poA = new OperationAggregate(
             new CIMAssociatorNamesRequestMessage(*request),
             request->getType(),
@@ -4165,33 +4164,31 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         //
 
         Array<ProviderInfo> providerInfo;
-		CIMException lookupAllAssocException;
         Uint32 providerCount;
+        try
+        {
+            providerInfo = _lookupAllAssociationProviders(
+                request->nameSpace,
+                request->objectName,
+                request->resultClass,
+                String::EMPTY,
+                providerCount);
+        }
+        catch(CIMException& cimException)
+        {
+            CIMReferencesResponseMessage* response =
+                new CIMReferencesResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObject>());
 
-		providerInfo = _lookupAllAssociationProviders(
-			request->nameSpace,
-			request->objectName,
-			request->resultClass,
-			String::EMPTY,
-			providerCount,
-			lookupAllAssocException);
+            STAT_COPYDISPATCHER
 
-	    // If exception from lookup, generate error response
-		if (lookupAllAssocException.getCode() != CIM_ERR_SUCCESS)
-		{
-			CIMAssociatorsResponseMessage* response =
-				new CIMAssociatorsResponseMessage(
-					request->messageId,
-					lookupAllAssocException,
-					request->queueIds.copyAndPop(),
-					Array<CIMObject>());
-
-			STAT_COPYDISPATCHER
-
-			_enqueueResponse(request, response);
-			PEG_METHOD_EXIT();
-			return;
-		}
+            _enqueueResponse(request, response);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
@@ -4427,36 +4424,40 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
     else
     {
         //
+        // For Instance requests, get results from providers and the repository
+        //
+
+        //
         // Determine list of providers for this request
         //
+
         Array<ProviderInfo> providerInfo;
         Uint32 providerCount;
-		CIMException lookupAllAssocException;
+        try
+        {
+            providerInfo = _lookupAllAssociationProviders(
+                request->nameSpace,
+                request->objectName,
+                request->resultClass,
+                String::EMPTY,
+                providerCount);
+        }
+        catch(CIMException& cimException)
+        {
+            CIMReferenceNamesResponseMessage* response =
+                new CIMReferenceNamesResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObjectPath>());
 
-		providerInfo = _lookupAllAssociationProviders(
-			request->nameSpace,
-			request->objectName,
-			request->resultClass,
-			String::EMPTY,
-			providerCount,
-			lookupAllAssocException);
-        
-		if (lookupAllAssocException.getCode() != CIM_ERR_SUCCESS)
-		{
-			CIMAssociatorsResponseMessage* response =
-				new CIMAssociatorsResponseMessage(
-					request->messageId,
-					lookupAllAssocException,
-					request->queueIds.copyAndPop(),
-					Array<CIMObject>());
+            STAT_COPYDISPATCHER
 
-			STAT_COPYDISPATCHER
+            _enqueueResponse(request, response);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
-			_enqueueResponse(request, response);
-			PEG_METHOD_EXIT();
-			return;
-
-		}
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
 
@@ -5362,8 +5363,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeClassOrigin,
                         CIMPropertyList());
 
-				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-					"CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes - Name Space: $0  Class Name: $1",
+		    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				"CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes - Name Space: $0  Class Name: $1",
 				request->nameSpace.getString(),
 				request->instanceName.getClassName().getString());
                 }

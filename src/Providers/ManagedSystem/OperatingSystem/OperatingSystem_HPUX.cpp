@@ -598,13 +598,24 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 {
     struct pst_dynamic psd;
+    struct pst_static pst;
+    float  psize;
+    float  subtotal;
+
+    // BJH Dec-7-2004:  Correct value to reflect Kbytes instead of pages
+
+    if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
+    {
+        return false;
+    }
+    psize = pst.page_size / 1024;
 
     if (pstat_getdynamic(&psd, sizeof(psd), (size_t)1, 0) == -1)
     {
         return false;
     }
-    total = psd.psd_free;
-
+    subtotal = ((float)psd.psd_free * psize);
+    total = subtotal;
     return true;
 }
 
@@ -625,8 +636,9 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
     }
 
     // this constant is 1/1024 - used for efficiency vs. dividing
-    psize = pst.page_size * 0.000977;  
-    total = ((float)pst.physical_memory * 0.000977 * psize);
+    // BJH Dec-7-2004:  Correct value to reflect Kbytes instead of Mbytes
+    psize = pst.page_size / 1024;  
+    total = ((float)pst.physical_memory * psize);
     memory = total;
     return true;
 }

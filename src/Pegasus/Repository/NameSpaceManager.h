@@ -35,6 +35,7 @@
 #define Pegasus_NameSpaceManager_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/Linkage.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
@@ -44,11 +45,17 @@ PEGASUS_NAMESPACE_BEGIN
 struct NameSpaceManagerRep;
 class NameSpace;
 
+enum NameSpaceIntendedOp {
+   NameSpaceRead,
+   NameSpaceWrite,
+   NameSpaceDelete,
+};
 
 /** The NameSpaceManager class manages a collection of NameSpace objects.
 */
 class PEGASUS_REPOSITORY_LINKAGE NameSpaceManager
 {
+   friend class NameSpace;
 public:
 
     /** Constructor.
@@ -67,12 +74,19 @@ public:
     */
     Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
 
+    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
+        NameSpaceAttributes;
+
     /** Creates the given namespace.
 	@param nameSpaceName name of namespace to be created.
 	@exception CIMException(CIM_ERR_ALREADY_EXISTS)
 	@exception CannotCreateDirectory
     */
-    void createNameSpace(const CIMNamespaceName& nameSpaceName);
+    void createNameSpace(const CIMNamespaceName& nameSpaceName,
+	 const NameSpaceAttributes &attributes);
+
+    void modifyNameSpace(const CIMNamespaceName& nameSpaceName,
+	 const NameSpaceAttributes &attributes);
 
     /** Deletes the given namespace.
 	@param nameSpaceName name of namespace to be deleted.
@@ -87,6 +101,10 @@ public:
     */
     void getNameSpaceNames(Array<CIMNamespaceName>& nameSpaceNames) const;
 
+    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc> NameSpaceAttributes;
+
+    Boolean getNameSpaceAttributes(const CIMNamespaceName& nameSpace, NameSpaceAttributes &attributes);
+
     /** Get path to the class file for the given class. 
 	@param nameSpaceName name of the namespace.
 	@param className name of class.
@@ -94,8 +112,14 @@ public:
 	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     String getClassFilePath(
+	NameSpace *nameSpace,
+	const CIMName& className,
+        NameSpaceIntendedOp op) const;
+
+    String getClassFilePath(
 	const CIMNamespaceName& nameSpaceName,
-	const CIMName& className) const;
+	const CIMName& className,
+        NameSpaceIntendedOp op) const;
 
     /** Get path to the qualifier file for the given class. 
 	@param nameSpaceName name of the namespace.
@@ -105,11 +129,16 @@ public:
     */
     String getQualifierFilePath(
 	const CIMNamespaceName& nameSpaceName,
-	const CIMName& qualifierName) const;
+	const CIMName& qualifierName,
+        NameSpaceIntendedOp op) const;
 
     String getInstanceDataFileBase(
 	const CIMNamespaceName& nameSpaceName,
 	const CIMName& className) const;
+
+    String NameSpaceManager::getInstanceDataFileBase(
+        const NameSpace *nameSpace,
+        const CIMName& className) const;
 
     /** Get path to the directory containing qualifiers:
 	@param nameSpaceName name of the namespace.
@@ -119,7 +148,8 @@ public:
     /** Get path to the file containing association classes:
 	@param nameSpaceName name of the namespace.
     */
-    String getAssocClassPath(const CIMNamespaceName& nameSpaceName) const;
+    Array<String> getAssocClassPath(const CIMNamespaceName& nameSpaceName,
+        NameSpaceIntendedOp op) const;
 
     /** Get path to the file containing association instances:
 	@param nameSpaceName name of the namespace.
@@ -182,7 +212,8 @@ public:
 	const CIMNamespaceName& nameSpaceName,
 	const CIMName& className,
 	Boolean deepInheritance,
-	Array<CIMName>& subClassNames) const throw(CIMException);
+	Array<CIMName>& subClassNames,
+	Boolean enm=false) const throw(CIMException);
 
     /** Get the names of all superclasses (direct and indirect) of this
 	class.
@@ -192,8 +223,23 @@ public:
 	const CIMName& className,
 	Array<CIMName>& subClassNames) const;
 
-private:
+    Boolean classHasInstances(
+	NameSpace *nameSpace,
+	const CIMName& className,
+	Boolean throwExcp=false) const;
 
+    Boolean classHasInstances(
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className,
+	Boolean throwExcp=false) const;
+
+    Boolean classExists(
+	NameSpace *nameSpace,
+	const CIMName& className,
+	Boolean throwExcp=false) const;
+
+private:
+    NameSpace *lookupNameSpace(String&);
     String _repositoryRoot;
     NameSpaceManagerRep* _rep;
 };

@@ -45,6 +45,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct InheritanceTreeRep;
+class NameSpace;
 
 /** The InheritanceTree class tracks inheritance relationships of CIM classes.
 
@@ -170,6 +171,8 @@ public:
 	@param superClassName - name of super class of class.
     */
     void insert(const String& className, const String& superClassName);
+    void insert(const String& className, const String& superClassName,
+       InheritanceTree &parentTree, NameSpace *parent);
 
     /** Scan directory for file names of the form <ClassName>.<SuperClass> and
 	call insert on insert for each one. Note that root classes (classes with
@@ -179,7 +182,9 @@ public:
 	@exception throws CannotOpenDirectory is invalid path specifies an
 	    invalid directory.
     */
-    void insertFromPath(const String& path);
+    void insertFromPath(const String& path,
+        InheritanceTree* parentTree=NULL,
+        NameSpace *ns=NULL);
 
     /** Checks that every superClassName passed to insert() was also passed
 	as a className argument to insert(). In other words, it checks that
@@ -199,11 +204,14 @@ public:
     Boolean getSubClassNames(
 	const CIMName& className,
 	Boolean deepInheritance,
-	Array<CIMName>& subClassNames) const;
+	Array<CIMName>& subClassNames,
+        NameSpace *ns=NULL) const;
 
+#if 0
     /** Returns true if class1 is a subclass of class2.
     */
     Boolean isSubClass(const CIMName& class1, const CIMName& class2) const;
+#endif
 
     /** Get the names of all superclasses of this class (direct and indirect).
     */
@@ -232,7 +240,9 @@ public:
 	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
 	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
-    void remove(const CIMName& className);
+    void remove(const CIMName& className,
+        InheritanceTree &parentTree,
+        NameSpace *ns=NULL);
 
     /** Prints the class */
     void print(PEGASUS_STD(ostream)& os) const;
@@ -244,6 +254,8 @@ private:
     InheritanceTree& operator=(const InheritanceTree&) { return *this; }
 
     InheritanceTreeRep* _rep;
+    
+    friend class InheritanceTreeNode;
 };
 
 /** The InvalidInheritanceTree exception is thrown when the

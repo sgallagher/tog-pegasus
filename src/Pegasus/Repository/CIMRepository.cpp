@@ -65,6 +65,13 @@
 #include "OS400ConvertChar.h"
 #endif
 
+#if 0
+#undef PEG_METHOD_ENTER
+#undef PEG_METHOD_EXIT
+#define PEG_METHOD_ENTER(x,y)  cout<<"--- Enter: "<<y<<endl;
+#define PEG_METHOD_EXIT()
+#endif
+
 #define INDENT_XML_FILES
 /* See bug report 1046
 The following fix  turns off the filtering of enumerate
@@ -499,7 +506,7 @@ CIMClass CIMRepository::_getClass(
                      ", includeQualifiers= " + _toString(includeQualifiers) +
                      ", includeClassOrigin= " + _toString(includeClassOrigin));
     String classFilePath;
-    classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className);
+    classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className, NameSpaceRead);
 
     CIMClass cimClass;
 
@@ -738,25 +745,6 @@ void CIMRepository::deleteClass(
     Boolean isAssociation = cimClass.isAssociation();
 
     //
-    // Disallow deletion if class has instances in instance repository:
-    //
-
-    String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
-    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                     "instance indexFilePath = " + indexFilePath);
-
-    String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
-    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                     "instance dataFilePath = " + dataFilePath);
-
-    if (InstanceIndexFile::hasNonFreeEntries(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_INSTANCES,
-            className.getString());
-    }
-
-    //
     // Delete the class. The NameSpaceManager::deleteClass() method throws
     // an exception if the class has subclasses.
     //
@@ -770,24 +758,16 @@ void CIMRepository::deleteClass(
         throw e;
     }
 
-    FileSystem::removeFileNoCase(indexFilePath);
-
-    FileSystem::removeFileNoCase(dataFilePath);
-
-    //
-    // Kill off empty instance files:
-    //
-
     //
     // Remove associations:
     //
 
     if (isAssociation)
     {
-        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
+        Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
 
-        if (FileSystem::exists(assocFileName))
-            AssocClassTable::deleteAssociation(assocFileName, className);
+        if (FileSystem::exists(assocFileName[0]))
+            AssocClassTable::deleteAssociation(assocFileName[0], className);
     }
 
     PEG_METHOD_EXIT();
@@ -1014,13 +994,13 @@ void CIMRepository::_createAssocClassEntries(
     // Open input file:
 
 
-    String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
+    Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceWrite);
     ofstream os;
 
-    if (!OpenAppend(os, assocFileName))
+    if (!OpenAppend(os, assocFileName[0]))
     {
         PEG_METHOD_EXIT();
-        throw CannotOpenFile(assocFileName);
+        throw CannotOpenFile(assocFileName[0]);
     }
 
     // Get the association's class name:
@@ -1530,16 +1510,17 @@ void CIMRepository::_modifyClass(
 
     if (cimClass.isAssociation()) {
       // Remove from Association
-      String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
-      if (FileSystem::exists(assocFileName)) {
-	AssocClassTable::deleteAssociation(assocFileName, cimClass.getClassName());    
+      Array<String> assocFileName =
+         _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
+      if (FileSystem::exists(assocFileName[0])) {
+	AssocClassTable::deleteAssociation(assocFileName[0], cimClass.getClassName());
 	// Create the association again.
 	_createAssocClassEntries(nameSpace, cimClass);
       } 
       else
 	{
 	  PEG_METHOD_EXIT();
-	  throw CannotOpenFile(assocFileName);
+	  throw CannotOpenFile(assocFileName[0]);
 	}
     }
 
@@ -2005,7 +1986,7 @@ Array<CIMName> CIMRepository::enumerateClassNames(
     Array<CIMName> classNames;
 
     _nameSpaceManager.getSubClassNames(
-        nameSpace, className, deepInheritance, classNames);
+        nameSpace, className, deepInheritance, classNames,true);
 
     PEG_METHOD_EXIT();
     return classNames;
@@ -2538,10 +2519,11 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
         _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
         classList.append(className);
 
-        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
+        Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
 
+        for (int i=0,m=assocFileName.size(); i<m; i++) {
         AssocClassTable::getAssociatorNames(
-            assocFileName,
+               assocFileName[i],
             classList,
             assocClassList,
             resultClassList,
@@ -2549,8 +2531,9 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
             resultRole,
             associatorNames);
     }
-    else
-    {
+    }
+
+    else {
         String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         AssocInstTable::getAssociatorNames(
@@ -2705,20 +2688,23 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
         classList.append(className);
 
-        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
+        Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
 
-        if (!AssocClassTable::getReferenceNames(
-            assocFileName,
+	Boolean refs=false;
+        for (int i=0,m=assocFileName.size(); !refs && i<m; i++)
+           if (AssocClassTable::getReferenceNames(
+                  assocFileName[i],
             classList,
             resultClassList,
             role,
-            tmpReferenceNames))
-        {
+                  tmpReferenceNames)) refs|=true;
+
+        if (refs==false) {
             // Ignore error! It's okay not to have references.
         }
     }
-    else
-    {
+
+    else {
         String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         if (!AssocInstTable::getReferenceNames(
@@ -2727,6 +2713,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
             resultClassList,
             role,
             tmpReferenceNames))
+
         {
             // Ignore error! It's okay not to have references.
         }
@@ -2877,7 +2864,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
     //
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
-        nameSpace, qualifierName);
+        nameSpace, qualifierName,NameSpaceRead);
 
     //
     // Load qualifier:
@@ -2929,7 +2916,7 @@ void CIMRepository::_setQualifier(
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
-        nameSpace, qualifierDecl.getName());
+        nameSpace, qualifierDecl.getName(),NameSpaceWrite);
 
     // -- If qualifier already exists, throw exception:
 
@@ -2960,7 +2947,7 @@ void CIMRepository::deleteQualifier(
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
-        nameSpace, qualifierName);
+        nameSpace, qualifierName,NameSpaceDelete);
 
     // -- Delete qualifier:
 
@@ -3018,12 +3005,24 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     return qualifiers;
 }
 
-void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace)
+void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes &attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
     WriteLock lock(_lock);
-    _nameSpaceManager.createNameSpace(nameSpace);
+    _nameSpaceManager.createNameSpace(nameSpace, attributes);
+
+    PEG_METHOD_EXIT();
+}
+
+void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes &attributes)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
+
+    WriteLock lock(_lock);
+    _nameSpaceManager.modifyNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
 }
@@ -3049,6 +3048,17 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
     _nameSpaceManager.deleteNameSpace(nameSpace);
 
     PEG_METHOD_EXIT();
+}
+
+Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
+        NameSpaceAttributes &attributes)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
+
+    ReadLock lock(const_cast<ReadWriteSem&>(_lock));
+    attributes.clear();
+    PEG_METHOD_EXIT();
+    return _nameSpaceManager.getNameSpaceAttributes(nameSpace, attributes);
 }
 
 //----------------------------------------------------------------------

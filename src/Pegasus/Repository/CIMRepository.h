@@ -270,7 +270,12 @@ public:
         Throws "CannotCreateDirectory" if there are problems in the
         creation.
     */
-    virtual void createNameSpace(const CIMNamespaceName& nameSpace);
+
+    virtual void createNameSpace(const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes &attributes=NameSpaceAttributes());
+
+    virtual void modifyNameSpace(const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes &attributes=NameSpaceAttributes());
 
     /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
         repository. \Ref{NAMESPACE}
@@ -286,6 +291,9 @@ public:
         @exception - Throws NoSuchDirectory if the Namespace does not exist.
     */
     virtual void deleteNameSpace(const CIMNamespaceName& nameSpace);
+
+    virtual Boolean getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
+        NameSpaceAttributes & attributes);
 
     ////////////////////////////////////////////////////////////////////////////
 

@@ -11,6 +11,8 @@ DIRS = \
     EnumerateClassNames \
     InheritanceTree \
     QualifierDeclRep \
-    ClassDeclRep
+    ClassDeclRep \
+    SharedNameSpace \
+    SharedInheritanceTree
 
 include ../../../../mak/recurse.mak

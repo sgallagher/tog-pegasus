@@ -60,9 +60,6 @@
 
 extern int cimmof_parse(); // the yacc parser entry point
 
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
-
 //class cimmofRepository;
 
 // This class extends class parser (see parser.h)

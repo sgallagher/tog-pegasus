@@ -3612,7 +3612,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& cimClass)
 {
     XmlEntry entry;
 
-    if (!testStartTag(parser, entry, "CLASS"))
+    if (!testStartTagOrEmptyTag(parser, entry, "CLASS"))
 	return false;
 
     CIMName name = getCimNameAttribute(parser.getLine(), entry, "CLASS");
@@ -3620,6 +3620,9 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& cimClass)
     CIMName superClass = getSuperClassAttribute(parser.getLine(), entry,"CLASS");
 
     cimClass = CIMClass(name, superClass);
+
+	if(entry.type != XmlEntry::EMPTY_TAG) 
+	{
 
     // Get QUALIFIER elements:
 
@@ -3637,8 +3640,9 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& cimClass)
 	cimClass.addMethod(method);	
 
     // Get CLASS end tag:
-
-    expectEndTag(parser, "CLASS");
+	
+	expectEndTag(parser, "CLASS");
+	}
 
     return true;
 }

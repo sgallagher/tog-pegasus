@@ -98,6 +98,7 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
+#ifndef PEGASUS_OS_HPUX
 	// Add test for home directory set.
 
 	// If home directory does not exist, create it.
@@ -128,6 +129,7 @@ public:
 	fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
 	_logs[Logger::DEBUG_LOG].open(fileName, ios::app);
 	delete [] fileName;
+#endif 
 
     }
 

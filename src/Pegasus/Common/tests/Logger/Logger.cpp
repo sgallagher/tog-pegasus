@@ -38,7 +38,9 @@ PEGASUS_USING_STD;
 
 int main()
 {
+#ifndef PEGASUS_OS_HPUX
     Logger::setHomeDirectory("./logs");
+#endif
 
     Logger::put(
 	Logger::TRACE_LOG,

@@ -233,10 +233,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
     //
     String hostStr = System::getHostName();
 
-    // Put server shutdown message to the logger
-    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-        "Stopping $0 version $1", PEGASUS_NAME, PEGASUS_VERSION);
-
     //
     // open connection to CIMOM 
     //
@@ -601,7 +597,9 @@ int main(int argc, char** argv)
         // Might be more logical to clean before set.
         // ATTN: Need tool to completely disable logging.
 
+#ifndef PEGASUS_OS_HPUX
         Logger::setHomeDirectory(logsDirectory);
+#endif
 
         //
         // Check to see if we need to shutdown CIMOM 
@@ -639,7 +637,9 @@ int main(int argc, char** argv)
         httpsPort = configManager->getCurrentValue("httpsPort");
 
         // Leave this in until people get familiar with the logs.
+#ifndef PEGASUS_OS_HPUX
         cout << "Logs Directory = " << logsDirectory << endl;
+#endif
 
         if (String::equal(configManager->getCurrentValue("cleanlogs"), "true"))
         {
@@ -711,15 +711,6 @@ int main(int argc, char** argv)
           exit(-1);
     }
 
-    // Put server starting message to the logger
-    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Starting $0 version $1 on port $2 $3 $4 $5",
-		PEGASUS_NAME, 
-		PEGASUS_VERSION,
-		address,
-		(useSLP ? " SLP on " : " SLP off "),
-                (useSSL ? " Use SSL " : " No SSL "));
-
     // try loop to bind the address, and run the server
     try
     {
@@ -771,7 +762,9 @@ int main(int argc, char** argv)
 
         // Put server started message to the logger
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-            "$0 started.", PEGASUS_NAME);
+                    "Started $0 version $1 on port $2.",
+                    PEGASUS_NAME, PEGASUS_VERSION, address);
+
 
         //
         // Loop to call CIMServer's runForever() method until CIMServer
@@ -817,7 +810,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
 	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "$0 Abnormal Termination.", e.getMessage());
+	    "$0 .Abnormal Termination.", e.getMessage());
 	
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
         return 1;

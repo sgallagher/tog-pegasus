@@ -3,7 +3,7 @@
 <MESSAGE ID="25004" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateInstanceNames">
-<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: The requested operation is not supported: &quot;Don&apos;t support that class&quot;"/>
+<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: The requested operation is not supported: &quot;OperatingSystemProvider does not support class CIM_OperatingSystem&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

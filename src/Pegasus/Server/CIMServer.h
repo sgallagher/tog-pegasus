@@ -38,6 +38,9 @@
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/SSLContext.h>
+
+#include "HTTPAuthenticatorDelegator.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,6 +57,7 @@ class CIMExportRequestDecoder;
 class HTTPAcceptor;
 class CIMRepository;
 
+class ModuleController;
 class IndicationHandlerService;
 class IndicationService;
 class ProviderManagerService;
@@ -131,14 +135,18 @@ private:
     CIMExportRequestDispatcher* _cimExportRequestDispatcher;
     CIMExportResponseEncoder* _cimExportResponseEncoder;
     CIMExportRequestDecoder* _cimExportRequestDecoder;
+    HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
     HTTPAcceptor*   _acceptor;
     CIMServerState* _serverState;
 
+    ModuleController* _controlService;
     IndicationHandlerService* _handlerService;
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
+
+    SSLContext* _sslcontext;
 };
 
 PEGASUS_NAMESPACE_END

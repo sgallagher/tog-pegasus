@@ -149,8 +149,7 @@ CIMServer::CIMServer(
     _handlerService = new IndicationHandlerService(_repository);
 
     // Create the control service
-    ModuleController* controlService =
-        new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
+    _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     // Create the Configuration control provider
     ProviderMessageFacade * configProvider =
@@ -243,6 +242,8 @@ CIMServer::CIMServer(
     }
     else
     {
+        _cimOperationRequestAuthorizer = 0;
+
         _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
 // to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
             _cimOperationRequestDispatcher,
@@ -261,12 +262,11 @@ CIMServer::CIMServer(
 	_cimExportRequestDispatcher,
 	_cimExportResponseEncoder->getQueueId());
 
-    HTTPAuthenticatorDelegator* serverQueue = new HTTPAuthenticatorDelegator(
+    _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
     // Create SSL context
-    SSLContext * sslcontext;
     if (_useSSL)
     {
         //
@@ -293,10 +293,10 @@ CIMServer::CIMServer(
 #endif
 
         // ATTN-RK-20020905: Memory leak
-        sslcontext = new SSLContext(certPath, verifyClientCertificate, randFile);
+        _sslcontext = new SSLContext(certPath, verifyClientCertificate, randFile);
     }
     else
-        sslcontext = NULL;
+        _sslcontext = 0;
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -310,7 +310,7 @@ CIMServer::CIMServer(
             (_repository, _providerRegistrationManager);
     }
 
-    _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
+    _acceptor = new HTTPAcceptor(_monitor, _httpAuthenticatorDelegator, _sslcontext);
 
     PEG_METHOD_EXIT();
 }
@@ -321,6 +321,14 @@ CIMServer::~CIMServer()
 
     // Note: do not delete the acceptor because it belongs to the Monitor
     // which takes care of disposing of it.
+
+    if (_providerRegistrationManager)
+    {
+        delete _providerRegistrationManager;
+    }
+
+    if (_sslcontext)
+	delete _sslcontext;
 
     PEG_METHOD_EXIT();
 }

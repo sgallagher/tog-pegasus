@@ -4,6 +4,7 @@ DIRS = \
     QueryContext \
     CQLChainedIdentifier \
     RegularExpression \
-    CQLValue
+    CQLValue \
+    Queries
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cstdio>
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/HTTPConnector.h>

@@ -7,15 +7,6 @@
         "non-association classes in the test Schema.")]
    class CQL_TestElement
    {  
-      [Key, MaxLen (256),
-       Description (
-          "CreationClassName indicates the name of the class or the "
-          "subclass used in the creation of an instance. When used "
-          "with the other key properties of this class, this property "
-          "allows all instances of this class and its subclasses to "
-          "be uniquely identified.")]
-     string CreationClassName;
-
       [Key, 
        Description (  
           "An identifier that uniquely identifies each instance "
@@ -39,56 +30,118 @@ class CQL_TestPropertyTypes:CQL_TestElement
        "a string property of CQL_TestPropertyTypes")]
    string PropertyString;
 
+      [Description ("A string array"),
+       ArrayType ( "Indexed" ) ]
+   string PropertyStringArray[];
+
       [Description (
        "a uint8 property of CQL_TestPropertyTypes")]
    uint8 PropertyUint8;
+
+      [Description ("A uint8 array"),
+       ArrayType ( "Indexed" ) ]
+   uint8 PropertyUint8Array[];
 
       [Description (
       "a uint16 property of CQL_TestPropertyTypes")]
    uint16 PropertyUint16;
 
+      [Description ("A uint16 array"),
+       ArrayType ( "Indexed" ) ]
+   uint16 PropertyUint16Array[];
+
       [Description (
       "a uint32 property of CQL_TestPropertyTypes")]
    uint32 PropertyUint32;
+
+      [Description ("A uint32 array"),
+       ArrayType ( "Indexed" ) ]
+   uint32 PropertyUint32Array[];
 
       [Description (
       "a uint64 property of CQL_TestPropertyTypes")]
    uint64 PropertyUint64;
 
+      [Description ("A uint64 array"),
+       ArrayType ( "Indexed" ) ]
+   uint64 PropertyUint64Array[];
+
       [Description (
       "a sint8 property of CQL_TestPropertyTypes")]
    sint8 PropertySint8;
+
+      [Description ("A sint8 array"),
+       ArrayType ( "Indexed" ) ]
+   sint8 PropertySint8Array[];
 
       [Description (
        "a sint16 property of CQL_TestPropertyTypes")]
    sint16 PropertySint16;
 
+      [Description ("A sint16 array"),
+       ArrayType ( "Indexed" ) ]
+    sint16 PropertySint16Array[];
+
       [Description (
       "a sint32 property of CQL_TestPropertyTypes")]
    sint32 PropertySint32;
+
+      [Description ("A sint32 array"),
+       ArrayType ( "Indexed" ) ]
+   sint32 PropertySint32Array[];
 
       [Description (
       "a sint64 property of CQL_TestPropertyTypes")]
    sint64 PropertySint64;
 
+      [Description ("A sint64 array"),
+       ArrayType ( "Indexed" ) ]
+   sint64 PropertySint64Array[];
+
       [Description (
       "a boolean property of CQL_TestPropertyTypes")]
    boolean PropertyBoolean;
+
+      [Description ("A boolean array"),
+       ArrayType ( "Indexed" ) ]
+   boolean PropertyBooleanArray[];
 
      [Description (
       "a real32 property of CQL_TestPropertyTypes")]
    real32 PropertyReal32;
 
+     [Description ("A real32 array"),
+       ArrayType ( "Indexed" ) ]
+   real32 PropertyReal32Array[];
+
      [Description (
       "a real64 property of CQL_TestPropertyTypes")]
    real64 PropertyReal64;
+
+     [Description ("A real64 array"),
+       ArrayType ( "Indexed" ) ]
+   real64 PropertyReal64Array[];
 
       [Description (
       "a datetime property of CQL_TestPropertyTypes")]
    datetime PropertyDatetime;
 
+      [Description ("A datetime array"),
+       ArrayType ( "Indexed" ) ]
+   datetime PropertyDatetimeArray[];
+
       [Description (
       "a char16 property of CQL_TestPropertyTypes")]
    char16 PropertyChar16;
-      
+
+      [Description ("A char16 array"),
+       ArrayType ( "Indexed" ) ]
+   char16 PropertyChar16Array[];
+   
+      [Description ("A valuemap array"),
+       ValueMap { "1", "2", "3", "4", "5" },
+       Values { "Other", "Unknown", "Disabled", "Enabled",
+          "Not Implemented" }]
+   uint16 PropertyValueMap;
+   
 };

@@ -4,7 +4,6 @@ DIR = Pegasus/Server
 
 OBJECT_DIRS = \
 	ConfigurationManager \
-	ProviderRegistrationManager \
 	../IndicationService
 
 include $(ROOT)/mak/config.mak
@@ -25,7 +24,8 @@ LIBRARIES = \
     peguser \
     peglocalauth \
     peghandlerservice \
-    pegwql
+    pegwql \
+    pegprm
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -39,8 +39,6 @@ SOURCES = \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
-    ProviderRegistrationManager/ProviderRegistrationTable.cpp \
-    ProviderRegistrationManager/ProviderRegistrationManager.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
     ConfigurationManager/PG_RegistrationProvider.cpp \
     ../IndicationService/IndicationService.cpp

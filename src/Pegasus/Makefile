@@ -20,6 +20,7 @@ DIRS = \
     Security/Authentication \
     WQL \
     HandlerService \
+    Server/ProviderRegistrationManager \
     Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \

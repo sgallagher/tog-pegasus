@@ -434,7 +434,7 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
             // to be reported (even though the destructor is freeing the string!)
             // This seems to work, but needs to be looked at closer some day:
             _bstr_t bstr(bsTemp, FALSE);
-            str = (LPCTSTR)bstr;
+            str.assign((Char16*)((wchar_t*)bstr));
 			
 			//By Jair - Due to Windows automation limitations
 			//the 64 integer bit numbers and the datetime routine
@@ -1303,9 +1303,8 @@ void WMIValue::getAsVariant(CComVariant *var)
 				String data;
 
 				get (data);
-				tmp = data;
 				var->vt = VT_BSTR;
-				var->bstrVal = tmp.Bstr();
+				var->bstrVal = SysAllocString((const WCHAR *)data.getChar16Data());
 			}
 			else
 			{	  
@@ -1326,9 +1325,8 @@ void WMIValue::getAsVariant(CComVariant *var)
 				{
 					CComVariant vOut;
 					
-					tmp = arValue[i];
 					vOut.vt = VT_BSTR;  // set type
-					vOut.bstrVal = tmp.Bstr();
+					vOut.bstrVal = SysAllocString((const WCHAR *)arValue[i].getChar16Data());
 				  
 					if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
 					{

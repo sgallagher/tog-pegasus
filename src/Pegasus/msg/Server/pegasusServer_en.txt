@@ -1841,6 +1841,16 @@ en:table {
         */
         Compiler.cimmofMessages.INVALID_VERSION_FORMAT:string {"PGS04862: Invalid version format in mof class or repository class (valid format is m.n.u)"}
 
+        /**
+        * @version 2.4
+        * @note  PGS04863:
+        *        Do not translate "cimmofl", "cimmof" or "MOF"
+        */
+        Compiler.cmdline.cimmof.cmdline.CIMMOFL_USAGE_WARNING:string {
+            "PGS04863: Warning: Use of cimmofl can corrupt the CIM Server Repository.\n"
+            "         cimmofl should only be used under very controlled situations.\n"
+            "         cimmof is the recommended OpenPegasus MOF compiler.\n\n"}
+
         // ==========================================================
         // Messages for CIMOperationResponseEncoder
         //  Please use message prefix "PGS05000"

@@ -66,6 +66,10 @@ extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
 extern "C++" ostream& help(ostream& os);
 
+#ifndef DISABLE_CIMMOFL_WARNING 
+extern "C++" ostream& cimmofl_warning(ostream& os);
+#endif
+
 #define NAMESPACE_ROOT "root/cimv2"
 
 int
@@ -142,6 +146,7 @@ main(int argc, char ** argv) {
     cerr << MessageLoader::getMessage(parms) << e.getMessage() << endl;
     ret = PEGASUS_CIMMOF_UNEXPECTED_CONDITION;
   }
+
   if (ret) {
     if (ret > 0) {
     	//l10n
@@ -157,6 +162,14 @@ main(int argc, char ** argv) {
     }
     return ret;
   }
+
+#ifndef DISABLE_CIMMOFL_WARNING 
+  if (cmdline.is_local())
+  {
+        cimmofl_warning(cerr);
+  }
+#endif
+
   const Array<String>& filespecs = cmdline.get_filespec_list();
 
 #ifdef PEGASUS_OS_OS400

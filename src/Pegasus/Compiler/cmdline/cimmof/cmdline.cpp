@@ -68,6 +68,22 @@ PEGASUS_USING_PEGASUS;
  
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
 
+#ifndef DISABLE_CIMMOFL_WARNING
+ostream &
+cimmofl_warning(ostream &os) {
+
+  String warn = "Warning: Use of cimmofl can corrupt the CIM Server Repository.\n";
+  warn.append ("         cimmofl should only be used under very controlled situations.\n");
+  warn.append ("         cimmof is the recommended OpenPegasus MOF compiler.\n\n");
+
+  MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.CIMMOFL_USAGE_WARNING",warn);
+
+  os << MessageLoader::getMessage(parms);
+
+  return os;
+}
+#endif
+
 ostream & 
 help(ostream &os) {
 	

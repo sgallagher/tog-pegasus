@@ -2371,7 +2371,7 @@ extern "C" {
       */
      CMPIStatus (*invokeMethod)
              (CMPIMethodMI* mi, CMPIContext* ctx, CMPIResult* rslt,
-              CMPIObjectPath* op, const char *method, CMPIArgs* in, CMPIArgs* out);
+              CMPIObjectPath* op, char *method, CMPIArgs* in, CMPIArgs* out);
    };
 
 

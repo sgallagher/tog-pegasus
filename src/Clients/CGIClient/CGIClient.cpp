@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.14  2001/02/18 23:28:14  karl
+// add namespace stuff. Not finished
+//
 // Revision 1.13  2001/02/18 19:02:16  mike
 // Fixed CIM debacle
 //
@@ -68,10 +71,27 @@
 //
 //END_HISTORY
 
+/* CGIClient - This is a CGI driven test program that 
+1. Makes calls to Pegasus CIMOperations client functions
+using paramaters derived from an environment variable
+defined using CGI specifications.
+2. Analyzes the results and prints an HTML page 
+with the results for the funtion defined.
+
+NOTE: The functions in this program are largely
+made up of single CIM Operation functions (ex. getclass)
+so the parameters for each function match the parameters
+defined for the CIM Operation iteslf.
+
+This Program was intended to be a test and demonstration tool for
+Pegasus.
+*/
+
 #include <cassert>
 #include <cstdlib>
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Stopwatch.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -82,6 +102,7 @@ so is maintained in a configuration file for the client.
 These are set initially to localhost and 8888.
 HostInfo is defined as those parameters associated with a particular
 CIMOM CIMServer and user of that server
+ATTN: Under Construction
 */
 class HostInfo
 {
@@ -432,8 +453,7 @@ void PrintClass(
     PrintObjectProperties(nameSpace, classDecl,includeClassOrigin);
     PrintClassMethods(classDecl);
 
-    cout << "</body>\n";
-    cout << "</html>\n";
+    cout << "</body>\n" << "</html>\n";
 }
 
 /** PrintInstance - Print an HTML page with the characteristics
@@ -457,8 +477,7 @@ const String& nameSpace,
     PrintQualifiers(instanceDecl);
     PrintObjectProperties(nameSpace, instanceDecl, localOnly);
 
-    cout << "</body>\n";
-    cout << "</html>\n";
+    cout << "</body>\n" << "</html>\n";
 }
 
 void PrintPropertyDeclaration(CIMProperty& property)
@@ -586,9 +605,10 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
 static void PrintClassNames(
     const String& nameSpace,
-    const Array<String>& classNames)
+    const Array<String>& classNames,
+    double elapsedTime)
 {
-    PrintHTMLHead("GetClassNames", "EnumerateClassNames Rusult");
+    PrintHTMLHead("GetClassNames", "EnumerateClassNames Result");
     // cout << "<html>\n";
     // PrintHead("GetClassNames");
     // cout << "<body bgcolor=\"#CCCCCC\">\n";
@@ -618,30 +638,35 @@ static void PrintClassNames(
 	PrintA(href, classNames[i]);
 
 	cout << "</tr></td>\n";
-    }
-    // Close the page
+           }
+    // Close the Table
     cout << "</table>\n";
-    cout << "</body>\n";
-    cout << "</html>\n";
-}
 
+    // Close the Page
+    cout << "<p>Returned " << classNames.getSize() << " ClassNames ";
+    cout << " in " << elapsedTime << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
+}
+/** EnumerateClassNames gets the parameters for NameSpace
+and ClassName and calls the  enumerate class name
+CIMOperation.
+The returned array in sent to printclassnames
+*/
 static void EnumerateClassNames(const CGIQueryString& qs)
 {
-    // Get NameSpace:
-
+    // Get NameSpace: 
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-
     String className;
 
     const char* tmp;
 
+    // Get the ClassName field:
     if ((tmp = qs.findValue("ClassName")))
 	className = tmp;
 
-    // Get DeepInheritance:
-
+    // Get DeepInheritance: 
     Boolean deepInheritance = false;
 
     if (qs.findValue("DeepInheritance"))
@@ -650,13 +675,18 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     // Invoke the method: 
     try
     {
+	// Time the connection
+	Stopwatch elapsedTime;
+	
+	// Make the Connection
 	CIMClient client;
 	client.connect("localhost", 8888);
 	
 	Array<String> classNames = client.enumerateClassNames(
 	    nameSpace, className, deepInheritance);
 
-	PrintClassNames(nameSpace, classNames);
+	// Print the results
+	PrintClassNames(nameSpace, classNames, elapsedTime.getElapsed());
 
     }
     catch(Exception& e)
@@ -701,7 +731,8 @@ static void DeleteClass(const CGIQueryString& qs)
     }
 }
 
-void PrintQualifierRow(const String& nameSpace, const CIMQualifierDecl& qd)
+void PrintQualifierRow(const String& nameSpace,
+		       const CIMQualifierDecl& qd)
 {
     cout << "<tr>\n";
 
@@ -791,8 +822,7 @@ void PrintEnumerateQualifiers(
 
     cout << "</table>\n";
 
-    cout << "</body>\n";
-    cout << "</html>\n";
+    cout << "</body>\n" << "</html>\n";
 }
 /* CIMMethod to execute the EnumerateQualifiers operation
 */
@@ -859,7 +889,8 @@ static void GetQualifier(const CGIQueryString& qs)
 */
 static void PrintInstanceNames(
     const String& nameSpace,
-    const Array<String>& InstanceNames)
+    const Array<String>& InstanceNames,
+    double elapsedTime)
 {
     PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");
     // cout << "<html>\n";
@@ -896,10 +927,13 @@ static void PrintInstanceNames(
 
 	cout << "</tr></td>\n";
     }
-    // Close the HTML Page
+    // Close the HTML Table
     cout << "</table>\n";
-    cout << "</body>\n";
-    cout << "</html>\n";
+
+    // Close the Page
+    cout << "<p>Returned " << InstanceNames.getSize() << " Instances ";
+    cout << " in " << elapsedTime << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
   
 }
 
@@ -927,10 +961,13 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 
     try
     {
+	// Time the connection
+	Stopwatch elapsedTime;
+
 	CIMClient client;
 	client.connect("localhost", 8888);
-	/*
-	*/
+	
+	// Call enumerate Instances CIM Method
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 	
@@ -944,7 +981,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	}
 
 	// Print the name array
-	PrintInstanceNames(nameSpace, tmpInstanceNames);
+	PrintInstanceNames(nameSpace, tmpInstanceNames, elapsedTime.getElapsed());
         }
     catch(Exception& e)
     {
@@ -1092,6 +1129,42 @@ static void DeleteInstance(const CGIQueryString& qs)
 
 }
 
+static void CreateNameSpace(const CGIQueryString& qs)
+{
+  // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String nameSpaceName;
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+    String message = "CreateNameSpace Under Construction: "; 
+    ErrorExit(message);
+
+}
+
+static void DeleteNameSpace(const CGIQueryString& qs)
+{
+  // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String nameSpaceName;
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+    String message = "operation deleteNameSpace Under Construction: ";
+    ErrorExit(message);
+
+}
+
 
 /** DefineHostParameters - Function to make the changes
 to the basic host parameters if the input parameters are 
@@ -1117,12 +1190,17 @@ static void DefineHostParameters(const CGIQueryString& qs)
     cout << "<P><B>Host Port</B>  ";
     cout << hostInfo.getHostPortString();
     cout << "\n";
-    cout << "</body>\n";
-    cout << "</html>\n";
+    cout << "</body>\n" << "</html>\n";
 
 
 }
-
+/******************************************************************
+   MAIN - Main function of CGIClient.
+   Outputs the top line of the HTML, gets the function type
+   from the Env variable QUERY_STRING (CGI env var)
+   and calls the appropriate function
+   No command line arguments are expected for CGICLIENT
+*/
 int main(int argc, char** argv)
 {
     cout << "Content-type: text/html\r\n\r\n";
@@ -1170,10 +1248,11 @@ int main(int argc, char** argv)
 	    GetProperty(qs);
 	else if (strcmp(operation, "SetProperty") == 0)
 	    SetProperty(qs);
-
-
-
-	else
+	else if (strcmp(operation, "CreateNameSpace") == 0)
+	    CreateNameSpace(qs);
+	else if (strcmp(operation, "DeleteNameSpace") == 0)
+	    DeleteNameSpace(qs);
+        else
 	{
 	    String message = "CGIClient - Unknown operation: ";
 	    message.append(operation);

@@ -667,8 +667,8 @@ int main(int argc, char** argv)
     if (argv[1] != 0)
     {
        const char *arg = argv[1];
-       if ((strcasecmp(arg, "-verbose") == 0) || 
-           (strcasecmp(arg, "verbose") == 0))
+       if ((strcmp(arg, "-verbose") == 0) || 
+           (strcmp(arg, "verbose") == 0))
            verboseTest = true;
     }
 

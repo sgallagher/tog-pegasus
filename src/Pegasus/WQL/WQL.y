@@ -59,6 +59,7 @@ extern int WQL_error(char*);
 %token <strValue> TOK_STRING
 %token <intValue> TOK_TRUE
 %token <intValue> TOK_FALSE
+%token <intValue> TOK_NULL
 
 %token <intValue> TOK_EQ
 %token <intValue> TOK_NE
@@ -70,7 +71,7 @@ extern int WQL_error(char*);
 %token <intValue> TOK_NOT
 %token <intValue> TOK_OR
 %token <intValue> TOK_AND
-%token <intValue> TOK_ISA
+%token <intValue> TOK_IS
 
 %token <strValue> TOK_IDENTIFIER
 %token <intValue> TOK_SELECT
@@ -79,19 +80,19 @@ extern int WQL_error(char*);
 
 %token <strValue> TOK_UNEXPECTED_CHAR
 
-%type <nodeValue> constant
-%type <nodeValue> property
-%type <nodeValue> propertyListOrStar
+%type <nodeValue> propertyName
 %type <nodeValue> propertyList
-%type <nodeValue> expressionTerm
-%type <nodeValue> expression
+%type <nodeValue> predicate
+%type <nodeValue> comparisonPredicate
+%type <nodeValue> comparisonTerm
+%type <nodeValue> nullPredicate
+%type <nodeValue> searchCondition
+%type <nodeValue> fromClause
 %type <nodeValue> whereClause
-%type <strValue> fromClass
 %type <nodeValue> selectStatement
+%type <nodeValue> selectList
+%type <nodeValue> selectExpression
 %type <strValue> className
-%type <nodeValue> function
-%type <nodeValue> functionParameterList
-%type <nodeValue> functionParameter
 
 %left TOK_OR
 %left TOK_AND
@@ -110,217 +111,160 @@ extern int WQL_error(char*);
 start
     : selectStatement
     {
-	WQL_TRACE(("YACC: start: selectStatement\n"));
+
     }
 
 selectStatement
-    : TOK_SELECT propertyListOrStar fromClass
-    {
-	WQL_TRACE(("YACC: selectStatement\n"));
-    } 
-    | TOK_SELECT propertyListOrStar fromClass whereClause
-    {
-	WQL_TRACE(("YACC: selectStatement\n"));
-    }
-
-fromClass : TOK_FROM className
-    {
-	WQL_TRACE(("YACC: fromClass : TOK_FROM %s\n", $2));
-	$$ = $2;
-    }
-
-className : TOK_IDENTIFIER
-    {
-	WQL_TRACE(("YACC: className : %s\n", $1));
-	$$ = $1
-    }
-
-whereClause : TOK_WHERE expression
-    {
-	WQL_TRACE(("YACC: whereClause : TOK_WHERE expression\n"));
-    }
-
-propertyListOrStar 
-    : propertyList
-    {
-
-    }
-    | '*'
-    {
-	WQL_TRACE(("YACC: propertyListOrStar: '*'\n"));
-    }
-
-propertyList : property
-    {
-
-    }
-    | propertyList ',' property
+    : TOK_SELECT selectList selectExpression
     {
 
     }
 
-property 
+selectList
+    : '*'
+    {
+
+    }
+    | propertyList
+    {
+
+    }
+
+propertyList 
+    : propertyName
+    {
+
+    }
+    | propertyList ',' propertyName
+    {
+
+    }
+
+selectExpression
+    : fromClause whereClause
+    {
+
+    }
+    | fromClause
+    {
+
+    }
+
+fromClause
+    : TOK_FROM className
+    {
+
+    }
+
+whereClause 
+    : TOK_WHERE searchCondition
+    {
+
+    }
+
+searchCondition 
+    : searchCondition TOK_OR searchCondition
+    {
+
+    }
+    | searchCondition TOK_AND searchCondition
+    {
+
+    }
+    | TOK_NOT searchCondition
+    {
+
+    }
+    | '(' searchCondition ')'
+    {
+
+    }
+    | predicate
+    {
+
+    }
+    | predicate TOK_IS truthValue
+    {
+
+    }
+    | predicate TOK_IS TOK_NOT truthValue
+    {
+
+    }
+
+predicate
+    : comparisonPredicate
+    {
+
+    }
+    | nullPredicate
+    {
+
+    }
+
+comparisonPredicate
+    : comparisonTerm TOK_LT comparisonTerm 
+    {
+
+    }
+    | comparisonTerm TOK_GT comparisonTerm
+    {
+
+    }
+    | comparisonTerm TOK_LE comparisonTerm
+    {
+
+    }
+    | comparisonTerm TOK_GE comparisonTerm
+    {
+
+    }
+    | comparisonTerm TOK_EQ comparisonTerm
+    {
+
+    }
+    | comparisonTerm TOK_NE comparisonTerm
+    {
+
+    }
+
+nullPredicate
+    : comparisonTerm TOK_IS TOK_NULL
+    {
+
+    }
+    | comparisonTerm TOK_IS TOK_NOT TOK_NULL
+    {
+
+    }
+
+truthValue 
+    : TOK_TRUE 
+    {
+
+    }
+    | TOK_FALSE
+    {
+
+    }
+
+propertyName 
     : TOK_IDENTIFIER
     {
 
     }
-    | TOK_IDENTIFIER '.' TOK_IDENTIFIER
+
+className : TOK_IDENTIFIER
     {
 
     }
 
-expression 
-    : expression TOK_OR expression
+comparisonTerm
+    : propertyName
     {
 
     }
-    | expression TOK_AND expression
-    {
-
-    }
-    | TOK_NOT expression
-    {
-
-    }
-    | '(' expression ')'
-    {
-
-    }
-    | expressionTerm
-    {
-
-    }
-
-expressionTerm
-    : property TOK_LT constant
-    {
-
-    }
-    | property TOK_GT constant
-    {
-
-    }
-    | property TOK_LE constant
-    {
-
-    }
-    | property TOK_GE constant
-    {
-
-    }
-    | property TOK_EQ constant
-    {
-
-    }
-    | property TOK_NE constant
-    {
-
-    }
-    | constant TOK_LT property
-    {
-
-    }
-    | constant TOK_GT property
-    {
-
-    }
-    | constant TOK_LE property
-    {
-
-    }
-    | constant TOK_GE property
-    {
-
-    }
-    | constant TOK_EQ property
-    {
-
-    }
-    | constant TOK_NE property
-    {
-
-    }
-    | function TOK_LT constant
-    {
-
-    }
-    | function TOK_GT constant
-    {
-
-    }
-    | function TOK_LE constant
-    {
-
-    }
-    | function TOK_GE constant
-    {
-
-    }
-    | function TOK_EQ constant
-    {
-
-    }
-    | function TOK_NE constant
-    {
-
-    }
-    | constant TOK_LT function
-    {
-
-    }
-    | constant TOK_GT function
-    {
-
-    }
-    | constant TOK_LE function
-    {
-
-    }
-    | constant TOK_GE function
-    {
-
-    }
-    | constant TOK_EQ function
-    {
-
-    }
-    | constant TOK_NE function
-    {
-
-    }
-    | className TOK_ISA className
-    {
-
-    }
-
-function 
-    : TOK_IDENTIFIER '(' ')'
-    {
-
-    }
-    | TOK_IDENTIFIER '(' functionParameterList ')'
-    {
-
-    }
-
-functionParameterList
-    : functionParameter
-    {
-
-    }
-    | functionParameterList ',' functionParameter
-    {
-
-    }
-
-functionParameter
-    : property
-    | constant
-    | function
-    ;
-
-constant 
-    : TOK_INTEGER
+    | TOK_INTEGER
     {
 
     }
@@ -330,8 +274,10 @@ constant
     }
     | TOK_STRING
     {
-	WQL_TRACE(("YACC: TOK_STRING: %s\n", $1));
-	$$ = $1;
+
+    }
+    | truthValue
+    {
     }
 
 %%

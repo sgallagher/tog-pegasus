@@ -51,6 +51,12 @@ IDENT_CHAR [A-Za-z_]
     return TOK_FALSE;
 }
 
+[Nn][Ul][Ul] {
+
+    WQL_TRACE(("LEX: TOK_NULL: %s\n", yytext));
+    return TOK_NULL;
+}
+
 [Nn][Oo][Tt] {
 
     WQL_TRACE(("LEX: TOK_NOT: %s\n", yytext));
@@ -69,10 +75,10 @@ IDENT_CHAR [A-Za-z_]
     return TOK_OR;
 }
 
-[Ii][Ss][Aa] {
+[Ii][Ss] {
 
-    WQL_TRACE(("LEX: TOK_ISA: %s\n", yytext));
-    return TOK_ISA;
+    WQL_TRACE(("LEX: TOK_IS: %s\n", yytext));
+    return TOK_IS;
 }
 
 [-+]?{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {

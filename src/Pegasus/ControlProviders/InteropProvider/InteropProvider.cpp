@@ -33,6 +33,7 @@
 //                (carolann_graves@hp.com)
 //              Karl Schopmeyer - Created Cim_Namespace capabilities.
 //              Karl Schopmeyer - added objectmanager and communication classes
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3194
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -650,17 +651,12 @@ void _fixInstanceCommonKeys(CIMInstance& instance)
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_fixInstanceCommonKeys()");
     String SystemCreationClassName = System::getSystemCreationClassName ();
-    if (SystemCreationClassName == String::EMPTY)
-    {
-        //Attn: Get this globally. For now This in place because global is often Empty
-        SystemCreationClassName = "CIM_ComputerSystem";
-    }
 
     _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME,SystemCreationClassName);
 
     // Add property SystemName
 
-    _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_SYSTEMNAME,System::getHostName());
+    _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_SYSTEMNAME,System::getFullyQualifiedHostName());
     PEG_METHOD_EXIT();
 }
 
@@ -1208,7 +1204,7 @@ void _validateCIMNamespaceKeys(const CIMObjectPath& objectPath)
     }
     if (!_validateRequiredProperty(objectPath,
                 CIM_NAMESPACE_PROPERTY_SYSTEMNAME,
-                System::getHostName()))
+                System::getFullyQualifiedHostName()))
     {
         propertyName = CIM_NAMESPACE_PROPERTY_SYSTEMNAME;
         valid = false;
@@ -1312,7 +1308,7 @@ Boolean _completeCIMNamespaceKeys(CIMInstance& instance)
 
     if (!_completeProperty(instance,
                 CIM_NAMESPACE_PROPERTY_SYSTEMNAME,
-                System::getHostName()))
+                System::getFullyQualifiedHostName()))
     {
         propertyName = CIM_NAMESPACE_PROPERTY_SYSTEMNAME;
         valid = false;
@@ -1379,7 +1375,7 @@ void _validateCIMNamespaceKeys(const CIMInstance& instance)
 
     if (!_validateRequiredProperty(instance,
                 CIM_NAMESPACE_PROPERTY_SYSTEMNAME,
-                System::getHostName()))
+                System::getFullyQualifiedHostName ()))
     {
         propertyName = CIM_NAMESPACE_PROPERTY_SYSTEMNAME;
         valid = false;

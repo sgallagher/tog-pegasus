@@ -39,6 +39,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Yi Zhou (yi.zhou@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3194
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -606,14 +607,7 @@ String System::getSystemCreationClassName ()
     //  property used in the instrumentation of the CIM_ComputerSystem class
     //  as determined by the provider for the CIM_ComputerSystem class
     //
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
     return "CIM_ComputerSystem";
-#else
-    //
-    //  ATTN: Implement this method to return the system creation class name
-    //
-    return String::EMPTY;
-#endif
 }
 
 Uint32 System::lookupPort(

@@ -51,7 +51,11 @@ static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
 /** Service name for pam_start */
 const char *service = "wbem";
 
-CString userPassword;
+typedef struct 
+{
+    CString userPassword;
+} APP_DATA;
+
 
 /* constructor. */
 PAMBasicAuthenticator::PAMBasicAuthenticator() 
@@ -100,16 +104,20 @@ Boolean PAMBasicAuthenticator::authenticate(
     struct pam_conv pconv;
     pam_handle_t *phandle;
     char *name;
+    APP_DATA mydata;
+
+    //
+    // Store the password for PAM authentication
+    //
+    mydata.userPassword = password.getCString();
 
     pconv.conv = PAMBasicAuthenticator::PAMCallback;
-    pconv.appdata_ptr = NULL;
-
-    userPassword = password.getCString();
+    pconv.appdata_ptr = &mydata;
 
 //    WARNING: Should only be uncommented for debugging in a secure environment.
 //    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
 //       "PAMBasicAuthenticator::authenticate() - userName = %s; userPassword = %s",
-//       (const char *)userName.getCString(), (const char *)userPassword);
+//       (const char *)userName.getCString(), (const char *)password.getCString());
 
     //
     //Call pam_start since you need to before making any other PAM calls
@@ -181,6 +189,13 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::PAMCallback()");
+
+    //
+    // Copy the application specific data from the PAM structure.
+    //
+    APP_DATA *mydata;
+    mydata = (APP_DATA *) appdata_ptr;
+
     // 
     // Allocate the response buffers 
     // 
@@ -209,7 +224,7 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
                 // copy the user password
                 // 
                 resp[i]->resp = (char *)malloc(PAM_MAX_MSG_SIZE);
-                strcpy(resp[i]->resp, userPassword);
+                strcpy(resp[i]->resp, mydata->userPassword);
                 resp[i]->resp_retcode = 0;
                 break;
 

@@ -803,15 +803,14 @@ void SampleFamilyProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
-
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        "enumerateInstances. Class= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
 		(const char *) classReference.toString().getCString(),
         (const char *) _showBool(includeQualifiers).getCString(),
         (const char *) _showBool(includeClassOrigin).getCString(),
         (const char *) _showPropertyList(propertyList).getCString());
 
     CIMNamespaceName nameSpace = classReference.getNameSpace();
-    //CIMName myClassName = classReference.getClassName();
 
     // begin processing the request
 	handler.processing();
@@ -1128,17 +1127,19 @@ void SampleFamilyProvider::_associators(
                                     resultClass,
                                     resultRole);
 
+        // Loop to process all resultPaths
         for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
         {
             // instance index corresponds to reference index
-            for(Uint32 i = 0, n = resultInstanceArray.size(); i < n; i++)
+            // For each resultInstance, if matches result path, Deliver.
+            for(Uint32 j = 0, n = resultInstanceArray.size(); j < n; j++)
             {
-                CIMObjectPath newPath = resultInstanceArray[i].getPath();
+                CIMObjectPath newPath = resultInstanceArray[j].getPath();
 
-                if(localObjectName.identical(newPath))
+                if(resultPaths[i].identical(newPath))
                 {
 
-                    handler.deliver(_filter(resultInstanceArray[i],
+                    handler.deliver(_filter(resultInstanceArray[j],
                         includeQualifiers, includeClassOrigin, propertyList));
                 }
             }

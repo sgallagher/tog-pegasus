@@ -306,7 +306,7 @@ int cimserver_kill(void)
 ////////////////////////////////////////////////////
 Boolean isCIMServerRunning(void)
 {
-
+#pragma convert(37)
   // Construct a ycmJob object
   ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
 
@@ -319,6 +319,7 @@ Boolean isCIMServerRunning(void)
   }
 
   return false;
+#pragma convert(0)
 }
 
 ////////////////////////////////////////////////////

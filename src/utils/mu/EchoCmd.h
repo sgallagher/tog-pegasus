@@ -40,4 +40,6 @@
 
 int EchoCmd(const vector<string>& args);
 
+int EchoWithEscapeCmd(const vector<string>& args);
+
 #endif /* _EchoCmd_h */

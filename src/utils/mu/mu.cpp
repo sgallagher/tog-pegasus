@@ -98,6 +98,8 @@ int main(int argc, char** argv)
         result = MkDirHierCmd(args);
     else if (args[0] == "echo")
         result = EchoCmd(args);
+    else if (args[0] == "echo-e")
+        result = EchoWithEscapeCmd(args);
     else if (args[0] == "touch")
         result = TouchCmd(args);
     else if (args[0] == "pwd")

@@ -48,3 +48,65 @@ int EchoCmd(const vector<string>& args)
 
     return 0;
 }
+
+
+// EchoWithEscapeCmd (echo-e) supports the following
+// limited set of escape sequences.
+//       \a     alert (BEL)
+//       \b     backspace
+//       \c     suppress trailing newline
+//       \n     new line
+//       \r     carriage return
+//       \t     horizontal tab
+
+int EchoWithEscapeCmd(const vector<string>& args)
+{
+    for (size_t i = 1; i < args.size(); i++)
+    {
+        string text = args[i];
+        int textLen = text.size(); 
+
+        int j = 0;
+        while (j < textLen - 1)
+        {
+             if ((text[j] == '\\') && (text[j+1] != '\\'))
+             {
+                   j++;
+                   switch (text[j])
+                   {
+                       case 'a':
+                           cout << "\a";
+                           break;
+                       case 'b':
+                           cout << "\b";
+                           break;
+                       case 'c':
+                           return 0;
+                       case 'n':
+                           cout << "\n";
+                           break;
+                       case 'r':
+                           cout << "\r";
+                           break;
+                       case 't':
+                           cout << "\t";
+                           break;
+                       default:
+                           cout << "\\" << text[j]; 
+                    } 
+             }
+             else
+             {
+                 cout << text[j];
+             }
+             j++;
+        }
+        if (j == textLen - 1)
+           cout << text[j];
+
+        if (i + 1 != args.size())
+	   cout << ' ';
+     }
+     cout << endl;
+     return 0;
+}

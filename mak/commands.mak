@@ -20,6 +20,7 @@ ifeq ($(OS),win32)
     MKDIRHIER = $(MUEXE) mkdirhier
     RMDIRHIER = $(MUEXE) rmdirhier
     ECHO = mu echo
+    ECHO-E = mu echo-e
     COPY = mu copy
     CHMOD =
     CHOWN =
@@ -39,6 +40,7 @@ ifeq ($(OS),HPUX)
     RMDIRHIER = rm -rf
     CPDIRHIER = cp -R
     ECHO = echo
+    ECHO-E = echo
     COPY = cp
     TOUCH = touch
     CAT = cat
@@ -88,6 +90,7 @@ ifeq ($(OS),solaris)
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo
+    ECHO-E = mu echo-e 
     COPY = cp
     CHMOD =
     CHOWN =
@@ -107,6 +110,7 @@ ifeq ($(OS),linux)
     RMDIRHIER = rm -rf
     CPDIRHIER = cp -R
     ECHO = echo
+    ECHO-E = echo -e
     COPY = cp
     TOUCH = touch
     CAT = cat
@@ -151,6 +155,7 @@ ifeq ($(OS),zos)
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO =
+    ECHO-E =
     COPY = cp
     CHMOD =
     CHOWN =
@@ -169,6 +174,7 @@ ifeq ($(OS),VMS)
     MKDIRHIER = $(MUEXE) mkdirhier
     RMDIRHIER = $(MUEXE) rmdirhier
     ECHO =
+    ECHO-E =
     CHMOD =
     CHOWN =
     CHGRP =
@@ -186,6 +192,7 @@ ifeq ($(OS),aix)
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo
+    ECHO-E = 
     COPY = cp
     CHMOD =
     CHOWN =

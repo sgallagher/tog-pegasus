@@ -1,14 +1,31 @@
-ROOT= ../../..
 DIR = utils/mu
-include $(ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/config.mak
 
 PROGRAM = mu
+
+OBJ_DIR = .
+INCLUDES = -I$(PEGASUS_ROOT)/src $(EXTRA_INCLUDES)
+EXE_OUTPUT = $(EXE_OUT)$(PROGRAM)$(EXE)
 
 ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp
     DEFINES += -DOS_WINDOWS
+    RM = del
+    BACKWARD_SLASH = 1
 else
     PLATFORM_SOURCES = FilesUnix.cpp
+    OBJ_OUT = -o 
+    RM = rm -f
+endif
+
+ifdef PEGASUS_MU_BIN_DIR
+  ifdef BACKWARD_SLASH
+     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)$(EXE)
+  else
+     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)$(EXE)
+  endif
+else
+   FULL_PROGRAM = $(PROGRAM)$(EXE)
 endif
 
 
@@ -29,8 +46,21 @@ SOURCES = \
     StripCmd.cpp \
     PrependCmd.cpp
 
-include $(ROOT)/mak/program.mak
+OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
+%$(OBJ): %.cpp
+	$(CXX) -c $(OBJ_OUT)$@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp 
+
+
+$(FULL_PROGRAM): $(OBJECTS)
+	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIB)
+	$(MKDIRHIER) $(BIN_DIR)
+	$(COPY) $(FULL_PROGRAM) $(BIN_DIR)/$(PROGRAM)$(EXE)
+
+clean:
+	$(RM) $(OBJECTS)
+	$(RM) $(FULL_PROGRAM)
+	
 tests:
 
 poststarttests:

@@ -100,11 +100,12 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMServer::CIMServer *_cimserver = NULL;
+static CIMServer *_cimserver = NULL;
 
 // Need a static method to act as a callback for the control provider.
 // This doesn't belong here, but I don't have a better place to put it.
@@ -153,8 +154,7 @@ void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
     PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
     Tracer::trace(TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n);
 
-    handleShutdownSignal = true;
-    CIMServer::getCIMServer()->get_monitor()->tickle();
+    CIMServer::shutdownSignal();
 
     PEG_METHOD_EXIT();
 }
@@ -163,7 +163,7 @@ void CIMServer::shutdownSignal()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdownSignal()");
     handleShutdownSignal = true;
-    _monitor->tickle();
+    _cimserver->tickle_monitor();
     PEG_METHOD_EXIT();
 }
 
@@ -192,14 +192,9 @@ CIMServer::CIMServer(monitor_2* m2)
     PEG_METHOD_EXIT();
 }
 
-CIMServer * CIMServer::getCIMServer(){
-	return _cimserver;
+void CIMServer::tickle_monitor(){
+    _monitor->tickle();
 }
-
-Monitor * CIMServer::get_monitor(){
-	return _monitor;
-}
-
 void CIMServer::_init(void)
 {
 

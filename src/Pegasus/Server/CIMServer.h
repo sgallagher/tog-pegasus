@@ -113,8 +113,7 @@ public:
     */
     void bind();
 
-    static CIMServer* getCIMServer();
-    Monitor* get_monitor();
+    void tickle_monitor();
 
     /** routine to call when monitor_2 is idle 
      */
@@ -158,7 +157,7 @@ public:
 
     /** Signal to shutdown
     */
-    void shutdownSignal();
+    static void shutdownSignal();
 
     /** startSLPProvider is a temporary function to get this
         provider started as part of system startup.

@@ -395,12 +395,6 @@ private:
 
     SSLContextRep* _rep;
 
-    //PEP187
-    /** Sets the certificate revocation store of the SSLContext object.
-    @param store the new CRL store (necessary for updates and deletions)
-    */
-    void setCRLStore(X509_STORE* store);
-
     friend class SSLSocket;
 
     friend class CIMServer;

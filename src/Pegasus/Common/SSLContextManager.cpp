@@ -256,11 +256,11 @@ void SSLContextManager::reloadCRLStore()
         WriteLock contextLock(_sslContextObjectLock);
         if (_sslContext)
         {
-            _sslContext->setCRLStore(_getNewX509Store(crlPath));
+            _sslContext->_rep->setCRLStore(_getNewX509Store(crlPath));
         }
         if (_exportSSLContext)
         {
-            _exportSSLContext->setCRLStore(_getNewX509Store(crlPath));
+            _exportSSLContext->_rep->setCRLStore(_getNewX509Store(crlPath));
         }
     }
 

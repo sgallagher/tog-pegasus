@@ -1247,11 +1247,6 @@ X509_STORE* SSLContext::getCRLStore() const
     return (_rep->getCRLStore()); 
 }
 
-void SSLContext::setCRLStore(X509_STORE* store)
-{
-    _rep->setCRLStore(store);
-}
-
 Boolean SSLContext::isPeerVerificationEnabled() const
 {
     return (_rep->isPeerVerificationEnabled());

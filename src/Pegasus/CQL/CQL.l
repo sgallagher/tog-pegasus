@@ -6,7 +6,11 @@
 #include <cstring>
 #include "memobjs.h"
 #include "CQLYACC.h"
-
+PEGASUS_NAMESPACE_BEGIN
+                                                                                
+extern CQLParserState* globalParserState;
+                                                                                
+PEGASUS_NAMESPACE_END
 
 %}
 SIGN [+-]

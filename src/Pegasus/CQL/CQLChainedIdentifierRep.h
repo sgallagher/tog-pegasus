@@ -32,18 +32,18 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep
 {
   public:
 
-    CQLChainedIdentifierRep(){}
+    CQLChainedIdentifierRep();
     /**  constructor 
           Parses the string into the various components of a CQL identifier.
           Throws parsing errors.
       */
     CQLChainedIdentifierRep(String inString);
 
-    CQLChainedIdentifierRep(CQLIdentifier & id);
+    CQLChainedIdentifierRep(CQLIdentifier &id);
  
-    CQLChainedIdentifierRep(const CQLChainedIdentifierRep& rep);
+    CQLChainedIdentifierRep(const CQLChainedIdentifierRep* rep);
 
-    ~CQLChainedIdentifierRep(){}
+    ~CQLChainedIdentifierRep();
 
     /**  The getSubIdentifiers method
     returns the array of subIdentifiers from a CQL SELECT
@@ -67,11 +67,13 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep
 
     CQLIdentifier& operator[](Uint32 index);
 
+    CQLChainedIdentifierRep& operator=(const CQLChainedIdentifierRep& rhs);
+
     Boolean isSubChain(CQLChainedIdentifier & chain);
 
     CQLIdentifier getLastIdentifier();
 	
-    void applyScopes(Array<CQLScope>& scopes);
+    Boolean applyScopes();
 
     friend class CQLFactory;
 

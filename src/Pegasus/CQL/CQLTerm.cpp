@@ -13,12 +13,12 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 
-CQLTerm::CQLTerm():_rep(0){
-
+CQLTerm::CQLTerm(){
+	_rep = new CQLTermRep();
 }
 
 CQLTerm::CQLTerm(const CQLTerm& inTerm){
-	_rep = inTerm._rep;
+	_rep = new CQLTermRep(inTerm._rep);
 }
 
 CQLTerm::CQLTerm(CQLFactor theFactor)
@@ -69,6 +69,15 @@ Array<FactorOpType> CQLTerm::getOperators()
 void CQLTerm::applyScopes(Array<CQLScope> inScope)
 {
 	_rep->applyScopes(inScope);
+}
+
+CQLTerm& CQLTerm::operator=(const CQLTerm& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLTermRep(rhs._rep);
+	}
+	return *this;
+
 }
 
 PEGASUS_NAMESPACE_END

@@ -3,6 +3,10 @@
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
+CQLChainedIdentifierRep::CQLChainedIdentifierRep(){
+//	printf("CQLChainedIdentifier()\n");
+}
+
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(String inString)
 {
 	parse(inString);
@@ -11,10 +15,17 @@ CQLChainedIdentifierRep::CQLChainedIdentifierRep(String inString)
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(CQLIdentifier &id)
 {
         _subIdentifiers.append(id);
+//	printf("CQLChainedIdentifier(CQLIdentifier &id)\n");
 }
 
-CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLChainedIdentifierRep& rep){
-	_subIdentifiers = rep.getSubIdentifiers();	
+CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLChainedIdentifierRep* rep){
+	_subIdentifiers = rep->_subIdentifiers;
+//	printf("CQLChainedIdentifier COPY CONSTR\n");	
+}
+
+CQLChainedIdentifierRep::~CQLChainedIdentifierRep(){
+	
+//	printf("~CQLChainedIdentifierRep()\n");
 }
 
 const Array<CQLIdentifier>& CQLChainedIdentifierRep::getSubIdentifiers()const
@@ -55,6 +66,14 @@ CQLIdentifier& CQLChainedIdentifierRep::operator[](Uint32 index){
 	return _subIdentifiers[index];
 }
 
+CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(const CQLChainedIdentifierRep& rhs){
+	if(&rhs != this){
+		_subIdentifiers = rhs._subIdentifiers;
+//		printf("CQLChainedIdentifierRep::operator=\n");
+	}
+	return *this;
+}
+
 Uint32 CQLChainedIdentifierRep::size(){
 	return _subIdentifiers.size();
 }
@@ -72,8 +91,8 @@ Boolean CQLChainedIdentifierRep::prepend(CQLIdentifier & id){
 	return false;
 }
 
-void CQLChainedIdentifierRep::applyScopes(Array<CQLScope>& scopes){
-
+Boolean CQLChainedIdentifierRep::applyScopes(){
+	return true;
 }
 
 void CQLChainedIdentifierRep::parse(String & string){

@@ -19,7 +19,7 @@ class PEGASUS_CQL_LINKAGE QueryContext;
 class CQLSimplePredicate
 {
   public:
-    CQLSimplePredicate():_rep(0){}
+    CQLSimplePredicate();
 
     CQLSimplePredicate(const CQLExpression& inExpression);
 
@@ -72,6 +72,8 @@ class CQLSimplePredicate
     String toString();
     Boolean isSimple();
     Boolean isSimpleValue();
+
+    CQLSimplePredicate& operator=(const CQLSimplePredicate& rhs);
 
     friend class CQLFactory;
   private:

@@ -69,6 +69,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
    Array<CQLFactor> getFactors();
    Array<FactorOpType> getOperators();
    void applyScopes(Array<CQLScope> inScope); 
+   CQLTerm& operator=(const CQLTerm& rhs);
    friend class CQLFactory;
 
   private:

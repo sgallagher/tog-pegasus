@@ -29,7 +29,7 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
     /** constructor takes one CQLTerm object.
       */
     CQLExpressionRep(CQLTerm& theTerm);
-   CQLExpressionRep(const CQLExpressionRep& rep);
+   CQLExpressionRep(const CQLExpressionRep* rep);
     /**  the getValue method evaluates the expression and returns the value.
           Any property that need to be resolved into a value is taken from the
     CIMInstance.

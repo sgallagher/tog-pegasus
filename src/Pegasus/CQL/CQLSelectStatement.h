@@ -29,7 +29,7 @@ Notes on CQLSelectStatement class:
 class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 {
   public:
-    CQLSelectStatement():_rep(0){}
+    CQLSelectStatement();
 
     /**  This is the constructor for the CQLSelectStatement object.  
            The ctor requires 3 parameters:   
@@ -50,6 +50,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         String inQuery, 
         
         QueryContext& inCtx);
+
+	CQLSelectStatement(const CQLSelectStatement& statement);
 
 	~CQLSelectStatement();
 
@@ -180,6 +182,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         /**  Input the chained CQL identifiers to append. 
            */
         const CQLChainedIdentifier& x);
+
+    CQLSelectStatement& operator=(const CQLSelectStatement& rhs);
 
   private:
 	CQLSelectStatementRep* _rep;

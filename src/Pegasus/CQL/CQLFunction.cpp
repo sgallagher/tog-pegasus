@@ -4,11 +4,11 @@
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
-/*
-CQLFunction::CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms)
+
+CQLFunction::CQLFunction()
 {
-	_rep = new CQLFunctionRep(inFunctionOpType,inParms);
-} */
+	_rep = new CQLFunctionRep();
+} 
 
 CQLFunction::CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms)
 {
@@ -17,7 +17,7 @@ CQLFunction::CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms)
 
 CQLFunction::CQLFunction(const CQLFunction& inFunc)
 {
-	_rep = inFunc._rep;
+	_rep = new CQLFunctionRep(inFunc._rep);
 }
 
 CQLFunction::~CQLFunction(){
@@ -49,6 +49,14 @@ FunctionOpType CQLFunction::getFunctionType()
 void CQLFunction::applyScopes(Array<CQLScope> inScopes)
 {
 	return _rep->applyScopes(inScopes);
+}
+
+CQLFunction& CQLFunction::operator=(const CQLFunction& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLFunctionRep(rhs._rep);
+	}
+	return *this;
 }
 
 Boolean CQLFunction::operator==(const CQLFunction& func){

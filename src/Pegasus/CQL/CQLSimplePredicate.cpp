@@ -6,6 +6,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CQLSimplePredicate::CQLSimplePredicate(){
+	_rep = new CQLSimplePredicateRep();
+}
+
 CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression)
 {
 	_rep = new CQLSimplePredicateRep(inExpression);
@@ -22,7 +26,7 @@ CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& leftSideExpression, 
 }
 
 CQLSimplePredicate::CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate){
-        _rep = inSimplePredicate._rep;
+        _rep = new CQLSimplePredicateRep(inSimplePredicate._rep);
 }
 
 CQLSimplePredicate::~CQLSimplePredicate(){
@@ -61,4 +65,12 @@ Boolean CQLSimplePredicate::isSimpleValue(){
 	return _rep->isSimpleValue();
 }
  
+CQLSimplePredicate& CQLSimplePredicate::operator=(const CQLSimplePredicate& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLSimplePredicateRep(rhs._rep);
+	}
+	return *this;
+}
+
 PEGASUS_NAMESPACE_END

@@ -24,7 +24,7 @@ class CQLSimplePredicateRep
     CQLSimplePredicateRep(const CQLExpression& inExpression, ExpressionOpType inOperator);
 
     CQLSimplePredicateRep(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator);
-    CQLSimplePredicateRep(const CQLSimplePredicateRep& rep);
+    CQLSimplePredicateRep(const CQLSimplePredicateRep* rep);
     ~CQLSimplePredicateRep(){}
 
     /**  

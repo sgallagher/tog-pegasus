@@ -23,7 +23,7 @@ void printf_(char * msg){
 }
 extern char * yytext;
 int chain_state;
-CQLFactory _factory;
+CQLFactory _factory = CQLFactory();
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
@@ -107,8 +107,8 @@ PEGASUS_NAMESPACE_END
 
 /* grammar - non terminals */
 %type <_identifier> identifier
-%type <strValue> class_name
-%type <strValue> class_path
+%type <_identifier> class_name
+%type <_identifier> class_path
 %type <_identifier> scoped_property
 %type <_string> literal_string
 %type <_value> binary_value
@@ -157,10 +157,9 @@ identifier  : IDENTIFIER
 
 class_name : identifier  
              {
-                 String tmp = $1->getName().getString(); 
-                 sprintf(msg,"BISON::class_name = %s\n", (const char *)tmp.getCString()); 
+                 sprintf(msg,"BISON::class_name = %s\n", (const char *)($1->getName().getString().getCString())); 
 		 printf_(msg);
-
+		$$ = $1;
              }
 ;
 
@@ -168,7 +167,9 @@ class_path : class_name
              { 
                  sprintf(msg,"BISON::class_path\n"); 
 		 printf_(msg);
-
+		 $$ = $1;
+		 sprintf(msg,"BISON::class_path = %s\n", (const char *)($$->getName().getString().getCString()));
+                 printf_(msg);
              }
 ;
 /*
@@ -856,8 +857,7 @@ from_specifier : class_path
                      sprintf(msg,"BISON::from_specifier->class_path\n");
 		     printf_(msg);
 
-		     CQLIdentifier _id($1);
-		     globalParserState->statement->appendClassPath(_id);
+		     globalParserState->statement->appendClassPath(*$1);
                  } 
 
 		| class_path AS identifier
@@ -865,7 +865,7 @@ from_specifier : class_path
 			sprintf(msg,"BISON::from_specifier->class_path AS identifier\n");
 			printf_(msg);
 
-			CQLIdentifier _class($1);
+			CQLIdentifier _class(*$1);
 			String _alias($3->getName().getString());
 			globalParserState->statement->insertClassPathAlias(_class,_alias);
 			globalParserState->statement->appendClassPath(_class);
@@ -875,7 +875,7 @@ from_specifier : class_path
 			sprintf(msg,"BISON::from_specifier->class_path identifier\n");
 			printf_(msg);
 
-			CQLIdentifier _class($1);
+			CQLIdentifier _class(*$1);
                         String _alias($2->getName().getString());
                         globalParserState->statement->insertClassPathAlias(_class,_alias);
                         globalParserState->statement->appendClassPath(_class);
@@ -903,7 +903,6 @@ selected_entry : expr
                  {
                      sprintf(msg,"BISON::selected_entry->expr\n");
 		     printf_(msg);
-
 		     if($1->isSimpleValue()){
 		        CQLChainedIdentifier *_cid = (CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier));
 		        globalParserState->statement->appendSelectIdentifier(*_cid);
@@ -915,7 +914,6 @@ selected_entry : expr
                  {
                      sprintf(msg,"BISON::selected_entry->star_expr\n");
 		     printf_(msg);
-
 		     globalParserState->statement->appendSelectIdentifier(*$1);
                  }
 ;

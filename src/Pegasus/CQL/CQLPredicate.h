@@ -66,7 +66,7 @@ variable is set to TRUE
 class PEGASUS_CQL_LINKAGE CQLPredicate
 {
   public:
-    CQLPredicate():_rep(0){}
+    CQLPredicate();
     
     CQLPredicate(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
 
@@ -133,6 +133,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     Boolean isSimple();
     Boolean isSimpleValue();
     String toString();
+    CQLPredicate& operator=(const CQLPredicate& rhs);
     friend class CQLFactory;
   private:
     

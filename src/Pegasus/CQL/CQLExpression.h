@@ -36,7 +36,7 @@ easier to break into components and process the expression.
 class PEGASUS_CQL_LINKAGE CQLExpression
 {
   public:
-   CQLExpression():_rep(0){}
+   CQLExpression();
     /** constructor takes one CQLTerm object.
       */
     CQLExpression(CQLTerm& theTerm);
@@ -62,6 +62,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression
    Array<CQLTerm> getTerms();
    Array<TermOpType> getOperators();
    void applyScopes(Array<CQLScope> inScopes);
+   CQLExpression& operator=(const CQLExpression& rhs);
    Boolean operator==(const CQLExpression& expr);
    Boolean operator!=(const CQLExpression& expr);
    friend class CQLFactory;

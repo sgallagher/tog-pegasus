@@ -11,9 +11,13 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
+CQLFactor::CQLFactor(){
+	_rep = new CQLFactorRep();
+}
+
 CQLFactor::CQLFactor(const CQLFactor& inCQLFact)
 {
-	_rep = inCQLFact._rep;
+	_rep = new CQLFactorRep(inCQLFact._rep);
 }
 
 CQLFactor::CQLFactor(CQLValue& inCQLVal)
@@ -73,6 +77,15 @@ String CQLFactor::toString()
 void CQLFactor::applyScopes(Array<CQLScope> inScopes)
 {
 	_rep->applyScopes(inScopes);   
+}
+
+CQLFactor& CQLFactor::operator=(const CQLFactor& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLFactorRep(rhs._rep);
+	}
+
+	return *this;
 }
 
 Boolean CQLFactor::operator==(const CQLFactor& factor){

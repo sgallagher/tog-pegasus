@@ -49,6 +49,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
         
         QueryContext& inCtx);
 
+    CQLSelectStatementRep(const CQLSelectStatementRep* rep);
+
     /**  Implements the evaluate method from the
           base SelectStatement class.
     

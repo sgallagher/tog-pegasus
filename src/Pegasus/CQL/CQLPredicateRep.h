@@ -63,7 +63,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     CQLPredicateRep(const CQLPredicate & inPredicate, Boolean inVerted = false);
 
-    CQLPredicateRep(const CQLPredicateRep& rep);
+    CQLPredicateRep(const CQLPredicateRep* rep);
 
    ~CQLPredicateRep(){}
     /**  

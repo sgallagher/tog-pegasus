@@ -58,7 +58,7 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   void* getObject(CQLPredicate* obj, FactoryType target);
  
   void setObject(CQLPredicate* predicate, void* obj, FactoryType objType);
- 
+  void print(); 
   CQLPredicate _predicate;
   CQLSimplePredicate _simplePredicate;
   CQLExpression _expression;

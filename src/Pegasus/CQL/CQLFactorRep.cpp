@@ -12,13 +12,13 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 */
-CQLFactorRep::CQLFactorRep(const CQLFactorRep& inCQLFact)
+CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep)
 {
-   _CQLVal = inCQLFact._CQLVal;
-   _CQLFunct = inCQLFact._CQLFunct;
-   _CQLExp = inCQLFact._CQLExp;
-   _invert = inCQLFact._invert;
-   _simpleValue = inCQLFact._simpleValue;
+   _CQLVal = rep->_CQLVal;
+   _CQLFunct = rep->_CQLFunct;
+   _CQLExp = rep->_CQLExp;
+   _invert = rep->_invert;
+   _simpleValue = rep->_simpleValue;
 }
 
 CQLFactorRep::CQLFactorRep(CQLValue& inCQLVal)

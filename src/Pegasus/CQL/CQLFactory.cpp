@@ -3,10 +3,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
-	CQLChainedIdentifier _cid(*obj);
+	//printf("%s\n",(const char*)(obj->toString().getCString()));
+	//printf("%s\n",(const char*)(_cid.toString().getCString()));
 	switch(target){
 	  case ChainedIdentifier:
-		_chainedIdentifier = _cid;
+		_chainedIdentifier = CQLChainedIdentifier(*obj);
+		//printf("%d\n",_chainedIdentifier.size());
+		//printf("%s\n",(const char*)(_chainedIdentifier.toString().getCString()));
 		return &_chainedIdentifier;
 		break;
 	  case Identifier:
@@ -18,10 +21,9 @@ void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
         }
 }
 void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
-	CQLValue _val(*obj);
 	switch(target){
           case Value:
-		_value = _val;
+		_value = CQLValue(*obj);
                 return &_value;
                 break;
           case ChainedIdentifier:
@@ -34,10 +36,9 @@ void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
-	CQLFactor _fctr(*obj);
 	switch(target){
           case Factor:
-		_factor = _fctr;
+		_factor = CQLFactor(*obj);
                 return &_factor;
                 break;
           case Value:
@@ -50,10 +51,9 @@ void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
-	CQLFactor _fctr(*obj);
         switch(target){
           case Factor:
-		_factor = _fctr;
+		_factor = CQLFactor(*obj);
                 return &_factor;
                 break;
           default:
@@ -62,10 +62,9 @@ void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
         }
 }
 void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
-	CQLTerm _trm(*obj);
 	switch(target){
           case Term:
-		_term = _trm;
+		_term = CQLTerm(*obj);
                 return &_term;
                 break;
           case Factor:
@@ -78,10 +77,9 @@ void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
-	CQLExpression _expr(*obj);
 	switch(target){
           case Expression:
-		_expression = _expr;
+		_expression = CQLExpression(*obj);
                 return &_expression;
                 break;
           case Term:
@@ -94,10 +92,9 @@ void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
-	CQLSimplePredicate _sp(*obj);
 	switch(target){
           case SimplePredicate:
-		_simplePredicate = _sp;
+		_simplePredicate = CQLSimplePredicate(*obj);
                 return &_simplePredicate;
                 break;
           case Expression:
@@ -110,10 +107,9 @@ void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
-	CQLPredicate _pred(*obj);
 	switch(target){
           case Predicate:
-		_predicate = _pred;
+		_predicate = CQLPredicate(*obj);
                 return &_predicate;
                 break;
           default:
@@ -307,5 +303,5 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objTy
 		break;
 	}
 } 
-
+void CQLFactory::print(){printf("%s\n",(const char*)(_chainedIdentifier.toString().getCString()));}
 PEGASUS_NAMESPACE_END

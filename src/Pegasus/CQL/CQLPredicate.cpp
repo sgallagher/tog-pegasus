@@ -12,7 +12,9 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_ARRAY_T BooleanOpType
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
-
+CQLPredicate::CQLPredicate(){
+	_rep = new CQLPredicateRep();
+}
 
 CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted)
 {
@@ -83,6 +85,14 @@ Boolean CQLPredicate::isSimpleValue(){
 
 String CQLPredicate::toString(){
 	return _rep->toString();
+}
+
+CQLPredicate& CQLPredicate::operator=(const CQLPredicate& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLPredicateRep(rhs._rep);
+	}
+	return *this;
 }
 
 PEGASUS_NAMESPACE_END

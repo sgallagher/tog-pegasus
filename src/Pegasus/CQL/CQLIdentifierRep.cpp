@@ -16,6 +16,7 @@ String SCOPE = "::";
 CQLIdentifierRep::CQLIdentifierRep(): _isWildcard(false), _isSymbolicConstant(false)
 {
 	_name = CIMName();
+//	printf("CQLIdentifierRep()\n");
 }
 
 
@@ -24,16 +25,17 @@ CQLIdentifierRep::CQLIdentifierRep(String identifier): _isWildcard(false), _isSy
 	parse(identifier);
 }
 
-CQLIdentifierRep::CQLIdentifierRep(const CQLIdentifierRep& rep){
-        _name = rep.getName();
-        _indices = rep.getSubRanges();
-        _symbolicConstant = rep.getSymbolicConstantName();
-        _scope = rep.getScope();
-        _isWildcard = rep.isWildcard();
+CQLIdentifierRep::CQLIdentifierRep(const CQLIdentifierRep* rep){
+        _name = rep->getName();
+        _indices = rep->getSubRanges();
+        _symbolicConstant = rep->getSymbolicConstantName();
+        _scope = rep->getScope();
+        _isWildcard = rep->isWildcard();
+//	printf("CQLIdentifierRep COPY CONSTR\n");
 }
 
 CQLIdentifierRep::~CQLIdentifierRep(){
-
+//	printf("~CQLIdentifierRep()\n");
 }
 
 const CIMName& CQLIdentifierRep::getName()const
@@ -81,6 +83,16 @@ void CQLIdentifierRep::applyScope(String scope)
         _scope = scope;
 }
 
+CQLIdentifierRep& CQLIdentifierRep::operator=(const CQLIdentifierRep& rhs){
+	_symbolicConstant = rhs._symbolicConstant;
+    	_scope = rhs._scope;
+        _indices = rhs._indices;                                                                                                             
+    	_name = rhs._name;                                                                                     
+    	_isWildcard = rhs._isWildcard;
+    	_isSymbolicConstant = rhs._isSymbolicConstant;
+//	printf("CQLIdentifierRep::operator=\n");
+	return *this;
+}
 
 Boolean CQLIdentifierRep::operator==(const CIMName &rhs)const{
 	if(_name == rhs) return true;

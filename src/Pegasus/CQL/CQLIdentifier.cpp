@@ -16,8 +16,9 @@ Char16 RBRKT = ']';
 Char16 LBRKT = '[';
 String SCOPE = "::";
 */
-CQLIdentifier::CQLIdentifier():_rep(0)
+CQLIdentifier::CQLIdentifier()
 {
+	_rep = new CQLIdentifierRep();
 }
 
 
@@ -27,12 +28,13 @@ CQLIdentifier::CQLIdentifier(String identifier)
 }
 
 CQLIdentifier::CQLIdentifier(const CQLIdentifier& id){
-	_rep = new CQLIdentifierRep(*(id._rep));
+	_rep = new CQLIdentifierRep(id._rep);
 }
 
 CQLIdentifier::~CQLIdentifier(){
 	if(_rep)
 		delete _rep;
+//	printf("~CQLIdentifier()\n");
 }
 
 const CIMName& CQLIdentifier::getName()const
@@ -80,6 +82,14 @@ void CQLIdentifier::applyScope(String scope)
         _rep->applyScope(scope);
 }
 
+
+CQLIdentifier& CQLIdentifier::operator=(const CQLIdentifier& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLIdentifierRep(rhs._rep);
+	}
+	return *this;
+}
 
 Boolean CQLIdentifier::operator==(const CIMName &rhs)const{
 	return _rep->operator==(rhs);

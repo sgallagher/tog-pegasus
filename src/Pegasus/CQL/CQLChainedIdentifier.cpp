@@ -3,6 +3,10 @@
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
+CQLChainedIdentifier::CQLChainedIdentifier(){
+	_rep = new CQLChainedIdentifierRep();
+}
+
 CQLChainedIdentifier::CQLChainedIdentifier(String inString)
 {
 	_rep = new CQLChainedIdentifierRep(inString);
@@ -19,6 +23,8 @@ CQLChainedIdentifier::CQLChainedIdentifier(const CQLChainedIdentifier& cid){
 CQLChainedIdentifier::~CQLChainedIdentifier(){
 	if(_rep)
 		delete _rep;
+	
+	//printf("~CQLChainedIdentifier()\n");
 }
 const Array<CQLIdentifier>& CQLChainedIdentifier::getSubIdentifiers()const
 {
@@ -45,6 +51,16 @@ CQLIdentifier& CQLChainedIdentifier::operator[](Uint32 index){
 	return _rep->operator[](index);
 }
 
+CQLChainedIdentifier& CQLChainedIdentifier::operator=(const CQLChainedIdentifier& rhs){
+	if(&rhs != this){
+		//printf("rhs != this\n");
+		if(_rep) delete _rep;
+        	_rep = new CQLChainedIdentifierRep(rhs._rep);
+	}
+	//printf("CQLChainedIdentifier::operator=\n");
+	return *this;
+}
+
 Uint32 CQLChainedIdentifier::size(){
 	return _rep->size();
 }
@@ -53,8 +69,8 @@ Boolean CQLChainedIdentifier::prepend(CQLIdentifier & id){
 	return _rep->prepend(id);
 }
 
-void CQLChainedIdentifier::applyScopes(Array<CQLScope>& scopes){
-
+Boolean CQLChainedIdentifier::applyScopes(){
+	return _rep->applyScopes();
 }
 
 void CQLChainedIdentifier::parse(String & string){

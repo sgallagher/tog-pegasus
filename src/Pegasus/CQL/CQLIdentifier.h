@@ -113,6 +113,8 @@ Exceptions:
 
     void applyScope(String scope);
 
+    CQLIdentifier& operator=(const CQLIdentifier& rhs);
+
     Boolean operator==(const CIMName &rhs)const;
                                                                                                                                        
     Boolean operator!=(const CIMName &rhs)const;

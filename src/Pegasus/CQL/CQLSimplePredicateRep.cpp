@@ -24,10 +24,10 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& leftSideExpres
 	_operator = inOperator;
 }
 
-CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLSimplePredicateRep& rep){
-	_leftSide = rep._leftSide;
-        _rightSide = rep._rightSide;
-        _operator = rep._operator;
+CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLSimplePredicateRep* rep){
+	_leftSide = rep->_leftSide;
+        _rightSide = rep->_rightSide;
+        _operator = rep->_operator;
 }
 
 Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)

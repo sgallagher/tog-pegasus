@@ -33,7 +33,7 @@ class PEGASUS_CQL_LINKAGE CQLTermRep
     /** constructor takes one CQLFactor object.
       */
     CQLTermRep(CQLFactor theFactor);
-    CQLTermRep(const CQLTermRep& rep);
+    CQLTermRep(const CQLTermRep* rep);
     ~CQLTermRep();
 
     /**  the getValue method evaluates the CQL term and returns the value.

@@ -42,6 +42,10 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
+CQLExpression::CQLExpression(){
+	_rep = new CQLExpressionRep();
+}
+
 CQLExpression::CQLExpression(CQLTerm& theTerm)
 {
    _rep = new CQLExpressionRep(theTerm);
@@ -50,7 +54,7 @@ CQLExpression::CQLExpression(CQLTerm& theTerm)
 
 CQLExpression::CQLExpression(const CQLExpression& inExpress) 
 {
-	_rep = inExpress._rep;
+	_rep = new CQLExpressionRep(inExpress._rep);
 }
 
 CQLExpression::~CQLExpression(){
@@ -95,7 +99,13 @@ void CQLExpression::applyScopes(Array<CQLScope> inScopes)
 {
 	_rep->applyScopes(inScopes);
 }
-
+CQLExpression& CQLExpression::operator=(const CQLExpression& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;
+		_rep = new CQLExpressionRep(rhs._rep);
+	}
+	return *this;
+}
 Boolean CQLExpression::operator==(const CQLExpression& expr){
 	return _rep == expr._rep;
 }

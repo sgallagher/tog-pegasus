@@ -29,10 +29,10 @@ CQLFunctionRep::CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inPar
         else if(opType.compareNoCase("classname") == 0)
 */
 }
-CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep& inFunc)
+CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep* rep)
 {
-   _funcOpType = inFunc._funcOpType;
-   _parms = inFunc._parms; 
+   _funcOpType = rep->_funcOpType;
+   _parms = rep->_parms; 
 }
 
 CQLFunctionRep::~CQLFunctionRep(){

@@ -12,6 +12,7 @@ include $(ROOT)/mak/config.mak
 LIBRARIES = \
     pegcommon \
     pegprovider \
+    pegrepository \
     pegcql 
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

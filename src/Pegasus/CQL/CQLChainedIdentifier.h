@@ -33,7 +33,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 {
   public:
 
-    CQLChainedIdentifier():_rep(0){}
+    CQLChainedIdentifier();
     /**  constructor 
           Parses the string into the various components of a CQL identifier.
           Throws parsing errors.
@@ -68,11 +68,13 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 
     CQLIdentifier& operator[](Uint32 index);
 
+    CQLChainedIdentifier& operator=(const CQLChainedIdentifier& rhs);
+
     Boolean isSubChain(CQLChainedIdentifier & chain);
 
     CQLIdentifier getLastIdentifier();
 	
-    void applyScopes(Array<CQLScope>& scopes);
+    Boolean applyScopes();
 
     friend class CQLFactory;
 

@@ -17,13 +17,13 @@ CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInve
 	_invert = inInverted;
 }
 
-CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep& rep){
-	_booleanOpType = rep._booleanOpType;
-	_predicates = rep._predicates;
-	_simplePredicate = rep._simplePredicate;
-	_operators = rep._operators;
-	_invert = rep._invert;
-	_terminal = rep._terminal;
+CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep){
+	_booleanOpType = rep->_booleanOpType;
+	_predicates = rep->_predicates;
+	_simplePredicate = rep->_simplePredicate;
+	_operators = rep->_operators;
+	_invert = rep->_invert;
+	_terminal = rep->_terminal;
 }
 
 Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)

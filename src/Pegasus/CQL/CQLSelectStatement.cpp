@@ -3,9 +3,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CQLSelectStatement::CQLSelectStatement():SelectStatement(){
+//	printf("CQLSelectStatement()\n");
+	_rep = new CQLSelectStatementRep();
+}
+
 CQLSelectStatement::CQLSelectStatement(String inQlang, String inQuery, QueryContext& inCtx)
 {
 	_rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
+}
+
+CQLSelectStatement::CQLSelectStatement(const CQLSelectStatement& statement):SelectStatement(statement){
+	_rep = new CQLSelectStatementRep(statement._rep);
 }
 
 CQLSelectStatement::~CQLSelectStatement(){
@@ -65,12 +74,21 @@ void CQLSelectStatement::insertClassPathAlias(const CQLIdentifier& inIdentifier,
 
 void CQLSelectStatement::appendSelectIdentifier(const CQLChainedIdentifier& x)
 {
+	printf("CQLSelectStatement::appendSelectIdentifier\n");
 	_rep->appendSelectIdentifier(x);
 }
 
 Boolean CQLSelectStatement::appendWhereIdentifier(const CQLChainedIdentifier& x)
 {
    return _rep->appendWhereIdentifier(x);
+}
+
+CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs){
+	if(&rhs != this){
+		if(_rep) delete _rep;	
+		_rep = new CQLSelectStatementRep(rhs._rep);
+	}
+	return *this;
 }
 
 PEGASUS_NAMESPACE_END

@@ -11,9 +11,9 @@ CQLTermRep::CQLTermRep(CQLFactor theFactor)
    _Factors.append(theFactor);
 }
 
-CQLTermRep::CQLTermRep(const CQLTermRep& rep){
-	_Factors = rep._Factors;
-	_FactorOperators = rep._FactorOperators;
+CQLTermRep::CQLTermRep(const CQLTermRep* rep){
+	_Factors = rep->_Factors;
+	_FactorOperators = rep->_FactorOperators;
 }
 
 CQLTermRep::~CQLTermRep(){

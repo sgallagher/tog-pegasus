@@ -40,11 +40,11 @@ CQLExpressionRep::CQLExpressionRep(CQLTerm& theTerm)
 
 }
 
-CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep& rep) 
+CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep) 
 {
-   _TermOperators = rep._TermOperators;
+   _TermOperators = rep->_TermOperators;
 
-   _CQLTerms = rep._CQLTerms;
+   _CQLTerms = rep->_CQLTerms;
 }
 
 CQLExpressionRep::~CQLExpressionRep(){
@@ -118,10 +118,10 @@ Array<TermOpType> CQLExpressionRep::getOperators()
 
 void CQLExpressionRep::applyScopes(Array<CQLScope> inScopes)
 {
-   for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
+   /*for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
    {
       _CQLTerms[i].applyScopes(inScopes);
-   }
+   }*/
 }
 
 Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep){

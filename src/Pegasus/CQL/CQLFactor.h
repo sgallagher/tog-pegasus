@@ -51,7 +51,7 @@ class PEGASUS_CQL_LINKAGE QueryContext;
 class PEGASUS_CQL_LINKAGE CQLFactor
 {
   public:
-   CQLFactor():_rep(0){}
+   CQLFactor();
 
     CQLFactor(CQLValue& inCQLVal);
 
@@ -87,6 +87,7 @@ class PEGASUS_CQL_LINKAGE CQLFactor
    CQLExpression getCQLExpression();
    String toString();
    void applyScopes(Array<CQLScope> inScopes);
+   CQLFactor& operator=(const CQLFactor& rhs);
    Boolean operator==(const CQLFactor& factor);
    Boolean operator!=(const CQLFactor& factor);
 

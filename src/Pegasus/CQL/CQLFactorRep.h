@@ -58,7 +58,7 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
     CQLFactorRep(CQLExpression& inCQLExp);
 
     CQLFactorRep(CQLFunction& inCQLFunc);
-    CQLFactorRep(const CQLFactorRep& inCQLFact);
+    CQLFactorRep(const CQLFactorRep* rep);
 
     ~CQLFactorRep(){}
 

@@ -55,7 +55,7 @@ Exceptions:
       */
     CQLIdentifierRep(String identifier);
 
-    CQLIdentifierRep(const CQLIdentifierRep& rep);
+    CQLIdentifierRep(const CQLIdentifierRep* rep);
 
     ~CQLIdentifierRep();
 
@@ -111,6 +111,8 @@ Exceptions:
     Boolean isScoped()const;
 
     void applyScope(String scope);
+
+    CQLIdentifierRep& operator=(const CQLIdentifierRep& rhs);
 
     Boolean operator==(const CIMName &rhs)const;
                                                                                                                                        

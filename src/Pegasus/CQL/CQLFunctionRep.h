@@ -51,7 +51,7 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
    
 
     CQLFunctionRep() {};
-   CQLFunctionRep(const CQLFunctionRep& inFunc);
+   CQLFunctionRep(const CQLFunctionRep* rep);
     //CQLFunctionRep(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
     CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
   ~CQLFunctionRep();

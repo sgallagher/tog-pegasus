@@ -8,6 +8,12 @@ SelectStatementRep(inQlang, inQuery, inCtx)
 {
 }
 
+CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep* rep){
+	_whereIdentifiers = rep->_whereIdentifiers;
+	_selectIdentifiers = rep->_selectIdentifiers;
+	_predicate = rep->_predicate;
+}
+
 Boolean CQLSelectStatementRep::evaluate(CIMInstance const inCI)
 {
    return false;
@@ -62,11 +68,17 @@ void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifi
 
 void CQLSelectStatementRep::appendSelectIdentifier(const CQLChainedIdentifier& x)
 {
+	for(Uint32 i = 0; i < x.getSubIdentifiers().size(); i++){
+		_selectIdentifiers.append( x.getSubIdentifiers()[i]);
+	}
 }
 
 Boolean CQLSelectStatementRep::appendWhereIdentifier(const CQLChainedIdentifier& x)
 {
-   return false;
+	for(Uint32 i = 0; i < x.getSubIdentifiers().size(); i++){
+                _whereIdentifiers.append(x.getSubIdentifiers()[i]);
+        }
+   	return true;
 }
 
 PEGASUS_NAMESPACE_END

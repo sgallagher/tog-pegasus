@@ -101,24 +101,16 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
             OpProviderHolder* ph = reinterpret_cast< OpProviderHolder* >( ret );
             pr =_lookupProvider(providerName);
 
-            // Do an initial check before a thread-safe check. This guards
-            // against a race condition between two requests initializing
-            // the same provider, but this normally isn't an issue. Having the
-            // initial check outside the mutex lock saves the overhead of
-            // locking for every request that comes through.
-            if(pr->_status !=Provider::INITIALIZED)
+            if (pr->getStatus() != Provider::INITIALIZED)
             {
-                AutoMutex lock(pr->_statusMutex);
-                if(pr->_status != Provider::INITIALIZED)
-                {
-                    _initProvider(pr,moduleFileName,interfaceName);
-                }
-            } // unlock provider
+                _initProvider(pr, moduleFileName, interfaceName);
 
-            if(pr->_status!=Provider::INITIALIZED)
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider initialization failed");
+                if (pr->getStatus() != Provider::INITIALIZED)
+                {
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_FAILED, "provider initialization failed");
+                }
             }
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -243,7 +235,7 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
                     }
                 }
                     
-	    }
+            }
             catch(...)
             {
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -616,6 +608,17 @@ Provider* LocalProviderManager::_initProvider(
 
         // lookup provider module
         module = _lookupModule(moduleFileName, interfaceName);
+    }   // unlock the providerTable mutex
+
+    {
+        // lock the provider status mutex
+        AutoMutex lock(provider->_statusMutex);
+
+        if (provider->_status == Provider::INITIALIZED)
+        {
+            // Initialization is already complete
+            return provider;
+        }
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Loading/Linking Provider Module " + moduleFileName);
@@ -633,52 +636,31 @@ Provider* LocalProviderManager::_initProvider(
             PEG_METHOD_EXIT();
             throw;
         }
-    }   // unlock the providerTable mutex
 
-    // initialize the provider
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                     "Initializing Provider " +  provider->_name);
+        // initialize the provider
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Initializing Provider " +  provider->_name);
 
-    //
-    // Set the undoModuleLoad flag to true here, so that if the
-    // initialize() throws an exception, we can unload the provider
-    // module.
-    //
-    Boolean undoModuleLoad = true;
+        CIMOMHandle *cimomHandle = new CIMOMHandle();
+        provider->set(module, base, cimomHandle);
+        provider->_quantum=0;
 
-    {
-        // check provider status
-        if (provider->_status == Provider::UNINITIALIZED)
+        try
         {
-            CIMOMHandle *cimomHandle =  new CIMOMHandle();
-            provider->set(module, base, cimomHandle);
-            provider->_quantum=0;
-
-            try
-            {
-                provider->initialize(*(provider->_cimom_handle));
-                undoModuleLoad = false;
-            }
-            catch(...)
-            {
-                // delete the cimom handle
-	        delete provider->_cimom_handle;
-
-	        // set provider status to UNINITIALIZED
-                provider->reset();
-            }
+            provider->initialize(*(provider->_cimom_handle));
         }
-    }
+        catch(...)
+        {
+            // delete the cimom handle
+            delete provider->_cimom_handle;
 
-    // if we did not initialize the provider, unload the provider module
-    if (undoModuleLoad)
-    {
-	// lock the providerTable mutex
-        AutoMutex lock(_providerTableMutex);
+            // set provider status to UNINITIALIZED
+            provider->reset();
 
-	// unload provider module
-        module->unloadModule();
-    }
+            // unload provider module
+            module->unloadModule();
+        }
+    }   // unlock the provider status mutex
 
     PEG_METHOD_EXIT();
     return(provider);
@@ -748,7 +730,7 @@ void LocalProviderManager::_unloadProvider( Provider * provider)
             provider->getName());
 
         // set provider status to UNINITIALIZED
-	provider->reset();
+        provider->reset();
     }
 
     PEG_METHOD_EXIT();

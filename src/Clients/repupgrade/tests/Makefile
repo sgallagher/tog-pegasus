@@ -37,8 +37,8 @@ ifndef PEGASUS_USE_RELEASE_DIRS
 	$(PROGRAM) $(OLD_REPOSITORY_PATH)repository $(NEW_REPOSITORY_PATH)
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s tests_ignoreerror
-	@$(COMPARERESULTS)
 	@$(STRIPCRS)
+	@$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
    endif
   endif

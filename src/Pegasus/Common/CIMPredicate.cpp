@@ -196,6 +196,8 @@ Predicate::Predicate(const String& name,
 		     Boolean truth = true) 
    : KeyBinding(name, value, type), _op(op), _truth_value(truth) { }
 
+Predicate::~Predicate() { }
+
 Predicate& Predicate::operator=(const Predicate& x)
 {
    if(this != &x)

@@ -41,7 +41,9 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    char* input = 0;
+    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+    
+	char* input = 0;
     char defaultInput[] = "NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true";
 
     if (argc != 2)
@@ -51,13 +53,13 @@ int main(int argc, char** argv)
 
     CGIQueryString qs(input);
 
-#if 0
-    for (Uint32 i = 0; i < qs.getCount(); i++)
-    {
-	cout << "name: " << qs.getName(i) << endl;
-	cout << "value: " << qs.getValue(i) << endl;
-    }
-#endif
+	if(verbose) {
+		for (Uint32 i = 0; i < qs.getCount(); i++)
+		{
+		cout << "name: " << qs.getName(i) << endl;
+		cout << "value: " << qs.getValue(i) << endl;
+		}
+	}
 
     if (input == defaultInput)
     {
@@ -79,13 +81,14 @@ int main(int argc, char** argv)
 	input = defaultInput;
 
 	CGIQueryString qs(input);
-#if 0
-    for (Uint32 i = 0; i < qs.getCount(); i++)
-	{
-	    cout << "name: " << qs.getName(i) << endl;
-	    cout << "value: " << qs.getValue(i) << endl;
+	if(verbose) {
+		for (Uint32 i = 0; i < qs.getCount(); i++)
+		{
+			cout << "name: " << qs.getName(i) << endl;
+			cout << "value: " << qs.getValue(i) << endl;
+		}
+		
 	}
-#endif
 
     assert(strcmp(qs.getName(0), "InstanceName") == 0);
     //KS Forgot how to excape the quote character
@@ -93,7 +96,7 @@ int main(int argc, char** argv)
 
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     exit(0);
     return 0;
 }

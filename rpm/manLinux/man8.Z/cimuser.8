@@ -1,12 +1,23 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimuser.8,v 1.1 2004/11/23 11:44:16 alagaraja Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimuser.8,v 1.2 2004/12/08 08:38:46 a.arora Exp $
 .\" .TA c \" lowercase initial letter of .TH name
 .TH "cimuser" "8" "" "" ""
 .SH "NAME"
 cimuser \- add, modify, remove, or list CIM users
 .SH "SYNOPSIS"
-\fBcimuser\fP [\fB \-a \-u\fP username [ \fB\-w\fP password ]] 
-        [ \fB\-m \-u\fP username [ \fB\-w\fP old_password ] [ \fB\-n\fP new_password ]]
-        [ \fB\-r \-u\fP username ] [ \fB\-l\fP ] [ \fB\-h\fP ] [ \fB\-\-help\fP ] [ \fB\-\-version\fP ]
+\fBcimuser\fP \fB\-a\fP \fB\-u\fP username [ \fB\-w\fP password ] 
+
+\fBcimuser\fP \fB\-m\fP \fB\-u\fP username [ \fB\-w\fP old password ] [ \fB\-n\fP new password ]
+
+\fBcimuser\fP \fB\-r\fP \fB\-u\fP username 
+
+\fBcimuser\fP \fB\-l\fP
+
+\fBcimuser\fP \fB\-h\fP
+
+\fBcimuser\fP \fB\-\-help\fP
+
+\fBcimuser\fP \fB\-\-version\fP
+
 .SH "REMARKS"
 This command can be executed only by privileged user(s).
 .SH "DESCRIPTION"

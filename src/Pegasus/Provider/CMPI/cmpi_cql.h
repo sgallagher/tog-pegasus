@@ -95,7 +95,7 @@ The following CMPIrc codes shall be recognized:
     (const CMPIBroker * mb, const char *query, const char *lang,
      const CMPIArray ** projection, CMPIStatus * rc)
   {
-    return ((mb)->eft->newSelectExp ((CMPIBroker *)(mb), "CIMxCQL", (char *)(lang), (CMPIArray **)(projection), rc));
+    return ((mb)->eft->newSelectExp ((CMPIBroker *)(mb),  (char *)(query),"CIMxCQL", (CMPIArray **)(projection), rc));
   }
 
 #endif

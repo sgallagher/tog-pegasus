@@ -29,6 +29,7 @@
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2322
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -731,14 +732,14 @@ template<class L> void AsyncDQueue<L>::unlock(void)
 
 template<class L> void AsyncDQueue<L>::signal_slot(void) throw(IPCException)
 { 
-   AutoMutex autoMut(*_cond->get()); 
+   AutoMutex autoMut(*_cond.get()); 
    _slot->unlocked_signal(pegasus_thread_self());
 
 }
 
 template<class L> void AsyncDQueue<L>::signal_node(void) throw(IPCException)
 {
-   AutoMutex autoMut(*_cond->get()); 
+   AutoMutex autoMut(*_cond.get()); 
    _node->unlocked_signal(pegasus_thread_self());
 
 }

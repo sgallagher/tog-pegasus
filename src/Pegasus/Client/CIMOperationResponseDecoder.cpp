@@ -692,7 +692,6 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(response);
 	if (cimmsg != NULL)
 	{
-		cimmsg->contentLanguages = contentLanguages;			
 		cimmsg->operationContext.set(ContentLanguageListContainer(contentLanguages));
 	}
 	else

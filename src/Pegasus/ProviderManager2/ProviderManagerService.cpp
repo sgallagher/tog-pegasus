@@ -826,7 +826,15 @@ void ProviderManagerService::_updateProviderModuleStatus(
 void ProviderManagerService::indicationCallback(
     CIMProcessIndicationRequestMessage* request)
 {
-    if (_indicationServiceQueueId == PEG_NOT_FOUND)
+ 	try
+	{
+		AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
+	}catch(Exception &e)
+	{
+		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
+	}    
+	
+	if (_indicationServiceQueueId == PEG_NOT_FOUND)
     {
         Array<Uint32> serviceIds;
 

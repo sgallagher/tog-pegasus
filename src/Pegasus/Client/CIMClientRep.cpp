@@ -1122,8 +1122,6 @@ Message* CIMClientRep::_doRequest(
 // l10n
     // Set the Accept-Languages and Content-Languages into
     // the request message
-    request->acceptLanguages = requestAcceptLanguages;
-    request->contentLanguages = requestContentLanguages;
 
 	request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages)); 
     request->operationContext.set(ContentLanguageListContainer(requestContentLanguages)); 

@@ -349,7 +349,6 @@ void IndicationService::handleEnqueue(Message* message)
         PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3,
             "IndicationService::handleEnqueue(msg *) rcv'd unsupported msg "
             + String(MessageTypeToString(message->getType())));
-        break;
 
         // Note: not setting Content-Language in the response
         CIMRequestMessage* cimRequest =

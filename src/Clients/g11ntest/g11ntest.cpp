@@ -978,12 +978,17 @@ static void TestLocalizedInstances( CIMClient& client,
           MYASSERT(j != cimNInstances.size());
 
           // Get the instance.  Note, baseInstance is used later
+          CIMObjectPath baseObjectPath = cimNInstances[j].buildPath(sampleClass);
+
           CIMInstance baseInstance = client.getInstance(
                 NAMESPACE,
-                cimNInstances[j].buildPath(sampleClass),
+                baseObjectPath,
                 localOnly,
                 includeQualifiers,
                 includeClassOrigin);
+
+          // update base instance object path (it's not set by the cimom or client)
+          baseInstance.setPath(baseObjectPath);
 
           String returnedString;
           Char16 returnedChar16;
